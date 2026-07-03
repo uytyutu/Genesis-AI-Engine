@@ -4,7 +4,19 @@ import sys
 from pathlib import Path
 
 # Genesis core packages (kernel, brain, agents) live at repo root.
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+def _find_repo_root(start: Path) -> Path:
+    cur = start.resolve()
+    for _ in range(8):
+        if (cur / "kernel").is_dir() and (cur / "brain").is_dir():
+            return cur
+        parent = cur.parent
+        if parent == cur:
+            break
+        cur = parent
+    return start.resolve().parents[4]
+
+
+_REPO_ROOT = _find_repo_root(Path(__file__))
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 

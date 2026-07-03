@@ -31,6 +31,22 @@ _MEMORY_DIR = Path(
     os.getenv("GENESIS_MEMORY_DIR", "")
 ).expanduser() if os.getenv("GENESIS_MEMORY_DIR") else Path(__file__).resolve().parent.parent / "memory"
 
+_SEED_MEMORY = Path(__file__).resolve().parent.parent / "memory"
+
+
+def _bootstrap_memory(path: Path) -> None:
+    """Copy bundled templates into persistent volume on first deploy."""
+    if not os.getenv("GENESIS_MEMORY_DIR"):
+        return
+    path.mkdir(parents=True, exist_ok=True)
+    for name in ("public_launch.json",):
+        target = path / name
+        if target.is_file():
+            continue
+        seed = _SEED_MEMORY / name
+        if seed.is_file():
+            target.write_text(seed.read_text(encoding="utf-8"), encoding="utf-8")
+
 
 @dataclass
 class IntegrationContext:
@@ -63,6 +79,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
     global _context
     if _context is None:
         path = memory_dir or _MEMORY_DIR
+        _bootstrap_memory(path)
         path.mkdir(parents=True, exist_ok=True)
         adapter = BrainAdapter(path)
         health = HealthService(adapter)

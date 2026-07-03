@@ -41,7 +41,7 @@ def test_factory_build_landing(tmp_path: Path):
     product_id = data["product_id"]
     assert any(c["id"] == "owner_review" and c.get("pending") for c in data["product"]["checks"])
 
-    sandbox_html = tmp_path / "sandbox" / product_id / "index.html"
+    sandbox_html = memory / "sandbox" / product_id / "index.html"
     assert sandbox_html.exists()
     assert "Premium" in sandbox_html.read_text(encoding="utf-8") or "автосервис" in sandbox_html.read_text(encoding="utf-8").lower()
 
@@ -66,7 +66,7 @@ def test_factory_build_landing(tmp_path: Path):
     publish = client.post(f"/api/factory/products/{product_id}/publish")
     assert publish.status_code == 200
     assert publish.json()["published"] is True
-    assert (tmp_path / "published" / product_id / "index.html").exists()
+    assert (memory / "published" / product_id / "index.html").exists()
 
     export = client.get(f"/api/factory/products/{product_id}/export")
     assert export.status_code == 200
@@ -85,7 +85,7 @@ def test_factory_build_landing(tmp_path: Path):
     milestones = json.loads((memory / "owner_milestones.json").read_text(encoding="utf-8"))
     assert milestones.get("delivered_to_client") is True
 
-    html_after = (tmp_path / "sandbox" / product_id / "index.html").read_text(encoding="utf-8")
+    html_after = (memory / "sandbox" / product_id / "index.html").read_text(encoding="utf-8")
     assert "calculator" in html_after.lower() or "Калькулятор" in html_after
 
     reset_integration()
@@ -103,7 +103,7 @@ def test_surgical_improve_testimonials(tmp_path: Path):
         json={"product_type": "landing-page", "description": "Сайт стоматологии"},
     )
     product_id = res.json()["product_id"]
-    html_before = (tmp_path / "sandbox" / product_id / "index.html").read_text(encoding="utf-8")
+    html_before = (memory / "sandbox" / product_id / "index.html").read_text(encoding="utf-8")
     assert 'id="testimonials"' not in html_before
 
     improve = client.post(
@@ -111,7 +111,7 @@ def test_surgical_improve_testimonials(tmp_path: Path):
         json={"feedback": "Добавь блок с отзывами клиентов"},
     )
     assert improve.status_code == 200
-    html_after = (tmp_path / "sandbox" / product_id / "index.html").read_text(encoding="utf-8")
+    html_after = (memory / "sandbox" / product_id / "index.html").read_text(encoding="utf-8")
     assert 'id="testimonials"' in html_after
     assert "Отзывы" in html_after
 

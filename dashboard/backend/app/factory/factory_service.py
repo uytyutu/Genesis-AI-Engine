@@ -41,7 +41,7 @@ class FactoryService:
         if sandbox_dir is not None:
             self._sandbox = sandbox_dir
         elif memory_dir is not None:
-            self._sandbox = memory_dir.parent / "sandbox"
+            self._sandbox = memory_dir / "sandbox"
         else:
             self._sandbox = _DEFAULT_SANDBOX
         self._memory.mkdir(parents=True, exist_ok=True)
