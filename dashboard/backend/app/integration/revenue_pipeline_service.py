@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 from app.integration.finance_service import FinanceService
 from app.integration.owner_notification_service import OwnerNotificationService
+from app.integration.receipt_email_service import ReceiptEmailService
 from app.integration.payment_checkout_service import PaymentCheckoutService
 
 
@@ -16,11 +17,13 @@ class RevenuePipelineService:
         finance: FinanceService,
         checkout: PaymentCheckoutService,
         notifications: OwnerNotificationService,
+        receipt_email: ReceiptEmailService | None = None,
     ) -> None:
         self._sales = sales
         self._finance = finance
         self._checkout = checkout
         self._notifications = notifications
+        self._receipt_email = receipt_email or ReceiptEmailService()
 
     def payment_status(self) -> dict:
         provider = self._checkout.provider()
@@ -186,6 +189,11 @@ class RevenuePipelineService:
             order_id=order_id,
         )
 
+        email_result = self._receipt_email.send_order_receipt(
+            order=order,
+            receipt_text=order["client_receipt_text"],
+        )
+
         return {
             "ok": True,
             "order_id": order_id,
@@ -193,4 +201,5 @@ class RevenuePipelineService:
             "product_id": product_id,
             "client_message": order["client_status_message"],
             "order": self._sales.public_status(order_id),
+            "receipt_email": email_result,
         }

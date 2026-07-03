@@ -306,6 +306,7 @@ class RevenuePaymentResponse(BaseModel):
     client_message: str = ""
     order: SalesOrderPublicStatus | None = None
     already_processed: bool = False
+    receipt_email: dict | None = None
 
 
 class OwnerNotification(BaseModel):
