@@ -1,3 +1,13 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "rewrites": [
+    {
+      "source": "/api/webhooks/stripe",
+      "destination": "https://genesis-ai-engine-production.up.railway.app/api/webhooks/stripe"
+    },
+    {
+      "source": "/webhooks/stripe",
+      "destination": "https://genesis-ai-engine-production.up.railway.app/webhooks/stripe"
+    }
+  ]
 }
