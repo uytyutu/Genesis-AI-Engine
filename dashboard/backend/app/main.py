@@ -427,6 +427,28 @@ def sales_order_public_status(order_id: str) -> SalesOrderPublicStatus:
     return SalesOrderPublicStatus(**data)
 
 
+@app.post("/api/sales/orders/{order_id}/confirm-payment", response_model=RevenuePaymentResponse)
+def sales_order_confirm_payment(order_id: str) -> RevenuePaymentResponse:
+    try:
+        result = _ctx().revenue.confirm_stripe_payment(order_id)
+    except ValueError as e:
+        code = str(e)
+        if code == "order_not_found":
+            raise HTTPException(status_code=404, detail="Заказ не найден")
+        if code == "stripe_only":
+            raise HTTPException(status_code=400, detail="Подтверждение доступно только для Stripe")
+        if code == "no_checkout_session":
+            raise HTTPException(status_code=400, detail="Сессия оплаты не найдена")
+        if code == "payment_not_confirmed":
+            raise HTTPException(status_code=409, detail="Оплата ещё не подтверждена Stripe")
+        if code == "order_mismatch":
+            raise HTTPException(status_code=400, detail="Заказ не совпадает с сессией")
+        if code == "amount_mismatch":
+            raise HTTPException(status_code=400, detail="Сумма не совпадает")
+        raise HTTPException(status_code=400, detail="Оплата не подтверждена")
+    return RevenuePaymentResponse(**result)
+
+
 @app.post("/api/sales/orders/{order_id}/pay-sandbox", response_model=RevenuePaymentResponse)
 def sales_order_pay_sandbox(order_id: str) -> RevenuePaymentResponse:
     try:

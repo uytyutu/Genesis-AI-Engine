@@ -106,6 +106,33 @@ class PaymentCheckoutService:
             "sandbox": False,
         }
 
+    def retrieve_paid_session(self, session_id: str) -> dict | None:
+        """Fetch Checkout Session from Stripe — fallback when webhook is delayed."""
+        secret = os.getenv("STRIPE_SECRET_KEY", "").strip()
+        if not secret or not session_id:
+            return None
+        with httpx.Client(timeout=30.0) as client:
+            res = client.get(
+                f"https://api.stripe.com/v1/checkout/sessions/{session_id}",
+                auth=(secret, ""),
+            )
+        if res.status_code >= 400:
+            return None
+        session = res.json()
+        if session.get("payment_status") != "paid":
+            return None
+        order_id = (session.get("metadata") or {}).get("order_id")
+        amount = float(session.get("amount_total", 0)) / 100.0
+        if not order_id or amount <= 0:
+            return None
+        return {
+            "order_id": order_id,
+            "amount_eur": amount,
+            "provider": "stripe",
+            "session_id": session.get("id"),
+            "sender": str(session.get("customer_details", {}).get("email") or ""),
+        }
+
     def verify_stripe_webhook(self, payload: bytes, signature: str) -> dict | None:
         """Minimal Stripe event parse — full signature verify when secret set."""
         secret = os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()

@@ -39,6 +39,11 @@ export default function OrderStatusPage() {
     let cancelled = false;
     async function load() {
       try {
+        if (justPaid) {
+          await fetch(`${API}/api/sales/orders/${orderId}/confirm-payment`, {
+            method: "POST",
+          });
+        }
         const res = await fetch(`${API}/api/sales/orders/${orderId}/status`);
         if (res.ok) {
           const body = await res.json();
@@ -54,7 +59,7 @@ export default function OrderStatusPage() {
       cancelled = true;
       clearInterval(t);
     };
-  }, [orderId]);
+  }, [orderId, justPaid]);
 
   async function copyReceipt() {
     if (!data?.client_receipt_text) return;

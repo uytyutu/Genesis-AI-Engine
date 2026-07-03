@@ -81,6 +81,35 @@ class RevenuePipelineService:
             external_id=str(parsed.get("session_id", "")),
         )
 
+    def confirm_stripe_payment(self, order_id: str) -> dict:
+        """Confirm payment after Stripe redirect when webhook has not arrived yet."""
+        order = self._sales.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if order.get("status") in ("paid", "in_production", "ready", "delivered"):
+            return {
+                "ok": True,
+                "already_processed": True,
+                "order": self._sales.public_status(order_id),
+            }
+        if self._checkout.provider() != "stripe":
+            raise ValueError("stripe_only")
+        session_id = str(order.get("checkout_session_id") or "").strip()
+        if not session_id:
+            raise ValueError("no_checkout_session")
+        parsed = self._checkout.retrieve_paid_session(session_id)
+        if not parsed:
+            raise ValueError("payment_not_confirmed")
+        if parsed["order_id"] != order_id:
+            raise ValueError("order_mismatch")
+        return self._apply_payment(
+            order_id=order_id,
+            amount_eur=parsed["amount_eur"],
+            provider="stripe",
+            sender=parsed.get("sender"),
+            external_id=str(parsed.get("session_id", "")),
+        )
+
     def _apply_payment(
         self,
         *,
