@@ -15,6 +15,9 @@ WORKDIR /app/dashboard/backend
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+# Public Launch defaults (override in Railway Variables if domain changes)
+ENV GENESIS_PUBLIC_URL=https://genesis-ai-engine.vercel.app
+ENV GENESIS_CORS_ORIGINS=https://genesis-ai-engine.vercel.app
 
 EXPOSE 8000
 
