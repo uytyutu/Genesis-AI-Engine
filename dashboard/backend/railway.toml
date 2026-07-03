@@ -1,8 +1,4 @@
-[build]
-builder = "NIXPACKS"
-
+# Railway: set service Root Directory to repo root (.) — see /railway.toml and dashboard/RAILWAY_DEPLOY.md
 [deploy]
-startCommand = "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
 healthcheckPath = "/api/status"
 healthcheckTimeout = 120
-restartPolicyType = "ON_FAILURE"

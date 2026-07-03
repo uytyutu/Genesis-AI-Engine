@@ -1,0 +1,17 @@
+# Railway service root MUST be repository root (.) — not dashboard/backend.
+# Backend imports brain/, kernel/, agents/ from repo root.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+watchPatterns = [
+  "dashboard/backend/**",
+  "brain/**",
+  "kernel/**",
+  "agents/**",
+  "Dockerfile",
+]
+
+[deploy]
+healthcheckPath = "/api/status"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"

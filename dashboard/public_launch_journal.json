@@ -6,7 +6,7 @@
     "github": {
       "status": "done",
       "url": "https://github.com/uytyutu/Genesis-AI-Engine",
-      "commit": "Public Launch v1",
+      "commit": "033e1fa Prepare backend for Railway deploy",
       "branch": "main"
     },
     "vercel": {
@@ -14,7 +14,13 @@
       "url": "https://genesis-ai-engine.vercel.app",
       "root": "dashboard/frontend"
     },
-    "railway": { "status": "pending", "url": null, "root": "dashboard/backend" },
+    "railway": {
+      "status": "pending",
+      "url": null,
+      "root": ".",
+      "builder": "Dockerfile",
+      "note": "Root must be repo root — brain/kernel/agents live outside dashboard/backend"
+    },
     "stripe_test": { "status": "done", "note": "Test Mode активен" },
     "env_linked": { "status": "pending" },
     "stripe_webhook": { "status": "pending", "endpoint": null },
