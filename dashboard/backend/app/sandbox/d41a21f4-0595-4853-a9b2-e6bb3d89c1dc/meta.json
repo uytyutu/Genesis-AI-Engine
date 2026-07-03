@@ -1,0 +1,39 @@
+{
+  "product_id": "d41a21f4-0595-4853-a9b2-e6bb3d89c1dc",
+  "intent_id": "d41a21f4-0595-4853-a9b2-e6bb3d89c1dc",
+  "product_type": "Landing Page",
+  "description": "Заказ клиента: Board Acceptance Test\nFamily cafe with breakfast and specialty coffee\nГород: Berlin\nТелефон: +49300\nWhatsApp: +49300\nEmail: —\nПакет: Landing Basic (350 €)\nЦелевая аудитория: Клиенты в Berlin\nЦель продукта: Получать заявки с сайта\nПланируемая цена: 350 €",
+  "niche": "generic",
+  "template_id": "landing-generic-v1",
+  "business_name": "Заказ клиента: Board Acceptance Test Family c…",
+  "status": "completed",
+  "quality_percent": 98,
+  "validation_passed": true,
+  "technical_checks": [
+    {
+      "id": "html",
+      "label": "HTML",
+      "ok": true
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile",
+      "ok": true
+    },
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "ok": true
+    }
+  ],
+  "owner_approved": false,
+  "owner_approved_at": null,
+  "revision": 0,
+  "created_at": "2026-07-03T13:04:57.790804+00:00",
+  "updated_at": "2026-07-03T13:04:57.790817+00:00",
+  "style_flags": {
+    "modern": false,
+    "blue_boost": false,
+    "calculator": false
+  }
+}

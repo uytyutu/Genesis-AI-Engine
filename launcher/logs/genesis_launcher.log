@@ -1,0 +1,286 @@
+Traceback (most recent call last):
+  File "app.py", line 448, in main
+  File "customtkinter\windows\ctk_tk.py", line 162, in mainloop
+    self._windows_set_titlebar_color(self._get_appearance_mode())
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "customtkinter\windows\ctk_tk.py", line 287, in _windows_set_titlebar_color
+    self.focused_widget_before_widthdraw = self.focus_get()
+                                           ~~~~~~~~~~~~~~^^
+  File "tkinter\__init__.py", line 820, in focus_get
+  File "tkinter\__init__.py", line 1685, in nametowidget
+TypeError: 'WindowsPath' object is not callable
+[2026-07-03 04:40:58] Reconnected to Genesis (24/7)
+[2026-07-03 04:43:04] Genesis OS opened
+[2026-07-03 04:43:46] Genesis OS opened
+[2026-07-03 04:46:39] Genesis OS opened
+[2026-07-03 04:46:48] Reconnected to Genesis (24/7)
+[2026-07-03 05:05:24] Genesis OS opened
+[2026-07-03 05:12:13] Genesis OS opened
+[2026-07-03 05:23:10] Genesis OS opened
+[2026-07-03 05:23:22] Reconnected to Genesis (24/7)
+[2026-07-03 05:24:09] Frontend started pid=21972
+[2026-07-03 05:25:37] Launcher closed — Genesis keeps running 24/7
+[2026-07-03 05:31:23] Genesis OS opened
+[2026-07-03 05:32:12] Genesis OS opened
+[2026-07-03 05:33:10] Genesis OS opened
+[2026-07-03 05:38:48] Genesis OS opened
+[2026-07-03 05:45:57] Genesis OS opened
+[2026-07-03 05:46:15] Backend started pid=15544
+[2026-07-03 05:46:15] Frontend started pid=21220
+[2026-07-03 05:49:12] Genesis stopped
+[2026-07-03 05:51:27] Genesis OS opened
+[2026-07-03 05:53:05] Genesis OS opened
+[2026-07-03 05:53:22] Backend started pid=12944
+[2026-07-03 05:53:22] Frontend started pid=18596
+[2026-07-03 05:56:37] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 05:56:37] Startup error: Frontend завершился с ошибкой.
+Genesis попробует переустановить зависимости и очистить кэш.
+
+--- Последние строки frontend.log ---
+11: 00007FF6DC01C85B v8::RegExp::GetFlags+942091
+12: 00007FF6DC2633C9 uv_timer_set_repeat+88041
+13: 00007FF6DC455326 v8::ArrayBuffer::New+166
+14: 00007FF6DD828C59 node::Buffer::New+33161
+15: 0000013C9FDCF77E
+[?25h
+[2026-07-03 06:00:40] Genesis OS opened
+[2026-07-03 06:01:20] Genesis OS opened
+[2026-07-03 06:02:48] Genesis OS opened
+[2026-07-03 06:03:06] Backend started pid=2300
+[2026-07-03 06:03:06] Frontend started pid=9768
+[2026-07-03 06:03:30] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 06:37:29] Genesis OS opened
+[2026-07-03 06:37:43] Backend started pid=18952
+[2026-07-03 06:37:53] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 07:45:28] Genesis OS opened
+[2026-07-03 07:45:41] Backend started pid=3636
+[2026-07-03 07:45:49] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 07:48:17] Cleared .next cache
+[2026-07-03 07:48:17] Frontend started pid=8760
+[2026-07-03 07:48:17] Frontend repair: restarted dev server
+[2026-07-03 07:48:19] Manual repair: Порт 3000 уже обслуживает Mission Control
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 07:51:32] Genesis OS opened
+[2026-07-03 07:51:54] Backend started pid=21672
+[2026-07-03 07:51:54] Frontend started pid=15764
+[2026-07-03 07:52:03] Freed port 3000 — stopped node.exe pid=20180
+[2026-07-03 07:52:05] Cleared .next cache
+[2026-07-03 07:52:05] Frontend started pid=8868
+[2026-07-03 07:52:05] Frontend repair: restarted dev server
+[2026-07-03 07:52:07] Auto-repair (log error): Освобождён порт 3000 (node.exe:20180)
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 07:52:11] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 07:52:11] Startup error: Frontend: Не найден файл в node_modules — нужна переустановка.
+
+--- frontend.log ---
+path: 'D:\\Games\\Genesis-AI-Engine\\dashboard\\frontend\\.next\\routes-manifest.json'
+}
+⨯ [Error: ENOENT: no such file or directory, open 'D:\Games\Genesis-AI-Engine\dashboard\frontend\.next\routes-manifest.json'] {
+errno: -4058,
+code: 'ENOENT',
+syscall: 'open',
+path: 'D:\\Games\\Genesis-AI-Engine\\dashboard\\frontend\\.next\\routes-manifest.json'
+}
+⨯ [Error: ENOENT: no such file or directory, open 'D:\Games\Genesis-AI-Engine\dashboard\frontend\.next\routes-manifest.json'] {
+errno: -4058,
+code: 'ENOENT',
+syscall: 'open',
+path: 'D:\\Games\\Genesis-AI-Engine\\dashboard\\frontend\\.next\\routes-manifest.json'
+}
+⨯ [Error: ENOENT: no such file or directory, open 'D:\Games\Genesis-AI-Engine\dashboard\frontend\.next\routes-manifest.json'] {
+errno: -4058,
+code: 'ENOENT',
+syscall: 'open',
+path: 'D:\\Games\\Genesis-AI-Engine\\dashboard\\frontend\\.next\\routes-manifest.json'
+}
+[?25h
+sis-command-center@0.1.0 dev
+> next dev
+> genesis-command-center@0.1.0 dev
+> next dev
+[2026-07-03 08:04:59] Genesis OS opened
+[2026-07-03 08:05:17] Backend started pid=15008
+[2026-07-03 08:05:17] Frontend started pid=15236
+[2026-07-03 08:05:27] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 08:51:12] Cleared .next cache
+[2026-07-03 08:51:12] Frontend started pid=9008
+[2026-07-03 08:51:12] Frontend repair: restarted dev server
+[2026-07-03 08:51:14] Manual repair: Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 09:10:55] Genesis OS opened
+[2026-07-03 09:11:08] Backend started pid=18228
+[2026-07-03 09:11:15] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 09:13:10] Genesis OS opened
+[2026-07-03 09:13:23] Backend started pid=11176
+[2026-07-03 09:13:31] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 09:19:02] Freed backend port 8000 — stopped python.exe pid=6636
+[2026-07-03 09:19:12] Backend started pid=21440
+[2026-07-03 09:19:12] Backend repair: restarted uvicorn on :8000
+[2026-07-03 09:20:24] Genesis OS opened
+[2026-07-03 09:20:30] Reconnected to Genesis (24/7)
+[2026-07-03 09:21:09] Python-зависимости установлены
+Backend уже работает — подключено (24/7)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 09:32:56] Genesis OS opened
+[2026-07-03 09:33:13] Backend started pid=22092
+[2026-07-03 09:33:13] Frontend started pid=1424
+[2026-07-03 09:33:35] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 09:33:51] Cleared .next cache
+[2026-07-03 09:33:51] Frontend started pid=5204
+[2026-07-03 09:33:51] Frontend repair: restarted dev server
+[2026-07-03 09:33:53] Manual repair: Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 09:38:51] Genesis OS opened
+[2026-07-03 09:39:03] Backend started pid=19548
+[2026-07-03 09:39:10] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 09:39:36] Cleared .next cache
+[2026-07-03 09:39:36] Frontend started pid=2936
+[2026-07-03 09:39:36] Frontend repair: restarted dev server
+[2026-07-03 09:39:38] Manual repair: Порт 3000 уже обслуживает Mission Control
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 09:47:07] Genesis OS opened
+[2026-07-03 09:47:19] Backend started pid=12968
+[2026-07-03 09:47:19] Frontend started pid=11496
+[2026-07-03 09:47:22] Freed port 3000 — stopped node.exe pid=8484
+[2026-07-03 09:47:23] Cleared .next cache
+[2026-07-03 09:47:23] Frontend started pid=7260
+[2026-07-03 09:47:23] Frontend repair: restarted dev server
+[2026-07-03 09:47:25] Auto-repair (log error): Освобождён порт 3000 (node.exe:8484)
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 09:47:30] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 09:47:30] Startup error: Frontend: Зависимости Mission Control не установлены полностью.
+
+--- frontend.log ---
+code: 'MODULE_NOT_FOUND',
+requireStack: [Array]
+}
+⨯ [Error: Cannot find module 'D:\Games\Genesis-AI-Engine\dashboard\frontend\.next\server\pages\_document.js'
+Require stack:
+- D:\Games\Genesis-AI-Engine\dashboard\frontend\node_modules\next\dist\server\require.js
+- D:\Games\Genesis-AI-Engine\dashboard\frontend\node_modules\next\dist\server\load-components.js
+- D:\Games\Genesis-AI-Engine\dashboard\frontend\node_modules\next\dist\build\utils.js
+- D:\Games\Genesis-AI-Engine\dashboard\frontend\node_modules\next\dist\build\swc\options.js
+- D:\Games\Genesis-AI-Engine\dashboard\frontend\node_modules\next\dist\build\swc\index.js
+- D:\Games\Genesis-AI-Engine\dashboard\frontend\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- D:\Games\Genesis-AI-Engine\dashboard\frontend\node_modules\next\dist\server\config.js
+- D:\Games\Genesis-AI-Engine\dashboard\frontend\node_modules\next\dist\server\next.js
+- D:\Games\Genesis-AI-Engine\dashboard\frontend\node_modules\next\dist\server\lib\start-server.js] {
+code: 'MODULE_NOT_FOUND',
+requireStack: [Array]
+}
+[?25h
+> genesis-command-center@0.1.0 dev
+> next dev
+▲ Next.js 15.5.20
+- Local:        http://localhost:3000
+- Network:      http://192.168.2.80:3000
+✓ Starting...
+✓ Ready in 3.3s
+[2026-07-03 09:51:46] Genesis OS opened
+[2026-07-03 09:51:59] Backend started pid=4836
+[2026-07-03 09:52:06] Python-зависимости установлены
+Backend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\backend.log)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 09:52:57] Cleared .next cache
+[2026-07-03 09:52:57] Frontend started pid=10928
+[2026-07-03 09:52:57] Frontend repair: restarted dev server
+[2026-07-03 09:52:59] Manual repair: Порт 3000 уже обслуживает Mission Control
+Mission Control готов
+Frontend запущен (журнал: D:\Games\Genesis-AI-Engine\launcher\logs\frontend.log)
+[2026-07-03 10:07:59] Genesis stopped
+[2026-07-03 10:08:35] Freed backend port 8000 — stopped python.exe pid=21440
+[2026-07-03 10:08:54] Backend started pid=18072
+[2026-07-03 10:09:50] Frontend started pid=21712 mode=production (next start)
+[2026-07-03 10:11:34] Genesis stopped
+[2026-07-03 10:11:54] Frontend started pid=14228 mode=development (next dev)
+[2026-07-03 10:13:33] Genesis stopped
+[2026-07-03 10:14:05] Freed port 3000 — stopped node.exe pid=16292
+[2026-07-03 10:14:07] Cleared stale .next before dev start
+[2026-07-03 10:14:07] Frontend started pid=21408 mode=development (next dev)
+[2026-07-03 10:30:41] Genesis OS opened
+[2026-07-03 10:30:51] Reconnected to Genesis (24/7)
+[2026-07-03 10:42:31] Backend already serving /api/status — skip duplicate start
+[2026-07-03 10:42:31] Frontend already serving :3000 — skip duplicate start
+[2026-07-03 10:43:25] Backend already serving /api/status — skip duplicate start
+[2026-07-03 10:43:25] Frontend already serving :3000 — skip duplicate start
+[2026-07-03 10:52:00] Backend already serving /api/status — skip duplicate start
+[2026-07-03 10:52:00] Frontend already serving :3000 — skip duplicate start
+[2026-07-03 11:00:48] Freed port 8000 — stopped python.exe pid=18072
+[2026-07-03 11:00:48] Freed port 3000 — stopped node.exe pid=22576
+[2026-07-03 11:00:48] Genesis stopped
+[2026-07-03 11:00:48] Freed port 8000 — stopped python.exe pid=18072
+[2026-07-03 11:00:48] Freed port 3000 — stopped node.exe pid=22576
+[2026-07-03 11:02:35] Freed port 8000 — stopped python.exe pid=18072
+[2026-07-03 11:02:35] Freed port 3000 — stopped node.exe pid=22576
+[2026-07-03 11:04:31] Backend started pid=15276
+[2026-07-03 11:04:57] Cleared stale .next before dev start
+[2026-07-03 11:04:57] Frontend started pid=19944 mode=development (next dev)
+[2026-07-03 11:07:06] Genesis OS opened
+[2026-07-03 11:07:08] Reconnected to Genesis (24/7)
+[2026-07-03 11:07:17] Python-зависимости установлены
+Backend уже работает — подключено (24/7)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 11:15:29] Launcher closed — Genesis keeps running 24/7
+[2026-07-03 11:52:34] Genesis OS opened
+[2026-07-03 11:52:36] Reconnected to Genesis (24/7)
+[2026-07-03 11:52:42] Python-зависимости установлены
+Backend уже работает — подключено (24/7)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 11:58:25] Backend already serving /api/status — skip duplicate start
+[2026-07-03 11:58:25] Frontend already serving :3000 — skip duplicate start
+[2026-07-03 12:04:07] Launcher closed — Genesis keeps running 24/7
+[2026-07-03 12:45:24] Genesis OS opened
+[2026-07-03 12:45:28] Reconnected to Genesis (24/7)
+[2026-07-03 12:45:35] Python-зависимости установлены
+Backend уже работает — подключено (24/7)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 12:48:24] Launcher closed — Genesis keeps running 24/7
+[2026-07-03 13:19:52] Genesis OS opened
+[2026-07-03 13:19:54] Reconnected to Genesis (24/7)
+[2026-07-03 13:19:58] Python-зависимости установлены
+Backend уже работает — подключено (24/7)
+Mission Control готов
+Frontend уже работает — подключено (24/7)
+[2026-07-03 13:23:39] Launcher closed — Genesis keeps running 24/7

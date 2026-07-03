@@ -1,0 +1,39 @@
+{
+  "product_id": "b8302e43-bd52-4a34-a2d3-bf673b8c5da7",
+  "intent_id": "b8302e43-bd52-4a34-a2d3-bf673b8c5da7",
+  "product_type": "Landing Page",
+  "description": "Заказ клиента: Ручной UI Test\nКофейня с доставкой завтраков\nГород: не указан\nТелефон: —\nWhatsApp: —\nEmail: —\nПакет: Landing Basic (350 €)\nЦелевая аудитория: Клиенты в регионе\nЦель продукта: Получать заявки с сайта\nПланируемая цена: 350 €",
+  "niche": "generic",
+  "template_id": "landing-generic-v1",
+  "business_name": "Заказ клиента: Ручной UI Test Кофейня с доста…",
+  "status": "completed",
+  "quality_percent": 98,
+  "validation_passed": true,
+  "technical_checks": [
+    {
+      "id": "html",
+      "label": "HTML",
+      "ok": true
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile",
+      "ok": true
+    },
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "ok": true
+    }
+  ],
+  "owner_approved": false,
+  "owner_approved_at": null,
+  "revision": 0,
+  "created_at": "2026-07-03T13:08:11.914887+00:00",
+  "updated_at": "2026-07-03T13:08:11.914895+00:00",
+  "style_flags": {
+    "modern": false,
+    "blue_boost": false,
+    "calculator": false
+  }
+}

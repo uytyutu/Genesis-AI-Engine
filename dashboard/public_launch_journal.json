@@ -1,0 +1,25 @@
+{
+  "sprint": "Public Launch v1",
+  "kpi": "Незнакомый человек: /site → /order → Stripe → Factory",
+  "updated_at": "2026-07-03",
+  "blocker": "Проект только на диске D:\\Games\\Genesis-AI-Engine — нет .git, Git не установлен, GitHub remote отсутствует",
+  "steps": {
+    "github": {
+      "status": "blocked",
+      "note": "Нужно: установить Git → создать репо на GitHub → первый push"
+    },
+    "vercel": { "status": "blocked", "url": null, "root": "dashboard/frontend", "depends_on": "github" },
+    "railway": { "status": "pending", "url": null, "root": "dashboard/backend" },
+    "stripe_test": { "status": "done", "note": "Test Mode активен" },
+    "env_linked": { "status": "pending" },
+    "stripe_webhook": { "status": "pending", "endpoint": null },
+    "production_test": { "status": "pending" },
+    "first_customer": { "status": "pending" }
+  },
+  "sources_of_truth": {
+    "frontend_url": null,
+    "backend_url": null,
+    "cors_origins": null,
+    "next_public_api_url": null
+  }
+}

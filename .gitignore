@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+.cursor/
+.env
+.env.*
+!.env.example
+dashboard/frontend/node_modules/
+dashboard/frontend/.next/
+dashboard/frontend/out/
+dashboard/backend/sandbox/

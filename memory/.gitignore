@@ -1,0 +1,7 @@
+# Runtime data — queue and audit files (created by Brain)
+
+queue.json
+queue.json.tmp
+audit.jsonl
+results.jsonl
+*.tmp

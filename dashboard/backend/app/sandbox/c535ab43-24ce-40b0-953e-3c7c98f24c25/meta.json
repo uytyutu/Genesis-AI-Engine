@@ -1,0 +1,39 @@
+{
+  "product_id": "c535ab43-24ce-40b0-953e-3c7c98f24c25",
+  "intent_id": "c535ab43-24ce-40b0-953e-3c7c98f24c25",
+  "product_type": "Landing Page",
+  "description": "Заказ клиента: Dental Smile Berlin\nFamily dentistry, implants, whitening\nГород: Berlin\nТелефон: +4930123456\nWhatsApp: +4930123456\nEmail: info@dental.test\nПакет: Landing Business (650 €)\nНужен логотип в макете.\nЦелевая аудитория: Клиенты в Berlin\nЦель продукта: Получать заявки с сайта\nПланируемая цена: 650 €",
+  "niche": "dental",
+  "template_id": "landing-dental-v1",
+  "business_name": "Заказ клиента: Dental Smile Berlin Family den…",
+  "status": "completed",
+  "quality_percent": 98,
+  "validation_passed": true,
+  "technical_checks": [
+    {
+      "id": "html",
+      "label": "HTML",
+      "ok": true
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile",
+      "ok": true
+    },
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "ok": true
+    }
+  ],
+  "owner_approved": false,
+  "owner_approved_at": null,
+  "revision": 0,
+  "created_at": "2026-07-03T12:56:30.794240+00:00",
+  "updated_at": "2026-07-03T12:56:30.794249+00:00",
+  "style_flags": {
+    "modern": false,
+    "blue_boost": false,
+    "calculator": false
+  }
+}
