@@ -466,6 +466,7 @@ def sales_order_pay_sandbox(order_id: str) -> RevenuePaymentResponse:
 
 
 @app.post("/api/webhooks/stripe")
+@app.post("/webhooks/stripe")
 async def stripe_webhook(request: Request) -> RevenuePaymentResponse:
     payload = await request.body()
     signature = request.headers.get("stripe-signature", "")
