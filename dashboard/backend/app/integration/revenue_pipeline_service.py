@@ -93,10 +93,13 @@ class RevenuePipelineService:
         if not order:
             raise ValueError("order_not_found")
         if order.get("status") in ("paid", "in_production", "ready", "delivered"):
+            self._backfill_email_from_checkout(order)
+            email_result = self._send_receipt_if_needed(order)
             return {
                 "ok": True,
                 "already_processed": True,
                 "order": self._sales.public_status(order_id),
+                "receipt_email": email_result,
             }
         if self._checkout.provider() != "stripe":
             raise ValueError("stripe_only")
@@ -129,10 +132,14 @@ class RevenuePipelineService:
         if not order:
             raise ValueError("order_not_found")
         if order.get("status") in ("paid", "in_production", "ready", "delivered"):
+            self._ensure_order_email(order, sender)
+            self._backfill_email_from_checkout(order)
+            email_result = self._send_receipt_if_needed(order)
             return {
                 "ok": True,
                 "already_processed": True,
                 "order": self._sales.public_status(order_id),
+                "receipt_email": email_result,
             }
 
         expected = float(order["price_eur"])
@@ -192,10 +199,10 @@ class RevenuePipelineService:
             order_id=order_id,
         )
 
-        email_result = self._receipt_email.send_order_receipt(
-            order=order,
-            receipt_text=order["client_receipt_text"],
-        )
+        order = self._sales.get_order(order_id) or order
+        self._ensure_order_email(order, sender)
+        self._backfill_email_from_checkout(order)
+        email_result = self._send_receipt_if_needed(order)
 
         return {
             "ok": True,
@@ -206,3 +213,59 @@ class RevenuePipelineService:
             "order": self._sales.public_status(order_id),
             "receipt_email": email_result,
         }
+
+    def _ensure_order_email(self, order: dict, sender: str | None) -> None:
+        if str(order.get("email") or "").strip():
+            return
+        stripe_email = str(sender or "").strip()
+        if not stripe_email or "@" not in stripe_email:
+            return
+        order["email"] = stripe_email
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._sales._save_order(order)
+
+    def _backfill_email_from_checkout(self, order: dict) -> None:
+        if str(order.get("email") or "").strip():
+            return
+        session_id = str(order.get("checkout_session_id") or "").strip()
+        if not session_id or self._checkout.provider() != "stripe":
+            return
+        parsed = self._checkout.retrieve_paid_session(session_id)
+        if not parsed:
+            return
+        self._ensure_order_email(order, parsed.get("sender"))
+
+    def _send_receipt_if_needed(self, order: dict) -> dict:
+        if order.get("receipt_email_sent"):
+            return dict(order.get("receipt_email_delivery") or {"ok": True, "reason": "already_sent"})
+
+        receipt_text = str(order.get("client_receipt_text") or "").strip()
+        if not receipt_text:
+            return {"ok": False, "skipped": True, "reason": "no_receipt_text"}
+
+        result = self._receipt_email.send_order_receipt(order=order, receipt_text=receipt_text)
+        order["receipt_email_delivery"] = result
+        if result.get("ok"):
+            order["receipt_email_sent"] = True
+        self._sales._save_order(order)
+
+        if not result.get("ok") and not result.get("skipped"):
+            detail = str(result.get("detail") or result.get("reason") or "")
+            self._notifications.notify(
+                title="Email не отправлен",
+                message=(
+                    f"Заказ {order.get('order_id')}: не удалось отправить чек. "
+                    f"{detail[:180]}"
+                ),
+                order_id=str(order.get("order_id") or ""),
+            )
+        elif result.get("skipped") and result.get("reason") == "no_email":
+            self._notifications.notify(
+                title="Email пропущен",
+                message=(
+                    f"Заказ {order.get('order_id')}: нет email клиента в заказе и в Stripe."
+                ),
+                order_id=str(order.get("order_id") or ""),
+            )
+
+        return result
