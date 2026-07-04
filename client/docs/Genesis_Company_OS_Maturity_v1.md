@@ -147,12 +147,13 @@ CEO не управляет каждым шагом вручную — но **в
 
 ## Связь с Genesis Laws
 
-| Law | Sales / Finance |
+| Law | Sales / Studios |
 |-----|-----------------|
-| Dogfood First | Sales Studio для Mission 1 до продажи Studio |
-| Law №1 | Отправка письма, deploy, выплата — только после approve |
-| Law №2 | Меньше Stripe dashboard, почты, GitHub вручную |
-| Law №3 | Studio экономит время CEO, не создаёт шум |
+| №1 | Отправка, deploy, выплата — только после approve |
+| №2 | Меньше GitHub, Railway, браузера вручную |
+| №3 | Sales Studio после Mission 1 dogfood |
+| №4 | Outreach вручную → потом автоматизация |
+| №5 | CEO отвечает за каждое необратимое действие |
 
 ---
 
