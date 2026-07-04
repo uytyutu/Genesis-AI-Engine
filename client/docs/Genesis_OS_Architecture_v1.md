@@ -219,6 +219,7 @@ Brain — **не чат-история**. Три разных слоя:
 
 | Studio | Назначение |
 |--------|------------|
+| 💼 **Sales** | Лиды, анализ сайта, КП, цена, договор — отправка после CEO | Stage 4+ (dogfood Mission 1) |
 | 💻 **Development** | Код, build, tests, git, deploy |
 | 🎨 **Design** | UI, бренд, макеты |
 | 📈 **Marketing** | Кампании, outreach, контент-план |
@@ -346,9 +347,4 @@ Stage 9     macOS / Linux / mobile
 
 *Genesis OS v1 — живой документ. Меняется только при серьёзном архитектурном блокере. Код следует архитектуре, не наоборот.*
 
-**Связанные документы:**
-
-* `client/docs/ROADMAP.md`
-* `client/docs/STAGE2_5_DAILY_DRIVER.md`
-* `dashboard/Genesis_Development_Policy.md`
-* `dashboard/Genesis_Client_Foundation.md`
+**См. также:** `Genesis_Laws.md` · `Genesis_Company_OS_Maturity_v1.md` · `Daily_Driver_Journal.md`

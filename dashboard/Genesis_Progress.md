@@ -47,7 +47,7 @@
 
 **Параллельно:** **RC2** ✅ PASSED · `Genesis_Release_Line.md`  
 **Client Stage 2.5:** Daily Driver — CEO journal, dogfood, no Brain code yet 🔄  
-**Философия:** `Genesis_Laws.md` · `Genesis_OS_Architecture_v1.md` v1.1  
+**Философия:** `Genesis_Laws.md` · `Genesis_OS_Architecture_v1.md` · `Genesis_Company_OS_Maturity_v1.md`  
 **Push gate:** Rust window + 70–80% daily use  
 **Политика:** `Genesis_Development_Policy.md`
 
