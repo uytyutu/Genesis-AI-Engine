@@ -37,6 +37,12 @@ class PaymentCheckoutService:
     def is_configured(self) -> bool:
         return self.provider() in ("stripe", "sandbox")
 
+    def is_live_mode(self) -> bool:
+        return os.getenv("STRIPE_SECRET_KEY", "").strip().startswith("sk_live_")
+
+    def has_webhook_secret(self) -> bool:
+        return bool(os.getenv("STRIPE_WEBHOOK_SECRET", "").strip())
+
     def create_checkout(
         self,
         *,

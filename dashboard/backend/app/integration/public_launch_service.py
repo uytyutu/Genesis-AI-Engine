@@ -90,7 +90,7 @@ class PublicLaunchService:
         else:
             site_ok = order_ok = https_ok = cors_ok = None
 
-        stripe_live = provider == "stripe"
+        stripe_live = provider == "stripe" and self._checkout.is_live_mode()
         payment_ok = provider in ("stripe", "sandbox")
 
         storage_ok = self._memory.is_dir() and os.access(self._memory, os.W_OK)
@@ -148,7 +148,7 @@ class PublicLaunchService:
                 "Stripe (реальные деньги)",
                 stripe_live,
                 required=False,
-                message="Подключите STRIPE_SECRET_KEY для приёма оплат",
+                message="STRIPE_SECRET_KEY начинается с sk_live_",
             ),
             self._row(
                 "storage",

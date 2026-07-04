@@ -27,14 +27,17 @@ class RevenuePipelineService:
 
     def payment_status(self) -> dict:
         provider = self._checkout.provider()
+        stripe_live = provider == "stripe" and self._checkout.is_live_mode()
         return {
             "configured": self._checkout.is_configured(),
             "provider": provider,
             "provider_label": {
-                "stripe": "Stripe",
+                "stripe": "Stripe (live)" if stripe_live else "Stripe (test)",
                 "sandbox": "Sandbox (только тест)",
             }.get(str(provider), "Не подключено"),
             "sandbox": provider == "sandbox",
+            "live_mode": stripe_live,
+            "webhook_configured": self._checkout.has_webhook_secret(),
         }
 
     def email_status(self) -> dict:

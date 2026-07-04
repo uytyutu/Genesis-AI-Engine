@@ -296,6 +296,8 @@ class PaymentStatusResponse(BaseModel):
     provider: str | None = None
     provider_label: str
     sandbox: bool = False
+    live_mode: bool = False
+    webhook_configured: bool = False
 
 
 class EmailStatusResponse(BaseModel):
