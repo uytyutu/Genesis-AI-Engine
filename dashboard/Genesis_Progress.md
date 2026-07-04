@@ -63,7 +63,7 @@
 
 ### Шаг 1 — Stripe Live · Gewerbe · 🔄 В работе
 
-**Business Launch Gate:** `Genesis_Business_Launch_Gate_v1.md` — метрики и рекомендации; переключение **только** после CEO Approve (Law №1).
+**Business Launch Gate:** `Genesis_Business_Launch_Gate_v1.md` — **Readiness Score** (не $1500); Approve → техническое переключение.
 
 **Критерий завершения:**
 

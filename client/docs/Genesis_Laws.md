@@ -163,9 +163,9 @@ Finance Studio      — 2 выплаты подготовлены
 
 ---
 
-### Story #4 — Почему нет автоматики на $1500?
+### Story #4 — Почему Business Readiness Score, а не $1500?
 
-Потому что **сумма не равна закону**. Business Launch Gate: Genesis следит за **характером** продаж (подписки, частота, KYC от платформы), рекомендует Gewerbe / Stripe — и только после **Approve Business Launch** меняет конфиг. См. `dashboard/Genesis_Business_Launch_Gate_v1.md`.
+Потому что **сумма не равна закону** и не описывает бизнес целиком. Genesis считает **совокупность признаков** (клиенты, частота, подписки, KYC) → рекомендует — CEO нажимает **Approve Business Launch**. См. `dashboard/Genesis_Business_Launch_Gate_v1.md`.
 
 ---
 

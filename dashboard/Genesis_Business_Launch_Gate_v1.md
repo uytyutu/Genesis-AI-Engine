@@ -1,8 +1,10 @@
-# Genesis Business Launch Gate v1
+# Genesis Business Launch Gate v1.1
 
-**Версия:** 1.0 · 2026-07-04  
+**Версия:** 1.1 · 2026-07-04  
 **Статус:** 📐 SPEC + HORIZON — **не автоматизация**, не юридический совет  
-**Модуль (будущее):** Business Readiness / Business Launch Advisor в Desktop (Executive / Home)
+**Модуль (будущее):** Business Readiness Advisor в Desktop (Executive / Home)
+
+> **⚠️ Внутренний бизнес-порог Genesis.** Не является юридическим критерием и **не заменяет** требования законодательства или правил платёжных платформ.
 
 ---
 
@@ -10,14 +12,12 @@
 
 | ❌ | ✅ |
 |----|-----|
-| Автоматическая смена Gewerbe при $1500 | Внутренний **порог развития** + рекомендация |
-| Юридическое решение по сумме | Genesis **следит за метриками** и **характером** продаж |
-| «Обойти систему, потом поменять» | **Не дать CEO случайно нарушить правила** |
+| `$1500 = переход` | **Business Readiness Score** — совокупность признаков |
+| Юридическое решение по баллам | Внутняя логика развития проекта |
+| Genesis меняет payment / legal сам | Genesis говорит: *«Я считаю, компания готова»* → **CEO решает** |
 | Cursor меняет env без CEO | Только после **Approve Business Launch** |
 
-**Сумма сама по себе не имеет юридического значения.** Пороги — **настраиваемые сигналы**, не закон.
-
-Юридические действия (Gewerbe, Jobcenter, налоги) — **всегда CEO**. Genesis готовит чек-лист и техническое переключение **после** подтверждения.
+Юридические действия (Gewerbe, Jobcenter, налоги) — **всегда CEO**.
 
 ---
 
@@ -25,9 +25,9 @@
 
 | Law | Business Launch Gate |
 |-----|----------------------|
-| **№1 Plan → Approve → Act** | Recommend → CEO Approve → env / provider switch |
-| **№4 Evidence Before Automation** | Сначала ручные продажи / Mission 1, потом автоматизация gate |
-| **№5 Human Accountability** | Юридически значимые шаги — только человек |
+| **№1** | Recommend → Approve → Act |
+| **№4** | Mission 1 вручную → потом score в Desktop |
+| **№5** | Ответственность за бизнес и право — у человека |
 
 ---
 
@@ -35,195 +35,185 @@
 
 > **Genesis не даст CEO случайно нарушить правила.**
 
-Genesis:
+Genesis **никогда сам не меняет:**
 
-* следит за показателями;
-* оценивает **характер** продаж (разовые vs регулярные);
-* предупреждает заранее;
-* **не переключает** платёжку / legal env сам.
+* платёжную систему;
+* юридические данные и реквизиты;
+* статус бизнеса в env;
+* публикации без approve.
 
----
-
-## Три зоны (настраиваемые пороги)
-
-Пороги в конфиге CEO — не захардкожены в коде навсегда.
-
-### 🟢 Зелёная — Эксперимент
-
-**Типичные сигналы (пример defaults):**
-
-* до 3–5 разовых продаж;
-* общая сумма до ~$200–300;
-* нет активных подписок;
-* нет KYC-ультиматума от платформы.
-
-**Genesis:** мониторинг. Напоминание: *«Следите за юридическими требованиями в вашей стране»*.
+Он **считает readiness**, показывает рекомендации, ждёт **Approve Business Launch**.
 
 ---
 
-### 🟡 Жёлтая — Пора готовиться
+## Business Readiness Score
 
-**Триггеры (любой из):**
+Бизнес определяется **не одной суммой**, а набором событий. Баллы **настраиваемые** (пример v1):
 
-| # | Триггер | Почему |
-|---|---------|--------|
-| **1** | Первая **рекуррентная** подписка | Постоянная деятельность, не разовый тест |
-| **2** | **Частота:** >5–7 уникальных продаж за 7 дней | Органический спрос, не «случайный» платёж |
-| **3** | Продажи **3+ дня подряд** | Регулярность — главный маркер для антифрода |
-| **4** | Сумма перевалила **настраиваемый** порог (напр. $500) | Внутренний сигнал «готовиться» |
+| Событие | Баллы |
+|---------|------:|
+| Первый оплаченный заказ | +20 |
+| Второй **независимый** клиент (другой payer / email) | +20 |
+| 5+ продаж за 7 дней | +20 |
+| Первая активная подписка | +20 |
+| Платёжная платформа запросила KYC / tax verification | +20 |
+| *опционально* Выручка > настраиваемый USD порог | +10 |
+| *опционально* Продажи 3+ дня подряд | +10 |
 
-**Genesis:**
+**Максимум в примере:** 100 (события не обязаны суммироваться выше cap — настраивается).
+
+### Зоны
+
+| Score | Зона | Смысл |
+|------:|------|--------|
+| **0–39** | 🟢 Experiment | Тестирование рынка, мониторинг |
+| **40–79** | 🟡 Preparing | Готовиться к следующему этапу |
+| **80–100** | 🔴 Ready | Genesis **рекомендует** Business Launch |
+
+Пороги зон — в конфиге CEO, не в законе.
+
+---
+
+## Desktop UI (примеры)
+
+### 🟡 Preparing — 72 / 100
 
 ```text
-Продукт показывает устойчивый спрос.
-Рекомендуется подготовить регистрацию и платёжную инфраструктуру.
+Business Readiness
 
-• Ссылки на Gewerbe (если применимо)
-• Jobcenter — заранее, не в последний день
-• Stripe Business / KYC
+72 / 100
+
+🟡 Preparing
+
+Что рекомендуется:
+✓ Подготовить документы (Gewerbe — если применимо)
+✓ Подготовить Stripe Business
+✓ Проверить юридические страницы
+✓ Подготовить уведомление Jobcenter (если применимо)
+
+Ожидает решения CEO
 ```
 
-**Cursor:** ничего не меняет автоматически.
-
----
-
-### 🔴 Красная — Business Launch Gate reached
-
-**Триггеры (любой из):**
-
-| # | Триггер |
-|---|---------|
-| **1** | Сумма выше **настраиваемого** порога (напр. $1000–1500) **И** характер продаж не «разовый тест» |
-| **2** | >10 продаж за 7 дней |
-| **3** | **KYC / tax status** запрос от платёжной платформы (железобетонный стоп) |
-| **4** | 3+ незнакомых покупателя за ночь / явная регулярность |
-
-**Genesis UI (пример):**
+### 🔴 Ready — 92 / 100
 
 ```text
-Доход: $1,534
+Business Readiness
 
-🟢 Business Launch Gate — Ready
+92 / 100
 
-Вы достигли внутреннего порога развития.
+🔴 Ready
+
+Рекомендуется перейти к следующему этапу развития.
 
 Рекомендуемые действия:
-1. Оформить Gewerbe (если требуется в вашей ситуации)
+1. Оформить Gewerbe (если требуется)
 2. Уведомить Jobcenter (если применимо)
-3. Настроить Stripe Business / завершить KYC
+3. Настроить Stripe Business / KYC
 4. Обновить реквизиты на сайте
-
-Статус: Ожидает подтверждения CEO.
 
 [ Approve Business Launch ]
 ```
 
-**До Approve:** env, провайдер, legal — **без изменений**.
+До нажатия Approve — **ноль** автоматических изменений в системе.
 
 ---
 
 ## После Approve Business Launch (Law №1 — Act)
 
-Только когда CEO нажал **Approve Business Launch**, Cursor / Genesis выполняет **техническое**:
+Только после CEO — **техническое** (чек-лист Cursor):
 
-1. Обновить переменные окружения (Railway / Vercel) по чек-листу CEO
-2. Переключить **Payment Provider** в конфиге (не переписывать проект)
-3. Отключить test / interim provider если применимо
-4. Подключить Stripe Business (live keys, webhook)
-5. Обновить legal pages / Impressum env
-6. Smoke test: `/api/sales/payment-status`, один test/live платёж
-7. Записать **Decision** в Company Brain (когда будет Stage 3)
+1. Env Railway / Vercel по списку CEO
+2. Payment Provider в конфиге (interim → Stripe Business)
+3. Live keys, webhook
+4. Legal pages / Impressum env
+5. Smoke: `payment-status`, test payment
+6. Запись Decision → Company Brain (Stage 3)
 
 ---
 
-## Payment Provider — два режима в конфиге
-
-Заранее в коде — **абстракция**, не два разных проекта:
+## Payment Provider (абстракция)
 
 ```text
-Payment Provider
-
-○ Interim / test stack   (текущий путь разработки)
-○ Stripe Business        (после Business Launch)
+○ Interim / test stack
+○ Stripe Business
 ```
 
-Переключение = конфиг + env + smoke test. **После Approve.**
+Переключение = конфиг + env + smoke. **После Approve.**
 
-*Примечание:* в Mission 1 основной стек — **Stripe** (test → live). Второй провайдер в спеке — placeholder для любого interim; не планировать обход ToS платформ.
+Mission 1: основной стек **Stripe** (test → live). Не планировать обход ToS платформ.
 
 ---
 
-## Конфигурация (CEO / settings)
+## Конфигурация (пример)
 
 ```json
 {
-  "business_launch_gate": {
-    "revenue_target_usd": 1500,
-    "yellow_revenue_usd": 500,
-    "max_sales_7d_yellow": 5,
-    "max_sales_7d_red": 10,
-    "subscriptions_trigger_yellow": true,
-    "consecutive_sales_days_yellow": 3
+  "business_readiness": {
+    "zone_green_max": 39,
+    "zone_yellow_max": 79,
+    "zone_red_min": 80,
+    "events": {
+      "first_paid_order": 20,
+      "second_independent_client": 20,
+      "five_sales_per_week": 20,
+      "first_subscription": 20,
+      "platform_kyc_request": 20,
+      "revenue_threshold_usd": 500,
+      "revenue_threshold_points": 10,
+      "consecutive_sales_days": 3,
+      "consecutive_sales_points": 10
+    }
   }
 }
 ```
 
-Пороги меняются без переписывания логики (переезд, новые правила, другая страна).
-
 ---
 
-## Источники данных (технический план)
+## Источники данных
 
-| Метрика | Источник |
+| Событие | Источник |
 |---------|----------|
-| Выручка, кол-во заказов | `/api/owner/finance`, sales orders |
-| Подписки | будущий billing API / Stripe webhooks |
-| KYC статус | `payment-status`, Stripe dashboard flags, manual CEO flag |
-| Регулярность | агрегация по датам заказов за 7/30 дней |
+| Заказы, клиенты | `/api/sales/orders`, finance |
+| 5 за неделю / дни подряд | агрегация по датам |
+| Подписки | Stripe webhooks / billing (будущее) |
+| KYC запрос | `payment-status`, manual CEO flag, Stripe dashboard |
 
-**Сейчас:** документ + ручной CEO gate (Gewerbe в `Genesis_Progress.md`).  
-**После Daily Driver:** виджет в Desktop Executive.  
-**Не сейчас:** автоматический switch env.
+**Сейчас:** spec + ручной gate в `Genesis_Progress.md`.  
+**После Daily Driver:** виджет score в Desktop.  
+**Не сейчас:** auto env / provider switch.
 
 ---
 
-## Сценарий этапов (личный план CEO)
+## Сценарий CEO
 
 ```text
-Этап 1 — Продукт тестируется
-✓ Сайт, заказы, Genesis следит за метриками
-✓ Параллельно ГОТОВИТЬ легальный запуск (не «потом посмотрю»)
+Этап 1 — тест + параллельная подготовка к легальному запуску
+Genesis считает score
 
-↓ Genesis: жёлтая/красная зона по триггерам
+↓ 40+ Preparing — готовить документы заранее
 
-Этап 2 — CEO
-✓ Gewerbe / формальности (по ситуации)
-✓ Jobcenter — заблаговременно, если применимо
-✓ Stripe Business
-✓ Approve Business Launch
+↓ 80+ Ready — рекомендация, не автоматика
 
-↓
+CEO: Gewerbe · Jobcenter · Stripe · Approve Business Launch
 
-Этап 3 — Genesis (техника)
-✓ Provider switch · env · smoke test · продолжение работы
+↓ Genesis: техническое переключение + smoke
 ```
 
 ---
 
-## Genesis Story (для `Genesis_Laws.md`)
+## Genesis Story
 
-> Почему нет автоматики на $1500?  
-> Потому что Law №1 и Law №5: Genesis рекомендует и готовит, CEO решает и несёт ответственность. Сумма — сигнал, не закон.
+> Почему Score, а не $1500?  
+> Бизнес — это подписки, частота, независимые клиенты и сигналы платформы, не одна цифра. Law №1: Genesis рекомендует — CEO подтверждает.
 
 ---
 
 ## Связанные документы
 
-* `Genesis_Laws.md`
-* `Genesis_Progress.md` — Mission 1, Gewerbe, Stripe Live
+* `client/docs/Genesis_Laws.md` (Story #4)
+* `Genesis_Progress.md`
 * `First_Customer_Plan_v1.md`
-* `Genesis_Company_OS_Maturity_v1.md` — Level 1 manual sales first
 
 ---
 
-*Не юридическая консультация. При Bürgergeld / Jobcenter — консультация с органами заранее.*
+*Не юридическая консультация. Закон и платформы — отдельно от внутреннего score Genesis.*
