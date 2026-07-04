@@ -61,7 +61,9 @@
 
 ## 🔥 Текущий шаг
 
-### Шаг 1 — Stripe Live · 🔄 В работе
+### Шаг 1 — Stripe Live · Gewerbe · 🔄 В работе
+
+**Business Launch Gate:** `Genesis_Business_Launch_Gate_v1.md` — метрики и рекомендации; переключение **только** после CEO Approve (Law №1).
 
 **Критерий завершения:**
 

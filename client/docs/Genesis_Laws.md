@@ -163,4 +163,10 @@ Finance Studio      — 2 выплаты подготовлены
 
 ---
 
-**См. также:** `Genesis_OS_Architecture_v1.md` · `Genesis_Company_OS_Maturity_v1.md` · `Daily_Driver_Journal.md`
+### Story #4 — Почему нет автоматики на $1500?
+
+Потому что **сумма не равна закону**. Business Launch Gate: Genesis следит за **характером** продаж (подписки, частота, KYC от платформы), рекомендует Gewerbe / Stripe — и только после **Approve Business Launch** меняет конфиг. См. `dashboard/Genesis_Business_Launch_Gate_v1.md`.
+
+---
+
+**См. также:** `Genesis_OS_Architecture_v1.md` · `Genesis_Company_OS_Maturity_v1.md` · `Daily_Driver_Journal.md` · `dashboard/Genesis_Business_Launch_Gate_v1.md`
