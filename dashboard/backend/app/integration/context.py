@@ -25,6 +25,7 @@ from app.integration.task_service import TaskService
 from app.integration.opportunity_service import OpportunityService
 from app.integration.cursor_handoff_service import CursorHandoffService
 from app.integration.public_launch_service import PublicLaunchService
+from app.integration.pricing_display_service import PricingDisplayService
 from app.integration.timeline_service import TimelineService
 
 _MEMORY_DIR = Path(
@@ -39,7 +40,7 @@ def _bootstrap_memory(path: Path) -> None:
     if not os.getenv("GENESIS_MEMORY_DIR"):
         return
     path.mkdir(parents=True, exist_ok=True)
-    for name in ("public_launch.json",):
+    for name in ("public_launch.json", "pricing_display.json"):
         target = path / name
         if target.is_file():
             continue
@@ -70,6 +71,7 @@ class IntegrationContext:
     cursor_handoff: CursorHandoffService
     opportunity: OpportunityService
     public_launch: PublicLaunchService
+    pricing_display: PricingDisplayService
 
 
 _context: IntegrationContext | None = None
@@ -102,6 +104,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
         system_check = SystemCheckService(health, modules, tasks, owner, finance, path)
         cursor_handoff = CursorHandoffService(path, system_check, factory, finance)
         public_launch = PublicLaunchService(path, checkout)
+        pricing_display = PricingDisplayService(path)
         _context = IntegrationContext(
             adapter=adapter,
             health=health,
@@ -125,6 +128,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             cursor_handoff=cursor_handoff,
             opportunity=opportunity,
             public_launch=public_launch,
+            pricing_display=pricing_display,
         )
     return _context
 

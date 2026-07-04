@@ -1,0 +1,72 @@
+import type { Metadata } from "next";
+import { PublicPageShell } from "../components/PublicPageShell";
+import { LegalProse } from "../components/LegalProse";
+import { CONTACT_EMAIL, LEGAL } from "../lib/siteConfig";
+import { publicPageMetadata } from "../lib/publicMetadata";
+
+export const metadata: Metadata = publicPageMetadata(
+  "Datenschutz",
+  "Datenschutzerklärung gemäß DSGVO für Genesis AI Engine.",
+  "/datenschutz"
+);
+
+function field(value: string, fallback: string) {
+  return value.trim() || fallback;
+}
+
+export default function DatenschutzPage() {
+  const name = field(LEGAL.fullName, "[Name]");
+  const address = field(LEGAL.address, "[Adresse]");
+  const phone = field(LEGAL.phone, "[Telefon]");
+
+  return (
+    <PublicPageShell>
+      <LegalProse>
+        <h1 className="text-3xl font-bold">Datenschutzerklärung</h1>
+        <p className="mt-2 text-sm text-genesis-muted">Stand: Juli 2026</p>
+
+        <section className="mt-8 space-y-4 text-sm leading-relaxed text-genesis-muted">
+          <div>
+            <h2 className="text-lg font-semibold text-white">1. Verantwortlicher</h2>
+            <p className="mt-2">
+              {name} — Genesis AI Engine
+              <br />
+              {address}
+              <br />
+              E-Mail: {CONTACT_EMAIL}
+              <br />
+              Telefon: {phone}
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-white">2. Verarbeitungen</h2>
+            <ul className="mt-2 list-disc space-y-1 pl-5">
+              <li>Website-Betrieb: Server-Logfiles (IP, Browser, Zeitstempel)</li>
+              <li>Bestellung: Name, Kontaktdaten, Bestelldaten</li>
+              <li>Zahlung: Zahlungsdaten über Stripe</li>
+              <li>E-Mail: Transaktionsbestätigungen an Ihre E-Mail-Adresse</li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-white">3. Dienstleister</h2>
+            <p className="mt-2">
+              Vercel (Hosting), Railway (API), Resend (E-Mail), Stripe (Zahlungen). Mit diesen
+              Anbietern werden Auftragsverarbeitungsverträge geschlossen, bevor Bestellungen live
+              gehen.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-white">4. Ihre Rechte</h2>
+            <p className="mt-2">
+              Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit, Widerspruch —
+              kontaktieren Sie uns unter {CONTACT_EMAIL}.
+            </p>
+          </div>
+        </section>
+      </LegalProse>
+    </PublicPageShell>
+  );
+}

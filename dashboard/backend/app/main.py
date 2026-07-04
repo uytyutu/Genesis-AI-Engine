@@ -35,6 +35,8 @@ from app.schemas import (
     SalesCheckoutResponse,
     SalesOrderPublicStatus,
     PaymentStatusResponse,
+    PricingEventRequest,
+    PricingEventResponse,
     EmailStatusResponse,
     SalesOrderActionResponse,
     SalesOrderCreateRequest,
@@ -346,9 +348,30 @@ def list_sales_packages() -> SalesPackagesResponse:
     return SalesPackagesResponse(packages=[SalesPackage(**p) for p in items])
 
 
+@app.get("/api/public/pricing")
+def public_pricing() -> dict:
+    return _ctx().pricing_display.get_display()
+
+
+@app.post("/api/public/pricing-event", response_model=PricingEventResponse)
+def public_pricing_event(body: PricingEventRequest) -> PricingEventResponse:
+    _ctx().pricing_display.log_event(
+        event=body.event,
+        tier_id=body.tier_id,
+        page=body.page,
+        meta=body.meta,
+    )
+    return PricingEventResponse()
+
+
 @app.post("/api/sales/orders", response_model=SalesOrderCreatedResponse)
 def create_sales_order(request: SalesOrderCreateRequest) -> SalesOrderCreatedResponse:
+    from app.integration.receipt_email_service import ReceiptEmailService
+
     result = _ctx().sales.create_order(request.model_dump())
+    order = _ctx().sales.get_order(result["order_id"])
+    if order and order.get("email"):
+        ReceiptEmailService().send_order_received(order=order)
     return SalesOrderCreatedResponse(**result)
 
 

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { PublicPageShell } from "../../../components/PublicPageShell";
 import { formatEur } from "../../../lib/formatEur";
+import { fetchPaymentReady, startOrderCheckout } from "../../../lib/orderCheckout";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -26,7 +28,7 @@ type OrderStatus = {
   paid: boolean;
 };
 
-export default function OrderStatusPage() {
+function OrderStatusContent() {
   const routeParams = useParams();
   const search = useSearchParams();
   const orderId = String(routeParams.orderId ?? "");
@@ -34,6 +36,13 @@ export default function OrderStatusPage() {
   const [data, setData] = useState<OrderStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [payBusy, setPayBusy] = useState(false);
+  const [payError, setPayError] = useState("");
+  const [paymentReady, setPaymentReady] = useState(false);
+
+  useEffect(() => {
+    fetchPaymentReady().then(setPaymentReady);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +70,18 @@ export default function OrderStatusPage() {
     };
   }, [orderId, justPaid]);
 
+  async function payNow() {
+    setPayBusy(true);
+    setPayError("");
+    try {
+      const url = await startOrderCheckout(orderId);
+      window.location.href = url;
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : "Не удалось начать оплату");
+      setPayBusy(false);
+    }
+  }
+
   async function copyReceipt() {
     if (!data?.client_receipt_text) return;
     const url = typeof window !== "undefined" ? window.location.href.split("?")[0] : "";
@@ -79,115 +100,152 @@ export default function OrderStatusPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-lg py-12 text-center text-sm text-genesis-muted">
-        Загрузка статуса…
-      </main>
+      <PublicPageShell>
+        <main className="mx-auto max-w-lg py-12 text-center text-sm text-genesis-muted">
+          Загрузка статуса…
+        </main>
+      </PublicPageShell>
     );
   }
 
   if (!data) {
     return (
-      <main className="mx-auto max-w-lg py-12 text-center">
-        <p className="text-genesis-muted">Заказ не найден</p>
-        <Link href="/order" className="mt-4 inline-block text-genesis-accent hover:underline">
-          Заказать сайт
-        </Link>
-      </main>
+      <PublicPageShell>
+        <main className="mx-auto max-w-lg py-12 text-center">
+          <p className="text-genesis-muted">Заказ не найден</p>
+          <Link href="/order" className="mt-4 inline-block text-genesis-accent hover:underline">
+            Заказать сайт
+          </Link>
+        </main>
+      </PublicPageShell>
     );
   }
 
   const showThankYou = justPaid || data.paid;
+  const awaitingPayment = data.status === "awaiting_payment" && !data.paid;
 
   return (
-    <main className="mx-auto max-w-lg py-10">
-      <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/25 to-genesis-panel p-8 shadow-glow">
-        {showThankYou && (
-          <>
-            <p className="text-center text-4xl">✓</p>
-            <h1 className="mt-3 text-center text-2xl font-bold">Спасибо!</h1>
-          </>
-        )}
-        {!showThankYou && <p className="genesis-label text-center">Статус заказа</p>}
+    <PublicPageShell>
+      <main className="mx-auto max-w-lg py-6">
+        <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/25 to-genesis-panel p-8 shadow-glow">
+          {showThankYou && (
+            <>
+              <p className="text-center text-4xl">✓</p>
+              <h1 className="mt-3 text-center text-2xl font-bold">Спасибо!</h1>
+            </>
+          )}
+          {!showThankYou && <p className="genesis-label text-center">Статус заказа</p>}
 
-        <p className="mt-4 text-center text-sm text-genesis-muted">
-          Ваш заказ <span className="font-mono text-genesis-text">№ {data.order_id}</span>
-        </p>
-        <p className="mt-1 text-center font-medium">{data.business_name}</p>
-        <p className="text-center text-xs text-genesis-muted">
-          {data.package_name} · {formatEur(data.price_eur)}
-        </p>
-
-        <div className="mt-6 rounded-2xl border border-genesis-border-subtle bg-genesis-bg/50 p-5">
-          <p className="genesis-label">Статус</p>
-          <p className="mt-1 flex items-center gap-2 text-lg font-semibold text-emerald-300">
-            {data.paid && <span>🟢</span>}
-            {data.status_label}
+          <p className="mt-4 text-center text-sm text-genesis-muted">
+            Ваш заказ <span className="font-mono text-genesis-text">№ {data.order_id}</span>
+          </p>
+          <p className="mt-1 text-center font-medium">{data.business_name}</p>
+          <p className="text-center text-xs text-genesis-muted">
+            {data.package_name} · {formatEur(data.price_eur)}
           </p>
 
-          {data.timeline.length > 0 && (
-            <div className="mt-5">
-              <p className="genesis-label">Сейчас происходит</p>
-              <ul className="mt-2 space-y-2 text-sm">
-                {data.timeline.map((step) => (
-                  <li key={step.id} className="flex items-center gap-2">
-                    <span className={step.done ? "text-emerald-400" : "text-genesis-muted"}>
-                      {step.done ? "✔" : "○"}
-                    </span>
-                    <span className={step.done ? "text-genesis-text" : "text-genesis-muted"}>
-                      {step.label}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+          {awaitingPayment && paymentReady && (
+            <div className="mt-6">
+              <button
+                type="button"
+                disabled={payBusy}
+                onClick={payNow}
+                className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-genesis-accent py-3.5 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {payBusy ? "Переход к оплате…" : `Оплатить ${formatEur(data.price_eur)}`}
+              </button>
+              {payError && <p className="mt-2 text-center text-xs text-rose-300">{payError}</p>}
             </div>
           )}
 
-          {data.next_step && (
-            <div className="mt-5">
-              <p className="genesis-label">Следующий этап</p>
-              <p className="mt-1 text-sm">{data.next_step}</p>
-            </div>
+          <div className="mt-6 rounded-2xl border border-genesis-border-subtle bg-genesis-bg/50 p-5">
+            <p className="genesis-label">Статус</p>
+            <p className="mt-1 flex items-center justify-center gap-2 text-lg font-semibold text-emerald-300">
+              {data.paid && <span>🟢</span>}
+              {data.status_label}
+            </p>
+
+            {data.timeline.length > 0 && (
+              <div className="mt-5">
+                <p className="genesis-label">Прогресс</p>
+                <ul className="mt-2 space-y-2 text-sm">
+                  {data.timeline.map((step) => (
+                    <li key={step.id} className="flex items-center gap-2">
+                      <span className={step.done ? "text-emerald-400" : "text-genesis-muted"}>
+                        {step.done ? "✔" : "○"}
+                      </span>
+                      <span className={step.done ? "text-genesis-text" : "text-genesis-muted"}>
+                        {step.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {data.next_step && (
+              <div className="mt-5">
+                <p className="genesis-label">Следующий этап</p>
+                <p className="mt-1 text-sm">{data.next_step}</p>
+              </div>
+            )}
+
+            {(data.estimated_hours || data.estimated_delivery_at) && (
+              <div className="mt-5">
+                <p className="genesis-label">Ориентировочное время</p>
+                <p className="mt-1 text-sm font-medium">
+                  {data.estimated_hours
+                    ? `${data.estimated_hours} часов`
+                    : data.estimated_delivery_at
+                      ? new Date(data.estimated_delivery_at).toLocaleDateString("ru-RU")
+                      : "—"}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {data.client_message && (
+            <p className="mt-4 text-center text-sm text-genesis-muted">{data.client_message}</p>
           )}
 
-          {(data.estimated_hours || data.estimated_delivery_at) && (
-            <div className="mt-5">
-              <p className="genesis-label">Ориентировочное время</p>
-              <p className="mt-1 text-sm font-medium">
-                {data.estimated_hours
-                  ? `${data.estimated_hours} часов`
-                  : data.estimated_delivery_at
-                    ? new Date(data.estimated_delivery_at).toLocaleDateString("ru-RU")
-                    : "—"}
-              </p>
-            </div>
+          {data.paid && data.client_receipt_text && (
+            <button
+              type="button"
+              onClick={copyReceipt}
+              className="mt-5 w-full rounded-xl border border-genesis-border-subtle py-2.5 text-xs text-genesis-muted hover:bg-genesis-elevated"
+            >
+              {copied ? "Текст скопирован" : "Скопировать подтверждение"}
+            </button>
           )}
-        </div>
 
-        {data.client_message && (
-          <p className="mt-4 text-center text-sm text-genesis-muted">{data.client_message}</p>
-        )}
+          <p className="mt-4 text-center text-[10px] text-genesis-muted">
+            Сохраните эту страницу — здесь всегда актуальный статус заказа.
+          </p>
 
-        {data.paid && data.client_receipt_text && (
-          <button
-            type="button"
-            onClick={copyReceipt}
-            className="mt-5 w-full rounded-xl border border-genesis-border-subtle py-2.5 text-xs text-genesis-muted hover:bg-genesis-elevated"
+          <Link
+            href="/order"
+            className="mt-4 block text-center text-sm text-genesis-accent hover:underline"
           >
-            {copied ? "Текст скопирован" : "Скопировать подтверждение для клиента"}
-          </button>
-        )}
+            ← Новый заказ
+          </Link>
+        </div>
+      </main>
+    </PublicPageShell>
+  );
+}
 
-        <p className="mt-4 text-center text-[10px] text-genesis-muted">
-          Сохраните эту страницу — здесь всегда актуальный статус заказа.
-        </p>
-
-        <Link
-          href="/order"
-          className="mt-4 block text-center text-sm text-genesis-accent hover:underline"
-        >
-          ← Новый заказ
-        </Link>
-      </div>
-    </main>
+export default function OrderStatusPage() {
+  return (
+    <Suspense
+      fallback={
+        <PublicPageShell>
+          <main className="mx-auto max-w-lg py-12 text-center text-genesis-muted">
+            Загрузка…
+          </main>
+        </PublicPageShell>
+      }
+    >
+      <OrderStatusContent />
+    </Suspense>
   );
 }

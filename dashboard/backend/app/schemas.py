@@ -306,6 +306,17 @@ class EmailStatusResponse(BaseModel):
     has_from_address: bool
 
 
+class PricingEventRequest(BaseModel):
+    event: str = Field(min_length=1)
+    tier_id: str | None = None
+    page: str = "pricing"
+    meta: dict = Field(default_factory=dict)
+
+
+class PricingEventResponse(BaseModel):
+    ok: bool = True
+
+
 class RevenuePaymentResponse(BaseModel):
     ok: bool = True
     order_id: str

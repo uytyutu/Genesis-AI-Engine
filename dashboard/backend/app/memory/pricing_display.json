@@ -1,0 +1,165 @@
+{
+  "version": "1.0",
+  "updated": "2026-07-04",
+  "disclaimer": {
+    "ru": "Genesis Platform — ранний доступ. Тарифы ниже ориентировочные; подписки откроются после публичного запуска. Сайт и услуги — на странице «Услуги».",
+    "de": "Genesis Platform — Early Access. Preise sind Orientierungswerte."
+  },
+  "platform_status": {
+    "label": "Ранний доступ",
+    "headline": "Genesis Platform скоро откроется",
+    "body": "Подписки станут доступны после публичного запуска. Оставьте заявку — сообщим первым.",
+    "waitlist_cta": "Стать одним из первых пользователей",
+    "waitlist_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Platform%20%E2%80%94%20ранний%20доступ"
+  },
+  "subscriptions": [
+    {
+      "id": "free",
+      "name": "Free",
+      "price_eur_month": 0,
+      "price_label": "0 €",
+      "period": "/мес",
+      "audience": "Знакомство с Genesis",
+      "features": ["Базовый чат", "Ограниченные запросы", "Демо-возможности"],
+      "cta": "Ранний доступ — заявка",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Platform%20%E2%80%94%20ранний%20доступ",
+      "highlight": false,
+      "available": false
+    },
+    {
+      "id": "pro",
+      "name": "Pro",
+      "price_eur_month": 39,
+      "price_label": "39 €",
+      "period": "/мес",
+      "audience": "Фрилансеры и специалисты",
+      "features": ["Расширенный чат", "Больше задач в месяц", "Экспорт результатов"],
+      "cta": "Ранний доступ — заявка",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Pro%20%E2%80%94%20ранний%20доступ",
+      "highlight": false,
+      "available": false
+    },
+    {
+      "id": "creator",
+      "name": "Creator",
+      "price_eur_month": 99,
+      "price_label": "99 €",
+      "period": "/мес",
+      "audience": "Создатели контента и малые проекты",
+      "features": ["Приоритетная обработка", "Шаблоны и пресеты", "Поддержка по email"],
+      "cta": "Ранний доступ — заявка",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Creator%20%E2%80%94%20ранний%20доступ",
+      "highlight": true,
+      "available": false
+    },
+    {
+      "id": "business",
+      "name": "Business",
+      "price_eur_month": 299,
+      "price_label": "299 €",
+      "period": "/мес",
+      "audience": "Малый бизнес",
+      "features": ["Командные возможности", "Интеграции", "Приоритетная поддержка"],
+      "cta": "Ранний доступ — заявка",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Business%20%E2%80%94%20ранний%20доступ",
+      "highlight": false,
+      "available": false
+    },
+    {
+      "id": "business_plus",
+      "name": "Business+",
+      "price_eur_month": 799,
+      "price_label": "799 €",
+      "period": "/мес",
+      "audience": "Растущие компании",
+      "features": ["Несколько ролей", "Расширенная автоматизация", "Выделенный онбординг"],
+      "cta": "Ранний доступ — заявка",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Business%2B%20%E2%80%94%20ранний%20доступ",
+      "highlight": false,
+      "available": false
+    },
+    {
+      "id": "enterprise",
+      "name": "Enterprise",
+      "price_eur_month": null,
+      "price_label": "Индивидуально",
+      "period": "",
+      "audience": "Средний и крупный бизнес",
+      "features": ["Цифровые отделы под задачу", "SLA и безопасность", "Внедрение под ключ"],
+      "cta": "Связаться с нами",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Enterprise",
+      "highlight": false,
+      "available": true,
+      "contact_only": true
+    }
+  ],
+  "services": [
+    {
+      "id": "landing",
+      "name": "Landing Page",
+      "price_from_eur": 350,
+      "price_to_eur": 650,
+      "price_label": "от 350 €",
+      "description": "Современный одностраничный сайт для малого бизнеса",
+      "cta": "Заказать",
+      "cta_href": "/order",
+      "available": true
+    },
+    {
+      "id": "corporate",
+      "name": "Corporate Website",
+      "price_from_eur": 650,
+      "price_to_eur": 1500,
+      "price_label": "650–1 500 €",
+      "description": "Многостраничный корпоративный сайт",
+      "cta": "Обсудить",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Corporate%20Website",
+      "available": false
+    },
+    {
+      "id": "shop",
+      "name": "Online Shop",
+      "price_from_eur": 1500,
+      "price_to_eur": 5000,
+      "price_label": "от 1 500 €",
+      "description": "Интернет-магазин с оплатой и каталогом",
+      "cta": "Обсудить",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Online%20Shop",
+      "available": false
+    },
+    {
+      "id": "crm",
+      "name": "CRM / Automation",
+      "price_label": "Индивидуально",
+      "description": "CRM, AI-автоматизация, интеграции",
+      "cta": "Связаться с нами",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=CRM%20Automation",
+      "available": false
+    }
+  ],
+  "business_units": [
+    {
+      "id": "sales_dept",
+      "name": "Digital Sales Department",      "tagline": "Concept Preview — направление развития Genesis",
+      "includes": ["Sales Manager", "CRM", "Email", "Аналитика", "Коммерческие предложения"],
+      "cta": "Обсудить внедрение",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Digital%20Sales%20Department"
+    },
+    {
+      "id": "dev_dept",
+      "name": "Digital Development Department",
+      "tagline": "Concept Preview — направление развития Genesis",
+      "includes": ["Software Engineer", "Designer", "QA", "Документация"],
+      "cta": "Обсудить внедрение",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Digital%20Development%20Department"
+    },
+    {
+      "id": "warehouse_dept",
+      "name": "Digital Warehouse Department",
+      "tagline": "Concept Preview — направление развития Genesis",
+      "includes": ["Inventory", "Logistics", "Reports", "Scheduling"],
+      "cta": "Обсудить внедрение",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Digital%20Warehouse%20Department"
+    }
+  ]
+}

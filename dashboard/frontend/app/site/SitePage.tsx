@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEur } from "../lib/formatEur";
+import { PublicPageShell } from "../components/PublicPageShell";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -51,24 +52,7 @@ export function SitePage() {
     : 350;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-16 pt-6 sm:px-6">
-      <header className="flex items-center justify-between gap-4 border-b border-white/5 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-genesis-accent to-indigo-600 text-sm font-bold">
-            G
-          </div>
-          <div>
-            <p className="font-semibold tracking-tight">Genesis</p>
-            <p className="text-[11px] text-genesis-muted">Сайты для бизнеса</p>
-          </div>
-        </div>
-        <Link
-          href="/order"
-          className="hidden rounded-xl bg-genesis-accent px-4 py-2 text-sm font-semibold text-white shadow-glow sm:inline-block"
-        >
-          Заказать сайт
-        </Link>
-      </header>
+    <PublicPageShell>
 
       {/* Hero */}
       <section className="py-14 text-center sm:py-20">
@@ -88,12 +72,12 @@ export function SitePage() {
           >
             Заказать сайт — от {formatEur(minPrice)}
           </Link>
-          <a
-            href="#pricing"
+          <Link
+            href="/services"
             className="w-full rounded-2xl border border-genesis-border-subtle px-8 py-4 text-center text-sm font-medium sm:w-auto"
           >
-            Смотреть пакеты
-          </a>
+            Смотреть услуги
+          </Link>
         </div>
         <p className="mt-4 text-xs text-genesis-muted">
           Ответьте на 6 вопросов · увидите цену · оплатите · мы начнём работу
@@ -249,15 +233,7 @@ export function SitePage() {
         </Link>
       </section>
 
-      <footer className="mt-12 border-t border-white/5 pt-8 text-center text-xs text-genesis-muted">
-        <p>Genesis Company · Лендинги для бизнеса</p>
-        <p className="mt-2">
-          <Link href="/order" className="text-genesis-accent hover:underline">
-            Перейти к заказу
-          </Link>
-        </p>
-      </footer>
-    </div>
+    </PublicPageShell>
   );
 }
 

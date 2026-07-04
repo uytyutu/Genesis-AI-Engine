@@ -2,8 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { PublicPageShell } from "../components/PublicPageShell";
+import { PackageSkeleton } from "../components/Skeleton";
 import { formatEur } from "../lib/formatEur";
 import { formatApiDetail } from "../lib/formatApiError";
+import { startOrderCheckout } from "../lib/orderCheckout";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -25,6 +28,7 @@ function suggestPackage(needsLogo: boolean, needsDomain: boolean, extra: string)
 
 export default function OrderSitePage() {
   const [packages, setPackages] = useState<Package[]>([]);
+  const [packagesLoading, setPackagesLoading] = useState(true);
   const [businessName, setBusinessName] = useState("");
   const [description, setDescription] = useState("");
   const [city, setCity] = useState("");
@@ -60,7 +64,8 @@ export default function OrderSitePage() {
     fetch(`${API}/api/sales/packages`)
       .then((r) => r.json())
       .then((body) => setPackages(body.packages ?? []))
-      .catch(() => setPackages([]));
+      .catch(() => setPackages([]))
+      .finally(() => setPackagesLoading(false));
   }, []);
 
   const suggestedId = useMemo(
@@ -76,6 +81,10 @@ export default function OrderSitePage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!email.trim()) {
+      setError("Укажите email — на него придёт подтверждение и ссылка на оплату");
+      return;
+    }
     setBusy(true);
     setError("");
     try {
@@ -119,31 +128,19 @@ export default function OrderSitePage() {
     setPayBusy(true);
     setPayError("");
     try {
-      const origin = window.location.origin;
-      const res = await fetch(`${API}/api/sales/orders/${done.order_id}/checkout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          success_url: `${origin}/order/status/${done.order_id}`,
-          cancel_url: `${origin}/order`,
-        }),
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        setPayError(formatApiDetail(body.detail) || "Не удалось начать оплату");
-        return;
-      }
-      window.location.href = body.checkout_url;
-    } catch {
-      setPayError("Сервер недоступен");
-    } finally {
+      const url = await startOrderCheckout(done.order_id);
+      window.location.href = url;
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : "Сервер недоступен");
       setPayBusy(false);
     }
   }
 
   if (done) {
     return (
-      <main className="mx-auto max-w-2xl py-8">
+      <PublicPageShell>
+        <main className="mx-auto max-w-2xl py-4">
+          <OrderSteps current={paymentReady ? 3 : 2} />
         <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/30 to-genesis-panel p-8 text-center shadow-glow">
           <p className="text-4xl">✓</p>
           <h1 className="mt-4 text-2xl font-bold">Спасибо!</h1>
@@ -188,12 +185,17 @@ export default function OrderSitePage() {
             Отслеживать статус заказа →
           </Link>
         </div>
-      </main>
+        </main>
+      </PublicPageShell>
     );
   }
 
+  const step = 1;
+
   return (
-    <main className="mx-auto max-w-4xl py-6">
+    <PublicPageShell>
+    <main className="mx-auto max-w-4xl py-2">
+      <OrderSteps current={step} />
       <div className="mb-8 text-center">
         <p className="genesis-label tracking-[0.3em] text-genesis-accent">Genesis</p>
         <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Заказать сайт</h1>
@@ -254,13 +256,14 @@ export default function OrderSitePage() {
                 placeholder="+49 …"
               />
             </Field>
-            <Field label="Email">
+            <Field label="Email" required>
               <input
                 className={`${INPUT}`}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="hello@…"
+                required
               />
             </Field>
           </div>
@@ -297,6 +300,9 @@ export default function OrderSitePage() {
         <aside className="lg:col-span-2">
           <div className="sticky top-4 space-y-4 rounded-2xl border border-genesis-accent/25 bg-genesis-panel/80 p-5">
             <p className="genesis-label">Пакет и стоимость</p>
+            {packagesLoading ? (
+              <PackageSkeleton />
+            ) : (
             <div className="space-y-2">
               {packages.map((p) => (
                 <label
@@ -323,6 +329,7 @@ export default function OrderSitePage() {
                 </label>
               ))}
             </div>
+            )}
             {!manualPackage && selected && (
               <p className="text-xs text-genesis-muted">
                 Рекомендуем: {selected.name} — по вашим ответам
@@ -356,13 +363,52 @@ export default function OrderSitePage() {
         </aside>
       </form>
 
-      <p className="mt-8 text-center text-xs text-genesis-muted">
-        Уже в Genesis?{" "}
-        <Link href="/" className="text-genesis-accent hover:underline">
-          Mission Control
+      <p className="mt-6 text-center text-xs text-genesis-muted">
+        Нажимая «Оставить заявку», вы соглашаетесь с{" "}
+        <Link href="/agb" className="text-genesis-accent hover:underline">
+          AGB
+        </Link>{" "}
+        и{" "}
+        <Link href="/datenschutz" className="text-genesis-accent hover:underline">
+          Datenschutz
         </Link>
+        .
       </p>
     </main>
+    </PublicPageShell>
+  );
+}
+
+function OrderSteps({ current }: { current: number }) {
+  const steps = [
+    { n: 1, label: "Анкета" },
+    { n: 2, label: "Подтверждение" },
+    { n: 3, label: "Оплата" },
+  ];
+  return (
+    <ol className="mb-8 flex justify-center gap-2 sm:gap-4" aria-label="Шаги заказа">
+      {steps.map((s) => (
+        <li
+          key={s.n}
+          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs sm:text-sm ${
+            s.n === current
+              ? "bg-genesis-accent/20 text-white"
+              : s.n < current
+                ? "text-emerald-400"
+                : "text-genesis-muted"
+          }`}
+        >
+          <span
+            className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
+              s.n === current ? "bg-genesis-accent text-white" : "bg-white/5"
+            }`}
+          >
+            {s.n}
+          </span>
+          {s.label}
+        </li>
+      ))}
+    </ol>
   );
 }
 

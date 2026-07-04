@@ -134,4 +134,17 @@
   .status-dot-offline {
     background-color: #52525b;
   }
+
+  .prose-legal h1 {
+    @apply text-3xl font-bold text-white;
+  }
+
+  .prose-legal h2 {
+    @apply text-lg font-semibold text-white;
+  }
+
+  .prose-legal p,
+  .prose-legal li {
+    @apply text-genesis-muted leading-relaxed;
+  }
 }
