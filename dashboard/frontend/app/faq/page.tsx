@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PublicPageShell } from "../components/PublicPageShell";
+import { PublicPageHero } from "../components/PublicPageHero";
+import { FaqList } from "../components/FaqList";
+import { ButtonLink } from "../components/ui";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
@@ -39,31 +41,16 @@ const FAQ = [
 export default function FaqPage() {
   return (
     <PublicPageShell>
-      <main>
-        <h1 className="text-center text-3xl font-bold">Частые вопросы</h1>
-        <p className="mt-2 text-center text-genesis-muted">
-          Ответы перед заказом сайта
-        </p>
-        <ul className="mt-10 space-y-3">
-          {FAQ.map((item) => (
-            <li
-              key={item.q}
-              className="rounded-xl border border-genesis-border-subtle bg-genesis-panel/40 px-5 py-4"
-            >
-              <p className="font-medium">{item.q}</p>
-              <p className="mt-2 text-sm text-genesis-muted">{item.a}</p>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-10 text-center">
-          <Link
-            href="/order"
-            className="inline-block rounded-xl bg-genesis-accent px-8 py-3 text-sm font-semibold text-white shadow-glow"
-          >
-            Заказать сайт
-          </Link>
-        </p>
-      </main>
+      <PublicPageHero
+        title="Частые вопросы"
+        description="Ответы перед заказом сайта"
+      />
+      <FaqList items={FAQ} />
+      <p className="mt-10 text-center">
+        <ButtonLink href="/order" variant="primary" size="lg">
+          Заказать сайт
+        </ButtonLink>
+      </p>
     </PublicPageShell>
   );
 }

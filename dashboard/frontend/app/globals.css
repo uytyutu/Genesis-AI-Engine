@@ -56,6 +56,16 @@
     background-color: rgba(91, 141, 239, 0.3);
     color: #fff;
   }
+
+  :focus-visible {
+    outline: 2px solid rgba(91, 141, 239, 0.75);
+    outline-offset: 2px;
+  }
+
+  a:focus:not(:focus-visible),
+  button:focus:not(:focus-visible) {
+    outline: none;
+  }
 }
 
 @layer components {
@@ -146,5 +156,11 @@
   .prose-legal p,
   .prose-legal li {
     @apply text-genesis-muted leading-relaxed;
+  }
+
+  .transition-smooth {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: 250ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }

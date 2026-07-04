@@ -1,6 +1,6 @@
 # Mission: Release Candidate (RC1)
 
-**Статус:** 🟢 ACTIVE (параллельно Gewerbe / Stripe Live)  
+**Статус:** ✅ **PASSED** (production re-audit 2026-07-04) → `Release_Audit_RC1_Production.md`  
 **Цель:** Genesis готов показать **первому незнакомому клиенту** без стыда после Gewerbe + Stripe Live.
 
 **Foundation / Horizon:** без изменений. Executive, Marketplace, Digital Employees — 🔒.

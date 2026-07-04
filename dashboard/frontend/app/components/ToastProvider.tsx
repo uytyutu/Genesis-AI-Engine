@@ -63,7 +63,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {items.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto rounded-xl border p-4 shadow-2xl backdrop-blur ${TONE_STYLES[toast.tone]}`}
+            className={`pointer-events-auto animate-slide-in-right rounded-xl border p-4 shadow-2xl backdrop-blur ${TONE_STYLES[toast.tone]}`}
           >
             <p className="text-sm font-semibold text-white">
               {TONE_ICON[toast.tone]} {toast.title}

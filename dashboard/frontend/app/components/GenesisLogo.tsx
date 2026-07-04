@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GenesisMark } from "./GenesisMark";
 
 type Props = {
   href?: string;
@@ -6,17 +7,12 @@ type Props = {
 };
 
 export function GenesisLogo({ href = "/site", size = "md" }: Props) {
-  const box = size === "sm" ? "h-8 w-8 text-xs" : "h-10 w-10 text-sm";
+  const markSize = size === "sm" ? "h-8 w-8" : "h-10 w-10";
   const inner = (
     <>
-      <div
-        className={`flex ${box} shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-genesis-accent to-indigo-600 font-bold text-white shadow-glow`}
-        aria-hidden
-      >
-        G
-      </div>
+      <GenesisMark className={`${markSize} shrink-0 shadow-glow`} />
       <div>
-        <p className="font-semibold tracking-tight">Genesis</p>
+        <p className="font-semibold tracking-tight text-genesis-text">Genesis</p>
         <p className="text-[11px] text-genesis-muted">Цифровая компания</p>
       </div>
     </>
@@ -24,7 +20,7 @@ export function GenesisLogo({ href = "/site", size = "md" }: Props) {
 
   if (href) {
     return (
-      <Link href={href} className="flex items-center gap-3">
+      <Link href={href} className="group flex items-center gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-genesis-accent/60">
         {inner}
       </Link>
     );

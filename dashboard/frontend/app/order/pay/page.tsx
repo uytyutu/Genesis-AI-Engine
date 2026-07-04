@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { PublicPageShell } from "../../components/PublicPageShell";
+import { Button, ButtonLink } from "../../components/ui";
 import { formatEur } from "../../lib/formatEur";
 import { fetchPaymentInfo, startOrderCheckout } from "../../lib/orderCheckout";
 
@@ -98,14 +99,17 @@ function OrderPayContent() {
             </div>
           )}
 
-          <button
-            type="button"
+          <Button
+            variant="success"
+            size="lg"
+            fullWidth
             disabled={busy || !status}
+            loading={busy}
             onClick={pay}
-            className="mt-6 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-genesis-accent py-3.5 text-sm font-semibold text-white disabled:opacity-50"
+            className="mt-6"
           >
             {busy ? "Обработка…" : status ? `Оплатить ${formatEur(status.price_eur)}` : "Загрузка…"}
-          </button>
+          </Button>
           {error && <p className="mt-3 text-center text-xs text-rose-300">{error}</p>}
 
           <Link

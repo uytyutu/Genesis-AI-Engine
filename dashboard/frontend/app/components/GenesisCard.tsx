@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Card, CardHeader } from "./ui/Card";
 
 type Props = {
   title?: string;
@@ -9,20 +10,18 @@ type Props = {
   animate?: boolean;
 };
 
+/** @deprecated Prefer `Card` from `components/ui` for new code. */
 export function GenesisCard({ title, subtitle, children, className = "", glow, animate }: Props) {
   return (
-    <section
-      className={`genesis-card p-5 ${glow ? "border-genesis-accent/25 shadow-glow" : ""} ${
-        animate ? "animate-fade-up" : ""
-      } ${className}`}
+    <Card
+      glow={glow}
+      hover={!animate}
+      className={`${animate ? "animate-fade-up" : ""} ${className}`}
     >
       {(title || subtitle) && (
-        <header className="mb-4">
-          {title && <h2 className="text-sm font-semibold text-genesis-text">{title}</h2>}
-          {subtitle && <p className="mt-0.5 text-xs text-genesis-muted">{subtitle}</p>}
-        </header>
+        <CardHeader title={title ?? ""} subtitle={subtitle} />
       )}
       {children}
-    </section>
+    </Card>
   );
 }

@@ -45,9 +45,9 @@
 
 **Mission 1 — First Real Customer** (EL2 → EL3)
 
-**Параллельно (Cursor):** **Mission RC1 — Release Candidate**  
-→ `dashboard/Release_Candidate_RC1.md` · **Audit:** `dashboard/Release_Audit_RC1.md`  
-**Запланировано:** **Genesis Client Foundation** → `dashboard/Genesis_Client_Foundation.md` (после deploy RC1)
+**Параллельно:** **Mission RC2** → `Release_Candidate_RC2.md` · Audit: `Release_Audit_RC2.md` ✅ ready  
+**Client Stage 1:** `client/ARCHITECTURE.md` (Tauri 2, tokens)  
+**Политика:** `Genesis_Development_Policy.md`
 
 **Evidence Level:** EL2 ➜ EL3
 

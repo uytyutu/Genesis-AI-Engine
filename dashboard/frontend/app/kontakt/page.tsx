@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PublicPageShell } from "../components/PublicPageShell";
+import { PublicPageHero } from "../components/PublicPageHero";
+import { ButtonLink, Card } from "../components/ui";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
@@ -13,24 +14,24 @@ export const metadata: Metadata = publicPageMetadata(
 export default function KontaktPage() {
   return (
     <PublicPageShell>
-      <main className="mx-auto max-w-xl text-center">
-        <h1 className="text-3xl font-bold">Kontakt</h1>
-        <p className="mt-3 text-genesis-muted">
-          Вопросы по заказу, статусу или сотрудничеству — напишите нам.
-        </p>
+      <PublicPageHero
+        title="Kontakt"
+        description="Вопросы по заказу, статусу или сотрудничеству — напишите нам."
+      />
+      <Card glow className="mx-auto max-w-xl text-center" padding="lg">
         <a
           href={`mailto:${CONTACT_EMAIL}`}
-          className="mt-8 inline-block rounded-2xl border border-genesis-accent/40 bg-genesis-accent/10 px-8 py-4 text-lg font-semibold text-genesis-accent hover:bg-genesis-accent/20"
+          className="text-lg font-semibold text-genesis-accent transition-smooth hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-genesis-accent/70 rounded-lg px-2"
         >
           {CONTACT_EMAIL}
         </a>
-        <p className="mt-10 text-sm text-genesis-muted">
-          Готовы заказать сайт?{" "}
-          <Link href="/order" className="text-genesis-accent hover:underline">
-            Перейти к форме заказа →
-          </Link>
+        <p className="mt-8 text-sm text-genesis-muted">
+          Готовы заказать сайт?
         </p>
-      </main>
+        <ButtonLink href="/order" variant="primary" size="md" className="mt-4">
+          Перейти к форме заказа →
+        </ButtonLink>
+      </Card>
     </PublicPageShell>
   );
 }

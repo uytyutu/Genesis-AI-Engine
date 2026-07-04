@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { PublicPageShell } from "../components/PublicPageShell";
+import { PublicPageHero } from "../components/PublicPageHero";
+import { Badge, ButtonLink, Card } from "../components/ui";
 import {
   fetchPricingDisplay,
   logPricingEvent,
@@ -16,60 +17,56 @@ function ServiceCard({ item }: { item: PricingService }) {
   const available = item.available;
 
   return (
-    <div
-      className={`relative flex flex-col rounded-2xl border p-6 ${
-        available
-          ? "border-emerald-500/35 bg-gradient-to-br from-emerald-950/20 to-genesis-panel shadow-glow"
-          : "border-genesis-border-subtle bg-genesis-panel/40"
+    <Card
+      glow={available}
+      className={`relative flex flex-col ${
+        available ? "border-emerald-500/35 bg-gradient-to-br from-emerald-950/20 to-genesis-panel" : ""
       }`}
+      padding="lg"
     >
-      {available ? (
-        <span className="absolute right-4 top-4 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
-          Доступно сейчас
-        </span>
-      ) : (
-        <span className="absolute right-4 top-4 rounded-full border border-genesis-border-subtle px-2 py-0.5 text-[10px] uppercase tracking-wide text-genesis-muted">
-          По запросу
-        </span>
-      )}
-      <h3 className="text-lg font-semibold pr-24">{item.name}</h3>
+      <div className="absolute right-4 top-4">
+        {available ? (
+          <Badge variant="success">Доступно сейчас</Badge>
+        ) : (
+          <Badge variant="outline">По запросу</Badge>
+        )}
+      </div>
+      <h3 className="pr-24 text-lg font-semibold">{item.name}</h3>
       <p className="mt-2 text-2xl font-bold text-genesis-accent">{item.price_label}</p>
       <p className="mt-3 flex-1 text-sm text-genesis-muted">{item.description}</p>
       {href.startsWith("mailto:") ? (
         <a
           href={href}
           onClick={() => logPricingEvent("service_cta", item.id, "services")}
-          className={`mt-5 inline-block rounded-xl px-5 py-2.5 text-center text-sm font-semibold ${
+          className={`mt-5 inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold transition-smooth ${
             available
-              ? "bg-genesis-accent text-white"
-              : "border border-genesis-border-subtle"
+              ? "bg-genesis-accent text-white shadow-glow hover:brightness-110"
+              : "border border-genesis-border-subtle text-genesis-muted hover:text-white"
           }`}
         >
           {item.cta}
         </a>
       ) : (
-        <Link
+        <ButtonLink
           href={href}
+          variant={available ? "primary" : "secondary"}
+          size="md"
+          className="mt-5"
           onClick={() => logPricingEvent("service_cta", item.id, "services")}
-          className={`mt-5 inline-block rounded-xl px-5 py-2.5 text-center text-sm font-semibold ${
-            available
-              ? "bg-genesis-accent text-white"
-              : "border border-genesis-border-subtle"
-          }`}
         >
           {item.cta}
-        </Link>
+        </ButtonLink>
       )}
-    </div>
+    </Card>
   );
 }
 
 function UnitCard({ unit }: { unit: BusinessUnit }) {
   return (
-    <div className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/20 to-genesis-panel/80 p-6">
-      <span className="rounded-full border border-indigo-400/30 bg-indigo-950/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-indigo-200">
+    <Card className="border-indigo-500/20 bg-gradient-to-br from-indigo-950/20 to-genesis-panel/80" padding="lg">
+      <Badge variant="outline" className="border-indigo-400/30 text-indigo-200">
         Concept Preview
-      </span>
+      </Badge>
       <p className="mt-3 text-lg font-bold">{unit.name}</p>
       <p className="mt-1 text-sm text-genesis-muted">{unit.tagline}</p>
       <ul className="mt-4 space-y-1.5 text-sm text-genesis-muted">
@@ -80,14 +77,16 @@ function UnitCard({ unit }: { unit: BusinessUnit }) {
       <p className="mt-4 text-xs text-genesis-muted">
         Направление развития Genesis — не готовый продукт сегодня.
       </p>
-      <a
+      <ButtonLink
         href={unit.cta_href}
+        variant="secondary"
+        size="sm"
+        className="mt-4"
         onClick={() => logPricingEvent("unit_cta", unit.id, "services")}
-        className="mt-4 inline-block rounded-xl border border-indigo-400/30 px-4 py-2 text-sm text-indigo-200/90 hover:bg-indigo-950/40"
       >
         Узнать о планах
-      </a>
-    </div>
+      </ButtonLink>
+    </Card>
   );
 }
 
@@ -105,21 +104,16 @@ export default function ServicesPage() {
 
   return (
     <PublicPageShell>
-
-      <section className="py-10 text-center sm:py-14">
-        <p className="genesis-label tracking-[0.2em] text-emerald-400">Заказать сегодня</p>
-        <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Услуги Genesis</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-sm text-genesis-muted sm:text-base">
-          Решите задачу бизнеса — закажите сайт онлайн. Цена на экране, оплата через Stripe,
-          статус заказа прозрачный.
-        </p>
-        <Link
-          href="/order"
-          className="mt-8 inline-block rounded-2xl bg-gradient-to-r from-emerald-500 to-genesis-accent px-8 py-4 text-base font-semibold text-white shadow-glow"
-        >
+      <PublicPageHero
+        badge="Заказать сегодня"
+        badgeVariant="success"
+        title="Услуги Genesis"
+        description="Решите задачу бизнеса — закажите сайт онлайн. Цена на экране, оплата через Stripe, статус заказа прозрачный."
+      >
+        <ButtonLink href="/order" variant="success" size="lg">
           Заказать сайт →
-        </Link>
-      </section>
+        </ButtonLink>
+      </PublicPageHero>
 
       {availableNow.length > 0 && (
         <section>
@@ -160,9 +154,9 @@ export default function ServicesPage() {
 
       <p className="mt-10 text-center text-sm text-genesis-muted">
         Platform и подписки —{" "}
-        <Link href="/pricing" className="text-genesis-accent hover:underline">
+        <ButtonLink href="/pricing" variant="ghost" size="sm" className="inline-flex">
           ранний доступ
-        </Link>
+        </ButtonLink>
       </p>
     </PublicPageShell>
   );

@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PublicPageShell } from "../../../components/PublicPageShell";
+import { Button, ButtonLink, Loader } from "../../../components/ui";
 import { formatEur } from "../../../lib/formatEur";
 import { fetchPaymentReady, startOrderCheckout } from "../../../lib/orderCheckout";
 
@@ -101,9 +102,7 @@ function OrderStatusContent() {
   if (loading) {
     return (
       <PublicPageShell>
-        <main className="mx-auto max-w-lg py-12 text-center text-sm text-genesis-muted">
-          Загрузка статуса…
-        </main>
+        <Loader label="Загрузка статуса…" />
       </PublicPageShell>
     );
   }
@@ -146,14 +145,15 @@ function OrderStatusContent() {
 
           {awaitingPayment && paymentReady && (
             <div className="mt-6">
-              <button
-                type="button"
-                disabled={payBusy}
+              <Button
+                variant="success"
+                size="lg"
+                fullWidth
+                loading={payBusy}
                 onClick={payNow}
-                className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-genesis-accent py-3.5 text-sm font-semibold text-white disabled:opacity-50"
               >
                 {payBusy ? "Переход к оплате…" : `Оплатить ${formatEur(data.price_eur)}`}
-              </button>
+              </Button>
               {payError && <p className="mt-2 text-center text-xs text-rose-300">{payError}</p>}
             </div>
           )}
@@ -222,12 +222,9 @@ function OrderStatusContent() {
             Сохраните эту страницу — здесь всегда актуальный статус заказа.
           </p>
 
-          <Link
-            href="/order"
-            className="mt-4 block text-center text-sm text-genesis-accent hover:underline"
-          >
+            <ButtonLink href="/order" variant="ghost" size="sm" className="mt-4">
             ← Новый заказ
-          </Link>
+          </ButtonLink>
         </div>
       </main>
     </PublicPageShell>

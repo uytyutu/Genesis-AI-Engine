@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PublicPageShell } from "../components/PublicPageShell";
-import { LegalProse } from "../components/LegalProse";
+import { LegalPageLayout } from "../components/LegalPageLayout";
+import { Card } from "../components/ui";
 import { CONTACT_EMAIL, LEGAL } from "../lib/siteConfig";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
@@ -21,11 +23,8 @@ export default function DatenschutzPage() {
 
   return (
     <PublicPageShell>
-      <LegalProse>
-        <h1 className="text-3xl font-bold">Datenschutzerklärung</h1>
-        <p className="mt-2 text-sm text-genesis-muted">Stand: Juli 2026</p>
-
-        <section className="mt-8 space-y-4 text-sm leading-relaxed text-genesis-muted">
+      <LegalPageLayout title="Datenschutzerklärung" subtitle="Stand: Juli 2026">
+        <Card hover={false} padding="md" className="mt-4 space-y-4 text-sm leading-relaxed text-genesis-muted">
           <div>
             <h2 className="text-lg font-semibold text-white">1. Verantwortlicher</h2>
             <p className="mt-2">
@@ -38,35 +37,29 @@ export default function DatenschutzPage() {
               Telefon: {phone}
             </p>
           </div>
-
           <div>
             <h2 className="text-lg font-semibold text-white">2. Verarbeitungen</h2>
             <ul className="mt-2 list-disc space-y-1 pl-5">
               <li>Website-Betrieb: Server-Logfiles (IP, Browser, Zeitstempel)</li>
               <li>Bestellung: Name, Kontaktdaten, Bestelldaten</li>
               <li>Zahlung: Zahlungsdaten über Stripe</li>
-              <li>E-Mail: Transaktionsbestätigungen an Ihre E-Mail-Adresse</li>
+              <li>E-Mail: Transaktionsbestätigungen</li>
             </ul>
           </div>
-
           <div>
             <h2 className="text-lg font-semibold text-white">3. Dienstleister</h2>
             <p className="mt-2">
-              Vercel (Hosting), Railway (API), Resend (E-Mail), Stripe (Zahlungen). Mit diesen
-              Anbietern werden Auftragsverarbeitungsverträge geschlossen, bevor Bestellungen live
-              gehen.
+              Vercel, Railway, Resend, Stripe — AVV vor Live-Bestellungen.
             </p>
           </div>
-
           <div>
             <h2 className="text-lg font-semibold text-white">4. Ihre Rechte</h2>
             <p className="mt-2">
-              Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit, Widerspruch —
-              kontaktieren Sie uns unter {CONTACT_EMAIL}.
+              Auskunft, Berichtigung, Löschung — {CONTACT_EMAIL}.
             </p>
           </div>
-        </section>
-      </LegalProse>
+        </Card>
+      </LegalPageLayout>
     </PublicPageShell>
   );
 }

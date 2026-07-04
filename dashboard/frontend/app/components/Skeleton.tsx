@@ -1,11 +1,5 @@
-export function Skeleton({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`animate-pulse rounded-lg bg-white/5 ${className}`}
-      aria-hidden
-    />
-  );
-}
+export { Skeleton, SkeletonLines } from "./ui/Loader";
+import { Skeleton } from "./ui/Loader";
 
 export function PackageSkeleton() {
   return (

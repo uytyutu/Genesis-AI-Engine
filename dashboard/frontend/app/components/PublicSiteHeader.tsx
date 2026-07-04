@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { GenesisLogo } from "./GenesisLogo";
+import { ButtonLink } from "./ui/Button";
 
 const LINKS = [
   { href: "/site", label: "Главная" },
@@ -22,7 +23,7 @@ export function PublicSiteHeader() {
         <GenesisLogo />
         <button
           type="button"
-          className="rounded-lg border border-genesis-border-subtle px-3 py-2 text-sm text-genesis-muted sm:hidden"
+          className="rounded-xl border border-genesis-border-subtle px-3 py-2 text-sm text-genesis-muted transition-smooth hover:border-genesis-accent/30 hover:text-white sm:hidden"
           aria-expanded={open}
           aria-controls="public-nav"
           onClick={() => setOpen((v) => !v)}
@@ -37,14 +38,16 @@ export function PublicSiteHeader() {
             const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
             if (link.accent) {
               return (
-                <Link
+                <ButtonLink
                   key={link.href}
                   href={link.href}
+                  variant="primary"
+                  size="sm"
+                  className="text-center shadow-glow"
                   onClick={() => setOpen(false)}
-                  className="rounded-xl bg-genesis-accent px-4 py-2 text-center text-sm font-semibold text-white shadow-glow"
                 >
                   {link.label}
-                </Link>
+                </ButtonLink>
               );
             }
             return (
@@ -52,7 +55,7 @@ export function PublicSiteHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className={`rounded-lg px-3 py-2 text-center text-sm hover:bg-genesis-elevated hover:text-white sm:text-left ${
+                className={`rounded-lg px-3 py-2 text-center text-sm transition-smooth hover:bg-genesis-elevated hover:text-white sm:text-left ${
                   link.muted
                     ? "text-genesis-muted/70 text-xs"
                     : active
