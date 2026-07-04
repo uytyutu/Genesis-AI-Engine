@@ -45,8 +45,8 @@
 
 **Mission 1 — First Real Customer** (EL2 → EL3)
 
-**Параллельно:** **Mission RC2** → `Release_Candidate_RC2.md` · Audit: `Release_Audit_RC2.md` ✅ ready  
-**Client Stage 1:** `client/ARCHITECTURE.md` (Tauri 2, tokens)  
+**Параллельно:** **RC2** ✅ PASSED · `Genesis_Release_Line.md`  
+**Client Stage 1:** `client/desktop/` — shell, theme, API ping ✅  
 **Политика:** `Genesis_Development_Policy.md`
 
 **Evidence Level:** EL2 ➜ EL3

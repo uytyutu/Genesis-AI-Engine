@@ -1,7 +1,7 @@
 # Release Audit RC2
 
 **Дата:** 2026-07-04  
-**Статус:** ✅ **READY FOR COMMIT** (локально) · ⏳ Production после push  
+**Статус:** ✅ **RC2 PASSED** (production) · Client Stage 1 scaffold ready locally  
 **Правило:** один commit RC2 → push → production re-audit
 
 ---
@@ -88,7 +88,7 @@
 | Stack: Tauri 2 + React | ✅ |
 | `client/ARCHITECTURE.md` | ✅ |
 | `client/shared/design-tokens.json` | ✅ |
-| Tauri scaffold | ⏳ после RC2 deploy |
+| Tauri scaffold | ✅ `client/desktop/` |
 
 ---
 
@@ -105,11 +105,11 @@
 ## Next Steps
 
 ```
-1. Commit RC2 (один раз)     ← CEO approval
-2. Push → Vercel
-3. Production Re-Audit
-4. RC2 PASSED
-5. Genesis Client Stage 1 → tauri init
+1. Commit RC2 (один раз)     ✅
+2. Push → Vercel             ✅
+3. Production Re-Audit         ✅ Release_Audit_RC2_Production.md
+4. RC2 PASSED                ✅ tag rc2
+5. Genesis Client Stage 1    ✅ scaffold (commit when ready)
 ```
 
 ---

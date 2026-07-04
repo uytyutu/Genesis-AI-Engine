@@ -1,7 +1,7 @@
 # Genesis Client — Stage 1 Architecture
 
 **Mission:** Genesis Client Foundation · Stage 1  
-**Статус:** 🟢 ACTIVE (параллельно RC2, не публикуется)  
+**Статус:** 🟢 STAGE 1 ACTIVE (после RC2 PASSED, не публикуется)  
 **Цель:** фундамент Windows-first клиента без отвлечения от Mission 1.
 
 ---
@@ -41,10 +41,12 @@ client/
 - [x] Выбор стека (Tauri 2 + React)
 - [x] Архитектура и структура папок
 - [x] Design tokens export
-- [ ] `tauri init` в `client/desktop/` (следующий шаг после RC2 deploy)
-- [ ] Пустой shell: sidebar + main area
-- [ ] Auth scaffold (API key / session file, local only)
-- [ ] `GET /api/health` ping
+- [x] `tauri init` в `client/desktop/` — после RC2 deploy
+- [x] Пустой shell: sidebar + main area
+- [x] Auth scaffold (API key local only)
+- [x] `GET /api/status` ping
+- [x] Theme system + settings storage
+- [x] Navigation + updater scaffold
 
 ---
 
