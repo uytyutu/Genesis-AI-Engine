@@ -1,52 +1,94 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { useAppSettings } from "../context/AppSettingsContext";
+import { useNavigation } from "../context/NavigationContext";
 import { askAssistant } from "../lib/endpoints";
+import {
+  loadChat,
+  loadPinnedPrompts,
+  QUICK_COMMANDS,
+  resolveQuickCommand,
+  saveChat,
+  savePinnedPrompts,
+  searchChat,
+  type ChatMessage,
+} from "../lib/chatStore";
+import { copyText, MessageBody } from "../lib/markdown";
 
-type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-};
+function ChatBubble({ message }: { message: ChatMessage }) {
+  const [copied, setCopied] = useState(false);
 
-const CHAT_KEY = "genesis.client.chat.v1";
-
-function loadChat(): ChatMessage[] {
-  try {
-    const raw = localStorage.getItem(CHAT_KEY);
-    return raw ? (JSON.parse(raw) as ChatMessage[]) : [];
-  } catch {
-    return [];
+  async function onCopy() {
+    const ok = await copyText(message.text);
+    if (ok) {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    }
   }
-}
 
-function saveChat(messages: ChatMessage[]) {
-  localStorage.setItem(CHAT_KEY, JSON.stringify(messages.slice(-40)));
+  return (
+    <div className={`chat__row chat__row--${message.role}`}>
+      <div className={`chat__bubble chat__bubble--${message.role}`}>
+        <div className="chat__meta">
+          <span>{message.role === "user" ? "You" : "Genesis"}</span>
+          <time>{message.at}</time>
+        </div>
+        {message.role === "assistant" ? (
+          <MessageBody text={message.text} />
+        ) : (
+          <p className="chat__plain">{message.text}</p>
+        )}
+        <button
+          type="button"
+          className="chat__copy"
+          onClick={() => void onCopy()}
+          aria-label="Copy message"
+        >
+          {copied ? "Copied" : "Copy"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export function ChatPage() {
   const { settings } = useAppSettings();
+  const { chatPrefill, clearChatPrefill } = useNavigation();
   const [messages, setMessages] = useState<ChatMessage[]>(loadChat);
+  const [pinned, setPinned] = useState<string[]>(loadPinnedPrompts);
   const [input, setInput] = useState("");
+  const [search, setSearch] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dropHint, setDropHint] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+
+  const visible = search.trim() ? searchChat(messages, search) : messages;
 
   useEffect(() => {
     saveChat(messages);
   }, [messages]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, sending]);
+    if (chatPrefill) {
+      setInput(chatPrefill);
+      clearChatPrefill();
+    }
+  }, [chatPrefill, clearChatPrefill]);
 
-  async function send() {
-    const question = input.trim();
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, sending, visible.length]);
+
+  async function send(text?: string) {
+    const raw = (text ?? input).trim();
+    const question = resolveQuickCommand(raw) ?? raw;
     if (!question || sending) return;
 
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: "user",
       text: question,
+      at: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
@@ -61,6 +103,10 @@ export function ChatPage() {
           id: crypto.randomUUID(),
           role: "assistant",
           text: res.answer,
+          at: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         },
       ]);
     } catch (e) {
@@ -70,30 +116,100 @@ export function ChatPage() {
     }
   }
 
+  function pinCurrentInput() {
+    const q = input.trim();
+    if (!q || pinned.includes(q)) return;
+    const next = [q, ...pinned].slice(0, 12);
+    setPinned(next);
+    savePinnedPrompts(next);
+  }
+
+  function removePin(prompt: string) {
+    const next = pinned.filter((p) => p !== prompt);
+    setPinned(next);
+    savePinnedPrompts(next);
+  }
+
+  function onDrop(e: DragEvent) {
+    e.preventDefault();
+    setDropHint(null);
+    const files = [...e.dataTransfer.files];
+    if (files.length === 0) return;
+    setDropHint(
+      `${files.map((f) => f.name).join(", ")} — upload API в Stage 3. Пока опишите файл в сообщении.`,
+    );
+  }
+
   return (
-    <div className="page page--chat">
-      <header className="page__header">
-        <h1>Assistant</h1>
-        <p>Live connection to <code>/api/assistant/ask</code></p>
+    <div
+      className="page page--chat"
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDropHint("Отпустите файл… (upload — скоро)");
+      }}
+      onDragLeave={() => setDropHint(null)}
+      onDrop={onDrop}
+    >
+      <header className="page__header page__header--row">
+        <div>
+          <h1>Chat</h1>
+          <p>/focus · /status · /projects · /revenue</p>
+        </div>
+        <button
+          type="button"
+          className="btn btn--ghost"
+          onClick={() => {
+            setMessages([]);
+            localStorage.removeItem("genesis.client.chat.v2");
+          }}
+        >
+          Clear
+        </button>
       </header>
+
+      <div className="chat-toolbar">
+        <input
+          className="chat-toolbar__search"
+          placeholder="Поиск по истории…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {pinned.length > 0 ? (
+        <div className="pinned-row">
+          {pinned.map((p) => (
+            <button
+              key={p}
+              type="button"
+              className="pinned-chip"
+              onClick={() => void send(p)}
+              title="Unpin"
+              onContextMenu={(e) => {
+                e.preventDefault();
+                removePin(p);
+              }}
+            >
+              {p.length > 28 ? `${p.slice(0, 28)}…` : p}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       <div className="chat">
         <div className="chat__thread" aria-live="polite">
-          {messages.length === 0 ? (
+          {visible.length === 0 ? (
             <p className="chat__empty">
-              Ask Genesis about your company, queue, or next step.
+              Спросите о проектах, выручке или фокусе дня.
             </p>
           ) : (
-            messages.map((m) => (
-              <div key={m.id} className={`chat__bubble chat__bubble--${m.role}`}>
-                {m.text}
-              </div>
-            ))
+            visible.map((m) => <ChatBubble key={m.id} message={m} />)
           )}
-          {sending ? <p className="chat__typing">Genesis is thinking…</p> : null}
+          {sending ? <p className="chat__typing">Genesis думает…</p> : null}
           <div ref={endRef} />
         </div>
 
+        {dropHint ? <p className="banner banner--warn">{dropHint}</p> : null}
         {error ? <p className="banner banner--warn">{error}</p> : null}
 
         <form
@@ -106,10 +222,25 @@ export function ChatPage() {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Genesis…"
+            placeholder="Сообщение или /команда…"
             maxLength={500}
             disabled={sending}
+            list="quick-cmds"
           />
+          <datalist id="quick-cmds">
+            {Object.keys(QUICK_COMMANDS).map((k) => (
+              <option key={k} value={k} />
+            ))}
+          </datalist>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={pinCurrentInput}
+            disabled={!input.trim()}
+            title="Pin prompt (right-click chip to unpin)"
+          >
+            Pin
+          </button>
           <button type="submit" className="btn btn--primary" disabled={sending}>
             Send
           </button>

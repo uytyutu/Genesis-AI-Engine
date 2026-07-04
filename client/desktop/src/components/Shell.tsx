@@ -7,6 +7,7 @@ type ShellProps = {
   connected: boolean;
   onNavigate: (id: NavId) => void;
   onDisconnect: () => void;
+  onOpenPalette: () => void;
   children: ReactNode;
 };
 
@@ -16,6 +17,7 @@ export function Shell({
   connected,
   onNavigate,
   onDisconnect,
+  onOpenPalette,
   children,
 }: ShellProps) {
   return (
@@ -39,6 +41,14 @@ export function Shell({
           >
             {connected ? "Online" : "Offline"}
           </span>
+          <button
+            type="button"
+            className="shell__palette"
+            onClick={onOpenPalette}
+            title="Command palette (Ctrl+K)"
+          >
+            <kbd>Ctrl</kbd>+<kbd>K</kbd>
+          </button>
         </header>
         <div className="shell__content">{children}</div>
       </div>

@@ -1,44 +1,37 @@
-# Mission: Genesis Client Foundation
+# Mission: Genesis Client
 
-**Статус:** 🟢 STAGE 2 ACTIVE (Windows Client)  
-**Цель:** рабочее Windows-приложение к EL3+.
-
----
-
-## Stage 1 ✅
-
-Scaffold, theme, settings, API ping — commit `248b305`.
-
-## Stage 2 (сейчас)
-
-**Checklist:** `client/docs/STAGE2_CHECKLIST.md`
-
-| Экран | API |
-|-------|-----|
-| Connect | `/api/status` |
-| Home | `/api/owner/dashboard` |
-| Chat | `POST /api/assistant/ask` |
-| Projects | `/api/factory/products` |
-| Settings | local + disconnect |
-
-**Осталось для полного Stage 2:** Rust toolchain → `npm run tauri dev` → packaged `.exe` smoke.
+**Статус:** 🟢 STAGE 2.5 — Daily Driver  
+**Это уже не Foundation.** Первый настоящий Genesis Desktop.
 
 ---
 
-## Этапы 3–7 (Horizon / architecture)
+## Stage 2 ✅ (commit `4a47c20`, не pushed)
 
-| Этап | Название |
-|------|----------|
-| 3 | Company Brain |
-| 4 | Executive |
-| 5 | Marketplace |
-| 6 | Digital Employees |
-| 7 | Digital Departments |
+Connect · Session · Home · Chat · Projects · Settings · Command Palette
 
-Проектирование только — не полная реализация до EL3 feedback.
+## Stage 2.5 (сейчас)
+
+**Цель:** приложение, которое CEO открывает каждый день.
+
+**Критерий:** Desktop заменяет браузер для **70–80%** работы с Genesis.
+
+**Checklist:** `client/docs/STAGE2_5_DAILY_DRIVER.md`  
+**Roadmap:** `client/docs/ROADMAP.md`
+
+| Область | Прогресс |
+|---------|----------|
+| Home — live infra, projects, chat, notifications | 🔄 |
+| Chat — search, pins, `/commands`, drop scaffold | 🔄 |
+| Projects — detail tabs (Tasks/Files/Deploy/History) | 🔄 |
+| Palette — refresh API, chat search | 🔄 |
+| Native `.exe` | ⬜ Rust |
+
+**Push gate:** Rust window + CEO comfort — не раньше.
 
 ---
 
-## Правило
+## Stage 3+ (не сейчас)
 
-Не мешает Mission 1. Каждый этап = реальная польза, не красивые пустые экраны.
+Company Brain → Executive → Digital Employees → Marketplace → Departments → mobile
+
+Проектирование OK. Полная реализация — после Daily Driver.

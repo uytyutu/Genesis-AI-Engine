@@ -46,7 +46,8 @@
 **Mission 1 — First Real Customer** (EL2 → EL3)
 
 **Параллельно:** **RC2** ✅ PASSED · `Genesis_Release_Line.md`  
-**Client Stage 2:** `client/desktop/` — connect, dashboard, chat, projects 🔄  
+**Client Stage 2.5:** Daily Driver — desktop заменяет 70–80% браузера 🔄  
+**Push gate:** Rust window + CEO «удобнее Desktop»  
 **Политика:** `Genesis_Development_Policy.md`
 
 **Evidence Level:** EL2 ➜ EL3

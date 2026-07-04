@@ -13,8 +13,10 @@
 | 4 | Home | ✅ | `/api/owner/dashboard` — stats, services, events |
 | 5 | Chat | ✅ | `POST /api/assistant/ask`, history in localStorage |
 | 6 | Projects | ✅ | `GET /api/factory/products` |
-| 7 | Settings | ✅ | Name, API URL, theme, disconnect, reset |
-| 8 | Auto-update | 🔄 | Scaffold; plugin off until release endpoint |
+| 7 | Settings | ✅ | Account / API / theme cards |
+| 8 | Command Palette | ✅ | `Ctrl+K` — navigate, search, disconnect |
+| 9 | Auto-update | 🔄 | Scaffold; plugin off until release endpoint |
+| 10 | Packaged `.exe` | ⬜ | Requires Rust — daily driver smoke |
 
 ## Run
 
@@ -28,7 +30,7 @@ npm run tauri dev    # native .exe (install Rust first)
 
 https://rustup.rs → then `npm run tauri dev`
 
-## Stage 3 (not now)
+**Roadmap:** `client/docs/ROADMAP.md`
 
 - `tauri-plugin-store` native settings
 - `tauri-plugin-updater` + signed releases

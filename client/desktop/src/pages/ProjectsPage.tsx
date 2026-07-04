@@ -1,10 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAppSettings } from "../context/AppSettingsContext";
-import { fetchProjects, type FactoryProduct } from "../lib/endpoints";
+import { useNavigation } from "../context/NavigationContext";
+import { ProjectDetail } from "../components/ProjectDetail";
+import { fetchProject, fetchProjects, type FactoryProduct } from "../lib/endpoints";
+
+function statusTone(status: string): string {
+  if (status.includes("publish") || status.includes("done")) return "done";
+  if (status.includes("work") || status.includes("progress")) return "active";
+  return "default";
+}
 
 export function ProjectsPage() {
   const { settings } = useAppSettings();
+  const { projectId, openProject, closeProject } = useNavigation();
   const [projects, setProjects] = useState<FactoryProduct[]>([]);
+  const [detail, setDetail] = useState<FactoryProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,12 +35,32 @@ export function ProjectsPage() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (!projectId) {
+      setDetail(null);
+      return;
+    }
+    void fetchProject(settings, projectId)
+      .then(setDetail)
+      .catch(() => setDetail(null));
+  }, [projectId, settings]);
+
+  if (projectId && detail) {
+    return (
+      <ProjectDetail
+        product={detail}
+        settings={settings}
+        onBack={closeProject}
+      />
+    );
+  }
+
   return (
     <div className="page page--wide">
       <header className="page__header page__header--row">
         <div>
           <h1>Projects</h1>
-          <p>Factory products from <code>/api/factory/products</code></p>
+          <p>{projects.length} рабочих проектов · factory API</p>
         </div>
         <button
           type="button"
@@ -47,38 +77,41 @@ export function ProjectsPage() {
 
       {!loading && projects.length === 0 ? (
         <section className="card card--muted">
-          <p>No factory projects yet. They will appear here when created on the server.</p>
+          <p>No projects yet.</p>
         </section>
       ) : null}
 
       <div className="project-grid">
         {projects.map((p) => (
-          <article key={p.product_id} className="card project-card">
-            <div className="project-card__head">
-              <h2>{p.business_name}</h2>
-              <span className={`badge badge--${p.status}`}>{p.status_label}</span>
-            </div>
-            <p className="project-card__type">{p.product_type}</p>
-            <p className="project-card__desc">{p.description}</p>
-            <dl className="kv kv--compact">
-              <div>
-                <dt>Quality</dt>
-                <dd>{p.quality_percent}%</dd>
+          <article key={p.product_id} className="card project-card project-card--click">
+            <button
+              type="button"
+              className="project-card__open"
+              onClick={() => openProject(p.product_id)}
+            >
+              <div className="project-card__head">
+                <div>
+                  <h2>{p.business_name}</h2>
+                  <p className="project-card__type">{p.product_type}</p>
+                </div>
+                <span className={`badge badge--${statusTone(p.status)}`}>
+                  {p.status_label}
+                </span>
               </div>
-              <div>
-                <dt>Approved</dt>
-                <dd>{p.owner_approved ? "Yes" : "No"}</dd>
+
+              <p className="project-card__desc">{p.description}</p>
+
+              <div className="progress" aria-hidden>
+                <div
+                  className="progress__bar"
+                  style={{ width: `${p.quality_percent}%` }}
+                />
               </div>
-              <div>
-                <dt>Published</dt>
-                <dd>{p.published ? "Yes" : "No"}</dd>
+              <div className="progress__label">
+                <span>In progress</span>
+                <strong>{p.quality_percent}%</strong>
               </div>
-            </dl>
-            {p.public_url ? (
-              <a className="project-card__link" href={p.public_url} target="_blank" rel="noreferrer">
-                Open public URL
-              </a>
-            ) : null}
+            </button>
           </article>
         ))}
       </div>
