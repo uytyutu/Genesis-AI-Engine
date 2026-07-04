@@ -200,6 +200,10 @@ export default function OrderSitePage() {
         <p className="mt-2 text-genesis-muted">
           Ответьте на несколько вопросов — мы сразу покажем цену и что вы получите
         </p>
+        <p className="mx-auto mt-4 max-w-2xl text-sm text-genesis-muted/90">
+          Создано и сопровождается командой ИИ Genesis. Вы выходите онлайн быстрее и
+          экономите недели работы и тысячи евро по сравнению с классической разработкой.
+        </p>
       </div>
 
       <form onSubmit={submit} className="grid gap-6 lg:grid-cols-5">
