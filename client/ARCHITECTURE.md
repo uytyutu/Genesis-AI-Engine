@@ -41,10 +41,21 @@ client/
 - [x] Выбор стека (Tauri 2 + React)
 - [x] Архитектура и структура папок
 - [x] Design tokens export
-- [x] `tauri init` в `client/desktop/` — после RC2 deploy
-- [x] Пустой shell: sidebar + main area
-- [x] Auth scaffold (API key local only)
-- [x] `GET /api/status` ping
+- [x] `tauri init` в `client/desktop/`
+- [x] Shell: sidebar + main area
+- [x] Auth scaffold + `GET /api/status` ping
+- [x] Theme + settings storage
+
+## Stage 2 — Windows Client (active)
+
+See `client/docs/STAGE2_CHECKLIST.md`
+
+- [x] Connect flow + session
+- [x] Owner dashboard home
+- [x] Live assistant chat
+- [x] Factory projects list
+- [ ] Packaged `.exe` smoke (requires Rust on dev machine)
+- [ ] Updater endpoint (Stage 2b)
 - [x] Theme system + settings storage
 - [x] Navigation + updater scaffold
 

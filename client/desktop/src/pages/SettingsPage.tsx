@@ -1,18 +1,36 @@
 import { useState } from "react";
 import { useAppSettings } from "../context/AppSettingsContext";
+import { useSession } from "../context/SessionContext";
 import { checkForUpdates } from "../lib/updater";
 import type { ThemeMode } from "../lib/tokens";
 
 export function SettingsPage() {
   const { settings, updateSettings, resetSettings } = useAppSettings();
+  const { disconnect } = useSession();
   const [updateMsg, setUpdateMsg] = useState<string | null>(null);
 
   return (
     <div className="page">
       <header className="page__header">
         <h1>Settings</h1>
-        <p>Stored locally on this device (Stage 1).</p>
+        <p>Connection, appearance, and updates.</p>
       </header>
+
+      <section className="card">
+        <h2>Account</h2>
+        <label className="field">
+          <span>Display name</span>
+          <input
+            value={settings.ownerName}
+            onChange={(e) => updateSettings({ ownerName: e.target.value })}
+            placeholder="Used in the shell; API name as fallback"
+            autoComplete="name"
+          />
+        </label>
+        <button type="button" className="btn btn--ghost" onClick={disconnect}>
+          Disconnect session
+        </button>
+      </section>
 
       <section className="card">
         <h2>API</h2>
@@ -27,12 +45,12 @@ export function SettingsPage() {
           />
         </label>
         <label className="field">
-          <span>API key (optional scaffold)</span>
+          <span>API key (reserved)</span>
           <input
             type="password"
             value={settings.apiKey}
             onChange={(e) => updateSettings({ apiKey: e.target.value })}
-            placeholder="Reserved for owner auth"
+            placeholder="Future owner auth"
             autoComplete="off"
           />
         </label>
@@ -81,8 +99,15 @@ export function SettingsPage() {
 
       <section className="card card--muted">
         <h2>Reset</h2>
-        <p>Restore default API URL and theme.</p>
-        <button type="button" className="btn btn--ghost" onClick={resetSettings}>
+        <p>Restore defaults and clear saved session.</p>
+        <button
+          type="button"
+          className="btn btn--ghost"
+          onClick={() => {
+            resetSettings();
+            disconnect();
+          }}
+        >
           Reset settings
         </button>
       </section>

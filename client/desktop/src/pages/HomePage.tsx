@@ -1,76 +1,85 @@
-import { useCallback, useEffect, useState } from "react";
-import { pingApi, type ApiPingResult } from "../lib/api";
-import { getAuthState } from "../lib/auth";
+import { useEffect } from "react";
+import { useSession } from "../context/SessionContext";
 import { checkForUpdates } from "../lib/updater";
 import { useAppSettings } from "../context/AppSettingsContext";
 
 export function HomePage() {
   const { settings } = useAppSettings();
-  const auth = getAuthState(settings);
-  const [ping, setPing] = useState<ApiPingResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [updateNote, setUpdateNote] = useState<string | null>(null);
-
-  const runPing = useCallback(async () => {
-    setLoading(true);
-    const result = await pingApi(settings);
-    setPing(result);
-    setLoading(false);
-  }, [settings]);
+  const { dashboard, ownerLabel, refresh, systemVersion, error } = useSession();
 
   useEffect(() => {
-    void runPing();
-  }, [runPing]);
+    void refresh();
+    if (settings.checkUpdatesOnLaunch) {
+      void checkForUpdates(true);
+    }
+  }, [refresh, settings.checkUpdatesOnLaunch]);
 
-  useEffect(() => {
-    if (!settings.checkUpdatesOnLaunch) return;
-    void checkForUpdates(true).then((r) => setUpdateNote(r.message));
-  }, [settings.checkUpdatesOnLaunch]);
+  if (!dashboard) {
+    return (
+      <div className="page">
+        <p className="hint">Loading dashboard…</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="page">
+    <div className="page page--wide">
       <header className="page__header">
-        <h1>Genesis workspace</h1>
-        <p>Stage 1 shell — API connection and local settings only.</p>
+        <h1>{dashboard.greeting}</h1>
+        <p>
+          {ownerLabel} · Genesis {systemVersion ?? "—"} · {dashboard.uptime_label}
+        </p>
       </header>
 
+      {error ? <p className="banner banner--warn">{error}</p> : null}
+
+      <div className="stat-grid">
+        <article className="stat">
+          <span className="stat__label">Projects</span>
+          <strong className="stat__value">{dashboard.products_count}</strong>
+        </article>
+        <article className="stat">
+          <span className="stat__label">Queue</span>
+          <strong className="stat__value">{dashboard.queue_pending}</strong>
+        </article>
+        <article className="stat">
+          <span className="stat__label">Revenue today</span>
+          <strong className="stat__value">
+            €{dashboard.revenue_today_eur.toFixed(2)}
+          </strong>
+        </article>
+        <article className="stat">
+          <span className="stat__label">System load</span>
+          <strong className="stat__value">{dashboard.system_load_percent}%</strong>
+        </article>
+      </div>
+
       <section className="card">
-        <div className="card__head">
-          <h2>API connection</h2>
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={() => void runPing()}
-            disabled={loading}
-          >
-            {loading ? "Checking…" : "Ping API"}
-          </button>
-        </div>
-        <dl className="kv">
-          <div>
-            <dt>Endpoint</dt>
-            <dd className="mono">{settings.apiUrl}</dd>
-          </div>
-          <div>
-            <dt>Auth</dt>
-            <dd>{auth.configured ? `Configured (${auth.maskedKey})` : "Not set"}</dd>
-          </div>
-        </dl>
-        {ping?.ok ? (
-          <div className="status status--ok">
-            <strong>{ping.status.name}</strong> v{ping.status.version} · phase{" "}
-            {ping.status.phase}
-            {ping.status.paused ? " · paused" : ""} · {ping.latencyMs}ms
-          </div>
-        ) : ping ? (
-          <div className="status status--err">Could not reach API: {ping.error}</div>
-        ) : null}
+        <h2>Today</h2>
+        <p className="goal">{dashboard.daily_goal}</p>
+        <p className="hint">{dashboard.tip}</p>
       </section>
 
-      {updateNote ? (
-        <section className="card card--muted">
-          <h2>Updates</h2>
-          <p>{updateNote}</p>
+      <section className="card">
+        <h2>Services</h2>
+        <ul className="list-plain">
+          {dashboard.services_summary.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </section>
+
+      {dashboard.recent_events.length > 0 ? (
+        <section className="card">
+          <h2>Recent activity</h2>
+          <ul className="timeline">
+            {dashboard.recent_events.slice(0, 6).map((ev, i) => (
+              <li key={`${ev.icon}-${ev.message}-${i}`}>
+                <span aria-hidden>{ev.icon}</span>
+                <span>{ev.message}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
     </div>

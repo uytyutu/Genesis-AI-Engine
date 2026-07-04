@@ -46,7 +46,7 @@
 **Mission 1 — First Real Customer** (EL2 → EL3)
 
 **Параллельно:** **RC2** ✅ PASSED · `Genesis_Release_Line.md`  
-**Client Stage 1:** `client/desktop/` — shell, theme, API ping ✅  
+**Client Stage 2:** `client/desktop/` — connect, dashboard, chat, projects 🔄  
 **Политика:** `Genesis_Development_Policy.md`
 
 **Evidence Level:** EL2 ➜ EL3

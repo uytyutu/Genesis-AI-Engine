@@ -1,38 +1,44 @@
 # Mission: Genesis Client Foundation
 
-**Статус:** 🟢 STAGE 1 ACTIVE (после RC2 PASSED)  
-**Цель:** фундамент кроссплатформенного клиента к EL3+.
+**Статус:** 🟢 STAGE 2 ACTIVE (Windows Client)  
+**Цель:** рабочее Windows-приложение к EL3+.
 
 ---
 
-## Stage 1 (сейчас)
+## Stage 1 ✅
 
-- [x] Выбор стека: **Tauri 2 + React/Vite**
-- [x] `client/ARCHITECTURE.md`
-- [x] `client/shared/design-tokens.json`
-- [x] `tauri init` → `client/desktop/`
-- [x] Genesis shell (sidebar, titlebar, Home / Settings)
-- [x] Theme system (dark / light / system)
-- [x] Settings storage (local)
-- [x] Auth scaffold + `GET /api/status` ping
-- [x] Updater scaffold (plugin off until Stage 2)
+Scaffold, theme, settings, API ping — commit `248b305`.
 
-**Checklist:** `client/docs/STAGE1_CHECKLIST.md`
+## Stage 2 (сейчас)
+
+**Checklist:** `client/docs/STAGE2_CHECKLIST.md`
+
+| Экран | API |
+|-------|-----|
+| Connect | `/api/status` |
+| Home | `/api/owner/dashboard` |
+| Chat | `POST /api/assistant/ask` |
+| Projects | `/api/factory/products` |
+| Settings | local + disconnect |
+
+**Осталось для полного Stage 2:** Rust toolchain → `npm run tauri dev` → packaged `.exe` smoke.
 
 ---
 
-## Этапы 2–4
+## Этапы 3–7 (Horizon / architecture)
 
-| Этап | Платформа |
-|------|-----------|
-| 2 | Windows (рабочая версия, updater, native store) |
-| 3 | macOS, Linux |
-| 4 | Android, iOS |
+| Этап | Название |
+|------|----------|
+| 3 | Company Brain |
+| 4 | Executive |
+| 5 | Marketplace |
+| 6 | Digital Employees |
+| 7 | Digital Departments |
+
+Проектирование только — не полная реализация до EL3 feedback.
 
 ---
 
 ## Правило
 
-Не мешает Mission 1. Не публикуется как готовый продукт до gate.
-
-**Prerequisite для `tauri dev`:** [Rust toolchain](https://www.rust-lang.org/tools/install)
+Не мешает Mission 1. Каждый этап = реальная польза, не красивые пустые экраны.
