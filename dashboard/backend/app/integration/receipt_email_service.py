@@ -8,6 +8,15 @@ import httpx
 
 
 class ReceiptEmailService:
+    def configuration_status(self) -> dict:
+        has_key = bool(os.getenv("RESEND_API_KEY", "").strip())
+        has_from = bool(os.getenv("GENESIS_EMAIL_FROM", "").strip())
+        return {
+            "configured": has_key and has_from,
+            "has_api_key": has_key,
+            "has_from_address": has_from,
+        }
+
     def send_order_receipt(self, *, order: dict, receipt_text: str) -> dict:
         to = str(order.get("email") or "").strip()
         if not to:

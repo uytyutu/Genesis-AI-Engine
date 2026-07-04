@@ -35,6 +35,7 @@ from app.schemas import (
     SalesCheckoutResponse,
     SalesOrderPublicStatus,
     PaymentStatusResponse,
+    EmailStatusResponse,
     SalesOrderActionResponse,
     SalesOrderCreateRequest,
     SalesOrderCreatedResponse,
@@ -398,6 +399,12 @@ def start_sales_order_production(order_id: str) -> SalesOrderActionResponse:
 def sales_payment_status() -> PaymentStatusResponse:
     data = _ctx().revenue.payment_status()
     return PaymentStatusResponse(**data)
+
+
+@app.get("/api/sales/email-status", response_model=EmailStatusResponse)
+def sales_email_status() -> EmailStatusResponse:
+    data = _ctx().revenue.email_status()
+    return EmailStatusResponse(**data)
 
 
 @app.post("/api/sales/orders/{order_id}/checkout", response_model=SalesCheckoutResponse)

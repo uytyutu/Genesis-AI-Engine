@@ -298,6 +298,12 @@ class PaymentStatusResponse(BaseModel):
     sandbox: bool = False
 
 
+class EmailStatusResponse(BaseModel):
+    configured: bool
+    has_api_key: bool
+    has_from_address: bool
+
+
 class RevenuePaymentResponse(BaseModel):
     ok: bool = True
     order_id: str

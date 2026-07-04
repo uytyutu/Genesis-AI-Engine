@@ -14,6 +14,8 @@ from app.integration.receipt_email_service import ReceiptEmailService
 
 def test_receipt_skipped_without_config():
     svc = ReceiptEmailService()
+    status = svc.configuration_status()
+    assert status["configured"] is False
     old_key = os.environ.pop("RESEND_API_KEY", None)
     old_from = os.environ.pop("GENESIS_EMAIL_FROM", None)
     try:
