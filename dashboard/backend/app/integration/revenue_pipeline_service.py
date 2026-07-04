@@ -37,6 +37,9 @@ class RevenuePipelineService:
             "sandbox": provider == "sandbox",
         }
 
+    def email_status(self) -> dict:
+        return self._receipt_email.configuration_status()
+
     def begin_checkout(self, order_id: str, *, success_url: str, cancel_url: str) -> dict:
         order = self._sales.get_order(order_id)
         if not order:
