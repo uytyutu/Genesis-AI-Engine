@@ -35,6 +35,8 @@ import {
   type ProductionDepartment,
 } from "./components/ProductionDepartmentCard";
 import { CursorWorkspacePanel } from "./components/CursorWorkspacePanel";
+import { DashboardSkeleton } from "./components/DashboardSkeleton";
+import { Loader } from "./components/ui/Loader";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -120,17 +122,6 @@ type MissionControl = {
   decisions_needed?: MissionDecision[];
 };
 
-const NAV = [
-  { label: "Компания", href: "/company" },
-  { label: "Финансы", href: "/finance" },
-  { label: "Продукты", href: "/projects" },
-  { label: "Cursor", href: "/cursor" },
-  { label: "AI-команда", href: "/ai" },
-  { label: "Аналитика", href: "/growth" },
-  { label: "Разработчик", href: "/check" },
-  { label: "Настройки", href: "/settings" },
-] as const;
-
 export default function MissionControlPage() {
   const [data, setData] = useState<MissionControl | null>(null);
   const [message, setMessage] = useState("");
@@ -165,6 +156,14 @@ export default function MissionControlPage() {
       href: e.action_href,
     }));
   }, [data?.narrative_feed]);
+
+  if (!data && !message) {
+    return (
+      <main>
+        <DashboardSkeleton />
+      </main>
+    );
+  }
 
   return (
     <main>
@@ -338,7 +337,7 @@ export default function MissionControlPage() {
                 {data?.narrative_feed?.length ? (
                   <LiveNarrativeFeed feed={data.narrative_feed} />
                 ) : (
-                  <p className="text-sm text-genesis-muted">Загрузка…</p>
+                  <Loader label="Genesis загружает ленту…" />
                 )}
               </GenesisCard>
 
@@ -409,22 +408,10 @@ export default function MissionControlPage() {
             </ul>
           </GenesisCard>
 
-          <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-xl border border-genesis-border-subtle bg-genesis-panel/60 px-3 py-3 text-center text-sm font-medium transition-colors hover:border-genesis-accent/40 hover:bg-genesis-elevated"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/order"
-              className="rounded-2xl bg-gradient-to-r from-emerald-500 to-genesis-accent px-8 py-3.5 text-sm font-semibold text-white shadow-glow transition hover:opacity-90"
+              className="rounded-2xl bg-gradient-to-r from-genesis-accent to-indigo-600 px-8 py-3.5 text-sm font-semibold text-white shadow-glow transition hover:opacity-90"
             >
               🛒 Заказать сайт (клиент)
             </Link>

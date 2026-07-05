@@ -1,7 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Nav } from "./Nav";
+import { GenesisSidebar } from "./GenesisSidebar";
+import { GenesisTopBar } from "./GenesisTopBar";
+import { GenesisMobileNav } from "./GenesisMobileNav";
 
 /** Routes that show Mission Control chrome (sidebar nav). Everything else = public marketing shell. */
 const MC_PREFIXES = [
@@ -18,6 +20,7 @@ const MC_PREFIXES = [
   "/settings",
   "/launch",
   "/opportunities",
+  "/acquisition",
   "/projects",
   "/products",
   "/growth",
@@ -37,9 +40,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="mx-auto min-h-screen max-w-6xl px-3 pb-10 pt-4 sm:px-5 lg:px-6">
-      <Nav />
-      {children}
+    <div className="genesis-app-shell">
+      <GenesisSidebar />
+      <div className="genesis-app-main">
+        <GenesisTopBar />
+        <GenesisMobileNav />
+        <div className="genesis-app-content">{children}</div>
+      </div>
     </div>
   );
 }

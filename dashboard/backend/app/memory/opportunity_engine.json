@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "sources": {
+    "manual": {
+      "id": "manual",
+      "label": "Ручной ввод",
+      "adapter": "manual",
+      "enabled": true,
+      "auto_search": false
+    },
+    "google_maps": {
+      "id": "google_maps",
+      "label": "Google Maps",
+      "adapter": "google_maps",
+      "enabled": true,
+      "auto_search": false
+    },
+    "google_business": {
+      "id": "google_business",
+      "label": "Google Business",
+      "adapter": "google_business",
+      "enabled": false,
+      "auto_search": false
+    },
+    "reddit": {
+      "id": "reddit",
+      "label": "Reddit",
+      "adapter": "reddit",
+      "enabled": false,
+      "auto_search": false
+    },
+    "facebook": {
+      "id": "facebook",
+      "label": "Facebook",
+      "adapter": "facebook",
+      "enabled": false,
+      "auto_search": false
+    },
+    "linkedin": {
+      "id": "linkedin",
+      "label": "LinkedIn",
+      "adapter": "linkedin",
+      "enabled": false,
+      "auto_search": false
+    },
+    "telegram": {
+      "id": "telegram",
+      "label": "Telegram",
+      "adapter": "telegram",
+      "enabled": false,
+      "auto_search": false
+    },
+    "x": {
+      "id": "x",
+      "label": "X",
+      "adapter": "x",
+      "enabled": false,
+      "auto_search": false
+    },
+    "email": {
+      "id": "email",
+      "label": "Email",
+      "adapter": "email",
+      "enabled": false,
+      "auto_search": false
+    },
+    "seo": {
+      "id": "seo",
+      "label": "SEO",
+      "adapter": "seo",
+      "enabled": false,
+      "auto_search": false
+    },
+    "referrals": {
+      "id": "referrals",
+      "label": "Рекомендации",
+      "adapter": "referrals",
+      "enabled": false,
+      "auto_search": false
+    }
+  }
+}

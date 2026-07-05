@@ -16,13 +16,13 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary:
-    "bg-gradient-to-r from-genesis-accent to-blue-600 text-white shadow-glow hover:brightness-110 border-transparent",
+    "bg-gradient-to-r from-genesis-accent to-indigo-600 text-white shadow-glow hover:brightness-110 border-transparent",
   secondary:
     "border border-genesis-border bg-genesis-elevated/80 text-genesis-text hover:border-genesis-accent/40 hover:bg-genesis-panel",
   ghost:
     "border border-transparent text-genesis-muted hover:bg-genesis-elevated hover:text-white",
   success:
-    "bg-gradient-to-r from-emerald-500 to-genesis-accent text-white shadow-glow hover:brightness-110 border-transparent",
+    "bg-gradient-to-r from-genesis-accent to-indigo-600 text-white shadow-glow hover:brightness-110 border-transparent",
   danger:
     "border border-rose-500/40 bg-rose-950/40 text-rose-100 hover:bg-rose-950/60",
 };

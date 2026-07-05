@@ -44,3 +44,22 @@ def test_timeline_endpoint(tmp_path: Path):
     assert any(m["id"] == "factory" and m["status"] == "pending" for m in data["milestones"])
 
     reset_integration()
+
+
+def test_assistant_english(tmp_path: Path):
+    reset_integration()
+    memory = tmp_path / "memory"
+    memory.mkdir()
+    get_integration(memory)
+
+    client = TestClient(app)
+    res = client.post(
+        "/api/assistant/ask",
+        json={"question": "What should I do next?", "locale": "en"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["source"] == "genesis"
+    assert "recommend" in data["answer"].lower() or "product" in data["answer"].lower()
+
+    reset_integration()

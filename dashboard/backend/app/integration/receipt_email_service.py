@@ -126,6 +126,17 @@ class ReceiptEmailService:
             html=html_body,
         )
 
+    def send_outreach(self, *, to: str, subject: str, text: str) -> dict:
+        """CEO-approved cold outreach only — plain text + minimal HTML."""
+        paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+        intro = paragraphs[0] if paragraphs else text[:200]
+        html_body = _html_email(
+            title=subject,
+            intro=intro,
+            rows=[("Nachricht", text.replace("\n", " ")[:500] + ("…" if len(text) > 500 else ""))],
+        )
+        return self._send(to=to, subject=subject, text=text, html=html_body)
+
     def _send(self, *, to: str, subject: str, text: str, html: str) -> dict:
         if not to:
             return {"ok": False, "skipped": True, "reason": "no_email"}

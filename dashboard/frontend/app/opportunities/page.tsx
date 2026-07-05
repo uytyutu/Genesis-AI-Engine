@@ -24,6 +24,8 @@ type Opportunity = {
   proposed_message: string;
   notes: string;
   potential_value_eur: number;
+  website_url?: string;
+  outreach_status?: string;
   found_at: string;
 };
 
@@ -45,6 +47,7 @@ const EMPTY_FORM = {
   company_name: "",
   contact: "",
   fit_reason: "",
+  website_url: "",
   potential_value_eur: "650",
   notes: "",
 };
@@ -57,6 +60,7 @@ export default function OpportunitiesPage() {
   const [statuses, setStatuses] = useState<StatusOpt[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [preparing, setPreparing] = useState("");
   const [message, setMessage] = useState("");
 
   const refresh = useCallback(async () => {
@@ -123,6 +127,27 @@ export default function OpportunitiesPage() {
     refresh();
   }
 
+  async function prepareProposal(id: string, websiteUrl?: string) {
+    setPreparing(id);
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/acquisition/opportunities/${id}/prepare`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website_url: websiteUrl || undefined }),
+      });
+      const body = await res.json();
+      setMessage(body.message ?? (res.ok ? "Готово" : "Ошибка"));
+      if (res.ok) {
+        window.location.href = "/acquisition";
+      }
+    } catch {
+      setMessage("Ошибка подготовки КП");
+    } finally {
+      setPreparing("");
+    }
+  }
+
   const enabledSources = sources.filter((s) => s.enabled);
 
   return (
@@ -132,10 +157,16 @@ export default function OpportunitiesPage() {
           <p className="text-xs uppercase tracking-[0.35em] text-violet-300/80">Opportunity Engine</p>
           <h1 className="mt-2 text-2xl font-semibold">Возможности компании</h1>
           <p className="mt-2 text-sm text-genesis-muted">
-            Скелет v0: журнал, источники, статусы. Без автопоиска и автосообщений — только реальные
-            данные.
+            Журнал лидов Mission 1.5 — добавьте компанию, подготовьте КП в{" "}
+            <Link href="/acquisition" className="text-emerald-400 underline">
+              Acquisition Studio
+            </Link>
+            .
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <Link href="/acquisition" className="rounded-lg border border-emerald-500/40 px-3 py-1.5 hover:bg-genesis-elevated/40">
+              Acquisition Studio
+            </Link>
             <Link href="/site" className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40">
               Публичная страница
             </Link>
@@ -222,6 +253,15 @@ export default function OpportunitiesPage() {
               />
             </label>
             <label className="block text-xs text-genesis-muted">
+              Сайт (URL)
+              <input
+                className="mt-1 w-full rounded-lg border border-genesis-border bg-genesis-bg px-3 py-2 text-sm"
+                value={form.website_url}
+                onChange={(e) => setForm({ ...form, website_url: e.target.value })}
+                placeholder="https://beispiel.de"
+              />
+            </label>
+            <label className="block text-xs text-genesis-muted">
               Почему подходит
               <input
                 className="mt-1 w-full rounded-lg border border-genesis-border bg-genesis-bg px-3 py-2 text-sm"
@@ -281,7 +321,7 @@ export default function OpportunitiesPage() {
                   {o.contact && (
                     <p className="mt-1 text-xs text-genesis-muted">Контакт: {o.contact}</p>
                   )}
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-3 flex flex-wrap gap-2 items-center">
                     <select
                       className="rounded-lg border border-genesis-border bg-genesis-bg px-2 py-1 text-xs"
                       value={o.status}
@@ -293,6 +333,19 @@ export default function OpportunitiesPage() {
                         </option>
                       ))}
                     </select>
+                    <button
+                      type="button"
+                      disabled={preparing === o.id}
+                      onClick={() => prepareProposal(o.id, o.website_url)}
+                      className="rounded-lg bg-emerald-700/80 px-2 py-1 text-xs text-white disabled:opacity-50"
+                    >
+                      {preparing === o.id ? "…" : "Подготовить КП"}
+                    </button>
+                    {o.outreach_status === "pending_approval" && (
+                      <Link href="/acquisition" className="text-xs text-emerald-400">
+                        → Approve
+                      </Link>
+                    )}
                     <span className="text-xs text-genesis-muted self-center">
                       {formatEur(o.potential_value_eur)}
                     </span>

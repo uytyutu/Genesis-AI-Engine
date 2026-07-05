@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { Sidebar, type NavId } from "./Sidebar";
+import { GenesisMark } from "./GenesisMark";
+import { useI18n } from "../i18n/I18nProvider";
 
 type ShellProps = {
   active: NavId;
@@ -20,6 +22,8 @@ export function Shell({
   onOpenPalette,
   children,
 }: ShellProps) {
+  const { t } = useI18n();
+
   return (
     <div className="shell">
       <Sidebar
@@ -32,20 +36,20 @@ export function Shell({
       <div className="shell__main">
         <header className="shell__titlebar" data-tauri-drag-region>
           <span className="shell__mark" aria-hidden>
-            G
+            <GenesisMark className="shell__mark-svg" />
           </span>
-          <span className="shell__product">Genesis Client</span>
+          <span className="shell__product">{t("app.product")}</span>
           <span
             className={`shell__conn${connected ? " is-online" : ""}`}
-            title={connected ? "API connected" : "Not connected"}
+            title={connected ? t("shell.online") : t("shell.offline")}
           >
-            {connected ? "Online" : "Offline"}
+            {connected ? t("shell.online") : t("shell.offline")}
           </span>
           <button
             type="button"
             className="shell__palette"
             onClick={onOpenPalette}
-            title="Command palette (Ctrl+K)"
+            title={t("shell.palette")}
           >
             <kbd>Ctrl</kbd>+<kbd>K</kbd>
           </button>

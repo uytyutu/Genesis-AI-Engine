@@ -57,10 +57,14 @@ select {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: var(--color-accent);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.shell__mark-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .shell__product {
@@ -98,12 +102,13 @@ select {
 .sidebar__logo {
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, var(--color-accent), #7c3aed);
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  color: #fff;
+  flex-shrink: 0;
+}
+
+.sidebar__logo-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .sidebar__name {
@@ -369,12 +374,14 @@ select {
   width: 3rem;
   height: 3rem;
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, var(--color-accent), #7c3aed);
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  color: #fff;
+  overflow: hidden;
   margin-bottom: 1rem;
+}
+
+.connect__logo-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .connect h1 {
@@ -1153,6 +1160,105 @@ code {
 
 .kv--infra dd {
   margin: 0;
+}
+
+.studio-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.studio-tabs__btn {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.studio-tabs__btn.is-active {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
+.studio-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.studio-handoff__plan,
+.studio-handoff__verify {
+  white-space: pre-wrap;
+  font-size: 0.85rem;
+  background: var(--color-bg);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+
+.studio-handoff__steps {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0;
+}
+
+.studio-handoff__steps li {
+  padding: 0.35rem 0;
+  color: var(--color-text-muted);
+}
+
+.studio-handoff__steps li.is-done {
+  color: var(--color-ok);
+}
+
+.studio-handoff__steps li.is-active {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.studio-handoff__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.file-list li {
+  padding: 0.2rem 0;
+  color: var(--color-text-muted);
+}
+
+.chat-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.chat-attachment-chip {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+}
+
+@media (max-width: 900px) {
+  .studio-columns {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

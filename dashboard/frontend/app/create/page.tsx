@@ -213,7 +213,7 @@ export default function CreateProductPage() {
 
         <p className="text-center">
           <Link href="/" className="text-sm text-genesis-muted hover:text-white">
-            ← Mission Control
+            ← Genesis
           </Link>
         </p>
       </div>

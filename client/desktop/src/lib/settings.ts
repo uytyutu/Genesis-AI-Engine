@@ -1,6 +1,8 @@
 import type { ThemeMode } from "./tokens";
+import type { LocaleId } from "@genesis/i18n/types";
+import { DEFAULT_LOCALE } from "@genesis/i18n/registry";
 
-const STORAGE_KEY = "genesis.client.settings.v2";
+const STORAGE_KEY = "genesis.client.settings.v3";
 const LEGACY_KEY = "genesis.client.settings.v1";
 
 export type AppSettings = {
@@ -10,6 +12,7 @@ export type AppSettings = {
   ownerName: string;
   sessionActive: boolean;
   checkUpdatesOnLaunch: boolean;
+  locale: LocaleId;
 };
 
 export const DEFAULT_API_URL =
@@ -23,6 +26,7 @@ export const defaultSettings = (): AppSettings => ({
   ownerName: "",
   sessionActive: false,
   checkUpdatesOnLaunch: true,
+  locale: DEFAULT_LOCALE,
 });
 
 function migrate(raw: Record<string, unknown>): AppSettings {
@@ -38,13 +42,18 @@ function migrate(raw: Record<string, unknown>): AppSettings {
       typeof raw.checkUpdatesOnLaunch === "boolean"
         ? raw.checkUpdatesOnLaunch
         : base.checkUpdatesOnLaunch,
+    locale:
+      typeof raw.locale === "string" ? (raw.locale as LocaleId) : base.locale,
   };
 }
 
 export function loadSettings(): AppSettings {
   if (typeof localStorage === "undefined") return defaultSettings();
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_KEY);
+    const raw =
+      localStorage.getItem(STORAGE_KEY) ??
+      localStorage.getItem("genesis.client.settings.v2") ??
+      localStorage.getItem(LEGACY_KEY);
     if (!raw) return defaultSettings();
     return migrate(JSON.parse(raw));
   } catch {

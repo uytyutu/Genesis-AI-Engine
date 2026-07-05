@@ -1,0 +1,18 @@
+[
+  {
+    "id": "2026-07-04-ctkimage-string-path",
+    "symptom": "Не удалось запустить Genesis",
+    "root_cause": "CTkImage received str path instead of PIL.Image.Image in launcher _build_ui (Finish Desktop Identity branding)",
+    "fix": "load_mark_pil_image() in launcher/branding.py — Image.open().copy() before CTkImage",
+    "files": [
+      "launcher/app.py",
+      "launcher/branding.py",
+      "tests/test_launcher_brand_image.py"
+    ],
+    "date": "2026-07-04",
+    "version": "0.5.0",
+    "verify": "Double-click Genesis.exe — launcher window opens with Orbit Stack header",
+    "regression": "tests/test_launcher_brand_image.py",
+    "tags": ["launcher", "startup", "ctkimage", "critical"]
+  }
+]

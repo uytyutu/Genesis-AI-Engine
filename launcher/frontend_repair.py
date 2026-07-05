@@ -220,8 +220,8 @@ def diagnose_frontend(
     )
 
 
-def _clear_next_cache(root: Path | None) -> None:
-    clear_frontend_build(root)
+def _clear_next_cache(root: Path | None, managed=None) -> None:
+    clear_frontend_build(root, managed=managed)
     append_log("Cleared .next cache")
 
 
@@ -357,11 +357,14 @@ def repair_frontend(
                 f"{format_backend_failure(diag, root)}"
             )
 
+    from launcher.process_cleanup import stop_frontend_listeners
+
     if owner_ready_live():
         return True, "Genesis уже готов — Mission Control отвечает на :3000"
     if probe_frontend_live():
         return True, "Frontend уже работает на :3000 — ремонт не нужен"
 
+    stop_frontend_listeners(root, managed)
     _kill_tree(managed.frontend)
     managed.frontend = None
 
@@ -384,8 +387,8 @@ def repair_frontend(
             return False, f"{diag.message}\n\n{msg}"
 
     if root is not None and _needs_frontend_rebuild(root, diag):
-        _clear_next_cache(root)
-        ok, msg = build_frontend(root)
+        _clear_next_cache(root, managed)
+        ok, msg = build_frontend(root, managed=managed)
         steps.append(msg)
         if not ok:
             return False, f"{diag.message}\n\n{msg}"
@@ -396,18 +399,18 @@ def repair_frontend(
                 "См. launcher/logs/frontend_build.log"
             )
 
-    ok, msg = ensure_frontend_ready(root, for_production=True)
+    ok, msg = ensure_frontend_ready(root, for_production=True, managed=managed)
     steps.append(msg)
     if not ok:
         return False, f"{diag.message}\n\n{msg}"
 
-    ok, msg, proc = start_frontend(root)
+    ok, msg, proc = start_frontend(root, managed=managed)
     steps.append(msg)
     if not ok:
         return False, f"{diag.message}\n\n{msg}"
 
     managed.frontend = proc
-    append_log("Frontend repair: restarted dev server (next dev)")
+    append_log("Frontend repair: restarted production server (next start)")
     time.sleep(2)
     return True, "\n".join(steps)
 

@@ -6,10 +6,15 @@ import re
 import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from launcher.log_util import append_log
 from launcher.runtime_state import load_state, pid_alive
+
+if TYPE_CHECKING:
+    from launcher.processes import ManagedProcesses
 
 
 def _no_window() -> int:
@@ -96,6 +101,35 @@ def kill_port_listeners(port: int, *, allowed_names: tuple[str, ...]) -> list[st
         freed.append(f"{name}:{pid}")
         append_log(f"Freed port {port} — stopped {name} pid={pid}")
     return freed
+
+
+def frontend_listener_pids() -> list[int]:
+    return pids_on_port(3000)
+
+
+def backend_listener_pids() -> list[int]:
+    return pids_on_port(8000)
+
+
+def frontend_port_listening() -> bool:
+    return bool(frontend_listener_pids())
+
+
+def stop_frontend_listeners(
+    root: Path | None = None,
+    managed: ManagedProcesses | None = None,
+) -> None:
+    """Stop every Genesis frontend process before mutating .next or rebuilding."""
+    from launcher.processes import _kill_tree
+
+    if managed is not None:
+        _kill_tree(managed.frontend)
+        managed.frontend = None
+
+    state = load_state(root)
+    kill_pid(state.get("frontend_pid"))
+    kill_port_listeners(3000, allowed_names=("node.exe", "nodejs.exe"))
+    time.sleep(0.5)
 
 
 def kill_genesis_ports(root: Path | None = None) -> None:

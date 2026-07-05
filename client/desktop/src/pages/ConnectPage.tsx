@@ -1,36 +1,36 @@
 import { useState } from "react";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useSession } from "../context/SessionContext";
+import { useI18n } from "../i18n/I18nProvider";
+import { GenesisMark } from "../components/GenesisMark";
 
 export function ConnectPage() {
   const { settings, updateSettings } = useAppSettings();
   const { connect, connecting, error } = useSession();
+  const { t } = useI18n();
   const [localError, setLocalError] = useState<string | null>(null);
 
   async function onConnect() {
     setLocalError(null);
     if (!settings.apiUrl.trim()) {
-      setLocalError("Enter a Genesis API URL.");
+      setLocalError(t("connect.error.url"));
       return;
     }
     const ok = await connect();
-    if (!ok && !error) setLocalError("Could not connect to Genesis API.");
+    if (!ok && !error) setLocalError(t("connect.error.failed"));
   }
 
   return (
     <div className="connect">
       <div className="connect__card">
         <div className="connect__logo" aria-hidden>
-          G
+          <GenesisMark className="connect__logo-svg" />
         </div>
-        <h1>Connect to Genesis</h1>
-        <p className="connect__lead">
-          Sign in to your company workspace. Stage 2 uses live API endpoints —
-          no mock data.
-        </p>
+        <h1>{t("connect.title")}</h1>
+        <p className="connect__lead">{t("connect.lead")}</p>
 
         <label className="field">
-          <span>Your name</span>
+          <span>{t("connect.name")}</span>
           <input
             value={settings.ownerName}
             onChange={(e) => updateSettings({ ownerName: e.target.value })}
@@ -40,7 +40,7 @@ export function ConnectPage() {
         </label>
 
         <label className="field">
-          <span>Genesis API URL</span>
+          <span>{t("connect.apiUrl")}</span>
           <input
             type="url"
             value={settings.apiUrl}
@@ -58,16 +58,12 @@ export function ConnectPage() {
 
         <button
           type="button"
-          className="btn btn--primary btn--block"
-          onClick={() => void onConnect()}
+          className="btn btn--primary connect__submit"
           disabled={connecting}
+          onClick={() => void onConnect()}
         >
-          {connecting ? "Connecting…" : "Connect"}
+          {connecting ? t("boot.connecting") : t("connect.submit")}
         </button>
-
-        <p className="connect__hint">
-          Verifies <code>/api/status</code> and loads your owner dashboard.
-        </p>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { GenesisMark } from "./GenesisMark";
 
 const ceoLinks = [
   { href: "/company", label: "Компания" },
@@ -23,9 +24,7 @@ export function Nav() {
   return (
     <header className="genesis-nav-bar mb-5 flex flex-col gap-3 px-3 py-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:px-4">
       <Link href="/company" className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-genesis-accent via-indigo-500 to-genesis-purple-soft text-sm font-bold shadow-glow">
-          G
-        </div>
+        <GenesisMark className="h-9 w-9 shrink-0 shadow-glow" />
         <div>
           <p className="text-sm font-semibold tracking-tight">Genesis Company</p>
           <p className="text-[10px] text-genesis-muted sm:text-[11px]">Центр управления</p>

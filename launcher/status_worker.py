@@ -24,6 +24,7 @@ def gather_status(
     root: Path | None,
     *,
     frontend_exited: bool,
+    launcher_idle: bool = True,
 ) -> StatusSnapshot:
     """Blocking HTTP/deps work — call only from a worker thread."""
     from launcher.health import owner_ready_live, probe_frontend_live
@@ -36,6 +37,7 @@ def gather_status(
         starting=False,
         frontend_exited=fe_crashed,
         root=root,
+        launcher_idle=launcher_idle,
     )
     mc = fetch_mission_control()
     health = sync_with_mission_control(health, mc)

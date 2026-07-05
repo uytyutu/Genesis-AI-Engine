@@ -369,6 +369,7 @@ class TimelineResponse(BaseModel):
 
 class AssistantRequest(BaseModel):
     question: str = Field(min_length=1, max_length=500)
+    locale: str | None = Field(default=None, max_length=16)
 
 
 class AssistantResponse(BaseModel):
@@ -690,6 +691,14 @@ class OpportunityRecord(BaseModel):
     revenue_eur: float = 0.0
     found_at: str
     updated_at: str
+    website_url: str = ""
+    site_analysis: dict | None = None
+    recommended_package_id: str = ""
+    recommended_price_eur: float = 0.0
+    pricing_rationale: str = ""
+    email_subject: str = ""
+    outreach_status: str = "none"
+    interactions: list[dict] = []
 
 
 class OpportunityCreateRequest(BaseModel):
@@ -702,6 +711,7 @@ class OpportunityCreateRequest(BaseModel):
     proposed_message: str = ""
     notes: str = ""
     potential_value_eur: float = 0.0
+    website_url: str = ""
 
 
 class OpportunityUpdateRequest(BaseModel):
@@ -714,6 +724,7 @@ class OpportunityUpdateRequest(BaseModel):
     score: int | None = None
     potential_value_eur: float | None = None
     revenue_eur: float | None = None
+    website_url: str | None = None
 
 
 class OpportunitySourcesResponse(BaseModel):
@@ -748,6 +759,106 @@ class OpportunityUpdatedResponse(BaseModel):
     ok: bool
     opportunity: OpportunityRecord
     message: str
+
+
+class SiteAnalysisResult(BaseModel):
+    url: str
+    final_url: str = ""
+    status_code: int = 0
+    title: str = ""
+    load_ms: int = 0
+    has_https: bool = False
+    has_viewport: bool = False
+    issues: list[str] = []
+    strengths: list[str] = []
+    issue_count: int = 0
+    improvement_score: int = 0
+    analyzed_at: str = ""
+    error: str | None = None
+
+
+class AcquisitionStudioStatus(BaseModel):
+    version: str
+    name: str
+    auto_search: bool
+    auto_send: bool
+    outreach_send_enabled: bool
+    outreach_send_note: str
+    law: str
+    pending_approval_count: int
+    sent_count: int
+    pipeline_count: int
+    channels: list[dict] = []
+
+
+class AcquisitionApprovalItem(BaseModel):
+    id: str
+    company_name: str
+    contact: str = ""
+    website_url: str = ""
+    recommended_price_eur: float = 0.0
+    recommended_package_id: str = ""
+    email_subject: str = ""
+    proposed_message: str = ""
+    fit_reason: str = ""
+    pricing_rationale: str = ""
+    issue_count: int = 0
+    score: int = 0
+
+
+class AcquisitionApprovalQueueResponse(BaseModel):
+    items: list[AcquisitionApprovalItem]
+
+
+class AcquisitionPrepareRequest(BaseModel):
+    website_url: str | None = None
+
+
+class AcquisitionPrepareResponse(BaseModel):
+    ok: bool
+    opportunity: OpportunityRecord
+    message: str
+
+
+class AcquisitionApproveResponse(BaseModel):
+    ok: bool
+    opportunity: OpportunityRecord
+    message: str
+    send_result: dict | None = None
+
+
+class AcquisitionInteractionRequest(BaseModel):
+    event: str
+    note: str = ""
+
+
+class AcquisitionEvidenceReport(BaseModel):
+    sample_size: int
+    contacted: int
+    replied: int
+    won: int
+    lost: int
+    reply_rate_pct: float
+    by_segment: dict = {}
+    by_price_band: dict = {}
+    lost_reasons: dict = {}
+    insights: list[str] = []
+    evidence_ready: bool
+    note: str
+
+
+class AcquisitionDailyWorklist(BaseModel):
+    date: str
+    mode: str
+    note: str
+    target_per_day: int
+    segments: list[dict] = []
+    sources_disabled: list[str] = []
+
+
+class AcquisitionCatalogResponse(BaseModel):
+    principle: str
+    services: list[dict]
 
 
 class MissionSuggestion(BaseModel):
@@ -1008,3 +1119,110 @@ class PublicLaunchChecklist(BaseModel):
     checks: list[PublicLaunchCheckItem]
     blocking_count: int
     headline: str
+
+
+# --- AI Hub (Development Studio Stage 1) ---
+
+
+class AiHubPlanStep(BaseModel):
+    id: str
+    title: str
+    capability: str
+    provider_id: str | None = None
+    tool_id: str | None = None
+    requires_approve: bool = False
+    status: str = "pending"
+
+
+class AiHubTaskCreate(BaseModel):
+    input_text: str = Field(min_length=1, max_length=4000)
+    locale: str | None = Field(default=None, max_length=16)
+    project_id: str | None = Field(default=None, max_length=64)
+    input_type: str = Field(default="text", max_length=16)
+
+
+class AiHubTask(BaseModel):
+    id: str
+    input_text: str
+    input_type: str = "text"
+    locale: str = "ru"
+    project_id: str
+    phase: str
+    plan: list[AiHubPlanStep]
+    plan_summary: str = ""
+    approved_at: str | None = None
+    cursor_task_id: str | None = None
+    error: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
+    cursor_task: CursorTask | None = None
+
+
+class AiHubTaskResponse(BaseModel):
+    task: AiHubTask | None = None
+
+
+class AiHubTasksListResponse(BaseModel):
+    tasks: list[AiHubTask]
+
+
+class AiHubApproveRequest(BaseModel):
+    auto_open: bool = True
+
+
+class AiHubVerifyResponse(BaseModel):
+    ok: bool
+    message: str
+    hub_task: AiHubTask | None = None
+
+
+class DevProject(BaseModel):
+    id: str
+    name: str
+    kind: str
+    path_label: str
+    available: bool
+
+
+class DevFileEntry(BaseModel):
+    path: str
+    name: str
+    is_dir: bool = False
+
+
+class DevBuildEntry(BaseModel):
+    at: str | None = None
+    task_id: str | None = None
+    label: str | None = None
+    state: str | None = None
+    state_label: str | None = None
+    verify_summary: str | None = None
+
+
+class DevSuggestion(BaseModel):
+    id: str
+    title: str
+    detail: str
+    action: str
+    task_id: str | None = None
+    project_id: str | None = None
+
+
+class DevWorkspaceSnapshot(BaseModel):
+    projects: list[DevProject]
+    suggestions: list[DevSuggestion]
+    build_history: list[DevBuildEntry]
+
+
+class AiProviderInfo(BaseModel):
+    id: str
+    kind: str
+    capabilities: list[str]
+    label: str
+    status: str
+    min_tier: str
+
+
+class AiProvidersResponse(BaseModel):
+    providers: list[AiProviderInfo]
+    default_development_provider: str | None = None

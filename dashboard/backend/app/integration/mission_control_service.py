@@ -888,6 +888,22 @@ class MissionControlService:
                     "href": "/finance",
                 }
             )
+        pending_outreach = self._opportunity.list_opportunities(limit=500)
+        outreach_pending = [
+            r
+            for r in pending_outreach
+            if r.get("outreach_status") == "pending_approval"
+        ]
+        if outreach_pending:
+            first = outreach_pending[0]
+            name = first.get("company_name") or "клиент"
+            decisions.append(
+                {
+                    "id": "approve_outreach",
+                    "label": f"Одобрить письмо: {name} ({len(outreach_pending)} в очереди)",
+                    "href": "/acquisition",
+                }
+            )
         return decisions
 
     def _system_status_label(self, dash: dict) -> str:

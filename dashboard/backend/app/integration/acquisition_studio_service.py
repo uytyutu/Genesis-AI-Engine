@@ -1,0 +1,496 @@
+"""Mission 1.5 — Business Acquisition Studio Foundation.
+
+Plan → Approve → Act. Prepares sales cycle; never sends without CEO approval.
+"""
+
+from __future__ import annotations
+
+import os
+from collections import Counter, defaultdict
+from datetime import datetime, timezone
+from typing import Any
+
+from app.integration.receipt_email_service import ReceiptEmailService
+from app.integration.site_analysis_service import SiteAnalysisService
+
+
+# Services Genesis can offer today (dogfood-first — public catalog only when True).
+_SERVICE_CATALOG: list[dict[str, Any]] = [
+    {
+        "id": "landing_basic",
+        "category": "web",
+        "name": "Landing Page Basic",
+        "package_id": "basic",
+        "price_eur": 350,
+        "dogfood": True,
+        "public": True,
+        "note": "Genesis Factory + Mission 1",
+    },
+    {
+        "id": "landing_business",
+        "category": "web",
+        "name": "Landing Page Business",
+        "package_id": "business",
+        "price_eur": 650,
+        "dogfood": True,
+        "public": True,
+        "note": "Основной пакет Mission 1",
+    },
+    {
+        "id": "landing_premium",
+        "category": "web",
+        "name": "Landing Page Premium",
+        "package_id": "premium",
+        "price_eur": 1200,
+        "dogfood": True,
+        "public": True,
+        "note": "Расширенный пакет",
+    },
+    {
+        "id": "site_audit",
+        "category": "consulting",
+        "name": "Аудит сайта",
+        "package_id": None,
+        "price_eur": 0,
+        "dogfood": True,
+        "public": False,
+        "note": "Внутренний инструмент Studio — не продаём отдельно пока",
+    },
+]
+
+_ACQUISITION_CHANNELS = [
+    {"id": "weak_website", "label": "Слабый / нет сайта", "source": 1},
+    {"id": "marketplace_request", "label": "Запрос на площадке", "source": 2},
+    {"id": "inbound", "label": "Входящая заявка", "source": 3},
+    {"id": "repeat_client", "label": "Повторный клиент", "source": 4},
+    {"id": "partner", "label": "Партнёрство", "source": 5},
+]
+
+_DAILY_SEGMENTS = [
+    {
+        "id": "autowerkstatt",
+        "label": "Автосервис",
+        "cities": ["Pirna", "Bautzen", "Freital", "Radebeul"],
+        "signals": ["нет сайта", "http://", "kein HTTPS", "nur Facebook"],
+    },
+    {
+        "id": "zahnarzt",
+        "label": "Стоматология",
+        "cities": ["Pirna", "Görlitz", "Bautzen"],
+        "signals": ["нет онлайн-записи", "устаревший дизайн"],
+    },
+    {
+        "id": "cafe",
+        "label": "Кафе / ресторан",
+        "cities": ["Pirna", "Radebeul", "Freital"],
+        "signals": ["нет меню онлайн", "только Instagram"],
+    },
+    {
+        "id": "handwerk",
+        "label": "Строительство / ремесло",
+        "cities": ["Bautzen", "Görlitz", "Pirna"],
+        "signals": ["нет портфолио", "Gelbe Seiten без сайта"],
+    },
+]
+
+
+class AcquisitionStudioService:
+    def __init__(self, opportunity_service: object, sales_service: object) -> None:
+        self._opportunity = opportunity_service
+        self._sales = sales_service
+        self._site = SiteAnalysisService()
+        self._email = ReceiptEmailService()
+
+    def studio_status(self) -> dict:
+        rows = self._opportunity._load_rows()
+        pending = sum(1 for r in rows if r.get("outreach_status") == "pending_approval")
+        sent = sum(1 for r in rows if r.get("outreach_status") == "sent")
+        outreach_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        return {
+            "version": "1.5-foundation",
+            "name": "Business Acquisition Studio",
+            "auto_search": False,
+            "auto_send": False,
+            "outreach_send_enabled": outreach_enabled,
+            "outreach_send_note": (
+                "Отправка через API только при GENESIS_OUTREACH_ENABLED=true и Approve CEO. "
+                "До Gewerbe — готовьте черновики, отправляйте вручную."
+            ),
+            "law": "Plan → Approve → Act",
+            "pending_approval_count": pending,
+            "sent_count": sent,
+            "pipeline_count": sum(
+                1 for r in rows if r.get("status") not in ("won", "lost")
+            ),
+            "channels": _ACQUISITION_CHANNELS,
+        }
+
+    def catalog(self, *, public_only: bool = False) -> dict:
+        items = _SERVICE_CATALOG
+        if public_only:
+            items = [i for i in items if i.get("public")]
+        return {
+            "principle": (
+                "Услуга в публичном каталоге только если Genesis умеет выполнять и dogfood."
+            ),
+            "services": items,
+        }
+
+    def analyze_site(self, url: str) -> dict:
+        return self._site.analyze(url)
+
+    def daily_worklist(self) -> dict:
+        return {
+            "date": datetime.now(timezone.utc).date().isoformat(),
+            "mode": "manual_search",
+            "note": (
+                "Автопоиск выключен. CEO ищет вручную (Maps, Gelbe Seiten, Instagram) "
+                "и добавляет в журнал — Genesis готовит анализ и КП."
+            ),
+            "target_per_day": 5,
+            "segments": _DAILY_SEGMENTS,
+            "sources_disabled": [
+                s["id"]
+                for s in self._opportunity.list_sources()
+                if not s.get("enabled") or not s.get("auto_search")
+            ],
+        }
+
+    def prepare_opportunity(
+        self,
+        opportunity_id: str,
+        *,
+        website_url: str | None = None,
+    ) -> dict:
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            raise ValueError("not_found")
+
+        url = (website_url or row.get("website_url") or "").strip()
+        analysis: dict | None = None
+        if url:
+            analysis = self._site.analyze(url)
+            row["website_url"] = url
+            row["site_analysis"] = analysis
+
+        package_id, price, rationale = self._recommend_pricing(row, analysis)
+        packages = {p["id"]: p for p in self._sales.packages()}
+        package = packages.get(package_id, packages["basic"])
+
+        subject, body = self._draft_outreach(
+            company=row.get("company_name", ""),
+            analysis=analysis,
+            package=package,
+            price=price,
+            fit_reason=row.get("fit_reason", ""),
+        )
+
+        now = datetime.now(timezone.utc).isoformat()
+        row["recommended_package_id"] = package_id
+        row["recommended_price_eur"] = price
+        row["pricing_rationale"] = rationale
+        row["potential_value_eur"] = price
+        row["email_subject"] = subject
+        row["proposed_message"] = body
+        row["outreach_status"] = "pending_approval"
+        row["status"] = "proposed"
+        row["status_label"] = "Предложение готово"
+        row["score"] = self._refresh_score(row, analysis)
+        row["updated_at"] = now
+        self._log_interaction(row, "prepared", "КП и письмо подготовлены Studio")
+        self._opportunity._save_rows(self._replace_row(opportunity_id, row))
+        return row
+
+    def approval_queue(self, limit: int = 20) -> list[dict]:
+        rows = self._opportunity._load_rows()
+        pending = [
+            r
+            for r in rows
+            if r.get("outreach_status") == "pending_approval"
+            or (r.get("status") == "proposed" and r.get("proposed_message"))
+        ]
+        pending.sort(key=lambda r: int(r.get("score") or 0), reverse=True)
+        return [
+            {
+                "id": r["id"],
+                "company_name": r.get("company_name"),
+                "contact": r.get("contact"),
+                "website_url": r.get("website_url"),
+                "recommended_price_eur": r.get("recommended_price_eur"),
+                "recommended_package_id": r.get("recommended_package_id"),
+                "email_subject": r.get("email_subject"),
+                "proposed_message": r.get("proposed_message"),
+                "fit_reason": r.get("fit_reason"),
+                "pricing_rationale": r.get("pricing_rationale"),
+                "issue_count": (r.get("site_analysis") or {}).get("issue_count", 0),
+                "score": r.get("score"),
+            }
+            for r in pending[:limit]
+        ]
+
+    def approve_outreach(self, opportunity_id: str) -> dict:
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            raise ValueError("not_found")
+        if row.get("outreach_status") not in ("pending_approval", "draft"):
+            raise ValueError("not_pending")
+
+        outreach_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        to_email = self._extract_email(row.get("contact", ""))
+        send_result: dict | None = None
+
+        if outreach_enabled and to_email:
+            send_result = self._email.send_outreach(
+                to=to_email,
+                subject=row.get("email_subject") or f"Genesis — {row.get('company_name')}",
+                text=row.get("proposed_message") or "",
+            )
+            if send_result.get("ok"):
+                row["outreach_status"] = "sent"
+                row["status"] = "contacted"
+                row["status_label"] = "Связались"
+                self._log_interaction(row, "sent", f"Отправлено на {to_email}")
+            else:
+                row["outreach_status"] = "approved"
+                reason = send_result.get("reason", "send_failed")
+                self._log_interaction(row, "approved", f"Approve OK, отправка: {reason}")
+        else:
+            row["outreach_status"] = "approved"
+            note = "CEO Approve — скопируйте письмо и отправьте вручную"
+            if not to_email:
+                note += " (email не найден в контакте)"
+            elif not outreach_enabled:
+                note += " (GENESIS_OUTREACH_ENABLED выключен)"
+            self._log_interaction(row, "approved", note)
+
+        row["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._opportunity._save_rows(self._replace_row(opportunity_id, row))
+        return {
+            "ok": True,
+            "opportunity": row,
+            "send_result": send_result,
+            "message": (
+                "Письмо отправлено."
+                if send_result and send_result.get("ok")
+                else "Одобрено. Скопируйте текст и отправьте вручную."
+            ),
+        }
+
+    def reject_outreach(self, opportunity_id: str, *, note: str = "") -> dict:
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            raise ValueError("not_found")
+        row["outreach_status"] = "rejected"
+        row["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._log_interaction(row, "rejected", note or "CEO отклонил черновик")
+        self._opportunity._save_rows(self._replace_row(opportunity_id, row))
+        return row
+
+    def mark_sent_manual(self, opportunity_id: str, *, note: str = "") -> dict:
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            raise ValueError("not_found")
+        row["outreach_status"] = "sent"
+        row["status"] = "contacted"
+        row["status_label"] = "Связались"
+        row["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._log_interaction(row, "sent_manual", note or "CEO отправил вручную")
+        self._opportunity._save_rows(self._replace_row(opportunity_id, row))
+        return row
+
+    def record_interaction(self, opportunity_id: str, event: str, note: str = "") -> dict:
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            raise ValueError("not_found")
+        status_map = {
+            "replied": "replied",
+            "qualified": "qualified",
+            "won": "won",
+            "lost": "lost",
+        }
+        if event in status_map:
+            row["status"] = status_map[event]
+            from app.integration.opportunity_service import _STATUSES
+
+            row["status_label"] = _STATUSES.get(status_map[event], status_map[event])
+        if event == "lost" and note:
+            row["notes"] = (row.get("notes") or "") + f"\nОтказ: {note}".strip()
+        row["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._log_interaction(row, event, note)
+        self._opportunity._save_rows(self._replace_row(opportunity_id, row))
+        return row
+
+    def evidence_report(self) -> dict:
+        rows = self._opportunity._load_rows()
+        contacted = [r for r in rows if r.get("status") in ("contacted", "replied", "qualified", "won", "lost")]
+        replied = [r for r in rows if r.get("status") in ("replied", "qualified", "won")]
+        won = [r for r in rows if r.get("status") == "won"]
+        lost = [r for r in rows if r.get("status") == "lost"]
+
+        by_segment: dict[str, dict[str, int]] = defaultdict(lambda: {"sent": 0, "replied": 0, "won": 0})
+        by_price: dict[str, dict[str, int]] = defaultdict(lambda: {"sent": 0, "replied": 0, "won": 0})
+
+        for r in contacted:
+            seg = self._infer_segment(r)
+            price_band = self._price_band(float(r.get("recommended_price_eur") or r.get("potential_value_eur") or 0))
+            for bucket, key in ((by_segment, seg), (by_price, price_band)):
+                bucket[key]["sent"] += 1
+                if r.get("status") in ("replied", "qualified", "won"):
+                    bucket[key]["replied"] += 1
+                if r.get("status") == "won":
+                    bucket[key]["won"] += 1
+
+        insights: list[str] = []
+        if len(contacted) >= 5:
+            best_seg = max(by_segment.items(), key=lambda x: x[1]["replied"], default=None)
+            if best_seg and best_seg[1]["replied"] > 0:
+                insights.append(
+                    f"Сегмент «{best_seg[0]}» — больше всего ответов ({best_seg[1]['replied']} из {best_seg[1]['sent']})."
+                )
+            best_price = max(by_price.items(), key=lambda x: x[1]["replied"], default=None)
+            if best_price and best_price[1]["replied"] > 0:
+                insights.append(
+                    f"Ценовой диапазон {best_price[0]} € — {best_price[1]['replied']} ответов."
+                )
+        else:
+            insights.append(
+                f"Нужно ≥5 контактов для Evidence. Сейчас: {len(contacted)}."
+            )
+
+        lost_reasons = Counter()
+        for r in lost:
+            note = (r.get("notes") or "").lower()
+            if "цена" in note or "teuer" in note or "price" in note:
+                lost_reasons["цена"] += 1
+            elif note:
+                lost_reasons["другое"] += 1
+            else:
+                lost_reasons["без причины"] += 1
+
+        return {
+            "sample_size": len(rows),
+            "contacted": len(contacted),
+            "replied": len(replied),
+            "won": len(won),
+            "lost": len(lost),
+            "reply_rate_pct": round(100 * len(replied) / len(contacted), 1) if contacted else 0,
+            "by_segment": dict(by_segment),
+            "by_price_band": dict(by_price),
+            "lost_reasons": dict(lost_reasons),
+            "insights": insights,
+            "evidence_ready": len(contacted) >= 30,
+            "note": "Evidence Before Automation — автоматизация после 30–50 реальных продаж.",
+        }
+
+    def _recommend_pricing(
+        self, row: dict, analysis: dict | None
+    ) -> tuple[str, float, str]:
+        packages = {p["id"]: p for p in self._sales.packages()}
+        issue_count = (analysis or {}).get("issue_count", 0)
+        fit = (row.get("fit_reason") or "").lower()
+
+        if issue_count >= 5 or "нет сайта" in fit or "no website" in fit:
+            pkg_id = "business"
+            rationale = "Много улучшений / слабое присутствие → Business"
+        elif issue_count >= 3:
+            pkg_id = "basic"
+            rationale = "Умеренные улучшения → Basic"
+        else:
+            pkg_id = "basic"
+            rationale = "Базовое предложение → Basic"
+
+        if any(w in fit for w in ("premium", "домен", "логотип", "analytics")):
+            pkg_id = "premium"
+            rationale = "Запрос расширенного пакета → Premium"
+
+        package = packages.get(pkg_id, packages["basic"])
+        return pkg_id, float(package["price_eur"]), rationale
+
+    def _draft_outreach(
+        self,
+        *,
+        company: str,
+        analysis: dict | None,
+        package: dict,
+        price: float,
+        fit_reason: str,
+    ) -> tuple[str, str]:
+        issues = (analysis or {}).get("issues") or []
+        issues_block = "\n".join(f"• {i}" for i in issues[:7]) if issues else "• Online-Präsenz lässt sich deutlich verbessern"
+        subject = f"Idee für {company} — moderner Auftritt online"
+
+        body = (
+            f"Guten Tag,\n\n"
+            f"wir haben uns {company} angeschaut und möchten einen konkreten Vorschlag machen — "
+            f"ohne Verkaufsdruck, eher als möglicher Partner für Ihren Online-Auftritt.\n\n"
+            f"Was uns aufgefallen ist:\n{issues_block}\n\n"
+            f"Wir können einen modernen Auftritt liefern — Paket «{package['name']}» für {price:.0f} €, "
+            f"Lieferzeit ca. 5–7 Werktage nach Bestätigung.\n\n"
+            f"Wenn Sie möchten, zeigen wir Ihnen gern ein Beispiel, wie Ihre Seite aussehen könnte — "
+            f"danach entscheiden Sie in Ruhe.\n\n"
+            f"Beste Grüße\n"
+            f"Ramish · Genesis AI Engine\n"
+            f"https://genesis-ai-engine.vercel.app/site\n"
+        )
+        if fit_reason:
+            body = body.replace(
+                "ohne Verkaufsdruck",
+                f"({fit_reason.strip()[:80]}) — ohne Verkaufsdruck",
+                1,
+            )
+        return subject, body
+
+    def _refresh_score(self, row: dict, analysis: dict | None) -> int:
+        base = int(row.get("score") or 40)
+        if analysis:
+            base = max(base, int(analysis.get("improvement_score") or 0))
+        if row.get("proposed_message"):
+            base = min(100, base + 5)
+        return base
+
+    def _extract_email(self, contact: str) -> str:
+        match = __import__("re").search(
+            r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", contact or ""
+        )
+        return match.group(0) if match else ""
+
+    def _infer_segment(self, row: dict) -> str:
+        text = f"{row.get('company_name', '')} {row.get('fit_reason', '')}".lower()
+        for kw, label in (
+            ("zahn", "стоматология"),
+            ("dental", "стоматология"),
+            ("auto", "автосервис"),
+            ("werkstatt", "автосервис"),
+            ("café", "кафе"),
+            ("cafe", "кафе"),
+            ("restaurant", "ресторан"),
+            ("bau", "строительство"),
+        ):
+            if kw in text:
+                return label
+        meta = row.get("meta") or {}
+        return str(meta.get("segment") or "другое")
+
+    def _price_band(self, price: float) -> str:
+        if price <= 400:
+            return "350-400"
+        if price <= 700:
+            return "450-650"
+        return "700+"
+
+    def _log_interaction(self, row: dict, event: str, note: str) -> None:
+        history = row.get("interactions")
+        if not isinstance(history, list):
+            history = []
+        history.append(
+            {
+                "at": datetime.now(timezone.utc).isoformat(),
+                "event": event,
+                "note": note,
+            }
+        )
+        row["interactions"] = history[-50:]
+
+    def _replace_row(self, opportunity_id: str, updated: dict) -> list[dict]:
+        rows = self._opportunity._load_rows()
+        return [updated if r.get("id") == opportunity_id else r for r in rows]

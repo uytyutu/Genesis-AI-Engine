@@ -6,7 +6,13 @@
 
 **Change filter:** Simpler for owner + stronger as platform. Money question: *will this help the owner earn?*
 
-**Genesis vs universal AI:** Genesis **directs** ChatGPT, Claude, Cursor — it does not compete with them.
+**Genesis vs universal AI:** Genesis **orchestrates** ChatGPT, Claude, Cursor — uses the best tool per task; does not compete on “smartest model.”
+
+**Long-term value:** Genesis OS — how the system decides, learns, coordinates, and involves humans — not any single model or engine.
+
+**Principle 13:** New modules only after prior evidence. **Evidence Level** gates build vs Horizon — current Focus: **EL3** (first paying partner). See `WHY.md`.
+
+**Foundation frozen (2026-07-04):** closed — **no new thinking-layer docs until EL3**. Next: market proof → Deep Review → then Strategy/Mission 2. Focus: **EL3**.
 
 **Owner language:** Digital Employee · Department · Team — not Agent · Kernel · Brain (owner UI only).
 

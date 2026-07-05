@@ -5,6 +5,8 @@
 **This is the constitution of the project.**  
 When the architecture grows large, return here before adding anything new.
 
+**Human-readable strategy (Juli 2026):** `dashboard/Genesis_Why_Exists_v2.md` · `dashboard/Genesis_Strategic_Review_Report_v2.md` · `dashboard/Genesis_Development_Priorities_v1.md`
+
 ---
 
 ## North star sentence
@@ -106,6 +108,14 @@ If **no** — idea stays in Roadmap, **no code**. The question shifts from *«ч
 
 After first €: real data (product, price, niche, channel) feeds Opportunity Engine, Marketing, and Brain — **then** true learning begins.
 
+### Reality over Features
+
+> **Reality over Features.** Every new capability must eventually prove its value through real users, real usage, or real revenue. Genesis grows by validated outcomes, not by feature count.
+
+The primary KPI is **not** lines of code, documents, or modules — it is **validated value for a real user**. When a new feature is proposed, the question is not *«can we build it?»* but *«does this move us closer to real user or business value?»*
+
+CEO decision: `ceo_decisions.json` → `dec-2026-07-05-reality-over-features`.
+
 ### Vision Freeze (until first confirmed client or €)
 
 **Vision Genesis завершён.** До первого **реального** клиента (контакт + обратная связь) или первого **подтверждённого** дохода:
@@ -119,6 +129,8 @@ After first €: real data (product, price, niche, channel) feeds Opportunity En
 ```
 
 Всё остальное — в Roadmap **без кода**. Иначе цикл *идея → Roadmap → ещё идея* съест год без клиента.
+
+**Future expansions (Research only, no code):** Genesis Media Engine — `docs/Genesis_Media_Engine_Architecture_Freeze_Directive.md` · Autonomy levels — `docs/Genesis_Autonomy_Levels.md`.
 
 **Три утренних вопроса Genesis (владелец):**
 
@@ -135,6 +147,161 @@ After first €: real data (product, price, niche, channel) feeds Opportunity En
 Stable launch, honest data, owner approval gates — **then** new agents, screens, and bridges. Never skip R0 to chase R8.
 
 > **Genesis развивается постепенно. Каждая новая способность должна быть проверена в реальной работе и приносить измеримую пользу.**
+
+### Principle 13 — Evolution through evidence (Эволюция через доказательства)
+
+**Biggest risk to Genesis is not technology, competitors, or money — it is building too much at once.**
+
+Purpose, Vision, twelve principles, Goal/Outcome/Success/Learning/Business/Creative engines, Opportunity/Preview/Memory, Genesis Network, GOS — all **Horizon** until evidence says otherwise.
+
+**Rule:** each new module appears **only after** the previous one proved value.
+
+```
+Sites → demand? → YES → next module
+```
+
+Not:
+
+```
+Sites + Android + Marketplace + Video AI + Network + …
+```
+
+That funds dreams, not validated directions.
+
+**Evidence Level (EL)** — use alongside KPI:
+
+| EL | Meaning |
+|----|---------|
+| EL0 | Idea only |
+| EL1 | Concept documented |
+| EL2 | MVP works |
+| EL3 | First paying customer / partner |
+| EL4 | Repeat sales |
+| EL5 | Stable sales channel |
+| EL6 | Scalable business |
+
+**Genesis today (approx.):** Purpose & Vision — EL1 · Mission 1 tech — EL2 · Business — between EL2–EL3 · **First Customer = transition to EL3.**
+
+Future Genesis should say *«This idea is EL0 — we do not build it»* or *«This module is EL4 — scale it»* — not accumulate features forever.
+
+**Language rule (Principles #6, #8, #12):** never *«this is the best idea»* — only *«based on available data, this is the most promising direction.»*
+
+### Foundation frozen (Chief Architect, 2026-07-04)
+
+Thinking-layer architecture is **mature enough**. **No new principles** — adding rules now would violate Principle 13.
+
+| Layer | Status |
+|-------|--------|
+| Purpose | Formulated |
+| Vision | Formulated |
+| Strategy | Defined |
+| Principles | **13 — sufficient** |
+| Evidence Levels | Introduced |
+| Horizon / Focus | Separated |
+| Mission 1 | Clear — **EL2 → EL3** |
+
+**Phase shift:** architecture → **evolution**.
+
+| Before | Now |
+|--------|-----|
+| *«What should Genesis be?»* | *«What did Genesis learn from the last proof?»* |
+
+After EL3, each new mission starts from **analysis of the previous experiment** — not from a new idea first.
+
+**Chief Architect:**
+
+- **Until EL3:** help reach first real paying partner.
+- **After EL3:** dissect first-partner data → what confirmed / failed → update Strategy only if data requires → **then** propose next Mission.
+
+- Gatekeeper: good EL0 idea → record in Horizon → return to current mission
+- Asks: *«What evidence do we need next?»* — not *«What engine to add?»*
+
+**Most valuable long-term asset:** not code, models, or GOS documents — a **base of confirmed knowledge** (conversion by sector, offer types, timelines, bundles, rejection patterns).
+
+**Evolution loop (living strategy):**
+
+```
+Purpose → Vision → Strategy → Mission → Evidence → Learning → Decision → repeat
+```
+
+Not Mission → Mission. **Evidence → Learning → Decision** is where a mature company is born.
+
+**Genesis is a company, not a product.** A good company can say *«we were wrong»* and change course — different first market, pricing model, or better external AI for a task. That is strength, not weakness.
+
+**Mission filter:** each mission must increase the probability Genesis still exists in **10 years** — reality check, not poetry.
+
+**At EL3:** seek what was **true**, not proof that our ideas were right. Full confirm → continue. Half → change the other half. Different path → take the market’s path.
+
+**Agent rule (all future agents):** no hypothesis is truth until **data** confirms it.
+
+**Next change rule:** architecture stays frozen until the **market teaches Genesis** — not because we invented a new idea.
+
+**Human augmentation (Horizon — not replacement):** mature Genesis amplifies people — collects data, analyzes, automates routine, prepares options. **CEO keeps** strategy, budget, legal, and reputation decisions. Safer and more durable than aiming to replace the owner.
+
+**Internal compass (not a 14th principle):**
+
+> Genesis must not become smarter for its own sake — it must become **more useful**.
+
+> Genesis must become **not more complex, but stronger** — fewer modules if possible; simplify processes; abandon when data says no; prefer small solutions when they match big outcomes. Maturity = result efficiency, not module count.
+
+> Do not fall in love with your own ideas. Fall in love with **the process of finding truth.**
+
+- Module that does not improve user value or company durability → not built
+- Beautiful idea without data → Horizon
+- Market shows a better path → Strategy may change
+
+**Chief Architect — until EL3, any proposal must pass:**
+
+1. Does it move us toward the **first paying partner**?
+2. Is there **evidence** for it?
+3. Can we do it **simpler**?
+
+Any **no** → Horizon.
+
+**After EL3:** Deep Review first (what was true, false, surprising, simplifiable, scalable) — then next Mission.
+
+**Company learning cycle:**
+
+1. **Purpose** — stable  
+2. **Vision** — direction  
+3. **Strategy** — corrected by market  
+4. **Mission** — one hypothesis  
+5. **Learning** — experience → knowledge  
+6. **Next Mission** — built on that knowledge  
+
+**Chief Architect until EL3:** no new large modules, architecture expansion, principles, or Focus dilution — decisions from data; reach EL3.
+
+**Foundation closed (final, 2026-07-04):** no more thinking-layer docs until EL3. **New ideas come from the market**, not from design sessions. Horizon frozen.
+
+### Chief Architect covenant (working agreement)
+
+**After Foundation:** not expand architecture because it is interesting. Instead: test hypotheses · find weak spots · ask uncomfortable questions · require evidence · help decide from data. Strong idea → strengthen it. Beautiful idea without market proof → say so plainly (Principle #6: truth over optimism).
+
+**Every proposal must answer:**
+
+1. **What Evidence Level are we at?**
+2. **What proof do we need next?**
+3. **What changes if that proof confirms or fails?**
+
+No clear answers → idea stays in Horizon.
+
+**Until EL3:** help only what moves toward first paying partner. **After EL3:** Deep Review together → updated Strategy → then next Mission. Market co-authors the next chapter — not design sessions.
+
+**Core asset (long-term):** not GOS or Executive Layer — **learning faster than competitors** (confirmed decisions and knowledge competitors cannot copy by cloning UI).
+
+**Foundation is frozen, not dogma.** Freeze now to avoid scatter. At EL4–EL6, with enough evidence, some Foundation choices may need revision — that is evolution from experience, not failure. Review question:
+
+> *If we built Genesis from scratch today — would we make the same decision?*
+
+If the market shows a better path, even Foundation may change — with data, not nostalgia.
+
+**Until EL3:** Focus only on first paying partner. **After EL3:** Deep Review questions first (what worked, what was wrong, what surprised, what to scale, what to stop) — then next Mission, market-confirmed only.
+
+**Next architect of Genesis:** the **market**. Listen carefully; learn faster than competitors.
+
+Genesis must stop proving philosophy with documents and start proving it with **one paying partner**.
+
+Mature Genesis (Horizon): validates ideas through the **validation cycle** — notice → data → pilot → evidence → scale or kill; never auto-implements. See `docs/DIGITAL_COMPANY_VISION.md` § Validation cycle. Mission 1 runs that cycle manually first.
 
 Not ten agents at once. **One agent → prove daily value → then the next.**
 
@@ -373,6 +540,28 @@ Reputation and trust matter more than shortcuts.
 Perfect Pallet is a game. Genesis is a platform.
 
 If Genesis one day helps produce game content, Perfect Pallet becomes a **client** of Genesis — not part of its codebase.
+
+---
+
+## CEO Directive — Stability Before Features (2026-07-05)
+
+Until this chain works **every day without browser errors**:
+
+```
+Genesis.exe → Backend → Frontend → Mission Control (HTTP 200)
+```
+
+**No new features.** Every commit must increase **Stability · Reliability · Daily usability** — not capability count.
+
+**Current path:** Launcher → Browser (Mission Control). **Genesis Desktop (Tauri)** exists in repo — **Next Platform**, not Horizon: WebView replaces Chrome after Mission Control is rock-solid.
+
+**Recurring Incident P0:** backend alive / frontend dead — fix before anything else.
+
+**Release Guardian (stability):** before new features — Genesis.exe · Launch · Mission Control HTTP 200 · Backend + Frontend ready · Overall Health ≥95%. Else: `❌ Product is not ready. Continue fixing stability.` Module: `launcher/release_guardian.py`.
+
+**Launch Pipeline CLOSED:** only after CEO verify + `py scripts/launch_cycle_test.py --cycles 5` passes.
+
+**Product First:** after each change answer — what changed in running Genesis? for user? for CEO? «Пока ничего» = not done.
 
 ---
 

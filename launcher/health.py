@@ -100,6 +100,24 @@ def probe_frontend_live(
     return _probe_with_retries(_try, attempts=attempts)
 
 
+def frontend_port_listening() -> bool:
+    """True when something listens on Mission Control port — process alive, not necessarily HTTP 200."""
+    from launcher.process_cleanup import frontend_listener_pids
+
+    return bool(frontend_listener_pids())
+
+
+def probe_frontend_http_status(timeout: float = 3.0) -> int | None:
+    """First HTTP status from Mission Control, or None when the port is closed."""
+    for url in (FRONTEND_URL, COMMAND_CENTER_URL):
+        try:
+            with urlopen(url, timeout=timeout) as response:
+                return int(response.status)
+        except (URLError, OSError, TimeoutError, ValueError):
+            continue
+    return None
+
+
 def probe_backend_live(
     timeout: float = BACKEND_PROBE_TIMEOUT,
     attempts: int = _PROBE_ATTEMPTS,
@@ -217,6 +235,7 @@ def check_services_fast(
     *,
     frontend_exited: bool = False,
     root: Path | None = None,
+    launcher_idle: bool = False,
 ) -> ServiceHealth:
     """UI-safe health check — no slow system-check, single probe pass."""
     health = ServiceHealth()
@@ -242,6 +261,11 @@ def check_services_fast(
         return health
 
     fe_crashed = frontend_exited and not health.frontend
+
+    if launcher_idle and not owner_ready(health) and not fe_crashed:
+        health.overall = "stopped"
+        health.error_message = ""
+        return health
 
     if fe_crashed or (not starting and health.backend and not health.frontend):
         health.overall = "error"

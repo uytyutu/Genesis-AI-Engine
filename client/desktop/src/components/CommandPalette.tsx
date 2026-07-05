@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { NavId } from "./Sidebar";
 import { loadChat, searchChat } from "../lib/chatStore";
+import { useI18n } from "../i18n/I18nProvider";
 
 export type CommandItem = {
   id: string;
@@ -27,6 +28,7 @@ export function CommandPalette({
   onRefresh,
   onOpenChat,
 }: CommandPaletteProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -41,43 +43,50 @@ export function CommandPalette({
     () => [
       {
         id: "home",
-        label: "Open Home",
-        hint: "Dashboard",
+        label: t("palette.openHome"),
+        hint: t("nav.home.hint"),
         keywords: "dashboard welcome",
         action: () => onNavigate("home"),
       },
       {
         id: "chat",
-        label: "Open Chat",
-        hint: "Genesis assistant",
+        label: t("palette.openChat"),
+        hint: t("nav.chat.hint"),
         keywords: "assistant",
         action: () => onOpenChat(),
       },
       {
         id: "chat-focus",
-        label: "Ask: today's focus",
+        label: t("palette.askFocus"),
         hint: "Quick command",
         keywords: "focus priority",
         action: () => onOpenChat("/focus"),
       },
       {
+        id: "studio",
+        label: t("palette.openStudio"),
+        hint: t("nav.studio.hint"),
+        keywords: "development cursor handoff",
+        action: () => onNavigate("studio"),
+      },
+      {
         id: "projects",
-        label: "Open Projects",
-        hint: "Factory work",
+        label: t("palette.openProjects"),
+        hint: t("nav.projects.hint"),
         keywords: "factory",
         action: () => onNavigate("projects"),
       },
       {
         id: "settings",
-        label: "Open Settings",
-        hint: "Account & API",
+        label: t("palette.openSettings"),
+        hint: t("nav.settings.hint"),
         keywords: "preferences",
         action: () => onNavigate("settings"),
       },
       {
         id: "refresh",
-        label: "Refresh API connection",
-        hint: "Reload dashboard data",
+        label: t("palette.refresh"),
+        hint: t("nav.home.hint"),
         keywords: "reconnect railway restart",
         action: () => {
           onRefresh();
@@ -86,8 +95,8 @@ export function CommandPalette({
       },
       {
         id: "disconnect",
-        label: "Disconnect session",
-        hint: "Sign out",
+        label: t("palette.disconnect"),
+        hint: t("session.disconnect"),
         keywords: "logout",
         action: onDisconnect,
       },
@@ -99,7 +108,7 @@ export function CommandPalette({
         action: () => onOpenChat(m.text),
       })),
     ],
-    [onNavigate, onDisconnect, onRefresh, onOpenChat, chatHits],
+    [onNavigate, onDisconnect, onRefresh, onOpenChat, chatHits, t],
   );
 
   const filtered = useMemo(() => {
@@ -160,7 +169,7 @@ export function CommandPalette({
         <input
           ref={inputRef}
           className="palette__input"
-          placeholder="Команда или поиск в чате…"
+          placeholder={t("palette.placeholder")}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);

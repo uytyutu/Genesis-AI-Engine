@@ -142,7 +142,7 @@ export default function FinancePage() {
                 href="/"
                 className="rounded-2xl border border-genesis-border px-5 py-3.5 text-sm font-medium hover:bg-genesis-elevated"
               >
-                ← Mission Control
+                ← Genesis
               </Link>
             </div>
           </>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppSettingsProvider } from "./context/AppSettingsContext";
+import { AppSettingsProvider, useAppSettings } from "./context/AppSettingsContext";
 import { SessionProvider, useSession } from "./context/SessionContext";
 import { NavigationProvider, useNavigation } from "./context/NavigationContext";
 import {
@@ -11,10 +11,14 @@ import { ConnectPage } from "./pages/ConnectPage";
 import { HomePage } from "./pages/HomePage";
 import { ChatPage } from "./pages/ChatPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
+import { DevStudioPage } from "./pages/DevStudioPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { I18nProvider } from "./i18n/I18nProvider";
+import { useI18n } from "./i18n/I18nProvider";
 import "./styles/globals.css";
 
 function AppRoutes() {
+  const { t } = useI18n();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const { connected, connecting, ownerLabel, disconnect, refresh } = useSession();
   const { nav, setNav, openChat } = useNavigation();
@@ -24,7 +28,7 @@ function AppRoutes() {
   if (connecting) {
     return (
       <div className="boot">
-        <p>Connecting to Genesis…</p>
+        <p>{t("boot.connecting")}</p>
       </div>
     );
   }
@@ -45,6 +49,7 @@ function AppRoutes() {
       >
         {nav === "home" && <HomePage />}
         {nav === "chat" && <ChatPage />}
+        {nav === "studio" && <DevStudioPage />}
         {nav === "projects" && <ProjectsPage />}
         {nav === "settings" && <SettingsPage />}
       </Shell>
@@ -63,11 +68,25 @@ function AppRoutes() {
 export default function App() {
   return (
     <AppSettingsProvider>
+      <AppWithLocale />
+    </AppSettingsProvider>
+  );
+}
+
+function AppWithLocale() {
+  const { settings, updateSettings } = useAppSettings();
+  return (
+    <I18nProvider
+      locale={settings.locale}
+      onLocaleChange={(locale: import("@genesis/i18n/types").LocaleId) =>
+        updateSettings({ locale })
+      }
+    >
       <SessionProvider>
         <NavigationProvider>
           <AppRoutes />
         </NavigationProvider>
       </SessionProvider>
-    </AppSettingsProvider>
+    </I18nProvider>
   );
 }

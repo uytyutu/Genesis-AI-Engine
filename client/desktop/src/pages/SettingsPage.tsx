@@ -3,17 +3,21 @@ import { useAppSettings } from "../context/AppSettingsContext";
 import { useSession } from "../context/SessionContext";
 import { checkForUpdates } from "../lib/updater";
 import type { ThemeMode } from "../lib/tokens";
+import { useI18n } from "../i18n/I18nProvider";
+import { CEO_DESKTOP_LOCALES, type LocaleId } from "@genesis/i18n/types";
+import { LOCALE_REGISTRY } from "@genesis/i18n/registry";
 
 export function SettingsPage() {
   const { settings, updateSettings, resetSettings } = useAppSettings();
   const { disconnect, ownerLabel } = useSession();
+  const { t } = useI18n();
   const [updateMsg, setUpdateMsg] = useState<string | null>(null);
 
   return (
     <div className="page page--wide">
       <header className="page__header">
-        <h1>Settings</h1>
-        <p>Account, connection, and appearance.</p>
+        <h1>{t("settings.title")}</h1>
+        <p>{t("settings.lead")}</p>
       </header>
 
       <div className="settings-grid">
@@ -21,21 +25,22 @@ export function SettingsPage() {
           <div className="settings-card__icon" aria-hidden>
             👤
           </div>
-          <h2>Account</h2>
+          <h2>{t("settings.account")}</h2>
           <p className="settings-card__lead">
-            Signed in as <strong>{ownerLabel}</strong>
+            {t("settings.account.signedIn")}{" "}
+            <strong>{ownerLabel}</strong>
           </p>
           <label className="field">
-            <span>Display name</span>
+            <span>{t("settings.displayName")}</span>
             <input
               value={settings.ownerName}
               onChange={(e) => updateSettings({ ownerName: e.target.value })}
-              placeholder="Overrides API owner name"
+              placeholder={t("settings.displayName.placeholder")}
               autoComplete="name"
             />
           </label>
           <button type="button" className="btn btn--ghost" onClick={disconnect}>
-            Disconnect session
+            {t("settings.disconnect")}
           </button>
         </section>
 
@@ -43,9 +48,9 @@ export function SettingsPage() {
           <div className="settings-card__icon" aria-hidden>
             🔗
           </div>
-          <h2>API connection</h2>
+          <h2>{t("settings.api")}</h2>
           <label className="field">
-            <span>Genesis API URL</span>
+            <span>{t("connect.apiUrl")}</span>
             <input
               type="url"
               value={settings.apiUrl}
@@ -54,12 +59,12 @@ export function SettingsPage() {
             />
           </label>
           <label className="field">
-            <span>API key (reserved)</span>
+            <span>{t("settings.apiKey")}</span>
             <input
               type="password"
               value={settings.apiKey}
               onChange={(e) => updateSettings({ apiKey: e.target.value })}
-              placeholder="Future secured owner auth"
+              placeholder={t("settings.apiKey.placeholder")}
               autoComplete="off"
             />
           </label>
@@ -69,18 +74,33 @@ export function SettingsPage() {
           <div className="settings-card__icon" aria-hidden>
             🎨
           </div>
-          <h2>Appearance</h2>
+          <h2>{t("settings.appearance")}</h2>
           <label className="field">
-            <span>Theme</span>
+            <span>{t("settings.theme")}</span>
             <select
               value={settings.theme}
               onChange={(e) =>
                 updateSettings({ theme: e.target.value as ThemeMode })
               }
             >
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
-              <option value="system">System</option>
+              <option value="dark">{t("settings.theme.dark")}</option>
+              <option value="light">{t("settings.theme.light")}</option>
+              <option value="system">{t("settings.theme.system")}</option>
+            </select>
+          </label>
+          <label className="field">
+            <span>{t("settings.language")}</span>
+            <select
+              value={settings.locale}
+              onChange={(e) =>
+                updateSettings({ locale: e.target.value as LocaleId })
+              }
+            >
+              {CEO_DESKTOP_LOCALES.map((id: LocaleId) => (
+                <option key={id} value={id}>
+                  {LOCALE_REGISTRY[id].nativeName}
+                </option>
+              ))}
             </select>
           </label>
         </section>
@@ -89,7 +109,7 @@ export function SettingsPage() {
           <div className="settings-card__icon" aria-hidden>
             ⬆️
           </div>
-          <h2>Updates</h2>
+          <h2>{t("settings.updates")}</h2>
           <label className="field field--row">
             <input
               type="checkbox"
@@ -98,7 +118,7 @@ export function SettingsPage() {
                 updateSettings({ checkUpdatesOnLaunch: e.target.checked })
               }
             />
-            <span>Check on launch</span>
+            <span>{t("settings.updates.onLaunch")}</span>
           </label>
           <button
             type="button"
@@ -107,15 +127,15 @@ export function SettingsPage() {
               void checkForUpdates(true).then((r) => setUpdateMsg(r.message))
             }
           >
-            Check now
+            {t("settings.updates.checkNow")}
           </button>
           {updateMsg ? <p className="hint">{updateMsg}</p> : null}
         </section>
       </div>
 
       <section className="card card--muted">
-        <h2>Reset</h2>
-        <p>Restore defaults and sign out.</p>
+        <h2>{t("settings.reset")}</h2>
+        <p>{t("settings.reset.lead")}</p>
         <button
           type="button"
           className="btn btn--ghost"
@@ -124,7 +144,7 @@ export function SettingsPage() {
             disconnect();
           }}
         >
-          Reset all settings
+          {t("settings.reset.button")}
         </button>
       </section>
     </div>

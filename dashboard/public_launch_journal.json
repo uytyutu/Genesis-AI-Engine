@@ -6,32 +6,36 @@
     "github": {
       "status": "done",
       "url": "https://github.com/uytyutu/Genesis-AI-Engine",
-      "commit": "033e1fa Prepare backend for Railway deploy",
+      "commit": "6c8b951 Bake public CORS/URL defaults into Railway Docker image",
       "branch": "main"
     },
     "vercel": {
       "status": "done",
       "url": "https://genesis-ai-engine.vercel.app",
-      "root": "dashboard/frontend"
+      "root": "dashboard/frontend",
+      "redeploy": "dpl_Hi9vZvo1oDGq7UuYKZ2eicuaYrcf"
     },
     "railway": {
-      "status": "pending",
-      "url": null,
+      "status": "done",
+      "url": "https://genesis-ai-engine-production.up.railway.app",
       "root": ".",
-      "builder": "Dockerfile",
-      "note": "Root must be repo root — brain/kernel/agents live outside dashboard/backend"
+      "builder": "Dockerfile"
     },
     "stripe_test": { "status": "done", "note": "Test Mode активен" },
-    "env_linked": { "status": "pending" },
+    "env_linked": {
+      "status": "done",
+      "next_public_api_url": "https://genesis-ai-engine-production.up.railway.app",
+      "cors": "https://genesis-ai-engine.vercel.app"
+    },
     "stripe_webhook": { "status": "pending", "endpoint": null },
     "production_test": { "status": "pending" },
     "first_customer": { "status": "pending" }
   },
   "sources_of_truth": {
     "frontend_url": "https://genesis-ai-engine.vercel.app",
-    "backend_url": null,
-    "cors_origins": null,
-    "next_public_api_url": null,
+    "backend_url": "https://genesis-ai-engine-production.up.railway.app",
+    "cors_origins": "https://genesis-ai-engine.vercel.app",
+    "next_public_api_url": "https://genesis-ai-engine-production.up.railway.app",
     "github_url": "https://github.com/uytyutu/Genesis-AI-Engine"
   }
 }

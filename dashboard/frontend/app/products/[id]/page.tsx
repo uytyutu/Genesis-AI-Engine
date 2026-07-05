@@ -162,7 +162,7 @@ export default function ProductPage() {
         {loadError && (
           <p className="mt-4 text-sm">
             <Link href="/" className="text-genesis-accent hover:underline">
-              ← Mission Control
+              ← Genesis
             </Link>
           </p>
         )}
@@ -323,7 +323,7 @@ export default function ProductPage() {
 
         <p className="text-center text-sm">
           <Link href="/" className="text-genesis-accent hover:underline">
-            ← Mission Control
+            ← Genesis
           </Link>
         </p>
       </div>

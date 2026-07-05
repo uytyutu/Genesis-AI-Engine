@@ -612,8 +612,10 @@ GENESIS (штаб)
 | R13 | Executive AI v0 (план дня по проектам) | R10 + ≥2 проекта |
 | R14 | Investment Engine v0 (предложения реинвеста) | первые 100 € реальными |
 | R15 | Tool Builder | R8 + owner request |
+| R16 | **Genesis Media Engine** (Garage → Production) | Production Stable + first paying customer + first revenue + stabilization — см. `Genesis_Media_Engine_Architecture_Freeze_Directive.md` |
+| R17 | **Genesis Finance & Security** (архитектура → поэтапная реализация) | те же коммерческие рубежи, что R16 — см. `Genesis_Finance_Security_Vision_Directive.md` |
 
-*(R4–R11 см. таблицу выше. **Не открывать R12+ до закрытия R1.**)*
+*(R4–R11 см. таблицу выше. **Не открывать R12+ до закрытия R1.** R16–R17 — только Research/design до коммерческих рубежей.)*
 
 ---
 
@@ -635,6 +637,42 @@ GENESIS (штаб)
 ### Evolution AI
 
 Не «нашёл идею», а **изменил стратегию по данным**: «126 создано · 19 работают · фокус на тип B». Связь с Genesis Knowledge (R11).
+
+---
+
+### Genesis Media Engine (Future Expansion — не кодировать сейчас)
+
+**Статус:** Future Roadmap · **FROZEN** · Research layer
+
+**Полный directive:** [`docs/Genesis_Media_Engine_Architecture_Freeze_Directive.md`](Genesis_Media_Engine_Architecture_Freeze_Directive.md)  
+**Machine-readable:** `dashboard/backend/memory/research/genesis_media_engine_directive.json`
+
+**Когда:** только после Production Stable + первый paying customer + первый реальный доход + стабилизация платформы.
+
+**Порядок (не меняется):** stability → paying customer → revenue → stabilization → **потом** Media Engine.
+
+**Garage → Production:** Trend Intelligence · Content Architect · Media Factory · Publisher · Revenue Optimizer — только после validate в Garage.
+
+**Cursor:** проектировать и документировать постепенно; **не реализовывать** в Production до milestones. Не задерживать R1 и Architecture Freeze.
+
+**Связь с бизнесом:** трафик для Genesis, Perfect Pallet, SaaS, клиентский маркетинг — **после** первых €.
+
+---
+
+### Genesis Finance & Security (Future — не кодировать сейчас)
+
+**Статус:** Future Roadmap · **FROZEN** · Research layer
+
+**Полный directive:** [`docs/Genesis_Finance_Security_Vision_Directive.md`](Genesis_Finance_Security_Vision_Directive.md)  
+**Machine-readable:** `dashboard/backend/memory/research/genesis_finance_security.json`
+
+**Когда:** только после Production Stable + первый paying customer + первый реальный доход + стабилизация — **как R16**.
+
+**Принцип:** международная, безопасная, настраиваемая финансовая архитектура — **не привязка к одной стране**. Страна = конфиг, не переписывание платформы.
+
+**Cursor:** проектировать архитектуру и безопасность; **не реализовывать** финансовый модуль в Production до milestones. Invoice #0001 в Mission 1 — ручной/минимальный путь, не полноценный Accounting Engine.
+
+**Связь с governance:** `dec-2026-07-05-no-auto-spend-without-budget` · `dec-2026-07-05-ceo-strategic-reserve` · `Genesis_Autonomy_Levels.md`
 
 ---
 

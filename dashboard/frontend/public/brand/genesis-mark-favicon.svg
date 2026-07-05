@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Compact Orbit Stack: 2 layers + core. Used at 16-24px (favicon, taskbar small). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Genesis">
+  <defs>
+    <linearGradient id="genesis-bg-c" x1="96" y1="48" x2="416" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5b8def"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#genesis-bg-c)"/>
+  <rect x="88" y="272" width="336" height="76" rx="20" fill="#ffffff" fill-opacity="0.55"/>
+  <rect x="120" y="168" width="272" height="76" rx="20" fill="#ffffff"/>
+  <circle cx="124" cy="376" r="52" fill="#ffffff"/>
+</svg>

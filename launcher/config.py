@@ -25,6 +25,7 @@ class LauncherConfig:
     company_founded_at: str = ""
     keep_running_on_close: bool = True
     auto_start_on_open: bool = True
+    mission_control_surface: str = "browser"  # browser | desktop (Native Desktop phase)
 
     @classmethod
     def load(cls) -> LauncherConfig:

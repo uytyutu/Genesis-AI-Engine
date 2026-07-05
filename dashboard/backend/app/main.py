@@ -67,6 +67,17 @@ from app.schemas import (
     OpportunityStatusOption,
     OpportunityUpdatedResponse,
     OpportunityUpdateRequest,
+    SiteAnalysisResult,
+    AcquisitionStudioStatus,
+    AcquisitionApprovalQueueResponse,
+    AcquisitionApprovalItem,
+    AcquisitionPrepareRequest,
+    AcquisitionPrepareResponse,
+    AcquisitionApproveResponse,
+    AcquisitionInteractionRequest,
+    AcquisitionEvidenceReport,
+    AcquisitionDailyWorklist,
+    AcquisitionCatalogResponse,
     PaymentRecordedResponse,
     PaymentStatusResponse,
     PaymentWebhookRequest,
@@ -78,6 +89,19 @@ from app.schemas import (
     TaskItem,
     TasksResponse,
     TimelineResponse,
+    AiHubApproveRequest,
+    AiHubPlanStep,
+    AiHubTask,
+    AiHubTaskCreate,
+    AiHubTaskResponse,
+    AiHubTasksListResponse,
+    AiHubVerifyResponse,
+    AiProvidersResponse,
+    DevBuildEntry,
+    DevFileEntry,
+    DevProject,
+    DevSuggestion,
+    DevWorkspaceSnapshot,
 )
 
 
@@ -120,6 +144,20 @@ app.add_middleware(
 
 def _ctx():
     return get_integration()
+
+
+def _ai_hub():
+    from app.integration.ai_hub.ai_hub_service import AiHubService
+
+    cursor = _ctx().cursor_handoff
+    return AiHubService(cursor._memory, cursor)
+
+
+def _dev_workspace():
+    from app.integration.ai_hub.dev_workspace_service import DevWorkspaceService
+
+    hub = _ai_hub()
+    return DevWorkspaceService(_ctx().cursor_handoff, hub)
 
 
 @app.get("/api/status", response_model=SystemStatus)
@@ -244,6 +282,148 @@ def update_opportunity(
     )
 
 
+@app.get("/api/acquisition/status", response_model=AcquisitionStudioStatus)
+def acquisition_studio_status() -> AcquisitionStudioStatus:
+    return AcquisitionStudioStatus(**_ctx().acquisition.studio_status())
+
+
+@app.get("/api/acquisition/catalog", response_model=AcquisitionCatalogResponse)
+def acquisition_catalog(public_only: bool = True) -> AcquisitionCatalogResponse:
+    return AcquisitionCatalogResponse(**_ctx().acquisition.catalog(public_only=public_only))
+
+
+@app.get("/api/acquisition/worklist", response_model=AcquisitionDailyWorklist)
+def acquisition_daily_worklist() -> AcquisitionDailyWorklist:
+    return AcquisitionDailyWorklist(**_ctx().acquisition.daily_worklist())
+
+
+@app.get("/api/acquisition/approval-queue", response_model=AcquisitionApprovalQueueResponse)
+def acquisition_approval_queue() -> AcquisitionApprovalQueueResponse:
+    items = _ctx().acquisition.approval_queue()
+    return AcquisitionApprovalQueueResponse(
+        items=[AcquisitionApprovalItem(**i) for i in items]
+    )
+
+
+@app.get("/api/acquisition/evidence", response_model=AcquisitionEvidenceReport)
+def acquisition_evidence() -> AcquisitionEvidenceReport:
+    return AcquisitionEvidenceReport(**_ctx().acquisition.evidence_report())
+
+
+@app.post("/api/acquisition/analyze-site", response_model=SiteAnalysisResult)
+def acquisition_analyze_site(body: dict) -> SiteAnalysisResult:
+    url = str(body.get("url") or "").strip()
+    if not url:
+        raise HTTPException(status_code=400, detail="Укажите URL сайта")
+    return SiteAnalysisResult(**_ctx().acquisition.analyze_site(url))
+
+
+@app.post(
+    "/api/acquisition/opportunities/{opportunity_id}/prepare",
+    response_model=AcquisitionPrepareResponse,
+)
+def acquisition_prepare(
+    opportunity_id: str, request: AcquisitionPrepareRequest
+) -> AcquisitionPrepareResponse:
+    try:
+        row = _ctx().acquisition.prepare_opportunity(
+            opportunity_id, website_url=request.website_url
+        )
+    except ValueError as e:
+        if str(e) == "not_found":
+            raise HTTPException(status_code=404, detail="Возможность не найдена")
+        raise HTTPException(status_code=400, detail="Не удалось подготовить КП")
+    return AcquisitionPrepareResponse(
+        ok=True,
+        opportunity=OpportunityRecord(**row),
+        message="Анализ и черновик письма готовы — ожидают Approve CEO.",
+    )
+
+
+@app.post(
+    "/api/acquisition/opportunities/{opportunity_id}/approve",
+    response_model=AcquisitionApproveResponse,
+)
+def acquisition_approve(opportunity_id: str) -> AcquisitionApproveResponse:
+    try:
+        result = _ctx().acquisition.approve_outreach(opportunity_id)
+    except ValueError as e:
+        code = str(e)
+        if code == "not_found":
+            raise HTTPException(status_code=404, detail="Возможность не найдена")
+        if code == "not_pending":
+            raise HTTPException(status_code=400, detail="Нет черновика на одобрение")
+        raise HTTPException(status_code=400, detail="Не удалось одобрить")
+    return AcquisitionApproveResponse(
+        ok=True,
+        opportunity=OpportunityRecord(**result["opportunity"]),
+        message=result["message"],
+        send_result=result.get("send_result"),
+    )
+
+
+@app.post(
+    "/api/acquisition/opportunities/{opportunity_id}/reject",
+    response_model=AcquisitionPrepareResponse,
+)
+def acquisition_reject(
+    opportunity_id: str, request: AcquisitionInteractionRequest
+) -> AcquisitionPrepareResponse:
+    try:
+        row = _ctx().acquisition.reject_outreach(opportunity_id, note=request.note)
+    except ValueError as e:
+        if str(e) == "not_found":
+            raise HTTPException(status_code=404, detail="Возможность не найдена")
+        raise HTTPException(status_code=400, detail="Не удалось отклонить")
+    return AcquisitionPrepareResponse(
+        ok=True,
+        opportunity=OpportunityRecord(**row),
+        message="Черновик отклонён.",
+    )
+
+
+@app.post(
+    "/api/acquisition/opportunities/{opportunity_id}/mark-sent",
+    response_model=AcquisitionPrepareResponse,
+)
+def acquisition_mark_sent(
+    opportunity_id: str, request: AcquisitionInteractionRequest
+) -> AcquisitionPrepareResponse:
+    try:
+        row = _ctx().acquisition.mark_sent_manual(opportunity_id, note=request.note)
+    except ValueError as e:
+        if str(e) == "not_found":
+            raise HTTPException(status_code=404, detail="Возможность не найдена")
+        raise HTTPException(status_code=400, detail="Не удалось обновить")
+    return AcquisitionPrepareResponse(
+        ok=True,
+        opportunity=OpportunityRecord(**row),
+        message="Отмечено: письмо отправлено вручную.",
+    )
+
+
+@app.post(
+    "/api/acquisition/opportunities/{opportunity_id}/interaction",
+    response_model=AcquisitionPrepareResponse,
+)
+def acquisition_record_interaction(
+    opportunity_id: str, request: AcquisitionInteractionRequest
+) -> AcquisitionPrepareResponse:
+    try:
+        row = _ctx().acquisition.record_interaction(
+            opportunity_id, request.event, request.note
+        )
+    except ValueError as e:
+        if str(e) == "not_found":
+            raise HTTPException(status_code=404, detail="Возможность не найдена")
+        raise HTTPException(status_code=400, detail="Не удалось записать событие")
+    return AcquisitionPrepareResponse(
+        ok=True,
+        opportunity=OpportunityRecord(**row),
+        message="Событие записано в CRM.",
+    )
+
+
 @app.get("/api/owner/mission-control", response_model=MissionControl)
 def get_mission_control() -> MissionControl:
     data = _ctx().mission_control.snapshot()
@@ -265,7 +445,7 @@ def get_timeline() -> TimelineResponse:
 @app.post("/api/assistant/ask", response_model=AssistantResponse)
 def ask_assistant(request: AssistantRequest) -> AssistantResponse:
     svc = AssistantService(_ctx())
-    result = svc.ask(request.question)
+    result = svc.ask(request.question, locale=request.locale)
     return AssistantResponse(**result)
 
 
@@ -716,3 +896,101 @@ def cursor_handoff_history() -> CursorHandoffHistoryResponse:
 def cursor_verify_task() -> CursorVerifyResponse:
     result = _ctx().cursor_handoff.verify_task()
     return CursorVerifyResponse(**result)
+
+
+# --- AI Hub (Development Studio Stage 1) ---
+
+
+@app.get("/api/ai-hub/providers", response_model=AiProvidersResponse)
+def ai_hub_providers() -> AiProvidersResponse:
+    from app.integration.ai_hub.provider_registry import default_development_provider, list_providers
+
+    dev = default_development_provider()
+    return AiProvidersResponse(
+        providers=list_providers(tier="ceo"),
+        default_development_provider=dev.id if dev else None,
+    )
+
+
+@app.post("/api/ai-hub/tasks", response_model=AiHubTaskResponse)
+def ai_hub_create_task(body: AiHubTaskCreate) -> AiHubTaskResponse:
+    task = _ai_hub().create_task(
+        body.input_text,
+        locale=body.locale or "ru",
+        project_id=body.project_id,
+        input_type=body.input_type,
+    )
+    return AiHubTaskResponse(task=AiHubTask(**task))
+
+
+@app.get("/api/ai-hub/tasks/active", response_model=AiHubTaskResponse)
+def ai_hub_active_task() -> AiHubTaskResponse:
+    task = _ai_hub().active_task()
+    return AiHubTaskResponse(task=AiHubTask(**task) if task else None)
+
+
+@app.get("/api/ai-hub/tasks", response_model=AiHubTasksListResponse)
+def ai_hub_list_tasks() -> AiHubTasksListResponse:
+    tasks = _ai_hub().list_tasks()
+    return AiHubTasksListResponse(tasks=[AiHubTask(**t) for t in tasks])
+
+
+@app.get("/api/ai-hub/tasks/{task_id}", response_model=AiHubTaskResponse)
+def ai_hub_get_task(task_id: str) -> AiHubTaskResponse:
+    task = _ai_hub().get_task(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="task not found")
+    return AiHubTaskResponse(task=AiHubTask(**task))
+
+
+@app.post("/api/ai-hub/tasks/{task_id}/approve", response_model=AiHubTaskResponse)
+def ai_hub_approve_task(task_id: str, body: AiHubApproveRequest) -> AiHubTaskResponse:
+    try:
+        task = _ai_hub().approve_task(task_id, auto_open=body.auto_open)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    return AiHubTaskResponse(task=AiHubTask(**task))
+
+
+@app.post("/api/ai-hub/tasks/{task_id}/verify", response_model=AiHubVerifyResponse)
+def ai_hub_verify_task(task_id: str) -> AiHubVerifyResponse:
+    try:
+        result = _ai_hub().verify_task(task_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    task = result.get("hub_task")
+    return AiHubVerifyResponse(
+        ok=result.get("ok", False),
+        message=result.get("message", ""),
+        hub_task=AiHubTask(**task) if task else None,
+    )
+
+
+@app.post("/api/ai-hub/tasks/{task_id}/cancel", response_model=AiHubTaskResponse)
+def ai_hub_cancel_task(task_id: str) -> AiHubTaskResponse:
+    try:
+        task = _ai_hub().cancel_task(task_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e
+    return AiHubTaskResponse(task=AiHubTask(**task))
+
+
+@app.get("/api/dev/workspace", response_model=DevWorkspaceSnapshot)
+def dev_workspace_snapshot() -> DevWorkspaceSnapshot:
+    snap = _dev_workspace().snapshot()
+    return DevWorkspaceSnapshot(**snap)
+
+
+@app.get("/api/dev/projects", response_model=list[DevProject])
+def dev_projects() -> list[DevProject]:
+    return [DevProject(**p) for p in _dev_workspace().list_projects()]
+
+
+@app.get("/api/dev/projects/{project_id}/files", response_model=list[DevFileEntry])
+def dev_project_files(project_id: str) -> list[DevFileEntry]:
+    return [DevFileEntry(**f) for f in _dev_workspace().list_files(project_id)]
+
+
+@app.get("/api/dev/projects/{project_id}/docs", response_model=list[DevFileEntry])
+def dev_project_docs(project_id: str) -> list[DevFileEntry]:
+    return [DevFileEntry(**f) for f in _dev_workspace().list_docs(project_id)]

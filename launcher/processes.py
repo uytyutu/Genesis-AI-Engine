@@ -64,8 +64,30 @@ def _pid(proc: subprocess.Popen | None) -> int | None:
     return proc.pid
 
 
+def sync_state_from_ports(
+    managed: ManagedProcesses | None,
+    root: Path | None = None,
+) -> None:
+    """Persist listener PIDs on :8000 / :3000 — ground truth for 24/7 attach."""
+    from launcher.process_cleanup import backend_listener_pids, frontend_listener_pids
+
+    be = _pid(managed.backend) if managed else None
+    fe = _pid(managed.frontend) if managed else None
+    be_ports = backend_listener_pids()
+    fe_ports = frontend_listener_pids()
+    if be_ports:
+        be = be_ports[0]
+    if fe_ports:
+        fe = fe_ports[0]
+    sync_state(be, fe, root=root)
+
+
 def reconnect_managed(managed: ManagedProcesses, root: Path | None = None) -> bool:
-    """Attach launcher UI to already-running Genesis processes."""
+    """Attach launcher UI to already-running Genesis processes.
+
+    Returns True only when Mission Control is fully usable (backend + frontend HTTP 200).
+    Partial attach (backend only) returns False so bootstrap/launch can start frontend.
+    """
     from launcher.health import owner_ready_live, probe_backend_live, probe_frontend_live
 
     backend_up = probe_backend_live()
@@ -79,10 +101,24 @@ def reconnect_managed(managed: ManagedProcesses, root: Path | None = None) -> bo
 
     if backend_up and pid_alive(be_pid):
         managed.backend = _PopenStub(be_pid)  # type: ignore[assignment]
-    if frontend_up and pid_alive(fe_pid):
+    from launcher.process_cleanup import backend_listener_pids, frontend_listener_pids
+
+    be_ports = backend_listener_pids()
+    if backend_up and be_ports:
+        managed.backend = _PopenStub(be_ports[0])  # type: ignore[assignment]
+
+    fe_ports = frontend_listener_pids()
+    if frontend_up and fe_ports:
+        managed.frontend = _PopenStub(fe_ports[0])  # type: ignore[assignment]
+    elif frontend_up and pid_alive(fe_pid):
         managed.frontend = _PopenStub(fe_pid)  # type: ignore[assignment]
 
-    return owner_ready_live() or backend_up
+    if owner_ready_live():
+        return True
+
+    if backend_up and not frontend_up:
+        append_log("Partial 24/7: backend up, frontend down — will start frontend")
+    return False
 
 
 def services_running(root: Path | None = None) -> tuple[bool, bool]:
@@ -132,7 +168,11 @@ def start_backend(root: Path | None = None) -> tuple[bool, str, subprocess.Popen
     return True, f"Backend запущен (журнал: {log_file})", proc
 
 
-def start_frontend(root: Path | None = None) -> tuple[bool, str, subprocess.Popen | None]:
+def start_frontend(
+    root: Path | None = None,
+    *,
+    managed: ManagedProcesses | None = None,
+) -> tuple[bool, str, subprocess.Popen | None]:
     from launcher.deps import (
         augmented_path,
         clear_frontend_build,
@@ -140,25 +180,27 @@ def start_frontend(root: Path | None = None) -> tuple[bool, str, subprocess.Pope
         find_npm,
         frontend_build_integrity,
     )
-    from launcher.frontend_repair import _pids_on_port, _try_free_port
-    from launcher.health import probe_frontend_live
+    from launcher.health import frontend_port_listening, probe_frontend_live
+    from launcher.process_cleanup import frontend_listener_pids, stop_frontend_listeners
 
     if probe_frontend_live():
         append_log("Frontend already serving :3000 — skip duplicate start")
-        return True, "Frontend уже работает на :3000", None
+        sync_state_from_ports(managed, root)
+        return True, "Genesis уже работает на :3000", None
 
     fe = frontend_dir(root)
 
-    # Broken listener on :3000 (404/500) blocks a fresh dev server.
-    if _pids_on_port(3000) and not probe_frontend_live():
-        _try_free_port(3000)
-        time.sleep(1)
+    # Process alive but not HTTP 200 — stop before rebuild/start.
+    if frontend_port_listening() and not probe_frontend_live():
+        append_log("Frontend listener on :3000 without HTTP 200 — stopping before restart")
+        stop_frontend_listeners(root, managed)
+        time.sleep(0.5)
 
     if (fe / ".next").exists() and not frontend_build_integrity(root):
-        clear_frontend_build(root)
-        append_log("Cleared stale .next before dev start")
+        append_log("Incomplete .next — stop Frontend, clear, rebuild")
+        clear_frontend_build(root, managed=managed)
 
-    ok, msg = ensure_frontend_ready(root, for_production=False)
+    ok, msg = ensure_frontend_ready(root, for_production=True, managed=managed)
     if not ok:
         return False, msg, None
 
@@ -171,8 +213,9 @@ def start_frontend(root: Path | None = None) -> tuple[bool, str, subprocess.Pope
 
     env = os.environ.copy()
     env["PATH"] = augmented_path()
+    env.setdefault("PORT", "3000")
     proc = subprocess.Popen(
-        [npm, "run", "dev"],
+        [npm, "run", "start"],
         cwd=fe,
         stdout=log_handle,
         stderr=subprocess.STDOUT,
@@ -180,8 +223,24 @@ def start_frontend(root: Path | None = None) -> tuple[bool, str, subprocess.Pope
         env=env,
         creationflags=_no_window(),
     )
-    append_log(f"Frontend started pid={proc.pid} mode=development (next dev)")
-    return True, f"Frontend запущен — next dev (журнал: {log_file})", proc
+    from launcher.process_cleanup import frontend_listener_pids
+    from launcher.health import probe_frontend_live
+
+    append_log(f"Frontend started npm_pid={proc.pid} mode=production (next start)")
+    deadline = time.time() + 30.0
+    while time.time() < deadline:
+        if probe_frontend_live():
+            sync_state_from_ports(managed, root)
+            fe_ports = frontend_listener_pids()
+            listener = fe_ports[0] if fe_ports else proc.pid
+            append_log(f"Frontend listener pid={listener} HTTP 200 on :3000")
+            return True, f"Genesis запущен — production (журнал: {log_file})", proc
+        if proc.poll() is not None:
+            return False, "Frontend завершился сразу после запуска — см. frontend.log", None
+        time.sleep(0.5)
+
+    sync_state_from_ports(managed, root)
+    return True, f"Genesis запущен — ожидание HTTP 200 (журнал: {log_file})", proc
 
 
 def _kill_pid(pid: int | None) -> None:
@@ -228,7 +287,7 @@ def launch_genesis(
 
     if owner_ready_live():
         reconnect_managed(managed, root)
-        sync_state(_pid(managed.backend), _pid(managed.frontend), root=root)
+        sync_state_from_ports(managed, root)
         record_ops_running(root)
         return True, "Genesis уже работает — подключено (24/7)"
 
@@ -288,11 +347,12 @@ def launch_genesis(
             return False, msg
         if on_phase:
             on_phase("frontend")
-        if frontend_up and (managed.frontend is None or managed.frontend.poll() is not None):
+        frontend_live = probe_frontend_live()
+        if frontend_live and (managed.frontend is None or managed.frontend.poll() is not None):
             reconnect_managed(managed, root)
             messages.append("Frontend уже работает — подключено (24/7)")
-        elif managed.frontend is None or managed.frontend.poll() is not None:
-            ok, msg, proc = start_frontend(root)
+        elif not frontend_live and (managed.frontend is None or managed.frontend.poll() is not None):
+            ok, msg, proc = start_frontend(root, managed=managed)
             messages.append(msg)
             if not ok:
                 return False, msg
@@ -308,9 +368,15 @@ def launch_genesis(
             "Нажмите «Запустить» — Genesis установит Node.js автоматически."
         )
 
-    sync_state(_pid(managed.backend), _pid(managed.frontend), root=root)
+    sync_state_from_ports(managed, root)
     record_ops_running(root)
     return True, "\n".join(messages)
+
+
+def _record_recovery(message: str, root: Path | None) -> None:
+    from launcher.dogfooding import record_auto_recovery
+
+    record_auto_recovery(message, root=root)
 
 
 def wait_until_ready(
@@ -331,15 +397,21 @@ def wait_until_ready(
         frontend_log_indicates_error,
         repair_frontend,
     )
-    from launcher.health import owner_ready_live, probe_backend_live, probe_frontend_live
+    from launcher.health import (
+        frontend_port_listening,
+        owner_ready_live,
+        probe_backend_live,
+        probe_frontend_live,
+    )
     from launcher.startup_stages import assess_startup, failure_for_stage
 
     MAX_TOTAL_SEC = 120.0
     REPAIR_BACKEND_SEC = 20.0
-    REPAIR_FRONTEND_SEC = 45.0
+    REPAIR_FRONTEND_SEC = 20.0
+    ALIVE_NOT_READY_SEC = 2.0
 
     def _sync() -> None:
-        sync_state(_pid(managed.backend) if managed else None, _pid(managed.frontend) if managed else None, root=root)
+        sync_state_from_ports(managed, root)
 
     if owner_ready_live():
         _sync()
@@ -350,6 +422,7 @@ def wait_until_ready(
     backend_repair_attempted = False
     frontend_repair_attempted = False
     last_progress_sec = -1
+    alive_not_ready_since: float | None = None
 
     while time.time() < deadline:
         elapsed = time.time() - started
@@ -383,6 +456,7 @@ def wait_until_ready(
                     ok, repair_msg = repair_backend(managed, root)
                     append_log(f"Staged repair backend: {repair_msg}")
                     if ok and probe_backend_live():
+                        _record_recovery(repair_msg, root)
                         deadline = min(time.time() + 40.0, started + MAX_TOTAL_SEC)
                         continue
                 return False, failure_for_stage(root, elapsed_sec=elapsed)
@@ -394,6 +468,7 @@ def wait_until_ready(
                 ok, repair_msg = repair_backend(managed, root)
                 append_log(f"Staged repair backend (timeout): {repair_msg}")
                 if ok and probe_backend_live():
+                    _record_recovery(repair_msg, root)
                     deadline = min(time.time() + 40.0, started + MAX_TOTAL_SEC)
                     continue
                 return False, failure_for_stage(root, elapsed_sec=elapsed)
@@ -405,6 +480,34 @@ def wait_until_ready(
         if probe_frontend_live():
             _sync()
             return True, ""
+
+        if (
+            probe_backend_live()
+            and frontend_port_listening()
+            and not probe_frontend_live()
+        ):
+            if alive_not_ready_since is None:
+                alive_not_ready_since = time.time()
+            elif (
+                time.time() - alive_not_ready_since >= ALIVE_NOT_READY_SEC
+                and not frontend_repair_attempted
+                and managed is not None
+            ):
+                frontend_repair_attempted = True
+                alive_not_ready_since = None
+                if on_progress:
+                    on_progress("🟡 Frontend жив, но не HTTP 200 — перезапуск...")
+                append_log("Frontend alive on :3000 without HTTP 200 — restart with safe rebuild")
+                ok, repair_msg = repair_frontend(managed, root)
+                append_log(f"Product restart frontend: {repair_msg}")
+                if ok and probe_frontend_live():
+                    _record_recovery(repair_msg, root)
+                    _sync()
+                    return True, ""
+                deadline = min(time.time() + 60.0, started + MAX_TOTAL_SEC)
+                continue
+        else:
+            alive_not_ready_since = None
 
         if _frontend_exited(managed):
             if probe_frontend_live():
@@ -418,6 +521,7 @@ def wait_until_ready(
                 ok, repair_msg = repair_frontend(managed, root)
                 append_log(f"Staged repair frontend (crashed): {repair_msg}")
                 if ok and probe_frontend_live():
+                    _record_recovery(repair_msg, root)
                     _sync()
                     return True, ""
             return False, failure_for_stage(root, frontend_exited=True, elapsed_sec=elapsed)
@@ -433,6 +537,7 @@ def wait_until_ready(
                 ok, repair_msg = repair_frontend(managed, root)
                 append_log(f"Staged repair frontend (log): {repair_msg}")
                 if ok and probe_frontend_live():
+                    _record_recovery(repair_msg, root)
                     _sync()
                     return True, ""
             return False, failure_for_stage(root, elapsed_sec=elapsed)
@@ -451,6 +556,7 @@ def wait_until_ready(
             ok, repair_msg = repair_frontend(managed, root)
             append_log(f"Staged repair frontend (timeout): {repair_msg}")
             if ok and probe_frontend_live():
+                _record_recovery(repair_msg, root)
                 _sync()
                 return True, ""
             return False, failure_for_stage(root, elapsed_sec=elapsed)

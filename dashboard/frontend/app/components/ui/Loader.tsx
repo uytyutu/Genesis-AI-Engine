@@ -4,7 +4,11 @@ export function Spinner({ size = "md", className }: { size?: "sm" | "md" | "lg";
   const dim = size === "sm" ? "h-4 w-4" : size === "lg" ? "h-8 w-8" : "h-5 w-5";
   return (
     <span
-      className={cn("inline-block animate-spin rounded-full border-2 border-white/20 border-t-white", dim, className)}
+      className={cn(
+        "inline-block animate-spin rounded-full border-2 border-genesis-accent/25 border-t-genesis-accent",
+        dim,
+        className
+      )}
       role="status"
       aria-label="Загрузка"
     />

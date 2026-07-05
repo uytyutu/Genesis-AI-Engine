@@ -416,7 +416,7 @@ export default function CursorPage() {
 
         <p className="text-center text-sm">
           <Link href="/" className="text-genesis-accent hover:underline">
-            ← Mission Control
+            ← Genesis
           </Link>
         </p>
       </div>

@@ -92,7 +92,7 @@ export default function GrowthPage() {
 
         <div className="flex justify-center gap-4 text-sm">
           <Link href="/" className="text-genesis-accent hover:underline">
-            ← Mission Control
+            ← Genesis
           </Link>
           <Link href="/finance" className="text-genesis-accent hover:underline">
             Финансы →

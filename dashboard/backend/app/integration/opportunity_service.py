@@ -181,6 +181,12 @@ class OpportunityService:
 
         source_id = row.get("source_id") or row.get("source") or "manual"
         company = row.get("company_name") or row.get("title") or ""
+        interactions = row.get("interactions")
+        if not isinstance(interactions, list):
+            interactions = []
+        site_analysis = row.get("site_analysis")
+        if site_analysis is not None and not isinstance(site_analysis, dict):
+            site_analysis = None
         return {
             "id": row.get("id") or f"opp-{uuid.uuid4().hex[:10]}",
             "opportunity_type": opp_type,
@@ -198,6 +204,14 @@ class OpportunityService:
             "found_at": row.get("found_at") or datetime.now(timezone.utc).isoformat(),
             "updated_at": row.get("updated_at") or row.get("found_at") or datetime.now(timezone.utc).isoformat(),
             "meta": row.get("meta") if isinstance(row.get("meta"), dict) else {},
+            "website_url": row.get("website_url") or "",
+            "site_analysis": site_analysis,
+            "recommended_package_id": row.get("recommended_package_id") or "",
+            "recommended_price_eur": float(row.get("recommended_price_eur") or 0),
+            "pricing_rationale": row.get("pricing_rationale") or "",
+            "email_subject": row.get("email_subject") or "",
+            "outreach_status": row.get("outreach_status") or "none",
+            "interactions": interactions,
         }
 
     def _save_rows(self, rows: list[dict]) -> None:
@@ -298,6 +312,14 @@ class OpportunityService:
             "found_at": now,
             "updated_at": now,
             "meta": payload.get("meta") if isinstance(payload.get("meta"), dict) else {},
+            "website_url": (payload.get("website_url") or "").strip(),
+            "site_analysis": None,
+            "recommended_package_id": "",
+            "recommended_price_eur": 0.0,
+            "pricing_rationale": "",
+            "email_subject": "",
+            "outreach_status": "none",
+            "interactions": [],
         }
         return self._append_row(row)
 
@@ -343,13 +365,25 @@ class OpportunityService:
                 "contact",
                 "fit_reason",
                 "company_name",
+                "website_url",
+                "pricing_rationale",
+                "email_subject",
+                "outreach_status",
+                "recommended_package_id",
             ):
                 if field in payload:
                     row[field] = str(payload[field] or "").strip()
+            if "site_analysis" in payload:
+                val = payload["site_analysis"]
+                row["site_analysis"] = val if isinstance(val, dict) else None
+            if "interactions" in payload and isinstance(payload["interactions"], list):
+                row["interactions"] = payload["interactions"]
             if "score" in payload:
                 row["score"] = int(payload["score"])
             if "potential_value_eur" in payload:
                 row["potential_value_eur"] = float(payload["potential_value_eur"])
+            if "recommended_price_eur" in payload:
+                row["recommended_price_eur"] = float(payload["recommended_price_eur"])
             if "revenue_eur" in payload:
                 row["revenue_eur"] = float(payload["revenue_eur"])
             row["updated_at"] = datetime.now(timezone.utc).isoformat()
@@ -421,7 +455,12 @@ class OpportunityService:
             if self._is_today(str(r.get("updated_at", "")))
             and r.get("status") in ("contacted", "proposed", "replied", "qualified", "won")
         )
-        pending_owner = sum(1 for r in rows if r.get("status") in ("new", "reviewed", "proposed"))
+        pending_owner = sum(
+            1
+            for r in rows
+            if r.get("status") in ("new", "reviewed", "proposed")
+            or r.get("outreach_status") == "pending_approval"
+        )
         prepared = sum(1 for r in rows if r.get("status") in ("proposed", "reviewed"))
         clients_won = sum(1 for r in rows if r.get("status") == "won")
         revenue_from_opps = sum(

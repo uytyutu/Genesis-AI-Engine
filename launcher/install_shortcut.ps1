@@ -1,9 +1,10 @@
-# Create Desktop shortcut "Genesis"
+# Create Desktop shortcut "Genesis" — Orbit Stack icon from rebuilt exe
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 $Exe = Join-Path $Root "dist\Genesis.exe"
 $ExeLegacy = Join-Path $Root "dist\Genesis Launcher.exe"
 $Bat = Join-Path $Root "launcher\StartGenesis.bat"
+$Ico = Join-Path $Root "launcher\assets\genesis.ico"
 $Desktop = [Environment]::GetFolderPath("Desktop")
 $ShortcutPath = Join-Path $Desktop "Genesis.lnk"
 
@@ -21,11 +22,20 @@ $Wsh = New-Object -ComObject WScript.Shell
 $Shortcut = $Wsh.CreateShortcut($ShortcutPath)
 $Shortcut.TargetPath = $Target
 $Shortcut.WorkingDirectory = $Root
-$Shortcut.Description = "Genesis ABOS launcher"
-$Icon = Join-Path $Root "launcher\assets\genesis.ico"
-if (Test-Path $Icon) {
-    $Shortcut.IconLocation = "$Icon,0"
+$Shortcut.Description = "Genesis Company OS"
+
+# Prefer icon embedded in exe (always matches last PyInstaller build)
+if (Test-Path $Exe) {
+    $Shortcut.IconLocation = "$Exe,0"
+} elseif (Test-Path $Ico) {
+    $Shortcut.IconLocation = "$Ico,0"
 }
+
 $Shortcut.Save()
 
 Write-Host "Shortcut created: $ShortcutPath"
+if (Test-Path $Exe) {
+    Write-Host "Icon source: $Exe (embedded Orbit Stack)"
+} elseif (Test-Path $Ico) {
+    Write-Host "Icon source: $Ico"
+}

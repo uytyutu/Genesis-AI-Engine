@@ -16,3 +16,9 @@ dashboard/backend/sandbox/
 
 .vercel
 .env*
+
+# Launcher runtime logs (never commit)
+launcher/logs/
+
+# Local build artifacts
+client/desktop/src-tauri/icons/icon.icns.png

@@ -1,11 +1,7 @@
-export type NavId = "home" | "chat" | "projects" | "settings";
+import { GenesisMark } from "./GenesisMark";
+import { useI18n } from "../i18n/I18nProvider";
 
-const NAV: { id: NavId; label: string; hint: string }[] = [
-  { id: "home", label: "Home", hint: "Owner dashboard" },
-  { id: "chat", label: "Chat", hint: "Genesis assistant" },
-  { id: "projects", label: "Projects", hint: "Factory products" },
-  { id: "settings", label: "Settings", hint: "API, theme, updates" },
-];
+export type NavId = "home" | "chat" | "studio" | "projects" | "settings";
 
 type SidebarProps = {
   active: NavId;
@@ -22,15 +18,25 @@ export function Sidebar({
   onNavigate,
   onDisconnect,
 }: SidebarProps) {
+  const { t } = useI18n();
+
+  const nav: { id: NavId; labelKey: string; hintKey: string }[] = [
+    { id: "home", labelKey: "nav.home", hintKey: "nav.home.hint" },
+    { id: "chat", labelKey: "nav.chat", hintKey: "nav.chat.hint" },
+    { id: "studio", labelKey: "nav.studio", hintKey: "nav.studio.hint" },
+    { id: "projects", labelKey: "nav.projects", hintKey: "nav.projects.hint" },
+    { id: "settings", labelKey: "nav.settings", hintKey: "nav.settings.hint" },
+  ];
+
   return (
     <nav className="sidebar" aria-label="Primary">
       <div className="sidebar__brand">
         <div className="sidebar__logo" aria-hidden>
-          G
+          <GenesisMark />
         </div>
         <div>
-          <div className="sidebar__name">Genesis</div>
-          <div className="sidebar__tag">Windows Client</div>
+          <div className="sidebar__name">{t("app.name")}</div>
+          <div className="sidebar__tag">{t("app.platform")}</div>
         </div>
       </div>
 
@@ -42,13 +48,13 @@ export function Sidebar({
         <div>
           <div className="sidebar__user">{ownerLabel}</div>
           <div className="sidebar__status">
-            {connected ? "Connected" : "Offline"}
+            {connected ? t("session.connected") : t("session.offline")}
           </div>
         </div>
       </div>
 
       <ul className="sidebar__list">
-        {NAV.map((item) => (
+        {nav.map((item) => (
           <li key={item.id}>
             <button
               type="button"
@@ -56,17 +62,17 @@ export function Sidebar({
               aria-current={active === item.id ? "page" : undefined}
               onClick={() => onNavigate(item.id)}
             >
-              <span className="sidebar__link-label">{item.label}</span>
-              <span className="sidebar__link-hint">{item.hint}</span>
+              <span className="sidebar__link-label">{t(item.labelKey)}</span>
+              <span className="sidebar__link-hint">{t(item.hintKey)}</span>
             </button>
           </li>
         ))}
       </ul>
 
       <button type="button" className="sidebar__disconnect" onClick={onDisconnect}>
-        Disconnect
+        {t("session.disconnect")}
       </button>
-      <p className="sidebar__footer">Stage 2 · Tauri 2</p>
+      <p className="sidebar__footer">{t("app.stage")}</p>
     </nav>
   );
 }

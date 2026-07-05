@@ -75,7 +75,7 @@ export default function SystemCheckPage() {
             Проверить снова
           </button>
           <Link href="/" className="rounded-lg px-4 py-2 text-genesis-accent hover:underline">
-            Mission Control
+            Genesis
           </Link>
         </div>
       </div>

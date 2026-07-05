@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { PublicPageShell } from "./components/PublicPageShell";
-import { Button, ButtonLink } from "./components/ui";
+import { GenesisStatusPage } from "./components/GenesisStatusPage";
+import { ButtonLink } from "./components/ui";
 
 export default function Error({
   error,
@@ -16,22 +16,25 @@ export default function Error({
   }, [error]);
 
   return (
-    <PublicPageShell>
-      <main className="py-16 text-center animate-fade-up">
-        <p className="text-6xl font-bold text-rose-400/80">500</p>
-        <h1 className="mt-4 text-2xl font-bold">Что-то пошло не так</h1>
-        <p className="mx-auto mt-3 max-w-md text-genesis-muted">
-          Временная ошибка. Попробуйте обновить страницу или вернитесь позже.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Button variant="primary" size="md" onClick={reset}>
+    <GenesisStatusPage
+      code="500"
+      title="Что-то пошло не так"
+      description="Genesis не смог загрузить эту страницу. Остановите и запустите Genesis с рабочего стола — или нажмите «Повторить»."
+      onRetry={reset}
+      actions={
+        <>
+          <button
+            type="button"
+            onClick={reset}
+            className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-genesis-accent to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow"
+          >
             Повторить
-          </Button>
-          <ButtonLink href="/site" variant="secondary" size="md">
-            На главную
+          </button>
+          <ButtonLink href="/" variant="secondary" size="md">
+            На пульт
           </ButtonLink>
-        </div>
-      </main>
-    </PublicPageShell>
+        </>
+      }
+    />
   );
 }

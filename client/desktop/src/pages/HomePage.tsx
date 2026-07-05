@@ -13,8 +13,10 @@ import {
 } from "../lib/endpoints";
 import { recentChatSnippet } from "../lib/chatStore";
 import { apiBase } from "../lib/apiClient";
+import { useI18n } from "../i18n/I18nProvider";
 
 export function HomePage() {
+  const { t } = useI18n();
   const { settings } = useAppSettings();
   const { dashboard, ownerLabel, refresh, systemVersion, error, connected } =
     useSession();
@@ -53,7 +55,7 @@ export function HomePage() {
   if (!dashboard) {
     return (
       <div className="page">
-        <p className="hint">Loading dashboard…</p>
+        <p className="hint">{t("boot.loading")}</p>
       </div>
     );
   }
@@ -66,7 +68,7 @@ export function HomePage() {
   return (
     <div className="page page--wide">
       <section className="hero">
-        <p className="hero__eyebrow">Добро пожаловать</p>
+        <p className="hero__eyebrow">{t("home.welcome")}</p>
         <h1>{dashboard.greeting}</h1>
         <p className="hero__sub">
           {ownerLabel} · Genesis {systemVersion ?? "—"} · {dashboard.uptime_label}
@@ -75,8 +77,8 @@ export function HomePage() {
           className={`hero__status${dashboard.system_running ? " is-ok" : ""}`}
         >
           {dashboard.system_running && dashboard.all_services_ok
-            ? "Genesis готов"
-            : "Требует внимания"}
+            ? t("home.ready")
+            : t("home.attention")}
         </div>
       </section>
 

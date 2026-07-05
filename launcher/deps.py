@@ -42,9 +42,13 @@ def frontend_build_integrity(root: Path | None = None) -> bool:
     return all(p.is_file() for p in required)
 
 
-def clear_frontend_build(root: Path | None = None) -> None:
+def clear_frontend_build(root: Path | None = None, *, managed=None) -> None:
+    """Remove .next only after stopping Frontend — never delete artifacts under a live server."""
     import shutil
 
+    from launcher.process_cleanup import stop_frontend_listeners
+
+    stop_frontend_listeners(root, managed)
     nxt = frontend_dir(root) / ".next"
     if nxt.exists():
         shutil.rmtree(nxt, ignore_errors=True)
@@ -217,7 +221,12 @@ def install_backend_deps(root: Path | None = None) -> tuple[bool, str]:
     return True, "Python-зависимости установлены"
 
 
-def ensure_frontend_ready(root: Path | None = None, *, for_production: bool = False) -> tuple[bool, str]:
+def ensure_frontend_ready(
+    root: Path | None = None,
+    *,
+    for_production: bool = False,
+    managed=None,
+) -> tuple[bool, str]:
     """Install npm packages; production builds only when for_production=True."""
     npm_cmd = find_npm()
     if not npm_cmd:
@@ -239,15 +248,15 @@ def ensure_frontend_ready(root: Path | None = None, *, for_production: bool = Fa
         return True, "Mission Control готов"
 
     if frontend_build_ready(root) and not frontend_build_integrity(root):
-        clear_frontend_build(root)
+        clear_frontend_build(root, managed=managed)
 
-    ok, msg = build_frontend(root)
+    ok, msg = build_frontend(root, managed=managed)
     if not ok:
         return False, msg
     return True, "Mission Control собран и готов"
 
 
-def build_frontend(root: Path | None = None) -> tuple[bool, str]:
+def build_frontend(root: Path | None = None, *, managed=None) -> tuple[bool, str]:
     """Run `npm run build` — creates .next/routes-manifest.json for production start."""
     npm_cmd = find_npm()
     if not npm_cmd:
@@ -257,7 +266,7 @@ def build_frontend(root: Path | None = None) -> tuple[bool, str]:
     if not (fe / "package.json").exists():
         return False, "package.json не найден в dashboard/frontend"
 
-    clear_frontend_build(root)
+    clear_frontend_build(root, managed=managed)
 
     build_log = log_dir(root) / "frontend_build.log"
     build_log.parent.mkdir(parents=True, exist_ok=True)

@@ -1,4 +1,9 @@
 import { useEffect, useRef, useState, type DragEvent } from "react";
+import {
+  classifyAttachment,
+  validateAttachmentSize,
+  type ChatAttachmentMeta,
+} from "@genesis/chat/attachments";
 import { useAppSettings } from "../context/AppSettingsContext";
 import { useNavigation } from "../context/NavigationContext";
 import { askAssistant } from "../lib/endpoints";
@@ -60,6 +65,8 @@ export function ChatPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dropHint, setDropHint] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<ChatAttachmentMeta[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   const visible = search.trim() ? searchChat(messages, search) : messages;
@@ -130,14 +137,30 @@ export function ChatPage() {
     savePinnedPrompts(next);
   }
 
+  function addFiles(fileList: FileList | File[]) {
+    const next: ChatAttachmentMeta[] = [];
+    for (const file of fileList) {
+      const err = validateAttachmentSize(file.size);
+      if (err) {
+        setDropHint(err);
+        continue;
+      }
+      next.push({
+        id: crypto.randomUUID(),
+        name: file.name,
+        mime: file.type || "application/octet-stream",
+        size: file.size,
+        kind: classifyAttachment(file.type, file.name),
+        status: "pending",
+      });
+    }
+    if (next.length) setAttachments((prev) => [...prev, ...next].slice(0, 8));
+  }
+
   function onDrop(e: DragEvent) {
     e.preventDefault();
     setDropHint(null);
-    const files = [...e.dataTransfer.files];
-    if (files.length === 0) return;
-    setDropHint(
-      `${files.map((f) => f.name).join(", ")} — upload API в Stage 3. Пока опишите файл в сообщении.`,
-    );
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
   }
 
   return (
@@ -210,6 +233,15 @@ export function ChatPage() {
         </div>
 
         {dropHint ? <p className="banner banner--warn">{dropHint}</p> : null}
+        {attachments.length > 0 ? (
+          <div className="chat-attachments">
+            {attachments.map((a) => (
+              <span key={a.id} className="chat-attachment-chip">
+                {a.name} ({a.kind})
+              </span>
+            ))}
+          </div>
+        ) : null}
         {error ? <p className="banner banner--warn">{error}</p> : null}
 
         <form
@@ -219,6 +251,24 @@ export function ChatPage() {
             void send();
           }}
         >
+          <input
+            ref={fileRef}
+            type="file"
+            multiple
+            hidden
+            onChange={(e) => {
+              if (e.target.files) addFiles(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={() => fileRef.current?.click()}
+            title="Attach file"
+          >
+            📎
+          </button>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}

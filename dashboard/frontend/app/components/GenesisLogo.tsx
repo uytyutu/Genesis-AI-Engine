@@ -13,7 +13,7 @@ export function GenesisLogo({ href = "/site", size = "md" }: Props) {
       <GenesisMark className={`${markSize} shrink-0 shadow-glow`} />
       <div>
         <p className="font-semibold tracking-tight text-genesis-text">Genesis</p>
-        <p className="text-[11px] text-genesis-muted">Цифровая компания</p>
+        <p className="text-[11px] text-genesis-muted">Company OS</p>
       </div>
     </>
   );
