@@ -159,6 +159,19 @@ Responsibilities include:
 - profitability estimation;
 - scaling recommendations.
 
+### Algorithm Intelligence Engine
+
+**Predictive growth intelligence** — learns from observable outcomes, not proprietary algorithm reverse-engineering.
+
+**Full directive:** `docs/Genesis_Algorithm_Intelligence_Engine_Future_Directive.md`
+
+Responsibilities include:
+
+- pre-publication performance estimation;
+- pattern analysis from public metrics;
+- confidence-scored recommendations;
+- prediction vs reality feedback into Learning Loop.
+
 ### Learning Loop
 
 Every publication should become training data for Genesis.

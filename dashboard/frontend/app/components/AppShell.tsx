@@ -18,6 +18,7 @@ const MC_PREFIXES = [
   "/check",
   "/create",
   "/settings",
+  "/setup",
   "/launch",
   "/opportunities",
   "/acquisition",
@@ -29,6 +30,8 @@ const MC_PREFIXES = [
 
 function isMissionControlRoute(pathname: string): boolean {
   if (pathname === "/") return true;
+  // Public subscription page — not Mission Control (factory lives at /products/[id])
+  if (pathname === "/products") return false;
   return MC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 

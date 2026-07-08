@@ -20,7 +20,13 @@ export function GenesisLogo({ href = "/site", size = "md" }: Props) {
 
   if (href) {
     return (
-      <Link href={href} className="group flex items-center gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-genesis-accent/60">
+      <Link
+        href={href}
+        onClick={() => {
+          if (href === "/site") window.dispatchEvent(new Event("genesis:home"));
+        }}
+        className="group flex items-center gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-genesis-accent/60"
+      >
         {inner}
       </Link>
     );

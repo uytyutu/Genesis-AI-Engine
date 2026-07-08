@@ -1,237 +1,124 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatEur } from "../lib/formatEur";
 import { PublicPageShell } from "../components/PublicPageShell";
-import { PublicPageHero } from "../components/PublicPageHero";
+import { GenesisConcierge } from "../components/GenesisConcierge";
+import { GenesisChatErrorBoundary } from "../components/GenesisChatErrorBoundary";
 import { FaqList } from "../components/FaqList";
-import { Badge, ButtonLink, Card } from "../components/ui";
-import { Skeleton } from "../components/ui/Loader";
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
-type Package = {
-  id: string;
-  name: string;
-  price_eur: number;
-  deliverables: string[];
-};
+import { Card, ButtonLink } from "../components/ui";
+import {
+  fetchPricingDisplay,
+  type ServiceCatalogItem,
+} from "../lib/pricingApi";
 
 const FAQ = [
   {
     q: "Сколько ждать готовый сайт?",
-    a: "От 48 часов для базового пакета после подтверждения оплаты. Точный срок виден в статусе заказа.",
+    a: "Обычно от нескольких дней — точный срок зависит от вашего проекта. Genesis назовёт его после короткого разговора.",
   },
   {
     q: "Нужно ли что-то техническое от меня?",
-    a: "Нет. Вы отвечаете на простые вопросы о бизнесе — мы делаем остальное.",
+    a: "Нет. Достаточно рассказать о задаче простыми словами — Genesis сделает остальное.",
   },
   {
     q: "Как происходит оплата?",
-    a: "После заказа вы видите цену и оплачиваете онлайн. Деньги поступают через защищённую платёжную систему.",
-  },
-  {
-    q: "Могу ли я следить за прогрессом?",
-    a: "Да. После оплаты вы получаете страницу статуса: что сделано, что происходит сейчас, ориентировочный срок.",
+    a: "Сначала вы видите ориентировочную стоимость в диалоге. Оплата — только когда вы согласны оформить заказ.",
   },
   {
     q: "Что если мне нужны правки?",
-    a: "В пакет Business и Premium входят раунды правок. Детали — в описании пакета при заказе.",
+    a: "В услугах под ключ предусмотрены раунды правок. Подробности — когда подберём решение под вашу задачу.",
   },
 ];
 
-const FALLBACK_PACKAGES: Package[] = [
-  {
-    id: "basic",
-    name: "Landing Basic",
-    price_eur: 350,
-    deliverables: ["Современный сайт", "Мобильная версия", "SEO", "Контакты", "WhatsApp"],
-  },
-  {
-    id: "business",
-    name: "Landing Business",
-    price_eur: 650,
-    deliverables: ["Всё из Basic", "Карта", "Отзывы", "Логотип", "Правки"],
-  },
-  {
-    id: "premium",
-    name: "Landing Premium",
-    price_eur: 1200,
-    deliverables: ["Всё из Business", "Домен", "Премиум-дизайн", "Приоритет"],
-  },
-];
+function focusGenesisChat() {
+  window.dispatchEvent(new Event("genesis:focus-chat"));
+}
 
 export function SitePage() {
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState<ServiceCatalogItem[]>([]);
+  const [chatActive, setChatActive] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/api/sales/packages`)
-      .then((r) => r.json())
-      .then((body) => setPackages(body.packages ?? []))
-      .catch(() => setPackages([]))
-      .finally(() => setLoading(false));
+    void fetchPricingDisplay().then((data) => {
+      const items = (data.service_categories ?? []).flatMap((c) => c.items);
+      setServices(items.slice(0, 3));
+    });
   }, []);
 
-  const list = packages.length ? packages : FALLBACK_PACKAGES;
-  const minPrice = Math.min(...list.map((p) => p.price_eur));
-
   return (
-    <PublicPageShell>
-      <PublicPageHero
-        badge="Genesis Company"
-        title={
-          <>
-            Современный сайт для вашего бизнеса —{" "}
-            <span className="text-genesis-accent">под ключ</span>
-          </>
-        }
-        description="Цена сразу на экране. Оплата онлайн. Прозрачный статус заказа. Без бесконечных созвонов и сюрпризов в счёте."
-      >
-        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <ButtonLink href="/order" variant="success" size="lg" className="w-full sm:w-auto">
-            Заказать сайт — от {formatEur(minPrice)}
-          </ButtonLink>
-          <ButtonLink href="/services" variant="secondary" size="lg" className="w-full sm:w-auto">
-            Смотреть услуги
-          </ButtonLink>
-        </div>
-        <p className="mt-4 text-xs text-genesis-muted">
-          Ответьте на 6 вопросов · увидите цену · оплатите · мы начнём работу
-        </p>
-      </PublicPageHero>
+    <PublicPageShell hideChrome={false}>
+      <GenesisChatErrorBoundary>
+        <GenesisConcierge onConversationActive={setChatActive} />
+      </GenesisChatErrorBoundary>
 
-      <Card padding="lg" className="mt-8">
-        <h2 className="text-xl font-bold">Кто мы и что делаем</h2>
-        <p className="mt-3 text-sm leading-relaxed text-genesis-muted">
-          Genesis — цифровая студия, которая создаёт одностраничные сайты (лендинги) для малого
-          бизнеса: кафе, салоны, мастера, клиники, автосервисы, консультанты. Вы рассказываете о
-          бизнесе — мы делаем сайт, который принимает заявки с телефона и компьютера.
-        </p>
-      </Card>
-
-      <section className="mt-10" aria-labelledby="results-heading">
-        <h2 id="results-heading" className="text-center text-xl font-bold">
-          Что получает клиент
-        </h2>
-        <ul className="mt-6 grid gap-3 sm:grid-cols-2" role="list">
-          {[
-            "Современный дизайн под ваш бизнес",
-            "Адаптация под мобильные — большинство клиентов с телефона",
-            "Контакты, WhatsApp, форма заявки",
-            "Базовое SEO — вас могут найти в Google",
-            "Прозрачный статус заказа после оплаты",
-            "Передача готового сайта для публикации",
-          ].map((item) => (
-            <li key={item}>
-              <Card hover padding="sm" className="flex gap-3 text-sm">
-                <span className="text-emerald-400" aria-hidden>
-                  ✔
-                </span>
-                <span>{item}</span>
-              </Card>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <Card padding="lg" className="mt-10">
-        <h2 className="text-xl font-bold">Почему нам можно доверять</h2>
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
-          {[
-            { title: "Цена до заказа", text: "Вы видите пакет и стоимость до оплаты." },
-            { title: "Процесс на виду", text: "Страница статуса после оплаты." },
-            { title: "Сроки", text: "Ориентировочное время в заказе." },
-          ].map((b) => (
-            <Card key={b.title} hover={false} padding="sm" className="bg-genesis-bg/50">
-              <p className="font-medium text-genesis-accent">{b.title}</p>
-              <p className="mt-2 text-xs leading-relaxed text-genesis-muted">{b.text}</p>
-            </Card>
-          ))}
-        </div>
-      </Card>
-
-      <section id="pricing" className="mt-12 scroll-mt-8" aria-labelledby="pricing-heading">
-        <h2 id="pricing-heading" className="text-center text-xl font-bold">
-          Сколько это стоит
-        </h2>
-        <p className="mt-2 text-center text-sm text-genesis-muted">
-          Выберите пакет при заказе — цена не изменится после отправки формы
-        </p>
-        {loading ? (
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-48 w-full" />
-            ))}
-          </div>
-        ) : (
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {list.map((p, i) => (
-              <Card key={p.id} glow={i === 1} padding="md" className={i === 1 ? "" : ""}>
-                {i === 1 && (
-                  <Badge variant="accent" className="mb-2">
-                    Популярный
-                  </Badge>
-                )}
-                <p className="font-semibold">{p.name}</p>
-                <p className="mt-2 text-2xl font-bold tabular-nums">{formatEur(p.price_eur)}</p>
-                <ul className="mt-4 space-y-1.5 text-xs text-genesis-muted">
-                  {p.deliverables.slice(0, 5).map((d) => (
-                    <li key={d} className="flex gap-1.5">
-                      <span className="text-emerald-400/80">✔</span>
-                      {d}
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <Card padding="lg" className="mt-12">
-        <h2 className="text-xl font-bold">Что будет после оплаты</h2>
-        <ol className="mt-5 space-y-4">
-          {[
-            { n: "1", t: "Подтверждение", d: "Оплата получена, заказ принят." },
-            { n: "2", t: "Производство", d: "Создаём сайт по вашим ответам." },
-            { n: "3", t: "Статус", d: "Этапы и ориентировочный срок." },
-            { n: "4", t: "Передача", d: "Готовый сайт и инструкция." },
-          ].map((step) => (
-            <li key={step.n} className="flex gap-4">
-              <span
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-genesis-accent/20 text-sm font-bold text-genesis-accent"
-                aria-hidden
-              >
-                {step.n}
+      {!chatActive && (
+        <>
+          <details className="group mt-10 rounded-2xl border border-genesis-border-subtle bg-genesis-panel/40 open:bg-genesis-panel/60">
+            <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold marker:content-none sm:px-6">
+              <span className="flex items-center justify-between gap-2">
+                Кратко: что такое Genesis
+                <span className="text-genesis-muted transition group-open:rotate-180">▼</span>
               </span>
-              <div>
-                <p className="font-medium">{step.t}</p>
-                <p className="text-sm text-genesis-muted">{step.d}</p>
+            </summary>
+            <div className="space-y-4 border-t border-genesis-border-subtle px-5 py-5 text-sm text-genesis-muted sm:px-6">
+              <p>
+                <strong className="text-genesis-text">Genesis</strong> — цифровой интеллект:
+                поговорить, придумать идею, науку, бизнес — или создать сайт и автоматизацию.
+              </p>
+              <button
+                type="button"
+                onClick={focusGenesisChat}
+                className="text-sm font-medium text-genesis-accent hover:underline"
+              >
+                Начать разговор ↑
+              </button>
+            </div>
+          </details>
+
+          <details className="group mt-4 rounded-2xl border border-genesis-border-subtle bg-genesis-panel/40">
+            <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold marker:content-none sm:px-6">
+              <span className="flex items-center justify-between gap-2">
+                Услуги
+                <span className="text-genesis-muted transition group-open:rotate-180">▼</span>
+              </span>
+            </summary>
+            <div className="border-t border-genesis-border-subtle p-5 sm:p-6">
+              <p className="mb-4 text-sm text-genesis-muted">
+                Genesis делает под ключ — сайты, боты, автоматизацию. Цены «от» — ориентир после разговора.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {services.map((item, i) => (
+                  <Card key={item.id} glow={i === 0 && item.available} padding="md">
+                    <p className="font-semibold">{item.name}</p>
+                    <p className="mt-2 text-2xl font-bold tabular-nums text-genesis-accent">
+                      {item.price_label}
+                    </p>
+                    {item.timeline && (
+                      <p className="mt-1 text-xs text-genesis-muted">Срок: {item.timeline}</p>
+                    )}
+                    <p className="mt-2 text-xs text-genesis-muted line-clamp-3">{item.description}</p>
+                  </Card>
+                ))}
               </div>
-            </li>
-          ))}
-        </ol>
-      </Card>
+              <ButtonLink href="/services" variant="ghost" size="sm" className="mt-4">
+                Весь каталог услуг →
+              </ButtonLink>
+            </div>
+          </details>
 
-      <section className="mt-12" aria-labelledby="faq-heading">
-        <h2 id="faq-heading" className="text-center text-xl font-bold">
-          Частые вопросы
-        </h2>
-        <div className="mt-6">
-          <FaqList items={FAQ} />
-        </div>
-      </section>
-
-      <Card glow className="mt-14 border-emerald-500/30 bg-gradient-to-br from-emerald-950/30 to-genesis-panel text-center" padding="lg">
-        <h2 className="text-2xl font-bold">Готовы начать?</h2>
-        <p className="mt-3 text-genesis-muted">
-          Заполните короткую форму — увидите цену и сможете оплатить онлайн
-        </p>
-        <ButtonLink href="/order" variant="success" size="lg" className="mt-6">
-          Заказать сайт
-        </ButtonLink>
-      </Card>
+          <details className="group mt-4 rounded-2xl border border-genesis-border-subtle bg-genesis-panel/40">
+            <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold marker:content-none sm:px-6">
+              <span className="flex items-center justify-between gap-2">
+                Частые вопросы
+                <span className="text-genesis-muted transition group-open:rotate-180">▼</span>
+              </span>
+            </summary>
+            <div className="border-t border-genesis-border-subtle p-5 sm:p-6">
+              <FaqList items={FAQ} />
+            </div>
+          </details>
+        </>
+      )}
     </PublicPageShell>
   );
 }

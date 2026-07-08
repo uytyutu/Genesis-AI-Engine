@@ -1,18 +1,47 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import io
 import os
 
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from contextlib import asynccontextmanager
+import logging
 
+from app.env_loader import load_local_env
+
+load_local_env()
+
+from app.config import genesis_env, is_production
 from app.integration.context import get_integration, reset_integration
 from app.integration.runtime import light_system_status, mark_server_started, set_brain_paused
-from app.integration.assistant_service import AssistantService
+from app.integration.genesis_ai_service import GenesisAIService
+from app.integration.genesis_brain.brain import BRAIN_VERSION
+from app.integration.genesis_ai_setup_service import GenesisAISetupService
+from app.integration.genesis_tts import GenesisTtsService, VOICE_BUILD
+from app.integration.public_chat_attachments import PublicChatAttachmentService
+from app.integration.startup_validation import log_startup_report, run_startup_validation
+from app.integration.deployment_health import build_health_payload, build_status_payload
+from app.security import (
+    api_access_denied_response,
+    dev_mode_allowed,
+    is_internal_api_path,
+    local_owner_access_allowed,
+    production_api_allowed,
+)
 from app.schemas import (
     ActivityResponse,
     AssistantRequest,
     AssistantResponse,
+    ChatAttachmentResponse,
+    ChatSessionCreateRequest,
+    ChatSessionCreateResponse,
+    ChatSessionDetailResponse,
+    ChatSessionListResponse,
+    ChatSessionPinRequest,
+    ChatSessionRenameRequest,
+    ChatSessionSummary,
+    ConciergeRequest,
+    ConciergeResponse,
     CursorHandoffHistoryResponse,
     CursorHandoffRequest,
     CursorHandoffResponse,
@@ -88,6 +117,7 @@ from app.schemas import (
     TaskCreatedResponse,
     TaskItem,
     TasksResponse,
+    TtsRequest,
     TimelineResponse,
     AiHubApproveRequest,
     AiHubPlanStep,
@@ -97,6 +127,9 @@ from app.schemas import (
     AiHubTasksListResponse,
     AiHubVerifyResponse,
     AiProvidersResponse,
+    GenesisAISetupRequest,
+    GenesisAISetupResponse,
+    GenesisAISetupStatus,
     DevBuildEntry,
     DevFileEntry,
     DevProject,
@@ -108,6 +141,23 @@ from app.schemas import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     mark_server_started()
+    if GenesisAIService([]).llm_configured():
+        logging.getLogger("genesis").info("Genesis Brain: cloud workforce employee(s) active")
+    else:
+        logging.getLogger("genesis").info(
+            "Genesis Brain: Local Genesis active — connect Groq/Gemini on /setup to expand workforce"
+        )
+
+    from pathlib import Path
+
+    backend_dir = Path(__file__).resolve().parents[1]
+    repo_root = backend_dir.parent.parent
+    mem = os.getenv("GENESIS_MEMORY_DIR", "").strip()
+    memory_dir = Path(mem).expanduser() if mem else backend_dir / "memory"
+    report = run_startup_validation(memory_dir=memory_dir, repo_root=repo_root)
+    app.state.startup_report = report
+    log_startup_report(report)
+    logging.getLogger("genesis").info("Genesis env=%s", genesis_env())
 
     def _warm_integration() -> None:
         try:
@@ -127,13 +177,19 @@ app = FastAPI(
     description="Integration Layer v0.1 — live Brain data",
     version="0.2.0",
     lifespan=lifespan,
+    docs_url=None if is_production() else "/docs",
+    redoc_url=None if is_production() else "/redoc",
+    openapi_url=None if is_production() else "/openapi.json",
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         o.strip()
-        for o in os.getenv("GENESIS_CORS_ORIGINS", "http://localhost:3000").split(",")
+        for o in os.getenv(
+            "GENESIS_CORS_ORIGINS",
+            "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001",
+        ).split(",")
         if o.strip()
     ],
     allow_credentials=True,
@@ -142,8 +198,48 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def rate_limit_public(request: Request, call_next):
+    """Basic DoS guard on public chat endpoints (per client IP)."""
+    if is_production() and request.url.path.startswith("/api/public/"):
+        import time
+        from collections import defaultdict
+
+        if not hasattr(app.state, "_rate_buckets"):
+            app.state._rate_buckets = defaultdict(list)
+        ip = (request.client.host if request.client else "unknown") or "unknown"
+        now = time.time()
+        window = 60.0
+        limit = int(os.getenv("GENESIS_RATE_LIMIT_PER_MIN", "40"))
+        bucket: list[float] = app.state._rate_buckets[ip]
+        bucket[:] = [t for t in bucket if now - t < window]
+        if len(bucket) >= limit:
+            return JSONResponse(
+                status_code=429,
+                content={"detail": "Too many requests — please wait a moment"},
+            )
+        bucket.append(now)
+    return await call_next(request)
+
+
+@app.middleware("http")
+async def guard_internal_routes(request: Request, call_next):
+    path = request.url.path
+    method = request.method
+    if is_production():
+        if not production_api_allowed(path, method):
+            return JSONResponse(status_code=403, content=api_access_denied_response(path, method))
+    elif is_internal_api_path(path) and not local_owner_access_allowed(request):
+        return JSONResponse(status_code=403, content=api_access_denied_response(path, method))
+    return await call_next(request)
+
+
 def _ctx():
     return get_integration()
+
+
+def _memory_dir():
+    return _ctx().adapter.brain.config.memory_dir
 
 
 def _ai_hub():
@@ -158,6 +254,16 @@ def _dev_workspace():
 
     hub = _ai_hub()
     return DevWorkspaceService(_ctx().cursor_handoff, hub)
+
+
+@app.get("/health")
+def health_check() -> dict:
+    return build_health_payload()
+
+
+@app.get("/status")
+def deployment_status() -> dict:
+    return build_status_payload(memory_dir=_memory_dir())
 
 
 @app.get("/api/status", response_model=SystemStatus)
@@ -447,6 +553,227 @@ def ask_assistant(request: AssistantRequest) -> AssistantResponse:
     svc = AssistantService(_ctx())
     result = svc.ask(request.question, locale=request.locale)
     return AssistantResponse(**result)
+
+
+def _genesis_dev_mode_allowed(http_request: Request) -> bool:
+    """Thinking Brief / debug only on localhost or when GENESIS_DEV_MODE=1 (never production)."""
+    return dev_mode_allowed(http_request)
+
+
+def _genesis_service(packages: list | None = None) -> GenesisAIService:
+    """Reload secrets each request — setup wizard / llm.key works without restart."""
+    load_local_env()
+    return GenesisAIService(packages or [], memory_dir=_memory_dir())
+
+
+@app.post("/api/public/concierge", response_model=ConciergeResponse)
+@app.post("/api/public/genesis-ai", response_model=ConciergeResponse)
+def ask_concierge(
+    request: ConciergeRequest,
+    http_request: Request,
+    debug: bool = False,
+) -> ConciergeResponse:
+    ctx = _ctx()
+    packages = ctx.sales.packages()
+    att_svc = PublicChatAttachmentService(_memory_dir())
+    attachment_note = att_svc.describe(request.attachment_ids or [])
+    use_debug = debug and _genesis_dev_mode_allowed(http_request)
+    result = _genesis_service(packages).chat(
+        request.question,
+        history=[m.model_dump() for m in (request.history or [])],
+        context=request.context,
+        attachment_note=attachment_note,
+        visitor_id=request.visitor_id,
+        session_id=request.session_id,
+        debug=use_debug,
+    )
+    return ConciergeResponse(**result)
+
+
+@app.get("/api/public/genesis-ai/sessions", response_model=ChatSessionListResponse)
+def list_chat_sessions(visitor_id: str) -> ChatSessionListResponse:
+    vid = (visitor_id or "anonymous").strip()[:64]
+    svc = _genesis_service(_ctx().sales.packages())
+    rows = svc.sessions.list_for_visitor(vid)
+    return ChatSessionListResponse(
+        sessions=[ChatSessionSummary(**r) for r in rows]
+    )
+
+
+@app.post("/api/public/genesis-ai/sessions", response_model=ChatSessionCreateResponse)
+def create_chat_session(body: ChatSessionCreateRequest) -> ChatSessionCreateResponse:
+    vid = body.visitor_id.strip()[:64]
+    row = _genesis_service(_ctx().sales.packages()).sessions.create(
+        vid, title=body.title.strip() or "Новый чат"
+    )
+    return ChatSessionCreateResponse(
+        session_id=row["session_id"],
+        title=row["title"],
+        created_at=row["created_at"],
+    )
+
+
+@app.get(
+    "/api/public/genesis-ai/sessions/{session_id}",
+    response_model=ChatSessionDetailResponse,
+)
+def get_chat_session(session_id: str, visitor_id: str) -> ChatSessionDetailResponse:
+    vid = (visitor_id or "anonymous").strip()[:64]
+    row = _genesis_service(_ctx().sales.packages()).sessions.get(session_id)
+    if not row or row.get("visitor_id") != vid:
+        raise HTTPException(status_code=404, detail="session not found")
+    msgs = [
+        {"role": m.get("role", "user"), "content": m.get("content", "")}
+        for m in (row.get("messages") or [])
+        if m.get("role") in ("user", "assistant")
+    ]
+    return ChatSessionDetailResponse(
+        session_id=row["session_id"],
+        visitor_id=vid,
+        title=row.get("title") or "Новый чат",
+        created_at=row.get("created_at") or "",
+        updated_at=row.get("updated_at") or "",
+        pinned=bool(row.get("pinned")),
+        messages=msgs,
+    )
+
+
+@app.patch(
+    "/api/public/genesis-ai/sessions/{session_id}",
+    response_model=ChatSessionDetailResponse,
+)
+def rename_chat_session(
+    session_id: str, body: ChatSessionRenameRequest
+) -> ChatSessionDetailResponse:
+    vid = body.visitor_id.strip()[:64]
+    row = _genesis_service(_ctx().sales.packages()).sessions.rename(
+        session_id, vid, body.title
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="session not found")
+    return get_chat_session(session_id, vid)
+
+
+@app.post(
+    "/api/public/genesis-ai/sessions/{session_id}/pin",
+    response_model=ChatSessionDetailResponse,
+)
+def pin_chat_session(
+    session_id: str, body: ChatSessionPinRequest
+) -> ChatSessionDetailResponse:
+    vid = body.visitor_id.strip()[:64]
+    row = _genesis_service(_ctx().sales.packages()).sessions.set_pinned(
+        session_id, vid, body.pinned
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="session not found")
+    return get_chat_session(session_id, vid)
+
+
+@app.delete("/api/public/genesis-ai/sessions/{session_id}")
+def delete_chat_session(session_id: str, visitor_id: str) -> dict:
+    vid = (visitor_id or "anonymous").strip()[:64]
+    ok = _genesis_service(_ctx().sales.packages()).sessions.delete(session_id, vid)
+    if not ok:
+        raise HTTPException(status_code=404, detail="session not found")
+    return {"ok": True}
+
+
+@app.post("/api/public/genesis-ai/attachments", response_model=ChatAttachmentResponse)
+async def upload_genesis_chat_attachment(
+    file: UploadFile = File(...),
+) -> ChatAttachmentResponse:
+    svc = PublicChatAttachmentService(_memory_dir())
+    try:
+        row = svc.save(file)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return ChatAttachmentResponse(**row)
+
+
+@app.get("/api/public/genesis-ai/greeting")
+def genesis_ai_greeting(visitor_id: str = "anonymous") -> dict:
+    packages = _ctx().sales.packages()
+    svc = _genesis_service(packages)
+    return {"greeting": svc.greeting(visitor_id=visitor_id[:64])}
+
+
+@app.get("/api/public/genesis-ai/status")
+def genesis_ai_status() -> dict:
+    """Lightweight status — AI Workforce, not OpenAI-only."""
+    load_local_env()
+    st = GenesisAISetupService().status()
+    payload = {
+        "name": "Genesis AI",
+        "genesis_ready": st["genesis_ready"],
+        "workforce_tier": st["workforce_tier"],
+        "workforce": {
+            "tier": st["workforce_tier"],
+            "cloud_employees_ready": st["cloud_employees_ready"],
+            "employees": st["employees"],
+        },
+        "llm_configured": st["llm_configured"],
+        "intelligence_tier": st["workforce_tier"],
+        "intelligence_active": st["intelligence_active"],
+        "mode": "genesis",
+        "setup_wizard_available": st["setup_wizard_available"],
+        "hi_build": BRAIN_VERSION,
+        "brain_version": BRAIN_VERSION,
+        "frontend_build_expected": BRAIN_VERSION,
+        "voice_build": VOICE_BUILD,
+        "tts": GenesisTtsService().status_payload(),
+    }
+    if is_production():
+        payload["setup_wizard_available"] = False
+        payload["workforce"] = {
+            "tier": st["workforce_tier"],
+            "cloud_employees_ready": st["cloud_employees_ready"],
+        }
+    return payload
+
+
+@app.get("/api/public/genesis-ai/tts/status")
+def genesis_tts_status() -> dict:
+    return GenesisTtsService().status_payload()
+
+
+@app.post("/api/public/genesis-ai/tts")
+def genesis_tts_synthesize(request: TtsRequest):
+    svc = GenesisTtsService()
+    result = svc.synthesize(request.text, speed=request.speed, locale=request.locale)
+    if not result:
+        raise HTTPException(
+            status_code=503,
+            detail="Cloud TTS unavailable — use browser fallback",
+        )
+    return StreamingResponse(
+        io.BytesIO(result.audio),
+        media_type=result.content_type,
+        headers={
+            "X-Genesis-TTS-Provider": result.provider_id,
+            "Cache-Control": "no-store",
+        },
+    )
+
+
+@app.get("/api/owner/genesis-ai/setup", response_model=GenesisAISetupStatus)
+def owner_genesis_ai_setup_status() -> GenesisAISetupStatus:
+    return GenesisAISetupStatus(**GenesisAISetupService().status())
+
+
+@app.post("/api/owner/genesis-ai/setup", response_model=GenesisAISetupResponse)
+def owner_genesis_ai_setup(body: GenesisAISetupRequest) -> GenesisAISetupResponse:
+    try:
+        result = GenesisAISetupService().configure(
+            provider=body.provider,
+            api_key=body.api_key,
+            model=body.model,
+        )
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return GenesisAISetupResponse(**result)
 
 
 @app.get("/api/modules", response_model=ModulesResponse)

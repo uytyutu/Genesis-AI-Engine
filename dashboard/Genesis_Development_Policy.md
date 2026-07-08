@@ -54,15 +54,38 @@ Jobcenter (ясность) → Studio + Platform build → первый клие
 
 ## Правило Cursor (Mission 1 era)
 
-> **Непрерывная разработка** всего, что не требует реальных денег или коммерческой публикации.  
-> **Выключено до CEO Approve:** live pay · подписки · Stripe Live · вывод · SaaS launch.  
-> **Mission 1** — приоритет до EL3 · **Platform** строится каждый день.
+> **Максимально подготовить Genesis к первому публичному запуску** — реализуя всё, что можно **качественно проверить без реальных пользователей**.  
+> **Не:** «ждать Invoice #0001 для всего подряд.»  
+> **Да:** Reality over Features — не тратить время на то, что невозможно проверить до реальной эксплуатации.
+
+### Три типа функций (CEO · 2026-07-05)
+
+| | Когда | Примеры |
+|---|--------|---------|
+| 🟢 **Тип 1 — сейчас** | Не зависят от реальных пользователей; не замедляют Mission 1 | UI/UX, `/site`, AI Concierge (rule-based), `/order`, Mission Control, тесты, perf, i18n, безопасные рефакторинги, стабильность, dogfooding |
+| 🟡 **Тип 2 — после первых пользователей** | Нужны реальные диалоги, конверсия, поведение | Sales AI self-learning, Algorithm Intelligence, Media learning, динамическое ценообразование, рекомендации по конверсии |
+| 🔴 **Тип 3 — после бизнеса** | Нужны клиенты, деньги, юридическая база | Stripe automation, налоги, мультивалюта, Voice AI, корп. тарифы, авто-счета, полная бухгалтерия |
+
+**Продолжай реализовывать**, если функция:
+
+- повышает качество первого публичного релиза;
+- не требует недоступных production-данных;
+- проверяется локально (тесты, dogfooding);
+- не замедляет Mission 1;
+- не нарушает архитектуру (Garage → Validation → Production).
+
+**CEO не согласовывает каждое безопасное улучшение.** Garage + тесты + quality gates; в Production — только прошедшее проверки и реально улучшающее продукт.
+
+**Выключено до CEO Approve:** live pay · подписки · Stripe Live · вывод · SaaS launch.  
+**Mission 1** — приоритет до EL3 · **Platform** строится каждый день.
 
 **Readiness ≈ 8.8/10** — `Genesis_Readiness_Scorecard_v1.md`
 
 **Priorities:** 🔴 A (first €) → 🟠 B (Company) → 🔵 C (Platform). Filter + Weekly: `Genesis_Development_Priorities_v1.md`
 
 **Reality First (CEO APPROVED):** `Genesis_CEO_Mandate_Reality_First_v1.md` — done = visible to CEO · USER CAN VERIFY in reports · Reality Audit after major stages · Launcher path until Tauri primary.
+
+**Pre-launch implementation (CEO · 2026-07-05):** три типа функций — см. § «Три типа функций» выше. Цель: законченный продукт к запуску, не MVP с дырами; обучение на выдуманных данных — после реальных клиентов.
 
 **Strategic Review v2:** `Genesis_Strategic_Review_Report_v2.md`
 

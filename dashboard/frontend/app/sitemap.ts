@@ -5,6 +5,7 @@ const PATHS = [
   "/site",
   "/services",
   "/order",
+  "/products",
   "/pricing",
   "/faq",
   "/kontakt",

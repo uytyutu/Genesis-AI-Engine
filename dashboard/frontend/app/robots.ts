@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/site", "/services", "/order", "/pricing", "/faq", "/kontakt", "/impressum", "/datenschutz", "/agb"],
-      disallow: ["/finance", "/company", "/ai", "/cursor", "/revenue", "/marketplace", "/monitor", "/dev", "/check", "/create", "/settings", "/launch", "/opportunities", "/acquisition", "/projects", "/products", "/growth", "/tasks"],
+      allow: ["/site", "/services", "/products", "/order", "/pricing", "/faq", "/kontakt", "/impressum", "/datenschutz", "/agb"],
+      disallow: ["/finance", "/company", "/ai", "/cursor", "/revenue", "/marketplace", "/monitor", "/dev", "/check", "/create", "/settings", "/launch", "/opportunities", "/acquisition", "/projects", "/products/", "/growth", "/tasks"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

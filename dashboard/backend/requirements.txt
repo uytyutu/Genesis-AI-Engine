@@ -1,4 +1,6 @@
-fastapi>=0.115.0
-uvicorn[standard]>=0.32.0
-pydantic>=2.0
-httpx>=0.27.0
+# Production runtime — pinned for cloud deploy (Render, Railway, Docker)
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+httpx==0.28.1
+python-multipart==0.0.20

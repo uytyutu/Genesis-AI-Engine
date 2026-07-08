@@ -11,6 +11,7 @@ const HELP = [
   { href: "/faq", label: "FAQ" },
   { href: "/kontakt", label: "Kontakt" },
   { href: "/services", label: "Услуги" },
+  { href: "/products", label: "Studio" },
 ];
 
 export function PublicSiteFooter() {

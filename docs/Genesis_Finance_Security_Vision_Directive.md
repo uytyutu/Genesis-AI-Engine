@@ -152,6 +152,8 @@ Future capabilities may include:
 
 **Security is a core product feature** — not an afterthought.
 
+**Expanded Research Vision (not a separate governance directive):** `docs/Genesis_Security_Vision_Research.md` · `dashboard/backend/memory/research/genesis_security_vision.json`
+
 ---
 
 ## Financial Governance

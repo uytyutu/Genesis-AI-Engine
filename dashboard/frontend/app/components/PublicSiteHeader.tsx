@@ -9,8 +9,8 @@ import { ButtonLink } from "./ui/Button";
 const LINKS = [
   { href: "/site", label: "Главная" },
   { href: "/services", label: "Услуги" },
+  { href: "/products", label: "Studio" },
   { href: "/order", label: "Заказать", accent: true },
-  { href: "/pricing", label: "Platform", muted: true },
 ];
 
 export function PublicSiteHeader() {
@@ -56,11 +56,7 @@ export function PublicSiteHeader() {
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className={`rounded-lg px-3 py-2 text-center text-sm transition-smooth hover:bg-genesis-elevated hover:text-white sm:text-left ${
-                  link.muted
-                    ? "text-genesis-muted/70 text-xs"
-                    : active
-                      ? "text-white"
-                      : "text-genesis-muted"
+                  active ? "text-white" : "text-genesis-muted"
                 }`}
               >
                 {link.label}

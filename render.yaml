@@ -1,0 +1,42 @@
+# Genesis API — Render Web Service (monorepo root + Dockerfile)
+services:
+  - type: web
+    name: genesis-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: frankfurt
+    healthCheckPath: /health
+    autoDeploy: true
+    numInstances: 1
+    envVars:
+      - key: GENESIS_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: GENESIS_MEMORY_DIR
+        value: /data
+      - key: GENESIS_PUBLIC_URL
+        sync: false
+      - key: GENESIS_CORS_ORIGINS
+        sync: false
+      - key: GENESIS_GROQ_API_KEY
+        sync: false
+      - key: GENESIS_GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: GENESIS_GEMINI_API_KEY
+        sync: false
+      - key: GENESIS_OPENROUTER_API_KEY
+        sync: false
+      - key: GENESIS_LLM_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+    disk:
+      name: genesis-memory
+      mountPath: /data
+      sizeGB: 1

@@ -37,6 +37,8 @@ module.exports = {
         "fade-in": "fadeIn 0.4s ease-out forwards",
         "slide-in-right": "slideInRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards",
         "pulse-soft": "pulseSoft 2.5s ease-in-out infinite",
+        "genesis-voice-bar": "genesisVoiceBar 0.9s ease-in-out infinite",
+        "genesis-voice-orb": "genesisVoiceOrb 1.8s ease-in-out infinite",
       },
       keyframes: {
         fadeUp: {
@@ -54,6 +56,14 @@ module.exports = {
         pulseSoft: {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.55" },
+        },
+        genesisVoiceBar: {
+          "0%, 100%": { transform: "scaleY(0.45)", opacity: "0.5" },
+          "50%": { transform: "scaleY(1)", opacity: "1" },
+        },
+        genesisVoiceOrb: {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.08)" },
         },
       },
       fontFamily: {

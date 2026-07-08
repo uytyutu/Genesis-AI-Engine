@@ -657,6 +657,8 @@ GENESIS (штаб)
 
 **Связь с бизнесом:** трафик для Genesis, Perfect Pallet, SaaS, клиентский маркетинг — **после** первых €.
 
+**Подмодуль (Research FROZEN):** [Algorithm Intelligence Engine](Genesis_Algorithm_Intelligence_Engine_Future_Directive.md) — предиктивная модель на наблюдаемых данных; не «взлом алгоритмов».
+
 ---
 
 ### Genesis Finance & Security (Future — не кодировать сейчас)
@@ -664,6 +666,7 @@ GENESIS (штаб)
 **Статус:** Future Roadmap · **FROZEN** · Research layer
 
 **Полный directive:** [`docs/Genesis_Finance_Security_Vision_Directive.md`](Genesis_Finance_Security_Vision_Directive.md)  
+**Security Research Vision:** [`docs/Genesis_Security_Vision_Research.md`](Genesis_Security_Vision_Research.md) (не governance)  
 **Machine-readable:** `dashboard/backend/memory/research/genesis_finance_security.json`
 
 **Когда:** только после Production Stable + первый paying customer + первый реальный доход + стабилизация — **как R16**.

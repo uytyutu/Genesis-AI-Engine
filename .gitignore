@@ -9,6 +9,7 @@ build/
 .env
 .env.*
 !.env.example
+!.env.local.example
 dashboard/frontend/node_modules/
 dashboard/frontend/.next/
 dashboard/frontend/out/
@@ -16,8 +17,26 @@ dashboard/backend/sandbox/
 
 .vercel
 .env*
+**/secrets/
+**/secrets/**
+*.key
+*.pem
+*.p12
 
-# Launcher runtime logs (never commit)
+# Runtime memory & training data (never commit)
+dashboard/backend/memory/workforce/
+dashboard/backend/memory/genesis_brain/
+dashboard/backend/memory/human_review/
+dashboard/backend/memory/*.jsonl
+memory/
+**/training_candidates.jsonl
+**/employee_ratings.json
+**/daily_stats.json
+**/quotas.json
+
+# Logs
+logs/
+*.log
 launcher/logs/
 
 # Local build artifacts

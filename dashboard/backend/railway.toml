@@ -1,4 +1,4 @@
 # Railway: set service Root Directory to repo root (.) — see /railway.toml and dashboard/RAILWAY_DEPLOY.md
 [deploy]
-healthcheckPath = "/api/status"
+healthcheckPath = "/health"
 healthcheckTimeout = 120

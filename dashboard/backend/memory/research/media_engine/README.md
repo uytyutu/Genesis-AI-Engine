@@ -24,8 +24,8 @@ Only when Mission 1 is not blocked. Passive research during downtime or explicit
 | 003 | YouTube / TikTok / Instagram APIs | Publisher |
 | 004 | FFmpeg vs rendering tools | Media Factory |
 | 005 | Cost per short by AI model | Revenue Optimizer |
-| 006 | Algorithms & retention | Trend Intelligence |
+| 006 | Observable performance & prediction models | Algorithm Intelligence Engine |
 | 007 | Subtitles & STT models | Media Factory |
 | 008 | Multimodal AI | Content Architect |
 
-*Directive:* `docs/Genesis_Media_Engine_Architecture_Freeze_Directive.md`
+*Directive:* `docs/Genesis_Media_Engine_Architecture_Freeze_Directive.md` · Algorithm Intelligence: `docs/Genesis_Algorithm_Intelligence_Engine_Future_Directive.md`

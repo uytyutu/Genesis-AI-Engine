@@ -9,12 +9,17 @@ import {
   logPricingEvent,
   type BusinessUnit,
   type PricingDisplay,
-  type PricingService,
+  type ServiceCatalogItem,
+  type ServiceCategory,
 } from "../lib/pricingApi";
 
-function ServiceCard({ item }: { item: PricingService }) {
+function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
   const href = item.cta_href;
   const available = item.available;
+
+  const ctaClass = available
+    ? "bg-genesis-accent text-white shadow-glow hover:brightness-110"
+    : "border border-genesis-border-subtle text-genesis-muted hover:text-white";
 
   return (
     <Card
@@ -24,25 +29,33 @@ function ServiceCard({ item }: { item: PricingService }) {
       }`}
       padding="lg"
     >
-      <div className="absolute right-4 top-4">
-        {available ? (
-          <Badge variant="success">Доступно сейчас</Badge>
-        ) : (
+      {available ? (
+        <div className="absolute right-4 top-4">
+          <Badge variant="success">Заказ онлайн</Badge>
+        </div>
+      ) : (
+        <div className="absolute right-4 top-4">
           <Badge variant="outline">По запросу</Badge>
-        )}
-      </div>
-      <h3 className="pr-24 text-lg font-semibold">{item.name}</h3>
+        </div>
+      )}
+      <h3 className="pr-28 text-lg font-semibold">{item.name}</h3>
       <p className="mt-2 text-2xl font-bold text-genesis-accent">{item.price_label}</p>
+      {item.timeline && (
+        <p className="mt-1 text-xs text-genesis-muted">Срок: {item.timeline}</p>
+      )}
       <p className="mt-3 flex-1 text-sm text-genesis-muted">{item.description}</p>
+      {item.includes && item.includes.length > 0 && (
+        <ul className="mt-3 space-y-1 text-xs text-genesis-muted">
+          {item.includes.map((x) => (
+            <li key={x}>✓ {x}</li>
+          ))}
+        </ul>
+      )}
       {href.startsWith("mailto:") ? (
         <a
           href={href}
           onClick={() => logPricingEvent("service_cta", item.id, "services")}
-          className={`mt-5 inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold transition-smooth ${
-            available
-              ? "bg-genesis-accent text-white shadow-glow hover:brightness-110"
-              : "border border-genesis-border-subtle text-genesis-muted hover:text-white"
-          }`}
+          className={`mt-5 inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold transition-smooth ${ctaClass}`}
         >
           {item.cta}
         </a>
@@ -74,9 +87,6 @@ function UnitCard({ unit }: { unit: BusinessUnit }) {
           <li key={x}>· {x}</li>
         ))}
       </ul>
-      <p className="mt-4 text-xs text-genesis-muted">
-        Направление развития Genesis — не готовый продукт сегодня.
-      </p>
       <ButtonLink
         href={unit.cta_href}
         variant="secondary"
@@ -92,72 +102,99 @@ function UnitCard({ unit }: { unit: BusinessUnit }) {
 
 export default function ServicesPage() {
   const [data, setData] = useState<PricingDisplay | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPricingDisplay().then(setData);
+    fetchPricingDisplay().then((d) => {
+      setData(d);
+      setLoading(false);
+    });
     logPricingEvent("page_view", null, "services");
   }, []);
 
-  const services = data?.services ?? [];
-  const availableNow = services.filter((s) => s.available);
-  const onRequest = services.filter((s) => !s.available);
+  const categories: ServiceCategory[] =
+    data?.service_categories?.length
+      ? data.service_categories
+      : data?.services?.length
+        ? [
+            {
+              id: "legacy",
+              name: "Услуги",
+              description: "",
+              items: data.services.map((s) => ({
+                ...s,
+                timeline: undefined,
+                includes: undefined,
+              })),
+            },
+          ]
+        : [];
 
   return (
     <PublicPageShell>
       <PublicPageHero
-        badge="Заказать сегодня"
+        badge="Результат под ключ"
         badgeVariant="success"
         title="Услуги Genesis"
-        description="Решите задачу бизнеса — закажите сайт онлайн. Цена на экране, оплата через Stripe, статус заказа прозрачный."
+        description="Готовый результат под ключ — сайт, бот, AI. Цена «от», срок и состав на карточке. Один проект — услуга; много проектов сами — Studio."
       >
         <ButtonLink href="/order" variant="success" size="lg">
-          Заказать сайт →
+          Заказать landing →
+        </ButtonLink>
+        <ButtonLink href="/products" variant="ghost" size="lg" className="ml-2">
+          Или Genesis Studio
         </ButtonLink>
       </PublicPageHero>
 
-      {availableNow.length > 0 && (
-        <section>
-          <h2 className="text-xl font-bold text-emerald-300">Доступно сейчас</h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {availableNow.map((s) => (
-              <ServiceCard key={s.id} item={s} />
-            ))}
-          </div>
-        </section>
+      {loading && categories.length === 0 && (
+        <p className="mt-8 text-sm text-genesis-muted">Загрузка каталога…</p>
       )}
 
-      {onRequest.length > 0 && (
-        <section className="mt-14">
-          <h2 className="text-xl font-bold">Другие услуги — по запросу</h2>
-          <p className="mt-2 text-sm text-genesis-muted">
-            Обсудим scope и цену после Stripe Live и Gewerbe.
+      {categories.length === 0 && !loading && (
+        <Card className="mt-8" padding="md">
+          <p className="text-sm text-genesis-muted">
+            Каталог временно недоступен.{" "}
+            <ButtonLink href="/order" variant="primary" size="sm" className="inline-flex">
+              Заказать landing →
+            </ButtonLink>
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {onRequest.map((s) => (
-              <ServiceCard key={s.id} item={s} />
+        </Card>
+      )}
+
+      {categories.map((cat) => (
+        <section key={cat.id} className="mt-12 first:mt-0">
+          <h2 className="text-xl font-bold">{cat.name}</h2>
+          {cat.description && (
+            <p className="mt-2 max-w-2xl text-sm text-genesis-muted">{cat.description}</p>
+          )}
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {cat.items.map((item) => (
+              <CatalogItemCard key={item.id} item={item} />
             ))}
           </div>
         </section>
-      )}
+      ))}
 
       <section className="mt-16">
         <h2 className="text-xl font-bold">Куда развивается Genesis</h2>
         <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
-          Цифровые отделы — vision, не то, что можно купить в один клик сегодня.
+          Цифровые отделы — vision, не готовый продукт в один клик.
         </p>
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
           {(data?.business_units ?? []).map((u) => (
             <UnitCard key={u.id} unit={u} />
           ))}
         </div>
       </section>
 
-      <p className="mt-10 text-center text-sm text-genesis-muted">
-        Platform и подписки —{" "}
-        <ButtonLink href="/pricing" variant="ghost" size="sm" className="inline-flex">
-          ранний доступ
-        </ButtonLink>
-      </p>
+      <Card className="mt-12 text-center" padding="md">
+        <p className="text-sm text-genesis-muted">
+          Много проектов в год?{" "}
+          <ButtonLink href="/products" variant="ghost" size="sm" className="inline-flex text-indigo-300">
+            Сравнить Genesis Studio →
+          </ButtonLink>
+        </p>
+      </Card>
     </PublicPageShell>
   );
 }

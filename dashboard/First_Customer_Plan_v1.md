@@ -370,6 +370,7 @@ https://genesis-ai-engine.vercel.app/order
 
 ## 10. Следующий шаг CEO
 
+0. **Dogfooding:** пройти `Mission1_Dogfooding_Guide.md` (пошагово) · полный чеклист `Mission1_Release_Readiness_Checklist.md` · результаты в `Mission1_Release_Readiness_Results.md` (CEO = первый клиент).
 1. Пройти **Live Stripe Checklist** (раздел 5).
 2. Заполнить `contact_email` на Railway.
 3. Собрать список **25 бизнесов** (малый город, ≥2 признака).
@@ -382,3 +383,5 @@ https://genesis-ai-engine.vercel.app/order
 **Purpose:** помогать находить возможности и превращать их в устойчивые результаты.  
 **Focus:** один партнёр, один реальный €, измеряемые ответы.  
 **Horizon:** проактивный режим, Genesis Network, Opportunity Engine — см. `docs/DIGITAL_COMPANY_VISION.md` § Horizon.
+
+**Product evolution (не governance):** `dashboard/Mission1_Autonomous_Sales_Experience_v1.md` · `dashboard/Mission1_AI_First_Website_UX_v1.md` · `dashboard/Mission1_Release_Readiness_Checklist.md`

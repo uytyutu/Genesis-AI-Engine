@@ -15,10 +15,11 @@ WORKDIR /app/dashboard/backend
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV GENESIS_ENV=production
 # Public Launch defaults (override in Railway Variables if domain changes)
 ENV GENESIS_PUBLIC_URL=https://genesis-ai-engine.vercel.app
 ENV GENESIS_CORS_ORIGINS=https://genesis-ai-engine.vercel.app
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "uvicorn app.main:app --host ${HOST:-0.0.0.0} --port ${PORT:-8000}"]

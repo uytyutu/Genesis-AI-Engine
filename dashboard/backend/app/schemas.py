@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class SystemStatus(BaseModel):
@@ -372,9 +372,99 @@ class AssistantRequest(BaseModel):
     locale: str | None = Field(default=None, max_length=16)
 
 
+class ConciergeRequest(BaseModel):
+    question: str = Field(default="", max_length=2000)
+    locale: str | None = Field(default=None, max_length=16)
+    visitor_id: str | None = Field(default=None, max_length=64)
+    session_id: str | None = Field(default=None, max_length=64)
+    context: dict | None = None
+    history: list["ChatTurn"] | None = None
+    attachment_ids: list[str] | None = None
+
+    @model_validator(mode="after")
+    def require_message_or_files(self) -> "ConciergeRequest":
+        if not self.question.strip() and not self.attachment_ids:
+            raise ValueError("question or attachment_ids required")
+        return self
+
+
+class ChatAttachmentResponse(BaseModel):
+    id: str
+    filename: str
+    content_type: str
+    size: int
+    is_image: bool
+
+
+class TtsRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=2000)
+    speed: float = Field(default=1.1, ge=0.85, le=1.25)
+    locale: str = Field(default="ru-RU", max_length=16)
+
+
+class ChatTurn(BaseModel):
+    role: str = Field(pattern=r"^(user|assistant)$")
+    content: str = Field(max_length=4000)
+
+
 class AssistantResponse(BaseModel):
     answer: str
     source: str = "genesis"
+
+
+class ConciergeResponse(BaseModel):
+    answer: str
+    source: str = "genesis-ai"
+    mode: str = "genesis"
+    cta_href: str | None = None
+    cta_label: str | None = None
+    context: dict | None = None
+    debug: dict | None = None
+    session_id: str | None = None
+
+
+class ChatSessionSummary(BaseModel):
+    session_id: str
+    title: str
+    created_at: str
+    updated_at: str
+    preview: str = ""
+    pinned: bool = False
+
+
+class ChatSessionListResponse(BaseModel):
+    sessions: list[ChatSessionSummary]
+
+
+class ChatSessionCreateRequest(BaseModel):
+    visitor_id: str = Field(max_length=64)
+    title: str = Field(default="Новый чат", max_length=80)
+
+
+class ChatSessionCreateResponse(BaseModel):
+    session_id: str
+    title: str
+    created_at: str
+
+
+class ChatSessionDetailResponse(BaseModel):
+    session_id: str
+    visitor_id: str
+    title: str
+    created_at: str
+    updated_at: str
+    pinned: bool = False
+    messages: list[ChatTurn] = Field(default_factory=list)
+
+
+class ChatSessionRenameRequest(BaseModel):
+    visitor_id: str = Field(max_length=64)
+    title: str = Field(min_length=1, max_length=80)
+
+
+class ChatSessionPinRequest(BaseModel):
+    visitor_id: str = Field(max_length=64)
+    pinned: bool = True
 
 
 class FinanceTransaction(BaseModel):
@@ -1226,3 +1316,47 @@ class AiProviderInfo(BaseModel):
 class AiProvidersResponse(BaseModel):
     providers: list[AiProviderInfo]
     default_development_provider: str | None = None
+
+
+class WorkforceEmployeeStatus(BaseModel):
+    id: str
+    label: str
+    status: str
+    premium: bool = False
+    core: bool = False
+    tier: str | None = None
+    roles: list[str] = []
+    quota_remaining: int = 0
+    quota_limit: int = 0
+
+
+class GenesisAISetupStatus(BaseModel):
+    genesis_ready: bool = True
+    workforce_tier: str
+    cloud_employees_ready: int = 0
+    employees: list[WorkforceEmployeeStatus]
+    llm_configured: bool
+    intelligence_active: bool = True
+    mode: str
+    env_file: str
+    setup_wizard_available: bool
+    allowed_models: list[str]
+    connectable: list[str] = []
+
+
+class GenesisAISetupRequest(BaseModel):
+    provider: str = Field(default="groq", max_length=32)
+    api_key: str = Field(default="", max_length=256)
+    model: str | None = Field(default=None, max_length=64)
+
+
+class GenesisAISetupResponse(BaseModel):
+    ok: bool
+    provider: str | None = None
+    llm_configured: bool
+    workforce_tier: str | None = None
+    employees: list[WorkforceEmployeeStatus] | None = None
+    mode: str
+    model: str | None = None
+    message: str
+    env_file: str | None = None

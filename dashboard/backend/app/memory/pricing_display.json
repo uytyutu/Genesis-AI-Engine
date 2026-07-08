@@ -1,17 +1,108 @@
 {
-  "version": "1.0",
-  "updated": "2026-07-04",
+  "version": "2.1",
+  "updated": "2026-07-06",
   "disclaimer": {
-    "ru": "Genesis Platform — ранний доступ. Тарифы ниже ориентировочные; подписки откроются после публичного запуска. Сайт и услуги — на странице «Услуги».",
-    "de": "Genesis Platform — Early Access. Preise sind Orientierungswerte."
+    "ru": "Цены «от» — ориентир. Точная смета после brief. Подписки Genesis — ранний доступ до публичного запуска.",
+    "de": "Preise «ab» — Richtwerte. Abos im Early Access."
   },
   "platform_status": {
     "label": "Ранний доступ",
     "headline": "Genesis Platform скоро откроется",
-    "body": "Подписки станут доступны после публичного запуска. Оставьте заявку — сообщим первым.",
+    "body": "Подписки станут доступны после публичного запуска. Услуги под ключ — уже на странице «Услуги».",
     "waitlist_cta": "Стать одним из первых пользователей",
-    "waitlist_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Platform%20%E2%80%94%20ранний%20доступ"
+    "waitlist_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Platform%20%E2%80%94%20%D0%B1%20%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D0%B5"
   },
+  "capabilities": {
+    "headline": "Genesis Studio — инструменты",
+    "subheadline": "Подписка — не «бесплатные сайты под ключ». Вы платите за инструменты создавать проекты самостоятельно.",
+    "groups": [
+      {
+        "title": "Genesis Chat",
+        "items": ["AI-консультант 24/7", "Память", "Голос", "Работа, учёба, идеи"]
+      },
+      {
+        "title": "Studio Basic",
+        "items": ["Создание", "Редактирование", "Публикация", "До 2 проектов"]
+      },
+      {
+        "title": "Studio Pro+",
+        "items": ["Больше проектов", "Автоматизация", "Команда", "Marketing Lab", "Factory Preview"]
+      }
+    ],
+    "value_anchor": "Один сайт под ключ — от 450 € (услуга). Studio выгоден от 2+ проектов в год — вы платите за инструменты, не за нашу работу."
+  },
+  "service_vs_product": {
+    "headline": "Услуга или Studio?",
+    "service_when": "Нужен один готовый результат — сайт, бот, приложение. Genesis делает всё сам, под ключ.",
+    "product_when": "Планируете регулярно создавать проекты сами — Studio даёт инструменты (лимит проектов по тарифу). Не заменяет услугу «под ключ».",
+    "cta_service": { "label": "Каталог услуг", "href": "/services" },
+    "cta_product": { "label": "Genesis Studio", "href": "/products#compare" }
+  },
+  "anti_cannibalization": {
+    "headline": "Studio ≠ бесплатный сайт за 49 €",
+    "body": "Подписка не включает работу под ключ. Landing от 450 € — услуга. Studio 49 €/мес — платформа с лимитом проектов, когда делаете сами.",
+    "example_one_site": "Один лендинг → услуга. Подписка сейчас не нужна — и мы скажем об этом честно."
+  },
+  "service_categories": [
+    {
+      "id": "websites",
+      "name": "Сайты",
+      "description": "Сайты под ключ — от идеи до публикации",
+      "items": [
+        { "id": "landing", "name": "Landing Page", "price_label": "от 450 €", "timeline": "5–10 дней", "includes": ["1 страница", "Адаптив", "Форма связи", "SEO-база"], "description": "Одностраничник для продукта или услуги", "cta": "Заказать", "cta_href": "/order", "available": true },
+        { "id": "corporate", "name": "Корпоративный сайт", "price_label": "от 850 €", "timeline": "2–4 недели", "includes": ["4–7 страниц", "CMS", "Контакты", "Карта"], "description": "Компания, услуги, команда, кейсы", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Corporate%20Website", "available": false },
+        { "id": "shop", "name": "Интернет-магазин", "price_label": "от 1 800 €", "timeline": "3–6 недель", "includes": ["Каталог", "Корзина", "Оплата", "Админка"], "description": "E-commerce под ваш ассортимент", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Online%20Shop", "available": false },
+        { "id": "salon", "name": "Сайт салона / клиники", "price_label": "от 650 €", "timeline": "2–3 недели", "includes": ["Услуги", "Запись", "Галерея", "Отзывы"], "description": "Красота, медицина, wellness", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Salon%20Website", "available": false },
+        { "id": "restaurant", "name": "Сайт ресторана", "price_label": "от 550 €", "timeline": "1–2 недели", "includes": ["Меню", "Бронь", "Карта", "Фото"], "description": "Кафе, ресторан, доставка", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Restaurant%20Website", "available": false }
+      ]
+    },
+    {
+      "id": "ai",
+      "name": "AI для сайта и бизнеса",
+      "description": "Умные помощники на вашем сайте или в мессенджерах",
+      "items": [
+        { "id": "ai_consultant", "name": "AI-консультант", "price_label": "от 350 €", "timeline": "1–2 недели", "includes": ["Виджет на сайт", "База знаний", "Обучение"], "description": "Отвечает на вопросы клиентов 24/7", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=AI%20Consultant", "available": false },
+        { "id": "ai_sales", "name": "AI-продавец", "price_label": "от 450 €", "timeline": "2–3 недели", "includes": ["Квалификация лидов", "CRM-хук", "Сценарии"], "description": "Ведёт к заявке и записи", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=AI%20Sales", "available": false },
+        { "id": "ai_support", "name": "AI-поддержка", "price_label": "от 300 €", "timeline": "1–2 недели", "includes": ["FAQ", "Эскалация", "Тикеты"], "description": "Первая линия поддержки", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=AI%20Support", "available": false },
+        { "id": "ai_booking", "name": "AI-запись клиентов", "price_label": "от 250 €", "timeline": "1 неделя", "includes": ["Календарь", "Напоминания", "Telegram/сайт"], "description": "Запись без оператора", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=AI%20Booking", "available": false }
+      ]
+    },
+    {
+      "id": "automation",
+      "name": "Автоматизация",
+      "description": "Боты, CRM, воронки — меньше ручной работы",
+      "items": [
+        { "id": "telegram_bot", "name": "Telegram Bot", "price_label": "от 250 €", "timeline": "1–2 недели", "includes": ["Сценарии", "Админка", "Уведомления"], "description": "Бот под ваш процесс", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Telegram%20Bot", "available": false },
+        { "id": "whatsapp_bot", "name": "WhatsApp Bot", "price_label": "от 350 €", "timeline": "2–3 недели", "includes": ["API Meta", "Сценарии", "CRM"], "description": "Автоответы и продажи", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=WhatsApp%20Bot", "available": false },
+        { "id": "crm", "name": "CRM / ERP", "price_label": "индивидуально", "timeline": "от 4 недель", "includes": ["Воронка", "Интеграции", "Отчёты"], "description": "CRM под ваш бизнес", "cta": "Связаться", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=CRM", "available": false },
+        { "id": "email_auto", "name": "Email Automation", "price_label": "от 400 €", "timeline": "2 недели", "includes": ["Цепочки", "Сегменты", "A/B"], "description": "Автоворонки и рассылки", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Email%20Automation", "available": false }
+      ]
+    },
+    {
+      "id": "design",
+      "name": "Дизайн",
+      "description": "Визуальная идентичность и материалы",
+      "items": [
+        { "id": "logo", "name": "Логотип", "price_label": "от 200 €", "timeline": "3–7 дней", "includes": ["3 концепта", "Вектор", "Фavicon"], "description": "Узнаваемый знак бренда", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Logo", "available": false },
+        { "id": "brand", "name": "Фирменный стиль", "price_label": "от 600 €", "timeline": "2–3 недели", "includes": ["Лого", "Цвета", "Шрифты", "Гайд"], "description": "Единый образ бренда", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Branding", "available": false }
+      ]
+    },
+    {
+      "id": "apps",
+      "name": "Приложения",
+      "description": "Web, mobile, desktop",
+      "items": [
+        { "id": "web_app", "name": "Web App", "price_label": "от 2 500 €", "timeline": "от 6 недель", "includes": ["MVP", "Auth", "API"], "description": "Веб-приложение под задачу", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Web%20App", "available": false },
+        { "id": "mobile", "name": "Android / iPhone", "price_label": "от 4 000 €", "timeline": "от 8 недель", "includes": ["MVP", "Store", "Push"], "description": "Мобильное приложение", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Mobile%20App", "available": false }
+      ]
+    }
+  ],
+  "services": [
+    { "id": "landing", "name": "Landing Page", "price_label": "от 450 €", "description": "Современный одностраничный сайт", "cta": "Заказать", "cta_href": "/order", "available": true },
+    { "id": "corporate", "name": "Корпоративный сайт", "price_label": "от 850 €", "description": "Многостраничный сайт компании", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Corporate%20Website", "available": false },
+    { "id": "shop", "name": "Интернет-магазин", "price_label": "от 1 800 €", "description": "Каталог, оплата, админка", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Online%20Shop", "available": false },
+    { "id": "ai_site", "name": "AI на сайт", "price_label": "от 250 €", "description": "Консультант, продажи, запись", "cta": "Обсудить", "cta_href": "mailto:hello@genesis-ai-engine.com?subject=AI%20for%20Website", "available": false }
+  ],
   "subscriptions": [
     {
       "id": "free",
@@ -19,62 +110,53 @@
       "price_eur_month": 0,
       "price_label": "0 €",
       "period": "/мес",
-      "audience": "Знакомство с Genesis",
-      "features": ["Базовый чат", "Ограниченные запросы", "Демо-возможности"],
+      "audience": "Попробовать интеллект Genesis",
+      "tagline": "Знакомство без карты",
+      "features": ["Базовый чат", "Ограниченные сообщения", "Демо возможностей"],
+      "cta": "Начать на /site",
+      "cta_href": "/site",
+      "highlight": false,
+      "available": true
+    },
+    {
+      "id": "basic",
+      "name": "Studio Basic",
+      "price_eur_month": 49,
+      "price_label": "49 €",
+      "period": "/мес",
+      "audience": "Делать проекты самому",
+      "tagline": "Инструменты · до 2 проектов",
+      "features": ["Создание · Редактирование · Публикация", "До 2 проектов", "Genesis Chat", "Не включает сайт под ключ"],
       "cta": "Ранний доступ — заявка",
-      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Platform%20%E2%80%94%20ранний%20доступ",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Basic",
       "highlight": false,
       "available": false
     },
     {
       "id": "pro",
-      "name": "Pro",
-      "price_eur_month": 39,
-      "price_label": "39 €",
-      "period": "/мес",
-      "audience": "Фрилансеры и специалисты",
-      "features": ["Расширенный чат", "Больше задач в месяц", "Экспорт результатов"],
-      "cta": "Ранний доступ — заявка",
-      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Pro%20%E2%80%94%20ранний%20доступ",
-      "highlight": false,
-      "available": false
-    },
-    {
-      "id": "creator",
-      "name": "Creator",
+      "name": "Studio Pro",
       "price_eur_month": 99,
       "price_label": "99 €",
       "period": "/мес",
-      "audience": "Создатели контента и малые проекты",
-      "features": ["Приоритетная обработка", "Шаблоны и пресеты", "Поддержка по email"],
+      "audience": "Регулярные проекты и бизнес",
+      "tagline": "Больше проектов · автоматизация",
+      "features": ["До 10 проектов", "Автоматизация", "Business Advisor", "Marketing Lab", "Factory Preview", "Не включает работу под ключ"],
       "cta": "Ранний доступ — заявка",
-      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Creator%20%E2%80%94%20ранний%20доступ",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Pro",
       "highlight": true,
       "available": false
     },
     {
       "id": "business",
-      "name": "Business",
-      "price_eur_month": 299,
-      "price_label": "299 €",
+      "name": "Studio Business",
+      "price_eur_month": 199,
+      "price_label": "199 €",
       "period": "/мес",
-      "audience": "Малый бизнес",
-      "features": ["Командные возможности", "Интеграции", "Приоритетная поддержка"],
+      "audience": "Для компаний",
+      "tagline": "AI-сотрудники · команда · API",
+      "features": ["Безлимит проектов Studio", "AI COO", "CRM", "Команда", "API", "Wallet", "Услуги под ключ — отдельно"],
       "cta": "Ранний доступ — заявка",
-      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Business%20%E2%80%94%20ранний%20доступ",
-      "highlight": false,
-      "available": false
-    },
-    {
-      "id": "business_plus",
-      "name": "Business+",
-      "price_eur_month": 799,
-      "price_label": "799 €",
-      "period": "/мес",
-      "audience": "Растущие компании",
-      "features": ["Несколько ролей", "Расширенная автоматизация", "Выделенный онбординг"],
-      "cta": "Ранний доступ — заявка",
-      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Business%2B%20%E2%80%94%20ранний%20доступ",
+      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Business",
       "highlight": false,
       "available": false
     },
@@ -84,8 +166,9 @@
       "price_eur_month": null,
       "price_label": "Индивидуально",
       "period": "",
-      "audience": "Средний и крупный бизнес",
-      "features": ["Цифровые отделы под задачу", "SLA и безопасность", "Внедрение под ключ"],
+      "audience": "Для корпораций",
+      "tagline": "Приватная модель и безопасность",
+      "features": ["Свои AI-сотрудники", "Обучение на данных компании", "SLA", "Интеграции", "Выделенная поддержка"],
       "cta": "Связаться с нами",
       "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Enterprise",
       "highlight": false,
@@ -93,54 +176,32 @@
       "contact_only": true
     }
   ],
-  "services": [
-    {
-      "id": "landing",
-      "name": "Landing Page",
-      "price_from_eur": 350,
-      "price_to_eur": 650,
-      "price_label": "от 350 €",
-      "description": "Современный одностраничный сайт для малого бизнеса",
-      "cta": "Заказать",
-      "cta_href": "/order",
-      "available": true
-    },
-    {
-      "id": "corporate",
-      "name": "Corporate Website",
-      "price_from_eur": 650,
-      "price_to_eur": 1500,
-      "price_label": "650–1 500 €",
-      "description": "Многостраничный корпоративный сайт",
-      "cta": "Обсудить",
-      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Corporate%20Website",
-      "available": false
-    },
-    {
-      "id": "shop",
-      "name": "Online Shop",
-      "price_from_eur": 1500,
-      "price_to_eur": 5000,
-      "price_label": "от 1 500 €",
-      "description": "Интернет-магазин с оплатой и каталогом",
-      "cta": "Обсудить",
-      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Online%20Shop",
-      "available": false
-    },
-    {
-      "id": "crm",
-      "name": "CRM / Automation",
-      "price_label": "Индивидуально",
-      "description": "CRM, AI-автоматизация, интеграции",
-      "cta": "Связаться с нами",
-      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=CRM%20Automation",
-      "available": false
-    }
-  ],
+  "comparison": {
+    "columns": [
+      { "id": "free", "label": "Free" },
+      { "id": "basic", "label": "Basic" },
+      { "id": "pro", "label": "Pro" },
+      { "id": "business", "label": "Business" },
+      { "id": "enterprise", "label": "Enterprise" }
+    ],
+    "rows": [
+      { "feature": "Genesis Chat", "values": ["yes", "yes", "yes", "yes", "yes"] },
+      { "feature": "Studio: создать самому", "values": ["no", "limited", "yes", "yes", "yes"] },
+      { "feature": "Сайт под ключ (Genesis делает)", "values": ["no", "no", "no", "no", "no"] },
+      { "feature": "Лимит проектов Studio", "values": ["0", "2", "10", "∞", "∞"] },
+      { "feature": "AI-сотрудники", "values": ["no", "no", "partial", "yes", "yes"] },
+      { "feature": "Factory", "values": ["no", "no", "yes", "yes", "yes"] },
+      { "feature": "Marketing Lab", "values": ["no", "no", "yes", "yes", "yes"] },
+      { "feature": "Wallet", "values": ["no", "no", "yes", "yes", "yes"] },
+      { "feature": "API", "values": ["no", "no", "no", "yes", "yes"] },
+      { "feature": "Обучение на данных компании", "values": ["no", "no", "no", "no", "yes"] }
+    ]
+  },
   "business_units": [
     {
       "id": "sales_dept",
-      "name": "Digital Sales Department",      "tagline": "Concept Preview — направление развития Genesis",
+      "name": "Digital Sales Department",
+      "tagline": "Concept Preview — направление развития Genesis",
       "includes": ["Sales Manager", "CRM", "Email", "Аналитика", "Коммерческие предложения"],
       "cta": "Обсудить внедрение",
       "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Digital%20Sales%20Department"
@@ -152,14 +213,6 @@
       "includes": ["Software Engineer", "Designer", "QA", "Документация"],
       "cta": "Обсудить внедрение",
       "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Digital%20Development%20Department"
-    },
-    {
-      "id": "warehouse_dept",
-      "name": "Digital Warehouse Department",
-      "tagline": "Concept Preview — направление развития Genesis",
-      "includes": ["Inventory", "Logistics", "Reports", "Scheduling"],
-      "cta": "Обсудить внедрение",
-      "cta_href": "mailto:hello@genesis-ai-engine.com?subject=Digital%20Warehouse%20Department"
     }
   ]
 }

@@ -116,6 +116,8 @@ The primary KPI is **not** lines of code, documents, or modules — it is **vali
 
 CEO decision: `ceo_decisions.json` → `dec-2026-07-05-reality-over-features`.
 
+**Pre-launch build rule (2026-07-05):** implement everything that improves the first public release and can be validated without real users (UX, Concierge, `/order`, tests, stability). Defer learning systems that need real dialogs, conversion data, or live finance until after first customers. Details: `dashboard/Genesis_Development_Policy.md` § три типа функций.
+
 ### Vision Freeze (until first confirmed client or €)
 
 **Vision Genesis завершён.** До первого **реального** клиента (контакт + обратная связь) или первого **подтверждённого** дохода:
