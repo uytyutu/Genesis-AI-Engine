@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GenesisMark } from "./GenesisMark";
+import { VirtusMark } from "./VirtusMark";
+import { ASSISTANT_NAME, BRAND_NAME, BRAND_SIGNATURE } from "../lib/publicBrand";
 
 type NavItem = { href: string; label: string; hint?: string };
 
 const SECTIONS: { title: string; items: NavItem[] }[] = [
   {
-    title: "Genesis",
+    title: BRAND_NAME,
     items: [
       { href: "/", label: "Пульт", hint: "Главный экран" },
       { href: "/company", label: "Компания", hint: "Обзор" },
@@ -45,12 +46,14 @@ export function GenesisSidebar() {
   const pathname = usePathname() ?? "";
 
   return (
-    <aside className="genesis-sidebar" aria-label="Genesis navigation">
+    <aside className="genesis-sidebar" aria-label="Virtus Core navigation">
       <Link href="/" className="genesis-sidebar__brand">
-        <GenesisMark className="h-10 w-10 shrink-0 shadow-glow" />
+        <VirtusMark className="h-10 w-10 shrink-0 shadow-glow" />
         <div className="min-w-0">
-          <p className="genesis-sidebar__name">Genesis</p>
-          <p className="genesis-sidebar__tag">Company OS</p>
+          <p className="genesis-sidebar__name">{BRAND_NAME}</p>
+          <p className="genesis-sidebar__tag">
+            {ASSISTANT_NAME} · {BRAND_SIGNATURE}
+          </p>
         </div>
       </Link>
 
@@ -81,7 +84,7 @@ export function GenesisSidebar() {
         ))}
       </nav>
 
-      <p className="genesis-sidebar__footer">Brand v1.0 · Orbit Stack</p>
+      <p className="genesis-sidebar__footer">Virtus Core · Vector</p>
     </aside>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { ASSISTANT_NAME, BRAND_NAME } from "./lib/publicBrand";
 import { formatEur } from "./lib/formatEur";
 import { LiveNarrativeFeed, type NarrativeEvent } from "./components/LiveNarrativeFeed";
 import { GenesisCard } from "./components/GenesisCard";
@@ -132,7 +133,7 @@ export default function MissionControlPage() {
       setData(await res.json());
       setMessage("");
     } catch {
-      setMessage("Запустите Genesis с рабочего стола.");
+      setMessage("Запустите Virtus Core с рабочего стола.");
     }
   }, []);
 
@@ -314,7 +315,7 @@ export default function MissionControlPage() {
 
           <div className="grid gap-5 lg:grid-cols-5">
             <div className="space-y-5 lg:col-span-3">
-              <GenesisCard title="🌙 Компания работала ночью" subtitle="Genesis 24/7 — даже без клиентов">
+              <GenesisCard title="🌙 Компания работала ночью" subtitle={`${BRAND_NAME} 24/7 — даже без клиентов`}>
           <NightShiftFeed feed={data?.night_shift_feed ?? []} />
         </GenesisCard>
 
@@ -333,11 +334,11 @@ export default function MissionControlPage() {
           </GenesisCard>
         )}
 
-        <GenesisCard title="💬 Genesis говорит" subtitle={data?.greeting} animate>
+        <GenesisCard title={`💬 ${ASSISTANT_NAME}`} subtitle={data?.greeting} animate>
                 {data?.narrative_feed?.length ? (
                   <LiveNarrativeFeed feed={data.narrative_feed} />
                 ) : (
-                  <Loader label="Genesis загружает ленту…" />
+                  <Loader label="Virtus Core загружает ленту…" />
                 )}
               </GenesisCard>
 
@@ -489,7 +490,7 @@ function PaymentHubPlaceholder() {
         <p className="mt-1 text-sm text-amber-300/90">Не подключён</p>
       </div>
       <p className="text-sm text-genesis-muted">
-        Genesis не хранит деньги. После подключения баланс появится автоматически.
+        Virtus Core не хранит деньги. После подключения баланс появится автоматически.
       </p>
       <ul className="grid gap-2 sm:grid-cols-2">
         {providers.map((p) => (

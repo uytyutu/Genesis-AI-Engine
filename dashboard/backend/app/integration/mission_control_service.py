@@ -12,6 +12,7 @@ from app.integration.runtime import get_server_started_at, mark_server_started
 from app.integration.finance_service import FinanceService
 from app.integration.opportunity_service import OpportunityService
 from app.integration.task_service import TaskService
+from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME
 
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
@@ -162,12 +163,12 @@ class MissionControlService:
         if emp_id == "marketing":
             return "Готов к исследованию спроса после первого продукта."
         if state == "offline":
-            return "Ожидает запуска Genesis."
+            return f"Ожидает запуска {BRAND_NAME}."
         return "Выполняет задачи компании."
 
     def _company_status_headline(self, dash: dict) -> str:
         if not dash.get("system_running"):
-            return "Запустите Genesis с рабочего стола"
+            return "Запустите Virtus Core с рабочего стола"
         if dash.get("errors_today", 0) > 0:
             return "Требуется внимание владельца"
         return "Все системы работают"
@@ -176,7 +177,7 @@ class MissionControlService:
         now = datetime.now().strftime("%H:%M")
         if demo:
             return [
-                {"icon": "✔", "message": "Genesis успешно запущен", "at": now},
+                {"icon": "✔", "message": "Virtus Core успешно запущен", "at": now},
                 {"icon": "✔", "message": "Проверена система", "at": now},
                 {"icon": "✔", "message": "Создан Landing (демо)", "at": now},
                 {"icon": "✔", "message": "Ошибок нет", "at": None},
@@ -184,7 +185,7 @@ class MissionControlService:
 
         items: list[dict[str, str | None]] = []
         if dash.get("system_running"):
-            items.append({"icon": "✔", "message": "Genesis успешно запущен", "at": now})
+            items.append({"icon": "✔", "message": "Virtus Core успешно запущен", "at": now})
         items.append({"icon": "✔", "message": "Проверена система", "at": now})
 
         if production and production.get("product_id"):
@@ -286,7 +287,7 @@ class MissionControlService:
         demo: bool,
     ) -> list[dict]:
         if not dash.get("system_running"):
-            return [{"at": "—", "department": "Система", "message": "Genesis остановлен", "icon": "⚪"}]
+            return [{"at": "—", "department": "Система", "message": "Virtus Core остановлен", "icon": "⚪"}]
 
         products = self._factory.list_products()
         improved = sum(1 for p in products if int(p.get("revision", 0)) > 0)
@@ -425,7 +426,7 @@ class MissionControlService:
             "company_status": (
                 "Пока ты отдыхал — компания работала"
                 if dash.get("system_running")
-                else "Запустите Genesis"
+                else "Запустите Virtus Core"
             ),
             "company_days": self._company_days(),
             "hours_worked": self._hours_worked(dash),
@@ -498,13 +499,13 @@ class MissionControlService:
             )
             delay += step_ms
 
-        add("Genesis", str(dash.get("greeting") or "Добро пожаловать"), icon="👋")
+        add(ASSISTANT_NAME, str(dash.get("greeting") or "Добро пожаловать"), icon="👋")
 
         if not dash.get("products_count"):
-            add("Genesis", "Сегодня рекомендую создать первый продукт.", icon="💡")
+            add(ASSISTANT_NAME, "Сегодня рекомендую создать первый продукт.", icon="💡")
         elif journey:
             next_step = next((s["label"] for s in journey["steps"] if not s["done"]), "продолжайте работу")
-            add("Genesis", f"Следующая цель: {next_step}", icon="🎯")
+            add(ASSISTANT_NAME, f"Следующая цель: {next_step}", icon="🎯")
 
         add("Система", "Система проверена.", icon="✔")
 
@@ -544,7 +545,7 @@ class MissionControlService:
             )
             if not production.get("owner_approved"):
                 add(
-                    "Genesis",
+                    ASSISTANT_NAME,
                     "Требуется ваше решение — одобрить продукт для клиента?",
                     icon="⚠",
                     action_label="Решить",
@@ -998,7 +999,7 @@ class MissionControlService:
                 "methodology": (
                     "Демо-режим: оценка рассчитана как (месячная выручка × 14) + "
                     "(клиенты × 120 €) + (продукты × 50 €). "
-                    "В продакшене Genesis покажет формулу только на реальных данных."
+                    "В продакшене Virtus Core покажет формулу только на реальных данных."
                 ),
                 "is_estimate": True,
             }
@@ -1008,7 +1009,7 @@ class MissionControlService:
                 "growth_month_percent": 0.0,
                 "methodology": (
                     "Стоимость компании растёт с активами: продукты, клиенты, доход. "
-                    "Genesis не рисует цифры — считает только на фактах."
+                    "Virtus Core не рисует цифры — считает только на фактах."
                 ),
                 "is_estimate": False,
             }
@@ -1050,7 +1051,7 @@ class MissionControlService:
         merged["server_expenses_eur"] = _DEMO_SNAPSHOT["server_expenses_eur"]
         merged["data_source_note"] = (
             "Демо-режим: цифры имитируют подключённый Payment Hub для оценки интерфейса. "
-            "Genesis не хранит средства — в продакшене данные приходят от провайдера."
+            "Virtus Core не хранит средства — в продакшене данные приходят от провайдера."
         )
         merged["payment_provider_label"] = "Demo (имитация)"
         merged["payment_connected"] = False
@@ -1107,7 +1108,7 @@ class MissionControlService:
         revenue_journey = self._first_revenue_journey(demo, fin)
 
         return {
-            "company_name": "Genesis Company",
+            "company_name": "Virtus Core",
             "owner_name": dash["owner_name"],
             "greeting": dash["greeting"],
             "system_running": dash["system_running"],

@@ -7,6 +7,11 @@ class SystemStatus(BaseModel):
     phase: str
     paused: bool
     uptime_sec: float | None = None
+    git_commit: str | None = None
+    build_time: str | None = None
+    process_started: str | None = None
+    runtime_identity: str | None = None
+    backend_pid: int | None = None
 
 
 class ModuleStatus(BaseModel):

@@ -4,17 +4,18 @@ import { PublicPageShell } from "../components/PublicPageShell";
 import { LegalPageLayout } from "../components/LegalPageLayout";
 import { Card } from "../components/ui";
 import { publicPageMetadata } from "../lib/publicMetadata";
+import { BRAND_NAME } from "../lib/publicBrand";
 
 export const metadata: Metadata = publicPageMetadata(
   "AGB",
-  "Allgemeine Geschäftsbedingungen für Website-Dienstleistungen von Genesis.",
+  `Allgemeine Geschäftsbedingungen für Website-Dienstleistungen von ${BRAND_NAME}.`,
   "/agb"
 );
 
 const SECTIONS = [
   {
     title: "§ 1 Geltungsbereich",
-    body: "Diese AGB gelten für Verträge über die Erstellung von Websites und zugehörige Dienstleistungen zwischen Genesis AI Engine und dem Kunden.",
+    body: "Diese AGB gelten für Verträge über die Erstellung von Websites und zugehörige Dienstleistungen zwischen Virtus Core und dem Kunden.",
   },
   {
     title: "§ 2 Leistungen und Pakete",

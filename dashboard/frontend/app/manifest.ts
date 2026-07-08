@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Genesis AI Engine",
-    short_name: "Genesis",
-    description: "Company OS — websites and digital services for small business",
+    name: "Virtus Core",
+    short_name: "Virtus",
+    description: "Virtus Core — Vector intelligent AI assistant",
     start_url: "/site",
     display: "standalone",
     background_color: "#050508",
-    theme_color: "#4f46e5",
+    theme_color: "#7c8fd4",
     icons: [
       {
         src: "/brand/icon-192.png",

@@ -1,0 +1,30 @@
+{
+  "brand": "Virtus Core",
+  "assistant": "Vector",
+  "checks": [
+    {
+      "path": "launcher\\assets\\virtus.ico",
+      "exists": true
+    },
+    {
+      "path": "launcher\\assets\\virtus-icon.png",
+      "exists": true
+    },
+    {
+      "path": "dashboard\\frontend\\public\\brand\\vector-mark.svg",
+      "exists": true
+    },
+    {
+      "path": "dashboard\\frontend\\public\\brand\\favicon-32.png",
+      "exists": true
+    },
+    {
+      "path": "dashboard\\frontend\\public\\brand\\icon-512.png",
+      "exists": true
+    },
+    {
+      "path": "client\\desktop\\src-tauri\\icons\\icon.ico",
+      "exists": true
+    }
+  ]
+}

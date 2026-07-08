@@ -2,21 +2,52 @@
 
 from __future__ import annotations
 
+import os
+import subprocess
 from datetime import datetime, timezone
+from pathlib import Path
+
+RUNTIME_IDENTITY = "genesis-backend-v1"
 
 _server_started_at: datetime | None = None
+_build_time: str | None = None
+_git_commit: str | None = None
 _brain_paused: bool = False
 
 
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[4]
+
+
+def _resolve_git_commit() -> str:
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(_repo_root()), "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            commit = result.stdout.strip()
+            if commit:
+                return commit
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    return "unknown"
+
+
 def mark_server_started() -> None:
-    global _server_started_at
-    _server_started_at = datetime.now(timezone.utc)
+    global _server_started_at, _build_time, _git_commit
+    now = datetime.now(timezone.utc)
+    _server_started_at = now
+    _build_time = now.isoformat()
+    _git_commit = _resolve_git_commit()
 
 
 def get_server_started_at() -> datetime:
     global _server_started_at
     if _server_started_at is None:
-        _server_started_at = datetime.now(timezone.utc)
+        mark_server_started()
     return _server_started_at
 
 
@@ -33,10 +64,17 @@ def light_system_status() -> dict:
     """Fast /api/status payload — no Brain/Kernel init."""
     started = get_server_started_at()
     uptime = max(0.0, (datetime.now(timezone.utc) - started).total_seconds())
+    if _git_commit is None:
+        mark_server_started()
     return {
-        "name": "Genesis ABOS",
+        "name": "Virtus Core",
         "version": "0.2.0",
         "phase": "Integration Layer v0.1 (live)",
         "paused": is_brain_paused(),
         "uptime_sec": round(uptime, 1),
+        "git_commit": _git_commit or "unknown",
+        "build_time": _build_time or started.isoformat(),
+        "process_started": started.isoformat(),
+        "runtime_identity": RUNTIME_IDENTITY,
+        "backend_pid": os.getpid(),
     }

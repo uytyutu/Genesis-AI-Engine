@@ -12,6 +12,7 @@ import {
   type ServiceCatalogItem,
   type ServiceCategory,
 } from "../lib/pricingApi";
+import { BRAND_NAME } from "../lib/publicBrand";
 
 function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
   const href = item.cta_href;
@@ -135,14 +136,14 @@ export default function ServicesPage() {
       <PublicPageHero
         badge="Результат под ключ"
         badgeVariant="success"
-        title="Услуги Genesis"
+        title={`Услуги ${BRAND_NAME}`}
         description="Готовый результат под ключ — сайт, бот, AI. Цена «от», срок и состав на карточке. Один проект — услуга; много проектов сами — Studio."
       >
         <ButtonLink href="/order" variant="success" size="lg">
           Заказать landing →
         </ButtonLink>
         <ButtonLink href="/products" variant="ghost" size="lg" className="ml-2">
-          Или Genesis Studio
+          Или Development Studio
         </ButtonLink>
       </PublicPageHero>
 
@@ -176,7 +177,7 @@ export default function ServicesPage() {
       ))}
 
       <section className="mt-16">
-        <h2 className="text-xl font-bold">Куда развивается Genesis</h2>
+        <h2 className="text-xl font-bold">Куда развивается {BRAND_NAME}</h2>
         <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
           Цифровые отделы — vision, не готовый продукт в один клик.
         </p>
@@ -191,7 +192,7 @@ export default function ServicesPage() {
         <p className="text-sm text-genesis-muted">
           Много проектов в год?{" "}
           <ButtonLink href="/products" variant="ghost" size="sm" className="inline-flex text-indigo-300">
-            Сравнить Genesis Studio →
+            Сравнить Development Studio →
           </ButtonLink>
         </p>
       </Card>

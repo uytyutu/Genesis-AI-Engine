@@ -16,7 +16,7 @@ from launcher.paths import log_dir
 _COMPONENTS = {
     "python": {
         "title": "Python 3.12",
-        "reason": "Backend Genesis и Mission Control API работают на Python.",
+        "reason": "Backend Virtus Core и Mission Control API работают на Python.",
     },
     "node": {
         "title": "Node.js LTS",

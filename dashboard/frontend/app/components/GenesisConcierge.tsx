@@ -18,6 +18,13 @@ import {
 } from "../lib/voiceRuntime";
 import { fetchTtsStatus, isInterruptPhrase, isSpeaking, speakGenesis, startInterruptListener, stopInterruptListener, stopSpeaking } from "../lib/ttsRuntime";
 import {
+  ASSISTANT_NAME,
+  BRAND_NAME,
+  PUBLIC_WELCOME,
+  STUDIO_NAME,
+} from "../lib/publicBrand";
+import { VectorBrandSignature } from "./VectorBrandSignature";
+import {
   loadVoiceSettings,
   type VoiceSettings,
 } from "../lib/voiceSettings";
@@ -153,7 +160,7 @@ type ChatApiResponse = {
 const STARTERS_VISIBLE = [
   { label: "💇 Сайт салона", message: "Хочу сайт для салона красоты" },
   { label: "🍽️ Сайт кафе", message: "Мне нужен сайт для кафе" },
-  { label: "✨ Genesis Studio", message: "Хочу попробовать Genesis Studio" },
+  { label: `✨ ${STUDIO_NAME}`, message: `Хочу попробовать ${STUDIO_NAME}` },
 ];
 
 const STARTERS_MORE = [
@@ -163,10 +170,9 @@ const STARTERS_MORE = [
   { label: "🤖 AI на сайте", message: "Хочу AI-консультанта на сайте" },
 ];
 
-const FALLBACK_WELCOME =
-  "Добро пожаловать в Genesis.\n\n" +
-  "Можем поговорить, обсудить идею, науку, бизнес — или создать сайт и автоматизацию.\n\n" +
-  "С чего начнём?";
+const FALLBACK_WELCOME_PUBLIC = PUBLIC_WELCOME;
+
+const FALLBACK_WELCOME_OWNER = PUBLIC_WELCOME;
 
 type Props = {
   onConversationActive?: (active: boolean) => void;
@@ -175,11 +181,14 @@ type Props = {
 };
 
 export function GenesisConcierge({ onConversationActive, scope = "public" }: Props) {
+  const isPublic = scope === "public";
+  const fallbackWelcome = isPublic ? FALLBACK_WELCOME_PUBLIC : FALLBACK_WELCOME_OWNER;
+  const assistantLabel = ASSISTANT_NAME;
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const [welcomeText, setWelcomeText] = useState(FALLBACK_WELCOME);
+  const [welcomeText, setWelcomeText] = useState(fallbackWelcome);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", text: FALLBACK_WELCOME },
+    { role: "assistant", text: fallbackWelcome },
   ]);
   const [chatCollapsed, setChatCollapsed] = useState(true);
   const [pendingFiles, setPendingFiles] = useState<PendingAttachment[]>([]);
@@ -292,7 +301,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
 
   const resetToWelcome = useCallback(
     (greeting?: string) => {
-      const text = greeting?.trim() || welcomeText || FALLBACK_WELCOME;
+      const text = greeting?.trim() || welcomeText || fallbackWelcome;
       setMessages([{ role: "assistant", text }]);
       setChatCollapsed(true);
       setActiveSessionId(null);
@@ -347,7 +356,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     }
     setActiveSessionId(created.session_id);
     setSessionList((prev) => [created, ...prev.filter((s) => s.session_id !== created.session_id)]);
-    setMessages([{ role: "assistant", text: welcomeText || FALLBACK_WELCOME }]);
+    setMessages([{ role: "assistant", text: welcomeText || fallbackWelcome }]);
     setChatCollapsed(true);
     const store = loadSessionsStore(scope);
     store.activeSessionId = created.session_id;
@@ -366,7 +375,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       }
       const detail = await fetchSessionDetail(sessionId, visitorId);
       if (!detail?.messages.length) {
-        setMessages([{ role: "assistant", text: welcomeText || FALLBACK_WELCOME }]);
+        setMessages([{ role: "assistant", text: welcomeText || fallbackWelcome }]);
         return;
       }
       setMessages(detail.messages as Message[]);
@@ -565,7 +574,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           {
             role: "assistant",
             text:
-              "Сейчас я не могу ответить — похоже, нет связи с Genesis.\n\n" +
+              `Сейчас я не могу ответить — похоже, нет связи с ${BRAND_NAME}.\n\n` +
               "Попробуйте обновить страницу через минуту или напишите ещё раз.",
           },
         ]);
@@ -843,7 +852,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow transition-all duration-300 ${
         showThread ? "min-h-[min(72vh,40rem)] max-h-[min(85vh,48rem)]" : ""
       }`}
-      aria-label="Диалог с Genesis"
+      aria-label={`Диалог с ${ASSISTANT_NAME}`}
     >
       <header
         className={`flex shrink-0 items-center justify-between border-b border-white/5 transition-all duration-300 ${
@@ -867,14 +876,18 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             + Новый
           </button>
         )}
-        <Badge variant="accent" className="tracking-[0.25em]">
-          Genesis
-        </Badge>
+        {isPublic || !showThread ? (
+          <VectorBrandSignature variant="compact" />
+        ) : (
+          <Badge variant="accent" className="tracking-[0.25em]">
+            {ASSISTANT_NAME}
+          </Badge>
+        )}
         {devAvailable ? (
           <button
             type="button"
             onClick={toggleDeveloperMode}
-            title="Genesis Developer Mode — Thinking Brief только для разработки"
+            title="Dev Mode — Thinking Brief (только разработка)"
             className={`rounded-lg px-2 py-1 text-[10px] font-semibold uppercase tracking-wider transition ${
               developerMode
                 ? "bg-amber-500/20 text-amber-300 ring-1 ring-amber-400/40"
@@ -891,9 +904,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       {!showThread && (
         <div className="shrink-0 px-5 py-4 sm:px-8">
           <div className="rounded-2xl border border-white/5 bg-genesis-panel/50 px-5 py-5 text-[15px] leading-relaxed whitespace-pre-wrap text-genesis-text">
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-genesis-accent">
-              Genesis
-            </p>
+            <VectorBrandSignature variant="full" className="mb-2" />
             {welcomeText}
           </div>
         </div>
@@ -920,7 +931,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
               >
                 {m.role === "assistant" && (
                   <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-genesis-accent">
-                    Genesis
+                    {assistantLabel}
                   </p>
                 )}
                 {m.text}
@@ -952,7 +963,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
                     >
                       {openDebugIndex === i
                         ? "Скрыть Thinking Brief"
-                        : "Почему Genesis ответил именно так?"}
+                        : `Почему ${ASSISTANT_NAME} ответил именно так?`}
                     </button>
                     {openDebugIndex === i ? (
                       <div className="mt-2 max-h-96 overflow-y-auto rounded-xl border border-amber-500/20 bg-black/30 p-3 text-[11px] leading-relaxed text-amber-100/90">
@@ -1038,7 +1049,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           {busy && (
             <li className="flex justify-start">
               <div className="rounded-3xl border border-white/5 bg-genesis-panel/60 px-4 py-3 text-sm text-genesis-muted">
-                Genesis печатает…
+                {ASSISTANT_NAME} печатает…
               </div>
             </li>
           )}

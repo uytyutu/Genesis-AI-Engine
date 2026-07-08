@@ -9,6 +9,7 @@ from __future__ import annotations
 import re
 
 from app.integration.genesis_brain.ai_identity import try_local_identity_reply
+from app.integration.genesis_brain.public_brand import BRAND_NAME, STUDIO_NAME
 from app.integration.genesis_brain.communication_gate import resolve_communication_gate
 from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
 from app.integration.genesis_brain.layers.executive_brain import ExecutiveDecision
@@ -17,6 +18,7 @@ from app.integration.genesis_brain.layers.product_mind import (
     should_handle as product_should_handle,
 )
 from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
+from app.integration.genesis_brain.user_text_normalizer import normalize_user_text
 
 _USER_MESSAGE_MARKER = "User message:\n"
 _BRIEF_END_MARKER = "═══ END BRIEF ═══"
@@ -47,6 +49,7 @@ def clean_user_messages(messages: list[dict[str, str]] | None) -> list[dict[str,
         content = msg.get("content") or ""
         if role == "user":
             content = extract_clean_user_text(content)
+            content = normalize_user_text(content)
         cleaned.append({"role": role or "user", "content": content})
     return cleaned
 
@@ -101,7 +104,10 @@ class BriefSpeechSynthesizer:
         action = decision.action
 
         identity_reply = try_local_identity_reply(
-            last_user, visitor_id=visitor_id, turn_index=turn_index
+            last_user,
+            visitor_id=visitor_id,
+            turn_index=turn_index,
+            messages=clean_messages,
         )
         if identity_reply:
             return identity_reply
@@ -184,7 +190,7 @@ class BriefSpeechSynthesizer:
             or "объяснить factory" in strategy.lower()
         ):
             return (
-                "**Factory** — продуктовый отдел Genesis: сайты, боты, приложения.\n\n"
+                f"**Factory** — продуктовый отдел {BRAND_NAME}: сайты, боты, приложения.\n\n"
                 "Нужен готовый продукт под ключ или хотите сами в Studio?"
             )
 
@@ -273,7 +279,7 @@ class BriefSpeechSynthesizer:
 
         if state.wants_studio and "studio" in low:
             return (
-                "Genesis Studio — платформа для своих сайтов, ботов и автоматизаций.\n\n"
+                f"{STUDIO_NAME} — платформа для своих сайтов, ботов и автоматизаций.\n\n"
                 "Один сайт под ключ — от 350 €. **Studio Basic 49 €/mес**."
             )
 
@@ -360,7 +366,7 @@ class BriefSpeechSynthesizer:
 
         if re.search(r"(?:что\s+такое|что\s+это|расскажи\s+про|объясни)\s+factory\b", low):
             return (
-                "**Factory** — продуктовый отдел Genesis: сайты, боты, приложения.\n\n"
+                f"**Factory** — продуктовый отдел {BRAND_NAME}: сайты, боты, приложения.\n\n"
                 "Строит цифровые продукты: от идеи до превью и публикации."
             )
 

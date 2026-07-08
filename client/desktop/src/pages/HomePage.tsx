@@ -14,6 +14,7 @@ import {
 import { recentChatSnippet } from "../lib/chatStore";
 import { apiBase } from "../lib/apiClient";
 import { useI18n } from "../i18n/I18nProvider";
+import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
 
 export function HomePage() {
   const { t } = useI18n();
@@ -71,7 +72,7 @@ export function HomePage() {
         <p className="hero__eyebrow">{t("home.welcome")}</p>
         <h1>{dashboard.greeting}</h1>
         <p className="hero__sub">
-          {ownerLabel} · Genesis {systemVersion ?? "—"} · {dashboard.uptime_label}
+          {ownerLabel} · {BRAND_NAME} {systemVersion ?? "—"} · {dashboard.uptime_label}
         </p>
         <div
           className={`hero__status${dashboard.system_running ? " is-ok" : ""}`}
@@ -194,7 +195,7 @@ export function HomePage() {
             </button>
           </div>
           {recentMessages.length === 0 ? (
-            <p className="hint">Спросите Genesis в чате.</p>
+            <p className="hint">Спросите {ASSISTANT_NAME} в чате.</p>
           ) : (
             <ul className="link-list">
               {recentMessages.map((m, i) => (

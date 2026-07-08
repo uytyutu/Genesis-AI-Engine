@@ -97,7 +97,7 @@ def record_from_error(exc: BaseException, *, fix: str, files: list[str], verify:
     record_incident(
         LearningIncident(
             id=f"{today}-{slug}",
-            symptom="Не удалось запустить Genesis" if "CTkImage" in msg else msg[:120],
+            symptom="Не удалось запустить Virtus Core" if "CTkImage" in msg else msg[:120],
             root_cause=msg,
             fix=fix,
             files=files,

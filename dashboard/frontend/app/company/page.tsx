@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEur } from "../lib/formatEur";
+import { BRAND_NAME } from "../lib/publicBrand";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -61,8 +62,8 @@ export default function CompanyPage() {
     <main className="min-h-screen pb-12">
       <div className="mx-auto max-w-2xl space-y-5">
         <header className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/20 via-genesis-panel to-genesis-bg p-8">
-          <p className="text-xs uppercase tracking-[0.35em] text-emerald-400/80">Genesis Company</p>
-          <h1 className="mt-2 text-2xl font-semibold">{data?.company_name ?? "Genesis Company"}</h1>
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-400/80">{BRAND_NAME}</p>
+          <h1 className="mt-2 text-2xl font-semibold">{data?.company_name ?? BRAND_NAME}</h1>
           {brief && (
             <>
               <p className="mt-4 text-lg font-medium">{brief.headline}</p>

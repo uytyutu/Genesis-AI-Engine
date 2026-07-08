@@ -8,7 +8,7 @@ import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
   "Datenschutz",
-  "Datenschutzerklärung gemäß DSGVO für Genesis AI Engine.",
+  "Datenschutzerklärung gemäß DSGVO für Virtus Core.",
   "/datenschutz"
 );
 
@@ -28,7 +28,7 @@ export default function DatenschutzPage() {
           <div>
             <h2 className="text-lg font-semibold text-white">1. Verantwortlicher</h2>
             <p className="mt-2">
-              {name} — Genesis AI Engine
+              {name} — Virtus Core
               <br />
               {address}
               <br />

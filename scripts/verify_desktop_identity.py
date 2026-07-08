@@ -76,7 +76,7 @@ def main() -> int:
         if result.shortcut_path:
             checks.append(f"shortcut: {result.shortcut_path}")
 
-    print("=== Genesis Desktop Identity Verify ===")
+    print("=== Virtus Core Desktop Identity Verify ===")
     for line in checks:
         print(f"  OK  {line}")
     for line in errors:
@@ -85,7 +85,7 @@ def main() -> int:
     if errors:
         print(f"\n{len(errors)} check(s) failed.")
         return 1
-    print("\nAll automated checks passed. CEO path: double-click Genesis only.")
+    print("\nAll automated checks passed. CEO path: double-click Genesis.exe (Virtus Core launcher).")
     return 0
 
 

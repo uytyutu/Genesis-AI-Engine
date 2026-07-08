@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
+import { BRAND_NAME } from "../lib/publicBrand";
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type Check = { id: string; label: string; icon: string; state: string; message: string };
@@ -39,7 +41,7 @@ export default function SystemCheckPage() {
     <main className="min-h-screen pb-12">
       <div className="mx-auto max-w-lg space-y-5">
         <header className="rounded-2xl border border-genesis-border bg-genesis-panel p-6 text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-genesis-muted">Проверка Genesis</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-genesis-muted">Проверка {BRAND_NAME}</p>
           <h1 className="mt-2 text-xl font-semibold">
             {loading ? "Проверка…" : data?.headline ?? "Сервер не отвечает"}
           </h1>
@@ -75,7 +77,7 @@ export default function SystemCheckPage() {
             Проверить снова
           </button>
           <Link href="/" className="rounded-lg px-4 py-2 text-genesis-accent hover:underline">
-            Genesis
+            {BRAND_NAME}
           </Link>
         </div>
       </div>

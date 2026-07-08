@@ -1,4 +1,5 @@
 import type { PricingDisplay } from "./pricingApi";
+import { STUDIO_NAME } from "./publicBrand";
 
 /** Offline fallback — pages work even if backend is down. */
 export const PRICING_FALLBACK: PricingDisplay = {
@@ -7,7 +8,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
     ru: "Цены «от» — ориентир. Каталог загружен локально (API недоступен).",
   },
   capabilities: {
-    headline: "Genesis Studio — инструменты",
+    headline: "Virtus Studio — инструменты",
     subheadline:
       "Подписка Studio — не «бесплатные сайты под ключ». Это инструменты, чтобы создавать проекты самостоятельно.",
     groups: [
@@ -20,7 +21,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
         items: ["Больше проектов", "Автоматизация", "Команда", "Интеграции"],
       },
       {
-        title: "Genesis Chat",
+        title: "Vector Chat",
         items: ["AI-консультант", "Память", "Голос", "Помощь 24/7"],
       },
     ],
@@ -30,11 +31,11 @@ export const PRICING_FALLBACK: PricingDisplay = {
   service_vs_product: {
     headline: "Услуга или Studio?",
     service_when:
-      "Нужен один готовый результат — сайт, бот, приложение. Genesis делает всё сам, под ключ.",
+      "Нужен один готовый результат — сайт, бот, приложение. Virtus Core делает всё сам, под ключ.",
     product_when:
       "Планируете регулярно создавать проекты сами — Studio даёт инструменты (лимит проектов по тарифу). Это не замена услуги «под ключ».",
     cta_service: { label: "Каталог услуг", href: "/services" },
-    cta_product: { label: "Genesis Studio", href: "/products#compare" },
+    cta_product: { label: "Virtus Studio", href: "/products#compare" },
   },
   anti_cannibalization: {
     headline: "Studio ≠ бесплатный сайт под ключ",
@@ -47,7 +48,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
     {
       id: "websites",
       name: "Сайты под ключ",
-      description: "Genesis делает сам — от идеи до публикации",
+      description: "Virtus Core делает сам — от идеи до публикации",
       items: [
         {
           id: "landing",
@@ -99,7 +100,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
       price_eur_month: 0,
       price_label: "0 €",
       period: "/мес",
-      audience: "Попробовать Genesis",
+      audience: "Попробовать Virtus Core",
       tagline: "Чат без карты",
       features: ["Базовый чат", "Ограниченные сообщения"],
       cta: "Начать на /site",
@@ -116,7 +117,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
       tagline: "Инструменты · до 2 проектов",
       features: ["Создание", "Редактирование", "Публикация", "До 2 проектов", "Не включает работу под ключ"],
       cta: "Ранний доступ",
-      cta_href: "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Studio%20Basic",
+      cta_href: `mailto:hello@genesis-ai-engine.com?subject=${encodeURIComponent(STUDIO_NAME + " Basic")}`,
       available: false,
     },
     {
@@ -129,7 +130,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
       tagline: "Больше проектов · автоматизация",
       features: ["До 10 проектов", "Автоматизация", "Команда", "Marketing Lab"],
       cta: "Ранний доступ",
-      cta_href: "mailto:hello@genesis-ai-engine.com?subject=Genesis%20Studio%20Pro",
+      cta_href: `mailto:hello@genesis-ai-engine.com?subject=${encodeURIComponent(STUDIO_NAME + " Pro")}`,
       highlight: true,
       available: false,
     },
@@ -143,7 +144,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
       { id: "pro", label: "Pro" },
     ],
     rows: [
-      { feature: "Genesis Chat", values: ["yes", "yes", "yes"] },
+      { feature: "Vector Chat", values: ["yes", "yes", "yes"] },
       { feature: "Studio: создать самому", values: ["no", "limited", "yes"] },
       { feature: "Сайт под ключ (мы делаем)", values: ["no", "no", "no"] },
     ],

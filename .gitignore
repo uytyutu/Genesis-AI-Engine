@@ -41,3 +41,10 @@ launcher/logs/
 
 # Local build artifacts
 client/desktop/src-tauri/icons/icon.icns.png
+scripts/brand_renderer/node_modules/
+.genesis-run/
+dashboard/backend/app/memory/
+
+# Cursor / IDE (local only)
+.cursorignore
+.vscode/

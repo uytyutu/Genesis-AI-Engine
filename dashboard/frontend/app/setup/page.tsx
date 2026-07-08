@@ -22,7 +22,7 @@ export default function OwnerSetupPage() {
       <main className="mx-auto max-w-lg px-4 py-16 text-center">
         <h1 className="text-xl font-semibold text-white">Owner only</h1>
         <p className="mt-3 text-sm text-genesis-muted">
-          Эта страница доступна только владельцу. Посетители общаются с Genesis на сайте — без
+          Эта страница доступна только владельцу. Посетители общаются с Vector на сайте — без
           настроек и API.
         </p>
         <Link href="/site" className="mt-6 inline-block text-genesis-accent hover:underline">

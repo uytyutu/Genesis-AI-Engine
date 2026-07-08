@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Concept C: Nexus  orbital arcs around core; V in the convergence gap -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Concept C Nexus">
+  <rect width="512" height="512" fill="#08080E"/>
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#2A2A36" stroke-width="3"/>
+  <path fill="#E4E4EA" d="M 128 148 C 88 220, 96 332, 196 404 C 214 388, 198 332, 192 288 C 180 220, 152 176, 128 148 Z"/>
+  <path fill="#E4E4EA" d="M 384 148 C 424 220, 416 332, 316 404 C 298 388, 314 332, 320 288 C 332 220, 360 176, 384 148 Z"/>
+  <path fill="none" stroke="#7C8FD4" stroke-width="6" stroke-linecap="round" opacity="0.45" d="M 176 120 C 220 168, 236 220, 248 280"/>
+  <path fill="none" stroke="#7C8FD4" stroke-width="6" stroke-linecap="round" opacity="0.45" d="M 336 120 C 292 168, 276 220, 264 280"/>
+  <circle cx="256" cy="288" r="36" fill="#E4E4EA"/>
+  <circle cx="256" cy="288" r="20" fill="#7C8FD4"/>
+  <circle cx="256" cy="288" r="8" fill="#E4E4EA"/>
+</svg>

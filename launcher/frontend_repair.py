@@ -45,10 +45,10 @@ _ERROR_MARKERS: tuple[tuple[str, str, bool], ...] = (
     ("build error", "Next.js не смог собрать интерфейс.", True),
     ("failed to compile", "Ошибка компиляции Mission Control.", True),
     ("cannot find module", "Зависимости Mission Control не установлены полностью.", True),
-    ("enoent", "Не найден файл сборки — Genesis выполнит npm run build.", True),
+    ("enoent", "Не найден файл сборки — Virtus Core выполнит npm run build.", True),
     ("routes-manifest", "Mission Control не собран (.next отсутствует).", True),
-    ("eaddrinuse", "Порт 3000 уже занят — Genesis попробует освободить.", True),
-    ("address already in use", "Порт 3000 уже занят — Genesis попробует освободить.", True),
+    ("eaddrinuse", "Порт 3000 уже занят — Virtus Core попробует освободить.", True),
+    ("address already in use", "Порт 3000 уже занят — Virtus Core попробует освободить.", True),
     ("npm err!", "Ошибка npm при установке или запуске.", True),
     ("node:internal", "Node.js завершился с внутренней ошибкой.", True),
 )
@@ -100,7 +100,7 @@ def diagnose_frontend(
             issue="node_missing",
             message=(
                 "Node.js или npm не найдены.\n"
-                "Нажмите «Запустить» — Genesis установит компоненты автоматически."
+                "Нажмите «Запустить» — Virtus Core установит компоненты автоматически."
             ),
             can_auto_fix=False,
             log_excerpt=excerpt,
@@ -129,22 +129,22 @@ def diagnose_frontend(
         if "cannot find module" in lowered:
             msg = (
                 "Сборка Mission Control устарела (битые файлы в .next).\n"
-                "Genesis удалит кэш и выполнит npm run build заново."
+                "Virtus Core удалит кэш и выполнит npm run build заново."
             )
         elif "routes-manifest" in lowered or "enoent" in lowered:
             msg = (
                 "Mission Control не собран: отсутствует .next/routes-manifest.json.\n"
-                "Genesis выполнит npm run build автоматически."
+                "Virtus Core выполнит npm run build автоматически."
             )
         elif not frontend_build_integrity(root):
             msg = (
                 "Сборка Mission Control неполная (повреждён .next).\n"
-                "Genesis пересоберёт интерфейс перед запуском."
+                "Virtus Core пересоберёт интерфейс перед запуском."
             )
         else:
             msg = (
                 "Mission Control ещё не собран (нет папки .next).\n"
-                "Genesis выполнит сборку перед запуском."
+                "Virtus Core выполнит сборку перед запуском."
             )
         return FrontendDiagnosis(
             issue="missing_build",
@@ -168,7 +168,7 @@ def diagnose_frontend(
         if marker in lowered:
             extra = ""
             if marker in ("eaddrinuse", "address already in use"):
-                extra = "\nGenesis попробует освободить порт автоматически."
+                extra = "\nVirtus Core попробует освободить порт автоматически."
             return FrontendDiagnosis(
                 issue=marker.replace(" ", "_"),
                 message=f"Frontend: {human}{extra}",
@@ -360,7 +360,7 @@ def repair_frontend(
     from launcher.process_cleanup import stop_frontend_listeners
 
     if owner_ready_live():
-        return True, "Genesis уже готов — Mission Control отвечает на :3000"
+        return True, "Virtus Core уже готов — Mission Control отвечает на :3000"
     if probe_frontend_live():
         return True, "Frontend уже работает на :3000 — ремонт не нужен"
 

@@ -55,7 +55,7 @@ export function PendingPaymentsPanel({ payments }: { payments: PendingPayment[] 
     <section className="rounded-2xl border border-violet-500/30 bg-violet-950/20 p-5">
       <h2 className="text-sm font-semibold">💳 Требуется подтверждение оплаты</h2>
       <p className="mt-1 text-xs text-genesis-muted">
-        Genesis не зачисляет средства автоматически — подтвердите каждый платёж.
+        Virtus Core не зачисляет средства автоматически — подтвердите каждый платёж.
       </p>
       <ul className="mt-4 space-y-3">
         {payments.map((p) => (

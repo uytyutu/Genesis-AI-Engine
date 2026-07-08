@@ -347,12 +347,12 @@ def check_services(
 
 def overall_label(state: str, error_message: str = "") -> tuple[str, str]:
     labels = {
-        "running": ("✔ Genesis полностью готов", "#22c55e"),
+        "running": ("✔ Virtus Core полностью готов", "#22c55e"),
         "starting_backend": ("🟡 Запуск Backend...", "#eab308"),
         "starting_frontend": ("🟡 Запуск Mission Control...", "#eab308"),
         "starting": ("🟡 Запускается...", "#eab308"),
         "error": ("🔴 Ошибка запуска", "#ef4444"),
-        "stopped": ("⚪ Genesis остановлен", "#9ca3af"),
+        "stopped": ("⚪ Virtus Core остановлен", "#9ca3af"),
     }
     text, color = labels.get(state, labels["stopped"])
     if state == "error" and error_message:

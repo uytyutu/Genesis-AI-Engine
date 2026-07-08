@@ -131,7 +131,7 @@ def run_startup_validation(*, memory_dir: Path, repo_root: Path) -> dict[str, An
     }
     if not report["checks"]["secrets"].get("llm_configured"):
         report["warnings"].append(
-            "No cloud LLM API key — Genesis Local active; set keys in host env for production workforce"
+            "No cloud LLM API key — Virtus Local active; set keys in host env for production workforce"
         )
     if is_cloud := bool(os.getenv("RENDER") or os.getenv("RAILWAY_ENVIRONMENT")):
         if not os.getenv("GENESIS_MEMORY_DIR"):

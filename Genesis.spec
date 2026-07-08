@@ -42,5 +42,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['D:\\Games\\Genesis-AI-Engine\\launcher\\assets\\genesis.ico'],
+    icon=['D:\\Games\\Genesis-AI-Engine\\launcher\\assets\\virtus.ico'],
 )

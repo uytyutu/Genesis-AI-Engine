@@ -19,7 +19,9 @@ from app.integration.genesis_brain.ai_jury import (
     invoke_jury,
     should_invoke_jury,
 )
-from app.integration.genesis_brain.brief_speech import BriefSpeechSynthesizer
+from app.integration.genesis_brain.brief_speech import BriefSpeechSynthesizer, clean_user_messages
+from app.integration.genesis_brain.ai_identity import try_local_identity_reply
+from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME
 from app.integration.genesis_brain.conversation_rhythm import rhythm_instruction
 from app.integration.genesis_brain.layers.product_mind import product_mind_llm_rules
 from app.integration.genesis_brain.layers import (
@@ -101,6 +103,7 @@ class GenesisBrain:
         personality_mode: Literal["public", "ceo"] = "public",
         debug: bool = False,
     ) -> ChatResult:
+        messages = clean_user_messages(messages)
         personality = GenesisPersonalityLayer(mode=personality_mode)
         memory_data = self._memory.observe_messages(visitor_id, messages)
         inferences = self._memory.get_inferences(visitor_id)
@@ -112,8 +115,28 @@ class GenesisBrain:
         knowledge_block = self._knowledge.build_block()
 
         last_user = self._last_user_text(messages)
-        emotional = self._emotion.analyze(last_user)
         turn_index = sum(1 for m in messages if m.get("role") == "user")
+
+        identity_answer = try_local_identity_reply(
+            last_user,
+            visitor_id=visitor_id,
+            turn_index=turn_index,
+            messages=messages,
+        )
+        if identity_answer:
+            if last_user:
+                if session_id:
+                    self._sessions.append_messages(
+                        session_id,
+                        user=last_user,
+                        assistant=identity_answer,
+                        auto_title_from=last_user if turn_index == 1 else None,
+                    )
+                else:
+                    self._memory.record_exchange(visitor_id, last_user, identity_answer)
+            return ChatResult(answer=identity_answer, provider_id="genesis-identity")
+
+        emotional = self._emotion.analyze(last_user)
 
         # Genesis Mind v3 — internal thinking cycle (never exposed)
         thinking = self._thinking.think(
@@ -141,7 +164,7 @@ class GenesisBrain:
         brief = self._reasoning.analyze(messages, memory_data)
         plan = self._planning.suggest(brief.topic)
 
-        personality_label = "Genesis CEO" if personality_mode == "ceo" else "Genesis"
+        personality_label = f"{ASSISTANT_NAME} CEO" if personality_mode == "ceo" else ASSISTANT_NAME
         mandate = thinking.to_llm_mandate(
             executive_action=decision.action,
             executive_confidence=decision.confidence,
@@ -165,11 +188,11 @@ class GenesisBrain:
         )
 
         llm_instruction = (
-            "\n\n[Genesis Mind v3 — LLM is cortex, not Genesis]\n"
+            f"\n\n[{BRAND_NAME} Mind — LLM is cortex]\n"
             "Порядок: Thinking Brief (ниже) → сообщение пользователя → Ваш ответ.\n"
-            "Вы НЕ ChatGPT. Вы — языковая кора Genesis. Brief уже принят Mind.\n"
-            "Пишите ответ на русском как Genesis: живо, без шаблонов, без цитирования brief.\n"
-            "Genesis не пытается быть правым — пытается быть полезным.\n"
+            f"Вы НЕ ChatGPT. Вы — языковая кора {ASSISTANT_NAME} ({BRAND_NAME}). Brief уже принят.\n"
+            f"Пишите ответ на русском как {ASSISTANT_NAME}: живо, без шаблонов, без цитирования brief.\n"
+            f"{ASSISTANT_NAME} не пытается быть правым — пытается быть полезным.\n"
             f"{rhythm_instruction(last_user)}\n"
             + product_mind_llm_rules()
         )

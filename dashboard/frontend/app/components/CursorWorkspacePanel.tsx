@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import { BRAND_NAME } from "../lib/publicBrand";
 import { useCallback, useEffect, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -53,7 +52,7 @@ export function CursorWorkspacePanel({ compact = false }: { compact?: boolean })
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-semibold">⚙️ Работа с Cursor</p>
-          <p className="mt-1 text-xs text-genesis-muted">Внутренний инженер — вы управляете через Genesis</p>
+          <p className="mt-1 text-xs text-genesis-muted">Внутренний инженер — вы управляете через {BRAND_NAME}</p>
         </div>
         <Link
           href="/cursor"

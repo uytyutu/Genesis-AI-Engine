@@ -158,14 +158,14 @@ export function GenesisSetupWizard({ onComplete, embedded = false }: Props) {
   const hireable = employees.filter((e) => !e.core && e.id !== "genesis-local");
 
   return (
-    <section className={shell} aria-label="Genesis Owner Setup">
+    <section className={shell} aria-label="Virtus Core Owner Setup">
       <div className="border-b border-white/5 px-6 py-5 sm:px-8">
         <Badge variant="accent" className="tracking-[0.25em]">
           Owner
         </Badge>
         <h1 className="mt-3 text-2xl font-bold sm:text-3xl">Панель директора</h1>
         <p className="mt-2 text-sm text-genesis-muted">
-          Genesis уже работает. Здесь вы нанимаете дополнительных сотрудников.
+          Virtus Core уже работает. Здесь вы нанимаете дополнительных сотрудников.
         </p>
       </div>
 
@@ -173,7 +173,7 @@ export function GenesisSetupWizard({ onComplete, embedded = false }: Props) {
         <div className="rounded-2xl border border-indigo-400/20 bg-indigo-950/25 px-4 py-3 text-sm leading-relaxed text-indigo-100/90">
           <strong className="text-indigo-200">Workforce Director.</strong>{" "}
           {status?.setup_once_hint ??
-            "Подключите бесплатных сотрудников один раз — Genesis сам переключается при лимитах."}
+            "Подключите бесплатных сотрудников один раз — Virtus Core сам переключается при лимитах."}
           {status?.owner_setup_complete ? (
             <span className="mt-1 block text-emerald-300/90">
               Настройка активна — Director управляет моделями автоматически.
@@ -183,7 +183,7 @@ export function GenesisSetupWizard({ onComplete, embedded = false }: Props) {
 
         <Link href="/site" className="block">
           <Button type="button" size="lg" className="w-full">
-            Continue with Local Genesis
+            Continue with Virtus Local
           </Button>
         </Link>
 
@@ -198,7 +198,7 @@ export function GenesisSetupWizard({ onComplete, embedded = false }: Props) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-white">
-                {core?.label ?? "Genesis Local"}
+                {core?.label ?? "Virtus Local"}
               </p>
               <p className="mt-0.5 text-xs text-emerald-300/90">✅ Ready · Core Brain</p>
             </div>
@@ -273,7 +273,7 @@ export function GenesisSetupWizard({ onComplete, embedded = false }: Props) {
                       {e.id === "ollama" ? (
                         <p className="text-xs text-genesis-muted">
                           Запустите <code className="text-[11px]">ollama serve</code> и загрузите
-                          модель. Нажмите Start — Genesis проверит подключение.
+                          модель. Нажмите Start — Virtus Core проверит подключение.
                         </p>
                       ) : (
                         <label className="block text-xs font-medium text-genesis-text">
@@ -330,7 +330,7 @@ export function GenesisSetupWizard({ onComplete, embedded = false }: Props) {
         </div>
 
         <p className="text-center text-[11px] text-genesis-muted">
-          Посетители сайта видят только Genesis — не сотрудников и не API.
+          Посетители сайта видят только Vector — не сотрудников и не API.
         </p>
       </div>
     </section>

@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { SitePage } from "./SitePage";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
+import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
+
 export const metadata: Metadata = publicPageMetadata(
-  "Genesis — расскажите, что хотите создать",
-  "ИИ-проводник Genesis: объяснит продукт, подберёт решение, покажет цену. Сайты для бизнеса — от 48 часов.",
+  `${ASSISTANT_NAME} — расскажите, что хотите создать`,
+  `ИИ-помощник ${ASSISTANT_NAME} от ${BRAND_NAME}: объяснит продукт, подберёт решение, покажет цену. Сайты для бизнеса — от 48 часов.`,
   "/site"
 );
 

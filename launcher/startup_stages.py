@@ -30,7 +30,7 @@ def assess_startup(root=None) -> StageAssessment:
     if owner_ready_live():
         return StageAssessment(
             stage="ready",
-            message="✔ Genesis полностью готов",
+            message="✔ Virtus Core полностью готов",
             backend_up=True,
             frontend_up=True,
         )
@@ -59,7 +59,7 @@ def assess_startup(root=None) -> StageAssessment:
 
     return StageAssessment(
         stage="ready",
-        message="✔ Genesis полностью готов",
+        message="✔ Virtus Core полностью готов",
         backend_up=True,
         frontend_up=True,
     )
@@ -104,7 +104,7 @@ def repair_staged(
     from launcher.health import owner_ready_live
 
     if owner_ready_live():
-        return True, "✔ Genesis полностью готов — ремонт не нужен"
+        return True, "✔ Virtus Core полностью готов — ремонт не нужен"
 
     assessment = assess_startup(root)
     if assessment.stage == "ready":

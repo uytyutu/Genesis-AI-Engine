@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-_BUDGET_RE = re.compile(r"(\d[\d\s.,]*)\s*€|€\s*(\d[\d\s.,]*)|бюджет\s+(\d+)", re.I)
+from app.integration.genesis_brain.public_brand import STUDIO_NAME
 _COUNTRY_MAP = {
     "герман": "Германии",
     "germany": "Германии",
@@ -79,7 +79,7 @@ def business_reply(ctx: BusinessContext, last_user: str) -> str | None:
 
     if ctx.wants_studio or ("studio" in low and "хочу" in low):
         return (
-            "Genesis Studio — платформа, где можно сами создавать сайты, приложения и автоматизации.\n\n"
+            f"{STUDIO_NAME} — платформа, где можно сами создавать сайты, приложения и автоматизации.\n\n"
             "**Free** — попробовать · **Basic 49 €** · **Pro 99 €** · **Business 199 €** (команда, AI COO).\n\n"
             "Хотите начать с бесплатного тарифа или сразу подключить Pro для серьёзной работы?"
         )

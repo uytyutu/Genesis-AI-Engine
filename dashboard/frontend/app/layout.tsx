@@ -5,15 +5,15 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Genesis",
-    template: "%s · Genesis",
+    default: "Virtus Core",
+    template: "%s · Virtus Core",
   },
-  description: "Company OS — управление цифровой компанией",
+  description: "Virtus Core — intelligent platform with Vector AI assistant",
   icons: {
     icon: [
       { url: "/brand/favicon-16.png", sizes: "16x16", type: "image/png" },
       { url: "/brand/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/brand/genesis-mark.svg", type: "image/svg+xml" },
+      { url: "/brand/vector-mark.svg", type: "image/svg+xml" },
     ],
     apple: [{ url: "/brand/apple-touch-icon.png", sizes: "180x180" }],
   },

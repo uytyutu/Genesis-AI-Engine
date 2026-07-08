@@ -90,7 +90,7 @@ def find_project_root(start: Path | None = None) -> Path:
 
     raise FileNotFoundError(
         "Не найдена папка проекта Genesis.\n"
-        "Убедитесь, что Genesis-AI-Engine установлен целиком и содержит "
+        "Убедитесь, что Virtus Core-AI-Engine установлен целиком и содержит "
         "dashboard/frontend/package.json."
     )
 

@@ -1,17 +1,26 @@
 """Universal AI Identity — prompt and scrub tests."""
 
 from app.integration.genesis_brain.ai_identity import (
+    ASSISTANT_NAME,
+    BRAND_NAME,
     UNIVERSAL_AI_IDENTITY,
     scrub_identity_violations,
     try_local_identity_reply,
 )
+from app.integration.genesis_brain.public_brand import scrub_public_brand_text
 
 
-def test_identity_block_forbids_prototype_language():
+def test_identity_block_brand_architecture():
     low = UNIVERSAL_AI_IDENTITY.lower()
-    assert "интеллектуальная" in low
-    assert "доводить идеи до результата" in UNIVERSAL_AI_IDENTITY
-    assert "не программа" in low and "бот" in low
+    assert "virtus core" in low
+    assert "vector" in low
+    assert "без продаж" in low or "crm" in low
+
+
+def test_scrub_public_brand_removes_genesis():
+    out = scrub_public_brand_text("Genesis Studio и Genesis AI — это мы.")
+    assert "genesis" not in out.lower()
+    assert "Virtus" in out
 
 
 def test_scrub_identity_violations():
@@ -20,12 +29,37 @@ def test_scrub_identity_violations():
     assert "попытка создать" not in out.lower()
 
 
-def test_local_identity_varies_by_wording():
+def test_local_identity_who_are_you():
+    reply = try_local_identity_reply("Кто ты?", visitor_id="v1", turn_index=1)
+    assert reply
+    low = reply.lower()
+    assert ASSISTANT_NAME.lower() in low
+    assert BRAND_NAME.lower() in low
+    assert "crm" not in low
+    assert "studio" not in low
+
+
+def test_local_capabilities_short_list():
+    reply = try_local_identity_reply("Что ты умеешь?", visitor_id="v1", turn_index=1)
+    assert reply
+    assert "•" in reply
+    assert "программированием" in reply.lower()
+    assert "crm" not in reply.lower()
+    assert "studio" not in reply.lower()
+
+
+def test_local_identity_natural_wording():
     a = try_local_identity_reply("Кто ты?", visitor_id="v1", turn_index=1)
-    b = try_local_identity_reply("А ты вообще кто такой?", visitor_id="v1", turn_index=2)
+    b = try_local_identity_reply("Расскажи о себе", visitor_id="v1", turn_index=2)
     assert a and b
-    assert any(w in a.lower() for w in ("интеллектуальн", "создан", "анализирую"))
-    assert a != b
+    assert ASSISTANT_NAME in a
+
+
+def test_local_identity_no_internal_codename():
+    reply = try_local_identity_reply("Что такое Genesis?", visitor_id="v1", turn_index=1)
+    assert reply
+    assert "genesis" not in reply.lower()
+    assert ASSISTANT_NAME.lower() in reply.lower()
 
 
 def test_local_identity_not_triggered_for_historical_figure():

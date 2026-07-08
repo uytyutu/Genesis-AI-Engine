@@ -1,0 +1,8 @@
+{
+  "name": "virtus-brand-renderer",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2"
+  }
+}

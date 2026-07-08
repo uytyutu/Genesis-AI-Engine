@@ -7,6 +7,7 @@ import {
   saveVoiceSettings,
   type VoiceSettings,
 } from "../lib/voiceSettings";
+import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
 import { listBrowserVoices } from "../lib/ttsRuntime";
 
 type Props = {
@@ -65,7 +66,7 @@ export function VoiceSettingsPanel({
 
       {cloudAvailable ? (
         <p className="mb-3 text-xs text-genesis-accent">
-          Cloud TTS: {preferredProvider ?? "active"} — основной голос Genesis
+          Cloud TTS: {preferredProvider ?? "active"} — основной голос {BRAND_NAME}
         </p>
       ) : (
         <p className="mb-3 text-xs text-genesis-muted">
@@ -80,7 +81,7 @@ export function VoiceSettingsPanel({
           onChange={(e) => patch({ voice: e.target.value })}
           className="mt-1 w-full rounded-xl border border-white/10 bg-genesis-bg/80 px-3 py-2 text-sm text-white"
         >
-          <option value="auto">Genesis Auto (cloud → browser)</option>
+          <option value="auto">{ASSISTANT_NAME} Auto (cloud → browser)</option>
           <option value="cloud">Cloud only</option>
           {browserVoices.map((v) => (
             <option key={v.voiceURI} value={v.voiceURI}>
@@ -137,7 +138,7 @@ export function VoiceSettingsPanel({
             [
               "interruptSpeaking",
               "Interrupt Speaking",
-              "Прервать речь Genesis при новом нажатии на микрофон",
+              `Прервать речь ${ASSISTANT_NAME} при новом нажатии на микрофон`,
             ],
           ] as const
         ).map(([key, label, hint]) => (

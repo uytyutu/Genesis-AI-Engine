@@ -7,7 +7,7 @@ import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
   "Kontakt",
-  "Связаться с Genesis: email и форма заказа.",
+  "Связаться с Virtus Core: email и форма заказа.",
   "/kontakt"
 );
 

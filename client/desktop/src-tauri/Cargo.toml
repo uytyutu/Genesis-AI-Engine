@@ -1,8 +1,8 @@
 [package]
 name = "genesis-client"
 version = "0.1.0"
-description = "Genesis Client — Windows-first desktop shell"
-authors = ["Genesis"]
+description = "Virtus Core — Windows-first desktop shell"
+authors = ["Virtus Core"]
 edition = "2021"
 
 [lib]

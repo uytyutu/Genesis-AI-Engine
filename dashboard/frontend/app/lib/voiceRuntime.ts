@@ -63,7 +63,7 @@ export function voiceErrorMessage(err: unknown): string {
       : "";
   if (/NotAllowed|Permission|denied/i.test(name + msg)) {
     return (
-      "Genesis не получил доступ к микрофону.\n\n" +
+      "Virtus Core не получил доступ к микрофону.\n\n" +
       "Нажмите «Разрешить микрофон» или откройте 🔒 возле адресной строки → Микрофон → Разрешить."
     );
   }

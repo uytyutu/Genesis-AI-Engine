@@ -31,7 +31,7 @@ export default function ImpressumPage() {
             <p>
               {name}
               <br />
-              Genesis AI Engine
+              Virtus Core
               <br />
               {address}
             </p>

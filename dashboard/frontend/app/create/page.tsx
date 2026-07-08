@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { BRAND_NAME } from "../lib/publicBrand";
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const TYPES = [
@@ -54,7 +56,7 @@ export default function CreateProductPage() {
         }
       }
     } catch {
-      setResult("Genesis не запущен. Откройте приложение с рабочего стола.");
+      setResult(`${BRAND_NAME} не запущен. Откройте приложение с рабочего стола.`);
     } finally {
       setBusy(false);
     }
@@ -213,7 +215,7 @@ export default function CreateProductPage() {
 
         <p className="text-center">
           <Link href="/" className="text-sm text-genesis-muted hover:text-white">
-            ← Genesis
+            ← {BRAND_NAME}
           </Link>
         </p>
       </div>

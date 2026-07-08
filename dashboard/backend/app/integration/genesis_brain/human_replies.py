@@ -7,6 +7,7 @@ import re
 
 from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
 from app.integration.genesis_brain.layers.conversation_type import ConversationKind
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 
 
 def human_reply(
@@ -97,7 +98,7 @@ def _millionaire_reply(open_: str) -> str:
     return (
         f"{open_} Стать миллионером возможно — но деньги обычно следствие, а не цель.\n\n"
         "Они приходят, когда долго строишь что-то ценное для людей: продукт, компанию, "
-        "экспертизу. Если смотреть на то, что Вы уже создаёте — Genesis как раз может "
+        f"экспертизу. Если смотреть на то, что Вы уже создаёте — {BRAND_NAME} как раз может "
         "стать бизнесом, который к этому приведёт. Но путь длинный, и это нормально.\n\n"
         "Главное — не гнаться за цифрой, а за системой, которая её создаёт."
     )

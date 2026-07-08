@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Virtus Core mark">
+  <rect width="512" height="512" fill="#08080E"/>
+  <path
+    fill="#ECECF1"
+    d="M 92 96 C 44 188, 54 324, 238 416 C 256 400, 246 336, 238 284 C 224 200, 172 136, 120 100 C 108 94, 98 92, 92 96 Z"
+  />
+  <path
+    fill="#ECECF1"
+    d="M 420 96 C 468 188, 458 324, 274 416 C 256 400, 266 336, 274 284 C 288 200, 340 136, 392 100 C 404 94, 414 92, 420 96 Z"
+  />
+  <circle cx="256" cy="408" r="30" fill="#ECECF1"/>
+  <circle cx="256" cy="408" r="17" fill="#7C8FD4"/>
+</svg>

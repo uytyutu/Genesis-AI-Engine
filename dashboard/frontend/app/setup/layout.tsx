@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { BRAND_NAME } from "../lib/publicBrand";
 
 export const metadata: Metadata = {
-  title: "Genesis Owner Setup",
+  title: `${BRAND_NAME} Owner Setup`,
   robots: { index: false, follow: false },
 };
 

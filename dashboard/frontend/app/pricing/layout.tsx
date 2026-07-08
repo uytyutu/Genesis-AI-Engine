@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
+import { BRAND_NAME } from "../lib/publicBrand";
+
 export const metadata: Metadata = publicPageMetadata(
-  "Genesis Platform",
-  "Genesis Platform — подписки и возможности. Сравнение тарифов и ранний доступ.",
+  `${BRAND_NAME} Platform`,
+  `${BRAND_NAME} Platform — подписки и возможности. Сравнение тарифов и ранний доступ.`,
   "/products"
 );
 

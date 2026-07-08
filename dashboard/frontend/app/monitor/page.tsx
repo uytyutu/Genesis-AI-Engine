@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { BRAND_NAME } from "../lib/publicBrand";
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type SystemStatus = {
@@ -56,7 +58,7 @@ export default function MonitorPage() {
       setActivity(a.events);
       setMessage("");
     } catch {
-      setMessage("API недоступен — запустите Genesis через Launcher");
+      setMessage(`API недоступен — запустите ${BRAND_NAME} через Launcher`);
     } finally {
       setLoading(false);
     }

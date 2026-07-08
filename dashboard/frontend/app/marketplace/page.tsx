@@ -4,7 +4,7 @@ export default function MarketplacePage() {
   return (
     <main className="min-h-screen pb-12">
       <div className="mx-auto max-w-lg space-y-6 text-center">
-        <h1 className="text-2xl font-bold">Genesis Marketplace</h1>
+        <h1 className="text-2xl font-bold">Virtus Core Marketplace</h1>
         <p className="text-genesis-muted">
           Магазин шаблонов и готовых продуктов появится после запуска Factory.
         </p>

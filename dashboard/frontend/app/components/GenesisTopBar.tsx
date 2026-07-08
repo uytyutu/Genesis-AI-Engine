@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { BRAND_NAME } from "../lib/publicBrand";
 
 const TITLES: Record<string, string> = {
   "/": "Пульт управления",
@@ -25,7 +26,7 @@ const TITLES: Record<string, string> = {
 function titleForPath(pathname: string): string {
   if (TITLES[pathname]) return TITLES[pathname];
   const base = `/${pathname.split("/").filter(Boolean)[0] ?? ""}`;
-  return TITLES[base] ?? "Genesis";
+  return TITLES[base] ?? BRAND_NAME;
 }
 
 export function GenesisTopBar() {
@@ -35,7 +36,7 @@ export function GenesisTopBar() {
   return (
     <header className="genesis-topbar">
       <div>
-        <p className="genesis-topbar__eyebrow">Genesis Company OS</p>
+        <p className="genesis-topbar__eyebrow">{BRAND_NAME}</p>
         <h1 className="genesis-topbar__title">{title}</h1>
       </div>
       <div className="genesis-topbar__actions">

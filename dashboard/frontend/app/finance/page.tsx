@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEur, formatSignedEur } from "../lib/formatEur";
+import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
 import { GenesisCard } from "../components/GenesisCard";
 import { Sparkline } from "../components/Sparkline";
 import { WithdrawModal } from "../components/WithdrawModal";
@@ -82,7 +83,7 @@ export default function FinancePage() {
       <div className="mx-auto max-w-3xl space-y-5">
         <header className="animate-fade-up text-center">
           <p className="genesis-label">Финансовый центр</p>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight">{finance?.greeting ?? "Genesis"}</h1>
+          <h1 className="mt-2 text-2xl font-bold tracking-tight">{finance?.greeting ?? BRAND_NAME}</h1>
           <p className="mt-2 text-sm text-genesis-muted">{finance?.payment_provider_label ?? "Payment Hub"}</p>
           {finance?.demo_mode && (
             <p className="mt-2 inline-block rounded-full border border-amber-500/30 bg-amber-950/30 px-3 py-1 text-xs text-amber-200">
@@ -142,7 +143,7 @@ export default function FinancePage() {
                 href="/"
                 className="rounded-2xl border border-genesis-border px-5 py-3.5 text-sm font-medium hover:bg-genesis-elevated"
               >
-                ← Genesis
+                ← Virtus Core
               </Link>
             </div>
           </>
@@ -150,7 +151,7 @@ export default function FinancePage() {
           <GenesisCard glow title="Payment Hub" subtitle="Не подключён">
             <p className="text-sm leading-relaxed text-genesis-muted">
               Все средства поступают напрямую на <strong className="text-genesis-text">ваши</strong> счета.
-              Genesis только отображает операции — не хранит и не переводит деньги.
+              Virtus Core только отображает операции — не хранит и не переводит деньги.
             </p>
             <p className="mt-4 text-3xl font-bold tabular-nums text-genesis-muted/80">0 €</p>
             <p className="mt-1 text-xs text-genesis-muted">Доход появится после первой реальной оплаты</p>
@@ -164,7 +165,7 @@ export default function FinancePage() {
 
         <GenesisCard
           title="Кошельки"
-          subtitle={connectedWallets > 0 ? `${connectedWallets} подключено` : "Подключите один раз — Genesis покажет балансы"}
+          subtitle={connectedWallets > 0 ? `${connectedWallets} подключено` : "Подключите один раз — Virtus Core покажет балансы"}
         >
           <ul className="space-y-2">
             {(finance?.wallets ?? DEFAULT_WALLETS).map((w) => (
@@ -200,7 +201,7 @@ export default function FinancePage() {
 
         <GenesisCard title="История выплат">
           {(finance?.payout_history?.length ?? 0) === 0 ? (
-            <p className="text-sm text-genesis-muted">Пока нет выплат — Genesis покажет их после подключения Payment Hub.</p>
+            <p className="text-sm text-genesis-muted">Пока нет выплат — {BRAND_NAME} покажет их после подключения Payment Hub.</p>
           ) : (
             <ul className="space-y-3">
               {finance!.payout_history.map((p, i) => (

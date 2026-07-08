@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatEur } from "../lib/formatEur";
+import { BRAND_NAME } from "../lib/publicBrand";
 
 type Wallet = { id: string; label: string; icon: string; connected: boolean };
 
@@ -38,7 +39,7 @@ export function WithdrawModal({ open, onClose, amount, wallets }: Props) {
             <p className="text-3xl">✔</p>
             <p className="mt-3 font-semibold">Запрос отправлен</p>
             <p className="mt-2 text-sm text-genesis-muted">
-              Перевод выполнит платёжная система — Genesis не хранит и не переводит средства.
+              Перевод выполнит платёжная система — Virtus Core не хранит и не переводит средства.
             </p>
           </div>
         ) : (
@@ -87,7 +88,7 @@ export function WithdrawModal({ open, onClose, amount, wallets }: Props) {
               </button>
             </div>
             <p className="mt-4 text-center text-[11px] text-genesis-muted">
-              Деньги переводит Stripe, PayPal или ваш банк — не Genesis.
+              Деньги переводит Stripe, PayPal или ваш банк — не {BRAND_NAME}.
             </p>
           </>
         )}

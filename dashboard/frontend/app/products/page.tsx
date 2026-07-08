@@ -78,7 +78,7 @@ export default function ProductsPage() {
       )}
       {caps && (
         <section>
-          <Badge variant="outline">Genesis Studio</Badge>
+          <Badge variant="outline">Virtus Studio</Badge>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">{caps.headline}</h1>
           <p className="mt-4 max-w-2xl text-genesis-muted">{caps.subheadline}</p>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -109,7 +109,7 @@ export default function ProductsPage() {
               </ButtonLink>
             </div>
             <div>
-              <p className="text-sm font-medium text-indigo-300">Genesis Studio</p>
+              <p className="text-sm font-medium text-indigo-300">Virtus Studio</p>
               <p className="mt-2 text-sm text-genesis-muted">{svp.product_when}</p>
               <ButtonLink href={svp.cta_product.href} variant="ghost" size="sm" className="mt-3">
                 {svp.cta_product.label} ↓

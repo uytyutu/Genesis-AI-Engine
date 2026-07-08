@@ -28,9 +28,9 @@ class BackendDiagnosis:
 
 
 _ERROR_MARKERS: tuple[tuple[str, str, bool], ...] = (
-    ("10048", "Порт 8000 занят — Genesis освободит и перезапустит Backend.", True),
-    ("eaddrinuse", "Порт 8000 занят — Genesis освободит и перезапустит Backend.", True),
-    ("address already in use", "Порт 8000 занят — Genesis освободит и перезапустит Backend.", True),
+    ("10048", "Порт 8000 занят — Virtus Core освободит и перезапустит Backend.", True),
+    ("eaddrinuse", "Порт 8000 занят — Virtus Core освободит и перезапустит Backend.", True),
+    ("address already in use", "Порт 8000 занят — Virtus Core освободит и перезапустит Backend.", True),
     ("modulenotfounderror", "Не установлены Python-зависимости Backend.", True),
     ("importerror", "Ошибка импорта Backend — проверьте requirements.txt.", True),
     ("traceback", "Backend завершился с ошибкой Python.", True),
@@ -121,8 +121,19 @@ def _process_basename(pid: int) -> str:
 
 def prepare_backend_port(root: Path | None = None) -> tuple[bool, str]:
     """Free port 8000 when a stale Python listener blocks a healthy Backend."""
-    if backend_responds(root, timeout=2.0):
-        return True, "Backend уже отвечает на :8000"
+    from launcher.backend_identity import (
+        backend_runtime_compatible,
+        fetch_backend_status,
+        stop_backend_listeners,
+    )
+
+    status = fetch_backend_status(timeout=2.0)
+    if status is not None:
+        compatible, reason = backend_runtime_compatible(root, status)
+        if compatible:
+            return True, "Backend уже отвечает на :8000 (актуальная версия)"
+        append_log(f"prepare_backend_port: stale backend — {reason}")
+        stop_backend_listeners(root)
 
     freed: list[str] = []
     for pid in _pids_on_port(8000):
@@ -173,7 +184,7 @@ def diagnose_backend(
     if not find_python():
         return BackendDiagnosis(
             "python_missing",
-            "Python не найден. Установите Python 3.11+ или нажмите «Запустить» в Genesis.",
+            "Python не найден. Установите Python 3.11+ или нажмите «Запустить» в Virtus Core.",
             False,
             excerpt,
         )
@@ -214,19 +225,32 @@ def repair_backend(
     root: Path | None = None,
 ) -> tuple[bool, str]:
     """Kill stale Backend, reinstall deps if needed, restart uvicorn."""
-    from launcher.health import owner_ready_live, probe_backend_live
+    from launcher.backend_identity import (
+        backend_runtime_compatible,
+        fetch_backend_status,
+        stop_backend_listeners,
+    )
+    from launcher.health import owner_ready_live
     from launcher.processes import _kill_tree, start_backend
 
-    if owner_ready_live():
-        return True, "Genesis уже готов — Backend и Frontend отвечают"
-    if probe_backend_live():
-        return True, "Backend уже отвечает на /api/status — ремонт не нужен"
+    status = fetch_backend_status()
+    backend_compatible = status is not None and backend_runtime_compatible(root, status)[0]
+
+    if owner_ready_live() and backend_compatible:
+        return True, "Virtus Core уже готов — Backend и Frontend отвечают"
+    if backend_compatible:
+        return True, "Backend уже отвечает — актуальная версия, ремонт не нужен"
+
+    if status is not None and not backend_compatible:
+        _, reason = backend_runtime_compatible(root, status)
+        append_log(f"Backend repair: stale runtime — {reason}")
 
     diag = diagnose_backend(root, backend_exited=True)
     steps: list[str] = []
 
     _kill_tree(managed.backend)
     managed.backend = None
+    stop_backend_listeners(root, managed)
 
     ok, msg = prepare_backend_port(root)
     steps.append(msg)

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEur } from "../lib/formatEur";
 
+import { BRAND_NAME } from "../lib/publicBrand";
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type StudioStatus = {
@@ -140,7 +142,7 @@ export default function AcquisitionPage() {
           <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/80">Mission 1.5</p>
           <h1 className="mt-2 text-2xl font-semibold">Business Acquisition Studio</h1>
           <p className="mt-2 text-sm text-genesis-muted">
-            Genesis готовит продажи. CEO подтверждает отправку. {status?.law}
+            Virtus Core готовит продажи. CEO подтверждает отправку. {status?.law}
           </p>
           {status && (
             <div className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -163,7 +165,7 @@ export default function AcquisitionPage() {
               href="/"
               className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40"
             >
-              Genesis
+              {BRAND_NAME}
             </Link>
           </div>
         </header>

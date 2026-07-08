@@ -290,7 +290,7 @@ def _curiosity_brief(
         conv = "понять продукт Factory"
         strategy = "объяснить Factory; упомянуть Studio как альтернативу"
     elif "studio" in low:
-        conv = "понять Genesis Studio"
+        conv = "понять Virtus Studio"
         strategy = "объяснить Studio и подписку"
     return replace(
         base,

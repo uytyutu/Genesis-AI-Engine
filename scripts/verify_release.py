@@ -52,9 +52,40 @@ def check_imports() -> None:
         _ok(f"Node.js ({deps.node_version or 'found'})")
 
     if deps.node_ok and not frontend_deps_ready(root):
-        print("  WARN frontend deps not installed — Genesis will auto npm install on first start")
+        print("  WARN frontend deps not installed — Virtus Core will auto npm install on first start")
     elif deps.node_ok:
         _ok("Mission Control dependencies (node_modules/next)")
+
+
+def check_brand_constants() -> None:
+    from launcher.branding import ASSISTANT_NAME, BRAND_NAME
+
+    if BRAND_NAME != "Virtus Core":
+        _fail("BRAND_NAME", BRAND_NAME)
+    if ASSISTANT_NAME != "Vector":
+        _fail("ASSISTANT_NAME", ASSISTANT_NAME)
+    _ok(f"launcher brand ({BRAND_NAME} · {ASSISTANT_NAME})")
+
+
+def check_tauri_title() -> None:
+    conf = ROOT / "client" / "desktop" / "src-tauri" / "tauri.conf.json"
+    if not conf.is_file():
+        print("  WARN tauri.conf.json missing — skip Tauri title check")
+        return
+    text = conf.read_text(encoding="utf-8")
+    if '"title": "Virtus Core"' not in text or '"productName": "Virtus Core"' not in text:
+        _fail("Tauri desktop title", "expected Virtus Core in tauri.conf.json")
+    _ok("Tauri desktop title (Virtus Core)")
+
+
+def check_desktop_ui_title() -> None:
+    index = ROOT / "client" / "desktop" / "index.html"
+    if not index.is_file():
+        print("  WARN client/desktop/index.html missing")
+        return
+    if "<title>Virtus Core</title>" not in index.read_text(encoding="utf-8"):
+        _fail("desktop index.html title", "expected Virtus Core")
+    _ok("Tauri web shell title (Virtus Core)")
 
 
 def check_launcher_window() -> None:
@@ -123,9 +154,12 @@ def check_exe_built() -> None:
 
 
 def main() -> None:
-    print("Genesis release verification")
+    print("Virtus Core release verification")
     print("=" * 40)
     check_imports()
+    check_brand_constants()
+    check_tauri_title()
+    check_desktop_ui_title()
     check_launcher_window()
     check_backend_api()
     check_pytest()

@@ -11,6 +11,7 @@ from xml.sax.saxutils import escape
 
 import httpx
 
+from app.integration.genesis_brain.public_brand import ASSISTANT_NAME
 from app.integration.genesis_tts.types import TtsResult
 from app.integration.genesis_tts.voice_profile import (
     AZURE_TTS_VOICE,
@@ -88,7 +89,7 @@ class OpenAITtsProvider(TtsProvider):
             audio=audio,
             provider_id=self.provider_id,
             content_type="audio/mpeg",
-            voice_label=f"Genesis ({OPENAI_TTS_VOICE})",
+            voice_label=f"{ASSISTANT_NAME} ({OPENAI_TTS_VOICE})",
         )
 
 
@@ -133,7 +134,7 @@ class ElevenLabsTtsProvider(TtsProvider):
             audio=audio,
             provider_id=self.provider_id,
             content_type="audio/mpeg",
-            voice_label="Genesis (ElevenLabs)",
+            voice_label=f"{ASSISTANT_NAME} (ElevenLabs)",
         )
 
 
@@ -177,7 +178,7 @@ class GoogleTtsProvider(TtsProvider):
             audio=audio,
             provider_id=self.provider_id,
             content_type="audio/mpeg",
-            voice_label=f"Genesis ({GOOGLE_TTS_VOICE})",
+            voice_label=f"{ASSISTANT_NAME} ({GOOGLE_TTS_VOICE})",
         )
 
 
@@ -222,7 +223,7 @@ class AzureTtsProvider(TtsProvider):
             audio=audio,
             provider_id=self.provider_id,
             content_type="audio/mpeg",
-            voice_label=f"Genesis ({self._voice})",
+            voice_label=f"{ASSISTANT_NAME} ({self._voice})",
         )
 
 

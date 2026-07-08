@@ -184,7 +184,7 @@ def check_dependencies(root: Path | None = None) -> DepStatus:
 
     frontend_deps_ok = frontend_deps_ready(root)
     if node_ok and not frontend_deps_ok:
-        issues.append("Mission Control ещё не установлен — Genesis установит автоматически")
+        issues.append("Mission Control ещё не установлен — Virtus Core установит автоматически")
 
     return DepStatus(
         python_ok=python_ok,
@@ -233,7 +233,7 @@ def ensure_frontend_ready(
         return (
             False,
             "Node.js не найден.\n\n"
-            "Нажмите «Запустить» в Genesis — откроется окно с автоматической установкой.",
+            "Нажмите «Запустить» в Virtus Core — откроется окно с автоматической установкой.",
         )
 
     if not frontend_deps_ready(root):
@@ -314,7 +314,7 @@ def install_frontend_deps(root: Path | None = None) -> tuple[bool, str]:
     deps = check_dependencies(root)
     npm_cmd = deps.npm_cmd or find_npm()
     if not npm_cmd:
-        return False, "Node.js / npm не найдены. Запустите Genesis — установка в один клик."
+        return False, "Node.js / npm не найдены. Запустите Virtus Core — установка в один клик."
     fe = frontend_dir(root)
     if not (fe / "package.json").exists():
         return False, "package.json не найден в dashboard/frontend"

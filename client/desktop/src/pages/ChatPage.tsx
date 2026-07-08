@@ -18,6 +18,7 @@ import {
   type ChatMessage,
 } from "../lib/chatStore";
 import { copyText, MessageBody } from "../lib/markdown";
+import { ASSISTANT_NAME } from "../lib/publicBrand";
 
 function ChatBubble({ message }: { message: ChatMessage }) {
   const [copied, setCopied] = useState(false);
@@ -34,7 +35,7 @@ function ChatBubble({ message }: { message: ChatMessage }) {
     <div className={`chat__row chat__row--${message.role}`}>
       <div className={`chat__bubble chat__bubble--${message.role}`}>
         <div className="chat__meta">
-          <span>{message.role === "user" ? "You" : "Genesis"}</span>
+          <span>{message.role === "user" ? "You" : ASSISTANT_NAME}</span>
           <time>{message.at}</time>
         </div>
         {message.role === "assistant" ? (
@@ -228,7 +229,7 @@ export function ChatPage() {
           ) : (
             visible.map((m) => <ChatBubble key={m.id} message={m} />)
           )}
-          {sending ? <p className="chat__typing">Genesis думает…</p> : null}
+          {sending ? <p className="chat__typing">{ASSISTANT_NAME} думает…</p> : null}
           <div ref={endRef} />
         </div>
 

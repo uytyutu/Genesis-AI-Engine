@@ -22,13 +22,59 @@ def test_check_services_fast_no_slow_system_check(monkeypatch):
 
 
 def test_start_backend_skips_when_status_up(monkeypatch):
-    from launcher.processes import ManagedProcesses, start_backend
+    from launcher.processes import start_backend
 
-    monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
+    monkeypatch.setattr(
+        "launcher.backend_identity.fetch_backend_status",
+        lambda timeout=8.0: {
+            "runtime_identity": "genesis-backend-v1",
+            "git_commit": "abc",
+            "uptime_sec": 10,
+        },
+    )
+    monkeypatch.setattr(
+        "launcher.backend_identity.backend_runtime_compatible",
+        lambda root, status: (True, "ok"),
+    )
     ok, msg, proc = start_backend()
     assert ok
     assert proc is None
-    assert "уже работает" in msg.lower() or "api/status" in msg.lower()
+    assert "актуальная" in msg.lower() or "версия" in msg.lower()
+
+
+def test_start_backend_restarts_when_stale(monkeypatch):
+    from launcher.processes import start_backend
+
+    calls: list[str] = []
+
+    monkeypatch.setattr(
+        "launcher.backend_identity.fetch_backend_status",
+        lambda timeout=8.0: {"runtime_identity": "old", "git_commit": "dead", "uptime_sec": 10},
+    )
+    monkeypatch.setattr(
+        "launcher.backend_identity.backend_runtime_compatible",
+        lambda root, status: (False, "git mismatch"),
+    )
+    monkeypatch.setattr("launcher.backend_identity.stop_backend_listeners", lambda root=None: ["python:1"])
+    monkeypatch.setattr("launcher.deps.find_python", lambda: "py")
+    monkeypatch.setattr("launcher.backend_repair.prepare_backend_port", lambda root=None: (True, "port ok"))
+    monkeypatch.setattr("launcher.processes.backend_dir", lambda root=None: __import__("pathlib").Path("."))
+    monkeypatch.setattr("launcher.processes.log_dir", lambda root=None: __import__("pathlib").Path("."))
+
+    class FakePopen:
+        pid = 4242
+
+        def __init__(self, *a, **k):
+            calls.append("started")
+
+    monkeypatch.setattr("launcher.processes.subprocess.Popen", FakePopen)
+    monkeypatch.setattr("builtins.open", lambda *a, **k: __import__("io").StringIO())
+
+    ok, msg, proc = start_backend()
+    assert ok
+    assert proc is not None
+    assert proc.pid == 4242
+    assert calls == ["started"]
 
 
 def test_start_frontend_skips_when_port_up(monkeypatch):

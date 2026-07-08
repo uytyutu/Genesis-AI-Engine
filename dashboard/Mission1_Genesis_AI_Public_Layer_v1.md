@@ -1,92 +1,56 @@
-# Mission 1 — Genesis AI Public Layer v1
+# Mission 1 — Vector Public Layer v1
 
 **Type:** Product · **NOT** governance  
-**Date:** 2026-07-05  
-**Status:** Implemented (text) · Voice = same layer later
+**Date:** 2026-07-05 · **Updated:** 2026-07-08  
+**Status:** ✅ Shipped — `/site` + `GenesisConcierge` · Voice on same layer
 
 ---
 
 ## Objective
 
-Visitors on `/site` must feel they talk to **Genesis itself** — like ChatGPT — not a FAQ widget or order form.
+Visitors on `/site` talk to **Vector** (assistant of **Virtus Core**) — like ChatGPT — not a FAQ widget.
 
-**Not a chatbot.** **Genesis AI** — conversational intelligence that knows products, prices, limits, and guides decisions.
+**Not a chatbot.** Public AI — conversational intelligence for products, prices, limits, decisions.
 
 ---
 
-## Architecture (text + future voice)
+## Architecture
 
 ```
-Visitor text          Visitor voice (future)
-      ↓                        ↓
-      └──────────┬─────────────┘
+Visitor text          Visitor voice
+      ↓                      ↓
+      └──────────┬───────────┘
                  ↓
-          GenesisAIService          ← single intelligence
+          GenesisAIService          ← single intelligence (internal name)
                  ↓
     ┌────────────┴────────────┐
     ↓                         ↓
- LlmChatProvider         Rules fallback
- (OpenAI-compatible)    (offline / no key)
-    ↓
- genesis_ai_knowledge.py   (system prompt: products, prices, policies)
+ Workforce / LLM           Rules fallback
+                 ↓
+ public_brand.py + personality layers
 ```
 
-**One brain, two channels.** Voice adds STT → same `GenesisAIService` → TTS. No second assistant.
+**One brain, two channels.** Voice: STT → same service → TTS.
 
 ---
 
-## API
+## API (unchanged paths)
 
 | Endpoint | Purpose |
 |----------|---------|
-| `POST /api/public/genesis-ai` | Chat (alias: `/api/public/concierge`) |
+| `POST /api/public/genesis-ai` | Chat |
 | `GET /api/public/genesis-ai/status` | `llm_configured`, `mode` |
+| `GET /api/public/genesis-ai/greeting` | Personalized welcome |
 
-**Request:** `question`, `history[]`, optional `context`  
-**Response:** `answer`, `mode` (`llm` \| `rules`), optional `cta_href` after client agrees
-
----
-
-## Modes
-
-| Mode | When | Visitor sees |
-|------|------|--------------|
-| **llm** | `GENESIS_LLM_API_KEY` or `OPENAI_API_KEY` in `dashboard/backend/.env` | Natural Genesis dialogue |
-| **rules** | No key / LLM error | Structured fallback (dev only) |
-
-### Mission 1 gate — BLOCKING
-
-```
-AI Conversation .... FAIL until llm_configured: true
-```
-
-Public release **not recommended** while status returns `"llm_configured": false`.
-
-**Setup (CEO, ~2 min):**
-
-1. Copy `dashboard/backend/.env.example` → `dashboard/backend/.env`
-2. Set `GENESIS_LLM_API_KEY=sk-...`
-3. Restart backend
-4. Verify: `GET /api/public/genesis-ai/status` → `"llm_configured": true`
-
-Visitors never see model name, provider, or mode — only **Genesis**.
-
----
-
-## Configuration
-
-```env
-GENESIS_LLM_API_KEY=sk-...
-GENESIS_LLM_MODEL=gpt-4o-mini
-GENESIS_LLM_BASE_URL=https://api.openai.com/v1   # optional
-```
+Visitors see **Vector / Virtus Core** — never internal `Genesis` branding.
 
 ---
 
 ## UI
 
-Component: `GenesisConcierge.tsx` (export `GenesisAI`) — branded **Genesis AI** on `/site`.
+- `GenesisConcierge.tsx` on `/site` — public brand via `publicBrand.ts`
+- Mission Control `/ai` — owner scope, same component
 
 ---
 
-*Sales rules: `Mission1_Autonomous_Sales_Experience_v1.md` · Dogfooding: `Mission1_Dogfooding_Guide.md`*
+*Sales rules: `Mission1_Autonomous_Sales_Experience_v1.md`*

@@ -17,7 +17,7 @@ EmployeeStatus = Literal["ready", "not_connected", "offline"]
 SETUP_EMPLOYEES: tuple[dict[str, Any], ...] = (
     {
         "id": "genesis-local",
-        "label": "Genesis Local",
+        "label": "Virtus Local",
         "premium": False,
         "core": True,
         "tier": "core",
@@ -99,7 +99,7 @@ class WorkforceSetupService:
             "allowed_models": sorted(_OPENAI_MODELS),
             "connectable": sorted(CONNECTABLE),
             "setup_once_hint": (
-                "Подключите Groq, Gemini, OpenRouter один раз — Genesis Director сам переключается при лимитах."
+                "Подключите Groq, Gemini, OpenRouter один раз — Virtus Director сам переключается при лимитах."
             ),
         }
 
@@ -190,7 +190,7 @@ class WorkforceSetupService:
 
         st = self.status()
         label = next((e["label"] for e in SETUP_EMPLOYEES if e["id"] == pid), pid)
-        logger.info("Genesis Workforce: %s connected via setup v2", pid)
+        logger.info("Virtus Workforce: %s connected via setup v2", pid)
         return {
             "ok": True,
             "provider": pid,
@@ -199,7 +199,7 @@ class WorkforceSetupService:
             "employees": st["employees"],
             "mode": "genesis",
             "model": model or _DEFAULT_MODELS.get(pid),
-            "message": f"{label} подключён — Genesis Workforce может использовать этого сотрудника.",
+            "message": f"{label} подключён — Virtus Workforce может использовать этого сотрудника.",
             "env_file": self._secrets.env_file_label(),
         }
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GenesisMark } from "./GenesisMark";
+import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
 
 const ceoLinks = [
   { href: "/company", label: "Компания" },
@@ -26,8 +27,8 @@ export function Nav() {
       <Link href="/company" className="flex items-center gap-3">
         <GenesisMark className="h-9 w-9 shrink-0 shadow-glow" />
         <div>
-          <p className="text-sm font-semibold tracking-tight">Genesis Company</p>
-          <p className="text-[10px] text-genesis-muted sm:text-[11px]">Центр управления</p>
+          <p className="text-sm font-semibold tracking-tight">{BRAND_NAME}</p>
+          <p className="text-[10px] text-genesis-muted sm:text-[11px]">{ASSISTANT_NAME} · Центр управления</p>
         </div>
       </Link>
       <nav className="-mx-1 flex gap-1 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">

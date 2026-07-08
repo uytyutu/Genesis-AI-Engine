@@ -15,6 +15,12 @@ from app.integration.genesis_brain.conversation_rhythm import compact_for_turn
 from app.integration.genesis_brain.layers.conversation_style import (
     ConversationStyleEngine,
 )
+from app.integration.genesis_brain.public_brand import (
+    ASSISTANT_NAME,
+    BRAND_NAME,
+    STUDIO_NAME,
+    scrub_public_brand_text,
+)
 from app.integration.genesis_brain.layers.curiosity import CuriosityLayer
 from app.integration.genesis_brain.layers.emotional_intelligence import (
     EmotionalIntelligenceLayer,
@@ -40,7 +46,7 @@ _TY_RE = re.compile(r"\bты\b", re.I)
 
 @dataclass(frozen=True)
 class PublicProfile:
-    name: str = "Genesis"
+    name: str = ASSISTANT_NAME
 
 
 class GenesisPersonalityLayer:
@@ -62,9 +68,10 @@ class GenesisPersonalityLayer:
         return self._public_block()
 
     def _public_block(self) -> str:
-        return """# Genesis Public Personality — Character
+        return f"""# {ASSISTANT_NAME} — Public Personality
 
-Ты — **Genesis**, цифровой собеседник с **характером**. Не ChatGPT. Не анкета. Не менеджер.
+Ты — **{ASSISTANT_NAME}**, интеллектуальный помощник **{BRAND_NAME}**. Не ChatGPT. Не анкета. Не менеджер.
+Никогда не называй себя Genesis — это внутреннее имя движка, не для пользователя.
 
 ## Характер (всегда)
 - **Спокойный** — не суетишься, не давишь
@@ -94,9 +101,9 @@ class GenesisPersonalityLayer:
 - Если человек сказал **«нет»** — признать ошибку, не «уточните, пожалуйста»"""
 
     def _ceo_block(self) -> str:
-        return """# Genesis CEO Personality (только владелец)
+        return f"""# {ASSISTANT_NAME} — CEO mode (только владелец)
 
-Ты — **Genesis CEO**, исполнительный директор AI-компании. Не помощник. Партнёр по бизнесу.
+Ты — **{ASSISTANT_NAME}**, исполнительный партнёр владельца на платформе **{BRAND_NAME}**. Не пассивный помощник.
 
 ## Обязательно
 - Кратко: факты → вывод → предложение действия
@@ -116,7 +123,7 @@ class GenesisPersonalityLayer:
     ) -> str:
         parts = [self.personality_block(), ""]
         if knowledge_block.strip():
-            parts.extend(["## Знания Genesis", knowledge_block.strip(), ""])
+            parts.extend([f"## Знания {BRAND_NAME}", knowledge_block.strip(), ""])
         if memory_block.strip():
             parts.extend(["## Память", memory_block.strip(), ""])
         hints = " ".join(h for h in (reasoning_hint, emotional_hint) if h.strip())
@@ -252,15 +259,21 @@ class GenesisPersonalityLayer:
     def _clean_vendor(self, text: str) -> str:
         out = (text or "").strip()
         for pat in _VENDOR_PATTERNS:
-            out = pat.sub("Genesis", out)
-        out = re.sub(r"\bChatGPT\b", "Genesis", out, flags=re.I)
-        out = re.sub(r"\bClaude\b", "Genesis", out, flags=re.I)
-        out = re.sub(r"\bGPT-4[o]?\b", "Genesis", out, flags=re.I)
-        return out.strip()
+            out = pat.sub(ASSISTANT_NAME, out)
+        out = re.sub(r"\bChatGPT\b", ASSISTANT_NAME, out, flags=re.I)
+        out = re.sub(r"\bClaude\b", ASSISTANT_NAME, out, flags=re.I)
+        out = re.sub(r"\bGPT-4[o]?\b", ASSISTANT_NAME, out, flags=re.I)
+        return scrub_public_brand_text(out)
 
     def _suppress_repeat_intro(self, text: str) -> str:
-        """After first turn — never re-introduce Genesis or ask 'tell me your task'."""
+        """After first turn — never re-introduce assistant or ask 'tell me your task'."""
         out = text.strip()
+        out = re.sub(
+            rf"Я\s*[—\-]\s*\*?\*?{re.escape(ASSISTANT_NAME)}\*?\*?[.!]?\s*",
+            "",
+            out,
+            flags=re.I,
+        )
         out = re.sub(
             r"Я\s*[—\-]\s*\*?\*?Genesis\*?\*?[.!]?\s*",
             "",

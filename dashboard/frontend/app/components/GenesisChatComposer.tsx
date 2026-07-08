@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, type KeyboardEvent, type MouseEvent } from "react";
+import { ASSISTANT_NAME } from "../lib/publicBrand";
 import { VoiceOrb } from "./VoiceOrb";
 
 export type PendingAttachment = {
@@ -137,7 +138,7 @@ export function GenesisChatComposer({
   onCancelMicPermission,
   onOpenVoiceSettings,
   voiceSettingsOpen = false,
-  placeholder = "Сообщение для Genesis…",
+  placeholder = `Сообщение для ${ASSISTANT_NAME}…`,
   floating = false,
   inputId = "genesis-chat-input",
 }: Props) {
@@ -176,7 +177,7 @@ export function GenesisChatComposer({
       <div className="px-4 pb-4">
         <div className="rounded-3xl border border-genesis-accent/30 bg-genesis-panel/95 p-6 text-center shadow-glow backdrop-blur-xl">
           <VoiceOrb mode="idle" />
-          <p className="mt-2 text-sm font-medium text-white">Голосовой разговор с Genesis</p>
+          <p className="mt-2 text-sm font-medium text-white">Голосовой разговор с {ASSISTANT_NAME}</p>
           <p className="mt-2 text-sm leading-relaxed text-genesis-muted">
             Нажмите кнопку ниже — браузер спросит разрешение один раз.
           </p>

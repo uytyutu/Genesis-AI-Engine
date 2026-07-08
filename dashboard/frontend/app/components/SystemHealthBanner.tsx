@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { BRAND_NAME } from "../lib/publicBrand";
 import { GenesisCard } from "./GenesisCard";
 import { useToast } from "./ToastProvider";
 
@@ -24,14 +25,14 @@ type SystemCheck = {
 
 const FIX_HINTS: Record<string, { text: string; href?: string }> = {
   backend: {
-    text: "Запустите Genesis через Launcher (кнопка «Запустить»).",
+    text: "Запустите Virtus Core через Launcher (кнопка «Запустить»).",
   },
   frontend: {
-    text: "Перезапустите Genesis. Если ошибка в CSS — проверьте app/globals.css и frontend.log.",
+    text: "Перезапустите Virtus Core. Если ошибка в CSS — проверьте app/globals.css и frontend.log.",
     href: "/check",
   },
   api: {
-    text: "Backend запущен частично — перезапустите Genesis и проверьте backend.log.",
+    text: `Backend запущен частично — перезапустите ${BRAND_NAME} и проверьте backend.log.`,
     href: "/check",
   },
   payment_hub: {
@@ -39,7 +40,7 @@ const FIX_HINTS: Record<string, { text: string; href?: string }> = {
     href: "/finance",
   },
   storage: {
-    text: "Проверьте права на папку memory/ в каталоге Genesis.",
+    text: "Проверьте права на папку memory/ в каталоге Virtus Core.",
   },
   ai_models: {
     text: "Внешние модели подключаются по мере готовности — не блокирует работу.",
@@ -71,7 +72,7 @@ export function SystemHealthBanner() {
             label: "Backend",
             icon: "✘",
             state: "error",
-            message: "Запустите Genesis через Launcher",
+            message: "Запустите Virtus Core через Launcher",
           },
         ],
         warnings: [],

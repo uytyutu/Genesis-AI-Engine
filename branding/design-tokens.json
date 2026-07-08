@@ -1,0 +1,41 @@
+{
+  "brand": {
+    "company": "Virtus Core",
+    "assistant": "Vector",
+    "signature": "by Virtus Core",
+    "tagline": "Intelligent AI Assistant",
+    "internalEngine": "Genesis"
+  },
+  "color": {
+    "void": "#050508",
+    "surface": "#0E0E14",
+    "elevated": "#16161F",
+    "panel": "#111118",
+    "border": "#252530",
+    "borderSubtle": "#1C1C26",
+    "text": "#ECECF1",
+    "muted": "#8B8B9A",
+    "accent": "#7C8FD4",
+    "accentHover": "#6B7EC4",
+    "platinum": "#D4D4DC",
+    "success": "#34D399",
+    "warning": "#FBBF24",
+    "danger": "#FB7185"
+  },
+  "radius": {
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "pill": 9999
+  },
+  "shadow": {
+    "glow": "0 0 40px rgba(124, 143, 212, 0.18)",
+    "card": "0 12px 40px rgba(0, 0, 0, 0.35)"
+  },
+  "typography": {
+    "display": "\"Segoe UI Variable\", \"SF Pro Display\", \"Helvetica Neue\", system-ui, sans-serif",
+    "body": "\"Segoe UI Variable\", \"SF Pro Text\", system-ui, sans-serif",
+    "mono": "\"Cascadia Code\", \"SF Mono\", Consolas, monospace"
+  }
+}

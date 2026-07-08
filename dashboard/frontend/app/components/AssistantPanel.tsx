@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -15,7 +16,7 @@ export function AssistantPanel({ embedded = false }: { embedded?: boolean }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      text: "Я помощник Genesis. Спросите о статусе, задачах или следующих шагах.",
+      text: `Я ${ASSISTANT_NAME}, помощник ${BRAND_NAME}. Спросите о статусе, задачах или следующих шагах.`,
     },
   ]);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -45,7 +46,7 @@ export function AssistantPanel({ embedded = false }: { embedded?: boolean }) {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: "Не могу связаться с Genesis. Запустите Launcher." },
+        { role: "assistant", text: "Не могу связаться с Virtus Core. Запустите Launcher." },
       ]);
     } finally {
       setBusy(false);
@@ -59,7 +60,7 @@ export function AssistantPanel({ embedded = false }: { embedded?: boolean }) {
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-50 rounded-full border border-genesis-accent bg-genesis-panel px-5 py-3 text-sm font-medium shadow-lg hover:bg-genesis-accent/20"
       >
-        💬 Помощник Genesis
+        💬 {ASSISTANT_NAME}
       </button>
     );
   }
@@ -72,7 +73,7 @@ export function AssistantPanel({ embedded = false }: { embedded?: boolean }) {
     >
       <div className="flex items-center justify-between border-b border-genesis-border px-4 py-3">
         <div>
-          <p className="text-sm font-semibold">Помощник Genesis</p>
+          <p className="text-sm font-semibold">{ASSISTANT_NAME}</p>
           <p className="text-xs text-genesis-muted">не ChatGPT — знает вашу систему</p>
         </div>
         {!embedded && (
@@ -126,7 +127,7 @@ export function AssistantPanel({ embedded = false }: { embedded?: boolean }) {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Спросите Genesis…"
+            placeholder={`Спросите ${ASSISTANT_NAME}…`}
             className="flex-1 rounded-lg border border-genesis-border bg-genesis-bg px-3 py-2 text-sm outline-none focus:border-genesis-accent"
           />
           <button

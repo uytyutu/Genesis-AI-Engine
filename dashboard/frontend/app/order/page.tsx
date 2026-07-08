@@ -199,7 +199,7 @@ export default function OrderSitePage() {
         <OrderSteps current={1} />
         <div className="mb-8 text-center animate-fade-up">
           <Badge variant="accent" className="tracking-[0.2em]">
-            Genesis
+            Virtus Core
           </Badge>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Заказать сайт</h1>
           <p className="mt-2 text-genesis-muted">

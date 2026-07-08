@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from launcher.branding import BRAND_NAME
 from launcher.api_client import fetch_mission_control
 from launcher.deps import check_dependencies
 from launcher.health import ServiceHealth, check_services_fast, sync_with_mission_control
@@ -46,14 +47,14 @@ def gather_status(
     hints: list[str] = []
     show_install = False
     if not deps.node_ok:
-        hints.append("Нажмите «Запустить» — Genesis установит Node.js автоматически")
+        hints.append("Нажмите «Запустить» — Virtus Core установит Node.js автоматически")
     elif not deps.frontend_deps_ok:
         hints.append("Mission Control не установлен — нажмите фиолетовую кнопку или «Запустить»")
         show_install = True
     if not deps.python_ok:
-        hints.append("Нажмите «Запустить» — Genesis установит Python автоматически")
+        hints.append("Нажмите «Запустить» — Virtus Core установит Python автоматически")
     if deps.node_ok and deps.frontend_deps_ok:
-        hints.append("Закройте пульт — Genesis останется работать 24/7")
+        hints.append(f"Закройте пульт — {BRAND_NAME} останется работать 24/7")
 
     return StatusSnapshot(
         health=health,

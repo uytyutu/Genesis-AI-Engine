@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from launcher.branding import ico_path
+from launcher.branding import BRAND_NAME, ico_path
 from launcher.log_util import append_log
 from launcher import paths
 
@@ -46,7 +46,7 @@ def _shortcut_path() -> Path:
         import os
 
         desktop = Path(os.environ.get("USERPROFILE", str(Path.home()))) / "Desktop"
-    return desktop / "Genesis.lnk"
+    return desktop / "Virtus Core.lnk"
 
 
 def _identity_stamp(root: Path) -> str:
@@ -121,7 +121,7 @@ $Wsh = New-Object -ComObject WScript.Shell
 $Shortcut = $Wsh.CreateShortcut('{sc_s}')
 $Shortcut.TargetPath = '{exe_s}'
 $Shortcut.WorkingDirectory = '{root_s}'
-$Shortcut.Description = 'Genesis Company OS'
+$Shortcut.Description = 'Virtus Core — Vector Intelligent AI Assistant'
 $Shortcut.IconLocation = '{exe_s},0'
 $Shortcut.Save()
 Write-Output 'ok'
@@ -175,7 +175,7 @@ def ensure_desktop_identity(
     root = root or paths.find_project_root()
     exe = _exe_path(root)
     if exe is None or not exe.is_file():
-        return IdentityResult(False, "Genesis.exe не найден — пересоберите launcher\\build.ps1")
+        return IdentityResult(False, f"{BRAND_NAME} не найден — пересоберите launcher\\build.ps1")
 
     ok, msg = _create_shortcut_ps(root, exe)
     if not ok:

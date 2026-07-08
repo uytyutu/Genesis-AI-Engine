@@ -704,7 +704,7 @@ def genesis_ai_status() -> dict:
     load_local_env()
     st = GenesisAISetupService().status()
     payload = {
-        "name": "Genesis AI",
+        "name": "Vector",
         "genesis_ready": st["genesis_ready"],
         "workforce_tier": st["workforce_tier"],
         "workforce": {

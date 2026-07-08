@@ -20,7 +20,7 @@ export class GenesisChatErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       return (
         <div className="rounded-2xl border border-rose-500/30 bg-genesis-panel p-6 text-sm">
-          <p className="font-semibold text-rose-300">Не удалось загрузить чат Genesis</p>
+          <p className="font-semibold text-rose-300">Не удалось загрузить чат Vector</p>
           <p className="mt-2 text-genesis-muted">
             Обновите страницу. Если ошибка повторяется — перезапустите frontend (
             <code className="text-xs">npm run dev</code>).

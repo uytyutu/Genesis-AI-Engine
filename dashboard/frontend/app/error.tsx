@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { GenesisStatusPage } from "./components/GenesisStatusPage";
+import { BRAND_NAME } from "./lib/publicBrand";
 import { ButtonLink } from "./components/ui";
 
 export default function Error({
@@ -19,7 +20,7 @@ export default function Error({
     <GenesisStatusPage
       code="500"
       title="Что-то пошло не так"
-      description="Genesis не смог загрузить эту страницу. Остановите и запустите Genesis с рабочего стола — или нажмите «Повторить»."
+      description={`${BRAND_NAME} не смог загрузить эту страницу. Остановите и запустите приложение с рабочего стола — или нажмите «Повторить».`}
       onRetry={reset}
       actions={
         <>

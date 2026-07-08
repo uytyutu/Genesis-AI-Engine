@@ -12,6 +12,9 @@ import customtkinter as ctk
 
 from launcher import build_info
 from launcher.branding import (
+  ASSISTANT_NAME,
+  BRAND_NAME,
+  BRAND_SIGNATURE,
   GENESIS_ACCENT,
   GENESIS_ACCENT_HOVER,
   GENESIS_AMBER,
@@ -103,7 +106,7 @@ class SettingsDialog(ctk.CTkToplevel):
 class LogDialog(ctk.CTkToplevel):
   def __init__(self, master: "GenesisLauncher") -> None:
     super().__init__(master)
-    self.title("Журнал Genesis")
+    self.title(f"Журнал {BRAND_NAME}")
     self.geometry("640x420")
     text = ctk.CTkTextbox(self, width=600, height=360)
     text.pack(padx=16, pady=16)
@@ -123,13 +126,13 @@ class LogDialog(ctk.CTkToplevel):
 class FrontendErrorDialog(ctk.CTkToplevel):
   def __init__(self, master: "GenesisLauncher", message: str, project_root) -> None:
     super().__init__(master)
-    self.title("Genesis — ошибка Frontend")
+    self.title(f"{BRAND_NAME} — ошибка Frontend")
     self.geometry("560x480")
     self.grab_set()
 
     ctk.CTkLabel(
       self,
-      text="Genesis не запустился",
+      text=f"{BRAND_NAME} не запустился",
       font=ctk.CTkFont(size=16, weight="bold"),
       text_color="#f87171",
     ).pack(pady=(16, 8))
@@ -147,7 +150,7 @@ class FrontendErrorDialog(ctk.CTkToplevel):
       if log_path.exists():
         os.startfile(str(log_path))  # type: ignore[attr-defined]
       else:
-        messagebox.showinfo("Genesis", f"Файл не найден:\n{log_path}")
+        messagebox.showinfo(BRAND_NAME, f"Файл не найден:\n{log_path}")
 
     ctk.CTkButton(
       actions,
@@ -163,13 +166,13 @@ class BootFailureDialog(ctk.CTkToplevel):
   def __init__(self, master: "GenesisLauncher", result: BootResult) -> None:
     super().__init__(master)
     self.result = result
-    self.title("Genesis — не удалось запуститься")
+    self.title(f"{BRAND_NAME} — не удалось запуститься")
     self.geometry("560x520")
     self.grab_set()
 
     ctk.CTkLabel(
       self,
-      text="Genesis не смог открыть рабочее пространство",
+      text=f"{BRAND_NAME} не смог открыть рабочее пространство",
       font=ctk.CTkFont(size=16, weight="bold"),
       text_color="#f87171",
     ).pack(pady=(16, 8))
@@ -207,7 +210,7 @@ def _show_error(master: "GenesisLauncher", message: str) -> None:
 class GenesisLauncher(ctk.CTk):
   def __init__(self) -> None:
     super().__init__()
-    self.title("Genesis")
+    self.title(f"{ASSISTANT_NAME} · {BRAND_NAME}")
     self.geometry("460x780")
     self.minsize(420, 720)
     self.configure(fg_color=GENESIS_BG)
@@ -242,7 +245,7 @@ class GenesisLauncher(ctk.CTk):
     if not self.config.first_run_complete:
       self.after(300, lambda: OnboardingWizard(self, self.config))
 
-    append_log("Genesis OS opened")
+    append_log(f"{BRAND_NAME} — пульт открыт")
     record_launcher_open(root=self._project_root)
 
   def _build_ui(self) -> None:
@@ -264,13 +267,13 @@ class GenesisLauncher(ctk.CTk):
     brand_text.pack(side="left", padx=(12, 0))
     ctk.CTkLabel(
       brand_text,
-      text="Genesis",
+      text=ASSISTANT_NAME,
       font=ctk.CTkFont(size=26, weight="bold"),
       text_color=GENESIS_TEXT,
     ).pack(anchor="w")
     ctk.CTkLabel(
       brand_text,
-      text="Company OS",
+      text=BRAND_SIGNATURE,
       font=ctk.CTkFont(size=11),
       text_color=GENESIS_MUTED,
     ).pack(anchor="w")
@@ -285,7 +288,7 @@ class GenesisLauncher(ctk.CTk):
 
     self.status_label = ctk.CTkLabel(
       self,
-      text="⚪ Genesis остановлен",
+      text=f"⚪ {BRAND_NAME} остановлен",
       font=ctk.CTkFont(size=18, weight="bold"),
       text_color=GENESIS_MUTED,
     )
@@ -395,7 +398,7 @@ class GenesisLauncher(ctk.CTk):
 
     ctk.CTkButton(
       secondary,
-      text="Открыть Genesis",
+      text=f"Открыть {BRAND_NAME}",
       height=38,
       fg_color=GENESIS_ELEVATED,
       hover_color=GENESIS_PANEL,
@@ -427,7 +430,7 @@ class GenesisLauncher(ctk.CTk):
 
     ctk.CTkLabel(
       self,
-      text=f"Genesis · {build_info.BUILD_ID}",
+      text=f"{ASSISTANT_NAME} {BRAND_SIGNATURE} · {build_info.BUILD_ID}",
       text_color="#52525b",
       font=ctk.CTkFont(size=11),
     ).pack(side="bottom", pady=6)
@@ -454,9 +457,9 @@ class GenesisLauncher(ctk.CTk):
         "🤖 AI сотрудников:         —",
         "📄 Продуктов создано:      —",
         "👥 Потенциальных клиентов: —",
-        "⚙️ Система:                Запустите Genesis",
+        f"⚙️ Система:                Запустите {BRAND_NAME}",
       ]
-      self._set_textbox(self.overnight_box, "• Запустите Genesis для данных")
+      self._set_textbox(self.overnight_box, f"• Запустите {BRAND_NAME} для данных")
       self._set_textbox(self.decisions_box, "• —")
     else:
       journey = mc.get("first_customer_journey")
@@ -505,7 +508,7 @@ class GenesisLauncher(ctk.CTk):
       lbl.configure(text=line)
 
     if health_running and mc and mc.get("system_running"):
-      self.status_label.configure(text="✔ Genesis полностью готов", text_color="#22c55e")
+      self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
     elif mc and not mc.get("system_running"):
       self.status_label.configure(text="⚪ Остановлен", text_color="#9ca3af")
 
@@ -519,7 +522,7 @@ class GenesisLauncher(ctk.CTk):
     elif health.overall == "running":
       self._last_error = ""
       self.fix_btn.pack_forget()
-      self.hint_label.configure(text="Mission Control работает — можно закрыть пульт, Genesis останется в фоне")
+      self.hint_label.configure(text=f"Mission Control работает — можно закрыть пульт, {BRAND_NAME} останется в фоне")
     else:
       self.fix_btn.pack_forget()
 
@@ -619,7 +622,7 @@ class GenesisLauncher(ctk.CTk):
     if self.config.auto_start_on_open:
       self._trigger_runtime_boot()
     elif owner_ready_live():
-      self.status_label.configure(text="✔ Genesis готов", text_color="#22c55e")
+      self.status_label.configure(text=f"✔ {BRAND_NAME} готов", text_color="#22c55e")
 
   def _trigger_runtime_boot(self) -> None:
     """Mission 1: automatic Runtime Boot on open — CEO does not start processes."""
@@ -686,7 +689,7 @@ class GenesisLauncher(ctk.CTk):
         ok, err = self._open_mission_control()
         if ok:
           record_launch_success(session_id, started, root=self._project_root)
-          self.status_label.configure(text="✔ Genesis полностью готов", text_color="#22c55e")
+          self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
         else:
           record_launch_failure(session_id, started, root=self._project_root, error=err)
         self.refresh_status()
@@ -705,7 +708,7 @@ class GenesisLauncher(ctk.CTk):
     self._busy = True
     self._launch_attempted = True
     self._last_error = ""
-    self.status_label.configure(text="🟡 Подготовка Genesis...", text_color="#eab308")
+    self.status_label.configure(text=f"🟡 Подготовка {BRAND_NAME}...", text_color="#eab308")
     self.start_btn.configure(state="disabled")
 
     def work() -> None:
@@ -718,7 +721,7 @@ class GenesisLauncher(ctk.CTk):
           "build_frontend": "🟡 Mission Control — сборка...",
           "frontend": "🟡 Mission Control...",
         }
-        label = labels.get(phase, "🟡 Подготовка Genesis...")
+        label = labels.get(phase, f"🟡 Подготовка {BRAND_NAME}...")
         self.after(0, lambda: self.status_label.configure(text=label, text_color="#eab308"))
 
       result = run_runtime_boot(
@@ -740,7 +743,7 @@ class GenesisLauncher(ctk.CTk):
           self.fix_btn.pack_forget()
           record_launch_success(session_id, started, root=self._project_root)
           self._open_mission_control()
-          self.status_label.configure(text="✔ Genesis полностью готов", text_color="#22c55e")
+          self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
         else:
           self._last_error = result.error or result.message
           record_launch_failure(
@@ -767,13 +770,13 @@ class GenesisLauncher(ctk.CTk):
       self._last_error = ""
       self.fix_btn.pack_forget()
       self._open_mission_control()
-      self.status_label.configure(text="✔ Genesis полностью готов", text_color="#22c55e")
+      self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
       return
     self._busy = True
     self._last_error = ""
     self.fix_btn.configure(state="disabled")
     self.start_btn.configure(state="disabled")
-    self.status_label.configure(text="🟡 Исправление Genesis...", text_color="#eab308")
+    self.status_label.configure(text=f"🟡 Исправление {BRAND_NAME}...", text_color="#eab308")
 
     def work() -> None:
       from launcher.startup_stages import repair_staged
@@ -801,7 +804,7 @@ class GenesisLauncher(ctk.CTk):
           self._last_error = ""
           self.fix_btn.pack_forget()
           self._open_mission_control()
-          self.status_label.configure(text="🟢 Genesis готов к работе", text_color="#22c55e")
+          self.status_label.configure(text=f"🟢 {BRAND_NAME} готов к работе", text_color="#22c55e")
         else:
           self._last_error = err or msg
           self.fix_btn.pack(fill="x", pady=3, after=self.start_btn)
@@ -816,7 +819,7 @@ class GenesisLauncher(ctk.CTk):
     if self._busy:
       return
     if not messagebox.askyesno(
-      "Остановить Genesis",
+      f"Остановить {BRAND_NAME}",
       "Остановить Backend и Mission Control?\n\nДанные проекта сохранятся.",
     ):
       return
@@ -826,7 +829,7 @@ class GenesisLauncher(ctk.CTk):
 
     def work() -> None:
       stop_all(self.managed, root=self._project_root)
-      append_log("Genesis stopped by owner")
+      append_log(f"{BRAND_NAME} остановлен владельцем")
 
       def done() -> None:
         self._busy = False
@@ -834,7 +837,7 @@ class GenesisLauncher(ctk.CTk):
         self.start_btn.configure(state="normal")
         self._last_error = ""
         self.fix_btn.pack_forget()
-        self.status_label.configure(text="⚪ Genesis остановлен", text_color="#9ca3af")
+        self.status_label.configure(text="⚪ Virtus Core остановлен", text_color="#9ca3af")
         self.refresh_status()
 
       self.after(0, done)
@@ -858,9 +861,9 @@ class GenesisLauncher(ctk.CTk):
 
     if running and self.config.keep_running_on_close:
       keep = messagebox.askyesno(
-        "Genesis",
+        BRAND_NAME,
         "Закрыть пульт управления?\n\n"
-        "Да — Genesis продолжит работать 24/7 в фоне.\n"
+        f"Да — {BRAND_NAME} продолжит работать 24/7 в фоне.\n"
         "Нет — остановить Backend, Frontend и выйти.",
       )
       if keep:
@@ -868,14 +871,14 @@ class GenesisLauncher(ctk.CTk):
         from launcher.processes import _pid
 
         sync_state(_pid(self.managed.backend), _pid(self.managed.frontend), root=self._project_root)
-        append_log("Launcher closed — Genesis keeps running 24/7")
+        append_log(f"Пульт закрыт — {BRAND_NAME} работает 24/7 в фоне")
         self.destroy()
       else:
         stop_all(self.managed, root=self._project_root)
         self.destroy()
       return
 
-    if messagebox.askyesno("Выход", "Остановить Genesis и закрыть?"):
+    if messagebox.askyesno("Выход", f"Остановить {BRAND_NAME} и закрыть?"):
       stop_all(self.managed, root=self._project_root)
       self.destroy()
 
@@ -907,7 +910,7 @@ def main() -> None:
             )
         except OSError:
             pass
-        messagebox.showerror("Genesis", f"Не удалось запустить Genesis:\n\n{exc}")
+        messagebox.showerror(BRAND_NAME, f"Не удалось запустить {BRAND_NAME}:\n\n{exc}")
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import { GenesisConcierge } from "../components/GenesisConcierge";
 import { GenesisChatErrorBoundary } from "../components/GenesisChatErrorBoundary";
 import { FaqList } from "../components/FaqList";
 import { Card, ButtonLink } from "../components/ui";
+import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
 import {
   fetchPricingDisplay,
   type ServiceCatalogItem,
@@ -14,11 +15,11 @@ import {
 const FAQ = [
   {
     q: "Сколько ждать готовый сайт?",
-    a: "Обычно от нескольких дней — точный срок зависит от вашего проекта. Genesis назовёт его после короткого разговора.",
+    a: `Обычно от нескольких дней — точный срок зависит от вашего проекта. ${ASSISTANT_NAME} назовёт его после короткого разговора.`,
   },
   {
     q: "Нужно ли что-то техническое от меня?",
-    a: "Нет. Достаточно рассказать о задаче простыми словами — Genesis сделает остальное.",
+    a: `Нет. Достаточно рассказать о задаче простыми словами — ${ASSISTANT_NAME} сделает остальное.`,
   },
   {
     q: "Как происходит оплата?",
@@ -56,14 +57,15 @@ export function SitePage() {
           <details className="group mt-10 rounded-2xl border border-genesis-border-subtle bg-genesis-panel/40 open:bg-genesis-panel/60">
             <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold marker:content-none sm:px-6">
               <span className="flex items-center justify-between gap-2">
-                Кратко: что такое Genesis
+                Кратко: что такое {BRAND_NAME}
                 <span className="text-genesis-muted transition group-open:rotate-180">▼</span>
               </span>
             </summary>
             <div className="space-y-4 border-t border-genesis-border-subtle px-5 py-5 text-sm text-genesis-muted sm:px-6">
               <p>
-                <strong className="text-genesis-text">Genesis</strong> — цифровой интеллект:
-                поговорить, придумать идею, науку, бизнес — или создать сайт и автоматизацию.
+                <strong className="text-genesis-text">{BRAND_NAME}</strong> — платформа с ИИ-помощником{" "}
+                <strong className="text-genesis-text">{ASSISTANT_NAME}</strong>: поговорить, придумать идею,
+                науку, бизнес — или создать сайт и автоматизацию.
               </p>
               <button
                 type="button"
@@ -84,7 +86,7 @@ export function SitePage() {
             </summary>
             <div className="border-t border-genesis-border-subtle p-5 sm:p-6">
               <p className="mb-4 text-sm text-genesis-muted">
-                Genesis делает под ключ — сайты, боты, автоматизацию. Цены «от» — ориентир после разговора.
+                {BRAND_NAME} делает под ключ — сайты, боты, автоматизацию. Цены «от» — ориентир после разговора.
               </p>
               <div className="grid gap-3 sm:grid-cols-3">
                 {services.map((item, i) => (

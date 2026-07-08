@@ -49,7 +49,7 @@ export default function ProductPage() {
       }
     } catch {
       setProduct(null);
-      setLoadError("Не удалось связаться с Genesis.");
+      setLoadError("Не удалось связаться с Virtus Core.");
     }
   }, [productId]);
 
@@ -75,7 +75,7 @@ export default function ProductPage() {
         setFeedback("");
       }
     } catch {
-      setMessage("Не удалось связаться с Genesis.");
+      setMessage("Не удалось связаться с Virtus Core.");
     } finally {
       setBusy(false);
     }
@@ -94,7 +94,7 @@ export default function ProductPage() {
         setMessage("Одобрено — следующий шаг: подготовить к передаче клиенту.");
       }
     } catch {
-      setMessage("Не удалось связаться с Genesis.");
+      setMessage("Не удалось связаться с Virtus Core.");
     } finally {
       setBusy(false);
     }
@@ -113,7 +113,7 @@ export default function ProductPage() {
         setMessage("Готово к передаче — скачайте ZIP и отправьте клиенту.");
       }
     } catch {
-      setMessage("Не удалось связаться с Genesis.");
+      setMessage("Не удалось связаться с Virtus Core.");
     } finally {
       setBusy(false);
     }
@@ -132,7 +132,7 @@ export default function ProductPage() {
         setMessage("✔ Передано клиенту. Первый заказ завершён — зафиксируйте оплату вручную, если уже получили.");
       }
     } catch {
-      setMessage("Не удалось связаться с Genesis.");
+      setMessage("Не удалось связаться с Virtus Core.");
     } finally {
       setBusy(false);
     }
@@ -162,7 +162,7 @@ export default function ProductPage() {
         {loadError && (
           <p className="mt-4 text-sm">
             <Link href="/" className="text-genesis-accent hover:underline">
-              ← Genesis
+              ← Virtus Core
             </Link>
           </p>
         )}
@@ -323,7 +323,7 @@ export default function ProductPage() {
 
         <p className="text-center text-sm">
           <Link href="/" className="text-genesis-accent hover:underline">
-            ← Genesis
+            ← Virtus Core
           </Link>
         </p>
       </div>

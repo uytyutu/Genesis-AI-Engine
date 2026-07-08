@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { NavId } from "./Sidebar";
 import { loadChat, searchChat } from "../lib/chatStore";
 import { useI18n } from "../i18n/I18nProvider";
+import { ASSISTANT_NAME } from "../lib/publicBrand";
 
 export type CommandItem = {
   id: string;
@@ -203,7 +204,7 @@ export function CommandPalette({
           )}
         </ul>
         <p className="palette__footer">
-          <kbd>Ctrl</kbd>+<kbd>K</kbd> · сердце Genesis
+          <kbd>Ctrl</kbd>+<kbd>K</kbd> · сердце {ASSISTANT_NAME}
         </p>
       </div>
     </div>

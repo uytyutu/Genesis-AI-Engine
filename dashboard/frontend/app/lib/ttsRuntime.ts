@@ -145,7 +145,7 @@ export function stopSpeaking(): void {
 }
 
 /**
- * Listen for «Стоп» / «Подожди» while Genesis speaks — GPT-style interrupt.
+ * Listen for «Стоп» / «Подожди» while Vector speaks — GPT-style interrupt.
  * Returns cleanup function.
  */
 export function startInterruptListener(onInterrupt?: (phrase: string) => void): () => void {

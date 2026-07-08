@@ -7,7 +7,7 @@ import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
   "FAQ",
-  "Частые вопросы о заказе сайта через Genesis.",
+  "Частые вопросы о заказе сайта через Virtus Core.",
   "/faq"
 );
 

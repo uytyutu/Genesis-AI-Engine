@@ -56,7 +56,7 @@ def run_runtime_boot(
             success=True,
             ready=True,
             launch_ok=True,
-            message="Genesis уже работает",
+            message="Virtus Core уже работает",
             phases=phases,
         )
 
@@ -95,7 +95,7 @@ def run_runtime_boot(
                 ready=False,
                 launch_ok=True,
                 message=msg,
-                error=err or "Не удалось запустить Genesis",
+                error=err or "Не удалось запустить Virtus Core",
                 cause=_cause_from_message(err or msg),
                 phases=phases,
             )
@@ -181,7 +181,7 @@ def _cause_from_message(message: str) -> str:
         return "Backend не отвечает."
     if "node" in text or "npm" in text:
         return "Не установлен Node.js или повреждена сборка Frontend."
-    return "Genesis не смог полностью запуститься."
+    return "Virtus Core не смог полностью запуститься."
 
 
 def write_boot_report(result: BootResult, root: Path | None = None) -> Path:

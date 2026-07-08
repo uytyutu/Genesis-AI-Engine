@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { GenesisCard } from "../components/GenesisCard";
+import { BRAND_NAME } from "../lib/publicBrand";
 import { formatApiDetail } from "../lib/formatApiError";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -105,7 +106,7 @@ export default function CursorPage() {
       if (res.ok) setStatus(await res.json());
       await refreshTask();
     } catch {
-      setMessage("Запустите Genesis с рабочего стола.");
+      setMessage("Запустите Virtus Core с рабочего стола.");
     } finally {
       setLoading(false);
     }
@@ -163,7 +164,7 @@ export default function CursorPage() {
         setMessage(data.copied_hint ?? "Промпт готов — скопируйте вручную.");
       }
     } catch {
-      setMessage("Не удалось связаться с Genesis API.");
+      setMessage("Не удалось связаться с Virtus Core API.");
     } finally {
       setBusy(false);
     }
@@ -204,7 +205,7 @@ export default function CursorPage() {
           <p className="genesis-label">R0.5 · Инженер за кулисами</p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight">Работа с Cursor</h1>
           <p className="mt-2 text-sm text-genesis-muted">
-            Вы работаете в Genesis — Cursor получает контекст, задачу и проверку автоматически.
+            Вы работаете в Virtus Core — Cursor получает контекст, задачу и проверку автоматически.
           </p>
           {status && (
             <p className="mt-4 inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-genesis-border bg-genesis-panel/80 px-4 py-1.5 text-sm">
@@ -317,7 +318,7 @@ export default function CursorPage() {
             )}
           </GenesisCard>
 
-          <GenesisCard title="Журнал передач" subtitle="История промптов в Genesis">
+          <GenesisCard title="Журнал передач" subtitle={`История промптов в ${BRAND_NAME}`}>
             {history.length === 0 ? (
               <p className="text-sm text-genesis-muted">Пока пусто.</p>
             ) : (
@@ -351,7 +352,7 @@ export default function CursorPage() {
             className="w-full rounded-xl border border-genesis-border bg-genesis-bg px-3 py-2 text-sm outline-none focus:border-genesis-accent"
           />
           <p className="mt-2 text-xs text-genesis-muted">
-            Genesis добавит PROJECT_STATE, Roadmap, Factory, финансы и память владельца.
+            Virtus Core добавит PROJECT_STATE, Roadmap, Factory, финансы и память владельца.
           </p>
         </GenesisCard>
 
@@ -416,7 +417,7 @@ export default function CursorPage() {
 
         <p className="text-center text-sm">
           <Link href="/" className="text-genesis-accent hover:underline">
-            ← Genesis
+            ← Virtus Core
           </Link>
         </p>
       </div>

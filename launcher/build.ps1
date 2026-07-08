@@ -6,10 +6,10 @@ Set-Location $Root
 Write-Host "Installing launcher dependencies..."
 py -m pip install -r launcher\requirements.txt -q
 
-Write-Host "Building application icon (brand master SVG)..."
-py "$Root\scripts\generate_brand_assets.py"
+Write-Host "Building application icon (Virtus Core brand SVG)..."
+py "$Root\scripts\generate_virtus_brand_assets.py"
 
-Write-Host "Building Genesis Launcher.exe..."
+Write-Host "Building Virtus Core Launcher.exe..."
 foreach ($stale in @("Genesis Launcher.exe", "Genesis-test.exe")) {
   $p = Join-Path $Root "dist\$stale"
   if (Test-Path $p) {
@@ -17,7 +17,10 @@ foreach ($stale in @("Genesis Launcher.exe", "Genesis-test.exe")) {
     Write-Host "Removed stale: $stale"
   }
 }
-$Icon = Join-Path $Root "launcher\assets\genesis.ico"
+$Icon = Join-Path $Root "launcher\assets\virtus.ico"
+if (-not (Test-Path $Icon)) {
+  $Icon = Join-Path $Root "launcher\assets\genesis.ico"
+}
 $stamp = Get-Date -Format "yyyy-MM-dd HH:mm"
 @(
   '"""Build stamp shown in Launcher — CEO can verify which exe is running."""',

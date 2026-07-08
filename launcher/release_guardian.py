@@ -1,4 +1,4 @@
-"""Genesis Release Guardian — ship gate before new features or «done» reports."""
+"""Virtus Release Guardian — ship gate before new features or «done» reports."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ class ReleaseVerdict:
 
     def render(self) -> str:
         lines = [
-            "Genesis Release Guardian",
+            "Virtus Release Guardian",
             "",
             f"Можно ли выпускать / добавлять функции?  {self.headline}",
             f"Overall Health: {self.overall_health}%",

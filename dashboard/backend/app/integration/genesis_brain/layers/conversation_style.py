@@ -1,7 +1,7 @@
 """
 Conversation Style Engine — variety in greetings and closings.
 
-Genesis Public never repeats the same welcome twice in a row.
+Public assistant never repeats the same welcome twice in a row.
 """
 
 from __future__ import annotations
@@ -11,136 +11,154 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME, PUBLIC_WELCOME
+
 _GREETING_FIRST = [
-    (
-        "Добро пожаловать в Genesis.\n\n"
-        "Рад видеть Вас.\n\n"
-        "Чем могу помочь сегодня?"
-    ),
-    (
-        "Здравствуйте! Вы в Genesis — месте, где идеи становятся продуктами.\n\n"
-        "Расскажите, что у Вас на уме."
-    ),
-    (
-        "Приветствую Вас в Genesis.\n\n"
-        "Я здесь, чтобы помочь с бизнесом, проектами и любыми вопросами.\n\n"
-        "С чего начнём?"
-    ),
-    (
-        "Добрый день! Genesis на связи.\n\n"
-        "Чем могу быть полезен сегодня?"
-    ),
+  PUBLIC_WELCOME,
+  (
+    f"Здравствуйте! Вы на {BRAND_NAME} — платформе, где идеи становятся продуктами.\n\n"
+    f"Я — {ASSISTANT_NAME}. Расскажите, что у Вас на уме."
+  ),
+  (
+    f"Приветствую Вас.\n\n"
+    f"Я — {ASSISTANT_NAME}, помощник {BRAND_NAME}. "
+    "Здесь можно обсудить бизнес, проекты и любые вопросы.\n\n"
+    "С чего начнём?"
+  ),
+  (
+    f"Добрый день! {ASSISTANT_NAME} на связи.\n\n"
+    "Чем могу быть полезен сегодня?"
+  ),
 ]
 
 _GREETING_RETURN = [
-    (
-        "Добро пожаловать обратно.\n\n"
-        "Рад новой встрече.\n\n"
-        "О чём поговорим сегодня?"
-    ),
-    (
-        "Снова рад Вас видеть.\n\n"
-        "Чем займёмся на этот раз?"
-    ),
-    (
-        "Рад снова видеть Вас.\n\n"
-        "Чем сегодня могу быть полезен?"
-    ),
-    (
-        "Вы снова здесь — отлично.\n\n"
-        "Продолжим с того, что важно, или начнём новую тему?"
-    ),
+  (
+    "Добро пожаловать обратно.\n\n"
+    "Рад новой встрече.\n\n"
+    "О чём поговорим сегодня?"
+  ),
+  (
+    "Снова рад Вас видеть.\n\n"
+    "Чем займёмся на этот раз?"
+  ),
+  (
+    "Рад снова видеть Вас.\n\n"
+    "Чем сегодня могу быть полезен?"
+  ),
+  (
+    "Вы снова здесь — отлично.\n\n"
+    "Продолжим с того, что важно, или начнём новую тему?"
+  ),
 ]
 
 _GREETING_NAMED = [
-    "Добро пожаловать обратно, {name}.\n\nРад новой встрече.\n\nО чём поговорим сегодня?",
-    "{name}, рад снова Вас видеть.\n\nЧем могу помочь сегодня?",
-    "Здравствуйте, {name}!\n\nХорошо, что Вы снова здесь.\n\nС чего начнём?",
-    "{name}, Genesis на связи.\n\nЧто для Вас сейчас в приоритете?",
+  "Добро пожаловать обратно, {name}.\n\nРад новой встрече.\n\nО чём поговорим сегодня?",
+  "{name}, рад снова Вас видеть.\n\nЧем могу помочь сегодня?",
+  "Здравствуйте, {name}!\n\nХорошо, что Вы снова здесь.\n\nС чего начнём?",
+  f"{{name}}, {ASSISTANT_NAME} на связи.\n\nЧто для Вас сейчас в приоритете?",
 ]
 
 _MORNING = [
-    "Доброе утро! Рад видеть Вас в Genesis.\n\nЧем займёмся сегодня?",
-    "Доброе утро.\n\nGenesis на связи — чем могу помочь?",
-    "Доброе утро! Вы в Genesis.\n\nС чего начнём день?",
+  f"Доброе утро! Рад видеть Вас на {BRAND_NAME}.\n\nЧем займёмся сегодня?",
+  f"Доброе утро.\n\n{ASSISTANT_NAME} на связи — чем могу помочь?",
+  f"Доброе утро! {ASSISTANT_NAME} готов.\n\nС чего начнём день?",
 ]
 
 _GREETING_FAMILIAR = [
-    "Чем займёмся сегодня?",
-    "Рад снова видеть Вас.\n\nО чём поговорим?",
-    "Genesis на связи.\n\nЧто для Вас сейчас в приоритете?",
-    "Хорошо, что Вы снова здесь.\n\nС чего начнём?",
+  "Чем займёмся сегодня?",
+  "Рад снова видеть Вас.\n\nО чём поговорим?",
+  f"{ASSISTANT_NAME} на связи.\n\nЧто для Вас сейчас в приоритете?",
+  "Хорошо, что Вы снова здесь.\n\nС чего начнём?",
 ]
 
 _GREETING_LONG_TERM = [
-    "Надеюсь, день проходит хорошо.\n\nЧем могу быть полезен?",
-    "Рад нашей давней беседе.\n\nО чём поговорим сегодня?",
-    "Вы снова здесь — ценю это.\n\nЧем займёмся?",
-    "Genesis на связи.\n\nПродолжим или новая тема?",
+  "Надеюсь, день проходит хорошо.\n\nЧем могу быть полезен?",
+  "Рад нашей давней беседе.\n\nО чём поговорим сегодня?",
+  "Вы снова здесь — ценю это.\n\nЧем займёмся?",
+  f"{ASSISTANT_NAME} на связи.\n\nПродолжим или новая тема?",
 ]
 
 _EVENING = [
-    "Добрый вечер! Рад, что заглянули в Genesis.\n\nЧем могу помочь?",
-    "Добрый вечер.\n\nGenesis на связи — о чём поговорим?",
-    "Добрый вечер.\n\nРад видеть Вас — с чего начнём?",
+  f"Добрый вечер! Рад, что заглянули на {BRAND_NAME}.\n\nЧем могу помочь?",
+  f"Добрый вечер.\n\n{ASSISTANT_NAME} на связи — о чём поговорим?",
+  "Добрый вечер.\n\nРад видеть Вас — с чего начнём?",
 ]
 
 
 @dataclass(frozen=True)
 class StyleContext:
-    visit_count: int = 0
-    name: str | None = None
-    visitor_id: str = "anonymous"
-    hour: int = 12
+  visit_count: int = 0
+  name: str | None = None
+  visitor_id: str = "anonymous"
+  hour: int = 12
 
 
 class ConversationStyleEngine:
-    """Picks natural, non-repeating phrasing from constitution pools."""
+  """Picks natural, non-repeating phrasing from constitution pools."""
 
-    def pick_greeting(self, ctx: StyleContext) -> str:
-        seed = f"{ctx.visitor_id}:{ctx.visit_count}:{datetime.now(timezone.utc).date().isoformat()}"
-        idx = int(hashlib.sha256(seed.encode()).hexdigest(), 16)
+  def pick_greeting(self, ctx: StyleContext) -> str:
+    pools: list[list[str]]
+    if ctx.visit_count <= 1:
+      pools = [_GREETING_FIRST]
+    elif ctx.name and ctx.visit_count < 8:
+      pools = [_GREETING_NAMED]
+    elif ctx.visit_count >= 20:
+      pools = [_GREETING_LONG_TERM, _GREETING_FAMILIAR]
+    else:
+      pools = [_GREETING_RETURN, _GREETING_FAMILIAR]
 
-        if ctx.name and ctx.visit_count > 0:
-            pool = _GREETING_NAMED
-            text = pool[idx % len(pool)].format(name=ctx.name)
-            return text
+    if 5 <= ctx.hour < 12:
+      pools.append(_MORNING)
+    elif ctx.hour >= 18:
+      pools.append(_EVENING)
 
-        if ctx.hour >= 18:
-            return _EVENING[idx % len(_EVENING)]
-        if ctx.hour < 11 and ctx.visit_count == 0:
-            return _MORNING[idx % len(_MORNING)]
+    flat = [g for pool in pools for g in pool]
+    idx = int(hashlib.sha256(f"{ctx.visitor_id}:{ctx.visit_count}".encode()).hexdigest(), 16) % len(flat)
+    text = flat[idx]
+    if ctx.name and "{name}" in text:
+      return text.format(name=ctx.name)
+    return text
 
-        if ctx.visit_count >= 30:
-            return _GREETING_LONG_TERM[idx % len(_GREETING_LONG_TERM)]
-        if ctx.visit_count >= 8:
-            return _GREETING_FAMILIAR[idx % len(_GREETING_FAMILIAR)]
-        if ctx.visit_count <= 1:
-            return _GREETING_FIRST[idx % len(_GREETING_FIRST)]
-        return _GREETING_RETURN[idx % len(_GREETING_RETURN)]
+  def pick_closing(self, ctx: StyleContext) -> str | None:
+    return None
 
-    def build_context(self, memory: dict[str, Any] | None, visitor_id: str) -> StyleContext:
-        mem = memory or {}
-        hour = datetime.now(timezone.utc).hour
-        return StyleContext(
-            visit_count=int(mem.get("visit_count") or 0),
-            name=mem.get("name"),
-            visitor_id=visitor_id,
-            hour=hour,
-        )
+  def enrich_context(self, profile: dict[str, Any]) -> StyleContext:
+    visits = int(profile.get("visit_count") or 0)
+    name = profile.get("name") or profile.get("owner_name")
+    vid = str(profile.get("visitor_id") or "anonymous")
+    hour = datetime.now(timezone.utc).hour
+    return StyleContext(visit_count=visits, name=name, visitor_id=vid, hour=hour)
 
-    def is_greeting_message(self, text: str) -> bool:
-        t = text.strip().lower()
-        if len(t) > 60:
-            return False
-        starters = (
-            "привет",
-            "здравствуй",
-            "добрый",
-            "доброе",
-            "hello",
-            "hi",
-            "hey",
-            "доброго",
-        )
-        return any(t.startswith(s) for s in starters)
+  def build_context(self, profile: dict[str, Any], visitor_id: str = "anonymous") -> StyleContext:
+    """Build greeting style context from memory profile (personality + greeting API)."""
+    visits = int(profile.get("visit_count") or 0)
+    name = profile.get("name") or profile.get("owner_name")
+    hour = datetime.now(timezone.utc).hour
+    return StyleContext(
+      visit_count=visits,
+      name=name,
+      visitor_id=(visitor_id or "anonymous")[:64],
+      hour=hour,
+    )
+
+  @staticmethod
+  def is_greeting_message(text: str) -> bool:
+    low = (text or "").strip().lower()
+    if not low or len(low) > 120:
+      return False
+    markers = (
+      "привет",
+      "здравств",
+      "hello",
+      "hi ",
+      " hi",
+      "hallo",
+      "добрый",
+      "доброе утро",
+      "добрый день",
+      "добрый вечер",
+      "хай",
+      "hey",
+      "салют",
+    )
+    return any(m in low for m in markers)

@@ -500,7 +500,7 @@ def _propose_three(state: ConversationState, open_: str) -> str:
 def _propose_online(state: ConversationState, open_: str) -> str:
     return (
         f"{open_} Раз Вам ближе онлайн или минимум личного контакта — три варианта:\n\n"
-        "**1. AI-сервис или автоматизация** — боты, микро-SaaS, Genesis Factory.\n\n"
+        "**1. AI-сервис или автоматизация** — боты, микро-SaaS, Virtus Factory.\n\n"
         "**2. Контент + обучение** — курсы, подписка, экспертиза.\n\n"
         "**3. Удалённая услуга** — дизайн, код, маркетинг под ключ.\n\n"
         "Детали подстроим, когда будете готовы."

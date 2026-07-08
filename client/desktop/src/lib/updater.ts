@@ -2,6 +2,7 @@
  * Stage 1 updater scaffold.
  * Wire tauri-plugin-updater in Stage 2 when release endpoint exists.
  */
+import { BRAND_NAME } from "./publicBrand";
 export type UpdateCheckResult = {
   supported: boolean;
   message: string;
@@ -22,7 +23,7 @@ export async function checkForUpdates(
   if (!isTauri) {
     return {
       supported: false,
-      message: "Updates run in the packaged Genesis Client (Tauri build).",
+      message: `Updates run in the packaged ${BRAND_NAME} Client (Tauri build).`,
     };
   }
 

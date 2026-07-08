@@ -8,7 +8,7 @@ export default function NotFound() {
     <GenesisStatusPage
       code="404"
       title="Страница не найдена"
-      description="Такой страницы нет в Genesis. Вернитесь на пульт или оформите заказ для клиента."
+      description="Такой страницы нет в Virtus Core. Вернитесь на пульт или оформите заказ для клиента."
       actions={
         <>
           <ButtonLink href="/" variant="primary" size="md">

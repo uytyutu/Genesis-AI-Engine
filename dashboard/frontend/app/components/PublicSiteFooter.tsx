@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
 
 const LEGAL = [
@@ -19,9 +20,9 @@ export function PublicSiteFooter() {
     <footer className="mt-16 border-t border-white/5 pt-8 pb-6">
       <div className="grid gap-8 sm:grid-cols-3">
         <div>
-          <p className="font-semibold">Genesis</p>
+          <p className="font-semibold">{BRAND_NAME}</p>
           <p className="mt-2 text-sm text-genesis-muted">
-            Лендинги для бизнеса · цена сразу · оплата онлайн
+            {ASSISTANT_NAME} · лендинги для бизнеса · цена сразу · оплата онлайн
           </p>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
@@ -61,7 +62,7 @@ export function PublicSiteFooter() {
         </div>
       </div>
       <p className="mt-8 text-center text-[11px] text-genesis-muted/80">
-        © {new Date().getFullYear()} Genesis AI Engine
+        © {new Date().getFullYear()} {BRAND_NAME}
       </p>
     </footer>
   );

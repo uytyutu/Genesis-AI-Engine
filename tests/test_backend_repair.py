@@ -21,7 +21,18 @@ def test_backend_log_port_conflict(monkeypatch):
 
 
 def test_prepare_backend_port_when_healthy(monkeypatch):
-    monkeypatch.setattr("launcher.backend_repair.backend_responds", lambda root=None, timeout=2.0: True)
+    monkeypatch.setattr(
+        "launcher.backend_identity.fetch_backend_status",
+        lambda timeout=8.0: {
+            "runtime_identity": "genesis-backend-v1",
+            "git_commit": "abc",
+            "uptime_sec": 5,
+        },
+    )
+    monkeypatch.setattr(
+        "launcher.backend_identity.backend_runtime_compatible",
+        lambda root, status: (True, "ok"),
+    )
     ok, msg = prepare_backend_port(None)
     assert ok
     assert "отвечает" in msg

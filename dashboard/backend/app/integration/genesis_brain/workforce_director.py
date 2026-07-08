@@ -3,7 +3,7 @@ Workforce Director — multi-provider failover, quota-aware dispatch, learned qu
 
 Not «Groq first» — «who is best for this task right now?»
 Failover chain (automatic, invisible to user):
-  Groq → Gemini → OpenRouter → Ollama → Genesis Local
+  Groq → Gemini → OpenRouter → Ollama → Virtus Local
 """
 
 from __future__ import annotations
@@ -140,7 +140,7 @@ class WorkforceDirector:
             "failover_chain": list(_FAILOVER_CHAIN),
             "chain_status": chain_status,
             "policy": (
-                "Genesis Director picks best score per task. "
+                "Virtus Director picks best score per task. "
                 "When quota runs out or provider errors, next employee in chain — user sees only Genesis."
             ),
             "learning": "Good dialogues saved to training_candidates.jsonl for future local improvement.",

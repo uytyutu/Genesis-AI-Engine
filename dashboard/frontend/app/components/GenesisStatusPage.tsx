@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { GenesisMark } from "./GenesisMark";
+import { VirtusMark } from "./VirtusMark";
+import { BRAND_NAME, ASSISTANT_NAME, BRAND_SIGNATURE, PUBLIC_WELCOME } from "../lib/publicBrand";
 import { Button, ButtonLink } from "./ui";
 
 type Props = {
@@ -13,22 +14,24 @@ type Props = {
   onRetry?: () => void;
 };
 
-/** Branded 404/500 — Orbit Stack, Genesis shell colors (not public marketing shell). */
+/** Branded 404/500 — Virtus Core shell */
 export function GenesisStatusPage({ code, title, description, actions, onRetry }: Props) {
   return (
     <div className="genesis-app-shell min-h-screen">
       <aside className="genesis-sidebar hidden lg:flex" aria-hidden>
         <div className="genesis-sidebar__brand pointer-events-none">
-          <GenesisMark className="h-10 w-10 shrink-0 shadow-glow" />
+          <VirtusMark className="h-10 w-10 shrink-0 shadow-glow" />
           <div>
-            <p className="genesis-sidebar__name">Genesis</p>
-            <p className="genesis-sidebar__tag">Company OS</p>
+            <p className="genesis-sidebar__name">{BRAND_NAME}</p>
+            <p className="genesis-sidebar__tag">
+              {ASSISTANT_NAME} · {BRAND_SIGNATURE}
+            </p>
           </div>
         </div>
       </aside>
       <div className="genesis-app-main flex min-h-screen items-center justify-center">
         <main className="mx-auto max-w-md px-6 py-16 text-center animate-fade-up">
-          <GenesisMark className="mx-auto h-16 w-16 shadow-glow" />
+          <VirtusMark className="mx-auto h-16 w-16 shadow-glow" />
           <p className="mt-6 text-5xl font-bold tabular-nums text-genesis-accent/90">{code}</p>
           <h1 className="mt-3 text-xl font-bold tracking-tight">{title}</h1>
           <p className="mt-3 text-sm leading-relaxed text-genesis-muted">{description}</p>
@@ -61,7 +64,7 @@ export function GenesisBackLink({ href = "/" }: { href?: string }) {
       href={href}
       className="text-sm text-genesis-muted transition-colors hover:text-genesis-accent"
     >
-      ← Genesis
+      ← {BRAND_NAME}
     </Link>
   );
 }

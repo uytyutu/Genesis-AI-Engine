@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Возможности — Genesis Company",
+  title: "Возможности — Virtus Core",
   description: "Opportunity Engine: журнал возможностей и источников дохода.",
 };
 

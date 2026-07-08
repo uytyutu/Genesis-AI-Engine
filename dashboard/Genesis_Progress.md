@@ -1,17 +1,17 @@
 # 📍 Genesis Progress
 
-**Last updated:** 2026-07-04  
-**Checkpoint:** 🔄 **Finish Desktop Identity OPEN** · Brand approved in design · **CEO verify pending**  
+**Last updated:** 2026-07-08  
+**Checkpoint:** ✅ **Desktop identity + Virtus rebrand shipped** · **CEO daily path stable** · next = Jobcenter + first client  
 **Format:** состояние → изменения (если есть) → следующий шаг.  
 **Phase:** Mission 1 + Mission 1.5 · **Build > Brand**  
 **Foundation:** ✅ closed · **Readiness:** ≈ **8.8/10** (код) · **коммерция ≈ 6/10** (рынок + legal)  
 **Horizon:** 🔒 EL3 · Platform Launch Gate
 
-**Brand:** 🔄 **Orbit Stack v1.0 — migration OPEN** · design frozen · `Genesis_Finish_Desktop_Identity_2026-07-04.md`
+**Brand:** ✅ **Virtus Core / Vector — CLOSED** (launcher · MC · `/site` · Tauri UI) · exe still `Genesis.exe`  
 **Intelligence layers:** `Genesis_Intelligence_Layers_v1.md`  
-**Build focus:** Dev Studio · AI Hub · Desktop Daily Driver · Consumer Platform · Company Brain  
-**Horizon (design only):** Trading Studio — `Genesis_Trading_Studio_Architecture_v1.md` · `Genesis_Trading_Studio_Roadmap_v1.md` — **no code, no exchanges**  
-**CEO Mandate:** `Genesis_CEO_Mandate_Reality_First_v1.md` — **APPROVED** · Reality First · USER CAN VERIFY · один продукт
+**Build focus:** Dev Studio · AI Hub · Desktop Daily Driver · first €  
+**Horizon (design only):** Trading Studio — **no code, no exchanges**  
+**CEO Mandate:** `Genesis_CEO_Mandate_Reality_First_v1.md` — Reality First · USER CAN VERIFY
 
 ---
 

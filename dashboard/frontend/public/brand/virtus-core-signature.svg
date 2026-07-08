@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" role="img" aria-label="Vector by Virtus Core">
+  <defs>
+    <style>
+      .vector { font-family: "Segoe UI Variable", "SF Pro Display", system-ui, sans-serif; font-weight: 600; letter-spacing: 0.08em; }
+      .tag { font-family: "Segoe UI Variable", "SF Pro Text", system-ui, sans-serif; font-weight: 400; letter-spacing: 0.06em; }
+      .sig { font-family: "Segoe UI Variable", "SF Pro Text", system-ui, sans-serif; font-weight: 500; letter-spacing: 0.32em; text-transform: uppercase; }
+    </style>
+  </defs>
+  <text class="vector" x="0" y="72" fill="#ececf1" font-size="64">Vector</text>
+  <text class="tag" x="2" y="118" fill="#8b8b9a" font-size="22">Intelligent AI Assistant</text>
+  <text class="sig" x="0" y="168" fill="#7c8fd4" font-size="16">by Virtus Core</text>
+</svg>

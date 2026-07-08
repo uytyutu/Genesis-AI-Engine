@@ -103,6 +103,16 @@ def kill_port_listeners(port: int, *, allowed_names: tuple[str, ...]) -> list[st
     return freed
 
 
+def wait_port_free(port: int, *, timeout: float = 15.0, interval: float = 0.5) -> bool:
+    """Block until no process listens on port or timeout expires."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if not pids_on_port(port):
+            return True
+        time.sleep(interval)
+    return not pids_on_port(port)
+
+
 def frontend_listener_pids() -> list[int]:
     return pids_on_port(3000)
 
@@ -140,3 +150,16 @@ def kill_genesis_ports(root: Path | None = None) -> None:
 
     kill_port_listeners(8000, allowed_names=("python.exe", "python3.exe", "py.exe"))
     kill_port_listeners(3000, allowed_names=("node.exe", "nodejs.exe"))
+
+    if not wait_port_free(8000, timeout=20.0):
+        remaining = pids_on_port(8000)
+        append_log(f"WARNING: port 8000 still occupied after stop: {remaining}")
+        for pid in remaining:
+            name = process_basename(pid)
+            if name in ("python.exe", "python3.exe", "py.exe"):
+                kill_pid(pid)
+        wait_port_free(8000, timeout=10.0)
+
+    if not wait_port_free(3000, timeout=15.0):
+        remaining = pids_on_port(3000)
+        append_log(f"WARNING: port 3000 still occupied after stop: {remaining}")

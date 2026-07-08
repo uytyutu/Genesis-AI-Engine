@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+from launcher.branding import BRAND_NAME
 from launcher.deps import find_python
 from launcher.log_util import append_log
 from launcher.paths import backend_dir, frontend_dir, log_dir
@@ -85,15 +86,29 @@ def sync_state_from_ports(
 def reconnect_managed(managed: ManagedProcesses, root: Path | None = None) -> bool:
     """Attach launcher UI to already-running Genesis processes.
 
-    Returns True only when Mission Control is fully usable (backend + frontend HTTP 200).
+    Returns True only when Mission Control is fully usable (backend + frontend HTTP 200)
+    and the backend runtime matches the current repo (git commit, identity, age).
     Partial attach (backend only) returns False so bootstrap/launch can start frontend.
     """
+    from launcher.backend_identity import (
+        backend_runtime_compatible,
+        fetch_backend_status,
+        stop_backend_listeners,
+    )
     from launcher.health import owner_ready_live, probe_backend_live, probe_frontend_live
 
     backend_up = probe_backend_live()
     frontend_up = probe_frontend_live()
     if not backend_up and not frontend_up:
         return False
+
+    if backend_up:
+        status = fetch_backend_status()
+        compatible, reason = backend_runtime_compatible(root, status)
+        if not compatible:
+            append_log(f"Backend HTTP 200 but not reconnectable — {reason}")
+            stop_backend_listeners(root, managed)
+            backend_up = False
 
     state = load_state(root)
     be_pid = state.get("backend_pid")
@@ -113,7 +128,7 @@ def reconnect_managed(managed: ManagedProcesses, root: Path | None = None) -> bo
     elif frontend_up and pid_alive(fe_pid):
         managed.frontend = _PopenStub(fe_pid)  # type: ignore[assignment]
 
-    if owner_ready_live():
+    if owner_ready_live() and backend_up:
         return True
 
     if backend_up and not frontend_up:
@@ -138,12 +153,23 @@ class _PopenStub:
 
 
 def start_backend(root: Path | None = None) -> tuple[bool, str, subprocess.Popen | None]:
+    from launcher.backend_identity import (
+        backend_runtime_compatible,
+        fetch_backend_status,
+        stop_backend_listeners,
+    )
     from launcher.backend_repair import prepare_backend_port
-    from launcher.health import probe_backend_live
 
-    if probe_backend_live():
-        append_log("Backend already serving /api/status — skip duplicate start")
-        return True, "Backend уже работает на /api/status", None
+    status = fetch_backend_status()
+    if status is not None:
+        compatible, reason = backend_runtime_compatible(root, status)
+        if compatible:
+            append_log(
+                "Backend already serving /api/status with matching runtime — skip duplicate start"
+            )
+            return True, "Backend уже работает (актуальная версия)", None
+        append_log(f"Stale backend on :8000 — {reason}; stopping before fresh start")
+        stop_backend_listeners(root)
 
     python = find_python()
     if not python:
@@ -186,7 +212,7 @@ def start_frontend(
     if probe_frontend_live():
         append_log("Frontend already serving :3000 — skip duplicate start")
         sync_state_from_ports(managed, root)
-        return True, "Genesis уже работает на :3000", None
+        return True, "Virtus Core уже работает на :3000", None
 
     fe = frontend_dir(root)
 
@@ -206,7 +232,7 @@ def start_frontend(
 
     npm = find_npm()
     if not npm:
-        return False, "Node.js / npm не найдены. Запустите Genesis — установка в один клик.", None
+        return False, "Node.js / npm не найдены. Запустите Virtus Core — установка в один клик.", None
 
     log_file = log_dir(root) / "frontend.log"
     log_handle = open(log_file, "a", encoding="utf-8")
@@ -234,13 +260,13 @@ def start_frontend(
             fe_ports = frontend_listener_pids()
             listener = fe_ports[0] if fe_ports else proc.pid
             append_log(f"Frontend listener pid={listener} HTTP 200 on :3000")
-            return True, f"Genesis запущен — production (журнал: {log_file})", proc
+            return True, f"Virtus Core запущен — production (журнал: {log_file})", proc
         if proc.poll() is not None:
             return False, "Frontend завершился сразу после запуска — см. frontend.log", None
         time.sleep(0.5)
 
     sync_state_from_ports(managed, root)
-    return True, f"Genesis запущен — ожидание HTTP 200 (журнал: {log_file})", proc
+    return True, f"Virtus Core запущен — ожидание HTTP 200 (журнал: {log_file})", proc
 
 
 def _kill_pid(pid: int | None) -> None:
@@ -273,7 +299,7 @@ def stop_all(managed: ManagedProcesses, root: Path | None = None) -> None:
     managed.frontend = None
     managed.backend = None
     clear_state(root)
-    append_log("Genesis stopped")
+    append_log(f"{BRAND_NAME} остановлен")
 
 
 def launch_genesis(
@@ -282,14 +308,24 @@ def launch_genesis(
     install_deps: bool = True,
     on_phase: Callable[[str], None] | None = None,
 ) -> tuple[bool, str]:
+    from launcher.backend_identity import (
+        backend_runtime_compatible,
+        fetch_backend_status,
+        stop_backend_listeners,
+    )
     from launcher.deps import check_dependencies, install_backend_deps
     from launcher.health import owner_ready_live, probe_backend_live, probe_frontend_live
 
     if owner_ready_live():
-        reconnect_managed(managed, root)
-        sync_state_from_ports(managed, root)
-        record_ops_running(root)
-        return True, "Genesis уже работает — подключено (24/7)"
+        status = fetch_backend_status()
+        compatible, reason = backend_runtime_compatible(root, status)
+        if compatible:
+            reconnect_managed(managed, root)
+            sync_state_from_ports(managed, root)
+            record_ops_running(root)
+            return True, "Virtus Core уже работает — подключено (24/7)"
+        append_log(f"Устаревший backend {BRAND_NAME} при запуске — {reason}")
+        stop_backend_listeners(root, managed)
 
     deps = check_dependencies(root)
     messages: list[str] = []
@@ -365,7 +401,7 @@ def launch_genesis(
         messages.append("Node.js — нажмите «Запустить» для установки Mission Control")
         return False, (
             "Node.js не найден — Mission Control не может запуститься.\n"
-            "Нажмите «Запустить» — Genesis установит Node.js автоматически."
+            "Нажмите «Запустить» — Virtus Core установит Node.js автоматически."
         )
 
     sync_state_from_ports(managed, root)

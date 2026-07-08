@@ -1,9 +1,9 @@
-# Refresh Windows icon cache after replacing genesis.ico / Genesis.exe
+# Refresh Windows icon cache after replacing virtus.ico / Genesis.exe
 # Run from project root: powershell -ExecutionPolicy Bypass -File launcher\refresh_windows_icons.ps1
 
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
-Write-Host "Genesis Brand v1.0 — refreshing desktop identity..."
+Write-Host "Virtus Core — refreshing desktop identity..."
 Write-Host ""
 
 # 1. Rebuild shortcut (icon from dist\Genesis.exe)
@@ -33,9 +33,9 @@ Start-Sleep -Seconds 2
 Start-Process explorer.exe
 
 Write-Host ""
-Write-Host "Done. Check desktop shortcut 'Genesis' — should show Orbit Stack (blue gradient, white stack bars)."
+Write-Host "Done. Check desktop shortcut 'Virtus Core' — should show the Vector mark."
 Write-Host ""
 Write-Host "If still wrong:"
-Write-Host "  Right-click Genesis.lnk -> Properties -> Change Icon -> browse to:"
-Write-Host "  $Root\launcher\assets\genesis.ico"
+Write-Host "  Right-click Virtus Core.lnk -> Properties -> Change Icon -> browse to:"
+Write-Host "  $Root\launcher\assets\virtus.ico"
 Write-Host "  Or sign out once."

@@ -17,7 +17,7 @@ class OnboardingWizard(ctk.CTkToplevel):
         super().__init__(master)
         self.master_app = master
         self.config = config
-        self.title("Добро пожаловать в Genesis")
+        self.title("Добро пожаловать в Virtus Core")
         self.geometry("520x520")
         self.resizable(False, False)
         self.grab_set()
@@ -58,7 +58,7 @@ class OnboardingWizard(ctk.CTkToplevel):
             self.heading.configure(text="Добро пожаловать")
             self.body.insert(
                 "1.0",
-                "Я Genesis.\n\nДавайте создадим вашу первую цифровую компанию.\n"
+                "Я Vector.\n\nДавайте создадим вашу первую цифровую компанию.\n"
                 "Всё настроим за пару минут — без терминала.",
             )
             self.action_btn.configure(text="Начать")
@@ -93,7 +93,7 @@ class OnboardingWizard(ctk.CTkToplevel):
                 "1.0",
                 f"Python: {'✔' if deps.python_ok else '✘'}\n"
                 f"Node.js: {'✔' if deps.node_ok else '✘'}\n"
-                f"Genesis подготовит всё автоматически.",
+                f"Virtus Core подготовит всё автоматически.",
             )
         elif self.step == 5:
             self.heading.configure(text="Установка")
@@ -101,7 +101,7 @@ class OnboardingWizard(ctk.CTkToplevel):
             self.action_btn.configure(state="disabled")
             threading.Thread(target=self._install_deps, daemon=True).start()
         elif self.step == 6:
-            self.heading.configure(text="Запуск Genesis")
+            self.heading.configure(text="Запуск Virtus Core")
             self.body.insert("1.0", "Запускаем систему…")
             self.action_btn.configure(state="disabled")
             threading.Thread(target=self._start_genesis, daemon=True).start()
@@ -111,8 +111,8 @@ class OnboardingWizard(ctk.CTkToplevel):
             self.body.insert(
                 "1.0",
                 f"Добро пожаловать, {self.config.owner_name}!\n\n"
-                "Genesis знает, кто вы — и готов к работе.\n"
-                "Нажмите «Запустить Genesis» в главном окне.",
+                "Vector знает, кто вы — и готов к работе.\n"
+                "Нажмите «Запустить Virtus Core» в главном окне.",
             )
             self.action_btn.configure(text="Закрыть", command=self.destroy)
 

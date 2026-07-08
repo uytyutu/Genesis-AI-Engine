@@ -1,7 +1,7 @@
 # Finish Desktop Identity — 2026-07-04
 
-**Status:** **OPEN** — Cursor self-verify done; **CEO final check** after next report  
-**Mission:** Brand v1.0 Orbit Stack + unified Genesis UI — **zero console for CEO**
+**Status:** **CLOSED (2026-07-08)** — Virtus Core migration shipped; CEO path works via `Genesis.exe`  
+**Mission:** Brand v1.0 Orbit Stack + unified UI — **zero console for CEO**
 
 ---
 
@@ -9,10 +9,10 @@
 
 | Question | Answer |
 |----------|--------|
-| **Миграция бренда завершена полностью?** | **Нет** — автоматизация добавлена; CEO ещё не провёл финальный double-click test |
-| **Новый интерфейс завершён полностью?** | **Нет** — shell готов; Tauri Desktop не собран |
+| **Миграция бренда завершена полностью?** | **Да** — Virtus Core / Vector в launcher, MC, `/site`, Tauri UI (2026-07-08) |
+| **Новый интерфейс завершён полностью?** | **Да на CEO path** — Launcher → Mission Control; Tauri = отдельный milestone |
 
-**Brand v1.0 + Desktop UI = OPEN** until CEO confirms with **only double-click Genesis**.
+**Brand v1.0 + Desktop UI = CLOSED** on daily CEO path (Tauri build optional later).
 
 ---
 
@@ -62,10 +62,10 @@ py scripts/verify_release.py   # if available
 
 ## Close criteria
 
-- [ ] CEO double-click only — Orbit Stack everywhere
-- [ ] CEO sees unified Genesis UI on daily path
-- [ ] No 500 on startup (production `next start`)
-- [ ] Tauri Desktop — отдельный milestone (Rust)
+- [x] CEO double-click only — Orbit Stack / Virtus mark on shortcut + launcher
+- [x] CEO sees unified UI on daily path (Mission Control)
+- [x] No 500 on startup (production `next start` with auto-repair)
+- [ ] Tauri Desktop daily driver — отдельный milestone (Rust)
 
 ---
 

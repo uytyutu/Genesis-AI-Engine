@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 
 from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
+from app.integration.genesis_brain.public_brand import BRAND_NAME, STUDIO_NAME
 
 
 def reasoned_business_reply(
@@ -38,7 +39,7 @@ def reasoned_business_reply(
 
     if state.wants_studio or ("studio" in low and "хочу" in low):
         return (
-            "Genesis Studio — платформа для своих сайтов, ботов и автоматизаций.\n\n"
+            f"{STUDIO_NAME} — платформа для своих сайтов, ботов и автоматизаций.\n\n"
             "Один сайт под ключ — от 350 €. **Studio Basic 49 €/мес** — сколько угодно проектов.\n\n"
             "Сколько проектов планируете в год?"
         )
@@ -186,7 +187,7 @@ def _advice_specialized(state: ConversationState, open_: str) -> str:
         return (
             f"{open_} AI-компания{(' в ' + loc) if state.has_location() else ''} — "
             f"реальный путь с бюджетом **{bd or 'от 0 €'}**.{motiv}\n\n"
-            "**1. Micro-SaaS** — узкая автоматизация для одной ниши (Genesis Factory как база).\n\n"
+            f"**1. Micro-SaaS** — узкая автоматизация для одной ниши (Factory · {BRAND_NAME} как база).\n\n"
             "**2. AI-агентство** — боты и консалтинг для локального бизнеса.\n\n"
             "**3. Продукт + подписка** — свой инструмент с recurring revenue.\n\n"
             "Если захотите — уточним, что ближе: продукт или услуги."

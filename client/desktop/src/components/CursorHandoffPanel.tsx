@@ -15,6 +15,7 @@ import {
   type CursorStatus,
   type CursorTask,
 } from "../lib/endpoints";
+import { BRAND_NAME } from "../lib/publicBrand";
 
 function formatWhen(iso: string | null | undefined) {
   if (!iso) return "—";
@@ -138,7 +139,7 @@ export function CursorHandoffPanel() {
         <label className="field">
           <span>{t("studio.workspace.project")}</span>
           <select value={projectId} onChange={(e) => setProjectId(e.target.value)}>
-            <option value="genesis">Genesis AI Engine</option>
+            <option value="genesis">{BRAND_NAME}</option>
             <option value="perfect-pallet">Perfect Pallet</option>
           </select>
         </label>
