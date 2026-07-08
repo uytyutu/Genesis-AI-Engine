@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fetchApi } from "../lib/fetchApi";
+import { useDeferredMount } from "../lib/useDeferredMount";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -12,23 +14,22 @@ type Notification = {
 };
 
 export function OwnerNotificationsPanel() {
+  const deferred = useDeferredMount(2200);
   const [items, setItems] = useState<Notification[]>([]);
 
   useEffect(() => {
-    fetch(`${API}/api/owner/notifications`)
-      .then((r) => r.json())
-      .then((body) => setItems(body.notifications ?? []))
-      .catch(() => setItems([]));
-    const t = setInterval(() => {
-      fetch(`${API}/api/owner/notifications`)
+    if (!deferred) return;
+    const load = () =>
+      fetchApi(`${API}/api/owner/notifications`, { timeoutMs: 8_000 })
         .then((r) => r.json())
         .then((body) => setItems(body.notifications ?? []))
-        .catch(() => {});
-    }, 15000);
+        .catch(() => setItems([]));
+    load();
+    const t = setInterval(load, 20000);
     return () => clearInterval(t);
-  }, []);
+  }, [deferred]);
 
-  if (!items.length) return null;
+  if (!deferred || !items.length) return null;
 
   return (
     <section className="genesis-card border-blue-500/25 bg-gradient-to-br from-blue-950/20 to-genesis-panel p-5">

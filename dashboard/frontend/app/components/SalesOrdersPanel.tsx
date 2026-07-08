@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDeferredMount } from "../lib/useDeferredMount";
 import { formatEur } from "../lib/formatEur";
 import { formatApiDetail } from "../lib/formatApiError";
+import { fetchApi } from "../lib/fetchApi";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -31,6 +33,7 @@ type SalesOrder = {
 };
 
 export function SalesOrdersPanel() {
+  const deferred = useDeferredMount();
   const [orders, setOrders] = useState<SalesOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -38,7 +41,7 @@ export function SalesOrdersPanel() {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/sales/orders`);
+      const res = await fetchApi(`${API}/api/sales/orders`, { timeoutMs: 10_000 });
       if (res.ok) {
         const body = await res.json();
         setOrders(body.orders ?? []);
@@ -49,10 +52,15 @@ export function SalesOrdersPanel() {
   }, []);
 
   useEffect(() => {
+    if (!deferred) return;
     load();
-    const t = setInterval(load, 15000);
+    const t = setInterval(load, 20000);
     return () => clearInterval(t);
-  }, [load]);
+  }, [deferred, load]);
+
+  if (!deferred) {
+    return null;
+  }
 
   const pending = useMemo(
     () =>

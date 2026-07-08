@@ -39,6 +39,8 @@ import { CursorWorkspacePanel } from "./components/CursorWorkspacePanel";
 import { DashboardSkeleton } from "./components/DashboardSkeleton";
 import { Loader } from "./components/ui/Loader";
 
+import { fetchApi } from "./lib/fetchApi";
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type Employee = {
@@ -129,7 +131,7 @@ export default function MissionControlPage() {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/owner/mission-control`);
+      const res = await fetchApi(`${API}/api/owner/mission-control`, { timeoutMs: 12_000 });
       setData(await res.json());
       setMessage("");
     } catch {
@@ -139,7 +141,7 @@ export default function MissionControlPage() {
 
   useEffect(() => {
     refresh();
-    const t = setInterval(refresh, 15000);
+    const t = setInterval(refresh, 20000);
     return () => clearInterval(t);
   }, [refresh]);
 

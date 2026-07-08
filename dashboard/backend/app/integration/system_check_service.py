@@ -1,19 +1,23 @@
-"""System Check — technical + business health before Genesis works."""
+"""System Check — technical + business health before Virtus Core works."""
 
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
 
 from app.integration.finance_service import FinanceService
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.health_service import HealthService
 from app.integration.module_status_service import ModuleStatusService
 from app.integration.owner_dashboard_service import OwnerDashboardService
 from app.integration.task_service import TaskService
 
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
+_INTERNET_CACHE_TTL_SEC = 300.0
+_internet_cache: tuple[float, bool] | None = None
 
 _OWNER_LABELS = {
     "backend": "Backend",
@@ -84,11 +88,18 @@ class SystemCheckService:
             return False
 
     def _probe_internet(self) -> bool:
+        global _internet_cache
+        now = time.monotonic()
+        if _internet_cache is not None and now - _internet_cache[0] < _INTERNET_CACHE_TTL_SEC:
+            return _internet_cache[1]
+        ok = False
         try:
-            with urlopen("https://www.python.org", timeout=3.0) as response:
-                return response.status < 500
+            with urlopen("https://www.python.org", timeout=2.0) as response:
+                ok = response.status < 500
         except (URLError, OSError, TimeoutError):
-            return False
+            ok = False
+        _internet_cache = (now, ok)
+        return ok
 
     def _storage_ok(self) -> bool:
         try:
@@ -141,7 +152,7 @@ class SystemCheckService:
             self._status_row(
                 "factory",
                 factory_ready is True,
-                warning="Factory недоступен — перезапустите Genesis"
+                warning=f"Factory недоступен — перезапустите {BRAND_NAME}"
                 if factory_ready is not True
                 else None,
                 detail="Landing Page · create · improve · preview",

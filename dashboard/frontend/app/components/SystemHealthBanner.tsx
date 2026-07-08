@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { BRAND_NAME } from "../lib/publicBrand";
+import { fetchApi } from "../lib/fetchApi";
 import { GenesisCard } from "./GenesisCard";
 import { useToast } from "./ToastProvider";
 
@@ -54,7 +55,7 @@ export function SystemHealthBanner() {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/owner/system-check`);
+      const res = await fetchApi(`${API}/api/owner/system-check`, { timeoutMs: 10_000 });
       if (!res.ok) throw new Error("offline");
       const json = (await res.json()) as SystemCheck;
       setData(json);
@@ -82,9 +83,12 @@ export function SystemHealthBanner() {
 
   useEffect(() => {
     refresh();
-    const id = window.setInterval(refresh, 15000);
+    if (data?.ready) {
+      return;
+    }
+    const id = window.setInterval(refresh, 30000);
     return () => window.clearInterval(id);
-  }, [refresh]);
+  }, [refresh, data?.ready]);
 
   if (!data || data.ready) {
     return null;

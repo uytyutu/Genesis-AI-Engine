@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { BRAND_NAME } from "../lib/publicBrand";
+import { fetchApi } from "../lib/fetchApi";
+import { useDeferredMount } from "../lib/useDeferredMount";
 import { useCallback, useEffect, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -21,6 +23,7 @@ type CursorStatus = {
 };
 
 export function CursorWorkspacePanel({ compact = false }: { compact?: boolean }) {
+  const deferred = useDeferredMount(2400);
   const [status, setStatus] = useState<CursorStatus | null>(null);
   const [task, setTask] = useState<CursorTask | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,8 +31,8 @@ export function CursorWorkspacePanel({ compact = false }: { compact?: boolean })
   const refresh = useCallback(async () => {
     try {
       const [st, tk] = await Promise.all([
-        fetch(`${API}/api/cursor/status`).then((r) => (r.ok ? r.json() : null)),
-        fetch(`${API}/api/cursor/task/active`).then((r) => (r.ok ? r.json() : null)),
+        fetchApi(`${API}/api/cursor/status`, { timeoutMs: 8_000 }).then((r) => (r.ok ? r.json() : null)),
+        fetchApi(`${API}/api/cursor/task/active`, { timeoutMs: 8_000 }).then((r) => (r.ok ? r.json() : null)),
       ]);
       if (st) setStatus(st);
       setTask(tk?.task ?? null);
@@ -39,10 +42,15 @@ export function CursorWorkspacePanel({ compact = false }: { compact?: boolean })
   }, []);
 
   useEffect(() => {
+    if (!deferred) return;
     refresh();
-    const t = setInterval(refresh, 12000);
+    const t = setInterval(refresh, 20000);
     return () => clearInterval(t);
-  }, [refresh]);
+  }, [deferred, refresh]);
+
+  if (!deferred) {
+    return null;
+  }
 
   const outcome =
     task?.state === "ready" ? "success" : task?.state === "failed" ? "error" : null;
