@@ -6,6 +6,7 @@ from launcher.health import ServiceHealth, check_services, owner_ready_live, ove
 
 
 def test_check_services_running_when_both_probes_ok(monkeypatch):
+    monkeypatch.setattr("launcher.health.port_open", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_frontend_live", lambda *a, **k: True)
 
@@ -20,6 +21,7 @@ def test_check_services_running_when_both_probes_ok(monkeypatch):
 
 
 def test_check_services_ignores_stale_frontend_exited(monkeypatch):
+    monkeypatch.setattr("launcher.health.port_open", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_frontend_live", lambda *a, **k: True)
 
@@ -31,6 +33,7 @@ def test_check_services_ignores_stale_frontend_exited(monkeypatch):
 
 
 def test_slow_system_check_does_not_mark_backend_down(monkeypatch):
+    monkeypatch.setattr("launcher.health.port_open", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_frontend_live", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health._get_json", lambda url, timeout=8: {"name": "Genesis"})
@@ -46,7 +49,7 @@ def test_slow_system_check_does_not_mark_backend_down(monkeypatch):
 
 def test_overall_label_ready_text():
     text, color = overall_label("running")
-    assert text == "✔ Genesis полностью готов"
+    assert text == "✔ Virtus Core полностью готов"
     assert color == "#22c55e"
 
 
@@ -54,8 +57,16 @@ def test_repair_backend_skipped_when_live(monkeypatch):
     from launcher.processes import ManagedProcesses
     from launcher.backend_repair import repair_backend
 
-    monkeypatch.setattr("launcher.health.owner_ready_live", lambda: True)
+    monkeypatch.setattr("launcher.health.owner_ready_live", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
+    monkeypatch.setattr(
+        "launcher.backend_identity.fetch_backend_status",
+        lambda timeout=8.0: {"runtime_identity": "genesis-backend-v1", "git_commit": "abc"},
+    )
+    monkeypatch.setattr(
+        "launcher.backend_identity.backend_runtime_compatible",
+        lambda root, status: (True, "ok"),
+    )
     ok, msg = repair_backend(ManagedProcesses())
     assert ok
     assert "не нужен" in msg.lower() or "готов" in msg.lower()
@@ -73,6 +84,7 @@ def test_repair_staged_skipped_when_live(monkeypatch):
 
 def test_twenty_sequential_status_checks_never_false_error(monkeypatch):
     """Simulate 20 launcher refresh cycles — must never show Backend-down when HTTP OK."""
+    monkeypatch.setattr("launcher.health.port_open", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_frontend_live", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health._get_json", lambda url, timeout=8: {"modules": []})

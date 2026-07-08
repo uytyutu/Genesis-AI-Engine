@@ -40,6 +40,7 @@ logs/
 launcher/logs/
 
 # Local build artifacts
+.perf-backup-*
 client/desktop/src-tauri/icons/icon.icns.png
 scripts/brand_renderer/node_modules/
 .genesis-run/

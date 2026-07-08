@@ -570,25 +570,23 @@ class GenesisLauncher(ctk.CTk):
       self.managed.frontend is not None
       and self.managed.frontend.poll() is not None
     )
-    if not fe_exited:
-      from launcher.health import frontend_port_listening, probe_frontend_live
-
-      if (
-        self._launch_attempted
-        and self.managed.frontend is not None
-        and not frontend_port_listening()
-        and not probe_frontend_live()
-      ):
-        fe_exited = True
+    launch_attempted = self._launch_attempted
+    managed_frontend = self.managed.frontend
     self._status_busy = True
 
     def work() -> None:
+      resolved_fe_exited = fe_exited
+      if not resolved_fe_exited and launch_attempted and managed_frontend is not None:
+        from launcher.health import frontend_port_listening, probe_frontend_live
+
+        if not frontend_port_listening() and not probe_frontend_live(idle=True):
+          resolved_fe_exited = True
       try:
         snapshot = gather_status(
           self.managed,
           self._project_root,
-          frontend_exited=fe_exited,
-          launcher_idle=not self._launch_attempted and not self._busy,
+          frontend_exited=resolved_fe_exited,
+          launcher_idle=not launch_attempted and not self._busy,
         )
       except Exception as exc:
         append_log(f"Status check error: {exc}")
@@ -598,7 +596,7 @@ class GenesisLauncher(ctk.CTk):
         self._status_busy = False
         if snapshot is not None:
           self._apply_status_snapshot(snapshot)
-        self.after(5000, self.refresh_status)
+        self.after(10000, self.refresh_status)
 
       self.after(0, done)
 
@@ -621,8 +619,18 @@ class GenesisLauncher(ctk.CTk):
       self.refresh_status()
     if self.config.auto_start_on_open:
       self._trigger_runtime_boot()
-    elif owner_ready_live():
-      self.status_label.configure(text=f"✔ {BRAND_NAME} готов", text_color="#22c55e")
+      return
+
+    def work() -> None:
+      ready = owner_ready_live(idle=True)
+
+      def done() -> None:
+        if ready:
+          self.status_label.configure(text=f"✔ {BRAND_NAME} готов", text_color="#22c55e")
+
+      self.after(0, done)
+
+    threading.Thread(target=work, daemon=True).start()
 
   def _trigger_runtime_boot(self) -> None:
     """Mission 1: automatic Runtime Boot on open — CEO does not start processes."""
@@ -680,27 +688,30 @@ class GenesisLauncher(ctk.CTk):
       )
       return
 
-    if owner_ready_live():
-      self._launch_attempted = True
-      self._last_error = ""
-      session_id, started = begin_launch_session(self._project_root)
+    def work() -> None:
+      if owner_ready_live():
+        self._launch_attempted = True
+        self._last_error = ""
+        session_id, started = begin_launch_session(self._project_root)
 
-      def open_ready() -> None:
-        ok, err = self._open_mission_control()
-        if ok:
-          record_launch_success(session_id, started, root=self._project_root)
-          self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
-        else:
-          record_launch_failure(session_id, started, root=self._project_root, error=err)
-        self.refresh_status()
+        def open_ready() -> None:
+          ok, err = self._open_mission_control()
+          if ok:
+            record_launch_success(session_id, started, root=self._project_root)
+            self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
+          else:
+            record_launch_failure(session_id, started, root=self._project_root, error=err)
+          self.refresh_status()
 
-      self.after(0, open_ready)
-      return
+        self.after(0, open_ready)
+        return
 
-    def begin() -> None:
-      self._start_genesis_workflow()
+      def begin() -> None:
+        self._start_genesis_workflow()
 
-    ensure_launcher_components(self, self._project_root, begin)
+      self.after(0, lambda: ensure_launcher_components(self, self._project_root, begin))
+
+    threading.Thread(target=work, daemon=True).start()
 
   def _start_genesis_workflow(self) -> None:
     if self._busy:
@@ -766,11 +777,25 @@ class GenesisLauncher(ctk.CTk):
   def _on_auto_fix(self) -> None:
     if self._busy:
       return
-    if owner_ready_live():
-      self._last_error = ""
-      self.fix_btn.pack_forget()
-      self._open_mission_control()
-      self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
+
+    def precheck() -> None:
+      ready = owner_ready_live()
+
+      def done() -> None:
+        if ready:
+          self._last_error = ""
+          self.fix_btn.pack_forget()
+          self._open_mission_control()
+          self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
+          return
+        self._run_auto_fix_workflow()
+
+      self.after(0, done)
+
+    threading.Thread(target=precheck, daemon=True).start()
+
+  def _run_auto_fix_workflow(self) -> None:
+    if self._busy:
       return
     self._busy = True
     self._last_error = ""

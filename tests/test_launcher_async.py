@@ -13,6 +13,7 @@ def test_check_services_fast_no_slow_system_check(monkeypatch):
             return {"name": "Genesis"}
         return None
 
+    monkeypatch.setattr("launcher.health.port_open", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health._get_json", track_get_json)
     monkeypatch.setattr("launcher.health.probe_frontend_live", lambda *a, **k: True)
 
@@ -89,9 +90,17 @@ def test_start_frontend_skips_when_port_up(monkeypatch):
 def test_launch_genesis_reconnects_when_already_running(monkeypatch):
     from launcher.processes import ManagedProcesses, launch_genesis
 
-    monkeypatch.setattr("launcher.health.owner_ready_live", lambda: True)
+    monkeypatch.setattr("launcher.health.owner_ready_live", lambda *a, **k: True)
+    monkeypatch.setattr(
+        "launcher.backend_identity.fetch_backend_status",
+        lambda timeout=8.0: {"runtime_identity": "genesis-backend-v1", "git_commit": "abc"},
+    )
+    monkeypatch.setattr(
+        "launcher.backend_identity.backend_runtime_compatible",
+        lambda root, status: (True, "ok"),
+    )
     monkeypatch.setattr("launcher.processes.reconnect_managed", lambda m, r=None: True)
-    monkeypatch.setattr("launcher.processes.sync_state", lambda *a, **k: None)
+    monkeypatch.setattr("launcher.processes.sync_state_from_ports", lambda *a, **k: None)
     monkeypatch.setattr("launcher.processes.record_ops_running", lambda *a, **k: None)
 
     ok, msg = launch_genesis(ManagedProcesses(), install_deps=False)

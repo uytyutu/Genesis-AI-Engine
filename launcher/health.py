@@ -2,22 +2,29 @@
 
 from __future__ import annotations
 
+import json
+import socket
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
-import json
 
 BACKEND_URL = "http://127.0.0.1:8000"
 FRONTEND_URL = "http://127.0.0.1:3000"
 COMMAND_CENTER_URL = "http://localhost:3000"
+BACKEND_PORT = 8000
+FRONTEND_PORT = 3000
 
 # Owner UX: Mission Control needs Backend API + Frontend. Kernel/Brain are informational.
 BACKEND_PROBE_TIMEOUT = 8.0
 FRONTEND_PROBE_TIMEOUT = 6.0
+IDLE_BACKEND_TIMEOUT = 2.0
+IDLE_FRONTEND_TIMEOUT = 2.0
+PORT_CHECK_TIMEOUT = 0.35
 SYSTEM_CHECK_TIMEOUT = 25.0
 _PROBE_ATTEMPTS = 2
+_IDLE_PROBE_ATTEMPTS = 1
 
 _FRONTEND_URLS = (
     FRONTEND_URL,
@@ -66,11 +73,44 @@ def _probe_with_retries(probe, *, attempts: int = _PROBE_ATTEMPTS) -> bool:
     return False
 
 
+def _resolve_probe_options(
+    timeout: float,
+    attempts: int,
+    *,
+    idle: bool,
+    idle_timeout: float,
+) -> tuple[float, int]:
+    if not idle:
+        return timeout, attempts
+    return min(timeout, idle_timeout), min(attempts, _IDLE_PROBE_ATTEMPTS)
+
+
+def port_open(
+    port: int,
+    host: str = "127.0.0.1",
+    *,
+    timeout: float = PORT_CHECK_TIMEOUT,
+) -> bool:
+    """Fast TCP check — avoids multi-second HTTP timeouts when nothing listens."""
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
 def probe_backend(
     timeout: float = BACKEND_PROBE_TIMEOUT,
     attempts: int = _PROBE_ATTEMPTS,
+    *,
+    idle: bool = False,
 ) -> bool:
     """True when /api/status responds — never checks / root."""
+    timeout, attempts = _resolve_probe_options(
+        timeout, attempts, idle=idle, idle_timeout=IDLE_BACKEND_TIMEOUT
+    )
+    if not port_open(BACKEND_PORT, timeout=PORT_CHECK_TIMEOUT):
+        return False
 
     def _try() -> bool:
         return _get_json(f"{BACKEND_URL}/api/status", timeout=timeout) is not None
@@ -88,11 +128,22 @@ def probe_frontend(
 def probe_frontend_live(
     timeout: float = FRONTEND_PROBE_TIMEOUT,
     attempts: int = _PROBE_ATTEMPTS,
+    *,
+    idle: bool = False,
 ) -> bool:
     """HTTP 200 on Mission Control URLs — same as the owner opens in the browser."""
+    timeout, attempts = _resolve_probe_options(
+        timeout, attempts, idle=idle, idle_timeout=IDLE_FRONTEND_TIMEOUT
+    )
+    if not port_open(FRONTEND_PORT, timeout=PORT_CHECK_TIMEOUT):
+        return False
 
     def _try() -> bool:
-        for url in _FRONTEND_URLS:
+        if _probe_url(FRONTEND_URL, timeout=timeout, require_ok=True):
+            return True
+        if idle:
+            return False
+        for url in _FRONTEND_URLS[1:]:
             if _probe_url(url, timeout=timeout, require_ok=True):
                 return True
         return False
@@ -121,13 +172,23 @@ def probe_frontend_http_status(timeout: float = 3.0) -> int | None:
 def probe_backend_live(
     timeout: float = BACKEND_PROBE_TIMEOUT,
     attempts: int = _PROBE_ATTEMPTS,
+    *,
+    idle: bool = False,
 ) -> bool:
-    return probe_backend(timeout=timeout, attempts=attempts)
+    return probe_backend(timeout=timeout, attempts=attempts, idle=idle)
 
 
-def owner_ready_live() -> bool:
+def probe_services_live(*, idle: bool = False) -> tuple[bool, bool]:
+    """Single probe pass for launcher status — avoids duplicate HTTP round-trips."""
+    backend = probe_backend_live(idle=idle)
+    frontend = probe_frontend_live(idle=idle)
+    return backend, frontend
+
+
+def owner_ready_live(*, idle: bool = False) -> bool:
     """Ground truth: both services answer HTTP 200 on the URLs owners use."""
-    return probe_backend_live() and probe_frontend_live()
+    backend, frontend = probe_services_live(idle=idle)
+    return owner_ready_from_probes(backend, frontend)
 
 
 def owner_ready_from_probes(backend: bool, frontend: bool) -> bool:
@@ -174,22 +235,24 @@ def diagnose_startup_failure(
     frontend_exited: bool,
     root: Path | None = None,
     elapsed_sec: float = 0,
+    skip_reprobe: bool = False,
 ) -> str:
-    if owner_ready_live():
+    if owner_ready_from_probes(backend_up, frontend_up):
         return ""
 
     from launcher.frontend_repair import diagnose_frontend, format_failure_message
 
-    if not backend_up and probe_backend_live():
-        backend_up = True
-    if not frontend_up and probe_frontend_live():
-        frontend_up = True
+    if not skip_reprobe:
+        if not backend_up and probe_backend_live():
+            backend_up = True
+        if not frontend_up and probe_frontend_live():
+            frontend_up = True
     if backend_up and frontend_up:
         return ""
 
     diag = diagnose_frontend(
         root,
-        frontend_exited=frontend_exited and not probe_frontend_live(),
+        frontend_exited=frontend_exited and not frontend_up,
         frontend_up=frontend_up,
         elapsed_sec=elapsed_sec,
     )
@@ -203,11 +266,11 @@ def diagnose_startup_failure(
         if "globals.css" in lowered:
             return (
                 "Frontend: ошибка в app/globals.css. "
-                "Исправьте CSS и перезапустите Genesis."
+                "Исправьте CSS и перезапустите Virtus Core."
             )
         return "Frontend: ошибка сборки Next.js. Откройте журнал frontend.log."
 
-    if frontend_exited and not probe_frontend_live():
+    if frontend_exited and not frontend_up:
         return format_failure_message(diag)
 
     if not backend_up and frontend_up:
@@ -236,18 +299,27 @@ def check_services_fast(
     frontend_exited: bool = False,
     root: Path | None = None,
     launcher_idle: bool = False,
+    backend_up: bool | None = None,
+    frontend_up: bool | None = None,
 ) -> ServiceHealth:
     """UI-safe health check — no slow system-check, single probe pass."""
     health = ServiceHealth()
     lines: list[str] = []
 
-    health.backend = probe_backend_live()
+    if backend_up is None or frontend_up is None:
+        probed_backend, probed_frontend = probe_services_live(idle=launcher_idle)
+        if backend_up is None:
+            backend_up = probed_backend
+        if frontend_up is None:
+            frontend_up = probed_frontend
+
+    health.backend = bool(backend_up)
     if health.backend:
         lines.append("✔ Backend работает (/api/status)")
     else:
         lines.append("✘ Backend не отвечает на /api/status")
 
-    health.frontend = probe_frontend_live()
+    health.frontend = bool(frontend_up)
     if health.frontend:
         lines.append("✔ Frontend работает (HTTP 200)")
     else:
@@ -274,6 +346,7 @@ def check_services_fast(
             frontend_up=health.frontend,
             frontend_exited=fe_crashed,
             root=root,
+            skip_reprobe=True,
         )
     elif starting:
         if health.backend and not health.frontend:
@@ -289,6 +362,7 @@ def check_services_fast(
             frontend_up=health.frontend,
             frontend_exited=fe_crashed,
             root=root,
+            skip_reprobe=True,
         )
     else:
         health.overall = "stopped"

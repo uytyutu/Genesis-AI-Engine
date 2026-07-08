@@ -21,8 +21,8 @@ def fetch_owner_dashboard() -> dict | None:
     return _fetch("/api/owner/dashboard")
 
 
-def fetch_mission_control() -> dict | None:
-    return _fetch("/api/owner/mission-control", timeout=12.0)
+def fetch_mission_control(timeout: float = 8.0) -> dict | None:
+    return _fetch("/api/owner/mission-control", timeout=timeout)
 
 
 def fetch_system_check() -> dict | None:

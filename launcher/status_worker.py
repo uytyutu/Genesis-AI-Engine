@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
 from launcher.branding import BRAND_NAME
 from launcher.api_client import fetch_mission_control
-from launcher.deps import check_dependencies
-from launcher.health import ServiceHealth, check_services_fast, sync_with_mission_control
+from launcher.deps import DepStatus, check_dependencies
+from launcher.health import ServiceHealth, check_services_fast, owner_ready_from_probes, probe_services_live, sync_with_mission_control
 from launcher.processes import reconnect_managed
+
+_DEPS_CACHE: tuple[float, DepStatus] | None = None
+_DEPS_CACHE_TTL_SEC = 45.0
 
 
 @dataclass
@@ -20,6 +24,16 @@ class StatusSnapshot:
     show_install_btn: bool
 
 
+def _cached_dependencies(root: Path | None) -> DepStatus:
+    global _DEPS_CACHE
+    now = time.monotonic()
+    if _DEPS_CACHE is not None and now - _DEPS_CACHE[0] < _DEPS_CACHE_TTL_SEC:
+        return _DEPS_CACHE[1]
+    deps = check_dependencies(root)
+    _DEPS_CACHE = (now, deps)
+    return deps
+
+
 def gather_status(
     managed,
     root: Path | None,
@@ -28,22 +42,24 @@ def gather_status(
     launcher_idle: bool = True,
 ) -> StatusSnapshot:
     """Blocking HTTP/deps work — call only from a worker thread."""
-    from launcher.health import owner_ready_live, probe_frontend_live
+    backend_up, frontend_up = probe_services_live(idle=launcher_idle)
 
-    if owner_ready_live():
+    if owner_ready_from_probes(backend_up, frontend_up):
         reconnect_managed(managed, root)
 
-    fe_crashed = frontend_exited and not probe_frontend_live()
+    fe_crashed = frontend_exited and not frontend_up
     health = check_services_fast(
         starting=False,
         frontend_exited=fe_crashed,
         root=root,
         launcher_idle=launcher_idle,
+        backend_up=backend_up,
+        frontend_up=frontend_up,
     )
-    mc = fetch_mission_control()
+    mc = fetch_mission_control(timeout=4.0 if launcher_idle else 8.0) if backend_up else None
     health = sync_with_mission_control(health, mc)
 
-    deps = check_dependencies(root)
+    deps = _cached_dependencies(root)
     hints: list[str] = []
     show_install = False
     if not deps.node_ok:
