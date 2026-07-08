@@ -24,7 +24,8 @@ def test_mission_control_live(tmp_path: Path):
     res = client.get("/api/owner/mission-control")
     assert res.status_code == 200
     data = res.json()
-    assert data["company_name"] == "Genesis Company"
+    assert data["company_name"] == "Virtus Core"
+    assert data["morning_summary"]["headline"] == "VIRTUS CORE"
     assert data["owner_name"] == "Рамиш"
     assert data["company_days"] >= 1
     assert len(data["digital_employees"]) == 7

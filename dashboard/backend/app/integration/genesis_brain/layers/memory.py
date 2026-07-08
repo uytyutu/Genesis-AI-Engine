@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from app.integration.genesis_brain.public_brand import STUDIO_NAME
+
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent.parent.parent / "memory"
 _NAME_RE = re.compile(r"меня\s+зовут\s+([A-Za-zА-Яа-яЁё\-]+)", re.I)
 _AGE_RE = re.compile(r"мне\s+(\d{1,2})\s*(?:лет|года|год)?", re.I)
@@ -24,7 +26,7 @@ _MILESTONE_KEYWORDS = (
     ("marketing lab", "Работа над Marketing Lab"),
     ("ai sales", "Разработка AI Sales"),
     ("factory", "Проект в Factory"),
-    ("studio", "Использует Genesis Studio"),
+    ("studio", f"Использует {STUDIO_NAME}"),
 )
 
 

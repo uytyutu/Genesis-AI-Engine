@@ -9,10 +9,10 @@ export const STUDIO_NAME = "Virtus Studio";
 export const CHAT_FEATURE = `${ASSISTANT_NAME} Chat`;
 
 export const PUBLIC_WELCOME =
-  `Добро пожаловать.\n\n` +
-  `Я — ${ASSISTANT_NAME}, интеллектуальный ИИ-помощник ${BRAND_NAME}. ` +
-  `Можем поговорить, разобрать идею, науку, бизнес — или помочь с кодом и проектом.\n\n` +
-  `С чего начнём?`;
+  `Здравствуйте!\n` +
+  `Я — ${ASSISTANT_NAME},\n` +
+  `интеллектуальный ИИ-помощник платформы ${BRAND_NAME}.\n` +
+  `Чем могу помочь?`;
 
 export function brandSignatureLines(includeTagline = false): string[] {
   if (includeTagline) {

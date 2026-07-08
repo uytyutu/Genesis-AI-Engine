@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Compact Orbit Stack: 2 layers + core. Used at 16-24px (favicon, taskbar small). -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Genesis">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Virtus Core">
   <defs>
     <linearGradient id="genesis-bg-c" x1="96" y1="48" x2="416" y2="464" gradientUnits="userSpaceOnUse">
       <stop stop-color="#5b8def"/>

@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.genesis_tts.providers import build_tts_chain
 from app.integration.genesis_tts.types import TtsResult
 from app.integration.genesis_tts.voice_profile import DEFAULT_SPEED, VOICE_BUILD
@@ -20,7 +21,7 @@ class GenesisTtsService:
 
     def provider_status(self) -> list[dict[str, Any]]:
         labels = {
-            "openai-tts": "OpenAI TTS (Genesis)",
+            "openai-tts": f"OpenAI TTS ({BRAND_NAME})",
             "elevenlabs": "ElevenLabs",
             "google-cloud-tts": "Google Cloud TTS",
             "azure-neural": "Azure Neural Voices",

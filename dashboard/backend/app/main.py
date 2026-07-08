@@ -173,7 +173,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Genesis Command Center API",
+    title="Virtus Core API",
     description="Integration Layer v0.1 — live Brain data",
     version="0.2.0",
     lifespan=lifespan,

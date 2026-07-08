@@ -1,12 +1,12 @@
-# Genesis Platform
+# Virtus Core
 
 **v0.2.0** — desktop product for owners. Architecture docs in `docs/` (frozen).
 
 ## For owners (no terminal)
 
-1. Double-click **Genesis** on Desktop (or run `dist\Genesis.exe`)
-2. Click **Запустить Genesis**
-3. Click **Открыть Dashboard** → http://localhost:3000
+1. Double-click **Virtus Core** on Desktop (shortcut to `dist\Genesis.exe`)
+2. Click **Запустить** in the launcher
+3. Click **Открыть Virtus Core** → http://localhost:3000
 4. Click **Создать продукт**
 
 Requires Node.js 20+ for Dashboard (Launcher will hint if missing).

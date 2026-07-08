@@ -56,6 +56,12 @@ _KTO_TAKOY_OTHER = re.compile(
     re.I,
 )
 
+_WHAT_IS_OTHER = re.compile(
+    r"что\s+такое\s+(?!vector|virtus|genesis|генезис|генезес|ты\b|вы\b|это\b|ии\b|бот\b|"
+    r"систем|программ|платформ|помощник|ассистент)",
+    re.I,
+)
+
 _FOLLOWUP_PREFIX = re.compile(
     r"^(?:а|и|ну|ок|ладно|хорошо|так|ещё|еще)\b",
     re.I,
@@ -153,9 +159,6 @@ _INTENT_SIGNALS: dict[IdentityKind, tuple[str, ...]] = {
         "что такое virtus",
         "что за virtus",
         "virtus core это",
-        "что такое генезис",
-        "что такое генезес",
-        "что за генезис",
     ),
     "vector": (
         "что такое vector",
@@ -174,6 +177,9 @@ _INTENT_SIGNALS: dict[IdentityKind, tuple[str, ...]] = {
         "а genesis",
         "что за genesis",
         "genesis это",
+        "что такое генезис",
+        "что такое генезес",
+        "что за генезис",
     ),
     "genesis_is_you": (
         "genesis это ты",
@@ -341,6 +347,8 @@ def _best_kind(normalized: str) -> tuple[IdentityKind | None, float]:
 
 def _is_about_third_party(text: str, normalized: str) -> bool:
     if _KTO_TAKOY_OTHER.search(text):
+        return True
+    if _WHAT_IS_OTHER.search(normalized):
         return True
     if re.search(r"кто\s+так(?:ой|ая)\s+[\w«\"]", text, re.I):
         if not re.search(r"кто\s+так(?:ой|ая)\s+ты\b", text, re.I):

@@ -146,7 +146,7 @@ def test_company_overview(tmp_path: Path):
     res = client.get("/api/owner/company")
     assert res.status_code == 200
     data = res.json()
-    assert data["company_name"] == "Genesis Company"
+    assert data["company_name"] == "Virtus Core"
     assert "digital_employees_active" in data
     assert "ai_team" in data
     assert data["gross_revenue_eur"] == 0.0

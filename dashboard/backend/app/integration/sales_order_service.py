@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.schemas import FactoryIntentRequest
 
 _PACKAGES = {
@@ -199,7 +200,7 @@ class SalesOrderService:
             f"Вы получите:\n{deliverables}\n\n"
             f"Срок: 5–7 рабочих дней после подтверждения и оплаты.\n\n"
             f"Готовы начать — напишите, и мы вышлем счёт / ссылку на оплату.\n\n"
-            f"С уважением,\nGenesis"
+            f"С уважением,\n{BRAND_NAME}"
         )
 
     def public_status(self, order_id: str) -> dict:

@@ -1,16 +1,16 @@
 {
-  "app.name": "Genesis",
-  "app.product": "Genesis Client",
+  "app.name": "Virtus Core",
+  "app.product": "Virtus Core Client",
   "app.stage": "Этап 2 · Tauri 2",
   "app.platform": "Windows Client",
 
-  "boot.connecting": "Подключение к Genesis…",
+  "boot.connecting": "Подключение к Virtus Core…",
   "boot.loading": "Загрузка панели…",
 
   "nav.home": "Главная",
   "nav.home.hint": "Панель владельца",
   "nav.chat": "Чат",
-  "nav.chat.hint": "Помощник Genesis",
+  "nav.chat.hint": "Помощник Vector",
   "nav.studio": "Development Studio",
   "nav.studio.hint": "AI Hub · Cursor · Workspace",
   "nav.projects": "Проекты",
@@ -26,13 +26,13 @@
   "shell.offline": "Офлайн",
   "shell.palette": "Командная палитра (Ctrl+K)",
 
-  "connect.title": "Подключиться к Genesis",
+  "connect.title": "Подключиться к Virtus Core",
   "connect.lead": "Войдите в рабочее пространство компании. Этап 2 использует живой API — без mock-данных.",
   "connect.name": "Ваше имя",
-  "connect.apiUrl": "URL API Genesis",
+  "connect.apiUrl": "URL API Virtus Core",
   "connect.submit": "Подключиться",
-  "connect.error.url": "Укажите URL API Genesis.",
-  "connect.error.failed": "Не удалось подключиться к API Genesis.",
+  "connect.error.url": "Укажите URL API Virtus Core.",
+  "connect.error.failed": "Не удалось подключиться к API Virtus Core.",
 
   "settings.title": "Настройки",
   "settings.lead": "Аккаунт, подключение и внешний вид.",
@@ -58,7 +58,7 @@
   "settings.reset.button": "Сбросить все настройки",
 
   "home.welcome": "Добро пожаловать",
-  "home.ready": "Genesis готов",
+  "home.ready": "Virtus Core готов",
   "home.attention": "Требует внимания",
   "home.refresh": "Обновить",
   "home.openChat": "Открыть чат",

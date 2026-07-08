@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from app.integration.finance_service import FinanceService
 from app.integration.owner_notification_service import OwnerNotificationService
 from app.integration.receipt_email_service import ReceiptEmailService
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.payment_checkout_service import PaymentCheckoutService
 
 
@@ -186,7 +187,7 @@ class RevenuePipelineService:
             f"Статус: Оплачено\n"
             f"Ориентировочный срок: {eta_hours} часов\n\n"
             f"Отслеживать заказ: {status_path}\n\n"
-            f"С уважением,\nGenesis"
+            f"С уважением,\n{BRAND_NAME}"
         )
         self._sales._save_order(order)
 

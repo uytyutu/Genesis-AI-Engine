@@ -1,16 +1,16 @@
 {
-  "app.name": "Genesis",
-  "app.product": "Genesis Client",
+  "app.name": "Virtus Core",
+  "app.product": "Virtus Core Client",
   "app.stage": "Stufe 2 · Tauri 2",
   "app.platform": "Windows Client",
 
-  "boot.connecting": "Verbindung mit Genesis…",
+  "boot.connecting": "Verbindung mit Virtus Core…",
   "boot.loading": "Dashboard wird geladen…",
 
   "nav.home": "Start",
   "nav.home.hint": "Inhaber-Dashboard",
   "nav.chat": "Chat",
-  "nav.chat.hint": "Genesis-Assistent",
+  "nav.chat.hint": "Vector-Assistent",
   "nav.studio": "Development Studio",
   "nav.studio.hint": "AI Hub · Cursor · Workspace",
   "nav.projects": "Projekte",
@@ -26,13 +26,13 @@
   "shell.offline": "Offline",
   "shell.palette": "Befehlspalette (Strg+K)",
 
-  "connect.title": "Mit Genesis verbinden",
+  "connect.title": "Mit Virtus Core verbinden",
   "connect.lead": "Melden Sie sich im Unternehmens-Arbeitsbereich an. Stufe 2 nutzt live API — keine Mock-Daten.",
   "connect.name": "Ihr Name",
-  "connect.apiUrl": "Genesis-API-URL",
+  "connect.apiUrl": "Virtus-Core-API-URL",
   "connect.submit": "Verbinden",
-  "connect.error.url": "Geben Sie eine Genesis-API-URL ein.",
-  "connect.error.failed": "Verbindung zur Genesis-API fehlgeschlagen.",
+  "connect.error.url": "Geben Sie eine Virtus-Core-API-URL ein.",
+  "connect.error.failed": "Verbindung zur Virtus-Core-API fehlgeschlagen.",
 
   "settings.title": "Einstellungen",
   "settings.lead": "Konto, Verbindung und Erscheinungsbild.",
@@ -58,7 +58,7 @@
   "settings.reset.button": "Alle Einstellungen zurücksetzen",
 
   "home.welcome": "Willkommen",
-  "home.ready": "Genesis bereit",
+  "home.ready": "Virtus Core bereit",
   "home.attention": "Erfordert Aufmerksamkeit",
   "home.refresh": "Aktualisieren",
   "home.openChat": "Chat öffnen",

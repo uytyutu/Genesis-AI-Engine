@@ -55,10 +55,11 @@ def test_local_identity_natural_wording():
     assert ASSISTANT_NAME in a
 
 
-def test_local_identity_no_internal_codename():
+def test_local_identity_genesis_explained_when_asked():
     reply = try_local_identity_reply("Что такое Genesis?", visitor_id="v1", turn_index=1)
     assert reply
-    assert "genesis" not in reply.lower()
+    assert "genesis" in reply.lower()
+    assert "внутренн" in reply.lower()
     assert ASSISTANT_NAME.lower() in reply.lower()
 
 

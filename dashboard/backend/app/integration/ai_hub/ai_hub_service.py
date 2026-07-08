@@ -69,7 +69,7 @@ def _build_plan(input_text: str, project_id: str) -> list[dict]:
             },
             {
                 "id": "report",
-                "title": "Отчёт CEO в Genesis",
+                "title": "Отчёт CEO в Virtus Core",
                 "capability": "chat",
                 "provider_id": "genesis-rules",
                 "requires_approve": False,
@@ -81,7 +81,7 @@ def _build_plan(input_text: str, project_id: str) -> list[dict]:
 
 
 def _plan_summary(input_text: str, project_id: str) -> str:
-    proj = "Perfect Pallet" if project_id == "perfect-pallet" else "Genesis AI Engine"
+    proj = "Perfect Pallet" if project_id == "perfect-pallet" else "Virtus Core"
     lines = [
         f"Проект: {proj}",
         "",

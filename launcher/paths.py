@@ -89,8 +89,8 @@ def find_project_root(start: Path | None = None) -> Path:
             continue
 
     raise FileNotFoundError(
-        "Не найдена папка проекта Genesis.\n"
-        "Убедитесь, что Virtus Core-AI-Engine установлен целиком и содержит "
+        "Не найдена папка проекта Virtus Core.\n"
+        "Убедитесь, что репозиторий Genesis-AI-Engine установлен целиком и содержит "
         "dashboard/frontend/package.json."
     )
 
@@ -107,7 +107,7 @@ def validate_layout(root: Path | None = None) -> tuple[bool, str]:
     if not fe.is_dir():
         return False, (
             f"Папка Mission Control не найдена:\n{fe}\n\n"
-            "Проверьте, что проект Genesis-AI-Engine не был перемещён неполностью."
+            "Проверьте, что проект не был перемещён неполностью (корень: Genesis-AI-Engine)."
         )
     if not pkg.is_file():
         return False, (
@@ -127,7 +127,7 @@ def frontend_dir(root: Path | None = None) -> Path:
     if not (fe / "package.json").is_file():
         raise FileNotFoundError(
             f"Mission Control не найден: {fe}\n"
-            "Ожидается dashboard/frontend/package.json в корне Genesis."
+            "Ожидается dashboard/frontend/package.json в корне проекта."
         )
     return fe
 

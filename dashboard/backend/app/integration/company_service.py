@@ -244,7 +244,7 @@ class CompanyService:
         return {
             "owner_name": dash["owner_name"],
             "greeting": dash["greeting"],
-            "company_name": "Genesis Company",
+            "company_name": "Virtus Core",
             "system_running": dash["system_running"],
             "platform_balance_eur": fin["platform_balance_eur"],
             "revenue_today_eur": fin["revenue_today_eur"],

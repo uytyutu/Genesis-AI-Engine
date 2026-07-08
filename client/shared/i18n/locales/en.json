@@ -1,16 +1,16 @@
 {
-  "app.name": "Genesis",
-  "app.product": "Genesis Client",
+  "app.name": "Virtus Core",
+  "app.product": "Virtus Core Client",
   "app.stage": "Stage 2 · Tauri 2",
   "app.platform": "Windows Client",
 
-  "boot.connecting": "Connecting to Genesis…",
+  "boot.connecting": "Connecting to Virtus Core…",
   "boot.loading": "Loading dashboard…",
 
   "nav.home": "Home",
   "nav.home.hint": "Owner dashboard",
   "nav.chat": "Chat",
-  "nav.chat.hint": "Genesis assistant",
+  "nav.chat.hint": "Vector assistant",
   "nav.studio": "Development Studio",
   "nav.studio.hint": "AI Hub · Cursor · Workspace",
   "nav.projects": "Projects",
@@ -26,13 +26,13 @@
   "shell.offline": "Offline",
   "shell.palette": "Command palette (Ctrl+K)",
 
-  "connect.title": "Connect to Genesis",
+  "connect.title": "Connect to Virtus Core",
   "connect.lead": "Sign in to your company workspace. Stage 2 uses live API endpoints — no mock data.",
   "connect.name": "Your name",
-  "connect.apiUrl": "Genesis API URL",
+  "connect.apiUrl": "Virtus Core API URL",
   "connect.submit": "Connect",
-  "connect.error.url": "Enter a Genesis API URL.",
-  "connect.error.failed": "Could not connect to Genesis API.",
+  "connect.error.url": "Enter a Virtus Core API URL.",
+  "connect.error.failed": "Could not connect to Virtus Core API.",
 
   "settings.title": "Settings",
   "settings.lead": "Account, connection, and appearance.",
@@ -58,7 +58,7 @@
   "settings.reset.button": "Reset all settings",
 
   "home.welcome": "Welcome",
-  "home.ready": "Genesis ready",
+  "home.ready": "Virtus Core ready",
   "home.attention": "Needs attention",
   "home.refresh": "Refresh",
   "home.openChat": "Open chat",

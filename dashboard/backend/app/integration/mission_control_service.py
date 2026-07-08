@@ -421,7 +421,7 @@ class MissionControlService:
         growth_week = self._valuation_week_growth(company_value, demo)
 
         return {
-            "headline": "GENESIS COMPANY",
+            "headline": BRAND_NAME.upper(),
             "owner_greeting": greeting or f"Доброе утро, {owner_name}",
             "company_status": (
                 "Пока ты отдыхал — компания работала"

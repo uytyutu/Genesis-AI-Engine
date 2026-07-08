@@ -64,7 +64,7 @@ class SecretsEnvService:
         if not found:
             if out and out[-1].strip():
                 out.append("")
-            out.append("# Genesis AI — configured via Setup Wizard")
+            out.append("# Virtus Core — configured via Setup Wizard")
             out.append(f"{key}={value}")
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("\n".join(out) + "\n", encoding="utf-8")

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from app.integration.health_service import HealthService
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.task_service import TaskService
 
 if TYPE_CHECKING:
@@ -17,7 +18,7 @@ _TIPS = [
     "Добро пожаловать в вашу цифровую компанию.",
     "Нажмите «Создать продукт» — начните новый проект.",
     "Все задачи видны в разделе «Проекты».",
-    "Genesis работает локально — ваши данные остаются на компьютере.",
+    f"{BRAND_NAME} работает локально — ваши данные остаются на компьютере.",
 ]
 
 

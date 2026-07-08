@@ -7,6 +7,8 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from app.integration.genesis_brain.public_brand import BRAND_NAME
+
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
 _WALLET_CATALOG = [
@@ -229,7 +231,7 @@ class FinanceService:
 
         base_note = (
             "Данные синхронизированы с платёжным провайдером. "
-            "Genesis не хранит средства — только отображает информацию."
+            f"{BRAND_NAME} не хранит средства — только отображает информацию."
             if connected
             else "Платёжная система не подключена. Суммы появятся автоматически "
             "после подключения Payment Hub."
@@ -237,7 +239,7 @@ class FinanceService:
         if demo:
             base_note = (
                 "Демо-режим: цифры имитируют подключённые кошельки для оценки интерфейса. "
-                "Genesis не хранит и не переводит средства — только отображает данные провайдеров."
+                f"{BRAND_NAME} не хранит и не переводит средства — только отображает данные провайдеров."
             )
 
         result = {

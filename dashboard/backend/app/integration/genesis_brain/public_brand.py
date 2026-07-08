@@ -18,16 +18,17 @@ STUDIO_NAME = "Virtus Studio"
 CHAT_FEATURE = f"{ASSISTANT_NAME} Chat"
 
 PUBLIC_WELCOME = (
-    f"Добро пожаловать.\n\n"
-    f"Я — {ASSISTANT_NAME}, интеллектуальный ИИ-помощник {BRAND_NAME}. "
-    "Можем поговорить, разобрать идею, науку, бизнес — или помочь с кодом и проектом.\n\n"
-    "С чего начнём?"
+    f"Здравствуйте!\n"
+    f"Я — {ASSISTANT_NAME},\n"
+    f"интеллектуальный ИИ-помощник платформы {BRAND_NAME}.\n"
+    "Чем могу помочь?"
 )
 
 # Ordered — specific phrases before bare word.
 _PUBLIC_BRAND_SCRUB: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"Genesis\s+AI\s+Engine", re.I), BRAND_NAME),
     (re.compile(r"Genesis\s+Company\s+OS", re.I), BRAND_NAME),
+    (re.compile(r"Genesis\s+Company", re.I), BRAND_NAME),
     (re.compile(r"Genesis\s+Marketplace", re.I), f"{BRAND_NAME} Marketplace"),
     (re.compile(r"Genesis\s+Factory", re.I), f"Factory · {BRAND_NAME}"),
     (re.compile(r"Genesis\s+Studio", re.I), STUDIO_NAME),

@@ -15,13 +15,14 @@ from app.integration.genesis_brain.layers.conversation_type import (
     classify_conversation_type,
     should_load_product_mind,
 )
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 
-COMMUNICATION_CONSTITUTION = """## Genesis Communication Constitution
+COMMUNICATION_CONSTITUTION = f"""## {BRAND_NAME} Communication Constitution
 
 **Rule #1:** Always answer the user's real intention first.
-Only after satisfying the request may Genesis offer its own products when appropriate.
+Only after satisfying the request may {BRAND_NAME} offer its own products when appropriate.
 
-**Order:** human companion → expert → Genesis consultant (only when the user asks about business, sites, bots, or automation).
+**Order:** human companion → expert → {BRAND_NAME} consultant (only when the user asks about business, sites, bots, or automation).
 """
 
 

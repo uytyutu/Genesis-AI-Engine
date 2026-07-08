@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from app.integration import assistant_locale as L
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.locale_service import assistant_response_locale
 
 if TYPE_CHECKING:
@@ -126,7 +127,7 @@ class AssistantService:
         steps: list[str] = []
         if locale == "en":
             if not dash["system_running"]:
-                steps.append("1. Open Genesis and click “Start Genesis”.")
+                steps.append(f"1. Open {BRAND_NAME} launcher and click “Open Mission Control”.")
             if dash["products_count"] == 0:
                 steps.append("2. Click “Create product” — start your first project.")
             elif dash["products_created_today"] == 0:
@@ -136,7 +137,7 @@ class AssistantService:
             return "I recommend:\n" + "\n".join(steps)
         if locale == "de":
             if not dash["system_running"]:
-                steps.append("1. Öffnen Sie Genesis und klicken Sie „Genesis starten“.")
+                steps.append(f"1. Öffnen Sie {BRAND_NAME} und klicken Sie „Mission Control öffnen“.")
             if dash["products_count"] == 0:
                 steps.append("2. Klicken Sie „Produkt erstellen“ — starten Sie Ihr erstes Projekt.")
             elif dash["products_created_today"] == 0:
@@ -145,7 +146,7 @@ class AssistantService:
             steps.append("4. Produktfabrik ist bereit — Landing erstellen und für den Kunden freigeben.")
             return "Empfehlung:\n" + "\n".join(steps)
         if not dash["system_running"]:
-            steps.append("1. Откройте Genesis и нажмите «Запустить Genesis».")
+            steps.append(f"1. Откройте пульт {BRAND_NAME} и нажмите «Открыть Mission Control».")
         if dash["products_count"] == 0:
             steps.append("2. Нажмите «Создать продукт» — начните первый проект.")
         elif dash["products_created_today"] == 0:

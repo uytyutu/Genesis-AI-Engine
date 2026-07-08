@@ -12,6 +12,7 @@ from pathlib import Path
 from app.factory.factory_service import FactoryService
 from app.integration.cursor_adapter import open_workspace
 from app.integration.finance_service import FinanceService
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.system_check_service import SystemCheckService
 
 _TASK_STEPS = (
@@ -201,7 +202,7 @@ class CursorHandoffService:
                 company = cfg.get("company_name")
                 if owner or company:
                     parts.append(
-                        f"Владелец: {owner or '—'} · Компания: {company or 'Genesis Company'}"
+                        f"Владелец: {owner or '—'} · Компания: {company or BRAND_NAME}"
                     )
             except (json.JSONDecodeError, OSError):
                 pass
@@ -263,7 +264,7 @@ class CursorHandoffService:
             "status_icon": "🟢",
             "status_label": "Готов к задаче",
             "hint": (
-                "Нажмите «Отправить задачу» — Genesis скопирует промпт и откроет Cursor. "
+                f"Нажмите «Отправить задачу» — {BRAND_NAME} скопирует промпт и откроет Cursor. "
                 "Вставьте в чат (Ctrl+V). Затем «Проверить результат»."
             ),
             "cursor_cli_available": cursor_cli,
@@ -327,8 +328,8 @@ class CursorHandoffService:
         demo = self._finance.is_demo_mode()
 
         header = {
-            "task": "Задача для Cursor (Genesis → инженер за кулисами)",
-            "status": "Статус Genesis для Cursor — без новых модулей, только контекст",
+            "task": f"Задача для Cursor ({BRAND_NAME} → инженер за кулисами)",
+            "status": f"Статус {BRAND_NAME} для Cursor — без новых модулей, только контекст",
             "verify": "Проверка результата после работы Cursor",
             "apply": "Чеклист перед применением изменений владельцем",
         }.get(kind, "Задача для Cursor")
@@ -337,10 +338,10 @@ class CursorHandoffService:
 
         sections = [
             f"# {header}",
-            f"Сформировано Genesis: {now}",
+            f"Сформировано {BRAND_NAME}: {now}",
             f"Режим: R0.5 semi-auto (полный Bridge = R8)",
             "",
-            "## Контекст владельца (память Genesis)",
+            f"## Контекст владельца (память {BRAND_NAME})",
             owner_ctx,
             "",
             "## Текущий этап",
@@ -369,7 +370,7 @@ class CursorHandoffService:
                     "",
                     "## Правила",
                     "- Vision Freeze: только R1-цикл до первого клиента.",
-                    "- Genesis предлагает → Cursor делает → Genesis проверяет → владелец ✔.",
+                    f"- {BRAND_NAME} предлагает → Cursor делает → {BRAND_NAME} проверяет → владелец ✔.",
                 ]
             )
         elif kind == "verify":

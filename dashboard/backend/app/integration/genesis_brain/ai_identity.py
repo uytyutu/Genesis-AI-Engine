@@ -14,6 +14,7 @@ from app.integration.genesis_brain.public_brand import (
     ASSISTANT_TAGLINE,
     BRAND_NAME,
     BRAND_SIGNATURE,
+    INTERNAL_CORE_NAME,
     PUBLIC_WELCOME,
     STUDIO_NAME,
     brand_signature_text,
@@ -25,6 +26,7 @@ __all__ = [
     "ASSISTANT_NAME",
     "BRAND_NAME",
     "BRAND_SIGNATURE",
+    "INTERNAL_CORE_NAME",
     "PUBLIC_WELCOME",
     "UNIVERSAL_AI_IDENTITY",
     "compose_identity_reply",
@@ -40,7 +42,8 @@ UNIVERSAL_AI_IDENTITY = f"""## Публичная идентичность
 **Студия:** {STUDIO_NAME}
 
 Пользователь общается с **{ASSISTANT_NAME}** — интеллектуальным ИИ-помощником **{BRAND_NAME}**.
-Внутренние кодовые имена движка **никогда не произносите** — только {ASSISTANT_NAME} и {BRAND_NAME}.
+Внутренний движок платформы — **Genesis** (кодовое имя). Его **никогда не произносите** пользователю — только {ASSISTANT_NAME} и {BRAND_NAME}.
+Если спрашивают про Genesis — объясните, что это внутреннее ядро {BRAND_NAME}, а в диалоге отвечаете Вы как {ASSISTANT_NAME}.
 
 На вопросы о себе — коротко, уверенно, естественно. Без продаж, CRM, Studio, внутренних модулей.
 Не упоминайте Director, Workforce, провайдеров, routing, calibration — если пользователь явно не спрашивает архитектуру.
@@ -70,9 +73,9 @@ IDENTITY_FORBIDDEN_PATTERNS: tuple[re.Pattern[str], ...] = (
 
 _REPLY_WHO_ARE_YOU = (
     f"Я — {ASSISTANT_NAME}, интеллектуальный ИИ-помощник платформы {BRAND_NAME}. "
-    "Помогаю искать информацию, писать код, создавать проекты, анализировать данные, "
-    "автоматизировать процессы и сопровождать разработку. "
-    "Моя цель — помогать решать реальные задачи быстро, понятно и эффективно."
+    "Помогаю искать информацию, создавать проекты, писать код, анализировать данные, "
+    "автоматизировать процессы, сопровождать разработку и решать сложные задачи. "
+    "Моя цель — делать работу людей проще, быстрее и эффективнее."
 )
 
 _REPLY_NAME = f"Меня зовут {ASSISTANT_NAME}."
@@ -133,18 +136,19 @@ _REPLY_WHY_NAME = (
 )
 
 _REPLY_ENGINE = (
-    f"У {BRAND_NAME} есть внутренний технический движок — он связывает модули платформы.\n"
-    f"В диалоге с Вами всегда я — {ASSISTANT_NAME}, интеллектуальный помощник."
+    f"{INTERNAL_CORE_NAME} — внутреннее ядро платформы {BRAND_NAME}.\n"
+    f"Пользователи взаимодействуют со мной — {ASSISTANT_NAME}, интеллектуальный ИИ-помощник."
 )
 
 _REPLY_ENGINE_IS_YOU = (
-    f"Нет — внутренний движок и я разные уровни одной платформы {BRAND_NAME}.\n"
-    f"С Вами общаюсь я, {ASSISTANT_NAME}."
+    f"Нет.\n"
+    f"{INTERNAL_CORE_NAME} — внутреннее ядро платформы {BRAND_NAME}.\n"
+    f"Пользователи взаимодействуют со мной — {ASSISTANT_NAME}."
 )
 
 _REPLY_WHY_OLD_NAME = (
-    f"Публичные имена — {ASSISTANT_NAME} и {BRAND_NAME}. "
-    "Старые кодовые названия в разработке не нужны в разговоре — важно, кто отвечает Вам сейчас."
+    f"{INTERNAL_CORE_NAME} — внутреннее имя движка платформы {BRAND_NAME}, не публичный бренд. "
+    f"В диалоге с Вами я — {ASSISTANT_NAME}."
 )
 
 _REPLY_AI_NATURE = (
@@ -184,11 +188,15 @@ _REPLY_HELP = (
 )
 
 _REPLY_PROGRAM = (
-    f"Это {BRAND_NAME} — интеллектуальная платформа, объединяющая современные технологии "
-    f"искусственного интеллекта. Я, {ASSISTANT_NAME}, являюсь её интеллектуальным помощником."
+    f"Это {BRAND_NAME} — интеллектуальная платформа нового поколения.\n"
+    f"Я, {ASSISTANT_NAME}, являюсь её ИИ-помощником."
 )
 
 _REPLY_SYSTEM = _REPLY_PROGRAM
+
+_GENESIS_REPLY_KINDS = frozenset(
+    {"genesis", "genesis_is_you", "why_genesis", "vector_vs_genesis"}
+)
 
 _REPLY_SPEAKER = (
     f"Сейчас с вами разговаривает {ASSISTANT_NAME} — "
@@ -232,7 +240,10 @@ def compose_identity_reply(intent: IdentityIntent) -> str:
         "speaker": _REPLY_SPEAKER,
         "who_are_you": _REPLY_WHO_ARE_YOU,
     }
-    return scrub_public_brand_text(replies.get(kind, _REPLY_WHO_ARE_YOU))
+    raw = replies.get(kind, _REPLY_WHO_ARE_YOU)
+    if kind in _GENESIS_REPLY_KINDS:
+        return raw
+    return scrub_public_brand_text(raw)
 
 
 def try_local_identity_reply(

@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from app.integration.receipt_email_service import ReceiptEmailService
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.site_analysis_service import SiteAnalysisService
 
 
@@ -24,7 +25,7 @@ _SERVICE_CATALOG: list[dict[str, Any]] = [
         "price_eur": 350,
         "dogfood": True,
         "public": True,
-        "note": "Genesis Factory + Mission 1",
+        "note": f"Factory · {BRAND_NAME} + Mission 1",
     },
     {
         "id": "landing_business",
@@ -131,7 +132,7 @@ class AcquisitionStudioService:
             items = [i for i in items if i.get("public")]
         return {
             "principle": (
-                "Услуга в публичном каталоге только если Genesis умеет выполнять и dogfood."
+                f"Услуга в публичном каталоге только если {BRAND_NAME} умеет выполнять и dogfood."
             ),
             "services": items,
         }
@@ -145,7 +146,7 @@ class AcquisitionStudioService:
             "mode": "manual_search",
             "note": (
                 "Автопоиск выключен. CEO ищет вручную (Maps, Gelbe Seiten, Instagram) "
-                "и добавляет в журнал — Genesis готовит анализ и КП."
+                f"и добавляет в журнал — {BRAND_NAME} готовит анализ и КП."
             ),
             "target_per_day": 5,
             "segments": _DAILY_SEGMENTS,
@@ -242,7 +243,7 @@ class AcquisitionStudioService:
         if outreach_enabled and to_email:
             send_result = self._email.send_outreach(
                 to=to_email,
-                subject=row.get("email_subject") or f"Genesis — {row.get('company_name')}",
+                subject=row.get("email_subject") or f"{BRAND_NAME} — {row.get('company_name')}",
                 text=row.get("proposed_message") or "",
             )
             if send_result.get("ok"):
@@ -429,7 +430,7 @@ class AcquisitionStudioService:
             f"Wenn Sie möchten, zeigen wir Ihnen gern ein Beispiel, wie Ihre Seite aussehen könnte — "
             f"danach entscheiden Sie in Ruhe.\n\n"
             f"Beste Grüße\n"
-            f"Ramish · Genesis AI Engine\n"
+            f"Ramish · {BRAND_NAME}\n"
             f"https://genesis-ai-engine.vercel.app/site\n"
         )
         if fit_reason:

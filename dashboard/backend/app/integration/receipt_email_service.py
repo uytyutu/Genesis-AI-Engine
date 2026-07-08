@@ -7,6 +7,8 @@ import os
 
 import httpx
 
+from app.integration.genesis_brain.public_brand import BRAND_NAME
+
 
 def _public_url(path: str) -> str:
     base = os.getenv("GENESIS_PUBLIC_URL", "").rstrip("/")
@@ -43,12 +45,12 @@ def _html_email(
 <table width="100%" style="max-width:520px;background:#111118;border:1px solid #27272f;border-radius:16px">
 <tr><td style="padding:32px 28px">
 <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#5b8def,#4f46e5);
-color:#fff;font-weight:700;font-size:16px;line-height:40px;text-align:center">G</div>
+color:#fff;font-weight:700;font-size:16px;line-height:40px;text-align:center">V</div>
 <h1 style="margin:20px 0 0;color:#ececf1;font-size:22px">{html.escape(title)}</h1>
 <p style="margin:12px 0 0;color:#8b8b9a;font-size:15px;line-height:1.5">{html.escape(intro)}</p>
 <table style="margin:24px 0 0;width:100%;font-size:14px">{row_html}</table>
 {cta}
-<p style="margin:32px 0 0;font-size:12px;color:#52525b">Genesis AI Engine · hello@genesis-ai-engine.com</p>
+<p style="margin:32px 0 0;font-size:12px;color:#52525b">{BRAND_NAME} · hello@genesis-ai-engine.com</p>
 </td></tr></table>
 </td></tr></table>
 </body></html>"""
@@ -80,7 +82,7 @@ class ReceiptEmailService:
             f"Пакет: {order['package_name']} — {order['price_eur']} €\n\n"
             f"Оплатите, чтобы мы начали работу:\n{_public_url(status_path)}\n\n"
             f"Статус заказа: {_public_url(status_path)}\n\n"
-            f"С уважением,\nGenesis"
+            f"С уважением,\n{BRAND_NAME}"
         )
         html_body = _html_email(
             title="Заказ получен",
@@ -91,7 +93,7 @@ class ReceiptEmailService:
         )
         return self._send(
             to=str(order.get("email") or "").strip(),
-            subject=f"Заказ получен — {order.get('business_name', 'Genesis')} (№ {order_id})",
+            subject=f"Заказ получен — {order.get('business_name', BRAND_NAME)} (№ {order_id})",
             text=text,
             html=html_body,
         )

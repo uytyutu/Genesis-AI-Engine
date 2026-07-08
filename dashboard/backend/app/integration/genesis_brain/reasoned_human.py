@@ -12,6 +12,7 @@ import re
 from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
 from app.integration.genesis_brain.layers.executive_brain import ExecutiveBrief
 from app.integration.genesis_brain.layers.goal_analysis import GoalBrief, HelpfulAction, RealGoal
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 
 
 def reasoned_human_reply(
@@ -132,7 +133,7 @@ def _future_vision_reply(
         "Они приходят, когда долго создаёте ценность: продукт, компанию, экспертизу, "
         "реputation. Цифра на счёте — итог, а не руль."
         f"{horizon}{thread_note}\n\n"
-        "Если смотреть на то, что Вы уже делаете — Genesis, идеи, проекты — "
+        f"Если смотреть на то, что Вы уже делаете — {BRAND_NAME}, идеи, проекты — "
         "это как раз тип пути, где можно построить систему, а не гнаться за лотереей."
     )
     return f"{open_} {body}"
@@ -237,7 +238,7 @@ def _curiosity_stub(raw: str) -> str:
     low = raw.lower()
     if "factory" in low or "фабрик" in low:
         return (
-            "**Factory** — продуктовый отдел Genesis: сайты, боты, приложения под ключ.\n\n"
+            f"**Factory** — продуктовый отдел {BRAND_NAME}: сайты, боты, приложения под ключ.\n\n"
             "Спросите, если нужен свой продукт или хотите собирать в Studio."
         )
     return "Опишите, что именно хотите понять — отвечу доступно, без воды."

@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from app.integration.genesis_brain.public_brand import BRAND_NAME
+
 if TYPE_CHECKING:
     from app.integration.ai_hub.ai_hub_service import AiHubService
     from app.integration.cursor_handoff_service import CursorHandoffService
@@ -57,7 +59,7 @@ class DevWorkspaceService:
             rows.append(
                 {
                     "id": "genesis",
-                    "name": "Genesis AI Engine",
+                    "name": BRAND_NAME,
                     "kind": "platform",
                     "path_label": str(self._root),
                     "available": True,

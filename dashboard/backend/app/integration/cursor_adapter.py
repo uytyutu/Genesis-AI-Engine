@@ -8,6 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from app.integration.genesis_brain.public_brand import BRAND_NAME
+
 
 def find_cursor_cli() -> str | None:
     found = shutil.which("cursor")
@@ -28,7 +30,7 @@ def find_cursor_cli() -> str | None:
 def open_workspace(project_root: Path | None) -> tuple[bool, str]:
     """Open Genesis repo in Cursor. Prompt must be pasted by owner (no public task API yet)."""
     if project_root is None or not project_root.is_dir():
-        return False, "Корень проекта Genesis не найден."
+        return False, f"Корень проекта {BRAND_NAME} не найден."
 
     cli = find_cursor_cli()
     if not cli:

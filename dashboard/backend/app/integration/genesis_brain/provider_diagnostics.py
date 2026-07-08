@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from app.integration.genesis_brain.public_brand import ASSISTANT_NAME
 from app.integration.genesis_brain.workforce_quotas import WorkforceQuotas
 
 _ENV_KEYS: dict[str, tuple[str, ...]] = {
@@ -50,7 +51,7 @@ def diagnose_employee(
             "employee_id": employee_id,
             "callable": True,
             "code": "core",
-            "reason": "Genesis Local — core brain, always active",
+            "reason": f"{ASSISTANT_NAME} Local — core brain, always active",
             "has_key": True,
             "quota_ok": True,
         }
