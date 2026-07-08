@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import re
 
+from app.integration.genesis_brain.ai_identity import try_local_identity_reply
+from app.integration.genesis_brain.communication_gate import resolve_communication_gate
 from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
 from app.integration.genesis_brain.layers.executive_brain import ExecutiveDecision
 from app.integration.genesis_brain.layers.product_mind import (
@@ -15,6 +17,38 @@ from app.integration.genesis_brain.layers.product_mind import (
     should_handle as product_should_handle,
 )
 from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
+
+_USER_MESSAGE_MARKER = "User message:\n"
+_BRIEF_END_MARKER = "═══ END BRIEF ═══"
+
+
+def extract_clean_user_text(text: str) -> str:
+    """Strip Genesis Mind brief wrapper from LLM-bound user turns."""
+    raw = (text or "").strip()
+    if not raw:
+        return ""
+    if _USER_MESSAGE_MARKER in raw:
+        return raw.split(_USER_MESSAGE_MARKER, 1)[-1].strip()
+    if _BRIEF_END_MARKER in raw:
+        tail = raw.split(_BRIEF_END_MARKER, 1)[-1].strip()
+        if tail.lower().startswith("user message:"):
+            return tail.split(":", 1)[-1].strip()
+        return tail
+    return raw
+
+
+def clean_user_messages(messages: list[dict[str, str]] | None) -> list[dict[str, str]]:
+    """Return messages with brief-wrapped user turns reduced to the real user text."""
+    if not messages:
+        return []
+    cleaned: list[dict[str, str]] = []
+    for msg in messages:
+        role = msg.get("role")
+        content = msg.get("content") or ""
+        if role == "user":
+            content = extract_clean_user_text(content)
+        cleaned.append({"role": role or "user", "content": content})
+    return cleaned
 
 
 def _needs_uncertainty_voice(text: str, thinking: ThinkingBrief) -> bool:
@@ -55,8 +89,22 @@ class BriefSpeechSynthesizer:
         last_user: str = "",
         messages: list[dict[str, str]] | None = None,
     ) -> str:
+        clean_messages = clean_user_messages(messages)
+        last_user = extract_clean_user_text(last_user)
+        if not last_user and clean_messages:
+            for msg in reversed(clean_messages):
+                if msg.get("role") == "user":
+                    last_user = (msg.get("content") or "").strip()
+                    break
+
         open_ = pick_opening(visitor_id, turn_index)
         action = decision.action
+
+        identity_reply = try_local_identity_reply(
+            last_user, visitor_id=visitor_id, turn_index=turn_index
+        )
+        if identity_reply:
+            return identity_reply
 
         if action == "wait":
             return (
@@ -69,10 +117,15 @@ class BriefSpeechSynthesizer:
             return f"{open_} {ack}{decision.optional_question}".strip()
 
         body = self._body_from_brief(
-            thinking, decision, state, last_user, messages=messages
+            thinking,
+            decision,
+            state,
+            last_user,
+            messages=clean_messages,
+            commercial=resolve_communication_gate(last_user, clean_messages, state).product_mind,
         )
         if not body:
-            return f"{open_} Слушаю Вас — расскажите, что для Вас сейчас важнее всего."
+            return f"{open_} Понял. Давайте разберёмся вместе — что именно хотите прояснить?"
 
         return f"{open_} {body}".strip()
 
@@ -93,6 +146,8 @@ class BriefSpeechSynthesizer:
         state: ConversationState,
         last_user: str,
         messages: list[dict[str, str]] | None = None,
+        *,
+        commercial: bool = False,
     ) -> str:
         action = decision.action
         strategy = thinking.best_response_strategy
@@ -112,6 +167,9 @@ class BriefSpeechSynthesizer:
         if thinking.confidence < 0.55:
             return _uncertainty_voice()
 
+        if not commercial:
+            return self._non_commercial_body(thinking, decision, state, last_user)
+
         if product_should_handle(last_user, state, thinking):
             return product_compose(last_user, state, thinking, messages)
 
@@ -129,6 +187,9 @@ class BriefSpeechSynthesizer:
                 "**Factory** — продуктовый отдел Genesis: сайты, боты, приложения.\n\n"
                 "Нужен готовый продукт под ключ или хотите сами в Studio?"
             )
+
+        if re.search(r"\bпочему\b", low):
+            return self._explain_body(state)
 
         if "потому" in strategy.lower() or action == "teach":
             return self._explain_body(state)
@@ -285,6 +346,93 @@ class BriefSpeechSynthesizer:
 
         return self._general_body(last_user, thinking)
 
+    def _non_commercial_body(
+        self,
+        thinking: ThinkingBrief,
+        decision: ExecutiveDecision,
+        state: ConversationState,
+        last_user: str,
+    ) -> str:
+        """General conversation offline — no CRM, Studio, sites, or sales stacks."""
+        strategy = thinking.best_response_strategy
+        low = last_user.lower()
+        action = decision.action
+
+        if re.search(r"(?:что\s+такое|что\s+это|расскажи\s+про|объясни)\s+factory\b", low):
+            return (
+                "**Factory** — продуктовый отдел Genesis: сайты, боты, приложения.\n\n"
+                "Строит цифровые продукты: от идеи до превью и публикации."
+            )
+
+        if "поздрав" in strategy.lower():
+            return (
+                "Поздравляю! Это заслуженный шаг — приятно, когда усилия замечают.\n\n"
+                "Как ощущения после новости?"
+            )
+
+        if action == "comfort":
+            return (
+                f"Слышу {thinking.emotional_state} — это нормально.\n\n"
+                "Я не могу обещать результат, но могу быть честным: "
+                "успех чаще строится годами маленьких шагов, а не одним прыжком."
+            )
+
+        if ("миллион" in low) or (
+            action == "advise"
+            and (
+                "финансов" in thinking.real_goal
+                or "изменить жизнь" in thinking.conversation_goal
+            )
+        ):
+            age_note = ""
+            if state.user_age and state.user_age <= 30:
+                age_note = (
+                    f"\n\nВ {state.user_age} у Вас ещё длинный горизонт — "
+                    "время на эксперименты без спешки «уже поздно»."
+                )
+            return (
+                "Стать миллионером возможно — но деньги обычно следствие, а не цель.\n\n"
+                "Они приходят, когда долго создаёте ценность: продукт, компанию, экспертизу. "
+                f"Цифра на счёте — итог, а не руль.{age_note}"
+            )
+
+        if "сомнение" in thinking.emotional_state or "поддержку" in thinking.real_goal:
+            return (
+                "Думаю, шансы есть — но не потому, что кто-то может это пообещать.\n\n"
+                "Успех почти никогда не приходит одним прыжком. "
+                "Чаще это годы ошибок и упрямого «ещё раз попробую». "
+                "Гораздо важнее система, которая каждый день приближает Вас к тому, "
+                "что для Вас значит успех."
+            )
+
+        if state.user_age and "время уходит" in thinking.real_goal:
+            return (
+                f"{state.user_age} — хороший возраст, чтобы сомневаться и всё равно пробовать.\n\n"
+                "Имеет смысл думать не «получится ли разом», "
+                "а «что я готов строить 5–10 лет»."
+            )
+
+        if state.user_age and thinking.thread.mentioned_wealth:
+            return (
+                f"Записал: Вам {state.user_age}.\n\n"
+                "На фоне разговора о будущем это важная деталь — "
+                "ещё много итераций, чтобы найти своё дело."
+            )
+
+        if state.user_age:
+            return (
+                f"{state.user_age} — принял.\n\n"
+                "Если хотите — свяжем это с тем, о чём говорили."
+            )
+
+        if "извиниться" in thinking.implicit_need or "поняли" in thinking.implicit_need:
+            return (
+                "Спасибо, что поправили — пересмотрю рекомендацию.\n\n"
+                "Расскажите, что именно не сходится — я подстрою совет под вашу ситуацию."
+            )
+
+        return self._general_body(last_user, thinking)
+
     def _general_body(self, last_user: str, thinking: ThinkingBrief) -> str:
         """Offline fallback — never expose thinking.why to the user."""
         low = last_user.lower()
@@ -293,6 +441,18 @@ class BriefSpeechSynthesizer:
             return _uncertainty_voice()
 
         topic_hints: list[tuple[tuple[str, ...], str]] = [
+            (
+                ("погод", "weather", "дожд", "солнц", "прогноз"),
+                "У меня нет актуальных live-данных о погоде в реальном времени.\n\n"
+                "Могу подсказать типичный сезонный климат для региона или как быстро проверить "
+                "прогноз в надёжном сервисе.",
+            ),
+            (
+                ("здоров", "болит", "болезн", "беспоко"),
+                "Понимаю, что здоровье волнует — это важная тема.\n\n"
+                "Я не врач и не могу поставить диагноз, но могу помочь разложить мысли "
+                "или подсказать, когда имеет смысл обратиться к специалисту.",
+            ),
             (
                 ("депресс", "тяжело", "пустот", "не хочется", "стыдно"),
                 "Слышу, что сейчас непросто — это важно, что Вы об этом говорите.\n\n"

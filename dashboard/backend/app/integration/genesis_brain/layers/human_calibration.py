@@ -8,10 +8,12 @@ from __future__ import annotations
 
 import re
 
-from dataclasses import replace
-
 from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
 from app.integration.genesis_brain.types import CalibrationVerdict
+from app.integration.genesis_brain.layers.conversation_type import (
+    ConversationKind,
+    allows_unsolicited_sales,
+)
 
 _PROGRAMMATIC_MARKERS = (
     "расскажите о задаче",
@@ -35,6 +37,39 @@ _PROGRAMMATIC_MARKERS = (
     "factory",
 )
 
+_UNSOLICITED_SALES = (
+    "6 страниц",
+    "6–7 страниц",
+    "650–850",
+    "650–950",
+    "studio basic",
+    "49 €/мес",
+    "genesis factory",
+    "genesis studio",
+    "под ключ — от",
+    "под ключ",
+    "запись клиентов через сайт",
+    "рекомендую сайт",
+    "crm",
+    "лендинг",
+)
+
+_UNSOLICITED_SALES_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(
+        r"(?:рекоменд|предлага|заказ|услуг|studio|crm|лендинг|под ключ).{0,80}автоматизац"
+        r"|автоматизац.{0,80}(?:под ключ|заказать|бизнес)",
+        re.I,
+    ),
+)
+
+
+def text_has_unsolicited_sales(text: str) -> bool:
+    low = (text or "").lower()
+    if any(s in low for s in _UNSOLICITED_SALES):
+        return True
+    return any(p.search(low) for p in _UNSOLICITED_SALES_PATTERNS)
+
+
 _GENERIC_OPENERS = re.compile(
     r"^(понял[.!]?|хорошо[.!]?|ок[.!]?|ясно[.!]?|отлично[.!]?)\s*$",
     re.I,
@@ -49,6 +84,34 @@ _UNCERTAINTY_OK = re.compile(
     r"не замен|врач|специалист|сложно сказать",
     re.I,
 )
+
+_SMALL_TALK_KINDS = frozenset({"casual_conversation", "humor"})
+
+_GREETING_USER = re.compile(
+    r"^(привет|здравствуй|здравствуйте|hello|hi|hey|как\s+дела|как\s+ты|как\s+вы|"
+    r"добрый\s+(?:день|вечер|утро)|доброе\s+утро)\b",
+    re.I,
+)
+
+
+def _is_small_talk_turn(
+    *,
+    conversation_kind: ConversationKind | None,
+    last_user: str,
+    thinking: ThinkingBrief,
+) -> bool:
+    """Greetings and light chat — short human replies must pass calibration."""
+    if conversation_kind in _SMALL_TALK_KINDS:
+        return True
+    low = (last_user or "").strip().lower()
+    if low and _GREETING_USER.match(low) and len(low) < 60:
+        return True
+    rg = (thinking.real_goal or "").lower()
+    if rg in ("человеческий контакт", "живой разговор", "small_talk"):
+        return True
+    if "контакт" in rg and thinking.recommended_action == "answer":
+        return True
+    return False
 
 
 class HumanCalibrationLayer:
@@ -71,6 +134,7 @@ class HumanCalibrationLayer:
         thinking: ThinkingBrief,
         *,
         messages: list[dict[str, str]] | None = None,
+        conversation_kind: ConversationKind | None = None,
     ) -> CalibrationVerdict:
         """Full calibration verdict with reasons — for Workforce Reality / Dev Mode."""
         text = (answer or "").strip()
@@ -84,6 +148,19 @@ class HumanCalibrationLayer:
         low = text.lower()
         reasons: list[str] = []
 
+        last_user = ""
+        if messages:
+            for m in reversed(messages):
+                if m.get("role") == "user":
+                    last_user = m.get("content") or ""
+                    break
+
+        small_talk = _is_small_talk_turn(
+            conversation_kind=conversation_kind,
+            last_user=last_user,
+            thinking=thinking,
+        )
+
         for m in _PROGRAMMATIC_MARKERS:
             if m in low:
                 reasons.append(f"шаблон: «{m}»")
@@ -95,20 +172,22 @@ class HumanCalibrationLayer:
         if _GENERIC_OPENERS.match(text):
             reasons.append("слишком короткий шаблонный ответ")
 
-        if len(text) < 25 and thinking.recommended_action not in ("wait",):
+        if (
+            len(text) < 25
+            and thinking.recommended_action not in ("wait",)
+            and not small_talk
+        ):
             reasons.append("слишком короткий для контекста")
 
-        if not self._addresses_need(text, thinking):
+        if not small_talk and not self._addresses_need(text, thinking):
             reasons.append("не отражает implicit need / real goal")
 
-        last_user = ""
-        if messages:
-            for m in reversed(messages):
-                if m.get("role") == "user":
-                    last_user = m.get("content") or ""
-                    break
         if _MEDICAL_HINT.search(last_user) and not _UNCERTAINTY_OK.search(text):
             reasons.append("медицинский вопрос без осторожности")
+
+        if conversation_kind and not allows_unsolicited_sales(conversation_kind):
+            if text_has_unsolicited_sales(text):
+                reasons.append("навязчивая продажа вне бизнес-контекста")
 
         if reasons:
             return CalibrationVerdict(passed=False, needs_rewrite=True, reasons=tuple(reasons))

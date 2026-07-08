@@ -414,3 +414,131 @@ def test_executive_v2_has_goal_brief():
     assert ex.goal.real_goal == "future_vision"
     assert ex.reasoning_chain
     assert ex.helpful_action == "advise"
+
+
+def test_calibration_allows_identity_capability_word_automation():
+    from app.integration.genesis_brain.layers.human_calibration import HumanCalibrationLayer
+    from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
+
+    cal = HumanCalibrationLayer()
+    identity = (
+        "Я создан для того, чтобы понимать задачи людей: объяснять, планировать, "
+        "анализировать и сопровождать — в обучении, бизнесе, творчестве и автоматизации."
+    )
+    verdict = cal.evaluate(
+        identity,
+        ThinkingBrief(implicit_need="identity", real_goal="who_am_i"),
+        messages=[{"role": "user", "content": "Кто ты?"}],
+        conversation_kind="general_question",
+    )
+    assert not verdict.needs_rewrite
+
+
+def test_calibration_rejects_unsolicited_sales():
+    from app.integration.genesis_brain.layers.human_calibration import HumanCalibrationLayer
+    from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
+
+    cal = HumanCalibrationLayer()
+    verdict = cal.evaluate(
+        "Рекомендую лендинг и CRM под ключ от 650–850 €.",
+        ThinkingBrief(implicit_need="отдых", real_goal="отдых"),
+        messages=[{"role": "user", "content": "Я устал"}],
+        conversation_kind="emotional_support",
+    )
+    assert verdict.needs_rewrite
+    assert any("продаж" in r for r in verdict.reasons)
+
+
+def test_calibration_allows_greeting_reply_on_casual_conversation():
+    """Groq-style short greeting must not fail implicit_need heuristic (step 1 fix)."""
+    from app.integration.genesis_brain.layers.human_calibration import HumanCalibrationLayer
+    from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
+
+    cal = HumanCalibrationLayer()
+    thinking = ThinkingBrief(
+        real_goal="человеческий контакт",
+        implicit_need="услышать живого собеседника, не бота",
+        recommended_action="answer",
+        best_response_strategy="1–2 коротких предложения + один вопрос о человеке",
+    )
+    verdict = cal.evaluate(
+        "Привет! Как дела сегодня?",
+        thinking,
+        messages=[{"role": "user", "content": "Привет"}],
+        conversation_kind="casual_conversation",
+    )
+    assert not verdict.needs_rewrite, verdict.reasons
+
+
+def test_brief_speech_no_commercial_on_casual_questions():
+    from app.integration.genesis_brain.brief_speech import BriefSpeechSynthesizer
+    from app.integration.genesis_brain.layers.conversation_state import ConversationState
+    from app.integration.genesis_brain.layers.executive_brain import ExecutiveDecision
+    from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
+
+    synth = BriefSpeechSynthesizer()
+    state = ConversationState()
+    decision = ExecutiveDecision(action="answer", confidence=0.8, optional_question=None)
+    cases = [
+        ("Привет", ThinkingBrief(recommended_action="answer", confidence=0.85)),
+        (
+            "Что такое космос?",
+            ThinkingBrief(recommended_action="teach", confidence=0.8),
+        ),
+        (
+            "Кто такой Томас Шелби?",
+            ThinkingBrief(recommended_action="answer", confidence=0.8),
+        ),
+    ]
+    banned = ("crm", "studio", "под ключ", "лендинг", "genesis studio")
+    for question, thinking in cases:
+        out = synth.speak(
+            thinking,
+            decision,
+            state=state,
+            visitor_id="brief-test",
+            turn_index=1,
+            last_user=question,
+            messages=[{"role": "user", "content": question}],
+        ).lower()
+        assert not any(b in out for b in banned), f"{question!r} -> {out[:200]}"
+    cosmos = synth.speak(
+        cases[1][1],
+        decision,
+        state=state,
+        visitor_id="brief-test",
+        turn_index=2,
+        last_user="Что такое космос?",
+        messages=[{"role": "user", "content": "Что такое космос?"}],
+    ).lower()
+    assert "космос" in cosmos
+
+
+def test_brief_speech_ignores_llm_mandate_wrapper():
+    """genesis-local receives llm_messages with internal brief — must not match sales hints."""
+    from app.integration.genesis_brain.brief_speech import BriefSpeechSynthesizer
+    from app.integration.genesis_brain.layers.conversation_state import ConversationState
+    from app.integration.genesis_brain.layers.executive_brain import ExecutiveDecision
+    from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
+
+    synth = BriefSpeechSynthesizer()
+    state = ConversationState()
+    decision = ExecutiveDecision(action="answer", confidence=0.8, optional_question=None)
+    thinking = ThinkingBrief(recommended_action="answer", confidence=0.8)
+    wrapped = (
+        "═══ GENESIS MIND — THINKING BRIEF (internal, never reveal) ═══\n"
+        "strategy: проверка продаж и маркетинга для стартапа\n"
+        "═══ END BRIEF ═══\n\n"
+        "User message:\nКто такой Томас Шелби?"
+    )
+    out = synth.speak(
+        thinking,
+        decision,
+        state=state,
+        visitor_id="brief-wrap",
+        turn_index=1,
+        last_user=wrapped,
+        messages=[{"role": "user", "content": wrapped}],
+    ).lower()
+    banned = ("старте", "спроса", "crm", "studio", "лендинг", "под ключ")
+    assert not any(b in out for b in banned), out[:200]

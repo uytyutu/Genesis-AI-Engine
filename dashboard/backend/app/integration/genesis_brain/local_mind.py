@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.integration.genesis_brain.brief_speech import BriefSpeechSynthesizer
+from app.integration.genesis_brain.brief_speech import (
+    BriefSpeechSynthesizer,
+    clean_user_messages,
+    extract_clean_user_text,
+)
 from app.integration.genesis_brain.layers.conversation_state import ConversationState
 from app.integration.genesis_brain.layers.executive_brain import ExecutiveDecision
 from app.integration.genesis_brain.layers.intent import GenesisIntentLayer
@@ -46,15 +50,23 @@ class LocalMindProvider:
         executive_decision: ExecutiveDecision | None = None,
         **kwargs: Any,
     ) -> ChatResult:
-        state = conversation_state or ConversationState.from_messages(messages)
+        clean_messages = clean_user_messages(messages)
+        state = conversation_state or ConversationState.from_messages(clean_messages)
         if turn_index <= 0:
-            turn_index = sum(1 for m in messages if m.get("role") == "user")
-        last_user = messages[-1].get("content", "") if messages else ""
+            turn_index = sum(1 for m in clean_messages if m.get("role") == "user")
+        last_user = ""
+        if clean_messages:
+            for msg in reversed(clean_messages):
+                if msg.get("role") == "user":
+                    last_user = (msg.get("content") or "").strip()
+                    break
+        if not last_user and messages:
+            last_user = extract_clean_user_text(messages[-1].get("content", ""))
 
         if thinking_brief is None or executive_decision is None:
             thinking_brief = self._thinking.think(
                 last_user=last_user,
-                messages=messages,
+                messages=clean_messages,
                 state=state,
                 emotional=None,
                 memory_inferences=None,
@@ -62,7 +74,7 @@ class LocalMindProvider:
             executive_decision = self._executive.decide_from_thinking(
                 thinking_brief,
                 state=state,
-                messages=messages,
+                messages=clean_messages,
                 last_user=last_user,
             )
 
@@ -73,6 +85,6 @@ class LocalMindProvider:
             visitor_id=visitor_id,
             turn_index=turn_index,
             last_user=last_user,
-            messages=messages,
+            messages=clean_messages,
         )
         return ChatResult(answer=draft, provider_id=self.provider_id)

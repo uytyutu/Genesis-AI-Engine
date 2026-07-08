@@ -179,6 +179,11 @@ def allows_unsolicited_sales(kind: ConversationKind) -> bool:
     return kind in _BUSINESS_KINDS
 
 
+def should_load_product_mind(kind: ConversationKind) -> bool:
+    """Product Mind + commercial catalog only for business/product talk."""
+    return kind in _BUSINESS_KINDS
+
+
 def _business_thread_active(messages: list[dict[str, str]] | None) -> bool:
     if not messages:
         return False
