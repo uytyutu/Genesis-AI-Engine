@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -16,6 +17,13 @@ if TYPE_CHECKING:
 
 VALID_RUNTIME_IDENTITIES = frozenset({"genesis-backend-v1"})
 MAX_BACKEND_UPTIME_SEC = 86400.0  # 24h — stale .env / long-lived orphan guard
+
+
+@dataclass
+class StopBackendResult:
+    port_free: bool
+    stopped_pids: list[int] = field(default_factory=list)
+    failures: list[str] = field(default_factory=list)
 
 
 def _no_window() -> int:
@@ -101,7 +109,7 @@ def backend_runtime_compatible(
 def stop_backend_listeners(
     root: Path | None = None,
     managed: ManagedProcesses | None = None,
-) -> list[str]:
+) -> StopBackendResult:
     """Terminate every Genesis backend on :8000 and wait until the port is free."""
     from launcher.process_cleanup import (
         backend_listener_pids,
@@ -110,32 +118,47 @@ def stop_backend_listeners(
         wait_port_free,
     )
     from launcher.processes import _kill_tree
-    from launcher.runtime_state import load_state
+    from launcher.runtime_state import load_state, pid_alive
 
-    stopped: list[str] = []
-    if managed is not None:
-        if managed.backend is not None:
-            stopped.append(f"managed:{managed.backend.pid}")
+    failures: list[str] = []
+    stopped_pids: list[int] = []
+
+    if managed is not None and managed.backend is not None:
+        pid = managed.backend.pid
         _kill_tree(managed.backend)
         managed.backend = None
+        if pid and not pid_alive(pid):
+            stopped_pids.append(pid)
+        elif pid:
+            failures.append(f"managed pid={pid}: process_still_alive")
 
     state = load_state(root)
     saved_pid = state.get("backend_pid")
     if saved_pid:
-        kill_pid(saved_pid)
-        stopped.append(f"state:{saved_pid}")
+        outcome = kill_pid(saved_pid)
+        if outcome.ok:
+            stopped_pids.append(saved_pid)
+        else:
+            failures.append(f"state pid={saved_pid}: {outcome.reason}")
 
-    stopped.extend(
-        kill_port_listeners(8000, allowed_names=("python.exe", "python3.exe", "py.exe"))
-    )
+    for outcome in kill_port_listeners(8000, allowed_names=("python.exe", "python3.exe", "py.exe")):
+        if outcome.ok and outcome.pid:
+            stopped_pids.append(outcome.pid)
+        elif not outcome.ok:
+            failures.append(f"listener pid={outcome.pid}: {outcome.reason}")
 
     for pid in backend_listener_pids():
-        kill_pid(pid)
-        stopped.append(f"port:{pid}")
+        outcome = kill_pid(pid)
+        if outcome.ok:
+            stopped_pids.append(pid)
+        else:
+            failures.append(f"port pid={pid}: {outcome.reason}")
 
     if wait_port_free(8000, timeout=20.0):
         append_log("Port 8000 released after backend stop")
-    else:
-        remaining = backend_listener_pids()
-        append_log(f"WARNING: port 8000 still held after stop: {remaining}")
-    return stopped
+        return StopBackendResult(port_free=True, stopped_pids=stopped_pids, failures=failures)
+
+    remaining = backend_listener_pids()
+    failures.append(f"port_still_occupied after timeout: {remaining}")
+    append_log(f"WARNING: port 8000 still occupied after stop (timeout): {remaining}")
+    return StopBackendResult(port_free=False, stopped_pids=stopped_pids, failures=failures)

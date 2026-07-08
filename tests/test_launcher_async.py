@@ -44,6 +44,7 @@ def test_start_backend_skips_when_status_up(monkeypatch):
 
 
 def test_start_backend_restarts_when_stale(monkeypatch):
+    from launcher.backend_identity import StopBackendResult
     from launcher.processes import start_backend
 
     calls: list[str] = []
@@ -56,7 +57,10 @@ def test_start_backend_restarts_when_stale(monkeypatch):
         "launcher.backend_identity.backend_runtime_compatible",
         lambda root, status: (False, "git mismatch"),
     )
-    monkeypatch.setattr("launcher.backend_identity.stop_backend_listeners", lambda root=None: ["python:1"])
+    monkeypatch.setattr(
+        "launcher.backend_identity.stop_backend_listeners",
+        lambda root=None: StopBackendResult(port_free=True),
+    )
     monkeypatch.setattr("launcher.deps.find_python", lambda: "py")
     monkeypatch.setattr("launcher.backend_repair.prepare_backend_port", lambda root=None: (True, "port ok"))
     monkeypatch.setattr("launcher.processes.backend_dir", lambda root=None: __import__("pathlib").Path("."))

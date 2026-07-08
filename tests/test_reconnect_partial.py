@@ -1,5 +1,6 @@
 """Partial 24/7 reconnect must not mask dead frontend."""
 
+from launcher.backend_identity import StopBackendResult
 from launcher.processes import ManagedProcesses, reconnect_managed
 
 
@@ -54,7 +55,7 @@ def test_reconnect_true_when_owner_ready(monkeypatch):
     assert reconnect_managed(managed) is True
 
 
-def test_reconnect_kills_stale_backend(monkeypatch):
+def test_reconnect_reports_stale_backend_without_kill(monkeypatch):
     managed = ManagedProcesses()
     stopped: list[str] = []
     monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
@@ -70,11 +71,37 @@ def test_reconnect_kills_stale_backend(monkeypatch):
     )
     monkeypatch.setattr(
         "launcher.backend_identity.stop_backend_listeners",
-        lambda root=None, managed=None: stopped.append("stopped") or ["python:1"],
+        lambda root=None, managed=None: stopped.append("stopped") or StopBackendResult(True),
     )
     monkeypatch.setattr("launcher.processes.load_state", lambda root=None: {})
     monkeypatch.setattr("launcher.process_cleanup.backend_listener_pids", lambda: [])
     monkeypatch.setattr("launcher.process_cleanup.frontend_listener_pids", lambda: [2])
 
     assert reconnect_managed(managed) is False
+    assert stopped == []
+
+
+def test_reconnect_kills_stale_backend_when_restart_requested(monkeypatch):
+    managed = ManagedProcesses()
+    stopped: list[str] = []
+    monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
+    monkeypatch.setattr("launcher.health.probe_frontend_live", lambda *a, **k: True)
+    monkeypatch.setattr("launcher.health.owner_ready_live", lambda: False)
+    monkeypatch.setattr(
+        "launcher.backend_identity.fetch_backend_status",
+        lambda timeout=8.0: {"runtime_identity": "old"},
+    )
+    monkeypatch.setattr(
+        "launcher.backend_identity.backend_runtime_compatible",
+        lambda root, status: (False, "stale"),
+    )
+    monkeypatch.setattr(
+        "launcher.backend_identity.stop_backend_listeners",
+        lambda root=None, managed=None: stopped.append("stopped") or StopBackendResult(True),
+    )
+    monkeypatch.setattr("launcher.processes.load_state", lambda root=None: {})
+    monkeypatch.setattr("launcher.process_cleanup.backend_listener_pids", lambda: [])
+    monkeypatch.setattr("launcher.process_cleanup.frontend_listener_pids", lambda: [2])
+
+    assert reconnect_managed(managed, restart_incompatible_backend=True) is False
     assert stopped == ["stopped"]

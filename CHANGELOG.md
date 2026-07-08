@@ -68,6 +68,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Launcher Process Management Fix (2026-07-08)
+
+- Fixed launcher hanging when backend `git_commit` differs from repository HEAD.
+- Idle status polling no longer attempts to restart backend.
+- Added reconnect mutex to prevent concurrent restart attempts.
+- Added verified `taskkill` result handling.
+- Prevented false "Freed port" log messages.
+- Improved backend restart validation before launching a new instance.
+
 ### Implemented — Brain Step 1 (2026-07-02)
 
 - `QueueStorage` protocol + `JsonQueueStorage`

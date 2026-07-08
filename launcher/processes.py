@@ -6,6 +6,7 @@ import os
 import signal
 import subprocess
 import sys
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +23,9 @@ from launcher.runtime_state import clear_state, load_state, pid_alive, record_op
 class ManagedProcesses:
     backend: subprocess.Popen | None = None
     frontend: subprocess.Popen | None = None
+
+
+_reconnect_lock = threading.Lock()
 
 
 def _no_window() -> int:
@@ -83,13 +87,35 @@ def sync_state_from_ports(
     sync_state(be, fe, root=root)
 
 
-def reconnect_managed(managed: ManagedProcesses, root: Path | None = None) -> bool:
+def reconnect_managed(
+    managed: ManagedProcesses,
+    root: Path | None = None,
+    *,
+    restart_incompatible_backend: bool = False,
+) -> bool:
     """Attach launcher UI to already-running Genesis processes.
 
     Returns True only when Mission Control is fully usable (backend + frontend HTTP 200)
     and the backend runtime matches the current repo (git commit, identity, age).
     Partial attach (backend only) returns False so bootstrap/launch can start frontend.
+
+    When restart_incompatible_backend is False (idle status poll), a version mismatch is
+    logged only — backend is not killed. Use True on explicit Start / launch paths.
     """
+    with _reconnect_lock:
+        return _reconnect_managed_locked(
+            managed,
+            root,
+            restart_incompatible_backend=restart_incompatible_backend,
+        )
+
+
+def _reconnect_managed_locked(
+    managed: ManagedProcesses,
+    root: Path | None,
+    *,
+    restart_incompatible_backend: bool,
+) -> bool:
     from launcher.backend_identity import (
         backend_runtime_compatible,
         fetch_backend_status,
@@ -102,13 +128,24 @@ def reconnect_managed(managed: ManagedProcesses, root: Path | None = None) -> bo
     if not backend_up and not frontend_up:
         return False
 
+    backend_compatible = True
     if backend_up:
         status = fetch_backend_status()
         compatible, reason = backend_runtime_compatible(root, status)
         if not compatible:
-            append_log(f"Backend HTTP 200 but not reconnectable — {reason}")
-            stop_backend_listeners(root, managed)
-            backend_up = False
+            backend_compatible = False
+            append_log(f"Backend runtime mismatch — {reason}")
+            if restart_incompatible_backend:
+                append_log("Stopping incompatible backend before relaunch")
+                result = stop_backend_listeners(root, managed)
+                if not result.port_free:
+                    detail = "; ".join(result.failures) or "port still occupied"
+                    append_log(f"Backend stop incomplete: {detail}")
+                backend_up = False
+            else:
+                append_log(
+                    "Backend left running — press Start to reload after code changes"
+                )
 
     state = load_state(root)
     be_pid = state.get("backend_pid")
@@ -128,7 +165,7 @@ def reconnect_managed(managed: ManagedProcesses, root: Path | None = None) -> bo
     elif frontend_up and pid_alive(fe_pid):
         managed.frontend = _PopenStub(fe_pid)  # type: ignore[assignment]
 
-    if owner_ready_live() and backend_up:
+    if owner_ready_live() and backend_up and backend_compatible:
         return True
 
     if backend_up and not frontend_up:
@@ -169,7 +206,10 @@ def start_backend(root: Path | None = None) -> tuple[bool, str, subprocess.Popen
             )
             return True, "Backend уже работает (актуальная версия)", None
         append_log(f"Stale backend on :8000 — {reason}; stopping before fresh start")
-        stop_backend_listeners(root)
+        result = stop_backend_listeners(root)
+        if not result.port_free:
+            detail = "; ".join(result.failures) or "port still occupied"
+            return False, f"Не удалось остановить старый backend: {detail}", None
 
     python = find_python()
     if not python:
@@ -325,7 +365,10 @@ def launch_genesis(
             record_ops_running(root)
             return True, "Virtus Core уже работает — подключено (24/7)"
         append_log(f"Устаревший backend {BRAND_NAME} при запуске — {reason}")
-        stop_backend_listeners(root, managed)
+        result = stop_backend_listeners(root, managed)
+        if not result.port_free:
+            detail = "; ".join(result.failures) or "port still occupied"
+            return False, f"Не удалось остановить старый backend: {detail}", None
 
     deps = check_dependencies(root)
     messages: list[str] = []
