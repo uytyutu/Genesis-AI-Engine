@@ -12,6 +12,7 @@ from launcher.deps import DepStatus, check_dependencies
 from launcher.health import ServiceHealth, check_services_fast, owner_ready_from_probes, probe_services_live, sync_with_mission_control
 from launcher.processes import reconnect_managed
 from launcher.backend_identity import backend_runtime_compatible, fetch_backend_status
+from launcher.launch_mode import LAUNCH_MODE_DEVELOPMENT, load_launch_mode
 
 _DEPS_CACHE: tuple[float, DepStatus] | None = None
 _DEPS_CACHE_TTL_SEC = 45.0
@@ -46,8 +47,11 @@ def gather_status(
     backend_up, frontend_up = probe_services_live(idle=launcher_idle)
 
     runtime_mismatch: str | None = None
+    backend_commit: str | None = None
     if backend_up:
         status_payload = fetch_backend_status(timeout=4.0 if launcher_idle else 8.0)
+        if status_payload:
+            backend_commit = str(status_payload.get("git_commit") or "").strip() or None
         compatible, reason = backend_runtime_compatible(root, status_payload)
         if not compatible:
             runtime_mismatch = reason
@@ -76,8 +80,10 @@ def gather_status(
     show_install = False
     if runtime_mismatch:
         hints.append(
-            f"Backend устарел ({runtime_mismatch}) — нажмите «Запустить» для обновления"
+            f"Проблема backend ({runtime_mismatch}) — нажмите «Запустить»"
         )
+    elif backend_commit and load_launch_mode() == LAUNCH_MODE_DEVELOPMENT:
+        hints.append(f"Backend: {backend_commit} (информация с сервера)")
     if not deps.node_ok:
         hints.append("Нажмите «Запустить» — Virtus Core установит Node.js автоматически")
     elif not deps.frontend_deps_ok:

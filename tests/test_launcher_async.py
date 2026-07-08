@@ -40,7 +40,7 @@ def test_start_backend_skips_when_status_up(monkeypatch):
     ok, msg, proc = start_backend()
     assert ok
     assert proc is None
-    assert "актуальная" in msg.lower() or "версия" in msg.lower()
+    assert "работает" in msg.lower()
 
 
 def test_start_backend_restarts_when_stale(monkeypatch):
@@ -55,13 +55,14 @@ def test_start_backend_restarts_when_stale(monkeypatch):
     )
     monkeypatch.setattr(
         "launcher.backend_identity.backend_runtime_compatible",
-        lambda root, status: (False, "git mismatch"),
+        lambda root, status: (False, "invalid runtime_identity"),
     )
     monkeypatch.setattr(
         "launcher.backend_identity.stop_backend_listeners",
         lambda root=None: StopBackendResult(port_free=True),
     )
-    monkeypatch.setattr("launcher.deps.find_python", lambda: "py")
+    monkeypatch.setattr("launcher.processes.backend_python_argv", lambda: ["py", "-3.12"])
+    monkeypatch.setattr("launcher.deps.ensure_backend_deps", lambda root=None: (True, "ok"))
     monkeypatch.setattr("launcher.backend_repair.prepare_backend_port", lambda root=None: (True, "port ok"))
     monkeypatch.setattr("launcher.processes.backend_dir", lambda root=None: __import__("pathlib").Path("."))
     monkeypatch.setattr("launcher.processes.log_dir", lambda root=None: __import__("pathlib").Path("."))

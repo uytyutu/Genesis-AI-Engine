@@ -32,6 +32,14 @@ from launcher.branding import (
 from launcher.desktop_identity import ensure_desktop_identity_async
 
 from launcher.config import LauncherConfig
+from launcher.launch_mode import (
+  LAUNCH_MODE_DEVELOPMENT,
+  LAUNCH_MODE_OWNER,
+  launch_mode_hint,
+  launch_mode_label,
+  normalize_launch_mode,
+)
+from launcher.runtime_diagnostics import format_runtime_diagnostics
 from launcher.deps import ensure_frontend_ready
 from launcher.startup_stages import repair_staged
 from launcher.frontend_repair import failure_headline, repair_frontend
@@ -80,14 +88,47 @@ class SettingsDialog(ctk.CTkToplevel):
     super().__init__(master)
     self.config = config
     self.title("Настройки")
-    self.geometry("400x280")
+    self.geometry("460x520")
     apply_window_icon(self)
     self.grab_set()
 
     ctk.CTkLabel(self, text="Ваше имя").pack(pady=(20, 4))
-    self.name = ctk.CTkEntry(self, width=280)
+    self.name = ctk.CTkEntry(self, width=320)
     self.name.pack()
     self.name.insert(0, config.owner_name)
+
+    ctk.CTkLabel(self, text="Режим работы", font=ctk.CTkFont(size=14, weight="bold")).pack(
+      pady=(16, 8)
+    )
+    mode_frame = ctk.CTkFrame(self, fg_color="transparent")
+    mode_frame.pack(fill="x", padx=24)
+    current = normalize_launch_mode(config.launch_mode)
+    self._mode_var = ctk.StringVar(value=current)
+    for mode_key in (LAUNCH_MODE_OWNER, LAUNCH_MODE_DEVELOPMENT):
+      ctk.CTkRadioButton(
+        mode_frame,
+        text=launch_mode_label(mode_key),
+        variable=self._mode_var,
+        value=mode_key,
+        command=self._update_mode_hint,
+      ).pack(anchor="w", pady=4)
+    self.mode_hint = ctk.CTkLabel(
+      self,
+      text=launch_mode_hint(current),
+      wraplength=380,
+      justify="left",
+      text_color=GENESIS_MUTED,
+      font=ctk.CTkFont(size=12),
+    )
+    self.mode_hint.pack(padx=24, pady=(8, 4))
+
+    ctk.CTkLabel(self, text="Диагностика", font=ctk.CTkFont(size=14, weight="bold")).pack(
+      pady=(12, 4)
+    )
+    self.runtime_box = ctk.CTkTextbox(self, width=380, height=110, font=ctk.CTkFont(size=12))
+    self.runtime_box.pack(padx=20, pady=4)
+    self.runtime_box.insert("1.0", format_runtime_diagnostics(master._project_root))
+    self.runtime_box.configure(state="disabled")
 
     self.auto_browser = ctk.CTkCheckBox(self, text="Открывать браузер при запуске")
     self.auto_browser.pack(pady=16)
@@ -96,9 +137,13 @@ class SettingsDialog(ctk.CTkToplevel):
 
     ctk.CTkButton(self, text="Сохранить", command=self._save).pack(pady=8)
 
+  def _update_mode_hint(self) -> None:
+    self.mode_hint.configure(text=launch_mode_hint(self._mode_var.get()))
+
   def _save(self) -> None:
     self.config.owner_name = self.name.get().strip() or "Владелец"
     self.config.auto_open_browser = bool(self.auto_browser.get())
+    self.config.launch_mode = normalize_launch_mode(self._mode_var.get())
     self.config.save()
     self.destroy()
 
@@ -547,9 +592,10 @@ class GenesisLauncher(ctk.CTk):
         dogfood = format_dogfooding_report(root=self._project_root)
       except OSError:
         dogfood = "Dogfooding: нет данных"
+      runtime = format_runtime_diagnostics(self._project_root)
       self.dev_text.insert(
         "1.0",
-        dogfood + "\n\n---\n" + "\n".join(health.details),
+        runtime + "\n\n---\n" + dogfood + "\n\n---\n" + "\n".join(health.details),
       )
       self.dev_text.configure(state="disabled")
 

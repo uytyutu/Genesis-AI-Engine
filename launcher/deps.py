@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
@@ -10,6 +11,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from launcher.paths import backend_dir, frontend_dir, log_dir
+from launcher.python_runtime import (
+    SUPPORTED_PYTHON_LABEL,
+    backend_python_argv,
+    resolve_any_python,
+    resolve_backend_python,
+    unsupported_python_message,
+)
 
 
 def frontend_deps_ready(root: Path | None = None) -> bool:
@@ -59,6 +67,8 @@ class DepStatus:
     python_ok: bool
     python_version: str
     python_cmd: str | None
+    python_supported: bool
+    backend_packages_ok: bool
     node_ok: bool
     node_version: str
     node_cmd: str | None
@@ -70,14 +80,113 @@ class DepStatus:
 
 
 def find_python() -> str | None:
-    if not getattr(sys, "frozen", False):
-        return sys.executable
-    for cmd in ("py", "python", "python3"):
-        if shutil.which(cmd):
-            return cmd
-    return None
+    """Backend Python command for display — prefers supported 3.12."""
+    argv = backend_python_argv()
+    if argv:
+        return " ".join(argv)
+    detected = resolve_any_python()
+    return detected.display_cmd if detected else None
 
 
+def _parse_requirements_file(req_path: Path) -> list[tuple[str, str | None]]:
+    specs: list[tuple[str, str | None]] = []
+    for raw in req_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "==" in line:
+            name, version = line.split("==", 1)
+            name = name.split("[", 1)[0].strip().lower().replace("_", "-")
+            specs.append((name, version.strip()))
+        else:
+            name = line.split("[", 1)[0].strip().lower().replace("_", "-")
+            specs.append((name, None))
+    return specs
+
+
+def backend_requirements_satisfied(
+    python_argv: list[str],
+    root: Path | None = None,
+) -> tuple[bool, str]:
+    """True when pinned backend packages are importable at required versions."""
+    req = backend_dir(root) / "requirements.txt"
+    if not req.is_file():
+        return False, "requirements.txt не найден"
+    specs = _parse_requirements_file(req)
+    if not specs:
+        return True, ""
+    payload = json.dumps({name: ver for name, ver in specs})
+    script = f"""
+import importlib.metadata as md
+import json
+import sys
+specs = json.loads({payload!r})
+for name, want in specs.items():
+    try:
+        got = md.version(name)
+    except md.PackageNotFoundError:
+        print(f"missing:{{name}}")
+        sys.exit(2)
+    if want and got != want:
+        print(f"version:{{name}}:{{got}}!={{want}}")
+        sys.exit(3)
+"""
+    result = subprocess.run(
+        [*python_argv, "-c", script],
+        capture_output=True,
+        text=True,
+        creationflags=_no_window(),
+    )
+    if result.returncode == 0:
+        return True, ""
+    detail = (result.stdout or result.stderr).strip().splitlines()
+    return False, detail[-1] if detail else "зависимости не совпадают с requirements.txt"
+
+
+def ensure_backend_deps(
+    root: Path | None = None,
+    *,
+    force: bool = False,
+) -> tuple[bool, str]:
+    """Install backend requirements only when missing, wrong version, or force=True."""
+    return install_backend_deps(root, force=force)
+
+
+def install_backend_deps(
+    root: Path | None = None,
+    *,
+    force: bool = False,
+) -> tuple[bool, str]:
+    runtime = resolve_backend_python()
+    if runtime is None:
+        return False, unsupported_python_message(resolve_any_python())
+
+    if not force:
+        ok, reason = backend_requirements_satisfied(runtime.argv, root)
+        if ok:
+            return True, "Python-зависимости уже установлены"
+
+    be = backend_dir(root)
+    req = be / "requirements.txt"
+    if not req.exists():
+        return False, "requirements.txt не найден"
+    result = subprocess.run(
+        [*runtime.argv, "-m", "pip", "install", "-r", str(req), "-q"],
+        cwd=be,
+        capture_output=True,
+        text=True,
+        creationflags=_no_window(),
+    )
+    if result.returncode != 0:
+        err = result.stderr.strip() or result.stdout.strip() or "Ошибка установки Python-зависимостей"
+        if "pydantic-core" in err or "link.exe" in err:
+            return (
+                False,
+                f"{unsupported_python_message(runtime)}\n\n"
+                f"Подробности pip:\n{err[-1200:]}",
+            )
+        return False, err
+    return True, "Python-зависимости установлены"
 def _node_install_dirs() -> list[Path]:
     dirs: list[Path] = []
     for key in ("ProgramFiles", "ProgramFiles(x86)"):
@@ -159,11 +268,27 @@ def _no_window() -> int:
 
 def check_dependencies(root: Path | None = None) -> DepStatus:
     issues: list[str] = []
-    python_cmd = find_python()
-    python_ok = python_cmd is not None
-    python_version = _run_version([python_cmd, "--version"]) if python_cmd else ""
-    if not python_ok:
-        issues.append("Python не найден на компьютере")
+    runtime = resolve_backend_python()
+    detected = resolve_any_python() if runtime is None else None
+    python_supported = runtime is not None
+    python_ok = python_supported
+    python_cmd = runtime.display_cmd if runtime else (detected.display_cmd if detected else None)
+    python_version = runtime.version_text if runtime else (detected.version_text if detected else "")
+    if not python_supported:
+        issues.append(
+            f"Нужен Python {SUPPORTED_PYTHON_LABEL}. "
+            + (
+                f"Сейчас: {detected.version_text}."
+                if detected
+                else "Python не найден."
+            )
+        )
+
+    backend_packages_ok = False
+    if runtime is not None:
+        backend_packages_ok, pkg_reason = backend_requirements_satisfied(runtime.argv, root)
+        if not backend_packages_ok and pkg_reason:
+            issues.append(f"Python-пакеты: {pkg_reason}")
 
     node_cmd = find_node()
     node_ok = node_cmd is not None
@@ -177,7 +302,6 @@ def check_dependencies(root: Path | None = None) -> DepStatus:
         issues.append("npm не найден")
 
     be = backend_dir(root)
-    fe = frontend_dir(root)
     backend_deps_ok = (be / "app" / "main.py").exists()
     if not backend_deps_ok:
         issues.append("Backend не найден в проекте")
@@ -190,6 +314,8 @@ def check_dependencies(root: Path | None = None) -> DepStatus:
         python_ok=python_ok,
         python_version=python_version,
         python_cmd=python_cmd,
+        python_supported=python_supported,
+        backend_packages_ok=backend_packages_ok,
         node_ok=node_ok,
         node_version=node_version,
         node_cmd=node_cmd,
@@ -199,26 +325,6 @@ def check_dependencies(root: Path | None = None) -> DepStatus:
         frontend_deps_ok=frontend_deps_ok,
         issues=issues,
     )
-
-
-def install_backend_deps(root: Path | None = None) -> tuple[bool, str]:
-    deps = check_dependencies(root)
-    if not deps.python_cmd:
-        return False, "Python не найден"
-    be = backend_dir(root)
-    req = be / "requirements.txt"
-    if not req.exists():
-        return False, "requirements.txt не найден"
-    result = subprocess.run(
-        [deps.python_cmd, "-m", "pip", "install", "-r", str(req), "-q"],
-        cwd=be,
-        capture_output=True,
-        text=True,
-        creationflags=_no_window(),
-    )
-    if result.returncode != 0:
-        return False, result.stderr.strip() or "Ошибка установки Python-зависимостей"
-    return True, "Python-зависимости установлены"
 
 
 def ensure_frontend_ready(

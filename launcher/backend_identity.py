@@ -1,8 +1,11 @@
-"""Backend runtime identity — git commit, process age, reconnect eligibility."""
+"""Backend lifecycle checks for Launcher — HTTP alive, identity, process age.
+
+Launcher never consults Git or commits. Version strings from /api/status are
+display-only. Git belongs to development tools (Cursor, CI), not launch control.
+"""
 
 from __future__ import annotations
 
-import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -10,13 +13,12 @@ from typing import TYPE_CHECKING
 
 from launcher.health import BACKEND_URL, _get_json
 from launcher.log_util import append_log
-from launcher.paths import find_project_root
 
 if TYPE_CHECKING:
     from launcher.processes import ManagedProcesses
 
 VALID_RUNTIME_IDENTITIES = frozenset({"genesis-backend-v1"})
-MAX_BACKEND_UPTIME_SEC = 86400.0  # 24h — stale .env / long-lived orphan guard
+MAX_BACKEND_UPTIME_SEC = 86400.0  # 24h — long-lived orphan guard (lifecycle only)
 
 
 @dataclass
@@ -24,31 +26,6 @@ class StopBackendResult:
     port_free: bool
     stopped_pids: list[int] = field(default_factory=list)
     failures: list[str] = field(default_factory=list)
-
-
-def _no_window() -> int:
-    if sys.platform == "win32":
-        return subprocess.CREATE_NO_WINDOW  # type: ignore[attr-defined]
-    return 0
-
-
-def expected_git_commit(root: Path | None = None) -> str:
-    try:
-        repo = find_project_root(root)
-        result = subprocess.run(
-            ["git", "-C", str(repo), "rev-parse", "--short", "HEAD"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-            creationflags=_no_window(),
-        )
-        if result.returncode == 0:
-            commit = result.stdout.strip()
-            if commit:
-                return commit
-    except (FileNotFoundError, OSError, subprocess.TimeoutExpired):
-        pass
-    return "unknown"
 
 
 def fetch_backend_status(timeout: float = 8.0) -> dict | None:
@@ -60,18 +37,6 @@ def is_runtime_identity_valid(status: dict | None) -> bool:
         return False
     identity = str(status.get("runtime_identity") or "").strip()
     return identity in VALID_RUNTIME_IDENTITIES
-
-
-def git_commit_matches(root: Path | None, status: dict | None) -> bool:
-    if not status:
-        return False
-    expected = expected_git_commit(root)
-    running = str(status.get("git_commit") or "").strip()
-    if not running:
-        return False
-    if expected == "unknown" or running == "unknown":
-        return expected == running
-    return expected == running
 
 
 def process_age_acceptable(status: dict | None) -> bool:
@@ -90,17 +55,12 @@ def backend_runtime_compatible(
     root: Path | None,
     status: dict | None,
 ) -> tuple[bool, str]:
+    """Lifecycle eligibility — not Git, not repo HEAD, not dev workflow."""
     if status is None:
         return False, "backend /api/status unreachable"
     if not is_runtime_identity_valid(status):
         identity = status.get("runtime_identity")
         return False, f"invalid or missing runtime_identity ({identity!r})"
-    if not git_commit_matches(root, status):
-        return (
-            False,
-            f"git_commit mismatch: running={status.get('git_commit')!r} "
-            f"expected={expected_git_commit(root)!r}",
-        )
     if not process_age_acceptable(status):
         return False, f"process too old: uptime_sec={status.get('uptime_sec')}"
     return True, "ok"

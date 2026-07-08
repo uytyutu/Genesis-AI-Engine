@@ -68,6 +68,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Launch Architecture v2 — Python runtime management (2026-07-08)
+
+- **Launch law:** Launcher manages lifecycle only — never Git/commits for process decisions.
+- Settings: **Пользователь** / **Разработка**; Runtime diagnostics block in Settings and dev panel.
+- **Python 3.12 required** for backend (`py -3.12`, matches `runtime.txt`).
+- `pip install` only when packages missing/wrong or on explicit Repair (`force=True`).
+- Clear error when only Python 3.14 is present — no silent Rust/pydantic-core builds.
+
 ### Launcher Process Management Fix (2026-07-08)
 
 - Fixed launcher hanging when backend `git_commit` differs from repository HEAD.

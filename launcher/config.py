@@ -26,6 +26,7 @@ class LauncherConfig:
     keep_running_on_close: bool = True
     auto_start_on_open: bool = True
     mission_control_surface: str = "browser"  # browser | desktop (Native Desktop phase)
+    launch_mode: str = "owner"  # owner | development
 
     @classmethod
     def load(cls) -> LauncherConfig:

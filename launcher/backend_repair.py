@@ -10,7 +10,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from launcher.deps import find_python, install_backend_deps
+from launcher.deps import install_backend_deps
+from launcher.python_runtime import resolve_backend_python
 from launcher.health import probe_backend
 from launcher.log_util import append_log
 from launcher.paths import log_dir
@@ -131,8 +132,8 @@ def prepare_backend_port(root: Path | None = None) -> tuple[bool, str]:
     if status is not None:
         compatible, reason = backend_runtime_compatible(root, status)
         if compatible:
-            return True, "Backend уже отвечает на :8000 (актуальная версия)"
-        append_log(f"prepare_backend_port: stale backend — {reason}")
+            return True, "Backend уже отвечает на :8000"
+        append_log(f"prepare_backend_port: incompatible backend — {reason}")
         stop_backend_listeners(root)
 
     freed: list[str] = []
@@ -181,7 +182,7 @@ def diagnose_backend(
     if backend_up:
         return BackendDiagnosis("ok", "Backend работает.", False, excerpt)
 
-    if not find_python():
+    if not resolve_backend_python():
         return BackendDiagnosis(
             "python_missing",
             "Python не найден. Установите Python 3.11+ или нажмите «Запустить» в Virtus Core.",
@@ -261,7 +262,7 @@ def repair_backend(
         steps.append("Backend отвечает — перезапуск не нужен")
         return True, "\n".join(steps)
 
-    ok, msg = install_backend_deps(root)
+    ok, msg = install_backend_deps(root, force=True)
     steps.append(msg)
     if not ok:
         return False, f"{diag.message}\n\n{msg}"

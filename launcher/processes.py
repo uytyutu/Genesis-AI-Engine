@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Callable
 
 from launcher.branding import BRAND_NAME
-from launcher.deps import find_python
+from launcher.deps import backend_python_argv, find_python
 from launcher.log_util import append_log
 from launcher.paths import backend_dir, frontend_dir, log_dir
 from launcher.runtime_state import clear_state, load_state, pid_alive, record_ops_running, sync_state
@@ -96,10 +96,9 @@ def reconnect_managed(
     """Attach launcher UI to already-running Genesis processes.
 
     Returns True only when Mission Control is fully usable (backend + frontend HTTP 200)
-    and the backend runtime matches the current repo (git commit, identity, age).
-    Partial attach (backend only) returns False so bootstrap/launch can start frontend.
+    and the backend passes lifecycle checks (identity, age). Git is never consulted.
 
-    When restart_incompatible_backend is False (idle status poll), a version mismatch is
+    When restart_incompatible_backend is False (idle status poll), a lifecycle problem is
     logged only — backend is not killed. Use True on explicit Start / launch paths.
     """
     with _reconnect_lock:
@@ -144,7 +143,7 @@ def _reconnect_managed_locked(
                 backend_up = False
             else:
                 append_log(
-                    "Backend left running — press Start to reload after code changes"
+                    "Backend left running — press Start to relaunch if needed"
                 )
 
     state = load_state(root)
@@ -196,35 +195,42 @@ def start_backend(root: Path | None = None) -> tuple[bool, str, subprocess.Popen
         stop_backend_listeners,
     )
     from launcher.backend_repair import prepare_backend_port
+    from launcher.deps import ensure_backend_deps
 
     status = fetch_backend_status()
     if status is not None:
         compatible, reason = backend_runtime_compatible(root, status)
         if compatible:
             append_log(
-                "Backend already serving /api/status with matching runtime — skip duplicate start"
+                "Backend already serving /api/status — skip duplicate start"
             )
-            return True, "Backend уже работает (актуальная версия)", None
-        append_log(f"Stale backend on :8000 — {reason}; stopping before fresh start")
+            return True, "Backend уже работает", None
+        append_log(f"Incompatible backend on :8000 — {reason}; stopping before fresh start")
         result = stop_backend_listeners(root)
         if not result.port_free:
             detail = "; ".join(result.failures) or "port still occupied"
             return False, f"Не удалось остановить старый backend: {detail}", None
 
-    python = find_python()
-    if not python:
-        return False, "Python не найден", None
+    python_argv = backend_python_argv()
+    if not python_argv:
+        from launcher.python_runtime import resolve_any_python, unsupported_python_message
 
-    ok, port_msg = prepare_backend_port(root)
+        return False, unsupported_python_message(resolve_any_python()), None
+
+    ok, msg = ensure_backend_deps(root)
     if not ok:
+        return False, msg, None
+
+    ok_port, port_msg = prepare_backend_port(root)
+    if not ok_port:
         return False, port_msg, None
 
-    be = backend_dir(root)
     log_file = log_dir(root) / "backend.log"
     log_handle = open(log_file, "a", encoding="utf-8")
+    be = backend_dir(root)
 
     proc = subprocess.Popen(
-        [python, "-m", "uvicorn", "app.main:app", "--port", "8000"],
+        [*python_argv, "-m", "uvicorn", "app.main:app", "--port", "8000"],
         cwd=be,
         stdout=log_handle,
         stderr=subprocess.STDOUT,
@@ -364,7 +370,7 @@ def launch_genesis(
             sync_state_from_ports(managed, root)
             record_ops_running(root)
             return True, "Virtus Core уже работает — подключено (24/7)"
-        append_log(f"Устаревший backend {BRAND_NAME} при запуске — {reason}")
+        append_log(f"Incompatible backend {BRAND_NAME} on Start — {reason}")
         result = stop_backend_listeners(root, managed)
         if not result.port_free:
             detail = "; ".join(result.failures) or "port still occupied"
@@ -377,7 +383,7 @@ def launch_genesis(
         return False, "Установите Python 3.11+ с python.org"
 
     if install_deps:
-        ok, msg = install_backend_deps(root)
+        ok, msg = install_backend_deps(root, force=False)
         messages.append(msg)
         if not ok:
             return False, msg

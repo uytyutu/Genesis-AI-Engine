@@ -9,7 +9,8 @@ from pathlib import Path
 import customtkinter as ctk
 
 from launcher.component_install import install_component, open_component_site
-from launcher.deps import check_dependencies, find_node, find_npm, find_python
+from launcher.deps import check_dependencies, find_node, find_npm
+from launcher.python_runtime import resolve_backend_python
 from launcher.log_util import append_log
 from launcher.paths import log_dir
 
@@ -125,7 +126,7 @@ class MissingComponentDialog(ctk.CTkToplevel):
         threading.Thread(target=work, daemon=True).start()
 
     def _recheck(self) -> None:
-        if self.component == "python" and find_python():
+        if self.component == "python" and resolve_backend_python():
             self.destroy()
             self._on_done(True)
             return
@@ -140,7 +141,7 @@ def ensure_launcher_components(master, root: Path | None, on_ready: Callable[[],
     """Show install UI for missing Python/Node, then call on_ready."""
 
     def step_python() -> None:
-        if find_python():
+        if resolve_backend_python():
             step_node()
             return
 
