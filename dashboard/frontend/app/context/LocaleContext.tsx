@@ -13,6 +13,7 @@ import { I18nextProvider } from "react-i18next";
 
 import { ensureI18n } from "../lib/i18n/client";
 import { detectBrowserLocale } from "../lib/locale/detect";
+import { getLocaleDefinition, isRtlLocale } from "../lib/locale/registry";
 import { loadLocaleState, persistLocaleState } from "../lib/locale/storage";
 import type { AssistantLocale, LocaleState, UiLocale } from "../lib/locale/types";
 
@@ -29,7 +30,14 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const i18n = useMemo(() => ensureI18n(state.uiLocale), [state.uiLocale]);
 
   useEffect(() => {
+    const def = getLocaleDefinition(state.uiLocale);
     document.documentElement.lang = state.uiLocale;
+    document.documentElement.dir = isRtlLocale(state.uiLocale) ? "rtl" : "ltr";
+    if (def?.rtl) {
+      document.documentElement.setAttribute("data-locale-rtl", "1");
+    } else {
+      document.documentElement.removeAttribute("data-locale-rtl");
+    }
   }, [state.uiLocale]);
 
   const commit = useCallback((next: LocaleState) => {

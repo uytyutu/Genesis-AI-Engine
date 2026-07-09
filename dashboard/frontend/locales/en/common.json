@@ -12,6 +12,9 @@
     "auto": "Automatic (browser)",
     "ui": "Interface",
     "assistant": "Assistant replies",
+    "search": "Search language…",
+    "noResults": "No languages found",
+    "fallbackNote": "Languages without a full UI pack use English interface strings.",
     "ru": "Русский",
     "en": "English",
     "de": "Deutsch"

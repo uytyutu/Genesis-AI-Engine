@@ -1,7 +1,7 @@
 import { detectBrowserLocale } from "./detect";
 import {
   DEFAULT_UI_LOCALE,
-  isUiLocale,
+  isPlatformLocale,
   type AssistantLocale,
   type LocaleState,
   type UiLocale,
@@ -27,7 +27,7 @@ function readStoredUi(): UiLocale | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(UI_KEY);
-    return isUiLocale(raw) ? raw : null;
+    return isPlatformLocale(raw) ? raw : null;
   } catch {
     return null;
   }
@@ -37,7 +37,7 @@ function readStoredAssistant(): AssistantLocale | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(ASSISTANT_KEY);
-    return isUiLocale(raw) ? raw : null;
+    return isPlatformLocale(raw) ? raw : null;
   } catch {
     return null;
   }
@@ -46,9 +46,7 @@ function readStoredAssistant(): AssistantLocale | null {
 export function loadLocaleState(): LocaleState {
   const autoDetect = readAuto();
   const storedUi = readStoredUi();
-  const uiLocale = autoDetect
-    ? detectBrowserLocale()
-    : storedUi ?? DEFAULT_UI_LOCALE;
+  const uiLocale = autoDetect ? detectBrowserLocale() : storedUi ?? DEFAULT_UI_LOCALE;
   const assistantLocale = readStoredAssistant() ?? uiLocale;
   return { uiLocale, assistantLocale, autoDetect };
 }

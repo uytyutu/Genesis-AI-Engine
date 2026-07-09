@@ -18,6 +18,7 @@ SUPPORTED = frozenset(
         "tr",
         "ar",
         "fa",
+        "he",
         "hi",
         "zh-Hans",
         "zh-Hant",

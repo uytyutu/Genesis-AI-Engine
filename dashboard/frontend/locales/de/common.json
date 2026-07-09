@@ -12,6 +12,9 @@
     "auto": "Automatisch (Browser)",
     "ui": "Oberfläche",
     "assistant": "Antworten des Assistenten",
+    "search": "Sprache suchen…",
+    "noResults": "Keine Sprachen gefunden",
+    "fallbackNote": "Sprachen ohne vollständiges Paket nutzen Englisch für die Oberfläche.",
     "ru": "Русский",
     "en": "English",
     "de": "Deutsch"
