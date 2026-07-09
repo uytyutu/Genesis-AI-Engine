@@ -16,7 +16,6 @@ export function PublicSiteHeader() {
   const LINKS = [
     { href: "/site", label: t("nav.home") },
     { href: "/services", label: t("nav.services") },
-    { href: "/products", label: t("nav.studio") },
     { href: "/order", label: t("nav.order"), accent: true },
   ];
 

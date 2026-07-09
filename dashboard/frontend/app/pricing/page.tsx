@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** Legacy URL — Products is the canonical subscription page. */
+/** Legacy URL — public pricing lives on /services and /order. */
 export default function PricingPage() {
-  redirect("/products");
+  redirect("/site");
 }

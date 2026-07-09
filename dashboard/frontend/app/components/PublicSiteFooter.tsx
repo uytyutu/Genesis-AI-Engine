@@ -12,7 +12,7 @@ const HELP = [
   { href: "/faq", label: "FAQ" },
   { href: "/kontakt", label: "Kontakt" },
   { href: "/services", label: "Услуги" },
-  { href: "/products", label: "Studio" },
+  { href: "/site", label: "Vector" },
 ];
 
 export function PublicSiteFooter() {
@@ -22,7 +22,7 @@ export function PublicSiteFooter() {
         <div>
           <p className="font-semibold">{BRAND_NAME}</p>
           <p className="mt-2 text-sm text-genesis-muted">
-            {ASSISTANT_NAME} · лендинги для бизнеса · цена сразу · оплата онлайн
+            {ASSISTANT_NAME} · лендинги для бизнеса · сначала разговор, затем заказ
           </p>
           <a
             href={`mailto:${CONTACT_EMAIL}`}

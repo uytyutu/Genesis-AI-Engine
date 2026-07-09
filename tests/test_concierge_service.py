@@ -54,7 +54,8 @@ def test_concierge_studio_intent_no_service_push():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Хочу пользоваться Genesis Studio и создавать проекты сам")
     assert "studio" in out["answer"].lower()
-    assert "49" in out["answer"]
+    assert "разработк" in out["answer"].lower() or "нельзя" in out["answer"].lower()
+    assert "49" not in out["answer"]
     assert out.get("cta_href") is None
 
 
@@ -62,15 +63,16 @@ def test_concierge_subscription_explains_two_products():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Сколько стоит подписка Genesis Studio?")
     assert "studio" in out["answer"].lower() or "подписк" in out["answer"].lower()
-    assert "услуг" in out["answer"].lower() or "разов" in out["answer"].lower()
-    assert "только после" not in out["answer"].lower()
+    assert "350" in out["answer"] or "лендинг" in out["answer"].lower()
+    assert "49" not in out["answer"]
 
 
 def test_concierge_what_is_genesis():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Что такое Genesis?")
-    assert "genesis" in out["answer"].lower()
-    assert "studio" in out["answer"].lower() or "услуг" in out["answer"].lower()
+    assert "virtus" in out["answer"].lower()
+    assert "разработк" in out["answer"].lower() or "studio" in out["answer"].lower()
+    assert "350" in out["answer"] or "лендинг" in out["answer"].lower()
 
 
 def test_concierge_pricing_lists_packages_no_immediate_order():
@@ -99,39 +101,43 @@ def test_genesis_ai_unavailable_without_key(monkeypatch):
     monkeypatch.delenv("GENESIS_LLM_API_KEY", raising=False)
     monkeypatch.delenv("GENESIS_DEEPSEEK_API_KEY", raising=False)
     monkeypatch.setenv("GENESIS_DEV_MOCK_LLM", "0")
+    monkeypatch.setenv("GENESIS_ACCEPTANCE_GATE", "1")
     svc = GenesisAIService(_PACKAGES)
     assert not svc.llm_configured()
     assert svc.intelligence_active()
     out = svc.chat("Мне нужен сайт для кафе")
     assert out["mode"] == "genesis"
     assert out["source"] == "genesis-ai"
-    assert "кафе" in out["answer"].lower() or "650" in out["answer"]
+    assert "кафе" in out["answer"].lower() or "650" in out["answer"] or "сайт" in out["answer"].lower()
 
 
 def test_bot_only_product():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Мне нужен чат-бот для Telegram")
-    assert "250" in out["answer"]
-    assert "подпис" not in out["answer"].lower() or "без подпис" in out["answer"].lower()
+    assert "нельзя" in out["answer"].lower() or "пока" in out["answer"].lower()
+    assert "250" not in out["answer"]
 
 
 def test_store_quick_quote():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Мне нужен интернет-магазин")
-    assert "800" in out["answer"] or "1 200" in out["answer"] or "1200" in out["answer"]
+    assert "нельзя" in out["answer"].lower() or "пока" in out["answer"].lower()
+    assert "800" not in out["answer"]
     assert out["context"]["flow"] == "store"
 
 
 def test_studio_subscription_pricing():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Хочу автоматизировать бизнес через Genesis Studio")
-    assert "49" in out["answer"]
+    assert "разработк" in out["answer"].lower() or "нельзя" in out["answer"].lower()
+    assert "49" not in out["answer"]
 
 
 def test_genesis_ai_greeting_without_llm(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("GENESIS_LLM_API_KEY", raising=False)
     monkeypatch.setenv("GENESIS_DEV_MOCK_LLM", "0")
+    monkeypatch.setenv("GENESIS_ACCEPTANCE_GATE", "1")
     svc = GenesisAIService(_PACKAGES)
     out = svc.chat("Привет")
     assert out["mode"] == "genesis"

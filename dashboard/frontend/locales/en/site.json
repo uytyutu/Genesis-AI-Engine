@@ -4,5 +4,5 @@
   "startChat": "Start conversation ↑",
   "faqTitle": "FAQ",
   "servicesTitle": "Services",
-  "servicesIntro": "{{brand}} delivers turnkey sites, bots, and automation. “From” prices are a guide after we talk."
+  "servicesIntro": "{{brand}}: talk with {{assistant}} on /site, then order a landing (€350 / €650 / €1200 on /order)."
 }

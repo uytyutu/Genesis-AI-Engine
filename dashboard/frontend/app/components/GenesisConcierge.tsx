@@ -23,7 +23,6 @@ import {
   ASSISTANT_NAME,
   BRAND_NAME,
   PUBLIC_WELCOME,
-  STUDIO_NAME,
 } from "../lib/publicBrand";
 import { VectorBrandSignature } from "./VectorBrandSignature";
 import {
@@ -175,7 +174,7 @@ type ChatApiResponse = {
 const STARTERS_VISIBLE = [
   { label: "💇 Сайт салона", message: "Хочу сайт для салона красоты" },
   { label: "🍽️ Сайт кафе", message: "Мне нужен сайт для кафе" },
-  { label: `✨ ${STUDIO_NAME}`, message: `Хочу попробовать ${STUDIO_NAME}` },
+  { label: "📋 Заказать сайт", message: "Хочу заказать лендинг под ключ" },
 ];
 
 const STARTERS_MORE = [

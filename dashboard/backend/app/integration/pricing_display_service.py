@@ -6,6 +6,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from app.integration.public_truth_catalog import build_truth_pricing_display
+
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
 
@@ -17,11 +19,14 @@ class PricingDisplayService:
 
     def get_display(self) -> dict:
         if not self._config_path.is_file():
-            return {"version": "0", "subscriptions": [], "services": [], "business_units": []}
+            return build_truth_pricing_display()
         try:
-            return json.loads(self._config_path.read_text(encoding="utf-8"))
+            data = json.loads(self._config_path.read_text(encoding="utf-8"))
+            if not (data.get("service_categories") or data.get("subscriptions")):
+                return build_truth_pricing_display()
+            return data
         except (json.JSONDecodeError, OSError):
-            return {"version": "0", "subscriptions": [], "services": [], "business_units": []}
+            return build_truth_pricing_display()
 
     def log_event(self, *, event: str, tier_id: str | None, page: str, meta: dict | None = None) -> None:
         row = {

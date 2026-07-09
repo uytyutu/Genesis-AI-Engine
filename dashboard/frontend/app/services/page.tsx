@@ -113,7 +113,7 @@ export default function ServicesPage() {
     logPricingEvent("page_view", null, "services");
   }, []);
 
-  const categories: ServiceCategory[] =
+  const categories: ServiceCategory[] = (
     data?.service_categories?.length
       ? data.service_categories
       : data?.services?.length
@@ -129,21 +129,25 @@ export default function ServicesPage() {
               })),
             },
           ]
-        : [];
+        : []
+  ).map((cat) => ({
+    ...cat,
+    items: cat.items.filter((item) => item.available),
+  })).filter((cat) => cat.items.length > 0);
 
   return (
     <PublicPageShell>
       <PublicPageHero
-        badge="Результат под ключ"
+        badge="Лендинг под ключ"
         badgeVariant="success"
         title={`Услуги ${BRAND_NAME}`}
-        description="Готовый результат под ключ — сайт, бот, AI. Цена «от», срок и состав на карточке. Один проект — услуга; много проектов сами — Studio."
+        description="Сначала — разговор с Vector на /site. Затем заказ лендинга: пакеты 350 / 650 / 1200 € на /order."
       >
-        <ButtonLink href="/order" variant="success" size="lg">
-          Заказать landing →
+        <ButtonLink href="/site" variant="primary" size="lg">
+          Начать с Vector →
         </ButtonLink>
-        <ButtonLink href="/products" variant="ghost" size="lg" className="ml-2">
-          Или Development Studio
+        <ButtonLink href="/order" variant="success" size="lg" className="ml-2">
+          Заказать лендинг →
         </ButtonLink>
       </PublicPageHero>
 
@@ -190,10 +194,11 @@ export default function ServicesPage() {
 
       <Card className="mt-12 text-center" padding="md">
         <p className="text-sm text-genesis-muted">
-          Много проектов в год?{" "}
-          <ButtonLink href="/products" variant="ghost" size="sm" className="inline-flex text-indigo-300">
-            Сравнить Development Studio →
-          </ButtonLink>
+          Virtus Studio (подписка) — в разработке. Сейчас:{" "}
+          <ButtonLink href="/site" variant="ghost" size="sm" className="inline-flex text-genesis-accent">
+            разговор с Vector
+          </ButtonLink>{" "}
+          и заказ лендинга.
         </p>
       </Card>
     </PublicPageShell>
