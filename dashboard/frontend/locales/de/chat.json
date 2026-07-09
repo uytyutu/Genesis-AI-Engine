@@ -1,0 +1,28 @@
+{
+  "voiceStatus": {
+    "ready": "⚪ Bereit",
+    "listening": "🎤 Höre zu…",
+    "speaking": "🗣️ Spreche…",
+    "thinking": "💭 Denke…",
+    "stopped": "⏹️ Gestoppt"
+  },
+  "stop": "Stopp",
+  "stopAria": "Sprache oder Generierung stoppen",
+  "placeholder": "Nachricht an {{assistant}}…",
+  "send": "Senden",
+  "attach": "Datei anhängen",
+  "micStart": "Sprechen",
+  "micStop": "Aufnahme stoppen",
+  "voiceSettings": "Spracheinstellungen",
+  "generationStopped": "— Generierung gestoppt —",
+  "newChat": "Neuer Chat",
+  "back": "← Zurück",
+  "filesOnlyPrompt": "Der Kunde hat Dateien angehängt — bitte helfen Sie, die Aufgabe zu verstehen.",
+  "micModalTitle": "Sprachgespräch mit {{assistant}}",
+  "micModalBody": "Tippen Sie unten — der Browser fragt einmal nach der Erlaubnis.",
+  "micAllow": "Mikrofon erlauben",
+  "micLater": "Später",
+  "retryMic": "Erneut versuchen",
+  "dismiss": "Schließen",
+  "micDenied": "Für Spracheingabe erlauben Sie den Mikrofonzugriff.\n\nKlicken Sie 🔒 in der Adressleiste → Berechtigungen → Mikrofon → Erlauben."
+}

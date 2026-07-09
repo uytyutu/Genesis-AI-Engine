@@ -86,3 +86,70 @@ def assistant_response_locale(requested: str | None, question: str) -> str:
     if locale in CEO_PACK_LOCALES:
         return locale
     return FALLBACK_LOCALE
+
+
+def resolve_assistant_locale(
+    assistant_locale: str | None,
+    *,
+    ui_locale: str | None = None,
+    legacy_locale: str | None = None,
+) -> str:
+    """Explicit assistant locale from client; legacy `locale` field as fallback."""
+    if assistant_locale:
+        return resolve_locale(assistant_locale)
+    if legacy_locale:
+        return resolve_locale(legacy_locale)
+    if ui_locale:
+        return resolve_locale(ui_locale)
+    return DEFAULT_LOCALE
+
+
+def assistant_llm_language_hint(locale: str, assistant_name: str, brand_name: str) -> str:
+    loc = resolve_locale(locale)
+    if loc not in CEO_PACK_LOCALES:
+        loc = FALLBACK_LOCALE
+    hints = {
+        "ru": (
+            f"Пишите ответ на русском как {assistant_name}: живо, без шаблонов, "
+            "без цитирования brief."
+        ),
+        "en": (
+            f"Write your reply in English as {assistant_name}: lively, no templates, "
+            "do not quote the brief."
+        ),
+        "de": (
+            f"Schreiben Sie Ihre Antwort auf Deutsch als {assistant_name}: lebendig, "
+            "ohne Vorlagen, ohne Zitat des Briefs."
+        ),
+    }
+    return hints[loc]
+
+
+_SERVICE_COPY: dict[str, dict[str, str]] = {
+    "error_fallback": {
+        "ru": (
+            "Извините, сейчас не удалось сформировать ответ. "
+            "Попробуйте переформулировать — я здесь, чтобы помочь."
+        ),
+        "en": (
+            "Sorry, I couldn't form a reply right now. "
+            "Try rephrasing — I'm here to help."
+        ),
+        "de": (
+            "Entschuldigung, gerade konnte ich keine Antwort formulieren. "
+            "Formulieren Sie es anders — ich bin für Sie da."
+        ),
+    },
+    "attachment_ack": {
+        "ru": "Спасибо, я вижу ваши файлы.\n\n",
+        "en": "Thanks, I see your files.\n\n",
+        "de": "Danke, ich sehe Ihre Dateien.\n\n",
+    },
+}
+
+
+def localized_service_copy(key: str, locale: str | None) -> str:
+    loc = resolve_locale(locale)
+    if loc not in CEO_PACK_LOCALES:
+        loc = FALLBACK_LOCALE
+    return _SERVICE_COPY[key][loc]

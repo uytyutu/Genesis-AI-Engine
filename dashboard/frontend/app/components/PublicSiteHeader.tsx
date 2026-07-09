@@ -3,33 +3,39 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { GenesisLogo } from "./GenesisLogo";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ButtonLink } from "./ui/Button";
 
-const LINKS = [
-  { href: "/site", label: "Главная" },
-  { href: "/services", label: "Услуги" },
-  { href: "/products", label: "Studio" },
-  { href: "/order", label: "Заказать", accent: true },
-];
-
 export function PublicSiteHeader() {
+  const { t } = useTranslation("common");
   const pathname = usePathname() ?? "";
   const [open, setOpen] = useState(false);
+
+  const LINKS = [
+    { href: "/site", label: t("nav.home") },
+    { href: "/services", label: t("nav.services") },
+    { href: "/products", label: t("nav.studio") },
+    { href: "/order", label: t("nav.order"), accent: true },
+  ];
 
   return (
     <header className="relative mb-8 border-b border-white/5 pb-5">
       <div className="flex items-center justify-between gap-4">
         <GenesisLogo />
-        <button
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <button
           type="button"
           className="rounded-xl border border-genesis-border-subtle px-3 py-2 text-sm text-genesis-muted transition-smooth hover:border-genesis-accent/30 hover:text-white sm:hidden"
           aria-expanded={open}
           aria-controls="public-nav"
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? "Закрыть" : "Меню"}
+          {open ? t("nav.close") : t("nav.menu")}
         </button>
+        </div>
         <nav
           id="public-nav"
           className={`${open ? "flex" : "hidden"} absolute left-4 right-4 top-[4.5rem] z-20 flex-col gap-1 rounded-xl border border-genesis-border bg-genesis-panel p-3 shadow-card sm:static sm:flex sm:flex-row sm:items-center sm:gap-2 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none`}

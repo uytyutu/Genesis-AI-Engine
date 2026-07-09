@@ -380,6 +380,9 @@ class AssistantRequest(BaseModel):
 class ConciergeRequest(BaseModel):
     question: str = Field(default="", max_length=2000)
     locale: str | None = Field(default=None, max_length=16)
+    ui_locale: str | None = Field(default=None, max_length=16)
+    assistant_locale: str | None = Field(default=None, max_length=16)
+    communication_style: str | None = Field(default=None, max_length=24)
     visitor_id: str | None = Field(default=None, max_length=64)
     session_id: str | None = Field(default=None, max_length=64)
     context: dict | None = None

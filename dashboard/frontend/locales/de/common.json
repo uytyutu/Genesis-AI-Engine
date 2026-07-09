@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "home": "Start",
+    "services": "Leistungen",
+    "studio": "Studio",
+    "order": "Bestellen",
+    "menu": "Menü",
+    "close": "Schließen"
+  },
+  "language": {
+    "title": "Sprache",
+    "auto": "Automatisch (Browser)",
+    "ui": "Oberfläche",
+    "assistant": "Antworten des Assistenten",
+    "ru": "Русский",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "skipToContent": "Zum Inhalt springen"
+}

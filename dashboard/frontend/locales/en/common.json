@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "studio": "Studio",
+    "order": "Order",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "language": {
+    "title": "Language",
+    "auto": "Automatic (browser)",
+    "ui": "Interface",
+    "assistant": "Assistant replies",
+    "ru": "Русский",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "skipToContent": "Skip to content"
+}

@@ -578,10 +578,19 @@ def ask_concierge(
     att_svc = PublicChatAttachmentService(_memory_dir())
     attachment_note = att_svc.describe(request.attachment_ids or [])
     use_debug = debug and _genesis_dev_mode_allowed(http_request)
+    merged_context = dict(request.context or {})
+    if request.ui_locale:
+        merged_context["ui_locale"] = request.ui_locale
+    if request.assistant_locale:
+        merged_context["assistant_locale"] = request.assistant_locale
+    elif request.locale:
+        merged_context["assistant_locale"] = request.locale
+    if request.communication_style:
+        merged_context["communication_style"] = request.communication_style
     result = _genesis_service(packages).chat(
         request.question,
         history=[m.model_dump() for m in (request.history or [])],
-        context=request.context,
+        context=merged_context,
         attachment_note=attachment_note,
         visitor_id=request.visitor_id,
         session_id=request.session_id,

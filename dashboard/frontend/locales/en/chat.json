@@ -1,0 +1,28 @@
+{
+  "voiceStatus": {
+    "ready": "⚪ Ready",
+    "listening": "🎤 Listening…",
+    "speaking": "🗣️ Speaking…",
+    "thinking": "💭 Thinking…",
+    "stopped": "⏹️ Stopped"
+  },
+  "stop": "Stop",
+  "stopAria": "Stop speech or generation",
+  "placeholder": "Message for {{assistant}}…",
+  "send": "Send",
+  "attach": "Attach file",
+  "micStart": "Speak",
+  "micStop": "Stop recording",
+  "voiceSettings": "Voice settings",
+  "generationStopped": "— generation stopped —",
+  "newChat": "New chat",
+  "back": "← Back",
+  "filesOnlyPrompt": "The client attached files — please help clarify the task.",
+  "micModalTitle": "Voice chat with {{assistant}}",
+  "micModalBody": "Tap the button below — the browser will ask for permission once.",
+  "micAllow": "Allow microphone",
+  "micLater": "Later",
+  "retryMic": "Try again",
+  "dismiss": "Close",
+  "micDenied": "To use voice, allow microphone access.\n\nClick 🔒 near the address bar → Permissions → Microphone → Allow."
+}

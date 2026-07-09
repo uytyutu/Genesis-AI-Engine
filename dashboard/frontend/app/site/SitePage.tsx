@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { GenesisConcierge } from "../components/GenesisConcierge";
 import { GenesisChatErrorBoundary } from "../components/GenesisChatErrorBoundary";
@@ -36,6 +37,8 @@ function focusGenesisChat() {
 }
 
 export function SitePage() {
+  const { t } = useTranslation("site");
+  const { t: tCommon } = useTranslation("common");
   const [services, setServices] = useState<ServiceCatalogItem[]>([]);
   const [chatActive, setChatActive] = useState(false);
 
@@ -57,22 +60,20 @@ export function SitePage() {
           <details className="group mt-10 rounded-2xl border border-genesis-border-subtle bg-genesis-panel/40 open:bg-genesis-panel/60">
             <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold marker:content-none sm:px-6">
               <span className="flex items-center justify-between gap-2">
-                Кратко: что такое {BRAND_NAME}
+                {t("aboutTitle", { brand: BRAND_NAME })}
                 <span className="text-genesis-muted transition group-open:rotate-180">▼</span>
               </span>
             </summary>
             <div className="space-y-4 border-t border-genesis-border-subtle px-5 py-5 text-sm text-genesis-muted sm:px-6">
               <p>
-                <strong className="text-genesis-text">{BRAND_NAME}</strong> — платформа с ИИ-помощником{" "}
-                <strong className="text-genesis-text">{ASSISTANT_NAME}</strong>: поговорить, придумать идею,
-                науку, бизнес — или создать сайт и автоматизацию.
+                {t("aboutBody", { brand: BRAND_NAME, assistant: ASSISTANT_NAME })}
               </p>
               <button
                 type="button"
                 onClick={focusGenesisChat}
                 className="text-sm font-medium text-genesis-accent hover:underline"
               >
-                Начать разговор ↑
+                {t("startChat")}
               </button>
             </div>
           </details>
@@ -80,13 +81,13 @@ export function SitePage() {
           <details className="group mt-4 rounded-2xl border border-genesis-border-subtle bg-genesis-panel/40">
             <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold marker:content-none sm:px-6">
               <span className="flex items-center justify-between gap-2">
-                Услуги
+                {tCommon("nav.services")}
                 <span className="text-genesis-muted transition group-open:rotate-180">▼</span>
               </span>
             </summary>
             <div className="border-t border-genesis-border-subtle p-5 sm:p-6">
               <p className="mb-4 text-sm text-genesis-muted">
-                {BRAND_NAME} делает под ключ — сайты, боты, автоматизацию. Цены «от» — ориентир после разговора.
+                {t("servicesIntro", { brand: BRAND_NAME })}
               </p>
               <div className="grid gap-3 sm:grid-cols-3">
                 {services.map((item, i) => (
@@ -111,7 +112,7 @@ export function SitePage() {
           <details className="group mt-4 rounded-2xl border border-genesis-border-subtle bg-genesis-panel/40">
             <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold marker:content-none sm:px-6">
               <span className="flex items-center justify-between gap-2">
-                Частые вопросы
+                {t("faqTitle")}
                 <span className="text-genesis-muted transition group-open:rotate-180">▼</span>
               </span>
             </summary>

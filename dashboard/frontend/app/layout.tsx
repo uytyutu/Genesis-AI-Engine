@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AppShell } from "./components/AppShell";
+import { LocaleProvider } from "./context/LocaleContext";
 import { ToastProvider } from "./components/ToastProvider";
 import "./globals.css";
 
@@ -28,9 +29,11 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className="genesis-os-shell overflow-x-hidden antialiased">
-        <ToastProvider>
-          <AppShell>{children}</AppShell>
-        </ToastProvider>
+        <LocaleProvider>
+          <ToastProvider>
+            <AppShell>{children}</AppShell>
+          </ToastProvider>
+        </LocaleProvider>
       </body>
     </html>
   );
