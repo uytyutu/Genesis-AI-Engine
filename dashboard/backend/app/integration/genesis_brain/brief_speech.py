@@ -445,6 +445,17 @@ class BriefSpeechSynthesizer:
         """Offline fallback — never expose thinking.why to the user."""
         low = last_user.lower()
 
+        if re.search(r"как\s+дела|как\s+ты|как\s+вы", low):
+            return (
+                "Всё хорошо, спасибо что спросили!\n\n"
+                "А у вас как? Что на уме сегодня?"
+            )
+        if re.match(r"^(привет|здравств|hello|hi)\b", low):
+            return (
+                "Привет! Рад на связи.\n\n"
+                "О чём думаете — просто поболтаем или есть конкретная задача?"
+            )
+
         if thinking.confidence < 0.55 or _needs_uncertainty_voice(low, thinking):
             return _uncertainty_voice()
 

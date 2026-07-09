@@ -335,6 +335,7 @@ class GenesisBrain:
                 messages=messages,
                 visitor_id=visitor_id,
                 provider_id=result.provider_id,
+                cloud_llm_used=cloud_llm_used,
             )
 
         if last_user_raw:

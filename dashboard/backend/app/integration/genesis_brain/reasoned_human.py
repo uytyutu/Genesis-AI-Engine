@@ -216,7 +216,7 @@ def _business_ack_reply(state: ConversationState, open_: str) -> str:
 
 def _small_talk_reply(raw: str, visitor_id: str, turn_index: int, open_: str) -> str:
     low = raw.lower()
-    elif "как дела" in low or "как ты" in low or "как вы" in low:
+    if "как дела" in low or "как ты" in low or "как вы" in low:
         variants = [
             "Всё хорошо, спасибо! 😊 А у вас как?",
             "Отлично, на связи. Чем могу помочь?",

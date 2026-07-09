@@ -167,28 +167,38 @@ class GenesisPersonalityLayer:
         emotional = self._emotion.analyze(last_user)
         turn_index = sum(1 for m in (messages or []) if m.get("role") == "user")
 
-        # Emotional-first replies — never replace a substantive executive/LLM draft
+        cleaned = self._clean_vendor(draft) or (draft or "").strip()
+
+        # Emotional-first replies — only when there is no usable draft to keep
         opening = self._emotion.emotional_opening(emotional, name)
-        if opening and emotional.mood.value in (
-            "promotion",
-            "heavy",
-            "tired",
-            "angry",
-            "misinformed",
-            "grateful",
+        if (
+            opening
+            and emotional.mood.value in (
+                "promotion",
+                "heavy",
+                "tired",
+                "angry",
+                "misinformed",
+                "grateful",
+            )
+            and not self._usable_draft(cleaned)
         ):
-            if emotional.mood.value == "grateful" and self._substantive_draft(draft):
-                text = self._clean_vendor(draft)
-            else:
-                text = opening
+            text = opening
+        elif self._usable_draft(cleaned):
+            text = cleaned
         elif last_user and self._style.is_small_talk_message(last_user):
             text = self._style.pick_small_talk(style_ctx, last_user)
         elif last_user and self._style.is_greeting_message(last_user):
             text = self._style.pick_greeting(style_ctx)
         else:
-            text = self._clean_vendor(draft)
+            text = cleaned
         if not text:
-            return self._style.pick_greeting(style_ctx)
+            if last_user and self._style.is_small_talk_message(last_user):
+                text = self._style.pick_small_talk(style_ctx, last_user)
+            elif last_user and self._style.is_greeting_message(last_user):
+                text = self._style.pick_greeting(style_ctx)
+            else:
+                text = self._style.pick_greeting(style_ctx)
 
         text = text.strip()
         if text and text[0].islower():
@@ -218,6 +228,27 @@ class GenesisPersonalityLayer:
             return False
         low = d.lower()
         return "\n\n" in d or "продолжим" in low or "рад был" in low or "**1." in d
+
+    @staticmethod
+    def _usable_draft(draft: str) -> bool:
+        """True when offline/LLM draft should survive finalize — not swapped for template pools."""
+        d = (draft or "").strip()
+        if not d:
+            return False
+        if GenesisPersonalityLayer._substantive_draft(d):
+            return True
+        if len(d) < 12:
+            return False
+        low = d.lower()
+        template_only = (
+            "на связи. давайте поговорим",
+            "чем могу помочь",
+            "расскажите о задаче",
+            "универсальный искусственный интеллект",
+        )
+        if any(marker in low for marker in template_only) and len(d) < 96:
+            return False
+        return True
 
     @staticmethod
     def _is_natural_close(text: str) -> bool:

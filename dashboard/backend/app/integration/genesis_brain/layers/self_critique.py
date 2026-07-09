@@ -80,14 +80,11 @@ class GenesisSelfCritiqueLayer:
             text = self._strip_reintro(text)
 
         if cloud_llm_used:
-            low = text.lower()
-            if any(b in low for b in _BANNED):
-                text = self._strip_reintro(text)
-            return text.strip()
+            return self._scrub_banned(text).strip()
 
+        original = text
+        text = self._scrub_banned(text)
         low = text.lower()
-        if any(b in low for b in _BANNED):
-            text = self._fallback(intent, visitor_id)
 
         if intent.intent in (
             "personal_reflection",
@@ -97,27 +94,23 @@ class GenesisSelfCritiqueLayer:
             "general",
         ) or getattr(intent, "intent", "") == "personal_reflection":
             if any(s in low for s in _UNSOLICITED_SALES + _TEMPLATE_FILLERS):
-                text = self._fallback(intent, visitor_id)
+                text = self._strip_unsolicited_sales(text)
+                low = text.lower()
 
-        # Final scrub — curiosity/LLM may re-introduce banned phrases
-        low = text.lower()
-        if any(b in low for b in _BANNED):
-            text = self._fallback(intent, visitor_id)
+        if not text.strip():
+            return self._fallback(intent, visitor_id)
 
         if _GENERIC_ONLY.match(text):
-            text = self._fallback(intent, visitor_id)
-
-        prev_assistant = self._previous_assistant(messages)
-        if prev_assistant and self._too_similar(text, prev_assistant):
-            text = self._variation.vary(text, intent.intent, visitor_id, salt="retry")
-
-        if provider_id == "genesis-local" and self._looks_template(text):
-            text = self._variation.vary(text, intent.intent, visitor_id, salt=intent.normalized[:40])
+            return self._fallback(intent, visitor_id)
 
         if len(text) < 12 and intent.intent != "greeting":
-            text = self._fallback(intent, visitor_id)
+            return self._fallback(intent, visitor_id)
 
-        return text.strip()
+        prev_assistant = self._previous_assistant(messages)
+        if prev_assistant and self._too_similar(text, prev_assistant) and len(text) < 40:
+            text = self._light_rephrase(text, visitor_id)
+
+        return text.strip() or original.strip()
 
     def _fallback(self, intent: IntentBrief, visitor_id: str) -> str:
         if intent.intent in (
@@ -130,6 +123,46 @@ class GenesisSelfCritiqueLayer:
             pool = _POOLS.get(intent.intent) or _POOLS["general"]
             return pool[int(hashlib.sha256(f"{visitor_id}:{intent.intent}".encode()).hexdigest(), 16) % len(pool)]
         return self._variation.pick(intent.intent, visitor_id, intent.normalized)
+
+    def _scrub_banned(self, text: str) -> str:
+        out = (text or "").strip()
+        if not out:
+            return out
+        original = out
+        for phrase in _BANNED:
+            if phrase in out.lower():
+                out = re.sub(
+                    rf"[^.!?\n]*{re.escape(phrase)}[^.!?\n]*[.!?]?\s*",
+                    "",
+                    out,
+                    flags=re.I,
+                )
+        out = self._strip_reintro(out)
+        out = re.sub(r"\n{3,}", "\n\n", out).strip()
+        return out or original
+
+    @staticmethod
+    def _strip_unsolicited_sales(text: str) -> str:
+        lines = []
+        for line in text.splitlines():
+            low = line.lower()
+            if any(s in low for s in _UNSOLICITED_SALES):
+                continue
+            lines.append(line)
+        out = "\n".join(lines).strip()
+        return out or text.strip()
+
+    @staticmethod
+    def _light_rephrase(text: str, visitor_id: str) -> str:
+        """Minor opener tweak — never swap the whole answer for a template pool."""
+        openers = ("Понял.", "Хорошо.", "Ясно.", "Слушаю.")
+        idx = int(hashlib.sha256(f"{visitor_id}:rephrase".encode()).hexdigest(), 16) % len(openers)
+        body = text.strip()
+        for opener in openers:
+            if body.lower().startswith(opener.lower()):
+                body = body[len(opener) :].lstrip()
+                break
+        return f"{openers[idx]} {body}".strip()
 
     @staticmethod
     def _strip_reintro(text: str) -> str:
