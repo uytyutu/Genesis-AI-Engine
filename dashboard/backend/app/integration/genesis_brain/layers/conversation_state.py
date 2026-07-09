@@ -301,6 +301,22 @@ class ConversationState:
     def has_budget(self) -> bool:
         return self.budget_amount is not None or self.budget_minimal
 
+    def has_business_context(self) -> bool:
+        """Structured facts beyond bare open_business intent (state-based routing)."""
+        return (
+            self.has_country()
+            or self.has_budget()
+            or bool(self.business_type)
+            or self.uncertain_niche
+            or bool(self.life_goal)
+            or self.prefers_online
+            or self.avoids_people
+        )
+
+    def ready_for_advise_mode(self) -> bool:
+        """Country + budget — leave propose loop, switch to advise/follow-ups."""
+        return self.has_country() and self.has_budget()
+
     def has_location(self) -> bool:
         return bool(self.country or self.city)
 

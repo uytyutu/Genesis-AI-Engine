@@ -74,6 +74,12 @@ _BUSINESS_TOPIC_QUESTION = re.compile(
     re.I,
 )
 
+_EXPLICIT_IDEAS_REQUEST = re.compile(
+    r"посоветуй\s+иде|предложи\s+иде|придумай\s+иде|"
+    r"какие\s+иде|дай\s+иде|идеи\s+бизнес",
+    re.I,
+)
+
 
 def _already_proposed_three(messages: list[dict[str, str]] | None) -> bool:
     if not messages:
@@ -241,8 +247,7 @@ class GenesisExecutiveBrain:
         if re.search(r"передумал|переехал|теперь\s+живу|переехала", low):
             return ExecutiveBrief(**{**base, "mode": "pivot"})
 
-        # Non-business: help via goal analysis, never product pipeline
-        if not is_business_mode(talk) or goal.real_goal in (
+        _non_business_goal = goal.real_goal in (
             "doubt",
             "future_vision",
             "life_context",
@@ -251,37 +256,47 @@ class GenesisExecutiveBrain:
             "small_talk",
             "curiosity",
             "unknown",
-        ):
+        )
+        _business_thread = (
+            talk == "business_consulting"
+            or state.goal in ("open_business", "ai_company")
+            or _business_thread_active(messages)
+        )
+        if (not is_business_mode(talk) or _non_business_goal) and not _business_thread:
             mode: ResponseMode = "continue"
             if goal.helpful_action == "one_question":
                 mode = "clarify"
             return ExecutiveBrief(**{**base, "mode": mode})
 
         if talk == "business_consulting" or state.goal in ("open_business", "ai_company"):
-            if state.ready_for_business_advice():
-                return ExecutiveBrief(**{**base, "mode": "advise", "helpful_action": "advise"})
-
             if state.goal == "ai_company":
                 return ExecutiveBrief(**{**base, "mode": "advise", "helpful_action": "advise"})
 
-            if _already_proposed_three(messages) or (
-                _business_thread_active(messages)
-                and (
-                    _FOLLOWUP_QUESTION.search(low)
-                    or _BUSINESS_TOPIC_QUESTION.search(low)
-                )
+            # Scenario 3: enough facts — advise, no more generic three ideas
+            if state.ready_for_advise_mode():
+                return ExecutiveBrief(**{**base, "mode": "advise", "helpful_action": "advise"})
+
+            if state.has_budget() and not _EXPLICIT_IDEAS_REQUEST.search(low):
+                return ExecutiveBrief(**{**base, "mode": "advise", "helpful_action": "advise"})
+
+            if _already_proposed_three(messages) and (
+                _FOLLOWUP_QUESTION.search(low) or _BUSINESS_TOPIC_QUESTION.search(low)
             ):
-                if state.ready_for_proposal() or state.has_budget() or state.business_type:
+                if re.search(r"почему|именно\s+эти", low):
+                    return ExecutiveBrief(**{**base, "mode": "explain", "helpful_action": "answer"})
+                if state.business_type or state.ready_for_proposal():
                     return ExecutiveBrief(**{**base, "mode": "advise", "helpful_action": "advise"})
                 return ExecutiveBrief(**{**base, "mode": "explain", "helpful_action": "answer"})
 
-            if (
-                state.goal == "open_business"
-                and not state.has_country()
-                and not state.has_budget()
-                and not state.uncertain_niche
-                and not state.business_type
-            ):
+            # Scenario 2: explicit ideas — propose first, clarify after
+            if _EXPLICIT_IDEAS_REQUEST.search(low):
+                return ExecutiveBrief(**{**base, "mode": "propose", "helpful_action": "advise"})
+
+            # Scenario 1: cold start — three ideas without questionnaire
+            if not state.has_business_context():
+                return ExecutiveBrief(**{**base, "mode": "propose", "helpful_action": "advise"})
+
+            if _already_proposed_three(messages):
                 return ExecutiveBrief(**{**base, "mode": "propose", "helpful_action": "advise"})
 
             missing = state.missing_critical(messages)
@@ -478,6 +493,10 @@ def executive_reply(
         )
 
     if brief.mode == "propose":
+        low = last_user.lower()
+        with_followup = not state.ready_for_advise_mode()
+        if _EXPLICIT_IDEAS_REQUEST.search(low):
+            return _propose_three(state, open_, with_followup=with_followup)
         if _already_proposed_three(messages):
             routed = reasoned_business_reply(
                 state,
@@ -488,6 +507,7 @@ def executive_reply(
             )
             if routed:
                 return routed
+            return _propose_three(state, open_, with_followup=with_followup)
         return _propose_three(state, open_)
 
     if brief.mode == "advise":
@@ -527,7 +547,7 @@ def executive_reply(
     return None
 
 
-def _propose_three(state: ConversationState, open_: str) -> str:
+def _propose_three(state: ConversationState, open_: str, *, with_followup: bool = False) -> str:
     """Three options first — questions optional, not mandatory."""
     motiv = ""
     if state.life_goal == "financial_independence":
@@ -544,15 +564,31 @@ def _propose_three(state: ConversationState, open_: str) -> str:
             loc = f" для {state.city}, {state.country}"
 
     if state.prefers_online or state.avoids_people:
-        return _propose_online(state, open_)
+        body = _propose_online(state, open_)
+    else:
+        body = (
+            f"{open_} Я бы предложил три направления{loc}, которые часто хорошо стартуют.{motiv}\n\n"
+            "**1. Локальный сервис с записью** — салон, ремонт, мастер на дом. Стабильный спрос.\n\n"
+            "**2. Coffee to go / небольшое кафе** — если нравится офлайн и продукт.\n\n"
+            "**3. Онлайн-услуга или digital** — консультации, SMM, микро-SaaS. Ниже порог входа."
+        )
 
-    return (
-        f"{open_} Я бы предложил три направления{loc}, которые часто хорошо стартуют.{motiv}\n\n"
-        "**1. Локальный сервис с записью** — салон, ремонт, мастер на дом. Стабильный спрос.\n\n"
-        "**2. Coffee to go / небольшое кафе** — если нравится офлайн и продукт.\n\n"
-        "**3. Онлайн-услуга или digital** — консультации, SMM, микро-SaaS. Ниже порог входа.\n\n"
-        "Если захотите — потом уточним детали под ваш бюджет и город."
-    )
+    if with_followup:
+        hints: list[str] = []
+        if not state.has_country():
+            hints.append("страну")
+        if not state.has_budget():
+            hints.append("примерный бюджет")
+        if hints:
+            body += (
+                "\n\nЧтобы сузить рекомендации — уточните "
+                + " и ".join(hints)
+                + "."
+            )
+    elif not state.has_country() and not state.has_budget():
+        body += "\n\nЕсли захотите — потом уточним детали под ваш бюджет и город."
+
+    return body
 
 
 def _propose_online(state: ConversationState, open_: str) -> str:
