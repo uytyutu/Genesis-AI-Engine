@@ -26,6 +26,10 @@ type Props = {
   onSelect: (sessionId: string) => void;
   onDelete: (sessionId: string) => void;
   onPin: (sessionId: string, pinned: boolean) => void;
+  /** Hide standalone mobile history bar — toggle lives in chat header */
+  hideMobileToggle?: boolean;
+  /** Drawer only — no persistent desktop column (public /site) */
+  overlayOnly?: boolean;
 };
 
 export function ChatHistorySidebar({
@@ -37,6 +41,8 @@ export function ChatHistorySidebar({
   onSelect,
   onDelete,
   onPin,
+  hideMobileToggle = false,
+  overlayOnly = false,
 }: Props) {
   const grouped = useMemo(() => groupSessionsByDate(sessions), [sessions]);
   const reduce = useReducedMotion();
@@ -104,6 +110,7 @@ export function ChatHistorySidebar({
 
   return (
     <>
+      {!hideMobileToggle ? (
       <button
         type="button"
         onClick={onToggleSidebar}
@@ -112,6 +119,7 @@ export function ChatHistorySidebar({
       >
         {sidebarOpen ? "Скрыть историю" : "История чатов"}
       </button>
+      ) : null}
 
       <AnimatePresence>
         {sidebarOpen ? (
@@ -121,7 +129,11 @@ export function ChatHistorySidebar({
             animate={{ opacity: 1, height: "auto", y: 0 }}
             exit={reduce ? undefined : { opacity: 0, height: 0, y: -8 }}
             transition={springs.gentle}
-            className="mb-2 flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:hidden"
+            className={`mb-2 flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:hidden ${
+              overlayOnly
+                ? "fixed inset-y-0 left-0 z-50 mb-0 w-[min(85vw,18rem)] rounded-none border-y-0 border-l-0 shadow-2xl"
+                : ""
+            }`}
             aria-label="История чатов"
           >
             <SidebarNav
@@ -138,7 +150,7 @@ export function ChatHistorySidebar({
       </AnimatePresence>
 
       <aside
-        className="hidden shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:flex md:w-56 lg:w-64"
+        className={`${overlayOnly ? "hidden" : "hidden shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:flex md:w-56 lg:w-64"}`}
         aria-label="История чатов"
       >
         <SidebarNav

@@ -96,7 +96,8 @@ class GenesisPersonalityLayer:
 
 ## Ритм разговора (Human Conversation v1)
 - **2–6 предложений** в обычном ответе — не простыня
-- На «как дела» / привет — **1–2 предложения** и вопрос о человеке
+- На «как дела» / привет — **живой ответ как у ChatGPT**, не «на связи» и не «расскажите конкретнее»
+- Можно на **«ты»**, если пользователь неформален («как дела», «привет» без «Вы»)
 - Без «Добрый день, рад снова видеть Вас» после первого хода
 - Если человек сказал **«нет»** — признать ошибку, не «уточните, пожалуйста»"""
 
@@ -180,6 +181,8 @@ class GenesisPersonalityLayer:
                 text = self._clean_vendor(draft)
             else:
                 text = opening
+        elif last_user and self._style.is_small_talk_message(last_user):
+            text = self._style.pick_small_talk(style_ctx, last_user)
         elif last_user and self._style.is_greeting_message(last_user):
             text = self._style.pick_greeting(style_ctx)
         else:

@@ -974,6 +974,24 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     void startVoice();
   }, [startVoice]);
 
+  const speakLastAnswer = useCallback(() => {
+    const last = [...messages].reverse().find(
+      (m) => m.role === "assistant" && m.text?.trim() && !m.generating,
+    );
+    if (!last?.text) return;
+    interruptSpeechIfNeeded();
+    const cleanup = startInterruptListener(() => {
+      setVoiceSpeaking(false);
+    });
+    void speakGenesis(last.text, voiceSettingsRef.current, {
+      onStart: () => setVoiceSpeaking(true),
+      onEnd: () => {
+        cleanup();
+        setVoiceSpeaking(false);
+      },
+    });
+  }, [messages, interruptSpeechIfNeeded]);
+
   useEffect(() => {
     const focus = () => {
       document.getElementById("genesis-chat-input")?.focus();
@@ -1039,6 +1057,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         inputId="genesis-chat-input"
         onFocusChange={setComposerFocused}
         minimalMobile={isPublic}
+        onSpeakAnswer={speakLastAnswer}
       />
     </>
   );
@@ -1056,6 +1075,8 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         onSelect={(id) => void handleSelectSession(id)}
         onDelete={(id) => void handleDeleteSession(id)}
         onPin={(id, pinned) => void handlePinSession(id, pinned)}
+        hideMobileToggle={isPublic}
+        overlayOnly={isPublic}
       />
     <section
       id="genesis-chat"
@@ -1100,7 +1121,24 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             + {t("newChat")}
           </button>
         ) : (
-          <span className="w-8 shrink-0" aria-hidden />
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen((o) => !o)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-genesis-muted transition hover:bg-white/5 hover:text-white sm:hidden"
+              aria-label="История чатов"
+              aria-expanded={sidebarOpen}
+            >
+              ☰
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleNewChat()}
+              className="rounded-lg px-2 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white"
+            >
+              +
+            </button>
+          </div>
         )}
         {isPublic || !showThread ? (
           <VectorBrandSignature

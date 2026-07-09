@@ -216,19 +216,23 @@ def _business_ack_reply(state: ConversationState, open_: str) -> str:
 
 def _small_talk_reply(raw: str, visitor_id: str, turn_index: int, open_: str) -> str:
     low = raw.lower()
-    if re.match(r"^(привет|здравствуй|hello|hi)\b", low):
+    elif "как дела" in low or "как ты" in low or "как вы" in low:
         variants = [
-            f"{open_} Рад на связи. О чём думаете?",
-            "Здравствуйте. Я здесь — поговорим, придумаем или просто выговоримся.",
-            "Приветствую. С чего начнём?",
+            "Всё хорошо, спасибо! 😊 А у вас как?",
+            "Отлично, на связи. Чем могу помочь?",
+            "Нормально, спасибо что спросили. А вы как?",
         ]
-    elif "как дела" in low:
+    elif re.match(r"^(привет|здравствуй|hello|hi)\b", low):
         variants = [
-            "Спасибо, что спросили — на связи и готов помочь Вам.\n\nА у Вас как?",
-            f"{open_} Всё в порядке. Расскажите, что у Вас на уме?",
+            "Привет! Рад на связи — о чём думаете?",
+            "Здравствуйте! Чем займёмся?",
+            "Привет! С чего начнём?",
         ]
     else:
-        variants = ["На связи.", f"{open_} Слушаю."]
+        variants = [
+            "Слушаю вас. О чём хотите поговорить?",
+            "Хорошо. Продолжайте — я здесь.",
+        ]
     seed = f"{visitor_id}:{turn_index}:{raw[:20]}"
     idx = int(hashlib.sha256(seed.encode()).hexdigest(), 16) % len(variants)
     return variants[idx]

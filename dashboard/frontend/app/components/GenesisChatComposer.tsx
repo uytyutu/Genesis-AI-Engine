@@ -51,8 +51,10 @@ type Props = {
   inputId?: string;
   attachHint?: string;
   onFocusChange?: (focused: boolean) => void;
-  /** /site mobile — compact single-row composer, no voice chrome */
+  /** /site mobile — compact single-row composer */
   minimalMobile?: boolean;
+  /** Read last assistant reply aloud (browser TTS) */
+  onSpeakAnswer?: () => void;
 };
 
 function sanitizeMicNotice(notice: string | undefined, deniedText: string): string | undefined {
@@ -106,6 +108,20 @@ function SendIcon() {
         d="M5 12h14M13 6l6 6-6 6"
         stroke="currentColor"
         strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SpeakerIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M11 5 6 9H3v6h3l5 4V5ZM15.5 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"
+        stroke="currentColor"
+        strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -171,6 +187,7 @@ export function GenesisChatComposer({
   attachHint,
   onFocusChange,
   minimalMobile = false,
+  onSpeakAnswer,
 }: Props) {
   const { t } = useTranslation("chat");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -181,6 +198,7 @@ export function GenesisChatComposer({
   const inputPlaceholder = placeholder ?? t("placeholder", { assistant: ASSISTANT_NAME });
   const hintText = attachHint ?? t("attachHint");
   const compactChrome = (minimalMobile && narrowViewport) || (focused && !expanded);
+  const publicMobileBar = minimalMobile && narrowViewport;
 
   useEffect(() => {
     if (!minimalMobile || typeof window === "undefined") return;
@@ -267,7 +285,56 @@ export function GenesisChatComposer({
     />
   );
 
-  const toolbarButtons = (
+  const toolbarButtons = publicMobileBar ? (
+    <>
+      <SpringPressable
+        type="button"
+        onClick={handleMicClick}
+        disabled={busy}
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
+          voiceListening
+            ? "bg-genesis-accent/25 text-genesis-accent"
+            : "text-genesis-muted hover:bg-genesis-accent/15 hover:text-genesis-accent"
+        }`}
+        aria-label={voiceListening ? t("micStop") : t("micStart")}
+      >
+        <MicIcon active={voiceListening} />
+      </SpringPressable>
+      <SpringPressable
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        disabled={busy}
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-genesis-muted hover:bg-white/5 hover:text-white disabled:opacity-40"
+        aria-label={t("attach")}
+      >
+        <ClipIcon />
+      </SpringPressable>
+      {onSpeakAnswer ? (
+        <SpringPressable
+          type="button"
+          onClick={onSpeakAnswer}
+          disabled={busy || voiceSpeaking}
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
+            voiceSpeaking
+              ? "bg-emerald-500/20 text-emerald-200"
+              : "text-genesis-muted hover:bg-white/5 hover:text-white"
+          }`}
+          aria-label="Озвучить ответ"
+        >
+          <SpeakerIcon />
+        </SpringPressable>
+      ) : null}
+      <SpringPressable
+        type="button"
+        onClick={onSend}
+        disabled={(busy && !generating) || (!value.trim() && !attachments.length && !generating)}
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-genesis-accent text-white disabled:opacity-40"
+        aria-label={t("send")}
+      >
+        <SendIcon />
+      </SpringPressable>
+    </>
+  ) : (
     <>
       <SpringPressable
         type="button"
@@ -527,7 +594,14 @@ export function GenesisChatComposer({
 
         <div className="min-w-0 flex-1">{composerField}</div>
 
-        <div className="flex shrink-0 flex-col items-center gap-1">
+        <div
+          className={
+            publicMobileBar
+              ? "flex shrink-0 items-end gap-1"
+              : "flex shrink-0 flex-col items-center gap-1"
+          }
+        >
+          {!publicMobileBar ? (
           <button
             type="button"
             onClick={() => {
@@ -540,7 +614,8 @@ export function GenesisChatComposer({
           >
             ⤢
           </button>
-          <div className="flex items-end gap-1">{toolbarButtons}</div>
+          ) : null}
+          <div className={`flex items-end ${publicMobileBar ? "gap-1" : "gap-1"}`}>{toolbarButtons}</div>
         </div>
       </div>
     </div>

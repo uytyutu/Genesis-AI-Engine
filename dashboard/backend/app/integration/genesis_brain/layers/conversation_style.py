@@ -15,20 +15,15 @@ from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAM
 
 _GREETING_FIRST = [
   PUBLIC_WELCOME,
-  (
-    f"Здравствуйте! Вы на {BRAND_NAME} — платформе, где идеи становятся продуктами.\n\n"
-    f"Я — {ASSISTANT_NAME}. Расскажите, что у Вас на уме."
-  ),
-  (
-    f"Приветствую Вас.\n\n"
-    f"Я — {ASSISTANT_NAME}, помощник {BRAND_NAME}. "
-    "Здесь можно обсудить бизнес, проекты и любые вопросы.\n\n"
-    "С чего начнём?"
-  ),
-  (
-    f"Добрый день! {ASSISTANT_NAME} на связи.\n\n"
-    "Чем могу быть полезен сегодня?"
-  ),
+  f"Привет! Я {ASSISTANT_NAME} — чем займёмся?",
+  f"Здравствуйте! {ASSISTANT_NAME} на связи. О чём думаете?",
+]
+
+_SMALL_TALK = [
+  "Всё хорошо, спасибо! 😊 А у вас как?",
+  "Отлично, на связи. Чем могу помочь сегодня?",
+  "Нормально, спасибо что спросили. А вы как?",
+  "Всё отлично. Что сегодня будем создавать или обсуждать?",
 ]
 
 _GREETING_RETURN = [
@@ -95,6 +90,14 @@ class StyleContext:
 
 class ConversationStyleEngine:
   """Picks natural, non-repeating phrasing from constitution pools."""
+
+  def pick_small_talk(self, ctx: StyleContext, message: str = "") -> str:
+    pool = _SMALL_TALK
+    idx = int(
+      hashlib.sha256(f"{ctx.visitor_id}:small_talk:{message[:40]}".encode()).hexdigest(),
+      16,
+    ) % len(pool)
+    return pool[idx]
 
   def pick_greeting(self, ctx: StyleContext) -> str:
     pools: list[list[str]]
@@ -165,5 +168,22 @@ class ConversationStyleEngine:
       "здрасти",
       "дарова",
       "прив",
+    )
+    return any(m in low for m in markers)
+
+  @staticmethod
+  def is_small_talk_message(text: str) -> bool:
+    low = (text or "").strip().lower()
+    if not low or len(low) > 80:
+      return False
+    markers = (
+      "как дела",
+      "как ты",
+      "как вы",
+      "как сам",
+      "что нового",
+      "как жизнь",
+      "как настроение",
+      "how are you",
     )
     return any(m in low for m in markers)
