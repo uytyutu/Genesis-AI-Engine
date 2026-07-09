@@ -15,6 +15,7 @@ export type PendingAttachment = {
   content_type: string;
   is_image: boolean;
   previewUrl: string | null;
+  stored_only?: boolean;
 };
 
 export type VoiceUiStatus = "ready" | "listening" | "speaking" | "thinking" | "stopped";
@@ -48,6 +49,7 @@ type Props = {
   placeholder?: string;
   floating?: boolean;
   inputId?: string;
+  attachHint?: string;
 };
 
 function sanitizeMicNotice(notice: string | undefined, deniedText: string): string | undefined {
@@ -163,11 +165,13 @@ export function GenesisChatComposer({
   placeholder,
   floating = false,
   inputId = "genesis-chat-input",
+  attachHint,
 }: Props) {
   const { t } = useTranslation("chat");
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const inputPlaceholder = placeholder ?? t("placeholder", { assistant: ASSISTANT_NAME });
+  const hintText = attachHint ?? t("attachHint");
 
   const resize = useCallback(() => {
     const el = textareaRef.current;
@@ -308,29 +312,35 @@ export function GenesisChatComposer({
           {attachments.map((a) => (
             <div
               key={a.id}
-              className="relative flex items-center gap-2 rounded-xl border border-genesis-border-subtle bg-genesis-panel/90 px-2 py-1.5 text-xs"
+              className="relative flex max-w-full flex-col gap-0.5 rounded-xl border border-genesis-border-subtle bg-genesis-panel/90 px-2 py-1.5 text-xs"
             >
-              {a.previewUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={a.previewUrl} alt="" className="h-10 w-10 rounded-lg object-cover" />
-              ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-genesis-bg text-genesis-muted">
-                  📄
-                </span>
-              )}
-              <span className="max-w-[120px] truncate text-genesis-text">{a.filename}</span>
-              <button
-                type="button"
-                onClick={() => onRemoveAttachment(a.id)}
-                className="ml-1 rounded-full px-1.5 text-genesis-muted hover:text-white"
-                aria-label="Удалить файл"
-              >
-                ×
-              </button>
+              <div className="flex items-center gap-2">
+                {a.previewUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={a.previewUrl} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                ) : (
+                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-genesis-bg text-genesis-muted">
+                    📄
+                  </span>
+                )}
+                <span className="max-w-[120px] truncate text-genesis-text">{a.filename}</span>
+                <button
+                  type="button"
+                  onClick={() => onRemoveAttachment(a.id)}
+                  className="ml-1 rounded-full px-1.5 text-genesis-muted hover:text-white"
+                  aria-label="Удалить файл"
+                >
+                  ×
+                </button>
+              </div>
+              {a.stored_only !== false ? (
+                <span className="text-[10px] leading-snug text-genesis-muted">{t("attachStoredOnly")}</span>
+              ) : null}
             </div>
           ))}
         </div>
       )}
+      <p className="mb-2 text-[10px] leading-snug text-genesis-muted/80">{hintText}</p>
 
       <div className="flex items-end gap-2 rounded-3xl border border-white/10 bg-genesis-panel/95 p-2 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl">
         <input

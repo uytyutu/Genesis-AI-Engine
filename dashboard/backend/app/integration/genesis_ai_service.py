@@ -14,6 +14,8 @@ from app.security import (
     scrub_internal_terms_from_answer,
 )
 from app.integration.genesis_brain import GenesisBrain
+from app.integration.knowledge_intake_transparency import transparency_enabled
+from app.integration.knowledge_intake_service import KnowledgeIntakeService
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +48,7 @@ class GenesisAIService:
         history: list[dict[str, str]] | None = None,
         context: dict[str, Any] | None = None,
         attachment_note: str = "",
+        attachment_files: list[dict] | None = None,
         visitor_id: str | None = None,
         session_id: str | None = None,
         personality_mode: Literal["public", "ceo"] = "public",
@@ -56,9 +59,21 @@ class GenesisAIService:
         vid = (visitor_id or ctx.get("visitor_id") or "anonymous").strip()[:64]
         sid = (session_id or ctx.get("session_id") or "").strip()[:64] or None
 
+        assistant_locale = resolve_assistant_locale(
+            ctx.get("assistant_locale"),
+            ui_locale=ctx.get("ui_locale"),
+            legacy_locale=ctx.get("locale"),
+        )
+
         q = question.strip()
-        if attachment_note:
-            q = f"{q}\n\n[{attachment_note}]" if q else f"[{attachment_note}]"
+        files = attachment_files or []
+        intake = KnowledgeIntakeService(self._memory_dir)
+        if files:
+            note = intake.build_brain_intake_context(files, locale=assistant_locale)
+        else:
+            note = attachment_note
+        if note:
+            q = f"{q}\n\n[{note}]" if q else f"[{note}]"
 
         if is_meta_exfiltration_attempt(q):
             return {
@@ -72,12 +87,6 @@ class GenesisAIService:
         mode: Literal["public", "ceo"] = "ceo" if ctx.get("personality") == "ceo" else "public"
         if ctx.get("personality_mode") == "ceo":
             mode = "ceo"
-
-        assistant_locale = resolve_assistant_locale(
-            ctx.get("assistant_locale"),
-            ui_locale=ctx.get("ui_locale"),
-            legacy_locale=ctx.get("locale"),
-        )
 
         messages = self._brain.assemble_messages(history, q)
         try:
@@ -98,7 +107,11 @@ class GenesisAIService:
                 out["answer"] = scrub_internal_terms_from_answer(out["answer"])
             if debug and result.trace:
                 out["debug"] = result.trace
-            if attachment_note and out.get("answer"):
+            if files and out.get("answer"):
+                ack = intake.build_user_ack(files, locale=assistant_locale)
+                if ack:
+                    out["answer"] = f"{ack}{out['answer']}"
+            elif attachment_note and out.get("answer") and not transparency_enabled(self._memory_dir):
                 ack = localized_service_copy("attachment_ack", assistant_locale)
                 out["answer"] = f"{ack}{out['answer']}"
             return out

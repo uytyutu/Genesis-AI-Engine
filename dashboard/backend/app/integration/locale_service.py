@@ -146,6 +146,110 @@ _SERVICE_COPY: dict[str, dict[str, str]] = {
         "en": "Thanks, I see your files.\n\n",
         "de": "Danke, ich sehe Ihre Dateien.\n\n",
     },
+    "attachment_ack_stored_only": {
+        "ru": (
+            "Файл(ы) получены: {{files}}.\n"
+            "Содержимое пока **не анализируется** — я вижу только имя файла. "
+            "Опишите, что важно, текстом в сообщении.\n\n"
+        ),
+        "en": (
+            "File(s) received: {{files}}.\n"
+            "Content is **not analyzed yet** — I only see the file name. "
+            "Please describe what matters in your message.\n\n"
+        ),
+        "de": (
+            "Datei(en) erhalten: {{files}}.\n"
+            "Der Inhalt wird **noch nicht analysiert** — ich sehe nur den Dateinamen. "
+            "Beschreiben Sie bitte das Wichtige in Ihrer Nachricht.\n\n"
+        ),
+    },
+    "attachment_ack_parsed": {
+        "ru": "Прочитал: {{files}}.\n\n",
+        "en": "Read: {{files}}.\n\n",
+        "de": "Gelesen: {{files}}.\n\n",
+    },
+    "attachment_brain_legacy": {
+        "ru": "Клиент прикрепил файлы:",
+        "en": "Client attached files:",
+        "de": "Kunde hat Dateien angehängt:",
+    },
+    "attachment_brain_stored_header": {
+        "ru": (
+            "Вложения (только имена файлов — содержимое НЕ доступно). "
+            "Не утверждай, что читал документ. Попроси описать суть словами."
+        ),
+        "en": (
+            "Attachments (file names only — content NOT available). "
+            "Do not claim you read the document. Ask the user to describe it."
+        ),
+        "de": (
+            "Anhänge (nur Dateinamen — Inhalt NICHT verfügbar). "
+            "Behaupte nicht, das Dokument gelesen zu haben."
+        ),
+    },
+    "attachment_brain_parsed_header": {
+        "ru": "Вложения (часть содержимого доступна ниже):",
+        "en": "Attachments (some content available below):",
+        "de": "Anhänge (ein Teil des Inhalts unten):",
+    },
+    "attachment_brain_stored_only": {
+        "ru": "сохранено, содержимое не прочитано",
+        "en": "stored only, content not read",
+        "de": "nur gespeichert, Inhalt nicht gelesen",
+    },
+    "attachment_brain_parsed": {
+        "ru": "содержимое извлечено",
+        "en": "content extracted",
+        "de": "Inhalt extrahiert",
+    },
+    "files_only_prompt_transparency": {
+        "ru": (
+            "Клиент прикрепил файлы без текста. Содержимое файлов недоступно — "
+            "только имена. Попроси кратко описать задачу словами."
+        ),
+        "en": (
+            "Client attached files without text. File content is unavailable — "
+            "names only. Ask them to describe the task in words."
+        ),
+        "de": (
+            "Kunde hat Dateien ohne Text angehängt. Inhalt nicht verfügbar — "
+            "nur Namen. Bitte um eine kurze Beschreibung."
+        ),
+    },
+    "intake_pdf_brain_rules": {
+        "ru": (
+            "РЕЖИМ ДОКУМЕНТА (PDF). Отвечай ТОЛЬКО по тексту PDF ниже — не из общих знаний.\n"
+            "Если ответа нет в документе — скажи: «Я не нашёл этого в документе.»\n"
+            "Уверенность: прямое цитирование → «В документе указано…»; "
+            "вывод → «Похоже, что…»; сомнение → «Не могу однозначно определить по этому PDF.»"
+        ),
+        "en": (
+            "DOCUMENT MODE (PDF). Answer ONLY from the PDF text below — not general knowledge.\n"
+            "If the answer is not in the document — say: «I did not find that in the document.»\n"
+            "Confidence: direct quote → «The document states…»; inference → «It appears that…»; "
+            "uncertain → «I cannot determine this clearly from the PDF.»"
+        ),
+        "de": (
+            "DOKUMENTMODUS (PDF). Antworten NUR aus dem PDF-Text unten — kein Allgemeinwissen.\n"
+            "Wenn die Antwort nicht im Dokument steht — sagen: «Das habe ich im Dokument nicht gefunden.»\n"
+            "Sicherheit: direktes Zitat → «Im Dokument steht…»; Schlussfolgerung → «Es scheint, dass…»; "
+            "unsicher → «Das lässt sich aus dem PDF nicht eindeutig bestimmen.»"
+        ),
+    },
+    "attachment_ack_pdf_read": {
+        "ru": (
+            "Прочитал PDF: {{files}} (первые {{pages}} из {{total}} стр.).\n"
+            "Отвечаю по содержимому документа.\n\n"
+        ),
+        "en": (
+            "Read PDF: {{files}} (first {{pages}} of {{total}} pages).\n"
+            "Answering from the document content.\n\n"
+        ),
+        "de": (
+            "PDF gelesen: {{files}} (erste {{pages}} von {{total}} Seiten).\n"
+            "Antwort basiert auf dem Dokument.\n\n"
+        ),
+    },
 }
 
 

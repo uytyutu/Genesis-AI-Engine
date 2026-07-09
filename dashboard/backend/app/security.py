@@ -13,6 +13,9 @@ _LOCAL_HOSTS = frozenset({"127.0.0.1", "::1", "localhost"})
 
 OWNER_PREFIXES = ("/api/owner/",)
 
+WORKSPACE_PREFIXES = ("/api/workspace/",)
+PROJECT_PREFIXES = ("/api/project/",)
+
 INTERNAL_PREFIXES = (
     "/api/dev/",
     "/api/cursor/",
@@ -27,6 +30,8 @@ INTERNAL_PREFIXES = (
     "/api/demo/",
     "/api/assistant/",
     "/api/factory/",
+    *WORKSPACE_PREFIXES,
+    *PROJECT_PREFIXES,
 )
 
 _PUBLIC_EXACT = frozenset({"/health", "/status", "/api/status"})
@@ -56,6 +61,18 @@ def _client_host(request: Request) -> str:
 
 def is_owner_api_path(path: str) -> bool:
     return any(path.startswith(prefix) for prefix in OWNER_PREFIXES)
+
+
+def is_workspace_api_path(path: str) -> bool:
+    return any(path.startswith(prefix) for prefix in WORKSPACE_PREFIXES)
+
+
+def is_project_api_path(path: str) -> bool:
+    return any(path.startswith(prefix) for prefix in PROJECT_PREFIXES)
+
+
+def is_future_layer_api_path(path: str) -> bool:
+    return is_workspace_api_path(path) or is_project_api_path(path)
 
 
 def is_internal_api_path(path: str) -> bool:

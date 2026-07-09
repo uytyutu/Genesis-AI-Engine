@@ -140,6 +140,70 @@ Everything else stays as vision until requested by the CEO.
 
 ---
 
+## Platform thinking — ready ≠ enabled
+
+**The main development rule:** do not confuse **ready** with **enabled**. They are different gates.
+
+```
+Capability
+    ↓
+Architecturally ready
+    ↓
+Implemented & tested
+    ↓
+Hidden (off for users)
+    ↓
+Moment / evidence / CEO gate
+    ↓
+Enabled
+```
+
+Virtus Core may contain many **ready** capabilities that are **not** user-visible yet. Use **feature flags** or staged rollout — build and test the mechanism, enable when ready and needed.
+
+**Development philosophy:**
+
+> **Build now so we can enable later — not rewrite later.**
+
+Not: *"We'll redo half the product."*  
+Say: *"Enable Workspace."* — and it already works.
+
+### Capability Map (not "roadmap" for this)
+
+Track capabilities internally with a **Capability Map** — four columns:
+
+| Capability | Architecture | Implementation | **Enabled** |
+|------------|:------------:|:--------------:|:-----------:|
+| Free + Create | ✅ | ✅ | ✅ |
+| Workspace | ✅ | partial | ❌ |
+| Specialists | ✅ | partial | ❌ |
+| Business | Horizon | ❌ | ❌ |
+| Marketplace | partial | ❌ | ❌ |
+| macOS / Android | slots | ❌ | ❌ |
+
+Use this for decisions — not a binary "done / not done".
+
+**Today** a visitor may see only `Free` + `Create`. **Six months later** enable `Workspace` without rewrite. **Later** Business, Marketplace — same pattern.
+
+### Two gates (summary)
+
+| | Architectural readiness | Commercial launch |
+|---|-------------------------|-------------------|
+| Question | Can we plug it in without rewrite? | Do users see and pay for it? |
+
+**Build now (foundation — near-certain product):** updates, Workspace layers, Platform / Workspace / Project split, cross-platform slots, Specialists extensibility.
+
+**Enable later:** full OS apps, Enterprise UI, marketplace content, Stripe tiers, auto client acquisition, marketing automation.
+
+**Safeguard:** do **not** architect every idea upfront. Pre-build only what will **almost certainly** be part of Virtus Core. Do **not** embed auto lead-gen, multi-platform marketing, or unvalidated modules in the kernel until evidence.
+
+> **Build the foundation of what we're confident in early; enable capabilities only when they're ready and validated by real use.**
+
+**Content is not architecture.** Do not ship 150 locales, 20 Specialists, or all OS binaries because slots exist.
+
+Architecture slices still need Mission 1 justification — do not scaffold every Capability Map row in one sprint.
+
+---
+
 ## Agent Discipline (summary)
 
 * One heavy build per turn — see `.cursor/rules/cursor-stability.mdc`

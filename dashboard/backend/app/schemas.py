@@ -402,6 +402,7 @@ class ChatAttachmentResponse(BaseModel):
     content_type: str
     size: int
     is_image: bool
+    stored_only: bool = True
 
 
 class TtsRequest(BaseModel):

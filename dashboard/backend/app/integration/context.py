@@ -82,7 +82,10 @@ _context: IntegrationContext | None = None
 def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
     global _context
     if _context is None:
-        path = memory_dir or _MEMORY_DIR
+        from app.integration.memory_root import MemoryRoot
+
+        raw = memory_dir or _MEMORY_DIR
+        path = MemoryRoot(raw).root
         _bootstrap_memory(path)
         path.mkdir(parents=True, exist_ok=True)
         adapter = BrainAdapter(path)

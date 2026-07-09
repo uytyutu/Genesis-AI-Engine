@@ -229,6 +229,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const [sessionList, setSessionList] = useState<ChatSessionMeta[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [voiceStoppedFlash, setVoiceStoppedFlash] = useState(false);
+  const [attachHint, setAttachHint] = useState<string | undefined>(undefined);
   const devAvailable = devModeAvailable();
   const visitorId = getVisitorId(scope);
 
@@ -325,7 +326,14 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         if (g) setWelcomeText(g);
       })
       .catch(() => undefined);
-  }, [visitorId]);
+    fetch(`${API}/api/public/genesis-ai/attachments/policy?visitor_id=${encodeURIComponent(visitorId)}`)
+      .then((r) => r.json())
+      .then((p: { analyze?: { available_kinds?: string[] } }) => {
+        const kinds = p?.analyze?.available_kinds ?? [];
+        setAttachHint(kinds.includes("pdf") ? t("attachHint") : t("attachHintLegacy"));
+      })
+      .catch(() => undefined);
+  }, [visitorId, t]);
 
   const resetToWelcome = useCallback(
     (greeting?: string) => {
@@ -451,16 +459,24 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const uploadFiles = useCallback(async (files: FileList | null) => {
     if (!files?.length) return;
     const next: PendingAttachment[] = [];
+    const batchSize = files.length;
     for (const file of Array.from(files)) {
       const form = new FormData();
       form.append("file", file);
       try {
-        const res = await fetch(`${API}/api/public/genesis-ai/attachments`, {
+        const qs = new URLSearchParams({
+          visitor_id: visitorId,
+          files_in_message: String(batchSize),
+        });
+        const res = await fetch(`${API}/api/public/genesis-ai/attachments?${qs}`, {
           method: "POST",
           body: form,
         });
         if (!res.ok) continue;
-        const data = (await res.json()) as Partial<PendingAttachment> & { id?: string };
+        const data = (await res.json()) as Partial<PendingAttachment> & {
+          id?: string;
+          stored_only?: boolean;
+        };
         if (!data?.id) continue;
         const previewUrl = data.is_image ? URL.createObjectURL(file) : null;
         next.push({
@@ -469,13 +485,14 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           content_type: data.content_type ?? file.type,
           is_image: Boolean(data.is_image),
           previewUrl,
+          stored_only: data.stored_only !== false,
         });
       } catch {
         /* backend offline — skip */
       }
     }
     if (next.length) setPendingFiles((prev) => [...prev, ...next]);
-  }, []);
+  }, [visitorId]);
 
   const removeAttachment = useCallback((id: string) => {
     setPendingFiles((prev) => {
@@ -985,6 +1002,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         voiceSettingsOpen={voiceSettingsOpen}
         micMode={micMode}
         onMicModeChange={setMicMode}
+        attachHint={attachHint}
         inputId="genesis-chat-input"
       />
     </>

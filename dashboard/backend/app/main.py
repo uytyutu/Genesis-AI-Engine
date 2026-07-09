@@ -25,9 +25,11 @@ from app.security import (
     api_access_denied_response,
     dev_mode_allowed,
     is_internal_api_path,
+    is_owner_api_path,
     local_owner_access_allowed,
     production_api_allowed,
 )
+from app.integration.owner_auth import owner_access_allowed
 from app.schemas import (
     ActivityResponse,
     AssistantRequest,
@@ -229,7 +231,11 @@ async def guard_internal_routes(request: Request, call_next):
     if is_production():
         if not production_api_allowed(path, method):
             return JSONResponse(status_code=403, content=api_access_denied_response(path, method))
-    elif is_internal_api_path(path) and not local_owner_access_allowed(request):
+    elif is_internal_api_path(path) and not (
+        owner_access_allowed(request)
+        if is_owner_api_path(path)
+        else local_owner_access_allowed(request)
+    ):
         return JSONResponse(status_code=403, content=api_access_denied_response(path, method))
     return await call_next(request)
 
@@ -269,6 +275,37 @@ def deployment_status() -> dict:
 @app.get("/api/status", response_model=SystemStatus)
 def get_status() -> SystemStatus:
     return SystemStatus(**light_system_status())
+
+
+@app.get("/api/workspace/health")
+def workspace_layer_health(request: Request) -> dict:
+    """Foundation F4 — workspace layer stub (disabled until FeatureRegistry enables workspace)."""
+    from app.integration.feature_registry import FeatureRegistry
+
+    if not owner_access_allowed(request):
+        raise HTTPException(status_code=403, detail="Workspace layer requires owner access")
+    enabled = FeatureRegistry(memory_dir=_memory_dir()).is_enabled("workspace")
+    return {
+        "layer": "workspace",
+        "enabled": enabled,
+        "status": "ready" if enabled else "stub",
+    }
+
+
+@app.get("/api/project/health")
+def project_layer_health(request: Request) -> dict:
+    """Foundation F4 — project layer stub (under workspace; disabled by default)."""
+    from app.integration.feature_registry import FeatureRegistry
+
+    if not owner_access_allowed(request):
+        raise HTTPException(status_code=403, detail="Project layer requires owner access")
+    ws = FeatureRegistry(memory_dir=_memory_dir()).is_enabled("workspace")
+    return {
+        "layer": "project",
+        "enabled": ws,
+        "status": "stub",
+        "note": "Projects activate with Customer Workspace",
+    }
 
 
 @app.get("/api/owner/dashboard", response_model=OwnerDashboard)
@@ -575,8 +612,13 @@ def ask_concierge(
 ) -> ConciergeResponse:
     ctx = _ctx()
     packages = ctx.sales.packages()
-    att_svc = PublicChatAttachmentService(_memory_dir())
-    attachment_note = att_svc.describe(request.attachment_ids or [])
+    mem = _memory_dir()
+    intake_svc = KnowledgeIntakeService(mem)
+    attachment_files = intake_svc.prepare_for_chat(
+        attachment_ids=request.attachment_ids or [],
+        visitor_id=request.visitor_id,
+        session_id=request.session_id,
+    )
     use_debug = debug and _genesis_dev_mode_allowed(http_request)
     merged_context = dict(request.context or {})
     if request.ui_locale:
@@ -591,7 +633,8 @@ def ask_concierge(
         request.question,
         history=[m.model_dump() for m in (request.history or [])],
         context=merged_context,
-        attachment_note=attachment_note,
+        attachment_note="",
+        attachment_files=attachment_files,
         visitor_id=request.visitor_id,
         session_id=request.session_id,
         debug=use_debug,
@@ -688,16 +731,35 @@ def delete_chat_session(session_id: str, visitor_id: str) -> dict:
     return {"ok": True}
 
 
+@app.get("/api/public/genesis-ai/attachments/policy")
+def genesis_attachment_policy(visitor_id: str = "anonymous") -> dict:
+    from app.integration.knowledge_intake_transparency import upload_policy_snapshot
+
+    vid = (visitor_id or "anonymous").strip()[:64]
+    return upload_policy_snapshot(_memory_dir(), visitor_id=vid)
+
+
 @app.post("/api/public/genesis-ai/attachments", response_model=ChatAttachmentResponse)
 async def upload_genesis_chat_attachment(
     file: UploadFile = File(...),
+    visitor_id: str = "anonymous",
+    files_in_message: int = 1,
 ) -> ChatAttachmentResponse:
+    vid = (visitor_id or "anonymous").strip()[:64]
     svc = PublicChatAttachmentService(_memory_dir())
     try:
-        row = svc.save(file)
+        row = svc.save(file, visitor_id=vid, files_in_message=max(1, files_in_message))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return ChatAttachmentResponse(**row)
+
+
+@app.get("/api/public/platform-version")
+def public_platform_version() -> dict:
+    """Foundation F5 — read-only manifest for update channel / compatibility checks."""
+    from app.integration.platform_version import build_platform_version_payload
+
+    return build_platform_version_payload(brain_version=BRAIN_VERSION)
 
 
 @app.get("/api/public/genesis-ai/greeting")
