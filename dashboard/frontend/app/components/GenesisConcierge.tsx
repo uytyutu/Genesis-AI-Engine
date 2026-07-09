@@ -211,7 +211,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", text: fallbackWelcome },
   ]);
-  const [chatCollapsed, setChatCollapsed] = useState(true);
+  const [chatCollapsed, setChatCollapsed] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<PendingAttachment[]>([]);
   const [voiceListening, setVoiceListening] = useState(false);
   const [voiceThinking, setVoiceThinking] = useState(false);
@@ -297,7 +297,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   }, []);
 
   const hasConversation = messages.some((m) => m.role === "user");
-  const showThread = hasConversation && !chatCollapsed;
+  const showThread = isPublic ? !chatCollapsed : hasConversation && !chatCollapsed;
 
   const { showJumpButton, handleScroll, jumpToLatest, pinToBottom } = useChatAutoScroll(
     messagesRef,
@@ -308,6 +308,16 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   useEffect(() => {
     onConversationActive?.(showThread);
   }, [showThread, onConversationActive]);
+
+  useEffect(() => {
+    if (!isPublic) return;
+    onConversationActive?.(true);
+    const id = requestAnimationFrame(() => {
+      pinToBottom();
+      document.getElementById("genesis-chat-input")?.scrollIntoView({ block: "end", behavior: "auto" });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [isPublic, onConversationActive, pinToBottom]);
 
   useEffect(() => {
     fetch(`${API}/api/public/genesis-ai/status`)
@@ -329,7 +339,16 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       .then((r) => r.json())
       .then((d: { greeting?: string }) => {
         const g = d?.greeting?.trim();
-        if (g) setWelcomeText(g);
+        if (!g) return;
+        const compact = g.replace(/\s+/g, " ").trim();
+        setWelcomeText(compact);
+        setMessages((prev) => {
+          if (prev.some((m) => m.role === "user")) return prev;
+          if (prev.length === 1 && prev[0]?.role === "assistant") {
+            return [{ ...prev[0], text: compact }];
+          }
+          return prev;
+        });
       })
       .catch(() => undefined);
     fetch(`${API}/api/public/genesis-ai/attachments/policy?visitor_id=${encodeURIComponent(visitorId)}`)
@@ -553,20 +572,6 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
 
       if (fromVoice) lastInputWasVoiceRef.current = true;
       setChatCollapsed(false);
-      pinToBottom();
-
-      let sessionId = activeSessionId;
-      if (!sessionId) {
-        const created = await createSession(visitorId);
-        if (created) {
-          sessionId = created.session_id;
-          setActiveSessionId(sessionId);
-          setSessionList((prev) => [
-            created,
-            ...prev.filter((s) => s.session_id !== created.session_id),
-          ]);
-        }
-      }
 
       const displayText =
         q || (files.length === 1 ? `📎 ${files[0]?.filename ?? "файл"}` : `📎 ${files.length} файла`);
@@ -592,12 +597,27 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       setInput("");
       setPendingFiles([]);
       setBusy(true);
+      pinToBottom();
       if (fromVoice) setVoiceThinking(true);
+
+      let sessionId = activeSessionId;
+      if (!sessionId) {
+        const created = await createSession(visitorId);
+        if (created) {
+          sessionId = created.session_id;
+          setActiveSessionId(sessionId);
+          setSessionList((prev) => [
+            created,
+            ...prev.filter((s) => s.session_id !== created.session_id),
+          ]);
+        }
+      }
 
       chatAbortRef.current?.abort();
       const controller = new AbortController();
       chatAbortRef.current = controller;
       abortRequestedRef.current = false;
+      const requestTimeout = window.setTimeout(() => controller.abort(), 90_000);
 
       try {
         const endpoint = `${API}/api/public/genesis-ai${developerMode ? "?debug=true" : ""}`;
@@ -690,17 +710,21 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           });
           return;
         }
+        const timedOut = err instanceof DOMException && err.name === "AbortError";
         setMessages((prev) => {
           const base = prev[prev.length - 1]?.generating ? prev.slice(0, -1) : prev;
           return [
             ...base,
             {
               role: "assistant",
-              text: t("offline", { ns: "errors", brand: BRAND_NAME }),
+              text: timedOut
+                ? "Ответ занял слишком много времени. Попробуйте короче — или нажмите ещё раз."
+                : t("offline", { ns: "errors", brand: BRAND_NAME }),
             },
           ];
         });
       } finally {
+        window.clearTimeout(requestTimeout);
         chatAbortRef.current = null;
         setBusy(false);
         setVoiceThinking(false);
@@ -976,7 +1000,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         cloudAvailable={ttsCloudAvailable}
         preferredProvider={ttsPreferred}
       />
-      <div className={composerFocused ? "max-sm:hidden" : undefined}>
+      <div className={composerFocused || isPublic ? "max-sm:hidden" : undefined}>
         <CommunicationStylePicker
           value={communicationStyle}
           onChange={setCommunicationStyle}
@@ -1014,6 +1038,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         attachHint={attachHint}
         inputId="genesis-chat-input"
         onFocusChange={setComposerFocused}
+        minimalMobile={isPublic}
       />
     </>
   );
@@ -1021,7 +1046,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const thread = messages ?? [];
 
   return (
-    <div className="flex flex-col gap-2 md:flex-row md:items-stretch">
+    <div className={`flex flex-col gap-2 md:flex-row md:items-stretch ${isPublic ? "h-full" : ""}`}>
       <ChatHistorySidebar
         sessions={sessionList}
         activeSessionId={activeSessionId}
@@ -1035,24 +1060,28 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     <section
       id="genesis-chat"
       className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow transition-all duration-300 ${
-        showThread
-          ? composerFocused
-            ? "min-h-[min(92dvh,52rem)] max-h-[min(96dvh,56rem)]"
-            : "min-h-[min(72vh,40rem)] max-h-[min(85vh,48rem)]"
-          : ""
+        isPublic
+          ? "h-[100dvh] max-sm:rounded-none max-sm:border-x-0 max-sm:shadow-none"
+          : showThread
+            ? composerFocused
+              ? "min-h-[min(92dvh,52rem)] max-h-[min(96dvh,56rem)]"
+              : "min-h-[min(72vh,40rem)] max-h-[min(85vh,48rem)]"
+            : ""
       }`}
       aria-label={`Диалог с ${ASSISTANT_NAME}`}
     >
       <header
         className={`flex shrink-0 items-center justify-between border-b border-white/5 transition-all duration-300 ${
-          showThread
-            ? composerFocused
-              ? "px-3 py-2 sm:px-6"
-              : "px-4 py-3 sm:px-6"
-            : "px-5 py-4 sm:px-8"
+          isPublic
+            ? "px-3 py-2 sm:px-6"
+            : showThread
+              ? composerFocused
+                ? "px-3 py-2 sm:px-6"
+                : "px-4 py-3 sm:px-6"
+              : "px-5 py-4 sm:px-8"
         }`}
       >
-        {showThread ? (
+        {showThread && !isPublic ? (
           <button
             type="button"
             onClick={() => setChatCollapsed(true)}
@@ -1062,7 +1091,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           >
             {t("back")}
           </button>
-        ) : (
+        ) : !isPublic ? (
           <button
             type="button"
             onClick={() => void handleNewChat()}
@@ -1070,6 +1099,8 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           >
             + {t("newChat")}
           </button>
+        ) : (
+          <span className="w-8 shrink-0" aria-hidden />
         )}
         {isPublic || !showThread ? (
           <VectorBrandSignature
@@ -1102,7 +1133,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         </div>
       </header>
 
-      {!showThread && (
+      {!showThread && !isPublic && (
         <div className="shrink-0 px-5 py-4 sm:px-8">
           <SpringIn className="rounded-2xl border border-white/5 bg-genesis-panel/50 px-5 py-5 text-[15px] leading-relaxed whitespace-pre-wrap text-genesis-text backdrop-blur-sm">
             <VectorBrandSignature variant="full" className="mb-2" />
@@ -1116,24 +1147,30 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           ref={messagesRef}
           onScroll={handleScroll}
           className={`h-full min-h-0 overflow-y-auto overscroll-contain px-4 transition-all duration-300 sm:px-6 ${
-            showThread ? "py-4 opacity-100" : "max-h-0 py-0 opacity-0"
+            showThread ? "py-3 pb-28 opacity-100 sm:py-4 sm:pb-4" : "max-h-0 py-0 opacity-0"
           }`}
         >
-          <ul className="mx-auto w-full max-w-3xl space-y-4">
-          {thread.map((m, i) => (
+          <ul className="mx-auto w-full max-w-3xl space-y-3 sm:space-y-4">
+          {thread.map((m, i) => {
+            const isWelcomeBubble = i === 0 && m.role === "assistant" && !hasConversation;
+            return (
             <ChatMessageSpring
               key={`${m.role}-${i}`}
               role={m.role}
               contentKey={m.generating ? `gen-${i}` : `${i}-${m.text?.length ?? 0}`}
             >
               <div
-                className={`rounded-3xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap ${
-                  m.role === "user"
-                    ? "bg-genesis-accent/20 text-white"
-                    : "border border-white/5 bg-genesis-panel/60 text-genesis-text backdrop-blur-sm"
+                className={`whitespace-pre-wrap ${
+                  isWelcomeBubble
+                    ? "px-1 py-1 text-[15px] leading-snug text-genesis-muted"
+                    : `rounded-3xl px-4 py-3 text-[15px] leading-relaxed ${
+                        m.role === "user"
+                          ? "bg-genesis-accent/20 text-white"
+                          : "border border-white/5 bg-genesis-panel/60 text-genesis-text backdrop-blur-sm"
+                      }`
                 }`}
               >
-                {m.role === "assistant" && (
+                {m.role === "assistant" && !isWelcomeBubble && (
                   <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-genesis-accent">
                     {assistantLabel}
                   </p>
@@ -1257,7 +1294,8 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
                 ) : null}
               </div>
             </ChatMessageSpring>
-          ))}
+            );
+          })}
           {busy && (
             <li className="flex justify-start">
               <div className="rounded-3xl border border-white/5 bg-genesis-panel/60 px-4 py-3 text-sm text-genesis-muted">
@@ -1279,15 +1317,16 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         ) : null}
       </div>
 
-      {!showThread && (
-        <div className="flex flex-wrap gap-2 px-5 pb-2 sm:px-8">
+      {!hasConversation && showThread && (
+        <div className="shrink-0 overflow-x-auto px-3 pb-1 sm:px-6">
+          <div className="flex w-max max-w-full gap-2 sm:flex-wrap">
           {STARTERS_VISIBLE.map((s) => (
             <button
               key={s.label}
               type="button"
               disabled={busy}
               onClick={() => void sendMessage(s.message)}
-              className="rounded-full border border-genesis-border-subtle bg-genesis-bg/50 px-4 py-2 text-xs text-genesis-muted transition hover:border-genesis-accent/40 hover:text-white disabled:opacity-40"
+              className="shrink-0 rounded-full border border-genesis-border-subtle bg-genesis-bg/50 px-3 py-1.5 text-xs text-genesis-muted transition hover:border-genesis-accent/40 hover:text-white disabled:opacity-40 sm:px-4 sm:py-2"
             >
               {s.label}
             </button>
@@ -1297,9 +1336,9 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
               type="button"
               disabled={busy}
               onClick={() => setShowMoreStarters(true)}
-              className="rounded-full border border-dashed border-genesis-border-subtle px-4 py-2 text-xs text-genesis-muted transition hover:border-genesis-accent/40 hover:text-white disabled:opacity-40"
+              className="shrink-0 rounded-full border border-dashed border-genesis-border-subtle px-3 py-1.5 text-xs text-genesis-muted transition hover:border-genesis-accent/40 hover:text-white disabled:opacity-40 sm:px-4 sm:py-2"
             >
-              Посмотреть ещё
+              Ещё
             </button>
           ) : (
             STARTERS_MORE.map((s) => (
@@ -1308,16 +1347,23 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
                 type="button"
                 disabled={busy}
                 onClick={() => void sendMessage(s.message)}
-                className="rounded-full border border-genesis-border-subtle bg-genesis-bg/50 px-4 py-2 text-xs text-genesis-muted transition hover:border-genesis-accent/40 hover:text-white disabled:opacity-40"
+                className="shrink-0 rounded-full border border-genesis-border-subtle bg-genesis-bg/50 px-3 py-1.5 text-xs text-genesis-muted transition hover:border-genesis-accent/40 hover:text-white disabled:opacity-40 sm:px-4 sm:py-2"
               >
                 {s.label}
               </button>
             ))
           )}
+          </div>
         </div>
       )}
 
-      <footer className="shrink-0 border-t border-white/5 px-1 pb-1 pt-2 sm:px-2">
+      <footer
+        className={`shrink-0 border-t border-white/5 px-1 pb-1 pt-2 sm:px-2 ${
+          isPublic
+            ? "max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:right-0 max-sm:z-40 max-sm:border-t max-sm:border-white/10 max-sm:bg-genesis-bg/95 max-sm:pb-[max(0.5rem,env(safe-area-inset-bottom))] max-sm:backdrop-blur-xl"
+            : ""
+        }`}
+      >
         {composer}
       </footer>
     </section>

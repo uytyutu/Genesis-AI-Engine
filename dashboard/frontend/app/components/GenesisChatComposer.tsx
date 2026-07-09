@@ -51,6 +51,8 @@ type Props = {
   inputId?: string;
   attachHint?: string;
   onFocusChange?: (focused: boolean) => void;
+  /** /site mobile — compact single-row composer, no voice chrome */
+  minimalMobile?: boolean;
 };
 
 function sanitizeMicNotice(notice: string | undefined, deniedText: string): string | undefined {
@@ -168,15 +170,26 @@ export function GenesisChatComposer({
   inputId = "genesis-chat-input",
   attachHint,
   onFocusChange,
+  minimalMobile = false,
 }: Props) {
   const { t } = useTranslation("chat");
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [focused, setFocused] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [narrowViewport, setNarrowViewport] = useState(false);
   const inputPlaceholder = placeholder ?? t("placeholder", { assistant: ASSISTANT_NAME });
   const hintText = attachHint ?? t("attachHint");
-  const compactChrome = focused && !expanded;
+  const compactChrome = (minimalMobile && narrowViewport) || (focused && !expanded);
+
+  useEffect(() => {
+    if (!minimalMobile || typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 639px)");
+    const update = () => setNarrowViewport(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, [minimalMobile]);
 
   const setInputFocused = useCallback(
     (next: boolean) => {
@@ -241,11 +254,15 @@ export function GenesisChatComposer({
       onBlur={() => {
         if (!expanded) setInputFocused(false);
       }}
-      rows={expanded ? 10 : compactChrome ? 4 : 1}
+      rows={expanded ? 10 : compactChrome ? 2 : 1}
       disabled={busy}
       placeholder={inputPlaceholder}
       className={`w-full flex-1 resize-none bg-transparent text-base leading-relaxed text-white placeholder:text-genesis-muted/60 focus:outline-none ${
-        expanded ? "min-h-[50dvh] py-4 text-[16px] leading-7" : "min-h-[44px] max-h-[min(280px,40dvh)] py-2.5"
+        expanded
+          ? "min-h-[50dvh] py-4 text-[16px] leading-7"
+          : minimalMobile && narrowViewport
+            ? "min-h-[48px] max-h-[min(120px,22dvh)] py-3 text-[16px]"
+            : "min-h-[44px] max-h-[min(280px,40dvh)] py-2.5"
       }`}
     />
   );
@@ -264,7 +281,7 @@ export function GenesisChatComposer({
         <ClipIcon />
       </SpringPressable>
 
-      {!compactChrome && onOpenVoiceSettings ? (
+      {!minimalMobile && !compactChrome && onOpenVoiceSettings ? (
         <SpringPressable
           type="button"
           onClick={() => onOpenVoiceSettings?.()}
@@ -280,40 +297,42 @@ export function GenesisChatComposer({
         </SpringPressable>
       ) : null}
 
-      {!compactChrome && onMicModeChange ? (
+      {!minimalMobile && !compactChrome && onMicModeChange ? (
         <MicModeToggle value={micMode} onChange={onMicModeChange} />
       ) : null}
 
-      <SpringPressable
-        type="button"
-        onClick={handleMicClick}
-        disabled={busy}
-        className={`relative z-10 mb-1 flex shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
-          compactChrome ? "h-9 w-9" : "h-10 w-10"
-        } ${
-          voiceListening
-            ? micMode === "dictation"
-              ? "bg-amber-500/20 text-amber-200"
-              : "bg-genesis-accent/20 text-genesis-accent"
-            : "text-genesis-muted hover:bg-genesis-accent/15 hover:text-genesis-accent"
-        }`}
-        aria-label={
-          voiceListening
-            ? t("micStop")
-            : micMode === "dictation"
-              ? "Диктовка"
-              : t("micStart")
-        }
-      >
-        <MicIcon active={voiceListening} />
-      </SpringPressable>
+      {!minimalMobile && (
+        <SpringPressable
+          type="button"
+          onClick={handleMicClick}
+          disabled={busy}
+          className={`relative z-10 mb-1 flex shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
+            compactChrome ? "h-9 w-9" : "h-10 w-10"
+          } ${
+            voiceListening
+              ? micMode === "dictation"
+                ? "bg-amber-500/20 text-amber-200"
+                : "bg-genesis-accent/20 text-genesis-accent"
+              : "text-genesis-muted hover:bg-genesis-accent/15 hover:text-genesis-accent"
+          }`}
+          aria-label={
+            voiceListening
+              ? t("micStop")
+              : micMode === "dictation"
+                ? "Диктовка"
+                : t("micStart")
+          }
+        >
+          <MicIcon active={voiceListening} />
+        </SpringPressable>
+      )}
 
       <SpringPressable
         type="button"
         onClick={onSend}
         disabled={(busy && !generating) || (!value.trim() && !attachments.length && !generating)}
         className={`mb-1 flex shrink-0 items-center justify-center rounded-full bg-genesis-accent text-white disabled:opacity-40 ${
-          compactChrome ? "h-11 w-11" : "h-10 w-10"
+          minimalMobile && narrowViewport || compactChrome ? "h-12 w-12" : "h-10 w-10"
         }`}
         aria-label={t("send")}
       >
@@ -377,7 +396,9 @@ export function GenesisChatComposer({
   }
 
   return (
-    <div className={`${floating ? "mx-auto w-full max-w-3xl px-4 pt-2" : "px-4 pb-4"}`}>
+    <div
+      className={`${floating ? "mx-auto w-full max-w-3xl px-4 pt-2" : minimalMobile ? "px-3 pb-2 sm:px-4 sm:pb-4" : "px-4 pb-4"}`}
+    >
       {safeMicNotice && (
         <div
           role="status"
@@ -406,10 +427,10 @@ export function GenesisChatComposer({
           </div>
         </div>
       )}
-      {voiceHint && voiceListening && !compactChrome && (
+      {voiceHint && voiceListening && !compactChrome && !minimalMobile && (
         <p className="mb-2 text-center text-xs text-genesis-accent">{voiceHint}</p>
       )}
-      {!compactChrome && (
+      {!compactChrome && !minimalMobile && (
         <VoiceStatusPulse
           status={voiceStatus}
           label={statusLabel}
@@ -435,17 +456,17 @@ export function GenesisChatComposer({
           </button>
         </div>
       )}
-      {voiceListening && !compactChrome && (
+      {voiceListening && !compactChrome && !minimalMobile && (
         <div className="mb-2 flex flex-col items-center rounded-xl border border-genesis-accent/25 bg-genesis-accent/5 px-3 py-3">
           <VoiceOrb mode="listening" />
         </div>
       )}
-      {voiceSpeaking && !voiceListening && !compactChrome && (
+      {voiceSpeaking && !voiceListening && !compactChrome && !minimalMobile && (
         <div className="mb-2 flex flex-col items-center rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-3 py-3">
           <VoiceOrb mode="speaking" />
         </div>
       )}
-      {voiceThinking && !voiceListening && !voiceSpeaking && !compactChrome && (
+      {voiceThinking && !voiceListening && !voiceSpeaking && !compactChrome && !minimalMobile && (
         <div className="mb-2 flex flex-col items-center rounded-xl border border-indigo-500/25 bg-indigo-500/5 px-3 py-3">
           <VoiceOrb mode="thinking" />
         </div>
@@ -483,13 +504,13 @@ export function GenesisChatComposer({
           ))}
         </div>
       )}
-      {!compactChrome && (
+      {!compactChrome && !minimalMobile && (
         <p className="mb-2 text-[10px] leading-snug text-genesis-muted/80">{hintText}</p>
       )}
 
       <div
         className={`flex items-end gap-1.5 rounded-3xl border border-white/10 bg-genesis-panel/95 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:gap-2 ${
-          compactChrome ? "p-1.5" : "p-2"
+          minimalMobile && narrowViewport ? "p-2" : compactChrome ? "p-1.5" : "p-2"
         }`}
       >
         <input
