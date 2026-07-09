@@ -17,6 +17,7 @@
   "generationStopped": "— generation stopped —",
   "newChat": "New chat",
   "back": "← Back",
+  "jumpToLatest": "Latest message",
   "filesOnlyPrompt": "The client attached files — please help clarify the task.",
   "micModalTitle": "Voice chat with {{assistant}}",
   "micModalBody": "Tap the button below — the browser will ask for permission once.",

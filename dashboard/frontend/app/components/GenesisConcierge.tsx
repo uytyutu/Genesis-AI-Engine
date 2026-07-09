@@ -50,6 +50,7 @@ import {
 } from "../lib/communicationStyle";
 import { appendDictationText, loadMicMode, type MicMode } from "../lib/micMode";
 import { useLocale } from "../context/LocaleContext";
+import { useChatAutoScroll } from "../lib/useChatAutoScroll";
 import { ChatMessageSpring } from "./motion/ChatMessageSpring";
 import { SpringIn } from "./motion/SpringIn";
 
@@ -292,21 +293,15 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const hasConversation = messages.some((m) => m.role === "user");
   const showThread = hasConversation && !chatCollapsed;
 
-  const scrollToBottom = useCallback(() => {
-    const el = messagesRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
-  }, []);
+  const { showJumpButton, handleScroll, jumpToLatest, pinToBottom } = useChatAutoScroll(
+    messagesRef,
+    [messages, busy, voiceSpeaking, voiceThinking, showThread],
+    showThread,
+  );
 
   useEffect(() => {
     onConversationActive?.(showThread);
   }, [showThread, onConversationActive]);
-
-  useEffect(() => {
-    if (!showThread) return;
-    const id = requestAnimationFrame(scrollToBottom);
-    return () => cancelAnimationFrame(id);
-  }, [messages, busy, showThread, scrollToBottom]);
 
   useEffect(() => {
     fetch(`${API}/api/public/genesis-ai/status`)
@@ -536,6 +531,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
 
       if (fromVoice) lastInputWasVoiceRef.current = true;
       setChatCollapsed(false);
+      pinToBottom();
 
       let sessionId = activeSessionId;
       if (!sessionId) {
@@ -701,6 +697,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       uiLocale,
       assistantLocale,
       communicationStyle,
+      pinToBottom,
       t,
     ],
   );
@@ -1074,13 +1071,15 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         </div>
       )}
 
-      <div
-        ref={messagesRef}
-        className={`min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 transition-all duration-300 sm:px-6 ${
-          showThread ? "py-4 opacity-100" : "max-h-0 py-0 opacity-0"
-        }`}
-      >
-        <ul className="mx-auto w-full max-w-3xl space-y-4">
+      <div className={`relative min-h-0 flex-1 ${showThread ? "" : "max-h-0"}`}>
+        <div
+          ref={messagesRef}
+          onScroll={handleScroll}
+          className={`h-full min-h-0 overflow-y-auto overscroll-contain px-4 transition-all duration-300 sm:px-6 ${
+            showThread ? "py-4 opacity-100" : "max-h-0 py-0 opacity-0"
+          }`}
+        >
+          <ul className="mx-auto w-full max-w-3xl space-y-4">
           {thread.map((m, i) => (
             <ChatMessageSpring
               key={`${m.role}-${i}`}
@@ -1227,6 +1226,17 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             </li>
           )}
         </ul>
+        </div>
+        {showJumpButton && showThread ? (
+          <button
+            type="button"
+            onClick={jumpToLatest}
+            className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full border border-white/10 bg-genesis-panel/95 px-4 py-2 text-xs font-medium text-genesis-text shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl transition hover:border-genesis-accent/35 hover:text-white"
+            aria-label={t("jumpToLatest")}
+          >
+            ⬇️ {t("jumpToLatest")}
+          </button>
+        ) : null}
       </div>
 
       {!showThread && (

@@ -17,6 +17,7 @@
   "generationStopped": "— Generierung gestoppt —",
   "newChat": "Neuer Chat",
   "back": "← Zurück",
+  "jumpToLatest": "Neueste Nachricht",
   "filesOnlyPrompt": "Der Kunde hat Dateien angehängt — bitte helfen Sie, die Aufgabe zu verstehen.",
   "micModalTitle": "Sprachgespräch mit {{assistant}}",
   "micModalBody": "Tippen Sie unten — der Browser fragt einmal nach der Erlaubnis.",
