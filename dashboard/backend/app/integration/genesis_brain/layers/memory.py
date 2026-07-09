@@ -14,6 +14,8 @@ from typing import Any
 
 from app.integration.genesis_brain.public_brand import STUDIO_NAME
 
+from app.integration.genesis_brain.colloquial_ru import is_colloquial_register
+
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent.parent.parent / "memory"
 _NAME_RE = re.compile(r"меня\s+зовут\s+([A-Za-zА-Яа-яЁё\-]+)", re.I)
 _AGE_RE = re.compile(r"мне\s+(\d{1,2})\s*(?:лет|года|год)?", re.I)
@@ -79,6 +81,16 @@ class GenesisMemoryLayer:
             lines.append("- Ценности: " + ", ".join(inf["core_values"][:5]))
         if inf.get("communication_style"):
             lines.append(f"- Стиль общения: {inf['communication_style']}")
+        pref = inf.get("communication_style_preference")
+        if pref:
+            labels = {
+                "casual": "разговорный",
+                "friendly": "дружелюбный",
+                "professional": "деловой",
+            }
+            lines.append(
+                f"- Предпочтение манеры (Auto): {labels.get(pref, pref)}"
+            )
         if inf.get("preferred_depth"):
             lines.append(f"- Предпочитает: {inf['preferred_depth']}")
         if inf.get("risk_profile"):
@@ -157,6 +169,55 @@ class GenesisMemoryLayer:
         data["recent_exchanges"] = exchanges[-30:]
         data["visit_count"] = int(data.get("visit_count") or 0) + 1
         self.save(visitor_id, data)
+
+    def observe_communication_habits(self, visitor_id: str, user_message: str) -> None:
+        """Track brevity + colloquial register for Auto style memory."""
+        raw = (user_message or "").strip()
+        if not raw:
+            return
+        data = self.load(visitor_id)
+        inf: dict[str, Any] = dict(data.get("inferences") or {})
+
+        samples: list[int] = list(inf.get("brevity_samples") or [])
+        samples.append(len(raw))
+        samples = samples[-12:]
+        inf["brevity_samples"] = samples
+        if len(samples) >= 3:
+            avg = sum(samples) / len(samples)
+            if avg < 22:
+                inf["preferred_depth"] = "brief"
+            elif avg > 90:
+                inf["preferred_depth"] = "detailed"
+            elif inf.get("preferred_depth") not in ("brief", "detailed"):
+                inf["preferred_depth"] = "normal"
+
+        colloquial_hits: list[bool] = list(inf.get("colloquial_hits") or [])
+        colloquial_hits.append(is_colloquial_register(raw))
+        colloquial_hits = colloquial_hits[-12:]
+        inf["colloquial_hits"] = colloquial_hits
+        if len(colloquial_hits) >= 5:
+            ratio = sum(1 for x in colloquial_hits if x) / len(colloquial_hits)
+            if ratio >= 0.45:
+                inf["communication_style_preference"] = "casual"
+            elif ratio <= 0.2:
+                inf["communication_style_preference"] = "friendly"
+
+        if re.search(
+            r"объясни|объясните|подробн|пошагово|научи",
+            raw,
+            re.I,
+        ):
+            mentor_n = int(inf.get("mentor_ask_count") or 0) + 1
+            inf["mentor_ask_count"] = mentor_n
+            if mentor_n >= 3:
+                inf["preferred_depth"] = "detailed"
+
+        data["inferences"] = inf
+        self.save(visitor_id, data)
+
+    def observe_brevity_habit(self, visitor_id: str, user_message: str) -> None:
+        """Backward-compatible alias."""
+        self.observe_communication_habits(visitor_id, user_message)
 
     def get_inferences(self, visitor_id: str) -> dict[str, Any]:
         data = self.load(visitor_id)

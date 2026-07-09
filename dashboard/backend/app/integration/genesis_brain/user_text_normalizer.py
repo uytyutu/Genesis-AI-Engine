@@ -10,6 +10,8 @@ from __future__ import annotations
 import re
 from difflib import get_close_matches
 
+from app.integration.genesis_brain.colloquial_ru import expand_colloquial_ru
+
 _TOKEN_RE = re.compile(r"[\wа-яёА-ЯЁ]+|[^\w\s]", re.UNICODE)
 
 # Exact token replacements — high-confidence typos only (not a giant dictionary).
@@ -19,10 +21,10 @@ _EXACT_TYPO: dict[str, str] = {
     "рашифровать": "расшифровать",
     "рашифруй": "расшифруй",
     "рашифруйте": "расшифруйте",
-    "генезес": "genesis",
-    "генезис": "genesis",
-    "дженезис": "genesis",
-    "женезис": "genesis",
+    "генезес": "virtus core",
+    "генезис": "virtus core",
+    "дженезис": "virtus core",
+    "женезис": "virtus core",
     "виртус": "virtus",
     "виртуз": "virtus",
     "вирус кор": "virtus core",
@@ -39,6 +41,8 @@ _EXACT_TYPO: dict[str, str] = {
     "ашибка": "ошибка",
     "програма": "программа",
     "програму": "программу",
+    "преграму": "программу",
+    "преграма": "программа",
     "кагда": "когда",
     "пожалуста": "пожалуйста",
     "пожалуйстаа": "пожалуйста",
@@ -267,4 +271,5 @@ def normalize_user_text(text: str) -> str:
 
     result = "".join(parts)
     result = re.sub(r"\s+", " ", result).strip()
-    return _fix_server_in_tech_context(result)
+    result = _fix_server_in_tech_context(result)
+    return expand_colloquial_ru(result)

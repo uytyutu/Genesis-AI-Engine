@@ -160,5 +160,10 @@ class ConversationStyleEngine:
       "хай",
       "hey",
       "салют",
+      "здарова",
+      "здаров",
+      "здрасти",
+      "дарова",
+      "прив",
     )
     return any(m in low for m in markers)

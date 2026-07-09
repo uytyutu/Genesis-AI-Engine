@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "./ui/Badge";
 import {
   GenesisChatComposer,
   type PendingAttachment,
+  type VoiceUiStatus,
 } from "./GenesisChatComposer";
 import {
   getSpeechRecognitionCtor,
@@ -29,6 +31,7 @@ import {
   type VoiceSettings,
 } from "../lib/voiceSettings";
 import { ChatHistorySidebar } from "./ChatHistorySidebar";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import {
   createSession,
   deleteSessionApi,
@@ -40,6 +43,15 @@ import {
   type ChatSessionMeta,
 } from "../lib/chatSessions";
 import { VoiceSettingsPanel } from "./VoiceSettingsPanel";
+import { CommunicationStylePicker } from "./CommunicationStylePicker";
+import {
+  loadCommunicationStyle,
+  type CommunicationStyle,
+} from "../lib/communicationStyle";
+import { appendDictationText, loadMicMode, type MicMode } from "../lib/micMode";
+import { useLocale } from "../context/LocaleContext";
+import { ChatMessageSpring } from "./motion/ChatMessageSpring";
+import { SpringIn } from "./motion/SpringIn";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const VISITOR_KEY = "genesis_visitor_id";
@@ -73,6 +85,8 @@ function getVisitorId(scope: "public" | "owner"): string {
 type Message = {
   role: "user" | "assistant";
   text: string;
+  generating?: boolean;
+  stopped?: boolean;
   cta_href?: string | null;
   cta_label?: string | null;
   attachments?: PendingAttachment[];
@@ -181,6 +195,8 @@ type Props = {
 };
 
 export function GenesisConcierge({ onConversationActive, scope = "public" }: Props) {
+  const { t } = useTranslation(["chat", "errors"]);
+  const { uiLocale, assistantLocale } = useLocale();
   const isPublic = scope === "public";
   const fallbackWelcome = isPublic ? FALLBACK_WELCOME_PUBLIC : FALLBACK_WELCOME_OWNER;
   const assistantLabel = ASSISTANT_NAME;
@@ -201,6 +217,10 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const [showMoreStarters, setShowMoreStarters] = useState(false);
   const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(() => loadVoiceSettings());
+  const [communicationStyle, setCommunicationStyle] = useState<CommunicationStyle>(() =>
+    loadCommunicationStyle(),
+  );
+  const [micMode, setMicMode] = useState<MicMode>(() => loadMicMode());
   const [ttsCloudAvailable, setTtsCloudAvailable] = useState(false);
   const [ttsPreferred, setTtsPreferred] = useState<string>("browser");
   const [developerMode, setDeveloperMode] = useState(false);
@@ -208,10 +228,15 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [sessionList, setSessionList] = useState<ChatSessionMeta[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [voiceStoppedFlash, setVoiceStoppedFlash] = useState(false);
   const devAvailable = devModeAvailable();
   const visitorId = getVisitorId(scope);
 
   const voiceSettingsRef = useRef(voiceSettings);
+  const communicationStyleRef = useRef(communicationStyle);
+  const micModeRef = useRef(micMode);
+  const dictationActiveRef = useRef(false);
+  const prevMicModeRef = useRef(micMode);
 
   const messagesRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -220,10 +245,19 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const voiceContinuousRef = useRef(false);
   const startVoiceRef = useRef<(() => Promise<void>) | null>(null);
   const hydratedRef = useRef(false);
+  const chatAbortRef = useRef<AbortController | null>(null);
+  const abortRequestedRef = useRef(false);
+  const voiceStoppedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     voiceSettingsRef.current = voiceSettings;
   }, [voiceSettings]);
+  useEffect(() => {
+    communicationStyleRef.current = communicationStyle;
+  }, [communicationStyle]);
+  useEffect(() => {
+    micModeRef.current = micMode;
+  }, [micMode]);
 
   useEffect(() => {
     if (!devAvailable) return;
@@ -405,6 +439,13 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   );
 
   useEffect(() => {
+    return () => {
+      if (voiceStoppedTimerRef.current) clearTimeout(voiceStoppedTimerRef.current);
+      chatAbortRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
     const home = () => {
       setChatCollapsed(true);
       document.getElementById("genesis-chat")?.scrollIntoView({ behavior: "smooth" });
@@ -450,6 +491,39 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     });
   }, []);
 
+  const interruptSpeechIfNeeded = useCallback(() => {
+    if (!voiceSpeaking && !isSpeaking()) return;
+    stopSpeaking();
+    stopInterruptListener();
+    setVoiceSpeaking(false);
+    setVoiceThinking(false);
+    if (voiceStoppedTimerRef.current) clearTimeout(voiceStoppedTimerRef.current);
+    setVoiceStoppedFlash(true);
+    voiceStoppedTimerRef.current = setTimeout(() => setVoiceStoppedFlash(false), 2000);
+  }, [voiceSpeaking]);
+
+  const stopGeneration = useCallback(() => {
+    if (!chatAbortRef.current) return;
+    abortRequestedRef.current = true;
+    chatAbortRef.current.abort();
+    chatAbortRef.current = null;
+  }, []);
+
+  const handleStopActive = useCallback(() => {
+    interruptSpeechIfNeeded();
+    stopGeneration();
+  }, [interruptSpeechIfNeeded, stopGeneration]);
+
+  const voiceUiStatus: VoiceUiStatus = voiceStoppedFlash
+    ? "stopped"
+    : voiceListening
+      ? "listening"
+      : voiceSpeaking
+        ? "speaking"
+        : voiceThinking || (busy && lastInputWasVoiceRef.current)
+          ? "thinking"
+          : "ready";
+
   const sendMessage = useCallback(
     async (text: string, files: PendingAttachment[] = [], fromVoice = false) => {
       const q = text.trim();
@@ -482,7 +556,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       const sentFiles = files.map((f) => ({ ...f }));
 
       const history = messages
-        .filter((m) => m.role === "user" || m.role === "assistant")
+        .filter((m) => !m.generating && (m.role === "user" || m.role === "assistant"))
         .slice(1)
         .slice(-12)
         .map((m) => ({ role: m.role, content: m.text ?? "" }));
@@ -492,22 +566,35 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         text: displayText,
         attachments: sentFiles.length ? sentFiles : undefined,
       };
-      setMessages((prev) => [...prev, nextUserMsg]);
+      setMessages((prev) => [
+        ...prev,
+        nextUserMsg,
+        { role: "assistant", text: "", generating: true },
+      ]);
       setInput("");
       setPendingFiles([]);
       setBusy(true);
       if (fromVoice) setVoiceThinking(true);
+
+      chatAbortRef.current?.abort();
+      const controller = new AbortController();
+      chatAbortRef.current = controller;
+      abortRequestedRef.current = false;
 
       try {
         const endpoint = `${API}/api/public/genesis-ai${developerMode ? "?debug=true" : ""}`;
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
-            question: q || "Клиент прикрепил файлы — помогите понять задачу.",
+            question: q || t("filesOnlyPrompt"),
             history,
             visitor_id: visitorId,
             session_id: sessionId,
+            ui_locale: uiLocale,
+            assistant_locale: assistantLocale,
+            communication_style: communicationStyleRef.current,
             context: scope === "owner" ? { personality_mode: "ceo" } : undefined,
             attachment_ids: files.map((f) => f.id).filter(Boolean),
           }),
@@ -526,11 +613,12 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
 
         const answer =
           data?.answer?.trim() ||
-          "Сейчас не получилось сформировать ответ. Попробуйте переформулировать — я здесь.";
+          t("emptyAnswer", { ns: "errors" });
 
         setMessages((prev) => {
+          const base = prev[prev.length - 1]?.generating ? prev.slice(0, -1) : prev;
           const next = [
-            ...prev,
+            ...base,
             {
               role: "assistant" as const,
               text: answer,
@@ -568,19 +656,35 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           });
           lastInputWasVoiceRef.current = false;
         }
-      } catch {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            text:
-              `Сейчас я не могу ответить — похоже, нет связи с ${BRAND_NAME}.\n\n` +
-              "Попробуйте обновить страницу через минуту или напишите ещё раз.",
-          },
-        ]);
+      } catch (err) {
+        if (abortRequestedRef.current) {
+          abortRequestedRef.current = false;
+          setMessages((prev) => {
+            const last = prev[prev.length - 1];
+            if (last?.role !== "assistant" || !last.generating) return prev;
+            const partial = last.text?.trim();
+            const stopped = t("generationStopped");
+            const text = partial ? `${partial}\n\n${stopped}` : stopped;
+            const next = [...prev.slice(0, -1), { ...last, text, generating: false, stopped: true }];
+            if (sessionId) persistLocalMessages(sessionId, next);
+            return next;
+          });
+          return;
+        }
+        setMessages((prev) => {
+          const base = prev[prev.length - 1]?.generating ? prev.slice(0, -1) : prev;
+          return [
+            ...base,
+            {
+              role: "assistant",
+              text: t("offline", { ns: "errors", brand: BRAND_NAME }),
+            },
+          ];
+        });
       } finally {
+        chatAbortRef.current = null;
         setBusy(false);
-        if (!lastInputWasVoiceRef.current) setVoiceThinking(false);
+        setVoiceThinking(false);
       }
     },
     [
@@ -593,6 +697,11 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       persistLocalMessages,
       refreshSessionList,
       voiceSpeaking,
+      interruptSpeechIfNeeded,
+      uiLocale,
+      assistantLocale,
+      communicationStyle,
+      t,
     ],
   );
 
@@ -604,6 +713,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   }, []);
 
   const stopVoice = useCallback(() => {
+    dictationActiveRef.current = false;
     try {
       recognitionRef.current?.stop();
     } catch {
@@ -615,11 +725,12 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     setVoiceHint(undefined);
   }, [releaseMicStream]);
 
-  const interruptSpeechIfNeeded = useCallback(() => {
-    stopSpeaking();
-    stopInterruptListener();
-    setVoiceSpeaking(false);
-  }, []);
+  useEffect(() => {
+    if (prevMicModeRef.current !== micMode) {
+      stopVoice();
+      prevMicModeRef.current = micMode;
+    }
+  }, [micMode, stopVoice]);
 
   const failMic = useCallback(
     (message: string, err?: unknown) => {
@@ -671,7 +782,8 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     const devicesBefore = await listAudioInputDevices();
     logVoiceDiagnostics("enumerateDevices (before grant)", { devices: devicesBefore });
 
-    setVoiceHint("Слушаю…");
+    const isDictation = micModeRef.current === "dictation";
+    setVoiceHint(isDictation ? "Диктовка…" : "Слушаю…");
 
     try {
       logVoiceDiagnostics("getUserMedia request", { audio: true });
@@ -700,14 +812,35 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     try {
       const rec = new SR();
       rec.lang = "ru-RU";
-      rec.interimResults = false;
+      rec.interimResults = isDictation;
+      rec.continuous = isDictation;
       rec.maxAlternatives = 1;
+      if (isDictation) {
+        dictationActiveRef.current = true;
+      }
       rec.onstart = () => {
-        console.info("[Genesis] speech recognition started");
+        console.info("[Genesis] speech recognition started", { mode: micModeRef.current });
         setVoiceListening(true);
-        setVoiceHint("Слушаю… говорите свободно");
+        setVoiceHint(
+          isDictation ? "Диктовка… говорите, текст появится в поле" : "Слушаю… говорите свободно",
+        );
       };
       rec.onresult = (event: SpeechRecognitionEvent) => {
+        if (micModeRef.current === "dictation") {
+          let finalText = "";
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const piece = event.results[i]?.[0]?.transcript ?? "";
+            if (event.results[i]?.isFinal) {
+              finalText += piece;
+            }
+          }
+          finalText = finalText.trim();
+          console.info("[Genesis] dictation result:", finalText);
+          if (finalText) {
+            setInput((prev) => appendDictationText(prev, finalText));
+          }
+          return;
+        }
         const transcript = event.results?.[0]?.[0]?.transcript?.trim();
         console.info("[Genesis] speech result:", transcript);
         if (transcript && isInterruptPhrase(transcript) && (voiceSpeaking || isSpeaking())) {
@@ -725,8 +858,15 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           return;
         }
         if (event.error === "no-speech") {
+          if (micModeRef.current === "dictation" && dictationActiveRef.current) {
+            setVoiceHint("Пауза… продолжайте говорить или нажмите микрофон, чтобы остановить.");
+            return;
+          }
           setVoiceListening(false);
           setVoiceHint("Не расслышал — нажмите микрофон и говорите чуть громче.");
+          return;
+        }
+        if (micModeRef.current === "dictation" && event.error === "aborted") {
           return;
         }
         setVoiceListening(false);
@@ -734,7 +874,16 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         failMic("Не получилось распознать речь. Попробуйте ещё раз.");
       };
       rec.onend = () => {
-        console.info("[Genesis] speech recognition ended");
+        console.info("[Genesis] speech recognition ended", { mode: micModeRef.current });
+        if (micModeRef.current === "dictation" && dictationActiveRef.current) {
+          try {
+            rec.start();
+          } catch {
+            setVoiceListening(false);
+            setVoiceHint(undefined);
+          }
+          return;
+        }
         setVoiceListening(false);
       };
       recognitionRef.current = rec;
@@ -742,7 +891,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     } catch (err) {
       failMic("Не удалось запустить распознавание речи.", err);
     }
-  }, [failMic, sendMessage, stopVoice]);
+  }, [failMic, sendMessage, stopVoice, interruptSpeechIfNeeded, voiceSpeaking]);
 
   startVoiceRef.current = startVoice;
 
@@ -752,8 +901,11 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       stopVoice();
       return;
     }
-    interruptSpeechIfNeeded();
-    voiceContinuousRef.current = !voiceSettingsRef.current.pushToTalk;
+    if (micModeRef.current === "chat") {
+      interruptSpeechIfNeeded();
+    }
+    voiceContinuousRef.current =
+      micModeRef.current === "chat" && !voiceSettingsRef.current.pushToTalk;
     setMicNotice(undefined);
     const perm = await micPermissionState();
     logVoiceDiagnostics("permission state", { perm });
@@ -804,15 +956,21 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         cloudAvailable={ttsCloudAvailable}
         preferredProvider={ttsPreferred}
       />
+      <CommunicationStylePicker
+        value={communicationStyle}
+        onChange={setCommunicationStyle}
+      />
       <GenesisChatComposer
         value={input}
         onChange={setInput}
         onSend={() => void sendMessage(input, pendingFiles)}
         busy={busy}
+        generating={busy}
         attachments={pendingFiles ?? []}
         onPickFiles={(files) => void uploadFiles(files)}
         onRemoveAttachment={removeAttachment}
         onToggleVoice={() => void toggleVoice()}
+        onStopActive={handleStopActive}
         onRetryVoice={() => {
           setMicNotice(undefined);
           void startVoice();
@@ -820,6 +978,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         voiceListening={voiceListening}
         voiceThinking={voiceThinking || (busy && lastInputWasVoiceRef.current)}
         voiceSpeaking={voiceSpeaking}
+        voiceStatus={voiceUiStatus}
         micPermissionModal={micPermissionModal}
         onConfirmMicPermission={confirmMicPermission}
         onCancelMicPermission={() => setMicPermissionModal(false)}
@@ -828,6 +987,8 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         onDismissMicNotice={() => setMicNotice(undefined)}
         onOpenVoiceSettings={() => setVoiceSettingsOpen((o) => !o)}
         voiceSettingsOpen={voiceSettingsOpen}
+        micMode={micMode}
+        onMicModeChange={setMicMode}
         inputId="genesis-chat-input"
       />
     </>
@@ -865,7 +1026,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             onClick={() => setChatCollapsed(true)}
             className="rounded-lg px-2 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white"
           >
-            ← Назад
+            {t("back")}
           </button>
         ) : (
           <button
@@ -873,7 +1034,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             onClick={() => void handleNewChat()}
             className="rounded-lg px-2 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white"
           >
-            + Новый
+            + {t("newChat")}
           </button>
         )}
         {isPublic || !showThread ? (
@@ -883,30 +1044,33 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             {ASSISTANT_NAME}
           </Badge>
         )}
-        {devAvailable ? (
-          <button
-            type="button"
-            onClick={toggleDeveloperMode}
-            title="Dev Mode — Thinking Brief (только разработка)"
-            className={`rounded-lg px-2 py-1 text-[10px] font-semibold uppercase tracking-wider transition ${
-              developerMode
-                ? "bg-amber-500/20 text-amber-300 ring-1 ring-amber-400/40"
-                : "text-genesis-muted hover:bg-white/5 hover:text-white"
-            }`}
-          >
-            Dev {developerMode ? "ON" : "OFF"}
-          </button>
-        ) : (
-          <span className="w-14" />
-        )}
+        <div className="flex items-center gap-2">
+          {!isPublic && <LanguageSwitcher />}
+          {devAvailable ? (
+            <button
+              type="button"
+              onClick={toggleDeveloperMode}
+              title="Dev Mode — Thinking Brief (только разработка)"
+              className={`rounded-lg px-2 py-1 text-[10px] font-semibold uppercase tracking-wider transition ${
+                developerMode
+                  ? "bg-amber-500/20 text-amber-300 ring-1 ring-amber-400/40"
+                  : "text-genesis-muted hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              Dev {developerMode ? "ON" : "OFF"}
+            </button>
+          ) : (
+            <span className="w-14" />
+          )}
+        </div>
       </header>
 
       {!showThread && (
         <div className="shrink-0 px-5 py-4 sm:px-8">
-          <div className="rounded-2xl border border-white/5 bg-genesis-panel/50 px-5 py-5 text-[15px] leading-relaxed whitespace-pre-wrap text-genesis-text">
+          <SpringIn className="rounded-2xl border border-white/5 bg-genesis-panel/50 px-5 py-5 text-[15px] leading-relaxed whitespace-pre-wrap text-genesis-text backdrop-blur-sm">
             <VectorBrandSignature variant="full" className="mb-2" />
             {welcomeText}
-          </div>
+          </SpringIn>
         </div>
       )}
 
@@ -918,15 +1082,16 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       >
         <ul className="mx-auto w-full max-w-3xl space-y-4">
           {thread.map((m, i) => (
-            <li
+            <ChatMessageSpring
               key={`${m.role}-${i}`}
-              className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+              role={m.role}
+              contentKey={m.generating ? `gen-${i}` : `${i}-${m.text?.length ?? 0}`}
             >
               <div
-                className={`max-w-[min(92%,36rem)] rounded-3xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap ${
+                className={`rounded-3xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap ${
                   m.role === "user"
                     ? "bg-genesis-accent/20 text-white"
-                    : "border border-white/5 bg-genesis-panel/60 text-genesis-text"
+                    : "border border-white/5 bg-genesis-panel/60 text-genesis-text backdrop-blur-sm"
                 }`}
               >
                 {m.role === "assistant" && (
@@ -934,7 +1099,15 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
                     {assistantLabel}
                   </p>
                 )}
-                {m.text}
+                {m.generating && !m.text?.trim() ? (
+                  <span className="inline-flex items-center gap-1 text-genesis-muted">
+                    <span className="animate-pulse">●</span>
+                    <span className="animate-pulse [animation-delay:150ms]">●</span>
+                    <span className="animate-pulse [animation-delay:300ms]">●</span>
+                  </span>
+                ) : (
+                  m.text
+                )}
                 {(m.attachments ?? []).map((a) =>
                   a?.previewUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -1044,7 +1217,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
                   </div>
                 ) : null}
               </div>
-            </li>
+            </ChatMessageSpring>
           ))}
           {busy && (
             <li className="flex justify-start">

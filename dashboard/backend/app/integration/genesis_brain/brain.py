@@ -20,9 +20,18 @@ from app.integration.genesis_brain.ai_jury import (
     should_invoke_jury,
 )
 from app.integration.genesis_brain.brief_speech import BriefSpeechSynthesizer, clean_user_messages
+from app.integration.genesis_brain.colloquial_ru import (
+    colloquial_understanding_hint,
+    is_colloquial_register,
+)
+from app.integration.genesis_brain.communication_presets import (
+    resolve_effective_style,
+    rhythm_for_style,
+    style_llm_block,
+    style_memory_hint,
+)
 from app.integration.genesis_brain.ai_identity import try_local_identity_reply
 from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME
-from app.integration.genesis_brain.conversation_rhythm import rhythm_instruction
 from app.integration.genesis_brain.layers.product_mind import product_mind_llm_rules
 from app.integration.genesis_brain.layers import (
     GenesisKnowledgeLayer,
@@ -47,6 +56,7 @@ from app.integration.genesis_brain.providers import build_provider_chain, build_
 from app.integration.genesis_brain.provider_diagnostics import diagnose_workforce
 from app.integration.genesis_brain.workforce_manager import WorkforceManager, _PREMIUM_EMPLOYEES
 from app.integration.genesis_brain.types import ChatResult, ProviderAttempt, WorkforceAttemptLog, WorkforceRouteLog
+from app.integration.locale_service import assistant_llm_language_hint
 
 from dataclasses import replace
 
@@ -101,8 +111,11 @@ class GenesisBrain:
         visitor_id: str = "anonymous",
         session_id: str | None = None,
         personality_mode: Literal["public", "ceo"] = "public",
+        assistant_locale: str | None = None,
+        communication_style: str | None = None,
         debug: bool = False,
     ) -> ChatResult:
+        last_user_raw = self._last_user_text(messages)
         messages = clean_user_messages(messages)
         personality = GenesisPersonalityLayer(mode=personality_mode)
         memory_data = self._memory.observe_messages(visitor_id, messages)
@@ -117,6 +130,14 @@ class GenesisBrain:
         last_user = self._last_user_text(messages)
         turn_index = sum(1 for m in messages if m.get("role") == "user")
 
+        effective_style = resolve_effective_style(
+            communication_style,
+            last_user,
+            inferences,
+        )
+        if last_user_raw:
+            self._memory.observe_communication_habits(visitor_id, last_user_raw)
+
         identity_answer = try_local_identity_reply(
             last_user,
             visitor_id=visitor_id,
@@ -124,16 +145,16 @@ class GenesisBrain:
             messages=messages,
         )
         if identity_answer:
-            if last_user:
+            if last_user_raw:
                 if session_id:
                     self._sessions.append_messages(
                         session_id,
-                        user=last_user,
+                        user=last_user_raw,
                         assistant=identity_answer,
-                        auto_title_from=last_user if turn_index == 1 else None,
+                        auto_title_from=last_user_raw if turn_index == 1 else None,
                     )
                 else:
-                    self._memory.record_exchange(visitor_id, last_user, identity_answer)
+                    self._memory.record_exchange(visitor_id, last_user_raw, identity_answer)
             return ChatResult(answer=identity_answer, provider_id="genesis-identity")
 
         emotional = self._emotion.analyze(last_user)
@@ -187,15 +208,26 @@ class GenesisBrain:
             emotional_hint=self._emotion.to_prompt_hint(emotional),
         )
 
+        language_hint = assistant_llm_language_hint(
+            assistant_locale or "ru",
+            ASSISTANT_NAME,
+            BRAND_NAME,
+        )
         llm_instruction = (
             f"\n\n[{BRAND_NAME} Mind — LLM is cortex]\n"
             "Порядок: Thinking Brief (ниже) → сообщение пользователя → Ваш ответ.\n"
             f"Вы НЕ ChatGPT. Вы — языковая кора {ASSISTANT_NAME} ({BRAND_NAME}). Brief уже принят.\n"
-            f"Пишите ответ на русском как {ASSISTANT_NAME}: живо, без шаблонов, без цитирования brief.\n"
+            f"{language_hint}\n"
             f"{ASSISTANT_NAME} не пытается быть правым — пытается быть полезным.\n"
-            f"{rhythm_instruction(last_user)}\n"
+            f"{style_llm_block(effective_style)}\n"
+            f"{rhythm_for_style(effective_style, last_user)}\n"
             + product_mind_llm_rules()
         )
+        if is_colloquial_register(last_user_raw):
+            llm_instruction += "\n" + colloquial_understanding_hint()
+        memory_style_hint = style_memory_hint(communication_style, inferences)
+        if memory_style_hint:
+            llm_instruction += "\n" + memory_style_hint
         full_system += (
             f"\n\n## THINKING BRIEF — THIS TURN\n"
             f"{mandate}\n"
@@ -293,6 +325,7 @@ class GenesisBrain:
             visitor_id=visitor_id,
             user_uses_ty=personality.user_uses_ty(messages),
             cloud_llm_used=cloud_llm_used,
+            response_style=effective_style,
         )
 
         if intent and not cloud_llm_used and not cloud_proof_mode():
@@ -304,16 +337,16 @@ class GenesisBrain:
                 provider_id=result.provider_id,
             )
 
-        if last_user:
+        if last_user_raw:
             if session_id:
                 self._sessions.append_messages(
                     session_id,
-                    user=last_user,
+                    user=last_user_raw,
                     assistant=shaped,
-                    auto_title_from=last_user if turn_index == 1 else None,
+                    auto_title_from=last_user_raw if turn_index == 1 else None,
                 )
             else:
-                self._memory.record_exchange(visitor_id, last_user, shaped)
+                self._memory.record_exchange(visitor_id, last_user_raw, shaped)
         self._memory.update_inferences(visitor_id, thinking, conv_state)
 
         self._learning.observe_turn(

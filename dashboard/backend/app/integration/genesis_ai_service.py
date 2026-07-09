@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from app.integration.genesis_ai_knowledge import build_system_prompt
+from app.integration.locale_service import localized_service_copy, resolve_assistant_locale
 from app.security import (
     META_EXFILTRATION_REFUSAL,
     is_meta_exfiltration_attempt,
@@ -72,6 +73,12 @@ class GenesisAIService:
         if ctx.get("personality_mode") == "ceo":
             mode = "ceo"
 
+        assistant_locale = resolve_assistant_locale(
+            ctx.get("assistant_locale"),
+            ui_locale=ctx.get("ui_locale"),
+            legacy_locale=ctx.get("locale"),
+        )
+
         messages = self._brain.assemble_messages(history, q)
         try:
             result = self._brain.chat(
@@ -80,6 +87,8 @@ class GenesisAIService:
                 visitor_id=vid,
                 session_id=sid,
                 personality_mode=mode,
+                assistant_locale=assistant_locale,
+                communication_style=ctx.get("communication_style"),
                 debug=debug,
             )
             out = self._brain.to_public_dict(result)
@@ -90,15 +99,13 @@ class GenesisAIService:
             if debug and result.trace:
                 out["debug"] = result.trace
             if attachment_note and out.get("answer"):
-                out["answer"] = f"Спасибо, я вижу ваши файлы.\n\n{out['answer']}"
+                ack = localized_service_copy("attachment_ack", assistant_locale)
+                out["answer"] = f"{ack}{out['answer']}"
             return out
         except Exception as exc:
             logger.warning("Genesis Brain error: %s", exc)
             return {
-                "answer": (
-                    "Извините, сейчас не удалось сформировать ответ. "
-                    "Попробуйте переформулировать — я здесь, чтобы помочь."
-                ),
+                "answer": localized_service_copy("error_fallback", assistant_locale),
                 "source": "genesis-ai",
                 "mode": "genesis",
                 "cta_href": None,

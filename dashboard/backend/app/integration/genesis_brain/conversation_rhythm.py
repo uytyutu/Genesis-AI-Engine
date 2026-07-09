@@ -9,7 +9,10 @@ _SENTENCE_SPLIT = re.compile(r"(?<=[.!?…])\s+")
 
 def rhythm_instruction(last_user: str) -> str:
     low = (last_user or "").strip().lower()
-    if re.match(r"^(привет|здравствуй|hello|hi|как\s+дела|как\s+ты)\b", low) and len(low) < 40:
+    if re.match(
+        r"^(привет|здравствуй|здарова|здаров|здрасти|hello|hi|как\s+дела|как\s+ты|че\s+как|чё\s+как)\b",
+        low,
+    ) and len(low) < 40:
         return (
             "Ритм: 1–2 коротких предложения + один живой вопрос о человеке. "
             "Без «Добрый день, рад видеть» и без списков."
@@ -32,7 +35,9 @@ def limit_sentences(text: str, max_sentences: int) -> str:
     return " ".join(parts[:max_sentences]).strip()
 
 
-def compact_for_turn(text: str, *, last_user: str) -> str:
+def compact_for_turn(text: str, *, last_user: str, style: str | None = None) -> str:
+    if style == "concise":
+        return limit_sentences(text, 3)
     low = (last_user or "").strip().lower()
     if re.match(r"^(привет|здравствуй|hello|hi|как\s+дела)\b", low) and len(low) < 50:
         return limit_sentences(text, 3)

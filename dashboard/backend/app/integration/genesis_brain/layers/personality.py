@@ -141,6 +141,7 @@ class GenesisPersonalityLayer:
         visitor_id: str = "anonymous",
         user_uses_ty: bool = False,
         cloud_llm_used: bool = False,
+        response_style: str | None = None,
     ) -> str:
         if self._mode == "ceo":
             return self._finalize_ceo(draft, messages=messages, memory=memory)
@@ -156,7 +157,7 @@ class GenesisPersonalityLayer:
             turn_index = sum(1 for m in (messages or []) if m.get("role") == "user")
             if turn_index > 0 and last_user and not self._style.is_greeting_message(last_user):
                 text = self._suppress_repeat_intro(text)
-            return compact_for_turn(text, last_user=last_user)
+            return compact_for_turn(text, last_user=last_user, style=response_style)
 
         last_user = self._last_user_message(messages)
         mem = memory or {}
@@ -204,7 +205,7 @@ class GenesisPersonalityLayer:
         if hint.append and hint.append.strip() not in text and not self._is_natural_close(text):
             text = text.rstrip() + hint.append
 
-        text = compact_for_turn(text, last_user=last_user)
+        text = compact_for_turn(text, last_user=last_user, style=response_style)
         return text.strip()
 
     @staticmethod
