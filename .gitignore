@@ -50,6 +50,9 @@ scripts/brand_renderer/node_modules/
 .genesis-run/
 dashboard/backend/app/memory/
 
+# Internal ops journal (CEO soak / stability — local only)
+docs/STABILITY_HISTORY.md
+
 # Cursor / IDE (local only)
 .cursorignore
 .vscode/
