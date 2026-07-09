@@ -18,6 +18,7 @@ from app.integration.genesis_ai_service import GenesisAIService
 from app.integration.genesis_brain.brain import BRAIN_VERSION
 from app.integration.genesis_ai_setup_service import GenesisAISetupService
 from app.integration.genesis_tts import GenesisTtsService, VOICE_BUILD
+from app.integration.knowledge_intake_service import KnowledgeIntakeService
 from app.integration.public_chat_attachments import PublicChatAttachmentService
 from app.integration.startup_validation import log_startup_report, run_startup_validation
 from app.integration.deployment_health import build_health_payload, build_status_payload
