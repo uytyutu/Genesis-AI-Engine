@@ -1,15 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 160" role="img" aria-label="Virtus Core">
   <defs>
+    <linearGradient id="vc-surface" x1="18" y1="12" x2="126" y2="144" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C0C14"/>
+      <stop offset="1" stop-color="#06060A"/>
+    </linearGradient>
+    <radialGradient id="vc-glow" cx="72" cy="108" r="62" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7C8FD4" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#7C8FD4" stop-opacity="0"/>
+    </radialGradient>
     <style>
       .word { font-family: "Segoe UI Variable", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif; font-weight: 600; letter-spacing: 0.14em; }
-      .sub { font-family: "Segoe UI Variable", "SF Pro Text", system-ui, sans-serif; font-weight: 500; letter-spacing: 0.28em; }
     </style>
   </defs>
   <g transform="translate(0 8)">
-    <rect width="144" height="144" rx="32" fill="#08080c"/>
-    <path d="M 42 36 L 72 108 L 102 36" fill="none" stroke="#ececf1" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="72" cy="108" r="5" fill="#7c8fd4"/>
+    <rect width="144" height="144" rx="40" fill="url(#vc-surface)"/>
+    <rect width="144" height="144" rx="40" fill="url(#vc-glow)"/>
+    <g transform="translate(72 72) scale(0.28125) translate(-256 -256)">
+      <path
+        fill="#E8E8EE"
+        d="M 104 104 C 68 192, 76 308, 234 396 C 252 384, 244 332, 238 292 C 228 224, 188 168, 146 132 C 132 122, 116 108, 104 104 Z"
+      />
+      <path
+        fill="#E8E8EE"
+        d="M 408 104 C 444 192, 436 308, 278 396 C 260 384, 268 332, 274 292 C 284 224, 324 168, 366 132 C 380 122, 396 108, 408 104 Z"
+      />
+      <path
+        fill="#7C8FD4"
+        opacity="0.22"
+        d="M 152 132 C 136 192, 148 268, 212 348 C 204 336, 190 280, 186 224 C 182 176, 166 142, 152 132 Z"
+      />
+      <path
+        fill="#7C8FD4"
+        opacity="0.22"
+        d="M 360 132 C 376 192, 364 268, 300 348 C 308 336, 322 280, 326 224 C 330 176, 346 142, 360 132 Z"
+      />
+      <circle cx="256" cy="396" r="28" fill="#E8E8EE"/>
+      <circle cx="256" cy="396" r="16" fill="#7C8FD4"/>
+      <circle cx="256" cy="396" r="6" fill="#F4F4F8"/>
+    </g>
   </g>
   <text class="word" x="176" y="78" fill="#ececf1" font-size="52">VIRTUS</text>
   <text class="word" x="176" y="128" fill="#a8b4dc" font-size="52">CORE</text>

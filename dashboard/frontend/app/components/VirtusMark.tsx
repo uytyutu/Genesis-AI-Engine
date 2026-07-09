@@ -1,49 +1,49 @@
-/** Virtus Core mark — Confluence symbol (hidden V in negative space). */
-export function VirtusMark({ className = "h-10 w-10" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 512 512"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <defs>
-        <linearGradient id="vc-surface" x1="72" y1="48" x2="440" y2="472" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#0C0C14" />
-          <stop offset="1" stopColor="#06060A" />
-        </linearGradient>
-        <radialGradient id="vc-glow" cx="256" cy="310" r="210" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#7c8fd4" stopOpacity="0.11" />
-          <stop offset="1" stopColor="#7c8fd4" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="512" height="512" fill="url(#vc-surface)" />
-      <rect width="512" height="512" fill="url(#vc-glow)" />
-      <path
-        fill="#E4E4EA"
-        d="M 92 96 C 44 188, 54 324, 238 416 C 256 400, 246 336, 238 284 C 224 200, 172 136, 120 100 C 108 94, 98 92, 92 96 Z"
-      />
-      <path
-        fill="#E4E4EA"
-        d="M 420 96 C 468 188, 458 324, 274 416 C 256 400, 266 336, 274 284 C 288 200, 340 136, 392 100 C 404 94, 414 92, 420 96 Z"
-      />
-      <path
-        fill="#7C8FD4"
-        opacity="0.26"
-        d="M 144 124 C 128 184, 142 264, 208 348 C 200 336, 184 276, 180 216 C 176 168, 160 132, 144 124 Z"
-      />
-      <path
-        fill="#7C8FD4"
-        opacity="0.26"
-        d="M 368 124 C 384 184, 370 264, 304 348 C 312 336, 328 276, 332 216 C 336 168, 352 132, 368 124 Z"
-      />
-      <circle cx="256" cy="408" r="26" fill="#E4E4EA" />
-      <circle cx="256" cy="408" r="14" fill="#7C8FD4" />
-      <circle cx="256" cy="408" r="5" fill="#F0F0F4" />
-    </svg>
-  );
-}
-
-/** @deprecated use VirtusMark — kept for import compatibility */
-export const GenesisMark = VirtusMark;
+/** Virtus Core mark — softened Confluence symbol (hidden V in negative space). */
+export function VirtusMark({ className = "h-10 w-10" }: { className?: string }) {
+  return (
+    <svg
+      className={`${className} overflow-hidden rounded-[22%]`}
+      viewBox="0 0 512 512"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <defs>
+        <linearGradient id="vc-surface" x1="72" y1="48" x2="440" y2="472" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#0C0C14" />
+          <stop offset="1" stopColor="#06060A" />
+        </linearGradient>
+        <radialGradient id="vc-glow" cx="256" cy="300" r="220" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#7c8fd4" stopOpacity="0.14" />
+          <stop offset="1" stopColor="#7c8fd4" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="512" height="512" rx="118" fill="url(#vc-surface)" />
+      <rect width="512" height="512" rx="118" fill="url(#vc-glow)" />
+      <path
+        fill="#E8E8EE"
+        d="M 104 104 C 68 192, 76 308, 234 396 C 252 384, 244 332, 238 292 C 228 224, 188 168, 146 132 C 132 122, 116 108, 104 104 Z"
+      />
+      <path
+        fill="#E8E8EE"
+        d="M 408 104 C 444 192, 436 308, 278 396 C 260 384, 268 332, 274 292 C 284 224, 324 168, 366 132 C 380 122, 396 108, 408 104 Z"
+      />
+      <path
+        fill="#7C8FD4"
+        opacity="0.22"
+        d="M 152 132 C 136 192, 148 268, 212 348 C 204 336, 190 280, 186 224 C 182 176, 166 142, 152 132 Z"
+      />
+      <path
+        fill="#7C8FD4"
+        opacity="0.22"
+        d="M 360 132 C 376 192, 364 268, 300 348 C 308 336, 322 280, 326 224 C 330 176, 346 142, 360 132 Z"
+      />
+      <circle cx="256" cy="396" r="28" fill="#E8E8EE" />
+      <circle cx="256" cy="396" r="16" fill="#7C8FD4" />
+      <circle cx="256" cy="396" r="6" fill="#F4F4F8" />
+    </svg>
+  );
+}
+
+/** @deprecated use VirtusMark — kept for import compatibility */
+export const GenesisMark = VirtusMark;
