@@ -46,3 +46,22 @@ def test_invisible_correction_no_meta_phrase():
 
 def test_slova_unchanged():
     assert normalize_user_text("словах") == "словах"
+
+
+def test_preserves_money_amounts():
+    assert normalize_user_text("Бюджет около 5000 евро") == "Бюджет около 5000 евро"
+    assert normalize_user_text("У меня бюджет 1000 евро") == "У меня бюджет 1000 евро"
+    assert normalize_user_text("до 100000 ₽") == "до 100000 ₽"
+    assert normalize_user_text("1 000 €") == "1 000 €"
+
+
+def test_preserves_percent_phone_and_ids():
+    assert normalize_user_text("ставка 12.5%") == "ставка 12.5%"
+    assert normalize_user_text("+7 (999) 123-45-67") == "+7 (999) 123-45-67"
+    assert normalize_user_text("заказ ORD-2024-9912") == "заказ ORD-2024-9912"
+
+
+def test_collapses_letter_repeats_not_digits():
+    assert normalize_user_text("даааа") == "даа"
+    assert normalize_user_text("оккк") == "окк"
+    assert normalize_user_text("5000") == "5000"

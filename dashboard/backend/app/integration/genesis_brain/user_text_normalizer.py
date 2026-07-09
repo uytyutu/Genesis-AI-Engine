@@ -182,8 +182,16 @@ _LATIN_TO_CYR = str.maketrans(
 )
 
 
+# Tokens that must pass through typo repair unchanged (amounts, phones, IDs).
+_PROTECTED_TOKEN = re.compile(
+    r"^(?:\d[\d\s.,]*|\+?\d[\d\s().\-]{6,}|[A-Za-z]*\d+[A-Za-z0-9\-_]*)$",
+    re.UNICODE,
+)
+
+
 def _collapse_repeats(text: str) -> str:
-    return re.sub(r"(.)\1{2,}", r"\1\1", text)
+    """Collapse 3+ repeated letters/punctuation — never inside digit runs."""
+    return re.sub(r"(\D)\1{2,}", r"\1\1", text)
 
 
 def _normalize_punctuation(text: str) -> str:
@@ -204,6 +212,8 @@ def _cyrillic_ratio(word: str) -> float:
 
 
 def _fix_mixed_script_token(token: str) -> str:
+    if _PROTECTED_TOKEN.match(token):
+        return token
     if not token or not re.search(r"[A-Za-z]", token) or not re.search(r"[а-яёА-ЯЁ]", token, re.I):
         return token
     if _cyrillic_ratio(token) >= 0.55:
@@ -222,6 +232,8 @@ def _preserve_case(original: str, replacement: str) -> str:
 
 
 def _fuzzy_fix_token(token: str) -> str:
+    if _PROTECTED_TOKEN.match(token):
+        return token
     low = token.lower()
     if low in _EXACT_TYPO:
         return _preserve_case(token, _EXACT_TYPO[low])
