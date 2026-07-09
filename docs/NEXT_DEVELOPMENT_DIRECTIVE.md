@@ -12,16 +12,17 @@ Before proposing or implementing any product changes, read and fully understand:
 
 * `docs/VIRTUS_CORE_NORTH_STAR_DIRECTIVE.md`
 * `docs/VIRTUS_COMMERCE_DELIVERY_DIRECTIVE.md`
+* `docs/VIRTUS_WORKSPACE_ARCHITECTURE_DIRECTIVE.md`
 * `docs/DIGITAL_EMPLOYEE_STRATEGY.md`
 * `docs/NORTH_STAR.md`
 
-These documents are **frozen product philosophy**.
+These documents are **frozen product philosophy and architecture**.
 
 Do **not** rewrite them.
 Do **not** extend them.
 Do **not** reinterpret them.
 
-Treat them as long-term product vision.
+Treat them as long-term product vision and platform boundaries.
 
 ---
 
@@ -66,6 +67,8 @@ This includes, but is not limited to:
 * Co-Creation Workspace
 * Project Director
 * Digital Specialists orchestration
+* Customer Workspace (Platform / Workspace / Project layers)
+* Project Evolution inside client sandboxes
 
 These are long-term product directions.
 

@@ -383,6 +383,6 @@ This North Star complements Mission 1.
 
 Business and product direction must evolve together.
 
-**Related:** Team architecture → `docs/DIGITAL_EMPLOYEE_STRATEGY.md` (Horizon) · Commerce & delivery → `docs/VIRTUS_COMMERCE_DELIVERY_DIRECTIVE.md` (frozen)
+**Related:** Team architecture → `docs/DIGITAL_EMPLOYEE_STRATEGY.md` (Horizon) · Commerce & delivery → `docs/VIRTUS_COMMERCE_DELIVERY_DIRECTIVE.md` (frozen) · Workspace layers → `docs/VIRTUS_WORKSPACE_ARCHITECTURE_DIRECTIVE.md` (frozen)
 
 **Cursor should treat this document as long-term product guidance, not as an immediate engineering task.**

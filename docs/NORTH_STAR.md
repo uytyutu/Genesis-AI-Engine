@@ -4,6 +4,7 @@
 
 * [`VIRTUS_CORE_NORTH_STAR_DIRECTIVE.md`](VIRTUS_CORE_NORTH_STAR_DIRECTIVE.md) — Co-Creation Workspace; frozen
 * [`VIRTUS_COMMERCE_DELIVERY_DIRECTIVE.md`](VIRTUS_COMMERCE_DELIVERY_DIRECTIVE.md) — ownership, publishing, lifecycle; frozen
+* [`VIRTUS_WORKSPACE_ARCHITECTURE_DIRECTIVE.md`](VIRTUS_WORKSPACE_ARCHITECTURE_DIRECTIVE.md) — Platform / Workspace / Project; frozen
 * [`NEXT_DEVELOPMENT_DIRECTIVE.md`](NEXT_DEVELOPMENT_DIRECTIVE.md) — **active** agent guidance: slices, Mission 1, vision ≠ code
 
 **Product:** Operating system for a **digital company** — not a website generator.
