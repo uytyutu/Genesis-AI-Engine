@@ -1071,6 +1071,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         activeSessionId={activeSessionId}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen((o) => !o)}
+        onCloseSidebar={() => setSidebarOpen(false)}
         onNewChat={() => void handleNewChat()}
         onSelect={(id) => void handleSelectSession(id)}
         onDelete={(id) => void handleDeleteSession(id)}
@@ -1082,7 +1083,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       id="genesis-chat"
       className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow transition-all duration-300 ${
         isPublic
-          ? "h-[100dvh] max-sm:rounded-none max-sm:border-x-0 max-sm:shadow-none"
+          ? `h-[100dvh] max-sm:rounded-none max-sm:border-x-0 max-sm:shadow-none${sidebarOpen ? " max-sm:pointer-events-none" : ""}`
           : showThread
             ? composerFocused
               ? "min-h-[min(92dvh,52rem)] max-h-[min(96dvh,56rem)]"

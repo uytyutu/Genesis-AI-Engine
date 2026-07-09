@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import {
   type ChatSessionMeta,
   type DateGroup,
@@ -22,6 +23,7 @@ type Props = {
   activeSessionId: string | null;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
+  onCloseSidebar?: () => void;
   onNewChat: () => void;
   onSelect: (sessionId: string) => void;
   onDelete: (sessionId: string) => void;
@@ -37,6 +39,7 @@ export function ChatHistorySidebar({
   activeSessionId,
   sidebarOpen,
   onToggleSidebar,
+  onCloseSidebar,
   onNewChat,
   onSelect,
   onDelete,
@@ -46,6 +49,21 @@ export function ChatHistorySidebar({
 }: Props) {
   const grouped = useMemo(() => groupSessionsByDate(sessions), [sessions]);
   const reduce = useReducedMotion();
+  const [portalReady, setPortalReady] = useState(false);
+  const closeSidebar = onCloseSidebar ?? onToggleSidebar;
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!overlayOnly || !sidebarOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [overlayOnly, sidebarOpen]);
 
   const renderGroup = (key: DateGroup) => {
     const items = grouped[key];
@@ -108,46 +126,110 @@ export function ChatHistorySidebar({
     );
   };
 
+  const handleNewChat = () => {
+    onNewChat();
+    if (overlayOnly) closeSidebar();
+  };
+
+  const handleSelect = (sessionId: string) => {
+    onSelect(sessionId);
+    if (overlayOnly) closeSidebar();
+  };
+
+  const overlayDrawer =
+    overlayOnly && portalReady
+      ? createPortal(
+          <AnimatePresence>
+            {sidebarOpen ? (
+              <>
+                <motion.button
+                  key="chat-history-backdrop"
+                  type="button"
+                  aria-label="Закрыть историю чатов"
+                  initial={reduce ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={reduce ? undefined : { opacity: 0 }}
+                  transition={springs.gentle}
+                  className="fixed inset-0 z-[55] bg-black/60 backdrop-blur-[2px] md:hidden"
+                  onClick={closeSidebar}
+                />
+                <motion.aside
+                  key="chat-history-overlay"
+                  initial={reduce ? false : { x: "-100%" }}
+                  animate={{ x: 0 }}
+                  exit={reduce ? undefined : { x: "-100%" }}
+                  transition={springs.gentle}
+                  className="fixed inset-y-0 left-0 z-[60] flex w-[min(85vw,18rem)] flex-col overflow-hidden border-r border-white/10 bg-genesis-panel shadow-2xl md:hidden"
+                  aria-label="История чатов"
+                >
+                  <div className="flex items-center justify-between border-b border-white/5 px-3 py-2">
+                    <p className="text-sm font-semibold text-white">История чатов</p>
+                    <button
+                      type="button"
+                      onClick={closeSidebar}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-genesis-muted transition hover:bg-white/5 hover:text-white"
+                      aria-label="Закрыть"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <SidebarNav
+                    sessions={sessions}
+                    activeSessionId={activeSessionId}
+                    onNewChat={handleNewChat}
+                    onSelect={handleSelect}
+                    onDelete={onDelete}
+                    onPin={onPin}
+                    renderGroup={renderGroup}
+                  />
+                </motion.aside>
+              </>
+            ) : null}
+          </AnimatePresence>,
+          document.body,
+        )
+      : null;
+
   return (
     <>
       {!hideMobileToggle ? (
-      <button
-        type="button"
-        onClick={onToggleSidebar}
-        className="mb-2 flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white md:hidden"
-        aria-expanded={sidebarOpen}
-      >
-        {sidebarOpen ? "Скрыть историю" : "История чатов"}
-      </button>
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="mb-2 flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white md:hidden"
+          aria-expanded={sidebarOpen}
+        >
+          {sidebarOpen ? "Скрыть историю" : "История чатов"}
+        </button>
       ) : null}
 
-      <AnimatePresence>
-        {sidebarOpen ? (
-          <motion.aside
-            key="chat-history-mobile"
-            initial={reduce ? false : { opacity: 0, height: 0, y: -8 }}
-            animate={{ opacity: 1, height: "auto", y: 0 }}
-            exit={reduce ? undefined : { opacity: 0, height: 0, y: -8 }}
-            transition={springs.gentle}
-            className={`mb-2 flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:hidden ${
-              overlayOnly
-                ? "fixed inset-y-0 left-0 z-50 mb-0 w-[min(85vw,18rem)] rounded-none border-y-0 border-l-0 shadow-2xl"
-                : ""
-            }`}
-            aria-label="История чатов"
-          >
-            <SidebarNav
-              sessions={sessions}
-              activeSessionId={activeSessionId}
-              onNewChat={onNewChat}
-              onSelect={onSelect}
-              onDelete={onDelete}
-              onPin={onPin}
-              renderGroup={renderGroup}
-            />
-          </motion.aside>
-        ) : null}
-      </AnimatePresence>
+      {!overlayOnly ? (
+        <AnimatePresence>
+          {sidebarOpen ? (
+            <motion.aside
+              key="chat-history-mobile"
+              initial={reduce ? false : { opacity: 0, height: 0, y: -8 }}
+              animate={{ opacity: 1, height: "auto", y: 0 }}
+              exit={reduce ? undefined : { opacity: 0, height: 0, y: -8 }}
+              transition={springs.gentle}
+              className="mb-2 flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:hidden"
+              aria-label="История чатов"
+            >
+              <SidebarNav
+                sessions={sessions}
+                activeSessionId={activeSessionId}
+                onNewChat={onNewChat}
+                onSelect={onSelect}
+                onDelete={onDelete}
+                onPin={onPin}
+                renderGroup={renderGroup}
+              />
+            </motion.aside>
+          ) : null}
+        </AnimatePresence>
+      ) : (
+        overlayDrawer
+      )}
 
       <aside
         className={`${overlayOnly ? "hidden" : "hidden shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:flex md:w-56 lg:w-64"}`}
