@@ -7,6 +7,7 @@ import io
 import json
 import re
 import sys
+import uuid
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
@@ -271,10 +272,12 @@ def main() -> int:
     if st.get("error"):
         print(f"status error: {st['error']}")
 
+    run_id = uuid.uuid4().hex[:8]
+
     d1 = _run_dialog(
         "1 — обычное общение",
         ["Привет", "Как дела?", "Кто ты?", "Что умеешь?"],
-        "accept-d1",
+        f"accept-d1-{run_id}",
     )
     evaluate_dialog1(d1)
 
@@ -286,25 +289,27 @@ def main() -> int:
             "Почему именно эти?",
             "У меня бюджет 1000 евро.",
         ],
-        "accept-d2",
+        f"accept-d2-{run_id}",
     )
     evaluate_dialog2(d2)
 
     d3 = _run_dialog(
         "3 — заказ продукта",
         ["Мне нужен сайт.", "Нужен лендинг.", "Хочу заказать чат-бота."],
-        "accept-d3",
+        f"accept-d3-{run_id}",
     )
     evaluate_dialog3(d3)
 
     d4 = _run_dialog(
         "4 — эмоциональный",
         ["Мне грустно.", "Я устал.", "Я не знаю что делать."],
-        "accept-d4",
+        f"accept-d4-{run_id}",
     )
     evaluate_dialog4(d4)
 
-    d5 = _run_dialog("5 — длинный контекст", _long_context_messages(), "accept-d5")
+    d5 = _run_dialog(
+        "5 — длинный контекст", _long_context_messages(), f"accept-d5-{run_id}"
+    )
     evaluate_dialog5(d5)
 
     dialogs = [d1, d2, d3, d4, d5]
