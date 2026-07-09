@@ -58,10 +58,6 @@ export function SalesOrdersPanel() {
     return () => clearInterval(t);
   }, [deferred, load]);
 
-  if (!deferred) {
-    return null;
-  }
-
   const pending = useMemo(
     () =>
       orders.filter(
@@ -72,6 +68,10 @@ export function SalesOrdersPanel() {
       ),
     [orders]
   );
+
+  if (!deferred) {
+    return null;
+  }
 
   async function confirm(orderId: string) {
     setBusyId(orderId);

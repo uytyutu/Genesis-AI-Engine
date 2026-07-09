@@ -1,5 +1,8 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
+import { springs } from "../lib/motion";
+
 /** ChatGPT-style pulsing orb while Genesis listens, thinks, or speaks. */
 export function VoiceOrb({
   mode,
@@ -7,21 +10,41 @@ export function VoiceOrb({
   mode: "listening" | "thinking" | "speaking" | "idle";
 }) {
   const active = mode !== "idle";
+  const reduce = useReducedMotion();
+
   return (
     <div className="flex flex-col items-center gap-3 py-2" aria-hidden>
-      <div
-        className={`relative flex h-20 w-20 items-center justify-center rounded-full ${
-          active ? "animate-genesis-voice-orb" : ""
-        }`}
+      <motion.div
+        className="relative flex h-20 w-20 items-center justify-center rounded-full"
+        animate={
+          active && !reduce
+            ? { scale: [1, 1.06, 1] }
+            : { scale: 1 }
+        }
+        transition={
+          active && !reduce
+            ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+            : springs.soft
+        }
       >
-        <span
+        <motion.span
           className={`absolute inset-0 rounded-full border-2 ${
             mode === "thinking"
               ? "border-indigo-400/50 bg-indigo-500/10"
               : mode === "speaking"
                 ? "border-emerald-400/50 bg-emerald-500/10"
                 : "border-genesis-accent/40 bg-genesis-accent/10"
-          } ${active ? "animate-ping opacity-30" : "opacity-20"}`}
+          }`}
+          animate={
+            active && !reduce
+              ? { opacity: [0.15, 0.45, 0.15], scale: [1, 1.12, 1] }
+              : { opacity: 0.2, scale: 1 }
+          }
+          transition={
+            active && !reduce
+              ? { duration: 1.8, repeat: Infinity, ease: "easeInOut" }
+              : { duration: 0.2 }
+          }
         />
         <span
           className={`relative h-14 w-14 rounded-full ${
@@ -32,7 +55,7 @@ export function VoiceOrb({
                 : "bg-gradient-to-br from-genesis-accent/40 to-indigo-600/50"
           } shadow-glow`}
         />
-      </div>
+      </motion.div>
       <p className="text-center text-xs text-genesis-muted">
         {mode === "listening" && "Слушаю…"}
         {mode === "thinking" && "Думаю…"}

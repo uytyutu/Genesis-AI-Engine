@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useMemo, type ReactNode } from "react";
 import {
   type ChatSessionMeta,
   type DateGroup,
   groupSessionsByDate,
 } from "../lib/chatSessions";
+import { springs } from "../lib/motion";
 
 const GROUP_LABELS: Record<DateGroup, string> = {
   pinned: "Закреплённые",
@@ -37,6 +39,7 @@ export function ChatHistorySidebar({
   onPin,
 }: Props) {
   const grouped = useMemo(() => groupSessionsByDate(sessions), [sessions]);
+  const reduce = useReducedMotion();
 
   const renderGroup = (key: DateGroup) => {
     const items = grouped[key];
@@ -110,38 +113,91 @@ export function ChatHistorySidebar({
         {sidebarOpen ? "Скрыть историю" : "История чатов"}
       </button>
 
+      <AnimatePresence>
+        {sidebarOpen ? (
+          <motion.aside
+            key="chat-history-mobile"
+            initial={reduce ? false : { opacity: 0, height: 0, y: -8 }}
+            animate={{ opacity: 1, height: "auto", y: 0 }}
+            exit={reduce ? undefined : { opacity: 0, height: 0, y: -8 }}
+            transition={springs.gentle}
+            className="mb-2 flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:hidden"
+            aria-label="История чатов"
+          >
+            <SidebarNav
+              sessions={sessions}
+              activeSessionId={activeSessionId}
+              onNewChat={onNewChat}
+              onSelect={onSelect}
+              onDelete={onDelete}
+              onPin={onPin}
+              renderGroup={renderGroup}
+            />
+          </motion.aside>
+        ) : null}
+      </AnimatePresence>
+
       <aside
-        className={`shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 transition-all duration-300 ${
-          sidebarOpen
-            ? "flex w-full md:w-56 lg:w-64"
-            : "hidden md:flex md:w-56 lg:w-64"
-        }`}
+        className="hidden shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:flex md:w-56 lg:w-64"
         aria-label="История чатов"
       >
-        <div className="border-b border-white/5 p-3">
-          <button
-            type="button"
-            onClick={onNewChat}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-genesis-accent/25 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-genesis-accent/35"
-          >
-            <span className="text-lg leading-none">+</span>
-            Новый чат
-          </button>
-        </div>
-        <nav className="min-h-0 flex-1 overflow-y-auto p-2">
-          {sessions.length === 0 ? (
-            <p className="px-2 py-4 text-center text-xs text-genesis-muted">
-              Пока нет сохранённых чатов.
-              <br />
-              Начните новый разговор.
-            </p>
-          ) : (
-            (["pinned", "today", "yesterday", "week", "older"] as DateGroup[]).map(
-              renderGroup,
-            )
-          )}
-        </nav>
+        <SidebarNav
+          sessions={sessions}
+          activeSessionId={activeSessionId}
+          onNewChat={onNewChat}
+          onSelect={onSelect}
+          onDelete={onDelete}
+          onPin={onPin}
+          renderGroup={renderGroup}
+        />
       </aside>
+    </>
+  );
+}
+
+function SidebarNav({
+  sessions,
+  activeSessionId,
+  onNewChat,
+  onSelect,
+  onDelete,
+  onPin,
+  renderGroup,
+}: {
+  sessions: ChatSessionMeta[];
+  activeSessionId: string | null;
+  onNewChat: () => void;
+  onSelect: (sessionId: string) => void;
+  onDelete: (sessionId: string) => void;
+  onPin: (sessionId: string, pinned: boolean) => void;
+  renderGroup: (key: DateGroup) => ReactNode;
+}) {
+  return (
+    <>
+      <div className="border-b border-white/5 p-3">
+        <motion.button
+          type="button"
+          onClick={onNewChat}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          transition={springs.snappy}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-genesis-accent/25 px-3 py-2.5 text-sm font-semibold text-white hover:bg-genesis-accent/35"
+        >
+          <span className="text-lg leading-none">+</span>
+          Новый чат
+        </motion.button>
+      </div>
+      <nav className="min-h-0 flex-1 overflow-y-auto p-2">
+        {sessions.length === 0 ? (
+          <p className="px-2 py-4 text-center text-xs text-genesis-muted">
+            Пока нет сохранённых чатов.
+            <br />
+            Начните новый разговор.
+          </p>
+        ) : (
+          (["pinned", "today", "yesterday", "week", "older"] as DateGroup[]).map(renderGroup)
+        )}
+      </nav>
     </>
   );
 }

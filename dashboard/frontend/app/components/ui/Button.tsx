@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
 import type { ComponentProps, ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import { springs } from "../../lib/motion";
 import type { ButtonSize, ButtonVariant } from "../../lib/tokens";
 import { Spinner } from "./Loader";
 
@@ -44,24 +46,40 @@ export function Button({
   type = "button",
   ...props
 }: Props) {
+  const reduce = useReducedMotion();
+  const isDisabled = disabled || loading;
+
   return (
-    <button
-      type={type}
-      disabled={disabled || loading}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 ease-out",
-        "disabled:cursor-not-allowed disabled:opacity-50",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-genesis-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-genesis-bg",
-        VARIANT[variant],
-        SIZE[size],
-        fullWidth && "w-full",
-        className
-      )}
-      {...props}
+    <motion.span
+      className={cn("inline-flex", fullWidth && "w-full")}
+      whileHover={
+        isDisabled || reduce
+          ? undefined
+          : {
+              scale: 1.03,
+              y: -1,
+            }
+      }
+      whileTap={isDisabled || reduce ? undefined : { scale: 0.97, y: 0 }}
+      transition={springs.snappy}
     >
-      {loading && <Spinner size="sm" />}
-      {children}
-    </button>
+      <button
+        type={type}
+        disabled={isDisabled}
+        className={cn(
+          "inline-flex w-full items-center justify-center gap-2 font-semibold",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-genesis-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-genesis-bg",
+          VARIANT[variant],
+          SIZE[size],
+          className
+        )}
+        {...props}
+      >
+        {loading && <Spinner size="sm" />}
+        {children}
+      </button>
+    </motion.span>
   );
 }
 
@@ -81,20 +99,28 @@ export function ButtonLink({
   className?: string;
   children: ReactNode;
 } & Omit<ComponentProps<typeof Link>, "href" | "className" | "children">) {
+  const reduce = useReducedMotion();
+
   return (
-    <Link
-      href={href}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 ease-out",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-genesis-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-genesis-bg",
-        VARIANT[variant],
-        SIZE[size],
-        fullWidth && "w-full",
-        className
-      )}
-      {...props}
+    <motion.span
+      className={cn("inline-flex", fullWidth && "w-full")}
+      whileHover={reduce ? undefined : { scale: 1.02, y: -1 }}
+      whileTap={reduce ? undefined : { scale: 0.98 }}
+      transition={springs.snappy}
     >
-      {children}
-    </Link>
+      <Link
+        href={href}
+        className={cn(
+          "inline-flex w-full items-center justify-center gap-2 font-semibold",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-genesis-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-genesis-bg",
+          VARIANT[variant],
+          SIZE[size],
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </Link>
+    </motion.span>
   );
 }

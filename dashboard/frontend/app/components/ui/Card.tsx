@@ -1,5 +1,9 @@
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import { enterFadeUp, springs } from "../../lib/motion";
 
 type Props = {
   children: ReactNode;
@@ -16,26 +20,47 @@ const PADDING = {
   lg: "p-6 sm:p-8",
 };
 
+const MOTION_TAG = {
+  div: motion.div,
+  section: motion.section,
+  article: motion.article,
+} as const;
+
 export function Card({
   children,
   className,
   glow,
   hover = true,
   padding = "md",
-  as: Tag = "div",
+  as = "div",
 }: Props) {
+  const reduce = useReducedMotion();
+  const MotionTag = MOTION_TAG[as];
+
   return (
-    <Tag
+    <MotionTag
+      initial={reduce ? false : enterFadeUp.initial}
+      animate={enterFadeUp.animate}
+      transition={springs.gentle}
+      whileHover={
+        hover && !reduce
+          ? {
+              y: -2,
+              boxShadow:
+                "0 1px 0 rgba(255,255,255,0.07) inset, 0 16px 44px -12px rgba(0,0,0,0.75), 0 0 28px -8px rgba(91, 141, 239, 0.14)",
+              borderColor: "rgba(91, 141, 239, 0.18)",
+            }
+          : undefined
+      }
       className={cn(
         "genesis-card rounded-2xl border border-white/[0.06]",
         PADDING[padding],
         glow && "border-genesis-accent/25 shadow-glow",
-        hover && "transition-all duration-300 ease-out",
         className
       )}
     >
       {children}
-    </Tag>
+    </MotionTag>
   );
 }
 
