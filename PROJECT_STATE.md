@@ -94,6 +94,8 @@ Launcher · Mission Control · Factory · Finance (display) · утренний 
 
 **Baseline metrics (offline, beta):** acceptance 5/5 · state errors 0 · D5 no exact repeats · ~290 ms avg turn (sample, `llm_configured=false`)
 
+**Phase 3 backlog (not during freeze):** meta/style questions («а чё ты так общаешься?») currently hit `identity_intent` → full intro; want conversational meta reply about tone, not who-are-you.
+
 ---
 
 ## Cycle (единственный — идеальный)
