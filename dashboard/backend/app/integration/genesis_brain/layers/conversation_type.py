@@ -176,12 +176,17 @@ def is_product_mode(kind: ConversationKind) -> bool:
 
 
 def allows_unsolicited_sales(kind: ConversationKind) -> bool:
-    return kind in _BUSINESS_KINDS
+    return kind in _PRODUCT_KINDS
 
 
 def should_load_product_mind(kind: ConversationKind) -> bool:
-    """Product Mind + commercial catalog only for business/product talk."""
-    return kind in _BUSINESS_KINDS
+    """Product Mind only when user explicitly asks for sites, bots, or product build."""
+    return kind in _PRODUCT_KINDS
+
+
+def should_load_commercial_knowledge(kind: ConversationKind) -> bool:
+    """Catalog hints for LLM — business consulting or explicit product talk."""
+    return kind in _BUSINESS_KINDS or kind in _PRODUCT_KINDS
 
 
 def _business_thread_active(messages: list[dict[str, str]] | None) -> bool:

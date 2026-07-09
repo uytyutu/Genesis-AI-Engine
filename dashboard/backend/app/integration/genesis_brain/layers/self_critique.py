@@ -106,10 +106,6 @@ class GenesisSelfCritiqueLayer:
         if len(text) < 12 and intent.intent != "greeting":
             return self._fallback(intent, visitor_id)
 
-        prev_assistant = self._previous_assistant(messages)
-        if prev_assistant and self._too_similar(text, prev_assistant) and len(text) < 40:
-            text = self._light_rephrase(text, visitor_id)
-
         return text.strip() or original.strip()
 
     def _fallback(self, intent: IntentBrief, visitor_id: str) -> str:

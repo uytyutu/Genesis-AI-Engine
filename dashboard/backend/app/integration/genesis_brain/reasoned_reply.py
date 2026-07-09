@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 
 from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.public_truth_catalog import (
     MISSION1_LANDING_TIMELINE,
     studio_unavailable_message,

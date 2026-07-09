@@ -6,7 +6,6 @@ Pipeline: messages → Fact Extraction → state → Reasoning → Response
 
 from __future__ import annotations
 
-import hashlib
 import re
 from dataclasses import dataclass, field
 from typing import Any
@@ -451,20 +450,41 @@ def _parse_amount(raw: str, low: str) -> int:
 
 
 def pick_opening(visitor_id: str, turn: int) -> str:
-    """Avoid repeating «Отлично» every turn."""
-    pool = [
-        "Понятно.",
-        "Спасибо, теперь картина яснее.",
-        "Хорошо.",
-        "Отлично.",
-        "Теперь уже можно что-то предложить.",
-        "Спасибо, этого достаточно для старта.",
-        "Записал.",
-        "Ясно.",
-    ]
-    seed = f"{visitor_id}:{turn}"
-    idx = int(hashlib.sha256(seed.encode()).hexdigest(), 16) % len(pool)
-    return pool[idx]
+    """Service openers disabled — answers start with substance, not filler."""
+    return ""
+
+
+_SERVICE_PREFIXES = (
+    "понятно.",
+    "ясно.",
+    "записал.",
+    "записал:",
+    "хорошо.",
+    "отлично.",
+    "спасибо, теперь картина яснее.",
+    "теперь уже можно что-то предложить.",
+    "спасибо, этого достаточно для старта.",
+    "слышу вас.",
+    "тогда я бы рекомендовал:",
+)
+
+
+def strip_service_openers(text: str) -> str:
+    """Remove automatic service prefixes if they appear at the start of a reply."""
+    out = (text or "").strip()
+    if not out:
+        return out
+    while True:
+        low = out.lower()
+        stripped = False
+        for prefix in _SERVICE_PREFIXES:
+            if low.startswith(prefix):
+                out = out[len(prefix) :].lstrip()
+                stripped = True
+                break
+        if not stripped:
+            break
+    return out.strip()
 
 
 class ConversationStateLayer:

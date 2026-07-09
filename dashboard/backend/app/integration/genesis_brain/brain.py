@@ -204,7 +204,7 @@ class GenesisBrain:
             base_system=system,
             knowledge_block=knowledge_block,
             memory_block=memory_block,
-            reasoning_hint="",
+            reasoning_hint=brief.to_prompt_hint(),
             emotional_hint=self._emotion.to_prompt_hint(emotional),
         )
 

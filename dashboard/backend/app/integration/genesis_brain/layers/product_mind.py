@@ -219,21 +219,18 @@ def compose(
     if detect_niche(last_user, state) == "shop":
         return unavailable_online_message("Интернет-магазин")
 
-    # Opening — acknowledge, not bot
+    # Opening — acknowledge niche when user stated it; no generic fillers
     if re.search(r"у меня\s+|есть\s+у меня", low):
-        open_line = f"Понял — у Вас {rec.niche_label}."
+        open_line = f"У Вас {rec.niche_label}."
     elif re.search(r"хочу\s+открыть|открыть\s+", low):
         open_line = f"Хорошая цель — {rec.niche_label}."
     elif re.search(r"хочу\s+сайт|нужен\s+сайт|интернет-магазин", low):
-        open_line = "Конечно — давайте разберём, что именно нужно."
+        open_line = "Давайте разберём, что именно нужно."
     else:
-        open_line = "Слышу Вас."
+        open_line = ""
 
     stack_lines = "\n".join(f"• {item}" for item in rec.stack)
-    stack_block = (
-        f"Тогда я бы рекомендовал:\n\n{stack_lines}\n\n"
-        f"Всё это можем сделать **под ключ** — {rec.price_hint}."
-    )
+    stack_block = f"{stack_lines}\n\nВсё это можем сделать **под ключ** — {rec.price_hint}."
 
     if rec.recommend == "service":
         path_block = (
@@ -261,7 +258,7 @@ def compose(
     elif state.life_goal == "family_time":
         memory_hook = "\n\nС учётом цели — больше времени с семьёй — lean-модели без круглосуточного присутствия.\n"
 
-    return f"{open_line}{memory_hook}\n\n{stack_block}\n\n{path_block}\n\n{close}"
+    return f"{open_line}{memory_hook}\n\n{stack_block}\n\n{path_block}\n\n{close}".strip()
 
 
 def product_mind_llm_rules() -> str:

@@ -13,6 +13,7 @@ from app.integration.genesis_brain.layers.conversation_state import Conversation
 from app.integration.genesis_brain.layers.conversation_type import (
     ConversationKind,
     classify_conversation_type,
+    should_load_commercial_knowledge,
     should_load_product_mind,
 )
 from app.integration.genesis_brain.public_brand import BRAND_NAME
@@ -43,13 +44,14 @@ def resolve_communication_gate(
 ) -> CommunicationGate:
     """Classify intent before loading Product Mind or commercial knowledge."""
     kind = classify_conversation_type(last_user, messages, state)
-    commercial = should_load_product_mind(kind)
+    product = should_load_product_mind(kind)
+    commercial = should_load_commercial_knowledge(kind)
     confidence = 0.95 if commercial else 0.9
     if kind in ("emotional_support", "personal_reflection", "meta_correction"):
         confidence = 1.0
     return CommunicationGate(
         conversation_kind=kind,
-        product_mind=commercial,
+        product_mind=product,
         commercial_knowledge=commercial,
         confidence=confidence,
     )

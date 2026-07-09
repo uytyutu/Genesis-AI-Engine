@@ -397,6 +397,8 @@ def executive_reply(
         )
 
     if not is_business_mode(talk):
+        if brief.goal and getattr(brief.goal, "real_goal", "") == "small_talk":
+            return None
         if brief.goal:
             from app.integration.genesis_brain.reasoned_human import reasoned_human_reply
 

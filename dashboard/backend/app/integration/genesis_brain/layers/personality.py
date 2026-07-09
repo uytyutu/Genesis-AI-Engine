@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 from app.config import cloud_first_responses, cloud_proof_mode
 from app.integration.genesis_brain.conversation_rhythm import compact_for_turn
+from app.integration.genesis_brain.layers.conversation_state import strip_service_openers
 from app.integration.genesis_brain.layers.conversation_style import (
     ConversationStyleEngine,
 )
@@ -158,7 +159,9 @@ class GenesisPersonalityLayer:
             turn_index = sum(1 for m in (messages or []) if m.get("role") == "user")
             if turn_index > 0 and last_user and not self._style.is_greeting_message(last_user):
                 text = self._suppress_repeat_intro(text)
-            return compact_for_turn(text, last_user=last_user, style=response_style)
+            return compact_for_turn(
+                strip_service_openers(text), last_user=last_user, style=response_style
+            )
 
         last_user = self._last_user_message(messages)
         mem = memory or {}
@@ -219,7 +222,7 @@ class GenesisPersonalityLayer:
             text = text.rstrip() + hint.append
 
         text = compact_for_turn(text, last_user=last_user, style=response_style)
-        return text.strip()
+        return strip_service_openers(text).strip()
 
     @staticmethod
     def _substantive_draft(draft: str) -> bool:

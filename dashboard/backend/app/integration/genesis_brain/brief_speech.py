@@ -16,8 +16,18 @@ from app.integration.public_truth_catalog import (
     unavailable_online_message,
 )
 from app.integration.genesis_brain.communication_gate import resolve_communication_gate
-from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
-from app.integration.genesis_brain.layers.executive_brain import ExecutiveDecision
+from app.integration.genesis_brain.layers.conversation_state import (
+    ConversationState,
+    strip_service_openers,
+)
+from app.integration.genesis_brain.layers.executive_brain import (
+    ExecutiveDecision,
+    GenesisExecutiveBrain,
+    executive_reply,
+)
+from app.integration.genesis_brain.layers.emotional_intelligence import (
+    EmotionalIntelligenceLayer,
+)
 from app.integration.genesis_brain.layers.product_mind import (
     compose as product_compose,
     should_handle as product_should_handle,
@@ -86,6 +96,9 @@ def _uncertainty_voice() -> str:
 class BriefSpeechSynthesizer:
     """Last-resort speech from brief semantics — LLM is preferred."""
 
+    def _finalize_body(self, text: str) -> str:
+        return strip_service_openers((text or "").strip())
+
     def speak(
         self,
         thinking: ThinkingBrief,
@@ -105,7 +118,6 @@ class BriefSpeechSynthesizer:
                     last_user = (msg.get("content") or "").strip()
                     break
 
-        open_ = pick_opening(visitor_id, turn_index)
         action = decision.action
 
         identity_reply = try_local_identity_reply(
@@ -115,17 +127,43 @@ class BriefSpeechSynthesizer:
             messages=clean_messages,
         )
         if identity_reply:
-            return identity_reply
+            return self._finalize_body(identity_reply)
 
         if action == "wait":
-            return (
+            return self._finalize_body(
                 "Рад был помочь.\n\n"
                 "Если захотите вернуться — продолжим с того места, где остановились."
             )
 
         if action == "ask_one_question" and decision.optional_question:
             ack = self._ack(state)
-            return f"{open_} {ack}{decision.optional_question}".strip()
+            return self._finalize_body(f"{ack}{decision.optional_question}".strip())
+
+        gate = resolve_communication_gate(last_user, clean_messages, state)
+
+        if gate.product_mind and product_should_handle(last_user, state, thinking):
+            return self._finalize_body(
+                product_compose(last_user, state, thinking, clean_messages)
+            )
+
+        emotional = EmotionalIntelligenceLayer().analyze(last_user)
+        exec_brief = GenesisExecutiveBrain().decide(
+            state=state,
+            last_user=last_user,
+            messages=clean_messages,
+            turn_index=turn_index,
+            emotional=emotional,
+        )
+        routed = executive_reply(
+            exec_brief,
+            state,
+            last_user,
+            visitor_id=visitor_id,
+            turn_index=turn_index,
+            messages=clean_messages,
+        )
+        if routed:
+            return self._finalize_body(routed)
 
         body = self._body_from_brief(
             thinking,
@@ -133,12 +171,14 @@ class BriefSpeechSynthesizer:
             state,
             last_user,
             messages=clean_messages,
-            commercial=resolve_communication_gate(last_user, clean_messages, state).product_mind,
+            commercial=gate.product_mind,
         )
         if not body:
-            return f"{open_} Понял. Давайте разберёмся вместе — что именно хотите прояснить?"
+            return self._finalize_body(
+                "Давайте разберёмся вместе — что именно хотите прояснить?"
+            )
 
-        return f"{open_} {body}".strip()
+        return self._finalize_body(body)
 
     @staticmethod
     def _ack(state: ConversationState) -> str:
