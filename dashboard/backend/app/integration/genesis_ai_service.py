@@ -16,6 +16,7 @@ from app.security import (
 from app.integration.genesis_brain import GenesisBrain
 from app.integration.knowledge_intake_transparency import transparency_enabled
 from app.integration.knowledge_intake_service import KnowledgeIntakeService
+from app.integration.knowledge_reasoning import maybe_append_expert_review
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +71,13 @@ class GenesisAIService:
         intake = KnowledgeIntakeService(self._memory_dir)
         if files:
             note = intake.build_brain_intake_context(files, locale=assistant_locale)
+            note = maybe_append_expert_review(
+                q,
+                note,
+                files,
+                memory_dir=self._memory_dir,
+                locale=assistant_locale,
+            )
         else:
             note = attachment_note
         if note:

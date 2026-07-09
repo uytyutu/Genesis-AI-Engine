@@ -124,6 +124,15 @@ _PRODUCT_FEATURES: dict[str, dict[str, Any]] = {
         "enabled": True,
         "notes": "AI-1 — free tier: 1 PDF/day, 5 pages; session follow-up",
     },
+    "knowledge_expert_review": {
+        "label": "Knowledge Reasoning — Expert Review",
+        "layer": "knowledge_intake",
+        "exists": True,
+        "stable": True,
+        "ready": True,
+        "enabled": True,
+        "notes": "Intent → expert hat → document quality review (source-agnostic)",
+    },
     "attachment_docx": {
         "label": "Parse DOCX → text → Brain",
         "layer": "knowledge_intake",
