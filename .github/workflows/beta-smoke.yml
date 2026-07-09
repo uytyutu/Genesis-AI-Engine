@@ -1,0 +1,30 @@
+# Manual Beta smoke after deploy — set repository secrets or workflow inputs.
+# Does NOT deploy; Railway/Vercel auto-deploy via GitHub integration (see dashboard/BETA_PREVIEW_SETUP.md).
+
+name: Beta smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      frontend_url:
+        description: "Beta frontend base URL (e.g. https://beta.virtuscore.ai)"
+        required: true
+      backend_url:
+        description: "Beta Railway API base URL"
+        required: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Beta smoke test
+        env:
+          BETA_FRONTEND_URL: ${{ inputs.frontend_url }}
+          BETA_BACKEND_URL: ${{ inputs.backend_url }}
+        run: python scripts/verify_beta_deploy.py

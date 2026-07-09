@@ -1,0 +1,30 @@
+# After push to beta branch: wait for deploy, then smoke-test if repository secrets exist.
+# Deploy itself is via Railway + Vercel GitHub integration (see dashboard/BETA_PREVIEW_SETUP.md).
+# Required secrets (Settings → Secrets → Actions): BETA_FRONTEND_URL, BETA_BACKEND_URL
+
+name: Beta post-push smoke
+
+on:
+  push:
+    branches:
+      - cursor/mission1-genesis-brain-public-layer
+
+jobs:
+  smoke:
+    if: ${{ secrets.BETA_FRONTEND_URL != '' && secrets.BETA_BACKEND_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Wait for Railway/Vercel deploy
+        run: sleep 420
+
+      - name: Beta smoke test
+        env:
+          BETA_FRONTEND_URL: ${{ secrets.BETA_FRONTEND_URL }}
+          BETA_BACKEND_URL: ${{ secrets.BETA_BACKEND_URL }}
+        run: python scripts/verify_beta_deploy.py

@@ -11,6 +11,10 @@ const securityHeaders = [
   },
 ];
 
+const apiBase = (
+  process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8000"
+).replace(/\/$/, "");
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
@@ -19,6 +23,18 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/webhooks/stripe",
+        destination: `${apiBase}/api/webhooks/stripe`,
+      },
+      {
+        source: "/webhooks/stripe",
+        destination: `${apiBase}/webhooks/stripe`,
       },
     ];
   },
