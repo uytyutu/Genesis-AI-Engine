@@ -5,8 +5,8 @@ import { BRAND_NAME } from "../lib/publicBrand";
 
 export const metadata: Metadata = publicPageMetadata(
   `${BRAND_NAME} Platform`,
-  `${BRAND_NAME} Platform — подписки и возможности. Сравнение тарифов и ранний доступ.`,
-  "/products"
+  `${BRAND_NAME} Platform — разговор с Vector и заказ лендинга. Virtus Studio в разработке.`,
+  "/pricing"
 );
 
 export default function PricingLayout({ children }: { children: React.ReactNode }) {

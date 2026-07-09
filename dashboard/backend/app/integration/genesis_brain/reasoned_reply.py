@@ -5,7 +5,11 @@ from __future__ import annotations
 import re
 
 from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
-from app.integration.genesis_brain.public_brand import BRAND_NAME, STUDIO_NAME
+from app.integration.public_truth_catalog import (
+    MISSION1_LANDING_TIMELINE,
+    studio_unavailable_message,
+    unavailable_online_message,
+)
 
 
 def reasoned_business_reply(
@@ -38,19 +42,16 @@ def reasoned_business_reply(
     open_ = pick_opening(visitor_id, turn_index)
 
     if state.wants_studio or ("studio" in low and "хочу" in low):
-        return (
-            f"{STUDIO_NAME} — платформа для своих сайтов, ботов и автоматизаций.\n\n"
-            "Один сайт под ключ — от 350 €. **Studio Basic 49 €/мес** — сколько угодно проектов.\n\n"
-            "Сколько проектов планируете в год?"
-        )
+        return studio_unavailable_message()
 
     if state.needs_app and re.search(r"приложен|\bapp\b", low):
-        where = f" в {state.city or state.country}" if state.has_location() else ""
-        return (
-            f"{open_} Мобильное приложение{where} для {state.business_type or 'бизнеса'}.\n\n"
-            "MVP: меню · заказ · push. Расширенная версия — лояльность и оплата.\n\n"
-            "Сайт уже есть или приложение — главный приоритет?"
-        )
+        return unavailable_online_message("Мобильное приложение")
+
+    if re.search(r"интернет-магазин|магазин под ключ", low) and not state.needs_website:
+        return unavailable_online_message("Интернет-магазин")
+
+    if re.search(r"telegram-бот|чат-бот|whatsapp-бот", low):
+        return unavailable_online_message("Чат-бот")
 
     if state.needs_marketing and re.search(r"продвижен|реклам|маркетинг", low):
         return (
@@ -65,7 +66,9 @@ def reasoned_business_reply(
         return (
             f"{open_} Сайт для кофейни{where}.\n\n"
             "Рекомендую: меню · заказ · галерея · отзывы · карта.\n\n"
-            "Ориентир под ключ — **650–850 €**. Заведение уже работает?"
+            f"Ориентир под ключ — **650 €** (Business) или **350 €** (Basic). "
+            f"Срок — {MISSION1_LANDING_TIMELINE} после заказа.\n\n"
+            "Заведение уже работает?"
         )
 
     if state.goal == "ai_company" or state.business_type == "car_wash":

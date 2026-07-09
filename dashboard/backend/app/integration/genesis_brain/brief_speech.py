@@ -10,6 +10,11 @@ import re
 
 from app.integration.genesis_brain.ai_identity import try_local_identity_reply
 from app.integration.genesis_brain.public_brand import BRAND_NAME, STUDIO_NAME
+from app.integration.public_truth_catalog import (
+    MISSION1_LANDING_TIMELINE,
+    studio_unavailable_message,
+    unavailable_online_message,
+)
 from app.integration.genesis_brain.communication_gate import resolve_communication_gate
 from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
 from app.integration.genesis_brain.layers.executive_brain import ExecutiveDecision
@@ -190,8 +195,8 @@ class BriefSpeechSynthesizer:
             or "объяснить factory" in strategy.lower()
         ):
             return (
-                f"**Factory** — продуктовый отдел {BRAND_NAME}: сайты, боты, приложения.\n\n"
-                "Нужен готовый продукт под ключ или хотите сами в Studio?"
+                f"**Factory** — продуктовый отдел {BRAND_NAME}: лендинги под ключ (Mission 1).\n\n"
+                "Сейчас онлайн — заказ лендинга на /order. Virtus Studio пока в разработке."
             )
 
         if re.search(r"\bпочему\b", low):
@@ -259,16 +264,16 @@ class BriefSpeechSynthesizer:
             )
 
         if state.needs_app and re.search(r"приложен|\bapp\b", low):
-            return (
-                f"Мобильное приложение для {state.business_type or 'бизнеса'}.\n\n"
-                "MVP: меню · заказ · push."
-            )
+            return unavailable_online_message("Мобильное приложение")
+
+        if re.search(r"интернет-магазин", low):
+            return unavailable_online_message("Интернет-магазин")
 
         if state.needs_website and re.search(r"сайт|лендинг", low):
             return (
                 f"Сайт для {state.business_type or 'бизнеса'}.\n\n"
                 "Рекомендую: меню · заказ · галерея · отзывы · карта.\n\n"
-                "Ориентир под ключ — **650–850 €**."
+                f"Пакеты **350 / 650 / 1200 €** на /order. Срок — {MISSION1_LANDING_TIMELINE}."
             )
 
         if state.needs_marketing and re.search(r"продвижен|реклам|маркетинг", low):
@@ -278,10 +283,7 @@ class BriefSpeechSynthesizer:
             )
 
         if state.wants_studio and "studio" in low:
-            return (
-                f"{STUDIO_NAME} — платформа для своих сайтов, ботов и автоматизаций.\n\n"
-                "Один сайт под ключ — от 350 €. **Studio Basic 49 €/mес**."
-            )
+            return studio_unavailable_message()
 
         if action == "explore" or (low.strip() in ("нет", "нет.") and state.goal == "open_business"):
             loc = state.country or "вашем регионе"

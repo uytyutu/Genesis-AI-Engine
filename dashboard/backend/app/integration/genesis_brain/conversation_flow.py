@@ -5,7 +5,11 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from app.integration.genesis_brain.public_brand import STUDIO_NAME
+from app.integration.public_truth_catalog import (
+    MISSION1_LANDING_TIMELINE,
+    studio_unavailable_message,
+    unavailable_online_message,
+)
 _COUNTRY_MAP = {
     "герман": "Германии",
     "germany": "Германии",
@@ -78,11 +82,14 @@ def business_reply(ctx: BusinessContext, last_user: str) -> str | None:
     low = last_user.lower()
 
     if ctx.wants_studio or ("studio" in low and "хочу" in low):
-        return (
-            f"{STUDIO_NAME} — платформа, где можно сами создавать сайты, приложения и автоматизации.\n\n"
-            "**Free** — попробовать · **Basic 49 €** · **Pro 99 €** · **Business 199 €** (команда, AI COO).\n\n"
-            "Хотите начать с бесплатного тарифа или сразу подключить Pro для серьёзной работы?"
-        )
+        return studio_unavailable_message()
+
+    if re.search(r"интернет-магазин|telegram-бот|чат-бот", low):
+        label = "Интернет-магазин" if "магазин" in low else "Чат-бот"
+        return unavailable_online_message(label)
+
+    if ctx.needs_app or re.search(r"приложен|\bapp\b", low):
+        return unavailable_online_message("Мобильное приложение")
 
     if ctx.needs_marketing or any(w in low for w in ("продвижен", "реклам")):
         return (
@@ -93,19 +100,12 @@ def business_reply(ctx: BusinessContext, last_user: str) -> str | None:
             "Могу набросать план на первые 2 недели — с чего начнём?"
         )
 
-    if ctx.needs_app:
-        return (
-            "Приложение для кофейни имеет смысл, когда есть постоянные клиенты и программа лояльности.\n\n"
-            "На старте часто достаточно сайта + Telegram-бота для заказов — дешевле и быстрее.\n\n"
-            "Приложение нужно сразу или сначала проверим спрос через сайт?"
-        )
-
     if ctx.needs_website and ctx.niche == "coffee":
         where = f" в {ctx.country}" if ctx.country else ""
         return (
             f"Отлично — сайт для кофейни{where}.\n\n"
             "Рекомендую: главная · меню · онлайн-заказ или запись · галерея · отзывы · контакты с картой.\n\n"
-            "Ориентир под ключ — **650–850 €**. Можем собрать превью до публикации.\n\n"
+            f"Пакеты **350 / 650 / 1200 €** на /order. Срок — {MISSION1_LANDING_TIMELINE}.\n\n"
             "Кофейня уже работает или только открывается?"
         )
 

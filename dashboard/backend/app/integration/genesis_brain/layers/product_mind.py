@@ -12,6 +12,7 @@ from typing import Any
 
 from app.integration.genesis_brain.layers.conversation_state import ConversationState
 from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
+from app.integration.public_truth_catalog import studio_unavailable_message, unavailable_online_message
 
 # niche_id -> (label, stack items, service price hint)
 _NICHE_STACKS: dict[str, tuple[str, list[str], str]] = {
@@ -23,17 +24,16 @@ _NICHE_STACKS: dict[str, tuple[str, list[str], str]] = {
             "карточка в Google Maps",
             "простая CRM клиентов",
         ],
-        "от 650 € под ключ",
+        "350 / 650 / 1200 € на /order",
     ),
     "coffee": (
         "кофейня",
         [
-            "сайт с меню и контактами",
-            "онлайн-заказ или бронь столика",
-            "Instagram / карты для локального трафика",
-            "Telegram-бот для заказов",
+            "лендинг с меню и контактами",
+            "карты и отзывы",
+            "форма заявки",
         ],
-        "от 550 € под ключ",
+        "от 350 € (Basic) или 650 € (Business)",
     ),
     "salon": (
         "салон / клиника",
@@ -43,7 +43,7 @@ _NICHE_STACKS: dict[str, tuple[str, list[str], str]] = {
             "AI-консультант на сайте",
             "CRM записей",
         ],
-        "от 650 € под ключ",
+        "от 650 € (Business) или 1200 € (Premium)",
     ),
     "shop": (
         "интернет-магазин",
@@ -53,7 +53,7 @@ _NICHE_STACKS: dict[str, tuple[str, list[str], str]] = {
             "админка для товаров",
             "базовое SEO",
         ],
-        "от 1 800 € под ключ",
+        "пока нельзя оформить онлайн — только лендинг",
     ),
     "restaurant": (
         "ресторан / кафе",
@@ -63,7 +63,7 @@ _NICHE_STACKS: dict[str, tuple[str, list[str], str]] = {
             "доставка или заказ",
             "карты и отзывы",
         ],
-        "от 550 € под ключ",
+        "от 350 € (Basic) или 650 € (Business)",
     ),
     "landing": (
         "лендинг",
@@ -72,7 +72,7 @@ _NICHE_STACKS: dict[str, tuple[str, list[str], str]] = {
             "форма заявки",
             "адаптив и SEO-база",
         ],
-        "от 450 € под ключ",
+        "от 350 € под ключ",
     ),
     "generic_business": (
         "бизнес",
@@ -216,6 +216,9 @@ def compose(
     rec = recommend(last_user, state, messages)
     low = last_user.lower()
 
+    if detect_niche(last_user, state) == "shop":
+        return unavailable_online_message("Интернет-магазин")
+
     # Opening — acknowledge, not bot
     if re.search(r"у меня\s+|есть\s+у меня", low):
         open_line = f"Понял — у Вас {rec.niche_label}."
@@ -234,25 +237,15 @@ def compose(
 
     if rec.recommend == "service":
         path_block = (
-            "**Два пути** — и для одного проекта честнее первый.\n\n"
-            "**Под ключ** — мы полностью разработаем и запустим. Вы получаете готовый результат.\n\n"
-            "**Virtus Studio** — если планируете создавать много проектов сами. "
-            "Для одного {niche} **подписка сейчас Вам не нужна** — разовая разработка будет выгоднее."
-        ).format(niche=rec.niche_label)
-    elif rec.recommend == "studio":
-        path_block = (
-            "Если планируете **регулярно** создавать проекты или открывать новые точки — "
-            "тогда **Virtus Studio** действительно окупится: инструменты, лимит проектов, "
-            "свобода делать самостоятельно.\n\n"
-            "Для разового результата под ключ — услуга проще."
+            f"**Сейчас онлайн** — лендинг под ключ на /order ({rec.price_hint}).\n\n"
+            f"**Virtus Studio** пока в разработке — подписку купить нельзя."
         )
+    elif rec.recommend == "studio":
+        path_block = studio_unavailable_message()
     else:
         path_block = (
-            "**Есть два пути.**\n\n"
-            "Мы можем **полностью разработать под ключ** — Вы получаете готовый результат.\n\n"
-            "Или Вы можете **собрать самостоятельно в Virtus Studio**, "
-            "если планируете много проектов в год.\n\n"
-            "Давайте поймём, что сейчас подходит именно Вам."
+            "**Сейчас доступно:** лендинг под ключ на /order (350 / 650 / 1200 €).\n\n"
+            + studio_unavailable_message()
         )
 
     close = (

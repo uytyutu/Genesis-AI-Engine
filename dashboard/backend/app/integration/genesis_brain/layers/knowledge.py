@@ -12,6 +12,13 @@ from pathlib import Path
 from typing import Any
 
 from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME, STUDIO_NAME
+from app.integration.public_truth_catalog import (
+    MISSION1_LANDING_TIMELINE,
+    build_mission1_vector_commerce_rules,
+    load_public_pricing_display,
+    min_landing_price_eur,
+    studio_unavailable_message,
+)
 
 _DEFAULT_MEMORY = Path(__file__).resolve().parents[3] / "memory"
 
@@ -27,16 +34,10 @@ class GenesisKnowledgeLayer:
     ) -> None:
         self._packages = packages or []
         self._memory = memory_dir or _DEFAULT_MEMORY
-        self._pricing = self._load_pricing_display()
+        self._pricing = load_public_pricing_display(self._memory)
 
     def _load_pricing_display(self) -> dict[str, Any]:
-        path = self._memory / "pricing_display.json"
-        if not path.is_file():
-            return {}
-        try:
-            return json.loads(path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            return {}
+        return load_public_pricing_display(self._memory)
 
     def _load_dialogue_examples(self, *, limit: int = 12) -> str:
         """Human conversation patterns — few-shot tone for LLM (not training data)."""
@@ -131,17 +132,18 @@ class GenesisKnowledgeLayer:
 
         svp = self._pricing.get("service_vs_product") or {}
         anti = self._pricing.get("anti_cannibalization") or {}
+        min_p = min_landing_price_eur(self._packages)
         service_when = svp.get(
             "service_when",
-            "Один готовый результат — сайт, бот, логотип → услуга (/services).",
+            "Один готовый лендинг → услуга на /order.",
         )
         product_when = svp.get(
             "product_when",
-            f"Регулярно создавать проекты самому → {STUDIO_NAME} (/products). Не заменяет услугу под ключ.",
+            f"{STUDIO_NAME} пока в разработке — не предлагать покупку. Сейчас: /site и /order.",
         )
         anti_example = anti.get(
             "example_one_site",
-            "Один лендинг → услуга от 450 €. Подписка сейчас не нужна — скажи честно.",
+            f"Один лендинг → пакеты от {min_p} € на /order. Подписка Studio сейчас недоступна.",
         )
 
         catalog = self._format_service_catalog()
@@ -150,49 +152,28 @@ class GenesisKnowledgeLayer:
         dialogue_examples = self._load_dialogue_examples()
 
         catalog_section = catalog or (
-            "- Landing Page от 450 €\n"
-            "- Корпоративный сайт от 850 €\n"
-            "- Интернет-магазин от 1 800 €\n"
-            "- AI, боты, дизайн — по запросу"
+            f"- Landing Page от {min_p} € (заказ онлайн на /order)\n"
+            f"- Срок ориентир: {MISSION1_LANDING_TIMELINE}"
         )
         subs_section = subs or (
-            "- Free — попробовать\n"
-            "- Basic 49 €/мес — память, голос, работа\n"
-            "- Pro 99 €/мес — бизнес, Marketing, Factory\n"
-            "- Business 199 €/мес — команда, API, COO\n"
-            "- Enterprise — индивидуально"
+            f"- Free — разговор с {ASSISTANT_NAME} на /site\n"
+            f"- {STUDIO_NAME} — в разработке, купить нельзя"
         )
         caps_section = capabilities or (
-            "AI программист, дизайнер, маркетолог, переводчик, бизнес-консультант, аналитик, копирайтер."
+            f"Mission 1: лендинг под ключ и консультация {ASSISTANT_NAME}. "
+            "Магазин, боты, приложения — пока не в онлайн-каталоге."
         )
+        mission1_rules = build_mission1_vector_commerce_rules(self._packages)
 
-        return f"""## Архитектура {BRAND_NAME} (цифровая компания)
-{BRAND_NAME} — **операционная система цифровой компании**, не «ещё один чат».
-- **Brain** — координация задач и агентов
-- **Kernel** — выполнение многошаговых работ
-- **Departments** — цифровые сотрудники по ролям (Analyst, Factory, Finance, Support…)
-- **Skills** — новые продукты подключаются как навыки, без переписывания ядра
+        return f"""## Mission 1 — публичная правда ({BRAND_NAME})
+{mission1_rules}
 
-## Product Mind v1 — главный интерфейс = разговор
-Пользователь **не думает** про /services, /products, /order. Он пишет задачу — {ASSISTANT_NAME} понимает.
-
+## Product Mind — разговор, не каталог
 **{ASSISTANT_NAME} консультирует, не продаёт:**
-- Один сайт/магазин → «подписка сейчас не нужна, под ключ выгоднее»
-- Много проектов → «Studio окупится»
-- Два пути: под ключ / Studio самому. Потом понять задачу.
-- **Не говорить:** «Перейдите в раздел Services». **Говорить:** «Я подобрал вариант; каталог цен — если захотите детали»
-
-**Услуги** = результат ({BRAND_NAME} делает). **Studio** = свобода создавать самому (инструменты).
-
-**Проверка перед релизом:**
-1. Новый человек за 30 сек понимает {BRAND_NAME}?
-2. Выбор услуга vs Studio без подсказки?
-3. После разговора выбор понятнее?
-
-## Коммерческая модель: Услуги vs {STUDIO_NAME}
-**Две ветки — не конкурируют, не смешивать.**
-- **Услуги {BRAND_NAME}** (`/services`) — готовый результат под ключ. {BRAND_NAME} **делает сам**: сайт, бот, приложение, AI-сотрудник.
-- **{STUDIO_NAME}** (`/products`) — **инструменты** для самостоятельной работы. Не «бесплатно всё, что продаём в услугах».
+- Один лендинг → /order (350 / 650 / 1200 €)
+- Studio / подписки → честно «в разработке»
+- Магазин, бот, приложение → «пока нельзя оформить онлайн»
+- **Не говорить:** «Перейдите в раздел Services» без контекста
 
 **Когда что предложить:**
 - {service_when}
@@ -201,47 +182,22 @@ class GenesisKnowledgeLayer:
 **Один сайт — честно:**
 - {anti_example}
 
-**Правила продаж (обязательно):**
-1. {ASSISTANT_NAME} **никогда не продаёт самый дорогой тариф** — только **самый подходящий**.
-2. Один проект → услуга. Не предлагать Studio Basic «вместо» landing за 450 €.
-3. Studio = платите за **инструменты** (создание, редактирование, публикация, лимит проектов).
-4. Услуга = платите за **результат** (мы делаем, вы получаете готовое).
-5. Если человек пишет «хочу сайт» — два варианта, как консультант:
-   «Один готовый сайт — под ключ. Регулярно много проектов — Studio выгоднее. Давайте поймём, что Вам подходит.»
-6. **Полезность > выручка** — честный совет повышает доверие.
-
 {dialogue_examples}
 
-## Каталог услуг (Services)
+## Каталог услуг (только доступное онлайн)
 {catalog_section}
 
-Онлайн-заказ сейчас: {packages_block}
+Онлайн-заказ: {packages_block}
 Страница заказа: `/order`
 
-## Что умеет {BRAND_NAME} (Products — возможности)
-{caps_section}
-
-## Подписки {STUDIO_NAME}
+## Подписки и платформа
 {subs_section}
-Studio Basic — инструменты, лимит проектов. **Не** включает сайт под ключ.
-Сравнение: `/products#compare`.
 
-## Factory (продуктовый отдел)
-Строит цифровые продукты: сайты, боты, приложения, автоматизации.
-Первый skill: лендинги. Клиент видит превью → одобрение → публикация.
-
-## Virtus COO
-Операционный директор для компаний. В **Business (199 €/мес)** — AI COO: процессы, команда, масштаб.
-
-## Marketing Lab
-Продвижение, контент, конверсия — в связке с Factory и аналитикой. Доступно от Pro.
-
-## Wallet / Payment Hub
-Приём оплат, балансы, выплаты. Владелец контролирует критические операции.
+## Возможности (не обещать как готовый продукт)
+{caps_section}
 
 ## Как продавать ({ASSISTANT_NAME})
 1. Понять **задачу**, не тариф.
-2. Один сайт/бот → `/services` или `/order`. Сказать: «Подписка сейчас не нужна» — если так.
-3. Много проектов самому → Studio `/products`.
-4. **Не апселлить** Pro/Business, если хватает услуги или Basic.
-5. **Полезность > правота** — консультант, не кассир."""
+2. Лендинг → `/order`. Сказать цену из пакетов выше.
+3. Studio → {studio_unavailable_message().split(chr(10))[0]}
+4. **Полезность > выручка** — консультант, не кассир."""

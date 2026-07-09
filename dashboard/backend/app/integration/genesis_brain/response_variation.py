@@ -8,6 +8,8 @@ import hashlib
 import random
 from typing import Any
 
+from app.integration.public_truth_catalog import studio_unavailable_message
+
 _POOLS: dict[str, list[str]] = {
     "greeting": [
         "Здравствуйте! Чем займёмся — бизнес, сайт, идея или просто поговорим?",
@@ -44,9 +46,7 @@ _POOLS: dict[str, list[str]] = {
         "Что важнее на старте — запись клиентов, продажи или просто визитка?",
     ],
     "studio": [
-        "Studio выгоден, если планируете больше одного проекта.\n\n"
-        "Один сайт под ключ — от 350 €. Studio Basic — 49 €/мес: сами создаёте сколько угодно.\n\n"
-        "Сколько проектов примерно в год?",
+        studio_unavailable_message() + "\n\nРасскажите, какой сайт или бизнес вам нужен — подберём пакет.",
     ],
     "general": [
         "Слушаю. О чём хотите поговорить?",

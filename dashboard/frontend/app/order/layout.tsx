@@ -3,7 +3,7 @@ import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
   "Заказать сайт",
-  "Закажите лендинг для бизнеса: цена сразу, оплата онлайн, статус заказа.",
+  "Закажите лендинг для бизнеса: цена сразу на /order, статус заказа. Онлайн-оплата — когда подключена.",
   "/order"
 );
 

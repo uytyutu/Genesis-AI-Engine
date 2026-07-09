@@ -5,14 +5,91 @@ Prices match SalesOrderService.packages() (basic 350 / business 650 / premium 12
 
 from __future__ import annotations
 
-from app.integration.genesis_brain.public_brand import STUDIO_NAME
+from pathlib import Path
+from typing import Any
+
+from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME, STUDIO_NAME
 from app.integration.sales_order_service import _PACKAGES as SALES_PACKAGES
 
 TRUTH_VERSION = "mission1-truth-1"
+MISSION1_LANDING_TIMELINE = "5–14 дней"
+MISSION1_PACKAGE_PRICES_EUR = (350, 650, 1200)
 
 
 def _landing_packages() -> list[dict]:
     return list(SALES_PACKAGES.values())
+
+
+def min_landing_price_eur(packages: list[dict[str, Any]] | None = None) -> int:
+    pkgs = packages if packages is not None else _landing_packages()
+    return min((p["price_eur"] for p in pkgs), default=350)
+
+
+def format_order_packages_block(packages: list[dict[str, Any]] | None = None) -> str:
+    pkgs = packages if packages is not None else _landing_packages()
+    lines: list[str] = []
+    for p in pkgs:
+        deliverables = p.get("deliverables") or []
+        d = "; ".join(deliverables[:4]) if deliverables else ""
+        lines.append(f"- {p['name']} ({p['id']}): {p['price_eur']} € — {d}")
+    return "\n".join(lines) if lines else "- Landing Basic (basic): 350 €"
+
+
+def load_public_pricing_display(memory_dir: Path | None = None) -> dict[str, Any]:
+    """Shared loader for API, frontend fallback, and Genesis Brain knowledge."""
+    from app.integration.pricing_display_service import PricingDisplayService
+
+    return PricingDisplayService(memory_dir=memory_dir).get_display()
+
+
+def studio_unavailable_message() -> str:
+    return (
+        f"**{STUDIO_NAME}** (рабочая среда и подписка) **пока в разработке** — купить онлайн нельзя.\n\n"
+        f"**Сейчас доступно:**\n"
+        f"• Бесплатный разговор с {ASSISTANT_NAME} на **/site**\n"
+        f"• Заказ **лендинга** под ключ — пакеты **350 / 650 / 1200 €** на **/order**"
+    )
+
+
+def unavailable_online_message(product_label: str) -> str:
+    return (
+        f"**{product_label}** под ключ **пока нельзя оформить на сайте**.\n\n"
+        "Сейчас онлайн можно заказать **лендинг** — пакеты **350 / 650 / 1200 €** на **/order**.\n"
+        "Расскажите, для какого бизнеса нужен сайт — подберём пакет после короткого разговора."
+    )
+
+
+def build_mission1_vector_commerce_rules(packages: list[dict[str, Any]] | None = None) -> str:
+    """Mission 1 commerce block — injected into Vector system prompt and knowledge."""
+    pkgs = packages if packages is not None else _landing_packages()
+    packages_block = format_order_packages_block(pkgs)
+    min_p = min_landing_price_eur(pkgs)
+    platform = load_public_pricing_display().get("platform_status") or {}
+    studio_note = platform.get("body") or studio_unavailable_message()
+
+    return f"""## Mission 1 — что можно продавать публично (единая правда)
+
+**Сейчас онлайн доступно только:**
+- Разговор с {ASSISTANT_NAME} на `/site` (бесплатно)
+- Заказ **лендинга** под ключ на `/order`
+
+**Пакеты (только эти цены — никаких других):**
+{packages_block}
+
+**Срок:** ориентир **{MISSION1_LANDING_TIMELINE}** после подтверждения заказа; точный срок — на странице статуса.
+
+**{STUDIO_NAME}:** {studio_note}
+Не называй платные тарифы подписки. Workspace и подписки **не продаются**.
+
+**Пока нельзя оформить онлайн:** интернет-магазин, Telegram/WhatsApp-бот, мобильное приложение, AI на сайте как отдельный продукт.
+Скажи честно и предложи лендинг или разговор.
+
+**Оплата:** только после согласия на заказ; Stripe — если подключён (иначе счёт вручную).
+
+**Digital Consultant — пример (салон/кафе):**
+Рекомендуй структуру сайта, затем ориентир **650 €** (Business) или **{min_p} €** (Basic) — только из пакетов выше.
+
+Заказ — только после явного «да» / «оформляем» (GENESIS_ACTION → `/order?package=…`)."""
 
 
 def build_truth_pricing_display() -> dict:

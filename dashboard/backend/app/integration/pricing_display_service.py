@@ -22,11 +22,30 @@ class PricingDisplayService:
             return build_truth_pricing_display()
         try:
             data = json.loads(self._config_path.read_text(encoding="utf-8"))
-            if not (data.get("service_categories") or data.get("subscriptions")):
+            if not self._is_mission1_public_truth(data):
                 return build_truth_pricing_display()
             return data
         except (json.JSONDecodeError, OSError):
             return build_truth_pricing_display()
+
+    @staticmethod
+    def _is_mission1_public_truth(data: dict) -> bool:
+        """Mission 1: only mission1-truth catalog or CEO-published compatible JSON."""
+        version = str(data.get("version") or "")
+        if version.startswith("mission1-truth"):
+            return True
+        subs = data.get("subscriptions") or []
+        for s in subs:
+            if s.get("id") in ("basic", "pro", "business", "enterprise") and s.get("available"):
+                return False
+            if s.get("price_eur_month") in (49, 99, 199):
+                return False
+        for cat in data.get("service_categories") or []:
+            for item in cat.get("items") or []:
+                label = str(item.get("price_label") or "")
+                if "450" in label or "1 800" in label or "1 800" in label.replace(" ", ""):
+                    return False
+        return bool(data.get("service_categories") or data.get("subscriptions"))
 
     def log_event(self, *, event: str, tier_id: str | None, page: str, meta: dict | None = None) -> None:
         row = {
