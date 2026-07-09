@@ -3,7 +3,7 @@
 
 Usage:
   py scripts/verify_beta_deploy.py
-  py scripts/verify_beta_deploy.py --frontend https://beta.virtuscore.ai --backend https://xxx.up.railway.app
+  py scripts/verify_beta_deploy.py --frontend https://beta.genesis-ai-engine.com --backend https://xxx.up.railway.app
 
 Env (optional):
   BETA_FRONTEND_URL, BETA_BACKEND_URL
@@ -81,6 +81,17 @@ def main() -> int:
     if code != 200:
         failures.append("genesis-ai/status")
 
+    code, body = _get(f"{be}/api/public/genesis-ai/tts/status")
+    print(f"[backend] GET genesis-ai/tts/status → {code}")
+    if code != 200:
+        failures.append("genesis-ai/tts/status (Voice backend)")
+    else:
+        try:
+            tts = json.loads(body)
+            print(f"  tts_ready={tts.get('ready')} providers={tts.get('providers')}")
+        except json.JSONDecodeError:
+            pass
+
     code, body = _post_json(
         f"{be}/api/public/genesis-ai",
         {"question": "Beta smoke: ответь одним словом «ок»", "history": [], "visitor_id": "beta-smoke"},
@@ -105,6 +116,7 @@ def main() -> int:
         return 1
 
     print(f"\nOK Beta smoke passed\n  Frontend: {fe}/site\n  Backend:  {be}/api/status")
+    print("  Manual in browser: PDF upload, Voice mic, Dictation")
     return 0
 
 

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       frontend_url:
-        description: "Beta frontend base URL (e.g. https://beta.virtuscore.ai)"
+        description: "Beta frontend base URL (e.g. https://beta.genesis-ai-engine.com)"
         required: true
       backend_url:
         description: "Beta Railway API base URL"

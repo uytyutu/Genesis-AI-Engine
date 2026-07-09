@@ -1,184 +1,172 @@
-# Beta / Preview — тестовая среда для внешних тестировщиков
+# Beta — публичная среда для тестировщиков
 
-**Цель:** постоянная ссылка (не localhost), отдельно от production, обновляется после push в ветку разработки.
+**Цель:** постоянная ссылка в браузере (без Genesis.exe), отдельно от production, обновляется после `git push` в ветку разработки.
 
-**Production (не трогать):**
-- Frontend: https://genesis-ai-engine.vercel.app
-- Backend: https://genesis-ai-engine-production.up.railway.app
+## Домены (genesis-ai-engine.com)
 
-**Beta (создать):** ветка `cursor/mission1-genesis-brain-public-layer` → отдельный backend + frontend.
+| Назначение | URL |
+|------------|-----|
+| Production (не трогать) | https://genesis-ai-engine.com · https://genesis-ai-engine.vercel.app |
+| Production API | https://genesis-ai-engine-production.up.railway.app |
+| **Beta (создать)** | **https://beta.genesis-ai-engine.com/site** |
+| API Beta (опционально) | https://api-beta.genesis-ai-engine.com |
 
-**CEO checklist (≈30 мин, один раз):**
+**Ссылка для жены / тестировщиков:** https://beta.genesis-ai-engine.com/site
 
-| # | Где | Действие |
-|---|-----|----------|
-| 1 | Railway | New service `genesis-beta` → branch `cursor/mission1-genesis-brain-public-layer` → Root `.` → Dockerfile |
-| 2 | Railway | `GENESIS_CORS_ORIGINS` = `https://beta.virtuscore.ai` (или ваш beta URL) |
-| 3 | Vercel | Домен `beta.virtuscore.ai` → проект frontend (root `dashboard/frontend`) |
-| 4 | DNS | CNAME `beta` → Vercel (см. **DNS ниже** — сейчас записи **нет**) |
-| 5 | Vercel | Env: `NEXT_PUBLIC_API_URL` + `NEXT_PUBLIC_SITE_URL` = beta URLs |
-| 6 | GitHub | Secrets `BETA_FRONTEND_URL`, `BETA_BACKEND_URL` → auto smoke после push |
-| 7 | Тестерам | **`https://beta.virtuscore.ai/site`** — ссылка постоянная |
+**Ветка:** `cursor/mission1-genesis-brain-public-layer`
+
+**DNS (2026-07-09):** `genesis-ai-engine.com` существует; `beta.genesis-ai-engine.com` — **ещё нет** (нужен CNAME в Cloudflare).
 
 ---
 
-## Рекомендуемая схема (Вариант 1)
+## CEO checklist (≈30 мин, один раз)
+
+| # | Где | Действие |
+|---|-----|----------|
+| 1 | Railway | New service `genesis-beta` → ветка разработки → Root `.` → Dockerfile |
+| 2 | Railway | Env из `deploy.beta.env.example`; volume `/data` **отдельный** от prod |
+| 3 | Vercel | **Новый проект** `genesis-beta` (не production project) → root `dashboard/frontend` |
+| 4 | Vercel | Env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL` |
+| 5 | DNS Cloudflare | CNAME `beta` → Vercel; опционально `api-beta` → Railway |
+| 6 | Vercel | Domains → `beta.genesis-ai-engine.com` → Valid + HTTPS |
+| 7 | GitHub | Secrets `BETA_FRONTEND_URL`, `BETA_BACKEND_URL` → auto smoke после push |
+| 8 | Smoke | `py scripts/verify_beta_deploy.py --frontend ... --backend ...` |
+
+---
+
+## Схема
 
 ```text
-git push → ветка cursor/mission1-...
+git push → cursor/mission1-...
     ↓
-Railway service "genesis-beta" (Dockerfile, auto-deploy)
+Railway "genesis-beta" (auto-deploy, отдельный volume)
     ↓
-Vercel Preview или beta.virtuscore.ai → frontend
+Vercel project "genesis-beta" → beta.genesis-ai-engine.com
     ↓
-Стабильная ссылка для жены / тестировщиков
+https://beta.genesis-ai-engine.com/site
 ```
 
 ---
 
 ## Шаг A — Railway: backend beta
 
-1. [Railway](https://railway.app) → проект Genesis → **New Service** → Deploy from GitHub repo.
+1. [railway.app](https://railway.app) → проект Genesis → **New Service** → GitHub repo.
 2. **Service name:** `genesis-beta`
 3. **Branch:** `cursor/mission1-genesis-brain-public-layer` (не `main`).
-4. **Root Directory:** `.` (корень репо)
-5. **Builder:** Dockerfile (`/Dockerfile`)
-6. **Variables** (отдельно от production):
+4. **Root Directory:** `.` · **Builder:** Dockerfile
+5. **Variables:**
 
 ```env
 GENESIS_MEMORY_DIR=/data
-GENESIS_PUBLIC_URL=https://BETA-FRONTEND-URL
-GENESIS_CORS_ORIGINS=https://BETA-FRONTEND-URL
-GENESIS_LLM_API_KEY=...   # те же ключи, что для теста
+GENESIS_PUBLIC_URL=https://beta.genesis-ai-engine.com
+GENESIS_CORS_ORIGINS=https://beta.genesis-ai-engine.com
+GENESIS_LLM_API_KEY=...
 ```
 
-7. Volume `/data` — отдельный от production (чтобы тесты не портят prod memory).
-8. После деплоя проверить:
+6. Volume `/data` — отдельный от production.
+7. *(Опционально)* Settings → **Custom Domain** → `api-beta.genesis-ai-engine.com` → CNAME в Cloudflare.
+
+Проверка:
 
 ```text
 https://YOUR-BETA.up.railway.app/api/status
 https://YOUR-BETA.up.railway.app/api/public/genesis-ai/attachments/policy?visitor_id=test
 ```
 
-`git_commit` в `/api/status` должен совпадать с последним коммитом ветки (сейчас `b61bddb`+).
+`git_commit` в `/api/status` = последний коммит ветки.
 
 ---
 
 ## Шаг B — Vercel: frontend beta
 
-### Вариант B1 — стабильный домен (лучше для жены)
+**Важно:** создайте **отдельный** Vercel-проект (`genesis-beta`). Не меняйте env и домены production-проекта.
 
-1. [Vercel](https://vercel.com) → проект frontend (root: `dashboard/frontend`).
-2. **Settings → Domains** → добавить `beta.virtuscore.ai` (или `preview.virtuscore.ai`).
-3. DNS у регистратора: CNAME `beta` → `cname.vercel-dns.com` (Vercel покажет точное значение).
-4. **Settings → Git** → Production Branch оставить `main`; для beta:
-   - либо отдельный Vercel project `virtus-beta`, привязанный к ветке `cursor/mission1-...`;
-   - либо Assign domain `beta.virtuscore.ai` к **Preview** этой ветки.
-
-### Вариант B2 — Preview URL (быстрее, без DNS)
-
-1. Vercel → Project → Settings → Git → включить **Preview Deployments** для всех веток.
-2. После каждого `git push` появится URL вида:
-   `https://genesis-ai-engine-git-cursor-mission1-....vercel.app`
-3. Минус: URL длинный и меняется при смене ветки/форка. Для постоянного теста лучше B1.
-
-### Environment Variables (Vercel → Preview или проект beta)
+1. [vercel.com](https://vercel.com) → **Add New Project** → тот же GitHub repo.
+2. **Project name:** `genesis-beta`
+3. **Root Directory:** `dashboard/frontend`
+4. **Production Branch:** `cursor/mission1-genesis-brain-public-layer`
+5. **Environment Variables** (Production для этого проекта):
 
 ```env
 NEXT_PUBLIC_API_URL=https://YOUR-BETA.up.railway.app
-NEXT_PUBLIC_SITE_URL=https://beta.virtuscore.ai
+NEXT_PUBLIC_SITE_URL=https://beta.genesis-ai-engine.com
 ```
 
-Stripe webhooks на beta идут на **beta** backend через `next.config.ts` (читает `NEXT_PUBLIC_API_URL` при сборке). Production env в Vercel **не менять**.
+6. **Settings → Domains** → Add `beta.genesis-ai-engine.com`
+
+Stripe webhooks на beta идут на beta backend через `next.config.ts` (`NEXT_PUBLIC_API_URL` при сборке).
 
 ---
 
-## Шаг B2 — DNS для `beta.virtuscore.ai` (СТОП до подтверждения CEO)
+## Шаг C — DNS (Cloudflare) — СТОП до подтверждения CEO
 
-**Проверка (2026-07-09):** `beta.virtuscore.ai` и `virtuscore.ai` **не резолвятся** в публичном DNS. Ссылка для тестировщиков **не откроется**, пока домен не зарегистрирован и не привязан к Vercel.
+1. [dash.cloudflare.com](https://dash.cloudflare.com) → **genesis-ai-engine.com** → DNS.
+2. Добавить (точное значение Vercel покажет после Add Domain):
 
-### Если домен `virtuscore.ai` уже куплен у регистратора
+| Type | Name | Target |
+|------|------|--------|
+| CNAME | `beta` | `cname.vercel-dns.com` (или из Vercel) |
 
-1. Войти в панель DNS (Cloudflare, Namecheap, IONOS, …).
-2. Добавить запись (Vercel покажет точное значение после **Settings → Domains → Add**):
+3. *(Опционально)* API на красивом домене:
 
-| Type | Name | Value |
-|------|------|-------|
-| CNAME | `beta` | `cname.vercel-dns.com` (или значение из Vercel) |
+| Type | Name | Target |
+|------|------|--------|
+| CNAME | `api-beta` | Railway custom domain target |
 
-3. В Vercel → проект frontend → **Domains** → Add `beta.virtuscore.ai` → дождаться **Valid Configuration**.
-4. Написать агенту: «DNS beta готов» — продолжим smoke test.
+4. Дождаться **Valid Configuration** в Vercel (HTTPS автоматически).
+5. Написать агенту: «DNS beta готов».
 
-### Если домена `virtuscore.ai` ещё нет
-
-1. Зарегистрировать `virtuscore.ai` у регистратора **или**
-2. Временно использовать **Vercel Preview URL** (без красивого домена):
-
-```text
-https://genesis-ai-engine-git-cursor-mission1-....vercel.app/site
-```
-
-Тогда в Railway beta: `GENESIS_CORS_ORIGINS` = этот preview URL (без trailing slash).
-
-**Не трогать production:** `genesis-ai-engine.vercel.app` и `genesis-ai-engine-production.up.railway.app`.
+**Не трогать:** production Vercel/Railway и их env.
 
 ---
 
-## Шаг C — CORS
+## Шаг D — CORS
 
-Backend beta должен разрешать **точный** URL frontend beta в `GENESIS_CORS_ORIGINS`.
+`GENESIS_CORS_ORIGINS` на Railway beta = **точно** `https://beta.genesis-ai-engine.com` (без `/site`, без trailing slash).
 
-Если используете Preview URL Vercel — после первого деплоя скопировать URL и добавить в Railway beta variables. При каждой смене preview-домена обновлять CORS (ещё одна причина предпочесть `beta.virtuscore.ai`).
+Если frontend и API на разных доменах — CORS всё равно на **frontend** origin.
 
 ---
 
-## Шаг D — CEO smoke test (перед ссылкой жене)
+## Шаг E — Smoke test
 
 ```powershell
-py scripts/verify_beta_deploy.py --frontend https://beta.virtuscore.ai --backend https://YOUR-BETA.up.railway.app
+py scripts/verify_beta_deploy.py `
+  --frontend https://beta.genesis-ai-engine.com `
+  --backend https://YOUR-BETA.up.railway.app
 ```
 
-Или GitHub → Actions → **Beta smoke** (ручной) / **Beta post-push smoke** (после push, если secrets заданы).
+Автоматически: `/api/status`, chat POST, attachments/policy, genesis-ai/status, TTS status, `/site`.
 
-Открыть beta frontend → `/site`:
+**Вручную в браузере** (на https://beta.genesis-ai-engine.com/site):
 
-1. Текстовый вопрос — ответ (не «нет связи»).
-2. PDF upload + вопрос по документу.
-3. `https://YOUR-BETA.up.railway.app/api/status` → `git_commit` актуальный.
+| Проверка | Ожидание |
+|----------|----------|
+| Чат | Ответ, не «нет связи» |
+| PDF | Загрузка + вопрос по документу |
+| Voice | Микрофон, ответ голосом (HTTPS обязателен) |
+| Dictation | Диктовка в поле ввода |
+
+Или GitHub → Actions → **Beta smoke** / **Beta post-push smoke**.
 
 ---
 
-## Рабочий цикл для владельца
+## Рабочий цикл
 
 ```text
 1. Локально: Genesis.exe или pytest
 2. git commit + git push (ветка cursor/mission1-...)
 3. Подождать 3–8 мин (Railway + Vercel build)
-4. Отправить одну ссылку: https://beta.virtuscore.ai/site
-5. Собрать feedback → fix → push → та же ссылка обновится
+4. Отправить: https://beta.genesis-ai-engine.com/site
+5. Feedback → fix → push → та же ссылка обновится
 ```
 
 ---
 
-## Вариант 3 — разовая демо (ngrok / Cloudflare Tunnel)
+## Что Cursor не может без вас
 
-Только для «показать сегодня», не для жены на постоянке:
+- Войти в Vercel / Railway / Cloudflare / GitHub
+- Создать DNS-запись `beta` без доступа к Cloudflare
+- Добавить secrets в GitHub
 
-```powershell
-# Терминал 1: backend уже на :8000
-# Терминал 2: frontend на :3000
-# Терминал 3:
-ngrok http 3000
-```
-
-Минус: нужен запущенный ПК, URL меняется, микрофон/voice может требовать HTTPS.
-
----
-
-## Что Cursor не может сделать без вас
-
-- Войти в Vercel / Railway / DNS регистратора
-- Создать `beta.virtuscore.ai` без доступа к домену virtuscore.ai
-- Добавить secrets в GitHub (для полного CI)
-
-После шагов A–B пришлите beta URLs — можно автоматизировать smoke-check в `scripts/verify_beta_deploy.py`.
+После шагов A–C пришлите beta URLs — запустим smoke автоматически.
