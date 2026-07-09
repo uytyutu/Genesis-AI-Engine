@@ -83,6 +83,19 @@ Launcher · Mission Control · Factory · Finance (display) · утренний 
 
 ---
 
+## Public Vector `/site` — Offline Baseline v1 ✅ (2026-07-09)
+
+| | |
+|--|--|
+| **Tag** | `offline-baseline-v1` |
+| **Acceptance** | `scripts/acceptance_beta_dialogs.py` → **5/5 PASS** on beta |
+| **Rule** | Conversation Pipeline changes ship only after **5/5** regression |
+| **Next** | Groq A/B — same 5 scenarios; architecture frozen |
+
+**Baseline metrics (offline, beta):** acceptance 5/5 · state errors 0 · D5 no exact repeats · ~290 ms avg turn (sample, `llm_configured=false`)
+
+---
+
 ## Cycle (единственный — идеальный)
 
 ```
