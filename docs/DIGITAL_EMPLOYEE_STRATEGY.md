@@ -2,7 +2,7 @@
 
 **Status:** Vision approved — **not market-proven until EL3+**  
 **Focus now:** Mission 1 (first paying partner). Subscriptions, Enterprise pricing, Platform scale → **Horizon**.  
-**Related:** `docs/DIGITAL_COMPANY_VISION.md` · `docs/NORTH_STAR.md` · `WHY.md`
+**Related:** `docs/DIGITAL_COMPANY_VISION.md` · `docs/NORTH_STAR.md` · `docs/VIRTUS_CORE_NORTH_STAR_DIRECTIVE.md` (product feeling — frozen) · `docs/VIRTUS_COMMERCE_DELIVERY_DIRECTIVE.md` (commerce & delivery — frozen) · `WHY.md`
 
 ---
 
@@ -221,4 +221,100 @@ Genesis Core          ← платформа, память, gates
 
 ---
 
-*Approved: 2026-07-04 · Updated: 2026-07-04 (Role Marketplace framing)*
+## Virtus Core team architecture (Horizon — not North Star)
+
+**Status:** Architectural direction only. **Do not implement** until EL3+ and validated Skills.
+
+**North Star** answers: *What should the user feel?* (`docs/VIRTUS_CORE_NORTH_STAR_DIRECTIVE.md` — frozen.)
+
+This section answers: *How do we build it inside?*
+
+### Three visible layers + one hidden layer
+
+```
+User
+  │
+  ▼
+Vector (single partner — only face the user ever talks to)
+  │
+  ▼
+Project Director (internal orchestrator — never shown in UI)
+  │
+  ├────────┬──────────┬──────────┐
+  ▼        ▼          ▼          ▼
+Developer Designer  Marketing  Finance …
+```
+
+| Layer | User sees? | Role |
+|-------|------------|------|
+| **Virtus Core** | Yes | Platform: projects, memory, history, documents, team — any device |
+| **Vector** | Yes | One partner: dialogue, preview, trust, co-creation |
+| **Project Director** | **No** | Sequencing, dependencies, who works when, conflict resolution |
+| **Specialists** | Indirectly | Domain work — voice through Vector, not separate chats |
+
+### Why Project Director exists
+
+Without an internal orchestrator, multi-specialist work breaks down:
+
+* Developer changes code while Designer is still revising layout.
+* Marketing rewrites copy before structure is approved.
+* No one owns **order of operations** (design before refactor, structure before copy).
+
+The user should never manage that. They talk to Vector; Vector coordinates via Project Director.
+
+### User experience stays simple
+
+```
+User: "I want to open a restaurant."
+
+Vector: "For this project I'll need a designer, developer, and marketer. I've already started."
+
+[seconds later]
+
+Vector: "The designer prepared a first color palette."
+Vector: "The developer is creating the site structure."
+Vector: "Marketing suggests three headline options."
+```
+
+The user does **not** switch between specialists. One conversation. One partner.
+
+### Specialist rules
+
+| Rule | Meaning |
+|------|---------|
+| **Distinct personality** | Developer recommends Next.js; Designer wants more whitespace; Marketing proposes headlines |
+| **Shared memory** | No specialist asks "What's the project called?" if Vector already knows |
+| **No separate billing face** | User buys capabilities / team depth — not "10 different AIs" |
+
+### Wording (public)
+
+Avoid *"buy an employee"*. Prefer:
+
+* Vector Specialist · AI Workspace Specialist · Digital Team Member · Virtual Specialist
+
+### Success feeling
+
+The user should not think:
+
+> "I'm talking to Developer now."
+
+They should think:
+
+> **"Vector understands everything."**
+
+Inside, Vector distributes work intelligently. That is the digital partner — not a toolbox of chats.
+
+### Relation to sections above
+
+| Concept here | Maps to |
+|--------------|---------|
+| Specialists | Role Marketplace / Skills (this doc) |
+| Project Director | Internal orchestration layer (future kernel/brain — not Mission 1) |
+| Vector | Public partner (`VIRTUS_CORE_NORTH_STAR_DIRECTIVE.md`) |
+| Virtus Core | Platform workspace (cross-device) |
+
+*Evidence gate:* Project Director and multi-specialist flows — **after** at least one Skill is proven end-to-end on a paying client. Mission 1 proves a single narrow outcome first.
+
+---
+
+*Approved: 2026-07-04 · Updated: 2026-07-09 (Virtus Core team architecture — Horizon)*

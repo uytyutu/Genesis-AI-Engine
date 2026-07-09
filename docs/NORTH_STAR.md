@@ -1,5 +1,10 @@
 # Genesis — North Star
 
+**Virtus Core (public product vision, not current build scope):**
+
+* [`VIRTUS_CORE_NORTH_STAR_DIRECTIVE.md`](VIRTUS_CORE_NORTH_STAR_DIRECTIVE.md) — Co-Creation Workspace; R4-B gates implementation
+* [`VIRTUS_COMMERCE_DELIVERY_DIRECTIVE.md`](VIRTUS_COMMERCE_DELIVERY_DIRECTIVE.md) — ownership, publishing, lifecycle; Mission 1 gates Payment Hub
+
 **Product:** Operating system for a **digital company** — not a website generator.
 
 **Mission:** Help the owner create, grow, and scale digital products with a team of specialized AIs.
