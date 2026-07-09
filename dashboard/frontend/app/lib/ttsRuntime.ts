@@ -104,19 +104,10 @@ export function pickBestBrowserVoice(
   );
 }
 
-import {
-  getSpeechRecognitionCtor,
-} from "./voiceRuntime";
+import { isInterruptPhrase } from "./interruptPhrases";
+import { getSpeechRecognitionCtor } from "./voiceRuntime";
 
-const INTERRUPT_RE =
-  /^(стоп|подожди|подождите|не надо|хватит|стой|stop|wait|нет|тише|замолчи)[.!?,]*$/i;
-
-export function isInterruptPhrase(text: string): boolean {
-  const t = text.trim();
-  if (!t) return false;
-  if (INTERRUPT_RE.test(t)) return true;
-  return /^(стоп|подожди|не надо|хватит|стой)\b/i.test(t) && t.length < 48;
-}
+export { isInterruptPhrase };
 
 /** Stop TTS immediately — cloud audio + browser speech. */
 export function stopSpeaking(): void {

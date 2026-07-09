@@ -1,8 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, type KeyboardEvent, type MouseEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { ASSISTANT_NAME } from "../lib/publicBrand";
+import { MicModeToggle } from "./MicModeToggle";
+import type { MicMode } from "../lib/micMode";
 import { VoiceOrb } from "./VoiceOrb";
+import { SpringPressable } from "./motion/SpringPressable";
+import { VoiceStatusPulse } from "./motion/VoiceStatusPulse";
 
 export type PendingAttachment = {
   id: string;
@@ -12,19 +17,24 @@ export type PendingAttachment = {
   previewUrl: string | null;
 };
 
+export type VoiceUiStatus = "ready" | "listening" | "speaking" | "thinking" | "stopped";
+
 type Props = {
   value: string;
   onChange: (v: string) => void;
   onSend: () => void;
   busy?: boolean;
+  generating?: boolean;
   attachments: PendingAttachment[];
   onPickFiles: (files: FileList | null) => void;
   onRemoveAttachment: (id: string) => void;
   onToggleVoice: () => void;
   onRetryVoice?: () => void;
+  onStopActive?: () => void;
   voiceListening: boolean;
   voiceThinking?: boolean;
   voiceSpeaking?: boolean;
+  voiceStatus?: VoiceUiStatus;
   voiceHint?: string;
   micNotice?: string;
   onDismissMicNotice?: () => void;
@@ -33,18 +43,17 @@ type Props = {
   onCancelMicPermission?: () => void;
   onOpenVoiceSettings?: () => void;
   voiceSettingsOpen?: boolean;
+  micMode?: MicMode;
+  onMicModeChange?: (mode: MicMode) => void;
   placeholder?: string;
   floating?: boolean;
   inputId?: string;
 };
 
-function sanitizeMicNotice(notice?: string): string | undefined {
+function sanitizeMicNotice(notice: string | undefined, deniedText: string): string | undefined {
   if (!notice?.trim()) return undefined;
   if (/NotAllowedError|Permission denied|NotFoundError|NotReadableError/i.test(notice)) {
-    return (
-      "Чтобы говорить голосом, разрешите доступ к микрофону.\n\n" +
-      "Нажмите 🔒 возле адресной строки → Разрешения → Микрофон → Разрешить."
-    );
+    return deniedText;
   }
   return notice;
 }
@@ -117,19 +126,30 @@ function SettingsIcon() {
   );
 }
 
+function StopIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <rect x="6" y="6" width="12" height="12" rx="1.5" />
+    </svg>
+  );
+}
+
 export function GenesisChatComposer({
   value,
   onChange,
   onSend,
   busy = false,
+  generating = false,
   attachments,
   onPickFiles,
   onRemoveAttachment,
   onToggleVoice,
   onRetryVoice,
+  onStopActive,
   voiceListening,
   voiceThinking = false,
   voiceSpeaking = false,
+  voiceStatus = "ready",
   voiceHint,
   micNotice,
   onDismissMicNotice,
@@ -138,12 +158,16 @@ export function GenesisChatComposer({
   onCancelMicPermission,
   onOpenVoiceSettings,
   voiceSettingsOpen = false,
-  placeholder = `Сообщение для ${ASSISTANT_NAME}…`,
+  micMode = "chat",
+  onMicModeChange,
+  placeholder,
   floating = false,
   inputId = "genesis-chat-input",
 }: Props) {
+  const { t } = useTranslation("chat");
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputPlaceholder = placeholder ?? t("placeholder", { assistant: ASSISTANT_NAME });
 
   const resize = useCallback(() => {
     const el = textareaRef.current;
@@ -170,31 +194,36 @@ export function GenesisChatComposer({
     onToggleVoice();
   }
 
-  const safeMicNotice = sanitizeMicNotice(micNotice);
+  const safeMicNotice = sanitizeMicNotice(micNotice, t("micDenied"));
+  const showStop = Boolean(onStopActive) && (generating || voiceSpeaking);
+  const statusLabel =
+    micMode === "dictation" && voiceListening
+      ? "📝 Диктовка…"
+      : t(`voiceStatus.${voiceStatus}`, { defaultValue: t("voiceStatus.ready") });
 
   if (micPermissionModal) {
     return (
       <div className="px-4 pb-4">
         <div className="rounded-3xl border border-genesis-accent/30 bg-genesis-panel/95 p-6 text-center shadow-glow backdrop-blur-xl">
           <VoiceOrb mode="idle" />
-          <p className="mt-2 text-sm font-medium text-white">Голосовой разговор с {ASSISTANT_NAME}</p>
-          <p className="mt-2 text-sm leading-relaxed text-genesis-muted">
-            Нажмите кнопку ниже — браузер спросит разрешение один раз.
+          <p className="mt-2 text-sm font-medium text-white">
+            {t("micModalTitle", { assistant: ASSISTANT_NAME })}
           </p>
+          <p className="mt-2 text-sm leading-relaxed text-genesis-muted">{t("micModalBody")}</p>
           <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <button
               type="button"
               onClick={onConfirmMicPermission}
               className="rounded-full bg-genesis-accent px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
             >
-              Разрешить микрофон
+              {t("micAllow")}
             </button>
             <button
               type="button"
               onClick={onCancelMicPermission}
               className="rounded-full border border-genesis-border-subtle px-6 py-3 text-sm text-genesis-muted transition hover:text-white"
             >
-              Позже
+              {t("micLater")}
             </button>
           </div>
         </div>
@@ -217,7 +246,7 @@ export function GenesisChatComposer({
                 onClick={onRetryVoice}
                 className="rounded-full bg-genesis-accent px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
               >
-                Попробовать снова
+                {t("retryMic")}
               </button>
             ) : null}
             {onDismissMicNotice ? (
@@ -226,7 +255,7 @@ export function GenesisChatComposer({
                 onClick={onDismissMicNotice}
                 className="rounded-full border border-genesis-border-subtle px-3 py-1.5 text-xs text-genesis-muted transition hover:text-white"
               >
-                Закрыть
+                {t("dismiss")}
               </button>
             ) : null}
           </div>
@@ -234,6 +263,30 @@ export function GenesisChatComposer({
       )}
       {voiceHint && voiceListening && (
         <p className="mb-2 text-center text-xs text-genesis-accent">{voiceHint}</p>
+      )}
+      <VoiceStatusPulse
+        status={voiceStatus}
+        label={statusLabel}
+        className={`mb-2 text-center text-xs font-medium ${
+          voiceStatus === "stopped"
+            ? "text-rose-300"
+            : voiceStatus === "ready"
+              ? "text-genesis-muted/70"
+              : "text-genesis-accent"
+        }`}
+      />
+      {showStop && (
+        <div className="mb-3 flex justify-center">
+          <button
+            type="button"
+            onClick={onStopActive}
+            className="inline-flex items-center gap-2 rounded-full border border-rose-400/45 bg-rose-500/15 px-5 py-2.5 text-sm font-semibold text-rose-100 shadow-[0_0_24px_rgba(244,63,94,0.15)] transition hover:bg-rose-500/25"
+            aria-label={t("stopAria")}
+          >
+            <StopIcon />
+            {t("stop")}
+          </button>
+        </div>
       )}
       {voiceListening && (
         <div className="mb-2 flex flex-col items-center rounded-xl border border-genesis-accent/25 bg-genesis-accent/5 px-3 py-3">
@@ -291,15 +344,15 @@ export function GenesisChatComposer({
             e.target.value = "";
           }}
         />
-        <button
+        <SpringPressable
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={busy}
-          className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-genesis-muted transition hover:bg-white/5 hover:text-white disabled:opacity-40"
-          aria-label="Прикрепить файл"
+          className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-genesis-muted hover:bg-white/5 hover:text-white disabled:opacity-40"
+          aria-label={t("attach")}
         >
           <ClipIcon />
-        </button>
+        </SpringPressable>
 
         <textarea
           id={inputId}
@@ -309,47 +362,59 @@ export function GenesisChatComposer({
           onKeyDown={handleKeyDown}
           rows={1}
           disabled={busy}
-          placeholder={placeholder}
+          placeholder={inputPlaceholder}
           className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent py-2.5 text-base leading-relaxed text-white placeholder:text-genesis-muted/60 focus:outline-none"
         />
 
-        <button
+        <SpringPressable
           type="button"
           onClick={() => onOpenVoiceSettings?.()}
           disabled={busy || !onOpenVoiceSettings}
-          className={`mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition disabled:opacity-40 ${
+          className={`mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
             voiceSettingsOpen
               ? "bg-white/10 text-white"
               : "text-genesis-muted hover:bg-white/5 hover:text-white"
           }`}
-          aria-label="Настройки голоса"
+          aria-label={t("voiceSettings")}
         >
           <SettingsIcon />
-        </button>
+        </SpringPressable>
 
-        <button
+        {onMicModeChange ? (
+          <MicModeToggle value={micMode} onChange={onMicModeChange} />
+        ) : null}
+
+        <SpringPressable
           type="button"
           onClick={handleMicClick}
           disabled={busy}
-          className={`relative z-10 mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition disabled:opacity-40 ${
+          className={`relative z-10 mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
             voiceListening
-              ? "bg-genesis-accent/20 text-genesis-accent"
+              ? micMode === "dictation"
+                ? "bg-amber-500/20 text-amber-200"
+                : "bg-genesis-accent/20 text-genesis-accent"
               : "text-genesis-muted hover:bg-genesis-accent/15 hover:text-genesis-accent"
           }`}
-          aria-label={voiceListening ? "Остановить запись" : "Говорить голосом"}
+          aria-label={
+            voiceListening
+              ? t("micStop")
+              : micMode === "dictation"
+                ? "Диктовка"
+                : t("micStart")
+          }
         >
           <MicIcon active={voiceListening} />
-        </button>
+        </SpringPressable>
 
-        <button
+        <SpringPressable
           type="button"
           onClick={onSend}
-          disabled={busy || (!value.trim() && !attachments.length)}
-          className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-genesis-accent text-white transition hover:opacity-90 disabled:opacity-40"
-          aria-label="Отправить"
+          disabled={(busy && !generating) || (!value.trim() && !attachments.length && !generating)}
+          className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-genesis-accent text-white disabled:opacity-40"
+          aria-label={t("send")}
         >
           <SendIcon />
-        </button>
+        </SpringPressable>
       </div>
     </div>
   );
