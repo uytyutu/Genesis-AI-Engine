@@ -299,40 +299,21 @@ def _process_basename(pid: int) -> str:
 
 def _try_free_port(port: int = 3000) -> tuple[bool, str]:
     """Kill stale node.exe listeners on port — safe auto-fix for Genesis restarts."""
-    import subprocess
-    import sys
-
     from launcher.health import probe_frontend_live
+    from launcher.process_cleanup import kill_port_listeners, pids_on_port
 
     if probe_frontend_live():
         return True, f"Порт {port} уже обслуживает Mission Control"
 
-    freed: list[str] = []
-    for pid in _pids_on_port(port):
-        name = _process_basename(pid)
-        if name not in ("node.exe", "nodejs.exe"):
-            continue
-        if sys.platform == "win32":
-            subprocess.run(
-                ["taskkill", "/F", "/T", "/PID", str(pid)],
-                capture_output=True,
-                creationflags=subprocess.CREATE_NO_WINDOW,  # type: ignore[attr-defined]
-            )
-        else:
-            import os
-            import signal
-
-            try:
-                os.kill(pid, signal.SIGTERM)
-            except OSError:
-                pass
-        freed.append(f"{name}:{pid}")
-        append_log(f"Freed port {port} — stopped {name} pid={pid}")
-
-    if freed:
+    outcomes = kill_port_listeners(port, allowed_names=("node.exe", "nodejs.exe"))
+    if outcomes:
         time.sleep(1)
-        return True, f"Освобождён порт {port} ({', '.join(freed)})"
-    if _pids_on_port(port):
+        freed = [f"node.exe:{r.pid}" for r in outcomes if r.ok]
+        if freed:
+            return True, f"Освобождён порт {port} ({', '.join(freed)})"
+        failed = [f"pid={r.pid}:{r.reason}" for r in outcomes if not r.ok]
+        return False, f"Порт {port} всё ещё занят ({'; '.join(failed)})"
+    if pids_on_port(port):
         return False, f"Порт {port} занят не-Node процессом — закройте его вручную"
     return True, f"Порт {port} свободен"
 

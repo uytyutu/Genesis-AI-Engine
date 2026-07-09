@@ -95,7 +95,7 @@ def kill_pid(pid: int | None) -> KillResult:
     if not pid:
         return KillResult(0, True, "no_pid")
     if not pid_alive(pid):
-        return KillResult(pid, True, "already_stopped")
+        return KillResult(pid, True, "not_running")
     if sys.platform == "win32":
         result = subprocess.run(
             ["taskkill", "/F", "/T", "/PID", str(pid)],
@@ -123,6 +123,10 @@ def kill_pid(pid: int | None) -> KillResult:
     return KillResult(pid, True, "ok")
 
 
+def _listener_still_active(pid: int, port: int) -> bool:
+    return pid_alive(pid) or pid in pids_on_port(port)
+
+
 def kill_port_listeners(port: int, *, allowed_names: tuple[str, ...]) -> list[KillResult]:
     """Kill processes listening on port if basename matches allowed_names."""
     results: list[KillResult] = []
@@ -134,11 +138,13 @@ def kill_port_listeners(port: int, *, allowed_names: tuple[str, ...]) -> list[Ki
             )
             continue
         outcome = kill_pid(pid)
-        results.append(outcome)
-        if outcome.ok:
-            append_log(f"Freed port {port} — stopped {name} pid={pid}")
-        else:
-            append_log(f"Failed to stop {name} pid={pid} on port {port}: {outcome.reason}")
+        if _listener_still_active(pid, port):
+            reason = outcome.reason if not outcome.ok else "process_still_alive"
+            append_log(f"Failed to stop {name} pid={pid} on port {port}: {reason}")
+            results.append(KillResult(pid, False, reason))
+            continue
+        append_log(f"Freed port {port} — stopped {name} pid={pid}")
+        results.append(KillResult(pid, True, outcome.reason))
     return results
 
 

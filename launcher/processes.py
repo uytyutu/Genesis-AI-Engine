@@ -285,7 +285,7 @@ def start_frontend(
 
     env = os.environ.copy()
     env["PATH"] = augmented_path()
-    env.setdefault("PORT", "3000")
+    env["PORT"] = "3000"
     proc = subprocess.Popen(
         [npm, "run", "start"],
         cwd=fe,

@@ -39,6 +39,10 @@ logs/
 *.log
 launcher/logs/
 
+# Launcher diagnostics bundles (local only)
+diagnostics/*
+!diagnostics/.gitkeep
+
 # Local build artifacts
 .perf-backup-*
 client/desktop/src-tauri/icons/icon.icns.png

@@ -466,7 +466,14 @@ class GenesisLauncher(ctk.CTk):
     self.dev_text = ctk.CTkTextbox(self.dev_frame, width=400, height=160, font=ctk.CTkFont(size=11))
     self.dev_text.pack(padx=8, pady=8)
     self.dev_text.configure(state="disabled")
-    ctk.CTkButton(self.dev_frame, text="Журнал", command=lambda: LogDialog(self)).pack(pady=(0, 8))
+    ctk.CTkButton(self.dev_frame, text="Журнал", command=lambda: LogDialog(self)).pack(pady=(0, 4))
+    ctk.CTkButton(
+      self.dev_frame,
+      text="🔍 Собрать диагностику",
+      fg_color="#374151",
+      hover_color="#4b5563",
+      command=self._on_collect_diagnostics,
+    ).pack(pady=(0, 8))
 
     self.hint_label = ctk.CTkLabel(
       self, text="", wraplength=380, text_color=GENESIS_MUTED, font=ctk.CTkFont(size=11)
@@ -486,6 +493,40 @@ class GenesisLauncher(ctk.CTk):
       self.dev_frame.pack(fill="x", padx=20, pady=4)
     else:
       self.dev_frame.pack_forget()
+
+  def _on_collect_diagnostics(self) -> None:
+    if self._busy:
+      self.status_label.configure(
+        text="🟡 Подождите — выполняется другая операция...",
+        text_color="#eab308",
+      )
+      return
+
+    self._busy = True
+    self.status_label.configure(text="🟡 Собираю диагностику...", text_color="#eab308")
+
+    def work() -> None:
+      try:
+        from launcher.diagnostics_collect import collect_launcher_diagnostics
+
+        bundle = collect_launcher_diagnostics(self._project_root)
+        msg = f"Диагностика сохранена:\n{bundle}"
+      except Exception as exc:
+        bundle = None
+        msg = f"Не удалось собрать диагностику:\n{exc}"
+
+      def done() -> None:
+        self._busy = False
+        messagebox.showinfo("Диагностика Virtus Core", msg)
+        if bundle:
+          self.status_label.configure(text="✔ Диагностика сохранена", text_color="#22c55e")
+        else:
+          self.status_label.configure(text="⚠ Ошибка диагностики", text_color="#ef4444")
+        self.refresh_status()
+
+      self.after(0, done)
+
+    threading.Thread(target=work, daemon=True).start()
 
   def _set_textbox(self, box: ctk.CTkTextbox, content: str) -> None:
     box.configure(state="normal")

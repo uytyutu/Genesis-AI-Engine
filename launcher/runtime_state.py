@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -14,9 +15,24 @@ def _state_path(root: Path | None = None) -> Path:
     return paths.memory_dir(root) / "genesis_runtime.json"
 
 
+def _pid_alive_windows(pid: int) -> bool:
+    """OpenProcess is reliable on Windows; os.kill(pid, 0) can raise WinError 87."""
+    import ctypes
+
+    kernel32 = ctypes.windll.kernel32
+    PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+    handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+    if not handle:
+        return False
+    kernel32.CloseHandle(handle)
+    return True
+
+
 def pid_alive(pid: int | None) -> bool:
     if not pid or pid <= 0:
         return False
+    if sys.platform == "win32":
+        return _pid_alive_windows(pid)
     try:
         os.kill(pid, 0)
     except OSError:
