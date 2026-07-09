@@ -218,6 +218,17 @@ class BriefSpeechSynthesizer:
         if thinking.confidence < 0.55:
             return _uncertainty_voice()
 
+        if state.goal in ("open_business", "ai_company"):
+            from app.integration.genesis_brain.reasoned_reply import reasoned_business_reply
+
+            routed = reasoned_business_reply(
+                state,
+                last_user,
+                messages=messages,
+            )
+            if routed:
+                return routed
+
         if not commercial:
             return self._non_commercial_body(thinking, decision, state, last_user)
 

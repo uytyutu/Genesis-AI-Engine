@@ -419,6 +419,13 @@ def _follow_up_intent(normalized: str) -> IdentityIntent | None:
     return None
 
 
+_ADVICE_HYPOTHETICAL = re.compile(
+    r"что\s+(?:бы\s+)?ты\s+сделал|что\s+делал\s+бы\s+ты|на\s+мо[её]м\s+месте|"
+    r"на\s+тво[её]м\s+месте",
+    re.I,
+)
+
+
 def detect_identity_intent(
     text: str,
     messages: list[dict[str, str]] | None = None,
@@ -430,6 +437,9 @@ def detect_identity_intent(
 
     normalized = normalize_for_intent(normalize_user_text(raw))
     if not normalized:
+        return None
+
+    if _ADVICE_HYPOTHETICAL.search(normalized):
         return None
 
     if _is_about_third_party(raw, normalized):
@@ -464,7 +474,11 @@ def detect_identity_intent(
                 return IdentityIntent(kind="name", confidence=0.75, is_follow_up=in_thread)
             if contains_any(normalized, "умеешь", "можешь", "возможност"):
                 return IdentityIntent(kind="capabilities", confidence=0.75, is_follow_up=in_thread)
-            if contains_any(normalized, "создал", "сделал", "разработал"):
+            if contains_any(normalized, "создал", "разработал"):
+                return IdentityIntent(kind="creator", confidence=0.75, is_follow_up=in_thread)
+            if "сделал" in normalized and contains_any(
+                normalized, "кто", "кем", "тебя", "вас", "создал", "создан"
+            ):
                 return IdentityIntent(kind="creator", confidence=0.75, is_follow_up=in_thread)
             if contains_any(normalized, "занимаешь", "делаешь", "работаешь"):
                 return IdentityIntent(kind="help", confidence=0.7, is_follow_up=in_thread)

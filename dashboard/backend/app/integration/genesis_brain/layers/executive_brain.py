@@ -57,6 +57,37 @@ ResponseMode = Literal[
     "continue",  # default — pass to normal pipeline
 ]
 
+_PROPOSE_MARKER = re.compile(
+    r"\*\*1\.\s*.+\*\*.*\*\*2\.\s*.+\*\*",
+    re.I | re.S,
+)
+
+_FOLLOWUP_QUESTION = re.compile(
+    r"\?|^(?:как|что|сколько|почему|зачем|а\s+если|нужен\s+ли|можно\s+ли|"
+    r"что\s+насчёт|что\s+насчет|итого|с\s+чего)",
+    re.I,
+)
+
+_BUSINESS_TOPIC_QUESTION = re.compile(
+    r"риск|окупаем|аренд|клиент|соцсет|карт|сайт|касс|команд|доставк|"
+    r"смен|персонал|помещен|локаци",
+    re.I,
+)
+
+
+def _already_proposed_three(messages: list[dict[str, str]] | None) -> bool:
+    if not messages:
+        return False
+    for msg in reversed(messages):
+        if msg.get("role") != "assistant":
+            continue
+        content = (msg.get("content") or "").strip()
+        if _PROPOSE_MARKER.search(content):
+            return True
+        if "три направления" in content.lower() and "**1." in content:
+            return True
+    return False
+
 
 @dataclass(frozen=True)
 class ExecutiveBrief:
@@ -233,11 +264,23 @@ class GenesisExecutiveBrain:
             if state.goal == "ai_company":
                 return ExecutiveBrief(**{**base, "mode": "advise", "helpful_action": "advise"})
 
+            if _already_proposed_three(messages) or (
+                _business_thread_active(messages)
+                and (
+                    _FOLLOWUP_QUESTION.search(low)
+                    or _BUSINESS_TOPIC_QUESTION.search(low)
+                )
+            ):
+                if state.ready_for_proposal() or state.has_budget() or state.business_type:
+                    return ExecutiveBrief(**{**base, "mode": "advise", "helpful_action": "advise"})
+                return ExecutiveBrief(**{**base, "mode": "explain", "helpful_action": "answer"})
+
             if (
                 state.goal == "open_business"
                 and not state.has_country()
                 and not state.has_budget()
                 and not state.uncertain_niche
+                and not state.business_type
             ):
                 return ExecutiveBrief(**{**base, "mode": "propose", "helpful_action": "advise"})
 
@@ -252,6 +295,9 @@ class GenesisExecutiveBrain:
                         "optional_question": q,
                     }
                 )
+
+            if state.ready_for_proposal():
+                return ExecutiveBrief(**{**base, "mode": "advise", "helpful_action": "advise"})
 
             return ExecutiveBrief(**{**base, "mode": "propose", "helpful_action": "advise"})
 
@@ -432,6 +478,16 @@ def executive_reply(
         )
 
     if brief.mode == "propose":
+        if _already_proposed_three(messages):
+            routed = reasoned_business_reply(
+                state,
+                last_user,
+                visitor_id=visitor_id,
+                turn_index=turn_index,
+                messages=messages,
+            )
+            if routed:
+                return routed
         return _propose_three(state, open_)
 
     if brief.mode == "advise":

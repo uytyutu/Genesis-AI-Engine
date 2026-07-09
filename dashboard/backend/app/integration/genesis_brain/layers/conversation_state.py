@@ -32,6 +32,14 @@ _CITY_MAP: dict[str, str] = {
     "вен": "Вена",
 }
 
+_CITY_COUNTRY: dict[str, str] = {
+    "Берлин": "Германия",
+    "Вена": "Австрия",
+    "Москва": "Россия",
+    "Санкт-Петербург": "Россия",
+    "Киев": "Украина",
+}
+
 _BUDGET_EUR = re.compile(
     r"(\d[\d\s.,]*)\s*€|€\s*(\d[\d\s.,]*)|(\d[\d\s.,]*)\s*(?:eur|евро)",
     re.I,
@@ -226,6 +234,8 @@ class ConversationState:
         cm = re.search(r"город\s+([A-Za-zА-Яа-яЁё\-]+)", raw, re.I)
         if cm:
             self.city = cm.group(1).strip().capitalize()
+        if self.city and not self.country:
+            self.country = _CITY_COUNTRY.get(self.city)
 
         if "минимальн" in low and "бюджет" in low:
             self.budget_minimal = True
@@ -276,7 +286,9 @@ class ConversationState:
             self.wants_automation = False
 
     def has_country(self) -> bool:
-        return bool(self.country)
+        if self.country:
+            return True
+        return bool(self.city and self.city in _CITY_COUNTRY)
 
     def has_budget(self) -> bool:
         return self.budget_amount is not None or self.budget_minimal
@@ -286,7 +298,11 @@ class ConversationState:
 
     def ready_for_business_advice(self) -> bool:
         """Enough facts to recommend — do NOT re-ask country/budget."""
-        return self.goal == "open_business" and self.has_country() and self.has_budget()
+        if self.goal != "open_business":
+            return False
+        if self.has_budget():
+            return True
+        return self.has_country() and bool(self.business_type)
 
     def ready_for_proposal(self) -> bool:
         """Enough context to offer directions — questions optional."""
@@ -443,9 +459,8 @@ def _parse_amount(raw: str, low: str) -> int:
     except ValueError:
         digits = re.sub(r"[^\d]", "", raw)
         base = float(digits) if digits else 0
-    if "к" in low or "тыс" in low:
-        if base < 1000:
-            base *= 1000
+    if re.search(r"(?:\d+\s*к\b|тыс\.?|\bтысяч)", low) and base < 1000:
+        base *= 1000
     return int(base)
 
 

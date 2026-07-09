@@ -75,6 +75,34 @@ def reasoned_business_reply(
     if state.goal == "ai_company" or state.business_type == "car_wash":
         return _advice_specialized(state, open_)
 
+    if state.goal == "open_business" and state.business_type == "coffee":
+        loc = state.city or state.country or "вашем регионе"
+        bd = state.budget_display()
+        bd_note = f", бюджет **{bd}**" if bd else ""
+        if "риск" in low:
+            return (
+                f"Для кофейни в {loc}{bd_note} главные риски — аренда, сезонность и найм.\n\n"
+                "Снижают их формат coffee to go, короткая смена и проверка спроса до капитального ремонта."
+            )
+        if re.search(r"с\s+чего|первую\s+неделю|начать", low):
+            return (
+                f"На первую неделю в {loc}{bd_note} я бы сделал три шага:\n"
+                "• выбрать формат (to go vs зал) и точку с потоком;\n"
+                "• протестировать меню на 10–20 знакомых;\n"
+                "• набросать простой лендинг или карту с часами работы."
+            )
+        if "сайт" in low and not state.needs_website:
+            return (
+                f"Сайт сразу не обязателен{bd_note and f' при бюджете {bd}' or ''} — "
+                "для старта часто хватает карты и соцсетей.\n\n"
+                "Когда появится стабильный поток — добавите меню и заказ."
+            )
+        if re.search(r"на\s+мо[её]м\s+месте|что\s+бы\s+ты\s+сделал", low):
+            return (
+                f"На вашем месте в {loc}{bd_note} я бы начал с самого дешёвого теста спроса: "
+                "pop-up или coffee to go 2–3 дня, замерить выручку, потом решать про аренду."
+            )
+
     # --- Enough facts: advise, don't questionnaire ---
     if state.ready_for_business_advice():
         return _advice_when_ready(state, open_)
@@ -88,6 +116,14 @@ def reasoned_business_reply(
     if re.search(r"бизнес|придумай|открыть|поможешь", low) or state.goal == "open_business":
         if state.has_country() and state.has_budget():
             return _advice_when_ready(state, open_)
+        if state.has_budget():
+            loc = state.city or state.country or "вашем регионе"
+            bd = state.budget_display()
+            return (
+                f"{open_} С бюджетом **{bd}** в {loc} разумно смотреть lean-форматы: "
+                "coffee to go, услуга с записью или digital.\n\n"
+                "Что ближе — минимальный офлайн или старт онлайн?"
+            )
         if not state.has_country():
             return (
                 f"{open_} Давайте подберём бизнес, который реально может приносить прибыль.\n\n"
