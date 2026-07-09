@@ -49,7 +49,10 @@ _BUDGET_RUB = re.compile(
     r"(\d[\d\s.,]*)\s*(?:тыс\.?|000)?\s*(?:руб|rub|₽|р\.?\s*уб)",
     re.I,
 )
-_BUDGET_PLAIN = re.compile(r"бюджет\s+(\d+)", re.I)
+_BUDGET_PLAIN = re.compile(
+    r"бюджет\s+(?:только\s+|около\s+|в\s+)?(\d[\d\s.,]*)",
+    re.I,
+)
 
 
 @dataclass
@@ -256,8 +259,13 @@ class ConversationState:
 
         bp = _BUDGET_PLAIN.search(raw)
         if bp and not self.budget_amount:
-            self.budget_amount = int(bp.group(1).replace(" ", ""))
+            self.budget_amount = _parse_amount(bp.group(1), low)
             self.budget_currency = self.budget_currency or "EUR"
+            self.budget_minimal = False
+        elif bp and re.search(r"только|около|если|измен", low):
+            self.budget_amount = _parse_amount(bp.group(1), low)
+            self.budget_currency = self.budget_currency or "EUR"
+            self.budget_minimal = False
 
         if any(w in low for w in ("кофейн", "кофе", "кафе")) and not re.search(
             r"не\s+(кофейн|кофе|кафе)", low
