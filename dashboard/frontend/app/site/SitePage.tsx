@@ -50,7 +50,7 @@ export function SitePage() {
   }, []);
 
   return (
-    <PublicPageShell hideChrome={false}>
+    <PublicPageShell hideChrome={chatActive}>
       <GenesisChatErrorBoundary>
         <GenesisConcierge onConversationActive={setChatActive} />
       </GenesisChatErrorBoundary>

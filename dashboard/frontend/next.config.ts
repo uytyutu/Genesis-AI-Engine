@@ -29,6 +29,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: "/api/public/:path*",
+        destination: `${apiBase}/api/public/:path*`,
+      },
+      {
         source: "/api/webhooks/stripe",
         destination: `${apiBase}/api/webhooks/stripe`,
       },

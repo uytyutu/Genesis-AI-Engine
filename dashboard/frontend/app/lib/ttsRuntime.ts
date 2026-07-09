@@ -7,8 +7,9 @@ import {
   type VoiceSettings,
   VOICE_BUILD,
 } from "./voiceSettings";
+import { publicApiBase } from "./publicApiBase";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = publicApiBase();
 
 /** Best installed voices — Neural / Microsoft female RU preferred. */
 const VOICE_PRIORITY: RegExp[] = [

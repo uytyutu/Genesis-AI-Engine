@@ -52,8 +52,13 @@ import { useLocale } from "../context/LocaleContext";
 import { useChatAutoScroll } from "../lib/useChatAutoScroll";
 import { ChatMessageSpring } from "./motion/ChatMessageSpring";
 import { SpringIn } from "./motion/SpringIn";
+import {
+  normalizePublicHref,
+  publicApiBase,
+  rewritePublicSiteUrls,
+} from "../lib/publicApiBase";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = publicApiBase();
 const VISITOR_KEY = "genesis_visitor_id";
 const OWNER_VISITOR_KEY = "genesis_owner_visitor_id";
 const HI_BUILD_KEY = "genesis_hi_build";
@@ -215,6 +220,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const [micNotice, setMicNotice] = useState<string | undefined>();
   const [micPermissionModal, setMicPermissionModal] = useState(false);
   const [showMoreStarters, setShowMoreStarters] = useState(false);
+  const [composerFocused, setComposerFocused] = useState(false);
   const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(() => loadVoiceSettings());
   const [communicationStyle, setCommunicationStyle] = useState<CommunicationStyle>(() =>
@@ -624,8 +630,9 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         }
 
         const answer =
-          data?.answer?.trim() ||
-          t("emptyAnswer", { ns: "errors" });
+          rewritePublicSiteUrls(
+            data?.answer?.trim() || t("emptyAnswer", { ns: "errors" }),
+          );
 
         setMessages((prev) => {
           const base = prev[prev.length - 1]?.generating ? prev.slice(0, -1) : prev;
@@ -634,7 +641,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             {
               role: "assistant" as const,
               text: answer,
-              cta_href: data?.cta_href ?? null,
+              cta_href: normalizePublicHref(data?.cta_href),
               cta_label: data?.cta_label ?? null,
               debug: developerMode ? (data?.debug ?? null) : undefined,
             },
@@ -969,10 +976,12 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         cloudAvailable={ttsCloudAvailable}
         preferredProvider={ttsPreferred}
       />
-      <CommunicationStylePicker
-        value={communicationStyle}
-        onChange={setCommunicationStyle}
-      />
+      <div className={composerFocused ? "max-sm:hidden" : undefined}>
+        <CommunicationStylePicker
+          value={communicationStyle}
+          onChange={setCommunicationStyle}
+        />
+      </div>
       <GenesisChatComposer
         value={input}
         onChange={setInput}
@@ -1004,6 +1013,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         onMicModeChange={setMicMode}
         attachHint={attachHint}
         inputId="genesis-chat-input"
+        onFocusChange={setComposerFocused}
       />
     </>
   );
@@ -1025,20 +1035,30 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     <section
       id="genesis-chat"
       className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow transition-all duration-300 ${
-        showThread ? "min-h-[min(72vh,40rem)] max-h-[min(85vh,48rem)]" : ""
+        showThread
+          ? composerFocused
+            ? "min-h-[min(92dvh,52rem)] max-h-[min(96dvh,56rem)]"
+            : "min-h-[min(72vh,40rem)] max-h-[min(85vh,48rem)]"
+          : ""
       }`}
       aria-label={`Диалог с ${ASSISTANT_NAME}`}
     >
       <header
         className={`flex shrink-0 items-center justify-between border-b border-white/5 transition-all duration-300 ${
-          showThread ? "px-4 py-3 sm:px-6" : "px-5 py-4 sm:px-8"
+          showThread
+            ? composerFocused
+              ? "px-3 py-2 sm:px-6"
+              : "px-4 py-3 sm:px-6"
+            : "px-5 py-4 sm:px-8"
         }`}
       >
         {showThread ? (
           <button
             type="button"
             onClick={() => setChatCollapsed(true)}
-            className="rounded-lg px-2 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white"
+            className={`rounded-lg px-2 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white ${
+              composerFocused ? "max-sm:hidden" : ""
+            }`}
           >
             {t("back")}
           </button>
@@ -1052,7 +1072,10 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           </button>
         )}
         {isPublic || !showThread ? (
-          <VectorBrandSignature variant="compact" />
+          <VectorBrandSignature
+            variant="compact"
+            className={composerFocused ? "max-sm:scale-90 max-sm:origin-center" : undefined}
+          />
         ) : (
           <Badge variant="accent" className="tracking-[0.25em]">
             {ASSISTANT_NAME}

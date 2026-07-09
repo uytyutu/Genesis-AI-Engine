@@ -1,6 +1,7 @@
 import { PRICING_FALLBACK } from "./pricingFallback";
+import { publicApiBase } from "./publicApiBase";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = publicApiBase();
 
 export type PricingTier = {
   id: string;

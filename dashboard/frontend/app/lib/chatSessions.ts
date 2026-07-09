@@ -23,7 +23,9 @@ export type SessionsStore = {
   localMessages: Record<string, StoredMessage[]>;
 };
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { publicApiBase } from "./publicApiBase";
+
+const API = publicApiBase();
 
 export function sessionsStorageKey(scope: "public" | "owner"): string {
   return scope === "owner" ? "genesis_owner_sessions_v1" : "genesis_chat_sessions_v1";

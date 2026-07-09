@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, type KeyboardEvent, type MouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { ASSISTANT_NAME } from "../lib/publicBrand";
 import { MicModeToggle } from "./MicModeToggle";
@@ -50,6 +50,7 @@ type Props = {
   floating?: boolean;
   inputId?: string;
   attachHint?: string;
+  onFocusChange?: (focused: boolean) => void;
 };
 
 function sanitizeMicNotice(notice: string | undefined, deniedText: string): string | undefined {
@@ -166,23 +167,47 @@ export function GenesisChatComposer({
   floating = false,
   inputId = "genesis-chat-input",
   attachHint,
+  onFocusChange,
 }: Props) {
   const { t } = useTranslation("chat");
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [focused, setFocused] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const inputPlaceholder = placeholder ?? t("placeholder", { assistant: ASSISTANT_NAME });
   const hintText = attachHint ?? t("attachHint");
+  const compactChrome = focused && !expanded;
+
+  const setInputFocused = useCallback(
+    (next: boolean) => {
+      setFocused(next);
+      onFocusChange?.(next);
+    },
+    [onFocusChange],
+  );
 
   const resize = useCallback(() => {
     const el = textareaRef.current;
     if (!el) return;
+    const cap = expanded ? 520 : compactChrome ? 280 : 160;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
-  }, []);
+    el.style.height = `${Math.min(el.scrollHeight, cap)}px`;
+  }, [compactChrome, expanded]);
 
   useEffect(() => {
     resize();
-  }, [value, resize]);
+  }, [value, resize, expanded, compactChrome]);
+
+  useEffect(() => {
+    if (!focused || expanded || typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const scrollInput = () => {
+      textareaRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    };
+    vv.addEventListener("resize", scrollInput);
+    scrollInput();
+    return () => vv.removeEventListener("resize", scrollInput);
+  }, [focused, expanded]);
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -204,6 +229,122 @@ export function GenesisChatComposer({
     micMode === "dictation" && voiceListening
       ? "📝 Диктовка…"
       : t(`voiceStatus.${voiceStatus}`, { defaultValue: t("voiceStatus.ready") });
+
+  const composerField = (
+    <textarea
+      id={inputId}
+      ref={textareaRef}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onFocus={() => setInputFocused(true)}
+      onBlur={() => {
+        if (!expanded) setInputFocused(false);
+      }}
+      rows={expanded ? 10 : compactChrome ? 4 : 1}
+      disabled={busy}
+      placeholder={inputPlaceholder}
+      className={`w-full flex-1 resize-none bg-transparent text-base leading-relaxed text-white placeholder:text-genesis-muted/60 focus:outline-none ${
+        expanded ? "min-h-[50dvh] py-4 text-[16px] leading-7" : "min-h-[44px] max-h-[min(280px,40dvh)] py-2.5"
+      }`}
+    />
+  );
+
+  const toolbarButtons = (
+    <>
+      <SpringPressable
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        disabled={busy}
+        className={`mb-1 flex shrink-0 items-center justify-center rounded-full text-genesis-muted hover:bg-white/5 hover:text-white disabled:opacity-40 ${
+          compactChrome ? "h-9 w-9" : "h-10 w-10"
+        }`}
+        aria-label={t("attach")}
+      >
+        <ClipIcon />
+      </SpringPressable>
+
+      {!compactChrome && onOpenVoiceSettings ? (
+        <SpringPressable
+          type="button"
+          onClick={() => onOpenVoiceSettings?.()}
+          disabled={busy}
+          className={`mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
+            voiceSettingsOpen
+              ? "bg-white/10 text-white"
+              : "text-genesis-muted hover:bg-white/5 hover:text-white"
+          }`}
+          aria-label={t("voiceSettings")}
+        >
+          <SettingsIcon />
+        </SpringPressable>
+      ) : null}
+
+      {!compactChrome && onMicModeChange ? (
+        <MicModeToggle value={micMode} onChange={onMicModeChange} />
+      ) : null}
+
+      <SpringPressable
+        type="button"
+        onClick={handleMicClick}
+        disabled={busy}
+        className={`relative z-10 mb-1 flex shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
+          compactChrome ? "h-9 w-9" : "h-10 w-10"
+        } ${
+          voiceListening
+            ? micMode === "dictation"
+              ? "bg-amber-500/20 text-amber-200"
+              : "bg-genesis-accent/20 text-genesis-accent"
+            : "text-genesis-muted hover:bg-genesis-accent/15 hover:text-genesis-accent"
+        }`}
+        aria-label={
+          voiceListening
+            ? t("micStop")
+            : micMode === "dictation"
+              ? "Диктовка"
+              : t("micStart")
+        }
+      >
+        <MicIcon active={voiceListening} />
+      </SpringPressable>
+
+      <SpringPressable
+        type="button"
+        onClick={onSend}
+        disabled={(busy && !generating) || (!value.trim() && !attachments.length && !generating)}
+        className={`mb-1 flex shrink-0 items-center justify-center rounded-full bg-genesis-accent text-white disabled:opacity-40 ${
+          compactChrome ? "h-11 w-11" : "h-10 w-10"
+        }`}
+        aria-label={t("send")}
+      >
+        <SendIcon />
+      </SpringPressable>
+    </>
+  );
+
+  if (expanded) {
+    return (
+      <div className="fixed inset-0 z-[80] flex flex-col bg-genesis-bg/98 backdrop-blur-xl">
+        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <p className="text-sm font-medium text-white">Сообщение</p>
+          <button
+            type="button"
+            onClick={() => {
+              setExpanded(false);
+              setInputFocused(false);
+            }}
+            className="rounded-lg px-3 py-1.5 text-sm text-genesis-muted hover:bg-white/5 hover:text-white"
+          >
+            Свернуть
+          </button>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">{composerField}</div>
+        <div className="border-t border-white/10 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div className="flex items-end justify-end gap-2">{toolbarButtons}</div>
+        </div>
+      </div>
+    );
+  }
 
   if (micPermissionModal) {
     return (
@@ -265,20 +406,22 @@ export function GenesisChatComposer({
           </div>
         </div>
       )}
-      {voiceHint && voiceListening && (
+      {voiceHint && voiceListening && !compactChrome && (
         <p className="mb-2 text-center text-xs text-genesis-accent">{voiceHint}</p>
       )}
-      <VoiceStatusPulse
-        status={voiceStatus}
-        label={statusLabel}
-        className={`mb-2 text-center text-xs font-medium ${
-          voiceStatus === "stopped"
-            ? "text-rose-300"
-            : voiceStatus === "ready"
-              ? "text-genesis-muted/70"
-              : "text-genesis-accent"
-        }`}
-      />
+      {!compactChrome && (
+        <VoiceStatusPulse
+          status={voiceStatus}
+          label={statusLabel}
+          className={`mb-2 text-center text-xs font-medium ${
+            voiceStatus === "stopped"
+              ? "text-rose-300"
+              : voiceStatus === "ready"
+                ? "text-genesis-muted/70"
+                : "text-genesis-accent"
+          }`}
+        />
+      )}
       {showStop && (
         <div className="mb-3 flex justify-center">
           <button
@@ -292,17 +435,17 @@ export function GenesisChatComposer({
           </button>
         </div>
       )}
-      {voiceListening && (
+      {voiceListening && !compactChrome && (
         <div className="mb-2 flex flex-col items-center rounded-xl border border-genesis-accent/25 bg-genesis-accent/5 px-3 py-3">
           <VoiceOrb mode="listening" />
         </div>
       )}
-      {voiceSpeaking && !voiceListening && (
+      {voiceSpeaking && !voiceListening && !compactChrome && (
         <div className="mb-2 flex flex-col items-center rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-3 py-3">
           <VoiceOrb mode="speaking" />
         </div>
       )}
-      {voiceThinking && !voiceListening && !voiceSpeaking && (
+      {voiceThinking && !voiceListening && !voiceSpeaking && !compactChrome && (
         <div className="mb-2 flex flex-col items-center rounded-xl border border-indigo-500/25 bg-indigo-500/5 px-3 py-3">
           <VoiceOrb mode="thinking" />
         </div>
@@ -340,9 +483,15 @@ export function GenesisChatComposer({
           ))}
         </div>
       )}
-      <p className="mb-2 text-[10px] leading-snug text-genesis-muted/80">{hintText}</p>
+      {!compactChrome && (
+        <p className="mb-2 text-[10px] leading-snug text-genesis-muted/80">{hintText}</p>
+      )}
 
-      <div className="flex items-end gap-2 rounded-3xl border border-white/10 bg-genesis-panel/95 p-2 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+      <div
+        className={`flex items-end gap-1.5 rounded-3xl border border-white/10 bg-genesis-panel/95 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:gap-2 ${
+          compactChrome ? "p-1.5" : "p-2"
+        }`}
+      >
         <input
           ref={fileRef}
           type="file"
@@ -354,77 +503,24 @@ export function GenesisChatComposer({
             e.target.value = "";
           }}
         />
-        <SpringPressable
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={busy}
-          className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-genesis-muted hover:bg-white/5 hover:text-white disabled:opacity-40"
-          aria-label={t("attach")}
-        >
-          <ClipIcon />
-        </SpringPressable>
 
-        <textarea
-          id={inputId}
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={1}
-          disabled={busy}
-          placeholder={inputPlaceholder}
-          className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent py-2.5 text-base leading-relaxed text-white placeholder:text-genesis-muted/60 focus:outline-none"
-        />
+        <div className="min-w-0 flex-1">{composerField}</div>
 
-        <SpringPressable
-          type="button"
-          onClick={() => onOpenVoiceSettings?.()}
-          disabled={busy || !onOpenVoiceSettings}
-          className={`mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
-            voiceSettingsOpen
-              ? "bg-white/10 text-white"
-              : "text-genesis-muted hover:bg-white/5 hover:text-white"
-          }`}
-          aria-label={t("voiceSettings")}
-        >
-          <SettingsIcon />
-        </SpringPressable>
-
-        {onMicModeChange ? (
-          <MicModeToggle value={micMode} onChange={onMicModeChange} />
-        ) : null}
-
-        <SpringPressable
-          type="button"
-          onClick={handleMicClick}
-          disabled={busy}
-          className={`relative z-10 mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
-            voiceListening
-              ? micMode === "dictation"
-                ? "bg-amber-500/20 text-amber-200"
-                : "bg-genesis-accent/20 text-genesis-accent"
-              : "text-genesis-muted hover:bg-genesis-accent/15 hover:text-genesis-accent"
-          }`}
-          aria-label={
-            voiceListening
-              ? t("micStop")
-              : micMode === "dictation"
-                ? "Диктовка"
-                : t("micStart")
-          }
-        >
-          <MicIcon active={voiceListening} />
-        </SpringPressable>
-
-        <SpringPressable
-          type="button"
-          onClick={onSend}
-          disabled={(busy && !generating) || (!value.trim() && !attachments.length && !generating)}
-          className="mb-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-genesis-accent text-white disabled:opacity-40"
-          aria-label={t("send")}
-        >
-          <SendIcon />
-        </SpringPressable>
+        <div className="flex shrink-0 flex-col items-center gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              setExpanded(true);
+              setInputFocused(true);
+              requestAnimationFrame(() => textareaRef.current?.focus());
+            }}
+            className="rounded-full px-2 py-1 text-[10px] font-medium text-genesis-muted hover:bg-white/5 hover:text-white sm:hidden"
+            aria-label="Развернуть редактор"
+          >
+            ⤢
+          </button>
+          <div className="flex items-end gap-1">{toolbarButtons}</div>
+        </div>
       </div>
     </div>
   );
