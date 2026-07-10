@@ -50,6 +50,7 @@ class GenesisAIService:
         context: dict[str, Any] | None = None,
         attachment_note: str = "",
         attachment_files: list[dict] | None = None,
+        attachment_ids: list[str] | None = None,
         visitor_id: str | None = None,
         session_id: str | None = None,
         personality_mode: Literal["public", "ceo"] = "public",
@@ -67,8 +68,30 @@ class GenesisAIService:
         )
 
         q = question.strip()
-        files = attachment_files or []
         intake = KnowledgeIntakeService(self._memory_dir)
+        files = list(attachment_files or [])
+        if attachment_ids:
+            resolved = intake.resolve_for_execution(
+                attachment_ids=attachment_ids,
+                visitor_id=vid,
+                session_id=sid,
+            )
+            if resolved:
+                files = resolved
+
+        if attachment_ids and not files:
+            return {
+                "answer": (
+                    "Файл не найден на сервере (возможно, истёк срок хранения).\n\n"
+                    "Прикрепите PDF ещё раз и напишите «Проверь мой бизнес-план»."
+                ),
+                "source": "genesis-ai",
+                "mode": "genesis",
+                "provider": "execution",
+                "cta_href": None,
+                "cta_label": None,
+                "cta_actions": None,
+            }
 
         if is_meta_exfiltration_attempt(q):
             return {
@@ -80,7 +103,7 @@ class GenesisAIService:
                 "cta_actions": None,
             }
 
-        from app.execution.bridge import try_user_execution
+        from app.execution.bridge import try_user_execution, should_route_attachments_to_execution
 
         executed = try_user_execution(
             q,
@@ -91,15 +114,31 @@ class GenesisAIService:
         if executed:
             return executed
 
+        if files and should_route_attachments_to_execution(q, files):
+            return {
+                "answer": (
+                    "Документ получен, но отчёты не созданы.\n\n"
+                    "Прикрепите PDF ещё раз и напишите «Проанализируй бизнес-план» — "
+                    "я создам Executive Summary и Report в Workspace."
+                ),
+                "source": "genesis-ai",
+                "mode": "genesis",
+                "provider": "execution",
+                "cta_href": None,
+                "cta_label": None,
+                "cta_actions": None,
+            }
+
         if files:
             note = intake.build_brain_intake_context(files, locale=assistant_locale)
-            note = maybe_append_expert_review(
-                q,
-                note,
-                files,
-                memory_dir=self._memory_dir,
-                locale=assistant_locale,
-            )
+            if not should_route_attachments_to_execution(q, files):
+                note = maybe_append_expert_review(
+                    q,
+                    note,
+                    files,
+                    memory_dir=self._memory_dir,
+                    locale=assistant_locale,
+                )
         else:
             note = attachment_note
         if note:
@@ -128,7 +167,7 @@ class GenesisAIService:
                 out["answer"] = scrub_internal_terms_from_answer(out["answer"])
             if debug and result.trace:
                 out["debug"] = result.trace
-            if files and out.get("answer"):
+            if files and out.get("answer") and not should_route_attachments_to_execution(q, files):
                 ack = intake.build_user_ack(files, locale=assistant_locale)
                 if ack:
                     out["answer"] = f"{ack}{out['answer']}"

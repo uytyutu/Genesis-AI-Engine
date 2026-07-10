@@ -130,7 +130,7 @@ def test_bridge_creates_readme_from_chat_goal(memory_tmp: Path):
     assert out is not None
     assert out["provider"] == "execution"
     assert "README.md" in out["answer"]
-    assert "✓ Готово" in out["answer"]
+    assert "✓ Файл создан" in out["answer"]
     ws_id = out["context"]["workspace_id"]
     path = ExecutionWorkspaceStore(memory_tmp).path_for(ws_id, "files", "README.md")
     assert path.is_file()
@@ -142,6 +142,85 @@ def test_bridge_returns_none_for_normal_chat(memory_tmp: Path):
 
     bridge._REGISTRY = None
     assert bridge.try_user_execution("Привет как дела?", visitor_id="v2", memory_dir=memory_tmp) is None
+
+
+def test_bridge_analyzes_pdf_without_analyze_keyword(memory_tmp: Path):
+    """PDF-only upload must route to execution — not Brain essay (Product Truth)."""
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    upload_dir = memory_tmp / "public_chat_uploads"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    att_id = "att-pdf-only"
+    plan_path = upload_dir / f"{att_id}.txt"
+    plan_path.write_text(
+        "TechGenie Haus Service. Берлин. Smart Home.",
+        encoding="utf-8",
+    )
+    (upload_dir / "index.json").write_text(
+        json.dumps(
+            [
+                {
+                    "id": att_id,
+                    "filename": "BUSINESSPLAN.txt",
+                    "content_type": "text/plain",
+                    "path": str(plan_path),
+                    "visitor_id": "pdf-only",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    files_only_prompt = (
+        "Клиент прикрепил файлы без текста. Содержимое недоступно — только имена. "
+        "Попроси кратко описать задачу словами."
+    )
+    out = bridge.try_user_execution(
+        files_only_prompt,
+        visitor_id="pdf-only",
+        memory_dir=memory_tmp,
+        attachment_files=[
+            {"id": att_id, "filename": "BUSINESSPLAN.txt", "content_type": "text/plain"}
+        ],
+    )
+    assert out is not None
+    assert out["provider"] == "execution"
+    assert "📊 Executive Summary" in str(out.get("cta_actions"))
+    assert out.get("cta_actions")
+    ws_id = out["context"]["workspace_id"]
+    ws = ExecutionWorkspaceStore(memory_tmp)
+    assert ws.path_for(ws_id, "files", "report.md").is_file()
+    assert ws.path_for(ws_id, "files", "executive_summary.md").is_file()
+
+
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    out = bridge.try_user_execution(
+        "Ты умеешь делать сайты?",
+        visitor_id="v-discover",
+        memory_dir=memory_tmp,
+    )
+    assert out is not None
+    assert out["provider"] == "capability_registry"
+    assert "создавать сайты" in out["answer"].lower()
+    assert "стоматологии" in out["answer"]
+    assert "preview" in out["answer"].lower()
+
+
+def test_bridge_capability_discovery_general(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    out = bridge.try_user_execution(
+        "Что ты умеешь?",
+        visitor_id="v-discover-2",
+        memory_dir=memory_tmp,
+    )
+    assert out is not None
+    assert out["provider"] == "capability_registry"
+    assert "Я умею" in out["answer"]
+    assert "README" in out["answer"] or "readme" in out["answer"].lower()
 
 
 def test_generate_site_executor_creates_project(memory_tmp: Path):
@@ -290,9 +369,9 @@ def test_bridge_analyze_document_with_attachment(memory_tmp: Path):
     )
     assert out is not None
     assert out["provider"] == "execution"
-    assert "✓ Готово" in out["answer"]
-    assert out["cta_actions"] and len(out["cta_actions"]) == 2
-    assert out["cta_label"] == "Открыть отчёт"
+    assert "✓ Отчёты созданы" in out["answer"]
+    assert out["cta_actions"] and len(out["cta_actions"]) == 3
+    assert out["cta_label"] == "📊 Executive Summary"
 
 
 def test_serve_workspace_file_requires_visitor(memory_tmp: Path):

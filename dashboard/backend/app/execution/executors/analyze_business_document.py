@@ -172,6 +172,8 @@ class AnalyzeBusinessDocumentExecutor:
         out = result.to_dict()
         out["document_type"] = analysis.structure.document_type
         out["title"] = analysis.structure.title
+        out["source_filename"] = filename
+        out["pages_analyzed"] = pages_included if source_path else 0
         self._workspaces.touch(workspace_id)
         return out
 

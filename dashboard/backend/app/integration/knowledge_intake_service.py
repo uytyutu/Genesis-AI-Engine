@@ -71,6 +71,39 @@ class KnowledgeIntakeService:
 
         return files
 
+    def resolve_for_execution(
+        self,
+        *,
+        attachment_ids: list[str] | None,
+        visitor_id: str | None,
+        session_id: str | None,
+    ) -> list[dict[str, Any]]:
+        """All attachment metadata for execution — never drop ids when meta exists on disk."""
+        files = self.prepare_for_chat(
+            attachment_ids=attachment_ids or [],
+            visitor_id=visitor_id,
+            session_id=session_id,
+        )
+        by_id: dict[str, dict[str, Any]] = {
+            str(f["id"]): f for f in files if f.get("id")
+        }
+        for aid in attachment_ids or []:
+            if aid in by_id:
+                continue
+            meta = self._attachments.get_meta(aid)
+            if not meta:
+                continue
+            by_id[aid] = {
+                "id": aid,
+                "filename": meta.get("filename") or "file",
+                "content_type": meta.get("content_type") or "",
+                "parsed_excerpt": meta.get("parsed_excerpt") or "",
+                "page_count": meta.get("page_count"),
+                "pages_included": meta.get("pages_included"),
+                "path": meta.get("path"),
+            }
+        return list(by_id.values())
+
     def build_brain_intake_context(
         self,
         files: list[dict[str, Any]],

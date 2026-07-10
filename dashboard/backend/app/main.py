@@ -640,7 +640,7 @@ def ask_concierge(
     packages = ctx.sales.packages()
     mem = _memory_dir()
     intake_svc = KnowledgeIntakeService(mem)
-    attachment_files = intake_svc.prepare_for_chat(
+    attachment_files = intake_svc.resolve_for_execution(
         attachment_ids=request.attachment_ids or [],
         visitor_id=request.visitor_id,
         session_id=request.session_id,
@@ -661,6 +661,7 @@ def ask_concierge(
         context=merged_context,
         attachment_note="",
         attachment_files=attachment_files,
+        attachment_ids=request.attachment_ids or [],
         visitor_id=request.visitor_id,
         session_id=request.session_id,
         debug=use_debug,

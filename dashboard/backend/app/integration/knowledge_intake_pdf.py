@@ -14,25 +14,33 @@ _MAX_PROMPT_CHARS = 14_000
 
 
 def extract_pdf_text(path: Path, *, max_pages: int) -> tuple[str, int, int]:
-    """Return (text, total_pages, pages_included)."""
+    """Return (text, total_pages, pages_included). Tries pypdf (non-strict) first."""
     from pypdf import PdfReader
 
-    reader = PdfReader(str(path))
-    total = len(reader.pages)
-    take = max(0, min(total, max_pages))
-    parts: list[str] = []
-    for i in range(take):
+    last_error: Exception | None = None
+    for strict in (False, True):
         try:
-            page_text = reader.pages[i].extract_text() or ""
-        except (OSError, ValueError, KeyError) as exc:
-            logger.warning("PDF page %s extract failed: %s", i, exc)
-            page_text = ""
-        if page_text.strip():
-            parts.append(page_text.strip())
-    text = "\n\n".join(parts).strip()
-    if len(text) > _MAX_PROMPT_CHARS:
-        text = text[:_MAX_PROMPT_CHARS].rstrip() + "\n…[текст обрезан по лимиту контекста]"
-    return text, total, take
+            reader = PdfReader(str(path), strict=strict)
+            total = len(reader.pages)
+            take = max(0, min(total, max_pages))
+            parts: list[str] = []
+            for i in range(take):
+                try:
+                    page_text = reader.pages[i].extract_text() or ""
+                except (OSError, ValueError, KeyError) as exc:
+                    logger.warning("PDF page %s extract failed: %s", i, exc)
+                    page_text = ""
+                if page_text.strip():
+                    parts.append(page_text.strip())
+            text = "\n\n".join(parts).strip()
+            if len(text) > _MAX_PROMPT_CHARS:
+                text = text[:_MAX_PROMPT_CHARS].rstrip() + "\n…[текст обрезан по лимиту контекста]"
+            if text.strip():
+                return text, total, take
+        except Exception as exc:
+            last_error = exc
+            logger.warning("PDF read failed (strict=%s): %s", strict, exc)
+    raise ValueError(f"pdf parse error: {last_error or 'no extractable text'}")
 
 
 class AttachmentPdfSource:

@@ -56,13 +56,49 @@ _DOC_PROGRESS = (
 )
 
 _ANALYZE_GOAL = re.compile(
-    r"(?:проанализируй|проанализировать|анализ|analyze|разбери|оцени)\b",
+    r"(?:"
+    r"проанализируй|проанализировать|анализ|analyze|разбери|оцени|"
+    r"проверь|проверить|проверка|review|check"
+    r")\b",
     re.IGNORECASE,
 )
 _DOC_HINT = re.compile(
     r"(?:бизнес-план|бизнес план|business\s+plan|документ|отчёт|отчет|предложен|pdf)",
     re.IGNORECASE,
 )
+
+_CAPABILITY_QUESTION = re.compile(
+    r"(?:"
+    r"что\s+ты\s+умеешь|что\s+можешь|какие\s+(?:у\s+тебя\s+)?возможност|"
+    r"что\s+ты\s+можешь\s+сделать|расскажи\s+о\s+возможност|"
+    r"what\s+can\s+you\s+do|what\s+do\s+you\s+do|your\s+capabilit"
+    r")",
+    re.IGNORECASE,
+)
+_CAN_YOU = re.compile(
+    r"(?:"
+    r"ты\s+умеешь|умеешь\s+ли\s+ты|ты\s+можешь|можешь\s+ли\s+ты|"
+    r"can\s+you|do\s+you\s+(?:know\s+how|make|create|build)"
+    r")",
+    re.IGNORECASE,
+)
+_SITE_TOPIC = re.compile(r"(?:сайт|site|landing|лендинг|веб-страниц|web\s*site)", re.IGNORECASE)
+_DOC_TOPIC = re.compile(
+    r"(?:pdf|документ|бизнес-план|бизнес\s+план|business\s+plan|отчёт|отчет|анализ)",
+    re.IGNORECASE,
+)
+_FILE_TOPIC = re.compile(r"(?:документ|файл|readme|markdown|\.md\b|\.txt\b)", re.IGNORECASE)
+
+_CAPABILITY_EXAMPLES: dict[str, list[str]] = {
+    "filesystem_write": ["Создай README", "Создай файл notes.txt"],
+    "generate_site": [
+        "Создай сайт стоматологии",
+        "Создай лендинг кофейни",
+        "Создай сайт автосервиса",
+    ],
+    "analyze_business_document": ["Проанализируй бизнес-план (прикрепите PDF)"],
+    "filesystem_read": ["Прочитай README.md из workspace"],
+}
 
 
 def get_execution_registry(memory_dir: Path) -> ExecutionCapabilityRegistry:
@@ -145,13 +181,28 @@ def _is_analyzable_attachment(file_row: dict[str, Any]) -> bool:
 def _parse_document_request(goal: str, attachment_files: list[dict[str, Any]]) -> dict[str, Any] | None:
     docs = [f for f in attachment_files if _is_analyzable_attachment(f)]
     g = goal.strip()
-    lower = g.lower()
     wants_analyze = bool(_ANALYZE_GOAL.search(g)) or bool(_DOC_HINT.search(g))
-    if docs and (wants_analyze or not g.strip()):
+
+    if docs:
+        # Site / file goals win — checked earlier in try_user_execution
         return {"attachment_id": str(docs[0].get("id") or ""), "goal": g or "Анализ документа"}
+
     if wants_analyze and not docs:
         return {"attachment_id": "", "goal": g, "missing_pdf": True}
     return None
+
+
+def should_route_attachments_to_execution(
+    goal: str, attachment_files: list[dict[str, Any]]
+) -> bool:
+    """Block Brain essay mode when user attached analyzable business documents."""
+    docs = [f for f in attachment_files if _is_analyzable_attachment(f)]
+    if not docs:
+        return False
+    g = goal.strip()
+    if _parse_site_request(g) or _parse_file_request(g):
+        return False
+    return True
 
 
 def _parse_site_request(goal: str) -> str | None:
@@ -189,6 +240,112 @@ def _preview_href(workspace_id: str, visitor_id: str) -> str:
     return f"/api/public/execution/preview/{workspace_id}?visitor_id={q}"
 
 
+def _format_capability_discovery_answer(
+    *,
+    intro: str,
+    capability_ids: list[str],
+    closing: str = "",
+) -> str:
+    lines = [intro.rstrip(), ""]
+    for cap_id in capability_ids:
+        examples = _CAPABILITY_EXAMPLES.get(cap_id, [])
+        if not examples:
+            continue
+        lines.append("Например:")
+        lines.extend(f"• {ex}" for ex in examples)
+        lines.append("")
+    if closing:
+        lines.append(closing.rstrip())
+    return "\n".join(lines).strip()
+
+
+def try_capability_discovery(goal: str, memory_dir: Path) -> dict[str, Any] | None:
+    """Answer «что умеешь?» from Capability Registry — not Brain generic knowledge."""
+    g = goal.strip()
+    if not g or len(g) > 280:
+        return None
+
+    caps = list_user_capabilities(memory_dir)
+    ready_ids = [c["id"] for c in caps]
+    if not ready_ids:
+        return None
+
+    is_question = bool(_CAPABILITY_QUESTION.search(g) or _CAN_YOU.search(g))
+    if not is_question:
+        return None
+
+    if _SITE_TOPIC.search(g):
+        if "generate_site" not in ready_ids:
+            return None
+        answer = _format_capability_discovery_answer(
+            intro="Да.\nЯ умею создавать сайты.",
+            capability_ids=["generate_site"],
+            closing="После этого я создам проект в Workspace и покажу preview.",
+        )
+        return {
+            "answer": answer,
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "capability_registry",
+            "cta_href": None,
+            "cta_label": None,
+        }
+
+    if _DOC_TOPIC.search(g):
+        if "analyze_business_document" not in ready_ids:
+            return None
+        answer = _format_capability_discovery_answer(
+            intro="Да.\nЯ умею анализировать бизнес-документы.",
+            capability_ids=["analyze_business_document"],
+            closing="Прикрепите PDF и напишите «Проанализируй» — получите отчёт и executive summary.",
+        )
+        return {
+            "answer": answer,
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "capability_registry",
+            "cta_href": None,
+            "cta_label": None,
+        }
+
+    if _FILE_TOPIC.search(g) and "filesystem_write" in ready_ids:
+        answer = _format_capability_discovery_answer(
+            intro="Да.\nЯ умею создавать документы в Workspace.",
+            capability_ids=["filesystem_write"],
+            closing="Файл появится в Workspace — вы увидите путь и сможете открыть его.",
+        )
+        return {
+            "answer": answer,
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "capability_registry",
+            "cta_href": None,
+            "cta_label": None,
+        }
+
+    bullets: list[str] = []
+    labels = {c["id"]: c["label"] for c in caps}
+    order = ("filesystem_write", "generate_site", "analyze_business_document", "filesystem_read")
+    for cap_id in order:
+        if cap_id not in ready_ids:
+            continue
+        label = labels.get(cap_id, cap_id)
+        examples = _CAPABILITY_EXAMPLES.get(cap_id, [])
+        hint = f" — «{examples[0]}»" if examples else ""
+        bullets.append(f"• {label}{hint}")
+
+    answer = "Я умею:\n" + "\n".join(bullets)
+    answer += "\n\nНапишите пример из списка — я выполню задачу в Workspace."
+    return {
+        "answer": answer,
+        "source": "genesis-ai",
+        "mode": "genesis",
+        "provider": "capability_registry",
+        "cta_href": None,
+        "cta_label": None,
+    }
+
+
 def try_user_execution(
     goal: str,
     *,
@@ -200,87 +357,87 @@ def try_user_execution(
     Run a single real capability when the user goal matches.
     Returns public chat dict or None (fall through to Brain).
     """
-    files = attachment_files or []
+    discovered = try_capability_discovery(goal, memory_dir)
+    if discovered:
+        return discovered
 
-    doc_req = _parse_document_request(goal, files)
-    if doc_req:
-        return _run_analyze_document(doc_req, visitor_id=visitor_id, memory_dir=memory_dir)
+    files = attachment_files or []
 
     site_goal = _parse_site_request(goal)
     if site_goal:
         return _run_generate_site(site_goal, visitor_id=visitor_id, memory_dir=memory_dir)
 
     parsed = _parse_file_request(goal)
-    if not parsed:
-        return None
-
-    filename, content = parsed
-    workspace_id = _workspace_for_visitor(memory_dir, visitor_id)
-    registry = get_execution_registry(memory_dir)
-    ws_store = ExecutionWorkspaceStore(memory_dir)
-    logs = ExecutionLogStore(memory_dir)
-    mgr = ExecutionManager(registry=registry, workspace_store=ws_store, log_store=logs)
-
-    plan = ExecutionPlan(
-        plan_id="",
-        goal=goal.strip(),
-        workspace_id=workspace_id,
-        steps=(
-            ExecutionStep(
-                id="step-write",
-                capability_id="filesystem_write",
-                title=f"Write {filename}",
-                inputs={"path": filename, "content": content, "workspace_id": workspace_id},
-                verification=VerificationRule(
-                    id="vr-write",
-                    description="file written",
-                    required_output_keys=("path", "bytes"),
+    if parsed:
+        filename, content = parsed
+        workspace_id = _workspace_for_visitor(memory_dir, visitor_id)
+        registry = get_execution_registry(memory_dir)
+        ws_store = ExecutionWorkspaceStore(memory_dir)
+        logs = ExecutionLogStore(memory_dir)
+        mgr = ExecutionManager(registry=registry, workspace_store=ws_store, log_store=logs)
+        plan = ExecutionPlan(
+            plan_id="",
+            goal=goal.strip(),
+            workspace_id=workspace_id,
+            steps=(
+                ExecutionStep(
+                    id="step-write-file",
+                    capability_id="filesystem_write",
+                    title=f"Write {filename}",
+                    inputs={
+                        "path": filename,
+                        "content": content,
+                        "workspace_id": workspace_id,
+                    },
+                    verification=VerificationRule(
+                        id="vr-file",
+                        description="File written",
+                        required_output_keys=("path", "bytes"),
+                    ),
                 ),
             ),
-        ),
-        required_permissions=frozenset({"write", "filesystem"}),
-    )
-
-    grant = PermissionGrant(
-        kinds=frozenset({"read", "write", "filesystem"}),
-        workspace_id=workspace_id,
-        actor=visitor_id,
-    )
-    result = mgr.run(plan, grant)
-    if result.status != "completed":
-        err = result.error or (result.steps[0].error if result.steps else "execution failed")
+            required_permissions=frozenset({"read", "write", "filesystem"}),
+        )
+        grant = PermissionGrant(
+            kinds=frozenset({"read", "write", "filesystem"}),
+            workspace_id=workspace_id,
+            actor=visitor_id,
+        )
+        result = mgr.run(plan, grant)
+        if result.status != "completed":
+            err = result.error or (result.steps[0].error if result.steps else "execution failed")
+            return {
+                "answer": f"Не удалось создать файл: {err}",
+                "source": "genesis-ai",
+                "mode": "genesis",
+                "provider": "execution",
+                "cta_href": None,
+                "cta_label": None,
+            }
+        cap = result.steps[0].outputs
+        file_href = _workspace_file_href(workspace_id, visitor_id, cap.get("path") or filename)
         return {
-            "answer": f"Не удалось создать файл: {err}",
+            "answer": (
+                f"✓ Файл создан: `{cap.get('path') or filename}`\n\n"
+                f"Workspace: `{workspace_id}`"
+            ),
             "source": "genesis-ai",
             "mode": "genesis",
             "provider": "execution",
-            "cta_href": None,
-            "cta_label": None,
-            "context": {"execution": result.to_dict()},
+            "cta_href": file_href,
+            "cta_label": "Открыть файл",
+            "context": {
+                "execution": result.to_dict(),
+                "capability_result": cap,
+                "workspace_id": workspace_id,
+            },
         }
 
-    step = result.steps[0]
-    rel = step.outputs.get("path", filename)
-    nbytes = step.outputs.get("bytes", 0)
-    answer = (
-        "✓ Создаю файл в Workspace...\n"
-        "✓ Готово.\n\n"
-        f"**{rel}** создан ({nbytes} байт).\n\n"
-        f"Путь в workspace: `files/{rel}`"
-    )
-    return {
-        "answer": answer,
-        "source": "genesis-ai",
-        "mode": "genesis",
-        "provider": "execution",
-        "cta_href": None,
-        "cta_label": None,
-        "context": {
-            "execution": result.to_dict(),
-            "workspace_id": workspace_id,
-            "artifact_path": f"files/{rel}",
-        },
-    }
+    doc_req = _parse_document_request(goal, files)
+    if doc_req:
+        return _run_analyze_document(doc_req, visitor_id=visitor_id, memory_dir=memory_dir)
+
+    return None
 
 
 def _run_analyze_document(
@@ -357,33 +514,40 @@ def _run_analyze_document(
     cap = result.steps[0].outputs
     doc_type = cap.get("document_type") or "business_document"
     title = cap.get("title") or "Документ"
+    source_name = cap.get("source_filename") or title
+    pages = cap.get("pages_analyzed") or cap.get("pages_included")
+    pages_note = f" ({pages} стр.)" if pages else ""
     report_href = _workspace_file_href(workspace_id, visitor_id, "report.md")
     summary_href = _workspace_file_href(workspace_id, visitor_id, "executive_summary.md")
-    file_list = "\n".join(f"- `{f}`" for f in (cap.get("files") or []) if f)
 
     answer = (
-        f"{_progress_answer(_DOC_PROGRESS)}\n\n"
-        f"**Анализ завершён.** Тип: `{doc_type}`. **{title}**\n\n"
-        f"{file_list}\n\n"
-        "Краткий итог в чате — детали в отчётах. Откройте файлы кнопками ниже."
+        f"📄 {source_name}\n"
+        f"✓ Документ загружен\n"
+        f"✓ Проанализировано{pages_note}\n"
+        f"✓ Отчёты созданы в Workspace\n\n"
+        f"{title} · `{doc_type}`"
     )
     cta_actions = [
-        {"href": report_href, "label": "Открыть отчёт"},
-        {"href": summary_href, "label": "Открыть Executive Summary"},
+        {"href": summary_href, "label": "📊 Executive Summary"},
+        {"href": report_href, "label": "📄 Отчёт"},
+        {"href": "#action:Создай сайт", "label": "🌐 Создать сайт"},
     ]
     return {
         "answer": answer,
         "source": "genesis-ai",
         "mode": "genesis",
         "provider": "execution",
-        "cta_href": report_href,
-        "cta_label": "Открыть отчёт",
+        "cta_href": summary_href,
+        "cta_label": "📊 Executive Summary",
         "cta_actions": cta_actions,
         "context": {
             "execution": result.to_dict(),
             "capability_result": cap,
             "workspace_id": workspace_id,
             "document_type": doc_type,
+            "execution_kind": "document_analysis",
+            "source_filename": source_name,
+            "pages_analyzed": pages,
         },
     }
 

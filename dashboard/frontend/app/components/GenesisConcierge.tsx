@@ -52,6 +52,7 @@ import { useLocale } from "../context/LocaleContext";
 import { useChatAutoScroll } from "../lib/useChatAutoScroll";
 import { ChatMessageSpring } from "./motion/ChatMessageSpring";
 import { SpringIn } from "./motion/SpringIn";
+import { ExecutionResultPanel } from "./ExecutionResultPanel";
 import {
   normalizePublicHref,
   publicApiBase,
@@ -92,6 +93,7 @@ type Message = {
   text: string;
   generating?: boolean;
   stopped?: boolean;
+  provider?: string | null;
   cta_href?: string | null;
   cta_label?: string | null;
   cta_actions?: Array<{ href: string; label: string }> | null;
@@ -172,6 +174,7 @@ type GenesisDebug = {
 
 type ChatApiResponse = {
   answer?: string;
+  provider?: string | null;
   cta_href?: string | null;
   cta_label?: string | null;
   cta_actions?: Array<{ href: string; label: string }> | null;
@@ -215,6 +218,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   ]);
   const [chatCollapsed, setChatCollapsed] = useState(isPublic);
   const [pendingFiles, setPendingFiles] = useState<PendingAttachment[]>([]);
+  const [attachmentsUploading, setAttachmentsUploading] = useState(0);
   const [voiceListening, setVoiceListening] = useState(false);
   const [voiceThinking, setVoiceThinking] = useState(false);
   const [voiceSpeaking, setVoiceSpeaking] = useState(false);
@@ -299,7 +303,8 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   }, []);
 
   const hasConversation = messages.some((m) => m.role === "user");
-  const showThread = isPublic ? !chatCollapsed : hasConversation && !chatCollapsed;
+  const showThread = isPublic ? true : hasConversation && !chatCollapsed;
+  const publicImmersive = isPublic && hasConversation;
 
   const { showJumpButton, handleScroll, jumpToLatest, pinToBottom } = useChatAutoScroll(
     messagesRef,
@@ -308,8 +313,8 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   );
 
   useEffect(() => {
-    onConversationActive?.(showThread);
-  }, [showThread, onConversationActive]);
+    onConversationActive?.(isPublic ? hasConversation : showThread);
+  }, [isPublic, hasConversation, showThread, onConversationActive]);
 
   useEffect(() => {
     if (!isPublic) return;
@@ -386,16 +391,6 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     setSidebarOpen(false);
     handlePublicHome();
   }, [handlePublicHome]);
-
-  const handlePublicBack = useCallback(() => {
-    if (sidebarOpen) {
-      setSidebarOpen(false);
-      return;
-    }
-    handlePublicHome();
-  }, [sidebarOpen, handlePublicHome]);
-
-  const publicImmersive = isPublic && showThread;
 
   const refreshSessionList = useCallback(async () => {
     const rows = await fetchSessionList(visitorId);
@@ -507,40 +502,45 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
 
   const uploadFiles = useCallback(async (files: FileList | null) => {
     if (!files?.length) return;
+    setAttachmentsUploading((n) => n + 1);
     const next: PendingAttachment[] = [];
     const batchSize = files.length;
-    for (const file of Array.from(files)) {
-      const form = new FormData();
-      form.append("file", file);
-      try {
-        const qs = new URLSearchParams({
-          visitor_id: visitorId,
-          files_in_message: String(batchSize),
-        });
-        const res = await fetch(`${API}/api/public/genesis-ai/attachments?${qs}`, {
-          method: "POST",
-          body: form,
-        });
-        if (!res.ok) continue;
-        const data = (await res.json()) as Partial<PendingAttachment> & {
-          id?: string;
-          stored_only?: boolean;
-        };
-        if (!data?.id) continue;
-        const previewUrl = data.is_image ? URL.createObjectURL(file) : null;
-        next.push({
-          id: data.id,
-          filename: data.filename ?? file.name,
-          content_type: data.content_type ?? file.type,
-          is_image: Boolean(data.is_image),
-          previewUrl,
-          stored_only: data.stored_only !== false,
-        });
-      } catch {
-        /* backend offline — skip */
+    try {
+      for (const file of Array.from(files)) {
+        const form = new FormData();
+        form.append("file", file);
+        try {
+          const qs = new URLSearchParams({
+            visitor_id: visitorId,
+            files_in_message: String(batchSize),
+          });
+          const res = await fetch(`${API}/api/public/genesis-ai/attachments?${qs}`, {
+            method: "POST",
+            body: form,
+          });
+          if (!res.ok) continue;
+          const data = (await res.json()) as Partial<PendingAttachment> & {
+            id?: string;
+            stored_only?: boolean;
+          };
+          if (!data?.id) continue;
+          const previewUrl = data.is_image ? URL.createObjectURL(file) : null;
+          next.push({
+            id: data.id,
+            filename: data.filename ?? file.name,
+            content_type: data.content_type ?? file.type,
+            is_image: Boolean(data.is_image),
+            previewUrl,
+            stored_only: data.stored_only !== false,
+          });
+        } catch {
+          /* backend offline — skip */
+        }
       }
+      if (next.length) setPendingFiles((prev) => [...prev, ...next]);
+    } finally {
+      setAttachmentsUploading((n) => Math.max(0, n - 1));
     }
-    if (next.length) setPendingFiles((prev) => [...prev, ...next]);
   }, [visitorId]);
 
   const removeAttachment = useCallback((id: string) => {
@@ -588,9 +588,18 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     async (text: string, files: PendingAttachment[] = [], fromVoice = false) => {
       const q = text.trim();
       if ((!q && !files.length) || busy) return;
+      if (attachmentsUploading > 0) {
+        setAttachHint(t("attachUploading"));
+        return;
+      }
 
       if (isInterruptPhrase(q) && (voiceSpeaking || isSpeaking())) {
         interruptSpeechIfNeeded();
+        return;
+      }
+
+      if (files.length && !files.every((f) => f.id)) {
+        setAttachHint(t("attachUploading"));
         return;
       }
 
@@ -685,6 +694,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             {
               role: "assistant" as const,
               text: answer,
+              provider: data?.provider ?? null,
               cta_href: normalizePublicHref(data?.cta_href),
               cta_label: data?.cta_label ?? null,
               cta_actions: (data?.cta_actions ?? null)?.map((a) => ({
@@ -774,6 +784,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       communicationStyle,
       pinToBottom,
       t,
+      attachmentsUploading,
     ],
   );
 
@@ -1154,16 +1165,6 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           </button>
         ) : (
           <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-1.5">
-            {isPublic ? (
-              <button
-                type="button"
-                onClick={handlePublicBack}
-                className="shrink-0 rounded-lg px-2 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:hidden"
-                aria-label={t("backHome")}
-              >
-                {t("backHome")}
-              </button>
-            ) : null}
             <button
               type="button"
               onClick={() => setSidebarOpen((o) => !o)}
@@ -1173,15 +1174,6 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             >
               ☰
             </button>
-            {!isPublic ? (
-              <button
-                type="button"
-                onClick={() => void handleNewChat()}
-                className="rounded-lg px-2 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white"
-              >
-                +
-              </button>
-            ) : null}
           </div>
         )}
         {isPublic || !showThread ? (
@@ -1189,18 +1181,9 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             <VectorBrandSignature
               variant="compact"
               className={composerFocused ? "max-sm:scale-90 max-sm:origin-center" : undefined}
-              onClick={isPublic ? handlePublicHome : undefined}
+              onClick={isPublic && hasConversation ? handlePublicHome : undefined}
               homeLabel={t("backHome")}
             />
-            {isPublic ? (
-              <button
-                type="button"
-                onClick={handlePublicHome}
-                className="mt-0.5 text-[10px] font-medium text-genesis-accent hover:underline sm:hidden"
-              >
-                {t("backHome")}
-              </button>
-            ) : null}
           </div>
         ) : (
           <Badge variant="accent" className="tracking-[0.25em]">
@@ -1247,12 +1230,24 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         </div>
       )}
 
+      {isPublic && !hasConversation && (
+        <div className="shrink-0 border-b border-white/5 px-4 py-4 sm:px-6">
+          <div className="mx-auto w-full max-w-3xl rounded-2xl border border-dashed border-genesis-accent/25 bg-genesis-panel/40 px-4 py-4 sm:px-5 sm:py-5">
+            <p className="text-[10px] font-bold tracking-[0.22em] text-genesis-accent uppercase">
+              {t("workspaceTitle")}
+            </p>
+            <p className="mt-2 text-sm font-medium text-white">{t("workspaceEmpty")}</p>
+            <p className="mt-1 text-sm text-genesis-muted">{t("workspaceEmptyHint")}</p>
+          </div>
+        </div>
+      )}
+
       <div className={`relative min-h-0 flex-1 ${showThread ? "" : "max-h-0"}`}>
         <div
           ref={messagesRef}
           onScroll={handleScroll}
           className={`h-full min-h-0 overflow-y-auto overscroll-contain px-4 transition-all duration-300 sm:px-6 ${
-            showThread ? "py-3 pb-32 opacity-100 sm:py-4 sm:pb-4" : "max-h-0 py-0 opacity-0"
+            showThread ? "py-3 pb-4 opacity-100 sm:py-4" : "max-h-0 py-0 opacity-0"
           }`}
         >
           <ul className="mx-auto w-full max-w-3xl space-y-3 sm:space-y-4">
@@ -1286,6 +1281,18 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
                     <span className="animate-pulse [animation-delay:150ms]">●</span>
                     <span className="animate-pulse [animation-delay:300ms]">●</span>
                   </span>
+                ) : m.role === "assistant" && m.provider === "execution" ? (
+                  <ExecutionResultPanel
+                    text={m.text}
+                    ctas={
+                      m.cta_actions && m.cta_actions.length > 0
+                        ? m.cta_actions
+                        : m.cta_href && m.cta_label
+                          ? [{ href: m.cta_href, label: m.cta_label }]
+                          : []
+                    }
+                    onQuickAction={(msg) => void sendMessage(msg)}
+                  />
                 ) : (
                   m.text
                 )}
@@ -1300,22 +1307,24 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
                     />
                   ) : null,
                 )}
-                {(m.cta_actions && m.cta_actions.length > 0
-                  ? m.cta_actions
-                  : m.cta_href && m.cta_label
-                    ? [{ href: m.cta_href, label: m.cta_label }]
-                    : []
-                ).map((cta) => (
-                  <Link
-                    key={`${cta.href}-${cta.label}`}
-                    href={cta.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 mr-2 inline-block rounded-xl bg-gradient-to-r from-genesis-accent to-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
-                  >
-                    {cta.label}
-                  </Link>
-                ))}
+                {m.role === "assistant" && m.provider !== "execution"
+                  ? (m.cta_actions && m.cta_actions.length > 0
+                      ? m.cta_actions
+                      : m.cta_href && m.cta_label
+                        ? [{ href: m.cta_href, label: m.cta_label }]
+                        : []
+                    ).map((cta) => (
+                      <Link
+                        key={`${cta.href}-${cta.label}`}
+                        href={cta.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 mr-2 inline-block rounded-xl bg-gradient-to-r from-genesis-accent to-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
+                      >
+                        {cta.label}
+                      </Link>
+                    ))
+                  : null}
                 {m.role === "assistant" && developerMode && m.debug && i > 0 ? (
                   <div className="mt-3 border-t border-white/10 pt-2">
                     <button
@@ -1471,11 +1480,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       )}
 
       <footer
-        className={`shrink-0 border-t border-white/5 px-1 pb-1 pt-2 sm:px-2 ${
-          isPublic
-            ? "max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:right-0 max-sm:z-40 max-sm:border-t max-sm:border-white/10 max-sm:bg-genesis-bg/95 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))] max-sm:pt-3 max-sm:backdrop-blur-xl"
-            : ""
-        }`}
+        className="shrink-0 border-t border-white/5 px-1 pb-1 pt-2 sm:px-2"
       >
         {composer}
       </footer>
