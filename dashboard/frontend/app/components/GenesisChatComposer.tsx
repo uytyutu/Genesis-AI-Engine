@@ -328,7 +328,9 @@ export function GenesisChatComposer({
         type="button"
         onClick={onSend}
         disabled={(busy && !generating) || (!value.trim() && !attachments.length && !generating)}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-genesis-accent text-white disabled:opacity-40"
+        className={`flex shrink-0 items-center justify-center rounded-full bg-genesis-accent text-white disabled:opacity-40 ${
+          minimalMobile && narrowViewport ? "h-12 w-12" : "h-11 w-11"
+        }`}
         aria-label={t("send")}
       >
         <SendIcon />
@@ -464,7 +466,7 @@ export function GenesisChatComposer({
 
   return (
     <div
-      className={`${floating ? "mx-auto w-full max-w-3xl px-4 pt-2" : minimalMobile ? "px-3 pb-2 sm:px-4 sm:pb-4" : "px-4 pb-4"}`}
+      className={`${floating ? "mx-auto w-full max-w-3xl px-4 pt-2" : minimalMobile ? "px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-4 sm:pb-4" : "px-4 pb-4"}`}
     >
       {safeMicNotice && (
         <div

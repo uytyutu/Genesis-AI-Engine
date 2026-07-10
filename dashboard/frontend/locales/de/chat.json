@@ -20,6 +20,7 @@
   "generationStopped": "— Generierung gestoppt —",
   "newChat": "Neuer Chat",
   "back": "← Zurück",
+  "backHome": "← Startseite",
   "jumpToLatest": "Neueste Nachricht",
   "filesOnlyPrompt": "Kunde hat Dateien ohne Text angehängt. Inhalt nicht verfügbar — nur Namen. Bitte um eine kurze Beschreibung.",
   "micModalTitle": "Sprachgespräch mit {{assistant}}",

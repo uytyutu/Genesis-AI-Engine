@@ -32,6 +32,8 @@ type Props = {
   hideMobileToggle?: boolean;
   /** Drawer only — no persistent desktop column (public /site) */
   overlayOnly?: boolean;
+  /** Public /site — return to landing welcome */
+  onGoHome?: () => void;
 };
 
 export function ChatHistorySidebar({
@@ -46,6 +48,7 @@ export function ChatHistorySidebar({
   onPin,
   hideMobileToggle = false,
   overlayOnly = false,
+  onGoHome,
 }: Props) {
   const grouped = useMemo(() => groupSessionsByDate(sessions), [sessions]);
   const reduce = useReducedMotion();
@@ -163,12 +166,12 @@ export function ChatHistorySidebar({
                   aria-label="История чатов"
                 >
                   <div className="flex items-center justify-between border-b border-white/5 px-3 py-2">
-                    <p className="text-sm font-semibold text-white">История чатов</p>
+                    <p className="text-sm font-semibold text-white">Меню</p>
                     <button
                       type="button"
                       onClick={closeSidebar}
                       className="flex h-8 w-8 items-center justify-center rounded-lg text-genesis-muted transition hover:bg-white/5 hover:text-white"
-                      aria-label="Закрыть"
+                      aria-label="Закрыть меню"
                     >
                       ✕
                     </button>
@@ -180,6 +183,7 @@ export function ChatHistorySidebar({
                     onSelect={handleSelect}
                     onDelete={onDelete}
                     onPin={onPin}
+                    onGoHome={onGoHome}
                     renderGroup={renderGroup}
                   />
                 </motion.aside>
@@ -256,6 +260,7 @@ function SidebarNav({
   onSelect,
   onDelete,
   onPin,
+  onGoHome,
   renderGroup,
 }: {
   sessions: ChatSessionMeta[];
@@ -264,11 +269,32 @@ function SidebarNav({
   onSelect: (sessionId: string) => void;
   onDelete: (sessionId: string) => void;
   onPin: (sessionId: string, pinned: boolean) => void;
+  onGoHome?: () => void;
   renderGroup: (key: DateGroup) => ReactNode;
 }) {
   return (
     <>
-      <div className="border-b border-white/5 p-3">
+      {onGoHome ? (
+        <div className="space-y-1 border-b border-white/5 p-2">
+          <button
+            type="button"
+            onClick={onGoHome}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-white transition hover:bg-white/5"
+          >
+            <span aria-hidden>🏠</span>
+            На главную
+          </button>
+          <button
+            type="button"
+            onClick={onNewChat}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm text-genesis-text transition hover:bg-white/5"
+          >
+            <span aria-hidden>💬</span>
+            Новый чат
+          </button>
+        </div>
+      ) : null}
+      <div className={`border-b border-white/5 p-3 ${onGoHome ? "hidden" : ""}`}>
         <motion.button
           type="button"
           onClick={onNewChat}
@@ -281,6 +307,11 @@ function SidebarNav({
           Новый чат
         </motion.button>
       </div>
+      {onGoHome ? (
+        <p className="px-3 pt-2 text-[10px] font-semibold uppercase tracking-wider text-genesis-muted">
+          История
+        </p>
+      ) : null}
       <nav className="min-h-0 flex-1 overflow-y-auto p-2">
         {sessions.length === 0 ? (
           <p className="px-2 py-4 text-center text-xs text-genesis-muted">

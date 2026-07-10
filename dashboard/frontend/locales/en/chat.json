@@ -20,6 +20,7 @@
   "generationStopped": "— generation stopped —",
   "newChat": "New chat",
   "back": "← Back",
+  "backHome": "← Home",
   "jumpToLatest": "Latest message",
   "filesOnlyPrompt": "The client attached files without text. Content unavailable — names only. Ask them to describe the task briefly.",
   "micModalTitle": "Voice chat with {{assistant}}",

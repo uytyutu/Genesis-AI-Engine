@@ -380,6 +380,11 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [resetToWelcome, onConversationActive]);
 
+  const handlePublicMenuHome = useCallback(() => {
+    setSidebarOpen(false);
+    handlePublicHome();
+  }, [handlePublicHome]);
+
   const handlePublicBack = useCallback(() => {
     if (sidebarOpen) {
       setSidebarOpen(false);
@@ -388,7 +393,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     handlePublicHome();
   }, [sidebarOpen, handlePublicHome]);
 
-  const showPublicMobileBack = isPublic && (sidebarOpen || !chatCollapsed);
+  const publicImmersive = isPublic && showThread;
 
   const refreshSessionList = useCallback(async () => {
     const rows = await fetchSessionList(visitorId);
@@ -1095,12 +1100,15 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         onPin={(id, pinned) => void handlePinSession(id, pinned)}
         hideMobileToggle={isPublic}
         overlayOnly={isPublic}
+        onGoHome={isPublic ? handlePublicMenuHome : undefined}
       />
     <section
       id="genesis-chat"
       className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow transition-all duration-300 ${
         isPublic
-          ? `h-[100dvh] max-sm:rounded-none max-sm:border-x-0 max-sm:shadow-none${sidebarOpen ? " max-sm:pointer-events-none" : ""}`
+          ? publicImmersive
+            ? `h-[100dvh] max-sm:rounded-none max-sm:border-x-0 max-sm:shadow-none${sidebarOpen ? " max-sm:pointer-events-none" : ""}`
+            : "min-h-[min(72dvh,36rem)] max-h-[min(85dvh,40rem)] max-sm:rounded-2xl max-sm:border-x-0"
           : showThread
             ? composerFocused
               ? "min-h-[min(92dvh,52rem)] max-h-[min(96dvh,56rem)]"
@@ -1139,48 +1147,71 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             + {t("newChat")}
           </button>
         ) : (
-          <div className="flex items-center gap-0.5 sm:gap-1">
-            {showPublicMobileBack ? (
+          <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-1.5">
+            {isPublic ? (
               <button
                 type="button"
                 onClick={handlePublicBack}
-                className="rounded-lg px-1.5 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white sm:hidden"
-                aria-label={t("back")}
+                className="shrink-0 rounded-lg px-2 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:hidden"
+                aria-label={t("backHome")}
               >
-                {t("back")}
+                {t("backHome")}
               </button>
             ) : null}
             <button
               type="button"
               onClick={() => setSidebarOpen((o) => !o)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-genesis-muted transition hover:bg-white/5 hover:text-white sm:hidden"
-              aria-label="История чатов"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-genesis-muted transition hover:bg-white/5 hover:text-white sm:hidden"
+              aria-label="Меню"
               aria-expanded={sidebarOpen}
             >
               ☰
             </button>
-            <button
-              type="button"
-              onClick={() => void handleNewChat()}
-              className="rounded-lg px-2 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white"
-            >
-              +
-            </button>
+            {!isPublic ? (
+              <button
+                type="button"
+                onClick={() => void handleNewChat()}
+                className="rounded-lg px-2 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white"
+              >
+                +
+              </button>
+            ) : null}
           </div>
         )}
         {isPublic || !showThread ? (
-          <VectorBrandSignature
-            variant="compact"
-            className={composerFocused ? "max-sm:scale-90 max-sm:origin-center" : undefined}
-            onClick={isPublic ? handlePublicHome : undefined}
-            homeLabel={t("nav.home", { ns: "common" })}
-          />
+          <div className="flex min-w-0 flex-col items-center">
+            <VectorBrandSignature
+              variant="compact"
+              className={composerFocused ? "max-sm:scale-90 max-sm:origin-center" : undefined}
+              onClick={isPublic ? handlePublicHome : undefined}
+              homeLabel={t("backHome")}
+            />
+            {isPublic ? (
+              <button
+                type="button"
+                onClick={handlePublicHome}
+                className="mt-0.5 text-[10px] font-medium text-genesis-accent hover:underline sm:hidden"
+              >
+                {t("backHome")}
+              </button>
+            ) : null}
+          </div>
         ) : (
           <Badge variant="accent" className="tracking-[0.25em]">
             {ASSISTANT_NAME}
           </Badge>
         )}
         <div className="flex items-center gap-2">
+          {isPublic ? (
+            <button
+              type="button"
+              onClick={() => void handleNewChat()}
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-lg text-genesis-muted transition hover:bg-white/5 hover:text-white sm:hidden"
+              aria-label={t("newChat")}
+            >
+              +
+            </button>
+          ) : null}
           {!isPublic && <LanguageSwitcher />}
           {devAvailable ? (
             <button
@@ -1215,7 +1246,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           ref={messagesRef}
           onScroll={handleScroll}
           className={`h-full min-h-0 overflow-y-auto overscroll-contain px-4 transition-all duration-300 sm:px-6 ${
-            showThread ? "py-3 pb-28 opacity-100 sm:py-4 sm:pb-4" : "max-h-0 py-0 opacity-0"
+            showThread ? "py-3 pb-32 opacity-100 sm:py-4 sm:pb-4" : "max-h-0 py-0 opacity-0"
           }`}
         >
           <ul className="mx-auto w-full max-w-3xl space-y-3 sm:space-y-4">
@@ -1428,7 +1459,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       <footer
         className={`shrink-0 border-t border-white/5 px-1 pb-1 pt-2 sm:px-2 ${
           isPublic
-            ? "max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:right-0 max-sm:z-40 max-sm:border-t max-sm:border-white/10 max-sm:bg-genesis-bg/95 max-sm:pb-[max(0.5rem,env(safe-area-inset-bottom))] max-sm:backdrop-blur-xl"
+            ? "max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:right-0 max-sm:z-40 max-sm:border-t max-sm:border-white/10 max-sm:bg-genesis-bg/95 max-sm:pb-[max(1rem,env(safe-area-inset-bottom))] max-sm:pt-3 max-sm:backdrop-blur-xl"
             : ""
         }`}
       >
