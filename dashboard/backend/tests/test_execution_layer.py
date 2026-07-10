@@ -318,7 +318,23 @@ def test_serve_workspace_file_requires_visitor(memory_tmp: Path):
     assert exc.value.status_code == 403
 
 
-def test_generate_site_reuses_document_structure(memory_tmp: Path):
+def test_capability_graph_declares_produces_consumes():
+    from app.execution.capability_graph import CAPABILITY_GRAPH, get_node
+
+    analyze = get_node("analyze_business_document")
+    assert analyze is not None
+    produce_paths = {p.path for p in analyze.produces}
+    assert "files/document_structure.json" in produce_paths
+    assert "files/report.md" in produce_paths
+
+    site = get_node("generate_site")
+    assert site is not None
+    consume_paths = {c.path for c in site.consumes}
+    assert "files/document_structure.json" in consume_paths
+    assert site.reuse_score_when_wired >= 1
+
+
+def test_generate_site_writes_site_manifest(memory_tmp: Path):
     from app.execution.executors.generate_site import GenerateSiteExecutor
     from app.execution.document_intelligence import analyze_document, structure_json
 
@@ -349,6 +365,7 @@ def test_generate_site_reuses_document_structure(memory_tmp: Path):
     assert "Reuse" in brief or "document_structure" in brief
     html = (files_root / "index.html").read_text(encoding="utf-8")
     assert "SmileDent" in html or doc_analysis.structure.title.split()[0] in html
+    assert (files_root / "site_manifest.json").is_file()
 
 
 def test_workflow_analyze_then_site_same_visitor(memory_tmp: Path):

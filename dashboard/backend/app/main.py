@@ -582,6 +582,9 @@ def owner_execution_capabilities() -> dict:
     svc = ExecutionLayerService(_memory_dir())
     snap = svc.capabilities_snapshot()
     snap["user_ready"] = list_user_capabilities(_memory_dir())
+    from app.execution.capability_graph import graph_snapshot
+
+    snap["capability_graph"] = graph_snapshot()
     return snap
 
 

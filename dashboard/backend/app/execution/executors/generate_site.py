@@ -17,7 +17,6 @@ from app.execution.workspace_reuse import (
     brief_with_reuse,
     load_workspace_building_blocks,
 )
-from app.factory.landing_builder import build_landing_html
 
 
 def _split_html_css(html: str) -> tuple[str, str]:
@@ -96,11 +95,17 @@ class GenerateSiteExecutor:
         manifest = {
             "artifact_id": artifact_id,
             "capability_id": "generate_site",
-            "files": written,
+            "files": list(written),
             "business_name": analysis.business_name,
             "niche": analysis.niche,
             "reuse": reuse.to_dict(),
         }
+        (files_root / "site_manifest.json").write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        written.append("site_manifest.json")
+        manifest["files"] = list(written)
+
         manifest_path = self._workspaces.path_for(workspace_id, "artifacts", f"{artifact_id}.json")
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -137,7 +142,7 @@ class GenerateSiteExecutor:
         workspace_id = str(outputs.get("workspace_id") or inputs.get("workspace_id") or "")
         if not workspace_id:
             return
-        for rel in ("brief.md", "index.html", "style.css"):
+        for rel in ("brief.md", "index.html", "style.css", "site_manifest.json"):
             path = self._workspaces.path_for(workspace_id, "files", rel)
             if path.is_file():
                 path.unlink()
