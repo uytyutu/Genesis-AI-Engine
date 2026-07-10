@@ -22,7 +22,7 @@ BETA_BACKEND = os.getenv(
     "BETA_BACKEND_URL",
     "https://renewed-reprieve-production.up.railway.app",
 ).rstrip("/")
-SERVICE = os.getenv("RAILWAY_BETA_SERVICE", "genesis-beta")
+SERVICE = os.getenv("RAILWAY_BETA_SERVICE", "renewed-reprieve")
 KEY_NAMES = ("GENESIS_GROQ_API_KEY", "GENESIS_LLM_API_KEY")
 
 

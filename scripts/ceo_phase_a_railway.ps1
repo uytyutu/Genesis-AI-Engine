@@ -1,4 +1,4 @@
-# Phase A — one CEO action: set Groq key on Railway genesis-beta
+# Phase A - set Groq key on Railway genesis-beta
 # Usage: powershell -ExecutionPolicy Bypass -File scripts/ceo_phase_a_railway.ps1
 
 $ErrorActionPreference = "Stop"
@@ -18,20 +18,17 @@ if (-not $key) {
 }
 
 Set-Clipboard -Value $key
-Write-Host "Groq key copied to clipboard (gsk_...)."
+Write-Host "Groq key copied to clipboard."
 Write-Host ""
 Write-Host "1. Open Railway -> genesis-beta -> Variables"
 Write-Host "   https://railway.app/dashboard"
-Write-Host "2. Add or edit: GENESIS_GROQ_API_KEY = paste (Ctrl+V)"
-Write-Host "3. Click Redeploy"
-Write-Host ""
-Write-Host "When redeploy finishes, run:"
-Write-Host "  py scripts/prove_deploy_report.py"
+Write-Host "2. Add: GENESIS_GROQ_API_KEY = paste Ctrl+V"
+Write-Host "3. Redeploy"
 Write-Host ""
 
 $railway = Get-Command railway -ErrorAction SilentlyContinue
 if ($railway) {
-    Write-Host "Railway CLI detected — attempting automatic set..."
+    Write-Host "Railway CLI detected - attempting automatic set..."
     Push-Location $repo
     railway variables --set "GENESIS_GROQ_API_KEY=$key" --service genesis-beta
     if ($LASTEXITCODE -eq 0) {
@@ -40,4 +37,6 @@ if ($railway) {
         py scripts/prove_deploy_report.py
     }
     Pop-Location
+} else {
+    Write-Host "No Railway CLI - use clipboard paste in dashboard."
 }
