@@ -39,7 +39,7 @@ SETUP_EMPLOYEES: tuple[dict[str, Any], ...] = (
 CONNECTABLE = frozenset({"groq", "gemini", "openrouter", "ollama", "openai"})
 
 _ENV_KEYS: dict[str, list[tuple[str, str | None]]] = {
-    "groq": [("GENESIS_GROQ_API_KEY", None)],
+    "groq": [("GENESIS_GROQ_API_KEY", None), ("GENESIS_LLM_API_KEY", None)],
     "gemini": [("GENESIS_GEMINI_API_KEY", None)],
     "openrouter": [("GENESIS_OPENROUTER_API_KEY", None)],
     "openai": [("GENESIS_LLM_API_KEY", None)],

@@ -385,6 +385,17 @@ class GenesisBrain:
                 (a for a in route_log.attempts if a.outcome == "selected"),
                 None,
             )
+            ranked_scores = sorted(
+                workforce_plan.scores, key=lambda s: s.total, reverse=True
+            )
+            provider_score = next(
+                (round(s.total, 1) for s in workforce_plan.scores if s.employee_id == workforce_plan.selected),
+                None,
+            )
+            provider_candidates = [
+                {"name": s.employee_id, "score": round(s.total, 1)}
+                for s in ranked_scores
+            ]
             runtime_pipeline = self._build_runtime_pipeline(
                 user_message=last_user,
                 mandate=mandate,
@@ -428,6 +439,8 @@ class GenesisBrain:
                 "workforce_task": workforce_plan.task,
                 "workforce_reason": workforce_plan.reason,
                 "workforce_selected": workforce_plan.selected,
+                "provider_score": provider_score,
+                "provider_candidates": provider_candidates,
                 "workforce_scores": [s.to_dict() for s in workforce_plan.scores],
                 "workforce_employees": list(workforce_plan.employee_order),
                 "workforce_quotas": self._workforce.quota_snapshot(),
@@ -961,6 +974,7 @@ class GenesisBrain:
             "answer": result.answer,
             "source": "genesis-ai",
             "mode": "genesis",
+            "provider": result.provider_id,
             "cta_href": result.cta_href,
             "cta_label": result.cta_label,
         }

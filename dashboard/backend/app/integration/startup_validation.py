@@ -151,4 +151,23 @@ def log_startup_report(report: dict[str, Any]) -> None:
         lines.append(f"  [{mark}] {name}")
     for w in report.get("warnings") or []:
         lines.append(f"  [WARN] {w}")
+    try:
+        from app.integration.deployment_health import build_status_payload
+        from pathlib import Path
+        import os
+
+        mem = os.getenv("GENESIS_MEMORY_DIR", "").strip()
+        memory_dir = Path(mem).expanduser() if mem else Path(__file__).resolve().parents[2] / "memory"
+        providers = (build_status_payload(memory_dir=memory_dir).get("checks") or {}).get(
+            "llm_providers", {}
+        )
+        for pid, state in providers.items():
+            if state == "ready":
+                lines.append(f"  [OK] LLM provider {pid}: enabled")
+            elif state == "not_configured":
+                lines.append(f"  [SKIP] LLM provider {pid}: missing API key")
+            else:
+                lines.append(f"  [WARN] LLM provider {pid}: {state}")
+    except Exception:
+        pass
     logger.info("\n".join(lines))

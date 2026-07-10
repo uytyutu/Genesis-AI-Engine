@@ -425,6 +425,7 @@ class ConciergeResponse(BaseModel):
     answer: str
     source: str = "genesis-ai"
     mode: str = "genesis"
+    provider: str | None = None
     cta_href: str | None = None
     cta_label: str | None = None
     context: dict | None = None

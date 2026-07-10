@@ -129,7 +129,7 @@ def build_provider_registry(
     defs: list[dict[str, Any]] = [
         {
             "id": "groq",
-            "key": os.getenv("GENESIS_GROQ_API_KEY"),
+            "key": os.getenv("GENESIS_GROQ_API_KEY") or os.getenv("GENESIS_LLM_API_KEY"),
             "base": os.getenv("GENESIS_GROQ_BASE_URL", "https://api.groq.com/openai/v1"),
             "model": os.getenv("GENESIS_GROQ_MODEL", "llama-3.3-70b-versatile"),
         },

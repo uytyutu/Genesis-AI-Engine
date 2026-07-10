@@ -60,7 +60,8 @@ https://beta.genesis-ai-engine.com/site
 GENESIS_MEMORY_DIR=/data
 GENESIS_PUBLIC_URL=https://beta.genesis-ai-engine.com
 GENESIS_CORS_ORIGINS=https://beta.genesis-ai-engine.com
-GENESIS_LLM_API_KEY=...
+GENESIS_GROQ_API_KEY=gsk_...   # Groq — required for beta parity (not GENESIS_LLM_API_KEY)
+# Optional: GENESIS_GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
 6. Volume `/data` — отдельный от production.
