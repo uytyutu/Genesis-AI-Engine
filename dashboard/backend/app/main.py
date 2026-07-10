@@ -574,6 +574,24 @@ def get_mission_control() -> MissionControl:
     return MissionControl(**data)
 
 
+@app.get("/api/owner/execution/capabilities")
+def owner_execution_capabilities() -> dict:
+    from app.execution.service import ExecutionLayerService
+
+    return ExecutionLayerService(_memory_dir()).capabilities_snapshot()
+
+
+@app.post("/api/owner/execution/plan-preview")
+def owner_execution_plan_preview(body: dict) -> dict:
+    from app.execution.service import ExecutionLayerService
+
+    goal = str(body.get("goal") or "").strip()
+    if not goal:
+        raise HTTPException(status_code=400, detail="goal required")
+    workspace_id = str(body.get("workspace_id") or "").strip()
+    return ExecutionLayerService(_memory_dir()).plan_preview(goal, workspace_id=workspace_id)
+
+
 @app.post("/api/owner/demo-mode", response_model=DemoModeResponse)
 def set_demo_mode(request: DemoModeRequest) -> DemoModeResponse:
     result = _ctx().mission_control.set_demo_mode(request.enabled)
