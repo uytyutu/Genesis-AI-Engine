@@ -40,7 +40,7 @@ export function SitePage() {
   const { t } = useTranslation("site");
   const { t: tCommon } = useTranslation("common");
   const [services, setServices] = useState<ServiceCatalogItem[]>([]);
-  const [chatActive, setChatActive] = useState(true);
+  const [chatActive, setChatActive] = useState(false);
 
   useEffect(() => {
     void fetchPricingDisplay().then((data) => {

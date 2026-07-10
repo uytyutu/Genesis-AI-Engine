@@ -211,7 +211,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", text: fallbackWelcome },
   ]);
-  const [chatCollapsed, setChatCollapsed] = useState(false);
+  const [chatCollapsed, setChatCollapsed] = useState(isPublic);
   const [pendingFiles, setPendingFiles] = useState<PendingAttachment[]>([]);
   const [voiceListening, setVoiceListening] = useState(false);
   const [voiceThinking, setVoiceThinking] = useState(false);
@@ -311,13 +311,12 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
 
   useEffect(() => {
     if (!isPublic) return;
-    onConversationActive?.(true);
     const id = requestAnimationFrame(() => {
       pinToBottom();
       document.getElementById("genesis-chat-input")?.scrollIntoView({ block: "end", behavior: "auto" });
     });
     return () => cancelAnimationFrame(id);
-  }, [isPublic, onConversationActive, pinToBottom]);
+  }, [isPublic, pinToBottom]);
 
   useEffect(() => {
     fetch(`${API}/api/public/genesis-ai/status`)
@@ -376,8 +375,10 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const handlePublicHome = useCallback(() => {
     setSidebarOpen(false);
     resetToWelcome();
+    onConversationActive?.(false);
     window.dispatchEvent(new Event("genesis:home"));
-  }, [resetToWelcome]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [resetToWelcome, onConversationActive]);
 
   const handlePublicBack = useCallback(() => {
     if (sidebarOpen) {
@@ -387,7 +388,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     handlePublicHome();
   }, [sidebarOpen, handlePublicHome]);
 
-  const showPublicMobileBack = isPublic && (sidebarOpen || hasConversation);
+  const showPublicMobileBack = isPublic && (sidebarOpen || !chatCollapsed);
 
   const refreshSessionList = useCallback(async () => {
     const rows = await fetchSessionList(visitorId);
