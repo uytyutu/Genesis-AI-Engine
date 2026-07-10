@@ -150,6 +150,47 @@ def analysis_for_site(
     ), reuse
 
 
+def format_reuse_explanation(cap: dict[str, Any]) -> str:
+    """Rule №7 — Explain Reuse for chat (not just a score)."""
+    score = int(cap.get("reuse_score") or 0)
+    if score <= 0:
+        return ""
+
+    file_labels = {
+        "files/document_structure.json": "document_structure.json",
+        "files/executive_summary.md": "executive_summary.md",
+        "files/report.md": "report.md",
+        "files/site_manifest.json": "site_manifest.json",
+    }
+    used_files = [
+        file_labels.get(p, p.replace("files/", ""))
+        for p in (cap.get("source_files") or [])
+    ]
+    if not used_files and cap.get("reused_capabilities"):
+        for cap_id in cap.get("reused_capabilities") or []:
+            if cap_id == "analyze_business_document":
+                used_files.extend(["document_structure.json", "report.md"])
+            elif cap_id == "executive_summary":
+                used_files.append("executive_summary.md")
+        used_files = list(dict.fromkeys(used_files))
+
+    lines = [
+        "Использую ранее проанализированный бизнес-план из этого Workspace.",
+        "",
+        "**Использовано:**",
+    ]
+    lines.extend(f"✓ {name}" for name in used_files[:6])
+    lines.append("")
+    lines.append("**Не потребовалось повторно описывать:**")
+    if "analyze_business_document" in (cap.get("reused_capabilities") or []):
+        lines.extend(["• услуги", "• аудиторию", "• рынок"])
+    else:
+        lines.append("• данные из предыдущих артефактов workspace")
+    lines.append("")
+    lines.append(f"*Reuse Score: {score}*")
+    return "\n".join(lines)
+
+
 def brief_with_reuse(
     goal: str,
     analysis: AnalysisResult,

@@ -414,4 +414,5 @@ def test_workflow_analyze_then_site_same_visitor(memory_tmp: Path):
     assert site_out["context"]["workspace_id"] == ws_id
     cap = site_out["context"]["capability_result"]
     assert cap.get("reuse_score", 0) >= 1
+    assert "Использовано" in (site_out["answer"] or "") or "Workspace" in (site_out["answer"] or "")
 

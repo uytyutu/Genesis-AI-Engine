@@ -16,6 +16,7 @@ from app.execution.log_store import ExecutionLogStore
 from app.execution.manager import ExecutionManager
 from app.execution.models import ExecutionPlan, ExecutionStep, PermissionGrant, VerificationRule
 from app.execution.workspace import ExecutionWorkspaceStore
+from app.execution.workspace_reuse import format_reuse_explanation
 
 _REGISTRY: ExecutionCapabilityRegistry | None = None
 
@@ -443,11 +444,7 @@ def _run_generate_site(
     reuse_score = int(cap.get("reuse_score") or 0)
     reuse_note = ""
     if reuse_score > 0:
-        reused = ", ".join(cap.get("reused_capabilities") or [])
-        reuse_note = (
-            f"\n\n**Reuse Score: {reuse_score}** — сайт использует артефакты анализа "
-            f"(`{reused}`). Данные не переспрашивались.\n"
-        )
+        reuse_note = f"\n\n{format_reuse_explanation(cap)}\n"
     answer = (
         f"{_progress_answer(_SITE_PROGRESS)}\n\n"
         "**Проект готов.**\n\n"

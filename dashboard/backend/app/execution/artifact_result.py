@@ -39,6 +39,7 @@ class CapabilityResult:
     capability_id: str = ""
     reused_capabilities: list[str] = field(default_factory=list)
     reuse_score: int = 0
+    source_files: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -52,6 +53,7 @@ class CapabilityResult:
             "capability_id": self.capability_id,
             "reused_capabilities": list(self.reused_capabilities),
             "reuse_score": self.reuse_score,
+            "source_files": list(self.source_files),
         }
 
     @classmethod

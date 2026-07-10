@@ -134,6 +134,7 @@ class GenerateSiteExecutor:
             capability_id="generate_site",
             reused_capabilities=reuse.reused_capabilities,
             reuse_score=reuse.reuse_score,
+            source_files=reuse.source_files,
         )
         self._workspaces.touch(workspace_id)
         return result.to_dict()
