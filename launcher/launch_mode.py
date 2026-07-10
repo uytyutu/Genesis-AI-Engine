@@ -8,18 +8,18 @@ LAUNCH_MODE_OWNER = "owner"
 LAUNCH_MODE_DEVELOPMENT = "development"
 
 _MODE_LABELS = {
-    LAUNCH_MODE_OWNER: "Пользователь",
+    LAUNCH_MODE_OWNER: "CEO — открыть компанию",
     LAUNCH_MODE_DEVELOPMENT: "Разработка",
 }
 
 _MODE_HINTS = {
     LAUNCH_MODE_OWNER: (
-        "Ежедневная работа с Virtus Core. Launcher управляет только запуском и "
-        "остановкой — без проверок Git и коммитов."
+        "Ежедневная работа с Virtus Core — быстрый запуск без пересборки. "
+        "Изменения кода → отдельное обновление по вашему выбору."
     ),
     LAUNCH_MODE_DEVELOPMENT: (
-        "Работа с Cursor. Launcher — единственный хозяин процессов на :8000/:3000. "
-        "Git и коммиты — только в инструментах разработки."
+        "Development Mode: Cursor, сборки, тесты, миграции. "
+        "Launcher пересобирает Mission Control при изменениях исходников."
     ),
 }
 

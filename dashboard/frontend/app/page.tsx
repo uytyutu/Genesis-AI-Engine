@@ -9,7 +9,7 @@ import { GenesisCard } from "./components/GenesisCard";
 import { AiTeamGrid } from "./components/AiTeamGrid";
 import { NightShiftFeed } from "./components/NightShiftFeed";
 import { NotificationRail, type NotificationItem } from "./components/NotificationRail";
-import { SystemHealthBanner } from "./components/SystemHealthBanner";
+import { StableReleasePanel } from "./components/StableReleasePanel";
 import { OwnerWelcomeChecklist } from "./components/OwnerWelcomeChecklist";
 import { IncomeGoalsPanel, type IncomeGoal } from "./components/IncomeGoalsPanel";
 import {
@@ -123,6 +123,7 @@ type MissionControl = {
   company_operations?: CompanyOperations;
   production_department?: ProductionDepartment;
   decisions_needed?: MissionDecision[];
+  stable_release_display?: Record<string, unknown> | null;
 };
 
 export default function MissionControlPage() {
@@ -171,6 +172,7 @@ export default function MissionControlPage() {
   return (
     <main>
       <SystemHealthBanner />
+      <StableReleasePanel data={data?.stable_release_display as Parameters<typeof StableReleasePanel>[0]["data"]} />
       <CompanyOperationsBar ops={data?.company_operations} />
       <OwnerWelcomeChecklist ownerName={data?.owner_name} />
       <CompanyReadinessPanel readiness={data?.company_readiness} demoMode={data?.demo_mode} />

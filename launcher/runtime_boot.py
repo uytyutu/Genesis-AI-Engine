@@ -40,6 +40,7 @@ def run_runtime_boot(
     *,
     on_phase: Callable[[str], None] | None = None,
     on_progress: Callable[[str], None] | None = None,
+    build_policy: str = "launch_stable",
 ) -> BootResult:
     """Check services, launch if needed, recover, verify HTTP 200. No UI."""
     from launcher.health import owner_ready_live, probe_backend_live, probe_frontend_live
@@ -66,7 +67,7 @@ def run_runtime_boot(
     if not backend_up:
         if on_phase:
             on_phase("backend")
-        ok, msg = launch_genesis(managed, root=root, on_phase=on_phase)
+        ok, msg = launch_genesis(managed, root=root, on_phase=on_phase, build_policy=build_policy)
         if not ok:
             _phase(phases, "recovery", False, msg)
             return BootResult(
@@ -126,7 +127,7 @@ def run_runtime_boot(
 
     if on_phase:
         on_phase("frontend")
-    ok, msg = launch_genesis(managed, root=root, on_phase=on_phase)
+    ok, msg = launch_genesis(managed, root=root, on_phase=on_phase, build_policy=build_policy)
     if not ok:
         _phase(phases, "recovery", False, msg)
         return BootResult(

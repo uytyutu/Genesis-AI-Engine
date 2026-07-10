@@ -9,6 +9,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from launcher.paths import backend_dir, frontend_dir, log_dir
 from launcher.python_runtime import (
@@ -365,8 +366,18 @@ def ensure_frontend_ready(
     *,
     for_production: bool = False,
     managed=None,
+    build_policy: str = "rebuild_on_stale",
+    on_build_progress: Callable[[str], None] | None = None,
 ) -> tuple[bool, str]:
-    """Install npm packages; production builds only when for_production=True."""
+    """Install npm packages; production builds only when for_production=True.
+
+    build_policy:
+      launch_stable — use last good .next; never rebuild only because sources are newer
+      rebuild_now   — explicit Development Update (npm run build)
+      rebuild_on_stale — legacy auto-rebuild when sources changed (avoid for CEO path)
+    """
+    from launcher.frontend_build_policy import POLICY_LAUNCH_STABLE, POLICY_REBUILD_NOW
+
     npm_cmd = find_npm()
     if not npm_cmd:
         return (
@@ -383,10 +394,45 @@ def ensure_frontend_ready(
     if not for_production:
         return True, "Mission Control готов"
 
+    policy = build_policy
+    if policy not in (POLICY_LAUNCH_STABLE, POLICY_REBUILD_NOW, "rebuild_on_stale"):
+        policy = "rebuild_on_stale"
+
+    if policy == POLICY_LAUNCH_STABLE:
+        from launcher.stable_release import ensure_active_release_deployed
+
+        deployed_ok, deployed_msg = ensure_active_release_deployed(root)
+        if not deployed_ok:
+            return False, (
+                f"Не удалось развернуть стабильный релиз ({deployed_msg}).\n"
+                "Откройте режим восстановления или пересоберите в «Разработка»."
+            )
+        if frontend_build_ready(root) and frontend_build_integrity(root):
+            from launcher.log_util import append_log
+
+            if frontend_build_stale(root):
+                append_log(
+                    "Normal Launch: using active Stable Release (sources changed — no auto-rebuild)"
+                )
+            else:
+                append_log(f"Normal Launch: Stable Release ready ({deployed_msg})")
+            return True, "Mission Control готов (стабильный релиз)"
+        if frontend_build_ready(root) and not frontend_build_integrity(root):
+            return (
+                False,
+                "Production повреждён.\n"
+                "Используйте режим восстановления или пересборку в «Разработка».",
+            )
+        return (
+            False,
+            "Стабильный релиз не найден.\n"
+            "Режим «Разработка» → сборка → CEO PASS → Activate Stable Release.",
+        )
+
     if frontend_build_ready(root) and frontend_build_integrity(root) and not frontend_build_stale(root):
         return True, "Mission Control готов"
 
-    if frontend_build_ready(root) and frontend_build_stale(root):
+    if policy == "rebuild_on_stale" and frontend_build_ready(root) and frontend_build_stale(root):
         from launcher.log_util import append_log
 
         append_log("Frontend source newer than .next — rebuilding production build")
@@ -395,13 +441,18 @@ def ensure_frontend_ready(
     if frontend_build_ready(root) and not frontend_build_integrity(root):
         clear_frontend_build(root, managed=managed)
 
-    ok, msg = build_frontend(root, managed=managed)
+    ok, msg = build_frontend(root, managed=managed, on_progress=on_build_progress)
     if not ok:
         return False, msg
     return True, "Mission Control собран и готов"
 
 
-def build_frontend(root: Path | None = None, *, managed=None) -> tuple[bool, str]:
+def build_frontend(
+    root: Path | None = None,
+    *,
+    managed=None,
+    on_progress: Callable[[str], None] | None = None,
+) -> tuple[bool, str]:
     """Run `npm run build` — creates .next/routes-manifest.json for production start."""
     npm_cmd = find_npm()
     if not npm_cmd:
@@ -412,6 +463,9 @@ def build_frontend(root: Path | None = None, *, managed=None) -> tuple[bool, str
         return False, "package.json не найден в dashboard/frontend"
 
     clear_frontend_build(root, managed=managed)
+
+    if on_progress:
+        on_progress("Сборка Mission Control… (~1–2 мин)")
 
     build_log = log_dir(root) / "frontend_build.log"
     build_log.parent.mkdir(parents=True, exist_ok=True)
@@ -452,6 +506,11 @@ def build_frontend(root: Path | None = None, *, managed=None) -> tuple[bool, str
             "Сборка завершилась, но .next/routes-manifest.json не найден.\n"
             "См. launcher/logs/frontend_build.log",
         )
+    from launcher.log_util import append_log
+
+    append_log(
+        "Development build complete — после CEO PASS выполните Activate Stable Release"
+    )
     return True, "Mission Control собран (npm run build)"
 
 

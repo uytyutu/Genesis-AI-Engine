@@ -244,6 +244,8 @@ def start_frontend(
     root: Path | None = None,
     *,
     managed: ManagedProcesses | None = None,
+    build_policy: str = "launch_stable",
+    on_phase: Callable[[str], None] | None = None,
 ) -> tuple[bool, str, subprocess.Popen | None]:
     from launcher.deps import (
         augmented_path,
@@ -272,7 +274,17 @@ def start_frontend(
         append_log("Incomplete .next — stop Frontend, clear, rebuild")
         clear_frontend_build(root, managed=managed)
 
-    ok, msg = ensure_frontend_ready(root, for_production=True, managed=managed)
+    def _build_progress(label: str) -> None:
+        if on_phase:
+            on_phase("build_frontend")
+
+    ok, msg = ensure_frontend_ready(
+        root,
+        for_production=True,
+        managed=managed,
+        build_policy=build_policy,
+        on_build_progress=_build_progress,
+    )
     if not ok:
         return False, msg, None
 
@@ -353,6 +365,7 @@ def launch_genesis(
     root: Path | None = None,
     install_deps: bool = True,
     on_phase: Callable[[str], None] | None = None,
+    build_policy: str = "launch_stable",
 ) -> tuple[bool, str]:
     from launcher.backend_identity import (
         backend_runtime_compatible,
@@ -437,7 +450,7 @@ def launch_genesis(
             reconnect_managed(managed, root)
             messages.append("Frontend уже работает — подключено (24/7)")
         elif not frontend_live and (managed.frontend is None or managed.frontend.poll() is not None):
-            ok, msg, proc = start_frontend(root, managed=managed)
+            ok, msg, proc = start_frontend(root, managed=managed, build_policy=build_policy, on_phase=on_phase)
             messages.append(msg)
             if not ok:
                 return False, msg

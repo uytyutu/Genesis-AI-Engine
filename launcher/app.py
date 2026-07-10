@@ -207,6 +207,150 @@ class FrontendErrorDialog(ctk.CTkToplevel):
     ctk.CTkButton(actions, text="Закрыть", command=self.destroy).pack(side="right")
 
 
+class StaleReleaseDialog(ctk.CTkToplevel):
+  """CEO — sources changed; last Stable Release still available."""
+
+  def __init__(self, master: "GenesisLauncher", detail: str, release_label: str) -> None:
+    super().__init__(master)
+    self.choice: str | None = None
+    self.title(f"{BRAND_NAME} — обновление релиза")
+    self.geometry("540x380")
+    apply_window_icon(self)
+    self.grab_set()
+
+    rel = release_label if release_label != "не активирован" else "последний доступный"
+
+    ctk.CTkLabel(
+      self,
+      text="Обнаружены изменения проекта",
+      font=ctk.CTkFont(size=16, weight="bold"),
+    ).pack(pady=(20, 8))
+    ctk.CTkLabel(
+      self,
+      text=(
+        f"{detail}\n\n"
+        f"Активный стабильный релиз: {rel}\n\n"
+        "Обычный запуск открывает компанию на утверждённом релизе.\n"
+        "Полная пересборка — только в режиме «Разработка» после CEO PASS."
+      ),
+      wraplength=480,
+      justify="left",
+      text_color=GENESIS_MUTED,
+    ).pack(padx=20, pady=8)
+
+    ctk.CTkButton(
+      self,
+      text="Запустить последний стабильный релиз",
+      fg_color=GENESIS_GREEN,
+      hover_color=GENESIS_GREEN_HOVER,
+      command=lambda: self._pick("launch_stable"),
+    ).pack(fill="x", padx=24, pady=(12, 6))
+    ctk.CTkButton(
+      self,
+      text="Пересобрать сейчас (Development Update)",
+      fg_color=GENESIS_ACCENT,
+      hover_color=GENESIS_ACCENT_HOVER,
+      command=lambda: self._pick("rebuild_now"),
+    ).pack(fill="x", padx=24, pady=6)
+    ctk.CTkButton(
+      self,
+      text="Отложить",
+      fg_color="#374151",
+      hover_color="#4b5563",
+      command=lambda: self._pick("defer"),
+    ).pack(fill="x", padx=24, pady=(6, 16))
+
+  def _pick(self, value: str) -> None:
+    self.choice = value
+    self.destroy()
+
+  @classmethod
+  def ask(cls, master: "GenesisLauncher", detail: str, release_label: str) -> str | None:
+    dialog = cls(master, detail, release_label)
+    master.wait_window(dialog)
+    return dialog.choice
+
+
+class RecoveryModeDialog(ctk.CTkToplevel):
+  """CEO Recovery — Stable Release missing or damaged; not used on normal start."""
+
+  def __init__(
+    self,
+    master: "GenesisLauncher",
+    detail: str,
+    *,
+    can_restore: bool,
+    release_label: str,
+  ) -> None:
+    super().__init__(master)
+    self.choice: str | None = None
+    self.title(f"{BRAND_NAME} — восстановление")
+    self.geometry("540x400")
+    apply_window_icon(self)
+    self.grab_set()
+
+    ctk.CTkLabel(
+      self,
+      text="⚠ Стабильный релиз недоступен",
+      font=ctk.CTkFont(size=16, weight="bold"),
+      text_color="#fbbf24",
+    ).pack(pady=(20, 8))
+    ctk.CTkLabel(
+      self,
+      text=(
+        f"{detail}\n\n"
+        f"Зарегистрированный релиз: {release_label}\n\n"
+        "Режим восстановления — только когда компанию нельзя открыть обычным запуском."
+      ),
+      wraplength=480,
+      justify="left",
+      text_color=GENESIS_MUTED,
+    ).pack(padx=20, pady=8)
+
+    restore_btn = ctk.CTkButton(
+      self,
+      text="Восстановить последний стабильный релиз",
+      fg_color=GENESIS_GREEN,
+      hover_color=GENESIS_GREEN_HOVER,
+      command=lambda: self._pick("restore_release"),
+    )
+    restore_btn.pack(fill="x", padx=24, pady=(12, 6))
+    if not can_restore:
+      restore_btn.configure(state="disabled")
+
+    ctk.CTkButton(
+      self,
+      text="Выполнить полную пересборку",
+      fg_color=GENESIS_ACCENT,
+      hover_color=GENESIS_ACCENT_HOVER,
+      command=lambda: self._pick("rebuild_now"),
+    ).pack(fill="x", padx=24, pady=6)
+    ctk.CTkButton(
+      self,
+      text="Открыть журнал диагностики",
+      fg_color="#374151",
+      hover_color="#4b5563",
+      command=lambda: self._pick("diagnostics"),
+    ).pack(fill="x", padx=24, pady=(6, 16))
+
+  def _pick(self, value: str) -> None:
+    self.choice = value
+    self.destroy()
+
+  @classmethod
+  def ask(
+    cls,
+    master: "GenesisLauncher",
+    detail: str,
+    *,
+    can_restore: bool,
+    release_label: str,
+  ) -> str | None:
+    dialog = cls(master, detail, can_restore=can_restore, release_label=release_label)
+    master.wait_window(dialog)
+    return dialog.choice
+
+
 class BootFailureDialog(ctk.CTkToplevel):
   def __init__(self, master: "GenesisLauncher", result: BootResult) -> None:
     super().__init__(master)
@@ -292,6 +436,12 @@ class GenesisLauncher(ctk.CTk):
 
     append_log(f"{BRAND_NAME} — пульт открыт")
     record_launcher_open(root=self._project_root)
+    from launcher.stable_release import write_display_payload
+
+    try:
+      write_display_payload(self._project_root)
+    except OSError:
+      pass
 
   def _build_ui(self) -> None:
     pad = {"padx": 20, "pady": 6}
@@ -375,10 +525,55 @@ class GenesisLauncher(ctk.CTk):
     self.fix_btn.pack(fill="x", pady=3)
     self.fix_btn.pack_forget()
 
+    self.activate_release_btn = ctk.CTkButton(
+      actions,
+      text="Активировать стабильный релиз",
+      height=40,
+      fg_color="#6366f1",
+      hover_color="#4f46e5",
+      command=self._activate_stable_release_after_pass,
+    )
+    self.activate_release_btn.pack(fill="x", pady=3)
+    self.activate_release_btn.pack_forget()
+
+    self.rollback_release_btn = ctk.CTkButton(
+      actions,
+      text="↩ Rollback to Previous Stable Release",
+      height=40,
+      fg_color=GENESIS_AMBER,
+      hover_color="#d97706",
+      command=self._on_rollback_release,
+    )
+    self.rollback_release_btn.pack(fill="x", pady=3)
+    self.rollback_release_btn.pack_forget()
+
     self.scroll = ctk.CTkScrollableFrame(
       self, fg_color=GENESIS_PANEL, corner_radius=12, height=300, border_width=1, border_color=GENESIS_ELEVATED
     )
     self.scroll.pack(fill="both", expand=True, padx=20, pady=4)
+
+    ctk.CTkLabel(
+      self.scroll,
+      text="Stable Release",
+      font=ctk.CTkFont(size=13, weight="bold"),
+      anchor="w",
+    ).pack(fill="x", padx=12, pady=(8, 4))
+
+    self.release_panel = ctk.CTkTextbox(self.scroll, height=108, font=ctk.CTkFont(size=12))
+    self.release_panel.pack(fill="x", padx=12, pady=(0, 4))
+    self.release_panel.configure(state="disabled")
+
+    release_nav = ctk.CTkFrame(self.scroll, fg_color="transparent")
+    release_nav.pack(fill="x", padx=12, pady=(0, 8))
+    ctk.CTkButton(
+      release_nav,
+      text="История релизов",
+      height=28,
+      width=140,
+      fg_color="#374151",
+      hover_color="#4b5563",
+      command=self._show_release_history,
+    ).pack(side="left")
 
     self.metric_labels: list[ctk.CTkLabel] = []
     for _ in range(7):
@@ -645,6 +840,25 @@ class GenesisLauncher(ctk.CTk):
     else:
       self.install_btn.pack_forget()
 
+    from launcher.launch_mode import LAUNCH_MODE_DEVELOPMENT, normalize_launch_mode
+
+    if normalize_launch_mode(self.config.launch_mode) == LAUNCH_MODE_DEVELOPMENT:
+      self.activate_release_btn.pack(fill="x", pady=3, after=self.start_btn)
+    else:
+      self.activate_release_btn.pack_forget()
+
+    from launcher.stable_release import compute_release_status
+
+    status = compute_release_status(self._project_root)
+    if status.get("rollback_available"):
+      self.rollback_release_btn.pack(fill="x", pady=3, after=self.start_btn)
+    else:
+      self.rollback_release_btn.pack_forget()
+
+    from launcher.release_ui import refresh_release_panel
+
+    refresh_release_panel(self.release_panel, self._project_root)
+
     if snapshot.dependency_hints:
       self.hint_label.configure(text=" · ".join(snapshot.dependency_hints))
 
@@ -770,6 +984,104 @@ class GenesisLauncher(ctk.CTk):
 
     threading.Thread(target=work, daemon=True).start()
 
+  def _resolve_build_policy(self) -> str | None:
+    """Normal Launch · Development Update · Recovery Mode."""
+    from launcher.frontend_build_policy import (
+      POLICY_LAUNCH_STABLE,
+      POLICY_REBUILD_NOW,
+      assess_production_build,
+      default_policy_for_launch,
+      needs_recovery_mode,
+      needs_stale_choice,
+    )
+    from launcher.launch_mode import LAUNCH_MODE_DEVELOPMENT, normalize_launch_mode
+    from launcher.stable_release import (
+      release_label_for_ui,
+      release_snapshot_ready,
+      restore_active_release,
+    )
+
+    state = assess_production_build(self._project_root)
+    release_label = release_label_for_ui(self._project_root)
+
+    if needs_recovery_mode(self.config.launch_mode, state):
+      choice = RecoveryModeDialog.ask(
+        self,
+        state.detail,
+        can_restore=release_snapshot_ready(self._project_root),
+        release_label=release_label,
+      )
+      if choice == "diagnostics":
+        LogDialog(self)
+        return None
+      if choice == "restore_release":
+        ok, msg = restore_active_release(self._project_root)
+        if not ok:
+          messagebox.showerror(BRAND_NAME, msg)
+          return None
+        return POLICY_LAUNCH_STABLE
+      if choice == "rebuild_now":
+        return POLICY_REBUILD_NOW
+      return None
+
+    if normalize_launch_mode(self.config.launch_mode) == LAUNCH_MODE_DEVELOPMENT:
+      if state.status in ("missing", "corrupt"):
+        if not messagebox.askyesno(
+          BRAND_NAME,
+          "Production не готов.\n\nВыполнить сборку в режиме «Разработка»?",
+        ):
+          return None
+        return POLICY_REBUILD_NOW
+
+    if needs_stale_choice(self.config.launch_mode, state):
+      choice = StaleReleaseDialog.ask(self, state.detail, release_label)
+      if choice == "defer" or choice is None:
+        return None
+      if choice == "rebuild_now":
+        return POLICY_REBUILD_NOW
+      return POLICY_LAUNCH_STABLE
+
+    return default_policy_for_launch(self.config.launch_mode, state)
+
+  def _activate_stable_release_after_pass(self) -> None:
+    """Development → Build → Tests → CEO PASS → Activate Stable Release."""
+    from launcher.release_ui import ActivateReleaseDialog, refresh_release_panel
+
+    ok, msg = ActivateReleaseDialog.run(
+      self,
+      self._project_root,
+      owner_name=self.config.owner_name,
+    )
+    if ok:
+      messagebox.showinfo(BRAND_NAME, msg)
+      self.status_label.configure(text=f"✔ {msg}", text_color="#22c55e")
+      refresh_release_panel(self.release_panel, self._project_root)
+      self.refresh_status()
+    elif msg:
+      messagebox.showerror(BRAND_NAME, msg)
+
+  def _on_rollback_release(self) -> None:
+    from launcher.release_ui import refresh_release_panel
+    from launcher.stable_release import rollback_to_previous_release
+
+    if not messagebox.askyesno(
+      BRAND_NAME,
+      "Откатить на предыдущий Stable Release?\n\nИсходный код разработки не изменится.",
+    ):
+      return
+    ok, msg = rollback_to_previous_release(self._project_root)
+    if ok:
+      messagebox.showinfo(BRAND_NAME, msg)
+      refresh_release_panel(self.release_panel, self._project_root)
+      self.refresh_status()
+    else:
+      messagebox.showerror(BRAND_NAME, msg)
+
+  def _show_release_history(self) -> None:
+    from launcher.release_ui import ReleaseHistoryDialog
+
+    ReleaseHistoryDialog(self, self._project_root)
+
   def _on_start(self) -> None:
     if self._busy:
       self.status_label.configure(
@@ -778,32 +1090,43 @@ class GenesisLauncher(ctk.CTk):
       )
       return
 
+    if owner_ready_live():
+      self._launch_attempted = True
+      self._last_error = ""
+      session_id, started = begin_launch_session(self._project_root)
+
+      def open_ready() -> None:
+        ok, err = self._open_mission_control()
+        if ok:
+          record_launch_success(session_id, started, root=self._project_root)
+          self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
+        else:
+          record_launch_failure(session_id, started, root=self._project_root, error=err)
+        self.refresh_status()
+
+      threading.Thread(
+        target=lambda: self.after(0, open_ready),
+        daemon=True,
+      ).start()
+      return
+
+    build_policy = self._resolve_build_policy()
+    if build_policy is None:
+      self.status_label.configure(
+        text="Запуск отложен — нажмите ▶ когда будете готовы",
+        text_color="#eab308",
+      )
+      return
+
     def work() -> None:
-      if owner_ready_live():
-        self._launch_attempted = True
-        self._last_error = ""
-        session_id, started = begin_launch_session(self._project_root)
-
-        def open_ready() -> None:
-          ok, err = self._open_mission_control()
-          if ok:
-            record_launch_success(session_id, started, root=self._project_root)
-            self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
-          else:
-            record_launch_failure(session_id, started, root=self._project_root, error=err)
-          self.refresh_status()
-
-        self.after(0, open_ready)
-        return
-
       def begin() -> None:
-        self._start_genesis_workflow()
+        self._start_genesis_workflow(build_policy=build_policy)
 
       self.after(0, lambda: ensure_launcher_components(self, self._project_root, begin))
 
     threading.Thread(target=work, daemon=True).start()
 
-  def _start_genesis_workflow(self) -> None:
+  def _start_genesis_workflow(self, build_policy: str = "launch_stable") -> None:
     if self._busy:
       return
     self._busy = True
@@ -832,6 +1155,7 @@ class GenesisLauncher(ctk.CTk):
         on_progress=lambda label: self.after(
           0, lambda l=label: self.status_label.configure(text=l, text_color="#eab308")
         ),
+        build_policy=build_policy,
       )
       append_log(result.message or result.error)
 

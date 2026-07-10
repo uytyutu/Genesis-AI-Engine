@@ -1178,7 +1178,19 @@ class MissionControlService:
                 revenue_today_eur=float(fin.get("revenue_today_eur", 0)),
                 clients=int(fin.get("clients", 0)),
             ),
+            "stable_release_display": self._stable_release_display(),
         }
+
+    def _stable_release_display(self) -> dict:
+        """Read-only — Launcher Release Management display for CEO Workspace."""
+        path = _DEFAULT_MEMORY / "stable_release_display.json"
+        if not path.is_file():
+            return {}
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            return data if isinstance(data, dict) else {}
+        except (OSError, json.JSONDecodeError):
+            return {}
 
     def _production_department(self) -> dict | None:
         dept = "Отдел создания продуктов"
