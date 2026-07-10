@@ -208,3 +208,112 @@ def test_preview_requires_visitor_ownership(memory_tmp: Path):
         serve_preview(memory_tmp, ws.workspace_id, "stranger")
     assert exc.value.status_code == 403
 
+
+def test_document_intelligence_classifies_business_plan():
+    from app.execution.document_intelligence import analyze_document, classify_document
+
+    text = """
+    Бизнес-план стоматологической клиники SmileDent
+    Рынок: растущий спрос на имплантацию. Финансы: выручка 120000 евро в год.
+    Сильные стороны: опытная команда врачей. Риск: высокая конкуренция в районе.
+    """
+    assert classify_document(text, filename="plan.pdf", goal="бизнес-план") == "business_plan"
+    analysis = analyze_document(text, filename="plan.pdf", goal="бизнес-план")
+    assert analysis.swot["strengths"]
+    assert analysis.risks or analysis.swot["threats"]
+    assert "document_structure" not in analysis.executive_summary
+
+
+def test_analyze_business_document_executor_writes_reports(memory_tmp: Path):
+    from app.execution.executors.analyze_business_document import AnalyzeBusinessDocumentExecutor
+
+    ws_store = ExecutionWorkspaceStore(memory_tmp)
+    ws = ws_store.create(owner_id="u1", title="Docs")
+    ex = AnalyzeBusinessDocumentExecutor(ws_store, memory_tmp)
+    text = (
+        "Бизнес-план кофейни. Рынок specialty coffee растёт. "
+        "Финансы: точка безубыточности через 8 месяцев. "
+        "Сильные стороны: уникальная локация. Риск: сезонность спроса."
+    )
+    out = ex.execute(
+        {"workspace_id": ws.workspace_id, "goal": "анализ", "document_text": text},
+        {"workspace_id": ws.workspace_id, "goal": "анализ"},
+    )
+    assert out["artifact_id"].startswith("doc-")
+    assert "report.md" in out["files"]
+    assert "executive_summary.md" in out["files"]
+    assert "document_structure.json" in out["files"]
+    report = ws_store.path_for(ws.workspace_id, "files", "report.md").read_text(encoding="utf-8")
+    assert "SWOT" in report
+    assert "кофейни" in report or "specialty" in report.lower()
+
+
+def test_bridge_analyze_document_with_attachment(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    upload_dir = memory_tmp / "public_chat_uploads"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    att_id = "att-doc001"
+    plan_path = upload_dir / f"{att_id}.txt"
+    plan_path.write_text(
+        "Бизнес-план автосервиса. Рынок: 5000 автомобилей в радиусе 3 км. "
+        "Финансы: стартовые инвестиции 40000. Риск: дефицит механиков.",
+        encoding="utf-8",
+    )
+    meta_path = upload_dir / "index.json"
+    meta_path.write_text(
+        json.dumps(
+            [
+                {
+                    "id": att_id,
+                    "filename": "business-plan.txt",
+                    "content_type": "text/plain",
+                    "path": str(plan_path),
+                    "visitor_id": "visitor-doc",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    out = bridge.try_user_execution(
+        "Проанализируй мой бизнес-план",
+        visitor_id="visitor-doc",
+        memory_dir=memory_tmp,
+        attachment_files=[
+            {
+                "id": att_id,
+                "filename": "business-plan.txt",
+                "content_type": "text/plain",
+            }
+        ],
+    )
+    assert out is not None
+    assert out["provider"] == "execution"
+    assert "✓ Готово" in out["answer"]
+    assert out["cta_actions"] and len(out["cta_actions"]) == 2
+    assert out["cta_label"] == "Открыть отчёт"
+
+
+def test_serve_workspace_file_requires_visitor(memory_tmp: Path):
+    import pytest
+    from fastapi import HTTPException
+
+    from app.execution.preview import serve_workspace_file
+
+    ws_store = ExecutionWorkspaceStore(memory_tmp)
+    ws = ws_store.create(owner_id="owner", title="Doc")
+    map_path = memory_tmp / "execution" / "visitor_workspaces.json"
+    map_path.parent.mkdir(parents=True, exist_ok=True)
+    map_path.write_text(json.dumps({"v1": ws.workspace_id}), encoding="utf-8")
+    report = ws_store.path_for(ws.workspace_id, "files", "report.md")
+    report.parent.mkdir(parents=True, exist_ok=True)
+    report.write_text("# Report", encoding="utf-8")
+
+    resp = serve_workspace_file(memory_tmp, ws.workspace_id, "v1", "report.md")
+    assert resp is not None
+
+    with pytest.raises(HTTPException) as exc:
+        serve_workspace_file(memory_tmp, ws.workspace_id, "other", "report.md")
+    assert exc.value.status_code == 403
+

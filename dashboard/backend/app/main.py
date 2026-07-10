@@ -805,6 +805,18 @@ def public_execution_preview(
     return serve_preview(_memory_dir(), workspace_id, visitor_id[:64], asset_path)
 
 
+@app.get("/api/public/execution/workspace/{workspace_id}/files/{file_path:path}")
+def public_execution_workspace_file(
+    workspace_id: str,
+    file_path: str,
+    visitor_id: str = "",
+) -> FileResponse:
+    """Product Truth — reports and summaries from document analysis."""
+    from app.execution.preview import serve_workspace_file
+
+    return serve_workspace_file(_memory_dir(), workspace_id, visitor_id[:64], file_path)
+
+
 @app.get("/api/public/genesis-ai/status")
 def genesis_ai_status() -> dict:
     """Lightweight status — AI Workforce, not OpenAI-only."""

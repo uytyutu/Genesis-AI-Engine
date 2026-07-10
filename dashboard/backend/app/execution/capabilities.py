@@ -10,7 +10,7 @@ from app.execution.models import CapabilityAvailability, PermissionKind
 CapabilityExecutor = Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]]
 CapabilityRollback = Callable[[dict[str, Any], dict[str, Any]], None]
 
-EXECUTION_LAYER_VERSION = "execution-phase2-site"
+EXECUTION_LAYER_VERSION = "execution-phase3-documents"
 
 
 @dataclass(frozen=True)
@@ -46,6 +46,33 @@ def _schema_object(props: dict[str, str], required: list[str] | None = None) -> 
 
 # Phase 1 catalog — metadata only; executors registered separately when Phase 2 ships.
 _CATALOG: tuple[CapabilityDefinition, ...] = (
+    CapabilityDefinition(
+        id="analyze_business_document",
+        name="Analyze Business Document",
+        description="Extract, classify, and analyze business documents (PDF, text)",
+        input_schema=_schema_object(
+            {"attachment_id": "string", "goal": "string", "workspace_id": "string"},
+            ["workspace_id"],
+        ),
+        output_schema=_schema_object(
+            {
+                "workspace_id": "string",
+                "artifact_id": "string",
+                "files": "array",
+                "artifacts": "array",
+                "preview_url": "string",
+                "logs": "array",
+                "status": "string",
+                "document_type": "string",
+            },
+            ["workspace_id", "artifact_id", "files"],
+        ),
+        permissions=frozenset({"read", "write", "filesystem"}),
+        availability="planned",
+        timeout_sec=180.0,
+        supports_rollback=True,
+        phase=2,
+    ),
     CapabilityDefinition(
         id="analyze_pdf",
         name="Analyze PDF",

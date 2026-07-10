@@ -55,6 +55,41 @@ def resolve_preview_file(
     return target
 
 
+def serve_workspace_file(
+    memory_dir: Path,
+    workspace_id: str,
+    visitor_id: str,
+    relative: str,
+) -> FileResponse:
+    """Serve a file from workspace files/ — reports, summaries (Product Truth)."""
+    if not visitor_id or not workspace_id:
+        raise HTTPException(status_code=403, detail="workspace_forbidden")
+    if not visitor_owns_workspace(memory_dir, visitor_id, workspace_id):
+        raise HTTPException(status_code=403, detail="workspace_forbidden")
+    store = ExecutionWorkspaceStore(memory_dir)
+    if not store.get(workspace_id):
+        raise HTTPException(status_code=404, detail="workspace_not_found")
+
+    rel = relative.strip().lstrip("/").replace("\\", "/")
+    if not rel or ".." in rel.split("/"):
+        raise HTTPException(status_code=400, detail="invalid_path")
+    files_root = store.path_for(workspace_id, "files").resolve()
+    target = (files_root / rel).resolve()
+    if not str(target).startswith(str(files_root)):
+        raise HTTPException(status_code=400, detail="invalid_path")
+    if not target.is_file():
+        raise HTTPException(status_code=404, detail="file_not_found")
+
+    media = "application/octet-stream"
+    if target.suffix == ".md":
+        media = "text/markdown; charset=utf-8"
+    elif target.suffix == ".json":
+        media = "application/json"
+    elif target.suffix == ".pdf":
+        media = "application/pdf"
+    return FileResponse(target, media_type=media)
+
+
 def serve_preview(
     memory_dir: Path,
     workspace_id: str,

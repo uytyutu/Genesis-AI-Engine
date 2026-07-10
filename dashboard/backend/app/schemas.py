@@ -421,6 +421,11 @@ class AssistantResponse(BaseModel):
     source: str = "genesis"
 
 
+class CtaAction(BaseModel):
+    href: str
+    label: str
+
+
 class ConciergeResponse(BaseModel):
     answer: str
     source: str = "genesis-ai"
@@ -428,6 +433,7 @@ class ConciergeResponse(BaseModel):
     provider: str | None = None
     cta_href: str | None = None
     cta_label: str | None = None
+    cta_actions: list[CtaAction] | None = None
     context: dict | None = None
     debug: dict | None = None
     session_id: str | None = None

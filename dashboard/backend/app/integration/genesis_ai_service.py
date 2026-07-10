@@ -69,6 +69,28 @@ class GenesisAIService:
         q = question.strip()
         files = attachment_files or []
         intake = KnowledgeIntakeService(self._memory_dir)
+
+        if is_meta_exfiltration_attempt(q):
+            return {
+                "answer": META_EXFILTRATION_REFUSAL,
+                "source": "genesis-ai",
+                "mode": "genesis",
+                "cta_href": None,
+                "cta_label": None,
+                "cta_actions": None,
+            }
+
+        from app.execution.bridge import try_user_execution
+
+        executed = try_user_execution(
+            q,
+            visitor_id=vid,
+            memory_dir=self._memory_dir,
+            attachment_files=files,
+        )
+        if executed:
+            return executed
+
         if files:
             note = intake.build_brain_intake_context(files, locale=assistant_locale)
             note = maybe_append_expert_review(
@@ -82,21 +104,6 @@ class GenesisAIService:
             note = attachment_note
         if note:
             q = f"{q}\n\n[{note}]" if q else f"[{note}]"
-
-        if is_meta_exfiltration_attempt(q):
-            return {
-                "answer": META_EXFILTRATION_REFUSAL,
-                "source": "genesis-ai",
-                "mode": "genesis",
-                "cta_href": None,
-                "cta_label": None,
-            }
-
-        from app.execution.bridge import try_user_execution
-
-        executed = try_user_execution(q, visitor_id=vid, memory_dir=self._memory_dir)
-        if executed:
-            return executed
 
         mode: Literal["public", "ceo"] = "ceo" if ctx.get("personality") == "ceo" else "public"
         if ctx.get("personality_mode") == "ceo":

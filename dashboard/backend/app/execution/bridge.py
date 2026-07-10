@@ -9,6 +9,7 @@ from typing import Any
 from urllib.parse import quote
 
 from app.execution.capabilities import ExecutionCapabilityRegistry
+from app.execution.executors.analyze_business_document import AnalyzeBusinessDocumentExecutor
 from app.execution.executors.filesystem import FilesystemReadExecutor, FilesystemWriteExecutor
 from app.execution.executors.generate_site import GenerateSiteExecutor
 from app.execution.log_store import ExecutionLogStore
@@ -43,6 +44,25 @@ _SITE_PROGRESS = (
     "Готово",
 )
 
+_DOC_PROGRESS = (
+    "Принимаю документ",
+    "Извлекаю текст",
+    "Определяю тип документа",
+    "Структурный анализ",
+    "SWOT и риски",
+    "Формирую отчёты",
+    "Готово",
+)
+
+_ANALYZE_GOAL = re.compile(
+    r"(?:проанализируй|проанализировать|анализ|analyze|разбери|оцени)\b",
+    re.IGNORECASE,
+)
+_DOC_HINT = re.compile(
+    r"(?:бизнес-план|бизнес план|business\s+plan|документ|отчёт|отчет|предложен|pdf)",
+    re.IGNORECASE,
+)
+
 
 def get_execution_registry(memory_dir: Path) -> ExecutionCapabilityRegistry:
     global _REGISTRY
@@ -52,6 +72,10 @@ def get_execution_registry(memory_dir: Path) -> ExecutionCapabilityRegistry:
         reg.register_executor("filesystem_write", FilesystemWriteExecutor(ws))
         reg.register_executor("filesystem_read", FilesystemReadExecutor(ws))
         reg.register_executor("generate_site", GenerateSiteExecutor(ws))
+        reg.register_executor(
+            "analyze_business_document",
+            AnalyzeBusinessDocumentExecutor(ws, memory_dir),
+        )
         _REGISTRY = reg
     return _REGISTRY
 
@@ -99,6 +123,36 @@ def _parse_file_request(goal: str) -> tuple[str, str] | None:
     return None
 
 
+def _workspace_file_href(workspace_id: str, visitor_id: str, rel: str) -> str:
+    q = quote(visitor_id, safe="")
+    path = rel.lstrip("/")
+    return f"/api/public/execution/workspace/{workspace_id}/files/{path}?visitor_id={q}"
+
+
+def _is_analyzable_attachment(file_row: dict[str, Any]) -> bool:
+    ct = str(file_row.get("content_type") or "").lower()
+    fn = str(file_row.get("filename") or "").lower()
+    if "pdf" in ct or fn.endswith(".pdf"):
+        return True
+    if fn.endswith(".txt") or fn.endswith(".md"):
+        return True
+    if "text/plain" in ct or "markdown" in ct:
+        return True
+    return False
+
+
+def _parse_document_request(goal: str, attachment_files: list[dict[str, Any]]) -> dict[str, Any] | None:
+    docs = [f for f in attachment_files if _is_analyzable_attachment(f)]
+    g = goal.strip()
+    lower = g.lower()
+    wants_analyze = bool(_ANALYZE_GOAL.search(g)) or bool(_DOC_HINT.search(g))
+    if docs and (wants_analyze or not g.strip()):
+        return {"attachment_id": str(docs[0].get("id") or ""), "goal": g or "Анализ документа"}
+    if wants_analyze and not docs:
+        return {"attachment_id": "", "goal": g, "missing_pdf": True}
+    return None
+
+
 def _parse_site_request(goal: str) -> str | None:
     g = goal.strip()
     if _SITE_GOAL.search(g):
@@ -139,11 +193,18 @@ def try_user_execution(
     *,
     visitor_id: str,
     memory_dir: Path,
+    attachment_files: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any] | None:
     """
     Run a single real capability when the user goal matches.
     Returns public chat dict or None (fall through to Brain).
     """
+    files = attachment_files or []
+
+    doc_req = _parse_document_request(goal, files)
+    if doc_req:
+        return _run_analyze_document(doc_req, visitor_id=visitor_id, memory_dir=memory_dir)
+
     site_goal = _parse_site_request(goal)
     if site_goal:
         return _run_generate_site(site_goal, visitor_id=visitor_id, memory_dir=memory_dir)
@@ -217,6 +278,111 @@ def try_user_execution(
             "execution": result.to_dict(),
             "workspace_id": workspace_id,
             "artifact_path": f"files/{rel}",
+        },
+    }
+
+
+def _run_analyze_document(
+    doc_req: dict[str, Any],
+    *,
+    visitor_id: str,
+    memory_dir: Path,
+) -> dict[str, Any]:
+    if doc_req.get("missing_pdf"):
+        return {
+            "answer": (
+                "Чтобы проанализировать бизнес-документ, прикрепите PDF к сообщению "
+                "и напишите, например: «Проанализируй мой бизнес-план»."
+            ),
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "execution",
+            "cta_href": None,
+            "cta_label": None,
+            "cta_actions": None,
+        }
+
+    workspace_id = _workspace_for_visitor(memory_dir, visitor_id, title="Document analysis")
+    registry = get_execution_registry(memory_dir)
+    ws_store = ExecutionWorkspaceStore(memory_dir)
+    logs = ExecutionLogStore(memory_dir)
+    mgr = ExecutionManager(registry=registry, workspace_store=ws_store, log_store=logs)
+
+    goal = str(doc_req.get("goal") or "").strip()
+    attachment_id = str(doc_req.get("attachment_id") or "").strip()
+
+    plan = ExecutionPlan(
+        plan_id="",
+        goal=goal or "Анализ бизнес-документа",
+        workspace_id=workspace_id,
+        steps=(
+            ExecutionStep(
+                id="step-analyze-doc",
+                capability_id="analyze_business_document",
+                title="Analyze business document",
+                inputs={
+                    "goal": goal,
+                    "attachment_id": attachment_id,
+                    "workspace_id": workspace_id,
+                },
+                verification=VerificationRule(
+                    id="vr-doc",
+                    description="Document analysis artifacts produced",
+                    required_output_keys=("artifact_id", "files", "document_type"),
+                ),
+            ),
+        ),
+        required_permissions=frozenset({"read", "write", "filesystem"}),
+    )
+    grant = PermissionGrant(
+        kinds=frozenset({"read", "write", "filesystem"}),
+        workspace_id=workspace_id,
+        actor=visitor_id,
+    )
+    result = mgr.run(plan, grant)
+    if result.status != "completed":
+        err = result.error or (result.steps[0].error if result.steps else "execution failed")
+        return {
+            "answer": f"Не удалось проанализировать документ: {err}",
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "execution",
+            "cta_href": None,
+            "cta_label": None,
+            "cta_actions": None,
+            "context": {"execution": result.to_dict()},
+        }
+
+    cap = result.steps[0].outputs
+    doc_type = cap.get("document_type") or "business_document"
+    title = cap.get("title") or "Документ"
+    report_href = _workspace_file_href(workspace_id, visitor_id, "report.md")
+    summary_href = _workspace_file_href(workspace_id, visitor_id, "executive_summary.md")
+    file_list = "\n".join(f"- `{f}`" for f in (cap.get("files") or []) if f)
+
+    answer = (
+        f"{_progress_answer(_DOC_PROGRESS)}\n\n"
+        f"**Анализ завершён.** Тип: `{doc_type}`. **{title}**\n\n"
+        f"{file_list}\n\n"
+        "Краткий итог в чате — детали в отчётах. Откройте файлы кнопками ниже."
+    )
+    cta_actions = [
+        {"href": report_href, "label": "Открыть отчёт"},
+        {"href": summary_href, "label": "Открыть Executive Summary"},
+    ]
+    return {
+        "answer": answer,
+        "source": "genesis-ai",
+        "mode": "genesis",
+        "provider": "execution",
+        "cta_href": report_href,
+        "cta_label": "Открыть отчёт",
+        "cta_actions": cta_actions,
+        "context": {
+            "execution": result.to_dict(),
+            "capability_result": cap,
+            "workspace_id": workspace_id,
+            "document_type": doc_type,
         },
     }
 
@@ -304,5 +470,6 @@ def list_user_capabilities(memory_dir: Path) -> list[dict[str, str]]:
         "filesystem_write": "создавать документ по запросу (файл + содержимое + путь)",
         "filesystem_read": "читать документ из Workspace",
         "generate_site": "создавать сайт по запросу (workspace + brief + HTML + CSS + preview)",
+        "analyze_business_document": "анализировать бизнес-документы (PDF → отчёты + SWOT)",
     }
     return [{"id": c.id, "label": labels.get(c.id, c.name)} for c in ready]

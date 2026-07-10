@@ -94,6 +94,7 @@ type Message = {
   stopped?: boolean;
   cta_href?: string | null;
   cta_label?: string | null;
+  cta_actions?: Array<{ href: string; label: string }> | null;
   attachments?: PendingAttachment[];
   debug?: GenesisDebug | null;
 };
@@ -173,6 +174,7 @@ type ChatApiResponse = {
   answer?: string;
   cta_href?: string | null;
   cta_label?: string | null;
+  cta_actions?: Array<{ href: string; label: string }> | null;
   debug?: GenesisDebug | null;
 };
 
@@ -685,6 +687,10 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
               text: answer,
               cta_href: normalizePublicHref(data?.cta_href),
               cta_label: data?.cta_label ?? null,
+              cta_actions: (data?.cta_actions ?? null)?.map((a) => ({
+                href: normalizePublicHref(a.href) ?? a.href,
+                label: a.label,
+              })) ?? null,
               debug: developerMode ? (data?.debug ?? null) : undefined,
             },
           ];
@@ -1294,14 +1300,22 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
                     />
                   ) : null,
                 )}
-                {m.cta_href && m.cta_label ? (
+                {(m.cta_actions && m.cta_actions.length > 0
+                  ? m.cta_actions
+                  : m.cta_href && m.cta_label
+                    ? [{ href: m.cta_href, label: m.cta_label }]
+                    : []
+                ).map((cta) => (
                   <Link
-                    href={m.cta_href}
-                    className="mt-3 inline-block rounded-xl bg-gradient-to-r from-genesis-accent to-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
+                    key={`${cta.href}-${cta.label}`}
+                    href={cta.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 mr-2 inline-block rounded-xl bg-gradient-to-r from-genesis-accent to-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
                   >
-                    {m.cta_label}
+                    {cta.label}
                   </Link>
-                ) : null}
+                ))}
                 {m.role === "assistant" && developerMode && m.debug && i > 0 ? (
                   <div className="mt-3 border-t border-white/10 pt-2">
                     <button
