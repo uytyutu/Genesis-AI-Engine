@@ -145,7 +145,8 @@ def test_gate3_routing_blocks_brain_path(memory_tmp: Path) -> None:
         attachment_files=[{"id": att_id, "filename": "business-plan.txt", "content_type": "text/plain"}],
     )
     assert out["provider"] == "execution"
-    assert "✓ Отчёты созданы" in out["answer"]
+    assert "✓" in out["answer"]
+    assert out.get("cta_actions")
 
 
 def test_gate3_artifacts_created(memory_tmp: Path) -> None:

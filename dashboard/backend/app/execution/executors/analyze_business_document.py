@@ -15,6 +15,7 @@ from app.execution.document_intelligence import (
     render_report_md,
     structure_json,
 )
+from app.execution.report_render import render_report_html_from_markdown
 from app.execution.workspace import ExecutionWorkspaceStore
 from app.integration.knowledge_intake_pdf import extract_pdf_text
 from app.integration.public_chat_attachments import PublicChatAttachmentService
@@ -80,7 +81,14 @@ class AnalyzeBusinessDocumentExecutor:
             goal=goal,
             page_count=page_count if source_path else 0,
             pages_analyzed=pages_included if source_path else 0,
-            locale=str(inputs.get("report_locale") or context.get("report_locale") or "") or None,
+            locale=None,
+        )
+
+        report_md = render_report_md(analysis, source_filename=filename)
+        summary_md = render_executive_summary_md(analysis, source_filename=filename)
+        report_html = render_report_html_from_markdown(
+            report_md,
+            title=analysis.structure.title or "Business Conclusion",
         )
 
         artifact_id = f"doc-{uuid.uuid4().hex[:8]}"
@@ -98,19 +106,15 @@ class AnalyzeBusinessDocumentExecutor:
         written = [
             "executive_summary.md",
             "report.md",
+            "report.html",
             "document_structure.json",
         ]
         if source_rel:
             written.insert(0, source_rel)
 
-        (files_root / "executive_summary.md").write_text(
-            render_executive_summary_md(analysis, source_filename=filename),
-            encoding="utf-8",
-        )
-        (files_root / "report.md").write_text(
-            render_report_md(analysis, source_filename=filename),
-            encoding="utf-8",
-        )
+        (files_root / "executive_summary.md").write_text(summary_md, encoding="utf-8")
+        (files_root / "report.md").write_text(report_md, encoding="utf-8")
+        (files_root / "report.html").write_text(report_html, encoding="utf-8")
         (files_root / "document_structure.json").write_text(
             structure_json(analysis),
             encoding="utf-8",
@@ -177,6 +181,9 @@ class AnalyzeBusinessDocumentExecutor:
         out["pages_analyzed"] = pages_included if source_path else 0
         out["readiness_score"] = analysis.readiness_score
         out["launch_probability_pct"] = analysis.launch_probability_pct
+        out["report_locale"] = analysis.report_locale
+        out["issues_count"] = len(analysis.weaknesses) + len(analysis.open_questions)
+        out["priority_count"] = len(analysis.priority_actions)
         self._workspaces.touch(workspace_id)
         return out
 
@@ -184,7 +191,7 @@ class AnalyzeBusinessDocumentExecutor:
         workspace_id = str(outputs.get("workspace_id") or inputs.get("workspace_id") or "")
         if not workspace_id:
             return
-        for rel in ("executive_summary.md", "report.md", "document_structure.json"):
+        for rel in ("executive_summary.md", "report.md", "report.html", "document_structure.json"):
             path = self._workspaces.path_for(workspace_id, "files", rel)
             if path.is_file():
                 path.unlink()

@@ -16,6 +16,10 @@ from app.execution.log_store import ExecutionLogStore
 from app.execution.manager import ExecutionManager
 from app.execution.models import ExecutionPlan, ExecutionStep, PermissionGrant, VerificationRule
 from app.execution.workspace import ExecutionWorkspaceStore
+from app.execution.post_analysis_actions import (
+    build_analysis_completion_message,
+    suggest_post_analysis_actions,
+)
 from app.execution.workspace_reuse import format_reuse_explanation
 
 _REGISTRY: ExecutionCapabilityRegistry | None = None
@@ -352,7 +356,7 @@ def try_user_execution(
     visitor_id: str,
     memory_dir: Path,
     attachment_files: list[dict[str, Any]] | None = None,
-    report_locale: str | None = None,
+    ui_locale: str | None = None,
 ) -> dict[str, Any] | None:
     """
     Run a single real capability when the user goal matches.
@@ -440,7 +444,7 @@ def try_user_execution(
             doc_req,
             visitor_id=visitor_id,
             memory_dir=memory_dir,
-            report_locale=report_locale,
+            ui_locale=ui_locale,
         )
 
     return None
@@ -451,7 +455,7 @@ def _run_analyze_document(
     *,
     visitor_id: str,
     memory_dir: Path,
-    report_locale: str | None = None,
+    ui_locale: str | None = None,
 ) -> dict[str, Any]:
     if doc_req.get("missing_pdf"):
         return {
@@ -489,7 +493,6 @@ def _run_analyze_document(
                     "goal": goal,
                     "attachment_id": attachment_id,
                     "workspace_id": workspace_id,
-                    "report_locale": (report_locale or "")[:16],
                 },
                 verification=VerificationRule(
                     id="vr-doc",
@@ -524,25 +527,33 @@ def _run_analyze_document(
     title = cap.get("title") or "Документ"
     source_name = cap.get("source_filename") or title
     pages = cap.get("pages_analyzed") or cap.get("pages_included")
-    pages_note = f" ({pages} стр.)" if pages else ""
     readiness = cap.get("readiness_score")
-    report_href = _workspace_file_href(workspace_id, visitor_id, "report.md")
-    summary_href = _workspace_file_href(workspace_id, visitor_id, "executive_summary.md")
+    report_locale = str(cap.get("report_locale") or ui_locale or "ru")[:2]
+    if report_locale not in ("ru", "en", "de"):
+        report_locale = "ru"
+    issues_count = int(cap.get("issues_count") or 0)
+    priority_count = int(cap.get("priority_count") or 0)
 
-    answer = (
-        f"📄 {source_name}\n"
-        f"✓ Документ загружен\n"
-        f"✓ Проанализировано{pages_note}\n"
-        f"✓ Отчёты созданы в Workspace\n\n"
-        f"{title} · `{doc_type}`"
+    summary_href = _workspace_file_href(workspace_id, visitor_id, "executive_summary.md")
+    conclusion_href = _workspace_file_href(workspace_id, visitor_id, "report.html")
+
+    answer = build_analysis_completion_message(
+        locale=report_locale,
+        doc_type=doc_type,
+        source_name=source_name,
+        readiness=readiness if isinstance(readiness, int) else None,
+        issues_count=issues_count,
+        priority_count=priority_count,
     )
-    if readiness is not None:
-        answer += f"\n\n**Готовность:** {readiness}/100"
-    cta_actions = [
-        {"href": summary_href, "label": "📊 Executive Summary"},
-        {"href": report_href, "label": "📄 Отчёт"},
-        {"href": "#action:Создай сайт", "label": "🌐 Создать сайт"},
-    ]
+
+    registry_ref = get_execution_registry(memory_dir)
+    cta_actions = suggest_post_analysis_actions(
+        doc_type=doc_type,
+        locale=report_locale,
+        summary_href=summary_href,
+        conclusion_href=conclusion_href,
+        site_available=registry_ref.is_executable("generate_site"),
+    )
     return {
         "answer": answer,
         "source": "genesis-ai",
@@ -559,6 +570,9 @@ def _run_analyze_document(
             "execution_kind": "document_analysis",
             "source_filename": source_name,
             "pages_analyzed": pages,
+            "readiness_score": readiness,
+            "issues_count": issues_count,
+            "report_locale": report_locale,
         },
     }
 

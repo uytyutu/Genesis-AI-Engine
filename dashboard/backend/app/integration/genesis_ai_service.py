@@ -110,7 +110,7 @@ class GenesisAIService:
             visitor_id=vid,
             memory_dir=self._memory_dir,
             attachment_files=files,
-            report_locale=assistant_locale,
+            ui_locale=assistant_locale,
         )
         if executed:
             return executed

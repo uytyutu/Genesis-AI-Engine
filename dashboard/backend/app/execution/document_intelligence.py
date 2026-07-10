@@ -143,7 +143,13 @@ _LABELS: dict[str, dict[str, str]] = {
         "main_risk": "Главный риск",
         "next_steps": "Следующие шаги",
         "launch_prob": "Вероятность успешного запуска",
-        "report_title": "Отчёт по документу",
+        "report_title": "Бизнес-заключение",
+        "conclusion_overview": "Общая оценка",
+        "top_strengths": "Основные сильные стороны",
+        "top_risks": "Основные риски",
+        "to_fix": "Что исправить",
+        "remaining": "Что осталось сделать",
+        "full_analysis": "Полный анализ",
         "priorities": "Что исправить в первую очередь",
         "swot": "SWOT-анализ",
         "strengths": "Сильные стороны",
@@ -176,7 +182,13 @@ _LABELS: dict[str, dict[str, str]] = {
         "main_risk": "Main risk",
         "next_steps": "Next steps",
         "launch_prob": "Launch success probability",
-        "report_title": "Document report",
+        "report_title": "Business Conclusion",
+        "conclusion_overview": "Overall assessment",
+        "top_strengths": "Key strengths",
+        "top_risks": "Key risks",
+        "to_fix": "What to fix",
+        "remaining": "What remains",
+        "full_analysis": "Full analysis",
         "priorities": "Top priorities",
         "swot": "SWOT analysis",
         "strengths": "Strengths",
@@ -209,7 +221,13 @@ _LABELS: dict[str, dict[str, str]] = {
         "main_risk": "Hauptrisiko",
         "next_steps": "Nächste Schritte",
         "launch_prob": "Wahrscheinlichkeit eines erfolgreichen Starts",
-        "report_title": "Dokumentbericht",
+        "report_title": "Geschäftsgutachten",
+        "conclusion_overview": "Gesamtbewertung",
+        "top_strengths": "Hauptstärken",
+        "top_risks": "Hauptrisiken",
+        "to_fix": "Was zu korrigieren ist",
+        "remaining": "Was noch zu tun ist",
+        "full_analysis": "Vollständige Analyse",
         "priorities": "Top-Prioritäten",
         "swot": "SWOT-Analyse",
         "strengths": "Stärken",
@@ -238,6 +256,18 @@ _LABELS: dict[str, dict[str, str]] = {
 
 
 def resolve_report_locale(*, goal: str = "", text: str = "", explicit: str | None = None) -> str:
+    """Document language wins; UI locale only when text is too short to detect."""
+    if text and len(text.strip()) > 80:
+        blob = text[:3000]
+        cyr = len(re.findall(r"[а-яёА-ЯЁ]", blob))
+        de = len(re.findall(r"[äöüßÄÖÜ]", blob))
+        lat = len(re.findall(r"[a-zA-Z]", blob))
+        if cyr >= max(lat, de) and cyr > 20:
+            return "ru"
+        if de > lat and de > 10:
+            return "de"
+        if lat > 20:
+            return "en"
     if explicit:
         base = explicit.lower().split("-")[0]
         if base in _LABELS:
@@ -748,19 +778,28 @@ def render_report_md(analysis: DocumentAnalysis, *, source_filename: str) -> str
     def swot_block(key: str, title_key: str) -> str:
         return f"### {_L(loc, title_key)}\n{bullets(analysis.swot.get(key, []))}"
 
-    priorities = f"## {_L(loc, 'priorities')}\n\n{bullets(analysis.priority_actions)}\n"
+    priorities = f"## {_L(loc, 'to_fix')}\n\n{bullets(analysis.priority_actions)}\n"
 
-    readiness_block = f"""## {_L(loc, "readiness")}
+    overview = f"""## {_L(loc, "conclusion_overview")}
 
 **{analysis.readiness_score}/100** `{_readiness_bar(analysis.readiness_score)}`
 
 {_L(loc, "launch_prob")}: **{analysis.launch_probability_pct}%**
 
-{analysis.readiness_explanation}
-
 ### {_L(loc, "verdict")}
 
 {analysis.verdict}
+
+"""
+
+    top_strengths = f"## {_L(loc, 'top_strengths')}\n\n{bullets(analysis.strengths[:5])}\n"
+    top_risks = f"## {_L(loc, 'top_risks')}\n\n{bullets((analysis.risks or analysis.swot.get('threats', []))[:5])}\n"
+    remaining = f"## {_L(loc, 'remaining')}\n\n{bullets(analysis.open_questions)}\n"
+    next_steps = f"## {_L(loc, 'next_steps')}\n\n{bullets(analysis.recommendations[:6] or analysis.priority_actions)}\n"
+
+    readiness_block = f"""## {_L(loc, "readiness")}
+
+{analysis.readiness_explanation}
 
 """
 
@@ -788,8 +827,22 @@ def render_report_md(analysis: DocumentAnalysis, *, source_filename: str) -> str
 
 ---
 
-{readiness_block}
+## {_L(loc, "exec_title")}
+
+{analysis.executive_summary}
+
+---
+
+{overview}
+{top_strengths}
+{top_risks}
 {priorities}
+{remaining}
+{next_steps}
+
+## {_L(loc, "full_analysis")}
+
+{readiness_block}
 ## {_L(loc, "swot")}
 
 {swot_block("strengths", "strengths")}

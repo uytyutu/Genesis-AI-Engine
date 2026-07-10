@@ -96,7 +96,7 @@ type Message = {
   provider?: string | null;
   cta_href?: string | null;
   cta_label?: string | null;
-  cta_actions?: Array<{ href: string; label: string }> | null;
+  cta_actions?: Array<{ href: string; label: string; group?: string; available?: boolean }> | null;
   attachments?: PendingAttachment[];
   debug?: GenesisDebug | null;
 };
@@ -177,7 +177,7 @@ type ChatApiResponse = {
   provider?: string | null;
   cta_href?: string | null;
   cta_label?: string | null;
-  cta_actions?: Array<{ href: string; label: string }> | null;
+  cta_actions?: Array<{ href: string; label: string; group?: string; available?: boolean }> | null;
   debug?: GenesisDebug | null;
 };
 

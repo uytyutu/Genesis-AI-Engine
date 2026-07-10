@@ -372,8 +372,10 @@ def test_bridge_analyze_document_with_attachment(memory_tmp: Path):
     )
     assert out is not None
     assert out["provider"] == "execution"
-    assert "✓ Отчёты созданы" in out["answer"]
-    assert out["cta_actions"] and len(out["cta_actions"]) == 3
+    assert "✓" in out["answer"]
+    assert out["cta_actions"] and len(out["cta_actions"]) >= 2
+    labels = " ".join(str(a.get("label")) for a in out["cta_actions"])
+    assert "Executive Summary" in labels
     assert out["cta_label"] == "📊 Executive Summary"
 
 

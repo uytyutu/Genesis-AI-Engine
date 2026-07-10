@@ -85,6 +85,8 @@ def serve_workspace_file(
         media = "text/markdown; charset=utf-8"
     elif target.suffix == ".json":
         media = "application/json"
+    elif target.suffix == ".html":
+        media = "text/html; charset=utf-8"
     elif target.suffix == ".pdf":
         media = "application/pdf"
     return FileResponse(target, media_type=media)
