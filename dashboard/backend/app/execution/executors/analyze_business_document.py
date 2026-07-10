@@ -19,7 +19,7 @@ from app.execution.workspace import ExecutionWorkspaceStore
 from app.integration.knowledge_intake_pdf import extract_pdf_text
 from app.integration.public_chat_attachments import PublicChatAttachmentService
 
-_MAX_ANALYSIS_PAGES = 30
+_MAX_ANALYSIS_PAGES = 50
 
 
 def _extract_text_from_path(path: Path, content_type: str) -> tuple[str, int, int]:
@@ -80,6 +80,7 @@ class AnalyzeBusinessDocumentExecutor:
             goal=goal,
             page_count=page_count if source_path else 0,
             pages_analyzed=pages_included if source_path else 0,
+            locale=str(inputs.get("report_locale") or context.get("report_locale") or "") or None,
         )
 
         artifact_id = f"doc-{uuid.uuid4().hex[:8]}"
@@ -174,6 +175,8 @@ class AnalyzeBusinessDocumentExecutor:
         out["title"] = analysis.structure.title
         out["source_filename"] = filename
         out["pages_analyzed"] = pages_included if source_path else 0
+        out["readiness_score"] = analysis.readiness_score
+        out["launch_probability_pct"] = analysis.launch_probability_pct
         self._workspaces.touch(workspace_id)
         return out
 

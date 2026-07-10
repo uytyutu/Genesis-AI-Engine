@@ -256,6 +256,40 @@ def test_gate3_upload_save_roundtrip(memory_tmp: Path) -> None:
     assert files[0]["id"] == row["id"]
 
 
+def test_gate3_intelligence_readiness_and_priorities() -> None:
+    from app.execution.document_intelligence import (
+        analyze_document,
+        render_executive_summary_md,
+        render_report_md,
+    )
+
+    text = """
+    Бизнес-план TechGenie Haus Service Berlin
+    Рынок умного дома растёт на 12% в год. Выручка прогноз 240000 EUR.
+    Сильные стороны:
+    - Опытная команда инженеров
+    - Партнёрство с поставщиками KNX
+    Слабые стороны:
+    - Нет маркетингового бюджета в первый год
+    Риски: регуляторные требования к электромонтажу.
+    """
+    analysis = analyze_document(
+        text,
+        filename="BUSINESSPLAN.pdf",
+        goal="Насколько бизнес готов?",
+        locale="ru",
+    )
+    assert analysis.readiness_score >= 50
+    assert len(analysis.priority_actions) >= 3
+    assert analysis.main_advantage
+    md = render_executive_summary_md(analysis, source_filename="BUSINESSPLAN.pdf")
+    assert "Вердикт" in md
+    assert "/100" in md
+    report = render_report_md(analysis, source_filename="BUSINESSPLAN.pdf")
+    assert "Сильные стороны" in report
+    assert "Strengths" not in report
+
+
 def test_gate3_check_business_plan_phrase_matches_analyze_goal() -> None:
     import app.execution.bridge as bridge
 

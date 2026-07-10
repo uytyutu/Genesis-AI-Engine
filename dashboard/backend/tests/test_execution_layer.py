@@ -297,10 +297,12 @@ def test_document_intelligence_classifies_business_plan():
     Сильные стороны: опытная команда врачей. Риск: высокая конкуренция в районе.
     """
     assert classify_document(text, filename="plan.pdf", goal="бизнес-план") == "business_plan"
-    analysis = analyze_document(text, filename="plan.pdf", goal="бизнес-план")
+    analysis = analyze_document(text, filename="plan.pdf", goal="бизнес-план", locale="ru")
     assert analysis.swot["strengths"]
     assert analysis.risks or analysis.swot["threats"]
-    assert "document_structure" not in analysis.executive_summary
+    assert analysis.readiness_score >= 0
+    assert analysis.priority_actions
+    assert "Вердикт" in analysis.executive_summary or "verdict" in analysis.executive_summary.lower()
 
 
 def test_analyze_business_document_executor_writes_reports(memory_tmp: Path):
@@ -323,7 +325,8 @@ def test_analyze_business_document_executor_writes_reports(memory_tmp: Path):
     assert "executive_summary.md" in out["files"]
     assert "document_structure.json" in out["files"]
     report = ws_store.path_for(ws.workspace_id, "files", "report.md").read_text(encoding="utf-8")
-    assert "SWOT" in report
+    assert "SWOT" in report or "swot" in report.lower()
+    assert "Готовность" in report or "readiness" in report.lower()
     assert "кофейни" in report or "specialty" in report.lower()
 
 

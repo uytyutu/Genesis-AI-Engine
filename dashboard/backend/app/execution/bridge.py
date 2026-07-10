@@ -352,6 +352,7 @@ def try_user_execution(
     visitor_id: str,
     memory_dir: Path,
     attachment_files: list[dict[str, Any]] | None = None,
+    report_locale: str | None = None,
 ) -> dict[str, Any] | None:
     """
     Run a single real capability when the user goal matches.
@@ -435,7 +436,12 @@ def try_user_execution(
 
     doc_req = _parse_document_request(goal, files)
     if doc_req:
-        return _run_analyze_document(doc_req, visitor_id=visitor_id, memory_dir=memory_dir)
+        return _run_analyze_document(
+            doc_req,
+            visitor_id=visitor_id,
+            memory_dir=memory_dir,
+            report_locale=report_locale,
+        )
 
     return None
 
@@ -445,6 +451,7 @@ def _run_analyze_document(
     *,
     visitor_id: str,
     memory_dir: Path,
+    report_locale: str | None = None,
 ) -> dict[str, Any]:
     if doc_req.get("missing_pdf"):
         return {
@@ -482,6 +489,7 @@ def _run_analyze_document(
                     "goal": goal,
                     "attachment_id": attachment_id,
                     "workspace_id": workspace_id,
+                    "report_locale": (report_locale or "")[:16],
                 },
                 verification=VerificationRule(
                     id="vr-doc",
@@ -517,6 +525,7 @@ def _run_analyze_document(
     source_name = cap.get("source_filename") or title
     pages = cap.get("pages_analyzed") or cap.get("pages_included")
     pages_note = f" ({pages} стр.)" if pages else ""
+    readiness = cap.get("readiness_score")
     report_href = _workspace_file_href(workspace_id, visitor_id, "report.md")
     summary_href = _workspace_file_href(workspace_id, visitor_id, "executive_summary.md")
 
@@ -527,6 +536,8 @@ def _run_analyze_document(
         f"✓ Отчёты созданы в Workspace\n\n"
         f"{title} · `{doc_type}`"
     )
+    if readiness is not None:
+        answer += f"\n\n**Готовность:** {readiness}/100"
     cta_actions = [
         {"href": summary_href, "label": "📊 Executive Summary"},
         {"href": report_href, "label": "📄 Отчёт"},
