@@ -3,17 +3,17 @@ import { LegalDocumentPage } from "../components/LegalDocumentPage";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
-  "Datenschutz",
-  "Datenschutzerklärung gemäß DSGVO für Virtus Core.",
-  "/datenschutz"
+  "Widerrufsbelehrung",
+  "Widerrufsrecht für Verbraucher bei Virtus Core.",
+  "/widerruf"
 );
 
-export default function DatenschutzPage() {
+export default function WiderrufPage() {
   return (
     <LegalDocumentPage
-      docId="datenschutz"
-      fallbackTitle="Datenschutzerklärung"
-      fallbackSubtitle="Stand: Juli 2026"
+      docId="widerruf"
+      fallbackTitle="Widerrufsbelehrung"
+      fallbackSubtitle="Informationen zum Widerrufsrecht"
     />
   );
 }

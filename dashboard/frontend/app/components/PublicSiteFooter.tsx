@@ -3,9 +3,14 @@ import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
 
 const LEGAL = [
+  { href: "/trust", label: "Vertrauen & Daten" },
   { href: "/impressum", label: "Impressum" },
   { href: "/datenschutz", label: "Datenschutz" },
   { href: "/agb", label: "AGB" },
+  { href: "/widerruf", label: "Widerruf" },
+  { href: "/cookies", label: "Cookies" },
+  { href: "/ai-disclaimer", label: "KI-Hinweis" },
+  { href: "/intellectual-property", label: "Urheberrecht" },
 ];
 
 const HELP = [

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "updated_at": "",
+  "interview_completed": false,
+  "documents_last_review": "2026-07",
+  "operator": {
+    "legal_form": "",
+    "full_name": "",
+    "trade_name": "Virtus Core",
+    "address_street": "",
+    "address_zip": "",
+    "address_city": "",
+    "address_country": "DE",
+    "email": "",
+    "phone": "",
+    "website": "",
+    "vat_id": "",
+    "handelsregister": "",
+    "register_court": "",
+    "managing_director": ""
+  },
+  "data_processing": {
+    "hosting_providers": [],
+    "payment_providers": ["Stripe"],
+    "email_providers": [],
+    "ai_providers": [],
+    "analytics_providers": [],
+    "data_location": "EU / Deutschland",
+    "retention_project_days": 365,
+    "retention_logs_days": 90,
+    "retention_order_days": 2555,
+    "deletion_on_request_days": 30,
+    "dpo_email": "",
+    "supervisory_authority": "",
+    "never_sold_to_third_parties": true
+  },
+  "cookies": {
+    "essential": ["Sitzung / Session", "Sicherheit / CSRF"],
+    "functional": ["Sprache / Locale"],
+    "analytics": [],
+    "marketing": []
+  }
+}

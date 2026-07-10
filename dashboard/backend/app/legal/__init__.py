@@ -1,0 +1,1 @@
+"""Legal & Trust Foundation package."""

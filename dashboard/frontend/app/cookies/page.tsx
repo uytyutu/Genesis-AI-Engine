@@ -3,17 +3,17 @@ import { LegalDocumentPage } from "../components/LegalDocumentPage";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
-  "Datenschutz",
-  "Datenschutzerklärung gemäß DSGVO für Virtus Core.",
-  "/datenschutz"
+  "Cookie-Richtlinie",
+  "Cookie-Richtlinie für Virtus Core.",
+  "/cookies"
 );
 
-export default function DatenschutzPage() {
+export default function CookiesPage() {
   return (
     <LegalDocumentPage
-      docId="datenschutz"
-      fallbackTitle="Datenschutzerklärung"
-      fallbackSubtitle="Stand: Juli 2026"
+      docId="cookies"
+      fallbackTitle="Cookie-Richtlinie"
+      fallbackSubtitle="Welche Cookies wir verwenden"
     />
   );
 }

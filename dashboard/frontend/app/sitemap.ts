@@ -12,6 +12,11 @@ const PATHS = [
   "/impressum",
   "/datenschutz",
   "/agb",
+  "/trust",
+  "/widerruf",
+  "/cookies",
+  "/ai-disclaimer",
+  "/intellectual-property",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

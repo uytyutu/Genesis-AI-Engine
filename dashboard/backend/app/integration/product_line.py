@@ -284,14 +284,9 @@ def universal_approved_purchase_options(service_id: str, *, estimate_block: str 
 
 def one_time_handoff_summary(service_id: str) -> str:
     """What client receives after one-time payment (all services)."""
-    return (
-        "После оплаты вы получите:\n"
-        "✓ полный проект и исходные файлы\n"
-        "✓ архив (ZIP)\n"
-        "✓ инструкции\n"
-        "✓ доступы и права использования (если применимо)\n\n"
-        f"После передачи {BRAND_NAME} не сопровождает продукт."
-    )
+    from app.legal.handoff import one_time_purchase_handoff
+
+    return one_time_purchase_handoff()
 
 
 # Website aliases (existing callers)

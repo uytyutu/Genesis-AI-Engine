@@ -983,6 +983,53 @@ def public_pricing() -> dict:
     return _ctx().pricing_display.get_display()
 
 
+def _legal():
+    from app.legal.service import LegalFoundationService
+
+    return LegalFoundationService(_memory_dir())
+
+
+@app.get("/api/public/legal/status")
+def public_legal_status() -> dict:
+    return _legal().status()
+
+
+@app.get("/api/public/legal/documents")
+def public_legal_documents() -> dict:
+    return {"documents": _legal().documents_catalog()}
+
+
+@app.get("/api/public/legal/documents/{doc_id}")
+def public_legal_document(doc_id: str, locale: str = "de") -> dict:
+    normalized = doc_id.replace("-", "_")
+    doc = _legal().document(normalized, locale=locale)
+    if not doc:
+        raise HTTPException(status_code=404, detail="document_not_found")
+    return doc
+
+
+@app.get("/api/public/trust")
+def public_trust() -> dict:
+    return _legal().trust()
+
+
+@app.get("/api/public/legal/handoff/one-time")
+def public_handoff_one_time() -> dict:
+    return _legal().handoff_one_time()
+
+
+@app.get("/api/public/legal/handoff/subscription")
+def public_handoff_subscription() -> dict:
+    return _legal().handoff_subscription()
+
+
+@app.get("/api/public/legal/locale-registry")
+def public_legal_locale_registry() -> dict:
+    from app.legal.locale_registry import localization_horizon_payload
+
+    return localization_horizon_payload()
+
+
 @app.post("/api/public/pricing-event", response_model=PricingEventResponse)
 def public_pricing_event(body: PricingEventRequest) -> PricingEventResponse:
     _ctx().pricing_display.log_event(
