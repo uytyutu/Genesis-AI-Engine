@@ -53,6 +53,8 @@ type Props = {
   onFocusChange?: (focused: boolean) => void;
   /** /site mobile — compact single-row composer */
   minimalMobile?: boolean;
+  /** Client Workspace desktop — keep mic, dictation, voice settings visible while typing */
+  clientWorkspace?: boolean;
   /** Read last assistant reply aloud (browser TTS) */
   onSpeakAnswer?: () => void;
 };
@@ -187,6 +189,7 @@ export function GenesisChatComposer({
   attachHint,
   onFocusChange,
   minimalMobile = false,
+  clientWorkspace = false,
   onSpeakAnswer,
 }: Props) {
   const { t } = useTranslation("chat");
@@ -197,17 +200,19 @@ export function GenesisChatComposer({
   const [narrowViewport, setNarrowViewport] = useState(false);
   const inputPlaceholder = placeholder ?? t("placeholder", { assistant: ASSISTANT_NAME });
   const hintText = attachHint ?? t("attachHint");
-  const compactChrome = (minimalMobile && narrowViewport) || (focused && !expanded);
+  const clientVoiceDesktop = clientWorkspace && !narrowViewport;
+  const compactChrome =
+    (minimalMobile && narrowViewport) || (focused && !expanded && !clientVoiceDesktop);
   const publicMobileBar = minimalMobile && narrowViewport;
 
   useEffect(() => {
-    if (!minimalMobile || typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
     const mq = window.matchMedia("(max-width: 639px)");
     const update = () => setNarrowViewport(mq.matches);
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
-  }, [minimalMobile]);
+  }, []);
 
   const setInputFocused = useCallback(
     (next: boolean) => {
