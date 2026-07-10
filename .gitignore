@@ -45,10 +45,16 @@ diagnostics/*
 
 # Local build artifacts
 .perf-backup-*
+**/tsconfig.tsbuildinfo
 client/desktop/src-tauri/icons/icon.icns.png
 scripts/brand_renderer/node_modules/
 .genesis-run/
 dashboard/backend/app/memory/
+
+# Gate / probe run outputs (regenerate locally; never commit)
+scripts/*_results.json
+scripts/groq_cloud_proof_last.json
+scripts/_genesis_*.txt
 
 # Internal ops journal (CEO soak / stability — local only)
 docs/STABILITY_HISTORY.md
