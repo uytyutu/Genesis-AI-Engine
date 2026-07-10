@@ -724,7 +724,10 @@ class GenesisLauncher(ctk.CTk):
     self._on_start()
 
   def _open_mission_control(self) -> tuple[bool, str]:
-    """Open Mission Control in browser; always attempted on successful ▶."""
+    """Open Mission Control in browser; always attempted on successful ▶ when enabled."""
+    if not self.config.auto_open_browser:
+      append_log("Mission Control browser open skipped (auto_open_browser=false)")
+      return True, ""
     self.status_label.configure(text="🟢 Открываю Mission Control...", text_color="#22c55e")
     browser_started = time.monotonic()
     ok, err = open_mission_control(

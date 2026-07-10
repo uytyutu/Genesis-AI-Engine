@@ -1023,6 +1023,17 @@ def public_handoff_subscription() -> dict:
     return _legal().handoff_subscription()
 
 
+@app.get("/api/public/delivery")
+def public_delivery(visitor_id: str, locale: str = "ru") -> dict:
+    from app.integration.delivery_engine.gate import delivery_engine_enabled
+
+    if not delivery_engine_enabled(_memory_dir()):
+        raise HTTPException(status_code=404, detail="delivery_engine_disabled")
+    from app.integration.delivery_engine import DeliveryEngine
+
+    return DeliveryEngine(_memory_dir()).get_public_state(visitor_id, locale=locale)
+
+
 @app.get("/api/public/project")
 def public_project(visitor_id: str, locale: str = "ru") -> dict:
     from app.integration.project_platform.service import ProjectPlatformService

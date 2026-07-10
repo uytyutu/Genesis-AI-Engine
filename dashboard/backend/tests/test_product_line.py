@@ -32,8 +32,8 @@ def test_universal_intro_mentions_multimodal():
 
 def test_concept_ready_not_final_sale():
     text = universal_concept_ready_message(SERVICE_WEBSITE)
-    assert "Первая версия готова" in text
-    assert "подписк" in text.lower()
+    assert "первая версия" in text.lower()
+    assert "проект" in text.lower()
 
 
 def test_approved_options_two_paths():

@@ -7,6 +7,8 @@ import { PublicPageShell } from "../../components/PublicPageShell";
 import { Button, ButtonLink } from "../../components/ui";
 import { formatEur } from "../../lib/formatEur";
 import { fetchPaymentInfo, startOrderCheckout } from "../../lib/orderCheckout";
+import { parseOrderPurchaseType } from "../../lib/orderTrustCard";
+import { OrderTrustCard } from "../../components/OrderTrustCard";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -23,6 +25,12 @@ function OrderPayContent() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [isSandbox, setIsSandbox] = useState(false);
+  const [purchaseType, setPurchaseType] = useState<"one_time" | "subscription">("one_time");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setPurchaseType(parseOrderPurchaseType(new URLSearchParams(window.location.search).get("purchase_type")));
+  }, []);
 
   useEffect(() => {
     if (!orderId) return;
@@ -98,6 +106,10 @@ function OrderPayContent() {
               Тестовый режим (Sandbox). Деньги не списываются.
             </div>
           )}
+
+          <div className="mt-6">
+            <OrderTrustCard purchaseType={purchaseType} />
+          </div>
 
           <Button
             variant="success"

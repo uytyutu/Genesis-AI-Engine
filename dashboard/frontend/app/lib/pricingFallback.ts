@@ -8,7 +8,7 @@ const UNIVERSAL_PATH =
 
 /** Offline fallback when /api/public/pricing is unreachable. */
 export const PRICING_FALLBACK: PricingDisplay = {
-  version: "mission1-truth-10-fallback",
+  version: "mission1-truth-11-fallback",
   disclaimer: {
     ru: `**Любая услуга** Virtus Core: ${UNIVERSAL_PATH}. Ориентировочные цены сразу в валюте целевого рынка. Сайт на /order от ${PUBLIC_LANDING_MIN_EUR} € (DE checkout).`,
   },

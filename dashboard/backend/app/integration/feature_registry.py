@@ -106,6 +106,15 @@ _PRODUCT_FEATURES: dict[str, dict[str, Any]] = {
         "notes": "Truth Pass Stages 1–2 done; CEO Verification+ pending",
     },
     # Knowledge Intake — attachment modules first; URL/GitHub/Notion plug into knowledge_intake.py.
+    "delivery_engine": {
+        "label": "Delivery Engine — universal service lifecycle",
+        "layer": "trust_experience",
+        "exists": True,
+        "stable": False,
+        "ready": False,
+        "enabled": False,
+        "notes": "Backend staged; enable when Client lifecycle UI ships (P0 gated off)",
+    },
     "attachment_transparency": {
         "label": "Knowledge Intake — Transparency (honest UX)",
         "layer": "knowledge_intake",

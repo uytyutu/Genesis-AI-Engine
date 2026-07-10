@@ -7,6 +7,8 @@ import { PackageSkeleton } from "../components/Skeleton";
 import { formatEur } from "../lib/formatEur";
 import { formatApiDetail } from "../lib/formatApiError";
 import { startOrderCheckout } from "../lib/orderCheckout";
+import { parseOrderPurchaseType } from "../lib/orderTrustCard";
+import { OrderTrustCard } from "../components/OrderTrustCard";
 import { Badge, Button, ButtonLink, Card, Field, Input, Textarea } from "../components/ui";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -50,14 +52,17 @@ export default function OrderSitePage() {
   const [payBusy, setPayBusy] = useState(false);
   const [payError, setPayError] = useState("");
   const [paymentReady, setPaymentReady] = useState(false);
+  const [purchaseType, setPurchaseType] = useState<"one_time" | "subscription">("one_time");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const pkg = new URLSearchParams(window.location.search).get("package");
+    const params = new URLSearchParams(window.location.search);
+    const pkg = params.get("package");
     if (pkg && ["basic", "business", "premium"].includes(pkg)) {
       setPackageId(pkg);
       setManualPackage(true);
     }
+    setPurchaseType(parseOrderPurchaseType(params.get("purchase_type")));
   }, []);
 
   useEffect(() => {
@@ -174,6 +179,7 @@ export default function OrderSitePage() {
             </Card>
             {paymentReady ? (
               <div className="mt-6 space-y-3">
+                <OrderTrustCard purchaseType={purchaseType} />
                 <Button variant="success" size="lg" fullWidth loading={payBusy} onClick={payNow}>
                   {payBusy ? "Переход к оплате…" : `Оплатить ${formatEur(done.price_eur)}`}
                 </Button>

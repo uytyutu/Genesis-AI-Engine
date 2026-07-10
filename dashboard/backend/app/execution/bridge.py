@@ -27,9 +27,10 @@ from app.integration.market_context import (
     market_clarification_question,
     resolve_market_context,
 )
+from app.integration.delivery_engine.gate import delivery_engine_enabled, finalize_execution_response
 from app.integration.product_line import (
+    SERVICE_WEBSITE,
     universal_first_version_scenario,
-    website_concept_ready_message,
     website_studio_intro,
 )
 
@@ -300,6 +301,8 @@ def _site_brief_clarification(
     from_project: bool = False,
     goal: str = "",
     ui_locale: str | None = None,
+    visitor_id: str = "anonymous",
+    memory_dir: Path | None = None,
 ) -> dict[str, Any]:
     if from_project:
         intro = (
@@ -310,6 +313,12 @@ def _site_brief_clarification(
         intro = website_studio_intro()
     answer = intro
     if not from_project:
+        if memory_dir is not None and delivery_engine_enabled(memory_dir):
+            from app.integration.delivery_engine import DeliveryEngine
+
+            DeliveryEngine(memory_dir).note_consultation(
+                visitor_id, service_id=SERVICE_WEBSITE, goal=goal
+            )
         ctx = resolve_market_context(text=goal, ui_locale=ui_locale)
         market_q = market_clarification_question(ctx, locale=ui_locale)
         if market_q:
@@ -318,7 +327,7 @@ def _site_brief_clarification(
         "answer": answer,
         "source": "genesis-ai",
         "mode": "genesis",
-        "provider": "execution",
+        "provider": "delivery_engine" if not from_project and memory_dir and delivery_engine_enabled(memory_dir) else "execution",
         "cta_href": None,
         "cta_label": None,
     }
@@ -340,16 +349,6 @@ def _site_customer_ctas(preview_path: str) -> list[dict[str, Any]]:
             "available": False,
         },
     ]
-
-
-def _build_site_completion_answer(preview_path: str, reuse_note: str) -> str:
-    body = (
-        f"{_progress_answer(_SITE_PROGRESS)}\n\n"
-        f"{website_concept_ready_message()}"
-    )
-    if reuse_note:
-        body += f"\n\n{reuse_note.strip()}"
-    return body
 
 
 def _default_readme(goal: str) -> str:
@@ -530,7 +529,12 @@ def try_user_execution(
             if ws_id and _workspace_has_business_context(memory_dir, ws_id):
                 pass  # enough context from project — proceed
             else:
-                return _site_brief_clarification(goal=site_goal, ui_locale=ui_locale)
+                return _site_brief_clarification(
+                    goal=site_goal,
+                    ui_locale=ui_locale,
+                    visitor_id=visitor_id,
+                    memory_dir=memory_dir,
+                )
         return _run_generate_site(site_goal, visitor_id=visitor_id, memory_dir=memory_dir)
 
     parsed = _parse_file_request(goal)
@@ -590,22 +594,28 @@ def try_user_execution(
             goal=goal,
             memory_dir=memory_dir,
         )
-        return {
-            "answer": (
-                f"✓ Документ создан: **{cap.get('path') or filename}**\n\n"
-                f"{universal_first_version_scenario()}"
-            ),
-            "source": "genesis-ai",
-            "mode": "genesis",
-            "provider": "execution",
-            "cta_href": file_href,
-            "cta_label": "Открыть файл",
-            "context": {
-                "execution": result.to_dict(),
-                "capability_result": cap,
-                "workspace_id": workspace_id,
-            },
+        file_answer = (
+            f"✓ Документ создан: **{cap.get('path') or filename}**\n\n"
+            f"{universal_first_version_scenario()}"
+        )
+        out = finalize_execution_response(
+            memory_dir,
+            visitor_id=visitor_id,
+            workspace_id=workspace_id,
+            capability_id="filesystem_write",
+            outputs=cap,
+            goal=goal,
+            primary_href=file_href,
+            primary_label="Открыть файл",
+            answer_override=file_answer,
+        )
+        out["context"] = {
+            **(out.get("context") or {}),
+            "execution": result.to_dict(),
+            "capability_result": cap,
+            "workspace_id": workspace_id,
         }
+        return out
 
     doc_req = _parse_document_request(goal, files)
     if doc_req:
@@ -731,27 +741,31 @@ def _run_analyze_document(
         goal=str(doc_req.get("goal") or ""),
         memory_dir=memory_dir,
     )
-    return {
-        "answer": answer,
-        "source": "genesis-ai",
-        "mode": "genesis",
-        "provider": "execution",
-        "cta_href": summary_href,
-        "cta_label": "📊 Executive Summary",
-        "cta_actions": cta_actions,
-        "context": {
-            "execution": result.to_dict(),
-            "capability_result": cap,
-            "workspace_id": workspace_id,
-            "document_type": doc_type,
-            "execution_kind": "document_analysis",
-            "source_filename": source_name,
-            "pages_analyzed": pages,
-            "readiness_score": readiness,
-            "issues_count": issues_count,
-            "report_locale": report_locale,
-        },
+    out = finalize_execution_response(
+        memory_dir,
+        visitor_id=visitor_id,
+        workspace_id=workspace_id,
+        capability_id="analyze_business_document",
+        outputs=cap,
+        goal=str(doc_req.get("goal") or ""),
+        primary_href=summary_href,
+        primary_label="📊 Executive Summary",
+        extra_ctas=cta_actions,
+        answer_override=answer,
+    )
+    out["context"] = {
+        **(out.get("context") or {}),
+        "execution": result.to_dict(),
+        "capability_result": cap,
+        "document_type": doc_type,
+        "execution_kind": "document_analysis",
+        "source_filename": source_name,
+        "pages_analyzed": pages,
+        "readiness_score": readiness,
+        "issues_count": issues_count,
+        "report_locale": report_locale,
     }
+    return out
 
 
 def _run_generate_site(
@@ -817,22 +831,29 @@ def _run_generate_site(
         goal=goal,
         memory_dir=memory_dir,
     )
-    return {
-        "answer": answer,
-        "source": "genesis-ai",
-        "mode": "genesis",
-        "provider": "execution",
-        "cta_href": preview_path,
-        "cta_label": "🌐 Открыть сайт",
-        "cta_actions": cta_actions,
-        "context": {
-            "execution": result.to_dict(),
-            "capability_result": cap,
-            "workspace_id": workspace_id,
-            "preview_url": preview_path,
-            "artifact_type": "website",
-        },
+    out = finalize_execution_response(
+        memory_dir,
+        visitor_id=visitor_id,
+        workspace_id=workspace_id,
+        capability_id="generate_site",
+        outputs=cap,
+        goal=goal,
+        preview_href=preview_path,
+        primary_href=preview_path,
+        primary_label="🌐 Открыть сайт",
+        extra_ctas=cta_actions,
+        answer_override=answer,
+    )
+    if reuse_note:
+        out["answer"] = f"{out.get('answer', '')}\n\n{reuse_note.strip()}"
+    out["context"] = {
+        **(out.get("context") or {}),
+        "execution": result.to_dict(),
+        "capability_result": cap,
+        "preview_url": preview_path,
+        "artifact_type": "website",
     }
+    return out
 
 
 def list_user_capabilities(memory_dir: Path) -> list[dict[str, str]]:

@@ -1097,7 +1097,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
         attachHint={attachHint}
         inputId="genesis-chat-input"
         onFocusChange={setComposerFocused}
-        minimalMobile={isPublic}
+        minimalMobile={isPublic && !hubMode}
         onSpeakAnswer={speakLastAnswer}
       />
     </>

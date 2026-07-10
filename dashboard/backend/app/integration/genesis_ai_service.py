@@ -103,6 +103,17 @@ class GenesisAIService:
                 "cta_actions": None,
             }
 
+        from app.integration.delivery_engine.gate import delivery_engine_enabled
+
+        if delivery_engine_enabled(self._memory_dir):
+            from app.integration.delivery_engine import DeliveryEngine
+
+            delivery = DeliveryEngine(self._memory_dir).try_handle_message(
+                vid, q, locale=assistant_locale
+            )
+            if delivery:
+                return delivery
+
         from app.execution.bridge import try_user_execution, should_route_attachments_to_execution
 
         executed = try_user_execution(
