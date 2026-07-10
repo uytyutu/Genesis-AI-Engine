@@ -10,7 +10,7 @@ from app.execution.models import CapabilityAvailability, PermissionKind
 CapabilityExecutor = Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]]
 CapabilityRollback = Callable[[dict[str, Any], dict[str, Any]], None]
 
-EXECUTION_LAYER_VERSION = "execution-phase1-1"
+EXECUTION_LAYER_VERSION = "execution-phase2-site"
 
 
 @dataclass(frozen=True)
@@ -99,7 +99,18 @@ _CATALOG: tuple[CapabilityDefinition, ...] = (
         name="Generate Site",
         description="Build site project from structured brief",
         input_schema=_schema_object({"brief": "string", "workspace_id": "string"}),
-        output_schema=_schema_object({"artifact_id": "string", "preview_url": "string"}, ["artifact_id"]),
+        output_schema=_schema_object(
+            {
+                "workspace_id": "string",
+                "artifact_id": "string",
+                "files": "array",
+                "artifacts": "array",
+                "preview_url": "string",
+                "logs": "array",
+                "status": "string",
+            },
+            ["workspace_id", "artifact_id", "files"],
+        ),
         permissions=frozenset({"write", "filesystem", "network"}),
         availability="planned",
         timeout_sec=300.0,

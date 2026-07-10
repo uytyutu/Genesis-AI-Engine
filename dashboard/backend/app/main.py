@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import io
 import os
 
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from contextlib import asynccontextmanager
 import logging
 
@@ -790,6 +790,19 @@ def genesis_ai_greeting(visitor_id: str = "anonymous") -> dict:
     packages = _ctx().sales.packages()
     svc = _genesis_service(packages)
     return {"greeting": svc.greeting(visitor_id=visitor_id[:64])}
+
+
+@app.get("/api/public/execution/preview/{workspace_id}")
+@app.get("/api/public/execution/preview/{workspace_id}/{asset_path:path}")
+def public_execution_preview(
+    workspace_id: str,
+    asset_path: str = "",
+    visitor_id: str = "",
+) -> FileResponse:
+    """Product Truth — site preview openable from /site chat CTA."""
+    from app.execution.preview import serve_preview
+
+    return serve_preview(_memory_dir(), workspace_id, visitor_id[:64], asset_path)
 
 
 @app.get("/api/public/genesis-ai/status")

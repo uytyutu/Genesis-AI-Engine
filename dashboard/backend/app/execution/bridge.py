@@ -6,9 +6,11 @@ import json
 import re
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 from app.execution.capabilities import ExecutionCapabilityRegistry
 from app.execution.executors.filesystem import FilesystemReadExecutor, FilesystemWriteExecutor
+from app.execution.executors.generate_site import GenerateSiteExecutor
 from app.execution.log_store import ExecutionLogStore
 from app.execution.manager import ExecutionManager
 from app.execution.models import ExecutionPlan, ExecutionStep, PermissionGrant, VerificationRule
@@ -24,7 +26,22 @@ _FILE_GOAL = re.compile(
     r"(?:создай|создать|напиши|create|write)\s+(?:файл\s+)?(?P<name>[\w.\-]+\.[a-zA-Z0-9]+)",
     re.IGNORECASE,
 )
+_SITE_GOAL = re.compile(
+    r"(?:создай|создать|сделай|make|create|build)\s+(?:мне\s+)?(?:сайт|site|landing|лендинг)\b",
+    re.IGNORECASE,
+)
 _CONTENT_AFTER = re.compile(r"(?:с\s+текстом|с\s+содержимым|content|:)\s*(.+)$", re.IGNORECASE | re.DOTALL)
+
+_SITE_PROGRESS = (
+    "Анализирую запрос",
+    "Создаю Workspace",
+    "Формирую структуру проекта",
+    "Создаю brief",
+    "Генерирую HTML",
+    "Генерирую CSS",
+    "Создаю preview",
+    "Готово",
+)
 
 
 def get_execution_registry(memory_dir: Path) -> ExecutionCapabilityRegistry:
@@ -34,6 +51,7 @@ def get_execution_registry(memory_dir: Path) -> ExecutionCapabilityRegistry:
         ws = ExecutionWorkspaceStore(memory_dir)
         reg.register_executor("filesystem_write", FilesystemWriteExecutor(ws))
         reg.register_executor("filesystem_read", FilesystemReadExecutor(ws))
+        reg.register_executor("generate_site", GenerateSiteExecutor(ws))
         _REGISTRY = reg
     return _REGISTRY
 
@@ -42,7 +60,7 @@ def _visitor_map_path(memory_dir: Path) -> Path:
     return memory_dir / "execution" / "visitor_workspaces.json"
 
 
-def _workspace_for_visitor(memory_dir: Path, visitor_id: str) -> str:
+def _workspace_for_visitor(memory_dir: Path, visitor_id: str, *, title: str = "Vector Workspace") -> str:
     path = _visitor_map_path(memory_dir)
     mapping: dict[str, str] = {}
     if path.is_file():
@@ -54,7 +72,7 @@ def _workspace_for_visitor(memory_dir: Path, visitor_id: str) -> str:
         return mapping[visitor_id]
     ws = ExecutionWorkspaceStore(memory_dir).create(
         owner_id=visitor_id[:64] or "anonymous",
-        title="Vector Workspace",
+        title=title,
     )
     mapping[visitor_id] = ws.workspace_id
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -81,6 +99,18 @@ def _parse_file_request(goal: str) -> tuple[str, str] | None:
     return None
 
 
+def _parse_site_request(goal: str) -> str | None:
+    g = goal.strip()
+    if _SITE_GOAL.search(g):
+        return g
+    lower = g.lower()
+    if any(w in lower for w in ("сайт", "site", "landing", "лендинг")) and any(
+        w in lower for w in ("создай", "создать", "сделай", "хочу", "нужен", "need", "create", "build")
+    ):
+        return g
+    return None
+
+
 def _default_readme(goal: str) -> str:
     return f"""# README
 
@@ -95,6 +125,15 @@ def _default_readme(goal: str) -> str:
 """
 
 
+def _progress_answer(lines: tuple[str, ...]) -> str:
+    return "\n".join(f"✓ {line}..." if line != "Готово" else f"✓ {line}." for line in lines)
+
+
+def _preview_href(workspace_id: str, visitor_id: str) -> str:
+    q = quote(visitor_id, safe="")
+    return f"/api/public/execution/preview/{workspace_id}?visitor_id={q}"
+
+
 def try_user_execution(
     goal: str,
     *,
@@ -102,9 +141,13 @@ def try_user_execution(
     memory_dir: Path,
 ) -> dict[str, Any] | None:
     """
-  Run a single real capability when the user goal matches.
-  Returns public chat dict or None (fall through to Brain).
+    Run a single real capability when the user goal matches.
+    Returns public chat dict or None (fall through to Brain).
     """
+    site_goal = _parse_site_request(goal)
+    if site_goal:
+        return _run_generate_site(site_goal, visitor_id=visitor_id, memory_dir=memory_dir)
+
     parsed = _parse_file_request(goal)
     if not parsed:
         return None
@@ -178,6 +221,81 @@ def try_user_execution(
     }
 
 
+def _run_generate_site(
+    goal: str,
+    *,
+    visitor_id: str,
+    memory_dir: Path,
+) -> dict[str, Any]:
+    workspace_id = _workspace_for_visitor(memory_dir, visitor_id, title="Site project")
+    registry = get_execution_registry(memory_dir)
+    ws_store = ExecutionWorkspaceStore(memory_dir)
+    logs = ExecutionLogStore(memory_dir)
+    mgr = ExecutionManager(registry=registry, workspace_store=ws_store, log_store=logs)
+
+    plan = ExecutionPlan(
+        plan_id="",
+        goal=goal.strip(),
+        workspace_id=workspace_id,
+        steps=(
+            ExecutionStep(
+                id="step-generate-site",
+                capability_id="generate_site",
+                title="Generate site from brief",
+                inputs={"brief": goal.strip(), "workspace_id": workspace_id},
+                verification=VerificationRule(
+                    id="vr-site",
+                    description="Site artifact produced",
+                    required_output_keys=("artifact_id", "preview_url", "files"),
+                ),
+            ),
+        ),
+        required_permissions=frozenset({"write", "filesystem", "network"}),
+    )
+    grant = PermissionGrant(
+        kinds=frozenset({"read", "write", "filesystem", "network", "deployment"}),
+        workspace_id=workspace_id,
+        actor=visitor_id,
+    )
+    result = mgr.run(plan, grant)
+    if result.status != "completed":
+        err = result.error or (result.steps[0].error if result.steps else "execution failed")
+        return {
+            "answer": f"Не удалось создать сайт: {err}",
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "execution",
+            "cta_href": None,
+            "cta_label": None,
+            "context": {"execution": result.to_dict()},
+        }
+
+    cap = result.steps[0].outputs
+    files = cap.get("files") or []
+    preview_path = _preview_href(workspace_id, visitor_id)
+    file_list = "\n".join(f"- `{f}`" for f in files if f)
+    answer = (
+        f"{_progress_answer(_SITE_PROGRESS)}\n\n"
+        "**Проект готов.**\n\n"
+        f"{file_list}\n\n"
+        "Откройте preview — это реальный сайт, не описание в чате."
+    )
+    return {
+        "answer": answer,
+        "source": "genesis-ai",
+        "mode": "genesis",
+        "provider": "execution",
+        "cta_href": preview_path,
+        "cta_label": "Открыть preview",
+        "context": {
+            "execution": result.to_dict(),
+            "capability_result": cap,
+            "workspace_id": workspace_id,
+            "preview_url": preview_path,
+        },
+    }
+
+
 def list_user_capabilities(memory_dir: Path) -> list[dict[str, str]]:
     """Product KPI — what Vector can actually do today."""
     reg = get_execution_registry(memory_dir)
@@ -185,5 +303,6 @@ def list_user_capabilities(memory_dir: Path) -> list[dict[str, str]]:
     labels = {
         "filesystem_write": "создавать документ по запросу (файл + содержимое + путь)",
         "filesystem_read": "читать документ из Workspace",
+        "generate_site": "создавать сайт по запросу (workspace + brief + HTML + CSS + preview)",
     }
     return [{"id": c.id, "label": labels.get(c.id, c.name)} for c in ready]

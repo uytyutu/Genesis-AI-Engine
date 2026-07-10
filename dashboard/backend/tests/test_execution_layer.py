@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -141,3 +142,69 @@ def test_bridge_returns_none_for_normal_chat(memory_tmp: Path):
 
     bridge._REGISTRY = None
     assert bridge.try_user_execution("Привет как дела?", visitor_id="v2", memory_dir=memory_tmp) is None
+
+
+def test_generate_site_executor_creates_project(memory_tmp: Path):
+    import app.execution.bridge as bridge
+    from app.execution.executors.generate_site import GenerateSiteExecutor
+
+    bridge._REGISTRY = None
+    ws_store = ExecutionWorkspaceStore(memory_tmp)
+    ws = ws_store.create(owner_id="u1", title="Site")
+    ex = GenerateSiteExecutor(ws_store)
+    out = ex.execute(
+        {"brief": "Создай сайт стоматологии", "workspace_id": ws.workspace_id},
+        {"workspace_id": ws.workspace_id, "goal": "Создай сайт стоматологии"},
+    )
+    assert out["artifact_id"].startswith("site-")
+    assert "index.html" in out["files"]
+    assert "style.css" in out["files"]
+    assert "brief.md" in out["files"]
+    assert ws_store.path_for(ws.workspace_id, "files", "index.html").is_file()
+    preview_index = ws_store.path_for(ws.workspace_id, "artifacts", "preview") / "index.html"
+    assert preview_index.is_file()
+
+
+def test_bridge_site_goal_returns_preview_cta(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    map_path = memory_tmp / "execution" / "visitor_workspaces.json"
+    out = bridge.try_user_execution(
+        "Создай сайт стоматологии",
+        visitor_id="visitor-site",
+        memory_dir=memory_tmp,
+    )
+    assert out is not None
+    assert out["provider"] == "execution"
+    assert "✓ Готово" in out["answer"]
+    assert "index.html" in out["answer"]
+    assert out["cta_href"]
+    assert out["cta_label"] == "Открыть preview"
+    ws_id = out["context"]["workspace_id"]
+    mapping = json.loads(map_path.read_text(encoding="utf-8"))
+    assert mapping["visitor-site"] == ws_id
+
+
+def test_preview_requires_visitor_ownership(memory_tmp: Path):
+    import pytest
+    from fastapi import HTTPException
+
+    from app.execution.preview import serve_preview
+
+    ws_store = ExecutionWorkspaceStore(memory_tmp)
+    ws = ws_store.create(owner_id="owner", title="P")
+    map_path = memory_tmp / "execution" / "visitor_workspaces.json"
+    map_path.parent.mkdir(parents=True, exist_ok=True)
+    map_path.write_text(json.dumps({"v1": ws.workspace_id}), encoding="utf-8")
+    preview_dir = ws_store.path_for(ws.workspace_id, "artifacts", "preview")
+    preview_dir.mkdir(parents=True, exist_ok=True)
+    (preview_dir / "index.html").write_text("<html></html>", encoding="utf-8")
+
+    resp = serve_preview(memory_tmp, ws.workspace_id, "v1")
+    assert resp is not None
+
+    with pytest.raises(HTTPException) as exc:
+        serve_preview(memory_tmp, ws.workspace_id, "stranger")
+    assert exc.value.status_code == 403
+
