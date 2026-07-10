@@ -463,7 +463,7 @@ def executive_reply(
         if brief.goal:
             from app.integration.genesis_brain.reasoned_human import reasoned_human_reply
 
-            return reasoned_human_reply(
+            routed = reasoned_human_reply(
                 brief.goal,
                 brief,
                 raw=last_user,
@@ -472,6 +472,8 @@ def executive_reply(
                 turn_index=turn_index,
                 messages=messages,
             )
+            if routed:
+                return routed
         human = human_reply(
             talk, last_user, state=state, visitor_id=visitor_id, turn_index=turn_index, messages=messages
         )

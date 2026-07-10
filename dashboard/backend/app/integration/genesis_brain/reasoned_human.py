@@ -24,7 +24,7 @@ def reasoned_human_reply(
     visitor_id: str,
     turn_index: int,
     messages: list[dict[str, str]] | None = None,
-) -> str:
+) -> str | None:
     """Compose response from reasoning — not from conversation_type bucket."""
     open_ = pick_opening(visitor_id, turn_index)
     action = executive.helpful_action or goal.helpful_action
@@ -56,12 +56,25 @@ def reasoned_human_reply(
     if goal.real_goal == "small_talk":
         return _small_talk_reply(raw, visitor_id, turn_index, open_)
 
+    if goal.real_goal == "thread_follow_up":
+        return _thread_follow_up_reply(messages or [], open_, raw)
+
     if goal.real_goal == "curiosity":
+        answered = _curiosity_answer(raw)
+        if answered:
+            return f"{open_} {answered}".strip()
+        if _substantive_curiosity(raw):
+            return None
         return f"{open_} С удовольствием объясню.\n\n{_curiosity_stub(raw)}"
 
     if action == "one_question" and goal.optional_question:
         ack = _context_ack(state)
         return f"{open_} {ack}{goal.optional_question}".strip()
+
+    if goal.real_goal == "factual_question":
+        answered = _curiosity_answer(raw)
+        if answered:
+            return f"{open_} {answered}".strip()
 
     return f"{open_} Слушаю Вас — расскажите, что для Вас сейчас важнее всего."
 
@@ -236,6 +249,85 @@ def _small_talk_reply(raw: str, visitor_id: str, turn_index: int, open_: str) ->
     seed = f"{visitor_id}:{turn_index}:{raw[:20]}"
     idx = int(hashlib.sha256(seed.encode()).hexdigest(), 16) % len(variants)
     return variants[idx]
+
+
+def _substantive_curiosity(raw: str) -> bool:
+    low = raw.lower()
+    if not re.search(r"почему|зачем|как\s+работает|объясни", low):
+        return False
+    return bool(
+        re.search(
+            r"земл|погод|америк|космос|небес|физик|истори|числ|атом|гравитац|"
+            r"солнц|лун|планет|эволюц|днк|биткоин|войн",
+            low,
+        )
+    )
+
+
+def _curiosity_answer(raw: str) -> str | None:
+    low = raw.lower()
+    if re.search(r"земл.*кругл|кругл.*земл|почему.*земл", low):
+        return (
+            "Земля кажется «круглой», потому что при большой массе гравитация стягивает "
+            "вещество к центру — тело получается почти сферическим.\n\n"
+            "Это видно по тени Земли на Луне, по разным созвездиям в разных широтах "
+            "и по снимкам со спутников."
+        )
+    if re.search(r"погод|америк|сша|usa", low):
+        return (
+            "В США погода сильно различается по регионам — без города или штата точный "
+            "прогноз не назвать.\n\n"
+            "Напишите город — подскажу типичную картину для сезона, "
+            "или посмотрите актуально в любом погодном сервисе."
+        )
+    return None
+
+
+def _thread_follow_up_reply(
+    messages: list[dict[str, str]],
+    open_: str,
+    raw: str,
+) -> str:
+    low = raw.lower()
+    prior = ""
+    skipped_current_user = False
+    for msg in reversed(messages):
+        role = msg.get("role")
+        if role == "user" and not skipped_current_user:
+            skipped_current_user = True
+            continue
+        if skipped_current_user and role == "assistant":
+            prior = (msg.get("content") or "").strip()
+            break
+
+    if re.search(r"попроще|не\s+понял|не\s+поняла", low):
+        return (
+            f"{open_} Попробую проще: скажите одним предложением, что именно осталось "
+            "непонятным — перефразирую короче."
+        )
+
+    if prior and re.search(r"рад|связи|привет", prior, re.I) and re.search(
+        r"рад|смысл|связ|чему|почему",
+        low,
+    ):
+        return (
+            f"{open_} Имел в виду, что рад начать разговор — мне интересно помочь "
+            "с задачей, идеей или просто обсудить то, что вас волнует."
+        )
+
+    if prior:
+        snippet = prior.replace("\n", " ").strip()
+        if len(snippet) > 120:
+            snippet = snippet[:117] + "…"
+        return (
+            f"{open_} Вы уточняете мою прошлую реплику («{snippet}»).\n\n"
+            "Если я неточно выразился — скажите, что именно смущает, и я поясню конкретнее."
+        )
+
+    return (
+        f"{open_} Похоже, вы уточняете предыдущий ответ — "
+        "переформулируйте вопрос, и я отвечу по существу."
+    )
 
 
 def _curiosity_stub(raw: str) -> str:

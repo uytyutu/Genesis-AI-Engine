@@ -25,6 +25,7 @@ RealGoal = Literal[
     "curiosity",          # как работает, что такое
     "business_intent",    # открыть бизнес, сайт
     "small_talk",         # привет, как дела
+    "thread_follow_up",   # уточнение к прошлой реплике ассистента
     "factual_question",   # конкретный вопрос
     "unknown",
 ]
@@ -111,7 +112,7 @@ class GoalAnalysisLayer:
         emotion = self._emotion_tone(emotional, low)
         facts = self._known_facts(state)
 
-        real_goal = self._real_goal(raw, n, low, thread, state)
+        real_goal = self._real_goal(raw, n, low, thread, state, messages)
         implicit = self._implicit_need(real_goal, thread, emotion, state)
         action, question = self._helpful_action(real_goal, thread, state, low)
         reasoning = self._reasoning_chain(
@@ -138,6 +139,7 @@ class GoalAnalysisLayer:
         low: str,
         thread: ThreadContext,
         state: ConversationState,
+        messages: list[dict[str, str]],
     ) -> RealGoal:
         if re.search(
             r"не\s+тот\s+вопрос|не\s+этот\s+вопрос|я\s+задавал|задавал\s+не|"
@@ -184,6 +186,9 @@ class GoalAnalysisLayer:
         if re.search(r"^(привет|здравствуй|hello|hi|как\s+дела)\b", low):
             return "small_talk"
 
+        if self._is_thread_follow_up(raw, low, messages):
+            return "thread_follow_up"
+
         if re.search(r"что\s+такое|как\s+работает|объясни|почиму|почему", low):
             return "curiosity"
 
@@ -194,6 +199,42 @@ class GoalAnalysisLayer:
             return "doubt"
 
         return "unknown"
+
+    @staticmethod
+    def _prior_assistant_text(messages: list[dict[str, str]]) -> str:
+        skipped_current_user = False
+        for msg in reversed(messages):
+            role = msg.get("role")
+            if role == "user" and not skipped_current_user:
+                skipped_current_user = True
+                continue
+            if skipped_current_user and role == "assistant":
+                return (msg.get("content") or "").strip()
+        return ""
+
+    def _is_thread_follow_up(
+        self,
+        raw: str,
+        low: str,
+        messages: list[dict[str, str]],
+    ) -> bool:
+        """User clarifies or questions the assistant's previous reply — not a new topic."""
+        prior = self._prior_assistant_text(messages)
+        if not prior:
+            return False
+        if re.search(
+            r"^(?:в\s+смысле|почему\s+ты|чему\s+ты|зачем\s+ты|что\s+значит|"
+            r"что\s+имел\s+в\s+виду|как\s+это\s+понимать|ты\s+чего|"
+            r"можно\s+попроще|не\s+понял|не\s+поняла)\b",
+            low,
+        ):
+            return True
+        if len(low) < 90 and "?" in raw and re.search(
+            r"\b(?:ты|тебя|твой|твоя|это|так|смысл|имел|рад|связ)\b",
+            low,
+        ):
+            return True
+        return False
 
     @staticmethod
     def _is_life_context(raw: str, low: str) -> bool:
