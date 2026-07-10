@@ -38,7 +38,22 @@ def test_curiosity_earth_not_generic_stub():
     assert "земл" in answer.lower() or "гравитац" in answer.lower() or "сфер" in answer.lower()
 
 
+def test_earth_capitalized_phrase():
+    messages = [{"role": "user", "content": "Почему Земля круглая?"}]
+    answer = _chat(messages)
+    assert "Коротко: я опираюсь на то, что уже знаю" not in answer
+    assert "Опишите, что именно хотите понять" not in answer
+    assert any(w in answer.lower() for w in ("земл", "гравитац", "сфер", "округл"))
+
+
 def test_weather_america_not_listen_fallback():
     messages = [{"role": "user", "content": "Что там в Америке с погодой?"}]
     answer = _chat(messages)
     assert "Слушаю Вас — расскажите, что для Вас сейчас важнее всего" not in answer
+
+
+def test_casual_yo_not_fallback():
+    messages = [{"role": "user", "content": "Йо"}]
+    answer = _chat(messages)
+    assert "Слушаю Вас — расскажите, что для Вас сейчас важнее всего" not in answer
+    assert len(answer) >= 8

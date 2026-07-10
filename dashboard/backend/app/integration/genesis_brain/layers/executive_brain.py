@@ -445,17 +445,19 @@ def executive_reply(
         )
 
     if brief.mode == "explain":
-        if state.country == "Россия" and state.budget_amount and state.budget_amount <= 50000:
+        rg = getattr(brief.goal, "real_goal", "") if brief.goal else ""
+        if rg not in ("curiosity", "factual_question", "thread_follow_up"):
+            if state.country == "Россия" and state.budget_amount and state.budget_amount <= 50000:
+                return (
+                    "Потому что при бюджете около **10–50 тыс. ₽** в Москве аренда и оборудование "
+                    "для полноценной кофейни обычно превышают эту сумму уже в первый месяц.\n\n"
+                    "Я предложил форматы, которые реально укладываются в такой старт."
+                )
             return (
-                "Потому что при бюджете около **10–50 тыс. ₽** в Москве аренда и оборудование "
-                "для полноценной кофейни обычно превышают эту сумму уже в первый месяц.\n\n"
-                "Я предложил форматы, которые реально укладываются в такой старт."
+                f"{open_} Коротко: я опираюсь на то, что уже знаю — "
+                f"{state.country or 'регион'}, бюджет {state.budget_display() or 'не указан'}.\n\n"
+                "Если логика не сходится — поправьте меня, и я пересчитаю."
             )
-        return (
-            f"{open_} Коротко: я опираюсь на то, что уже знаю — "
-            f"{state.country or 'регион'}, бюджет {state.budget_display() or 'не указан'}.\n\n"
-            "Если логика не сходится — поправьте меня, и я пересчитаю."
-        )
 
     if not is_business_mode(talk):
         if brief.goal and getattr(brief.goal, "real_goal", "") == "small_talk":

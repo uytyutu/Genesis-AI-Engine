@@ -186,6 +186,9 @@ class GoalAnalysisLayer:
         if re.search(r"^(привет|здравствуй|hello|hi|как\s+дела)\b", low):
             return "small_talk"
 
+        if re.match(r"^(йо|yo|хай|хэй|хей|ку|салют|здарова|дарова|sup)\b", low):
+            return "small_talk"
+
         if self._is_thread_follow_up(raw, low, messages):
             return "thread_follow_up"
 
