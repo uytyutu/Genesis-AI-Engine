@@ -10,9 +10,14 @@ from pathlib import Path
 from typing import Any
 
 from app.execution.artifact_result import CapabilityArtifact, CapabilityResult
-from app.factory.analyzer import AnalysisResult, analyze
 from app.factory.landing_builder import build_landing_html
 from app.execution.workspace import ExecutionWorkspaceStore
+from app.execution.workspace_reuse import (
+    analysis_for_site,
+    brief_with_reuse,
+    load_workspace_building_blocks,
+)
+from app.factory.landing_builder import build_landing_html
 
 
 def _split_html_css(html: str) -> tuple[str, str]:
@@ -22,34 +27,6 @@ def _split_html_css(html: str) -> tuple[str, str]:
     css = match.group(1).strip()
     html_out = html[: match.start()] + '  <link rel="stylesheet" href="style.css">\n' + html[match.end() :]
     return css, html_out
-
-
-def _brief_markdown(goal: str, analysis: AnalysisResult) -> str:
-    services = "\n".join(f"- {s}" for s in analysis.services)
-    return f"""# Project brief
-
-## Запрос
-{goal.strip()}
-
-## Бизнес
-- **Название:** {analysis.business_name}
-- **Ниша:** {analysis.niche}
-- **Шаблон:** {analysis.template_id}
-
-## Позиционирование
-**{analysis.headline}**
-
-{analysis.subtitle}
-
-## Услуги
-{services}
-
-## CTA
-{analysis.cta_label}
-
----
-Создано Vector (Virtus Core).
-"""
 
 
 class GenerateSiteExecutor:
@@ -66,26 +43,33 @@ class GenerateSiteExecutor:
         if not brief_text:
             raise ValueError("brief required")
 
-        analysis = analyze(brief_text)
+        blocks = load_workspace_building_blocks(self._workspaces, workspace_id)
+        analysis, reuse = analysis_for_site(brief_text, blocks)
         html_full = build_landing_html(analysis)
         css, index_html = _split_html_css(html_full)
         if not css:
             css = "/* Vector site */\nbody { font-family: system-ui, sans-serif; }"
 
         artifact_id = f"site-{uuid.uuid4().hex[:8]}"
-        logs: list[str] = [
-            "Анализирую запрос",
-            "Формирую структуру проекта",
-            "Создаю brief",
-            "Генерирую HTML",
-            "Генерирую CSS",
-            "Создаю preview",
-        ]
+        logs: list[str] = ["Анализирую запрос"]
+        if reuse.reuse_score > 0:
+            logs.append("Использую document_structure.json из workspace")
+            if "executive_summary" in reuse.reused_capabilities:
+                logs.append("Использую executive_summary.md")
+        logs.extend(
+            [
+                "Формирую структуру проекта",
+                "Создаю brief",
+                "Генерирую HTML",
+                "Генерирую CSS",
+                "Создаю preview",
+            ]
+        )
 
         files_root = self._workspaces.path_for(workspace_id, "files")
         written: list[str] = []
         payloads = {
-            "brief.md": _brief_markdown(brief_text, analysis),
+            "brief.md": brief_with_reuse(brief_text, analysis, reuse),
             "index.html": index_html,
             "style.css": css,
         }
@@ -115,6 +99,7 @@ class GenerateSiteExecutor:
             "files": written,
             "business_name": analysis.business_name,
             "niche": analysis.niche,
+            "reuse": reuse.to_dict(),
         }
         manifest_path = self._workspaces.path_for(workspace_id, "artifacts", f"{artifact_id}.json")
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -142,6 +127,8 @@ class GenerateSiteExecutor:
             logs=logs,
             status="completed",
             capability_id="generate_site",
+            reused_capabilities=reuse.reused_capabilities,
+            reuse_score=reuse.reuse_score,
         )
         self._workspaces.touch(workspace_id)
         return result.to_dict()

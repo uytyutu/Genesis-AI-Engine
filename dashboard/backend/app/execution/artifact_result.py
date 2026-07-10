@@ -37,6 +37,8 @@ class CapabilityResult:
     logs: list[str] = field(default_factory=list)
     status: ExecutionStatus = "completed"
     capability_id: str = ""
+    reused_capabilities: list[str] = field(default_factory=list)
+    reuse_score: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -48,6 +50,8 @@ class CapabilityResult:
             "logs": list(self.logs),
             "status": self.status,
             "capability_id": self.capability_id,
+            "reused_capabilities": list(self.reused_capabilities),
+            "reuse_score": self.reuse_score,
         }
 
     @classmethod

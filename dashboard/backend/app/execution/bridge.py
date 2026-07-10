@@ -440,10 +440,19 @@ def _run_generate_site(
     files = cap.get("files") or []
     preview_path = _preview_href(workspace_id, visitor_id)
     file_list = "\n".join(f"- `{f}`" for f in files if f)
+    reuse_score = int(cap.get("reuse_score") or 0)
+    reuse_note = ""
+    if reuse_score > 0:
+        reused = ", ".join(cap.get("reused_capabilities") or [])
+        reuse_note = (
+            f"\n\n**Reuse Score: {reuse_score}** — сайт использует артефакты анализа "
+            f"(`{reused}`). Данные не переспрашивались.\n"
+        )
     answer = (
         f"{_progress_answer(_SITE_PROGRESS)}\n\n"
         "**Проект готов.**\n\n"
-        f"{file_list}\n\n"
+        f"{file_list}"
+        f"{reuse_note}\n\n"
         "Откройте preview — это реальный сайт, не описание в чате."
     )
     return {
@@ -469,7 +478,7 @@ def list_user_capabilities(memory_dir: Path) -> list[dict[str, str]]:
     labels = {
         "filesystem_write": "создавать документ по запросу (файл + содержимое + путь)",
         "filesystem_read": "читать документ из Workspace",
-        "generate_site": "создавать сайт по запросу (workspace + brief + HTML + CSS + preview)",
+        "generate_site": "создавать сайт по запросу (reuse document_structure при наличии)",
         "analyze_business_document": "анализировать бизнес-документы (PDF → отчёты + SWOT)",
     }
     return [{"id": c.id, "label": labels.get(c.id, c.name)} for c in ready]

@@ -317,3 +317,84 @@ def test_serve_workspace_file_requires_visitor(memory_tmp: Path):
         serve_workspace_file(memory_tmp, ws.workspace_id, "other", "report.md")
     assert exc.value.status_code == 403
 
+
+def test_generate_site_reuses_document_structure(memory_tmp: Path):
+    from app.execution.executors.generate_site import GenerateSiteExecutor
+    from app.execution.document_intelligence import analyze_document, structure_json
+
+    ws_store = ExecutionWorkspaceStore(memory_tmp)
+    ws = ws_store.create(owner_id="u1", title="Reuse")
+    plan_text = (
+        "Бизнес-план стоматологии SmileDent. Рынок: имплантация растёт на 12% в год. "
+        "Сильные стороны: команда из 8 врачей с европейской сертификацией. "
+        "Финансы: выручка 200000 евро. Риск: конкуренция в центре города."
+    )
+    doc_analysis = analyze_document(plan_text, filename="plan.pdf", goal="бизнес-план")
+    files_root = ws_store.path_for(ws.workspace_id, "files")
+    files_root.mkdir(parents=True, exist_ok=True)
+    (files_root / "document_structure.json").write_text(structure_json(doc_analysis), encoding="utf-8")
+    (files_root / "executive_summary.md").write_text(
+        "# Executive Summary\n\nSmileDent — лидер имплантации в районе.\n",
+        encoding="utf-8",
+    )
+
+    ex = GenerateSiteExecutor(ws_store)
+    out = ex.execute(
+        {"brief": "Создай сайт", "workspace_id": ws.workspace_id},
+        {"workspace_id": ws.workspace_id, "goal": "Создай сайт"},
+    )
+    assert out.get("reuse_score", 0) >= 1
+    assert "analyze_business_document" in out.get("reused_capabilities", [])
+    brief = (files_root / "brief.md").read_text(encoding="utf-8")
+    assert "Reuse" in brief or "document_structure" in brief
+    html = (files_root / "index.html").read_text(encoding="utf-8")
+    assert "SmileDent" in html or doc_analysis.structure.title.split()[0] in html
+
+
+def test_workflow_analyze_then_site_same_visitor(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    visitor = "workflow-visitor"
+    upload_dir = memory_tmp / "public_chat_uploads"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    att_id = "att-wf001"
+    plan_path = upload_dir / f"{att_id}.txt"
+    plan_path.write_text(
+        "Бизнес-план клиники DentalPro. Рынок стоматологии. "
+        "Сильные стороны: цифровая диагностика. Финансы: рост 15%.",
+        encoding="utf-8",
+    )
+    (upload_dir / "index.json").write_text(
+        json.dumps(
+            [
+                {
+                    "id": att_id,
+                    "filename": "plan.txt",
+                    "content_type": "text/plain",
+                    "path": str(plan_path),
+                    "visitor_id": visitor,
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    analyze_out = bridge.try_user_execution(
+        "Проанализируй мой бизнес-план",
+        visitor_id=visitor,
+        memory_dir=memory_tmp,
+        attachment_files=[{"id": att_id, "filename": "plan.txt", "content_type": "text/plain"}],
+    )
+    assert analyze_out and analyze_out["provider"] == "execution"
+    ws_id = analyze_out["context"]["workspace_id"]
+
+    site_out = bridge.try_user_execution(
+        "Создай сайт",
+        visitor_id=visitor,
+        memory_dir=memory_tmp,
+    )
+    assert site_out and site_out["provider"] == "execution"
+    assert site_out["context"]["workspace_id"] == ws_id
+    cap = site_out["context"]["capability_result"]
+    assert cap.get("reuse_score", 0) >= 1
+

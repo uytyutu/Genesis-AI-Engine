@@ -1,157 +1,92 @@
 # Vector — живой паспорт способностей
 
-**Источник правды** для команды, тестировщиков и CEO.
+**Среда выполнения работы** — не чат. Производство артефактов + композиция capability.
 
-Virtus Core = **производство артефактов**, не разговор. Каждая способность усиливает предыдущие.
+## Правила
 
-## Правила развития
+1. Одна способность = законченная ценность  
+2. Пирамида ценности  
+3. Один merge — одна способность *(Reuse Merge — исключение: wiring без новой capability)*  
+4. Capability must compose  
+5. Product Truth — только `/site`  
+6. Human Gate  
+7. **Rule №4 — Reuse** — использовать артефакты предыдущих capability из workspace  
 
-1. **Одна способность = законченная ценность**
-2. **Пирамида ценности** — roadmap по уровням полезности
-3. **Один merge — одна способность**
-4. **Capability must compose** — стандартный `CapabilityResult` + артефакты как строительные блоки
-5. **Product Truth** — проверка только через `/site`
-6. **Human Gate** — Commit N+1 не начинать, пока Commit N не проверен человеком на beta
-7. **Rule №4 — Reuse** — новая capability **обязана** использовать результаты предыдущих, если они есть в workspace. Не спрашивать заново то, что уже в `document_structure.json`, `report.md`, логах, git.
+## KPI (три показателя)
 
----
+| KPI | Вопрос |
+|-----|--------|
+| **Hours Saved** | Сколько часов работы снято? |
+| **Reuse Score** | Сколько capability переиспользовано? |
+| **Workflow Completion** | Прошёл ли пользователь цепочку без ручного копирования? |
 
-## KPI (два показателя)
-
-### 1. Hours Saved
-> Сколько часов реальной работы заменяет способность?
-
-| Commit | Способность | Экономия |
-|--------|-------------|----------|
-| 1 | Документы | ~5–15 мин |
-| 2 | Сайты | ~30–120 мин |
-| 3 | Анализ бизнес-документов | ~2–8 ч |
-| 4 | Работа с проектами разработки | ~1–4 ч |
-
-### 2. Reuse Score
-> Сколько **существующих** capability использовала новая?
-
-| Commit | Способность | Reuse | Использует |
-|--------|-------------|-------|------------|
-| 1 | Документы | **0** | — (первая) |
-| 2 | Сайты | **0** | — *(пока; цель: читать `document_structure.json`)* |
-| 3 | Анализ документов | **0** | — (первый аналитический блок) |
-| 4 | Dev projects | **2** *(цель)* | Workspace, Logs |
-| 5 | Git | **3** *(цель)* | Git, Workspace, Report |
-| … | … | растёт | к Commit 20 — почти всё из блоков, не с нуля |
-
-**Зрелая платформа** = высокий Reuse Score, низкий дублирующий код и повторные вопросы пользователю.
-
----
-
-## Четыре фундаментальных кирпича
-
-| # | Кирпич | Статус | Артефакты |
-|---|--------|--------|-----------|
-| 1 | Создание документов | ✅ READY | файлы в workspace |
-| 2 | Создание сайтов | ✅ READY | brief, HTML, CSS, preview |
-| 3 | Анализ бизнес-документов | 🔄 HUMAN GATE | report, executive_summary, document_structure.json |
-| 4 | Работа с проектами разработки | ⬜ NEXT | diff, тесты, безопасное применение |
-
----
-
-## Roadmap vNext
-
-| Commit | Способность | Reuse (цель) | Статус |
-|--------|-------------|--------------|--------|
-| 1 | Создавать документы | 0 | ✅ READY |
-| 2 | Создавать сайты | 0 → 1* | ✅ READY |
-| 3 | Анализировать бизнес-документы | 0 | 🔄 HUMAN GATE |
-| 4 | **Работать с проектами разработки** | 2 | ⬜ NEXT |
-| 5 | Git | 3 | ⬜ |
-| 6 | Browser | — | ⬜ |
-| 7 | Docker | — | ⬜ |
-| 8 | Workspace Intelligence | — | ⬜ |
-| 9 | Multi-Step | высокий | ⬜ |
-| 10 | Autonomous Jobs | высокий | ⬜ |
-
-\* *После wiring: `generate_site` читает `document_structure.json` из того же workspace — Reuse 1.*
-
----
-
-## Композиция (целевая цепочка)
+### Workflow Completion (целевая цепочка №1)
 
 ```
-PDF → Commit 3 → report.md + document_structure.json
-                      ↓
-              «Создай сайт» → Commit 2 (reuse: рынок, позиционирование, услуги)
-                      ↓
-              «Создай презентацию» → reuse: report.md
-                      ↓
-              «Создай КП» → reuse: executive_summary.md
+Бизнес-план → Анализ → Сайт → (позже: Презентация → КП)
 ```
 
-Новая capability не создаёт всё с нуля — **собирает** из workspace.
+| Шаг | Capability | Статус |
+|-----|------------|--------|
+| 1. PDF + анализ | Commit 3 | 🔄 Human Gate |
+| 2. «Создай сайт» с reuse | Reuse Merge | 🔄 Human Gate Reuse |
+| 3. Презентация | Commit 9+ | ⬜ |
+
+**Workflow #1 complete** = шаги 1–2 без копирования данных между чатами.
 
 ---
 
-## Commit 3 — Documents Intelligence
+## Порядок сейчас (не Commit 4)
 
-**Способность:** Vector умеет **анализировать бизнес-документы**.
-
-**Статус:** 🔄 HUMAN GATE (`e5f56ac`)
-
-**Артефакты:** `executive_summary.md`, `report.md`, `document_structure.json`, `uploads/`
-
-**Reuse Score:** 0 (нормально — первый аналитический блок)
-
-### Human Gate
-
-- [ ] PDF на `/site` + «Проанализируй мой бизнес-план»
-- [ ] Открыть оба отчёта
-- [ ] Анализ основан на **вашем** файле
+1. **Human Gate Commit 3** — PDF на beta  
+2. **Reuse Merge** — `generate_site` ← `document_structure.json` *(код в ветке)*  
+3. **Human Gate Reuse** — план → анализ → «Создай сайт»  
+4. **Commit 4** — только после связанного фундамента  
 
 ---
 
-## Commit 4 — Development Projects (следующий)
+## Четыре кирпича
 
-**Способность:** Vector умеет **работать с проектами разработки**.
+| Кирпич | Статус | Reuse |
+|--------|--------|-------|
+| Документы | ✅ READY | 0 |
+| Сайты | ✅ READY | 0 → **1** после Reuse Merge |
+| Анализ документов | 🔄 Human Gate | 0 |
+| Dev projects | ⬜ после Gate Reuse | цель 2 |
 
-Не «исправь ошибку» как название — **первый сценарий внутри**:
+---
 
+## Reuse Merge (не новая capability)
+
+**Сценарий:**
 ```
-открыть проект → логи → причина → предложение → правка в копии/ветке
-→ diff → тесты → только потом предложить применить
-```
-
-**Product Truth:** артефакты (diff, log summary, test result) — не стена текста.
-
-**Reuse Score (цель):** 2 — Workspace + Logs.
-
-**Безопасность:** не менять код без подтверждения; sandbox / branch сначала.
-
----
-
-## Примеры для тестировщиков
-
-| Фраза | Статус |
-|-------|--------|
-| `Создай README` | ✅ READY |
-| `Создай сайт стоматологии` | ✅ READY |
-| `Проанализируй мой бизнес-план` + PDF | 🔄 HUMAN GATE |
-| `Исправь ошибку` | ⬜ не обещать до Commit 4 |
-
----
-
-## Building block: `document_structure.json`
-
-```json
-{
-  "version": "document-structure-v1",
-  "analysis": {
-    "structure": { "document_type": "business_plan", "detected_topics": ["market", "finance", "risks"] },
-    "swot": { "strengths": [], "weaknesses": [], "opportunities": [], "threats": [] }
-  }
-}
+PDF → analyze_business_document → document_structure.json
+→ «Создай сайт» → generate_site читает артефакты → сайт
 ```
 
-Потребители: `generate_site`, Presentation, Proposal, CRM Agent, Multi-Step.
+**Источники:** `document_structure.json`, `executive_summary.md` (если есть).
+
+**Ответ чата:** `Reuse Score: N` — данные не переспрашивались.
+
+**Статус:** 🔄 Human Gate Reuse pending
+
+### Human Gate Reuse checklist
+
+- [ ] Загрузить бизнес-план → анализ  
+- [ ] «Создай сайт» (без повторного описания бизнеса)  
+- [ ] Сайт отражает данные из анализа (название, услуги, позиционирование)  
+- [ ] `brief.md` содержит секцию Reuse  
 
 ---
 
-*Обновлено: 2026-07-10 — Rule №4 + Reuse Score; Commit 4 переформулирован.*
+## Reuse Score (актуально)
+
+| Capability | Reuse |
+|------------|-------|
+| analyze_business_document | 0 |
+| generate_site (без анализа) | 0 |
+| generate_site (после анализа в том же workspace) | **1–2** |
+
+---
+
+*Обновлено: 2026-07-10 — Reuse Merge + Workflow Completion KPI.*
