@@ -576,9 +576,13 @@ def get_mission_control() -> MissionControl:
 
 @app.get("/api/owner/execution/capabilities")
 def owner_execution_capabilities() -> dict:
+    from app.execution.bridge import list_user_capabilities
     from app.execution.service import ExecutionLayerService
 
-    return ExecutionLayerService(_memory_dir()).capabilities_snapshot()
+    svc = ExecutionLayerService(_memory_dir())
+    snap = svc.capabilities_snapshot()
+    snap["user_ready"] = list_user_capabilities(_memory_dir())
+    return snap
 
 
 @app.post("/api/owner/execution/plan-preview")

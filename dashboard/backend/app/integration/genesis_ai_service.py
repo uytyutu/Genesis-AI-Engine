@@ -92,6 +92,12 @@ class GenesisAIService:
                 "cta_label": None,
             }
 
+        from app.execution.bridge import try_user_execution
+
+        executed = try_user_execution(q, visitor_id=vid, memory_dir=self._memory_dir)
+        if executed:
+            return executed
+
         mode: Literal["public", "ceo"] = "ceo" if ctx.get("personality") == "ceo" else "public"
         if ctx.get("personality_mode") == "ceo":
             mode = "ceo"

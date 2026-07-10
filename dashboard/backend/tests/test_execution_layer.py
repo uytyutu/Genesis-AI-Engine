@@ -104,3 +104,40 @@ def test_workspace_creates_isolated_dirs(memory_tmp: Path):
     ws = store.create(owner_id="owner", title="Project")
     for area in ("files", "logs", "tasks", "artifacts", "memory"):
         assert store.path_for(ws.workspace_id, area).is_dir()
+
+
+def test_filesystem_write_executor_creates_file(memory_tmp: Path):
+    from app.execution.executors.filesystem import FilesystemWriteExecutor
+
+    ws_store = ExecutionWorkspaceStore(memory_tmp)
+    ws = ws_store.create(owner_id="u1", title="T")
+    ex = FilesystemWriteExecutor(ws_store)
+    out = ex.execute(
+        {"path": "README.md", "content": "# Hi", "workspace_id": ws.workspace_id},
+        {"workspace_id": ws.workspace_id},
+    )
+    assert out["path"] == "README.md"
+    target = ws_store.path_for(ws.workspace_id, "files", "README.md")
+    assert target.read_text(encoding="utf-8") == "# Hi"
+
+
+def test_bridge_creates_readme_from_chat_goal(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    out = bridge.try_user_execution("Создай README", visitor_id="visitor-1", memory_dir=memory_tmp)
+    assert out is not None
+    assert out["provider"] == "execution"
+    assert "README.md" in out["answer"]
+    assert "✓ Готово" in out["answer"]
+    ws_id = out["context"]["workspace_id"]
+    path = ExecutionWorkspaceStore(memory_tmp).path_for(ws_id, "files", "README.md")
+    assert path.is_file()
+    assert "# README" in path.read_text(encoding="utf-8")
+
+
+def test_bridge_returns_none_for_normal_chat(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    assert bridge.try_user_execution("Привет как дела?", visitor_id="v2", memory_dir=memory_tmp) is None
