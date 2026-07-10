@@ -38,6 +38,7 @@ _PUBLIC_EXACT = frozenset({"/health", "/status", "/api/status"})
 
 _PUBLIC_PREFIXES = (
     "/api/public/",
+    "/api/client/",
     "/api/sales/packages",
     "/api/sales/payment-status",
     "/api/sales/email-status",
@@ -51,6 +52,8 @@ _PUBLIC_PATTERNS: tuple[tuple[str, str], ...] = (
     (r"^/api/sales/orders/[^/]+/checkout$", "POST"),
     (r"^/api/sales/orders/[^/]+/confirm-payment$", "POST"),
     (r"^/api/factory/products/[^/]+/preview$", "GET"),
+    (r"^/api/client/register$", "POST"),
+    (r"^/api/client/login$", "POST"),
 )
 
 

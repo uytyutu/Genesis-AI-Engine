@@ -133,6 +133,10 @@ from app.schemas import (
     GenesisAISetupRequest,
     GenesisAISetupResponse,
     GenesisAISetupStatus,
+    ClientRegisterRequest,
+    ClientLoginRequest,
+    ClientWelcomeAnswerRequest,
+    ClientMergeVisitorRequest,
     DevBuildEntry,
     DevFileEntry,
     DevProject,
@@ -1073,6 +1077,76 @@ def public_pricing_event(body: PricingEventRequest) -> PricingEventResponse:
         meta=body.meta,
     )
     return PricingEventResponse()
+
+
+# --- M2 Universal Identity (client API — human-facing responses, plain language) ---
+
+
+def _customer_identity():
+    from app.integration.customer_identity import CustomerIdentityService
+
+    return CustomerIdentityService(_memory_dir())
+
+
+@app.post("/api/client/register")
+def client_register(body: ClientRegisterRequest) -> dict:
+    return _customer_identity().register(
+        name=body.name,
+        email=body.email,
+        password=body.password,
+        locale=body.locale,
+        country=body.country,
+        prior_visitor_id=body.visitor_id,
+    )
+
+
+@app.post("/api/client/login")
+def client_login(body: ClientLoginRequest) -> dict:
+    return _customer_identity().login(email=body.email, password=body.password)
+
+
+@app.get("/api/client/me")
+def client_me(request: Request) -> dict:
+    from app.integration.customer_identity.auth import require_client
+
+    payload = require_client(request)
+    return _customer_identity().me(str(payload["sub"]))
+
+
+@app.get("/api/client/welcome")
+def client_welcome(request: Request) -> dict:
+    from app.integration.customer_identity.auth import require_client
+
+    payload = require_client(request)
+    return _customer_identity().get_welcome(str(payload["sub"]))
+
+
+@app.post("/api/client/welcome/advance")
+def client_welcome_advance(request: Request) -> dict:
+    from app.integration.customer_identity.auth import require_client
+
+    payload = require_client(request)
+    return _customer_identity().advance_welcome(str(payload["sub"]))
+
+
+@app.post("/api/client/welcome/answer")
+def client_welcome_answer(request: Request, body: ClientWelcomeAnswerRequest) -> dict:
+    from app.integration.customer_identity.auth import require_client
+
+    payload = require_client(request)
+    return _customer_identity().answer_welcome(
+        str(payload["sub"]),
+        answer=body.answer,
+        skip=body.skip,
+    )
+
+
+@app.post("/api/client/merge-visitor")
+def client_merge_visitor(request: Request, body: ClientMergeVisitorRequest) -> dict:
+    from app.integration.customer_identity.auth import require_client
+
+    payload = require_client(request)
+    return _customer_identity().merge_visitor(str(payload["sub"]), visitor_id=body.visitor_id)
 
 
 @app.post("/api/sales/orders", response_model=SalesOrderCreatedResponse)

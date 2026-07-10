@@ -64,6 +64,22 @@ def resolve_workspace_id(memory_dir: Path, visitor_id: str) -> str | None:
     return None
 
 
+def bind_visitor_workspace(memory_dir: Path, visitor_id: str, workspace_id: str) -> None:
+    vid = (visitor_id or "anonymous").strip()[:64]
+    path = _visitor_map_path(memory_dir)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    mapping: dict[str, str] = {}
+    if path.is_file():
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                mapping = {str(k): str(v) for k, v in raw.items()}
+        except (json.JSONDecodeError, OSError):
+            mapping = {}
+    mapping[vid] = workspace_id
+    path.write_text(json.dumps(mapping, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def _file_href(workspace_id: str, visitor_id: str, rel: str) -> str:
     q = quote(visitor_id, safe="")
     return f"/api/public/execution/workspace/{workspace_id}/files/{rel.lstrip('/')}?visitor_id={q}"
@@ -198,7 +214,9 @@ class ProjectPlatformService:
             meta = self._workspaces.get(ws_id)
             if meta:
                 return meta
-        return self._workspaces.create(owner_id=visitor_id[:64], title=title)
+        meta = self._workspaces.create(owner_id=visitor_id[:64], title=title)
+        bind_visitor_workspace(self._memory, visitor_id, meta.workspace_id)
+        return meta
 
     def _sync_artifacts_from_disk(self, record: ProjectRecord, visitor_id: str) -> None:
         if record.versions:

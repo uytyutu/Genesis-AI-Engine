@@ -1376,3 +1376,26 @@ class GenesisAISetupResponse(BaseModel):
     model: str | None = None
     message: str
     env_file: str | None = None
+
+
+class ClientRegisterRequest(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    email: str = Field(max_length=254)
+    password: str = Field(min_length=8, max_length=128)
+    locale: str = Field(default="ru", max_length=8)
+    country: str = Field(default="", max_length=64)
+    visitor_id: str | None = Field(default=None, max_length=64)
+
+
+class ClientLoginRequest(BaseModel):
+    email: str = Field(max_length=254)
+    password: str = Field(min_length=1, max_length=128)
+
+
+class ClientWelcomeAnswerRequest(BaseModel):
+    answer: str = Field(default="", max_length=500)
+    skip: bool = False
+
+
+class ClientMergeVisitorRequest(BaseModel):
+    visitor_id: str = Field(min_length=8, max_length=64)
