@@ -183,7 +183,7 @@ def list_user_capabilities(memory_dir: Path) -> list[dict[str, str]]:
     reg = get_execution_registry(memory_dir)
     ready = [c for c in reg.list_capabilities() if reg.is_executable(c.id)]
     labels = {
-        "filesystem_write": "создавать файлы в Workspace",
-        "filesystem_read": "читать файлы из Workspace",
+        "filesystem_write": "создавать документ по запросу (файл + содержимое + путь)",
+        "filesystem_read": "читать документ из Workspace",
     }
     return [{"id": c.id, "label": labels.get(c.id, c.name)} for c in ready]
