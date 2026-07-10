@@ -121,7 +121,7 @@ $Wsh = New-Object -ComObject WScript.Shell
 $Shortcut = $Wsh.CreateShortcut('{sc_s}')
 $Shortcut.TargetPath = '{exe_s}'
 $Shortcut.WorkingDirectory = '{root_s}'
-$Shortcut.Description = 'Virtus Core — Vector Intelligent AI Assistant'
+$Shortcut.Description = 'Virtus Core — Vector Digital Company'
 $Shortcut.IconLocation = '{exe_s},0'
 $Shortcut.Save()
 Write-Output 'ok'

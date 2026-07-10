@@ -81,7 +81,7 @@ class TierLimits:
 TIER_LIMITS: dict[AttachmentTier, TierLimits] = {
     "free": TierLimits(
         tier="free",
-        label="Free · /site chat",
+        label="Free · Vector",
         upload_enabled=True,
         max_file_bytes=4 * 1024 * 1024,
         max_files_per_message=2,

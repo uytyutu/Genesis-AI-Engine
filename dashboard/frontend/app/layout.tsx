@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     default: "Virtus Core",
     template: "%s · Virtus Core",
   },
-  description: "Virtus Core — intelligent platform with Vector AI assistant",
+  description: "Virtus Core — платформа цифровой компании. Vector ведёт ваши проекты до результата.",
   icons: {
     icon: [
       { url: "/brand/favicon-16.png", sizes: "16x16", type: "image/png" },

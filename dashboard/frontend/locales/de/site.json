@@ -1,8 +1,19 @@
 {
   "aboutTitle": "Kurz: {{brand}}",
-  "aboutBody": "{{brand}} ist eine Plattform mit KI-Assistent {{assistant}}: Idee besprechen, Preisorientierung, Landing bestellen.",
-  "startChat": "Gespräch starten ↑",
+  "aboutBody": "{{brand}} ist eine Plattform für digitale Unternehmen. {{assistant}} führt Ihre Projekte von der Idee bis zur Website und zu Dokumenten.",
+  "startChat": "Loslegen ↑",
+  "hubTitle": "Mein digitales Unternehmen",
+  "hubSubtitle": "{{assistant}} führt Projekte bis zum fertigen Ergebnis",
+  "hubCooReady": "Bereit für den ersten Auftrag",
+  "hubCooHint": "Website, Dokument, Analyse — beschreiben Sie die Aufgabe im Vector-Panel",
+  "hubQuickTitle": "Schnellstart",
+  "hubNewProject": "Projekt starten",
+  "hubViewServices": "Alle Leistungen",
+  "hubOpenVector": "Vector öffnen",
+  "hubQuickSite": "Website fürs Geschäft",
+  "hubQuickPlan": "Businessplan",
+  "hubQuickPresentation": "Präsentation",
   "faqTitle": "Häufige Fragen",
   "servicesTitle": "Leistungen",
-  "servicesIntro": "{{brand}}: zuerst Gespräch mit {{assistant}} auf /site, dann Landing bestellen (350 / 650 / 1200 € auf /order)."
+  "servicesIntro": "{{brand}}: Arbeit mit {{assistant}} in Ihrer digitalen Firma, dann Landing bestellen (350 / 650 / 1200 €)."
 }

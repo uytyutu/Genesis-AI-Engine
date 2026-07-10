@@ -1,7 +1,9 @@
 {
   "nav": {
     "home": "Start",
+    "projects": "Projekte",
     "services": "Leistungen",
+    "vector": "Vector",
     "studio": "Studio",
     "order": "Bestellen",
     "menu": "Menü",

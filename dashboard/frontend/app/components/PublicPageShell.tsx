@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { PublicSiteFooter } from "./PublicSiteFooter";
 import { PublicSiteHeader } from "./PublicSiteHeader";
 import { useTranslation } from "react-i18next";
@@ -17,7 +18,7 @@ export function PublicPageShell({
       className={
         hideChrome
           ? "h-[100dvh] overflow-hidden bg-genesis-bg"
-          : "mx-auto min-h-screen max-w-5xl px-4 py-6 sm:px-6 sm:py-8"
+          : "mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
       }
     >
       <a
@@ -26,7 +27,11 @@ export function PublicPageShell({
       >
         {t("skipToContent")}
       </a>
-      {!hideChrome && <PublicSiteHeader />}
+      {!hideChrome && (
+        <Suspense fallback={null}>
+          <PublicSiteHeader />
+        </Suspense>
+      )}
       <div
         id="main-content"
         className={hideChrome ? "h-full" : "animate-fade-up"}

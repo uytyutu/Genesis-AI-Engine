@@ -202,12 +202,15 @@ type Props = {
   onConversationActive?: (active: boolean) => void;
   /** public = /site visitors; owner = Mission Control / CEO chat */
   scope?: "public" | "owner";
+  /** Customer hub — Vector panel beside projects, not full-screen chat */
+  hubMode?: boolean;
 };
 
-export function GenesisConcierge({ onConversationActive, scope = "public" }: Props) {
+export function GenesisConcierge({ onConversationActive, scope = "public", hubMode = false }: Props) {
   const { t } = useTranslation(["chat", "errors", "common"]);
   const { uiLocale, assistantLocale } = useLocale();
   const isPublic = scope === "public";
+  const isPublicHub = isPublic && hubMode;
   const fallbackWelcome = isPublic ? FALLBACK_WELCOME_PUBLIC : FALLBACK_WELCOME_OWNER;
   const assistantLabel = ASSISTANT_NAME;
   const [input, setInput] = useState("");
@@ -304,7 +307,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
 
   const hasConversation = messages.some((m) => m.role === "user");
   const showThread = isPublic ? true : hasConversation && !chatCollapsed;
-  const publicImmersive = isPublic && hasConversation;
+  const publicImmersive = isPublic && hasConversation && !hubMode;
 
   const { showJumpButton, handleScroll, jumpToLatest, pinToBottom } = useChatAutoScroll(
     messagesRef,
@@ -1039,13 +1042,20 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
       /* Must stay tied to user gesture — do not dispatch genesis:start-voice on mount */
       void toggleVoice();
     };
+    const onAssign = (event: Event) => {
+      const prompt = (event as CustomEvent<{ prompt?: string }>).detail?.prompt?.trim();
+      focus();
+      if (prompt) void sendMessage(prompt);
+    };
     window.addEventListener("genesis:focus-chat", focus);
     window.addEventListener("genesis:start-voice", voice);
+    window.addEventListener("genesis:assign-task", onAssign);
     return () => {
       window.removeEventListener("genesis:focus-chat", focus);
       window.removeEventListener("genesis:start-voice", voice);
+      window.removeEventListener("genesis:assign-task", onAssign);
     };
-  }, [toggleVoice]);
+  }, [toggleVoice, sendMessage]);
 
   const composer = (
     <>
@@ -1057,12 +1067,14 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         cloudAvailable={ttsCloudAvailable}
         preferredProvider={ttsPreferred}
       />
-      <div className={composerFocused || isPublic ? "max-sm:hidden" : undefined}>
-        <CommunicationStylePicker
-          value={communicationStyle}
-          onChange={setCommunicationStyle}
-        />
-      </div>
+      {!isPublic ? (
+        <div className={composerFocused ? "max-sm:hidden" : undefined}>
+          <CommunicationStylePicker
+            value={communicationStyle}
+            onChange={setCommunicationStyle}
+          />
+        </div>
+      ) : null}
       <GenesisChatComposer
         value={input}
         onChange={setInput}
@@ -1104,7 +1116,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
   const thread = messages ?? [];
 
   return (
-    <div className={`flex flex-col gap-2 md:flex-row md:items-stretch ${isPublic ? "h-full" : ""}`}>
+    <div className={`flex flex-col gap-2 md:flex-row md:items-stretch ${isPublic && !hubMode ? "h-full" : isPublicHub ? "h-full min-h-0" : ""}`}>
       <ChatHistorySidebar
         sessions={sessionList}
         activeSessionId={activeSessionId}
@@ -1122,7 +1134,9 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     <section
       id="genesis-chat"
       className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow transition-all duration-300 ${
-        isPublic
+        isPublicHub
+          ? "h-full min-h-[min(70dvh,40rem)] max-sm:rounded-2xl"
+          : isPublic
           ? publicImmersive
             ? `h-[100dvh] max-sm:rounded-none max-sm:border-x-0 max-sm:shadow-none${sidebarOpen ? " max-sm:pointer-events-none" : ""}`
             : "min-h-[min(72dvh,36rem)] max-h-[min(85dvh,40rem)] max-sm:rounded-2xl max-sm:border-x-0"
@@ -1132,7 +1146,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
               : "min-h-[min(72vh,40rem)] max-h-[min(85vh,48rem)]"
             : ""
       }`}
-      aria-label={`Диалог с ${ASSISTANT_NAME}`}
+      aria-label={`${ASSISTANT_NAME} — поручения`}
     >
       <header
         className={`flex shrink-0 items-center justify-between border-b border-white/5 transition-all duration-300 ${
@@ -1202,7 +1216,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             </button>
           ) : null}
           {!isPublic && <LanguageSwitcher />}
-          {devAvailable ? (
+          {devAvailable && !isPublic ? (
             <button
               type="button"
               onClick={toggleDeveloperMode}
@@ -1230,7 +1244,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         </div>
       )}
 
-      {isPublic && !hasConversation && (
+      {isPublic && !hasConversation && !hubMode && (
         <div className="shrink-0 border-b border-white/5 px-4 py-4 sm:px-6">
           <div className="mx-auto w-full max-w-3xl rounded-2xl border border-dashed border-genesis-accent/25 bg-genesis-panel/40 px-4 py-4 sm:px-5 sm:py-5">
             <p className="text-[10px] font-bold tracking-[0.22em] text-genesis-accent uppercase">
@@ -1421,7 +1435,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           {busy && (
             <li className="flex justify-start">
               <div className="rounded-3xl border border-white/5 bg-genesis-panel/60 px-4 py-3 text-sm text-genesis-muted">
-                {ASSISTANT_NAME} печатает…
+                {ASSISTANT_NAME} работает…
               </div>
             </li>
           )}
@@ -1439,7 +1453,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
         ) : null}
       </div>
 
-      {!hasConversation && showThread && (
+      {!hasConversation && showThread && !isPublicHub && (
         <div className="shrink-0 overflow-x-auto px-3 pb-1 sm:px-6">
           <div className="flex w-max max-w-full gap-2 sm:flex-wrap">
           {STARTERS_VISIBLE.map((s) => (

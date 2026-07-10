@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { GenesisConcierge } from "../components/GenesisConcierge";
 import { GenesisChatErrorBoundary } from "../components/GenesisChatErrorBoundary";
+import { ProjectHubShell } from "../components/ProjectHubShell";
 import { FaqList } from "../components/FaqList";
 import { Card, ButtonLink } from "../components/ui";
 import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
@@ -16,15 +18,15 @@ import {
 const FAQ = [
   {
     q: "Сколько ждать готовый сайт?",
-    a: `Обычно от нескольких дней — точный срок зависит от вашего проекта. ${ASSISTANT_NAME} назовёт его после короткого разговора.`,
+    a: `Обычно от нескольких дней — точный срок зависит от вашего проекта. ${ASSISTANT_NAME} назовёт его после короткой консультации.`,
   },
   {
     q: "Нужно ли что-то техническое от меня?",
-    a: `Нет. Достаточно рассказать о задаче простыми словами — ${ASSISTANT_NAME} сделает остальное.`,
+    a: `Нет. Достаточно рассказать о задаче простыми словами — ${ASSISTANT_NAME} доведёт работу до результата.`,
   },
   {
     q: "Как происходит оплата?",
-    a: "Сначала вы видите ориентировочную стоимость в диалоге. Оплата — только когда вы согласны оформить заказ.",
+    a: "Сначала вы видите ориентировочную стоимость. Оплата — когда согласны оформить заказ.",
   },
   {
     q: "Что если мне нужны правки?",
@@ -39,8 +41,9 @@ function focusGenesisChat() {
 export function SitePage() {
   const { t } = useTranslation("site");
   const { t: tCommon } = useTranslation("common");
+  const searchParams = useSearchParams();
+  const vectorView = searchParams.get("view") === "vector";
   const [services, setServices] = useState<ServiceCatalogItem[]>([]);
-  const [chatActive, setChatActive] = useState(false);
 
   useEffect(() => {
     void fetchPricingDisplay().then((data) => {
@@ -50,12 +53,33 @@ export function SitePage() {
   }, []);
 
   return (
-    <PublicPageShell hideChrome={chatActive}>
-      <GenesisChatErrorBoundary>
-        <GenesisConcierge onConversationActive={setChatActive} />
-      </GenesisChatErrorBoundary>
+    <PublicPageShell>
+      <div
+        className={`grid min-h-[min(80dvh,52rem)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,38%)] lg:gap-6 ${
+          vectorView ? "max-lg:grid-cols-1" : ""
+        }`}
+      >
+        <section
+          className={`min-h-0 ${vectorView ? "max-lg:hidden" : ""}`}
+          aria-label={tCommon("nav.projects")}
+        >
+          <ProjectHubShell onStartProject={focusGenesisChat} />
+        </section>
 
-      {!chatActive && (
+        <section
+          id="vector-panel"
+          className={`flex min-h-[min(70dvh,40rem)] min-w-0 flex-col lg:min-h-0 ${
+            vectorView ? "" : "max-lg:order-last"
+          }`}
+          aria-label={tCommon("nav.vector")}
+        >
+          <GenesisChatErrorBoundary publicMode>
+            <GenesisConcierge hubMode />
+          </GenesisChatErrorBoundary>
+        </section>
+      </div>
+
+      {!vectorView && (
         <>
           <details className="group mt-10 rounded-2xl border border-genesis-border-subtle bg-genesis-panel/40 open:bg-genesis-panel/60">
             <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold marker:content-none sm:px-6">
@@ -65,16 +89,7 @@ export function SitePage() {
               </span>
             </summary>
             <div className="space-y-4 border-t border-genesis-border-subtle px-5 py-5 text-sm text-genesis-muted sm:px-6">
-              <p>
-                {t("aboutBody", { brand: BRAND_NAME, assistant: ASSISTANT_NAME })}
-              </p>
-              <button
-                type="button"
-                onClick={focusGenesisChat}
-                className="text-sm font-medium text-genesis-accent hover:underline"
-              >
-                {t("startChat")}
-              </button>
+              <p>{t("aboutBody", { brand: BRAND_NAME, assistant: ASSISTANT_NAME })}</p>
             </div>
           </details>
 
@@ -87,7 +102,7 @@ export function SitePage() {
             </summary>
             <div className="border-t border-genesis-border-subtle p-5 sm:p-6">
               <p className="mb-4 text-sm text-genesis-muted">
-                {t("servicesIntro", { brand: BRAND_NAME })}
+                {t("servicesIntro", { brand: BRAND_NAME, assistant: ASSISTANT_NAME })}
               </p>
               <div className="grid gap-3 sm:grid-cols-3">
                 {services.map((item, i) => (
@@ -104,7 +119,7 @@ export function SitePage() {
                 ))}
               </div>
               <ButtonLink href="/services" variant="ghost" size="sm" className="mt-4">
-                Весь каталог услуг →
+                {t("hubViewServices")} →
               </ButtonLink>
             </div>
           </details>

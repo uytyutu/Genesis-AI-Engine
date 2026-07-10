@@ -3,12 +3,12 @@
 export const BRAND_NAME = "Virtus Core";
 export const ASSISTANT_NAME = "Vector";
 export const BRAND_SIGNATURE = "by Virtus Core";
-export const ASSISTANT_TAGLINE = "Intelligent AI Assistant";
+export const ASSISTANT_TAGLINE = "Digital Company";
 
 export const STUDIO_NAME = "Virtus Studio";
-export const CHAT_FEATURE = `${ASSISTANT_NAME} Chat`;
+export const CHAT_FEATURE = ASSISTANT_NAME;
 
-export const PUBLIC_WELCOME = `Здравствуйте! Я ${ASSISTANT_NAME} — чем могу помочь?`;
+export const PUBLIC_WELCOME = `Здравствуйте! Я ${ASSISTANT_NAME} — ваш цифровой руководитель в ${BRAND_NAME}. Что делаем первым — проект, документ или сайт?`;
 
 export function brandSignatureLines(includeTagline = false): string[] {
   if (includeTagline) {

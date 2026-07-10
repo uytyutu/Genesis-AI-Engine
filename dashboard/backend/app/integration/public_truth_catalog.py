@@ -9,9 +9,21 @@ from pathlib import Path
 from typing import Any
 
 from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME, STUDIO_NAME
+from app.integration.market_intelligence import market_intelligence_rules_for_vector
+from app.integration.market_localization import full_localization_rules_for_vector
+from app.integration.platform_directive import platform_directive_v2_rules
+from app.integration.global_pricing import global_pricing_rules_for_vector
+from app.integration.market_context import market_detection_rules_for_vector
+from app.integration.product_line import (
+    ONE_TIME_SERVICES,
+    SERVICE_WEBSITE,
+    SUBSCRIPTION_TIERS,
+    WEBSITE_PACKAGE_LABELS,
+    universal_service_model_rules,
+)
 from app.integration.sales_order_service import _PACKAGES as SALES_PACKAGES
 
-TRUTH_VERSION = "mission1-truth-1"
+TRUTH_VERSION = "mission1-truth-7"
 MISSION1_LANDING_TIMELINE = "5–14 дней"
 MISSION1_PACKAGE_PRICES_EUR = (350, 650, 1200)
 
@@ -46,8 +58,8 @@ def studio_unavailable_message() -> str:
     return (
         f"**{STUDIO_NAME}** (рабочая среда и подписка) **пока в разработке** — купить онлайн нельзя.\n\n"
         f"**Сейчас доступно:**\n"
-        f"• Бесплатный разговор с {ASSISTANT_NAME} на **/site**\n"
-        f"• Заказ **лендинга** под ключ — пакеты **350 / 650 / 1200 €** на **/order**"
+        f"• Бесплатная работа с {ASSISTANT_NAME} в вашей цифровой компании\n"
+        f"• Заказ **лендинга** под ключ — пакеты **350 / 650 / 1200 €** на странице заказа"
     )
 
 
@@ -55,41 +67,103 @@ def unavailable_online_message(product_label: str) -> str:
     return (
         f"**{product_label}** под ключ **пока нельзя оформить на сайте**.\n\n"
         "Сейчас онлайн можно заказать **лендинг** — пакеты **350 / 650 / 1200 €** на **/order**.\n"
-        "Расскажите, для какого бизнеса нужен сайт — подберём пакет после короткого разговора."
+        "Расскажите, для какого бизнеса нужен сайт — подберём пакет после короткой консультации с Vector."
     )
+
+
+def _build_service_categories(packages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Universal service catalog — website has priced packages; others are horizon."""
+    categories: list[dict[str, Any]] = []
+    for svc in ONE_TIME_SERVICES:
+        sid = str(svc["id"])
+        if sid == SERVICE_WEBSITE:
+            categories.append(
+                {
+                    "id": sid,
+                    "name": svc["customer_name_ru"],
+                    "description": svc["description_ru"],
+                    "items": [
+                        {
+                            "id": p["id"],
+                            "name": WEBSITE_PACKAGE_LABELS.get(p["id"], p["name"]),
+                            "price_label": f"{p['price_eur']} €",
+                            "timeline": MISSION1_LANDING_TIMELINE,
+                            "includes": p.get("deliverables", [])[:4],
+                            "description": "Разовая услуга — не подписка",
+                            "cta": "Обсудить с Vector",
+                            "cta_href": "/site",
+                            "available": True,
+                        }
+                        for p in packages
+                    ],
+                }
+            )
+            continue
+        online = bool(svc.get("online"))
+        categories.append(
+            {
+                "id": sid,
+                "name": svc["customer_name_ru"],
+                "description": svc["description_ru"],
+                "items": [
+                    {
+                        "id": sid,
+                        "name": svc["name"],
+                        "price_label": "скоро" if not online else "по запросу",
+                        "timeline": "—",
+                        "includes": [],
+                        "description": (
+                            "Тот же путь: диалог → концепция → согласование → выбор"
+                            if not online
+                            else "Доступно в диалоге с Vector"
+                        ),
+                        "cta": "Обсудить с Vector" if online else "Скоро",
+                        "cta_href": "/site",
+                        "available": online,
+                    }
+                ],
+            }
+        )
+    return categories
 
 
 def build_mission1_vector_commerce_rules(packages: list[dict[str, Any]] | None = None) -> str:
     """Mission 1 commerce block — injected into Vector system prompt and knowledge."""
     pkgs = packages if packages is not None else _landing_packages()
     packages_block = format_order_packages_block(pkgs)
-    min_p = min_landing_price_eur(pkgs)
     platform = load_public_pricing_display().get("platform_status") or {}
     studio_note = platform.get("body") or studio_unavailable_message()
+    online_services = [s["customer_name_ru"] for s in ONE_TIME_SERVICES if s.get("online")]
+    horizon_services = [s["customer_name_ru"] for s in ONE_TIME_SERVICES if not s.get("online")]
 
-    return f"""## Mission 1 — что можно продавать публично (единая правда)
+    return f"""## Mission 1 — универсальная модель услуг (единая правда)
 
-**Сейчас онлайн доступно только:**
-- Разговор с {ASSISTANT_NAME} на `/site` (бесплатно)
-- Заказ **лендинга** под ключ на `/order`
+{platform_directive_v2_rules()}
 
-**Пакеты (только эти цены — никаких других):**
+{universal_service_model_rules()}
+
+{market_detection_rules_for_vector()}
+
+{full_localization_rules_for_vector()}
+
+{global_pricing_rules_for_vector()}
+
+{market_intelligence_rules_for_vector()}
+
+**Сейчас онлайн (разовая услуга):** {", ".join(online_services) or "—"}
+
+**Пакеты сайта на /order (операционные EUR, Mission 1 checkout):**
 {packages_block}
 
-**Срок:** ориентир **{MISSION1_LANDING_TIMELINE}** после подтверждения заказа; точный срок — на странице статуса.
+**Срок сайта:** ориентир **{MISSION1_LANDING_TIMELINE}** после оплаты и сбора данных.
 
-**{STUDIO_NAME}:** {studio_note}
-Не называй платные тарифы подписки. Workspace и подписки **не продаются**.
+**{STUDIO_NAME} (подписка):** {studio_note}
 
-**Пока нельзя оформить онлайн:** интернет-магазин, Telegram/WhatsApp-бот, мобильное приложение, AI на сайте как отдельный продукт.
-Скажи честно и предложи лендинг или разговор.
+**Скоро в каталоге:** {", ".join(horizon_services[:6])}{"…" if len(horizon_services) > 6 else ""}
 
-**Оплата:** только после согласия на заказ; Stripe — если подключён (иначе счёт вручную).
+**Оплата любой услуги:** только после согласования результата; в диалоге — рыночная смета, на `/order` — пакеты.
 
-**Digital Consultant — пример (салон/кафе):**
-Рекомендуй структуру сайта, затем ориентир **650 €** (Business) или **{min_p} €** (Basic) — только из пакетов выше.
-
-Заказ — только после явного «да» / «оформляем» (GENESIS_ACTION → `/order?package=…`)."""
+**Не путать:** услуга = готовый результат. Vector Pro = подписка (среда, не скидка)."""
 
 
 def build_truth_pricing_display() -> dict:
@@ -100,60 +174,43 @@ def build_truth_pricing_display() -> dict:
         "version": TRUTH_VERSION,
         "disclaimer": {
             "ru": (
-                f"Сейчас онлайн можно заказать лендинг ({min_price}–1200 €). "
-                f"{STUDIO_NAME} и другие услуги — по мере запуска; цены в чате и на /order совпадают."
+                f"**Любая услуга** Virtus Core: диалог → концепция → согласование → разовая покупка или подписка. "
+                f"Цена адаптируется под **целевой рынок** (валюта + ориентировочный диапазон сразу). "
+                f"Сайт на /order от {min_price} €; подписка ({STUDIO_NAME}) — в разработке."
             ),
         },
         "platform_status": {
-            "label": "Virtus Studio — в разработке",
+            "label": f"{STUDIO_NAME} — подписка, в разработке",
             "body": (
-                f"Подписка {STUDIO_NAME} пока недоступна для покупки. "
-                f"Сейчас: бесплатный разговор с Vector на /site и заказ лендинга на /order."
+                f"Подписка — цифровая компания с {ASSISTANT_NAME}, не скидка на услугу. Пока не продаётся. "
+                f"Сейчас: Vector Free и разовые услуги (сайт, анализ документов в диалоге)."
+            ),
+        },
+        "service_vs_product": {
+            "ru": (
+                "**Разовая покупка** = готовый результат и передача проекта. "
+                "**Подписка** = проект остаётся в Virtus Core, Vector продолжает работать."
             ),
         },
         "capabilities": None,
-        "service_vs_product": None,
         "anti_cannibalization": None,
         "comparison": None,
-        "service_categories": [
-            {
-                "id": "landing",
-                "name": "Лендинг под ключ",
-                "description": (
-                    f"Обсудите задачу с Vector на /site — затем оформите заказ. "
-                    f"Пакеты Basic / Business / Premium совпадают с формой на /order."
-                ),
-                "items": [
-                    {
-                        "id": "landing",
-                        "name": "Landing Page",
-                        "price_label": f"от {min_price} €",
-                        "timeline": "5–14 дней",
-                        "includes": packages[0]["deliverables"][:4]
-                        if packages
-                        else ["1 страница", "Адаптив", "Контакты", "SEO-база"],
-                        "description": "Одностраничный сайт — цена и состав пакета на шаге заказа",
-                        "cta": "Заказать",
-                        "cta_href": "/order",
-                        "available": True,
-                    },
-                ],
-            },
-        ],
+        "service_categories": _build_service_categories(packages),
         "subscriptions": [
             {
-                "id": "free",
-                "name": "Free",
-                "price_eur_month": 0,
-                "price_label": "0 €",
+                "id": t["id"],
+                "name": t["name"],
+                "price_eur_month": 0 if t["id"] == "free" else None,
+                "price_label": "0 €" if t["id"] == "free" else "скоро",
                 "period": "/мес",
-                "audience": "Познакомиться с Vector",
-                "tagline": "Чат на /site",
-                "features": ["Разговор с Vector", "Обсуждение идеи", "Ориентир по цене лендинга"],
-                "cta": "Начать на /site",
-                "cta_href": "/site",
-                "available": True,
-            },
+                "audience": t["tagline_ru"],
+                "tagline": t["description_ru"],
+                "features": [t["tagline_ru"]],
+                "cta": "Начать работу" if t["available"] else "Скоро",
+                "cta_href": "/site" if t["available"] else "/products",
+                "available": t["available"],
+            }
+            for t in SUBSCRIPTION_TIERS
         ],
         "services": [],
         "business_units": [],

@@ -68,7 +68,7 @@ export async function fetchSessionList(
 
 export async function createSession(
   visitorId: string,
-  title = "Новый чат",
+  title = "Новое поручение",
 ): Promise<ChatSessionMeta | null> {
   const res = await fetch(`${API}/api/public/genesis-ai/sessions`, {
     method: "POST",
@@ -111,7 +111,7 @@ export async function fetchSessionDetail(
   }));
   return {
     messages,
-    title: data.title ?? "Новый чат",
+    title: data.title ?? "Новое поручение",
     pinned: Boolean(data.pinned),
   };
 }

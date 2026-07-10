@@ -1,8 +1,19 @@
 {
   "aboutTitle": "Кратко: что такое {{brand}}",
-  "aboutBody": "{{brand}} — платформа с ИИ-помощником {{assistant}}: обсудить идею, получить ориентир по цене и заказать лендинг.",
-  "startChat": "Начать разговор ↑",
+  "aboutBody": "{{brand}} — платформа цифровой компании. {{assistant}} ведёт ваши проекты: от идеи до сайта и документов.",
+  "startChat": "Начать работу ↑",
+  "hubTitle": "Моя цифровая компания",
+  "hubSubtitle": "{{assistant}} ведёт проекты до готового результата",
+  "hubCooReady": "Готов принять первое поручение",
+  "hubCooHint": "Сайт, документ, анализ — опишите задачу в панели Vector",
+  "hubQuickTitle": "Быстрый старт",
+  "hubNewProject": "Начать проект",
+  "hubViewServices": "Все услуги",
+  "hubOpenVector": "Открыть Vector",
+  "hubQuickSite": "Сайт для бизнеса",
+  "hubQuickPlan": "Бизнес-план",
+  "hubQuickPresentation": "Презентация",
   "faqTitle": "Частые вопросы",
   "servicesTitle": "Услуги",
-  "servicesIntro": "{{brand}}: сначала разговор с {{assistant}} на /site, затем заказ лендинга (350 / 650 / 1200 € на /order)."
+  "servicesIntro": "{{brand}}: работа с {{assistant}} в цифровой компании, затем заказ лендинга (350 / 650 / 1200 €)."
 }

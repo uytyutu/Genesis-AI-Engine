@@ -22,7 +22,7 @@ export function PublicSiteFooter() {
         <div>
           <p className="font-semibold">{BRAND_NAME}</p>
           <p className="mt-2 text-sm text-genesis-muted">
-            {ASSISTANT_NAME} · лендинги для бизнеса · сначала разговор, затем заказ
+            {ASSISTANT_NAME} · цифровая компания · проекты и услуги под ключ
           </p>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
@@ -55,7 +55,7 @@ export function PublicSiteFooter() {
             ))}
             <li>
               <Link href="/order" className="font-medium text-genesis-accent hover:underline">
-                Заказать сайт →
+                Оформить заказ →
               </Link>
             </li>
           </ul>

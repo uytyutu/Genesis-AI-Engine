@@ -156,38 +156,32 @@ def format_reuse_explanation(cap: dict[str, Any]) -> str:
     if score <= 0:
         return ""
 
-    file_labels = {
-        "files/document_structure.json": "document_structure.json",
-        "files/executive_summary.md": "executive_summary.md",
-        "files/report.md": "report.md",
-        "files/site_manifest.json": "site_manifest.json",
+    lines = [
+        "Использую информацию из вашего проекта — повторно описывать бизнес не нужно.",
+        "",
+        "**Учтено из проекта:**",
+    ]
+    path_labels = {
+        "files/document_structure.json": "структура бизнеса",
+        "files/executive_summary.md": "краткое резюме",
+        "files/report.md": "анализ документа",
+        "files/site_manifest.json": "данные предыдущего сайта",
     }
     used_files = [
-        file_labels.get(p, p.replace("files/", ""))
+        path_labels.get(p, "данные проекта")
         for p in (cap.get("source_files") or [])
     ]
     if not used_files and cap.get("reused_capabilities"):
         for cap_id in cap.get("reused_capabilities") or []:
             if cap_id == "analyze_business_document":
-                used_files.extend(["document_structure.json", "report.md"])
+                used_files.extend(["структура бизнеса", "анализ документа"])
             elif cap_id == "executive_summary":
-                used_files.append("executive_summary.md")
+                used_files.append("краткое резюме")
         used_files = list(dict.fromkeys(used_files))
 
-    lines = [
-        "Использую ранее проанализированный бизнес-план из этого Workspace.",
-        "",
-        "**Использовано:**",
-    ]
-    lines.extend(f"✓ {name}" for name in used_files[:6])
-    lines.append("")
-    lines.append("**Не потребовалось повторно описывать:**")
-    if "analyze_business_document" in (cap.get("reused_capabilities") or []):
-        lines.extend(["• услуги", "• аудиторию", "• рынок"])
-    else:
-        lines.append("• данные из предыдущих артефактов workspace")
-    lines.append("")
-    lines.append(f"*Reuse Score: {score}*")
+    lines.extend(f"✓ {name}" for name in used_files[:6] if name)
+    if len(lines) <= 3:
+        lines.append("✓ материалы вашего проекта")
     return "\n".join(lines)
 
 

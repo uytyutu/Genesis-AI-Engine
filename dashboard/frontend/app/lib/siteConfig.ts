@@ -2,7 +2,7 @@ export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://genesis-ai-engine.vercel.app";
 
 export const SITE_NAME = "Virtus Core";
-export const SITE_TAGLINE = "Vector · Intelligent AI Assistant";
+export const SITE_TAGLINE = "Vector · Digital Company";
 export const CONTACT_EMAIL = "hello@genesis-ai-engine.com";
 
 /** Filled via env after Gewerbeanmeldung */

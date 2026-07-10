@@ -141,7 +141,7 @@ export default function ServicesPage() {
         badge="Лендинг под ключ"
         badgeVariant="success"
         title={`Услуги ${BRAND_NAME}`}
-        description="Сначала — разговор с Vector на /site. Затем заказ лендинга: пакеты 350 / 650 / 1200 € на /order."
+        description="Сначала — поручение Vector. Затем заказ лендинга: пакеты 350 / 650 / 1200 €."
       >
         <ButtonLink href="/site" variant="primary" size="lg">
           Начать с Vector →

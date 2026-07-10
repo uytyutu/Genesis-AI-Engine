@@ -26,7 +26,7 @@ export default function ProductsPage() {
             Обсудите идею, получите ориентир по цене — без оплаты.
           </p>
           <ButtonLink href="/site" variant="primary" size="md" className="mt-5">
-            Открыть /site →
+            Начать работу →
           </ButtonLink>
         </Card>
 
@@ -44,8 +44,8 @@ export default function ProductsPage() {
 
       <Card className="mt-8 border-amber-500/25 bg-amber-950/15" padding="md">
         <p className="text-sm text-genesis-muted">
-          <strong className="text-amber-100">{STUDIO_NAME}</strong> (Workspace, подписка) — в разработке.
-          Мы сообщим, когда можно будет подключить. Сейчас — разговор на /site и заказ лендинга.
+          <strong className="text-amber-100">{STUDIO_NAME}</strong> (среда для проектов, подписка) — в разработке.
+          Мы сообщим, когда можно будет подключить. Сейчас — работа с Vector и заказ лендинга.
         </p>
       </Card>
     </PublicPageShell>

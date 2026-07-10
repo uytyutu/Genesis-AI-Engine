@@ -3,7 +3,7 @@ import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
   "Что доступно сейчас",
-  "Virtus Core Mission 1: разговор с Vector на /site и заказ лендинга 350 / 650 / 1200 €. Virtus Studio — в разработке.",
+  "Virtus Core Mission 1: цифровая компания с Vector и заказ лендинга 350 / 650 / 1200 €. Virtus Studio — в разработке.",
   "/products"
 );
 

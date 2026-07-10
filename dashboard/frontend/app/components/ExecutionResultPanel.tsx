@@ -17,15 +17,20 @@ type Props = {
 
 const GROUP_LABELS: Record<string, string> = {
   artifacts: "Результат работы",
-  next: "Следующие шаги",
+  next: "Что дальше",
 };
+
+const DEV_ARTIFACT_LINE =
+  /(?:\.html|\.css|\.md|\.json|workspace|manifest|brief\.md|index\.html|style\.css|site_manifest)/i;
 
 /** Work-agent result — artifacts + intent-aware actions, not a chat essay. */
 export function ExecutionResultPanel({ text, ctas, onQuickAction }: Props) {
   const lines = text.split("\n").filter((l) => l.trim());
   const headline = lines[0] ?? "";
   const steps = lines.filter((l) => l.startsWith("✓"));
-  const footer = lines.filter((l) => !l.startsWith("✓") && l !== headline);
+  const footer = lines.filter(
+    (l) => !l.startsWith("✓") && l !== headline && !DEV_ARTIFACT_LINE.test(l),
+  );
 
   const artifacts = ctas.filter((c) => (c.group ?? "artifacts") === "artifacts");
   const nextSteps = ctas.filter((c) => c.group === "next");

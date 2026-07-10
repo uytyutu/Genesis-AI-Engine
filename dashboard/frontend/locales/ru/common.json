@@ -1,7 +1,9 @@
 {
   "nav": {
     "home": "Главная",
+    "projects": "Проекты",
     "services": "Услуги",
+    "vector": "Vector",
     "studio": "Studio",
     "order": "Заказать",
     "menu": "Меню",

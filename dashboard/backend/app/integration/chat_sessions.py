@@ -23,10 +23,10 @@ def _safe_id(raw: str, *, max_len: int = 64) -> str:
 def _auto_title(text: str, *, max_len: int = 48) -> str:
     t = " ".join((text or "").strip().split())
     if not t:
-        return "Новый чат"
+        return "Новое поручение"
     t = re.sub(r"^[\W_]+", "", t)
     if len(t) <= max_len:
-        return t[0].upper() + t[1:] if t else "Новый чат"
+        return t[0].upper() + t[1:] if t else "Новое поручение"
     cut = t[:max_len].rsplit(" ", 1)[0] or t[:max_len]
     return cut.rstrip(".,!?;:") + "…"
 
@@ -47,7 +47,7 @@ class ChatSessionStore:
     def _index_path(self, visitor_id: str) -> Path:
         return self._index / f"{_safe_id(visitor_id)}.json"
 
-    def create(self, visitor_id: str, *, title: str = "Новый чат") -> dict[str, Any]:
+    def create(self, visitor_id: str, *, title: str = "Новое поручение") -> dict[str, Any]:
         sid = str(uuid.uuid4())
         now = _utc_now()
         row = {
@@ -93,7 +93,7 @@ class ChatSessionStore:
         self._upsert_index(
             vid,
             sid,
-            title=session.get("title") or "Новый чат",
+            title=session.get("title") or "Новое поручение",
             updated_at=session["updated_at"],
             preview=preview,
             pinned=bool(session.get("pinned")),
@@ -149,7 +149,7 @@ class ChatSessionStore:
         session = self.get(session_id)
         if not session or session.get("visitor_id") != visitor_id:
             return None
-        t = (title or "").strip() or "Новый чат"
+        t = (title or "").strip() or "Новое поручение"
         session["title"] = t[:80]
         self.save(session)
         return session
@@ -171,7 +171,7 @@ class ChatSessionStore:
         if assistant.strip():
             msgs.append({"role": "assistant", "content": assistant.strip(), "at": _utc_now()})
         session["messages"] = msgs[-80:]
-        if auto_title_from and (session.get("title") or "Новый чат") == "Новый чат":
+        if auto_title_from and (session.get("title") or "Новое поручение") == "Новое поручение":
             session["title"] = _auto_title(auto_title_from)
         self.save(session)
 

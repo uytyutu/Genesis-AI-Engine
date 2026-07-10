@@ -1,8 +1,19 @@
 {
   "aboutTitle": "About {{brand}}",
-  "aboutBody": "{{brand}} is a platform with AI assistant {{assistant}}: discuss your idea, get a price guide, and order a landing page.",
-  "startChat": "Start conversation ↑",
+  "aboutBody": "{{brand}} is a digital company platform. {{assistant}} leads your projects from idea to site and documents.",
+  "startChat": "Get started ↑",
+  "hubTitle": "My digital company",
+  "hubSubtitle": "{{assistant}} leads projects to finished results",
+  "hubCooReady": "Ready for your first assignment",
+  "hubCooHint": "Website, document, analysis — describe the task in the Vector panel",
+  "hubQuickTitle": "Quick start",
+  "hubNewProject": "Start a project",
+  "hubViewServices": "All services",
+  "hubOpenVector": "Open Vector",
+  "hubQuickSite": "Business website",
+  "hubQuickPlan": "Business plan",
+  "hubQuickPresentation": "Presentation",
   "faqTitle": "FAQ",
   "servicesTitle": "Services",
-  "servicesIntro": "{{brand}}: talk with {{assistant}} on /site, then order a landing (€350 / €650 / €1200 on /order)."
+  "servicesIntro": "{{brand}}: work with {{assistant}} in your digital company, then order a landing (€350 / €650 / €1200)."
 }

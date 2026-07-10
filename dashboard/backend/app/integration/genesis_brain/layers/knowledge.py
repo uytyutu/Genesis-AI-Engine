@@ -139,7 +139,7 @@ class GenesisKnowledgeLayer:
         )
         product_when = svp.get(
             "product_when",
-            f"{STUDIO_NAME} пока в разработке — не предлагать покупку. Сейчас: /site и /order.",
+            f"{STUDIO_NAME} пока в разработке — не предлагать покупку. Сейчас: цифровая компания и заказ лендинга.",
         )
         anti_example = anti.get(
             "example_one_site",
@@ -156,7 +156,7 @@ class GenesisKnowledgeLayer:
             f"- Срок ориентир: {MISSION1_LANDING_TIMELINE}"
         )
         subs_section = subs or (
-            f"- Free — разговор с {ASSISTANT_NAME} на /site\n"
+            f"- Free — работа с {ASSISTANT_NAME} в цифровой компании\n"
             f"- {STUDIO_NAME} — в разработке, купить нельзя"
         )
         caps_section = capabilities or (

@@ -72,7 +72,7 @@ export default function OpenGraphImage() {
           </div>
         </div>
         <div style={{ marginTop: 40, fontSize: 56, fontWeight: 700 }}>Virtus Core</div>
-        <div style={{ marginTop: 12, fontSize: 28, color: "#8b8b9a" }}>Vector · Intelligent AI Assistant</div>
+        <div style={{ marginTop: 12, fontSize: 28, color: "#8b8b9a" }}>Vector · Digital Company</div>
       </div>
     ),
     { ...size }

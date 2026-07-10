@@ -20,7 +20,14 @@ from app.execution.post_analysis_actions import (
     build_analysis_completion_message,
     suggest_post_analysis_actions,
 )
-from app.execution.workspace_reuse import format_reuse_explanation
+from app.execution.workspace_reuse import format_reuse_explanation, load_workspace_building_blocks
+from app.integration.genesis_brain.user_text_normalizer import normalize_user_text
+from app.integration.market_context import (
+    MARKET_DEFAULT,
+    market_clarification_question,
+    resolve_market_context,
+)
+from app.integration.product_line import website_concept_ready_message, website_studio_intro
 
 _REGISTRY: ExecutionCapabilityRegistry | None = None
 
@@ -39,14 +46,12 @@ _SITE_GOAL = re.compile(
 _CONTENT_AFTER = re.compile(r"(?:с\s+текстом|с\s+содержимым|content|:)\s*(.+)$", re.IGNORECASE | re.DOTALL)
 
 _SITE_PROGRESS = (
-    "Анализирую запрос",
-    "Создаю Workspace",
-    "Формирую структуру проекта",
-    "Создаю brief",
-    "Генерирую HTML",
-    "Генерирую CSS",
-    "Создаю preview",
-    "Готово",
+    "Изучаю задачу",
+    "Готовлю структуру",
+    "Создаю первый вариант сайта",
+    "Настраиваю мобильную версию",
+    "Проверяю отображение",
+    "Сайт готов к просмотру",
 )
 
 _DOC_PROGRESS = (
@@ -92,6 +97,28 @@ _DOC_TOPIC = re.compile(
     re.IGNORECASE,
 )
 _FILE_TOPIC = re.compile(r"(?:документ|файл|readme|markdown|\.md\b|\.txt\b)", re.IGNORECASE)
+
+_BUSINESS_CONTEXT = re.compile(
+    r"(?:"
+    r"стоматолог|dental|зуб|клиник|имплант|"
+    r"кафе|cafe|кофе|ресторан|restaurant|бар|"
+    r"салон|красот|beauty|spa|маникюр|"
+    r"автосервис|авто|garage|шиномонтаж|"
+    r"бизнес|компани|фирм|услуг|магазин|shop|"
+    r"юрист|law|fitness|спорт|школ|agency|агентств|"
+    r"отель|hotel|стоматологи|стоматология"
+    r")",
+    re.IGNORECASE,
+)
+
+_VAGUE_SITE_GOAL = re.compile(
+    r"^(?:"
+    r"(?:я\s+)?хочу\s+(?:создать\s+)?(?:сайт|лендинг|landing|site)"
+    r"|(?:создай|создать|сделай|make|create|build)\s+(?:мне\s+)?(?:сайт|лендинг|landing|site)\s*"
+    r"|(?:нужен|need)\s+(?:сайт|лендинг|landing|site)\s*"
+    r")\.?$",
+    re.IGNORECASE,
+)
 
 _CAPABILITY_EXAMPLES: dict[str, list[str]] = {
     "filesystem_write": ["Создай README", "Создай файл notes.txt"],
@@ -221,6 +248,111 @@ def _parse_site_request(goal: str) -> str | None:
     return None
 
 
+def _existing_workspace_id(memory_dir: Path, visitor_id: str) -> str | None:
+    path = _visitor_map_path(memory_dir)
+    if not path.is_file():
+        return None
+    try:
+        mapping = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+    ws_id = mapping.get(visitor_id)
+    if not ws_id:
+        return None
+    if ExecutionWorkspaceStore(memory_dir).get(ws_id):
+        return ws_id
+    return None
+
+
+def _workspace_has_business_context(memory_dir: Path, workspace_id: str) -> bool:
+    blocks = load_workspace_building_blocks(
+        ExecutionWorkspaceStore(memory_dir),
+        workspace_id,
+    )
+    return bool(blocks.get("document_structure") or blocks.get("executive_summary") or blocks.get("report_md"))
+
+
+def _site_brief_insufficient(goal: str) -> bool:
+    g = goal.strip()
+    if not g:
+        return True
+    if _BUSINESS_CONTEXT.search(g):
+        return False
+    if re.search(r"сайт\s+для\s+\w+", g, re.IGNORECASE):
+        return False
+    if re.search(r"(?:for|für)\s+\w+", g, re.IGNORECASE) and _SITE_TOPIC.search(g):
+        return False
+    if len(g) > 72:
+        return False
+    if _VAGUE_SITE_GOAL.match(g):
+        return True
+    if _SITE_GOAL.search(g) and len(g.split()) <= 7:
+        return True
+    return False
+
+
+def _site_brief_clarification(
+    *,
+    from_project: bool = False,
+    goal: str = "",
+    ui_locale: str | None = None,
+) -> dict[str, Any]:
+    if from_project:
+        intro = (
+            "Использую информацию из вашего проекта.\n"
+            "Начинаю подготовку сайта."
+        )
+    else:
+        intro = website_studio_intro()
+    answer = intro
+    if not from_project:
+        ctx = resolve_market_context(text=goal, ui_locale=ui_locale)
+        market_q = market_clarification_question(ctx, locale=ui_locale)
+        if market_q:
+            answer = f"{intro}\n\n{market_q}"
+    return {
+        "answer": answer,
+        "source": "genesis-ai",
+        "mode": "genesis",
+        "provider": "execution",
+        "cta_href": None,
+        "cta_label": None,
+    }
+
+
+def _site_customer_ctas(preview_path: str) -> list[dict[str, Any]]:
+    return [
+        {"href": preview_path, "label": "🌐 Открыть сайт", "group": "artifacts", "available": True},
+        {
+            "href": "#action:Хочу внести правки в сайт",
+            "label": "✏ Продолжить редактирование",
+            "group": "next",
+            "available": True,
+        },
+        {
+            "href": "#horizon:download",
+            "label": "📥 Скачать",
+            "group": "next",
+            "available": False,
+        },
+    ]
+
+
+def _build_site_completion_answer(preview_path: str, reuse_note: str) -> str:
+    body = (
+        f"{_progress_answer(_SITE_PROGRESS)}\n\n"
+        f"{website_concept_ready_message()}\n\n"
+        "**Что уже готово:**\n"
+        "✓ структура сайта\n"
+        "✓ дизайн\n"
+        "✓ мобильная версия\n"
+        "✓ предварительный просмотр"
+    )
+    if reuse_note:
+        body += f"\n\n{reuse_note.strip()}"
+    return body
+
+
 def _default_readme(goal: str) -> str:
     return f"""# README
 
@@ -231,7 +363,7 @@ def _default_readme(goal: str) -> str:
 
 ## Дальше
 - Добавьте описание проекта
-- Уточните структуру сайта или продукта в чате
+- Уточните структуру сайта или продукта в диалоге с Vector
 """
 
 
@@ -282,9 +414,9 @@ def try_capability_discovery(goal: str, memory_dir: Path) -> dict[str, Any] | No
         if "generate_site" not in ready_ids:
             return None
         answer = _format_capability_discovery_answer(
-            intro="Да.\nЯ умею создавать сайты.",
+            intro="Да.\nЯ умею создавать сайты для бизнеса.",
             capability_ids=["generate_site"],
-            closing="После этого я создам проект в Workspace и покажу preview.",
+            closing="Опишите компанию двумя словами — подготовлю первый вариант сайта.",
         )
         return {
             "answer": answer,
@@ -314,9 +446,9 @@ def try_capability_discovery(goal: str, memory_dir: Path) -> dict[str, Any] | No
 
     if _FILE_TOPIC.search(g) and "filesystem_write" in ready_ids:
         answer = _format_capability_discovery_answer(
-            intro="Да.\nЯ умею создавать документы в Workspace.",
+            intro="Да.\nЯ умею готовить документы по запросу.",
             capability_ids=["filesystem_write"],
-            closing="Файл появится в Workspace — вы увидите путь и сможете открыть его.",
+            closing="Напишите, что нужно — подготовлю файл в вашем проекте.",
         )
         return {
             "answer": answer,
@@ -339,7 +471,7 @@ def try_capability_discovery(goal: str, memory_dir: Path) -> dict[str, Any] | No
         bullets.append(f"• {label}{hint}")
 
     answer = "Я умею:\n" + "\n".join(bullets)
-    answer += "\n\nНапишите пример из списка — я выполню задачу в Workspace."
+    answer += "\n\nНапишите, что нужно сделать — выполню работу в вашем проекте."
     return {
         "answer": answer,
         "source": "genesis-ai",
@@ -362,6 +494,7 @@ def try_user_execution(
     Run a single real capability when the user goal matches.
     Returns public chat dict or None (fall through to Brain).
     """
+    goal = normalize_user_text(goal) or goal
     discovered = try_capability_discovery(goal, memory_dir)
     if discovered:
         return discovered
@@ -370,6 +503,12 @@ def try_user_execution(
 
     site_goal = _parse_site_request(goal)
     if site_goal:
+        if _site_brief_insufficient(site_goal):
+            ws_id = _existing_workspace_id(memory_dir, visitor_id)
+            if ws_id and _workspace_has_business_context(memory_dir, ws_id):
+                pass  # enough context from project — proceed
+            else:
+                return _site_brief_clarification(goal=site_goal, ui_locale=ui_locale)
         return _run_generate_site(site_goal, visitor_id=visitor_id, memory_dir=memory_dir)
 
     parsed = _parse_file_request(goal)
@@ -423,8 +562,8 @@ def try_user_execution(
         file_href = _workspace_file_href(workspace_id, visitor_id, cap.get("path") or filename)
         return {
             "answer": (
-                f"✓ Файл создан: `{cap.get('path') or filename}`\n\n"
-                f"Workspace: `{workspace_id}`"
+                f"✓ Документ создан: **{cap.get('path') or filename}**\n\n"
+                "Файл добавлен в ваш проект."
             ),
             "source": "genesis-ai",
             "mode": "genesis",
@@ -627,32 +766,25 @@ def _run_generate_site(
         }
 
     cap = result.steps[0].outputs
-    files = cap.get("files") or []
     preview_path = _preview_href(workspace_id, visitor_id)
-    file_list = "\n".join(f"- `{f}`" for f in files if f)
     reuse_score = int(cap.get("reuse_score") or 0)
-    reuse_note = ""
-    if reuse_score > 0:
-        reuse_note = f"\n\n{format_reuse_explanation(cap)}\n"
-    answer = (
-        f"{_progress_answer(_SITE_PROGRESS)}\n\n"
-        "**Проект готов.**\n\n"
-        f"{file_list}"
-        f"{reuse_note}\n\n"
-        "Откройте preview — это реальный сайт, не описание в чате."
-    )
+    reuse_note = format_reuse_explanation(cap) if reuse_score > 0 else ""
+    answer = _build_site_completion_answer(preview_path, reuse_note)
+    cta_actions = _site_customer_ctas(preview_path)
     return {
         "answer": answer,
         "source": "genesis-ai",
         "mode": "genesis",
         "provider": "execution",
         "cta_href": preview_path,
-        "cta_label": "Открыть preview",
+        "cta_label": "🌐 Открыть сайт",
+        "cta_actions": cta_actions,
         "context": {
             "execution": result.to_dict(),
             "capability_result": cap,
             "workspace_id": workspace_id,
             "preview_url": preview_path,
+            "artifact_type": "website",
         },
     }
 

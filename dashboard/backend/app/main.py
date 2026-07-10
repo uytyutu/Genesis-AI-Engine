@@ -683,7 +683,7 @@ def list_chat_sessions(visitor_id: str) -> ChatSessionListResponse:
 def create_chat_session(body: ChatSessionCreateRequest) -> ChatSessionCreateResponse:
     vid = body.visitor_id.strip()[:64]
     row = _genesis_service(_ctx().sales.packages()).sessions.create(
-        vid, title=body.title.strip() or "Новый чат"
+        vid, title=body.title.strip() or "Новое поручение"
     )
     return ChatSessionCreateResponse(
         session_id=row["session_id"],
@@ -709,7 +709,7 @@ def get_chat_session(session_id: str, visitor_id: str) -> ChatSessionDetailRespo
     return ChatSessionDetailResponse(
         session_id=row["session_id"],
         visitor_id=vid,
-        title=row.get("title") or "Новый чат",
+        title=row.get("title") or "Новое поручение",
         created_at=row.get("created_at") or "",
         updated_at=row.get("updated_at") or "",
         pinned=bool(row.get("pinned")),

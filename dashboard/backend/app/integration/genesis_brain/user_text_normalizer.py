@@ -91,6 +91,7 @@ _FUZZY_VOCAB: tuple[str, ...] = tuple(
             "сделай",
             "придумай",
             "открой",
+            "бизнес-план",
             "бизнес",
             "сайт",
             "приложение",
@@ -128,7 +129,9 @@ _FUZZY_VOCAB: tuple[str, ...] = tuple(
 )
 
 _PHRASE_FIXES: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"\brest\s+api\b", re.I), "REST API"),
+    (re.compile(r"\bбизнес\s+план\b", re.I), "бизнес-план"),
+    (re.compile(r"\bбизнесплан\b", re.I), "бизнес-план"),
+    (re.compile(r"\bbusiness\s+plan\b", re.I), "бизнес-план"),
     (re.compile(r"\bии-модулями\b", re.I), "ИИ-модулями"),
     (re.compile(r"\bии\s+модулями\b", re.I), "ИИ-модулями"),
     (re.compile(r"\bвиртус\s+кор(?:е)?\b", re.I), "virtus core"),

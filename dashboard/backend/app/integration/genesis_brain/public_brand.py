@@ -13,15 +13,14 @@ BRAND_NAME = "Virtus Core"
 ASSISTANT_NAME = "Vector"
 INTERNAL_CORE_NAME = "Genesis"
 BRAND_SIGNATURE = "by Virtus Core"
-ASSISTANT_TAGLINE = "Intelligent AI Assistant"
+ASSISTANT_TAGLINE = "Digital Company"
 STUDIO_NAME = "Virtus Studio"
-CHAT_FEATURE = f"{ASSISTANT_NAME} Chat"
+CHAT_FEATURE = ASSISTANT_NAME
 
 PUBLIC_WELCOME = (
     f"Здравствуйте!\n"
-    f"Я — {ASSISTANT_NAME},\n"
-    f"интеллектуальный ИИ-помощник платформы {BRAND_NAME}.\n"
-    "Чем могу помочь?"
+    f"Я — {ASSISTANT_NAME}, ваш цифровой руководитель в {BRAND_NAME}.\n"
+    "Что делаем первым — проект, документ или сайт?"
 )
 
 # Ordered — specific phrases before bare word.

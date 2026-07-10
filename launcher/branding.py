@@ -10,7 +10,7 @@ from launcher import paths
 BRAND_NAME = "Virtus Core"
 ASSISTANT_NAME = "Vector"
 BRAND_SIGNATURE = "by Virtus Core"
-ASSISTANT_TAGLINE = "Intelligent AI Assistant"
+ASSISTANT_TAGLINE = "Digital Company"
 
 # Synced with client/desktop/src/styles/theme.css
 GENESIS_BG = "#050508"

@@ -454,7 +454,7 @@ class ChatSessionListResponse(BaseModel):
 
 class ChatSessionCreateRequest(BaseModel):
     visitor_id: str = Field(max_length=64)
-    title: str = Field(default="Новый чат", max_length=80)
+    title: str = Field(default="Новое поручение", max_length=80)
 
 
 class ChatSessionCreateResponse(BaseModel):

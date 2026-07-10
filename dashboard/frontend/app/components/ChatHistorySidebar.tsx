@@ -100,7 +100,7 @@ export function ChatHistorySidebar({
                       : "text-genesis-text hover:bg-white/5"
                   }`}
                 >
-                  <span className="line-clamp-1 font-medium">{s.title || "Новый чат"}</span>
+                  <span className="line-clamp-1 font-medium">{s.title || "Новое поручение"}</span>
                   {s.preview ? (
                     <span className="line-clamp-1 text-[11px] text-genesis-muted">
                       {s.preview}
@@ -148,7 +148,7 @@ export function ChatHistorySidebar({
                 <motion.button
                   key="chat-history-backdrop"
                   type="button"
-                  aria-label="Закрыть историю чатов"
+                  aria-label="Закрыть историю"
                   initial={reduce ? false : { opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={reduce ? undefined : { opacity: 0 }}
@@ -163,7 +163,7 @@ export function ChatHistorySidebar({
                   exit={reduce ? undefined : { x: "-100%" }}
                   transition={springs.gentle}
                   className="fixed inset-y-0 left-0 z-[60] flex w-[min(85vw,18rem)] flex-col overflow-hidden border-r border-white/10 bg-genesis-panel shadow-2xl md:hidden"
-                  aria-label="История чатов"
+                  aria-label="История поручений"
                 >
                   <div className="flex items-center justify-between border-b border-white/5 px-3 py-2">
                     <p className="text-sm font-semibold text-white">Меню</p>
@@ -203,7 +203,7 @@ export function ChatHistorySidebar({
           className="mb-2 flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white md:hidden"
           aria-expanded={sidebarOpen}
         >
-          {sidebarOpen ? "Скрыть историю" : "История чатов"}
+          {sidebarOpen ? "Скрыть историю" : "История"}
         </button>
       ) : null}
 
@@ -217,7 +217,7 @@ export function ChatHistorySidebar({
               exit={reduce ? undefined : { opacity: 0, height: 0, y: -8 }}
               transition={springs.gentle}
               className="mb-2 flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:hidden"
-              aria-label="История чатов"
+              aria-label="История поручений"
             >
               <SidebarNav
                 sessions={sessions}
@@ -237,7 +237,7 @@ export function ChatHistorySidebar({
 
       <aside
         className={`${overlayOnly ? "hidden" : "hidden shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:flex md:w-56 lg:w-64"}`}
-        aria-label="История чатов"
+        aria-label="История поручений"
       >
         <SidebarNav
           sessions={sessions}
@@ -290,7 +290,7 @@ function SidebarNav({
             className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm text-genesis-text transition hover:bg-white/5"
           >
             <span aria-hidden>💬</span>
-            Новый чат
+            Новое поручение
           </button>
         </div>
       ) : null}
@@ -304,7 +304,7 @@ function SidebarNav({
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-genesis-accent/25 px-3 py-2.5 text-sm font-semibold text-white hover:bg-genesis-accent/35"
         >
           <span className="text-lg leading-none">+</span>
-          Новый чат
+          Новое поручение
         </motion.button>
       </div>
       {onGoHome ? (
@@ -315,9 +315,9 @@ function SidebarNav({
       <nav className="min-h-0 flex-1 overflow-y-auto p-2">
         {sessions.length === 0 ? (
           <p className="px-2 py-4 text-center text-xs text-genesis-muted">
-            Пока нет сохранённых чатов.
+            Пока нет сохранённых поручений.
             <br />
-            Начните новый разговор.
+            Поручите Vector первую задачу.
           </p>
         ) : (
           (["pinned", "today", "yesterday", "week", "older"] as DateGroup[]).map(renderGroup)

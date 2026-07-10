@@ -130,7 +130,7 @@ def test_bridge_creates_readme_from_chat_goal(memory_tmp: Path):
     assert out is not None
     assert out["provider"] == "execution"
     assert "README.md" in out["answer"]
-    assert "✓ Файл создан" in out["answer"]
+    assert "✓ Документ создан" in out["answer"]
     ws_id = out["context"]["workspace_id"]
     path = ExecutionWorkspaceStore(memory_tmp).path_for(ws_id, "files", "README.md")
     assert path.is_file()
@@ -205,7 +205,8 @@ def test_bridge_analyzes_pdf_without_analyze_keyword(memory_tmp: Path):
     assert out["provider"] == "capability_registry"
     assert "создавать сайты" in out["answer"].lower()
     assert "стоматологии" in out["answer"]
-    assert "preview" in out["answer"].lower()
+    assert "preview" not in out["answer"].lower()
+    assert "workspace" not in out["answer"].lower()
 
 
 def test_bridge_capability_discovery_general(memory_tmp: Path):
@@ -256,10 +257,13 @@ def test_bridge_site_goal_returns_preview_cta(memory_tmp: Path):
     )
     assert out is not None
     assert out["provider"] == "execution"
-    assert "✓ Готово" in out["answer"]
-    assert "index.html" in out["answer"]
+    assert "Первая версия" in out["answer"] or "первый вариант" in out["answer"].lower()
+    assert "index.html" not in out["answer"]
+    assert "Workspace" not in out["answer"]
     assert out["cta_href"]
-    assert out["cta_label"] == "Открыть preview"
+    assert out["cta_label"] == "🌐 Открыть сайт"
+    assert out["cta_actions"]
+    assert out["cta_actions"][0]["label"] == "🌐 Открыть сайт"
     ws_id = out["context"]["workspace_id"]
     mapping = json.loads(map_path.read_text(encoding="utf-8"))
     assert mapping["visitor-site"] == ws_id
@@ -498,5 +502,21 @@ def test_workflow_analyze_then_site_same_visitor(memory_tmp: Path):
     assert site_out["context"]["workspace_id"] == ws_id
     cap = site_out["context"]["capability_result"]
     assert cap.get("reuse_score", 0) >= 1
-    assert "Использовано" in (site_out["answer"] or "") or "Workspace" in (site_out["answer"] or "")
+    assert "проект" in (site_out["answer"] or "").lower()
+
+
+def test_bridge_vague_site_asks_before_build(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    out = bridge.try_user_execution(
+        "хочу создать сайт",
+        visitor_id="visitor-vague",
+        memory_dir=memory_tmp,
+    )
+    assert out is not None
+    assert out["provider"] == "execution"
+    assert "понять задачу" in out["answer"].lower() or "один проект" in out["answer"].lower()
+    assert "рынк" in out["answer"].lower() or "стран" in out["answer"].lower()
+    assert out.get("cta_href") is None
 

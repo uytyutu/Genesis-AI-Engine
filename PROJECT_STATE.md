@@ -94,7 +94,11 @@ Launcher · Mission Control · Factory · Finance (display) · утренний 
 
 **Baseline metrics (offline, beta):** acceptance 5/5 · state errors 0 · D5 no exact repeats · ~290 ms avg turn (sample, `llm_configured=false`)
 
-**Phase 3 backlog (not during freeze):** meta/style questions («а чё ты так общаешься?») currently hit `identity_intent` → full intro; want conversational meta reply about tone, not who-are-you.
+**Quality gates (порядок):** Engineering (Acceptance 5/5) → Human UX Regression → Product UX Regression → «версия готова».
+
+**Phase 3 — Human & Product UX** (после Groq A/B, не во время freeze): живые фразы, meta/style, сленг — материал в [`USER_FRICTION.md`](USER_FRICTION.md) (только записывать, не чинить сразу).
+
+**Phase 3 backlog (пример):** «Ты чего так общаешься?» → generic fallback; «а чё ты так общаешься» → identity intro — оба мимо вопроса о тоне.
 
 ---
 

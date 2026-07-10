@@ -50,6 +50,39 @@ def frontend_build_integrity(root: Path | None = None) -> bool:
     return all(p.is_file() for p in required)
 
 
+_FRONTEND_SOURCE_SUFFIXES = frozenset({".tsx", ".ts", ".json", ".css", ".scss"})
+
+
+def frontend_source_stamp(root: Path | None = None) -> float:
+    """Newest mtime among customer-facing frontend sources (app, locales, public)."""
+    fe = frontend_dir(root)
+    newest = 0.0
+    for rel in ("app", "locales", "public"):
+        base = fe / rel
+        if not base.is_dir():
+            continue
+        for path in base.rglob("*"):
+            if not path.is_file() or path.suffix not in _FRONTEND_SOURCE_SUFFIXES:
+                continue
+            try:
+                newest = max(newest, path.stat().st_mtime)
+            except OSError:
+                continue
+    return newest
+
+
+def frontend_build_stale(root: Path | None = None) -> bool:
+    """True when source changed after the last production build."""
+    if not frontend_build_ready(root):
+        return False
+    build_id = frontend_dir(root) / ".next" / "BUILD_ID"
+    try:
+        build_mtime = build_id.stat().st_mtime
+    except OSError:
+        return True
+    return frontend_source_stamp(root) > build_mtime + 1.0
+
+
 def clear_frontend_build(root: Path | None = None, *, managed=None) -> None:
     """Remove .next only after stopping Frontend — never delete artifacts under a live server."""
     import shutil
@@ -350,8 +383,14 @@ def ensure_frontend_ready(
     if not for_production:
         return True, "Mission Control готов"
 
-    if frontend_build_ready(root) and frontend_build_integrity(root):
+    if frontend_build_ready(root) and frontend_build_integrity(root) and not frontend_build_stale(root):
         return True, "Mission Control готов"
+
+    if frontend_build_ready(root) and frontend_build_stale(root):
+        from launcher.log_util import append_log
+
+        append_log("Frontend source newer than .next — rebuilding production build")
+        clear_frontend_build(root, managed=managed)
 
     if frontend_build_ready(root) and not frontend_build_integrity(root):
         clear_frontend_build(root, managed=managed)

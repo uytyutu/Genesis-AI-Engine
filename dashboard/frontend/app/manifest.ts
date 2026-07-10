@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Virtus Core",
     short_name: "Virtus",
-    description: "Virtus Core — Vector intelligent AI assistant",
+    description: "Virtus Core — Vector, ваша цифровая компания",
     start_url: "/site",
     display: "standalone",
     background_color: "#050508",

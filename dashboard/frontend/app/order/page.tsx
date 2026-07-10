@@ -52,6 +52,15 @@ export default function OrderSitePage() {
   const [paymentReady, setPaymentReady] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const pkg = new URLSearchParams(window.location.search).get("package");
+    if (pkg && ["basic", "business", "premium"].includes(pkg)) {
+      setPackageId(pkg);
+      setManualPackage(true);
+    }
+  }, []);
+
+  useEffect(() => {
     fetch(`${API}/api/sales/payment-status`)
       .then((r) => r.json())
       .then((body) => setPaymentReady(Boolean(body.configured)))
