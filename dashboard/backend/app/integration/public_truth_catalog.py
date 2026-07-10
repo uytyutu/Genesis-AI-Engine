@@ -26,7 +26,7 @@ from app.integration.product_line import (
 )
 from app.integration.sales_order_service import _PACKAGES as SALES_PACKAGES
 
-TRUTH_VERSION = "mission1-truth-11"
+TRUTH_VERSION = "mission1-truth-12"
 MISSION1_LANDING_TIMELINE = "5–14 дней"
 MISSION1_PACKAGE_PRICES_EUR = (350, 650, 1200)
 
@@ -172,7 +172,7 @@ def build_mission1_vector_commerce_rules(packages: list[dict[str, Any]] | None =
 
 **Оплата любой услуги:** только после согласования результата; в диалоге — рыночная смета, на `/order` — пакеты.
 
-**Не путать:** услуга = готовый результат. Vector Pro = подписка (среда, не скидка)."""
+**Не путать:** услуга = готовый результат. Professional = подписка (этап роста, не скидка)."""
 
 
 def build_truth_pricing_display() -> dict:
@@ -191,8 +191,8 @@ def build_truth_pricing_display() -> dict:
         "platform_status": {
             "label": f"{STUDIO_NAME} — подписка, в разработке",
             "body": (
-                f"Подписка — цифровая компания с {ASSISTANT_NAME}, не скидка на услугу. Пока не продаётся. "
-                f"Сейчас: Vector Free и разовые услуги (сайт, анализ документов в диалоге)."
+                f"Подписка — следующий этап роста цифровой компании с {ASSISTANT_NAME}. Пока не продаётся. "
+                f"Сейчас: Free (без срока) и разовые услуги (сайт, анализ документов в диалоге)."
             ),
         },
         "service_vs_product": {
@@ -212,9 +212,9 @@ def build_truth_pricing_display() -> dict:
                 "price_eur_month": 0 if t["id"] == "free" else None,
                 "price_label": "0 €" if t["id"] == "free" else "скоро",
                 "period": "/мес",
-                "audience": t["tagline_ru"],
-                "tagline": t["description_ru"],
-                "features": [t["tagline_ru"]],
+                "audience": t["growth_stage_ru"],
+                "tagline": t["tagline_ru"],
+                "features": [t["description_ru"]],
                 "cta": "Начать работу" if t["available"] else "Скоро",
                 "cta_href": "/site" if t["available"] else "/products",
                 "available": t["available"],

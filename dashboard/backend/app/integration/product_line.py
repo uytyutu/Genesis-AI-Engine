@@ -167,54 +167,81 @@ WEBSITE_PACKAGE_LABELS: dict[str, str] = {
 # --- Subscriptions (environment — not a discount on services) ------------------
 
 SUB_VECTOR_FREE = "free"
-SUB_VECTOR_PRO = "pro"
-SUB_VECTOR_TEAM = "team"
+SUB_VECTOR_CORE = "core"  # internal — customer-facing: Professional
+SUB_VECTOR_BUSINESS = "business"
 SUB_VECTOR_ENTERPRISE = "enterprise"
+
+# Legacy aliases (do not use in new code)
+SUB_VECTOR_PRO = SUB_VECTOR_CORE
+SUB_VECTOR_TEAM = SUB_VECTOR_BUSINESS
+
+PRODUCT_PRINCIPLES: tuple[str, ...] = (
+    "Virtus Core никогда не принуждает пользователя к покупке.",
+    "Сначала продукт создаёт ценность.",
+    "Потом предлагает варианты развития.",
+    "Пользователь всегда принимает решение добровольно.",
+    "Платёж появляется после ценности — не после регистрации.",
+    "Free без срока: пользователь остаётся сколько угодно, пока лимитов достаточно.",
+)
 
 SUBSCRIPTION_TIERS: tuple[dict[str, Any], ...] = (
     {
         "id": SUB_VECTOR_FREE,
-        "name": "Vector Free",
-        "customer_name_ru": "Vector Free",
+        "internal_id": SUB_VECTOR_FREE,
+        "name": "Free",
+        "customer_name_ru": "Free",
+        "growth_stage_ru": "Знакомство",
         "tagline_ru": "Знакомство с цифровой компанией",
         "description_ru": (
-            f"Ограниченные лимиты: сообщения, файлы, голос, проекты. "
-            f"Познакомиться с {ASSISTANT_NAME}."
+            f"Без срока действия. Один активный проект, ограниченные сообщения и файлы. "
+            f"Познакомиться с {ASSISTANT_NAME} и увидеть ценность — без давления на покупку."
         ),
-        "audience_ru": "Познакомиться",
+        "audience_ru": "Знакомство",
         "available": True,
         "price_set": False,
     },
     {
-        "id": SUB_VECTOR_PRO,
-        "name": "Vector Pro",
-        "customer_name_ru": "Vector Pro",
-        "tagline_ru": "Для предпринимателей",
+        "id": SUB_VECTOR_CORE,
+        "internal_id": SUB_VECTOR_CORE,
+        "name": "Professional",
+        "customer_name_ru": "Professional",
+        "growth_stage_ru": "Начало работы",
+        "tagline_ru": "Начало работы с цифровой компанией",
         "description_ru": (
-            "Проекты, работа с Vector, развитие результатов, расширенные лимиты. "
-            "Цифровая компания, которая продолжает работать — не скидка на услугу."
+            "Несколько активных проектов, голосовой Vector, документы, сайты и бизнес-планы "
+            "в разумных лимитах. Следующий этап роста — не «снятие ограничений»."
         ),
-        "audience_ru": "Предприниматели",
+        "audience_ru": "Фрилансеры и предприниматели",
         "available": False,
         "price_set": False,
     },
     {
-        "id": SUB_VECTOR_TEAM,
-        "name": "Vector Team",
-        "customer_name_ru": "Vector Team",
-        "tagline_ru": "Для небольшой команды",
-        "description_ru": "Общие проекты, совместная работа, цифровые сотрудники.",
-        "audience_ru": "Команды",
+        "id": SUB_VECTOR_BUSINESS,
+        "internal_id": SUB_VECTOR_BUSINESS,
+        "name": "Business",
+        "customer_name_ru": "Business",
+        "growth_stage_ru": "Рост компании",
+        "tagline_ru": "Рост цифровой компании",
+        "description_ru": (
+            "Больше проектов, CRM, автоматизация, маркетинг, совместная работа, "
+            "расширенные модели и приоритетная обработка."
+        ),
+        "audience_ru": "Малый и средний бизнес",
         "available": False,
         "price_set": False,
     },
     {
         "id": SUB_VECTOR_ENTERPRISE,
-        "name": "Vector Enterprise",
-        "customer_name_ru": "Vector Enterprise",
-        "tagline_ru": "Для крупных компаний",
-        "description_ru": "Роли, интеграции, автоматизация процессов, API.",
-        "audience_ru": "Enterprise",
+        "internal_id": SUB_VECTOR_ENTERPRISE,
+        "name": "Enterprise",
+        "customer_name_ru": "Enterprise",
+        "growth_stage_ru": "Масштабирование",
+        "tagline_ru": "Масштабирование цифровой компании",
+        "description_ru": (
+            "Команда, роли, интеграции, корпоративная безопасность, "
+            "максимальные лимиты и приоритетная поддержка."
+        ),
+        "audience_ru": "Компании",
         "available": False,
         "price_set": False,
     },
@@ -269,22 +296,48 @@ def universal_concept_ready_message(service_id: str) -> str:
 
 
 def universal_approved_purchase_options(service_id: str, *, estimate_block: str = "") -> str:
-    """Stage 4 — after explicit approval only; preliminary estimate first."""
+    """Stage 4 — after explicit approval only; voluntary choice, no pressure."""
     label = service_label_ru(service_id, fallback="результат")
-    header = f"**{label} полностью согласован.**\n\n"
+    header = f"**Ваш проект сохранён.**\n\n"
     if estimate_block:
         header += f"{estimate_block.strip()}\n\n"
     return (
         header
-        + "Теперь доступны два варианта:\n\n"
-        f"**1. Разовая покупка — готовый {label.lower()}**\n"
-        "Полный проект: файлы, архив, инструкции, права. Результат ваш — "
-        f"{BRAND_NAME} завершает сотрудничество после передачи.\n\n"
-        f"**2. Подписка — продолжить с {ASSISTANT_NAME}**\n"
+        + f"**{label}** полностью согласован. Вы можете:\n\n"
+        f"🛒 **Получить этот готовый проект полностью** (разовая покупка)\n"
+        "Полный результат: файлы, архив, инструкции, права. "
+        f"После передачи сотрудничество по этому проекту завершено.\n\n"
+        f"⭐ **Продолжить развивать его вместе с {ASSISTANT_NAME}** (подписка)\n"
         f"Проект остаётся в {BRAND_NAME}. {ASSISTANT_NAME} — постоянный цифровой сотрудник: "
-        "доработки, новые версии, подключение услуг.\n\n"
-        "Подписка — не скидка, а другой опыт. Выберите сами — ничего не навязываю."
+        "новые версии, другие проекты, CRM, автоматизация.\n\n"
+        "Вы сами выбираете — ничего не навязываю."
     )
+
+
+def universal_project_saved_without_purchase() -> str:
+    """Free user declined purchase — project stays, export locked, no guilt copy."""
+    return (
+        "**Ваш проект сохранён.**\n\n"
+        "Вы можете вернуться к нему в любое время.\n\n"
+        "Когда будете готовы:\n"
+        "🛒 получить готовый проект полностью\n"
+        "или\n"
+        f"⭐ продолжить развивать его вместе с {ASSISTANT_NAME}.\n\n"
+        "Решение всегда за вами."
+    )
+
+
+def product_principles_block() -> str:
+    lines = "\n".join(f"• {p}" for p in PRODUCT_PRINCIPLES)
+    return f"## Product Principles\n{lines}"
+
+
+def subscription_growth_stages_block() -> str:
+    lines = "\n".join(
+        f"• **{t['customer_name_ru']}** — {t['growth_stage_ru']}: {t['tagline_ru']}"
+        for t in SUBSCRIPTION_TIERS
+    )
+    return f"## Этапы роста цифровой компании\n{lines}"
 
 
 def one_time_handoff_summary(service_id: str) -> str:
@@ -318,11 +371,17 @@ def universal_service_model_rules() -> str:
         for s in ONE_TIME_SERVICES
     )
     subs = "\n".join(
-        f"• **{t['customer_name_ru']}** — {t['tagline_ru']}"
+        f"• **{t['customer_name_ru']}** ({t['growth_stage_ru']}) — {t['tagline_ru']}"
         + (" ✓" if t["available"] else " · в разработке")
         for t in SUBSCRIPTION_TIERS
     )
+    principles = product_principles_block()
+    stages = subscription_growth_stages_block()
     return f"""## Универсальная модель услуг {BRAND_NAME}
+
+{principles}
+
+{stages}
 
 **Любая услуга** (сайт, бизнес-план, презентация, автоматизация, чат-бот, CRM, маркетинг, приложение и др.) 
 работает по **одному сценарию**:
@@ -332,14 +391,14 @@ def universal_service_model_rules() -> str:
 **Разовая покупка:** готовый результат → передача → сотрудничество завершено.
 **Подписка:** цифровая компания продолжает работать — проекты внутри {BRAND_NAME}.
 
-Подписка продаётся **не как скидка**, а как другой опыт (постоянная команда).
+Подписка продаётся **не как скидка**, а как **следующий этап роста** цифровой компании.
+Разовая покупка остаётся выгодной, когда нужен **один конкретный результат**.
 **Ориентировочные диапазоны услуг** — показывай сразу по целевому рынку в локальной валюте.
-Фиксированный тариф подписки Pro/Team — когда продукт откроется; ценность объясняй честно.
 
 ### Каталог услуг (разовая покупка)
 {services}
 
-### Подписки (среда)
+### Подписки (этапы роста)
 {subs}
 
 ### {INTERNAL_CEO_EDITION}
@@ -348,11 +407,13 @@ def universal_service_model_rules() -> str:
 ### Правила {ASSISTANT_NAME}
 1. Начинай с **диалога** — не с подписки, не с кода, не с внутренних терминов.
 2. Показывай **концепцию** — итерации до согласования («переделай», «добавь», «измени»).
-3. **Продажа** — только после явного «да» / «оформляем».
-4. После согласования — **два варианта** (разовая покупка | подписка), без давления.
-5. Не путать услугу и тариф: Business Website ≠ Vector Pro.
-6. Недоступные услуги — честно «скоро», предложи то, что есть (сайт, анализ PDF).
-7. Юр. данные перед передачей (DE: Impressum, Datenschutz) — веди клиента, не «добавьте сами».
+3. **Продажа** — только после явного «да» / «оформляем» и **созданной ценности**.
+4. После согласования — **два варианта** (разовая покупка | подписка), **без давления**.
+5. Никогда не пиши «купите подписку, иначе…» — только «ваш проект сохранён, вы можете…».
+6. Free **без срока** — лимиты по объёму, не по времени.
+7. Не путать услугу и тариф: Business Website ≠ Professional подписка.
+8. Недоступные услуги — честно «скоро», предложи то, что есть (сайт, анализ PDF).
+9. Юр. данные перед передачей (DE: Impressum, Datenschutz) — веди клиента, не «добавьте сами».
 """
 
 

@@ -37,7 +37,7 @@ ADD_ON_SERVICES: tuple[dict[str, Any], ...] = (
     {"id": "publish", "name_ru": "Публикация", "pricing": "отдельно"},
     {"id": "email", "name_ru": "Корпоративная почта", "pricing": "отдельно"},
     {"id": "seo_promo", "name_ru": "SEO-продвижение", "pricing": "отдельно"},
-    {"id": "subscription_support", "name_ru": "Сопровождение по подписке", "pricing": "Vector Pro (скоро)"},
+    {"id": "subscription_support", "name_ru": "Сопровождение по подписке", "pricing": "Professional (скоро)"},
 )
 
 BASE_ESTIMATE_INCLUDES: tuple[str, ...] = (

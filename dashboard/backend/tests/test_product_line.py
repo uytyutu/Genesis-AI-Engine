@@ -38,9 +38,15 @@ def test_concept_ready_not_final_sale():
 
 def test_approved_options_two_paths():
     text = universal_approved_purchase_options(SERVICE_WEBSITE)
-    assert "Разовая покупка" in text
-    assert "Подписка" in text
-    assert "не скидка" in text.lower() or "ничего не навязываю" in text
+    assert "Ваш проект сохранён" in text
+    assert "разовая покупка" in text.lower()
+    assert "подписка" in text.lower()
+    assert "ничего не навязываю" in text
+
+
+def test_subscription_tiers_customer_names():
+    names = [t["customer_name_ru"] for t in SUBSCRIPTION_TIERS]
+    assert names == ["Free", "Professional", "Business", "Enterprise"]
 
 
 def test_service_labels():
@@ -55,4 +61,5 @@ def test_model_rules_cover_all_services():
     for tier in SUBSCRIPTION_TIERS:
         assert tier["customer_name_ru"] in rules
     assert "Internal CEO Edition" in rules
-    assert "не скидка" in rules.lower() or "скидка" in rules.lower()
+    assert "Product Principles" in rules
+    assert "Professional" in rules
