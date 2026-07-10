@@ -200,7 +200,7 @@ type Props = {
 };
 
 export function GenesisConcierge({ onConversationActive, scope = "public" }: Props) {
-  const { t } = useTranslation(["chat", "errors"]);
+  const { t } = useTranslation(["chat", "errors", "common"]);
   const { uiLocale, assistantLocale } = useLocale();
   const isPublic = scope === "public";
   const fallbackWelcome = isPublic ? FALLBACK_WELCOME_PUBLIC : FALLBACK_WELCOME_OWNER;
@@ -372,6 +372,22 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
     },
     [scope, welcomeText],
   );
+
+  const handlePublicHome = useCallback(() => {
+    setSidebarOpen(false);
+    resetToWelcome();
+    window.dispatchEvent(new Event("genesis:home"));
+  }, [resetToWelcome]);
+
+  const handlePublicBack = useCallback(() => {
+    if (sidebarOpen) {
+      setSidebarOpen(false);
+      return;
+    }
+    handlePublicHome();
+  }, [sidebarOpen, handlePublicHome]);
+
+  const showPublicMobileBack = isPublic && (sidebarOpen || hasConversation);
 
   const refreshSessionList = useCallback(async () => {
     const rows = await fetchSessionList(visitorId);
@@ -1122,7 +1138,17 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
             + {t("newChat")}
           </button>
         ) : (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            {showPublicMobileBack ? (
+              <button
+                type="button"
+                onClick={handlePublicBack}
+                className="rounded-lg px-1.5 py-1 text-sm text-genesis-muted transition hover:bg-white/5 hover:text-white sm:hidden"
+                aria-label={t("back")}
+              >
+                {t("back")}
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={() => setSidebarOpen((o) => !o)}
@@ -1145,6 +1171,8 @@ export function GenesisConcierge({ onConversationActive, scope = "public" }: Pro
           <VectorBrandSignature
             variant="compact"
             className={composerFocused ? "max-sm:scale-90 max-sm:origin-center" : undefined}
+            onClick={isPublic ? handlePublicHome : undefined}
+            homeLabel={t("nav.home", { ns: "common" })}
           />
         ) : (
           <Badge variant="accent" className="tracking-[0.25em]">

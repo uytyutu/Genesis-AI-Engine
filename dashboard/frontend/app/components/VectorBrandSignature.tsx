@@ -5,6 +5,9 @@ type Props = {
   variant?: "compact" | "full" | "premium";
   className?: string;
   align?: "left" | "center";
+  /** Compact header — navigate home (public /site) */
+  onClick?: () => void;
+  homeLabel?: string;
 };
 
 /** Vector · by Virtus Core — consistent public product signature. */
@@ -12,19 +15,36 @@ export function VectorBrandSignature({
   variant = "compact",
   className = "",
   align = "left",
+  onClick,
+  homeLabel = "Главная",
 }: Props) {
   const alignClass = align === "center" ? "items-center text-center" : "items-start text-left";
 
   if (variant === "compact") {
-    return (
-      <span className={`inline-flex flex-col leading-tight ${alignClass} ${className}`}>
+    const inner = (
+      <>
         <span className="text-[11px] font-bold tracking-[0.2em] text-genesis-accent uppercase">
           {ASSISTANT_NAME}
         </span>
         <span className="text-[9px] font-medium tracking-[0.18em] text-genesis-muted uppercase">
           {BRAND_SIGNATURE}
         </span>
-      </span>
+      </>
+    );
+    if (onClick) {
+      return (
+        <button
+          type="button"
+          onClick={onClick}
+          aria-label={homeLabel}
+          className={`inline-flex flex-col leading-tight rounded-lg outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-genesis-accent/50 ${alignClass} ${className}`}
+        >
+          {inner}
+        </button>
+      );
+    }
+    return (
+      <span className={`inline-flex flex-col leading-tight ${alignClass} ${className}`}>{inner}</span>
     );
   }
 
