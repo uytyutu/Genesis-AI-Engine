@@ -65,6 +65,16 @@ export function ChatHistorySidebar({
     };
   }, [overlayOnly, sidebarOpen]);
 
+  const handleNewChat = () => {
+    onNewChat();
+    if (overlayOnly) closeSidebar();
+  };
+
+  const handleSelect = (sessionId: string) => {
+    onSelect(sessionId);
+    if (overlayOnly) closeSidebar();
+  };
+
   const renderGroup = (key: DateGroup) => {
     const items = grouped[key];
     if (!items.length) return null;
@@ -80,7 +90,7 @@ export function ChatHistorySidebar({
               <li key={s.session_id} className="group relative">
                 <button
                   type="button"
-                  onClick={() => onSelect(s.session_id)}
+                  onClick={() => handleSelect(s.session_id)}
                   className={`w-full rounded-lg px-2 py-2 text-left text-sm transition ${
                     active
                       ? "bg-genesis-accent/20 text-white"
@@ -124,16 +134,6 @@ export function ChatHistorySidebar({
         </ul>
       </div>
     );
-  };
-
-  const handleNewChat = () => {
-    onNewChat();
-    if (overlayOnly) closeSidebar();
-  };
-
-  const handleSelect = (sessionId: string) => {
-    onSelect(sessionId);
-    if (overlayOnly) closeSidebar();
   };
 
   const overlayDrawer =
