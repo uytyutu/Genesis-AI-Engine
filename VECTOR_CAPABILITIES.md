@@ -2,69 +2,128 @@
 
 **Источник правды** для команды, тестировщиков и CEO.
 
+Virtus Core = **производство артефактов**, не разговор. Каждая способность усиливает предыдущие.
+
 ## Правила развития
 
 1. **Одна способность = законченная ценность**
 2. **Пирамида ценности** — roadmap по уровням полезности
 3. **Один merge — одна способность**
-4. **Capability must compose** — стандартный `CapabilityResult` + артефакты как строительные блоки для следующих capability
+4. **Capability must compose** — стандартный `CapabilityResult` + артефакты как строительные блоки
 5. **Product Truth** — проверка только через `/site`
 6. **Human Gate** — Commit N+1 не начинать, пока Commit N не проверен человеком на beta
+7. **Rule №4 — Reuse** — новая capability **обязана** использовать результаты предыдущих, если они есть в workspace. Не спрашивать заново то, что уже в `document_structure.json`, `report.md`, логах, git.
 
-## KPI
+---
 
-> **Сколько часов реальной работы Virtus Core заменяет?**
+## KPI (два показателя)
+
+### 1. Hours Saved
+> Сколько часов реальной работы заменяет способность?
 
 | Commit | Способность | Экономия |
 |--------|-------------|----------|
 | 1 | Документы | ~5–15 мин |
 | 2 | Сайты | ~30–120 мин |
-| 3 | Анализ бизнес-документов | ~2–8 ч *(цель)* |
-| 4 | Engineering | ~1–4 ч |
+| 3 | Анализ бизнес-документов | ~2–8 ч |
+| 4 | Работа с проектами разработки | ~1–4 ч |
+
+### 2. Reuse Score
+> Сколько **существующих** capability использовала новая?
+
+| Commit | Способность | Reuse | Использует |
+|--------|-------------|-------|------------|
+| 1 | Документы | **0** | — (первая) |
+| 2 | Сайты | **0** | — *(пока; цель: читать `document_structure.json`)* |
+| 3 | Анализ документов | **0** | — (первый аналитический блок) |
+| 4 | Dev projects | **2** *(цель)* | Workspace, Logs |
+| 5 | Git | **3** *(цель)* | Git, Workspace, Report |
+| … | … | растёт | к Commit 20 — почти всё из блоков, не с нуля |
+
+**Зрелая платформа** = высокий Reuse Score, низкий дублирующий код и повторные вопросы пользователю.
+
+---
+
+## Четыре фундаментальных кирпича
+
+| # | Кирпич | Статус | Артефакты |
+|---|--------|--------|-----------|
+| 1 | Создание документов | ✅ READY | файлы в workspace |
+| 2 | Создание сайтов | ✅ READY | brief, HTML, CSS, preview |
+| 3 | Анализ бизнес-документов | 🔄 HUMAN GATE | report, executive_summary, document_structure.json |
+| 4 | Работа с проектами разработки | ⬜ NEXT | diff, тесты, безопасное применение |
 
 ---
 
 ## Roadmap vNext
 
-| Commit | Способность | Статус |
-|--------|-------------|--------|
-| 1 | Создавать документы | ✅ READY |
-| 2 | Создавать сайты | ✅ READY |
-| 3 | **Анализировать бизнес-документы** | 🔄 HUMAN GATE |
-| 4 | Engineering (исправить ошибку) | ⬜ |
-| 5 | Git | ⬜ |
-| 6 | Browser | ⬜ |
-| 7 | Docker | ⬜ |
-| 8 | Workspace Intelligence | ⬜ |
-| 9 | Multi-Step | ⬜ |
-| 10 | Autonomous Jobs | ⬜ |
+| Commit | Способность | Reuse (цель) | Статус |
+|--------|-------------|--------------|--------|
+| 1 | Создавать документы | 0 | ✅ READY |
+| 2 | Создавать сайты | 0 → 1* | ✅ READY |
+| 3 | Анализировать бизнес-документы | 0 | 🔄 HUMAN GATE |
+| 4 | **Работать с проектами разработки** | 2 | ⬜ NEXT |
+| 5 | Git | 3 | ⬜ |
+| 6 | Browser | — | ⬜ |
+| 7 | Docker | — | ⬜ |
+| 8 | Workspace Intelligence | — | ⬜ |
+| 9 | Multi-Step | высокий | ⬜ |
+| 10 | Autonomous Jobs | высокий | ⬜ |
+
+\* *После wiring: `generate_site` читает `document_structure.json` из того же workspace — Reuse 1.*
 
 ---
 
-## ✅ Commit 3 — Documents Intelligence
+## Композиция (целевая цепочка)
 
-**Способность:** Vector умеет **анализировать бизнес-документы** (не «PDF Analysis»).
+```
+PDF → Commit 3 → report.md + document_structure.json
+                      ↓
+              «Создай сайт» → Commit 2 (reuse: рынок, позиционирование, услуги)
+                      ↓
+              «Создай презентацию» → reuse: report.md
+                      ↓
+              «Создай КП» → reuse: executive_summary.md
+```
 
-**Фраза:** `Проанализируй мой бизнес-план` + PDF (или документ).
+Новая capability не создаёт всё с нуля — **собирает** из workspace.
 
-**Артефакты:**
-- `executive_summary.md`
-- `report.md` (SWOT, риски, рынок, финансы, рекомендации, вопросы)
-- `document_structure.json` — building block для CRM / Proposal / Multi-Step
-- `uploads/` — копия исходника
+---
 
-**Чат:** краткий итог + кнопки **Открыть отчёт** / **Открыть Executive Summary**.
+## Commit 3 — Documents Intelligence
 
-**Capability:** `analyze_business_document` → `CapabilityResult`
+**Способность:** Vector умеет **анализировать бизнес-документы**.
 
-**Статус:** 🔄 HUMAN GATE (ждёт проверки CEO на beta)
+**Статус:** 🔄 HUMAN GATE (`e5f56ac`)
 
-### Human Gate checklist
+**Артефакты:** `executive_summary.md`, `report.md`, `document_structure.json`, `uploads/`
 
-- [ ] Загрузить PDF на `/site`
-- [ ] Написать «Проанализируй мой бизнес-план»
+**Reuse Score:** 0 (нормально — первый аналитический блок)
+
+### Human Gate
+
+- [ ] PDF на `/site` + «Проанализируй мой бизнес-план»
 - [ ] Открыть оба отчёта
-- [ ] Убедиться, что анализ ссылается на содержимое **вашего** файла
+- [ ] Анализ основан на **вашем** файле
+
+---
+
+## Commit 4 — Development Projects (следующий)
+
+**Способность:** Vector умеет **работать с проектами разработки**.
+
+Не «исправь ошибку» как название — **первый сценарий внутри**:
+
+```
+открыть проект → логи → причина → предложение → правка в копии/ветке
+→ diff → тесты → только потом предложить применить
+```
+
+**Product Truth:** артефакты (diff, log summary, test result) — не стена текста.
+
+**Reuse Score (цель):** 2 — Workspace + Logs.
+
+**Безопасность:** не менять код без подтверждения; sandbox / branch сначала.
 
 ---
 
@@ -75,25 +134,24 @@
 | `Создай README` | ✅ READY |
 | `Создай сайт стоматологии` | ✅ READY |
 | `Проанализируй мой бизнес-план` + PDF | 🔄 HUMAN GATE |
-| `Привет` | ✅ READY (диалог) |
+| `Исправь ошибку` | ⬜ не обещать до Commit 4 |
 
 ---
 
-## Composable output (`analyze_business_document`)
+## Building block: `document_structure.json`
 
 ```json
 {
-  "workspace_id": "ws-…",
-  "artifact_id": "doc-…",
-  "files": ["uploads/plan.pdf", "executive_summary.md", "report.md", "document_structure.json"],
-  "document_type": "business_plan",
-  "preview_url": "/api/public/execution/workspace/{id}/files/report.md",
-  "status": "completed"
+  "version": "document-structure-v1",
+  "analysis": {
+    "structure": { "document_type": "business_plan", "detected_topics": ["market", "finance", "risks"] },
+    "swot": { "strengths": [], "weaknesses": [], "opportunities": [], "threats": [] }
+  }
 }
 ```
 
-`document_structure.json` → Proposal Generator, Presentation, Multi-Step без переписывания анализа.
+Потребители: `generate_site`, Presentation, Proposal, CRM Agent, Multi-Step.
 
 ---
 
-*Обновлено: 2026-07-10 — Commit 3 в ветке, Human Gate pending.*
+*Обновлено: 2026-07-10 — Rule №4 + Reuse Score; Commit 4 переформулирован.*
