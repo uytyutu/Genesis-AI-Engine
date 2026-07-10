@@ -10,6 +10,7 @@ from typing import Any
 
 from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME, STUDIO_NAME
 from app.legal.vector_rules import legal_trust_rules_for_vector
+from app.integration.project_platform.vector_rules import project_platform_rules_for_vector
 from app.integration.market_intelligence import market_intelligence_rules_for_vector
 from app.integration.market_localization import full_localization_rules_for_vector
 from app.integration.platform_directive import platform_directive_v2_rules
@@ -24,7 +25,7 @@ from app.integration.product_line import (
 )
 from app.integration.sales_order_service import _PACKAGES as SALES_PACKAGES
 
-TRUTH_VERSION = "mission1-truth-9"
+TRUTH_VERSION = "mission1-truth-10"
 MISSION1_LANDING_TIMELINE = "5–14 дней"
 MISSION1_PACKAGE_PRICES_EUR = (350, 650, 1200)
 
@@ -152,6 +153,8 @@ def build_mission1_vector_commerce_rules(packages: list[dict[str, Any]] | None =
 {market_intelligence_rules_for_vector()}
 
 {legal_trust_rules_for_vector()}
+
+{project_platform_rules_for_vector()}
 
 **Сейчас онлайн (разовая услуга):** {", ".join(online_services) or "—"}
 

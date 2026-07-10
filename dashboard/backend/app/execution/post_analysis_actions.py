@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from app.integration.product_line import universal_first_version_scenario
+
 
 @dataclass(frozen=True)
 class AnalysisAction:
@@ -210,5 +212,8 @@ def build_analysis_completion_message(
         lines.append(f"✓ {_L(loc, 'msg_priorities')}: **{priority_count}**")
     lines.append(f"✓ {_L(loc, 'msg_prepared')}: {_L(loc, 'msg_artifacts')}")
     lines.append("")
-    lines.append(_L(loc, "msg_footer"))
+    if loc == "ru":
+        lines.append(universal_first_version_scenario())
+    else:
+        lines.append(_L(loc, "msg_footer"))
     return "\n".join(lines)

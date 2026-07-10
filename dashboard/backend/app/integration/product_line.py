@@ -250,17 +250,22 @@ def universal_service_intro(service_id: str) -> str:
     )
 
 
-def universal_concept_ready_message(service_id: str) -> str:
-    """Stage 2–3 — first version ready, iteration before sale."""
-    artifact = artifact_label_ru(service_id)
-    label = service_label_ru(service_id, fallback="работу")
+def universal_first_version_scenario() -> str:
+    """Human PM narrative after first deliverable — work continues until approval."""
     return (
-        f"**Первая версия готова.**\n"
-        f"В проект добавлен результат — **{artifact}**.\n\n"
-        f"Посмотрите вариант. Если нужны правки — скажите, что изменить.\n\n"
-        f"Когда всё устроит — оформим **покупку готового результата** ({label.lower()}) "
-        f"или обсудим **подписку**, если хотите развивать проект вместе с {ASSISTANT_NAME}."
+        "Мы подготовили первую версию результата.\n"
+        "Она уже находится внутри вашего проекта.\n"
+        "Посмотрите её.\n"
+        "Если захотите изменить структуру, тексты, цвета или другие детали — просто скажите.\n"
+        "После вашего окончательного согласования мы подготовим финальную версию."
     )
+
+
+def universal_concept_ready_message(service_id: str) -> str:
+    """Stage 2–3 — first version in project; iteration before handoff."""
+    artifact = artifact_label_ru(service_id)
+    body = universal_first_version_scenario()
+    return f"**{artifact}** — первая версия в проекте.\n\n{body}"
 
 
 def universal_approved_purchase_options(service_id: str, *, estimate_block: str = "") -> str:

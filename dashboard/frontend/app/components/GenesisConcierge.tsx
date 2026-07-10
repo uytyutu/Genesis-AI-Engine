@@ -60,8 +60,7 @@ import {
 } from "../lib/publicApiBase";
 
 const API = publicApiBase();
-const VISITOR_KEY = "genesis_visitor_id";
-const OWNER_VISITOR_KEY = "genesis_owner_visitor_id";
+import { getVisitorId } from "../lib/visitorId";
 const HI_BUILD_KEY = "genesis_hi_build";
 const HI_BUILD_EXPECTED = "genesis-mind-v3.0";
 const DEV_MODE_KEY = "genesis_developer_mode";
@@ -71,21 +70,6 @@ function devModeAvailable(): boolean {
   if (typeof window === "undefined") return false;
   const host = window.location.hostname;
   return host === "localhost" || host === "127.0.0.1";
-}
-
-function getVisitorId(scope: "public" | "owner"): string {
-  if (typeof window === "undefined") return "anonymous";
-  const key = scope === "owner" ? OWNER_VISITOR_KEY : VISITOR_KEY;
-  try {
-    let id = localStorage.getItem(key);
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem(key, id);
-    }
-    return id;
-  } catch {
-    return "anonymous";
-  }
 }
 
 type Message = {
@@ -179,6 +163,8 @@ type ChatApiResponse = {
   cta_label?: string | null;
   cta_actions?: Array<{ href: string; label: string; group?: string; available?: boolean }> | null;
   debug?: GenesisDebug | null;
+  context?: { workspace_id?: string; execution?: unknown } | null;
+  session_id?: string | null;
 };
 
 const STARTERS_VISIBLE = [
@@ -712,6 +698,10 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
           return next;
         });
         void refreshSessionList();
+
+        if (data?.provider === "execution" || data?.context?.workspace_id) {
+          window.dispatchEvent(new Event("genesis:project-updated"));
+        }
 
         if (lastInputWasVoiceRef.current || voiceContinuousRef.current) {
           const vs = voiceSettingsRef.current;
@@ -1502,5 +1492,3 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
     </div>
   );
 }
-
-export const GenesisAI = GenesisConcierge;

@@ -27,7 +27,11 @@ from app.integration.market_context import (
     market_clarification_question,
     resolve_market_context,
 )
-from app.integration.product_line import website_concept_ready_message, website_studio_intro
+from app.integration.product_line import (
+    universal_first_version_scenario,
+    website_concept_ready_message,
+    website_studio_intro,
+)
 
 _REGISTRY: ExecutionCapabilityRegistry | None = None
 
@@ -48,10 +52,10 @@ _CONTENT_AFTER = re.compile(r"(?:с\s+текстом|с\s+содержимым|c
 _SITE_PROGRESS = (
     "Изучаю задачу",
     "Готовлю структуру",
-    "Создаю первый вариант сайта",
+    "Создаю первый вариант",
     "Настраиваю мобильную версию",
     "Проверяю отображение",
-    "Сайт готов к просмотру",
+    "Первая версия в проекте",
 )
 
 _DOC_PROGRESS = (
@@ -341,12 +345,7 @@ def _site_customer_ctas(preview_path: str) -> list[dict[str, Any]]:
 def _build_site_completion_answer(preview_path: str, reuse_note: str) -> str:
     body = (
         f"{_progress_answer(_SITE_PROGRESS)}\n\n"
-        f"{website_concept_ready_message()}\n\n"
-        "**Что уже готово:**\n"
-        "✓ структура сайта\n"
-        "✓ дизайн\n"
-        "✓ мобильная версия\n"
-        "✓ предварительный просмотр"
+        f"{website_concept_ready_message()}"
     )
     if reuse_note:
         body += f"\n\n{reuse_note.strip()}"
@@ -482,6 +481,29 @@ def try_capability_discovery(goal: str, memory_dir: Path) -> dict[str, Any] | No
     }
 
 
+def _record_project_execution(
+    *,
+    visitor_id: str,
+    workspace_id: str,
+    capability_id: str,
+    outputs: dict[str, Any],
+    goal: str = "",
+    memory_dir: Path,
+) -> None:
+    try:
+        from app.integration.project_platform.service import ProjectPlatformService
+
+        ProjectPlatformService(memory_dir).record_execution(
+            visitor_id=visitor_id,
+            workspace_id=workspace_id,
+            capability_id=capability_id,
+            outputs=outputs,
+            goal=goal,
+        )
+    except Exception:
+        pass
+
+
 def try_user_execution(
     goal: str,
     *,
@@ -560,10 +582,18 @@ def try_user_execution(
             }
         cap = result.steps[0].outputs
         file_href = _workspace_file_href(workspace_id, visitor_id, cap.get("path") or filename)
+        _record_project_execution(
+            visitor_id=visitor_id,
+            workspace_id=workspace_id,
+            capability_id="filesystem_write",
+            outputs=cap,
+            goal=goal,
+            memory_dir=memory_dir,
+        )
         return {
             "answer": (
                 f"✓ Документ создан: **{cap.get('path') or filename}**\n\n"
-                "Файл добавлен в ваш проект."
+                f"{universal_first_version_scenario()}"
             ),
             "source": "genesis-ai",
             "mode": "genesis",
@@ -693,6 +723,14 @@ def _run_analyze_document(
         conclusion_href=conclusion_href,
         site_available=registry_ref.is_executable("generate_site"),
     )
+    _record_project_execution(
+        visitor_id=visitor_id,
+        workspace_id=workspace_id,
+        capability_id="analyze_business_document",
+        outputs=cap,
+        goal=str(doc_req.get("goal") or ""),
+        memory_dir=memory_dir,
+    )
     return {
         "answer": answer,
         "source": "genesis-ai",
@@ -771,6 +809,14 @@ def _run_generate_site(
     reuse_note = format_reuse_explanation(cap) if reuse_score > 0 else ""
     answer = _build_site_completion_answer(preview_path, reuse_note)
     cta_actions = _site_customer_ctas(preview_path)
+    _record_project_execution(
+        visitor_id=visitor_id,
+        workspace_id=workspace_id,
+        capability_id="generate_site",
+        outputs=cap,
+        goal=goal,
+        memory_dir=memory_dir,
+    )
     return {
         "answer": answer,
         "source": "genesis-ai",

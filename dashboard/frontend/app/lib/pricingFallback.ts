@@ -8,7 +8,7 @@ const UNIVERSAL_PATH =
 
 /** Offline fallback when /api/public/pricing is unreachable. */
 export const PRICING_FALLBACK: PricingDisplay = {
-  version: "mission1-truth-7-fallback",
+  version: "mission1-truth-10-fallback",
   disclaimer: {
     ru: `**Любая услуга** Virtus Core: ${UNIVERSAL_PATH}. Ориентировочные цены сразу в валюте целевого рынка. Сайт на /order от ${PUBLIC_LANDING_MIN_EUR} € (DE checkout).`,
   },
@@ -17,7 +17,11 @@ export const PRICING_FALLBACK: PricingDisplay = {
     body: "Подписка — цифровая компания с Vector, не скидка на услугу. Сейчас: Vector Free и разовые услуги.",
   },
   service_vs_product: {
-    ru: "**Разовая покупка** = готовый результат и передача. **Подписка** = проект остаётся в Virtus Core.",
+    headline: "Услуга или подписка",
+    service_when: "Разовая покупка — готовый результат и передача проекта.",
+    product_when: "Подписка — проект остаётся в Virtus Core, Vector продолжает работать.",
+    cta_service: { label: "Оформить заказ", href: "/order" },
+    cta_product: { label: "Vector", href: "/site" },
   },
   service_categories: [
     {
@@ -133,6 +137,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
     {
       id: "pro",
       name: "Vector Pro",
+      price_eur_month: null,
       price_label: "скоро",
       period: "/мес",
       audience: "Предприниматели",
@@ -145,6 +150,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
     {
       id: "team",
       name: "Vector Team",
+      price_eur_month: null,
       price_label: "скоро",
       period: "/мес",
       audience: "Команда и проекты",
@@ -157,6 +163,7 @@ export const PRICING_FALLBACK: PricingDisplay = {
     {
       id: "enterprise",
       name: "Vector Enterprise",
+      price_eur_month: null,
       price_label: "скоро",
       period: "/мес",
       audience: "Масштаб и интеграции",

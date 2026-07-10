@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { GenesisConcierge } from "../components/GenesisConcierge";
 import { GenesisChatErrorBoundary } from "../components/GenesisChatErrorBoundary";
-import { ProjectHubShell } from "../components/ProjectHubShell";
+import { ProjectPlatformShell } from "../components/ProjectPlatformShell";
 import { FaqList } from "../components/FaqList";
 import { Card, ButtonLink } from "../components/ui";
 import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
@@ -63,7 +63,7 @@ export function SitePage() {
           className={`min-h-0 ${vectorView ? "max-lg:hidden" : ""}`}
           aria-label={tCommon("nav.projects")}
         >
-          <ProjectHubShell onStartProject={focusGenesisChat} />
+          <ProjectPlatformShell onStartProject={focusGenesisChat} />
         </section>
 
         <section

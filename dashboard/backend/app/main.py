@@ -1023,6 +1023,29 @@ def public_handoff_subscription() -> dict:
     return _legal().handoff_subscription()
 
 
+@app.get("/api/public/project")
+def public_project(visitor_id: str, locale: str = "ru") -> dict:
+    from app.integration.project_platform.service import ProjectPlatformService
+
+    return ProjectPlatformService(_memory_dir()).get_for_visitor(visitor_id, locale=locale)
+
+
+@app.post("/api/public/project/activate")
+def public_project_activate(body: dict) -> dict:
+    from app.integration.project_platform.service import ProjectPlatformService
+
+    visitor_id = str(body.get("visitor_id") or "").strip()[:64]
+    title = str(body.get("title") or "Мой проект").strip()[:120]
+    service_id = str(body.get("service_id") or "website").strip()[:64]
+    if not visitor_id:
+        raise HTTPException(status_code=400, detail="visitor_id_required")
+    return ProjectPlatformService(_memory_dir()).activate_project(
+        visitor_id,
+        title=title,
+        service_id=service_id,
+    )
+
+
 @app.get("/api/public/legal/locale-registry")
 def public_legal_locale_registry() -> dict:
     from app.legal.locale_registry import localization_horizon_payload
