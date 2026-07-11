@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
-import { nextFunnelStep, PUBLIC_FUNNEL } from "../lib/publicFunnel";
-import { ButtonLink, Card } from "./ui";
+import { ASSISTANT_NAME, BRAND_NAME } from "../../lib/publicBrand";
+import { nextFunnelStep, PUBLIC_FUNNEL } from "../../lib/publicFunnel";
+import { ButtonLink, Card } from "../ui";
 
 const EXAMPLE_RESULTS = [
   {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { PublicFunnelFooter } from "../components/navigation/PublicFunnelFooter";
 import { PublicPageHero } from "../components/PublicPageHero";
@@ -206,7 +206,9 @@ export default function ServicesPage() {
           </ButtonLink>
         </div>
       </Card>
-      <PublicFunnelFooter />
+      <Suspense fallback={null}>
+        <PublicFunnelFooter />
+      </Suspense>
     </PublicPageShell>
   );
 }

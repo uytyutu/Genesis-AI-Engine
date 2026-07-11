@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { VirtusMark } from "./VirtusMark";
-import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
-import { surfaceNavMeta } from "../lib/surfaceNavConfig";
-import type { SurfaceTarget } from "../lib/surfaceRegistry";
+import { VirtusMark } from "../VirtusMark";
+import { ASSISTANT_NAME, BRAND_NAME } from "../../lib/publicBrand";
+import { surfaceNavMeta } from "../../lib/surfaceNavConfig";
+import type { SurfaceTarget } from "../../lib/surfaceRegistry";
 
 type Props = {
   surface: SurfaceTarget;

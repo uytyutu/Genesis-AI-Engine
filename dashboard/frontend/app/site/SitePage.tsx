@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
@@ -150,13 +150,17 @@ export function SitePage() {
             </p>
           </section>
 
-          <PublicFunnelFooter />
+          <Suspense fallback={null}>
+            <PublicFunnelFooter />
+          </Suspense>
         </>
       )}
 
       {vectorView && (
         <div className="mt-6">
-          <PublicFunnelFooter />
+          <Suspense fallback={null}>
+            <PublicFunnelFooter />
+          </Suspense>
         </div>
       )}
     </PublicPageShell>
