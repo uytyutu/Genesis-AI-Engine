@@ -4,9 +4,10 @@
 
 **Roadmap (стратегия):** [`Docs/ROADMAP.md`](Docs/ROADMAP.md)
 
-**Stage:** **стартап** — Vision готов · **Vision Freeze** до первого клиента / €
+**Stage:** **Product Reality** — Memory v1 foundation closed (PASS++++++) · **live use before next architecture**
 
-**Вопрос этапа:** не «что ещё добавить?», а **«что из уже существующего принесёт первого клиента?»**
+**Вопрос этапа:** не «что ещё спроектировать?», а **«хочу ли я провести здесь следующий час?»**
+
 
 **Утро (3 вопроса):** (1) реальные действия за ночь (2) шаг к первому клиенту (3) что лучше, чем вчера
 
@@ -97,6 +98,49 @@ Launcher · Mission Control · Factory · Finance (display) · утренний 
 **Quality gates (порядок):** Engineering (Acceptance 5/5) → Human UX Regression → Product UX Regression → «версия готова».
 
 **Phase 3 — Human & Product UX** (после Groq A/B, не во время freeze): живые фразы, meta/style, сленг — материал в [`USER_FRICTION.md`](USER_FRICTION.md) (только записывать, не чинить сразу).
+
+---
+
+## Product Reality — ACTIVE (2026-07-11, PASS++++++)
+
+| | |
+|--|--|
+| **Memory v1** | Foundation **closed** — `person_memory/` shipped, no more Memory architecture |
+| **Mode** | Architecture → **Product** — changes only if **реальному пользователю станет лучше** |
+| **Main test** | *«Хочу ли я провести здесь следующий час?»* — if no, fix product not models |
+| **Cycle** | Идея → Реализация → Живое использование → Ощущения → Исправить → Следующий блок |
+| **Forbidden** | Reflection v2 · psych profiles · new memory tiers · big new subsystems |
+| **North star** | *«Мне удобно работать с Vector»* — not *«надо протестировать»* |
+
+**Сейчас:** CEO живёт с Vector как обычный пользователь (дни). Оцениваем ощущения, не количество функций. Следующий код — только из наблюдений.
+
+---
+
+## Roadmap — порядок этапов (2026-07-11)
+
+| Этап | Статус | Суть |
+|------|--------|------|
+| **1 Product Reality** | фоном | Vector живой; ощущения; без новых функций |
+| **1b Product Definition v1** | **✅ ACCEPTED** | `docs/PRODUCT_DEFINITION_v1.md` — основа M3–M7 |
+| **2 Platform Separation M3–M7** | **M3 ACTIVE** | M3.1–M3.3 ✅* · **M3.4 NEXT** |
+| **3 Universal Identity** | после M7 | Один аккаунт, все устройства, тот же разговор |
+| **4 Commerce layer** | после приложения | CRM · Marketplace · подписки · автоматизация · команды |
+
+### Platform Separation (M3→M7)
+
+- **M3** — разделить Public / Client / CEO
+- **M4** — сайт только витрина (услуги, цены, Lite Vector, скачать)
+- **M5** — Vector, проекты, голос, документы → в приложение · **CEO UI review каждого экрана**
+- **M6** — клиентское API и синхронизация
+- **M7** — CEO Workspace внутри приложения, без внешнего браузера
+
+**Психологическая цель:** *«Открыл программу Virtus Core»* — не *«localhost в браузере»*.
+
+**Старт M3:** ACTIVE. **M3.3** ✅ PASS (архитектура) · **окончательный PASS** — после живого просмотра витрины CEO.
+
+**M3.4 NEXT** — Client Workspace Primary (критический этап Migration). Gate: сценарий нового клиента 1→5.
+
+**Playbook:** `docs/M3_PLATFORM_SEPARATION.md`
 
 **Phase 3 backlog (пример):** «Ты чего так общаешься?» → generic fallback; «а чё ты так общаешься» → identity intro — оба мимо вопроса о тоне.
 

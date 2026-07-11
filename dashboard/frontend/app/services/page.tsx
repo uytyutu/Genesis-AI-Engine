@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PublicPageShell } from "../components/PublicPageShell";
+import { PublicFunnelFooter } from "../components/navigation/PublicFunnelFooter";
 import { PublicPageHero } from "../components/PublicPageHero";
 import { Badge, ButtonLink, Card } from "../components/ui";
 import {
@@ -194,13 +195,18 @@ export default function ServicesPage() {
 
       <Card className="mt-12 text-center" padding="md">
         <p className="text-sm text-genesis-muted">
-          Virtus Studio (подписка) — в разработке. Сейчас:{" "}
-          <ButtonLink href="/site" variant="ghost" size="sm" className="inline-flex text-genesis-accent">
-            разговор с Vector
-          </ButtonLink>{" "}
-          и заказ лендинга.
+          Готовы создать свою компанию? Сначала поговорите с Vector — затем установите Virtus Core.
         </p>
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <ButtonLink href="/site?view=vector" variant="primary" size="sm">
+            Lite Vector →
+          </ButtonLink>
+          <ButtonLink href="/site#download" variant="secondary" size="sm">
+            Установить приложение →
+          </ButtonLink>
+        </div>
       </Card>
+      <PublicFunnelFooter />
     </PublicPageShell>
   );
 }

@@ -2,17 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CEO_PRIMARY_LINKS } from "../lib/surfaceNavConfig";
+import { CLIENT_NAV_LINKS } from "../../lib/surfaceNavConfig";
 
-export function GenesisMobileNav() {
+export function ClientMobileNav() {
   const pathname = usePathname() ?? "";
 
   return (
-    <nav className="genesis-mobile-nav" aria-label="CEO mobile navigation">
-      {CEO_PRIMARY_LINKS.map((link) => {
-        const active =
-          pathname === link.href ||
-          (link.href !== "/" && pathname.startsWith(`${link.href}/`));
+    <nav className="genesis-mobile-nav" aria-label="Client mobile navigation">
+      {CLIENT_NAV_LINKS.map((link) => {
+        const base = link.href.split("?")[0];
+        const active = pathname === base || pathname.startsWith(`${base}/`);
         return (
           <Link
             key={link.href}

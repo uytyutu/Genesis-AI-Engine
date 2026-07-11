@@ -1,49 +1,43 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { resolveNavigationSurface } from "../lib/surfaceNavConfig";
 import { GenesisSidebar } from "./GenesisSidebar";
 import { GenesisTopBar } from "./GenesisTopBar";
 import { GenesisMobileNav } from "./GenesisMobileNav";
+import { ClientWorkspaceNav } from "./navigation/ClientWorkspaceNav";
+import { ClientWorkspaceTopBar } from "./navigation/ClientWorkspaceTopBar";
+import { ClientMobileNav } from "./navigation/ClientMobileNav";
 
-/** Routes that show Mission Control chrome (sidebar nav). Everything else = public marketing shell. */
-const MC_PREFIXES = [
-  "/finance",
-  "/company",
-  "/ai",
-  "/cursor",
-  "/revenue",
-  "/marketplace",
-  "/monitor",
-  "/dev",
-  "/check",
-  "/create",
-  "/settings",
-  "/setup",
-  "/launch",
-  "/opportunities",
-  "/acquisition",
-  "/projects",
-  "/products",
-  "/growth",
-  "/tasks",
-];
-
-function isMissionControlRoute(pathname: string): boolean {
-  if (pathname === "/") return true;
-  // Public subscription page — not Mission Control (factory lives at /products/[id])
-  if (pathname === "/products") return false;
-  return MC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-}
+/** M3.2: three navigation shells — one product, one Vector, shared kernel. */
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "";
+  const surface = resolveNavigationSurface(pathname);
 
-  if (!isMissionControlRoute(pathname)) {
-    return <div className="min-h-screen">{children}</div>;
+  if (surface === "public") {
+    return (
+      <div className="virtus-surface-public min-h-screen" data-surface="public">
+        {children}
+      </div>
+    );
+  }
+
+  if (surface === "client") {
+    return (
+      <div className="genesis-app-shell virtus-surface-client" data-surface="client">
+        <ClientWorkspaceNav />
+        <div className="genesis-app-main">
+          <ClientWorkspaceTopBar />
+          <ClientMobileNav />
+          <div className="genesis-app-content">{children}</div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="genesis-app-shell">
+    <div className="genesis-app-shell virtus-surface-ceo" data-surface="ceo">
       <GenesisSidebar />
       <div className="genesis-app-main">
         <GenesisTopBar />

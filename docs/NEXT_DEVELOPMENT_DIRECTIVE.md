@@ -10,6 +10,7 @@ Think as a **product architect**, not as a programmer of isolated features.
 
 Before proposing or implementing any product changes, read and fully understand:
 
+* `docs/PRODUCT_DEFINITION_v1.md` — **human paths for M3–M7** (accept before Platform Separation)
 * `docs/VIRTUS_CORE_NORTH_STAR_DIRECTIVE.md`
 * `docs/VIRTUS_COMMERCE_DELIVERY_DIRECTIVE.md`
 * `docs/VIRTUS_WORKSPACE_ARCHITECTURE_DIRECTIVE.md`

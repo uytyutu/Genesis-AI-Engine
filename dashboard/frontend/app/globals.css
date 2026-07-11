@@ -299,6 +299,49 @@
     color: #52525b;
   }
 
+  .virtus-surface-identity__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+  }
+
+  .virtus-surface-identity__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+
+  .virtus-surface-identity__tag {
+    font-size: 0.625rem;
+    color: #71717a;
+  }
+
+  .virtus-surface-identity__vector {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: rgba(110, 231, 183, 0.9);
+  }
+
+  .virtus-surface-identity__dot {
+    display: inline-block;
+    height: 0.5rem;
+    width: 0.5rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: #34d399;
+  }
+
+  .virtus-surface-identity__scenario {
+    margin-top: 0.25rem;
+    font-size: 0.6875rem;
+    color: rgba(161, 161, 170, 0.8);
+  }
+
   .genesis-topbar {
     display: flex;
     flex-wrap: wrap;

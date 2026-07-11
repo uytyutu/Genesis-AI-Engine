@@ -1,0 +1,350 @@
+{
+  "version": "m3.3",
+  "product_definition": "docs/PRODUCT_DEFINITION_v1.md",
+  "migration_doc": "docs/M3_PLATFORM_SEPARATION.md",
+  "navigation": {
+    "unity_principle": "Один Virtus Core — общий бренд, язык, Vector, стиль, философия",
+    "vector_center": "На любой поверхности пользователь работает с Vector",
+    "client_nav_paths": ["/projects"],
+    "surfaces": {
+      "public": {
+        "scenario": "Узнать → попробовать → скачать",
+        "user_flow": ["Главная", "Lite Vector", "Услуги", "Скачать приложение"]
+      },
+      "client": {
+        "scenario": "Открыть компанию → поговорить с Vector → получить результат",
+        "user_flow": ["Компания", "Vector", "Проекты", "Результат"]
+      },
+      "ceo": {
+        "scenario": "Управлять компанией → принимать решения → развивать продукт",
+        "user_flow": ["Mission Control", "Factory", "Finance", "Стратегия"]
+      }
+    }
+  },
+  "kernel_layers": [
+    "product_truth",
+    "delivery",
+    "memory",
+    "planner",
+    "identity",
+    "kernel"
+  ],
+  "api_prefixes": {
+    "public": ["/api/public/"],
+    "owner": ["/api/owner/"],
+    "shared_logic": [
+      "/api/factory/",
+      "/api/project/",
+      "/api/opportunities/",
+      "/api/acquisition/",
+      "/api/customer/"
+    ]
+  },
+  "slice_gate": [
+    "Может ли новый пользователь начать пользоваться продуктом?",
+    "Может ли текущий клиент продолжить работу без потерь?",
+    "Может ли CEO продолжать управлять компанией?"
+  ],
+  "m3_4_principles": [
+    "Public продаёт мечту — цифровая компания с Vector, не ИИ для сайтов",
+    "Lite Vector удивляет за 2–3 сообщения — характер, не обрезанный GPT",
+    "Новые user-фичи проектируются для Client; Public — демо и приглашение",
+    "Public и Client — один Virtus Core, следующий уровень, не другое приложение",
+    "M3.4: Vector в центре — проекты, файлы, результаты часть разговора"
+  ],
+  "m3_4_gate": [
+    "Скачать Virtus Core",
+    "Создать цифровую компанию",
+    "Познакомиться с Vector",
+    "Создать первый проект",
+    "Получить первый результат — путь естественный и приятный"
+  ],
+  "m3_3_gate": [
+    "Может ли человек понять продукт, не устанавливая его?",
+    "Возникло ли желание установить приложение?",
+    "Понятно ли, зачем существуют Public и Client?",
+    "Не создаётся ли ощущение, что Public — сломанная версия приложения?"
+  ],
+  "routes": [
+    {
+      "path": "/site",
+      "label": "Vector / витрина",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["lite_vector", "vector_chat", "landing"],
+      "migration_note": "M3.3: lite only on public. M3.4: full chat → client primary. Until then: both work.",
+      "overlap": ["client"]
+    },
+    {
+      "path": "/services",
+      "label": "Услуги",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["browse_services"]
+    },
+    {
+      "path": "/products",
+      "label": "Каталог продуктов",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["browse_catalog"]
+    },
+    {
+      "path": "/products/:id",
+      "label": "Страница продукта",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["product_detail"]
+    },
+    {
+      "path": "/pricing",
+      "label": "Тарифы",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["view_pricing"]
+    },
+    {
+      "path": "/faq",
+      "label": "FAQ",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["faq"]
+    },
+    {
+      "path": "/kontakt",
+      "label": "Контакты",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["contact"]
+    },
+    {
+      "path": "/trust",
+      "label": "Доверие",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["trust"]
+    },
+    {
+      "path": "/order",
+      "label": "Заказ",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["start_order"],
+      "overlap": ["client"],
+      "migration_note": "Funnel on public; completion may continue in client app."
+    },
+    {
+      "path": "/order/pay",
+      "label": "Оплата",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["payment"],
+      "overlap": ["client"]
+    },
+    {
+      "path": "/order/status/:orderId",
+      "label": "Статус заказа",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["order_status"],
+      "overlap": ["client"]
+    },
+    {
+      "path": "/impressum",
+      "label": "Impressum",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["legal"]
+    },
+    {
+      "path": "/datenschutz",
+      "label": "Datenschutz",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["legal"]
+    },
+    {
+      "path": "/agb",
+      "label": "AGB",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["legal"]
+    },
+    {
+      "path": "/widerruf",
+      "label": "Widerruf",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["legal"]
+    },
+    {
+      "path": "/cookies",
+      "label": "Cookies",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["legal"]
+    },
+    {
+      "path": "/ai-disclaimer",
+      "label": "AI Disclaimer",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["legal"]
+    },
+    {
+      "path": "/intellectual-property",
+      "label": "IP",
+      "target": "public",
+      "current_shell": "public",
+      "capabilities": ["legal"]
+    },
+    {
+      "path": "/app",
+      "label": "Client Application (home)",
+      "target": "client",
+      "current_shell": "transitional",
+      "capabilities": ["company_home", "vector", "projects", "memory"],
+      "migration_note": "M3.4: primary client shell. M3.1–M3.3: routes may live on /site until client shell ships."
+    },
+    {
+      "path": "/projects",
+      "label": "Проекты",
+      "target": "client",
+      "current_shell": "mission_control",
+      "capabilities": ["view_projects", "project_workspace"],
+      "overlap": ["ceo"],
+      "migration_note": "Stays on CEO until client shell ready; then client primary, CEO read-only overview."
+    },
+    {
+      "path": "/create",
+      "label": "Создать продукт",
+      "target": "client",
+      "current_shell": "mission_control",
+      "capabilities": ["co_create", "factory_flow"],
+      "overlap": ["ceo"],
+      "migration_note": "Factory logic shared; CEO keeps factory oversight, client gets co-creation UX."
+    },
+    {
+      "path": "/",
+      "label": "Mission Control",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["decisions", "morning_screen", "narrative"]
+    },
+    {
+      "path": "/company",
+      "label": "Компания",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["company_overview"]
+    },
+    {
+      "path": "/finance",
+      "label": "Финансы",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["finance_center"]
+    },
+    {
+      "path": "/cursor",
+      "label": "Development Studio",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["development"]
+    },
+    {
+      "path": "/acquisition",
+      "label": "Sales Studio",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["sales", "clients"]
+    },
+    {
+      "path": "/ai",
+      "label": "AI Hub",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["ai_hub"]
+    },
+    {
+      "path": "/growth",
+      "label": "Аналитика",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["growth"]
+    },
+    {
+      "path": "/launch",
+      "label": "Запуск",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["launch_services"]
+    },
+    {
+      "path": "/check",
+      "label": "Разработчик",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["diagnostics"]
+    },
+    {
+      "path": "/settings",
+      "label": "Настройки",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["settings"],
+      "overlap": ["client"],
+      "migration_note": "Client settings split in M3.4; CEO platform settings stay here."
+    },
+    {
+      "path": "/setup",
+      "label": "Setup",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["setup"]
+    },
+    {
+      "path": "/opportunities",
+      "label": "Возможности",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["opportunities"]
+    },
+    {
+      "path": "/monitor",
+      "label": "Мониторинг",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["monitoring"]
+    },
+    {
+      "path": "/dev",
+      "label": "Dev",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["dev_tools"]
+    },
+    {
+      "path": "/tasks",
+      "label": "Задачи",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["tasks"]
+    },
+    {
+      "path": "/revenue",
+      "label": "Revenue",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["revenue"]
+    },
+    {
+      "path": "/marketplace",
+      "label": "Marketplace",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["marketplace"],
+      "migration_note": "Horizon — client marketplace after M3.4 foundation."
+    }
+  ]
+}
