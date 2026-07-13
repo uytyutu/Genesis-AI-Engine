@@ -458,6 +458,32 @@ def acquisition_evidence() -> AcquisitionEvidenceReport:
     return AcquisitionEvidenceReport(**_ctx().acquisition.evidence_report())
 
 
+@app.post("/api/acquisition/generate-drafts")
+def acquisition_generate_drafts(body: dict) -> dict:
+    try:
+        city = str(body.get("city") or "").strip()
+        query = str(body.get("query") or "").strip()
+        limit = int(body.get("limit") or 10)
+        language = str(body.get("language") or "de").strip() or "de"
+        throttle_ms = int(body.get("throttle_ms") or 250)
+        result = _ctx().acquisition.generate_drafts_from_places(
+            city=city,
+            query=query,
+            limit=limit,
+            language=language,
+            throttle_ms=throttle_ms,
+        )
+        return {
+            "ok": True,
+            "created": int(result.get("created") or 0),
+            "drafted": int(result.get("drafted") or 0),
+            "skipped_has_site": int(result.get("skipped_has_site") or 0),
+            "message": "Drafts generated",
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 @app.post("/api/acquisition/analyze-site", response_model=SiteAnalysisResult)
 def acquisition_analyze_site(body: dict) -> SiteAnalysisResult:
     url = str(body.get("url") or "").strip()
@@ -492,8 +518,13 @@ def acquisition_prepare(
     "/api/acquisition/opportunities/{opportunity_id}/approve",
     response_model=AcquisitionApproveResponse,
 )
-def acquisition_approve(opportunity_id: str) -> AcquisitionApproveResponse:
+def acquisition_approve(
+    opportunity_id: str, request: AcquisitionInteractionRequest
+) -> AcquisitionApproveResponse:
     try:
+        _ctx().acquisition.record_interaction(
+            opportunity_id, event=request.event, note=request.note
+        )
         result = _ctx().acquisition.approve_outreach(opportunity_id)
     except ValueError as e:
         code = str(e)
