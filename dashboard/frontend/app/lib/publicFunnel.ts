@@ -12,27 +12,15 @@ export type PublicFunnelStep = {
 export const PUBLIC_FUNNEL: PublicFunnelStep[] = [
   {
     id: "home",
-    label: "Главная",
+    label: "Начать",
     href: "/site",
-    description: "Понять, что такое Virtus Core",
+    description: "Выбрать цель и дойти до результата",
   },
   {
     id: "vector",
-    label: "Lite Vector",
+    label: "Помощь Vector",
     href: "/site?view=vector",
-    description: "Поговорить с цифровым сотрудником",
-  },
-  {
-    id: "services",
-    label: "Услуги",
-    href: "/services",
-    description: "Увидеть, что можно получить",
-  },
-  {
-    id: "download",
-    label: "Установить",
-    href: "/site#download",
-    description: "Создать свою цифровую компанию",
+    description: "Задать вопрос, если нужна помощь",
   },
 ];
 

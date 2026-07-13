@@ -31,7 +31,6 @@ export function surfaceNavMeta(target: SurfaceTarget): SurfaceNavMeta {
   };
 }
 
-/** M3.2: which navigation shell to show (not business logic). */
 export function resolveNavigationSurface(pathname: string): SurfaceTarget {
   if (CLIENT_NAV_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return "client";
@@ -63,19 +62,20 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
   return "public";
 }
 
+/** Rule A — Customer Decision Engine: one path, no competing owner/catalog nav. */
+export function isCustomerPurchasePath(pathname: string): boolean {
+  return pathname === "/site" || pathname.startsWith("/site/") || pathname.startsWith("/order");
+}
+
 export const PUBLIC_NAV_LINKS = [
   { href: "/site", label: "Главная", match: (p: string, v: string) => p.startsWith("/site") && v !== "vector" },
   { href: "/site?view=vector", label: "Vector", match: (_p: string, v: string) => v === "vector" },
-  { href: "/services", label: "Услуги", match: (p: string) => p === "/services" || p.startsWith("/services/") },
-  { href: "/pricing", label: "Тарифы", match: (p: string) => p === "/pricing" || p.startsWith("/pricing/") },
-  { href: "/site#download", label: "Скачать", match: () => false },
 ] as const;
 
 export const CLIENT_NAV_LINKS = [
-  { href: "/site?view=vector", label: "Vector", hint: "Главный интерфейс" },
+  { href: "/site", label: "Получить сайт", hint: "Guided Flow" },
+  { href: "/site?view=vector", label: "Vector", hint: "Помощь в чате" },
   { href: "/projects", label: "Проекты", hint: "Мои результаты" },
-  { href: "/create", label: "Создать", hint: "Новый проект" },
-  { href: "/site", label: "Компания", hint: "Моя компания" },
 ] as const;
 
 export const CEO_PRIMARY_LINKS = [

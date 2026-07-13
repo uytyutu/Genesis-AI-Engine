@@ -75,8 +75,8 @@ export function PublicIntroTeaser({ onTryVector }: Props) {
               Спросить {ASSISTANT_NAME}
             </button>
           ) : null}
-          <ButtonLink href="/services" variant="secondary" size="sm">
-            Услуги →
+          <ButtonLink href="/site" variant="secondary" size="sm">
+            Получить сайт →
           </ButtonLink>
         </div>
       </Card>

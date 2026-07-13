@@ -201,8 +201,8 @@ export default function ServicesPage() {
           <ButtonLink href="/site?view=vector" variant="primary" size="sm">
             Lite Vector →
           </ButtonLink>
-          <ButtonLink href="/site#download" variant="secondary" size="sm">
-            Установить приложение →
+          <ButtonLink href="/site" variant="secondary" size="sm">
+            Получить сайт →
           </ButtonLink>
         </div>
       </Card>

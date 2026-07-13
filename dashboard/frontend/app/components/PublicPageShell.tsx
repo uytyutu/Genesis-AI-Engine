@@ -1,18 +1,28 @@
 "use client";
 
 import { Suspense } from "react";
+import { usePathname } from "next/navigation";
 import { PublicSiteFooter } from "./PublicSiteFooter";
 import { PublicSiteHeader } from "./PublicSiteHeader";
 import { useTranslation } from "react-i18next";
+import { isCustomerPurchasePath } from "../lib/surfaceNavConfig";
 
 export function PublicPageShell({
   children,
   hideChrome = false,
+  minimal = false,
+  customerDecisionFlow,
 }: {
   children: React.ReactNode;
   hideChrome?: boolean;
+  /** PE-1 — work surface: header only, no footer chrome */
+  minimal?: boolean;
+  /** Rule A — hide competing public nav on purchase path */
+  customerDecisionFlow?: boolean;
 }) {
   const { t } = useTranslation("common");
+  const pathname = usePathname() ?? "";
+  const customerFlow = customerDecisionFlow ?? isCustomerPurchasePath(pathname);
   return (
     <div
       className={
@@ -29,7 +39,7 @@ export function PublicPageShell({
       </a>
       {!hideChrome && (
         <Suspense fallback={null}>
-          <PublicSiteHeader />
+          <PublicSiteHeader customerDecisionFlow={customerFlow} />
         </Suspense>
       )}
       <div
@@ -39,7 +49,7 @@ export function PublicPageShell({
       >
         {children}
       </div>
-      {!hideChrome && <PublicSiteFooter />}
+      {!hideChrome && !minimal && <PublicSiteFooter />}
     </div>
   );
 }
