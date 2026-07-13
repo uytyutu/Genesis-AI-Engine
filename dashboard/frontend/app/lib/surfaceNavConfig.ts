@@ -87,7 +87,8 @@ export const CEO_PRIMARY_LINKS = [
 
 export const CEO_STUDIO_LINKS = [
   { href: "/cursor", label: "Development", hint: "Cursor · код" },
-  { href: "/acquisition", label: "Sales", hint: "Клиенты" },
+  { href: "/acquisition", label: "Acquisition", hint: "Поиск лидов" },
+  { href: "/opportunities", label: "Sales", hint: "Журнал лидов" },
   { href: "/ai", label: "AI Hub", hint: "Помощник" },
   { href: "/growth", label: "Аналитика", hint: "Рост" },
 ] as const;
