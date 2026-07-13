@@ -9,8 +9,10 @@ import { formatEur } from "../../lib/formatEur";
 import { fetchPaymentInfo, startOrderCheckout } from "../../lib/orderCheckout";
 import { parseOrderPurchaseType } from "../../lib/orderTrustCard";
 import { OrderTrustCard } from "../../components/OrderTrustCard";
+import { OrderPayeeIdentity } from "../../components/OrderPayeeIdentity";
+import { publicApiBase } from "../../lib/publicApiBase";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = publicApiBase();
 
 function OrderPayContent() {
   const params = useSearchParams();
@@ -26,6 +28,7 @@ function OrderPayContent() {
   const [error, setError] = useState("");
   const [isSandbox, setIsSandbox] = useState(false);
   const [purchaseType, setPurchaseType] = useState<"one_time" | "subscription">("one_time");
+  const [legalReady, setLegalReady] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -46,6 +49,14 @@ function OrderPayContent() {
       })
       .catch(() => setStatus(null));
     fetchPaymentInfo().then((info) => setIsSandbox(info.sandbox));
+    fetch(`${API}/api/public/legal/operator`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body) => {
+        if (body && typeof body.impressum_publishable === "boolean") {
+          setLegalReady(body.impressum_publishable);
+        }
+      })
+      .catch(() => setLegalReady(undefined));
   }, [orderId, router]);
 
   async function pay() {
@@ -107,8 +118,9 @@ function OrderPayContent() {
             </div>
           )}
 
-          <div className="mt-6">
-            <OrderTrustCard purchaseType={purchaseType} />
+          <div className="mt-6 space-y-4">
+            <OrderPayeeIdentity />
+            <OrderTrustCard purchaseType={purchaseType} legalReady={legalReady} />
           </div>
 
           <Button

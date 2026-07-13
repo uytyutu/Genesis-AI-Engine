@@ -1,4 +1,4 @@
-/** Same-origin /api/public/* (see next.config rewrites) — works on beta, preview, prod without CORS. */
+/** Same-origin /api/* rewrites (next.config) — beta/prod without CORS or baked localhost. */
 export function publicApiBase(): string {
   if (typeof window !== "undefined") return "";
   return (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");

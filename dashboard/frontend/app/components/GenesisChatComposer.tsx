@@ -18,7 +18,14 @@ export type PendingAttachment = {
   stored_only?: boolean;
 };
 
-export type VoiceUiStatus = "ready" | "listening" | "speaking" | "thinking" | "stopped";
+export type VoiceUiStatus =
+  | "ready"
+  | "listening"
+  | "recognizing"
+  | "thinking"
+  | "responding"
+  | "speaking"
+  | "stopped";
 
 type Props = {
   value: string;
@@ -202,8 +209,10 @@ export function GenesisChatComposer({
   const hintText = attachHint ?? t("attachHint");
   const clientVoiceDesktop = clientWorkspace && !narrowViewport;
   const compactChrome =
-    (minimalMobile && narrowViewport) || (focused && !expanded && !clientVoiceDesktop);
-  const publicMobileBar = minimalMobile && narrowViewport;
+    clientWorkspace ||
+    (minimalMobile && narrowViewport) ||
+    (focused && !expanded && !clientVoiceDesktop);
+  const simpleToolbar = (minimalMobile && narrowViewport) || clientWorkspace;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -260,7 +269,24 @@ export function GenesisChatComposer({
   }
 
   const safeMicNotice = sanitizeMicNotice(micNotice, t("micDenied"));
-  const showStop = Boolean(onStopActive) && (generating || voiceSpeaking);
+  const showStop = Boolean(onStopActive) && (generating || voiceSpeaking) && !clientWorkspace;
+  const voiceActive =
+    voiceStatus !== "ready" && voiceStatus !== "stopped";
+  const showVoiceUi =
+    !minimalMobile &&
+    (!compactChrome || voiceActive || (clientWorkspace && (busy || generating)));
+  const micVisual =
+    voiceStatus === "listening"
+      ? "bg-genesis-accent/25 text-genesis-accent ring-2 ring-genesis-accent/40"
+      : voiceStatus === "recognizing"
+        ? "bg-amber-500/20 text-amber-200 ring-2 ring-amber-400/35"
+        : voiceStatus === "thinking"
+          ? "bg-indigo-500/20 text-indigo-200 ring-2 ring-indigo-400/35"
+          : voiceStatus === "responding" || voiceStatus === "speaking"
+            ? "bg-emerald-500/20 text-emerald-200 ring-2 ring-emerald-400/35"
+            : voiceListening
+              ? "bg-genesis-accent/25 text-genesis-accent"
+              : "text-genesis-muted hover:bg-genesis-accent/15 hover:text-genesis-accent";
   const statusLabel =
     micMode === "dictation" && voiceListening
       ? "📝 Диктовка…"
@@ -290,20 +316,26 @@ export function GenesisChatComposer({
     />
   );
 
-  const toolbarButtons = publicMobileBar ? (
+  const toolbarButtons = simpleToolbar ? (
     <>
       <SpringPressable
         type="button"
         onClick={handleMicClick}
-        disabled={busy}
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${
-          voiceListening
-            ? "bg-genesis-accent/25 text-genesis-accent"
-            : "text-genesis-muted hover:bg-genesis-accent/15 hover:text-genesis-accent"
-        }`}
-        aria-label={voiceListening ? t("micStop") : t("micStart")}
+        disabled={busy && voiceStatus === "ready"}
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full disabled:opacity-40 ${micVisual}`}
+        aria-label={
+          voiceStatus === "listening"
+            ? t("micStop")
+            : voiceStatus === "recognizing"
+              ? t("voiceStatus.recognizing")
+              : voiceStatus === "thinking"
+                ? t("voiceStatus.thinking")
+                : voiceStatus === "responding" || voiceStatus === "speaking"
+                  ? t("voiceStatus.responding")
+                  : t("micStart")
+        }
       >
-        <MicIcon active={voiceListening} />
+        <MicIcon active={voiceStatus !== "ready" && voiceStatus !== "stopped"} />
       </SpringPressable>
       <SpringPressable
         type="button"
@@ -334,7 +366,7 @@ export function GenesisChatComposer({
         onClick={onSend}
         disabled={(busy && !generating) || (!value.trim() && !attachments.length && !generating)}
         className={`flex shrink-0 items-center justify-center rounded-full bg-genesis-accent text-white disabled:opacity-40 ${
-          minimalMobile && narrowViewport ? "h-12 w-12" : "h-11 w-11"
+          simpleToolbar ? "h-12 w-12" : "h-11 w-11"
         }`}
         aria-label={t("send")}
       >
@@ -501,10 +533,10 @@ export function GenesisChatComposer({
           </div>
         </div>
       )}
-      {voiceHint && voiceListening && !compactChrome && !minimalMobile && (
+      {voiceHint && voiceListening && showVoiceUi && (
         <p className="mb-2 text-center text-xs text-genesis-accent">{voiceHint}</p>
       )}
-      {!compactChrome && !minimalMobile && (
+      {showVoiceUi && !clientWorkspace && (
         <VoiceStatusPulse
           status={voiceStatus}
           label={statusLabel}
@@ -530,19 +562,32 @@ export function GenesisChatComposer({
           </button>
         </div>
       )}
-      {voiceListening && !compactChrome && !minimalMobile && (
-        <div className="mb-2 flex flex-col items-center rounded-xl border border-genesis-accent/25 bg-genesis-accent/5 px-3 py-3">
-          <VoiceOrb mode="listening" />
+      {voiceListening && showVoiceUi && !clientWorkspace && (
+        <div className="mb-2 flex flex-col items-center rounded-xl border border-genesis-accent/25 bg-genesis-accent/5 px-3 py-2">
+          <VoiceOrb mode="listening" compact={compactChrome} />
         </div>
       )}
-      {voiceSpeaking && !voiceListening && !compactChrome && !minimalMobile && (
-        <div className="mb-2 flex flex-col items-center rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-3 py-3">
-          <VoiceOrb mode="speaking" />
+      {voiceStatus === "recognizing" && showVoiceUi && !clientWorkspace && (
+        <div className="mb-2 flex flex-col items-center rounded-xl border border-amber-500/25 bg-amber-500/5 px-3 py-2">
+          <VoiceOrb mode="recognizing" compact={compactChrome} />
         </div>
       )}
-      {voiceThinking && !voiceListening && !voiceSpeaking && !compactChrome && !minimalMobile && (
-        <div className="mb-2 flex flex-col items-center rounded-xl border border-indigo-500/25 bg-indigo-500/5 px-3 py-3">
-          <VoiceOrb mode="thinking" />
+      {(voiceSpeaking || voiceStatus === "responding") &&
+        !voiceListening &&
+        showVoiceUi &&
+        !clientWorkspace && (
+        <div className="mb-2 flex flex-col items-center rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-3 py-2">
+          <VoiceOrb mode="responding" compact={compactChrome} />
+        </div>
+      )}
+      {voiceThinking &&
+        !voiceListening &&
+        !voiceSpeaking &&
+        voiceStatus !== "responding" &&
+        showVoiceUi &&
+        !clientWorkspace && (
+        <div className="mb-2 flex flex-col items-center rounded-xl border border-indigo-500/25 bg-indigo-500/5 px-3 py-2">
+          <VoiceOrb mode="thinking" compact={compactChrome} />
         </div>
       )}
       {attachments.length > 0 && (
@@ -583,10 +628,21 @@ export function GenesisChatComposer({
       )}
 
       <div
-        className={`flex items-end gap-1.5 rounded-3xl border border-white/10 bg-genesis-panel/95 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:gap-2 ${
+        className={`flex flex-col gap-1 rounded-3xl border border-white/10 bg-genesis-panel/95 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl ${
           minimalMobile && narrowViewport ? "p-2" : compactChrome ? "p-1.5" : "p-2"
         }`}
       >
+        {clientWorkspace && showVoiceUi ? (
+          <div className="w-full border-b border-white/5 px-2 pb-1.5 pt-0.5 sm:px-3">
+            <VoiceStatusPulse
+              status={voiceStatus}
+              label={statusLabel}
+              className="text-center text-[11px] font-medium text-genesis-accent"
+            />
+          </div>
+        ) : null}
+
+        <div className="flex w-full items-end gap-1.5 sm:gap-2">
         <input
           ref={fileRef}
           type="file"
@@ -603,12 +659,12 @@ export function GenesisChatComposer({
 
         <div
           className={
-            publicMobileBar
+            simpleToolbar
               ? "flex shrink-0 items-end gap-1"
               : "flex shrink-0 flex-col items-center gap-1"
           }
         >
-          {!publicMobileBar ? (
+          {!simpleToolbar ? (
           <button
             type="button"
             onClick={() => {
@@ -622,7 +678,8 @@ export function GenesisChatComposer({
             ⤢
           </button>
           ) : null}
-          <div className={`flex items-end ${publicMobileBar ? "gap-1" : "gap-1"}`}>{toolbarButtons}</div>
+          <div className={`flex items-end ${simpleToolbar ? "gap-1" : "gap-1"}`}>{toolbarButtons}</div>
+        </div>
         </div>
       </div>
     </div>

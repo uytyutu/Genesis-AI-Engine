@@ -17,8 +17,8 @@ import uuid
 
 import httpx
 
-DEFAULT_API = "https://genesis-ai-engine-production.up.railway.app"
-DEFAULT_SITE = "https://genesis-ai-engine.vercel.app"
+DEFAULT_API = "https://renewed-reprieve-production.up.railway.app"
+DEFAULT_SITE = "https://beta.genesis-ai-engine.com"
 
 
 def _ok(label: str, passed: bool, detail: str = "") -> bool:
@@ -143,7 +143,7 @@ def main() -> int:
     print(f"\nResult: {passed}/{total} checks passed")
     if passed < total:
         print("\nProduction is NOT synced with local Mind v3 + Conversation UX v1.")
-        print("Fix: push main to GitHub → Railway + Vercel redeploy.")
+        print("Fix: push main to GitHub -> Railway + Vercel redeploy.")
         return 1
     print("\nProduction appears synced.")
     return 0

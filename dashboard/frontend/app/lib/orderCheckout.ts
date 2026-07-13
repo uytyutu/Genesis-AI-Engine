@@ -1,6 +1,7 @@
 import { formatApiDetail } from "./formatApiError";
+import { publicApiBase } from "./publicApiBase";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = publicApiBase();
 
 export async function startOrderCheckout(orderId: string): Promise<string> {
   const origin = typeof window !== "undefined" ? window.location.origin : "";

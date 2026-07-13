@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Badge } from "./ui/Badge";
+import { VectorDevStatsPanel, type VectorDevStats } from "./VectorDevStatsPanel";
 import {
   GenesisChatComposer,
   type PendingAttachment,
   type VoiceUiStatus,
 } from "./GenesisChatComposer";
+import { VoiceStatusPulse } from "./motion/VoiceStatusPulse";
 import {
   getSpeechRecognitionCtor,
   isMicContextAllowed,
@@ -23,8 +25,10 @@ import {
   ASSISTANT_NAME,
   BRAND_NAME,
   PUBLIC_WELCOME,
+  PUBLIC_SITE_WELCOME,
 } from "../lib/publicBrand";
 import { VectorBrandSignature } from "./VectorBrandSignature";
+import { Badge } from "./ui/Badge";
 import {
   loadVoiceSettings,
   type VoiceSettings,
@@ -58,9 +62,23 @@ import {
   publicApiBase,
   rewritePublicSiteUrls,
 } from "../lib/publicApiBase";
+import {
+  applyProjectStateAuthority,
+  getLiveProjectState,
+  onUserMessageForProject,
+  onVectorReplied,
+  PROJECT_STATE_EVENT,
+} from "../lib/projectStateEngine";
+import { fetchProjectPlatform, type ProjectPlatformState } from "../lib/projectApi";
+import {
+  flushProductPath,
+  markProductPath,
+  resetProductPath,
+} from "../lib/productPathTrace";
 
 const API = publicApiBase();
 import { getVisitorId } from "../lib/visitorId";
+import { isProjectClaimed } from "../lib/projectIdentity";
 const HI_BUILD_KEY = "genesis_hi_build";
 const HI_BUILD_EXPECTED = "genesis-mind-v3.0";
 const DEV_MODE_KEY = "genesis_developer_mode";
@@ -154,6 +172,9 @@ type GenesisDebug = {
   };
   emotional_mood?: string;
   intent?: string | null;
+  dev_stats?: VectorDevStats | null;
+  dev_stats_text?: string | null;
+  pipeline_request_id?: string | null;
 };
 
 type ChatApiResponse = {
@@ -163,7 +184,11 @@ type ChatApiResponse = {
   cta_label?: string | null;
   cta_actions?: Array<{ href: string; label: string; group?: string; available?: boolean }> | null;
   debug?: GenesisDebug | null;
-  context?: { workspace_id?: string; execution?: unknown } | null;
+  context?: {
+    workspace_id?: string;
+    execution?: unknown;
+    project_state?: ProjectPlatformState;
+  } | null;
   session_id?: string | null;
 };
 
@@ -193,11 +218,16 @@ type Props = {
 };
 
 export function GenesisConcierge({ onConversationActive, scope = "public", hubMode = false }: Props) {
+  const router = useRouter();
   const { t } = useTranslation(["chat", "errors", "common"]);
   const { uiLocale, assistantLocale } = useLocale();
   const isPublic = scope === "public";
   const isPublicHub = isPublic && hubMode;
-  const fallbackWelcome = isPublic ? FALLBACK_WELCOME_PUBLIC : FALLBACK_WELCOME_OWNER;
+  const fallbackWelcome = isPublic
+    ? isPublicHub
+      ? PUBLIC_SITE_WELCOME
+      : FALLBACK_WELCOME_PUBLIC
+    : FALLBACK_WELCOME_OWNER;
   const assistantLabel = ASSISTANT_NAME;
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -209,8 +239,13 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
   const [pendingFiles, setPendingFiles] = useState<PendingAttachment[]>([]);
   const [attachmentsUploading, setAttachmentsUploading] = useState(0);
   const [voiceListening, setVoiceListening] = useState(false);
+  const [voiceRecognizing, setVoiceRecognizing] = useState(false);
   const [voiceThinking, setVoiceThinking] = useState(false);
   const [voiceSpeaking, setVoiceSpeaking] = useState(false);
+  const [streamResponding, setStreamResponding] = useState(false);
+  const [chatWaitPhase, setChatWaitPhase] = useState(0);
+  const [lifeSignPhase, setLifeSignPhase] = useState(0);
+  const [projectLive, setProjectLive] = useState(false);
   const [voiceHint, setVoiceHint] = useState<string | undefined>();
   const [micNotice, setMicNotice] = useState<string | undefined>();
   const [micPermissionModal, setMicPermissionModal] = useState(false);
@@ -225,6 +260,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
   const [ttsCloudAvailable, setTtsCloudAvailable] = useState(false);
   const [ttsPreferred, setTtsPreferred] = useState<string>("browser");
   const [developerMode, setDeveloperMode] = useState(false);
+  const [lastDevStats, setLastDevStats] = useState<VectorDevStats | null>(null);
   const [openDebugIndex, setOpenDebugIndex] = useState<number | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [sessionList, setSessionList] = useState<ChatSessionMeta[]>([]);
@@ -234,6 +270,28 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
   const devAvailable = devModeAvailable();
   const visitorId = getVisitorId(scope);
 
+  const chatWaitTimerRef = useRef<number | null>(null);
+  const lifeSignTimerRef = useRef<number | null>(null);
+
+  const lifeSignSteps = [
+    t("lifeSign.received"),
+    t("lifeSign.understanding"),
+    t("lifeSign.connecting"),
+    t("lifeSign.answering"),
+  ] as const;
+
+  const chatWaitLabel =
+    projectLive && isPublicHub
+      ? chatWaitPhase >= 2
+        ? t("projectWait.details")
+        : chatWaitPhase >= 1
+          ? t("projectWait.structure")
+          : t("projectWait.working")
+      : chatWaitPhase >= 2
+        ? t("chatWait.almost")
+        : chatWaitPhase >= 1
+          ? t("chatWait.preparing")
+          : t("voiceStatus.thinking");
   const voiceSettingsRef = useRef(voiceSettings);
   const communicationStyleRef = useRef(communicationStyle);
   const micModeRef = useRef(micMode);
@@ -248,8 +306,10 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
   const startVoiceRef = useRef<(() => Promise<void>) | null>(null);
   const hydratedRef = useRef(false);
   const chatAbortRef = useRef<AbortController | null>(null);
-  const abortRequestedRef = useRef(false);
-  const voiceStoppedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const busyWatchdogRef = useRef<number | null>(null);
+  const abortCauseRef = useRef<"user" | "replace" | "unmount" | "timeout" | null>(null);
+  const turnIdRef = useRef(0);
+  const voiceStoppedTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     voiceSettingsRef.current = voiceSettings;
@@ -297,13 +357,60 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
 
   const { showJumpButton, handleScroll, jumpToLatest, pinToBottom } = useChatAutoScroll(
     messagesRef,
-    [messages, busy, voiceSpeaking, voiceThinking, showThread],
+    [messages, busy, streamResponding, voiceSpeaking, voiceThinking, showThread],
     showThread,
+    { forceFollow: busy || streamResponding },
   );
 
   useEffect(() => {
     onConversationActive?.(isPublic ? hasConversation : showThread);
   }, [isPublic, hasConversation, showThread, onConversationActive]);
+
+  useEffect(() => {
+    if (!isPublicHub) return;
+    const sync = () => setProjectLive(Boolean(getLiveProjectState(visitorId)?.active));
+    sync();
+    window.addEventListener(PROJECT_STATE_EVENT, sync);
+    return () => window.removeEventListener(PROJECT_STATE_EVENT, sync);
+  }, [isPublicHub, visitorId]);
+
+  useEffect(() => {
+    if (!busy) {
+      if (busyWatchdogRef.current) {
+        window.clearTimeout(busyWatchdogRef.current);
+        busyWatchdogRef.current = null;
+      }
+      return;
+    }
+    busyWatchdogRef.current = window.setTimeout(() => {
+      console.warn("[Vector chat] watchdog — forcing UI reset after 92s");
+      abortCauseRef.current = "timeout";
+      chatAbortRef.current?.abort();
+      setBusy(false);
+      setVoiceThinking(false);
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role !== "assistant" || !last.generating) return prev;
+        const next = [
+          ...prev.slice(0, -1),
+          {
+            ...last,
+            generating: false,
+            text:
+              last.text?.trim() ||
+              t("projectPreparing"),
+          },
+        ];
+        return next;
+      });
+    }, 92_000);
+    return () => {
+      if (busyWatchdogRef.current) {
+        window.clearTimeout(busyWatchdogRef.current);
+        busyWatchdogRef.current = null;
+      }
+    };
+  }, [busy]);
 
   useEffect(() => {
     if (!isPublic) return;
@@ -333,6 +440,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
     fetch(`${API}/api/public/genesis-ai/greeting?visitor_id=${encodeURIComponent(visitorId)}`)
       .then((r) => r.json())
       .then((d: { greeting?: string }) => {
+        if (isPublicHub) return;
         const g = d?.greeting?.trim();
         if (!g) return;
         const compact = g.replace(/\s+/g, " ").trim();
@@ -353,7 +461,47 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
         setAttachHint(kinds.includes("pdf") ? t("attachHint") : t("attachHintLegacy"));
       })
       .catch(() => undefined);
-  }, [visitorId, t]);
+  }, [visitorId, t, isPublicHub]);
+
+  useEffect(() => {
+    if (!isPublicHub) return;
+    setWelcomeText(PUBLIC_SITE_WELCOME);
+    setMessages((prev) => {
+      if (prev.some((m) => m.role === "user")) return prev;
+      if (prev.length === 1 && prev[0]?.role === "assistant") {
+        return [{ ...prev[0], text: PUBLIC_SITE_WELCOME }];
+      }
+      return prev;
+    });
+  }, [isPublicHub]);
+
+  useEffect(() => {
+    if (!isPublic) return;
+    const onProjectUpdate = async () => {
+      if (busy || (isPublicHub && !isProjectClaimed())) return;
+      const data = await fetchProjectPlatform(visitorId);
+      applyProjectStateAuthority(data, visitorId);
+      const project = data?.project;
+      if (!project) return;
+      const parts: string[] = [];
+      if (project.activity?.summary) parts.push(project.activity.summary);
+      const initiative =
+        project.next_action?.label || data.vector_hint || project.next_step_hint;
+      if (initiative) parts.push(initiative);
+      if (!parts.length) return;
+      const text = parts.join("\n\n");
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant" && last.text?.trim() === text.trim()) return prev;
+        if (last?.generating) return prev;
+        return [...prev, { role: "assistant", text }];
+      });
+      pinToBottom();
+    };
+    const handler = () => void onProjectUpdate();
+    window.addEventListener("genesis:project-updated", handler);
+    return () => window.removeEventListener("genesis:project-updated", handler);
+  }, [isPublic, visitorId, busy, pinToBottom]);
 
   const resetToWelcome = useCallback(
     (greeting?: string) => {
@@ -372,9 +520,15 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
     setSidebarOpen(false);
     resetToWelcome();
     onConversationActive?.(false);
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (window.location.pathname === "/site" && params.get("view") === "vector") {
+        router.push("/site");
+      }
+    }
     window.dispatchEvent(new Event("genesis:home"));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [resetToWelcome, onConversationActive]);
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [resetToWelcome, onConversationActive, router]);
 
   const handlePublicMenuHome = useCallback(() => {
     setSidebarOpen(false);
@@ -476,14 +630,18 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
   useEffect(() => {
     return () => {
       if (voiceStoppedTimerRef.current) clearTimeout(voiceStoppedTimerRef.current);
-      chatAbortRef.current?.abort();
+      if (lifeSignTimerRef.current) window.clearTimeout(lifeSignTimerRef.current);
+      if (chatAbortRef.current) {
+        abortCauseRef.current = "unmount";
+        chatAbortRef.current.abort();
+      }
     };
   }, []);
 
   useEffect(() => {
     const home = () => {
       setChatCollapsed(true);
-      document.getElementById("genesis-chat")?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("genesis-chat")?.scrollIntoView({ behavior: "auto" });
     };
     window.addEventListener("genesis:home", home);
     return () => window.removeEventListener("genesis:home", home);
@@ -548,12 +706,12 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
     setVoiceThinking(false);
     if (voiceStoppedTimerRef.current) clearTimeout(voiceStoppedTimerRef.current);
     setVoiceStoppedFlash(true);
-    voiceStoppedTimerRef.current = setTimeout(() => setVoiceStoppedFlash(false), 2000);
+    voiceStoppedTimerRef.current = window.setTimeout(() => setVoiceStoppedFlash(false), 2000);
   }, [voiceSpeaking]);
 
   const stopGeneration = useCallback(() => {
     if (!chatAbortRef.current) return;
-    abortRequestedRef.current = true;
+    abortCauseRef.current = "user";
     chatAbortRef.current.abort();
     chatAbortRef.current = null;
   }, []);
@@ -567,11 +725,23 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
     ? "stopped"
     : voiceListening
       ? "listening"
-      : voiceSpeaking
-        ? "speaking"
-        : voiceThinking || (busy && lastInputWasVoiceRef.current)
-          ? "thinking"
-          : "ready";
+      : voiceRecognizing
+        ? "recognizing"
+        : voiceSpeaking
+          ? "responding"
+          : streamResponding
+            ? "responding"
+            : voiceThinking || busy
+              ? "thinking"
+              : "ready";
+
+  const voiceStatusLabel =
+    busy && voiceUiStatus === "thinking"
+      ? chatWaitLabel
+      : t(`voiceStatus.${voiceUiStatus}`, {
+          defaultValue: t("voiceStatus.ready"),
+        });
+  const showLiveStatus = isPublicHub && voiceUiStatus !== "ready" && voiceUiStatus !== "stopped";
 
   const sendMessage = useCallback(
     async (text: string, files: PendingAttachment[] = [], fromVoice = false) => {
@@ -593,6 +763,24 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
       }
 
       if (fromVoice) lastInputWasVoiceRef.current = true;
+
+      resetProductPath();
+      markProductPath("message_sent");
+      onUserMessageForProject(q, visitorId);
+      markProductPath("project_state");
+
+      setVoiceRecognizing(false);
+      setStreamResponding(false);
+      setChatWaitPhase(0);
+      setLifeSignPhase(2);
+      if (lifeSignTimerRef.current) window.clearTimeout(lifeSignTimerRef.current);
+      lifeSignTimerRef.current = window.setTimeout(() => {
+        setLifeSignPhase((p) => Math.max(p, 3));
+      }, 80);
+      if (chatWaitTimerRef.current) {
+        window.clearInterval(chatWaitTimerRef.current);
+        chatWaitTimerRef.current = null;
+      }
       setChatCollapsed(false);
 
       const displayText =
@@ -603,7 +791,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
       const history = messages
         .filter((m) => !m.generating && (m.role === "user" || m.role === "assistant"))
         .slice(1)
-        .slice(-12)
+        .slice(-6)
         .map((m) => ({ role: m.role, content: m.text ?? "" }));
 
       const nextUserMsg: Message = {
@@ -622,113 +810,232 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
       pinToBottom();
       if (fromVoice) setVoiceThinking(true);
 
+      const turnId = ++turnIdRef.current;
+
+      chatWaitTimerRef.current = window.setInterval(() => {
+        setChatWaitPhase((p) => Math.min(2, p + 1));
+      }, 2500);
+
       let sessionId = activeSessionId;
-      if (!sessionId) {
-        const created = await createSession(visitorId);
-        if (created) {
+      if (chatAbortRef.current) {
+        abortCauseRef.current = "replace";
+        chatAbortRef.current.abort();
+      }
+      const controller = new AbortController();
+      chatAbortRef.current = controller;
+      abortCauseRef.current = null;
+      const requestTimeout = window.setTimeout(() => controller.abort(), 120_000);
+
+      const sessionPromise =
+        !sessionId
+          ? createSession(visitorId, "Новое поручение", { signal: controller.signal }).catch(
+              () => null,
+            )
+          : Promise.resolve<ChatSessionMeta | null>(null);
+
+      const streamEndpoint = `${API}/api/public/genesis-ai/stream${developerMode ? "?debug=true" : ""}`;
+      const jsonEndpoint = `${API}/api/public/genesis-ai${developerMode ? "?debug=true" : ""}`;
+
+      try {
+        const requestBody = {
+          question: q || t("filesOnlyPrompt"),
+          history,
+          visitor_id: visitorId,
+          session_id: sessionId,
+          ui_locale: uiLocale,
+          assistant_locale: assistantLocale,
+          communication_style: communicationStyleRef.current,
+          context: scope === "owner" ? { personality_mode: "ceo" } : undefined,
+          attachment_ids: files.map((f) => f.id).filter(Boolean),
+        };
+        const t0 = performance.now();
+
+        const applyAssistantReply = (data: ChatApiResponse) => {
+          const answer =
+            rewritePublicSiteUrls(
+              data?.answer?.trim() || t("emptyAnswer", { ns: "errors" }),
+            );
+
+          setMessages((prev) => {
+            const base = prev[prev.length - 1]?.generating ? prev.slice(0, -1) : prev;
+            const next = [
+              ...base,
+              {
+                role: "assistant" as const,
+                text: answer,
+                provider: data?.provider ?? null,
+                cta_href: normalizePublicHref(data?.cta_href),
+                cta_label: data?.cta_label ?? null,
+                cta_actions: (data?.cta_actions ?? null)?.map((a) => ({
+                  href: normalizePublicHref(a.href) ?? a.href,
+                  label: a.label,
+                })) ?? null,
+                debug: developerMode ? (data?.debug ?? null) : undefined,
+              },
+            ];
+            const sid = (data as { session_id?: string })?.session_id || sessionId;
+            if (sid) persistLocalMessages(sid, next);
+            return next;
+          });
+          void refreshSessionList();
+
+          onVectorReplied(visitorId);
+          const authority = data?.context?.project_state;
+          if (authority && (!isPublicHub || isProjectClaimed())) {
+            applyProjectStateAuthority(authority, visitorId);
+            window.dispatchEvent(new Event("genesis:project-updated"));
+          } else if (!isPublicHub || isProjectClaimed()) {
+            void fetchProjectPlatform(visitorId).then((platform) => {
+              applyProjectStateAuthority(platform, visitorId);
+              window.dispatchEvent(new Event("genesis:project-updated"));
+            });
+          }
+          markProductPath("response_applied");
+          if (developerMode && (data as { product_timing_ms?: Record<string, number> })?.product_timing_ms) {
+            console.info("[Vector path] server", (data as { product_timing_ms?: Record<string, number> }).product_timing_ms);
+          }
+          flushProductPath("turn_complete");
+
+          if (data?.provider === "execution" || data?.context?.workspace_id) {
+            window.dispatchEvent(new Event("genesis:project-updated"));
+          }
+
+          if (lastInputWasVoiceRef.current || voiceContinuousRef.current) {
+            const vs = voiceSettingsRef.current;
+            const cleanupInterrupt = startInterruptListener((phrase) => {
+              console.info("[Genesis voice] interrupted:", phrase);
+              setVoiceSpeaking(false);
+              setVoiceThinking(false);
+            });
+            void speakGenesis(answer, vs, {
+              onStart: () => setVoiceSpeaking(true),
+              onEnd: () => {
+                cleanupInterrupt();
+                setVoiceSpeaking(false);
+                setVoiceThinking(false);
+                if (voiceContinuousRef.current && vs.autoListen && !vs.pushToTalk) {
+                  void startVoiceRef.current?.();
+                }
+              },
+              onProvider: (p) => {
+                console.info("[Genesis voice] TTS provider:", p);
+              },
+            });
+            lastInputWasVoiceRef.current = false;
+          }
+        };
+
+        let data: ChatApiResponse | null = null;
+        let streamed = false;
+
+        setLifeSignPhase((p) => Math.max(p, 3));
+        const streamRes = await fetch(streamEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+          signal: controller.signal,
+          body: JSON.stringify(requestBody),
+        });
+        markProductPath("fetch_started");
+
+        void sessionPromise.then((created) => {
+          if (!created?.session_id) return;
           sessionId = created.session_id;
-          setActiveSessionId(sessionId);
+          setActiveSessionId(created.session_id);
           setSessionList((prev) => [
             created,
             ...prev.filter((s) => s.session_id !== created.session_id),
           ]);
-        }
-      }
-
-      chatAbortRef.current?.abort();
-      const controller = new AbortController();
-      chatAbortRef.current = controller;
-      abortRequestedRef.current = false;
-      const requestTimeout = window.setTimeout(() => controller.abort(), 90_000);
-
-      try {
-        const endpoint = `${API}/api/public/genesis-ai${developerMode ? "?debug=true" : ""}`;
-        const res = await fetch(endpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            question: q || t("filesOnlyPrompt"),
-            history,
-            visitor_id: visitorId,
-            session_id: sessionId,
-            ui_locale: uiLocale,
-            assistant_locale: assistantLocale,
-            communication_style: communicationStyleRef.current,
-            context: scope === "owner" ? { personality_mode: "ceo" } : undefined,
-            attachment_ids: files.map((f) => f.id).filter(Boolean),
-          }),
         });
 
-        let data: ChatApiResponse = {};
-        try {
-          data = (await res.json()) as ChatApiResponse;
-        } catch {
-          data = {};
-        }
-
-        if (!res.ok) {
-          throw new Error("bad response");
-        }
-
-        const answer =
-          rewritePublicSiteUrls(
-            data?.answer?.trim() || t("emptyAnswer", { ns: "errors" }),
-          );
-
-        setMessages((prev) => {
-          const base = prev[prev.length - 1]?.generating ? prev.slice(0, -1) : prev;
-          const next = [
-            ...base,
-            {
-              role: "assistant" as const,
-              text: answer,
-              provider: data?.provider ?? null,
-              cta_href: normalizePublicHref(data?.cta_href),
-              cta_label: data?.cta_label ?? null,
-              cta_actions: (data?.cta_actions ?? null)?.map((a) => ({
-                href: normalizePublicHref(a.href) ?? a.href,
-                label: a.label,
-              })) ?? null,
-              debug: developerMode ? (data?.debug ?? null) : undefined,
-            },
-          ];
-          const sid = (data as { session_id?: string })?.session_id || sessionId;
-          if (sid) persistLocalMessages(sid, next);
-          return next;
-        });
-        void refreshSessionList();
-
-        if (data?.provider === "execution" || data?.context?.workspace_id) {
-          window.dispatchEvent(new Event("genesis:project-updated"));
-        }
-
-        if (lastInputWasVoiceRef.current || voiceContinuousRef.current) {
-          const vs = voiceSettingsRef.current;
-          const cleanupInterrupt = startInterruptListener((phrase) => {
-            console.info("[Genesis voice] interrupted:", phrase);
-            setVoiceSpeaking(false);
-            setVoiceThinking(false);
-          });
-          void speakGenesis(answer, vs, {
-            onStart: () => setVoiceSpeaking(true),
-            onEnd: () => {
-              cleanupInterrupt();
-              setVoiceSpeaking(false);
-              setVoiceThinking(false);
-              if (voiceContinuousRef.current && vs.autoListen && !vs.pushToTalk) {
-                void startVoiceRef.current?.();
+        const streamCt = streamRes.headers.get("content-type") || "";
+        if (streamRes.ok && streamRes.body && streamCt.includes("text/event-stream")) {
+          const reader = streamRes.body.getReader();
+          const decoder = new TextDecoder();
+          let sseBuffer = "";
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            sseBuffer += decoder.decode(value, { stream: true });
+            const chunks = sseBuffer.split("\n\n");
+            sseBuffer = chunks.pop() || "";
+            for (const chunk of chunks) {
+              for (const line of chunk.split("\n")) {
+                if (!line.startsWith("data: ")) continue;
+                let ev: { type?: string; text?: string } & ChatApiResponse;
+                try {
+                  ev = JSON.parse(line.slice(6)) as typeof ev;
+                } catch {
+                  continue;
+                }
+                if (ev.type === "status") {
+                  setLifeSignPhase(4);
+                  setChatWaitPhase(0);
+                  setVoiceThinking(true);
+                } else if (ev.type === "token" && ev.text) {
+                  markProductPath("first_token");
+                  setLifeSignPhase(4);
+                  setStreamResponding(true);
+                  setVoiceThinking(false);
+                  setMessages((prev) => {
+                    const last = prev[prev.length - 1];
+                    if (last?.role !== "assistant" || !last.generating) return prev;
+                    return [
+                      ...prev.slice(0, -1),
+                      { ...last, text: `${last.text || ""}${ev.text}` },
+                    ];
+                  });
+                  pinToBottom();
+                } else if (ev.type === "done") {
+                  markProductPath("stream_done");
+                  data = ev;
+                  streamed = true;
+                }
               }
-            },
-            onProvider: (p) => {
-              console.info("[Genesis voice] TTS provider:", p);
-            },
-          });
-          lastInputWasVoiceRef.current = false;
+            }
+          }
         }
+
+        if (!streamed) {
+          setLifeSignPhase(4);
+          const res = await fetch(jsonEndpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify(requestBody),
+          });
+
+          try {
+            data = (await res.json()) as ChatApiResponse;
+          } catch {
+            data = {};
+          }
+
+          if (!res.ok) {
+            console.warn("[Vector chat] bad response", res.status, Math.round(performance.now() - t0));
+            throw new Error("bad response");
+          }
+        }
+
+        console.info("[Vector chat] ok", {
+          ms: Math.round(performance.now() - t0),
+          provider: data?.provider,
+          answerLen: data?.answer?.length ?? 0,
+          streamed,
+        });
+
+        if (developerMode && data?.debug?.dev_stats) {
+          setLastDevStats(data.debug.dev_stats);
+        }
+
+        if (turnId !== turnIdRef.current) return;
+        applyAssistantReply(data ?? {});
       } catch (err) {
-        if (abortRequestedRef.current) {
-          abortRequestedRef.current = false;
+        if (turnId !== turnIdRef.current) return;
+
+        const cause = abortCauseRef.current;
+        abortCauseRef.current = null;
+
+        if (cause === "user") {
           setMessages((prev) => {
             const last = prev[prev.length - 1];
             if (last?.role !== "assistant" || !last.generating) return prev;
@@ -741,24 +1048,49 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
           });
           return;
         }
-        const timedOut = err instanceof DOMException && err.name === "AbortError";
-        setMessages((prev) => {
-          const base = prev[prev.length - 1]?.generating ? prev.slice(0, -1) : prev;
-          return [
-            ...base,
-            {
-              role: "assistant",
-              text: timedOut
-                ? "Ответ занял слишком много времени. Попробуйте короче — или нажмите ещё раз."
-                : t("offline", { ns: "errors", brand: BRAND_NAME }),
-            },
-          ];
+
+        if (cause === "replace" || cause === "unmount") {
+          return;
+        }
+
+        const timedOut =
+          cause === "timeout" || (err instanceof DOMException && err.name === "AbortError");
+        console.warn("[Vector chat] failed", {
+          timedOut,
+          cause,
+          err: err instanceof Error ? err.message : String(err),
         });
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last?.role === "assistant" && last.generating) {
+            const text = timedOut
+              ? t("projectPreparing")
+              : t("offline", { ns: "errors", brand: BRAND_NAME });
+            const next = [...prev.slice(0, -1), { ...last, text, generating: false }];
+            if (sessionId) persistLocalMessages(sessionId, next);
+            return next;
+          }
+          return prev;
+        });
+        flushProductPath(timedOut ? "turn_timeout" : "turn_error");
       } finally {
+        if (turnId !== turnIdRef.current) return;
         window.clearTimeout(requestTimeout);
+        if (chatWaitTimerRef.current) {
+          window.clearInterval(chatWaitTimerRef.current);
+          chatWaitTimerRef.current = null;
+        }
+        if (lifeSignTimerRef.current) {
+          window.clearTimeout(lifeSignTimerRef.current);
+          lifeSignTimerRef.current = null;
+        }
+        setChatWaitPhase(0);
+        setLifeSignPhase(0);
         chatAbortRef.current = null;
         setBusy(false);
         setVoiceThinking(false);
+        setStreamResponding(false);
+        setVoiceRecognizing(false);
       }
     },
     [
@@ -925,7 +1257,10 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
           return;
         }
         stopVoice();
-        if (transcript) void sendMessage(transcript, [], true);
+        setVoiceRecognizing(true);
+        if (transcript) {
+          window.setTimeout(() => void sendMessage(transcript, [], true), 400);
+        }
       };
       rec.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.error("[Genesis] speech error:", event.error);
@@ -1065,6 +1400,9 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
           />
         </div>
       ) : null}
+      {developerMode ? (
+        <VectorDevStatsPanel stats={lastDevStats} className="mx-3 mb-2 sm:mx-6" />
+      ) : null}
       <GenesisChatComposer
         value={input}
         onChange={setInput}
@@ -1099,7 +1437,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
         onFocusChange={setComposerFocused}
         minimalMobile={isPublic && !hubMode}
         clientWorkspace={isPublicHub}
-        onSpeakAnswer={speakLastAnswer}
+        onSpeakAnswer={isPublicHub ? undefined : speakLastAnswer}
       />
     </>
   );
@@ -1118,19 +1456,19 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
         onSelect={(id) => void handleSelectSession(id)}
         onDelete={(id) => void handleDeleteSession(id)}
         onPin={(id, pinned) => void handlePinSession(id, pinned)}
-        hideMobileToggle={isPublic}
-        overlayOnly={isPublic}
-        onGoHome={isPublic ? handlePublicMenuHome : undefined}
+        hideMobileToggle={isPublicHub}
+        overlayOnly={isPublicHub}
+        onGoHome={isPublic && !hubMode ? handlePublicMenuHome : isPublicHub ? handlePublicMenuHome : undefined}
       />
     <section
       id="genesis-chat"
-      className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow transition-all duration-300 ${
+      className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow ${
         isPublicHub
-          ? "h-full min-h-[min(70dvh,40rem)] max-sm:rounded-2xl"
+          ? "h-full min-h-[min(48dvh,30rem)] max-sm:rounded-2xl"
           : isPublic
           ? publicImmersive
-            ? `h-[100dvh] max-sm:rounded-none max-sm:border-x-0 max-sm:shadow-none${sidebarOpen ? " max-sm:pointer-events-none" : ""}`
-            : "min-h-[min(72dvh,36rem)] max-h-[min(85dvh,40rem)] max-sm:rounded-2xl max-sm:border-x-0"
+            ? `min-h-[min(58dvh,34rem)] max-h-[min(64dvh,38rem)] max-sm:rounded-2xl max-sm:border-x-0${sidebarOpen ? " max-sm:pointer-events-none" : ""}`
+            : "min-h-[min(58dvh,32rem)] max-h-[min(64dvh,36rem)] max-sm:rounded-2xl max-sm:border-x-0"
           : showThread
             ? composerFocused
               ? "min-h-[min(92dvh,52rem)] max-h-[min(96dvh,56rem)]"
@@ -1179,6 +1517,23 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
             >
               ☰
             </button>
+            {isPublic && !hubMode ? (
+              <button
+                type="button"
+                onClick={() => setSidebarOpen((o) => !o)}
+                className="hidden rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-genesis-muted transition hover:bg-white/5 hover:text-white sm:inline-flex"
+                aria-expanded={sidebarOpen}
+              >
+                {sidebarOpen ? "Скрыть историю" : "История"}
+              </button>
+            ) : null}
+            {showLiveStatus ? (
+              <VoiceStatusPulse
+                status={voiceUiStatus}
+                label={voiceStatusLabel}
+                className="hidden min-w-0 truncate text-[11px] font-medium text-genesis-accent sm:block"
+              />
+            ) : null}
           </div>
         )}
         {isPublic || !showThread ? (
@@ -1207,11 +1562,11 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
             </button>
           ) : null}
           {!isPublic && <LanguageSwitcher />}
-          {devAvailable && !isPublic ? (
+          {devAvailable ? (
             <button
               type="button"
               onClick={toggleDeveloperMode}
-              title="Dev Mode — Thinking Brief (только разработка)"
+              title="Dev Mode — статистика маршрутизации (только разработка)"
               className={`rounded-lg px-2 py-1 text-[10px] font-semibold uppercase tracking-wider transition ${
                 developerMode
                   ? "bg-amber-500/20 text-amber-300 ring-1 ring-amber-400/40"
@@ -1225,6 +1580,16 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
           )}
         </div>
       </header>
+
+      {showLiveStatus ? (
+        <div className="shrink-0 border-b border-white/5 px-3 py-1.5 sm:hidden">
+          <VoiceStatusPulse
+            status={voiceUiStatus}
+            label={voiceStatusLabel}
+            className="text-center text-xs font-medium text-genesis-accent"
+          />
+        </div>
+      ) : null}
 
       {!showThread && !isPublic && (
         <div className="shrink-0 px-5 py-4 sm:px-8">
@@ -1251,7 +1616,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
         <div
           ref={messagesRef}
           onScroll={handleScroll}
-          className={`h-full min-h-0 overflow-y-auto overscroll-contain px-4 transition-all duration-300 sm:px-6 ${
+          className={`h-full min-h-0 overflow-y-auto overscroll-contain px-4 sm:px-6 ${
             showThread ? "py-3 pb-4 opacity-100 sm:py-4" : "max-h-0 py-0 opacity-0"
           }`}
         >
@@ -1281,11 +1646,31 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
                   </p>
                 )}
                 {m.generating && !m.text?.trim() ? (
-                  <span className="inline-flex items-center gap-1 text-genesis-muted">
-                    <span className="animate-pulse">●</span>
-                    <span className="animate-pulse [animation-delay:150ms]">●</span>
-                    <span className="animate-pulse [animation-delay:300ms]">●</span>
-                  </span>
+                  isPublicHub ? (
+                    <div className="space-y-1 text-sm leading-relaxed">
+                      {lifeSignSteps.map((label, stepIdx) => {
+                        const done = lifeSignPhase > stepIdx + 1;
+                        const active = lifeSignPhase === stepIdx + 1;
+                        return (
+                          <div
+                            key={label}
+                            className={
+                              done
+                                ? "text-emerald-300"
+                                : active
+                                  ? "animate-pulse text-genesis-accent"
+                                  : "text-genesis-muted/40"
+                            }
+                          >
+                            {done ? "✓ " : active ? "⏳ " : "○ "}
+                            {label}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <span className="animate-pulse text-genesis-muted">{chatWaitLabel}</span>
+                  )
                 ) : m.role === "assistant" && m.provider === "execution" ? (
                   <ExecutionResultPanel
                     text={m.text}
@@ -1423,7 +1808,7 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
             </ChatMessageSpring>
             );
           })}
-          {busy && (
+          {busy && !messages.some((m) => m.generating) && (
             <li className="flex justify-start">
               <div className="rounded-3xl border border-white/5 bg-genesis-panel/60 px-4 py-3 text-sm text-genesis-muted">
                 {ASSISTANT_NAME} работает…
@@ -1444,8 +1829,8 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
         ) : null}
       </div>
 
-      {!hasConversation && showThread && !isPublicHub && (
-        <div className="shrink-0 overflow-x-auto px-3 pb-1 sm:px-6">
+      {!hasConversation && showThread && (
+        <div className={`shrink-0 overflow-x-auto px-3 pb-1 sm:px-6 ${isPublicHub ? "border-b border-white/5 py-2" : ""}`}>
           <div className="flex w-max max-w-full gap-2 sm:flex-wrap">
           {STARTERS_VISIBLE.map((s) => (
             <button

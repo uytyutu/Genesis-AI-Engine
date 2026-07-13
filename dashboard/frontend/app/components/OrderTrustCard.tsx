@@ -5,7 +5,13 @@ import {
   type OrderPurchaseType,
 } from "../lib/orderTrustCard";
 
-export function OrderTrustCard({ purchaseType }: { purchaseType: OrderPurchaseType }) {
+export function OrderTrustCard({
+  purchaseType,
+  legalReady,
+}: {
+  purchaseType: OrderPurchaseType;
+  legalReady?: boolean;
+}) {
   const lines = ORDER_TRUST_CONTENT[purchaseType];
 
   return (
@@ -26,14 +32,34 @@ export function OrderTrustCard({ purchaseType }: { purchaseType: OrderPurchaseTy
             <div>
               {line.emoji === "📄" && purchaseType === "subscription" ? (
                 <span>
-                  <Link href="/impressum" className="text-genesis-accent hover:underline">
-                    Impressum
-                  </Link>
-                  {" и "}
-                  <Link href="/datenschutz" className="text-genesis-accent hover:underline">
-                    Datenschutz
-                  </Link>
-                  {" доступны всегда."}
+                  {legalReady === false ? (
+                    <>
+                      Полный Impressum готовится. Контакт:{" "}
+                      <a href="mailto:hello@genesis-ai-engine.com" className="text-genesis-accent hover:underline">
+                        hello@genesis-ai-engine.com
+                      </a>
+                      .
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/impressum" className="text-genesis-accent hover:underline">
+                        Impressum
+                      </Link>
+                      {" и "}
+                      <Link href="/datenschutz" className="text-genesis-accent hover:underline">
+                        Datenschutz
+                      </Link>
+                      {" доступны всегда."}
+                    </>
+                  )}
+                </span>
+              ) : line.emoji === "📄" && legalReady === false ? (
+                <span>
+                  Юридические документы готовятся. Контакт продавца:{" "}
+                  <a href="mailto:hello@genesis-ai-engine.com" className="text-genesis-accent hover:underline">
+                    hello@genesis-ai-engine.com
+                  </a>
+                  .
                 </span>
               ) : (
                 <span>

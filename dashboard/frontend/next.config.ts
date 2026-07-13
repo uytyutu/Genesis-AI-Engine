@@ -18,6 +18,10 @@ const apiBase = (
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
+  experimental: {
+    // LLM via Ollama can exceed the default 30s rewrite proxy limit.
+    proxyTimeout: 120_000,
+  },
   async headers() {
     return [
       {
@@ -31,6 +35,10 @@ const nextConfig: NextConfig = {
       {
         source: "/api/public/:path*",
         destination: `${apiBase}/api/public/:path*`,
+      },
+      {
+        source: "/api/sales/:path*",
+        destination: `${apiBase}/api/sales/:path*`,
       },
       {
         source: "/api/webhooks/stripe",

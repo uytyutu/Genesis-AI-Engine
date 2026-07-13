@@ -93,6 +93,21 @@ export type ArtifactFolder = {
   items: ArtifactFolderItem[];
 };
 
+export type ProjectJourneyItem = {
+  id: string;
+  label: string;
+  status: "pending" | "active" | "done";
+  value?: string;
+};
+
+export type ProjectJourney = {
+  items: ProjectJourneyItem[];
+  percent: number;
+  active_step_id: string | null;
+  status_label: string;
+  vector_now: string[];
+};
+
 export type CustomerProject = {
   project_id: string;
   workspace_id: string;
@@ -112,6 +127,7 @@ export type CustomerProject = {
   sections: ProjectSection[];
   timeline: TimelineEvent[];
   versions: ProjectVersion[];
+  journey?: ProjectJourney;
 };
 
 export type ProjectPlatformState = {
@@ -122,6 +138,24 @@ export type ProjectPlatformState = {
   project: CustomerProject | null;
   vector_hint: string;
 };
+
+export async function bootstrapProjectFromMessage(
+  message: string,
+  visitorId?: string,
+): Promise<ProjectPlatformState> {
+  const vid = visitorId ?? getVisitorId("public");
+  try {
+    const res = await fetch(`${API}/api/public/project/bootstrap`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitor_id: vid, message }),
+    });
+    if (!res.ok) throw new Error("bootstrap_failed");
+    return res.json();
+  } catch {
+    return fetchProjectPlatform(vid);
+  }
+}
 
 export async function fetchProjectPlatform(
   visitorId?: string
