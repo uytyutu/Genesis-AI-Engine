@@ -141,6 +141,7 @@ export function extractClaimFactsFromMessage(message: string): Partial<ProjectCl
 }
 
 export function claimProjectFromMessage(message: string): ProjectClaimDraft {
+  const text = (message || "").trim();
   const prev = readDraft();
   const facts = extractClaimFactsFromMessage(message);
   const companyName = facts.companyName ?? prev.companyName;

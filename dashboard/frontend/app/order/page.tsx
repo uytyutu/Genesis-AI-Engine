@@ -160,7 +160,10 @@ export default function OrderSitePage() {
     if (!manualPackage) setPackageId(suggestedId);
   }, [suggestedId, manualPackage]);
 
-  const formatPrice = (amount: number, pkg?: Package) =>
+  const formatPrice = (
+    amount: number,
+    pkg?: { currency?: string; price_label?: string }
+  ) =>
     pkg?.price_label ??
     formatLocalizedMoney(amount, pkg?.currency ?? commerce.currency);
 
