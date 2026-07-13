@@ -926,6 +926,22 @@ class AcquisitionPrepareResponse(BaseModel):
     message: str
 
 
+class AcquisitionGenerateDraftsRequest(BaseModel):
+    city: str
+    query: str
+    limit: int = 10
+    language: str = "de"
+    throttle_ms: int = 250
+
+
+class AcquisitionGenerateDraftsResponse(BaseModel):
+    ok: bool
+    created: int = 0
+    drafted: int = 0
+    skipped_has_site: int = 0
+    message: str = ""
+
+
 class AcquisitionApproveResponse(BaseModel):
     ok: bool
     opportunity: OpportunityRecord

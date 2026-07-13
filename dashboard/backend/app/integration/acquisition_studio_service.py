@@ -13,6 +13,7 @@ from typing import Any
 from app.integration.receipt_email_service import ReceiptEmailService
 from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.site_analysis_service import SiteAnalysisService
+from app.integration.google_places_service import GooglePlacesService
 
 
 # Services Genesis can offer today (dogfood-first — public catalog only when True).
@@ -101,6 +102,7 @@ class AcquisitionStudioService:
         self._sales = sales_service
         self._site = SiteAnalysisService()
         self._email = ReceiptEmailService()
+        self._places = GooglePlacesService()
 
     def studio_status(self) -> dict:
         rows = self._opportunity._load_rows()
@@ -155,6 +157,95 @@ class AcquisitionStudioService:
                 for s in self._opportunity.list_sources()
                 if not s.get("enabled") or not s.get("auto_search")
             ],
+        }
+
+    def generate_drafts_from_places(
+        self,
+        *,
+        city: str,
+        query: str,
+        limit: int = 10,
+        language: str = "de",
+        throttle_ms: int = 250,
+    ) -> dict:
+        """CEO-triggered vertical slice:
+        Places search → upsert opportunities (place_id) → draft outreach for leads w/o website.
+        """
+        if not self._places.configured():
+            raise ValueError("places_not_configured")
+        city = city.strip()
+        query = query.strip()
+        if not city or not query:
+            raise ValueError("invalid_query")
+        leads = self._places.search_text(
+            query=f"{query} {city}",
+            language=language,
+            region="de",
+            limit=limit,
+            throttle_ms=throttle_ms,
+        )
+
+        created = 0
+        drafted = 0
+        skipped_has_site = 0
+        rows = self._opportunity._load_rows()
+
+        # Index by place_id stored in meta.
+        by_place: dict[str, dict] = {}
+        for r in rows:
+            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            pid = str(meta.get("place_id") or "").strip()
+            if pid:
+                by_place[pid] = r
+
+        for lead in leads:
+            existing = by_place.get(lead.place_id)
+            row = existing or {
+                "id": "",  # normalized by OpportunityService on save
+                "source_id": "google_maps",
+                "opportunity_type": "lead",
+                "company_name": lead.name,
+                "contact": "",
+                "website_url": lead.website or "",
+                "fit_reason": "Google Places: нет сайта или слабый сайт",
+                "notes": "",
+                "meta": {},
+            }
+            row["company_name"] = lead.name or row.get("company_name") or ""
+            row["website_url"] = lead.website or row.get("website_url") or ""
+            row["meta"] = {**(row.get("meta") or {}), "place_id": lead.place_id, "address": lead.address, "types": lead.types}
+
+            if not existing:
+                created += 1
+                rows.append(row)
+                by_place[lead.place_id] = row
+
+            # Only draft if no website is present.
+            if str(row.get("website_url") or "").strip():
+                skipped_has_site += 1
+                continue
+
+            # Ensure row has an id (normalize) by saving once before prepare.
+            # We'll call opportunity_service.get() after save via prepare_opportunity.
+            self._opportunity._save_rows(rows)
+            # Reload normalized row id by place match
+            refreshed = None
+            for rr in self._opportunity._load_rows():
+                mm = rr.get("meta") if isinstance(rr.get("meta"), dict) else {}
+                if str(mm.get("place_id") or "").strip() == lead.place_id:
+                    refreshed = rr
+                    break
+            if not refreshed:
+                continue
+            self.prepare_opportunity(refreshed["id"], website_url=None)
+            drafted += 1
+
+        return {
+            "ok": True,
+            "created": created,
+            "drafted": drafted,
+            "skipped_has_site": skipped_has_site,
+            "results": [l.__dict__ for l in leads],
         }
 
     def prepare_opportunity(

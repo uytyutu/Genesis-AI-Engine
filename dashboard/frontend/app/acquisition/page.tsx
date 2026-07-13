@@ -63,6 +63,11 @@ export default function AcquisitionPage() {
   const [selected, setSelected] = useState<QueueItem | null>(null);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
+  const [lawfulConfirmed, setLawfulConfirmed] = useState(false);
+  const [lawfulNote, setLawfulNote] = useState("");
+  const [genCity, setGenCity] = useState("Pirna");
+  const [genQuery, setGenQuery] = useState("Autowerkstatt");
+  const [genLimit, setGenLimit] = useState(10);
 
   const refresh = useCallback(async () => {
     try {
@@ -94,11 +99,44 @@ export default function AcquisitionPage() {
     setBusy(id);
     setMessage("");
     try {
+      if (!lawfulConfirmed) {
+        setMessage("Перед Approve подтвердите законное основание контакта.");
+        return;
+      }
       const res = await fetch(`${API}/api/acquisition/opportunities/${id}/approve`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event: "lawful_basis", note: lawfulNote }),
       });
       const body = await res.json();
       setMessage(body.message ?? (res.ok ? "Одобрено" : "Ошибка"));
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function generateDrafts() {
+    setBusy("generate");
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/acquisition/generate-drafts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          city: genCity,
+          query: genQuery,
+          limit: genLimit,
+          language: "de",
+          throttle_ms: 300,
+        }),
+      });
+      const body = await res.json();
+      setMessage(
+        res.ok
+          ? `Готово: created=${body.created ?? 0}, drafted=${body.drafted ?? 0}, skipped_has_site=${body.skipped_has_site ?? 0}`
+          : body.detail ?? "Ошибка генерации"
+      );
       refresh();
     } finally {
       setBusy("");
@@ -197,6 +235,52 @@ export default function AcquisitionPage() {
         )}
 
         <section className="genesis-card p-5">
+          <h2 className="text-sm font-semibold">Generate drafts (Google Places → очередь)</h2>
+          <p className="mt-2 text-xs text-genesis-muted">
+            Автопоиск в фоне запрещён. Это ручной запуск CEO: найти лидов и подготовить черновики.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <label className="text-xs text-genesis-muted">
+              Город
+              <input
+                value={genCity}
+                onChange={(e) => setGenCity(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-genesis-border bg-genesis-bg px-3 py-2 text-sm text-white"
+              />
+            </label>
+            <label className="text-xs text-genesis-muted">
+              Запрос
+              <input
+                value={genQuery}
+                onChange={(e) => setGenQuery(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-genesis-border bg-genesis-bg px-3 py-2 text-sm text-white"
+              />
+            </label>
+            <label className="text-xs text-genesis-muted">
+              Лимит
+              <input
+                type="number"
+                min={1}
+                max={50}
+                value={genLimit}
+                onChange={(e) => setGenLimit(Number(e.target.value))}
+                className="mt-1 w-full rounded-lg border border-genesis-border bg-genesis-bg px-3 py-2 text-sm text-white"
+              />
+            </label>
+          </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={generateDrafts}
+              disabled={busy === "generate"}
+              className="rounded-lg bg-genesis-accent px-4 py-2 text-sm font-medium text-white shadow-glow hover:brightness-110 disabled:opacity-60"
+            >
+              {busy === "generate" ? "Генерируем…" : "Generate drafts"}
+            </button>
+          </div>
+        </section>
+
+        <section className="genesis-card p-5">
           <h2 className="text-sm font-semibold">Очередь Approve CEO</h2>
           {queue.length === 0 ? (
             <p className="mt-3 text-sm text-genesis-muted">
@@ -250,6 +334,26 @@ export default function AcquisitionPage() {
                     {selected.proposed_message}
                   </pre>
                   <div className="flex flex-wrap gap-2">
+                    <label className="flex w-full items-start gap-2 rounded-xl border border-genesis-border-subtle bg-white/[0.02] p-3 text-xs text-genesis-muted">
+                      <input
+                        type="checkbox"
+                        checked={lawfulConfirmed}
+                        onChange={(e) => setLawfulConfirmed(e.target.checked)}
+                        className="mt-0.5"
+                      />
+                      <span>
+                        I confirm I have a lawful basis to contact this business.
+                        <span className="block mt-2 opacity-80">
+                          Основание (кратко):
+                          <input
+                            value={lawfulNote}
+                            onChange={(e) => setLawfulNote(e.target.value)}
+                            placeholder="например: ручной выбор CEO, релевантное предложение, единичный контакт"
+                            className="mt-1 w-full rounded-lg border border-genesis-border bg-genesis-bg px-3 py-2 text-xs text-white"
+                          />
+                        </span>
+                      </span>
+                    </label>
                     <button
                       type="button"
                       onClick={() => approve(selected.id)}
