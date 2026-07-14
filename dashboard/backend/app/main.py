@@ -565,6 +565,16 @@ def farm_stop() -> dict:
     return _ctx().micro_farm.stop_swarm()
 
 
+@app.get("/api/farm/vault")
+def farm_vault() -> dict:
+    return _ctx().micro_farm.platform_vault_status()
+
+
+@app.get("/api/farm/prepare-live")
+def farm_prepare_live() -> dict:
+    return _ctx().micro_farm.prepare_live_mode()
+
+
 @app.get("/api/farm/forecast")
 def farm_forecast(labeling_nodes: int = 50, passive_nodes: int = 0) -> dict:
     return _ctx().micro_farm.revenue_forecast(

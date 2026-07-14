@@ -9,9 +9,12 @@ from pathlib import Path
 from typing import Any
 
 from swarm.adaptive_arbitrage import AdaptiveArbitrage
+from swarm.api_cost_optimizer import ApiCostOptimizer
 from swarm.cloud_dispatcher import CloudDispatcher
 from swarm.farm_learning import FarmLearningLedger
 from swarm.node_monitor import NodeMonitor
+from swarm.platform_vault import PlatformVault
+from swarm.self_healing import SelfHealingLoop
 from swarm.types import LabelTask
 
 _SIMPLE_ROUTER_TASK = "simple"
@@ -123,6 +126,9 @@ class PriorityManager:
         self.dispatcher = CloudDispatcher(env_getter=env_getter)
         self.nodes = NodeMonitor(self._memory, env_getter=env_getter)
         self.arbitrage = AdaptiveArbitrage()
+        self.vault = PlatformVault(env_getter=env_getter)
+        self.healing = SelfHealingLoop()
+        self.cost_optimizer = ApiCostOptimizer()
 
     def route_label_task(self, task: LabelTask) -> dict[str, Any]:
         complexity = estimate_complexity(
@@ -145,10 +151,23 @@ class PriorityManager:
         route["execution"] = self.dispatcher.resolve_execution(adapter_id=adapter_id, profitable=True)
         return route
 
-    def allocate_workers(self, total: int, combiner_ids: tuple[str, ...]) -> dict[str, int]:
+    def allocate_workers(
+        self,
+        total: int,
+        combiner_ids: tuple[str, ...],
+        *,
+        disabled_adapters: set[str] | None = None,
+    ) -> dict[str, int]:
         """Split batch slots by learned ROI when investor_mode is on."""
         total = max(1, int(total))
         order = self.learning.recommend_order(combiner_ids)
+        healing = self.healing.evaluate(
+            self.learning,
+            self.nodes,
+            disabled_adapters=disabled_adapters or set(),
+        )
+        disabled = set(healing.get("disabled_adapters") or [])
+        order = tuple(a for a in order if a not in disabled) or combiner_ids
         if not self.learning.ready():
             primary = combiner_ids[0] if combiner_ids else "ai_labeling"
             return {primary: total}
@@ -164,6 +183,14 @@ class PriorityManager:
                 remaining -= slots
             alloc[adapter_id] = alloc.get(adapter_id, 0) + max(0, slots)
         return alloc
+
+    def run_self_healing(self, *, disabled_adapters: set[str] | None = None, disabled_nodes: set[str] | None = None) -> dict[str, Any]:
+        return self.healing.evaluate(
+            self.learning,
+            self.nodes,
+            disabled_adapters=disabled_adapters,
+            disabled_nodes=disabled_nodes,
+        )
 
     def arbitrage_decision(self) -> dict[str, Any]:
         node_snap = self.nodes.snapshot()
@@ -182,4 +209,7 @@ class PriorityManager:
             "cloud_dispatcher": self.dispatcher.snapshot(),
             "node_monitor": self.nodes.snapshot(),
             "adaptive_arbitrage": self.arbitrage_decision(),
+            "platform_vault": self.vault.snapshot(),
+            "api_cost_optimizer": self.cost_optimizer.snapshot(router_task="simple"),
+            "self_healing": self.run_self_healing(),
         }

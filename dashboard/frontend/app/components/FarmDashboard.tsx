@@ -98,6 +98,12 @@ type FarmDash = {
     pay_per_task_eur: number;
     tasks_per_hour_est: number;
   };
+  prepare_live?: {
+    farm_mode: string;
+    live_ready: boolean;
+    checklist: { step: number; done: boolean; title: string }[];
+    next?: string;
+  };
 };
 
 const ADAPTER_LABELS: Record<string, string> = {
@@ -241,6 +247,20 @@ export function FarmDashboard() {
             <p className="mt-3 text-[11px] text-amber-200/60">
               Шаблон ключей: dashboard/backend/env.platforms.example → скопируй строки в .env.local
             </p>
+            {dash.prepare_live ? (
+              <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-950/20 p-3">
+                <p className="text-xs font-semibold text-emerald-100">
+                  Боевой режим: {dash.prepare_live.farm_mode === "live" ? "LIVE" : "dry_run"}
+                </p>
+                <ul className="mt-2 space-y-1 text-xs text-emerald-200/80">
+                  {dash.prepare_live.checklist.map((c) => (
+                    <li key={c.step}>
+                      {c.done ? "✓" : "○"} {c.title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </section>
         )}
 

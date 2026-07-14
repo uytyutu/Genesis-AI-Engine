@@ -44,6 +44,9 @@ _DEFAULT_STATE: dict[str, Any] = {
     "llm_cost_eur": 0.0,
     "active_adapter": "ai_labeling",
     "scale_ai_last": None,
+    "disabled_adapters": [],
+    "disabled_nodes": [],
+    "last_self_healing": None,
 }
 
 
@@ -129,6 +132,70 @@ class MicroFarmService:
         from swarm.priority_manager import PriorityManager
 
         return PriorityManager(self._memory)
+
+    def platform_vault_status(self) -> dict[str, Any]:
+        return self._priority_manager().vault.snapshot()
+
+    def prepare_live_mode(self) -> dict[str, Any]:
+        vault = self.platform_vault_status()
+        cloud = self._priority_manager().dispatcher.snapshot()
+        return {
+            "ok": True,
+            "live_ready": vault.get("live_ready"),
+            "farm_mode": vault.get("farm_mode"),
+            "checklist": [
+                {
+                    "step": 1,
+                    "done": any(p.get("configured") for p in vault.get("platforms", []) if p.get("env_var") == "SCALE_API_KEY"),
+                    "title": "Scale API ключ в .env.local",
+                },
+                {
+                    "step": 2,
+                    "done": any(
+                        p.get("configured")
+                        for p in vault.get("platforms", [])
+                        if p.get("env_var") in {"GENESIS_GROQ_API_KEY", "GROQ_API_KEY"}
+                    ),
+                    "title": "Groq ключ для разметки",
+                },
+                {
+                    "step": 3,
+                    "done": cloud.get("pool_configured") or cloud.get("execution_mode") == "local",
+                    "title": "VPS worker pool (remote) или local тест",
+                },
+                {
+                    "step": 4,
+                    "done": vault.get("farm_mode") == "live",
+                    "title": "FARM_LIVE_MODE=live + перезапуск Genesis.exe",
+                },
+            ],
+            "vault": vault,
+            "next": vault.get("go_live_note"),
+        }
+
+    def _apply_self_healing(self, state: dict[str, Any]) -> dict[str, Any]:
+        pm = self._priority_manager()
+        healing = pm.run_self_healing(
+            disabled_adapters=set(state.get("disabled_adapters") or []),
+            disabled_nodes=set(state.get("disabled_nodes") or []),
+        )
+        state["disabled_adapters"] = healing.get("disabled_adapters") or []
+        state["disabled_nodes"] = healing.get("disabled_nodes") or []
+        state["last_self_healing"] = healing
+        for action in healing.get("actions") or []:
+            self._log_event(
+                {
+                    "id": uuid.uuid4().hex[:12],
+                    "at": datetime.now(timezone.utc).isoformat(),
+                    "adapter": "self_healing",
+                    "pay_eur": 0.0,
+                    "target": action.get("target"),
+                    "detail": action.get("reason"),
+                    "ok": True,
+                    "action": action.get("action"),
+                }
+            )
+        return healing
 
     def _record_learning(
         self,
@@ -521,11 +588,16 @@ class MicroFarmService:
     def run_tick(self, *, workers: int | None = None) -> dict[str, Any]:
         state = self._load_state()
         self._reset_today_if_needed(state)
+        self._apply_self_healing(state)
         batch = workers or (state["workers_active"] if state["running"] else 10)
         batch = max(1, min(200, int(batch)))
         pm = self._priority_manager()
         combiner_ids = tuple(_ADAPTER_PAY_EUR.keys())
-        allocation = pm.allocate_workers(batch, combiner_ids)
+        allocation = pm.allocate_workers(
+            batch,
+            combiner_ids,
+            disabled_adapters=set(state.get("disabled_adapters") or []),
+        )
         labeling_workers = allocation.get("ai_labeling", batch)
 
         done = 0
@@ -640,7 +712,10 @@ class MicroFarmService:
             "text_classify": self._run_text_classify,
             "record_verify": self._run_record_verify,
         }
+        disabled = set(self._load_state().get("disabled_adapters") or [])
         for adapter_id, row in tasks:
+            if adapter_id in disabled:
+                continue
             runner = runners.get(adapter_id)
             if not runner:
                 continue
@@ -789,6 +864,8 @@ class MicroFarmService:
                 labeling_nodes=int(state.get("workers_target") or 10),
             ),
             "last_battle_test": state.get("last_battle_test"),
+            "platform_vault": self.platform_vault_status(),
+            "prepare_live": self.prepare_live_mode(),
             "recent_tasks": self._recent_events(15),
             "last_tick_at": state.get("last_tick_at"),
             "honesty_note": (
