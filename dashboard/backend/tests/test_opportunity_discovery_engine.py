@@ -4,6 +4,7 @@ from pathlib import Path
 
 from app.integration.opportunity_discovery_engine import (
     build_opportunity_discovery,
+    estimate_confidence,
     evaluate_opportunity,
     load_lost_reasons,
     prepare_commercial_proposal,
@@ -70,6 +71,19 @@ def test_prepare_proposal_ru():
     assert prep["ok"] is True
     assert "Коммерческое предложение" in prep["proposal_ru"]
     assert prep.get("win_probability_pct") is not None
+
+
+def test_confidence_low_without_data():
+    c = estimate_confidence({"conversations": 2, "won": 0, "lost": 0, "lost_reasons": 0})
+    assert c["confidence_pct"] < 35
+    assert len(c["confidence_reasons_ru"]) >= 2
+
+
+def test_build_includes_learning_timeline():
+    bundle = build_opportunity_discovery([_sample_row()])
+    assert "learning_timeline" in bundle
+    assert "confidence" in bundle
+    assert bundle["learning_timeline"]["stages"]
 
 
 def test_market_memory_penalty():

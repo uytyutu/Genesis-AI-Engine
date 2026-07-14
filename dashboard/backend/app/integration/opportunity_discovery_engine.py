@@ -384,11 +384,160 @@ def build_success_patterns(
     }
 
 
+_CONVERSATION_STATUSES = frozenset({"proposed", "contacted", "qualified", "replied", "won", "lost"})
+
+
+def _market_data_stats(
+    opportunities: list[dict[str, Any]],
+    *,
+    memory_dir: Path | None = None,
+) -> dict[str, int]:
+    won = sum(1 for r in opportunities if r.get("status") == "won")
+    lost = sum(1 for r in opportunities if r.get("status") == "lost")
+    conversations = sum(1 for r in opportunities if r.get("status") in _CONVERSATION_STATUSES)
+    lost_reasons = len(load_lost_reasons(memory_dir or _DEFAULT_MEMORY))
+    return {
+        "won": won,
+        "lost": lost,
+        "conversations": conversations,
+        "lost_reasons": lost_reasons,
+        "total_rows": len(opportunities),
+    }
+
+
+def estimate_confidence(stats: dict[str, int]) -> dict[str, Any]:
+    """Честная уверенность в оценке — растёт с реальными разговорами и сделками."""
+    conv = int(stats.get("conversations") or 0)
+    won = int(stats.get("won") or 0)
+    lost = int(stats.get("lost") or 0)
+    lost_reasons = int(stats.get("lost_reasons") or 0)
+
+    pct = 12
+    reasons: list[str] = []
+
+    pct += min(40, conv * 2)
+    pct += won * 10
+    pct += lost * 4
+    pct += min(20, lost_reasons * 3)
+
+    if conv < 10:
+        reasons.append(f"Пока только {conv} разговоров — мало данных с рынка")
+        reasons.append("Оценки основаны на публичном анализе сайтов, не на продажах")
+    elif conv < 50:
+        reasons.append(f"{conv} разговоров — уверенность растёт, но до 50 ещё далеко")
+    else:
+        reasons.append(f"{conv} разговоров — достаточная база для уверенных выводов")
+
+    if won == 0:
+        reasons.append("Нет побед в журнале — Win Probability пока гипотеза")
+    else:
+        reasons.append(f"{won} побед — модель опирается на реальный опыт")
+
+    if lost_reasons == 0:
+        reasons.append("База отказов пуста — отмечайте причины при «Клиент отказал»")
+    else:
+        reasons.append(f"{lost_reasons} записей в базе отказов — паттерны уточняются")
+
+    pct = max(8, min(91, pct))
+    honesty = (
+        "Думаю, шанс может быть высоким — но уверенность в оценке пока невысокая."
+        if pct < 35
+        else "Уверенность растёт вместе с вашими B2B-разговорами и сделками."
+    )
+
+    return {
+        "confidence_pct": pct,
+        "confidence_reasons_ru": reasons[:5],
+        "honesty_note_ru": honesty,
+        "truth_kind": "ESTIMATE",
+        "ceo_goal_ru": "Цель Mission 1: 10 реальных B2B-разговоров (не обязательно 10 продаж)",
+    }
+
+
+def build_learning_timeline(
+    opportunities: list[dict[str, Any]],
+    *,
+    memory_dir: Path | None = None,
+) -> dict[str, Any]:
+    stats = _market_data_stats(opportunities, memory_dir=memory_dir)
+    conv = stats["conversations"]
+    won = stats["won"]
+    lost_db = lost_reason_database(memory_dir)
+
+    milestones = [
+        (10, "Первые 10 клиентов", "Разговоры, первые отказы, черновики КП"),
+        (50, "Первые 50", "Устойчивые паттерны цены и причин отказов"),
+        (200, "Первые 200", "Предсказуемый Win Probability и Confidence ≥80%"),
+    ]
+
+    stages: list[dict[str, Any]] = []
+    for target, title, desc in milestones:
+        if conv >= target:
+            status = "done"
+            if target == 10:
+                insight = f"Достигнуто: {conv} разговоров · {won} побед · {lost_db['total']} отказов с причинами"
+            elif target == 50:
+                insight = f"База: {conv} разговоров — Success Patterns стабильны"
+            else:
+                insight = "Долгосрочная зрелость — система учится на рынке"
+        elif conv >= max(0, target - 10):
+            status = "current"
+            insight = f"Сейчас {conv}/{target} — каждый разговор повышает Confidence"
+        else:
+            status = "pending"
+            insight = desc
+
+        stages.append(
+            {
+                "milestone": target,
+                "title_ru": title,
+                "status": status,
+                "conversations_now": conv,
+                "insight_ru": insight,
+            }
+        )
+
+    return {
+        "title_ru": "Линия обучения",
+        "hint_ru": "Ценность растёт от реальных сделок, не от новых модулей.",
+        "current_conversations": conv,
+        "stages": stages,
+    }
+
+
+def _lifetime_value(memory: dict[str, Any], row: dict[str, Any]) -> dict[str, Any] | None:
+    prior_won = int(memory.get("prior_won") or 0)
+    if prior_won <= 0:
+        return None
+
+    repeat_pct = min(88, 58 + prior_won * 12)
+    meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+    won_at = str(meta.get("won_at") or row.get("updated_at") or "")[:10]
+
+    return {
+        "is_returning_client": True,
+        "prior_won_count": prior_won,
+        "repeat_sale_probability_pct": repeat_pct,
+        "repeat_reasons_ru": [
+            "Клиент уже покупал — доверие выше холодного оффера",
+            "Знаем формат работы и ожидания",
+            "Можно предложить смежную услугу из каталога",
+        ],
+        "contact_reminder_ru": (
+            f"Связаться снова через 6 мес после сделки ({won_at})"
+            if won_at
+            else "Связаться снова через 6 мес после первой сделки"
+        ),
+        "truth_kind": "HYPOTHESIS",
+    }
+
+
 def evaluate_opportunity(
     row: dict[str, Any],
     *,
     all_rows: list[dict[str, Any]] | None = None,
     workers: int = 10,
+    confidence: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     legal = _legal_gate(row)
     memory = _market_memory(all_rows or [], row)
@@ -409,6 +558,8 @@ def evaluate_opportunity(
         service_id=svc_id,
     )
     score = _opportunity_score(legal["legal"], int(memory.get("score_penalty") or 0), issue_count, win_pct)
+    conf = confidence or {"confidence_pct": 18, "confidence_reasons_ru": ["Мало данных"], "honesty_note_ru": ""}
+    ltv = _lifetime_value(memory, row)
 
     primary_problem = issues[0][:80] if issues else svc_label
 
@@ -426,10 +577,14 @@ def evaluate_opportunity(
         "opportunity_score_pct": score,
         "win_probability_pct": win_pct,
         "win_probability_reasons_ru": win_reasons,
+        "confidence_pct": int(conf.get("confidence_pct") or 18),
+        "confidence_reasons_ru": conf.get("confidence_reasons_ru") or [],
+        "confidence_note_ru": conf.get("honesty_note_ru") or "",
         "sell_price_eur": float(quote.get("sell_price_eur") or 0) if quote and quote.get("ok") else 0,
         "duration_label_ru": quote.get("duration_label_ru") if quote else None,
         "margin_pct": float(quote.get("margin_pct") or 0) if quote and quote.get("ok") else 0,
         "market_memory": memory,
+        "lifetime_value": ltv,
         "proposal_ready": bool(legal["legal"] and quote and quote.get("ok") and win_pct >= 35),
         "truth_kind": "ESTIMATE",
         "business_monitor_ru": {
@@ -466,12 +621,19 @@ def build_opportunity_discovery(
     mem = memory_dir or _DEFAULT_MEMORY
     state = farm_state or {}
     labels = int(state.get("labels_export_count") or 0)
+    data_stats = _market_data_stats(opportunities, memory_dir=mem)
+    confidence = estimate_confidence(data_stats)
 
     evaluated: list[dict[str, Any]] = []
     for row in opportunities:
         if row.get("status") in ("won", "lost"):
             continue
-        ev = evaluate_opportunity(row, all_rows=opportunities, workers=workers)
+        ev = evaluate_opportunity(
+            row,
+            all_rows=opportunities,
+            workers=workers,
+            confidence=confidence,
+        )
         if ev["legal_gate"]["legal"] or ev["problems_count"] > 0:
             evaluated.append(ev)
 
@@ -490,15 +652,18 @@ def build_opportunity_discovery(
         "methods": _METHODS_RU,
         "cto_warning_ru": _CTO_WARNING_RU,
         "ceo_hints_ru": [
+            "Цель: 10 реальных B2B-разговоров — не обязательно 10 продаж",
             "1. Запустите ферму (feed) — Spider найдёт компании с проблемами",
-            "2. Смотрите Win Probability и «почему именно N%»",
+            "2. Смотрите Score + Win% + Confidence — честная тройка оценки",
             "3. «Подготовить предложение» — черновик КП, вы отправляете сами",
             "4. При отказе — укажите причину (база учится)",
-            "5. Паттерны успеха обновляются после каждой сделки",
         ],
+        "confidence": confidence,
+        "learning_timeline": build_learning_timeline(opportunities, memory_dir=mem),
         "stats": {
             "scanned": len(opportunities),
             "evaluated": len(evaluated),
+            "conversations": data_stats["conversations"],
             "high_win_probability": sum(1 for e in evaluated if int(e.get("win_probability_pct") or 0) >= 55),
             "pipeline_value_eur": pipeline_value,
             "labels_export_count": labels,

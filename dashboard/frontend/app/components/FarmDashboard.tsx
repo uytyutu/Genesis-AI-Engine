@@ -329,15 +329,34 @@ type FarmDash = {
       opportunity_id: string;
       company_name: string;
       primary_problem_ru?: string;
+      opportunity_score_pct?: number;
       win_probability_pct: number;
+      confidence_pct?: number;
+      confidence_reasons_ru?: string[];
       win_probability_reasons_ru?: string[];
       problems_count: number;
       sell_price_eur: number;
       duration_label_ru?: string;
       service_label_ru?: string;
       proposal_ready?: boolean;
+      lifetime_value?: {
+        repeat_sale_probability_pct?: number;
+        contact_reminder_ru?: string;
+      } | null;
       market_memory?: { prior_lost?: number; last_lost_reason_ru?: string | null };
     }[];
+    confidence?: {
+      confidence_pct: number;
+      confidence_reasons_ru: string[];
+      honesty_note_ru: string;
+      ceo_goal_ru?: string;
+    };
+    learning_timeline?: {
+      title_ru: string;
+      hint_ru: string;
+      current_conversations: number;
+      stages: { milestone: number; title_ru: string; status: string; insight_ru: string }[];
+    };
     lost_reason_database?: {
       title_ru: string;
       hint_ru: string;
@@ -816,6 +835,51 @@ export function FarmDashboard() {
               </div>
             ) : null}
 
+            {dash.opportunity_discovery.confidence ? (
+              <div className="rounded-lg border border-violet-500/30 bg-violet-950/15 p-3 text-xs">
+                <p className="font-semibold text-violet-100">
+                  Уверенность в оценке: {dash.opportunity_discovery.confidence.confidence_pct}%
+                </p>
+                <p className="mt-1 text-white/80">{dash.opportunity_discovery.confidence.honesty_note_ru}</p>
+                {dash.opportunity_discovery.confidence.ceo_goal_ru ? (
+                  <p className="mt-2 font-medium text-emerald-200">
+                    {dash.opportunity_discovery.confidence.ceo_goal_ru}
+                  </p>
+                ) : null}
+                <ul className="mt-2 list-disc space-y-0.5 pl-4 text-white/75">
+                  {dash.opportunity_discovery.confidence.confidence_reasons_ru.map((r) => (
+                    <li key={r}>{r}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {dash.opportunity_discovery.learning_timeline ? (
+              <div className="rounded-lg border border-sky-500/25 bg-sky-950/15 p-3 text-xs">
+                <p className="font-semibold text-sky-100">{dash.opportunity_discovery.learning_timeline.title_ru}</p>
+                <p className="mt-1 text-genesis-muted">{dash.opportunity_discovery.learning_timeline.hint_ru}</p>
+                <ul className="mt-2 space-y-2">
+                  {dash.opportunity_discovery.learning_timeline.stages.map((s) => (
+                    <li key={s.milestone} className="flex flex-wrap gap-2 text-white/85">
+                      <span
+                        className={
+                          s.status === "done"
+                            ? "text-emerald-300"
+                            : s.status === "current"
+                              ? "text-amber-200"
+                              : "text-white/50"
+                        }
+                      >
+                        {s.status === "done" ? "✓" : s.status === "current" ? "→" : "○"}
+                      </span>
+                      <strong>{s.title_ru}</strong>
+                      <span className="text-genesis-muted">{s.insight_ru}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             {dash.opportunity_discovery.success_patterns ? (
               <div className="rounded-lg border border-emerald-500/25 bg-emerald-950/15 p-3 text-xs">
                 <p className="font-semibold text-emerald-200">{dash.opportunity_discovery.success_patterns.title_ru}</p>
@@ -841,15 +905,34 @@ export function FarmDashboard() {
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="font-semibold text-white">{opp.company_name}</p>
-                      <span className="rounded-full bg-violet-900/60 px-2 py-0.5 font-bold text-violet-100">
-                        Win {opp.win_probability_pct}%
-                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        <span className="rounded-full bg-amber-900/50 px-2 py-0.5 text-amber-100">
+                          Score {opp.opportunity_score_pct ?? "—"}
+                        </span>
+                        <span className="rounded-full bg-violet-900/60 px-2 py-0.5 font-bold text-violet-100">
+                          Win {opp.win_probability_pct}%
+                        </span>
+                        <span className="rounded-full bg-sky-900/50 px-2 py-0.5 text-sky-100">
+                          Conf {opp.confidence_pct ?? "?"}%
+                        </span>
+                      </div>
                     </div>
                     <p className="mt-1 text-white/80">
                       Проблема: {opp.primary_problem_ru ?? opp.service_label_ru} · Стоимость:{" "}
                       <strong className="text-emerald-200">{formatEur(opp.sell_price_eur)}</strong>
                       {opp.duration_label_ru ? ` · Срок: ${opp.duration_label_ru}` : ""}
                     </p>
+                    {opp.confidence_reasons_ru?.length ? (
+                      <p className="mt-1 text-[10px] text-sky-200/70">
+                        Confidence {opp.confidence_pct}%: {opp.confidence_reasons_ru[0]}
+                      </p>
+                    ) : null}
+                    {opp.lifetime_value?.repeat_sale_probability_pct ? (
+                      <p className="mt-1 text-emerald-200/90">
+                        Повторная продажа: {opp.lifetime_value.repeat_sale_probability_pct}% ·{" "}
+                        {opp.lifetime_value.contact_reminder_ru}
+                      </p>
+                    ) : null}
                     {opp.win_probability_reasons_ru?.length ? (
                       <div className="mt-2 rounded border border-white/5 bg-black/30 p-2">
                         <p className="font-medium text-amber-200">Почему именно {opp.win_probability_pct}%</p>
