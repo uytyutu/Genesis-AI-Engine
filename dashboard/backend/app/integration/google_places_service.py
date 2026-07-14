@@ -11,9 +11,49 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import httpx
+
+_SETUP_STEPS = [
+    {
+        "step": 1,
+        "title": "Google Cloud Console",
+        "detail": (
+            "console.cloud.google.com → новый проект (Genesis-Engine) → "
+            "APIs & Services → Library → Places API → Enable."
+        ),
+        "url": "https://console.cloud.google.com/apis/library/places-backend.googleapis.com",
+    },
+    {
+        "step": 2,
+        "title": "Создать API Key",
+        "detail": "APIs & Services → Credentials → Create Credentials → API Key → скопировать ключ.",
+        "url": "https://console.cloud.google.com/apis/credentials",
+    },
+    {
+        "step": 3,
+        "title": "Вставить в Genesis",
+        "detail": (
+            "Файл dashboard/backend/.env.local — строка "
+            "GOOGLE_PLACES_API_KEY=ваш_ключ (без кавычек)."
+        ),
+    },
+    {
+        "step": 4,
+        "title": "Перезапустить Genesis.exe",
+        "detail": "Остановить → Запустить снова, чтобы backend подхватил ключ.",
+    },
+    {
+        "step": 5,
+        "title": "Запустить автопилот",
+        "detail": (
+            "Engine → Локальные услуги → город (Berlin, Hamburg…) → "
+            "«Поиск целей» или «DE · до 1000 URL»."
+        ),
+    },
+]
 
 
 @dataclass
@@ -31,6 +71,44 @@ class GooglePlacesService:
 
     def configured(self) -> bool:
         return bool(self._api_key)
+
+    def setup_status(self) -> dict[str, Any]:
+        """CEO onboarding — where to put GOOGLE_PLACES_API_KEY for Germany autopilot."""
+        backend_dir = Path(__file__).resolve().parents[2]
+        repo_root = backend_dir.parent.parent
+        config_paths = [
+            backend_dir / ".env.local",
+            backend_dir / ".env",
+            backend_dir.parent / ".env",
+        ]
+        existing_files = [
+            str(p.relative_to(repo_root)).replace("\\", "/")
+            for p in config_paths
+            if p.is_file()
+        ]
+        configured = self.configured()
+        return {
+            "configured": configured,
+            "autopilot_ready": configured,
+            "env_var": "GOOGLE_PLACES_API_KEY",
+            "primary_config_file": "dashboard/backend/.env.local",
+            "config_files_found": existing_files,
+            "setup_steps": _SETUP_STEPS,
+            "free_tier_note": (
+                "Google Places даёт бесплатный месячный лимит — для старта в Германии "
+                "вы не выйдете за пределы free tier при обычном CEO-пути."
+            ),
+            "security_note": (
+                "В Google Cloud → Credentials → API Key → Application restrictions: "
+                "IP addresses (ваш IP или 127.0.0.1 для локального Genesis)."
+            ),
+            "usage": {
+                "scan_mode": "Локальные услуги + город → Поиск целей",
+                "network_scan": "DE · до 1000 URL — массовый обход городов Германии",
+                "global_spider": "Дополняет seed URL; Places усиливает охват",
+            },
+            "status_label": "Автопилот готов" if configured else "Нужен GOOGLE_PLACES_API_KEY",
+        }
 
     def search_text(
         self,

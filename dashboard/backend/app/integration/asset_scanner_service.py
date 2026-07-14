@@ -14,6 +14,7 @@ from typing import Any
 
 from app.integration.opportunity_service import OpportunityService
 from app.integration.site_analysis_service import SiteAnalysisService
+from app.integration.stealth_crawl_service import stealth_status
 
 # Taboo — reject before any network call
 _FORBIDDEN_URL_PATTERNS = re.compile(
@@ -161,12 +162,16 @@ class AssetScannerService:
             "security_law": (
                 "Только публичные URL. Запрещены ключи, пароли, закрытые системы и приватные хранилища."
             ),
+            "stealth_mode": stealth_status(),
         }
 
     def scan_url(self, url: str, *, niche: str = "local_service") -> dict:
         assert_public_scan_allowed(url)
         analysis = self._analyzer.analyze(url)
         if analysis.get("error"):
+            err = str(analysis.get("error"))
+            if err in ("robots_txt_disallowed", "forbidden_target", "write_method_forbidden", "Unauthorized Operation"):
+                raise ValueError(err)
             raise ValueError("fetch_failed")
 
         html_note = " ".join(analysis.get("issues") or [])

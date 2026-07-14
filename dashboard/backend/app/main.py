@@ -542,6 +542,20 @@ def engine_global_spider_scan(request: EngineGlobalSpiderScanRequest) -> dict:
     )
 
 
+@app.get("/api/engine/stealth-mode")
+def engine_stealth_mode() -> dict:
+    from app.integration.stealth_http import stealth_status
+
+    return stealth_status()
+
+
+@app.get("/api/engine/places-setup")
+def engine_places_setup() -> dict:
+    from app.integration.google_places_service import GooglePlacesService
+
+    return GooglePlacesService().setup_status()
+
+
 @app.get("/api/engine/analytics/live")
 def engine_analytics_live() -> dict:
     return _ctx().monetization_engine.live_analytics()
@@ -577,6 +591,10 @@ def engine_scan(request: EngineScanRequest) -> EngineScanResponse:
         code = str(e)
         if code == "forbidden_target":
             raise HTTPException(status_code=403, detail="Запрещённая цель — только публичные URL")
+        if code == "robots_txt_disallowed":
+            raise HTTPException(status_code=403, detail="robots.txt запрещает доступ — Genesis проходит мимо")
+        if code == "Unauthorized Operation":
+            raise HTTPException(status_code=403, detail="Unauthorized Operation — Stealth Force-Read-Only")
         if code in ("url_required", "public_http_only"):
             raise HTTPException(status_code=400, detail="Укажите публичный http(s) URL")
         if code == "fetch_failed":
@@ -775,6 +793,10 @@ def asset_scanner_scan(request: AssetScanRequest) -> AssetScanResponse:
                 status_code=403,
                 detail="Запрещено: только публичные URL без ключей и закрытых систем.",
             )
+        if code == "robots_txt_disallowed":
+            raise HTTPException(status_code=403, detail="robots.txt запрещает доступ — Genesis проходит мимо")
+        if code == "Unauthorized Operation":
+            raise HTTPException(status_code=403, detail="Unauthorized Operation — Stealth Force-Read-Only")
         if code in ("url_required", "public_http_only"):
             raise HTTPException(status_code=400, detail="Укажите публичный http(s) URL")
         if code == "fetch_failed":
@@ -797,6 +819,10 @@ def asset_analyze_target(opportunity_id: str) -> AssetActionResponse:
             raise HTTPException(status_code=404, detail="Цель не найдена")
         if code == "forbidden_target":
             raise HTTPException(status_code=403, detail="Запрещённая цель")
+        if code == "robots_txt_disallowed":
+            raise HTTPException(status_code=403, detail="robots.txt запрещает доступ — Genesis проходит мимо")
+        if code == "Unauthorized Operation":
+            raise HTTPException(status_code=403, detail="Unauthorized Operation — Stealth Force-Read-Only")
         raise HTTPException(status_code=400, detail="Анализ не выполнен")
     return AssetActionResponse(
         ok=True,

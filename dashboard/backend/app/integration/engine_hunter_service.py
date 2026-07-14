@@ -103,10 +103,10 @@ class EngineHunterService:
         }
         if self._factory and issues:
             try:
-                desc = f"Landing refresh for {company}: " + "; ".join(issues[:2])
-                built = self._factory.build_landing(desc[:500])
+                built = self._factory.build_landing_from_opportunity(row)
                 draft["factory_product_id"] = built.get("product_id")
                 draft["preview_url"] = built.get("preview_url")
+                draft["factory_note"] = "Landing aus Stealth-Scan Issues"
             except Exception:
                 draft["factory_note"] = "Factory preview deferred"
         return draft

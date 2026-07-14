@@ -1,32 +1,61 @@
 """Lightweight website analysis for Business Acquisition Studio.
 
-No external APIs — fetches HTML and checks honest heuristics only.
+Stealth Mode: robots.txt, rate limit, browser UA, read-only GET.
 """
 
 from __future__ import annotations
 
 import re
-from urllib.parse import urlparse
 
-import httpx
+from app.integration.stealth_crawl_service import stealth_fetch_get, stealth_preflight
+from app.integration.stealth_http import UnauthorizedOperation
+
+
+def _stealth_issue_message(err: str) -> list[str]:
+    if err == "Unauthorized Operation":
+        return ["Unauthorized Operation — только GET/HEAD разрешены"]
+    if err == "robots_txt_disallowed":
+        return ["robots.txt запрещает доступ — Genesis проходит мимо"]
+    if err == "forbidden_target":
+        return ["Закрытый раздел (admin/login) — только публичные страницы"]
+    return ["Сканирование пропущено — Stealth Mode"]
 
 
 class SiteAnalysisService:
-    _USER_AGENT = "Genesis-AcquisitionStudio/1.5 (+https://genesis-ai-engine.com)"
-
     def analyze(self, url: str) -> dict:
         normalized = self._normalize_url(url)
         if not normalized:
             return self._empty_result(url, error="invalid_url")
 
         try:
-            with httpx.Client(
-                timeout=12.0,
-                follow_redirects=True,
-                headers={"User-Agent": self._USER_AGENT},
-            ) as client:
-                started = client.get(normalized)
-        except httpx.HTTPError as exc:
+            started = stealth_fetch_get(normalized)
+            gate = stealth_preflight(normalized, skip_throttle=True)
+        except ValueError as exc:
+            err = str(exc)
+            gate = stealth_preflight(normalized, skip_throttle=True)
+            return {
+                **self._empty_result(normalized, error=err),
+                "issues": _stealth_issue_message(err),
+                "stealth": {
+                    "mode": "stealth",
+                    "robots_checked": gate.robots_checked,
+                    "robots_allowed": gate.robots_allowed,
+                    "read_only": True,
+                },
+            }
+        except UnauthorizedOperation:
+            gate = stealth_preflight(normalized, skip_throttle=True)
+            return {
+                **self._empty_result(normalized, error="Unauthorized Operation"),
+                "issues": ["Unauthorized Operation — Stealth Force-Read-Only"],
+                "stealth": {
+                    "mode": "stealth",
+                    "robots_checked": gate.robots_checked,
+                    "robots_allowed": gate.robots_allowed,
+                    "read_only": False,
+                },
+            }
+        except Exception as exc:
             return self._empty_result(normalized, error=f"fetch_failed:{type(exc).__name__}")
 
         html = started.text or ""
@@ -114,6 +143,12 @@ class SiteAnalysisService:
                 __import__("datetime").timezone.utc
             ).isoformat(),
             "error": None,
+            "stealth": {
+                "mode": "stealth",
+                "robots_checked": gate.robots_checked,
+                "robots_allowed": gate.robots_allowed,
+                "read_only": True,
+            },
         }
 
     def _normalize_url(self, url: str) -> str:

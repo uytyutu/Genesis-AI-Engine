@@ -1024,6 +1024,8 @@ class EngineDashboard(BaseModel):
     pattern_hits_total: int = 0
     hunter: dict = {}
     global_spider: dict = {}
+    places_autopilot: dict = {}
+    stealth_mode: dict = {}
     smart_gate: dict = {}
     digital_dust: dict = {}
     finance_gateway: dict = {}
@@ -1033,7 +1035,7 @@ class EngineDashboard(BaseModel):
 
 class EngineScanModeRequest(BaseModel):
     niche: str = "local_service"
-    city: str = "Pirna"
+    city: str = "Berlin"
     limit: int = 8
 
 

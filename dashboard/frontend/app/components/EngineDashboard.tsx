@@ -111,6 +111,26 @@ type EngineDash = {
     places_configured: boolean;
     note: string;
   };
+  places_autopilot?: {
+    configured: boolean;
+    autopilot_ready: boolean;
+    env_var: string;
+    primary_config_file: string;
+    config_files_found: string[];
+    setup_steps: { step: number; title: string; detail: string; url?: string }[];
+    free_tier_note: string;
+    security_note: string;
+    usage: Record<string, string>;
+    status_label: string;
+  };
+  stealth_mode?: {
+    enabled: boolean;
+    mode: string;
+    min_interval_sec: number;
+    robots_txt_required: boolean;
+    read_only: boolean;
+    legal_note: string;
+  };
   smart_gate?: {
     max_risk_score: number;
     min_expected_margin_eur: number;
@@ -152,11 +172,12 @@ export function EngineDashboard() {
   const [connectWallet, setConnectWallet] = useState("stripe");
   const [connectLabel, setConnectLabel] = useState("");
   const [scanNiche, setScanNiche] = useState("local_service");
-  const [scanCity, setScanCity] = useState("Pirna");
+  const [scanCity, setScanCity] = useState("Berlin");
   const [activateOpen, setActivateOpen] = useState(false);
   const [activatePhrase, setActivatePhrase] = useState("");
 
   const isSandbox = dash?.system_mode !== "live";
+  const placesReady = dash?.places_autopilot?.autopilot_ready ?? dash?.global_spider?.places_configured ?? false;
 
   const refresh = useCallback(async () => {
     try {
@@ -354,6 +375,12 @@ export function EngineDashboard() {
           {dash?.security_law ? (
             <p className="mt-3 rounded-xl border border-rose-500/30 bg-rose-950/25 px-3 py-2 text-[11px] text-rose-100">
               🔒 {dash.security_law}
+            </p>
+          ) : null}
+          {dash?.stealth_mode?.enabled ? (
+            <p className="mt-2 rounded-xl border border-slate-500/30 bg-slate-950/30 px-3 py-2 text-[11px] text-slate-200">
+              👻 Stealth Mode · robots.txt · 1 запрос / {dash.stealth_mode.min_interval_sec}s на домен · read-only GET ·{" "}
+              {dash.stealth_mode.legal_note}
             </p>
           ) : null}
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -585,9 +612,10 @@ export function EngineDashboard() {
             <div className="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
-                disabled={busy === "network"}
+                disabled={busy === "network" || !placesReady}
                 onClick={() => void runNetworkScan()}
                 className="rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+                title={placesReady ? undefined : "Нужен GOOGLE_PLACES_API_KEY в dashboard/backend/.env.local"}
               >
                 {busy === "network" ? "Сканирую Германию…" : "🇩🇪 DE · до 1000 URL"}
               </button>
@@ -626,11 +654,68 @@ export function EngineDashboard() {
 
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <div className="space-y-6">
+            {dash?.places_autopilot && !placesReady ? (
+              <section id="places-setup" className="genesis-card border-amber-500/30 bg-amber-950/20 p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-sm font-semibold text-amber-100">Откройте «глаза» автопилоту</h2>
+                    <p className="mt-1 text-xs text-amber-200/80">
+                      Без ключа Genesis не найдёт компании в Google Maps. Это последняя настройка перед автономным поиском.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-amber-500/20 px-3 py-1 text-[10px] font-medium text-amber-200">
+                    Places API OFF
+                  </span>
+                </div>
+                <ol className="mt-4 space-y-3 text-xs text-amber-100/90">
+                  {dash.places_autopilot.setup_steps.map((s) => (
+                    <li key={s.step} className="flex gap-3">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-[11px] font-bold">
+                        {s.step}
+                      </span>
+                      <div>
+                        <p className="font-semibold">{s.title}</p>
+                        <p className="mt-0.5 text-amber-200/70">{s.detail}</p>
+                        {s.url ? (
+                          <a
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 inline-block text-amber-300 underline"
+                          >
+                            Открыть в Google Cloud →
+                          </a>
+                        ) : null}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                <div className="mt-4 rounded-xl border border-amber-500/20 bg-black/20 px-4 py-3 font-mono text-[11px] text-amber-100">
+                  <p className="text-amber-200/60">Файл:</p>
+                  <p className="mt-1">{dash.places_autopilot.primary_config_file}</p>
+                  <p className="mt-2 text-amber-200/60">Строка:</p>
+                  <p className="mt-1">{dash.places_autopilot.env_var}=ваш_ключ_из_Google</p>
+                </div>
+                <p className="mt-3 text-[10px] leading-relaxed text-amber-200/60">
+                  {dash.places_autopilot.free_tier_note} {dash.places_autopilot.security_note}
+                </p>
+              </section>
+            ) : null}
+
+            {dash?.places_autopilot?.autopilot_ready ? (
+              <p className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 px-4 py-2 text-xs text-emerald-200">
+                ✔ {dash.places_autopilot.status_label} — «Локальные услуги» + город → «Поиск целей» или «DE · до 1000 URL»
+              </p>
+            ) : null}
+
             <section id="scan-mode" className="genesis-card p-5">
               <h2 className="text-sm font-semibold">Поиск целей (автопилот)</h2>
               <p className="mt-1 text-xs text-genesis-muted">
-                Команда движку: найти заброшенные сайты по нише и городу. Google Places — если задан{" "}
-                <code>GOOGLE_PLACES_API_KEY</code>.
+                Локальные услуги + город в Германии. Google Places:{" "}
+                <strong className={placesReady ? "text-emerald-400" : "text-amber-400"}>
+                  {placesReady ? "ON" : "OFF — см. инструкцию выше"}
+                </strong>
+                .
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <select
@@ -647,8 +732,8 @@ export function EngineDashboard() {
                 <input
                   value={scanCity}
                   onChange={(e) => setScanCity(e.target.value)}
-                  placeholder="Город"
-                  className="w-36 rounded-xl border border-genesis-border bg-genesis-bg px-3 py-2 text-sm"
+                  placeholder="Berlin, Hamburg, München…"
+                  className="w-44 rounded-xl border border-genesis-border bg-genesis-bg px-3 py-2 text-sm"
                 />
                 <button
                   type="button"

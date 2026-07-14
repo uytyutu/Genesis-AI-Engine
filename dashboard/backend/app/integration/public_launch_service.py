@@ -5,10 +5,9 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from urllib.error import URLError
-from urllib.request import Request, urlopen
 
 from app.integration.payment_checkout_service import PaymentCheckoutService
+from app.integration.stealth_http import external_get, requires_stealth_policy
 
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
@@ -40,10 +39,16 @@ class PublicLaunchService:
 
     def _probe(self, url: str, timeout: float = 5.0) -> bool:
         try:
+            if requires_stealth_policy(url):
+                response = external_get(url, timeout=timeout)
+                return response.status_code < 500
+            from urllib.error import URLError
+            from urllib.request import Request, urlopen
+
             req = Request(url, headers={"User-Agent": "GenesisPublicLaunch/1.0"})
             with urlopen(req, timeout=timeout) as response:
                 return response.status < 500
-        except (URLError, OSError, TimeoutError):
+        except Exception:
             return False
 
     def _row(

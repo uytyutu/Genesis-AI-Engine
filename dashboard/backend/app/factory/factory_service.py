@@ -82,6 +82,28 @@ class FactoryService:
         )
         return self._product_summary(meta)
 
+    def build_landing_from_opportunity(self, opportunity: dict) -> dict:
+        """Factory landing grounded in Engine stealth scan — repair offer, not generic fluff."""
+        analysis = opportunity.get("site_analysis") if isinstance(opportunity.get("site_analysis"), dict) else {}
+        meta = opportunity.get("meta") if isinstance(opportunity.get("meta"), dict) else {}
+        company = str(opportunity.get("company_name") or analysis.get("title") or "Business").strip()
+        issues = [str(i) for i in (analysis.get("issues") or []) if str(i).strip()]
+        strengths = [str(s) for s in (analysis.get("strengths") or [])[:2]]
+        niche = str(meta.get("niche") or "local_service")
+        url = str(opportunity.get("website_url") or analysis.get("url") or "")
+
+        issue_line = "; ".join(issues[:4]) if issues else "veralteter Web-Auftritt"
+        strength_line = "; ".join(strengths) if strengths else ""
+        description = (
+            f"{company}. Website: {url}. Nische: {niche}. "
+            f"Gefundene Probleme (Stealth-Scan): {issue_line}."
+        )
+        if strength_line:
+            description += f" Stärken: {strength_line}."
+        description += " Ziel: professioneller Fix-Landing — Hilfe, kein Spam."
+
+        return self.build_landing(description[:900])
+
     def improve(self, product_id: str, feedback: str) -> dict:
         meta = self._load_meta(product_id)
         if not meta:

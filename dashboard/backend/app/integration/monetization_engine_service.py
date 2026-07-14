@@ -22,6 +22,7 @@ from app.integration.public_intel_miner import PublicIntelMiner
 from app.integration.engine_hunter_service import EngineHunterService
 from app.integration.global_spider_service import GlobalSpiderService
 from app.integration.smart_gate_approval import SmartGateApprovalService
+from app.integration.stealth_http import stealth_status
 from app.integration.digital_dust_service import DigitalDustService
 from app.integration.engine_analytics_service import EngineAnalyticsService
 
@@ -586,6 +587,7 @@ class MonetizationEngineService:
             "security_law": (
                 "Только публичные активы. Запрещены ключи, пароли и закрытые системы."
             ),
+            "stealth_mode": stealth_status(),
             "harvest_balance_eur": display_harvest,
             "lifetime_harvest_eur": harvest.get("lifetime_harvest_eur", 0.0),
             "pipeline_potential_eur": harvest.get("pipeline_potential_eur", 0.0),
@@ -609,6 +611,7 @@ class MonetizationEngineService:
             "pattern_hits_total": int(harvest.get("pattern_hits_total") or 0),
             "hunter": self._hunter.hunter_dashboard(),
             "global_spider": self._global_spider.spider_dashboard(),
+            "places_autopilot": self._places.setup_status(),
             "smart_gate": self._smart_gate.dashboard(),
             "digital_dust": self._digital_dust.dashboard(),
             "finance_gateway": {
@@ -809,7 +812,7 @@ class MonetizationEngineService:
         self,
         *,
         niche: str = "local_service",
-        city: str = "Pirna",
+        city: str = "Berlin",
         limit: int = 8,
     ) -> dict[str, Any]:
         """Manual niche scan — public leads with websites only."""
