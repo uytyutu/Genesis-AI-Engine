@@ -83,6 +83,21 @@ type FarmDash = {
   honesty_note: string;
   cost_ratio_note: string;
   last_tick_at: string | null;
+  revenue_forecast?: {
+    disclaimer: string;
+    labeling_swarm_10h: { net_eur: number; nodes: number; gross_eur: number };
+    labeling_swarm_per_day: { net_eur: number };
+    phases: { label: string; eur_per_day: string; note: string }[];
+    scaling_note: string;
+  };
+  last_battle_test?: {
+    at: string;
+    earned_eur: number;
+    tasks_done: number;
+    execution_target: string;
+    pay_per_task_eur: number;
+    tasks_per_hour_est: number;
+  };
 };
 
 const ADAPTER_LABELS: Record<string, string> = {
@@ -159,6 +174,19 @@ export function FarmDashboard() {
       const res = await fetch(`${API}/api/farm/tick`, { method: "POST" });
       const body = await res.json();
       setMessage(body.message ?? "Готово");
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function runBattleTest() {
+    setBusy("battle");
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/farm/battle-test`, { method: "POST" });
+      const body = await res.json();
+      setMessage(body.verdict ?? body.message ?? "Тест завершён");
       refresh();
     } finally {
       setBusy("");
@@ -254,6 +282,31 @@ export function FarmDashboard() {
           </section>
         ) : null}
 
+        {dash?.revenue_forecast ? (
+          <section className="genesis-card border-sky-500/20 bg-sky-950/10 p-5">
+            <h2 className="text-sm font-bold text-sky-100">Прогноз (математика, не гарантия)</h2>
+            <p className="mt-1 text-xs text-sky-200/70">{dash.revenue_forecast.disclaimer}</p>
+            <p className="mt-3 text-sm text-white">
+              50 нод × 10 ч: ~<strong>{formatEur(dash.revenue_forecast.labeling_swarm_10h.net_eur)}</strong> чистыми
+              · сутки: ~<strong>{formatEur(dash.revenue_forecast.labeling_swarm_per_day.net_eur)}</strong>
+            </p>
+            {dash.last_battle_test ? (
+              <p className="mt-2 text-xs text-emerald-200">
+                Последний боевой тест: +{dash.last_battle_test.earned_eur.toFixed(4)} € ·{" "}
+                {dash.last_battle_test.tasks_done} задач · {dash.last_battle_test.execution_target} · ~
+                {dash.last_battle_test.pay_per_task_eur.toFixed(4)} €/задача
+              </p>
+            ) : null}
+            <ul className="mt-3 space-y-1 text-xs text-genesis-muted">
+              {dash.revenue_forecast.phases.map((p) => (
+                <li key={p.label}>
+                  <strong>{p.label}</strong>: {p.eur_per_day} €/день — {p.note}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         {dash && (
           <section className="genesis-card p-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -313,6 +366,14 @@ export function FarmDashboard() {
                   ⏸ Остановить
                 </button>
               )}
+              <button
+                type="button"
+                disabled={busy === "battle"}
+                onClick={() => void runBattleTest()}
+                className="rounded-xl border border-sky-500/40 bg-sky-950/30 px-4 py-3 text-sm font-semibold text-sky-100 hover:bg-sky-900/40 disabled:opacity-50"
+              >
+                {busy === "battle" ? "Тест…" : "⚡ Боевой тест (1 нода)"}
+              </button>
             </div>
             {message ? <p className="mt-4 text-sm text-emerald-200">{message}</p> : null}
           </section>

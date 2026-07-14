@@ -147,6 +147,135 @@ class MicroFarmService:
             cached=cached,
         )
 
+    def revenue_forecast(self, *, labeling_nodes: int = 50, passive_nodes: int = 0) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.revenue_model import full_forecast
+
+        state = self._load_state()
+        events = self._recent_events(30)
+        pay_samples = [float(e.get("pay_eur") or 0) for e in events if e.get("ok") and float(e.get("pay_eur") or 0) > 0]
+        measured_pay = sum(pay_samples) / len(pay_samples) if pay_samples else 0.0
+        measured_tasks_h = 0.0
+        if state.get("last_tick_at") and pay_samples:
+            measured_tasks_h = min(len(pay_samples) * 12.0, 60.0)
+
+        pm = self._priority_manager()
+        node_count = passive_nodes or pm.nodes.configured_count() or int(state.get("workers_target") or 1)
+        return full_forecast(
+            labeling_nodes=labeling_nodes,
+            passive_nodes=node_count if pm.nodes.configured_count() > 0 else 0,
+            measured_pay_eur_per_task=measured_pay,
+            measured_tasks_per_hour=measured_tasks_h,
+        )
+
+    def run_battle_test(self) -> dict[str, Any]:
+        """First-node combat test — one task, real log cents, honest checklist."""
+        checks: list[dict[str, Any]] = []
+        pm = self._priority_manager()
+
+        ai_status = self._ai.setup_status()
+        brain_ok = bool(ai_status.get("brain_ready"))
+        checks.append(
+            {
+                "id": "ai_brain",
+                "ok": brain_ok,
+                "label": "AI Brain (Groq/Gemini)",
+                "detail": ai_status.get("status_label") or "Нужен ключ",
+            }
+        )
+
+        cloud = pm.dispatcher.snapshot()
+        pool_ok = bool(cloud.get("pool", {}).get("ok"))
+        mode = cloud.get("execution_mode", "local")
+        checks.append(
+            {
+                "id": "cloud_pool",
+                "ok": mode == "local" or pool_ok,
+                "label": f"Cloud Dispatcher ({mode})",
+                "detail": cloud.get("pool", {}).get("message") or cloud.get("local_note", ""),
+            }
+        )
+
+        scale = self._check_scale_adapter()
+        checks.append(
+            {
+                "id": "scale_ai",
+                "ok": bool(scale.get("connected")) or not scale.get("configured"),
+                "label": "Scale AI",
+                "detail": scale.get("log_line") or scale.get("message", ""),
+            }
+        )
+
+        started = time.perf_counter()
+        tick = self.run_tick(workers=1)
+        elapsed_sec = round(time.perf_counter() - started, 2)
+        earned = float(tick.get("earned_eur") or 0)
+        tasks = int(tick.get("tasks_done") or 0)
+        execution = tick.get("execution") or {}
+        target = execution.get("target", "local")
+
+        if target == "remote" and pool_ok:
+            pm.nodes.register_heartbeat(node_id="battle-test-remote", region="pool", online=True)
+
+        checks.append(
+            {
+                "id": "tick",
+                "ok": tasks >= 0,
+                "label": "Пробный tick (1 комбайн)",
+                "detail": f"{tasks} задач · +{earned:.4f} € · {elapsed_sec}s · {target}",
+            }
+        )
+
+        pay_per_task = earned / tasks if tasks > 0 else 0.0
+        tasks_per_hour = round(tasks * (3600 / max(elapsed_sec, 1)), 2) if tasks > 0 else 0.0
+        forecast = self.revenue_forecast(labeling_nodes=1, passive_nodes=pm.nodes.configured_count())
+        arbitrage = pm.arbitrage_decision()
+
+        state = self._load_state()
+        state["last_battle_test"] = {
+            "at": datetime.now(timezone.utc).isoformat(),
+            "earned_eur": earned,
+            "tasks_done": tasks,
+            "execution_target": target,
+            "pay_per_task_eur": round(pay_per_task, 4),
+            "tasks_per_hour_est": tasks_per_hour,
+            "checks_passed": sum(1 for c in checks if c.get("ok")),
+            "checks_total": len(checks),
+        }
+        self._save_state(state)
+
+        all_ok = all(c.get("ok") for c in checks[:3])  # scale optional if no key
+        return {
+            "ok": True,
+            "battle_ready": tasks > 0 or brain_ok,
+            "verdict": (
+                f"Боевой тест: +{earned:.4f} € за {tasks} задач ({target})"
+                if tasks > 0
+                else "Сырья нет — запусти feed/поиск, затем повтори тест"
+            ),
+            "measured": {
+                "earned_eur": round(earned, 4),
+                "tasks_done": tasks,
+                "pay_per_task_eur": round(pay_per_task, 4),
+                "tasks_per_hour_est": tasks_per_hour,
+                "execution_target": target,
+                "elapsed_sec": elapsed_sec,
+            },
+            "checks": checks,
+            "forecast": forecast,
+            "adaptive_arbitrage": arbitrage,
+            "sandbox_note": (
+                "В sandbox цифры учебные. Реальные центы — после Scale/Toloka + VPS remote."
+            ),
+            "next_steps": [
+                "FARM_EXECUTION_MODE=remote + FARM_WORKER_POOL_URL на VPS",
+                "SCALE_API_KEY в .env.local",
+                "Повтори тест — смотри pay_per_task_eur в логах",
+            ],
+        }
+
     def start_swarm(self, *, workers: int = 10) -> dict[str, Any]:
         state = self._load_state()
         scale = self._check_scale_adapter()
@@ -656,6 +785,10 @@ class MicroFarmService:
             "labels_export_ready": self.labels_export_count() > 0,
             "scale_ai": state.get("scale_ai_last") or self._check_scale_adapter(),
             "priority_manager": self._priority_manager().snapshot(),
+            "revenue_forecast": self.revenue_forecast(
+                labeling_nodes=int(state.get("workers_target") or 10),
+            ),
+            "last_battle_test": state.get("last_battle_test"),
             "recent_tasks": self._recent_events(15),
             "last_tick_at": state.get("last_tick_at"),
             "honesty_note": (

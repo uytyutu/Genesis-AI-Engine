@@ -565,6 +565,19 @@ def farm_stop() -> dict:
     return _ctx().micro_farm.stop_swarm()
 
 
+@app.get("/api/farm/forecast")
+def farm_forecast(labeling_nodes: int = 50, passive_nodes: int = 0) -> dict:
+    return _ctx().micro_farm.revenue_forecast(
+        labeling_nodes=max(1, min(500, labeling_nodes)),
+        passive_nodes=max(0, min(5000, passive_nodes)),
+    )
+
+
+@app.post("/api/farm/battle-test")
+def farm_battle_test() -> dict:
+    return _ctx().micro_farm.run_battle_test()
+
+
 @app.post("/api/farm/tick")
 def farm_tick(workers: int = 10) -> dict:
     return _ctx().micro_farm.run_tick(workers=max(1, min(100, workers)))

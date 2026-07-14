@@ -8,8 +8,10 @@ import re
 from pathlib import Path
 from typing import Any
 
+from swarm.adaptive_arbitrage import AdaptiveArbitrage
 from swarm.cloud_dispatcher import CloudDispatcher
 from swarm.farm_learning import FarmLearningLedger
+from swarm.node_monitor import NodeMonitor
 from swarm.types import LabelTask
 
 _SIMPLE_ROUTER_TASK = "simple"
@@ -119,6 +121,8 @@ class PriorityManager:
         self.cache = KnowledgeCache(self._memory)
         self.learning = FarmLearningLedger(self._memory)
         self.dispatcher = CloudDispatcher(env_getter=env_getter)
+        self.nodes = NodeMonitor(self._memory, env_getter=env_getter)
+        self.arbitrage = AdaptiveArbitrage()
 
     def route_label_task(self, task: LabelTask) -> dict[str, Any]:
         complexity = estimate_complexity(
@@ -161,6 +165,13 @@ class PriorityManager:
             alloc[adapter_id] = alloc.get(adapter_id, 0) + max(0, slots)
         return alloc
 
+    def arbitrage_decision(self) -> dict[str, Any]:
+        node_snap = self.nodes.snapshot()
+        return self.arbitrage.decide(
+            self.learning,
+            node_eur_per_day=float(node_snap.get("projected_eur_per_day") or 0),
+        )
+
     def snapshot(self) -> dict[str, Any]:
         return {
             "pipeline_parallelism": True,
@@ -169,4 +180,6 @@ class PriorityManager:
             "learning": self.learning.snapshot(),
             "router_note": "Простые задачи → Flash (Groq/Gemini), сложные → analysis tier",
             "cloud_dispatcher": self.dispatcher.snapshot(),
+            "node_monitor": self.nodes.snapshot(),
+            "adaptive_arbitrage": self.arbitrage_decision(),
         }
