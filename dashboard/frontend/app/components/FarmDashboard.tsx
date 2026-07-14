@@ -104,6 +104,19 @@ type FarmDash = {
     checklist: { step: number; done: boolean; title: string }[];
     next?: string;
   };
+  dry_run?: {
+    active: boolean;
+    execution_mode: string;
+    streak: number;
+    milestone_target: number;
+    milestone_reached: boolean;
+    total_potential_eur: number;
+    log_format: string;
+    note: string;
+    task_selection?: {
+      pipeline: { step: number; name: string; detail: string }[];
+    };
+  };
 };
 
 const ADAPTER_LABELS: Record<string, string> = {
@@ -298,6 +311,32 @@ export function FarmDashboard() {
                   ? ` · пул ${dash.priority_manager.cloud_dispatcher.pool.ok ? "онлайн" : "offline"}`
                   : " · пульт на ноутбуке (задай FARM_WORKER_POOL_URL для VPS)"}
               </p>
+            ) : null}
+          </section>
+        ) : null}
+
+        {dash?.dry_run?.active ? (
+          <section className="genesis-card border-sky-500/30 bg-sky-950/15 p-5">
+            <h2 className="text-sm font-bold text-sky-100">DRY RUN · local</h2>
+            <p className="mt-1 text-xs text-sky-200/80">{dash.dry_run.note}</p>
+            <p className="mt-2 text-sm text-white">
+              Консоль: <code className="text-sky-200">{dash.dry_run.log_format}</code>
+            </p>
+            <p className="mt-2 text-sm text-emerald-200">
+              Серия: <strong>{dash.dry_run.streak}</strong> / {dash.dry_run.milestone_target}
+              {dash.dry_run.milestone_reached ? " · ✓ билет на VPS подтверждён математикой" : ""}
+            </p>
+            <p className="mt-1 text-xs text-genesis-muted">
+              Суммарный потенциал (прогноз): {formatEur(dash.dry_run.total_potential_eur)}
+            </p>
+            {dash.dry_run.task_selection?.pipeline ? (
+              <ol className="mt-3 space-y-1 text-xs text-sky-100/80">
+                {dash.dry_run.task_selection.pipeline.map((p) => (
+                  <li key={p.step}>
+                    {p.step}. <strong>{p.name}</strong> — {p.detail}
+                  </li>
+                ))}
+              </ol>
             ) : null}
           </section>
         ) : null}

@@ -8,6 +8,7 @@ import {
   CEO_STUDIO_LINKS,
   CEO_SYSTEM_LINKS,
 } from "../../lib/surfaceNavConfig";
+import { UI_LAYOUT, isMasterWorkshop } from "../../lib/uiLayout";
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
@@ -16,15 +17,31 @@ function isActive(pathname: string, href: string): boolean {
 
 export function CeoWorkspaceNav() {
   const pathname = usePathname() ?? "";
+  const master = isMasterWorkshop();
 
-  const sections = [
-    { title: "Решения", items: CEO_PRIMARY_LINKS },
-    { title: "Студии", items: CEO_STUDIO_LINKS },
-    { title: "Система", items: CEO_SYSTEM_LINKS },
-  ];
+  const primary = master
+    ? CEO_PRIMARY_LINKS.map((item) =>
+        item.href === "/" ? { ...item, label: UI_LAYOUT.home_label, hint: "DRY RUN · local" } : item,
+      ).filter((item) => ["/", "/opportunities", "/finance", "/settings"].includes(item.href))
+    : CEO_PRIMARY_LINKS;
+
+  const sections = master
+    ? [
+        { title: "Мастерская", items: primary },
+        { title: "Система", items: CEO_SYSTEM_LINKS.filter((i) => i.href === "/settings") },
+      ]
+    : [
+        { title: "Решения", items: CEO_PRIMARY_LINKS },
+        { title: "Студии", items: CEO_STUDIO_LINKS },
+        { title: "Система", items: CEO_SYSTEM_LINKS },
+      ];
 
   return (
-    <aside className="genesis-sidebar virtus-surface-ceo" aria-label="CEO navigation">
+    <aside
+      className={`genesis-sidebar virtus-surface-ceo${UI_LAYOUT.compact_sidebar ? " genesis-sidebar--compact" : ""}`}
+      aria-label="CEO navigation"
+      style={UI_LAYOUT.compact_sidebar ? { width: UI_LAYOUT.sidebar_width_px } : undefined}
+    >
       <VirtusSurfaceIdentity surface="ceo" homeHref="/" />
 
       <nav className="genesis-sidebar__nav">
@@ -42,7 +59,7 @@ export function CeoWorkspaceNav() {
                       aria-current={active ? "page" : undefined}
                     >
                       <span className="genesis-sidebar__link-label">{item.label}</span>
-                      {item.hint ? (
+                      {item.hint && !UI_LAYOUT.hide_link_hints ? (
                         <span className="genesis-sidebar__link-hint">{item.hint}</span>
                       ) : null}
                     </Link>
@@ -54,7 +71,7 @@ export function CeoWorkspaceNav() {
         ))}
       </nav>
 
-      <p className="genesis-sidebar__footer">Virtus Core · Vector</p>
+      <p className="genesis-sidebar__footer">{UI_LAYOUT.label} · Vector</p>
     </aside>
   );
 }

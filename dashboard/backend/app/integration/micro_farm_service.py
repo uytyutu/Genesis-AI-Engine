@@ -7,6 +7,7 @@ External micro-task platforms connect via TaskAdapter stubs (API keys required).
 from __future__ import annotations
 
 import json
+import logging
 import time
 import uuid
 from datetime import datetime, timezone
@@ -21,6 +22,7 @@ from app.integration.swarm_bridge import build_swarm_orchestrator
 from app.integration.stealth_http import stealth_fetch_get
 
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
+_farm_logger = logging.getLogger("genesis.farm")
 
 # Pay per completed micro-task (internal queue — real platforms override via adapters).
 _ADAPTER_PAY_EUR: dict[str, float] = {
@@ -47,6 +49,9 @@ _DEFAULT_STATE: dict[str, Any] = {
     "disabled_adapters": [],
     "disabled_nodes": [],
     "last_self_healing": None,
+    "dry_run_streak": 0,
+    "dry_run_total_potential_eur": 0.0,
+    "dry_run_milestone_reached": False,
 }
 
 
@@ -196,6 +201,95 @@ class MicroFarmService:
                 }
             )
         return healing
+
+    def _is_dry_run(self) -> bool:
+        return self._priority_manager().vault.is_dry_run()
+
+    def _record_dry_run_completion(
+        self,
+        state: dict[str, Any],
+        *,
+        adapter_id: str,
+        task_id: str,
+        llm_cost_eur: float = 0.0,
+    ) -> dict[str, Any] | None:
+        if not self._is_dry_run():
+            return None
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.dry_run import log_potential_profit
+
+        state["dry_run_streak"] = int(state.get("dry_run_streak") or 0) + 1
+        entry = log_potential_profit(
+            adapter_id=adapter_id,
+            task_id=task_id,
+            llm_cost_eur=llm_cost_eur,
+            streak=int(state["dry_run_streak"]),
+        )
+        state["dry_run_total_potential_eur"] = round(
+            float(state.get("dry_run_total_potential_eur") or 0) + float(entry["potential_profit_eur"]),
+            4,
+        )
+        if entry.get("milestone_reached"):
+            state["dry_run_milestone_reached"] = True
+        self._log_event(
+            {
+                "id": uuid.uuid4().hex[:12],
+                "at": datetime.now(timezone.utc).isoformat(),
+                "adapter": "dry_run",
+                "pay_eur": entry["potential_profit_eur"],
+                "target": task_id,
+                "detail": entry["log_line"],
+                "ok": True,
+                "streak": entry["streak"],
+            }
+        )
+        return entry
+
+    def dry_run_status(self) -> dict[str, Any]:
+        state = self._load_state()
+        pm = self._priority_manager()
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.dry_run import MILESTONE_STREAK, explain_task_selection, is_dry_run_mode
+
+        vault = pm.vault.snapshot()
+        active = is_dry_run_mode(vault.get("farm_mode", "dry_run"))
+        if not active:
+            return {"active": False, "farm_mode": vault.get("farm_mode"), "note": "Live mode — dry-run logs off"}
+
+        legacy_preview = [
+            (aid, str(row.get("company_name") or row.get("id") or ""))
+            for aid, row in self._pick_tasks(5)
+        ]
+        arbitrage = pm.arbitrage_decision()
+        return {
+            "active": True,
+            "farm_mode": "dry_run",
+            "execution_mode": "local",
+            "streak": int(state.get("dry_run_streak") or 0),
+            "milestone_target": MILESTONE_STREAK,
+            "milestone_reached": bool(state.get("dry_run_milestone_reached")),
+            "total_potential_eur": float(state.get("dry_run_total_potential_eur") or 0),
+            "log_format": "[DRY RUN] Potential profit: €0.15",
+            "task_selection": explain_task_selection(
+                labeling_workers=int(state.get("workers_target") or 10),
+                legacy_tasks=legacy_preview,
+                allocation=pm.allocate_workers(
+                    int(state.get("workers_target") or 10),
+                    tuple(_ADAPTER_PAY_EUR.keys()),
+                    disabled_adapters=set(state.get("disabled_adapters") or []),
+                ),
+                disabled_adapters=list(state.get("disabled_adapters") or []),
+                arbitrage_winner=arbitrage.get("winner"),
+            ),
+            "note": (
+                f"Смотри консоль Genesis — после {MILESTONE_STREAK} строк dry-run "
+                "понятно, окупится ли VPS (~€5)"
+            ),
+        }
 
     def _record_learning(
         self,
@@ -544,6 +638,7 @@ class MicroFarmService:
         *,
         labeling_workers: int,
         results: list[dict[str, Any]],
+        state: dict[str, Any] | None = None,
     ) -> tuple[int, float, float]:
         done = 0
         earned = 0.0
@@ -583,6 +678,13 @@ class MicroFarmService:
             }
             self._log_event(event)
             results.append(event)
+            if state is not None:
+                self._record_dry_run_completion(
+                    state,
+                    adapter_id="ai_labeling",
+                    task_id=lr.task_id,
+                    llm_cost_eur=lr.llm_cost_eur,
+                )
         return done, earned, llm_cost
 
     def run_tick(self, *, workers: int | None = None) -> dict[str, Any]:
@@ -604,13 +706,24 @@ class MicroFarmService:
         earned = 0.0
         llm_cost = 0.0
         results: list[dict[str, Any]] = []
-        execution_meta: dict[str, Any] = pm.dispatcher.resolve_execution(
-            adapter_id="ai_labeling",
-            profitable=True,
-        )
+        execution_meta: dict[str, Any]
         remote_result: dict[str, Any] | None = None
 
-        if execution_meta.get("target") == "remote":
+        if self._is_dry_run():
+            execution_meta = {
+                "target": "local",
+                "mode": "local",
+                "adapter_id": "ai_labeling",
+                "note": "DRY RUN — FARM_EXECUTION_MODE=local, remote отключён",
+            }
+            _farm_logger.info("[DRY RUN] Farm tick · local execution · potential profit logging ON")
+        else:
+            execution_meta = pm.dispatcher.resolve_execution(
+                adapter_id="ai_labeling",
+                profitable=True,
+            )
+
+        if not self._is_dry_run() and execution_meta.get("target") == "remote":
             remote_result = pm.dispatcher.dispatch_batch(
                 workers=labeling_workers,
                 adapter_id="ai_labeling",
@@ -652,6 +765,7 @@ class MicroFarmService:
                 local_done, local_earned, local_cost = self._run_labeling_local(
                     labeling_workers=labeling_workers - done if remote_result and remote_result.get("ok") else labeling_workers,
                     results=results,
+                    state=state,
                 )
                 done += local_done
                 earned += local_earned
@@ -671,7 +785,7 @@ class MicroFarmService:
                 )
 
         if done < batch:
-            legacy = self._run_legacy_adapters(batch - done)
+            legacy = self._run_legacy_adapters(batch - done, state=state)
             done += legacy["tasks_done"]
             earned += legacy["earned_eur"]
             llm_cost += legacy["llm_cost_eur"]
@@ -701,7 +815,7 @@ class MicroFarmService:
             ),
         }
 
-    def _run_legacy_adapters(self, limit: int) -> dict[str, Any]:
+    def _run_legacy_adapters(self, limit: int, *, state: dict[str, Any] | None = None) -> dict[str, Any]:
         tasks = self._pick_tasks(limit)
         done = 0
         earned = 0.0
@@ -736,6 +850,13 @@ class MicroFarmService:
                 }
                 self._log_event(event)
                 results.append(event)
+                if state is not None and outcome.get("ok", True):
+                    self._record_dry_run_completion(
+                        state,
+                        adapter_id=adapter_id,
+                        task_id=str(row.get("id") or row.get("company_name") or adapter_id),
+                        llm_cost_eur=float(outcome.get("llm_cost_eur") or 0),
+                    )
             except Exception:
                 pass
         return {
@@ -866,6 +987,7 @@ class MicroFarmService:
             "last_battle_test": state.get("last_battle_test"),
             "platform_vault": self.platform_vault_status(),
             "prepare_live": self.prepare_live_mode(),
+            "dry_run": self.dry_run_status(),
             "recent_tasks": self._recent_events(15),
             "last_tick_at": state.get("last_tick_at"),
             "honesty_note": (

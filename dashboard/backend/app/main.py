@@ -565,6 +565,11 @@ def farm_stop() -> dict:
     return _ctx().micro_farm.stop_swarm()
 
 
+@app.get("/api/farm/dry-run")
+def farm_dry_run_status() -> dict:
+    return _ctx().micro_farm.dry_run_status()
+
+
 @app.get("/api/farm/vault")
 def farm_vault() -> dict:
     return _ctx().micro_farm.platform_vault_status()

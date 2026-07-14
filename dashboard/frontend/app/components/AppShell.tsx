@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { UI_LAYOUT } from "../lib/uiLayout";
 import { resolveNavigationSurface } from "../lib/surfaceNavConfig";
 import { GenesisSidebar } from "./GenesisSidebar";
 import { GenesisTopBar } from "./GenesisTopBar";
@@ -37,7 +38,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="genesis-app-shell virtus-surface-ceo" data-surface="ceo">
+    <div
+      className={`genesis-app-shell virtus-surface-ceo${UI_LAYOUT.compact_sidebar ? " genesis-app-shell--compact" : ""}`}
+      data-surface="ceo"
+      data-ui-mode={UI_LAYOUT.mode}
+      style={
+        UI_LAYOUT.compact_sidebar
+          ? ({ ["--genesis-sidebar-width" as string]: `${UI_LAYOUT.sidebar_width_px}px` } as React.CSSProperties)
+          : undefined
+      }
+    >
       <GenesisSidebar />
       <div className="genesis-app-main">
         <GenesisTopBar />

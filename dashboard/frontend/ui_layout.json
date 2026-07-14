@@ -1,0 +1,8 @@
+{
+  "mode": "master",
+  "label": "Мастерская",
+  "compact_sidebar": true,
+  "sidebar_width_px": 180,
+  "hide_link_hints": true,
+  "home_label": "Цифровая ферма"
+}
