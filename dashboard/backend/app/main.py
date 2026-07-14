@@ -501,6 +501,63 @@ def lead_inbox(today_only: bool = True, limit: int = 50) -> LeadInboxResponse:
     return LeadInboxResponse(leads=leads, count=len(leads))
 
 
+@app.get("/api/farm/platforms")
+def farm_platforms() -> dict:
+    return {"platforms": _ctx().micro_farm._platforms()}
+
+
+@app.get("/api/farm/export/labels")
+def farm_export_labels():
+    from fastapi.responses import PlainTextResponse
+
+    text = _ctx().micro_farm.labels_export_text()
+    if not text.strip():
+        return PlainTextResponse(
+            "# Пока пусто — запустите ферму и дождитесь разметок\n",
+            media_type="text/plain",
+        )
+    return PlainTextResponse(text, media_type="application/x-ndjson")
+
+
+@app.get("/api/farm/dashboard")
+def farm_dashboard() -> dict:
+    dash = _ctx().owner.dashboard()
+    owner_name = str(dash.get("owner_name") or "Ramiš")
+    return _ctx().micro_farm.dashboard(owner_name)
+
+
+@app.post("/api/farm/start")
+def farm_start(workers: int = 10) -> dict:
+    return _ctx().micro_farm.start_swarm(workers=max(1, min(1000, workers)))
+
+
+@app.post("/api/farm/stop")
+def farm_stop() -> dict:
+    return _ctx().micro_farm.stop_swarm()
+
+
+@app.post("/api/farm/tick")
+def farm_tick(workers: int = 10) -> dict:
+    return _ctx().micro_farm.run_tick(workers=max(1, min(100, workers)))
+
+
+@app.post("/api/farm/feed")
+def farm_feed() -> dict:
+    """Discover public URLs worldwide — fills combiner task queue."""
+    spider = _ctx().monetization_engine.run_global_spider_scan(
+        niche="local_service",
+        batch_limit=200,
+        tech_pattern_ids=None,
+    )
+    tick = _ctx().micro_farm.run_tick(workers=20)
+    return {
+        "ok": True,
+        "discovery": spider,
+        "tick": tick,
+        "message": f"{spider.get('message', 'Поиск завершён')} · {tick.get('message', '')}",
+    }
+
+
 @app.get("/api/engine/dashboard", response_model=EngineDashboard)
 def engine_dashboard() -> EngineDashboard:
     dash = _ctx().owner.dashboard()

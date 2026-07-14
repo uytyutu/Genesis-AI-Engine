@@ -1,0 +1,336 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { formatEur } from "../lib/formatEur";
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+type Combiner = { id: string; label: string; pay_eur: number; pay_label: string; primary?: boolean };
+type Platform = {
+  id: string;
+  label: string;
+  status: string;
+  status_label: string;
+  note: string;
+  env_var?: string;
+  pay_hint?: string;
+  signup_url?: string | null;
+  steps?: string[];
+  connected?: boolean;
+};
+type ChecklistItem = { step: string; title: string; detail: string };
+type TaskEvent = {
+  id: string;
+  at: string;
+  adapter: string;
+  pay_eur: number;
+  target: string;
+  detail: string;
+  ok: boolean;
+};
+
+type FarmDash = {
+  owner_name: string;
+  running: boolean;
+  workers_active: number;
+  workers_target: number;
+  today_earned_eur: number;
+  total_earned_eur: number;
+  total_tasks_done: number;
+  net_profit_eur: number;
+  available_for_withdraw_eur: number;
+  withdraw_min_eur: number;
+  sandbox: boolean;
+  balance_label: string;
+  combiners: Combiner[];
+  worker_flow?: { step: number; id: string; title: string; detail: string }[];
+  primary_combiner?: string;
+  async_concurrency?: number;
+  platforms: Platform[];
+  ceo_checklist?: ChecklistItem[];
+  labels_export_count?: number;
+  labels_export_ready?: boolean;
+  recent_tasks: TaskEvent[];
+  honesty_note: string;
+  cost_ratio_note: string;
+  last_tick_at: string | null;
+};
+
+const ADAPTER_LABELS: Record<string, string> = {
+  ai_labeling: "AI-разметка",
+  data_clean: "Чистка данных",
+  text_classify: "Классификация",
+  record_verify: "Проверка",
+};
+
+export function FarmDashboard() {
+  const [dash, setDash] = useState<FarmDash | null>(null);
+  const [busy, setBusy] = useState("");
+  const [message, setMessage] = useState("");
+  const [workers, setWorkers] = useState(10);
+
+  const refresh = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/api/farm/dashboard`);
+      if (res.ok) setDash(await res.json());
+    } catch {
+      setMessage("Не удалось загрузить ферму. Запустите Genesis.exe.");
+    }
+  }, []);
+
+  useEffect(() => {
+    refresh();
+    const poll = window.setInterval(refresh, 15_000);
+    return () => window.clearInterval(poll);
+  }, [refresh]);
+
+  useEffect(() => {
+    if (!dash?.running) return;
+    const tick = window.setInterval(async () => {
+      try {
+        await fetch(`${API}/api/farm/tick`, { method: "POST" });
+        refresh();
+      } catch {
+        /* background */
+      }
+    }, 20_000);
+    return () => window.clearInterval(tick);
+  }, [dash?.running, refresh]);
+
+  async function startFarm() {
+    setBusy("start");
+    setMessage("");
+    try {
+      const feed = await fetch(`${API}/api/farm/feed`, { method: "POST" });
+      const feedBody = await feed.json().catch(() => ({}));
+      const res = await fetch(`${API}/api/farm/start?workers=${workers}`, { method: "POST" });
+      const body = await res.json();
+      setMessage(feedBody.message ?? body.message ?? "Ферма запущена");
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function stopFarm() {
+    setBusy("stop");
+    try {
+      const res = await fetch(`${API}/api/farm/stop`, { method: "POST" });
+      const body = await res.json();
+      setMessage(body.message ?? "Остановлено");
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function manualTick() {
+    setBusy("tick");
+    try {
+      const res = await fetch(`${API}/api/farm/tick`, { method: "POST" });
+      const body = await res.json();
+      setMessage(body.message ?? "Готово");
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  const connectedPlatforms = dash?.platforms.filter((p) => p.connected).length ?? 0;
+  const totalPlatforms = dash?.platforms.length ?? 0;
+
+  return (
+    <main className="min-h-screen pb-16">
+      <div className="mx-auto max-w-4xl space-y-6 px-4 pt-6">
+        <header className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/50 via-genesis-panel to-genesis-panel p-6">
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/90">Virtus Core · Рабочий инструмент</p>
+          <h1 className="mt-2 text-3xl font-bold text-white">Цифровая ферма · {dash?.owner_name ?? "…"}</h1>
+          <p className="mt-2 text-sm text-genesis-muted">
+            Одна кнопка — рой комбайнов размечает данные. Биржи подключаешь ты (без твоего ключа Genesis не может
+            получать € с Scale/Toloka/MTurk).
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <Link href="/monitor" className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40">
+              Пульт CEO
+            </Link>
+            <Link href="/finance" className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40">
+              Деньги
+            </Link>
+            <a
+              href={`${API}/api/farm/export/labels`}
+              className="rounded-lg border border-violet-500/40 px-3 py-1.5 text-violet-200 hover:bg-violet-950/30"
+            >
+              Скачать разметку{dash?.labels_export_count ? ` (${dash.labels_export_count})` : ""}
+            </a>
+          </div>
+        </header>
+
+        {dash?.ceo_checklist && (
+          <section className="genesis-card border-amber-500/30 bg-amber-950/15 p-5">
+            <h2 className="text-sm font-bold text-amber-100">Что сделать тебе (по порядку)</h2>
+            <ol className="mt-3 space-y-3">
+              {dash.ceo_checklist.map((item) => (
+                <li key={item.step} className="flex gap-3 text-sm">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/25 text-xs font-bold text-amber-100">
+                    {item.step}
+                  </span>
+                  <div>
+                    <p className="font-medium text-white">{item.title}</p>
+                    <p className="text-xs text-amber-100/70">{item.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-3 text-[11px] text-amber-200/60">
+              Шаблон ключей: dashboard/backend/env.platforms.example → скопируй строки в .env.local
+            </p>
+          </section>
+        )}
+
+        {dash && (
+          <section className="genesis-card p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs text-genesis-muted">{dash.balance_label}</p>
+                <p className="mt-1 text-4xl font-bold tabular-nums text-emerald-300">
+                  {formatEur(dash.total_earned_eur)}
+                </p>
+                <p className="mt-2 text-sm text-white/80">
+                  Сегодня: <strong>{formatEur(dash.today_earned_eur)}</strong> · Задач:{" "}
+                  <strong>{dash.total_tasks_done}</strong>
+                </p>
+                <p className="mt-1 text-xs text-genesis-muted">{dash.cost_ratio_note}</p>
+              </div>
+              <div className="text-right text-xs">
+                <p
+                  className={`inline-flex rounded-full px-3 py-1 font-semibold ${
+                    dash.running ? "bg-emerald-500/20 text-emerald-200" : "bg-white/10 text-genesis-muted"
+                  }`}
+                >
+                  {dash.running ? `${dash.workers_active} комбайнов` : "Остановлена"}
+                </p>
+                <p className="mt-2 text-genesis-muted">
+                  Биржи: {connectedPlatforms}/{totalPlatforms} подключено
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <label className="text-xs text-genesis-muted">
+                Комбайнов:
+                <input
+                  type="number"
+                  min={1}
+                  max={1000}
+                  value={workers}
+                  onChange={(e) => setWorkers(Number(e.target.value) || 10)}
+                  className="ml-2 w-20 rounded-lg border border-genesis-border bg-genesis-bg px-2 py-1 text-sm text-white"
+                />
+              </label>
+              {!dash.running ? (
+                <button
+                  type="button"
+                  disabled={busy === "start"}
+                  onClick={() => void startFarm()}
+                  className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-500 disabled:opacity-50"
+                >
+                  {busy === "start" ? "Запуск…" : "▶ Запустить ферму"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={busy === "stop"}
+                  onClick={() => void stopFarm()}
+                  className="rounded-xl bg-rose-700 px-6 py-3 text-sm font-bold text-white hover:bg-rose-600 disabled:opacity-50"
+                >
+                  ⏸ Остановить
+                </button>
+              )}
+            </div>
+            {message ? <p className="mt-4 text-sm text-emerald-200">{message}</p> : null}
+          </section>
+        )}
+
+        {dash && (
+          <section className="genesis-card p-5">
+            <h2 className="text-sm font-semibold text-white">Биржи разметки (8 площадок)</h2>
+            <p className="mt-1 text-xs text-genesis-muted">
+              Genesis видит список. Подключение — только после твоей регистрации и ключа в .env.local.
+            </p>
+            <ul className="mt-4 space-y-4">
+              {dash.platforms.map((p) => (
+                <li
+                  key={p.id}
+                  className={`rounded-xl border px-4 py-3 ${
+                    p.connected ? "border-emerald-500/30 bg-emerald-950/15" : "border-white/10"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium text-white">{p.label}</span>
+                    <span className={`text-xs ${p.connected ? "text-emerald-400" : "text-amber-400"}`}>
+                      {p.status_label}
+                      {p.pay_hint ? ` · ${p.pay_hint}` : ""}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-genesis-muted">{p.note}</p>
+                  {p.steps && p.steps.length > 0 && !p.connected ? (
+                    <ol className="mt-2 list-decimal space-y-1 pl-4 text-[11px] text-amber-100/80">
+                      {p.steps.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ol>
+                  ) : null}
+                  {p.env_var && !p.connected ? (
+                    <p className="mt-2 font-mono text-[10px] text-violet-200">
+                      .env.local → {p.env_var}=твой_ключ
+                    </p>
+                  ) : null}
+                  {p.signup_url && !p.connected ? (
+                    <a
+                      href={p.signup_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block text-[11px] text-sky-300 underline"
+                    >
+                      Открыть регистрацию →
+                    </a>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {dash && (
+          <section className="genesis-card p-5">
+            <h2 className="text-sm font-semibold text-white">Последние задачи</h2>
+            {!dash.recent_tasks.length ? (
+              <p className="mt-3 text-sm text-genesis-muted">Пусто — жми «Запустить ферму».</p>
+            ) : (
+              <ul className="mt-3 max-h-72 space-y-2 overflow-y-auto text-xs">
+                {dash.recent_tasks.map((t) => (
+                  <li
+                    key={t.id}
+                    className="flex flex-wrap justify-between gap-2 rounded-lg border border-white/5 px-3 py-2"
+                  >
+                    <span className="text-white/90">
+                      {ADAPTER_LABELS[t.adapter] ?? t.adapter} · {t.target}
+                    </span>
+                    <span className={t.ok ? "text-emerald-400" : "text-rose-400"}>
+                      +{t.pay_eur.toFixed(2)} € · {t.detail}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+
+        {dash ? (
+          <p className="text-center text-[11px] leading-relaxed text-genesis-muted">{dash.honesty_note}</p>
+        ) : null}
+      </div>
+    </main>
+  );
+}

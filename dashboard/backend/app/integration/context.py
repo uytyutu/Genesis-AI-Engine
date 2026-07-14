@@ -27,6 +27,7 @@ from app.integration.acquisition_studio_service import AcquisitionStudioService
 from app.integration.lead_intake_service import LeadIntakeService
 from app.integration.asset_scanner_service import AssetScannerService
 from app.integration.monetization_engine_service import MonetizationEngineService
+from app.integration.micro_farm_service import MicroFarmService
 from app.integration.engine_accounting_service import EngineAccountingService
 from app.integration.financial_export_bridge import FinancialExportBridge
 from app.integration.business_mode_service import BusinessModeService
@@ -81,6 +82,7 @@ class IntegrationContext:
     lead_intake: LeadIntakeService
     asset_scanner: AssetScannerService
     monetization_engine: MonetizationEngineService
+    micro_farm: MicroFarmService
     engine_accounting: EngineAccountingService
     financial_export: FinancialExportBridge
     business_mode: BusinessModeService
@@ -124,6 +126,9 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             acquisition=acquisition, factory=factory,
             business_mode=business_mode,
         )
+        micro_farm = MicroFarmService(
+            opportunity, finance, business_mode=business_mode, memory_dir=path,
+        )
         engine_accounting = EngineAccountingService(opportunity, path, business_mode=business_mode)
         financial_export = FinancialExportBridge(
             engine_accounting, finance, path, business_mode=business_mode,
@@ -161,6 +166,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             lead_intake=lead_intake,
             asset_scanner=asset_scanner,
             monetization_engine=monetization_engine,
+            micro_farm=micro_farm,
             engine_accounting=engine_accounting,
             financial_export=financial_export,
             business_mode=business_mode,

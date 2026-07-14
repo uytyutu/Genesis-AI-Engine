@@ -57,6 +57,11 @@ _GLOBAL_QUERIES: list[tuple[str, str, str]] = [
     ("nl", "Amsterdam", "loodgieter website"),
 ]
 
+
+def world_scan_regions() -> list[tuple[str, str, str]]:
+    """(region_code, city, base_query) — worldwide Places batch."""
+    return list(_GLOBAL_QUERIES)
+
 _NICHE_QUERY_SUFFIX: dict[str, str] = {
     "local_service": "local service business",
     "expired_landing": "coming soon business website",

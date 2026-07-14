@@ -260,5 +260,5 @@ class EngineHunterService:
             "scenario_stats": stats,
             "hunter_value_eur": round(value, 2),
             "dataset_rows": dataset_rows,
-            "note": "Hunter-Gatherer: Outreach/SEO/Bounty/Dataset — ohne Kauf von Assets.",
+            "note": "Автопоиск клиентов: письма, SEO, отчёты — без покупки сайтов.",
         }

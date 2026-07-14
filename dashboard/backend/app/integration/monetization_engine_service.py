@@ -20,8 +20,9 @@ from app.integration.opportunity_service import OpportunityService
 from app.integration.payment_checkout_service import PaymentCheckoutService
 from app.integration.public_intel_miner import PublicIntelMiner
 from app.integration.engine_hunter_service import EngineHunterService
-from app.integration.global_spider_service import GlobalSpiderService
+from app.integration.global_spider_service import GlobalSpiderService, world_scan_regions
 from app.integration.smart_gate_approval import SmartGateApprovalService
+from app.integration.engine_ai_service import EngineAIService
 from app.integration.stealth_http import stealth_status
 from app.integration.digital_dust_service import DigitalDustService
 from app.integration.engine_analytics_service import EngineAnalyticsService
@@ -67,9 +68,9 @@ _DE_BATCH_CITIES = (
 )
 
 _NICHE_SCAN_QUERIES: dict[str, str] = {
-    "local_service": "Autowerkstatt",
-    "expired_landing": "Handwerker website",
-    "niche_blog": "Lokaler Blog",
+    "local_service": "local service business",
+    "expired_landing": "coming soon business website",
+    "niche_blog": "small business blog",
 }
 
 
@@ -581,7 +582,9 @@ class MonetizationEngineService:
             "potential_revenue": potential,
             "realized_revenue": realized,
             "harvest_balance_label": (
-                "Potential Revenue" if business.get("system_mode") == "sandbox" else "Баланс добычи"
+                "Сколько можно заработать (пока не на счёте)"
+                if business.get("system_mode") == "sandbox"
+                else "Реальный баланс"
             ),
             "owner_name": owner_name,
             "security_law": (
@@ -610,6 +613,7 @@ class MonetizationEngineService:
             "pattern_intel_value_eur": float(harvest.get("pattern_intel_value_eur") or 0),
             "pattern_hits_total": int(harvest.get("pattern_hits_total") or 0),
             "hunter": self._hunter.hunter_dashboard(),
+            "ai_brain": EngineAIService(self._memory).setup_status(),
             "global_spider": self._global_spider.spider_dashboard(),
             "places_autopilot": self._places.setup_status(),
             "smart_gate": self._smart_gate.dashboard(),
@@ -882,12 +886,13 @@ class MonetizationEngineService:
         *,
         niche: str = "local_service",
         batch_limit: int = 1000,
-        region: str = "DE",
+        region: str = "WORLD",
     ) -> dict[str, Any]:
-        """Scalable Germany-wide scan — up to 1000 public URLs per run."""
+        """Scalable worldwide scan — up to 1000 public URLs per run."""
         niche_key = niche if niche in _NICHE_SCAN_QUERIES else "local_service"
         batch_limit = max(1, min(_NETWORK_BATCH_MAX, int(batch_limit)))
-        per_city = max(3, batch_limit // len(_DE_BATCH_CITIES))
+        world_regions = world_scan_regions()
+        per_city = max(3, batch_limit // max(1, len(world_regions)))
         scanned = 0
         passed = 0
         archived = 0
@@ -906,19 +911,21 @@ class MonetizationEngineService:
                 "archived": 0,
                 "cities_scanned": 0,
                 "errors": ["places_not_configured_add_GOOGLE_PLACES_API_KEY"],
-                "message": "Массовый поиск требует GOOGLE_PLACES_API_KEY.",
+                "message": "Для авто-поиска нужен GOOGLE_PLACES_API_KEY в .env.local",
             }
 
-        query_base = _NICHE_SCAN_QUERIES[niche_key]
-        for city in _DE_BATCH_CITIES:
+        query_suffix = _NICHE_SCAN_QUERIES[niche_key]
+        for region_code, city, _base in world_regions:
             if scanned >= batch_limit:
                 break
             cities_hit += 1
-            query = f"{query_base} {city} Deutschland".strip()
+            query = f"{query_suffix} {city}".strip()
             remaining = batch_limit - scanned
             city_limit = min(per_city, remaining, 50)
             try:
-                leads = self._places.search_text(query=query, limit=city_limit, region="de")
+                leads = self._places.search_text(
+                    query=query, limit=city_limit, region=region_code
+                )
             except (ValueError, RuntimeError) as exc:
                 errors.append(f"{city}: {exc}")
                 continue
@@ -957,8 +964,8 @@ class MonetizationEngineService:
             "network": network,
             "errors": errors[:8],
             "message": (
-                f"Сеть DE: {scanned}/{batch_limit} URL · {cities_hit} городов · "
-                f"журнал {passed} · архив {archived} · MRR прогноз {network['projected_mrr_eur']:.0f} €"
+                f"Авто-поиск (весь мир): {scanned}/{batch_limit} сайтов · {cities_hit} городов · "
+                f"в журнале {passed} · в архиве {archived}"
             ),
         }
 

@@ -51,8 +51,8 @@ _SETUP_STEPS = [
         "step": 5,
         "title": "Запустить автопилот",
         "detail": (
-            "Engine → Локальные услуги → город (Berlin, Hamburg…) → "
-            "«Поиск целей» или «DE · до 1000 URL»."
+            "Engine → город (New York, London, Berlin…) → "
+            "«Запустить авто-поиск» или «Поиск в одном городе»."
         ),
     },
 ]
@@ -102,17 +102,17 @@ class GooglePlacesService:
             "config_files_found": existing_files,
             "setup_steps": _SETUP_STEPS,
             "free_tier_note": (
-                "Google Places даёт бесплатный месячный лимит — для старта в Германии "
-                "вы не выйдете за пределы free tier при обычном CEO-пути."
+                "Google Places даёт бесплатный месячный лимит — для старта по всему миру "
+                "обычно хватает бесплатного тарифа."
             ),
             "security_note": (
                 "В Google Cloud → Credentials → API Key → Application restrictions: "
                 "IP addresses (ваш IP или 127.0.0.1 для локального Genesis)."
             ),
             "usage": {
-                "scan_mode": "Локальные услуги + город → Поиск целей",
-                "network_scan": "DE · до 1000 URL — массовый обход городов Германии",
-                "global_spider": "Дополняет seed URL; Places усиливает охват",
+                "scan_mode": "Город + ниша → Поиск в одном городе",
+                "network_scan": "Авто-поиск — до 1000 сайтов по всему миру",
+                "global_spider": "Дополняет поиск по технологиям и проблемам сайтов",
             },
             "status_label": "Автопилот готов" if configured else "Нужен GOOGLE_PLACES_API_KEY",
         }

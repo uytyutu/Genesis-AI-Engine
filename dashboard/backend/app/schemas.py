@@ -1026,6 +1026,7 @@ class EngineDashboard(BaseModel):
     global_spider: dict = {}
     places_autopilot: dict = {}
     stealth_mode: dict = {}
+    ai_brain: dict = {}
     smart_gate: dict = {}
     digital_dust: dict = {}
     finance_gateway: dict = {}
@@ -1035,7 +1036,7 @@ class EngineDashboard(BaseModel):
 
 class EngineScanModeRequest(BaseModel):
     niche: str = "local_service"
-    city: str = "Berlin"
+    city: str = "New York"
     limit: int = 8
 
 
@@ -1063,7 +1064,7 @@ class EngineJunkArchiveResponse(BaseModel):
 class EngineNetworkScanRequest(BaseModel):
     niche: str = "local_service"
     batch_limit: int = 1000
-    region: str = "DE"
+    region: str = "WORLD"
 
 
 class EngineNetworkScanResponse(BaseModel):

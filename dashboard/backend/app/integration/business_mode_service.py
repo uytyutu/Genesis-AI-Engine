@@ -13,13 +13,13 @@ _CONFIRM_PHRASE = "ACTIVATE BUSINESS"
 
 _DEFAULT_MODE: dict[str, Any] = {
     "system_mode": "sandbox",
-    "label_sandbox": "Искатель · аналитика рынка",
-    "label_live": "Бизнес · Gewerbe / Finanzamt",
+    "label_sandbox": "Учебный режим — деньги пока не настоящие",
+    "label_live": "Рабочий режим — реальные деньги и документы",
     "activated_at": None,
     "activated_by": None,
     "note": (
-        "Sandbox: только Potential Revenue — без Rechnungen, DATEV и налоговых событий. "
-        "Live: после Gewerbeanmeldung — инвойсы и экспорт для Steuerberater."
+        "Учебный режим: цифры — это прогноз, не баланс банка. "
+        "Рабочий режим: после регистрации бизнеса — счета и налоги."
     ),
 }
 
@@ -136,8 +136,8 @@ class BusinessModeService:
             "high_score_leads": high_score,
             "revenue_quality": "projected",
             "disclaimer": (
-                "Potential Revenue — оценка по лидам и scoring. "
-                "Не является реальным доходом до Live Mode и оплаты клиента."
+                "Это прогноз по найденным клиентам — не деньги на счёте. "
+                "Реальный доход появится после оплаты от клиента."
             ),
         }
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { EngineDashboard } from "./components/EngineDashboard";
+import { FarmDashboard } from "./components/FarmDashboard";
 
-/** Engine Mode — owner capital dashboard (program center). */
+/** Virtus Core — цифровая ферма микро-комбайнов. */
 export default function HomePage() {
-  return <EngineDashboard />;
+  return <FarmDashboard />;
 }
