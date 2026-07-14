@@ -102,6 +102,12 @@ from app.schemas import (
     LeadIntakeRequest,
     LeadIntakeResponse,
     LeadInboxResponse,
+    AssetScannerDashboard,
+    AssetNichesResponse,
+    AssetScanRequest,
+    AssetScanResponse,
+    AssetActionResponse,
+    AssetTargetsResponse,
     SiteAnalysisResult,
     AcquisitionStudioStatus,
     AcquisitionApprovalQueueResponse,
@@ -449,6 +455,79 @@ def lead_inbox(today_only: bool = True, limit: int = 50) -> LeadInboxResponse:
     items = _ctx().lead_intake.inbox(today_only=today_only, limit=limit)
     leads = [OpportunityRecord(**o) for o in items]
     return LeadInboxResponse(leads=leads, count=len(leads))
+
+
+@app.get("/api/scanner/dashboard", response_model=AssetScannerDashboard)
+def asset_scanner_dashboard() -> AssetScannerDashboard:
+    return AssetScannerDashboard(**_ctx().asset_scanner.dashboard())
+
+
+@app.get("/api/scanner/niches", response_model=AssetNichesResponse)
+def asset_scanner_niches() -> AssetNichesResponse:
+    return AssetNichesResponse(niches=_ctx().asset_scanner.niches())
+
+
+@app.get("/api/scanner/targets", response_model=AssetTargetsResponse)
+def asset_scanner_targets(limit: int = 50) -> AssetTargetsResponse:
+    items = _ctx().asset_scanner.list_targets(limit=limit)
+    targets = [OpportunityRecord(**o) for o in items]
+    return AssetTargetsResponse(targets=targets, count=len(targets))
+
+
+@app.post("/api/scanner/scan", response_model=AssetScanResponse)
+def asset_scanner_scan(request: AssetScanRequest) -> AssetScanResponse:
+    try:
+        row = _ctx().asset_scanner.scan_url(request.url, niche=request.niche)
+    except ValueError as e:
+        code = str(e)
+        if code == "forbidden_target":
+            raise HTTPException(
+                status_code=403,
+                detail="Запрещено: только публичные URL без ключей и закрытых систем.",
+            )
+        if code in ("url_required", "public_http_only"):
+            raise HTTPException(status_code=400, detail="Укажите публичный http(s) URL")
+        if code == "fetch_failed":
+            raise HTTPException(status_code=502, detail="Не удалось проанализировать URL")
+        raise HTTPException(status_code=400, detail="Сканирование не выполнено")
+    return AssetScanResponse(
+        ok=True,
+        target=OpportunityRecord(**row),
+        message="Цель добавлена в журнал возможностей.",
+    )
+
+
+@app.post("/api/scanner/targets/{opportunity_id}/analyze", response_model=AssetActionResponse)
+def asset_analyze_target(opportunity_id: str) -> AssetActionResponse:
+    try:
+        row = _ctx().asset_scanner.analyze_target(opportunity_id)
+    except ValueError as e:
+        code = str(e)
+        if code == "not_found":
+            raise HTTPException(status_code=404, detail="Цель не найдена")
+        if code == "forbidden_target":
+            raise HTTPException(status_code=403, detail="Запрещённая цель")
+        raise HTTPException(status_code=400, detail="Анализ не выполнен")
+    return AssetActionResponse(
+        ok=True,
+        target=OpportunityRecord(**row),
+        message="Потенциал дохода пересчитан.",
+    )
+
+
+@app.post("/api/scanner/targets/{opportunity_id}/accept", response_model=AssetActionResponse)
+def asset_accept_target(opportunity_id: str) -> AssetActionResponse:
+    try:
+        row = _ctx().asset_scanner.accept_for_work(opportunity_id)
+    except ValueError as e:
+        if str(e) == "not_found":
+            raise HTTPException(status_code=404, detail="Цель не найдена")
+        raise HTTPException(status_code=400, detail="Не удалось принять в работу")
+    return AssetActionResponse(
+        ok=True,
+        target=OpportunityRecord(**row),
+        message="Принято в работу — монетизация запущена.",
+    )
 
 
 @app.get("/api/acquisition/status", response_model=AcquisitionStudioStatus)

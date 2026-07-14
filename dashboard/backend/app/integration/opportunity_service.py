@@ -22,6 +22,7 @@ _OPPORTUNITY_TYPES = {
     "trend": "Тренд",
     "idea": "Идея услуги",
     "investment": "Инвестиция",
+    "asset": "Заброшенный актив",
 }
 
 _STATUSES = {
@@ -117,6 +118,13 @@ _SOURCE_REGISTRY: dict[str, dict[str, Any]] = {
         "id": "inbound_chat",
         "label": "Чат-ловушка",
         "adapter": "inbound_chat",
+        "enabled": True,
+        "auto_search": False,
+    },
+    "asset_scan": {
+        "id": "asset_scan",
+        "label": "Сканер активов",
+        "adapter": "asset_scan",
         "enabled": True,
         "auto_search": False,
     },
@@ -393,6 +401,8 @@ class OpportunityService:
                 row["recommended_price_eur"] = float(payload["recommended_price_eur"])
             if "revenue_eur" in payload:
                 row["revenue_eur"] = float(payload["revenue_eur"])
+            if "meta" in payload and isinstance(payload["meta"], dict):
+                row["meta"] = payload["meta"]
             row["updated_at"] = datetime.now(timezone.utc).isoformat()
             rows[i] = row
             found = row

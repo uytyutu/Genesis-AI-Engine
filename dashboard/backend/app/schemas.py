@@ -806,6 +806,7 @@ class OpportunityRecord(BaseModel):
     email_subject: str = ""
     outreach_status: str = "none"
     interactions: list[dict] = []
+    meta: dict = {}
 
 
 class OpportunityCreateRequest(BaseModel):
@@ -903,6 +904,47 @@ class LeadIntakeResponse(BaseModel):
 
 class LeadInboxResponse(BaseModel):
     leads: list[OpportunityRecord]
+    count: int
+
+
+class AssetScannerDashboard(BaseModel):
+    targets_found: int
+    in_work: int
+    monetized: int
+    my_income_eur: float
+    pipeline_potential_eur: float
+    security_law: str
+
+
+class AssetNiche(BaseModel):
+    id: str
+    label: str
+    default_value_eur: float
+
+
+class AssetNichesResponse(BaseModel):
+    niches: list[AssetNiche]
+
+
+class AssetScanRequest(BaseModel):
+    url: str
+    niche: str = "local_service"
+
+
+class AssetScanResponse(BaseModel):
+    ok: bool
+    target: OpportunityRecord
+    message: str
+
+
+class AssetActionResponse(BaseModel):
+    ok: bool
+    target: OpportunityRecord
+    message: str
+
+
+class AssetTargetsResponse(BaseModel):
+    targets: list[OpportunityRecord]
     count: int
 
 

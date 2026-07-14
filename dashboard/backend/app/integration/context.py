@@ -25,6 +25,7 @@ from app.integration.task_service import TaskService
 from app.integration.opportunity_service import OpportunityService
 from app.integration.acquisition_studio_service import AcquisitionStudioService
 from app.integration.lead_intake_service import LeadIntakeService
+from app.integration.asset_scanner_service import AssetScannerService
 from app.integration.cursor_handoff_service import CursorHandoffService
 from app.integration.public_launch_service import PublicLaunchService
 from app.integration.pricing_display_service import PricingDisplayService
@@ -74,6 +75,7 @@ class IntegrationContext:
     opportunity: OpportunityService
     acquisition: AcquisitionStudioService
     lead_intake: LeadIntakeService
+    asset_scanner: AssetScannerService
     public_launch: PublicLaunchService
     pricing_display: PricingDisplayService
 
@@ -107,6 +109,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
         opportunity = OpportunityService(path)
         acquisition = AcquisitionStudioService(opportunity, sales)
         lead_intake = LeadIntakeService(opportunity, notifications)
+        asset_scanner = AssetScannerService(opportunity)
         company = CompanyService(
             owner, finance, modules, tasks, health, opportunity, sales, factory, notifications
         )
@@ -138,6 +141,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             opportunity=opportunity,
             acquisition=acquisition,
             lead_intake=lead_intake,
+            asset_scanner=asset_scanner,
             public_launch=public_launch,
             pricing_display=pricing_display,
         )
