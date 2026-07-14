@@ -14,6 +14,7 @@ from app.integration.receipt_email_service import ReceiptEmailService
 from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.site_analysis_service import SiteAnalysisService
 from app.integration.google_places_service import GooglePlacesService
+from app.integration.outreach_language_service import OutreachLanguageService
 
 
 # Services Genesis can offer today (dogfood-first — public catalog only when True).
@@ -103,6 +104,7 @@ class AcquisitionStudioService:
         self._site = SiteAnalysisService()
         self._email = ReceiptEmailService()
         self._places = GooglePlacesService()
+        self._outreach_lang = OutreachLanguageService()
 
     def studio_status(self) -> dict:
         rows = self._opportunity._load_rows()
@@ -167,9 +169,13 @@ class AcquisitionStudioService:
         limit: int = 10,
         language: str = "de",
         throttle_ms: int = 250,
+        force_skip_check: bool = False,
     ) -> dict:
         """CEO-triggered vertical slice:
-        Places search → upsert opportunities (place_id) → draft outreach for leads w/o website.
+        Places search → upsert opportunities (place_id) → draft outreach.
+
+        By default drafts only leads without a website. With force_skip_check=true
+        CEO can draft improvement proposals even when a website exists.
         """
         if not self._places.configured():
             raise ValueError("places_not_configured")
@@ -177,17 +183,21 @@ class AcquisitionStudioService:
         query = query.strip()
         if not city or not query:
             raise ValueError("invalid_query")
-        leads = self._places.search_text(
-            query=f"{query} {city}",
-            language=language,
-            region="de",
-            limit=limit,
-            throttle_ms=throttle_ms,
-        )
+        try:
+            leads = self._places.search_text(
+                query=f"{query} {city}",
+                language=language,
+                region="de",
+                limit=limit,
+                throttle_ms=throttle_ms,
+            )
+        except RuntimeError as exc:
+            raise ValueError(str(exc).replace("places_textsearch_status:", "places_error:")) from exc
 
         created = 0
         drafted = 0
         skipped_has_site = 0
+        skipped_already_queued = 0
         rows = self._opportunity._load_rows()
 
         # Index by place_id stored in meta.
@@ -200,35 +210,49 @@ class AcquisitionStudioService:
 
         for lead in leads:
             existing = by_place.get(lead.place_id)
-            row = existing or {
-                "id": "",  # normalized by OpportunityService on save
-                "source_id": "google_maps",
-                "opportunity_type": "lead",
-                "company_name": lead.name,
-                "contact": "",
-                "website_url": lead.website or "",
-                "fit_reason": "Google Places: нет сайта или слабый сайт",
-                "notes": "",
-                "meta": {},
-            }
+            row = existing or self._opportunity._normalize_row(
+                {
+                    "source_id": "google_maps",
+                    "opportunity_type": "lead",
+                    "company_name": lead.name,
+                    "contact": "",
+                    "website_url": lead.website or "",
+                    "fit_reason": "Google Places: нет сайта или слабый сайт",
+                    "notes": "",
+                    "meta": {},
+                }
+            )
             row["company_name"] = lead.name or row.get("company_name") or ""
             row["website_url"] = lead.website or row.get("website_url") or ""
-            row["meta"] = {**(row.get("meta") or {}), "place_id": lead.place_id, "address": lead.address, "types": lead.types}
+            row["meta"] = {
+                **(row.get("meta") or {}),
+                "place_id": lead.place_id,
+                "address": lead.address,
+                "types": lead.types,
+            }
 
             if not existing:
                 created += 1
                 rows.append(row)
                 by_place[lead.place_id] = row
+            else:
+                idx = next((i for i, rr in enumerate(rows) if rr is existing), None)
+                if idx is not None:
+                    rows[idx] = row
 
-            # Only draft if no website is present.
-            if str(row.get("website_url") or "").strip():
+            has_site = bool(str(row.get("website_url") or "").strip())
+            if has_site and not force_skip_check:
                 skipped_has_site += 1
                 continue
 
-            # Ensure row has an id (normalize) by saving once before prepare.
-            # We'll call opportunity_service.get() after save via prepare_opportunity.
+            if row.get("outreach_status") == "pending_approval" and row.get("proposed_message"):
+                skipped_already_queued += 1
+                continue
+
+            if has_site and force_skip_check:
+                row["fit_reason"] = "CEO force: сайт есть — предложим улучшение онлайн-присутствия"
+
             self._opportunity._save_rows(rows)
-            # Reload normalized row id by place match
             refreshed = None
             for rr in self._opportunity._load_rows():
                 mm = rr.get("meta") if isinstance(rr.get("meta"), dict) else {}
@@ -237,14 +261,18 @@ class AcquisitionStudioService:
                     break
             if not refreshed:
                 continue
-            self.prepare_opportunity(refreshed["id"], website_url=None)
+            website = str(refreshed.get("website_url") or "").strip() or None
+            self.prepare_opportunity(refreshed["id"], website_url=website)
             drafted += 1
 
         return {
             "ok": True,
+            "leads_found": len(leads),
             "created": created,
             "drafted": drafted,
             "skipped_has_site": skipped_has_site,
+            "skipped_already_queued": skipped_already_queued,
+            "force_skip_check": force_skip_check,
             "results": [l.__dict__ for l in leads],
         }
 
@@ -269,13 +297,17 @@ class AcquisitionStudioService:
         packages = {p["id"]: p for p in self._sales.packages()}
         package = packages.get(package_id, packages["basic"])
 
-        subject, body = self._draft_outreach(
+        subject, body, lang = self._outreach_lang.draft_outreach(
             company=row.get("company_name", ""),
             analysis=analysis,
             package=package,
             price=price,
             fit_reason=row.get("fit_reason", ""),
+            row=row,
         )
+        meta = dict(row.get("meta") or {})
+        meta["outreach_language"] = lang
+        row["meta"] = meta
 
         now = datetime.now(timezone.utc).isoformat()
         row["recommended_package_id"] = package_id

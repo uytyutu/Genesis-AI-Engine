@@ -19,6 +19,11 @@ from app.integration.google_places_service import GooglePlacesService
 from app.integration.opportunity_service import OpportunityService
 from app.integration.payment_checkout_service import PaymentCheckoutService
 from app.integration.public_intel_miner import PublicIntelMiner
+from app.integration.engine_hunter_service import EngineHunterService
+from app.integration.global_spider_service import GlobalSpiderService
+from app.integration.smart_gate_approval import SmartGateApprovalService
+from app.integration.digital_dust_service import DigitalDustService
+from app.integration.engine_analytics_service import EngineAnalyticsService
 
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
@@ -121,6 +126,9 @@ class MonetizationEngineService:
         checkout: PaymentCheckoutService,
         scanner: AssetScannerService,
         memory_dir: Path | None = None,
+        *,
+        acquisition: Any | None = None,
+        factory: Any | None = None,
     ) -> None:
         self._opportunity = opportunity
         self._finance = finance
@@ -129,6 +137,13 @@ class MonetizationEngineService:
         self._memory = memory_dir or _DEFAULT_MEMORY
         self._places = GooglePlacesService()
         self._intel_miner = PublicIntelMiner(self._memory)
+        self._hunter = EngineHunterService(
+            opportunity, acquisition, factory, self._intel_miner, self._memory
+        )
+        self._global_spider = GlobalSpiderService(self._memory)
+        self._smart_gate = SmartGateApprovalService(self._memory)
+        self._digital_dust = DigitalDustService(self._memory)
+        self._analytics = EngineAnalyticsService(self._memory)
 
     def _arbitrage_offers(self) -> dict[str, dict[str, Any]]:
         path = self._memory / "engine_arbitrage_offers.json"
@@ -143,7 +158,17 @@ class MonetizationEngineService:
                 pass
         return dict(_DEFAULT_ARBITRAGE_OFFERS)
 
+    def _should_assign_arbitrage(self) -> bool:
+        cfg = self._intel_miner.load_pattern_config()
+        policy = cfg.get("execution_policy") if isinstance(cfg.get("execution_policy"), dict) else {}
+        priority = str(cfg.get("priority") or policy.get("priority") or "outreach")
+        return priority != "outreach"
+
     def _assign_arbitrage_offer(self, meta: dict[str, Any], *, niche: str) -> dict[str, Any]:
+        if not self._should_assign_arbitrage():
+            meta["monetization_priority"] = "outreach"
+            meta["arbitrage_skipped"] = True
+            return meta
         offers = self._arbitrage_offers()
         offer = offers.get(niche) or offers.get("local_service") or {}
         if not offer:
@@ -234,6 +259,15 @@ class MonetizationEngineService:
         micro_amount = self._micro_revenue_for_score(profit_score)
         if micro_amount <= 0:
             return row
+
+        gate_row = self._smart_gate.auto_execute_if_qualified(
+            row,
+            context="junk_micro",
+            opportunity_update=self._opportunity.update,
+        )
+        meta = dict(gate_row.get("meta") or {})
+        if not meta.get("junk_smart_gate_pass"):
+            return gate_row
 
         analysis = row.get("site_analysis") if isinstance(row.get("site_analysis"), dict) else {}
         title = str(analysis.get("title") or row.get("company_name") or "Asset")
@@ -516,6 +550,10 @@ class MonetizationEngineService:
             "network": network,
             "pattern_intel_value_eur": float(harvest.get("pattern_intel_value_eur") or 0),
             "pattern_hits_total": int(harvest.get("pattern_hits_total") or 0),
+            "hunter": self._hunter.hunter_dashboard(),
+            "global_spider": self._global_spider.spider_dashboard(),
+            "smart_gate": self._smart_gate.dashboard(),
+            "digital_dust": self._digital_dust.dashboard(),
             "finance_gateway": {
                 "provider": fin.get("payment_provider"),
                 "connected": fin.get("payment_connected", False),
@@ -527,6 +565,18 @@ class MonetizationEngineService:
             "withdrawal_enabled": fin.get("withdrawal_enabled", False),
         }
 
+    def live_analytics(self) -> dict[str, Any]:
+        harvest = self._sync_harvest_from_assets()
+        rows = self._opportunity.list_opportunities(source_id="asset_scan", limit=500)
+        return self._analytics.live_dashboard(
+            harvest=harvest,
+            hunter=self._hunter.hunter_dashboard(),
+            smart_gate=self._smart_gate.dashboard(),
+            global_spider=self._global_spider.spider_dashboard(),
+            digital_dust=self._digital_dust.dashboard(),
+            opportunities=rows,
+        )
+
     def process_pattern_hits(self, opportunity_id: str) -> dict[str, Any]:
         """PublicIntelMiner hook — pattern hits → meta + harvest ledger (no auto-buy)."""
         row = self._opportunity.get(opportunity_id)
@@ -534,49 +584,74 @@ class MonetizationEngineService:
             raise ValueError("not_found")
 
         hits = self._intel_miner.mine_patterns_from_scan(row)
-        hit_dicts = self._intel_miner.hits_to_dicts(hits)
-        meta = dict(row.get("meta") or {})
+        config = self._intel_miner.load_pattern_config()
+        policy = config.get("execution_policy") if isinstance(config.get("execution_policy"), dict) else {}
+        priority = str(config.get("priority") or policy.get("priority") or "outreach")
 
-        data_value = round(
-            sum(h.valuation_eur for h in hits if h.lane == "data_product"),
-            2,
-        )
-        alert_hits = [h for h in hits if h.lane == "arbitrage_alert"]
-        pending_tx: list[dict[str, Any]] = []
-
-        for h in alert_hits:
-            pending_tx.append(
+        updated = self._hunter.run_hunter_scenarios(opportunity_id, hits)
+        meta = dict(updated.get("meta") or {})
+        hit_dicts = meta.get("pattern_hits") or []
+        dust_hits = [h for h in hits if h.lane == "digital_dust"]
+        if dust_hits:
+            row_now = self._opportunity.get(opportunity_id) or updated
+            updated = self._digital_dust.process_opportunity(
+                row_now,
+                hits,
+                opportunity_update=self._opportunity.update,
+            )
+            meta = dict(updated.get("meta") or {})
+            hit_dicts = meta.get("pattern_hits") or hit_dicts
+            dust_value = float(meta.get("digital_dust_value_eur") or 0)
+            self._append_harvest_event(
                 {
-                    "type": "arbitrage_buy_draft",
-                    "pattern_id": h.pattern_id,
-                    "asset_ref": h.matched_value,
-                    "source_url": h.source_url,
-                    "estimated_value_eur": h.valuation_eur,
-                    "status": "pending_ceo_approval",
-                    "auto_execute": False,
+                    "type": "potential_recoverable_asset",
+                    "opportunity_id": opportunity_id,
+                    "assets_count": meta.get("recoverable_assets_count", 0),
+                    "value_eur": dust_value,
+                    "company": row.get("company_name", ""),
                 }
             )
+            harvest = self._load_harvest()
+            harvest["recoverable_assets_count"] = int(harvest.get("recoverable_assets_count") or 0) + int(
+                meta.get("recoverable_assets_count") or 0
+            )
+            harvest["recoverable_value_eur"] = round(
+                float(harvest.get("recoverable_value_eur") or 0) + dust_value,
+                2,
+            )
+            self._save_harvest(harvest)
 
-        meta["pattern_hits"] = hit_dicts
-        meta["pattern_hits_count"] = len(hit_dicts)
-        meta["pattern_value_eur"] = data_value
+        data_value = round(
+            sum(float(h.get("valuation_eur") or 0) for h in hit_dicts if h.get("lane") in ("dataset_row", "data_product")),
+            2,
+        )
+        alert_hits = [h for h in hit_dicts if h.get("lane") == "arbitrage_alert"]
+        pending_tx: list[dict[str, Any]] = []
+
+        if priority != "outreach":
+            for h in alert_hits:
+                pending_tx.append(
+                    {
+                        "type": "arbitrage_buy_draft",
+                        "pattern_id": h.get("pattern_id"),
+                        "asset_ref": h.get("matched_value"),
+                        "source_url": h.get("source_url"),
+                        "estimated_value_eur": h.get("valuation_eur"),
+                        "status": "pending_ceo_approval",
+                        "auto_execute": False,
+                    }
+                )
+            if alert_hits:
+                meta["execution_status"] = "pending_ceo_approval"
+                meta["arbitrage_alerts"] = alert_hits
+            if pending_tx:
+                meta["pending_transactions"] = pending_tx
+
+        hunter_value = float(meta.get("hunter_value_eur") or 0)
+        meta["pattern_value_eur"] = round(data_value + (0 if priority == "outreach" else 0), 2)
         meta["pattern_intel_at"] = datetime.now(timezone.utc).isoformat()
 
-        if alert_hits:
-            meta["execution_status"] = "pending_ceo_approval"
-            meta["arbitrage_alerts"] = [
-                {
-                    "pattern_id": h.pattern_id,
-                    "matched_value": h.matched_value,
-                    "valuation_eur": h.valuation_eur,
-                    "context_snippet": h.context_snippet,
-                }
-                for h in alert_hits
-            ]
-        if pending_tx:
-            meta["pending_transactions"] = pending_tx
-
-        potential_boost = round(float(row.get("potential_value_eur") or 0) + data_value, 2)
+        potential_boost = round(float(row.get("potential_value_eur") or 0) + hunter_value, 2)
         updated = self._opportunity.update(
             opportunity_id,
             {
@@ -588,24 +663,31 @@ class MonetizationEngineService:
         if hit_dicts:
             self._append_harvest_event(
                 {
-                    "type": "pattern_intel",
+                    "type": "hunter_intel",
                     "opportunity_id": opportunity_id,
                     "hits_count": len(hit_dicts),
-                    "data_product_value_eur": data_value,
-                    "arbitrage_alerts": len(alert_hits),
-                    "execution_status": meta.get("execution_status") or "logged_only",
-                    "pending_transactions": len(pending_tx),
+                    "hunter_value_eur": hunter_value,
+                    "scenarios": meta.get("hunter_scenarios"),
+                    "execution_status": meta.get("execution_status") or "outreach_pending_approval",
                     "company": row.get("company_name", ""),
                 }
             )
 
         harvest = self._load_harvest()
         harvest["pattern_intel_value_eur"] = round(
-            float(harvest.get("pattern_intel_value_eur") or 0) + data_value,
+            float(harvest.get("pattern_intel_value_eur") or 0) + hunter_value,
             2,
         )
         harvest["pattern_hits_total"] = int(harvest.get("pattern_hits_total") or 0) + len(hit_dicts)
+        harvest["hunter_value_eur"] = round(float(harvest.get("hunter_value_eur") or 0) + hunter_value, 2)
         self._save_harvest(harvest)
+
+        context = "outreach" if priority == "outreach" else "seo_revival"
+        updated = self._smart_gate.auto_execute_if_qualified(
+            self._opportunity.get(opportunity_id) or updated,
+            context=context,
+            opportunity_update=self._opportunity.update,
+        )
 
         return updated
 
@@ -625,6 +707,9 @@ class MonetizationEngineService:
         )
         meta["profit_score"] = profit_score
         meta["niche"] = niche
+        country = GlobalSpiderService.infer_country_code(url)
+        meta["country_code"] = country
+        meta["scan_region"] = country
         result = self._route_scanned_target(row, profit_score=profit_score, meta=meta, manual=manual)
         target_id = result["target"]["id"]
         enriched = self.process_pattern_hits(target_id)
@@ -814,6 +899,98 @@ class MonetizationEngineService:
             "message": (
                 f"Сеть DE: {scanned}/{batch_limit} URL · {cities_hit} городов · "
                 f"журнал {passed} · архив {archived} · MRR прогноз {network['projected_mrr_eur']:.0f} €"
+            ),
+        }
+
+    def run_global_spider_scan(
+        self,
+        *,
+        niche: str = "local_service",
+        batch_limit: int = 500,
+        tech_pattern_ids: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Global Spider — technology-pattern targets worldwide (public URLs only)."""
+        niche_key = niche if niche in _NICHE_SCAN_QUERIES else "local_service"
+        batch_limit = max(1, min(_NETWORK_BATCH_MAX, int(batch_limit)))
+        candidates, discovery = self._global_spider.discover_candidate_urls(
+            niche=niche_key,
+            batch_limit=batch_limit,
+            tech_pattern_ids=tech_pattern_ids,
+        )
+
+        if not candidates:
+            spider = self._global_spider.spider_dashboard()
+            return {
+                "ok": False,
+                "mode": "global_spider",
+                "niche": niche_key,
+                "batch_limit": batch_limit,
+                "scanned": 0,
+                "passed_gate": 0,
+                "archived": 0,
+                "regions_scanned": discovery.get("regions_scanned", 0),
+                "discovery": discovery,
+                "global_spider": spider,
+                "errors": ["no_candidates_add_seed_targets_or_GOOGLE_PLACES_API_KEY"],
+                "message": (
+                    "Global Spider: нет кандидатов. Добавьте seed_targets в "
+                    "memory/global_spider_config.json или GOOGLE_PLACES_API_KEY."
+                ),
+            }
+
+        scanned = 0
+        passed = 0
+        archived = 0
+        skipped_tech = 0
+        errors: list[str] = []
+        countries: dict[str, int] = {}
+
+        for url in candidates:
+            try:
+                result = self.scan_and_gate(url, niche=niche_key)
+                target = result.get("target") or {}
+                analysis = target.get("site_analysis") if isinstance(target.get("site_analysis"), dict) else {}
+                if tech_pattern_ids and not self._global_spider.matches_tech_patterns(analysis, tech_pattern_ids):
+                    skipped_tech += 1
+                    continue
+                scanned += 1
+                cc = GlobalSpiderService.infer_country_code(url)
+                countries[cc] = countries.get(cc, 0) + 1
+                meta = target.get("meta") if isinstance(target.get("meta"), dict) else {}
+                meta["scan_mode"] = "global_spider"
+                meta["country_code"] = cc
+                self._opportunity.update(target["id"], {"meta": meta})
+                if result.get("lane") == _PROCESSING_LANE_HIGH:
+                    passed += 1
+                else:
+                    archived += 1
+            except ValueError as exc:
+                errors.append(f"{url}: {exc}")
+
+        junk_batch = self.process_junk_archive_cycle(limit=100)
+        self.sync_payment_providers()
+        network = self._network_portfolio(
+            self._opportunity.list_opportunities(source_id="asset_scan", limit=500)
+        )
+        return {
+            "ok": True,
+            "mode": "global_spider",
+            "niche": niche_key,
+            "batch_limit": batch_limit,
+            "scanned": scanned,
+            "passed_gate": passed,
+            "archived": archived,
+            "skipped_tech_filter": skipped_tech,
+            "regions_scanned": discovery.get("regions_scanned", 0),
+            "countries_hit": countries,
+            "discovery": discovery,
+            "global_spider": self._global_spider.spider_dashboard(),
+            "junk_micro_revenue_eur": junk_batch.get("revenue_eur", 0.0),
+            "network": network,
+            "errors": errors[:8],
+            "message": (
+                f"Global Spider: {scanned} URL · {len(countries)} стран · "
+                f"журнал {passed} · архив {archived} · tech-skip {skipped_tech}"
             ),
         }
 

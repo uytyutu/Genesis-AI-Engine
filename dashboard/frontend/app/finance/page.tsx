@@ -54,6 +54,14 @@ type Finance = {
   last_withdrawal: { at: string; amount_eur: number; provider: string; status_label: string } | null;
   revenue_sparkline: number[];
   pending_payments: PendingPayment[];
+  global_revenue?: {
+    currency: string;
+    countries_active: number;
+    total_revenue_eur: number;
+    total_pipeline_eur: number;
+    by_country: { country_code: string; revenue_eur: number; pipeline_eur: number; leads: number }[];
+    note: string;
+  };
 };
 
 export default function FinancePage() {
@@ -162,6 +170,37 @@ export default function FinancePage() {
             </div>
           </GenesisCard>
         )}
+
+        {finance?.global_revenue && finance.global_revenue.by_country.length > 0 ? (
+          <GenesisCard
+            title="Global Revenue Report"
+            subtitle={`${finance.global_revenue.countries_active} стран · ${finance.global_revenue.currency}`}
+          >
+            <p className="mb-3 text-xs text-genesis-muted">{finance.global_revenue.note}</p>
+            <div className="mb-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-genesis-border-subtle px-4 py-3">
+                <p className="text-xs text-genesis-muted">Доход по миру</p>
+                <p className="text-lg font-bold tabular-nums">{formatEur(finance.global_revenue.total_revenue_eur)}</p>
+              </div>
+              <div className="rounded-xl border border-genesis-border-subtle px-4 py-3">
+                <p className="text-xs text-genesis-muted">Воронка по миру</p>
+                <p className="text-lg font-bold tabular-nums">{formatEur(finance.global_revenue.total_pipeline_eur)}</p>
+              </div>
+            </div>
+            <ul className="space-y-2 text-sm">
+              {finance.global_revenue.by_country.slice(0, 8).map((row) => (
+                <li
+                  key={row.country_code}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-genesis-border-subtle px-3 py-2"
+                >
+                  <span className="font-medium">{row.country_code}</span>
+                  <span className="text-genesis-muted text-xs">{row.leads} лидов</span>
+                  <span className="tabular-nums font-semibold">{formatEur(row.revenue_eur)}</span>
+                </li>
+              ))}
+            </ul>
+          </GenesisCard>
+        ) : null}
 
         <GenesisCard
           title="Кошельки"

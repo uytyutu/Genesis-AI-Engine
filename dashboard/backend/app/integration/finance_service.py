@@ -288,6 +288,42 @@ class FinanceService:
 
         return result
 
+    def global_revenue_report(self, opportunities: list[dict]) -> dict:
+        revenue_by: dict[str, float] = {}
+        pipeline_by: dict[str, float] = {}
+        leads_by: dict[str, int] = {}
+        for row in opportunities:
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            cc = str(meta.get("country_code") or meta.get("scan_region") or "GLOBAL")
+            rev = float(row.get("revenue_eur") or 0)
+            pot = float(row.get("potential_value_eur") or 0)
+            if rev > 0:
+                revenue_by[cc] = round(revenue_by.get(cc, 0) + rev, 2)
+            if pot > 0 and row.get("status") not in ("won", "lost"):
+                pipeline_by[cc] = round(pipeline_by.get(cc, 0) + pot, 2)
+            leads_by[cc] = leads_by.get(cc, 0) + 1
+
+        countries = sorted(set(revenue_by) | set(pipeline_by) | set(leads_by))
+        rows = []
+        for cc in countries:
+            rows.append(
+                {
+                    "country_code": cc,
+                    "revenue_eur": revenue_by.get(cc, 0.0),
+                    "pipeline_eur": pipeline_by.get(cc, 0.0),
+                    "leads": leads_by.get(cc, 0),
+                }
+            )
+        rows.sort(key=lambda r: r["revenue_eur"], reverse=True)
+        return {
+            "currency": "EUR",
+            "countries_active": len([r for r in rows if r["revenue_eur"] > 0]),
+            "total_revenue_eur": round(sum(revenue_by.values()), 2),
+            "total_pipeline_eur": round(sum(pipeline_by.values()), 2),
+            "by_country": rows,
+            "note": "Global Revenue — доход и воронка по странам (из meta.country_code).",
+        }
+
     def _save_snapshot(self, snap: dict) -> None:
         path = self._memory / "finance_snapshot.json"
         path.parent.mkdir(parents=True, exist_ok=True)

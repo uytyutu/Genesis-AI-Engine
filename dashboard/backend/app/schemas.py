@@ -542,6 +542,7 @@ class FinanceCenter(BaseModel):
     last_withdrawal: LastWithdrawal | None = None
     revenue_sparkline: list[float] = []
     pending_payments: list[PendingPayment] = []
+    global_revenue: dict = {}
 
 
 class DepartmentStatus(BaseModel):
@@ -990,6 +991,10 @@ class EngineDashboard(BaseModel):
     network: dict = {}
     pattern_intel_value_eur: float = 0.0
     pattern_hits_total: int = 0
+    hunter: dict = {}
+    global_spider: dict = {}
+    smart_gate: dict = {}
+    digital_dust: dict = {}
     finance_gateway: dict = {}
     wallets: list[dict] = []
     withdrawal_enabled: bool = False
@@ -1037,6 +1042,31 @@ class EngineNetworkScanResponse(BaseModel):
     passed_gate: int
     archived: int
     cities_scanned: int = 0
+    junk_micro_revenue_eur: float = 0.0
+    network: dict = {}
+    errors: list[str] = []
+    message: str
+
+
+class EngineGlobalSpiderScanRequest(BaseModel):
+    niche: str = "local_service"
+    batch_limit: int = 500
+    tech_pattern_ids: list[str] = []
+
+
+class EngineGlobalSpiderScanResponse(BaseModel):
+    ok: bool
+    mode: str = "global_spider"
+    niche: str
+    batch_limit: int
+    scanned: int
+    passed_gate: int
+    archived: int
+    skipped_tech_filter: int = 0
+    regions_scanned: int = 0
+    countries_hit: dict = {}
+    discovery: dict = {}
+    global_spider: dict = {}
     junk_micro_revenue_eur: float = 0.0
     network: dict = {}
     errors: list[str] = []

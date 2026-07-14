@@ -328,7 +328,11 @@ class OpportunityService:
             "updated_at": now,
             "meta": payload.get("meta") if isinstance(payload.get("meta"), dict) else {},
             "website_url": (payload.get("website_url") or "").strip(),
-            "site_analysis": None,
+            "site_analysis": (
+                payload.get("site_analysis")
+                if isinstance(payload.get("site_analysis"), dict)
+                else None
+            ),
             "recommended_package_id": "",
             "recommended_price_eur": 0.0,
             "pricing_rationale": "",

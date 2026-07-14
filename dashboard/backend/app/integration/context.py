@@ -117,7 +117,8 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
         lead_intake = LeadIntakeService(opportunity, notifications)
         asset_scanner = AssetScannerService(opportunity)
         monetization_engine = MonetizationEngineService(
-            opportunity, finance, checkout, asset_scanner, path
+            opportunity, finance, checkout, asset_scanner, path,
+            acquisition=acquisition, factory=factory,
         )
         engine_accounting = EngineAccountingService(opportunity, path)
         financial_export = FinancialExportBridge(engine_accounting, finance, path)

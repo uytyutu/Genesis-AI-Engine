@@ -116,6 +116,8 @@ from app.schemas import (
     EngineJunkArchiveResponse,
     EngineNetworkScanRequest,
     EngineNetworkScanResponse,
+    EngineGlobalSpiderScanRequest,
+    EngineGlobalSpiderScanResponse,
     ConnectWalletRequest,
     WithdrawRequest,
     WithdrawResponse,
@@ -348,7 +350,16 @@ def get_finance_center() -> FinanceCenter:
     ctx = _ctx()
     dash = ctx.owner.dashboard()
     data = ctx.finance.finance_center(dash["owner_name"], dash["greeting"])
+    opps = ctx.opportunity.list_opportunities(source_id="asset_scan", limit=1000)
+    data["global_revenue"] = ctx.finance.global_revenue_report(opps)
     return FinanceCenter(**data)
+
+
+@app.get("/api/owner/finance/global-revenue")
+def get_global_revenue_report() -> dict:
+    ctx = _ctx()
+    opps = ctx.opportunity.list_opportunities(source_id="asset_scan", limit=1000)
+    return ctx.finance.global_revenue_report(opps)
 
 
 @app.get("/api/owner/company", response_model=CompanyOverview)
@@ -504,6 +515,37 @@ def engine_network_scan(request: EngineNetworkScanRequest) -> EngineNetworkScanR
     return EngineNetworkScanResponse(**result)
 
 
+@app.post("/api/engine/global-spider-scan")
+def engine_global_spider_scan(request: EngineGlobalSpiderScanRequest) -> dict:
+    return _ctx().monetization_engine.run_global_spider_scan(
+        niche=request.niche,
+        batch_limit=min(1000, max(1, request.batch_limit)),
+        tech_pattern_ids=request.tech_pattern_ids or None,
+    )
+
+
+@app.get("/api/engine/analytics/live")
+def engine_analytics_live() -> dict:
+    return _ctx().monetization_engine.live_analytics()
+
+
+@app.get("/api/engine/digital-dust/dashboard")
+def engine_digital_dust_dashboard() -> dict:
+    return _ctx().monetization_engine._digital_dust.dashboard()  # noqa: SLF001
+
+
+@app.get("/api/engine/logic-chain")
+def engine_logic_chain() -> dict:
+    from app.integration.digital_dust_service import DigitalDustService
+
+    return {"steps": DigitalDustService.logic_chain()}
+
+
+@app.get("/api/engine/smart-gate/dashboard")
+def engine_smart_gate_dashboard() -> dict:
+    return _ctx().monetization_engine._smart_gate.dashboard()  # noqa: SLF001
+
+
 @app.post("/api/engine/junk-archive/run", response_model=EngineJunkArchiveResponse)
 def engine_junk_archive_run() -> EngineJunkArchiveResponse:
     return EngineJunkArchiveResponse(**_ctx().monetization_engine.process_junk_archive_cycle())
@@ -605,6 +647,21 @@ def engine_accounting_export_datev() -> PlainTextResponse:
         content=csv_text,
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="virtus_datev_export.csv"'},
+    )
+
+
+@app.get("/api/engine/hunter/dashboard")
+def engine_hunter_dashboard() -> dict:
+    return _ctx().monetization_engine._hunter.hunter_dashboard()  # noqa: SLF001
+
+
+@app.get("/api/engine/hunter/dataset.csv")
+def engine_hunter_dataset_csv() -> PlainTextResponse:
+    csv_text = _ctx().monetization_engine._hunter.dataset_export_csv()  # noqa: SLF001
+    return PlainTextResponse(
+        content=csv_text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="virtus_hunter_dataset.csv"'},
     )
 
 

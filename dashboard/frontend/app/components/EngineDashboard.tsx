@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEur } from "../lib/formatEur";
 import { EngineTaxAccountingPanel } from "./EngineTaxAccountingPanel";
+import { EngineDeveloperGuide } from "./EngineDeveloperGuide";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -67,6 +68,43 @@ type EngineDash = {
   };
   pattern_intel_value_eur?: number;
   pattern_hits_total?: number;
+  hunter?: {
+    mode: string;
+    zero_cost: boolean;
+    priority: string;
+    scenario_stats: {
+      bounty: number;
+      seo_revival: number;
+      outreach: number;
+      dataset: number;
+      outreach_ready: number;
+    };
+    hunter_value_eur: number;
+    dataset_rows: number;
+    note: string;
+  };
+  digital_dust?: {
+    recoverable_assets_count: number;
+    recoverable_value_eur: number;
+    legal_boundary: string;
+    etherscan_configured: boolean;
+    note: string;
+  };
+  global_spider?: {
+    mode: string;
+    zero_cost: boolean;
+    regions_enabled: boolean;
+    seed_targets_count: number;
+    places_configured: boolean;
+    note: string;
+  };
+  smart_gate?: {
+    max_risk_score: number;
+    min_expected_margin_eur: number;
+    auto_executed_count: number;
+    manual_review_count: number;
+    note: string;
+  };
   wallets: Wallet[];
   withdrawal_enabled: boolean;
 };
@@ -128,6 +166,23 @@ export function EngineDashboard() {
           ? `Stripe синхронизирован: ${formatEur(body.stripe_available_eur)}`
           : "Синхронизация завершена",
       );
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function runGlobalSpider() {
+    setBusy("global");
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/engine/global-spider-scan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ niche: scanNiche, batch_limit: 500, tech_pattern_ids: [] }),
+      });
+      const body = await res.json();
+      setMessage(body.message ?? (res.ok ? "Global Spider завершён" : "Ошибка"));
       refresh();
     } finally {
       setBusy("");
@@ -303,6 +358,7 @@ export function EngineDashboard() {
           <EngineTaxAccountingPanel />
         ) : (
           <>
+        <EngineDeveloperGuide />
         {dash && (
           <section id="network-kpi" className="genesis-card p-5">
             <h2 className="text-sm font-semibold">Сеть активов · путь к €10 000/мес</h2>
@@ -325,22 +381,112 @@ export function EngineDashboard() {
             </div>
             <p className="mt-3 text-xs text-violet-200">
               PublicIntelMiner: {dash.pattern_hits_total ?? 0} паттернов · потенциал датасета{" "}
-              {formatEur(dash.pattern_intel_value_eur ?? 0)} · покупки только после CEO Approve
+              {formatEur(dash.pattern_intel_value_eur ?? 0)} · режим Hunter-Gatherer (€0 вложений)
             </p>
+            {dash.hunter ? (
+              <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4">
+                <h3 className="text-xs font-semibold text-emerald-100">
+                  Hunter-Gatherer · {dash.hunter.mode} · приоритет {dash.hunter.priority}
+                </h3>
+                <div className="mt-3 grid gap-2 sm:grid-cols-4 text-[11px]">
+                  <div>
+                    <span className="text-genesis-muted">Bug Bounty Lite</span>
+                    <p className="font-semibold text-white">{dash.hunter.scenario_stats.bounty}</p>
+                  </div>
+                  <div>
+                    <span className="text-genesis-muted">SEO Revival</span>
+                    <p className="font-semibold text-white">{dash.hunter.scenario_stats.seo_revival}</p>
+                  </div>
+                  <div>
+                    <span className="text-genesis-muted">Outreach</span>
+                    <p className="font-semibold text-white">
+                      {dash.hunter.scenario_stats.outreach} · готово {dash.hunter.scenario_stats.outreach_ready}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-genesis-muted">Датасет</span>
+                    <p className="font-semibold text-white">{dash.hunter.dataset_rows} строк</p>
+                  </div>
+                </div>
+                <p className="mt-2 text-[11px] text-emerald-200/80">
+                  Потенциал услуг: {formatEur(dash.hunter.hunter_value_eur)} · {dash.hunter.note}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    href="/acquisition"
+                    className="rounded-lg border border-emerald-500/40 px-3 py-1.5 text-[11px] text-emerald-100 hover:bg-emerald-900/30"
+                  >
+                    Очередь Outreach →
+                  </Link>
+                  <a
+                    href={`${API}/api/engine/hunter/dataset.csv`}
+                    className="rounded-lg border border-white/15 px-3 py-1.5 text-[11px] text-white/90 hover:bg-white/5"
+                  >
+                    Скачать датасет CSV
+                  </a>
+                </div>
+              </div>
+            ) : null}
+            {dash.smart_gate ? (
+              <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-950/20 p-4">
+                <h3 className="text-xs font-semibold text-amber-100">Smart-Gate · условный авто-апрув</h3>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2 text-[11px]">
+                  <div>
+                    <span className="text-genesis-muted">Auto-Executed</span>
+                    <p className="font-semibold text-emerald-300">{dash.smart_gate.auto_executed_count}</p>
+                  </div>
+                  <div>
+                    <span className="text-genesis-muted">Manual Review</span>
+                    <p className="font-semibold text-amber-200">{dash.smart_gate.manual_review_count}</p>
+                  </div>
+                </div>
+                <p className="mt-2 text-[11px] text-amber-200/80">
+                  Риск ≤ {dash.smart_gate.max_risk_score} · маржа ≥ {formatEur(dash.smart_gate.min_expected_margin_eur)} ·{" "}
+                  {dash.smart_gate.note}
+                </p>
+              </div>
+            ) : null}
+            {dash.global_spider ? (
+              <p className="mt-3 text-[11px] text-sky-200">
+                Global Spider: seeds {dash.global_spider.seed_targets_count} · Places{" "}
+                {dash.global_spider.places_configured ? "ON" : "OFF"} · {dash.global_spider.note}
+              </p>
+            ) : null}
+            {dash.digital_dust ? (
+              <div className="mt-4 rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-4">
+                <h3 className="text-xs font-semibold text-cyan-100">Digital Dust · Potential Recoverable</h3>
+                <p className="mt-1 text-[10px] text-cyan-200/70">{dash.digital_dust.legal_boundary}</p>
+                <p className="mt-2 text-[11px]">
+                  Активов: <strong>{dash.digital_dust.recoverable_assets_count}</strong> · потенциал{" "}
+                  {formatEur(dash.digital_dust.recoverable_value_eur)} · Etherscan{" "}
+                  {dash.digital_dust.etherscan_configured ? "ON" : "OFF"}
+                </p>
+              </div>
+            ) : null}
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
               <div
                 className="h-full rounded-full bg-emerald-500 transition-all"
                 style={{ width: `${Math.min(100, dash.network?.target_progress_percent ?? 0)}%` }}
               />
             </div>
-            <button
-              type="button"
-              disabled={busy === "network"}
-              onClick={() => void runNetworkScan()}
-              className="mt-4 rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-            >
-              {busy === "network" ? "Сканирую Германию…" : "🌐 Массовый поиск · до 1000 URL (DE)"}
-            </button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={busy === "network"}
+                onClick={() => void runNetworkScan()}
+                className="rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {busy === "network" ? "Сканирую Германию…" : "🇩🇪 DE · до 1000 URL"}
+              </button>
+              <button
+                type="button"
+                disabled={busy === "global"}
+                onClick={() => void runGlobalSpider()}
+                className="rounded-xl bg-sky-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {busy === "global" ? "Global Spider…" : "🕸 Global Spider · весь мир"}
+              </button>
+            </div>
           </section>
         )}
 

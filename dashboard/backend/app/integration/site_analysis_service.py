@@ -45,6 +45,25 @@ class SiteAnalysisService:
             strengths.append("Seite erreichbar")
 
         lower = html.lower()
+        tech_stack: list[str] = []
+        if "wp-content" in lower or "wordpress" in lower:
+            tech_stack.append("wordpress")
+        if "joomla" in lower:
+            tech_stack.append("joomla")
+        if "drupal" in lower:
+            tech_stack.append("drupal")
+        if "wix.com" in lower:
+            tech_stack.append("wix")
+        if "squarespace" in lower:
+            tech_stack.append("squarespace")
+
+        lang_match = re.search(r'<html[^>]+lang=["\']([a-zA-Z-]{2,8})', html, re.I)
+        detected_lang = lang_match.group(1).lower() if lang_match else ""
+        if not detected_lang and re.search(r"[\u0400-\u04FF]", html):
+            detected_lang = "ru"
+        elif not detected_lang and re.search(r"[\u0900-\u097F]", html):
+            detected_lang = "hi"
+
         if "viewport" not in lower:
             issues.append("Kein viewport — oft schlecht auf dem Handy")
         else:
@@ -89,6 +108,8 @@ class SiteAnalysisService:
             "strengths": strengths,
             "issue_count": len(issues),
             "improvement_score": score,
+            "tech_stack": tech_stack,
+            "detected_lang": detected_lang,
             "analyzed_at": __import__("datetime").datetime.now(
                 __import__("datetime").timezone.utc
             ).isoformat(),

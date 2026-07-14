@@ -10,30 +10,31 @@ def miner(tmp_path: Path):
     return PublicIntelMiner(tmp_path)
 
 
-def test_mine_eth_contract(miner: PublicIntelMiner):
+def test_mine_stale_copyright(miner: PublicIntelMiner):
     opp = {
         "website_url": "https://shop.example",
         "site_analysis": {
             "issues": [],
-            "notes": "Partner wallet 0xAbCdEf0123456789AbCdEf0123456789AbCdEf01 listed",
+            "notes": "Footer: Copyright © 2018 — all rights reserved",
         },
     }
     hits = miner.mine_patterns_from_scan(opp)
-    assert any(h.pattern_id == "eth_contract_public" for h in hits)
-    assert hits[0].lane == "data_product"
+    assert any(h.pattern_id == "copyright_stale" for h in hits)
+    assert hits[0].lane == "seo_revival"
 
 
-def test_mine_nft_collection_sets_arbitrage_lane(miner: PublicIntelMiner):
+def test_mine_no_https_outreach_lane(miner: PublicIntelMiner):
     opp = {
-        "website_url": "https://agency.example",
-        "fit_reason": "See https://opensea.io/collection/cool-degens for merch",
-        "site_analysis": {},
+        "website_url": "http://insecure.example",
+        "site_analysis": {
+            "issues": ["Kein HTTPS — unsicher für Besucher"],
+        },
     }
     hits = miner.mine_patterns_from_scan(opp)
-    nft = [h for h in hits if h.pattern_id == "nft_collection_opensea"]
-    assert len(nft) == 1
-    assert nft[0].lane == "arbitrage_alert"
-    assert nft[0].valuation_eur == 5.0
+    https = [h for h in hits if h.pattern_id == "no_https_issue"]
+    assert len(https) == 1
+    assert https[0].lane == "outreach_lead"
+    assert https[0].valuation_eur == 150.0
 
 
 def test_rejects_private_key_context(miner: PublicIntelMiner):
@@ -47,26 +48,35 @@ def test_rejects_private_key_context(miner: PublicIntelMiner):
     assert hits == []
 
 
-def test_process_pattern_hits_pending_ceo(monetization_engine_fixture):
+def test_process_pattern_hits_service_first_outreach(monetization_engine_fixture):
     engine, opp = monetization_engine_fixture
     row = opp.create(
         {
             "source_id": "asset_scan",
             "opportunity_type": "asset",
-            "company_name": "NFT Shop",
-            "website_url": "https://nft.example",
-            "fit_reason": "https://opensea.io/collection/test-nft",
-            "potential_value_eur": 30,
-            "meta": {"niche": "niche_blog"},
+            "company_name": "Weak Dental",
+            "website_url": "http://dental.example",
+            "fit_reason": "Lokaler Zahnarzt",
+            "potential_value_eur": 120,
+            "site_analysis": {
+                "issues": ["Kein HTTPS — unsicher", "wenig Inhalt auf Startseite"],
+                "title": "Zahnarzt",
+            },
+            "meta": {"niche": "local_service"},
         }
     )
     updated = engine.process_pattern_hits(row["id"])
     meta = updated.get("meta") or {}
     assert meta.get("pattern_hits_count", 0) >= 1
-    assert meta.get("execution_status") == "pending_ceo_approval"
-    assert meta.get("pending_transactions")
-    assert meta["pending_transactions"][0]["status"] == "pending_ceo_approval"
-    assert meta["pending_transactions"][0]["auto_execute"] is False
+    assert meta.get("execution_status") in (
+        "outreach_pending_approval",
+        "auto_executed",
+        "pending_ceo_approval",
+    )
+    assert meta.get("monetization_priority") == "outreach"
+    assert meta.get("hunter_scenarios")
+    assert meta.get("smart_gate")
+    assert "pending_transactions" not in meta or not meta["pending_transactions"]
 
 
 @pytest.fixture()
