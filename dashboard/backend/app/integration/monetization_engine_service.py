@@ -1085,6 +1085,8 @@ class MonetizationEngineService:
         return {"ok": True, "wallet_id": wallet_id, "label": account_label}
 
     def request_withdrawal(self, amount_eur: float, wallet_id: str) -> dict:
+        if self._business_mode and self._business_mode.is_sandbox():
+            raise ValueError("sandbox_mode_withdrawal_disabled")
         amount = round(float(amount_eur), 2)
         if amount <= 0:
             raise ValueError("invalid_amount")

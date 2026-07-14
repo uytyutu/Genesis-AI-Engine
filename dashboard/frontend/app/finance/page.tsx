@@ -39,6 +39,7 @@ type Payout = {
 type Finance = {
   greeting: string;
   demo_mode: boolean;
+  system_mode?: string;
   payment_connected: boolean;
   payment_provider_label: string;
   data_source_note: string;
@@ -54,6 +55,7 @@ type Finance = {
   last_withdrawal: { at: string; amount_eur: number; provider: string; status_label: string } | null;
   revenue_sparkline: number[];
   pending_payments: PendingPayment[];
+  financial_view?: FinancialView;
   global_revenue?: {
     currency: string;
     countries_active: number;
@@ -64,9 +66,36 @@ type Finance = {
   };
 };
 
+type FinancialView = {
+  system_mode: string;
+  funds_held_by_genesis_eur: number;
+  money_never_stored: boolean;
+  money_route: string;
+  custody_note: string;
+  gross_synced_eur: number;
+  tax_reserve_eur: number;
+  net_clean_eur: number;
+  safe_to_withdraw_eur: number;
+  safe_to_withdraw_status: "sandbox" | "green" | "amber";
+  safe_to_withdraw_label: string;
+  pending_at_provider_eur: number;
+  potential_revenue_eur: number;
+  potential_revenue?: {
+    potential_revenue_eur: number;
+    pipeline_potential_eur?: number;
+    hunter_potential_eur?: number;
+    disclaimer?: string;
+  };
+  reconcile_enabled: boolean;
+  withdraw_enabled: boolean;
+  last_reconcile_at: string | null;
+  disclaimer: string;
+};
+
 export default function FinancePage() {
   const [finance, setFinance] = useState<Finance | null>(null);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [reconciling, setReconciling] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -77,6 +106,18 @@ export default function FinancePage() {
     }
   }, []);
 
+  const reconcile = useCallback(async () => {
+    setReconciling(true);
+    try {
+      const res = await fetch(`${API}/api/owner/finance/reconcile`, { method: "POST" });
+      if (res.ok) {
+        await refresh();
+      }
+    } finally {
+      setReconciling(false);
+    }
+  }, [refresh]);
+
   useEffect(() => {
     refresh();
     const t = setInterval(refresh, 10000);
@@ -85,20 +126,118 @@ export default function FinancePage() {
 
   const showLive = finance?.payment_connected || finance?.demo_mode;
   const connectedWallets = finance?.wallets?.filter((w) => w.connected).length ?? 0;
+  const view = finance?.financial_view;
+  const isSandbox = view?.system_mode === "sandbox" || finance?.system_mode === "sandbox";
+  const safeAmount = view?.safe_to_withdraw_eur ?? finance?.available_for_withdrawal_eur ?? 0;
+  const canWithdraw = view?.withdraw_enabled ?? finance?.withdrawal_enabled ?? false;
 
   return (
     <main>
       <div className="mx-auto max-w-3xl space-y-5">
         <header className="animate-fade-up text-center">
-          <p className="genesis-label">Финансовый центр</p>
+          <p className="genesis-label">Financial View</p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight">{finance?.greeting ?? BRAND_NAME}</h1>
           <p className="mt-2 text-sm text-genesis-muted">{finance?.payment_provider_label ?? "Payment Hub"}</p>
+          {isSandbox && (
+            <p className="mt-2 inline-block rounded-full border border-sky-500/30 bg-sky-950/30 px-3 py-1 text-xs text-sky-200">
+              Sandbox Mode — Potential Revenue, без реальных выплат
+            </p>
+          )}
           {finance?.demo_mode && (
             <p className="mt-2 inline-block rounded-full border border-amber-500/30 bg-amber-950/30 px-3 py-1 text-xs text-amber-200">
               Демо — не реальные деньги
             </p>
           )}
         </header>
+
+        {view ? (
+          <section className="genesis-card overflow-hidden border-emerald-500/25 p-0">
+            <div
+              className={`p-6 sm:p-8 ${
+                view.safe_to_withdraw_status === "green"
+                  ? "bg-gradient-to-br from-emerald-500/15 via-transparent to-genesis-accent/5"
+                  : view.safe_to_withdraw_status === "sandbox"
+                    ? "bg-gradient-to-br from-sky-500/10 via-transparent to-genesis-accent/5"
+                    : "bg-gradient-to-br from-amber-500/10 via-transparent to-genesis-accent/5"
+              }`}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="genesis-label">Safe to Withdraw</p>
+                  <p className="mt-1 text-xs text-genesis-muted">{view.safe_to_withdraw_label}</p>
+                </div>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${
+                    view.safe_to_withdraw_status === "green"
+                      ? "bg-emerald-500/20 text-emerald-300"
+                      : view.safe_to_withdraw_status === "sandbox"
+                        ? "bg-sky-500/20 text-sky-200"
+                        : "bg-amber-500/20 text-amber-200"
+                  }`}
+                >
+                  {view.safe_to_withdraw_status === "green"
+                    ? "✔ Безопасно к выводу"
+                    : view.safe_to_withdraw_status === "sandbox"
+                      ? "◎ Sandbox"
+                      : "◎ Резерв"}
+                </span>
+              </div>
+              <p className="mt-4 text-4xl font-bold tabular-nums tracking-tight sm:text-5xl">
+                {isSandbox ? formatEur(view.potential_revenue_eur) : formatEur(safeAmount)}
+              </p>
+              <p className="mt-2 text-xs text-genesis-muted">
+                {isSandbox
+                  ? "Potential Revenue — оценка, не реальный доход"
+                  : `Чистая прибыль после резерва: ${formatEur(view.net_clean_eur)}`}
+              </p>
+            </div>
+            <div className="divide-y divide-genesis-border-subtle border-t border-genesis-border-subtle text-sm">
+              <FinanceRow
+                label="В Genesis (всегда 0 €)"
+                value={formatEur(view.funds_held_by_genesis_eur)}
+              />
+              {!isSandbox && (
+                <>
+                  <FinanceRow label="Синхронизировано (грязными)" value={formatEur(view.gross_synced_eur)} />
+                  <FinanceRow label="Резерв под налоги" value={formatEur(view.tax_reserve_eur)} />
+                  <FinanceRow label="Чистая прибыль" value={formatEur(view.net_clean_eur)} highlight />
+                  <FinanceRow label="Ожидает у провайдера" value={formatEur(view.pending_at_provider_eur)} />
+                </>
+              )}
+              {isSandbox && view.potential_revenue ? (
+                <>
+                  <FinanceRow
+                    label="Воронка лидов"
+                    value={formatEur(view.potential_revenue.pipeline_potential_eur ?? 0)}
+                  />
+                  <FinanceRow
+                    label="Hunter-Gatherer"
+                    value={formatEur(view.potential_revenue.hunter_potential_eur ?? 0)}
+                  />
+                </>
+              ) : null}
+            </div>
+            <div className="border-t border-genesis-border-subtle p-4 space-y-3">
+              <p className="text-xs leading-relaxed text-genesis-muted">{view.custody_note}</p>
+              <p className="text-xs text-genesis-muted">{view.money_route}</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={!view.reconcile_enabled || reconciling}
+                  onClick={reconcile}
+                  className="rounded-xl border border-genesis-border px-4 py-2.5 text-xs font-medium hover:bg-genesis-elevated disabled:opacity-40"
+                >
+                  {reconciling ? "Сверка…" : "Вывести / Сверить с банком"}
+                </button>
+                {view.last_reconcile_at ? (
+                  <span className="self-center text-xs text-genesis-muted">
+                    Последняя сверка: {view.last_reconcile_at.slice(0, 19).replace("T", " ")}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <PendingPaymentsPanel payments={finance?.pending_payments ?? []} />
 
@@ -141,11 +280,11 @@ export default function FinancePage() {
             <div className="flex gap-3">
               <button
                 type="button"
-                disabled={!finance?.withdrawal_enabled}
+                disabled={!canWithdraw}
                 onClick={() => setWithdrawOpen(true)}
                 className="flex-1 rounded-2xl bg-gradient-to-r from-genesis-accent to-blue-600 py-3.5 text-sm font-semibold text-white shadow-glow disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Вывести средства
+                {isSandbox ? "Вывод в Sandbox недоступен" : "Вывести средства"}
               </button>
               <Link
                 href="/"
@@ -311,7 +450,7 @@ export default function FinancePage() {
       <WithdrawModal
         open={withdrawOpen}
         onClose={() => setWithdrawOpen(false)}
-        amount={finance?.available_for_withdrawal_eur ?? 0}
+        amount={safeAmount}
         wallets={finance?.wallets ?? []}
       />
     </main>

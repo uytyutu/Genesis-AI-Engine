@@ -350,10 +350,27 @@ def get_owner_dashboard() -> OwnerDashboard:
 def get_finance_center() -> FinanceCenter:
     ctx = _ctx()
     dash = ctx.owner.dashboard()
-    data = ctx.finance.finance_center(dash["owner_name"], dash["greeting"])
     opps = ctx.opportunity.list_opportunities(source_id="asset_scan", limit=1000)
+    data = ctx.finance.finance_center(
+        dash["owner_name"],
+        dash["greeting"],
+        business_mode=ctx.business_mode,
+        opportunities=opps,
+    )
     data["global_revenue"] = ctx.finance.global_revenue_report(opps)
     return FinanceCenter(**data)
+
+
+@app.post("/api/owner/finance/reconcile")
+def reconcile_finance() -> dict:
+    ctx = _ctx()
+    opps = ctx.opportunity.list_opportunities(source_id="asset_scan", limit=1000)
+    if ctx.business_mode.is_live():
+        try:
+            ctx.monetization_engine.sync_payment_providers()
+        except Exception:
+            pass
+    return ctx.finance.reconcile(business_mode=ctx.business_mode, opportunities=opps)
 
 
 @app.get("/api/owner/finance/global-revenue")
@@ -609,6 +626,11 @@ def engine_withdraw(request: WithdrawRequest) -> WithdrawResponse:
             raise HTTPException(status_code=400, detail="Недостаточно средств на балансе добычи")
         if str(e) == "invalid_amount":
             raise HTTPException(status_code=400, detail="Некорректная сумма")
+        if str(e) == "sandbox_mode_withdrawal_disabled":
+            raise HTTPException(
+                status_code=403,
+                detail="Вывод недоступен в Sandbox Mode — активируйте бизнес (ACTIVATE BUSINESS)",
+            )
         raise HTTPException(status_code=400, detail="Вывод не выполнен")
     return WithdrawResponse(**result)
 

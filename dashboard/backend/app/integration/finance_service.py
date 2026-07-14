@@ -213,7 +213,159 @@ class FinanceService:
         except (json.JSONDecodeError, OSError, TypeError, ValueError):
             return []
 
-    def finance_center(self, owner_name: str, greeting: str) -> dict:
+    def _load_tax_settings(self) -> dict:
+        path = self._memory / "engine_tax_config.json"
+        defaults = {
+            "vat_rate_percent": 19.0,
+            "stripe_fee_percent": 1.4,
+            "stripe_fee_fixed_eur": 0.25,
+        }
+        if not path.is_file():
+            return dict(defaults)
+        try:
+            merged = dict(defaults)
+            merged.update(json.loads(path.read_text(encoding="utf-8")))
+            return merged
+        except (json.JSONDecodeError, OSError):
+            return dict(defaults)
+
+    def _stripe_fee(self, gross: float, settings: dict) -> float:
+        if gross <= 0:
+            return 0.0
+        pct = float(settings.get("stripe_fee_percent") or 0) / 100.0
+        fixed = float(settings.get("stripe_fee_fixed_eur") or 0)
+        return round(gross * pct + fixed, 2)
+
+    def financial_view(
+        self,
+        *,
+        business_mode=None,
+        opportunities: list[dict] | None = None,
+        demo: bool = False,
+        connected: bool = False,
+    ) -> dict:
+        """Wallet-like display synced from payment providers — Genesis never holds funds."""
+        snap = self._load_snapshot()
+        config = self._load_config()
+        settings = self._load_tax_settings()
+        last_sync = str(config.get("last_sync_at", "") or "")
+
+        custody_note = (
+            "Деньги никогда не хранятся в Genesis. "
+            "Клиент платит → Stripe/PayPal/банк → ваш личный счёт. "
+            "Genesis только фиксирует: «счёт оплачен, средства поступили»."
+        )
+        money_route = "Клиент → платёжный шлюз → ваш банковский счёт"
+
+        sandbox = business_mode.is_sandbox() if business_mode else False
+        if sandbox:
+            potential = (
+                business_mode.compute_potential_revenue(opportunities or [])
+                if business_mode
+                else {"potential_revenue_eur": 0.0, "disclaimer": ""}
+            )
+            return {
+                "system_mode": "sandbox",
+                "funds_held_by_genesis_eur": 0.0,
+                "money_never_stored": True,
+                "money_route": money_route,
+                "custody_note": custody_note,
+                "gross_synced_eur": 0.0,
+                "tax_reserve_eur": 0.0,
+                "net_clean_eur": 0.0,
+                "safe_to_withdraw_eur": 0.0,
+                "safe_to_withdraw_status": "sandbox",
+                "safe_to_withdraw_label": "Sandbox — только Potential Revenue",
+                "pending_at_provider_eur": 0.0,
+                "potential_revenue": potential,
+                "potential_revenue_eur": float(potential.get("potential_revenue_eur") or 0),
+                "reconcile_enabled": True,
+                "withdraw_enabled": False,
+                "last_reconcile_at": last_sync or None,
+                "disclaimer": str(
+                    potential.get("disclaimer")
+                    or "В Sandbox нет реальных выплат — только оценка потенциала."
+                ),
+            }
+
+        if demo:
+            gross = float(_DEMO_FINANCE["gross_revenue_eur"])
+            available = float(_DEMO_FINANCE["available_for_withdrawal_eur"])
+            pending = float(_DEMO_FINANCE["pending_payouts_eur"])
+        else:
+            gross = float(snap.get("gross_revenue_eur") or snap.get("platform_balance_eur") or 0)
+            available = float(snap.get("available_for_withdrawal_eur") or 0)
+            pending = float(snap.get("pending_payouts_eur") or 0)
+
+        commission = self._stripe_fee(gross, settings)
+        net_after_fees = round(max(0.0, gross - commission), 2)
+        vat_rate = float(settings.get("vat_rate_percent") or 19) / 100.0
+        tax_reserve = round(net_after_fees * vat_rate, 2)
+        net_clean = round(net_after_fees - tax_reserve, 2)
+        provider_available = round(max(0.0, available - pending), 2)
+        safe = round(max(0.0, min(provider_available, net_clean)), 2)
+
+        if safe > 0:
+            status = "green"
+            label = "Safe to Withdraw"
+        elif gross > 0 or available > 0:
+            status = "amber"
+            label = "Резерв под налоги или ожидание выплаты"
+        else:
+            status = "amber"
+            label = "Ожидание первой оплаты"
+
+        can_withdraw = (connected or demo) and safe > 0
+        return {
+            "system_mode": "live",
+            "funds_held_by_genesis_eur": 0.0,
+            "money_never_stored": True,
+            "money_route": money_route,
+            "custody_note": custody_note,
+            "gross_synced_eur": round(gross, 2),
+            "commission_eur": commission,
+            "net_after_fees_eur": net_after_fees,
+            "tax_reserve_eur": tax_reserve,
+            "net_clean_eur": net_clean,
+            "safe_to_withdraw_eur": safe,
+            "safe_to_withdraw_status": status,
+            "safe_to_withdraw_label": label,
+            "pending_at_provider_eur": pending,
+            "potential_revenue_eur": 0.0,
+            "reconcile_enabled": connected or demo,
+            "withdraw_enabled": can_withdraw,
+            "last_reconcile_at": last_sync or None,
+            "disclaimer": (
+                "Цифровой сейф: учёт до копейки. Деньги на вашем банковском счёте — "
+                "Genesis только синхронизирует и показывает Safe to Withdraw."
+            ),
+        }
+
+    def reconcile(self, *, business_mode=None, opportunities: list[dict] | None = None) -> dict:
+        config = self._load_config()
+        now = datetime.now(timezone.utc).isoformat()
+        config["last_sync_at"] = now
+        path = self._memory / "finance_config.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
+        connected = bool(config.get("payment_provider"))
+        demo = bool(config.get("demo_mode"))
+        view = self.financial_view(
+            business_mode=business_mode,
+            opportunities=opportunities,
+            demo=demo,
+            connected=connected,
+        )
+        return {"ok": True, "synced_at": now, "financial_view": view}
+
+    def finance_center(
+        self,
+        owner_name: str,
+        greeting: str,
+        *,
+        business_mode=None,
+        opportunities: list[dict] | None = None,
+    ) -> dict:
         config = self._load_config()
         snap = self._load_snapshot()
         provider = config.get("payment_provider")
@@ -280,11 +432,20 @@ class FinanceService:
             for key, val in _DEMO_FINANCE.items():
                 result[key] = val
             result["payment_provider_label"] = "Demo (имитация)"
-            result["withdrawal_enabled"] = True
             result["recent_transactions"] = [
                 {"at": "2026-07-03T03:11:00Z", "amount_eur": 49.0, "label": "Landing стоматология", "category": "sale"},
                 {"at": "2026-07-02T18:00:00Z", "amount_eur": 50.0, "label": "Landing Page", "category": "sale"},
             ]
+
+        view = self.financial_view(
+            business_mode=business_mode,
+            opportunities=opportunities,
+            demo=demo,
+            connected=connected,
+        )
+        result["financial_view"] = view
+        result["system_mode"] = view["system_mode"]
+        result["withdrawal_enabled"] = bool(view.get("withdraw_enabled"))
 
         return result
 

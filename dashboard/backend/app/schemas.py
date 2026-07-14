@@ -514,6 +514,29 @@ class LastWithdrawal(BaseModel):
     status_label: str
 
 
+class FinancialView(BaseModel):
+    system_mode: str = "sandbox"
+    funds_held_by_genesis_eur: float = 0.0
+    money_never_stored: bool = True
+    money_route: str = ""
+    custody_note: str = ""
+    gross_synced_eur: float = 0.0
+    commission_eur: float = 0.0
+    net_after_fees_eur: float = 0.0
+    tax_reserve_eur: float = 0.0
+    net_clean_eur: float = 0.0
+    safe_to_withdraw_eur: float = 0.0
+    safe_to_withdraw_status: str = "sandbox"
+    safe_to_withdraw_label: str = ""
+    pending_at_provider_eur: float = 0.0
+    potential_revenue_eur: float = 0.0
+    potential_revenue: dict = {}
+    reconcile_enabled: bool = False
+    withdraw_enabled: bool = False
+    last_reconcile_at: str | None = None
+    disclaimer: str = ""
+
+
 class FinanceCenter(BaseModel):
     owner_name: str
     greeting: str
@@ -543,6 +566,8 @@ class FinanceCenter(BaseModel):
     revenue_sparkline: list[float] = []
     pending_payments: list[PendingPayment] = []
     global_revenue: dict = {}
+    system_mode: str = "sandbox"
+    financial_view: FinancialView | dict = {}
 
 
 class DepartmentStatus(BaseModel):
