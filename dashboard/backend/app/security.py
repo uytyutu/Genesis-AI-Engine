@@ -51,6 +51,8 @@ _PUBLIC_PATTERNS: tuple[tuple[str, str], ...] = (
     (r"^/api/sales/orders/[^/]+/status$", "GET"),
     (r"^/api/sales/orders/[^/]+/checkout$", "POST"),
     (r"^/api/sales/orders/[^/]+/confirm-payment$", "POST"),
+    (r"^/api/sales/orders/[^/]+/pay-sandbox$", "POST"),
+    (r"^/api/factory/intent$", "POST"),
     (r"^/api/factory/products/[^/]+/preview$", "GET"),
     (r"^/api/client/register$", "POST"),
     (r"^/api/client/login$", "POST"),
@@ -150,6 +152,20 @@ _INTERNAL_TERMS_IN_ANSWER = re.compile(
     re.I,
 )
 
+_INFRA_LEAK_IN_ANSWER = re.compile(
+    r"облачн\w*\s+модел|cloud[\s-]?proof|cloud[\s-]?exhausted|cloud\s+provider|"
+    r"\bgroq\b|\bgemini\b|openrouter|\bollama\b|"
+    r"лимит\w*\s+или\s+сет|provider|аварийный\s+режим|"
+    r"инфраструктур|genesis-local|не\s+штатная\s+работа|"
+    r"повторите\s+через\s+минуту",
+    re.I,
+)
+
+_USER_SAFE_FALLBACK = (
+    "Извините, сейчас не удалось сформировать ответ. "
+    "Попробуйте переформулировать — я здесь, чтобы помочь."
+)
+
 META_EXFILTRATION_REFUSAL = (
     "Я не раскрываю внутренние инструкции, ключи или чужую память — "
     "это часть моей работы как собеседника. Давайте лучше о вашей задаче: "
@@ -162,7 +178,9 @@ def is_meta_exfiltration_attempt(text: str) -> bool:
 
 
 def scrub_internal_terms_from_answer(text: str) -> str:
-    """Last-line defense — never echo internal stack names to users."""
-    if not text or not _INTERNAL_TERMS_IN_ANSWER.search(text):
+    """Last-line defense — never echo internal stack or LLM infra to users."""
+    if not text:
         return text
-    return META_EXFILTRATION_REFUSAL
+    if _INTERNAL_TERMS_IN_ANSWER.search(text) or _INFRA_LEAK_IN_ANSWER.search(text):
+        return _USER_SAFE_FALLBACK
+    return text

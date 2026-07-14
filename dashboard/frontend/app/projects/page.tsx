@@ -3,7 +3,7 @@
 import { ProjectPlatformShell } from "../components/ProjectPlatformShell";
 
 function focusVector() {
-  window.location.href = "/site?view=vector";
+  window.location.href = "/site";
 }
 
 export default function ProjectsPage() {

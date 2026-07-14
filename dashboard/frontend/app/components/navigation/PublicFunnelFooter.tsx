@@ -1,22 +1,17 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { nextFunnelStep } from "../../lib/publicFunnel";
 import { PublicFunnelSteps, PublicNextStepBanner } from "./PublicIntroTeaser";
 
 export function PublicFunnelFooter() {
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const view = searchParams.get("view") ?? "";
-  const next = nextFunnelStep(pathname, view);
-  const activeId =
-    view === "vector"
-      ? "vector"
-      : pathname.startsWith("/site")
-        ? "home"
-        : pathname.startsWith("/services")
-          ? "services"
-          : undefined;
+  const next = nextFunnelStep(pathname);
+  const activeId = pathname.startsWith("/site")
+    ? "home"
+    : pathname.startsWith("/services")
+      ? "services"
+      : undefined;
 
   if (!pathname.startsWith("/site") && !pathname.startsWith("/services") && pathname !== "/pricing") {
     return null;

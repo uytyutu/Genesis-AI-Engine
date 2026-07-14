@@ -19,7 +19,7 @@ export function ClientWorkspaceNav() {
 
   return (
     <aside className="genesis-sidebar virtus-surface-client" aria-label="Client navigation">
-      <VirtusSurfaceIdentity surface="client" homeHref="/site?view=vector" />
+      <VirtusSurfaceIdentity surface="client" homeHref="/site" />
 
       <nav className="genesis-sidebar__nav">
         <div className="genesis-sidebar__section">

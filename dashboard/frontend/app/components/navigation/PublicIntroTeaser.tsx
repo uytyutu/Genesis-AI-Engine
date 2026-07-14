@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ASSISTANT_NAME, BRAND_NAME } from "../../lib/publicBrand";
 import { nextFunnelStep, PUBLIC_FUNNEL } from "../../lib/publicFunnel";
 import { ButtonLink, Card } from "../ui";
@@ -30,9 +30,7 @@ type Props = {
 
 export function PublicIntroTeaser({ onTryVector }: Props) {
   const pathname = usePathname() ?? "/site";
-  const searchParams = useSearchParams();
-  const view = searchParams.get("view") ?? "";
-  const next = nextFunnelStep(pathname, view);
+  const next = nextFunnelStep(pathname);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">

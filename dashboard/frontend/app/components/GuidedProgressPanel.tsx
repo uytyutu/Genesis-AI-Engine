@@ -11,16 +11,20 @@ import {
   type GuidedCommerceState,
 } from "../lib/guidedCommerce";
 import { Card } from "./ui";
-import { GuidedOwnershipPreview } from "./GuidedOwnershipPreview";
+import { GuidedFactoryProductPreview } from "./GuidedFactoryProductPreview";
 import { GuidedProvenancePanel, GuidedTrustPromise } from "./GuidedProvenancePanel";
 import { getIndustryProfile } from "../lib/guidedOwnership";
 
 type Props = {
   compact?: boolean;
+  productLoading?: boolean;
+  productError?: string;
 };
 
-export function GuidedProgressPanel({ compact }: Props) {
+export function GuidedProgressPanel({ compact, productLoading: productLoadingProp, productError: productErrorProp }: Props) {
   const [state, setState] = useState<GuidedCommerceState>(() => loadGuidedCommerce());
+  const [productLoading, setProductLoading] = useState(false);
+  const [productError, setProductError] = useState("");
 
   useEffect(() => {
     const sync = (e: Event) => {
@@ -28,8 +32,18 @@ export function GuidedProgressPanel({ compact }: Props) {
       if (detail) setState(detail);
       else setState(loadGuidedCommerce());
     };
+    const syncProduct = (e: Event) => {
+      const detail = (e as CustomEvent<{ loading?: boolean; error?: string }>).detail;
+      if (!detail) return;
+      if (detail.loading != null) setProductLoading(detail.loading);
+      if (detail.error != null) setProductError(detail.error);
+    };
     window.addEventListener(GUIDED_COMMERCE_EVENT, sync);
-    return () => window.removeEventListener(GUIDED_COMMERCE_EVENT, sync);
+    window.addEventListener("genesis:guided-product-status", syncProduct);
+    return () => {
+      window.removeEventListener(GUIDED_COMMERCE_EVENT, sync);
+      window.removeEventListener("genesis:guided-product-status", syncProduct);
+    };
   }, []);
 
   const percent = guidedPreviewPercent(state);
@@ -37,12 +51,18 @@ export function GuidedProgressPanel({ compact }: Props) {
   const name = state.companyName.trim();
   const showPreview = Boolean(state.goalId);
   const industry = getIndustryProfile(state.goalId);
+  const previewLoading = productLoadingProp ?? productLoading;
+  const previewError = productErrorProp ?? productError;
 
   const previewCaption = !state.goalId
-    ? "Ваш сайт появится здесь"
-    : name
-      ? `Так клиенты увидят ${industry.categoryLabel.toLowerCase()}`
-      : industry.categoryLabel;
+    ? "Черновик появится здесь"
+    : state.productId
+      ? name
+        ? `Черновик сайта — ${name}`
+        : "Черновик вашего сайта"
+      : name
+        ? `Собираем сайт для ${name}`
+        : industry.categoryLabel;
 
   return (
     <Card
@@ -86,12 +106,16 @@ export function GuidedProgressPanel({ compact }: Props) {
 
       {showPreview ? (
         <>
-          <GuidedOwnershipPreview state={state} />
+          <GuidedFactoryProductPreview
+            state={state}
+            loading={previewLoading}
+            error={previewError}
+          />
           <GuidedProvenancePanel state={state} compact={compact} />
         </>
       ) : (
         <div className="mt-4 flex min-h-[10rem] items-center justify-center rounded-xl border border-dashed border-white/12 bg-white/[0.02] px-4 text-center text-sm text-genesis-muted">
-          Выберите цель слева — сайт начнёт собираться здесь.
+          Название компании — в блоке ниже. {ASSISTANT_NAME} соберёт черновик здесь.
         </div>
       )}
 
@@ -126,11 +150,9 @@ export function GuidedProgressPanel({ compact }: Props) {
             ? "Решение о покупке — здесь, без каталога и переходов."
             : state.step === "draft_ready"
               ? "Проверьте справа: каждый элемент — из вашего ответа. После оплаты — именно он."
-              : state.step === "tune"
-                ? "Настройка продолжается — оплата доступна в любой момент."
-                : state.goalId
-                  ? `${ASSISTANT_NAME} собирает ваш продукт — вы видите это в реальном времени.`
-                  : "Без свободного текста — только кнопки и ответы."}
+              : state.goalId
+                  ? `${ASSISTANT_NAME} собирает ваш сайт — вы видите это в реальном времени.`
+                  : `Расскажите о бизнесе слева — ${ASSISTANT_NAME} начнёт работу.`}
       </p>
     </Card>
   );

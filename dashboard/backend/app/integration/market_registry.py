@@ -62,6 +62,16 @@ def get_market(market_code: str | None) -> MarketProfile:
     return MARKET_REGISTRY.get(code) or MARKET_REGISTRY[MARKET_DEFAULT]
 
 
+def checkout_price_scale(market_code: str) -> float:
+    """Scale DE checkout anchors (350/650/1200 €) to target market via landing entry."""
+    de = get_market(MARKET_DE)
+    market = get_market(market_code)
+    de_base = de.website_projects.landing_page.from_amount
+    if de_base <= 0:
+        return 1.0
+    return market.website_projects.landing_page.from_amount / de_base
+
+
 def list_active_markets(*, exclude_default: bool = True) -> list[MarketProfile]:
     rows = list(MARKET_REGISTRY.values())
     if exclude_default:

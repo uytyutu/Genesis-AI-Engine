@@ -7,7 +7,22 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from app.integration.genesis_brain.public_brand import BRAND_NAME
+from app.integration.commerce_engine import (
+    resolve_checkout_market,
+    resolve_checkout_packages,
+    resolve_final_offer,
+)
+from app.integration.product_line import (
+    BRAND_NAME,
+    SERVICE_WEBSITE,
+    project_awaiting_payment_message,
+    project_client_current_step,
+    project_client_next_step,
+    project_client_timeline,
+    project_launch_deliverables,
+    project_order_created_message,
+    service_label_ru,
+)
 from app.schemas import FactoryIntentRequest
 
 _PACKAGES = {
@@ -62,14 +77,89 @@ class SalesOrderService:
         self._factory_intent = factory_intent
         self._memory.mkdir(parents=True, exist_ok=True)
 
-    def packages(self) -> list[dict]:
-        return list(_PACKAGES.values())
+    def checkout_packages(
+        self,
+        *,
+        market_code: str | None = None,
+        visitor_id: str | None = None,
+        city: str | None = None,
+        extra_text: str | None = None,
+    ) -> dict:
+        resolved = resolve_checkout_market(
+            market_code=market_code,
+            city=city,
+            visitor_id=visitor_id,
+            memory_dir=self._memory,
+            extra_text=extra_text,
+        )
+        deliverables = {k: v["deliverables"] for k, v in _PACKAGES.items()}
+        names = {k: v["name"] for k, v in _PACKAGES.items()}
+        return resolve_checkout_packages(
+            resolved,
+            deliverables_by_id=deliverables,
+            names_by_id=names,
+        )
+
+    def packages(
+        self,
+        *,
+        market_code: str | None = None,
+        visitor_id: str | None = None,
+        city: str | None = None,
+        extra_text: str | None = None,
+    ) -> list[dict]:
+        return self.checkout_packages(
+            market_code=market_code,
+            visitor_id=visitor_id,
+            city=city,
+            extra_text=extra_text,
+        )["packages"]
+
+    def _package_offer(
+        self,
+        package_id: str,
+        *,
+        market_code: str | None = None,
+        visitor_id: str | None = None,
+        city: str | None = None,
+        extra_text: str | None = None,
+    ) -> tuple[dict, dict]:
+        resolved = resolve_checkout_market(
+            market_code=market_code,
+            city=city,
+            visitor_id=visitor_id,
+            memory_dir=self._memory,
+            extra_text=extra_text,
+        )
+        tier = package_id if package_id in _PACKAGES else "basic"
+        base = _PACKAGES.get(tier, _PACKAGES["basic"])
+        offer = resolve_final_offer(tier, resolved)
+        package = {
+            **base,
+            "price_eur": float(offer.amount),
+            "currency": offer.currency,
+            "symbol": offer.symbol,
+            "market_code": offer.market_code,
+            "price_label": offer.price_label,
+        }
+        return package, offer.as_dict()
 
     def create_order(self, payload: dict) -> dict:
         package_id = payload.get("package_id") or self._suggest_package(payload)
-        package = _PACKAGES.get(package_id, _PACKAGES["basic"])
+        package, _offer = self._package_offer(
+            package_id,
+            market_code=payload.get("market_code"),
+            visitor_id=payload.get("visitor_id"),
+            city=payload.get("city"),
+            extra_text=payload.get("description"),
+        )
+        project_ctx = self._resolve_project_context(payload.get("visitor_id"))
+        service_id = project_ctx["service_id"]
+        launch_mode = bool(project_ctx["launch_mode"])
+        project_name = project_ctx.get("project_name")
         order_id = f"ord-{uuid.uuid4().hex[:10]}"
         now = datetime.now(timezone.utc).isoformat()
+        client_message = project_awaiting_payment_message(launch_mode=launch_mode)
         order = {
             "order_id": order_id,
             "status": "awaiting_payment",
@@ -77,7 +167,15 @@ class SalesOrderService:
             "package_id": package_id,
             "package_name": package["name"],
             "price_eur": package["price_eur"],
-            "deliverables": package["deliverables"],
+            "currency": package.get("currency", "EUR"),
+            "symbol": package.get("symbol", "€"),
+            "market_code": package.get("market_code", "DE"),
+            "price_label": package.get("price_label", f"{package['price_eur']} €"),
+            "deliverables": (
+                project_launch_deliverables(service_id)
+                if launch_mode
+                else package["deliverables"]
+            ),
             "business_name": payload["business_name"].strip(),
             "description": payload["description"].strip(),
             "city": (payload.get("city") or "").strip(),
@@ -87,26 +185,36 @@ class SalesOrderService:
             "needs_logo": bool(payload.get("needs_logo")),
             "needs_domain": bool(payload.get("needs_domain")),
             "extra_wishes": (payload.get("extra_wishes") or "").strip(),
+            "visitor_id": (payload.get("visitor_id") or "").strip()[:64] or None,
+            "service_id": service_id,
+            "launch_mode": launch_mode,
+            "project_name": project_name,
             "created_at": now,
             "updated_at": now,
-            "product_id": None,
-            "proposal_text": self._proposal_text(package, payload),
+            "product_id": (payload.get("product_id") or "").strip() or None,
+            "proposal_text": self._proposal_text(package, payload, project_ctx=project_ctx),
             "paid_at": None,
             "payment_provider": None,
             "payment_external_id": None,
             "estimated_delivery_at": None,
-            "client_status_message": "",
+            "client_status_message": client_message,
         }
         self._save_order(order)
         return {
             "ok": True,
             "order_id": order_id,
-            "message": (
-                "Спасибо! Ваш заказ создан. Оплатите сейчас — и мы сразу начнём работу над сайтом."
+            "message": project_order_created_message(
+                service_id,
+                launch_mode=launch_mode,
+                project_name=project_name or payload["business_name"].strip(),
             ),
             "package_name": package["name"],
             "price_eur": package["price_eur"],
-            "deliverables": package["deliverables"],
+            "currency": package.get("currency", "EUR"),
+            "symbol": package.get("symbol", "€"),
+            "market_code": package.get("market_code", "DE"),
+            "price_label": package.get("price_label"),
+            "deliverables": order["deliverables"],
         }
 
     def list_orders(self, limit: int = 20) -> list[dict]:
@@ -141,6 +249,24 @@ class SalesOrderService:
             raise ValueError("order_not_found")
         if order["status"] not in ("pending_confirmation", "confirmed", "awaiting_payment", "paid"):
             raise ValueError("invalid_status")
+
+        existing_product_id = (order.get("product_id") or "").strip()
+        if existing_product_id:
+            product = self._factory_intent._factory.get_product(existing_product_id)
+            if not product:
+                raise ValueError("product_not_found")
+            order["status"] = "in_production"
+            order["status_label"] = "В производстве"
+            order["product_id"] = existing_product_id
+            order["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_order(order)
+            return {
+                "ok": True,
+                "order": self._summary(order),
+                "product_id": existing_product_id,
+                "message": "Оплата принята. Ваш Product уже собран — продолжайте с тем же черновиком.",
+            }
+
         brief = self._factory_brief(order)
         intent = FactoryIntentRequest(
             product_type="landing-page",
@@ -180,7 +306,7 @@ class SalesOrderService:
             f"Телефон: {order.get('phone') or '—'}",
             f"WhatsApp: {order.get('whatsapp') or '—'}",
             f"Email: {order.get('email') or '—'}",
-            f"Пакет: {order['package_name']} ({order['price_eur']} €)",
+            f"Пакет: {order['package_name']} ({order.get('price_label') or order['price_eur']})",
         ]
         if order.get("needs_logo"):
             lines.append("Нужен логотип в макете.")
@@ -190,24 +316,81 @@ class SalesOrderService:
             lines.append(f"Пожелания: {order['extra_wishes']}")
         return "\n".join(lines)
 
-    def _proposal_text(self, package: dict, payload: dict) -> str:
+    def _proposal_text(self, package: dict, payload: dict, *, project_ctx: dict | None = None) -> str:
+        ctx = project_ctx or {}
+        service_id = ctx.get("service_id") or SERVICE_WEBSITE
+        label = service_label_ru(service_id, fallback="проект")
         name = payload["business_name"].strip()
         deliverables = "\n".join(f"✔ {d}" for d in package["deliverables"])
+        if ctx.get("launch_mode"):
+            deliverables = "\n".join(
+                f"✔ {d}" for d in project_launch_deliverables(service_id)
+            )
+        price_line = package.get("price_label") or f"{package['price_eur']} {package.get('symbol', '€')}"
         return (
             f"Здравствуйте!\n\n"
-            f"Спасибо за заявку на сайт для «{name}».\n\n"
-            f"Пакет: {package['name']} — {package['price_eur']} €\n\n"
-            f"Вы получите:\n{deliverables}\n\n"
+            f"Спасибо за заявку на {label.lower()} «{name}».\n\n"
+            f"Стоимость запуска: {price_line}\n\n"
+            f"После оплаты:\n{deliverables}\n\n"
             f"Срок: 5–7 рабочих дней после подтверждения и оплаты.\n\n"
             f"Готовы начать — напишите, и мы вышлем счёт / ссылку на оплату.\n\n"
             f"С уважением,\n{BRAND_NAME}"
         )
+
+    def _resolve_project_context(self, visitor_id: str | None) -> dict:
+        vid = (visitor_id or "").strip()[:64]
+        if not vid:
+            return {
+                "service_id": SERVICE_WEBSITE,
+                "project_name": None,
+                "launch_mode": False,
+            }
+        try:
+            from app.integration.project_platform.service import ProjectPlatformService
+
+            state = ProjectPlatformService(self._memory).get_for_visitor(vid)
+        except Exception:
+            return {
+                "service_id": SERVICE_WEBSITE,
+                "project_name": None,
+                "launch_mode": False,
+            }
+        if not state.get("has_project") or not state.get("project"):
+            return {
+                "service_id": SERVICE_WEBSITE,
+                "project_name": None,
+                "launch_mode": False,
+            }
+        project = state["project"]
+        service_id = str(project.get("service_id") or SERVICE_WEBSITE)
+        company = ""
+        for item in project.get("journey", {}).get("items", []):
+            if item.get("id") == "company" and item.get("status") == "done":
+                company = str(item.get("value") or "").strip()
+                break
+        if not company:
+            title = str(project.get("identity", {}).get("title") or "").strip()
+            if title and title not in ("Мой проект", "Хочу создать сайт для своей компании."):
+                company = title
+        has_preview = any(
+            art.get("kind") == "preview" and art.get("href")
+            for ver in project.get("versions", [])
+            for art in ver.get("artifacts", [])
+        )
+        launch_mode = bool(has_preview and company)
+        return {
+            "service_id": service_id,
+            "project_name": company or None,
+            "launch_mode": launch_mode,
+        }
 
     def public_status(self, order_id: str) -> dict:
         order = self.get_order(order_id)
         if not order:
             raise ValueError("order_not_found")
         timeline = self._client_timeline(order)
+        service_id = str(order.get("service_id") or SERVICE_WEBSITE)
+        launch_mode = bool(order.get("launch_mode"))
         return {
             "order_id": order["order_id"],
             "business_name": order["business_name"],
@@ -220,32 +403,23 @@ class SalesOrderService:
             "timeline": timeline,
             "estimated_delivery_at": order.get("estimated_delivery_at"),
             "estimated_hours": order.get("estimated_hours"),
-            "client_message": order.get("client_status_message") or self._default_client_message(order),
+            "client_message": order.get("client_status_message")
+            or self._default_client_message(order),
             "client_receipt_text": order.get("client_receipt_text", ""),
             "product_id": order.get("product_id"),
             "paid": order.get("status") in ("paid", "in_production", "ready", "delivered"),
+            "service_id": service_id,
+            "launch_mode": launch_mode,
         }
 
     def _client_timeline(self, order: dict) -> list[dict]:
-        status = order.get("status", "")
-        paid = status in ("paid", "in_production", "ready", "delivered")
-        production = status in ("in_production", "ready", "delivered")
-        return [
-            {"id": "payment", "label": "Получена оплата", "done": paid},
-            {"id": "production", "label": "Производство началось", "done": production},
-        ]
+        return project_client_timeline(str(order.get("status", "")))
 
     def _client_next_step(self, order: dict) -> str:
-        status = order.get("status", "")
-        if status == "awaiting_payment":
-            return "Оплата заказа"
-        if status in ("paid", "in_production"):
-            return "Создание сайта"
-        if status == "ready":
-            return "Передача готового сайта"
-        if status == "delivered":
-            return "Заказ завершён"
-        return "Обработка заказа"
+        return project_client_next_step(
+            str(order.get("service_id") or SERVICE_WEBSITE),
+            str(order.get("status", "")),
+        )
 
     def _client_status_label(self, order: dict) -> str:
         mapping = {
@@ -260,20 +434,16 @@ class SalesOrderService:
         return mapping.get(order.get("status", ""), order.get("status_label", ""))
 
     def _client_current_step(self, order: dict) -> str:
-        status = order.get("status", "")
-        if status == "awaiting_payment":
-            return "Ожидаем оплату, чтобы начать работу"
-        if status in ("paid", "in_production"):
-            return "Создаём ваш сайт"
-        if status == "ready":
-            return "Сайт готов — готовим передачу"
-        if status == "delivered":
-            return "Проект передан — спасибо за заказ!"
-        return "Обрабатываем ваш заказ"
+        return project_client_current_step(
+            str(order.get("service_id") or SERVICE_WEBSITE),
+            str(order.get("status", "")),
+        )
 
     def _default_client_message(self, order: dict) -> str:
         if order.get("status") == "awaiting_payment":
-            return "Оплатите заказ — и мы сразу начнём работу."
+            return project_awaiting_payment_message(
+                launch_mode=bool(order.get("launch_mode")),
+            )
         return ""
 
     def _summary(self, order: dict) -> dict:

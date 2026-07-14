@@ -5,7 +5,7 @@
 import { GUIDED_GOALS, type GuidedCommerceState, type GuidedGoalId, type LogoChoice } from "./guidedCommerce";
 
 export const GUIDED_PRODUCT_PROMISE =
-  "Этот сайт собран на основе ваших ответов. После оплаты вы получите именно его и сможете продолжить развивать его вместе с Vector.";
+  "Справа — черновик, который собрал Vector. После оплаты вы получаете права на тот же результат.";
 
 export type ProvenanceLine = {
   id: string;
@@ -63,8 +63,10 @@ export function buildPreviewProvenance(state: GuidedCommerceState): ProvenanceLi
     lines.push({
       id: "services",
       answer: `Тип: ${industry.categoryLabel}`,
-      becomes: `услуги: ${industry.services.map((s) => s.label).join(", ")}`,
-      done: true,
+      becomes: state.productId
+        ? "тексты и услуги в черновике справа"
+        : `услуги: ${industry.services.map((s) => s.label).join(", ")}`,
+      done: Boolean(state.productId),
     });
   }
 

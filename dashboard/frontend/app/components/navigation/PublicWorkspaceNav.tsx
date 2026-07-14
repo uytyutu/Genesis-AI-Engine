@@ -1,18 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { PUBLIC_NAV_LINKS } from "../../lib/surfaceNavConfig";
 
 export function PublicWorkspaceNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname() ?? "";
-  const searchParams = useSearchParams();
-  const view = searchParams.get("view") ?? "";
 
   return (
     <>
       {PUBLIC_NAV_LINKS.map((link) => {
-        const active = link.match(pathname, view);
+        const active = link.match(pathname);
         return (
           <Link
             key={link.href}

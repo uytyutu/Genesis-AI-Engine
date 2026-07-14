@@ -262,6 +262,23 @@ def artifact_label_ru(service_id: str, *, fallback: str = "Результат") 
 
 # --- Universal customer messages -----------------------------------------------
 
+def project_execution_ack_intro(service_id: str) -> str:
+    """PE — Vector accepts responsibility; short, project-first."""
+    if service_id == SERVICE_WEBSITE:
+        return (
+            "Проект создан.\n"
+            "Прежде чем делать первый вариант, хочу понять ваш бизнес.\n\n"
+            "Как называется компания и чем вы занимаетесь?\n"
+            "Что человек должен сделать на сайте — позвонить, записаться, купить?"
+        )
+    label = service_label_ru(service_id, fallback="проект")
+    return (
+        "Проект создан.\n"
+        f"Давайте сделаем {label.lower()} именно таким, каким вы хотите его видеть.\n\n"
+        f"Опишите, пожалуйста, каким вы представляете результат."
+    )
+
+
 def universal_service_intro(service_id: str) -> str:
     """Stage 1 — dialog. Same pattern for every service."""
     label = service_label_ru(service_id, fallback="задачу")
@@ -345,6 +362,86 @@ def one_time_handoff_summary(service_id: str) -> str:
     from app.legal.handoff import one_time_purchase_handoff
 
     return one_time_purchase_handoff()
+
+
+def project_display_name(service_id: str, *, project_name: str | None = None) -> str:
+    """Customer-facing project label — never a package code."""
+    label = service_label_ru(service_id, fallback="Проект")
+    if project_name and project_name.strip():
+        return f"{label} {project_name.strip()}"
+    return label
+
+
+def project_order_created_message(
+    service_id: str,
+    *,
+    launch_mode: bool = False,
+    project_name: str | None = None,
+) -> str:
+    """After order submit — project fixed, not «we will start building someday»."""
+    name = project_display_name(service_id, project_name=project_name)
+    if launch_mode:
+        return (
+            f"Спасибо. {name} зафиксирован — "
+            "начинаем подготовку к передаче согласованной версии."
+        )
+    return (
+        f"Спасибо! Заявка на {name.lower()} принята. "
+        "Оплатите сейчас — и мы зафиксируем запуск проекта."
+    )
+
+
+def project_awaiting_payment_message(*, launch_mode: bool = False) -> str:
+    if launch_mode:
+        return (
+            "Оплатите заказ — проект останется в том виде, который вы согласовали. "
+            "Меняется только статус."
+        )
+    return "Оплатите заказ — и мы зафиксируем старт проекта."
+
+
+def project_client_current_step(service_id: str, status: str) -> str:
+    if status == "awaiting_payment":
+        return "Ожидаем оплату для фиксации проекта"
+    if status in ("paid", "in_production"):
+        return "Подготавливаем согласованную версию к передаче"
+    if status == "ready":
+        return "Проект готов — готовим передачу"
+    if status == "delivered":
+        return "Проект передан — спасибо, что доверили нам работу!"
+    return "Обрабатываем ваш проект"
+
+
+def project_client_next_step(service_id: str, status: str) -> str:
+    if status == "awaiting_payment":
+        return "Оплата проекта"
+    if status in ("paid", "in_production"):
+        return "Передача согласованной версии"
+    if status == "ready":
+        return "Финальная передача проекта"
+    if status == "delivered":
+        return "Проект завершён"
+    return "Обработка проекта"
+
+
+def project_client_timeline(status: str) -> list[dict[str, Any]]:
+    paid = status in ("paid", "in_production", "ready", "delivered")
+    handoff = status in ("in_production", "ready", "delivered")
+    return [
+        {"id": "payment", "label": "Оплата получена", "done": paid},
+        {"id": "handoff", "label": "Подготовка к передаче", "done": handoff},
+    ]
+
+
+def project_launch_deliverables(service_id: str) -> list[str]:
+    """Launch-mode checklist — publication/handoff, not «build from scratch»."""
+    label = service_label_ru(service_id, fallback="проект").lower()
+    return [
+        f"Передача согласованной версии ({label})",
+        "Финальная проверка перед запуском",
+        "Инструкции и доступы",
+        "Сопровождение при внедрении",
+    ]
 
 
 # Website aliases (existing callers)

@@ -28,6 +28,7 @@ export async function createGuidedSiteOrder(params: {
   visitorId: string;
   goalLabel: string;
   logoChoice: "yes" | "no" | "auto";
+  productId: string;
 }): Promise<{ orderId: string; priceEur: number; packageName: string; priceLabel?: string }> {
   const res = await fetch(`${API}/api/sales/orders`, {
     method: "POST",
@@ -40,6 +41,7 @@ export async function createGuidedSiteOrder(params: {
       visitor_id: params.visitorId,
       needs_logo: params.logoChoice === "no",
       needs_domain: false,
+      product_id: params.productId,
     }),
   });
   const body = await res.json();

@@ -229,6 +229,7 @@ class SalesOrderCreateRequest(BaseModel):
     needs_domain: bool = False
     extra_wishes: str | None = Field(default=None, max_length=2000)
     package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
+    product_id: str | None = Field(default=None, max_length=80)
 
 
 class SalesOrderCreatedResponse(BaseModel):

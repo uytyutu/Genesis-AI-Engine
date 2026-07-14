@@ -61,6 +61,32 @@ def test_create_sales_order_and_list(tmp_path: Path):
     assert orders[0]["status"] == "awaiting_payment"
 
 
+def test_start_production_reuses_existing_product_id(tmp_path: Path):
+    reset_integration()
+    memory = tmp_path / "memory"
+    memory.mkdir()
+    ctx = get_integration(memory)
+    product = ctx.factory.build_landing("Website for Auto Mueller car repair shop")
+    product_id = product["product_id"]
+
+    created = ctx.sales.create_order(
+        {
+            "business_name": "Auto Mueller",
+            "description": "Сайт для Auto Mueller",
+            "package_id": "basic",
+            "product_id": product_id,
+        }
+    )
+    order_id = created["order_id"]
+
+    result = ctx.sales.start_production(order_id)
+    assert result["product_id"] == product_id
+    assert result["order"]["status"] == "in_production"
+
+    products = ctx.factory.list_products()
+    assert sum(1 for p in products if p["product_id"] == product_id) == 1
+
+
 def test_confirm_and_start_production(tmp_path: Path):
     client = _client(tmp_path)
     created = client.post(

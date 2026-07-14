@@ -51,10 +51,16 @@ export function FirstRevenueJourneyPanel({ journey }: { journey: FirstRevenueJou
 
       <div className="mt-5 flex flex-wrap gap-3">
         <Link
-          href="/create"
+          href="/site"
           className="rounded-xl bg-gradient-to-r from-emerald-600 to-genesis-accent px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
         >
-          ➕ Создать продукт
+          👁 Путь клиента
+        </Link>
+        <Link
+          href="/create"
+          className="rounded-xl border border-genesis-border px-5 py-2.5 text-sm font-medium hover:border-genesis-accent/50"
+        >
+          🏭 Factory
         </Link>
         <Link
           href="/cursor"

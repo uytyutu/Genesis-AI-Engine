@@ -21,7 +21,7 @@ export function ClientWorkspaceTopBar() {
         <h1 className="genesis-topbar__title">{title}</h1>
       </div>
       <div className="genesis-topbar__actions">
-        <Link href="/site?view=vector" className="genesis-topbar__cta">
+        <Link href="/site" className="genesis-topbar__cta">
           Vector
         </Link>
       </div>

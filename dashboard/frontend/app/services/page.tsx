@@ -198,8 +198,8 @@ export default function ServicesPage() {
           Готовы создать свою компанию? Сначала поговорите с Vector — затем установите Virtus Core.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
-          <ButtonLink href="/site?view=vector" variant="primary" size="sm">
-            Lite Vector →
+          <ButtonLink href="/site" variant="primary" size="sm">
+            Vector →
           </ButtonLink>
           <ButtonLink href="/site" variant="secondary" size="sm">
             Получить сайт →

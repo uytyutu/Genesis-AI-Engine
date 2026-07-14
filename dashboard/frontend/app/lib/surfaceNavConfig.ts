@@ -68,19 +68,18 @@ export function isCustomerPurchasePath(pathname: string): boolean {
 }
 
 export const PUBLIC_NAV_LINKS = [
-  { href: "/site", label: "Главная", match: (p: string, v: string) => p.startsWith("/site") && v !== "vector" },
-  { href: "/site?view=vector", label: "Vector", match: (_p: string, v: string) => v === "vector" },
+  { href: "/site", label: "Vector", match: (p: string) => p.startsWith("/site") },
 ] as const;
 
 export const CLIENT_NAV_LINKS = [
-  { href: "/site", label: "Получить сайт", hint: "Guided Flow" },
-  { href: "/site?view=vector", label: "Vector", hint: "Помощь в чате" },
+  { href: "/site", label: "Vector", hint: "Ваш проект и черновик" },
   { href: "/projects", label: "Проекты", hint: "Мои результаты" },
 ] as const;
 
 export const CEO_PRIMARY_LINKS = [
   { href: "/", label: "Пульт", hint: "Mission Control" },
-  { href: "/create", label: "Factory", hint: "Создать продукт" },
+  { href: "/site", label: "Путь клиента", hint: "Как видит покупатель" },
+  { href: "/create", label: "Factory", hint: "Сборка черновиков" },
   { href: "/finance", label: "Финансы", hint: "Деньги" },
   { href: "/company", label: "Стратегия", hint: "Компания" },
 ] as const;

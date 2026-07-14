@@ -12,15 +12,9 @@ export type PublicFunnelStep = {
 export const PUBLIC_FUNNEL: PublicFunnelStep[] = [
   {
     id: "home",
-    label: "Начать",
+    label: "Vector",
     href: "/site",
-    description: "Выбрать цель и дойти до результата",
-  },
-  {
-    id: "vector",
-    label: "Помощь Vector",
-    href: "/site?view=vector",
-    description: "Задать вопрос, если нужна помощь",
+    description: "Расскажите о бизнесе — черновик появится справа",
   },
 ];
 
@@ -36,10 +30,9 @@ export function belongsOnPublicSurface(capability: "intro" | "lite_chat" | "demo
   return capability === "intro" || capability === "lite_chat" || capability === "demo";
 }
 
-export function nextFunnelStep(currentPath: string, view?: string): PublicFunnelStep | null {
+export function nextFunnelStep(currentPath: string): PublicFunnelStep | null {
   const idx = PUBLIC_FUNNEL.findIndex((s) => {
-    if (s.id === "vector") return view === "vector";
-    if (s.id === "home") return currentPath.startsWith("/site") && view !== "vector";
+    if (s.id === "home") return currentPath.startsWith("/site");
     return currentPath === s.href || currentPath.startsWith(`${s.href}/`);
   });
   if (idx < 0 || idx >= PUBLIC_FUNNEL.length - 1) return null;

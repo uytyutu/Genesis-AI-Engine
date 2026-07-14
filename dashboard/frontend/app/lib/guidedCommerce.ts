@@ -16,6 +16,8 @@ export type GuidedStep = "goal" | "company" | "logo" | "draft_ready" | "offer" |
 
 export type LogoChoice = "yes" | "no" | "auto" | null;
 
+export type GuidedProductStage = "draft" | "owned";
+
 export type GuidedCommerceState = {
   step: GuidedStep;
   goalId: GuidedGoalId | null;
@@ -26,37 +28,47 @@ export type GuidedCommerceState = {
   orderId: string | null;
   priceEur: number | null;
   priceLabel: string | null;
+  /** Factory Product id — same object from preview through payment. */
+  productId: string | null;
+  productStage: GuidedProductStage;
 };
 
 export const GUIDED_SITE_INCLUDES = [
   "Дизайн под ваш бренд",
   "Мобильная версия",
-  "SEO",
+  "Базовая SEO-структура",
   "Юридические страницы",
-  "Панель управления",
-  "AI-помощник Vector",
+  "Продолжение работы с Vector",
 ] as const;
 
-export const GUIDED_GOALS: Array<{ id: GuidedGoalId; emoji: string; label: string }> = [
-  { id: "sell_online", emoji: "🌐", label: "Получить сайт" },
-  { id: "get_clients", emoji: "📈", label: "Получать клиентов" },
-  { id: "accept_payments", emoji: "💳", label: "Принимать оплату" },
-  { id: "automate", emoji: "⚙️", label: "Автоматизацию" },
-  { id: "fix_problem", emoji: "🔧", label: "Исправить проблему" },
-  { id: "improve_site", emoji: "📱", label: "Доработать проект" },
+export const GUIDED_GOAL_WEBSITE_ID: GuidedGoalId = "sell_online";
+
+export const GUIDED_GOALS: Array<{
+  id: GuidedGoalId;
+  emoji: string;
+  label: string;
+  available: boolean;
+}> = [
+  { id: "sell_online", emoji: "🌐", label: "Получить сайт", available: true },
+  { id: "get_clients", emoji: "📈", label: "Получать клиентов", available: false },
+  { id: "accept_payments", emoji: "💳", label: "Принимать оплату", available: false },
+  { id: "automate", emoji: "⚙️", label: "Автоматизацию", available: false },
+  { id: "fix_problem", emoji: "🔧", label: "Исправить проблему", available: false },
+  { id: "improve_site", emoji: "📱", label: "Доработать проект", available: false },
 ];
+
+export function isGuidedGoalAvailable(goalId: GuidedGoalId): boolean {
+  return GUIDED_GOALS.find((g) => g.id === goalId)?.available ?? false;
+}
 
 export const GUIDED_PREVIEW_STEPS = [
   { id: "name", label: "Название" },
-  { id: "colors", label: "Цвет" },
+  { id: "colors", label: "Черновик" },
   { id: "logo", label: "Логотип" },
-  { id: "gallery", label: "Галерея" },
   { id: "contacts", label: "Контакты" },
-  { id: "stripe", label: "Stripe" },
-  { id: "ai", label: "AI" },
 ] as const;
 
-const STORAGE_KEY = "vc_guided_commerce_s3";
+const STORAGE_KEY = "vc_guided_commerce_s4";
 
 export const GUIDED_COMMERCE_EVENT = "genesis:guided-commerce";
 
@@ -70,6 +82,8 @@ const EMPTY: GuidedCommerceState = {
   orderId: null,
   priceEur: null,
   priceLabel: null,
+  productId: null,
+  productStage: "draft",
 };
 
 function hashHue(text: string): number {
@@ -120,6 +134,9 @@ export function resetGuidedCommerce(): GuidedCommerceState {
 }
 
 export function selectGuidedGoal(goalId: GuidedGoalId): GuidedCommerceState {
+  if (!isGuidedGoalAvailable(goalId)) {
+    return loadGuidedCommerce();
+  }
   const next: GuidedCommerceState = {
     step: "company",
     goalId,
@@ -130,6 +147,8 @@ export function selectGuidedGoal(goalId: GuidedGoalId): GuidedCommerceState {
     orderId: null,
     priceEur: null,
     priceLabel: null,
+    productId: null,
+    productStage: "draft",
   };
   saveGuidedCommerce(next);
   syncGoalToProjectDraft(goalId);
@@ -140,12 +159,15 @@ export function submitCompanyNameAndAdvance(name: string): GuidedCommerceState {
   const prev = loadGuidedCommerce();
   const trimmed = name.trim();
   if (!trimmed) return prev;
+  const nameChanged = prev.companyName.trim() !== trimmed;
   const next: GuidedCommerceState = {
     ...prev,
     companyName: trimmed,
     brandHue: hashHue(trimmed),
     step: "logo",
     logoChoice: null,
+    productId: nameChanged ? null : prev.productId,
+    productStage: "draft",
   };
   saveGuidedCommerce(next);
   syncCompanyToProjectDraft(trimmed, prev.goalId);
@@ -202,6 +224,25 @@ export function advanceGuidedToPay(orderId: string, priceEur: number, priceLabel
   return next;
 }
 
+export function setGuidedProductId(productId: string): GuidedCommerceState {
+  const prev = loadGuidedCommerce();
+  const next: GuidedCommerceState = {
+    ...prev,
+    productId: productId.trim() || null,
+    productStage: "draft",
+  };
+  saveGuidedCommerce(next);
+  return next;
+}
+
+export function markGuidedProductOwned(): GuidedCommerceState {
+  const prev = loadGuidedCommerce();
+  if (!prev.productId) return prev;
+  const next: GuidedCommerceState = { ...prev, productStage: "owned" };
+  saveGuidedCommerce(next);
+  return next;
+}
+
 function syncGoalToProjectDraft(goalId: GuidedGoalId): void {
   const label = GUIDED_GOALS.find((g) => g.id === goalId)?.label ?? goalId;
   claimProjectFromMessage(`Моя цель: ${label}`);
@@ -218,9 +259,11 @@ function syncCompanyToProjectDraft(name: string, goalId: GuidedGoalId | null): v
 export function guidedPreviewPercent(state: GuidedCommerceState): number {
   let done = 0;
   if (state.goalId) done += 1;
-  if (state.companyName.trim()) done += 2;
+  if (state.companyName.trim()) done += 1;
+  if (state.productId) done += 2;
   if (state.logoChoice) done += 1;
-  return Math.min(100, Math.round((done / (GUIDED_PREVIEW_STEPS.length + 1)) * 100));
+  if (state.step === "offer" || state.step === "pay") done += 1;
+  return Math.min(100, Math.round((done / 6) * 100));
 }
 
 export function previewStepStatus(
@@ -236,20 +279,16 @@ export function previewStepStatus(
       if (state.step === "company") return "active";
       return state.goalId ? "pending" : "pending";
     case "colors":
-      if (hasName) return "done";
+      if (state.productId) return "done";
+      if (hasName) return "active";
       return "pending";
     case "logo":
       if (hasLogo) return "done";
       if (state.step === "logo") return "active";
       return "pending";
-    case "gallery":
-      if (state.step === "tune") return "active";
-      if (state.step === "draft_ready") return "pending";
-      return "pending";
     case "contacts":
-      return "pending";
-    case "stripe":
-      if (state.step === "offer" || state.step === "pay") return "active";
+      if (state.step === "offer" || state.step === "pay") return "done";
+      if (state.step === "draft_ready" && hasLogo) return "active";
       return "pending";
     default:
       return "pending";
