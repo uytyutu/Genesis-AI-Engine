@@ -82,6 +82,28 @@ def test_junk_archive_batch(engine: MonetizationEngineService):
     assert float(updated.get("revenue_eur") or 0) >= 0.5
 
 
+def test_network_portfolio_projection(engine: MonetizationEngineService):
+    engine._opportunity.create(
+        {
+            "source_id": "asset_scan",
+            "opportunity_type": "asset",
+            "company_name": "Net Asset 1",
+            "website_url": "https://net1.example",
+            "status": "proposed",
+            "meta": {"network_managed": True, "projected_monthly_eur": 20, "processing_lane": "high"},
+        }
+    )
+    dash = engine.engine_dashboard()
+    assert dash["network"]["managed_assets"] >= 1
+    assert dash["network"]["projected_mrr_eur"] >= 20
+
+
+def test_network_scan_requires_places(engine: MonetizationEngineService):
+    result = engine.run_network_scan(niche="local_service", batch_limit=10)
+    assert result["ok"] is False
+    assert "GOOGLE_PLACES" in result["errors"][0]
+
+
 def test_withdraw_queues_payout(engine: MonetizationEngineService):
     snap_path = engine._memory / "finance_snapshot.json"  # noqa: SLF001
     snap_path.parent.mkdir(parents=True, exist_ok=True)

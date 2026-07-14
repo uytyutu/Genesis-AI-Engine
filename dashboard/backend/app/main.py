@@ -114,6 +114,8 @@ from app.schemas import (
     EngineScanModeRequest,
     EngineScanModeResponse,
     EngineJunkArchiveResponse,
+    EngineNetworkScanRequest,
+    EngineNetworkScanResponse,
     ConnectWalletRequest,
     WithdrawRequest,
     WithdrawResponse,
@@ -486,9 +488,19 @@ def engine_scan_mode(request: EngineScanModeRequest) -> EngineScanModeResponse:
     result = _ctx().monetization_engine.run_scan_mode(
         niche=request.niche,
         city=request.city,
-        limit=min(20, max(1, request.limit)),
+        limit=min(50, max(1, request.limit)),
     )
     return EngineScanModeResponse(**result)
+
+
+@app.post("/api/engine/network-scan", response_model=EngineNetworkScanResponse)
+def engine_network_scan(request: EngineNetworkScanRequest) -> EngineNetworkScanResponse:
+    result = _ctx().monetization_engine.run_network_scan(
+        niche=request.niche,
+        batch_limit=min(1000, max(1, request.batch_limit)),
+        region=request.region,
+    )
+    return EngineNetworkScanResponse(**result)
 
 
 @app.post("/api/engine/junk-archive/run", response_model=EngineJunkArchiveResponse)

@@ -53,6 +53,18 @@ type EngineDash = {
   junk_archive_assets?: Target[];
   junk_archive_count?: number;
   junk_micro_revenue_eur?: number;
+  network?: {
+    mode: string;
+    total_assets: number;
+    managed_assets: number;
+    arbitrage_routes: number;
+    mrr_per_asset_eur: number;
+    projected_mrr_eur: number;
+    target_mrr_eur: number;
+    target_progress_percent: number;
+    expired_domain_watch: string;
+    batch_scan_max: number;
+  };
   wallets: Wallet[];
   withdrawal_enabled: boolean;
 };
@@ -114,6 +126,23 @@ export function EngineDashboard() {
           ? `Stripe синхронизирован: ${formatEur(body.stripe_available_eur)}`
           : "Синхронизация завершена",
       );
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function runNetworkScan() {
+    setBusy("network");
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/engine/network-scan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ niche: scanNiche, batch_limit: 1000, region: "DE" }),
+      });
+      const body = await res.json();
+      setMessage(body.message ?? (res.ok ? "Сетевой поиск завершён" : "Ошибка"));
       refresh();
     } finally {
       setBusy("");
@@ -218,8 +247,8 @@ export function EngineDashboard() {
             Движок монетизации · {dash?.owner_name ?? "Владелец"}
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
-            Единая логика: <strong className="text-white">Поиск целей</strong> (автопилот) или вставка URL (ручной контроль).
-            High-score → журнал · Low-score → архив мусора с микро-SEO (€0,50–1).
+            Сеть активов (PBN/порталы): массовый поиск по Германии, арбитраж трафика на офферы, €20/актив/мес цель.
+            Ручной URL или автопилот — одна логика.
           </p>
           {dash?.security_law ? (
             <p className="mt-3 rounded-xl border border-rose-500/30 bg-rose-950/25 px-3 py-2 text-[11px] text-rose-100">
@@ -273,6 +302,43 @@ export function EngineDashboard() {
         ) : (
           <>
         {dash && (
+          <section id="network-kpi" className="genesis-card p-5">
+            <h2 className="text-sm font-semibold">Сеть активов · путь к €10 000/мес</h2>
+            <p className="mt-1 text-xs text-genesis-muted">
+              Управляемых: {dash.network?.managed_assets ?? 0} · арбитраж-маршрутов:{" "}
+              {dash.network?.arbitrage_routes ?? 0} · авто-закупка доменов:{" "}
+              {dash.network?.expired_domain_watch === "horizon" ? "Horizon" : "—"}
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <Kpi
+                label="Прогноз MRR сети"
+                value={formatEur(dash.network?.projected_mrr_eur ?? 0)}
+                accent
+              />
+              <Kpi label="Цель MRR" value={formatEur(dash.network?.target_mrr_eur ?? 10_000)} />
+              <Kpi
+                label="Прогресс к цели"
+                value={`${dash.network?.target_progress_percent ?? 0}%`}
+              />
+            </div>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all"
+                style={{ width: `${Math.min(100, dash.network?.target_progress_percent ?? 0)}%` }}
+              />
+            </div>
+            <button
+              type="button"
+              disabled={busy === "network"}
+              onClick={() => void runNetworkScan()}
+              className="mt-4 rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {busy === "network" ? "Сканирую Германию…" : "🌐 Массовый поиск · до 1000 URL (DE)"}
+            </button>
+          </section>
+        )}
+
+        {dash && (
           <section id="balance-kpi" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Kpi id="harvest-balance" label="① Баланс добычи" value={formatEur(dash.harvest_balance_eur)} accent />
             <Kpi label="② Активные активы" value={String(dash.active_assets_count)} />
@@ -283,6 +349,7 @@ export function EngineDashboard() {
         )}
 
         <nav className="flex flex-wrap gap-2 text-[11px] text-genesis-muted">
+          <a href="#network-kpi" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Сеть</a>
           <a href="#balance-kpi" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Баланс</a>
           <a href="#scan-mode" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Сканирование</a>
           <a href="#pending-journal" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Журнал</a>

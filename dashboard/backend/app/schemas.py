@@ -987,6 +987,7 @@ class EngineDashboard(BaseModel):
     junk_archive_assets: list[EngineTarget] = []
     junk_archive_count: int = 0
     junk_micro_revenue_eur: float = 0.0
+    network: dict = {}
     finance_gateway: dict = {}
     wallets: list[dict] = []
     withdrawal_enabled: bool = False
@@ -1016,6 +1017,27 @@ class EngineJunkArchiveResponse(BaseModel):
     ok: bool
     processed: int
     revenue_eur: float
+    message: str
+
+
+class EngineNetworkScanRequest(BaseModel):
+    niche: str = "local_service"
+    batch_limit: int = 1000
+    region: str = "DE"
+
+
+class EngineNetworkScanResponse(BaseModel):
+    ok: bool
+    niche: str
+    region: str
+    batch_limit: int
+    scanned: int
+    passed_gate: int
+    archived: int
+    cities_scanned: int = 0
+    junk_micro_revenue_eur: float = 0.0
+    network: dict = {}
+    errors: list[str] = []
     message: str
 
 

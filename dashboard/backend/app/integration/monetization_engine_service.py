@@ -32,10 +32,62 @@ _PROCESSING_LANE_JUNK = "junk_archive"
 _ACTIVE_STATUSES = frozenset({"proposed", "contacted", "qualified", "won"})
 _PENDING_STATUSES = frozenset({"new", "reviewed"})
 
+_NETWORK_MRR_PER_ASSET_EUR = 20.0
+_NETWORK_TARGET_MRR_EUR = 10_000.0
+_NETWORK_BATCH_MAX = 1000
+
+_DE_BATCH_CITIES = (
+    "Berlin",
+    "Hamburg",
+    "München",
+    "Köln",
+    "Frankfurt",
+    "Stuttgart",
+    "Düsseldorf",
+    "Leipzig",
+    "Dresden",
+    "Hannover",
+    "Nürnberg",
+    "Dortmund",
+    "Essen",
+    "Bremen",
+    "Pirna",
+    "Chemnitz",
+    "Bonn",
+    "Mannheim",
+    "Karlsruhe",
+    "Augsburg",
+)
+
 _NICHE_SCAN_QUERIES: dict[str, str] = {
     "local_service": "Autowerkstatt",
     "expired_landing": "Handwerker website",
     "niche_blog": "Lokaler Blog",
+}
+
+
+_DEFAULT_ARBITRAGE_OFFERS: dict[str, dict[str, Any]] = {
+    "local_service": {
+        "offer_id": "de-local-service",
+        "label": "Локальные услуги · лидогенерация DE",
+        "target_url": "https://offers.virtus-core.local/local-service",
+        "cpc_eur": 0.85,
+        "monthly_floor_eur": 20.0,
+    },
+    "expired_landing": {
+        "offer_id": "de-landing-arbitrage",
+        "label": "Арбитраж трафика · заброшенные лендинги",
+        "target_url": "https://offers.virtus-core.local/landing",
+        "cpc_eur": 0.55,
+        "monthly_floor_eur": 20.0,
+    },
+    "niche_blog": {
+        "offer_id": "de-niche-portal",
+        "label": "Нишевый портал · реклама + affiliate",
+        "target_url": "https://offers.virtus-core.local/niche-blog",
+        "cpc_eur": 0.40,
+        "monthly_floor_eur": 20.0,
+    },
 }
 
 
@@ -75,6 +127,64 @@ class MonetizationEngineService:
         self._scanner = scanner
         self._memory = memory_dir or _DEFAULT_MEMORY
         self._places = GooglePlacesService()
+
+    def _arbitrage_offers(self) -> dict[str, dict[str, Any]]:
+        path = self._memory / "engine_arbitrage_offers.json"
+        if path.is_file():
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                if isinstance(data, dict):
+                    merged = dict(_DEFAULT_ARBITRAGE_OFFERS)
+                    merged.update(data)
+                    return merged
+            except (json.JSONDecodeError, OSError):
+                pass
+        return dict(_DEFAULT_ARBITRAGE_OFFERS)
+
+    def _assign_arbitrage_offer(self, meta: dict[str, Any], *, niche: str) -> dict[str, Any]:
+        offers = self._arbitrage_offers()
+        offer = offers.get(niche) or offers.get("local_service") or {}
+        if not offer:
+            return meta
+        meta["arbitrage_offer_id"] = offer.get("offer_id", "")
+        meta["arbitrage_label"] = offer.get("label", "")
+        meta["arbitrage_target_url"] = offer.get("target_url", "")
+        meta["arbitrage_cpc_eur"] = float(offer.get("cpc_eur") or 0)
+        meta["network_managed"] = True
+        meta["projected_monthly_eur"] = float(
+            offer.get("monthly_floor_eur") or _NETWORK_MRR_PER_ASSET_EUR
+        )
+        return meta
+
+    def _network_portfolio(self, rows: list[dict[str, Any]]) -> dict[str, Any]:
+        managed = 0
+        arbitrage_routes = 0
+        projected_mrr = 0.0
+        for row in rows:
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            if not meta.get("network_managed") and row.get("status") not in _ACTIVE_STATUSES:
+                if meta.get("processing_lane") not in (_PROCESSING_LANE_HIGH, _PROCESSING_LANE_JUNK):
+                    continue
+            managed += 1
+            if meta.get("arbitrage_target_url"):
+                arbitrage_routes += 1
+            projected_mrr += float(
+                meta.get("projected_monthly_eur") or _NETWORK_MRR_PER_ASSET_EUR
+            )
+        projected_mrr = round(projected_mrr, 2)
+        progress = round(min(100.0, (projected_mrr / _NETWORK_TARGET_MRR_EUR) * 100), 1)
+        return {
+            "mode": "network",
+            "total_assets": len(rows),
+            "managed_assets": managed,
+            "arbitrage_routes": arbitrage_routes,
+            "mrr_per_asset_eur": _NETWORK_MRR_PER_ASSET_EUR,
+            "projected_mrr_eur": projected_mrr,
+            "target_mrr_eur": _NETWORK_TARGET_MRR_EUR,
+            "target_progress_percent": progress,
+            "expired_domain_watch": "horizon",
+            "batch_scan_max": _NETWORK_BATCH_MAX,
+        }
 
     def _append_harvest_event(self, event: dict[str, Any]) -> None:
         path = self._memory / "engine_harvest_events.jsonl"
@@ -214,6 +324,7 @@ class MonetizationEngineService:
                 if not manual
                 else "Ручной URL — высокий score, готов к активации"
             )
+            meta = self._assign_arbitrage_offer(meta, niche=str(meta.get("niche") or "local_service"))
             updated = self._opportunity.update(row["id"], {"meta": meta, "score": profit_score})
             return {
                 "target": updated,
@@ -231,6 +342,7 @@ class MonetizationEngineService:
             if not manual
             else "Ручной URL — низкий score, вторичная обработка в архиве"
         )
+        meta = self._assign_arbitrage_offer(meta, niche=str(meta.get("niche") or "local_service"))
         updated = self._opportunity.update(
             row["id"],
             {
@@ -330,7 +442,8 @@ class MonetizationEngineService:
     def engine_dashboard(self, owner_name: str = "Ramiš") -> dict[str, Any]:
         harvest = self._sync_harvest_from_assets()
         fin = self._finance.finance_center(owner_name, "")
-        rows = self._opportunity.list_opportunities(source_id="asset_scan", limit=100)
+        rows = self._opportunity.list_opportunities(source_id="asset_scan", limit=500)
+        network = self._network_portfolio(rows)
 
         pending = []
         active = []
@@ -398,6 +511,7 @@ class MonetizationEngineService:
             "junk_archive_assets": junk_archive,
             "junk_archive_count": len(junk_archive),
             "junk_micro_revenue_eur": junk_micro_total,
+            "network": network,
             "finance_gateway": {
                 "provider": fin.get("payment_provider"),
                 "connected": fin.get("payment_connected", False),
@@ -434,6 +548,10 @@ class MonetizationEngineService:
         if not row:
             raise ValueError("not_found")
         accepted = self._scanner.accept_for_work(opportunity_id)
+        meta = dict(accepted.get("meta") or {})
+        niche = str(meta.get("niche") or "local_service")
+        meta = self._assign_arbitrage_offer(meta, niche=niche)
+        accepted = self._opportunity.update(opportunity_id, {"meta": meta})
         potential = float(accepted.get("potential_value_eur") or 0)
         self._append_harvest_event(
             {
@@ -520,6 +638,91 @@ class MonetizationEngineService:
             "message": (
                 f"Поиск целей: {scanned} URL · журнал {passed} · архив {archived} · "
                 f"микро +{float(junk_batch.get('revenue_eur') or 0):.2f} €"
+            ),
+        }
+
+    def run_network_scan(
+        self,
+        *,
+        niche: str = "local_service",
+        batch_limit: int = 1000,
+        region: str = "DE",
+    ) -> dict[str, Any]:
+        """Scalable Germany-wide scan — up to 1000 public URLs per run."""
+        niche_key = niche if niche in _NICHE_SCAN_QUERIES else "local_service"
+        batch_limit = max(1, min(_NETWORK_BATCH_MAX, int(batch_limit)))
+        per_city = max(3, batch_limit // len(_DE_BATCH_CITIES))
+        scanned = 0
+        passed = 0
+        archived = 0
+        cities_hit = 0
+        errors: list[str] = []
+        seen: set[str] = set()
+
+        if not self._places.configured():
+            return {
+                "ok": False,
+                "niche": niche_key,
+                "region": region,
+                "batch_limit": batch_limit,
+                "scanned": 0,
+                "passed_gate": 0,
+                "archived": 0,
+                "cities_scanned": 0,
+                "errors": ["places_not_configured_add_GOOGLE_PLACES_API_KEY"],
+                "message": "Массовый поиск требует GOOGLE_PLACES_API_KEY.",
+            }
+
+        query_base = _NICHE_SCAN_QUERIES[niche_key]
+        for city in _DE_BATCH_CITIES:
+            if scanned >= batch_limit:
+                break
+            cities_hit += 1
+            query = f"{query_base} {city} Deutschland".strip()
+            remaining = batch_limit - scanned
+            city_limit = min(per_city, remaining, 50)
+            try:
+                leads = self._places.search_text(query=query, limit=city_limit, region="de")
+            except (ValueError, RuntimeError) as exc:
+                errors.append(f"{city}: {exc}")
+                continue
+            for lead in leads:
+                if scanned >= batch_limit:
+                    break
+                site = (lead.website or "").strip()
+                if not site.startswith(("http://", "https://")) or site in seen:
+                    continue
+                seen.add(site)
+                try:
+                    result = self.scan_and_gate(site, niche=niche_key)
+                    scanned += 1
+                    if result.get("lane") == _PROCESSING_LANE_HIGH:
+                        passed += 1
+                    else:
+                        archived += 1
+                except ValueError as exc:
+                    errors.append(f"{site}: {exc}")
+
+        junk_batch = self.process_junk_archive_cycle(limit=100)
+        self.sync_payment_providers()
+        network = self._network_portfolio(
+            self._opportunity.list_opportunities(source_id="asset_scan", limit=500)
+        )
+        return {
+            "ok": True,
+            "niche": niche_key,
+            "region": region,
+            "batch_limit": batch_limit,
+            "scanned": scanned,
+            "passed_gate": passed,
+            "archived": archived,
+            "cities_scanned": cities_hit,
+            "junk_micro_revenue_eur": junk_batch.get("revenue_eur", 0.0),
+            "network": network,
+            "errors": errors[:8],
+            "message": (
+                f"Сеть DE: {scanned}/{batch_limit} URL · {cities_hit} городов · "
+                f"журнал {passed} · архив {archived} · MRR прогноз {network['projected_mrr_eur']:.0f} €"
             ),
         }
 
