@@ -103,6 +103,95 @@ class MicroFarmService:
         with path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(event, ensure_ascii=False) + "\n")
 
+    def _log_lifecycle_event(
+        self,
+        *,
+        stage: str,
+        adapter: str,
+        task_id: str,
+        pay_eur: float = 0.0,
+        ok: bool = True,
+        balance_after_eur: float | None = None,
+        platform: str | None = None,
+    ) -> None:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.farm_lifecycle_ru import detail_for_stage, stage_title
+
+        sandbox = self._business_mode.is_sandbox()
+        vault = self._priority_manager().vault
+        plat = platform or (
+            "Toloka/Scale (live)" if vault.is_live() and not vault.is_dry_run() else "учебная ферма"
+        )
+        title_ru = stage_title(stage)
+        detail = detail_for_stage(
+            stage,
+            task_label=str(task_id)[:48],
+            pay_eur=pay_eur,
+            platform=plat,
+            sandbox=sandbox,
+            balance_eur=balance_after_eur,
+        )
+        from swarm.farm_lifecycle_ru import (
+            STAGE_BALANCE_INCREASED,
+            STAGE_PAYMENT_CONFIRMED,
+        )
+
+        show_pay = stage in {STAGE_PAYMENT_CONFIRMED, STAGE_BALANCE_INCREASED}
+        self._log_event(
+            {
+                "id": uuid.uuid4().hex[:12],
+                "at": datetime.now(timezone.utc).isoformat(),
+                "adapter": adapter,
+                "pay_eur": pay_eur if show_pay else 0.0,
+                "target": task_id,
+                "detail": detail,
+                "title_ru": title_ru,
+                "lifecycle_stage": stage,
+                "ok": ok,
+            }
+        )
+
+    def _emit_task_lifecycle(
+        self,
+        *,
+        adapter: str,
+        task_id: str,
+        pay_eur: float,
+        ok: bool,
+        balance_after_eur: float | None = None,
+    ) -> None:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.farm_lifecycle_ru import STAGE_ACCEPTED, lifecycle_chain
+
+        vault = self._priority_manager().vault
+        live_ex = vault.is_live() and not vault.is_dry_run()
+        self._log_lifecycle_event(
+            stage=STAGE_ACCEPTED,
+            adapter=adapter,
+            task_id=task_id,
+            pay_eur=0.0,
+            ok=ok,
+        )
+        for stage in lifecycle_chain(
+            ok=ok,
+            sandbox=self._business_mode.is_sandbox(),
+            live_exchange=live_ex,
+            pay_eur=pay_eur,
+        ):
+            if stage == STAGE_ACCEPTED:
+                continue
+            self._log_lifecycle_event(
+                stage=stage,
+                adapter=adapter,
+                task_id=task_id,
+                pay_eur=pay_eur,
+                ok=ok,
+            )
+
     def _recent_events(self, limit: int = 20) -> list[dict[str, Any]]:
         path = self._events_path()
         if not path.is_file():
@@ -122,13 +211,110 @@ class MicroFarmService:
             state["today_date"] = today
             state["today_earned_eur"] = 0.0
 
+    def _scale_probe_ok(self, scale: dict[str, Any]) -> bool:
+        """No Scale key is OK when farm runs Toloka-only."""
+        if scale.get("connected"):
+            return True
+        if scale.get("status") == "no_key" or not scale.get("configured"):
+            return True
+        return False
+
+    def _refresh_live_test_if_stale(self, state: dict[str, Any]) -> None:
+        """Heal old Live test FAIL in UI when Toloka is already connected."""
+        if self._is_dry_run():
+            return
+        last = state.get("last_live_connection_test") or {}
+        if last.get("ok"):
+            return
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.live_connection import test_connection_live
+
+        result = test_connection_live(vault=self._priority_manager().vault)
+        state["last_live_connection_test"] = {
+            "at": datetime.now(timezone.utc).isoformat(),
+            "ok": result.get("ok"),
+            "log_line": result.get("log_line"),
+            "message": result.get("message"),
+        }
+
     def _check_scale_adapter(self) -> dict[str, Any]:
         from app.integration.swarm_bridge import ensure_swarm_importable
 
         ensure_swarm_importable()
         from swarm.adapter_scale_ai import check_scale_ai_connection
 
-        return check_scale_ai_connection()
+        key = self._priority_manager().vault.secret("SCALE_API_KEY")
+        return check_scale_ai_connection(api_key=key or None)
+
+    def payment_monitor_status(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.payment_monitor import PaymentMonitor
+        from swarm.payout_notifier import PayoutNotifier
+
+        pm = self._priority_manager()
+        monitor = PaymentMonitor(pm.vault)
+        scan = monitor.scan_all()
+        notifier = PayoutNotifier(self._memory)
+        payout = notifier.snapshot(scan)
+        return {"monitor": scan, "payout": payout}
+
+    def _payment_monitor_for_dashboard(self) -> dict[str, Any]:
+        vault = self.platform_vault_status()
+        exchange_keys = any(
+            p.get("configured")
+            for p in vault.get("platforms", [])
+            if p.get("env_var") in {"SCALE_API_KEY", "TOLOKA_API_TOKEN"}
+        )
+        if self._is_dry_run() and not exchange_keys:
+            return {"monitor": None, "payout": None, "note": "Включи FARM_LIVE_MODE=live"}
+        status = self.payment_monitor_status()
+        if self._is_dry_run():
+            status["note"] = "Ключи бирж видны · полный LIVE после FARM_LIVE_MODE=live"
+        remote_missing = vault.get("missing_for_remote") or []
+        if remote_missing:
+            status["remote_warning"] = (
+                "FARM_EXECUTION_MODE=remote без VPS — биржа подключена, "
+                "удалённые комбайны ждут FARM_WORKER_POOL_URL"
+            )
+        return status
+
+    def run_test_connection_live(self) -> dict[str, Any]:
+        from app.env_loader import load_local_env
+
+        load_local_env()
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.live_connection import test_connection_live
+
+        result = test_connection_live(vault=self._priority_manager().vault)
+        state = self._load_state()
+        state["last_live_connection_test"] = {
+            "at": datetime.now(timezone.utc).isoformat(),
+            "ok": result.get("ok"),
+            "log_line": result.get("log_line"),
+            "message": result.get("message"),
+        }
+        self._save_state(state)
+        if result.get("ok"):
+            payout = self.payment_monitor_status().get("payout") or {}
+            if payout.get("has_withdraw_ready"):
+                self._log_event(
+                    {
+                        "id": uuid.uuid4().hex[:12],
+                        "at": datetime.now(timezone.utc).isoformat(),
+                        "adapter": "payout_notifier",
+                        "pay_eur": 0.0,
+                        "target": "exchange",
+                        "detail": payout["pending_alerts"][0].get("message"),
+                        "ok": True,
+                    }
+                )
+        return result
 
     def _priority_manager(self) -> Any:
         from app.integration.swarm_bridge import ensure_swarm_importable
@@ -140,6 +326,56 @@ class MicroFarmService:
 
     def platform_vault_status(self) -> dict[str, Any]:
         return self._priority_manager().vault.snapshot()
+
+    def global_spider_vector(self) -> dict[str, Any]:
+        from app.integration.global_spider_service import GlobalSpiderService
+
+        return GlobalSpiderService(self._memory).spider_dashboard()
+
+    def _hunting_settings(self) -> dict[str, Any]:
+        from app.integration.global_spider_service import GlobalSpiderService
+
+        cfg = GlobalSpiderService(self._memory).load_config()
+        from app.integration.farm_hunting_defaults import hunting_settings
+
+        return hunting_settings(cfg)
+
+    def _adapter_pay_eur(self, adapter_id: str) -> float:
+        return float(_ADAPTER_PAY_EUR.get(adapter_id, 0.01))
+
+    def _passes_min_task_price(self, adapter_id: str) -> bool:
+        return self._adapter_pay_eur(adapter_id) >= self._hunting_settings()["min_task_price"]
+
+    def _log_price_filter_skip(self, adapter_id: str, *, target: str) -> None:
+        pay = self._adapter_pay_eur(adapter_id)
+        min_p = self._hunting_settings()["min_task_price"]
+        self._log_event(
+            {
+                "id": uuid.uuid4().hex[:12],
+                "at": datetime.now(timezone.utc).isoformat(),
+                "adapter": adapter_id,
+                "pay_eur": 0.0,
+                "target": target[:48],
+                "detail": (
+                    f"[Filter] Task too cheap, skipped · {adapter_id} · "
+                    f"{pay:.4f} € < min {min_p:.4f} € · {target[:32]}"
+                ),
+                "title_ru": "Фильтр: задача слишком дешёвая",
+                "lifecycle_stage": "price_filter",
+                "ok": False,
+                "skipped": True,
+            }
+        )
+
+    def _payout_guide(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.farm_lifecycle_ru import payout_ui_block
+        from swarm.payout_notifier import PayoutNotifier
+
+        threshold = PayoutNotifier(self._memory).snapshot().get("threshold_usd", 10.0)
+        return payout_ui_block(threshold_usd=float(threshold or 10.0))
 
     def prepare_live_mode(self) -> dict[str, Any]:
         vault = self.platform_vault_status()
@@ -438,6 +674,9 @@ class MicroFarmService:
         }
 
     def start_swarm(self, *, workers: int = 10) -> dict[str, Any]:
+        from app.env_loader import load_local_env
+
+        load_local_env()
         state = self._load_state()
         scale = self._check_scale_adapter()
         state["scale_ai_last"] = scale
@@ -445,6 +684,7 @@ class MicroFarmService:
         state["workers_target"] = max(1, min(1000, int(workers)))
         state["workers_active"] = state["workers_target"]
         self._save_state(state)
+        scale_skip = scale.get("status") == "no_key" or not scale.get("configured")
         self._log_event(
             {
                 "id": uuid.uuid4().hex[:12],
@@ -452,13 +692,44 @@ class MicroFarmService:
                 "adapter": "scale_ai_probe",
                 "pay_eur": 0.0,
                 "target": "scale_ai",
-                "detail": scale.get("log_line") or scale.get("message"),
-                "ok": scale.get("connected", False),
+                "detail": (
+                    "Scale: SKIP — Toloka-only (ключ не задан)"
+                    if scale_skip
+                    else (scale.get("log_line") or scale.get("message"))
+                ),
+                "ok": self._scale_probe_ok(scale),
+                "skipped": scale_skip,
             }
         )
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.adapter_toloka import TolokaAdapter
+
+        toloka_key = self._priority_manager().vault.secret("TOLOKA_API_TOKEN")
+        if toloka_key:
+            toloka = TolokaAdapter(api_key=toloka_key).check_connection()
+            self._log_event(
+                {
+                    "id": uuid.uuid4().hex[:12],
+                    "at": datetime.now(timezone.utc).isoformat(),
+                    "adapter": "toloka_probe",
+                    "pay_eur": 0.0,
+                    "target": "toloka",
+                    "detail": toloka.get("message") or "Toloka Pipeline API",
+                    "ok": bool(toloka.get("connected")),
+                }
+            )
+        if not self._is_dry_run():
+            self._refresh_live_test_if_stale(state)
+            self._save_state(state)
         tick = self.run_tick()
         base_msg = f"Ферма запущена: {state['workers_target']} комбайнов"
-        scale_msg = scale.get("log_line") or scale.get("message", "")
+        scale_msg = (
+            "Scale пропущен · Toloka-only"
+            if scale_skip
+            else (scale.get("log_line") or scale.get("message", ""))
+        )
         return {
             "ok": True,
             "message": f"{base_msg} · {scale_msg}",
@@ -481,12 +752,19 @@ class MicroFarmService:
             if len(tasks) >= limit:
                 break
             meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            target = str(row.get("company_name") or row.get("website_url") or row.get("id") or "")
             if not meta.get("farm_data_cleaned"):
-                tasks.append(("data_clean", row))
+                adapter_id = "data_clean"
             elif not meta.get("classified_niche"):
-                tasks.append(("text_classify", row))
+                adapter_id = "text_classify"
             elif not meta.get("farm_verified"):
-                tasks.append(("record_verify", row))
+                adapter_id = "record_verify"
+            else:
+                continue
+            if not self._passes_min_task_price(adapter_id):
+                self._log_price_filter_skip(adapter_id, target=target or adapter_id)
+                continue
+            tasks.append((adapter_id, row))
         return tasks
 
     def _run_data_clean(self, row: dict[str, Any]) -> dict[str, Any]:
@@ -685,6 +963,13 @@ class MicroFarmService:
                     task_id=lr.task_id,
                     llm_cost_eur=lr.llm_cost_eur,
                 )
+        if done > 0:
+            self._emit_task_lifecycle(
+                adapter="ai_labeling",
+                task_id=f"{done} разметок",
+                pay_eur=round(earned / done, 4),
+                ok=True,
+            )
         return done, earned, llm_cost
 
     def run_tick(self, *, workers: int | None = None) -> dict[str, Any]:
@@ -801,6 +1086,40 @@ class MicroFarmService:
             state["workers_active"] = state.get("workers_target", 10)
         self._save_state(state)
 
+        if earned > 0:
+            from app.integration.swarm_bridge import ensure_swarm_importable
+
+            ensure_swarm_importable()
+            from swarm.farm_lifecycle_ru import STAGE_BALANCE_INCREASED
+
+            self._log_lifecycle_event(
+                stage=STAGE_BALANCE_INCREASED,
+                adapter="farm_tick",
+                task_id=f"tick-{state['last_tick_at'][:19]}",
+                pay_eur=round(earned, 4),
+                ok=True,
+                balance_after_eur=float(state.get("total_earned_eur") or 0),
+            )
+
+        toloka_submit = self._auto_submit_toloka_if_ready()
+        pending_submit = int((toloka_submit or {}).get("pending") or 0) if toloka_submit else 0
+
+        tick_payload = {
+            "tasks_done": done,
+            "earned_eur": round(earned, 4),
+            "llm_cost_eur": round(llm_cost, 4),
+        }
+        finance_guard = self._finance_guard_tick(
+            state,
+            earned=earned,
+            llm_cost=llm_cost,
+            tasks_done=done,
+            pending_submit=pending_submit,
+        )
+        if finance_guard.get("stop_farm"):
+            self._save_state(state)
+        evidence = self._refresh_commercial_evidence(farm_state=state, tick_result=tick_payload)
+
         return {
             "ok": True,
             "tasks_done": done,
@@ -808,6 +1127,9 @@ class MicroFarmService:
             "llm_cost_eur": round(llm_cost, 4),
             "results": results[:10],
             "execution": execution_meta,
+            "toloka_submit": toloka_submit,
+            "finance_guard": finance_guard,
+            "commercial_evidence": evidence,
             "message": (
                 f"Рой ({execution_meta.get('target', 'local')}): {done} задач · +{earned:.2f} €"
                 if done
@@ -833,23 +1155,35 @@ class MicroFarmService:
             runner = runners.get(adapter_id)
             if not runner:
                 continue
+            pay = _ADAPTER_PAY_EUR.get(adapter_id, 0.01)
+            target = str(row.get("company_name") or row.get("website_url") or row.get("id") or adapter_id)
+            if not self._passes_min_task_price(adapter_id):
+                self._log_price_filter_skip(adapter_id, target=target)
+                continue
             try:
                 outcome = runner(row)
-                pay = _ADAPTER_PAY_EUR.get(adapter_id, 0.01)
                 earned += pay
                 llm_cost += float(outcome.get("llm_cost_eur") or 0)
                 done += 1
-                event = {
-                    "id": uuid.uuid4().hex[:12],
-                    "at": datetime.now(timezone.utc).isoformat(),
-                    "adapter": adapter_id,
-                    "pay_eur": pay,
-                    "target": row.get("company_name") or row.get("website_url"),
-                    "detail": outcome.get("detail"),
-                    "ok": outcome.get("ok", True),
-                }
-                self._log_event(event)
-                results.append(event)
+                target = str(row.get("company_name") or row.get("website_url") or row.get("id") or adapter_id)
+                self._emit_task_lifecycle(
+                    adapter=adapter_id,
+                    task_id=target,
+                    pay_eur=pay,
+                    ok=bool(outcome.get("ok", True)),
+                    balance_after_eur=(
+                        float(state.get("total_earned_eur") or 0) + earned + pay if state is not None else None
+                    ),
+                )
+                results.append(
+                    {
+                        "adapter": adapter_id,
+                        "pay_eur": pay,
+                        "target": target,
+                        "detail": outcome.get("detail"),
+                        "ok": outcome.get("ok", True),
+                    }
+                )
                 if state is not None and outcome.get("ok", True):
                     self._record_dry_run_completion(
                         state,
@@ -897,9 +1231,220 @@ class MicroFarmService:
             return ""
         return path.read_text(encoding="utf-8")
 
+    def _toloka_submitter(self) -> Any:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.adapter_toloka import TolokaAdapter
+        from swarm.toloka_submit import TolokaLabelSubmitter
+
+        key = self._priority_manager().vault.secret("TOLOKA_API_TOKEN")
+        adapter = TolokaAdapter(api_key=key) if key else TolokaAdapter()
+        return TolokaLabelSubmitter(
+            memory_dir=self._memory,
+            adapter=adapter,
+            opportunity_lookup=self._opportunity,
+        )
+
+    def toloka_submit_status(self) -> dict[str, Any]:
+        status = self._toloka_submitter().status()
+        run_id = status.get("last_run_id")
+        if run_id and status.get("connected"):
+            submitter = self._toloka_submitter()
+            state = submitter.load_state()
+            if state.get("last_run_status") not in {"succeeded", "success", "completed", "failed"}:
+                submitter._poll_run_status(str(run_id), state)
+                submitter.save_state(state)
+                status = submitter.status()
+        return status
+
+    def first_euro_gate(self) -> dict[str, Any]:
+        from app.integration.first_euro_gate import attach_evidence_to_gate, build_first_euro_gate, load_ceo_flags
+
+        state = self._load_state()
+        toloka = self.toloka_submit_status()
+        gate = build_first_euro_gate(
+            memory_dir=self._memory,
+            toloka_status=toloka,
+            farm_state=state,
+            payment_monitor=self._payment_monitor_for_dashboard(),
+            pipeline_success_count=int(toloka.get("pipeline_success_count") or 0),
+        )
+        return attach_evidence_to_gate(gate, self.commercial_evidence())
+
+    def commercial_evidence(self) -> dict[str, Any] | None:
+        from app.integration.commercial_evidence import load_latest_evidence
+
+        return load_latest_evidence(self._memory)
+
+    def _refresh_commercial_evidence(
+        self,
+        *,
+        farm_state: dict[str, Any],
+        tick_result: dict[str, Any],
+        spider_meta: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        from app.integration.commercial_evidence import build_commercial_evidence, save_evidence
+        from app.integration.first_euro_gate import load_ceo_flags
+
+        report = build_commercial_evidence(
+            memory_dir=self._memory,
+            farm_state=farm_state,
+            toloka_status=self.toloka_submit_status(),
+            ceo_flags=load_ceo_flags(self._memory),
+            last_tick=tick_result,
+            spider_meta=spider_meta or farm_state.get("last_spider_scan"),
+        )
+        save_evidence(self._memory, report)
+        return report
+
+    def _finance_guard_tick(
+        self,
+        state: dict[str, Any],
+        *,
+        earned: float,
+        llm_cost: float,
+        tasks_done: int,
+        pending_submit: int = 0,
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.finance_guard import FinanceGuard
+
+        guard = FinanceGuard(self._memory).evaluate_tick(
+            earned_eur=earned,
+            llm_cost_eur=llm_cost,
+            tasks_done=tasks_done,
+            farm_state=state,
+            pending_submit=pending_submit,
+        )
+        if guard.get("stop_farm") and state.get("running"):
+            state["running"] = False
+            state["workers_active"] = 0
+            self._log_event(
+                {
+                    "id": uuid.uuid4().hex[:12],
+                    "at": datetime.now(timezone.utc).isoformat(),
+                    "adapter": "finance_guard",
+                    "pay_eur": 0.0,
+                    "target": "farm",
+                    "detail": guard.get("message_ru") or "Finance Guard: стоп фермы",
+                    "title_ru": "Финансовый сторож: остановка",
+                    "ok": False,
+                }
+            )
+        return guard
+
+    def _finance_guard_snapshot(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.finance_guard import FinanceGuard
+
+        toloka = self.toloka_submit_status()
+        from app.integration.first_euro_gate import load_ceo_flags
+
+        return FinanceGuard(self._memory).dashboard(
+            farm_state=self._load_state(),
+            pending_submit=int(toloka.get("pending_count") or 0),
+            submitted_total=int(toloka.get("submitted_count") or 0),
+            toloka_status=toloka,
+            ceo_flags=load_ceo_flags(self._memory),
+        )
+
+    def farm_program(self) -> dict[str, Any]:
+        from app.integration.farm_program import build_farm_program, error_ledger_from_memory
+        from app.integration.first_euro_gate import load_ceo_flags
+
+        state = self._load_state()
+        toloka = self.toloka_submit_status()
+        return build_farm_program(
+            vre_gate=self.first_euro_gate(),
+            finance_guard=self._finance_guard_snapshot(),
+            commercial_evidence=self.commercial_evidence(),
+            toloka_status=toloka,
+            farm_state=state,
+            labels_export_count=self.labels_export_count(),
+            ceo_flags=load_ceo_flags(self._memory),
+            error_ledger_summary=error_ledger_from_memory(self._memory),
+        )
+
+    def verified_revenue_engine(self) -> dict[str, Any]:
+        return self.first_euro_gate()
+
+    def confirm_first_euro_step(self, step_id: str, *, done: bool = True) -> dict[str, Any]:
+        from app.integration.first_euro_gate import save_ceo_flag
+
+        flags = save_ceo_flag(self._memory, step_id, done=done)
+        gate = self.first_euro_gate()
+        return {"ok": True, "step_id": step_id, "done": done, "flags": flags, "gate": gate}
+
+    def submit_toloka_labels(self, *, limit: int = 50, trigger_run: bool | None = None) -> dict[str, Any]:
+        from app.env_loader import load_local_env
+
+        load_local_env()
+        submitter = self._toloka_submitter()
+        result = submitter.submit_pending(limit=limit, trigger_run=trigger_run)
+        submitted = int(result.get("submitted") or 0)
+        if submitted > 0:
+            detail = result.get("message") or f"Toloka приняла {submitted} разметок"
+            self._log_lifecycle_event(
+                stage="task_completed",
+                adapter="toloka_submit",
+                task_id=f"{submitted} разметок → Toloka",
+                pay_eur=0.0,
+                ok=True,
+                platform="Toloka Pipeline",
+            )
+            self._log_event(
+                {
+                    "id": uuid.uuid4().hex[:12],
+                    "at": datetime.now(timezone.utc).isoformat(),
+                    "adapter": "toloka_submit",
+                    "pay_eur": 0.0,
+                    "target": str(result.get("dataset_id") or "toloka")[:48],
+                    "detail": detail,
+                    "title_ru": "Пакет отправлен на Toloka",
+                    "lifecycle_stage": "task_completed",
+                    "ok": True,
+                }
+            )
+            state = self._load_state()
+            self._refresh_commercial_evidence(
+                farm_state=state,
+                tick_result={"tasks_done": 0, "earned_eur": 0, "llm_cost_eur": 0},
+            )
+        elif not result.get("ok"):
+            self._log_event(
+                {
+                    "id": uuid.uuid4().hex[:12],
+                    "at": datetime.now(timezone.utc).isoformat(),
+                    "adapter": "toloka_submit",
+                    "pay_eur": 0.0,
+                    "target": "toloka",
+                    "detail": str(result.get("message") or "submit failed")[:160],
+                    "title_ru": "Toloka: ошибка отправки",
+                    "ok": False,
+                }
+            )
+        return result
+
+    def _auto_submit_toloka_if_ready(self) -> dict[str, Any] | None:
+        submitter = self._toloka_submitter()
+        if not submitter.auto_submit_enabled():
+            return None
+        if submitter.status().get("pending_count", 0) <= 0:
+            return None
+        return self.submit_toloka_labels(limit=50)
+
     def dashboard(self, owner_name: str = "Владелец") -> dict[str, Any]:
+        from app.env_loader import load_local_env
+
+        load_local_env()
         state = self._load_state()
         self._reset_today_if_needed(state)
+        self._refresh_live_test_if_stale(state)
         self._save_state(state)
         fin = self._finance.financial_view()
         sandbox = self._business_mode.is_sandbox()
@@ -942,7 +1487,7 @@ class MicroFarmService:
                 "step": 3,
                 "id": "execution",
                 "title": "Отправляем результат",
-                "detail": "Пакет уходит в swarm_labels_export.jsonl и в базу Genesis.",
+                "detail": "Пакет уходит в swarm_labels_export.jsonl → auto-submit на Toloka (live).",
             },
             {
                 "step": 4,
@@ -986,8 +1531,18 @@ class MicroFarmService:
             ),
             "last_battle_test": state.get("last_battle_test"),
             "platform_vault": self.platform_vault_status(),
+            "global_spider": self.global_spider_vector(),
             "prepare_live": self.prepare_live_mode(),
             "dry_run": self.dry_run_status(),
+            "payment_monitor": self._payment_monitor_for_dashboard(),
+            "last_live_connection_test": state.get("last_live_connection_test"),
+            "payout_guide": self._payout_guide(),
+            "toloka_submit": self.toloka_submit_status(),
+            "first_euro_gate": self.first_euro_gate(),
+            "verified_revenue_engine": self.verified_revenue_engine(),
+            "commercial_evidence": self.commercial_evidence(),
+            "finance_guard": self._finance_guard_snapshot(),
+            "farm_program": self.farm_program(),
             "recent_tasks": self._recent_events(15),
             "last_tick_at": state.get("last_tick_at"),
             "honesty_note": (

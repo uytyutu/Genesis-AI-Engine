@@ -139,3 +139,79 @@ class ScaleAIAdapter:
 def check_scale_ai_connection(**kwargs: Any) -> dict[str, Any]:
     """Factory helper for micro_farm_service and tests."""
     return ScaleAIAdapter(**kwargs).check_connection()
+
+
+def fetch_scale_live_tasks(*, api_key: str | None = None, limit: int = 5) -> dict[str, Any]:
+    """Return real task rows from Scale when live key works."""
+    adapter = ScaleAIAdapter(api_key=api_key)
+    if not adapter.configured():
+        return {"ok": False, "live_tasks": False, "count": 0, "message": "no_key"}
+    url = f"{adapter._base_url}{PROBE_PATH}"
+    try:
+        with httpx.Client(timeout=httpx.Timeout(CONNECT_TIMEOUT_SEC, connect=4.0)) as client:
+            response = client.get(
+                url,
+                headers={"Accept": "application/json"},
+                auth=(adapter._api_key, ""),
+                params={"limit": max(1, min(20, limit))},
+            )
+        if response.status_code != 200:
+            return {
+                "ok": False,
+                "live_tasks": False,
+                "http_status": response.status_code,
+                "message": f"Scale tasks HTTP {response.status_code}",
+            }
+        body = response.json() if response.content else {}
+        docs = body.get("docs") if isinstance(body, dict) else body
+        count = len(docs) if isinstance(docs, list) else 0
+        return {
+            "ok": True,
+            "live_tasks": count > 0,
+            "count": count,
+            "sample_ids": [str(d.get("task_id") or d.get("id") or "")[:16] for d in (docs or [])[:3]]
+            if isinstance(docs, list)
+            else [],
+            "message": f"Scale API: {count} task(s) in queue",
+        }
+    except (httpx.TimeoutException, httpx.NetworkError, OSError) as exc:
+        return {"ok": False, "live_tasks": False, "error": type(exc).__name__}
+    except Exception as exc:
+        return {"ok": False, "live_tasks": False, "message": str(exc)[:120]}
+
+
+def fetch_scale_balance(*, api_key: str | None = None) -> dict[str, Any]:
+    """Balance when Scale exposes billing API — else honest dashboard fallback."""
+    adapter = ScaleAIAdapter(api_key=api_key)
+    if not adapter.configured():
+        return {"ok": False, "balance_usd": None, "message": "no_key"}
+    for path in ("/billing/balance", "/user/balance", "/account/balance"):
+        try:
+            with httpx.Client(timeout=httpx.Timeout(CONNECT_TIMEOUT_SEC, connect=4.0)) as client:
+                response = client.get(
+                    f"{adapter._base_url}{path}",
+                    headers={"Accept": "application/json"},
+                    auth=(adapter._api_key, ""),
+                )
+            if response.status_code == 200:
+                data = response.json() if response.content else {}
+                amount = (
+                    data.get("balance")
+                    or data.get("available_balance")
+                    or data.get("amount")
+                    or (data.get("data") or {}).get("balance")
+                )
+                if amount is not None:
+                    return {
+                        "ok": True,
+                        "balance_usd": float(amount),
+                        "currency": "USD",
+                        "source": path,
+                    }
+        except Exception:
+            continue
+    return {
+        "ok": False,
+        "balance_usd": None,
+        "message": "Баланс Scale — вывод вручную: scale.com → Billing → Withdraw на Stripe",
+    }

@@ -40,19 +40,19 @@ PLATFORM_REGISTRY: list[dict[str, Any]] = [
     },
     {
         "id": "toloka",
-        "label": "Toloka (Yandex)",
+        "label": "Toloka (Pipeline API)",
         "category": "microtask",
         "status_key": "TOLOKA_API_TOKEN",
         "env_var": "TOLOKA_API_TOKEN",
         "pay_hint": "микро-задачи, выплаты на кошелёк",
-        "signup_url": "https://toloka.ai/",
+        "signup_url": "https://platform.toloka.ai/",
         "steps": [
-            "Аккаунт на toloka.ai → API access (для заказчика/исполнителя по правилам Toloka).",
-            "Скопируй OAuth token / API token.",
-            ".env.local: TOLOKA_API_TOKEN=...",
+            "Аккаунт на platform.toloka.ai → API Keys.",
+            "Скопируй ключ (формат ApiKey …).",
+            ".env.local: TOLOKA_API_TOKEN=... (можно без префикса — Genesis добавит ApiKey).",
             "Перезапусти Genesis.",
         ],
-        "note": "Подходит для массовой разметки текстов и изображений.",
+        "note": "Pipeline API v2-beta — проекты и pipelines через platform.toloka.ai.",
     },
     {
         "id": "appen",
@@ -144,25 +144,44 @@ def platform_status(env_var: str | None, status_key: str | None) -> tuple[str, s
 def list_platforms() -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     scale_live: dict[str, Any] | None = None
+    toloka_live: dict[str, Any] | None = None
     try:
         from swarm.adapter_scale_ai import check_scale_ai_connection
 
         scale_live = check_scale_ai_connection()
     except Exception:
         scale_live = None
+    try:
+        from swarm.adapter_toloka import check_toloka_connection
+
+        toloka_live = check_toloka_connection()
+    except Exception:
+        toloka_live = None
 
     for p in PLATFORM_REGISTRY:
         status, status_label = platform_status(p.get("env_var"), p.get("status_key"))
         item = dict(p)
-        if p.get("id") == "scale_ai" and scale_live:
+        pid = p.get("id")
+        if pid == "scale_ai" and scale_live:
             if scale_live.get("connected"):
                 status, status_label = "active", "Подключено · API OK"
             elif scale_live.get("configured"):
                 status, status_label = "needs_key", scale_live.get("message", status_label)
             item["adapter_status"] = scale_live
+        elif pid == "toloka" and toloka_live:
+            if toloka_live.get("connected"):
+                status, status_label = "active", "Подключено · Pipeline API OK"
+            elif toloka_live.get("configured"):
+                status, status_label = "needs_key", toloka_live.get("message", status_label)
+            item["adapter_status"] = toloka_live
         item["status"] = status
         item["status_label"] = status_label
-        item["connected"] = status == "active" or bool(scale_live and scale_live.get("connected"))
+        if pid == "scale_ai" and scale_live:
+            item["connected"] = bool(scale_live.get("connected"))
+        elif pid == "toloka" and toloka_live:
+            item["connected"] = bool(toloka_live.get("connected"))
+        else:
+            item["connected"] = status == "active"
         out.append(item)
     return out
 

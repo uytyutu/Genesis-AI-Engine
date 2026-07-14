@@ -70,6 +70,8 @@ class InternalOpportunitySource:
             "task_id": task_id,
             "source_id": source_id,
             "labels": labels,
+            "company": str(row.get("company_name") or ""),
+            "url": str(row.get("website_url") or ""),
             "exported_at": datetime.now(timezone.utc).isoformat(),
         }
         with self._export_path.open("a", encoding="utf-8") as fh:

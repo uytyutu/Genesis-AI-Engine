@@ -3,6 +3,14 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEur } from "../lib/formatEur";
+import {
+  FarmTaskEvent,
+  PayoutGuide,
+  lifecycleRowClass,
+  lifecycleTitle,
+  showPayAmount,
+  taskTone,
+} from "../lib/farmLifecycleUi";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -20,15 +28,7 @@ type Platform = {
   connected?: boolean;
 };
 type ChecklistItem = { step: string; title: string; detail: string };
-type TaskEvent = {
-  id: string;
-  at: string;
-  adapter: string;
-  pay_eur: number;
-  target: string;
-  detail: string;
-  ok: boolean;
-};
+type TaskEvent = FarmTaskEvent;
 
 type FarmDash = {
   owner_name: string;
@@ -51,6 +51,24 @@ type FarmDash = {
   ceo_checklist?: ChecklistItem[];
   labels_export_count?: number;
   labels_export_ready?: boolean;
+  toloka_submit?: {
+    configured?: boolean;
+    auto_submit_enabled?: boolean;
+    connected?: boolean;
+    pending_count?: number;
+    submitted_count?: number;
+    last_submit_at?: string | null;
+    last_error?: string | null;
+    dataset_id?: string;
+    pipeline_id?: string;
+    last_run_status?: string;
+    circuit_breaker?: {
+      safe_mode?: boolean;
+      safe_mode_reason?: string;
+      seconds_remaining?: number;
+    };
+    message?: string;
+  };
   scale_ai?: {
     connected: boolean;
     configured: boolean;
@@ -104,6 +122,18 @@ type FarmDash = {
     checklist: { step: number; done: boolean; title: string }[];
     next?: string;
   };
+  global_spider?: {
+    toloka_categories_count: number;
+    toloka_task_categories?: string[];
+    seed_targets_count?: number;
+    seed_targets?: string[];
+    places_queries_count: number;
+    places_configured: boolean;
+    min_task_price?: number;
+    polling_interval_sec?: number;
+    hunter_mode?: boolean;
+    note?: string;
+  };
   dry_run?: {
     active: boolean;
     execution_mode: string;
@@ -117,6 +147,157 @@ type FarmDash = {
       pipeline: { step: number; name: string; detail: string }[];
     };
   };
+  payment_monitor?: {
+    monitor: {
+      farm_mode: string;
+      execution_mode?: string;
+      scale: {
+        connected?: boolean;
+        balance_usd: number | null;
+        live_tasks: boolean;
+        task_count?: number;
+        withdraw_note: string;
+      };
+      toloka: {
+        connected?: boolean;
+        balance_usd: number | null;
+        live_tasks: boolean;
+        task_count?: number;
+        withdraw_note: string;
+      };
+    } | null;
+    payout: {
+      threshold_usd: number;
+      has_withdraw_ready?: boolean;
+      pending_alerts?: { title: string; message: string; balance_usd: number }[];
+      stripe_note?: string;
+      auto_payout: boolean;
+    } | null;
+    note?: string;
+    remote_warning?: string;
+  };
+  last_live_connection_test?: { ok: boolean; log_line?: string; message?: string; at?: string };
+  payout_guide?: PayoutGuide;
+  first_euro_gate?: {
+    verdict: string;
+    headline: string;
+    core_question: string;
+    first_euro_confirmed: boolean;
+    verified_revenue_confirmed?: boolean;
+    vre_level?: number;
+    vre?: {
+      level: number;
+      level_label_ru: string;
+      engine_proven: boolean;
+      pipeline_success_count: number;
+    };
+    auto_steps_done: number;
+    auto_steps_total: number;
+    ceo_action_now: string;
+    steps: {
+      id: string;
+      title: string;
+      detail: string;
+      done: boolean;
+      kind: "auto" | "manual";
+    }[];
+    evidence_verdict_ru?: string;
+    commercial_evidence?: CommercialEvidence;
+    title_ru?: string;
+    mission1_freeze?: {
+      title_ru: string;
+      pr_gate_question_ru?: string;
+      pr_gate_rule_ru?: string;
+      allowed_ru: string[];
+      forbidden_ru: string[];
+      until_ru?: string;
+    };
+    revenue_confidence?: {
+      confidence_pct: number;
+      label_ru: string;
+      note_ru: string;
+    };
+    channel_review_message_ru?: string | null;
+  };
+  farm_program?: {
+    title_ru: string;
+    vre_level: number;
+    pr_gate?: { question_ru: string; rule_ru: string; active: boolean };
+    pipeline?: { diagram_ru: string; stages: { id: string; title: string; done: boolean }[] };
+    post_first_revenue_questions_ru?: string[];
+    revenue_path_map?: {
+      title_ru: string;
+      current_step_ru: string;
+      current_money_note_ru: string;
+      blocker_ru?: string | null;
+      steps: {
+        id: string;
+        title_ru: string;
+        truth_kind: string;
+        done: boolean;
+        money_ru: string;
+      }[];
+    };
+    truth_engine?: {
+      title_ru: string;
+      records: { label_ru: string; value: unknown; truth_kind: string; detail_ru?: string }[];
+    };
+    error_ledger?: {
+      total_logged: number;
+      hint_ru?: string | null;
+      by_taxonomy?: Record<string, number>;
+      last_entry?: { taxonomy_ru?: string; message?: string; at?: string };
+    };
+    explainability?: {
+      title_ru: string;
+      recommendation_ru: string;
+      reasons: string[];
+      probabilities?: Record<string, string>;
+      next_action_ru?: string;
+    };
+    force_vectors?: {
+      title_ru: string;
+      note_ru: string;
+      vectors: {
+        id: string;
+        title_ru: string;
+        subtitle_ru: string;
+        status_ru: string;
+        unlocked: boolean;
+        locked_reason_ru?: string | null;
+      }[];
+    };
+    post_vre4_sequence_ru?: string[];
+  };
+  commercial_evidence?: CommercialEvidence;
+  finance_guard?: {
+    negative_streak?: number;
+    last_net_eur?: number;
+    revenue_confidence?: {
+      confidence_pct: number;
+      label_ru: string;
+      note_ru: string;
+    };
+    forecast?: {
+      spend_eur: number;
+      expected_gross_revenue_eur?: number;
+      expected_income_eur: number;
+      net_profit_forecast_eur?: number;
+      roi_pct: number | null;
+      summary_ru: string;
+      expected_note_ru: string;
+      gross_vs_profit_note_ru?: string;
+    };
+  };
+};
+
+type CommercialEvidence = {
+  title_ru: string;
+  verdict_ru: string;
+  verdict_code: string;
+  toloka_model_note_ru: string;
+  rows: { step: string; title_ru: string; status: string; detail: string }[];
+  tick_economics?: { earned_eur: number; llm_cost_eur: number; net_eur: number; note_ru: string };
 };
 
 const ADAPTER_LABELS: Record<string, string> = {
@@ -124,6 +305,8 @@ const ADAPTER_LABELS: Record<string, string> = {
   data_clean: "Чистка данных",
   text_classify: "Классификация",
   record_verify: "Проверка",
+  scale_ai_probe: "Scale (проверка)",
+  toloka_probe: "Toloka (проверка)",
 };
 
 export function FarmDashboard() {
@@ -199,6 +382,33 @@ export function FarmDashboard() {
     }
   }
 
+  async function confirmEuroStep(stepId: string, done: boolean) {
+    setBusy(`euro-${stepId}`);
+    try {
+      const res = await fetch(
+        `${API}/api/farm/first-euro/confirm?step_id=${encodeURIComponent(stepId)}&done=${done}`,
+        { method: "POST" },
+      );
+      const body = await res.json();
+      setMessage(body.gate?.headline ?? "Отмечено");
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function submitToloka() {
+    setBusy("toloka");
+    try {
+      const res = await fetch(`${API}/api/farm/toloka/submit`, { method: "POST" });
+      const body = await res.json();
+      setMessage(body.message ?? (body.ok ? "Отправлено на Toloka" : "Ошибка Toloka"));
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
   async function runBattleTest() {
     setBusy("battle");
     setMessage("");
@@ -206,6 +416,19 @@ export function FarmDashboard() {
       const res = await fetch(`${API}/api/farm/battle-test`, { method: "POST" });
       const body = await res.json();
       setMessage(body.verdict ?? body.message ?? "Тест завершён");
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function runLiveConnectTest() {
+    setBusy("live");
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/farm/test-connection-live`, { method: "POST" });
+      const body = await res.json();
+      setMessage(body.log_line ?? body.message ?? "Live test done");
       refresh();
     } finally {
       setBusy("");
@@ -226,6 +449,9 @@ export function FarmDashboard() {
             получать € с Scale/Toloka/MTurk).
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <Link href="/journal" className="rounded-lg border border-emerald-500/40 px-3 py-1.5 text-emerald-100 hover:bg-emerald-950/30">
+              Журнал · live
+            </Link>
             <Link href="/monitor" className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40">
               Пульт CEO
             </Link>
@@ -240,6 +466,339 @@ export function FarmDashboard() {
             </a>
           </div>
         </header>
+
+        {dash?.first_euro_gate ? (
+          <section
+            className={`genesis-card p-5 ${
+              dash.first_euro_gate.verdict === "PASS"
+                ? "border-emerald-500/40 bg-emerald-950/15"
+                : dash.first_euro_gate.verdict === "CHANNEL_REVIEW"
+                  ? "border-rose-500/50 bg-rose-950/20"
+                : dash.first_euro_gate.verdict === "COMMERCIAL_GATE"
+                  ? "border-amber-500/40 bg-amber-950/15"
+                  : "border-sky-500/30 bg-sky-950/10"
+            }`}
+          >
+            <h2 className="text-sm font-bold text-white">
+              {dash.first_euro_gate.title_ru ?? "Движок проверяемого дохода (VRE)"}
+            </h2>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-sky-400/50 bg-sky-950/40 px-3 py-1 text-xs font-semibold text-sky-100">
+                VRE LEVEL {dash.first_euro_gate.vre_level ?? dash.first_euro_gate.vre?.level ?? 0}
+              </span>
+              {dash.first_euro_gate.vre?.level_label_ru ? (
+                <span className="text-[11px] text-white/75">{dash.first_euro_gate.vre.level_label_ru}</span>
+              ) : null}
+            </div>
+            {dash.first_euro_gate.mission1_freeze ? (
+              <div className="mt-3 rounded-lg border border-white/10 bg-black/20 p-3 text-[11px] text-white/85">
+                <p className="font-semibold">{dash.first_euro_gate.mission1_freeze.title_ru}</p>
+                {dash.first_euro_gate.mission1_freeze.pr_gate_question_ru ? (
+                  <p className="mt-2 rounded border border-amber-500/30 bg-amber-950/20 p-2 text-amber-100">
+                    PR: {dash.first_euro_gate.mission1_freeze.pr_gate_question_ru}{" "}
+                    {dash.first_euro_gate.mission1_freeze.pr_gate_rule_ru ?? "→ Нет = не принимается"}
+                  </p>
+                ) : null}
+                <p className="mt-1 text-emerald-200/90">
+                  ✓ {dash.first_euro_gate.mission1_freeze.allowed_ru.join(" · ")}
+                </p>
+                <p className="mt-1 text-rose-200/80">
+                  ✗ {dash.first_euro_gate.mission1_freeze.forbidden_ru.join(" · ")}
+                </p>
+                {dash.first_euro_gate.mission1_freeze.until_ru ? (
+                  <p className="mt-1 text-genesis-muted">{dash.first_euro_gate.mission1_freeze.until_ru}</p>
+                ) : null}
+              </div>
+            ) : null}
+            {dash.first_euro_gate.channel_review_message_ru ? (
+              <p className="mt-3 rounded border border-rose-500/40 bg-rose-950/30 p-2 text-xs text-rose-100">
+                {dash.first_euro_gate.channel_review_message_ru}
+              </p>
+            ) : null}
+            <p className="mt-1 text-xs text-white/80">{dash.first_euro_gate.core_question}</p>
+            <p className="mt-2 text-sm font-medium text-emerald-100">{dash.first_euro_gate.headline}</p>
+            <p className="mt-1 text-[11px] text-genesis-muted">
+              Авто: {dash.first_euro_gate.auto_steps_done}/{dash.first_euro_gate.auto_steps_total} ·{" "}
+              {dash.first_euro_gate.ceo_action_now}
+            </p>
+            <ol className="mt-4 space-y-2">
+              {dash.first_euro_gate.steps.map((step) => (
+                <li
+                  key={step.id}
+                  className="flex flex-wrap items-start justify-between gap-2 rounded-lg border border-white/5 px-3 py-2 text-xs"
+                >
+                  <div>
+                    <p className={step.done ? "text-emerald-300" : "text-white/90"}>
+                      {step.done ? "✓" : "○"} {step.title}
+                      {step.kind === "manual" ? " (CEO)" : ""}
+                    </p>
+                    <p className="mt-0.5 text-genesis-muted">{step.detail}</p>
+                  </div>
+                  {step.kind === "manual" && !step.done ? (
+                    <button
+                      type="button"
+                      disabled={busy === `euro-${step.id}`}
+                      onClick={() => void confirmEuroStep(step.id, true)}
+                      className="shrink-0 rounded border border-emerald-500/40 px-2 py-1 text-[10px] text-emerald-200 hover:bg-emerald-950/30"
+                    >
+                      Подтверждаю
+                    </button>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
+
+        {dash?.farm_program ? (
+          <section className="genesis-card border-emerald-500/20 p-5 space-y-5">
+            <div>
+              <h2 className="text-sm font-bold text-emerald-100">{dash.farm_program.title_ru}</h2>
+              <p className="mt-1 text-[11px] text-genesis-muted">{dash.farm_program.pipeline?.diagram_ru}</p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {dash.farm_program.pipeline?.stages.map((s) => (
+                  <span
+                    key={s.id}
+                    className={`rounded px-2 py-1 text-[10px] ${
+                      s.done ? "bg-emerald-900/50 text-emerald-200" : "bg-white/5 text-white/50"
+                    }`}
+                  >
+                    {s.done ? "✓" : "○"} {s.title}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {dash.farm_program.revenue_path_map ? (
+              <div className="rounded-lg border border-amber-500/25 bg-amber-950/10 p-4">
+                <h3 className="text-xs font-bold text-amber-100">{dash.farm_program.revenue_path_map.title_ru}</h3>
+                <p className="mt-1 text-sm text-white">
+                  Сейчас: <strong>{dash.farm_program.revenue_path_map.current_step_ru}</strong>
+                </p>
+                <p className="text-[11px] text-amber-200/90">{dash.farm_program.revenue_path_map.current_money_note_ru}</p>
+                {dash.farm_program.revenue_path_map.blocker_ru ? (
+                  <p className="mt-2 text-xs text-rose-200">{dash.farm_program.revenue_path_map.blocker_ru}</p>
+                ) : null}
+                <ol className="mt-3 space-y-1.5">
+                  {dash.farm_program.revenue_path_map.steps.map((step) => (
+                    <li key={step.id} className="flex flex-wrap gap-2 text-[11px]">
+                      <span className={step.done ? "text-emerald-300" : "text-white/60"}>
+                        {step.done ? "✓" : "○"} {step.title_ru}
+                      </span>
+                      <span className="rounded bg-white/5 px-1.5 text-[10px] text-sky-200">{step.truth_kind}</span>
+                      <span className="text-genesis-muted">{step.money_ru}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ) : null}
+
+            {dash.farm_program.explainability ? (
+              <div className="rounded-lg border border-sky-500/25 bg-sky-950/10 p-4">
+                <h3 className="text-xs font-bold text-sky-100">{dash.farm_program.explainability.title_ru}</h3>
+                <p className="mt-1 text-sm text-white">{dash.farm_program.explainability.recommendation_ru}</p>
+                <ul className="mt-2 list-inside list-disc text-[11px] text-white/80">
+                  {dash.farm_program.explainability.reasons.filter(Boolean).map((r) => (
+                    <li key={r}>{r}</li>
+                  ))}
+                </ul>
+                {dash.farm_program.explainability.probabilities &&
+                Object.keys(dash.farm_program.explainability.probabilities).length > 0 ? (
+                  <p className="mt-2 text-[11px] text-violet-200">
+                    {Object.entries(dash.farm_program.explainability.probabilities).map(([k, v]) => (
+                      <span key={k} className="mr-3">
+                        {k}: {v}
+                      </span>
+                    ))}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
+            {dash.farm_program.truth_engine ? (
+              <div className="rounded-lg border border-white/10 p-4">
+                <h3 className="text-xs font-bold text-white">{dash.farm_program.truth_engine.title_ru}</h3>
+                <table className="mt-2 w-full text-left text-[11px]">
+                  <tbody>
+                    {dash.farm_program.truth_engine.records.map((rec) => (
+                      <tr key={rec.label_ru} className="border-t border-white/5">
+                        <td className="py-1.5 pr-2 text-white/90">{rec.label_ru}</td>
+                        <td className="py-1.5 pr-2 font-mono text-emerald-200">{String(rec.value)}</td>
+                        <td className="py-1.5">
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-[10px] ${
+                              rec.truth_kind === "FACT"
+                                ? "bg-emerald-900/60 text-emerald-200"
+                                : rec.truth_kind === "CEO_CONFIRMATION"
+                                  ? "bg-violet-900/60 text-violet-200"
+                                  : rec.truth_kind === "ESTIMATE"
+                                    ? "bg-amber-900/60 text-amber-200"
+                                    : "bg-white/10 text-white/70"
+                            }`}
+                          >
+                            {rec.truth_kind}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+
+            {dash.farm_program.error_ledger && dash.farm_program.error_ledger.total_logged > 0 ? (
+              <div className="rounded-lg border border-rose-500/30 bg-rose-950/15 p-4">
+                <h3 className="text-xs font-bold text-rose-100">Error Ledger v0</h3>
+                <p className="mt-1 text-sm text-white">Reject залогировано: {dash.farm_program.error_ledger.total_logged}</p>
+                {dash.farm_program.error_ledger.hint_ru ? (
+                  <p className="mt-1 text-xs text-rose-200">{dash.farm_program.error_ledger.hint_ru}</p>
+                ) : null}
+                {dash.farm_program.error_ledger.last_entry ? (
+                  <p className="mt-2 text-[11px] text-genesis-muted">
+                    Последнее: {dash.farm_program.error_ledger.last_entry.taxonomy_ru} —{" "}
+                    {dash.farm_program.error_ledger.last_entry.message?.slice(0, 120)}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
+            {dash.farm_program.force_vectors ? (
+              <div className="rounded-lg border border-violet-500/20 p-4">
+                <h3 className="text-xs font-bold text-violet-100">{dash.farm_program.force_vectors.title_ru}</h3>
+                <p className="mt-1 text-[10px] text-genesis-muted">{dash.farm_program.force_vectors.note_ru}</p>
+                <ul className="mt-3 space-y-2">
+                  {dash.farm_program.force_vectors.vectors.map((v) => (
+                    <li
+                      key={v.id}
+                      className={`rounded border px-3 py-2 text-[11px] ${
+                        v.unlocked ? "border-emerald-500/30 bg-emerald-950/10" : "border-white/5 bg-black/20 opacity-80"
+                      }`}
+                    >
+                      <p className="font-semibold text-white">
+                        {v.unlocked ? "●" : "○"} {v.title_ru}
+                      </p>
+                      <p className="text-genesis-muted">{v.subtitle_ru}</p>
+                      <p className="mt-0.5 text-violet-200/90">{v.status_ru}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {dash.farm_program.post_first_revenue_questions_ru ? (
+              <ul className="list-inside list-disc text-[11px] text-white/70">
+                {dash.farm_program.post_first_revenue_questions_ru.map((q) => (
+                  <li key={q}>{q}</li>
+                ))}
+              </ul>
+            ) : null}
+          </section>
+        ) : null}
+
+        {dash?.finance_guard?.forecast ? (
+          <section className="genesis-card border-violet-500/25 p-5">
+            <h2 className="text-sm font-bold text-violet-100">Finance Guard · прогноз</h2>
+            <p className="mt-2 text-lg text-white">{dash.finance_guard.forecast.summary_ru}</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+              <div className="rounded-lg border border-white/10 p-3">
+                <p className="text-[11px] text-genesis-muted">Расход сегодня</p>
+                <p className="font-bold text-rose-200">{dash.finance_guard.forecast.spend_eur.toFixed(2)} €</p>
+              </div>
+              <div className="rounded-lg border border-white/10 p-3">
+                <p className="text-[11px] text-genesis-muted">Expected Gross Revenue</p>
+                <p className="font-bold text-emerald-200">
+                  {(
+                    dash.finance_guard.forecast.expected_gross_revenue_eur ??
+                    dash.finance_guard.forecast.expected_income_eur
+                  ).toFixed(2)}{" "}
+                  €
+                </p>
+              </div>
+              <div className="rounded-lg border border-white/10 p-3">
+                <p className="text-[11px] text-genesis-muted">Прибыль (net)</p>
+                <p className="font-bold text-emerald-100">
+                  {(dash.finance_guard.forecast.net_profit_forecast_eur ?? 0).toFixed(2)} €
+                </p>
+              </div>
+              <div className="rounded-lg border border-white/10 p-3">
+                <p className="text-[11px] text-genesis-muted">ROI</p>
+                <p className="font-bold text-violet-200">
+                  {dash.finance_guard.forecast.roi_pct != null
+                    ? `${dash.finance_guard.forecast.roi_pct}%`
+                    : "—"}
+                </p>
+              </div>
+            </div>
+            {(dash.finance_guard.revenue_confidence ??
+              dash.first_euro_gate?.revenue_confidence) ? (
+              <div className="mt-3 rounded-lg border border-violet-500/30 bg-violet-950/20 p-3">
+                <p className="text-[11px] text-genesis-muted">Revenue Confidence</p>
+                <p className="text-xl font-bold text-violet-100">
+                  {(
+                    dash.finance_guard.revenue_confidence ??
+                    dash.first_euro_gate!.revenue_confidence!
+                  ).confidence_pct}
+                  %
+                </p>
+                <p className="text-xs text-white/80">
+                  {(
+                    dash.finance_guard.revenue_confidence ??
+                    dash.first_euro_gate!.revenue_confidence!
+                  ).label_ru}
+                </p>
+              </div>
+            ) : null}
+            <p className="mt-2 text-[11px] text-genesis-muted">
+              {dash.finance_guard.forecast.gross_vs_profit_note_ru ??
+                "Gross = оборот · Net = прибыль после LLM/VPS"}
+            </p>
+            <p className="mt-1 text-[11px] text-genesis-muted">{dash.finance_guard.forecast.expected_note_ru}</p>
+          </section>
+        ) : null}
+
+        {(dash?.commercial_evidence ?? dash?.first_euro_gate?.commercial_evidence) ? (
+          <section className="genesis-card border-white/10 p-5">
+            <h2 className="text-sm font-bold text-white">
+              {(dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence)?.title_ru}
+            </h2>
+            <p className="mt-2 text-sm text-amber-100/90">
+              {(dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence)?.verdict_ru}
+            </p>
+            <p className="mt-2 text-[11px] text-genesis-muted">
+              {(dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence)?.toloka_model_note_ru}
+            </p>
+            <table className="mt-4 w-full text-left text-xs">
+              <thead>
+                <tr className="text-genesis-muted">
+                  <th className="pb-2 pr-2">Шаг</th>
+                  <th className="pb-2 pr-2">Статус</th>
+                  <th className="pb-2">Детали</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(
+                  dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence
+                )?.rows.map((row) => (
+                  <tr key={row.step} className="border-t border-white/5">
+                    <td className="py-2 pr-2 text-white/90">{row.title_ru}</td>
+                    <td className="py-2 pr-2">{row.status}</td>
+                    <td className="py-2 text-genesis-muted">{row.detail}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {(dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence)?.tick_economics ? (
+              <p className="mt-3 text-[11px] text-violet-200/90">
+                Tick: earned{" "}
+                {(dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence)!.tick_economics!.earned_eur.toFixed(4)}{" "}
+                € · LLM{" "}
+                {(dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence)!.tick_economics!.llm_cost_eur.toFixed(4)}{" "}
+                € · net{" "}
+                {(dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence)!.tick_economics!.net_eur.toFixed(4)} €
+              </p>
+            ) : null}
+          </section>
+        ) : null}
 
         {dash?.ceo_checklist && (
           <section className="genesis-card border-amber-500/30 bg-amber-950/15 p-5">
@@ -276,6 +835,76 @@ export function FarmDashboard() {
             ) : null}
           </section>
         )}
+
+        {dash?.global_spider ? (
+          <section className="genesis-card border-cyan-500/25 bg-cyan-950/10 p-5">
+            <h2 className="text-sm font-bold text-cyan-100">Global Spider · вектор охоты</h2>
+            <p className="mt-1 text-xs text-cyan-200/70">{dash.global_spider.note}</p>
+            <p className="mt-2 text-sm text-white">
+              Toloka-категорий: <strong>{dash.global_spider.toloka_categories_count}</strong> · Seeds:{" "}
+              <strong>{dash.global_spider.seed_targets_count ?? 0}</strong> · Places:{" "}
+              <strong>{dash.global_spider.places_queries_count}</strong>
+              {dash.global_spider.places_configured ? " · Google Places 🟢" : " · Places ⚪ (нужен ключ)"}
+            </p>
+            <p className="mt-2 text-xs text-cyan-100/90">
+              Фильтр ≥ <strong>{dash.global_spider.min_task_price?.toFixed(2) ?? "0.02"} €</strong> · Охота каждые{" "}
+              <strong>{dash.global_spider.polling_interval_sec ?? 8} сек</strong>
+              {dash.global_spider.hunter_mode ? " · режим охотника ON" : ""}
+            </p>
+            {dash.global_spider.toloka_task_categories?.length ? (
+              <ul className="mt-3 flex flex-wrap gap-2 text-[11px]">
+                {dash.global_spider.toloka_task_categories.slice(0, 8).map((t) => (
+                  <li key={t} className="rounded-full border border-cyan-500/30 px-2 py-0.5 text-cyan-100/90">
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <p className="mt-3 text-xs text-genesis-muted">
+              «Запустить ферму» = feed + Global Spider ищет сайты по places_queries.
+            </p>
+          </section>
+        ) : null}
+
+        ) : null}
+
+        {dash?.toloka_submit?.configured ? (
+          <section className="genesis-card border-violet-500/30 bg-violet-950/10 p-5">
+            <h2 className="text-sm font-bold text-violet-100">Toloka · auto-submit</h2>
+            <p className="mt-1 text-xs text-violet-200/80">
+              {dash.toloka_submit.auto_submit_enabled
+                ? "Live: после каждого tick разметка уходит на platform.toloka.ai автоматически."
+                : "Auto-submit выключен — нажми кнопку или включи TOLOKA_AUTO_SUBMIT=1."}
+            </p>
+            <p className="mt-2 text-sm text-white">
+              Ожидает: <strong>{dash.toloka_submit.pending_count ?? 0}</strong> · Отправлено:{" "}
+              <strong>{dash.toloka_submit.submitted_count ?? 0}</strong>
+              {dash.toloka_submit.connected ? " · 🟢 API" : " · ⚪ offline"}
+            </p>
+            {dash.toloka_submit.last_error ? (
+              <p className="mt-2 text-xs text-rose-300">{dash.toloka_submit.last_error}</p>
+            ) : null}
+            {dash.toloka_submit.circuit_breaker?.safe_mode ? (
+              <p className="mt-2 rounded border border-amber-500/40 bg-amber-950/30 p-2 text-xs text-amber-100">
+                Safe Mode · {dash.toloka_submit.circuit_breaker.safe_mode_reason ?? "circuit open"} ·{" "}
+                {dash.toloka_submit.circuit_breaker.seconds_remaining}s
+              </p>
+            ) : null}
+            {dash.toloka_submit.last_run_status ? (
+              <p className="mt-2 text-xs text-violet-200/90">
+                Pipeline run: {dash.toloka_submit.last_run_status}
+              </p>
+            ) : null}
+            <button
+              type="button"
+              disabled={busy === "toloka" || !dash.toloka_submit.pending_count}
+              onClick={() => void submitToloka()}
+              className="mt-3 rounded-xl border border-violet-400/40 px-4 py-2 text-sm text-violet-100 hover:bg-violet-950/40 disabled:opacity-40"
+            >
+              {busy === "toloka" ? "Отправка…" : "Отправить на Toloka сейчас"}
+            </button>
+          </section>
+        ) : null}
 
         {dash?.scale_ai ? (
           <p
@@ -338,6 +967,87 @@ export function FarmDashboard() {
                 ))}
               </ol>
             ) : null}
+          </section>
+        ) : null}
+
+        {dash?.payment_monitor?.monitor ? (
+          <section className="genesis-card border-emerald-500/30 bg-emerald-950/15 p-5">
+            <h2 className="text-sm font-bold text-emerald-100">
+              Биржа · реальное время{dash?.dry_run?.active ? " (ключ проверен)" : " · LIVE"}
+            </h2>
+            <p className="mt-1 text-xs text-emerald-200/70">
+              FARM_LIVE_MODE={dash.payment_monitor.monitor.farm_mode}
+              {dash.payment_monitor.monitor.execution_mode
+                ? ` · FARM_EXECUTION_MODE=${dash.payment_monitor.monitor.execution_mode}`
+                : ""}
+            </p>
+            {dash.payment_monitor.note ? (
+              <p className="mt-1 text-xs text-emerald-200/70">{dash.payment_monitor.note}</p>
+            ) : null}
+            {dash.payment_monitor.remote_warning ? (
+              <p className="mt-2 rounded-lg border border-amber-500/30 bg-amber-950/20 p-2 text-xs text-amber-100">
+                {dash.payment_monitor.remote_warning}
+              </p>
+            ) : null}
+            <p className="mt-1 text-xs text-emerald-200/70">
+              Порог вывода: ${dash.payment_monitor.payout?.threshold_usd ?? 10} · Stripe вручную с биржи
+            </p>
+            <div className="mt-3 space-y-2 text-xs text-white/90">
+              <p>
+                Scale:{" "}
+                {dash.payment_monitor.monitor.scale.connected ? "🟢 API OK" : "⚪ нет ключа"}{" "}
+                · задач: {dash.payment_monitor.monitor.scale.live_tasks ? "есть" : "нет"}
+                {dash.payment_monitor.monitor.scale.task_count
+                  ? ` (${dash.payment_monitor.monitor.scale.task_count})`
+                  : ""}
+              </p>
+              <p>
+                Toloka:{" "}
+                {dash.payment_monitor.monitor.toloka.connected ? "🟢 Pipeline API OK" : "⚪ нет ключа"}{" "}
+                · проекты: {dash.payment_monitor.monitor.toloka.live_tasks ? "есть" : "нет"}
+                {dash.payment_monitor.monitor.toloka.task_count != null
+                  ? ` (${dash.payment_monitor.monitor.toloka.task_count})`
+                  : ""}
+              </p>
+            </div>
+            {dash.payment_monitor.payout?.has_withdraw_ready ? (
+              <div className="mt-3 rounded-lg border border-amber-400/40 bg-amber-950/30 p-3 text-sm text-amber-100">
+                {dash.payment_monitor.payout.pending_alerts?.[0]?.message}
+              </div>
+            ) : null}
+            {dash.last_live_connection_test ? (
+              <p
+                className={`mt-2 text-xs ${
+                  dash.last_live_connection_test.ok ? "text-emerald-300" : "text-rose-300"
+                }`}
+              >
+                Live test: {dash.last_live_connection_test.ok ? "✅ OK" : "❌ FAIL"} —{" "}
+                {dash.last_live_connection_test.log_line ?? dash.last_live_connection_test.message}
+                {!dash.last_live_connection_test.ok && dash.payment_monitor.monitor.toloka.connected ? (
+                  <span className="block mt-1 text-amber-200/90">
+                    Toloka уже 🟢 — нажми «test_connection_live» ещё раз после перезапуска Genesis.exe
+                    (старый FAIL мог остаться в журнале).
+                  </span>
+                ) : null}
+              </p>
+            ) : dash?.dry_run?.active ? (
+              <p className="mt-2 text-xs text-sky-200/80">
+                Live test работает только при FARM_LIVE_MODE=live. Сейчас dry-run — используй «Боевой
+                тест» ниже.
+              </p>
+            ) : null}
+          </section>
+        ) : null}
+
+        {dash?.payout_guide ? (
+          <section className="genesis-card border-violet-500/25 p-4">
+            <h2 className="text-sm font-semibold text-white">{dash.payout_guide.title}</h2>
+            <p className="mt-1 text-[11px] text-genesis-muted">{dash.payout_guide.note}</p>
+            <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-white/85">
+              {dash.payout_guide.steps.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ol>
           </section>
         ) : null}
 
@@ -429,9 +1139,17 @@ export function FarmDashboard() {
                 type="button"
                 disabled={busy === "battle"}
                 onClick={() => void runBattleTest()}
-                className="rounded-xl border border-sky-500/40 bg-sky-950/30 px-4 py-3 text-sm font-semibold text-sky-100 hover:bg-sky-900/40 disabled:opacity-50"
+                className="rounded-xl border border-violet-500/40 bg-violet-950/30 px-4 py-3 text-sm font-semibold text-violet-100 hover:bg-violet-900/40 disabled:opacity-50"
               >
-                {busy === "battle" ? "Тест…" : "⚡ Боевой тест (1 нода)"}
+                {busy === "battle" ? "Тест…" : "⚔ Боевой тест (dry-run)"}
+              </button>
+              <button
+                type="button"
+                disabled={busy === "live"}
+                onClick={() => void runLiveConnectTest()}
+                className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 px-4 py-3 text-sm font-semibold text-emerald-100 hover:bg-emerald-900/40 disabled:opacity-50"
+              >
+                {busy === "live" ? "Live…" : "🔗 test_connection_live"}
               </button>
             </div>
             {message ? <p className="mt-4 text-sm text-emerald-200">{message}</p> : null}
@@ -491,6 +1209,9 @@ export function FarmDashboard() {
         {dash && (
           <section className="genesis-card p-5">
             <h2 className="text-sm font-semibold text-white">Последние задачи</h2>
+            <p className="mt-1 text-[11px] text-genesis-muted">
+              Задача принята → выполнена → оплата → баланс · жёлтый = Scale пропущен
+            </p>
             {!dash.recent_tasks.length ? (
               <p className="mt-3 text-sm text-genesis-muted">Пусто — жми «Запустить ферму».</p>
             ) : (
@@ -498,14 +1219,18 @@ export function FarmDashboard() {
                 {dash.recent_tasks.map((t) => (
                   <li
                     key={t.id}
-                    className="flex flex-wrap justify-between gap-2 rounded-lg border border-white/5 px-3 py-2"
+                    className={`rounded-lg border px-3 py-2 ${lifecycleRowClass(t.lifecycle_stage)}`}
                   >
-                    <span className="text-white/90">
-                      {ADAPTER_LABELS[t.adapter] ?? t.adapter} · {t.target}
-                    </span>
-                    <span className={t.ok ? "text-emerald-400" : "text-rose-400"}>
-                      +{t.pay_eur.toFixed(2)} € · {t.detail}
-                    </span>
+                    <div className="flex flex-wrap justify-between gap-2">
+                      <span className="text-white/90">
+                        <span className="font-medium text-white">{lifecycleTitle(t)}</span>
+                        <span className="text-genesis-muted"> · {ADAPTER_LABELS[t.adapter] ?? t.adapter}</span>
+                      </span>
+                      <span className={taskTone(t)}>
+                        {showPayAmount(t) ? `+${t.pay_eur.toFixed(4)} € · ` : ""}
+                        {t.detail}
+                      </span>
+                    </div>
                   </li>
                 ))}
               </ul>

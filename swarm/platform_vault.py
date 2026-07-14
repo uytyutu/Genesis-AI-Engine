@@ -45,6 +45,10 @@ class PlatformVault:
     def is_dry_run(self) -> bool:
         return not self.is_live()
 
+    def secret(self, env_var: str) -> str:
+        """Internal — API adapters only; never log or return to UI."""
+        return self._env(env_var)
+
     def entry_status(self, platform_id: str, env_var: str) -> dict[str, Any]:
         value = self._env(env_var)
         configured = bool(value)
@@ -74,17 +78,36 @@ class PlatformVault:
             missing.append("GENESIS_GROQ_API_KEY")
         if not exchange_ok:
             missing.append("SCALE_API_KEY или TOLOKA_API_TOKEN")
-        if self._env("FARM_EXECUTION_MODE") == "remote" and not pool_ok:
-            missing.append("FARM_WORKER_POOL_URL")
 
-        live_ready = groq_ok and exchange_ok and self.is_live()
+        missing_remote: list[str] = []
+        execution_mode = (self._env("FARM_EXECUTION_MODE") or "local").lower()
+        if execution_mode == "remote" and not pool_ok:
+            missing_remote.append("FARM_WORKER_POOL_URL")
+
+        missing_for_live = missing + missing_remote
+
+        live_ready = groq_ok and exchange_ok and self.is_live() and not missing_remote
+        from pathlib import Path
+
+        repo_root = Path(__file__).resolve().parents[1]
+        backend_local = repo_root / "dashboard" / "backend" / ".env.local"
+        root_env = repo_root / ".env"
+        storage_parts: list[str] = []
+        if root_env.is_file():
+            storage_parts.append("repo/.env")
+        if backend_local.is_file():
+            storage_parts.append("dashboard/backend/.env.local")
+        storage = " + ".join(storage_parts) if storage_parts else "os.environ"
         return {
             "farm_mode": self.farm_mode(),
             "dry_run": self.is_dry_run(),
+            "execution_mode": execution_mode,
             "live_ready": live_ready,
-            "storage": "dashboard/backend/.env.local (не в Git)",
+            "storage": f"{storage} (не в Git)",
             "platforms": platforms,
-            "missing_for_live": missing,
+            "missing_for_exchange": missing,
+            "missing_for_remote": missing_remote,
+            "missing_for_live": missing_for_live,
             "go_live_note": (
                 "Добавь ключи в .env.local → FARM_LIVE_MODE=live → перезапуск Genesis.exe"
                 if not live_ready

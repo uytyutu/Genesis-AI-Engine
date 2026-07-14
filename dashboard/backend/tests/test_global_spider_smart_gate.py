@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import json
 import pytest
 
 from app.integration.global_spider_service import GlobalSpiderService
@@ -24,6 +25,36 @@ def test_global_spider_discovers_seed_targets(tmp_path: Path):
     urls, stats = spider.discover_candidate_urls(batch_limit=10)
     assert len(urls) == 2
     assert stats["seeds"] == 2
+
+
+def test_global_spider_text_query_seeds_use_places(tmp_path: Path, monkeypatch):
+    cfg = tmp_path / "global_spider_config.json"
+    cfg.write_text(
+        json.dumps(
+            {
+                "seed_targets": ["ремонт ноутбуков"],
+                "search_region": "de",
+                "search_city": "Dresden",
+                "regions_enabled": False,
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    spider = GlobalSpiderService(tmp_path)
+
+    class FakeLead:
+        website = "https://repair.example.de"
+
+    def fake_search_text(**kwargs):
+        assert "ремонт ноутбуков" in kwargs.get("query", "")
+        return [FakeLead()]
+
+    monkeypatch.setattr(spider._places, "configured", lambda: True)
+    monkeypatch.setattr(spider._places, "search_text", fake_search_text)
+    urls, stats = spider.discover_candidate_urls(batch_limit=10)
+    assert urls == ["https://repair.example.de"]
+    assert stats["query_seeds"] == 1
 
 
 def test_smart_gate_rejects_blacklist(tmp_path: Path):

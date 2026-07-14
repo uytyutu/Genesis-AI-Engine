@@ -550,6 +550,7 @@ def farm_export_labels():
 
 @app.get("/api/farm/dashboard")
 def farm_dashboard() -> dict:
+    load_local_env()
     dash = _ctx().owner.dashboard()
     owner_name = str(dash.get("owner_name") or "Ramiš")
     return _ctx().micro_farm.dashboard(owner_name)
@@ -580,6 +581,17 @@ def farm_prepare_live() -> dict:
     return _ctx().micro_farm.prepare_live_mode()
 
 
+@app.post("/api/farm/test-connection-live")
+def farm_test_connection_live() -> dict:
+    load_local_env()
+    return _ctx().micro_farm.run_test_connection_live()
+
+
+@app.get("/api/farm/payment-monitor")
+def farm_payment_monitor() -> dict:
+    return _ctx().micro_farm.payment_monitor_status()
+
+
 @app.get("/api/farm/forecast")
 def farm_forecast(labeling_nodes: int = 50, passive_nodes: int = 0) -> dict:
     return _ctx().micro_farm.revenue_forecast(
@@ -598,6 +610,53 @@ def farm_tick(workers: int = 10) -> dict:
     return _ctx().micro_farm.run_tick(workers=max(1, min(100, workers)))
 
 
+@app.get("/api/farm/toloka/status")
+def farm_toloka_submit_status() -> dict:
+    load_local_env()
+    return _ctx().micro_farm.toloka_submit_status()
+
+
+@app.post("/api/farm/toloka/submit")
+def farm_toloka_submit(limit: int = 50, trigger_run: bool = True) -> dict:
+    load_local_env()
+    return _ctx().micro_farm.submit_toloka_labels(
+        limit=max(1, min(50, limit)),
+        trigger_run=trigger_run,
+    )
+
+
+@app.get("/api/farm/first-euro")
+def farm_first_euro_gate() -> dict:
+    load_local_env()
+    return _ctx().micro_farm.first_euro_gate()
+
+
+@app.get("/api/farm/verified-revenue")
+def farm_verified_revenue_engine() -> dict:
+    load_local_env()
+    return _ctx().micro_farm.verified_revenue_engine()
+
+
+@app.post("/api/farm/first-euro/confirm")
+def farm_first_euro_confirm(step_id: str, done: bool = True) -> dict:
+    load_local_env()
+    return _ctx().micro_farm.confirm_first_euro_step(step_id, done=done)
+
+
+@app.get("/api/farm/commercial-evidence")
+def farm_commercial_evidence() -> dict:
+    load_local_env()
+    ev = _ctx().micro_farm.commercial_evidence()
+    return ev or {"ok": False, "message": "Нет отчёта — запустите tick или submit"}
+
+
+@app.get("/api/farm/program")
+def farm_program() -> dict:
+    """Unified Mission 1 program: VRE levels, Finance Guard, Evidence, pipeline."""
+    load_local_env()
+    return _ctx().micro_farm.farm_program()
+
+
 @app.post("/api/farm/feed")
 def farm_feed() -> dict:
     """Discover public URLs worldwide — fills combiner task queue."""
@@ -606,9 +665,17 @@ def farm_feed() -> dict:
         batch_limit=200,
         tech_pattern_ids=None,
     )
+    state = _ctx().micro_farm._load_state()
+    state["last_spider_scan"] = {
+        "scanned": spider.get("scanned"),
+        "passed_gate": spider.get("passed_gate"),
+        "message": spider.get("message"),
+    }
+    _ctx().micro_farm._save_state(state)
     tick = _ctx().micro_farm.run_tick(workers=20)
+    spider_ok = bool(spider.get("passed_gate") or spider.get("scanned"))
     return {
-        "ok": True,
+        "ok": spider_ok or int(tick.get("tasks_done") or 0) > 0,
         "discovery": spider,
         "tick": tick,
         "message": f"{spider.get('message', 'Поиск завершён')} · {tick.get('message', '')}",
