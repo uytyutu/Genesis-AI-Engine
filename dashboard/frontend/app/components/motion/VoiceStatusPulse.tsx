@@ -6,8 +6,10 @@ import type { VoiceUiStatus } from "../GenesisChatComposer";
 const STATUS_EMOJI: Record<VoiceUiStatus, string> = {
   ready: "⚪",
   listening: "🎤",
+  recognizing: "📝",
+  thinking: "🤖",
+  responding: "💬",
   speaking: "🗣️",
-  thinking: "💭",
   stopped: "⏹️",
 };
 
@@ -23,7 +25,13 @@ export function VoiceStatusPulse({ status, label, className }: Props) {
   const leading = label.match(/^\S+/)?.[0];
   const emoji = leading && /\p{Extended_Pictographic}/u.test(leading) ? leading : STATUS_EMOJI[status] ?? "⚪";
   const text = leading && emoji === leading ? label.slice(leading.length).trim() : label;
-  const pulse = !reduce && (status === "listening" || status === "thinking" || status === "speaking");
+  const pulse =
+    !reduce &&
+    (status === "listening" ||
+      status === "recognizing" ||
+      status === "thinking" ||
+      status === "responding" ||
+      status === "speaking");
 
   return (
     <p className={className} aria-live="polite">

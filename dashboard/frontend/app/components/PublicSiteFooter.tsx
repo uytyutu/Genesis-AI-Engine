@@ -2,10 +2,15 @@ import Link from "next/link";
 import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
 
-const LEGAL = [
-  { href: "/trust", label: "Vertrauen & Daten" },
+const MAIN_LINKS = [
+  { href: "/trust", label: "О компании" },
+  { href: "/datenschutz", label: "Конфиденциальность" },
+  { href: "/faq", label: "Поддержка" },
+  { href: "/kontakt", label: "Контакты" },
+];
+
+const LEGAL_MORE = [
   { href: "/impressum", label: "Impressum" },
-  { href: "/datenschutz", label: "Datenschutz" },
   { href: "/agb", label: "AGB" },
   { href: "/widerruf", label: "Widerruf" },
   { href: "/cookies", label: "Cookies" },
@@ -13,21 +18,14 @@ const LEGAL = [
   { href: "/intellectual-property", label: "Urheberrecht" },
 ];
 
-const HELP = [
-  { href: "/faq", label: "FAQ" },
-  { href: "/kontakt", label: "Kontakt" },
-  { href: "/services", label: "Услуги" },
-  { href: "/site", label: "Vector" },
-];
-
 export function PublicSiteFooter() {
   return (
     <footer className="mt-16 border-t border-white/5 pt-8 pb-6">
-      <div className="grid gap-8 sm:grid-cols-3">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="font-semibold">{BRAND_NAME}</p>
           <p className="mt-2 text-sm text-genesis-muted">
-            {ASSISTANT_NAME} · цифровая компания · проекты и услуги под ключ
+            {ASSISTANT_NAME} — ваш цифровой сотрудник
           </p>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
@@ -36,36 +34,28 @@ export function PublicSiteFooter() {
             {CONTACT_EMAIL}
           </a>
         </div>
-        <div>
-          <p className="genesis-label">Правовая информация</p>
-          <ul className="mt-3 space-y-2 text-sm">
-            {LEGAL.map((l) => (
-              <li key={l.href}>
-                <Link href={l.href} className="text-genesis-muted hover:text-white">
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="genesis-label">Помощь</p>
-          <ul className="mt-3 space-y-2 text-sm">
-            {HELP.map((l) => (
-              <li key={l.href}>
-                <Link href={l.href} className="text-genesis-muted hover:text-white">
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link href="/order" className="font-medium text-genesis-accent hover:underline">
-                Оформить заказ →
+        <nav aria-label="Основные ссылки" className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          {MAIN_LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="text-genesis-muted hover:text-white">
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+      <details className="mt-6 text-sm">
+        <summary className="cursor-pointer text-genesis-muted hover:text-white">
+          Юридическая информация
+        </summary>
+        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+          {LEGAL_MORE.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} className="text-genesis-muted hover:text-white">
+                {l.label}
               </Link>
             </li>
-          </ul>
-        </div>
-      </div>
+          ))}
+        </ul>
+      </details>
       <p className="mt-8 text-center text-[11px] text-genesis-muted/80">
         © {new Date().getFullYear()} {BRAND_NAME}
       </p>

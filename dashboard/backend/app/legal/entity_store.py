@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from app.legal.entity_env import apply_env_overlay
 from app.legal.entity_schema import LegalEntityConfig
 
 _ENTITY_FILENAME = "legal_entity.json"
@@ -24,7 +25,7 @@ class LegalEntityStore:
         mem = self._memory / _EXAMPLE_FILENAME
         return mem if mem.is_file() else _PACKAGE_EXAMPLE
 
-    def load(self) -> LegalEntityConfig:
+    def _load_raw(self) -> LegalEntityConfig:
         path = self._entity_path()
         if path.is_file():
             try:
@@ -40,6 +41,14 @@ class LegalEntityStore:
             except (json.JSONDecodeError, OSError):
                 pass
         return LegalEntityConfig()
+
+    def load(self) -> LegalEntityConfig:
+        before = self._load_raw()
+        was_publishable = before.is_impressum_publishable()
+        cfg = apply_env_overlay(before)
+        if cfg.is_impressum_publishable() and not was_publishable:
+            self.save(cfg)
+        return cfg
 
     def save(self, config: LegalEntityConfig) -> None:
         self._entity_path().write_text(

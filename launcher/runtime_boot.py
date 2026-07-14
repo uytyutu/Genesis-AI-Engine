@@ -67,7 +67,13 @@ def run_runtime_boot(
     if not backend_up:
         if on_phase:
             on_phase("backend")
-        ok, msg = launch_genesis(managed, root=root, on_phase=on_phase, build_policy=build_policy)
+        ok, msg = launch_genesis(
+            managed,
+            root=root,
+            on_phase=on_phase,
+            on_progress=on_progress,
+            build_policy=build_policy,
+        )
         if not ok:
             _phase(phases, "recovery", False, msg)
             return BootResult(
@@ -80,7 +86,7 @@ def run_runtime_boot(
                 phases=phases,
             )
         ready, err = wait_until_ready(
-            timeout=90.0,
+            timeout=150.0,
             poll=0.8,
             managed=managed,
             root=root,
@@ -127,7 +133,13 @@ def run_runtime_boot(
 
     if on_phase:
         on_phase("frontend")
-    ok, msg = launch_genesis(managed, root=root, on_phase=on_phase, build_policy=build_policy)
+    ok, msg = launch_genesis(
+        managed,
+        root=root,
+        on_phase=on_phase,
+        on_progress=on_progress,
+        build_policy=build_policy,
+    )
     if not ok:
         _phase(phases, "recovery", False, msg)
         return BootResult(
@@ -141,7 +153,7 @@ def run_runtime_boot(
         )
 
     ready, err = wait_until_ready(
-        timeout=90.0,
+        timeout=150.0,
         poll=0.8,
         managed=managed,
         root=root,

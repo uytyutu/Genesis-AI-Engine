@@ -45,6 +45,9 @@ class MissingComponentDialog(ctk.CTkToplevel):
         self.geometry("480x340")
         self.resizable(False, False)
         self.grab_set()
+        from launcher.ui_modal import arm_modal
+
+        arm_modal(self, master)
 
         ctk.CTkLabel(
             self,

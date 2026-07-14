@@ -45,12 +45,13 @@ def test_owner_default_policy_launch_stable_on_stale(monkeypatch: pytest.MonkeyP
     assert default_policy_for_launch(LAUNCH_MODE_OWNER, state) == POLICY_LAUNCH_STABLE
 
 
-def test_development_default_policy_rebuild_on_stale(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_development_default_policy_launch_stable_on_stale(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Stale sources never auto-trigger Development Update — explicit CEO choice only."""
     monkeypatch.setattr("launcher.frontend_build_policy.frontend_build_ready", lambda _=None: True)
     monkeypatch.setattr("launcher.frontend_build_policy.frontend_build_integrity", lambda _=None: True)
     monkeypatch.setattr("launcher.frontend_build_policy.frontend_build_stale", lambda _=None: True)
     state = assess_production_build()
-    assert default_policy_for_launch(LAUNCH_MODE_DEVELOPMENT, state) == POLICY_REBUILD_NOW
+    assert default_policy_for_launch(LAUNCH_MODE_DEVELOPMENT, state) == POLICY_LAUNCH_STABLE
 
 
 def test_launch_stable_skips_build_when_stale(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

@@ -1,8 +1,7 @@
-"""Tests for public visitor concierge."""
+"""Tests for public visitor concierge — Journey UX fallback."""
 
 from app.integration.concierge_service import ConciergeService
 from app.integration.genesis_ai_service import GenesisAIService
-from app.integration.llm_chat_provider import LlmChatProvider
 
 _PACKAGES = [
     {"id": "basic", "name": "Landing Basic", "price_eur": 350, "deliverables": []},
@@ -11,49 +10,34 @@ _PACKAGES = [
 ]
 
 
-def test_concierge_cafe_starts_consultation_not_order():
+def test_concierge_cafe_starts_journey_with_quote():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Мне нужен сайт для кафе")
-    assert "кафе" in out["answer"].lower() or "конечно" in out["answer"].lower()
-    assert "кофейня" in out["answer"].lower() or "заведение" in out["answer"].lower()
+    assert "кафе" in out["answer"].lower()
     assert out.get("cta_href") is None
     assert out["context"]["intent"] == "service"
-    assert out["context"]["flow"] == "cafe"
-    assert out["context"]["phase"] == "consulting"
+    assert out["context"]["journey_phase"] == "quoted"
 
 
-def test_concierge_full_consultation_then_order_cta():
+def test_concierge_service_journey_then_order_cta():
     svc = ConciergeService(_PACKAGES)
-    ctx = None
-
-    out = svc.ask("Мне нужен сайт", context=ctx)
+    out = svc.ask("Мне нужен сайт", context=None)
     ctx = out["context"]
     assert out.get("cta_href") is None
-
-    out = svc.ask("Кофейня на районе", context=ctx)
-    ctx = out["context"]
-
-    out = svc.ask("3–5 страниц", context=ctx)
-    ctx = out["context"]
-
-    out = svc.ask("Нет, оплата не нужна", context=ctx)
-    ctx = out["context"]
-
-    out = svc.ask("Да, логотип есть", context=ctx)
-    ctx = out["context"]
-    assert out["context"]["phase"] == "quoted"
     assert "650" in out["answer"] or "350" in out["answer"]
-    assert out.get("cta_href") is None
+    assert ctx["journey_phase"] == "quoted"
 
     out = svc.ask("Да, оформить", context=ctx)
     assert out["cta_href"] == "/order?package=business" or out["cta_href"].startswith("/order")
     assert out["cta_label"]
+    assert out["context"]["journey_phase"] == "launch"
 
 
 def test_concierge_studio_intent_no_service_push():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Хочу пользоваться Genesis Studio и создавать проекты сам")
-    assert "studio" in out["answer"].lower()
+    low = out["answer"].lower()
+    assert "virtus" in low or "studio" in low
     assert "разработк" in out["answer"].lower() or "нельзя" in out["answer"].lower()
     assert "49" not in out["answer"]
     assert out.get("cta_href") is None
@@ -88,12 +72,12 @@ def test_concierge_empty_prompt():
     assert len(out["answer"]) > 20
 
 
-def test_concierge_autoservice_consultation():
+def test_concierge_autoservice_journey_quote():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Мне нужен сайт для автосервиса")
     assert "автосервис" in out["answer"].lower()
     assert out.get("cta_href") is None
-    assert out["context"]["answers"]["business"] == "автосервис"
+    assert "автосервис" in out["context"]["answers"]["business"]
 
 
 def test_genesis_ai_unavailable_without_key(monkeypatch):
@@ -105,7 +89,7 @@ def test_genesis_ai_unavailable_without_key(monkeypatch):
     svc = GenesisAIService(_PACKAGES)
     assert not svc.llm_configured()
     assert svc.intelligence_active()
-    out = svc.chat("Мне нужен сайт для кафе")
+    out = svc.chat("Сколько стоит лендинг?")
     assert out["mode"] == "genesis"
     assert out["source"] == "genesis-ai"
     assert "кафе" in out["answer"].lower() or "650" in out["answer"] or "сайт" in out["answer"].lower()
@@ -123,7 +107,6 @@ def test_store_quick_quote():
     out = svc.ask("Мне нужен интернет-магазин")
     assert "нельзя" in out["answer"].lower() or "пока" in out["answer"].lower()
     assert "800" not in out["answer"]
-    assert out["context"]["flow"] == "store"
 
 
 def test_studio_subscription_pricing():

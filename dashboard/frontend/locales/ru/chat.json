@@ -2,9 +2,21 @@
   "voiceStatus": {
     "ready": "⚪ Готов",
     "listening": "🎤 Слушаю…",
+    "recognizing": "📝 Распознаю…",
+    "thinking": "🤖 Думаю…",
+    "responding": "💬 Отвечаю…",
     "speaking": "🗣️ Говорю…",
-    "thinking": "💭 Думаю…",
     "stopped": "⏹️ Остановлено"
+  },
+  "chatWait": {
+    "preparing": "🤖 Готовлю ответ…",
+    "almost": "🤖 Почти готово…"
+  },
+  "lifeSign": {
+    "received": "Получил сообщение",
+    "understanding": "Понимаю вопрос",
+    "connecting": "Подключаю AI…",
+    "answering": "Готовлю ответ…"
   },
   "stop": "Стоп",
   "stopAria": "Остановить озвучивание или генерацию",
@@ -19,6 +31,12 @@
   "micStop": "Остановить запись",
   "voiceSettings": "Настройки голоса",
   "generationStopped": "— генерация остановлена —",
+  "projectPreparing": "Продолжаю собирать проект…",
+  "projectWait": {
+    "working": "Продолжаю работу над проектом…",
+    "structure": "Собираю структуру проекта…",
+    "details": "Уточняю детали проекта…"
+  },
   "newChat": "Новое поручение",
   "back": "← Назад",
   "backHome": "← На главную",

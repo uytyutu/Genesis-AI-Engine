@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import json
 import os
+import time
 import uuid
 from pathlib import Path
 from urllib.parse import urlencode
@@ -51,12 +54,14 @@ class PaymentCheckoutService:
         label: str,
         success_url: str,
         cancel_url: str,
+        currency: str = "eur",
     ) -> dict:
         provider = self.provider()
         if provider == "stripe":
             return self._stripe_checkout(
                 order_id=order_id,
-                amount_eur=amount_eur,
+                amount=amount_eur,
+                currency=currency,
                 label=label,
                 success_url=success_url,
                 cancel_url=cancel_url,
@@ -77,7 +82,8 @@ class PaymentCheckoutService:
         self,
         *,
         order_id: str,
-        amount_eur: float,
+        amount: float,
+        currency: str,
         label: str,
         success_url: str,
         cancel_url: str,
@@ -85,12 +91,13 @@ class PaymentCheckoutService:
         secret = os.getenv("STRIPE_SECRET_KEY", "").strip()
         if not secret:
             raise ValueError("stripe_not_configured")
-        amount_cents = int(round(float(amount_eur) * 100))
+        cur = (currency or "eur").lower()
+        amount_cents = int(round(float(amount) * 100))
         data = {
             "mode": "payment",
             "success_url": f"{success_url}?order_id={order_id}&paid=1",
             "cancel_url": cancel_url,
-            "line_items[0][price_data][currency]": "eur",
+            "line_items[0][price_data][currency]": cur,
             "line_items[0][price_data][unit_amount]": str(amount_cents),
             "line_items[0][price_data][product_data][name]": label[:120],
             "line_items[0][quantity]": "1",
@@ -139,17 +146,38 @@ class PaymentCheckoutService:
             "sender": str(session.get("customer_details", {}).get("email") or ""),
         }
 
+    def _verify_stripe_signature(self, payload: bytes, header: str, secret: str) -> bool:
+        parts: dict[str, list[str]] = {}
+        for item in header.split(","):
+            if "=" not in item:
+                continue
+            key, val = item.split("=", 1)
+            parts.setdefault(key.strip(), []).append(val.strip())
+        timestamps = parts.get("t") or []
+        signatures = parts.get("v1") or []
+        if not timestamps or not signatures:
+            return False
+        try:
+            ts = int(timestamps[0])
+        except ValueError:
+            return False
+        if abs(time.time() - ts) > 300:
+            return False
+        signed = f"{ts}.".encode() + payload
+        expected = hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest()
+        return any(hmac.compare_digest(expected, sig) for sig in signatures)
+
     def verify_stripe_webhook(self, payload: bytes, signature: str) -> dict | None:
-        """Minimal Stripe event parse — full signature verify when secret set."""
         secret = os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()
         try:
             event = json.loads(payload.decode("utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError):
             return None
-        if secret and signature:
-            # Production: use stripe library or implement HMAC verify.
-            # For MVP we trust metadata when webhook secret is configured via env.
-            pass
+        if secret:
+            if not signature or not self._verify_stripe_signature(payload, signature, secret):
+                return None
+        elif signature:
+            return None
         if event.get("type") != "checkout.session.completed":
             return None
         session = event.get("data", {}).get("object", {})

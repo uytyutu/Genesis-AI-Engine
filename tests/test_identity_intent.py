@@ -12,6 +12,7 @@ from app.integration.genesis_brain.ai_identity import (
     try_local_identity_reply,
 )
 from app.integration.genesis_brain.identity_intent import IdentityIntent, detect_identity_intent
+from app.integration.genesis_core_intelligence import vector_identity_who_reply
 
 _IDENTITY_THREAD = [
     {"role": "user", "content": "Кто ты?"},
@@ -121,7 +122,7 @@ def test_identity_follow_up_in_thread(follow_up: str, expected_kind: str):
 
 def test_brand_who_are_you_reply():
     reply = try_local_identity_reply("Кто ты?")
-    assert reply
+    assert reply == vector_identity_who_reply()
     assert ASSISTANT_NAME in reply
     assert BRAND_NAME in reply
     assert "crm" not in reply.lower()
@@ -136,9 +137,7 @@ def test_brand_name_reply():
 
 def test_brand_virtus_core_reply():
     reply = try_local_identity_reply("Что такое Virtus Core?")
-    assert reply
-    assert BRAND_NAME in reply
-    assert ASSISTANT_NAME in reply
+    assert reply == vector_identity_who_reply()
 
 
 def test_brand_genesis_reply():
@@ -151,24 +150,22 @@ def test_brand_genesis_reply():
 
 def test_brand_creator_reply():
     reply = try_local_identity_reply("Кто тебя создал?")
-    assert reply
-    assert BRAND_NAME in reply
+    assert reply == vector_identity_who_reply()
     assert "groq" not in reply.lower()
 
 
-def test_capabilities_list():
+def test_capabilities_delegates_to_canon():
     reply = try_local_identity_reply("Что ты умеешь?")
-    assert reply
-    assert "•" in reply
-    assert "программированием" in reply.lower()
+    assert reply == vector_identity_who_reply()
+    assert "•" not in reply
 
 
-def test_identity_prompt_brand_roles():
+def test_identity_prompt_rule_zero_only():
     low = UNIVERSAL_AI_IDENTITY.lower()
-    assert "virtus core" in low
-    assert "vector" in low
+    assert "rule zero" in low
+    assert "chatgpt" in low
     assert "genesis" in low
-    assert "внутренн" in low
+    assert "внутренн" not in low or "произносите" in low
 
 
 def test_scrub_identity_violations():
@@ -178,12 +175,11 @@ def test_scrub_identity_violations():
     assert "openrouter" not in out.lower()
 
 
-def test_compose_reply_varies_by_kind():
+def test_compose_reply_single_canon_for_profession():
     who = compose_identity_reply(IdentityIntent(kind="who_are_you", confidence=0.9))
     cap = compose_identity_reply(IdentityIntent(kind="capabilities", confidence=0.9))
-    assert who != cap
+    assert who == cap == vector_identity_who_reply()
     assert ASSISTANT_NAME in who
-    assert "•" in cap
 
 
 def test_brand_genesis_is_you_reply():
@@ -196,15 +192,12 @@ def test_brand_genesis_is_you_reply():
 
 def test_brand_program_reply():
     reply = try_local_identity_reply("Что это за программа?")
-    assert reply
-    assert "Virtus Core" in reply
-    assert "Vector" in reply
+    assert reply == vector_identity_who_reply()
 
 
 def test_brand_speaker_reply():
     reply = try_local_identity_reply("Кто со мной разговаривает?")
-    assert reply
-    assert "Сейчас с вами" in reply or "с вами разговаривает" in reply.lower()
+    assert reply == vector_identity_who_reply()
     assert "Vector" in reply
 
 
@@ -216,9 +209,7 @@ def test_public_brand_signature():
     assert "Virtus Core" in sig
 
 
-def test_follow_up_help_not_repeat_full_intro():
+def test_follow_up_help_delegates_to_canon():
     messages = _IDENTITY_THREAD + [{"role": "user", "content": "А чем занимаешься?"}]
     reply = try_local_identity_reply("А чем занимаешься?", messages=messages)
-    assert reply
-    assert BRAND_NAME in reply
-    assert reply.count(ASSISTANT_NAME) <= 2
+    assert reply == vector_identity_who_reply()

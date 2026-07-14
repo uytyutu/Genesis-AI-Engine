@@ -1,73 +1,30 @@
 """
-Curiosity Layer — gentle initiative when appropriate.
+Curiosity — уточнение только для проекта, когда этап Journey требует факта.
+
+Не задаёт вопросы «ради интересного разговора». Только пробелы, без которых нельзя двигаться.
 """
 
 from __future__ import annotations
 
-import hashlib
 import re
 from dataclasses import dataclass
 
 from app.integration.genesis_brain.layers.emotional_intelligence import EmotionalBrief, Mood
+from app.integration.vector_intelligence.types import JOURNEY_PHASE_LABELS, JourneyPhase
 
-_QUESTION_STARTERS = [
-    "Кстати, можно задать один уточняющий вопрос?",
-    "Если уместно — один короткий вопрос:",
-    "Позвольте уточнить одну деталь:",
-]
+_JOURNEY_CLARIFY_PHASES = frozenset(
+    {
+        "understand_goal",
+        "requirements",
+        "materials",
+    }
+)
 
-_IDEA_STARTERS = [
-    "У меня появилась идея, которая может улучшить Ваш проект.",
-    "Кстати, есть мысль, которая может Вам пригодиться.",
-    "Пока мы на этой теме — одна идея:",
-]
-
-_FOLLOW_UPS = [
-    "Заведение уже работает или только открывается?",
-    "Вам ближе готовый сайт под ключ или хотите сами в Studio?",
-    "Хотите, чтобы клиенты записывались онлайн?",
-    "Какой срок для Вас комфортен?",
-    "Это для одного города или сразу нескольких точек?",
-]
-
-_DISCOVERY_HINTS = {
-    "cafe": (
-        "Кстати, позже я смогу помочь с Telegram-ботом, автоматизацией заказов "
-        "или мобильным приложением, если это будет полезно."
-    ),
-    "salon": (
-        "Если понадобится — помогу с онлайн-записью, WhatsApp-ботом или рассылкой "
-        "для клиентов. Без навязчивости, когда Вы будете готовы."
-    ),
-    "shop": (
-        "Позже можно добавить каталог, оплату онлайн и уведомления о заказах — "
-        "скажите, когда захотите углубиться."
-    ),
-    "bot": (
-        "Такой бот можно связать с сайтом, CRM или таблицей заказов — "
-        "подскажу, когда дойдём до этого этапа."
-    ),
+_GAP_QUESTIONS: dict[str, str] = {
+    "country": "В какой стране планируете работу над проектом?",
+    "budget": "Какой бюджет заложен на этот этап?",
+    "niche": "Какой формат результата ближе — офлайн-точка или онлайн?",
 }
-
-
-def _discovery_topic(text: str) -> str | None:
-    t = text.lower()
-    if any(w in t for w in ("кофейн", "кафе", "coffee")):
-        return "cafe"
-    if any(w in t for w in ("салон", "красот", "барбер")):
-        return "salon"
-    if any(w in t for w in ("магазин", "интернет-магазин")):
-        return "shop"
-    if any(w in t for w in ("telegram", "телеграм", "бот")):
-        return "bot"
-    return None
-
-
-_BUSINESS_IDEAS = [
-    "Можно начать с простого лендинга и подключить запись — часто это даёт первых клиентов за пару недель.",
-    "Иногда помогает Telegram-бот для записи — дешевле сайта и быстрее запуск.",
-    "Если бюджет ограничен — старт с 4 страниц и расширение после первых заказов.",
-]
 
 
 @dataclass(frozen=True)
@@ -76,7 +33,7 @@ class CuriosityHint:
 
 
 class CuriosityLayer:
-    """Adds one optional question or idea — not every turn."""
+    """One optional clarification — only when Journey phase needs a missing project fact."""
 
     _SKIP_MOODS = frozenset({Mood.HEAVY, Mood.ANGRY, Mood.TIRED, Mood.GRATEFUL, Mood.MISINFORMED})
 
@@ -89,46 +46,36 @@ class CuriosityLayer:
         visitor_id: str,
         has_business_topic: bool,
         conversation_type: str = "general_question",
+        journey_phase: JourneyPhase = "open_dialog",
+        missing_facts: tuple[str, ...] = (),
     ) -> CuriosityHint:
-        if conversation_type not in ("business_consulting", "product_creation"):
+        _ = user_message, visitor_id, turn_index, has_business_topic, conversation_type
+
+        if journey_phase not in _JOURNEY_CLARIFY_PHASES:
             return CuriosityHint()
 
         if emotional.mood in self._SKIP_MOODS:
             return CuriosityHint()
 
-        if turn_index < 1:
+        if not missing_facts:
             return CuriosityHint()
 
-        seed = f"{visitor_id}:{turn_index}:{user_message[:40]}"
-        roll = int(hashlib.sha256(seed.encode()).hexdigest(), 16) % 100
+        gap = missing_facts[0]
+        if gap == "страна":
+            gap = "country"
+        if gap == "бюджет":
+            gap = "budget"
+        if gap in ("формат (офлайн/онлайн)", "формат"):
+            gap = "niche"
 
-        # ~35% of turns after the first get initiative
-        if roll > 35:
+        question = _GAP_QUESTIONS.get(gap)
+        if not question:
             return CuriosityHint()
 
-        text = user_message.lower()
-        topic = _discovery_topic(text)
-        if topic and turn_index >= 1 and roll % 3 != 0:
-            hint = _DISCOVERY_HINTS.get(topic)
-            if hint:
-                return CuriosityHint(append=f"\n\n{hint}")
-
-        if has_business_topic or any(w in text for w in ("сайт", "кафе", "салон", "магазин", "бот")):
-            if roll % 2 == 0:
-                q = _FOLLOW_UPS[roll % len(_FOLLOW_UPS)]
-                starter = _QUESTION_STARTERS[roll % len(_QUESTION_STARTERS)]
-                return CuriosityHint(append=f"\n\n{starter}\n{q}")
-            idea = _BUSINESS_IDEAS[roll % len(_BUSINESS_IDEAS)]
-            starter = _IDEA_STARTERS[roll % len(_IDEA_STARTERS)]
-            return CuriosityHint(append=f"\n\n{starter}\n{idea}")
-
-        if "?" not in user_message and len(user_message) > 15:
-            if has_business_topic or any(w in text for w in ("сайт", "бизнес", "бот")):
-                starter = _QUESTION_STARTERS[roll % len(_QUESTION_STARTERS)]
-                q = _FOLLOW_UPS[roll % len(_FOLLOW_UPS)]
-                return CuriosityHint(append=f"\n\n{starter}\n{q}")
-
-        return CuriosityHint()
+        phase = JOURNEY_PHASE_LABELS.get(journey_phase, journey_phase)
+        return CuriosityHint(
+            append=f"\n\n[{phase}] Нужен один факт для движения: {question}"
+        )
 
     @staticmethod
     def has_business_topic(text: str) -> bool:

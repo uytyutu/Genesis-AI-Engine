@@ -11,7 +11,6 @@ from app.integration.genesis_brain.brief_speech import (
 )
 from app.integration.genesis_brain.layers.conversation_state import ConversationState
 from app.integration.genesis_brain.layers.executive_brain import ExecutiveDecision
-from app.integration.genesis_brain.layers.intent import GenesisIntentLayer
 from app.integration.genesis_brain.layers.knowledge import GenesisKnowledgeLayer
 from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
 from app.integration.genesis_brain.layers.thinking_engine import ThinkingEngine
@@ -30,7 +29,6 @@ class LocalMindProvider:
 
     def __init__(self, packages: list[dict[str, Any]] | None = None) -> None:
         self._knowledge = GenesisKnowledgeLayer(packages)
-        self._intent_layer = GenesisIntentLayer()
         self._thinking = ThinkingEngine()
         self._executive = GenesisExecutiveBrain()
         self._synth = BriefSpeechSynthesizer()

@@ -27,6 +27,10 @@ from app.integration.project_platform.identity import (
     infer_description,
     infer_market,
 )
+from app.integration.project_platform.journey_state import (
+    build_project_journey_state,
+    journey_next_step_hint,
+)
 from app.integration.project_platform.mode import detect_deliverable_intent
 from app.integration.project_platform.schema import (
     SECTION_DOCUMENTS,
@@ -116,6 +120,15 @@ class ProjectPlatformService:
         self._projects.save(record)
         return self._public_payload(record, locale=locale)
 
+    def enrich_with_project_state(self, response: dict[str, Any], visitor_id: str) -> dict[str, Any]:
+        """Attach canonical Project State — single source of truth for panel sync."""
+        state = self.get_for_visitor(visitor_id)
+        out = dict(response)
+        ctx = dict(out.get("context") or {})
+        ctx["project_state"] = state
+        out["context"] = ctx
+        return out
+
     def activate_project(
         self,
         visitor_id: str,
@@ -149,6 +162,48 @@ class ProjectPlatformService:
         _apply_goal_context(record, title)
         self._projects.save(record)
         return self._public_payload(record)
+
+    def bootstrap_from_message(self, visitor_id: str, message: str) -> dict[str, Any]:
+        """PE-1 — create or update project from user message (fast, no LLM)."""
+        vid = (visitor_id or "anonymous").strip()[:64]
+        text = (message or "").strip()
+        intent = detect_deliverable_intent(text)
+        ws_id = resolve_workspace_id(self._memory, vid)
+
+        if ws_id:
+            meta = self._workspaces.get(ws_id)
+            if meta:
+                record = self._projects.load(ws_id) or self._projects.ensure_for_workspace(
+                    meta, visitor_id=vid
+                )
+                if intent and record.mode == "conversation":
+                    record.mode = "project"
+                    record.lifecycle_phase = LIFECYCLE_CONCEPT
+                    record.service_id = intent["service_id"]
+                    record.active_section = _section_for_service(intent["service_id"])
+                _apply_goal_context(record, text)
+                record.updated_at = _utc_now()
+                if text:
+                    record.timeline.append(
+                        TimelineEvent(
+                            id=f"tl-{uuid.uuid4().hex[:8]}",
+                            type="update",
+                            label="Обновление проекта",
+                            at=record.updated_at,
+                            detail=text[:2000],
+                        )
+                    )
+                self._refresh_hints(record)
+                self._projects.save(record)
+                return self._public_payload(record)
+
+        if not intent:
+            return self._empty_state(vid)
+
+        title = _title_from_goal(text)
+        if title in ("Мой проект", "") or len(title) < 6:
+            title = service_label_ru(intent["service_id"], fallback="Новый проект")
+        return self.activate_project(vid, title=title, service_id=intent["service_id"])
 
     def record_execution(
         self,
@@ -188,7 +243,7 @@ class ProjectPlatformService:
         record.versions.append(
             ProjectVersion(
                 version=version_num,
-                label=f"Version {version_num}",
+                label=f"Версия {version_num}",
                 created_at=now,
                 summary=_version_summary(capability_id, outputs),
                 artifacts=artifacts,
@@ -199,7 +254,7 @@ class ProjectPlatformService:
             TimelineEvent(
                 id=f"tl-{uuid.uuid4().hex[:8]}",
                 type=event_type,
-                label=f"Version {version_num}",
+                label=f"Версия {version_num}",
                 at=now,
                 detail=record.versions[-1].summary,
             )
@@ -246,7 +301,7 @@ class ProjectPlatformService:
         record.versions.append(
             ProjectVersion(
                 version=1,
-                label="Version 1",
+                label="Версия 1",
                 created_at=record.created_at or _utc_now(),
                 summary="Импорт существующих файлов проекта",
                 artifacts=found[:12],
@@ -259,23 +314,30 @@ class ProjectPlatformService:
     def _refresh_hints(self, record: ProjectRecord) -> None:
         if record.mode == "conversation":
             record.next_step_hint = (
-                "Расскажите Vector, какой результат вам нужен — он предложит создать проект."
+                "Продолжайте разговор с Vector — когда появится результат, "
+                "я предложу оформить его как проект."
             )
+            return
+        journey_hint = journey_next_step_hint(record)
+        if journey_hint:
+            record.next_step_hint = journey_hint
             return
         phase = record.lifecycle_phase
         if not record.versions:
-            record.next_step_hint = "Опишите задачу Vector — первая версия появится в проекте."
+            record.next_step_hint = (
+                "Расскажите, что хотите получить — подготовлю первую версию."
+            )
         elif phase == LIFECYCLE_CONCEPT:
             record.next_step_hint = (
-                "Первая версия в проекте — посмотрите и скажите, что изменить."
+                "Сегодня мы закончили первую версию. Посмотрите структуру — "
+                "скажите, что изменить, и я подготовлю следующий шаг."
             )
         elif phase == LIFECYCLE_COLLABORATION:
             record.next_step_hint = (
-                "Продолжайте правки с Vector — каждая версия сохраняется. "
-                "После согласования подготовим финальную передачу."
+                "Продолжаем правки вместе. После согласования подготовлю финальные материалы."
             )
         else:
-            record.next_step_hint = "Vector ведёт проект до согласованного результата."
+            record.next_step_hint = "Я веду проект до согласованного результата — напишите, если нужна помощь."
 
     def _empty_state(self, visitor_id: str, *, locale: str = "ru") -> dict[str, Any]:
         return {
@@ -285,7 +347,8 @@ class ProjectPlatformService:
             "visitor_id": visitor_id,
             "project": None,
             "vector_hint": (
-                "Добро пожаловать. Начните с первой идеи — Vector поможет превратить её в проект."
+                "Расскажите идею или вопрос — Vector ответит как сотрудник. "
+                "Проект появится, когда понадобится хранить результаты."
             ),
         }
 
@@ -297,6 +360,9 @@ class ProjectPlatformService:
         project["health"] = build_project_health(record)
         project["next_action"] = build_next_action(record)
         project["activity"] = build_last_activity(record)
+        journey = build_project_journey_state(record)
+        if journey:
+            project["journey"] = journey
         return {
             "version": self.PLATFORM_VERSION,
             "has_project": record.mode == "project" or bool(record.versions),

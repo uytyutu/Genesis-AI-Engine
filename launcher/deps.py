@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -88,12 +89,114 @@ def clear_frontend_build(root: Path | None = None, *, managed=None) -> None:
     """Remove .next only after stopping Frontend — never delete artifacts under a live server."""
     import shutil
 
-    from launcher.process_cleanup import stop_frontend_listeners
+    from launcher.process_cleanup import stop_frontend_listeners, wait_port_free
 
     stop_frontend_listeners(root, managed)
+    wait_port_free(3000, timeout=12.0)
     nxt = frontend_dir(root) / ".next"
+    if not nxt.exists():
+        return
+    for attempt in range(4):
+        try:
+            shutil.rmtree(nxt)
+            return
+        except OSError:
+            if attempt >= 3:
+                shutil.rmtree(nxt, ignore_errors=True)
+                return
+            stop_frontend_listeners(root, managed)
+            time.sleep(0.8 + attempt * 0.4)
+
+
+_BACKUP_DIR_NAME = ".next.launcher_backup"
+
+
+def backup_frontend_build(root: Path | None = None) -> bool:
+    """Snapshot working .next before Development Update — restore if build fails."""
+    import shutil
+
+    if not frontend_build_ready(root) or not frontend_build_integrity(root):
+        return False
+    fe = frontend_dir(root)
+    src = fe / ".next"
+    dst = fe / _BACKUP_DIR_NAME
+    if dst.exists():
+        shutil.rmtree(dst, ignore_errors=True)
+    try:
+        shutil.copytree(src, dst)
+        from launcher.log_util import append_log
+
+        append_log("Development Update: backed up .next before rebuild")
+        return True
+    except OSError:
+        return False
+
+
+def restore_frontend_build_backup(root: Path | None = None) -> bool:
+    """Restore last good .next after failed Development Update."""
+    import shutil
+
+    fe = frontend_dir(root)
+    bak = fe / _BACKUP_DIR_NAME
+    nxt = fe / ".next"
+    if not bak.is_dir():
+        return False
     if nxt.exists():
         shutil.rmtree(nxt, ignore_errors=True)
+    try:
+        shutil.copytree(bak, nxt)
+        from launcher.log_util import append_log
+
+        append_log("Development Update failed — restored .next from launcher backup")
+        return frontend_build_ready(root)
+    except OSError:
+        return False
+
+
+def discard_frontend_build_backup(root: Path | None = None) -> None:
+    import shutil
+
+    bak = frontend_dir(root) / _BACKUP_DIR_NAME
+    if bak.exists():
+        shutil.rmtree(bak, ignore_errors=True)
+
+
+def _run_npm_build(
+    root: Path | None,
+    *,
+    npm_cmd: str,
+    on_progress: Callable[[str], None] | None,
+    build_log: Path,
+    timeout_sec: float = 900.0,
+) -> int:
+    """Run npm run build; return exit code."""
+    fe = frontend_dir(root)
+    with build_log.open("a", encoding="utf-8") as log_handle:
+        log_handle.write("\n--- npm run build ---\n")
+        log_handle.flush()
+        proc = subprocess.Popen(
+            [npm_cmd, "run", "build"],
+            cwd=fe,
+            stdout=log_handle,
+            stderr=subprocess.STDOUT,
+            shell=False,
+            env={**os.environ, "PATH": augmented_path()},
+            creationflags=_no_window(),
+        )
+        started = time.monotonic()
+        last_progress = -1
+        while proc.poll() is None:
+            elapsed = int(time.monotonic() - started)
+            if on_progress and elapsed >= 10 and elapsed // 10 != last_progress:
+                last_progress = elapsed // 10
+                minutes, seconds = divmod(elapsed, 60)
+                on_progress(f"Сборка Mission Control… ({minutes}:{seconds:02d})")
+            if elapsed > timeout_sec:
+                proc.kill()
+                proc.wait(timeout=10)
+                return 124
+            time.sleep(0.5)
+        return int(proc.returncode or 0)
 
 
 @dataclass
@@ -429,6 +532,12 @@ def ensure_frontend_ready(
             "Режим «Разработка» → сборка → CEO PASS → Activate Stable Release.",
         )
 
+    if policy == POLICY_REBUILD_NOW:
+        ok, msg = build_frontend(root, managed=managed, on_progress=on_build_progress)
+        if not ok:
+            return False, msg
+        return True, "Mission Control собран (Development Update)"
+
     if frontend_build_ready(root) and frontend_build_integrity(root) and not frontend_build_stale(root):
         return True, "Mission Control готов"
 
@@ -453,7 +562,9 @@ def build_frontend(
     managed=None,
     on_progress: Callable[[str], None] | None = None,
 ) -> tuple[bool, str]:
-    """Run `npm run build` — creates .next/routes-manifest.json for production start."""
+    """Development Update — safe rebuild with backup, retry, and parsed errors."""
+    from launcher.build_log_parse import extract_build_failure
+
     npm_cmd = find_npm()
     if not npm_cmd:
         return False, "Node.js / npm не найдены."
@@ -462,56 +573,83 @@ def build_frontend(
     if not (fe / "package.json").exists():
         return False, "package.json не найден в dashboard/frontend"
 
-    clear_frontend_build(root, managed=managed)
-
-    if on_progress:
-        on_progress("Сборка Mission Control… (~1–2 мин)")
-
+    backed_up = backup_frontend_build(root)
     build_log = log_dir(root) / "frontend_build.log"
     build_log.parent.mkdir(parents=True, exist_ok=True)
-    with build_log.open("a", encoding="utf-8") as log_handle:
-        log_handle.write("\n--- npm run build ---\n")
-        log_handle.flush()
-        try:
-            result = subprocess.run(
-                [npm_cmd, "run", "build"],
-                cwd=fe,
-                stdout=log_handle,
-                stderr=subprocess.STDOUT,
-                shell=False,
-                env={**os.environ, "PATH": augmented_path()},
-                creationflags=_no_window(),
-                timeout=900,
-            )
-        except subprocess.TimeoutExpired:
-            return (
-                False,
-                "Сборка Mission Control заняла слишком много времени.\n"
-                "См. launcher/logs/frontend_build.log",
-            )
 
-    if result.returncode != 0:
-        tail = ""
-        try:
-            tail = build_log.read_text(encoding="utf-8", errors="replace")[-1500:]
-        except OSError:
-            pass
-        detail = tail.splitlines()[-4:] if tail else []
-        extra = "\n".join(detail) if detail else "См. launcher/logs/frontend_build.log"
-        return False, f"Не удалось собрать Mission Control (npm run build).\n{extra}"
+    def _fail_message(code: int, *, restored: bool) -> str:
+        headline, details = extract_build_failure(root)
+        lines = [
+            "Не удалось собрать Mission Control (npm run build).",
+            "",
+            f"Причина: {headline}",
+        ]
+        if details:
+            lines.append("")
+            lines.extend(details[:8])
+        if code == 124:
+            lines[2] = "Причина: таймаут сборки (>15 мин)"
+        lines.append("")
+        lines.append("См. launcher/logs/frontend_build.log")
+        if restored:
+            lines.append("")
+            lines.append(
+                "✓ Предыдущий рабочий релиз восстановлен автоматически.\n"
+                "Нажмите «Запустить» — откроется последний Stable Release."
+            )
+        return "\n".join(lines)
 
-    if not frontend_build_ready(root):
-        return (
-            False,
-            "Сборка завершилась, но .next/routes-manifest.json не найден.\n"
-            "См. launcher/logs/frontend_build.log",
+    def _attempt(label: str, *, clean: bool) -> int:
+        if on_progress:
+            on_progress(label)
+        if clean:
+            clear_frontend_build(root, managed=managed)
+        return _run_npm_build(
+            root,
+            npm_cmd=npm_cmd,
+            on_progress=on_progress,
+            build_log=build_log,
         )
-    from launcher.log_util import append_log
 
-    append_log(
-        "Development build complete — после CEO PASS выполните Activate Stable Release"
+    # 1) Incremental build (keep .next) — fast path after small edits
+    code = _attempt("Сборка Mission Control… (~1–2 мин)", clean=False)
+    if code == 0 and frontend_build_ready(root):
+        discard_frontend_build_backup(root)
+        from launcher.build_failure_report import clear_last_build_failure
+        from launcher.log_util import append_log
+
+        clear_last_build_failure(root)
+        append_log("Development Update: incremental build OK")
+        return True, "Mission Control собран (Development Update)"
+
+    # 2) Clean rebuild
+    code = _attempt("Сборка Mission Control… повтор с чистым .next", clean=True)
+    if code == 0 and frontend_build_ready(root):
+        discard_frontend_build_backup(root)
+        from launcher.build_failure_report import clear_last_build_failure
+        from launcher.log_util import append_log
+
+        clear_last_build_failure(root)
+        append_log("Development build complete — после CEO PASS выполните Activate Stable Release")
+        return True, "Mission Control собран (npm run build)"
+
+    restored = False
+    if backed_up:
+        restored = restore_frontend_build_backup(root)
+
+    headline, details = extract_build_failure(root)
+    from launcher.build_failure_report import record_build_failure
+
+    record = record_build_failure(
+        root,
+        exit_code=code,
+        restored=restored,
+        headline=headline,
+        details=details,
     )
-    return True, "Mission Control собран (npm run build)"
+    fail_msg = _fail_message(code, restored=restored)
+    fail_msg += f"\n\nОтчёт сохранён: Build #{record.build_number} — откройте на главном экране Launcher."
+    return False, fail_msg
 
 
 def install_frontend_deps(root: Path | None = None) -> tuple[bool, str]:

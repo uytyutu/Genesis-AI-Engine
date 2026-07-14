@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
-const NEAR_BOTTOM_PX = 96;
+const NEAR_BOTTOM_PX = 120;
 
 function distanceFromBottom(el: HTMLElement): number {
   return el.scrollHeight - el.scrollTop - el.clientHeight;
 }
 
-function scrollBehavior(): ScrollBehavior {
+function scrollBehavior(instant = false): ScrollBehavior {
+  if (instant) return "auto";
   if (typeof window === "undefined") return "auto";
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 }
@@ -18,9 +19,12 @@ export function useChatAutoScroll(
   containerRef: RefObject<HTMLDivElement | null>,
   followDeps: unknown[],
   enabled = true,
+  options?: { forceFollow?: boolean },
 ) {
   const pinnedRef = useRef(true);
+  const scrollRafRef = useRef<number | null>(null);
   const [showJumpButton, setShowJumpButton] = useState(false);
+  const forceFollow = Boolean(options?.forceFollow);
 
   const isNearBottom = useCallback(() => {
     const el = containerRef.current;
@@ -32,42 +36,47 @@ export function useChatAutoScroll(
     (behavior?: ScrollBehavior) => {
       const el = containerRef.current;
       if (!el) return;
+      const instant = forceFollow || behavior === "auto";
       el.scrollTo({
         top: el.scrollHeight,
-        behavior: behavior ?? scrollBehavior(),
+        behavior: behavior ?? scrollBehavior(instant),
       });
     },
-    [containerRef],
+    [containerRef, forceFollow],
   );
 
   const handleScroll = useCallback(() => {
-    const near = isNearBottom();
-    if (near) {
-      pinnedRef.current = true;
-      setShowJumpButton(false);
-    } else {
-      pinnedRef.current = false;
-      setShowJumpButton(true);
-    }
+    if (scrollRafRef.current !== null) return;
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = null;
+      const near = isNearBottom();
+      if (near) {
+        pinnedRef.current = true;
+        setShowJumpButton(false);
+      } else {
+        pinnedRef.current = false;
+        setShowJumpButton(true);
+      }
+    });
   }, [isNearBottom]);
 
   const jumpToLatest = useCallback(() => {
     pinnedRef.current = true;
     setShowJumpButton(false);
-    scrollToBottom("smooth");
+    scrollToBottom("auto");
   }, [scrollToBottom]);
 
   const pinToBottom = useCallback(() => {
     pinnedRef.current = true;
     setShowJumpButton(false);
-    scrollToBottom();
+    scrollToBottom("auto");
   }, [scrollToBottom]);
 
   useEffect(() => {
     if (!enabled) return;
     const id = requestAnimationFrame(() => {
-      if (pinnedRef.current) {
-        scrollToBottom();
+      if (pinnedRef.current || forceFollow) {
+        scrollToBottom("auto");
         setShowJumpButton(false);
       } else if (!isNearBottom()) {
         setShowJumpButton(true);
@@ -75,7 +84,7 @@ export function useChatAutoScroll(
     });
     return () => cancelAnimationFrame(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- followDeps are explicit triggers
-  }, followDeps);
+  }, [...followDeps, forceFollow]);
 
   return { showJumpButton, handleScroll, jumpToLatest, pinToBottom };
 }

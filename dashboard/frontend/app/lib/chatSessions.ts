@@ -69,10 +69,12 @@ export async function fetchSessionList(
 export async function createSession(
   visitorId: string,
   title = "Новое поручение",
+  options?: { signal?: AbortSignal },
 ): Promise<ChatSessionMeta | null> {
   const res = await fetch(`${API}/api/public/genesis-ai/sessions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    signal: options?.signal,
     body: JSON.stringify({ visitor_id: visitorId, title }),
   });
   if (!res.ok) return null;

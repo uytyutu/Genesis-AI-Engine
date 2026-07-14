@@ -257,15 +257,15 @@ def test_bridge_site_goal_returns_preview_cta(memory_tmp: Path):
     )
     assert out is not None
     assert out["provider"] == "execution"
-    assert "Первая версия" in out["answer"] or "первый вариант" in out["answer"].lower()
+    assert "концепц" in out["answer"].lower() or "перв" in out["answer"].lower()
     assert "index.html" not in out["answer"]
     assert "Workspace" not in out["answer"]
     assert out["cta_href"]
     assert out["cta_label"] == "🌐 Открыть сайт"
     assert out["cta_actions"]
     assert out["cta_actions"][0]["label"] == "🌐 Открыть сайт"
-    ws_id = out["context"]["workspace_id"]
     mapping = json.loads(map_path.read_text(encoding="utf-8"))
+    ws_id = mapping["visitor-site"]
     assert mapping["visitor-site"] == ws_id
 
 
@@ -516,7 +516,527 @@ def test_bridge_vague_site_asks_before_build(memory_tmp: Path):
     )
     assert out is not None
     assert out["provider"] == "execution"
-    assert "понять задачу" in out["answer"].lower() or "один проект" in out["answer"].lower()
-    assert "рынк" in out["answer"].lower() or "стран" in out["answer"].lower()
+    assert "проект создан" in out["answer"].lower()
+    assert "компани" in out["answer"].lower() or "бизнес" in out["answer"].lower()
+    assert "позвонить" not in out["answer"].lower()
+    assert "рынка" not in out["answer"].lower()
+    assert (out.get("context") or {}).get("journey_step") == "company"
     assert out.get("cta_href") is None
+
+
+def test_bridge_generic_company_site_asks_before_build(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    out = bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id="visitor-generic-co",
+        memory_dir=memory_tmp,
+    )
+    assert out is not None
+    assert out["provider"] == "execution"
+    assert "проект создан" in out["answer"].lower()
+    assert "компани" in out["answer"].lower() or "занимаетесь" in out["answer"].lower()
+    assert "позвонить" not in out["answer"].lower()
+    assert "рынка" not in out["answer"].lower()
+    assert (out.get("context") or {}).get("journey_step") == "company"
+    assert out.get("cta_href") is None
+    assert "index.html" not in (out.get("answer") or "")
+
+
+def _complete_site_co_design(bridge, *, visitor_id: str, memory_dir: Path):
+    """Natural co-design steps — concept after logo, materials never block."""
+    steps = [
+        "Современный минималистичный стиль, светлый и чистый.",
+        "Да, оставляем этот вариант.",
+        "Хорошо, продолжаем.",
+    ]
+    last = None
+    for msg in steps:
+        last = bridge.try_user_execution(msg, visitor_id=visitor_id, memory_dir=memory_dir)
+        assert last is not None
+    return last
+
+
+def test_bridge_style_step_pm_understanding_and_proposal(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-pm-style"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    second = bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert second is not None
+    ans = second["answer"].lower()
+    assert "greenline" in ans
+    assert "солнеч" in ans or "панел" in ans
+    assert "минимал" in ans
+    assert "берём" in ans or "ближе другой" in ans
+    assert (second.get("context") or {}).get("journey_step") == "style"
+
+
+def test_bridge_color_step_pm_palette_proposal(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-pm-colors"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    third = bridge.try_user_execution(
+        "Современный минимализм, светлый.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert third is not None
+    ans = third["answer"].lower()
+    assert "greenline" in ans
+    assert "бело-зелён" in ans or "зелён" in ans
+    assert "солнеч" in ans or "энергет" in ans
+    assert "оставляем" in ans or "другую палитру" in ans
+    assert "фирменные цвета" not in ans or "адаптирую" in ans
+    assert (third.get("context") or {}).get("journey_step") == "colors"
+
+
+def test_bridge_logo_step_pm_text_logo_proposal(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-pm-logo"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Современный минимализм, светлый.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    fourth = bridge.try_user_execution(
+        "Да, оставляем этот вариант.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert fourth is not None
+    ans = fourth["answer"].lower()
+    assert "палитру фиксирую" in ans
+    assert "greenline" in ans
+    assert "текстов" in ans and "логотип" in ans
+    assert "заменю" in ans or "позже" in ans
+    assert "есть готовый логотип? можете прикрепить" not in ans
+    assert (fourth.get("context") or {}).get("journey_step") == "logo"
+
+
+def test_bridge_materials_auto_advances_to_concept(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-pm-materials"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Современный минимализм, светлый.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Да, оставляем этот вариант.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    last = bridge.try_user_execution(
+        "Хорошо, продолжаем.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert last is not None
+    ans = last["answer"].lower()
+    assert "временн" in ans
+    assert "солнеч" in ans or "энергет" in ans
+    assert "есть фото, тексты или ссылки" not in ans
+    assert last.get("cta_href")
+    assert last["cta_label"] == "🌐 Открыть сайт"
+    assert (last.get("context") or {}).get("co_design") is not True
+
+
+def test_bridge_co_design_asks_style_before_concept(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-codesign-gate"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    second = bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert second is not None
+    assert second.get("cta_href") is None
+    assert "стиль" in second["answer"].lower() or "визуальн" in second["answer"].lower()
+    assert "концепц" not in second["answer"].lower()
+
+
+def test_bridge_followup_brief_generates_recognizable_site(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-followup"
+    first = bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert first is not None
+    assert first.get("cta_href") is None
+
+    second = bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert second is not None
+    assert second.get("cta_href") is None
+    third = _complete_site_co_design(bridge, visitor_id=vid, memory_dir=memory_tmp)
+    assert third is not None
+    assert third["provider"] == "execution"
+    assert "перв" in third["answer"].lower() or "концепц" in third["answer"].lower()
+    assert third.get("cta_href")
+    assert third["cta_label"] == "🌐 Открыть сайт"
+
+    from app.execution.workspace import ExecutionWorkspaceStore
+
+    map_path = memory_tmp / "execution" / "visitor_workspaces.json"
+    ws_id = json.loads(map_path.read_text(encoding="utf-8"))[vid]
+    preview = ExecutionWorkspaceStore(memory_tmp).path_for(ws_id, "artifacts") / "preview" / "index.html"
+    body = preview.read_text(encoding="utf-8")
+    assert "GreenLine" in body
+    assert "солнеч" in body.lower() or "Solar" in body or "панел" in body.lower()
+    assert "hello@example.com" not in body
+    assert "+7 (000)" not in body
+    assert "Оставить заявку" in body or "заявку" in body.lower()
+
+
+def test_bridge_materials_phrase_triggers_first_concept(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-materials-phrase"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    for msg in (
+        "Современный минималистичный стиль, светлый и чистый.",
+        "Да, оставляем этот вариант.",
+    ):
+        bridge.try_user_execution(msg, visitor_id=vid, memory_dir=memory_tmp)
+    last = bridge.try_user_execution(
+        "Хорошо, продолжаем.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert last is not None
+    assert last["provider"] == "execution"
+    assert last.get("cta_href")
+    assert "временн" in (last.get("answer") or "").lower()
+
+
+def test_bridge_followup_after_orphan_versions_without_preview(memory_tmp: Path):
+    """Disk-synced versions without preview must not block first site generation."""
+    import app.execution.bridge as bridge
+    from app.integration.project_platform.service import ProjectPlatformService
+    from app.integration.project_platform.store import ProjectStore
+    from app.integration.project_platform.schema import ProjectVersion, ProjectArtifact
+
+    bridge._REGISTRY = None
+    vid = "visitor-orphan-ver"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    svc = ProjectPlatformService(memory_tmp)
+    state = svc.get_for_visitor(vid)
+    ws_id = state["project"]["workspace_id"]
+    record = ProjectStore(memory_tmp).load(ws_id)
+    assert record is not None
+    record.versions.append(
+        ProjectVersion(
+            version=1,
+            label="Импорт",
+            created_at=record.created_at,
+            summary="Импорт существующих файлов проекта",
+            artifacts=[
+                ProjectArtifact(
+                    id="art-orphan",
+                    kind="source",
+                    label="notes.txt",
+                    href=None,
+                    section="files",
+                    version=1,
+                )
+            ],
+        )
+    )
+    ProjectStore(memory_tmp).save(record)
+
+    second = bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert second is not None
+    third = _complete_site_co_design(bridge, visitor_id=vid, memory_dir=memory_tmp)
+    assert third is not None
+    assert third["provider"] == "execution"
+    assert third.get("cta_href")
+
+
+def test_bridge_revision_uses_project_brief_not_edit_text(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-revision"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    _complete_site_co_design(bridge, visitor_id=vid, memory_dir=memory_tmp)
+    revised = bridge.try_user_execution(
+        "Хочу внести правки: убери из описания на сайте весь лишний текст про «хочу создать сайт». "
+        "Оставь только про GreenLine и солнечные панели.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert revised is not None
+    assert revised["provider"] == "execution"
+    assert "правк" in revised["answer"].lower() or "обновил" in revised["answer"].lower() or "внёс" in revised["answer"].lower()
+
+    from app.execution.workspace import ExecutionWorkspaceStore
+
+    map_path = memory_tmp / "execution" / "visitor_workspaces.json"
+    ws_id = json.loads(map_path.read_text(encoding="utf-8"))[vid]
+    preview = ExecutionWorkspaceStore(memory_tmp).path_for(ws_id, "artifacts") / "preview" / "index.html"
+    body = preview.read_text(encoding="utf-8")
+    assert "GreenLine" in body
+    assert "хочу внести правки" not in body.lower()
+    assert "хочу создать сайт" not in body.lower()
+
+
+def test_bridge_natural_add_block_triggers_revision(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-revision-add"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    _complete_site_co_design(bridge, visitor_id=vid, memory_dir=memory_tmp)
+    revised = bridge.try_user_execution(
+        "Добавь на сайт блок с отзывами клиентов",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert revised is not None
+    assert revised["provider"] == "execution"
+    assert revised.get("cta_href") or revised.get("cta_actions")
+
+
+def test_bridge_purchase_requires_approval_first(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-purchase-gate"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    _complete_site_co_design(bridge, visitor_id=vid, memory_dir=memory_tmp)
+    blocked = bridge.try_user_execution(
+        "Хочу заказать.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert blocked is not None
+    assert "устраивает" in blocked["answer"].lower()
+    assert blocked.get("cta_href", "").startswith("/api/public/execution/preview")
+
+
+def test_bridge_purchase_after_approval_routes_to_order(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-purchase-order"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    _complete_site_co_design(bridge, visitor_id=vid, memory_dir=memory_tmp)
+    bridge.try_user_execution("Да, всё устраивает.", visitor_id=vid, memory_dir=memory_tmp)
+    out = bridge.try_user_execution(
+        "Хочу заказать.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert out is not None
+    assert out["provider"] == "execution"
+    assert out.get("cta_href", "").startswith("/order")
+    assert "фиксируем" in out["answer"].lower()
+    assert "первую концепцию" not in out["answer"].lower()
+
+
+def test_bridge_soft_satisfaction_asks_before_order(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-like"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    _complete_site_co_design(bridge, visitor_id=vid, memory_dir=memory_tmp)
+    out = bridge.try_user_execution("Мне нравится.", visitor_id=vid, memory_dir=memory_tmp)
+    assert out is not None
+    assert out.get("cta_href", "").startswith("/api/public/execution/preview")
+    assert "/order" not in (out.get("cta_href") or "")
+    assert "устраивает" in out["answer"].lower()
+
+
+def test_bridge_revision_header_after_preview(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-rev-header"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    _complete_site_co_design(bridge, visitor_id=vid, memory_dir=memory_tmp)
+    revised = bridge.try_user_execution(
+        "Сделай шапку чуть современнее.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert revised is not None
+    assert revised["provider"] == "execution"
+    assert "правк" in revised["answer"].lower() or "внёс" in revised["answer"].lower()
+
+
+def test_bridge_purchase_inquiry_routes_to_pricing(memory_tmp: Path):
+    import app.execution.bridge as bridge
+
+    bridge._REGISTRY = None
+    vid = "visitor-purchase"
+    bridge.try_user_execution(
+        "Хочу создать сайт для своей компании.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    bridge.try_user_execution(
+        "Компания GreenLine. Мы устанавливаем солнечные панели для домов в Германии. "
+        "На сайте человек должен оставить заявку на бесплатную консультацию.",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    _complete_site_co_design(bridge, visitor_id=vid, memory_dir=memory_tmp)
+    bridge.try_user_execution("Да, всё устраивает.", visitor_id=vid, memory_dir=memory_tmp)
+    out = bridge.try_user_execution(
+        "Хочу заказать этот сайт. Сколько стоит и как оформить заказ?",
+        visitor_id=vid,
+        memory_dir=memory_tmp,
+    )
+    assert out is not None
+    assert out["provider"] == "execution"
+    assert out.get("cta_href", "").startswith("/order")
+    assert "фиксируем" in out["answer"].lower()
+    assert "первую концепцию" not in out["answer"].lower()
 

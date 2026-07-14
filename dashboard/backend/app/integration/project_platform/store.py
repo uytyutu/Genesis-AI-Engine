@@ -108,7 +108,7 @@ def _record_from_dict(data: dict) -> ProjectRecord:
         versions.append(
             ProjectVersion(
                 version=int(v.get("version") or 1),
-                label=str(v.get("label") or "Version 1"),
+                label=str(v.get("label") or "Версия 1"),
                 created_at=str(v.get("created_at") or ""),
                 summary=str(v.get("summary") or ""),
                 artifacts=arts,

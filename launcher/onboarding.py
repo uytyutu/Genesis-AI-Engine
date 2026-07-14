@@ -21,6 +21,9 @@ class OnboardingWizard(ctk.CTkToplevel):
         self.geometry("520x520")
         self.resizable(False, False)
         self.grab_set()
+        from launcher.ui_modal import arm_modal
+
+        arm_modal(self, master)
 
         self.step = 0
         self._goal_vars: dict[str, ctk.BooleanVar] = {}

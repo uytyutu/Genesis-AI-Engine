@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from collections.abc import Iterator
 from typing import Any
 
 import httpx
@@ -48,7 +49,7 @@ class OpenAICompatibleProvider:
     def _probe_ollama(self) -> bool:
         try:
             root = self._base_url.replace("/v1", "")
-            with httpx.Client(timeout=httpx.Timeout(0.8, connect=0.4)) as client:
+            with httpx.Client(timeout=httpx.Timeout(3.0, connect=1.0)) as client:
                 r = client.get(f"{root}/api/tags")
                 return r.status_code == 200
         except (httpx.HTTPError, OSError):
@@ -59,12 +60,19 @@ class OpenAICompatibleProvider:
         if self._api_key:
             headers["Authorization"] = f"Bearer {self._api_key}"
 
-        payload = {
+        conv_cap = int(os.getenv("GENESIS_CONVERSATION_MAX_TOKENS", "320"))
+        full_cap = int(os.getenv("GENESIS_MAX_TOKENS", "1200"))
+        # Fast-lane prompts are compact; cap generation for snappier dialogue.
+        max_tokens = conv_cap if len(system) < 10_000 else full_cap
+
+        payload: dict[str, Any] = {
             "model": self._model,
             "messages": [{"role": "system", "content": system}, *messages],
             "temperature": 0.75,
-            "max_tokens": int(os.getenv("GENESIS_MAX_TOKENS", "480")),
+            "max_tokens": max_tokens,
         }
+        if self.provider_id == "ollama":
+            payload["keep_alive"] = os.getenv("GENESIS_OLLAMA_KEEP_ALIVE", "10m")
         url = f"{self._base_url}/chat/completions"
 
         with httpx.Client(timeout=self._timeout) as client:
@@ -81,6 +89,54 @@ class OpenAICompatibleProvider:
             action=parsed.get("action"),
             provider_id=self.provider_id,
         )
+
+    def chat_stream(
+        self, *, system: str, messages: list[dict[str, str]], **kwargs: Any
+    ) -> Iterator[str]:
+        """Yield text deltas from a streaming chat/completions response (Ollama)."""
+        if self.provider_id != "ollama":
+            raise NotImplementedError(f"stream not supported for {self.provider_id}")
+
+        headers: dict[str, str] = {"Content-Type": "application/json"}
+        if self._api_key:
+            headers["Authorization"] = f"Bearer {self._api_key}"
+
+        conv_cap = int(os.getenv("GENESIS_CONVERSATION_MAX_TOKENS", "320"))
+        full_cap = int(os.getenv("GENESIS_MAX_TOKENS", "1200"))
+        max_tokens = conv_cap if len(system) < 10_000 else full_cap
+
+        payload: dict[str, Any] = {
+            "model": self._model,
+            "messages": [{"role": "system", "content": system}, *messages],
+            "temperature": 0.75,
+            "max_tokens": max_tokens,
+            "stream": True,
+        }
+        payload["keep_alive"] = os.getenv("GENESIS_OLLAMA_KEEP_ALIVE", "10m")
+        url = f"{self._base_url}/chat/completions"
+
+        with httpx.Client(timeout=self._timeout) as client:
+            with client.stream("POST", url, headers=headers, json=payload) as res:
+                res.raise_for_status()
+                for raw in res.iter_lines():
+                    if not raw:
+                        continue
+                    line = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+                    if line.startswith("data:"):
+                        line = line[5:].strip()
+                    if line == "[DONE]":
+                        break
+                    try:
+                        data = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    choices = data.get("choices") or []
+                    if not choices:
+                        continue
+                    delta = choices[0].get("delta") or {}
+                    content = delta.get("content") or ""
+                    if content:
+                        yield content
 
     def _parse_action(self, content: str) -> dict[str, Any]:
         m = _ACTION_RE.search(content)
@@ -183,13 +239,15 @@ def build_provider_registry(
     ]
 
     registry: dict[str, Provider] = {}
+    ollama_timeout = float(os.getenv("GENESIS_OLLAMA_TIMEOUT_SEC", str(timeout)))
     for d in defs:
+        provider_timeout = ollama_timeout if d["id"] == "ollama" else timeout
         registry[d["id"]] = OpenAICompatibleProvider(
             d["id"],
             api_key=d.get("key"),
             base_url=d["base"],
             model=d["model"],
-            timeout=timeout,
+            timeout=provider_timeout,
             require_key=d.get("require_key", True),
         )
 

@@ -44,7 +44,7 @@ def test_project_activate_and_record(tmp_path: Path):
     state = svc.get_for_visitor("visitor-1")
     assert state["has_project"] is True
     assert len(state["project"]["versions"]) == 1
-    assert state["project"]["versions"][0]["label"] == "Version 1"
+    assert state["project"]["versions"][0]["label"] == "Версия 1"
     assert len(state["project"]["timeline"]) >= 2
     assert state["project"]["identity"]["type_label"] == "Сайт для бизнеса"
     assert state["project"]["progress"]["percent"] >= 28
@@ -53,6 +53,16 @@ def test_project_activate_and_record(tmp_path: Path):
     assert state["project"]["health"]["emoji"]
     assert state["project"]["next_action"]["label"]
     assert state["project"]["activity"]["summary"]
+
+
+def test_bootstrap_from_message_creates_project(tmp_path: Path):
+    memory = tmp_path / "memory"
+    memory.mkdir()
+    svc = ProjectPlatformService(memory)
+    state = svc.bootstrap_from_message("visitor-pe1", "Хочу создать сайт для компании")
+    assert state["has_project"] is True
+    assert state["project"]["mode"] == "project"
+    assert state["project"]["service_id"] == "website"
 
 
 def test_empty_visitor_state(tmp_path: Path):

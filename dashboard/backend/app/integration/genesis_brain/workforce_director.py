@@ -57,8 +57,12 @@ class WorkforceDirector:
     """Director layer — quotas, success rate, specialization, auto-exclude."""
 
     def __init__(self, memory_dir: Path | None = None) -> None:
+        self._memory_dir = memory_dir
         self._quotas = WorkforceQuotas(memory_dir)
         self._performance = WorkforcePerformance(memory_dir)
+        from app.integration.llm_router.router import LLMRouter
+
+        self._router = LLMRouter(memory_dir)
 
     def plan(
         self,
@@ -66,6 +70,7 @@ class WorkforceDirector:
         *,
         premium_allowed: bool = False,
         available_employees: list[str] | None = None,
+        preferred_employees: list[str] | None = None,
     ) -> WorkforcePlan:
         candidates = list(available_employees or _ALL)
         if not premium_allowed:
@@ -73,15 +78,39 @@ class WorkforceDirector:
 
         # Only employees with quota budget (Director excludes exhausted providers)
         with_budget = [e for e in candidates if self._quotas.has_budget(e)]
+        if preferred_employees:
+            viable = [e for e in preferred_employees if e in with_budget]
+            if viable:
+                with_budget = viable + [e for e in with_budget if e not in viable]
         if not with_budget:
             with_budget = ["genesis-local"]
 
         ranked = self._performance.rank_employees(task, with_budget)
-        order = tuple(s.employee_id for s in ranked)
+        route_plan = self._router.plan_route(
+            task,
+            premium_allowed=premium_allowed,
+        )
+        router_order = list(route_plan.failover_order)
+        if self._router.emergency_fallback_allowed(route_plan):
+            router_order.append("genesis-local")
+        # Merge: router production priority first, then score-ranked remainder.
+        score_order = [s.employee_id for s in ranked]
+        merged: list[str] = []
+        for eid in router_order + score_order:
+            if eid in with_budget or eid == "genesis-local":
+                if eid not in merged:
+                    merged.append(eid)
+        order = tuple(merged) if merged else tuple(score_order)
         selected = order[0] if order else "genesis-local"
         top = ranked[0] if ranked else None
 
-        if top:
+        if route_plan.primary:
+            reason = (
+                f"Router: capability={route_plan.capability}; primary={route_plan.primary}; "
+                f"eligible={len(route_plan.failover_order)}; "
+                f"{route_plan.reason}"
+            )
+        elif top:
             reason = (
                 f"Director: task={task}; best={top.employee_id} score={top.total:.0f} "
                 f"(q={top.quality:.0f} quota={top.quota_remaining} success={top.success_rate:.0f}%)"

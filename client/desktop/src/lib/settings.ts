@@ -13,11 +13,12 @@ export type AppSettings = {
   sessionActive: boolean;
   checkUpdatesOnLaunch: boolean;
   locale: LocaleId;
+  /** CEO/dev connect — off by default; customer registration is primary. */
+  devMode: boolean;
 };
 
 export const DEFAULT_API_URL =
-  import.meta.env.VITE_GENESIS_API_URL ??
-  "https://genesis-ai-engine-production.up.railway.app";
+  import.meta.env.VITE_GENESIS_API_URL ?? "http://127.0.0.1:8000";
 
 export const defaultSettings = (): AppSettings => ({
   apiUrl: DEFAULT_API_URL,
@@ -27,6 +28,7 @@ export const defaultSettings = (): AppSettings => ({
   sessionActive: false,
   checkUpdatesOnLaunch: true,
   locale: DEFAULT_LOCALE,
+  devMode: false,
 });
 
 function migrate(raw: Record<string, unknown>): AppSettings {
@@ -44,6 +46,7 @@ function migrate(raw: Record<string, unknown>): AppSettings {
         : base.checkUpdatesOnLaunch,
     locale:
       typeof raw.locale === "string" ? (raw.locale as LocaleId) : base.locale,
+    devMode: typeof raw.devMode === "boolean" ? raw.devMode : base.devMode,
   };
 }
 

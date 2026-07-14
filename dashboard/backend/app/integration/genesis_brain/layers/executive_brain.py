@@ -414,9 +414,9 @@ def executive_reply(
     from app.integration.genesis_brain.human_replies import human_reply
     from app.integration.genesis_brain.layers.conversation_state import pick_opening
     from app.integration.genesis_brain.layers.conversation_type import is_business_mode
+    from app.integration.genesis_brain.conversation_flow import journey_ux_reply
     from app.integration.genesis_brain.reasoned_reply import (
         _advice_when_ready,
-        reasoned_business_reply,
     )
 
     open_ = pick_opening(visitor_id, turn_index)
@@ -502,7 +502,7 @@ def executive_reply(
         if _EXPLICIT_IDEAS_REQUEST.search(low):
             return _propose_three(state, open_, with_followup=with_followup)
         if _already_proposed_three(messages):
-            routed = reasoned_business_reply(
+            routed = journey_ux_reply(
                 state,
                 last_user,
                 visitor_id=visitor_id,
@@ -515,7 +515,7 @@ def executive_reply(
         return _propose_three(state, open_)
 
     if brief.mode == "advise":
-        routed = reasoned_business_reply(
+        routed = journey_ux_reply(
             state,
             last_user,
             visitor_id=visitor_id,
@@ -540,7 +540,7 @@ def executive_reply(
         return f"{open_} {ack}{brief.optional_question}"
 
     if is_business_mode(talk):
-        return reasoned_business_reply(
+        return journey_ux_reply(
             state,
             last_user,
             visitor_id=visitor_id,

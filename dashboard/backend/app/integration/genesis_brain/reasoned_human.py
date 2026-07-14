@@ -6,7 +6,6 @@ Not category templates. Content follows implicit need and thread context.
 
 from __future__ import annotations
 
-import hashlib
 import re
 
 from app.integration.genesis_brain.layers.conversation_state import ConversationState, pick_opening
@@ -54,7 +53,7 @@ def reasoned_human_reply(
         return _business_ack_reply(state, open_)
 
     if goal.real_goal == "small_talk":
-        return _small_talk_reply(raw, visitor_id, turn_index, open_)
+        return None
 
     if goal.real_goal == "thread_follow_up":
         return _thread_follow_up_reply(messages or [], open_, raw)
@@ -65,7 +64,7 @@ def reasoned_human_reply(
             return f"{open_} {answered}".strip()
         if _substantive_curiosity(raw):
             return None
-        return f"{open_} С удовольствием объясню.\n\n{_curiosity_stub(raw)}"
+        return None
 
     if action == "one_question" and goal.optional_question:
         ack = _context_ack(state)
@@ -76,7 +75,7 @@ def reasoned_human_reply(
         if answered:
             return f"{open_} {answered}".strip()
 
-    return f"{open_} Слушаю Вас — расскажите, что для Вас сейчас важнее всего."
+    return None
 
 
 def _context_ack(state: ConversationState) -> str:
@@ -174,14 +173,11 @@ def _life_context_reply(goal: GoalBrief, state: ConversationState, open_: str) -
 
     if age:
         return (
-            f"{open_} {age} — принял.\n\n"
-            "Если хотите — свяжем это с тем, о чём говорили, или начнём новую тему."
+            f"{age} — принял.\n\n"
+            "Свяжу с темой разговора, если это уместно."
         )
 
-    return (
-        f"{open_} Понял — это про Вас, не отдельный вопрос.\n\n"
-        "Расскажите, если хотите продолжить мысль."
-    )
+    return None
 
 
 def _correction_reply(
@@ -201,60 +197,26 @@ def _correction_reply(
     )
 
 
-def _emotional_reply(goal: GoalBrief, open_: str, raw: str) -> str:
+def _emotional_reply(goal: GoalBrief, open_: str, raw: str) -> str | None:
     if re.search(r"плохо|тяжело|грустн|одинок", raw, re.I):
         return (
-            f"{open_} Понимаю — бывает непросто.\n\n"
-            "Не обязательно сразу что-то решать. "
-            "Могу просто выслушать — или помочь с чем-то конcretным, если так легче."
+            "Понимаю — бывает непросто.\n\n"
+            "Не обязательно сразу что-то решать — могу помочь с конкретным шагом, "
+            "когда будете готовы."
         )
-    return (
-        f"{open_} Слышу Вас.\n\n"
-        "Такие чувства нормальны. Если захотите — разберём, что за ними стоит."
-    )
+    return None
 
 
-def _business_ack_reply(state: ConversationState, open_: str) -> str:
+def _business_ack_reply(state: ConversationState, open_: str) -> str | None:
     ack = _context_ack(state).strip()
     if state.uncertain_niche and state.has_budget():
         return (
-            f"{open_} {ack}\n\n"
-            "Что ближе — работа с людьми лично (кафе, салон, сервис) "
-            "или онлайн (обучение, digital)?"
+            f"{ack}\n\n"
+            "Следующий шаг — выбрать формат: офлайн-точка или онлайн-услуга."
         ).strip()
     if ack:
-        return f"{open_} {ack}\n\nПродолжим — что для Вас важнее сейчас?"
-    return f"{open_} Принял. Расскажите, что для Вас важнее сейчас?"
-
-
-def _small_talk_reply(raw: str, visitor_id: str, turn_index: int, open_: str) -> str:
-    low = raw.lower()
-    if "как дела" in low or "как ты" in low or "как вы" in low:
-        variants = [
-            "Всё хорошо, спасибо! 😊 А у вас как?",
-            "Отлично, на связи. Чем могу помочь?",
-            "Нормально, спасибо что спросили. А вы как?",
-        ]
-    elif re.match(r"^(привет|здравствуй|hello|hi)\b", low):
-        variants = [
-            "Привет! Рад на связи — о чём думаете?",
-            "Здравствуйте! Чем займёмся?",
-            "Привет! С чего начнём?",
-        ]
-    elif re.match(r"^(йо|yo|хай|хэй|хей|ку|салют|здарова|дарова|sup)\b", low):
-        variants = [
-            "Йо! На связи — чем помочь?",
-            "Привет! Рад, что написали. О чём думаете?",
-            "На связи! С чего начнём?",
-        ]
-    else:
-        variants = [
-            "Слушаю вас. О чём хотите поговорить?",
-            "Хорошо. Продолжайте — я здесь.",
-        ]
-    seed = f"{visitor_id}:{turn_index}:{raw[:20]}"
-    idx = int(hashlib.sha256(seed.encode()).hexdigest(), 16) % len(variants)
-    return variants[idx]
+        return f"{ack}\n\nПродолжаем работу над задачей."
+    return "Принял задачу в работу."
 
 
 def _substantive_curiosity(raw: str) -> bool:
@@ -334,16 +296,6 @@ def _thread_follow_up_reply(
         f"{open_} Похоже, вы уточняете предыдущий ответ — "
         "переформулируйте вопрос, и я отвечу по существу."
     )
-
-
-def _curiosity_stub(raw: str) -> str:
-    low = raw.lower()
-    if "factory" in low or "фабрик" in low:
-        return (
-            f"**Factory** — продуктовый отдел {BRAND_NAME}: сайты, боты, приложения под ключ.\n\n"
-            "Спросите, если нужен лендинг под ключ — /order."
-        )
-    return "Опишите, что именно хотите понять — отвечу доступно, без воды."
 
 
 def _prior_user(messages: list[dict[str, str]]) -> str:

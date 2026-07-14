@@ -38,8 +38,7 @@ def test_flat_earth_respectful():
 def test_personality_finalize_greeting():
     p = GenesisPersonalityLayer()
     out = p.finalize("", messages=[{"role": "user", "content": "Привет"}], visitor_id="x1")
-    assert "Добро" in out or "Genesis" in out or "Приветствую" in out
-    assert "ChatGPT" not in out
+    assert out == ""
 
 
 def test_local_mind_factory():
@@ -78,12 +77,12 @@ def test_business_consultation_flow():
     steps = [
         ("Привет", None),
         ("Хочу открыть бизнес", "направлен|предложил|вариант"),
-        ("Не знаю какой", "офлайн|онлайн|личн"),
+        ("Не знаю какой", "направлен|вариант|следующий шаг|формат"),
         ("Бюджет 20000€", "20 000|20000"),
         ("Я из Германии", "герман|направлен|вариант|20 000"),
         ("Хочу открыть кофейню", "кофейн|направлен|бюджет|стран"),
-        ("Нужен сайт", "сайт"),
-        ("Нужно приложение", "приложен"),
+        ("Нужен сайт", "сайт|лендинг|350"),
+        ("Нужно приложение", "приложен|нельзя|разработк|лендинг"),
         ("Нужно продвижение", "продвиж|карт|лендинг"),
         ("Хочу пользоваться Studio", "Studio"),
     ]
@@ -92,6 +91,7 @@ def test_business_consultation_flow():
         r = mind.chat(system="", messages=msgs)
         answer = r.answer
         assert "Расскажите о задаче" not in answer
+        assert "что ближе — работа" not in answer.lower()
         assert not answer.strip().startswith("Я — Genesis.")
         if must_contain:
             low = answer.lower()
@@ -185,13 +185,15 @@ def test_self_critique_rejects_template():
     assert "расскажите о задаче" not in out.lower()
 
 
-def test_greeting_variation():
+def test_greeting_stable_voice():
     from app.integration.genesis_brain.layers.conversation_style import ConversationStyleEngine
 
     style = ConversationStyleEngine()
     a = style.pick_greeting(style.build_context({"visit_count": 0}, "v-a"))
     b = style.pick_greeting(style.build_context({"visit_count": 0}, "v-b"))
-    assert a != b or "Genesis" in a
+    assert a == b
+    assert "чем могу помочь" not in a.lower()
+    assert "с чего начнём" not in a.lower()
 
 
 def test_executive_propose_first():
@@ -542,3 +544,38 @@ def test_brief_speech_ignores_llm_mandate_wrapper():
     ).lower()
     banned = ("старте", "спроса", "crm", "studio", "лендинг", "под ключ")
     assert not any(b in out for b in banned), out[:200]
+
+
+def test_conversation_fast_lane_eligible():
+    from app.integration.genesis_brain.conversation_fast_lane import should_use_conversation_fast_lane
+
+    assert should_use_conversation_fast_lane(
+        has_attachments=False, workforce_task="conversation", last_user="Привет"
+    )
+    assert not should_use_conversation_fast_lane(
+        has_attachments=True, workforce_task="conversation", last_user="Привет"
+    )
+
+
+def test_personality_finalize_no_template_pool():
+    p = GenesisPersonalityLayer()
+    out = p.finalize(
+        "",
+        messages=[{"role": "user", "content": "Привет"}],
+        visitor_id="x1",
+        llm_draft_from_provider=False,
+    )
+    assert out == ""
+    assert "Всё хорошо" not in out
+
+
+def test_personality_finalize_preserves_local_llm_draft():
+    p = GenesisPersonalityLayer()
+    draft = "Привет! Рад поговорить — как у вас дела сегодня?"
+    out = p.finalize(
+        draft,
+        messages=[{"role": "user", "content": "Привет"}],
+        visitor_id="x1",
+        llm_draft_from_provider=True,
+    )
+    assert "поговорить" in out.lower() or "дела" in out.lower()

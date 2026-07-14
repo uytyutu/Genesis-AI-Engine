@@ -37,13 +37,13 @@ VISUAL_STAGES: tuple[tuple[str, str], ...] = (
 )
 
 ARTIFACT_FOLDERS: tuple[tuple[str, str], ...] = (
-    ("website", "Website"),
-    ("business_plan", "Business Plan"),
-    ("presentation", "Presentation"),
-    ("documents", "Documents"),
-    ("images", "Images"),
-    ("source", "Source"),
-    ("archive", "Archive"),
+    ("website", "Ваш сайт"),
+    ("business_plan", "Бизнес-план"),
+    ("presentation", "Презентация"),
+    ("documents", "Результаты работы"),
+    ("images", "Изображения"),
+    ("source", "Исходные материалы"),
+    ("archive", "Архив"),
 )
 
 _MARKET_HINTS: tuple[tuple[str, str], ...] = (

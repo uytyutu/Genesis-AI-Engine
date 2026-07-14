@@ -72,6 +72,10 @@ class GooglePlacesService:
                 if res.status_code >= 400:
                     raise RuntimeError(f"places_textsearch_error:{res.status_code}")
                 payload = res.json()
+                status = str(payload.get("status") or "").strip()
+                if status and status not in ("OK", "ZERO_RESULTS"):
+                    message = str(payload.get("error_message") or status).strip()
+                    raise RuntimeError(f"places_textsearch_status:{message}")
                 results = payload.get("results") or []
                 for r in results:
                     if len(leads) >= limit:
@@ -115,6 +119,9 @@ class GooglePlacesService:
         if res.status_code >= 400:
             return ""
         data: dict[str, Any] = res.json() if res.content else {}
+        status = str(data.get("status") or "").strip()
+        if status and status not in ("OK",):
+            return ""
         result = data.get("result") if isinstance(data.get("result"), dict) else {}
         website = str((result or {}).get("website") or "").strip()
         return website

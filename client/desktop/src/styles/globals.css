@@ -339,11 +339,112 @@ select {
   max-width: 56rem;
 }
 
+.vector-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.vector-status__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #6b7280;
+  flex-shrink: 0;
+}
+
+.vector-status--online .vector-status__dot {
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.vector-status--busy .vector-status__dot {
+  background: #eab308;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.vector-status__text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.35rem;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.vector-status__text strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.vector-status__detail {
+  color: var(--color-muted);
+}
+
+.shell__titlebar .vector-status {
+  flex: 1;
+  min-width: 0;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
 .page--chat {
   max-width: none;
   height: calc(100vh - 4.5rem);
   display: flex;
   flex-direction: column;
+}
+
+.page--chat-customer .chat--customer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.page--chat-customer .chat__thread {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.chat-starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0 0.75rem;
+}
+
+.chat-starter {
+  font-size: 0.85rem;
+}
+
+.chat__composer--simple {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.chat__composer--simple input {
+  flex: 1;
+  min-width: 0;
+}
+
+.chat__icon-btn {
+  min-width: 2.5rem;
+  padding: 0.5rem;
 }
 
 .page__header--row {
@@ -1253,6 +1354,134 @@ code {
   border-radius: var(--radius-sm);
   background: var(--color-panel);
   border: 1px solid var(--color-border);
+}
+
+.connect__card--wide {
+  max-width: 28rem;
+}
+
+.connect__switch {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.connect__hint {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.btn--link {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.welcome {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.welcome__head {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.welcome__mark {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+}
+
+.welcome__eyebrow {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin: 0 0 0.25rem;
+}
+
+.welcome__sub {
+  color: var(--color-muted);
+  margin: 0.35rem 0 0;
+}
+
+.welcome__chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.welcome__bubble {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+}
+
+.welcome__bubble--user {
+  align-self: flex-end;
+  background: var(--color-elevated);
+}
+
+.welcome__who {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  margin-bottom: 0.35rem;
+}
+
+.welcome__actions-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+}
+
+.welcome__actions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.welcome__action {
+  min-width: 8rem;
+}
+
+.welcome__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.welcome__footer-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.welcome__input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.settings-about-title {
+  font-size: inherit;
+  font-weight: inherit;
+  padding: 0;
 }
 
 @media (max-width: 900px) {

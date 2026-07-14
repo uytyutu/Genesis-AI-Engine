@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-BUILD_STAMP = '2026-07-10 23:36 UTC'
+BUILD_STAMP = '2026-07-11 13:12 UTC'
 
 if getattr(sys, "frozen", False):
     _exe = Path(sys.executable).resolve()

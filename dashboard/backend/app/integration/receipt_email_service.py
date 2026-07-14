@@ -8,6 +8,7 @@ import os
 import httpx
 
 from app.integration.genesis_brain.public_brand import BRAND_NAME
+from app.integration.product_line import project_awaiting_payment_message
 
 
 def _public_url(path: str) -> str:
@@ -75,25 +76,29 @@ class ReceiptEmailService:
             ("Пакет", f"{order.get('package_name', '')} — {order.get('price_eur', '')} €"),
             ("Статус", "Ожидает оплаты"),
         ]
+        intro = str(
+            order.get("client_status_message")
+            or project_awaiting_payment_message(launch_mode=bool(order.get("launch_mode")))
+        )
         text = (
             f"Здравствуйте!\n\n"
-            f"Мы получили ваш заказ «{order['business_name']}».\n\n"
-            f"Заказ № {order_id}\n"
-            f"Пакет: {order['package_name']} — {order['price_eur']} €\n\n"
-            f"Оплатите, чтобы мы начали работу:\n{_public_url(status_path)}\n\n"
-            f"Статус заказа: {_public_url(status_path)}\n\n"
+            f"Мы получили ваш проект «{order['business_name']}».\n\n"
+            f"Проект № {order_id}\n"
+            f"Сумма: {order['price_eur']} €\n\n"
+            f"{intro}\n{_public_url(status_path)}\n\n"
+            f"Статус проекта: {_public_url(status_path)}\n\n"
             f"С уважением,\n{BRAND_NAME}"
         )
         html_body = _html_email(
-            title="Заказ получен",
-            intro="Спасибо! Оплатите заказ — и мы сразу начнём работу над сайтом.",
+            title="Проект зафиксирован",
+            intro=intro,
             rows=rows,
             cta_href=_public_url(status_path),
-            cta_label="Оплатить заказ",
+            cta_label="Оплатить проект",
         )
         return self._send(
             to=str(order.get("email") or "").strip(),
-            subject=f"Заказ получен — {order.get('business_name', BRAND_NAME)} (№ {order_id})",
+            subject=f"Проект зафиксирован — {order.get('business_name', BRAND_NAME)} (№ {order_id})",
             text=text,
             html=html_body,
         )

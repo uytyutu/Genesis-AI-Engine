@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from datetime import datetime, timedelta, timezone
 
 from app.integration.finance_service import FinanceService
@@ -29,6 +30,8 @@ class RevenuePipelineService:
     def payment_status(self) -> dict:
         provider = self._checkout.provider()
         stripe_live = provider == "stripe" and self._checkout.is_live_mode()
+        sk = os.getenv("STRIPE_SECRET_KEY", "").strip()
+        pk = os.getenv("STRIPE_PUBLISHABLE_KEY", "").strip()
         return {
             "configured": self._checkout.is_configured(),
             "provider": provider,
@@ -39,6 +42,9 @@ class RevenuePipelineService:
             "sandbox": provider == "sandbox",
             "live_mode": stripe_live,
             "webhook_configured": self._checkout.has_webhook_secret(),
+            "stripe_test_mode": sk.startswith("sk_test_"),
+            "publishable_key_configured": bool(pk),
+            "secret_key_configured": bool(sk),
         }
 
     def email_status(self) -> dict:
@@ -54,12 +60,14 @@ class RevenuePipelineService:
             raise ValueError("payment_not_configured")
 
         label = f"{order['package_name']} — {order['business_name']}"
+        currency = str(order.get("currency") or "EUR").lower()
         session = self._checkout.create_checkout(
             order_id=order_id,
             amount_eur=float(order["price_eur"]),
             label=label,
             success_url=success_url,
             cancel_url=cancel_url,
+            currency=currency,
         )
         order["status"] = "awaiting_payment"
         order["status_label"] = "Ожидает оплаты"
@@ -173,6 +181,7 @@ class RevenuePipelineService:
         )
         eta = now + timedelta(hours=eta_hours)
         status_path = f"/order/status/{order_id}"
+        price_display = str(order.get("price_label") or f"{paid:.0f} €")
         order["estimated_delivery_at"] = eta.isoformat()
         order["estimated_hours"] = eta_hours
         order["client_status_message"] = (
@@ -183,7 +192,7 @@ class RevenuePipelineService:
             f"Здравствуйте!\n\n"
             f"Спасибо за заказ «{order['business_name']}».\n\n"
             f"Заказ № {order_id}\n"
-            f"Пакет: {order['package_name']} — {paid:.0f} €\n"
+            f"Пакет: {order['package_name']} — {price_display}\n"
             f"Статус: Оплачено\n"
             f"Ориентировочный срок: {eta_hours} часов\n\n"
             f"Отслеживать заказ: {status_path}\n\n"
@@ -193,11 +202,12 @@ class RevenuePipelineService:
 
         production = self._sales.start_production(order_id)
         product_id = production.get("product_id")
+        price_display = str(order.get("price_label") or f"{paid:.0f} €")
 
         self._notifications.notify(
             title="Новая оплата",
             message=(
-                f"🟢 {order['business_name']} — {paid:.0f} € ({order['package_name']}). "
+                f"🟢 {order['business_name']} — {price_display} ({order['package_name']}). "
                 f"Производство запущено автоматически."
             ),
             order_id=order_id,

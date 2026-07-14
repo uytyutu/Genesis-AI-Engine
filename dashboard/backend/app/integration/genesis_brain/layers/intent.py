@@ -1,17 +1,19 @@
 """
-Genesis Intent Layer — understand what the user means before generating a reply.
+Genesis Intent Layer — what the user needs for progress, before generating a reply.
 
-Pipeline: fuzzy normalize → intent → context from history → role → goals.
+Pipeline: fuzzy normalize → topic intent → Journey phase → context from history → goals.
 """
 
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any
 
 from app.integration.genesis_brain.layers.conversation_state import ConversationState
 from app.integration.genesis_brain.fuzzy_nlp import contains_any, normalize_for_intent
+from app.integration.vector_intelligence.pipeline import analyze_turn
+from app.integration.vector_intelligence.types import JOURNEY_PHASE_LABELS, JourneyPhase
 
 IntentKind = str  # greeting | small_talk | emotion | science | business | website | bot | studio | writing | general
 
@@ -21,7 +23,7 @@ class IntentBrief:
     raw_message: str
     normalized: str
     intent: IntentKind
-    role: str
+    journey_phase: JourneyPhase
     goals: tuple[str, ...] = ()
     context_topic: str | None = None
     business: ConversationState | None = None
@@ -29,10 +31,11 @@ class IntentBrief:
     turn_index: int = 0
 
     def to_prompt_hint(self) -> str:
-        goals = ", ".join(self.goals) if self.goals else "понять и помочь"
+        goals = ", ".join(self.goals) if self.goals else "движение к результату"
         ctx = f" Контекст диалога: {self.context_topic}." if self.context_topic else ""
+        phase = JOURNEY_PHASE_LABELS.get(self.journey_phase, self.journey_phase)
         return (
-            f"Намерение: {self.intent}. Роль: {self.role}. Цели пользователя: {goals}.{ctx} "
+            f"Этап Journey: {phase}. Что нужно человеку сейчас: {goals}.{ctx} "
             f"Отвечайте на смысл, не исправляйте опечатки. Максимум один уточняющий вопрос."
         )
 
@@ -45,19 +48,22 @@ class GenesisIntentLayer:
         messages: list[dict[str, str]],
         memory: dict[str, Any] | None = None,
     ) -> IntentBrief:
+        _ = memory
         raw = self._last_user_raw(messages)
         normalized = normalize_for_intent(raw)
         turn_index = sum(1 for m in messages if m.get("role") == "user")
         biz = ConversationState.from_messages(messages)
         context_topic = self._context_topic(messages, biz)
 
-        intent, role, goals, confidence = self._classify(normalized, biz, context_topic, turn_index)
+        intent, goals, confidence = self._classify(normalized, biz, context_topic, turn_index)
+        history = messages[:-1] if len(messages) > 1 else None
+        journey_phase = analyze_turn(raw, history=history).journey_phase
 
         return IntentBrief(
             raw_message=raw,
             normalized=normalized,
             intent=intent,
-            role=role,
+            journey_phase=journey_phase,
             goals=goals,
             context_topic=context_topic,
             business=biz,
@@ -71,46 +77,46 @@ class GenesisIntentLayer:
         biz: ConversationState,
         context_topic: str | None,
         turn_index: int,
-    ) -> tuple[IntentKind, str, tuple[str, ...], str]:
+    ) -> tuple[IntentKind, tuple[str, ...], str]:
         if contains_any(n, "стой", "останов", "хватит", "прекрати", "стоп"):
-            return "control", "companion", ("пауза в разговоре",), "high"
+            return "control", ("уважить границу и паузу",), "high"
 
         if contains_any(n, "давай поговорим", "поговорим", "просто поговорить", "поболтаем"):
-            return "small_talk", "companion", ("поболтать",), "high"
+            return "small_talk", ("ответить по сути без продаж",), "high"
 
         if contains_any(n, "привет", "здравствуй", "hello", "hi", "добрый", "доброе"):
-            return "greeting", "companion", ("установить контакт",), "high"
+            return "greeting", ("теплый контакт без навязывания задачи",), "high"
 
         if contains_any(n, "как дела", "как ты", "как вы", "что нового"):
-            return "small_talk", "companion", ("поболтать",), "high"
+            return "small_talk", ("ответить по сути без продаж",), "high"
 
         if contains_any(n, "грустн", "тяжело", "плохо", "одинок", "устал", "боюсь", "страшно"):
-            return "emotion", "empath", ("поддержка", "выслушать"), "high"
+            return "emotion", ("поддержка и ясность",), "high"
 
         if re.search(
             r"как\s+думаешь|как\s+считаешь|получится\s+ли|"
             r"я\s+стану|миллионер|разбогат",
             n,
         ):
-            return "personal_reflection", "mentor", ("размышление о себе",), "high"
+            return "personal_reflection", ("честный разговор без продаж",), "high"
 
         if contains_any(n, "шутк", "анекдот", "посмея", "смешн"):
-            return "humor", "companion", ("развлечь",), "medium"
+            return "humor", ("лёгкий ответ по теме",), "medium"
 
         if contains_any(n, "квантов", "физик", "космос", "чёрн", "наук", "объясни"):
-            return "science", "teacher", ("объяснить", "обучить"), "high"
+            return "science", ("ясное объяснение",), "high"
 
         if contains_any(n, "письм", "email", "резюме", "текст для"):
-            return "writing", "writer", ("помочь с текстом",), "high"
+            return "writing", ("помочь с текстом",), "high"
 
         if contains_any(n, "studio", "подписк", "платформ") or biz.wants_studio:
-            return "studio", "consultant", ("выбрать тариф Studio", "понять выгоду подписки"), "high"
+            return "studio", ("честно о Virtus Studio",), "high"
 
         if contains_any(n, "telegram", "чатбот", "бот", "whatsapp"):
-            return "bot", "digital", ("автоматизировать общение",), "high"
+            return "bot", ("принять задачу по боту",), "high"
 
         if contains_any(n, "сайт", "лендинг", "интернет-магазин", "магазин"):
-            return "website", "digital", ("создать сайт",), "high"
+            return "website", ("принять задачу по сайту",), "high"
 
         if (
             contains_any(n, "бизнес", "придумай", "идея", "открыть", "ниша", "проект", "дело")
@@ -118,23 +124,23 @@ class GenesisIntentLayer:
             or (biz.goal == "open_business" and context_topic == "business")
             or context_topic == "business"
         ):
-            goals: list[str] = ["найти или развить бизнес-идею"]
+            goals: list[str] = ["принять задачу и прояснить цель"]
             if biz.budget_amount:
                 goals.append(f"бюджет ~{biz.budget_display()}")
             if biz.country:
                 goals.append(f"страна: {biz.country}")
-            return "business", "consultant", tuple(goals), "high"
+            return "business", tuple(goals), "high"
 
         if contains_any(n, "продвижен", "реклам", "маркетинг", "клиент"):
-            return "marketing", "marketing", ("привлечь клиентов",), "medium"
+            return "marketing", ("следующий шаг к видимости",), "medium"
 
         if contains_any(n, "приложен", "app", "мобильн"):
-            return "app", "digital", ("создать приложение",), "medium"
+            return "app", ("принять задачу по приложению",), "medium"
 
         if context_topic and turn_index > 1:
-            return context_topic, "consultant", ("продолжить тему",), "medium"
+            return context_topic, ("продолжить тему к результату",), "medium"
 
-        return "general", "universal", ("понять задачу", "помочь"), "low"
+        return "general", ("понять задачу и взять в работу",), "low"
 
     @staticmethod
     def _context_topic(messages: list[dict[str, str]], biz: ConversationState) -> str | None:

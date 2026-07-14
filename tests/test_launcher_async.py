@@ -92,6 +92,28 @@ def test_start_frontend_skips_when_port_up(monkeypatch):
     assert proc is None
 
 
+def test_rebuild_now_always_builds(monkeypatch):
+    from launcher.deps import ensure_frontend_ready
+    from launcher.frontend_build_policy import POLICY_REBUILD_NOW
+
+    calls: list[str] = []
+
+    monkeypatch.setattr("launcher.deps.find_npm", lambda: "npm")
+    monkeypatch.setattr("launcher.deps.frontend_deps_ready", lambda root=None: True)
+    monkeypatch.setattr("launcher.deps.frontend_build_ready", lambda root=None: True)
+    monkeypatch.setattr("launcher.deps.frontend_build_integrity", lambda root=None: True)
+    monkeypatch.setattr("launcher.deps.frontend_build_stale", lambda root=None: False)
+    monkeypatch.setattr(
+        "launcher.deps.build_frontend",
+        lambda *a, **k: calls.append("build") or (True, "built"),
+    )
+
+    ok, msg = ensure_frontend_ready(build_policy=POLICY_REBUILD_NOW, for_production=True)
+    assert ok
+    assert calls == ["build"]
+    assert "Development Update" in msg
+
+
 def test_launch_genesis_reconnects_when_already_running(monkeypatch):
     from launcher.processes import ManagedProcesses, launch_genesis
 

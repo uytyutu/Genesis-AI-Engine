@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
-from launcher.health import probe_backend_live, probe_frontend_live
+from launcher.health import probe_backend_live, probe_frontend_live, probe_vector_chat_ready
 
 if TYPE_CHECKING:
     from launcher.processes import ManagedProcesses
@@ -30,7 +30,7 @@ def assess_startup(root=None) -> StageAssessment:
     if owner_ready_live():
         return StageAssessment(
             stage="ready",
-            message="✔ Virtus Core полностью готов",
+            message="✔ Готов",
             backend_up=True,
             frontend_up=True,
         )
@@ -57,9 +57,17 @@ def assess_startup(root=None) -> StageAssessment:
             frontend_up=False,
         )
 
+    if not probe_vector_chat_ready():
+        return StageAssessment(
+            stage="backend_down",
+            message="Подготавливаю Vector...",
+            backend_up=True,
+            frontend_up=True,
+        )
+
     return StageAssessment(
         stage="ready",
-        message="✔ Virtus Core полностью готов",
+        message="✔ Готов",
         backend_up=True,
         frontend_up=True,
     )

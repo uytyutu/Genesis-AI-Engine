@@ -8,13 +8,15 @@ from app.integration.genesis_brain.ai_identity import (
     try_local_identity_reply,
 )
 from app.integration.genesis_brain.public_brand import scrub_public_brand_text
+from app.integration.genesis_core_intelligence import vector_identity_who_reply
 
 
-def test_identity_block_brand_architecture():
+def test_identity_block_rule_zero_scrub_only():
     low = UNIVERSAL_AI_IDENTITY.lower()
-    assert "virtus core" in low
-    assert "vector" in low
-    assert "без продаж" in low or "crm" in low
+    assert "rule zero" in low
+    assert "chatgpt" in low
+    assert "цифровой руководитель" not in low
+    assert "интеллектуальный помощник" not in low
 
 
 def test_scrub_public_brand_removes_genesis():
@@ -31,7 +33,7 @@ def test_scrub_identity_violations():
 
 def test_local_identity_who_are_you():
     reply = try_local_identity_reply("Кто ты?", visitor_id="v1", turn_index=1)
-    assert reply
+    assert reply == vector_identity_who_reply()
     low = reply.lower()
     assert ASSISTANT_NAME.lower() in low
     assert BRAND_NAME.lower() in low
@@ -39,11 +41,10 @@ def test_local_identity_who_are_you():
     assert "studio" not in low
 
 
-def test_local_capabilities_short_list():
+def test_local_capabilities_delegates_to_canon():
     reply = try_local_identity_reply("Что ты умеешь?", visitor_id="v1", turn_index=1)
-    assert reply
-    assert "•" in reply
-    assert "программированием" in reply.lower()
+    assert reply == vector_identity_who_reply()
+    assert "•" not in reply
     assert "crm" not in reply.lower()
     assert "studio" not in reply.lower()
 
@@ -52,7 +53,7 @@ def test_local_identity_natural_wording():
     a = try_local_identity_reply("Кто ты?", visitor_id="v1", turn_index=1)
     b = try_local_identity_reply("Расскажи о себе", visitor_id="v1", turn_index=2)
     assert a and b
-    assert ASSISTANT_NAME in a
+    assert a == b == vector_identity_who_reply()
 
 
 def test_local_identity_genesis_explained_when_asked():

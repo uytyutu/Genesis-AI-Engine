@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Literal
 
@@ -30,7 +31,7 @@ from app.integration.genesis_brain.communication_presets import (
     style_llm_block,
     style_memory_hint,
 )
-from app.integration.genesis_brain.ai_identity import try_local_identity_reply
+
 from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME
 from app.integration.genesis_brain.layers.product_mind import product_mind_llm_rules
 from app.integration.genesis_brain.layers import (
@@ -55,8 +56,11 @@ from app.integration.genesis_brain.layers.thinking_engine import ThinkingEngine
 from app.integration.genesis_brain.providers import build_provider_chain, build_provider_registry
 from app.integration.genesis_brain.provider_diagnostics import diagnose_workforce
 from app.integration.genesis_brain.workforce_manager import WorkforceManager, _PREMIUM_EMPLOYEES
-from app.integration.genesis_brain.types import ChatResult, ProviderAttempt, WorkforceAttemptLog, WorkforceRouteLog
-from app.integration.locale_service import assistant_llm_language_hint
+from app.integration.genesis_brain.types import ChatResult, ProviderAttempt, WorkforceAttemptLog, WorkforceRouteLog, CalibrationVerdict
+from app.integration.locale_service import assistant_llm_language_hint, effective_chat_locale
+from app.integration.provider_health_service import viable_cloud_employees
+from app.integration.llm_router.router import LLMRouter
+from app.integration.vector_pipeline_trace import trace_step
 
 from dataclasses import replace
 
@@ -76,6 +80,8 @@ class GenesisBrain:
         memory_dir: Path | None = None,
         packages: list[dict[str, Any]] | None = None,
     ) -> None:
+        _mem = memory_dir or Path(__file__).resolve().parent.parent / "memory"
+        self._memory_dir = _mem
         self._chain = build_provider_chain(packages)
         self._registry = build_provider_registry(packages)
         self._workforce = WorkforceManager(memory_dir)
@@ -93,6 +99,7 @@ class GenesisBrain:
         self._executive = GenesisExecutiveBrain()
         self._calibration = HumanCalibrationLayer()
         self._brief_speech = BriefSpeechSynthesizer()
+        self._llm_router = LLMRouter(memory_dir)
 
     def intelligence_active(self) -> bool:
         return any(p.available() for p in self._chain)
@@ -114,6 +121,11 @@ class GenesisBrain:
         assistant_locale: str | None = None,
         communication_style: str | None = None,
         debug: bool = False,
+        intelligence_context: str | None = None,
+        workforce_tier: int = 1,
+        workforce_task: str | None = None,
+        has_attachments: bool = False,
+        fast_lane_only: bool = False,
     ) -> ChatResult:
         last_user_raw = self._last_user_text(messages)
         messages = clean_user_messages(messages)
@@ -138,24 +150,49 @@ class GenesisBrain:
         if last_user_raw:
             self._memory.observe_communication_habits(visitor_id, last_user_raw)
 
-        identity_answer = try_local_identity_reply(
-            last_user,
-            visitor_id=visitor_id,
-            turn_index=turn_index,
-            messages=messages,
+        from app.integration.genesis_brain.conversation_fast_lane import (
+            FAST_MAX_CLOUD_ATTEMPTS,
+            FAST_ROUTE_BUDGET_SEC,
+            should_use_conversation_fast_lane,
         )
-        if identity_answer:
-            if last_user_raw:
-                if session_id:
-                    self._sessions.append_messages(
-                        session_id,
-                        user=last_user_raw,
-                        assistant=identity_answer,
-                        auto_title_from=last_user_raw if turn_index == 1 else None,
-                    )
-                else:
-                    self._memory.record_exchange(visitor_id, last_user_raw, identity_answer)
-            return ChatResult(answer=identity_answer, provider_id="genesis-identity")
+
+        if should_use_conversation_fast_lane(
+            has_attachments=has_attachments,
+            workforce_task=workforce_task,
+            last_user=last_user,
+        ):
+            trace_step("conversation_fast_lane", task=workforce_task or "conversation")
+            fast_result = self._conversation_fast_lane(
+                system=system,
+                messages=messages,
+                visitor_id=visitor_id,
+                session_id=session_id,
+                personality=personality,
+                memory_data=memory_data,
+                conv_state=conv_state,
+                knowledge_block=knowledge_block,
+                memory_block=memory_block,
+                state_block=state_block,
+                last_user=last_user,
+                last_user_raw=last_user_raw,
+                turn_index=turn_index,
+                assistant_locale=assistant_locale,
+                effective_style=effective_style,
+                intelligence_context=intelligence_context,
+                workforce_task=workforce_task,
+                debug=debug,
+            )
+            if fast_result and (fast_result.answer or "").strip():
+                return fast_result
+
+        if fast_lane_only:
+            from app.integration.locale_service import localized_service_copy
+
+            loc = assistant_locale or "ru"
+            return ChatResult(
+                answer=localized_service_copy("error_fallback", loc),
+                provider_id="genesis-local",
+            )
 
         emotional = self._emotion.analyze(last_user)
 
@@ -197,6 +234,8 @@ class GenesisBrain:
             mandate += "\n\n" + plan.to_prompt_hint()
         if state_block:
             mandate += "\n\n" + state_block
+        if intelligence_context:
+            mandate += "\n\n" + intelligence_context.strip()
 
         intent = brief.intent
 
@@ -209,14 +248,15 @@ class GenesisBrain:
         )
 
         language_hint = assistant_llm_language_hint(
-            assistant_locale or "ru",
+            effective_chat_locale(assistant_locale, last_user),
             ASSISTANT_NAME,
             BRAND_NAME,
         )
         llm_instruction = (
-            f"\n\n[{BRAND_NAME} Mind — LLM is cortex]\n"
+            f"\n\n[{BRAND_NAME} Mind — Vector personality layer]\n"
             "Порядок: Thinking Brief (ниже) → сообщение пользователя → Ваш ответ.\n"
-            f"Вы НЕ ChatGPT. Вы — языковая кора {ASSISTANT_NAME} ({BRAND_NAME}). Brief уже принят.\n"
+            f"Вы — {ASSISTANT_NAME}. Один голос для клиента. Внутренний исполнитель может меняться — "
+            f"личность, память и стиль остаются Vector ({BRAND_NAME}). Brief уже принят.\n"
             f"{language_hint}\n"
             f"{ASSISTANT_NAME} не пытается быть правым — пытается быть полезным.\n"
             f"{style_llm_block(effective_style)}\n"
@@ -239,12 +279,28 @@ class GenesisBrain:
         available_employees = [
             p.provider_id for p in self._chain if p.available()
         ]
+        viable_cloud = viable_cloud_employees(self._memory_dir)
+        trace_step(
+            "provider_health",
+            viable_cloud=viable_cloud,
+            viable_count=len(viable_cloud),
+        )
         workforce_plan = self._workforce.plan(
             last_user,
             thinking,
             executive_action=decision.action,
-            premium_allowed=self._premium_llm_allowed(thinking, last_user),
+            premium_allowed=self._premium_llm_allowed(
+                thinking,
+                last_user,
+                workforce_tier=workforce_tier,
+            ),
             available_employees=available_employees,
+            preferred_employees=viable_cloud or None,
+            messages=messages,
+            workforce_task=workforce_task,
+            visitor_id=visitor_id,
+            memory_dir=self._memory_dir,
+            has_attachments=has_attachments,
         )
         ordered_providers = self._workforce.sort_providers(self._chain, workforce_plan)
 
@@ -267,6 +323,7 @@ class GenesisBrain:
             conversation_messages=messages,
             available_employees=available_employees,
             employee_diagnostics=employee_diagnostics,
+            viable_cloud_ids=set(viable_cloud),
             debug=debug,
         )
 
@@ -325,6 +382,7 @@ class GenesisBrain:
             visitor_id=visitor_id,
             user_uses_ty=personality.user_uses_ty(messages),
             cloud_llm_used=cloud_llm_used,
+            llm_draft_from_provider=answer_source not in ("brief_speech", "genesis-identity"),
             response_style=effective_style,
         )
 
@@ -498,7 +556,322 @@ class GenesisBrain:
             action=result.action,
             provider_id=result.provider_id,
             trace=trace,
+            dev_route=route_log.to_dict(),
         )
+
+    def _conversation_fast_lane(
+        self,
+        *,
+        system: str,
+        messages: list[dict[str, str]],
+        visitor_id: str,
+        session_id: str | None,
+        personality: Any,
+        memory_data: dict,
+        conv_state: ConversationState,
+        knowledge_block: str,
+        memory_block: str,
+        state_block: str,
+        last_user: str,
+        last_user_raw: str,
+        turn_index: int,
+        assistant_locale: str | None,
+        effective_style: str,
+        intelligence_context: str | None,
+        workforce_task: str | None,
+        debug: bool,
+    ) -> ChatResult | None:
+        """LLM-only dialogue — Identity/Memory/Knowledge context, no template pools."""
+        from app.integration.genesis_brain.conversation_fast_lane import (
+            FAST_MAX_CLOUD_ATTEMPTS,
+            FAST_ROUTE_BUDGET_SEC,
+            cap_context_block,
+            cap_system_prompt,
+            prioritize_local_provider,
+            trim_messages_for_fast_lane,
+        )
+        from app.integration.genesis_brain.ai_identity import build_vector_llm_anchor
+        from app.integration.genesis_brain.conversation_rhythm import rhythm_instruction
+        from app.integration.genesis_brain.layers.product_mind import product_mind_llm_rules
+        from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME
+        from app.integration.locale_service import assistant_llm_language_hint, effective_chat_locale
+        from app.integration.genesis_brain.communication_presets import style_llm_block
+        from app.integration.vector_pipeline_trace import trace_step
+
+        emotional = self._emotion.analyze(last_user)
+        memory_block = cap_context_block(memory_block)
+        state_block = cap_context_block(state_block)
+        # Fast lane skips the ~23KB product catalog — it dominates Ollama prefill latency.
+        full_system = personality.wrap_system(
+            base_system=system,
+            knowledge_block="",
+            memory_block=memory_block,
+            emotional_hint=self._emotion.to_prompt_hint(emotional),
+        )
+        if state_block:
+            full_system += "\n\n" + state_block
+        if intelligence_context:
+            full_system += "\n\n" + cap_context_block(intelligence_context.strip())
+        language_hint = assistant_llm_language_hint(
+            effective_chat_locale(assistant_locale, last_user),
+            ASSISTANT_NAME,
+            BRAND_NAME,
+        )
+        full_system += build_vector_llm_anchor(
+            brand_name=BRAND_NAME,
+            assistant_name=ASSISTANT_NAME,
+            language_hint=language_hint,
+            style_block=style_llm_block(effective_style),
+            rhythm_block=rhythm_instruction(last_user),
+            product_rules=product_mind_llm_rules(),
+        )
+        full_system = cap_system_prompt(full_system)
+        llm_messages = trim_messages_for_fast_lane(list(messages))
+        available_employees = [p.provider_id for p in self._chain if p.available()]
+        viable_cloud = viable_cloud_employees(self._memory_dir)
+        workforce_plan = self._workforce.plan(
+            last_user,
+            None,
+            workforce_task=workforce_task or "conversation",
+            available_employees=available_employees,
+            preferred_employees=viable_cloud or None,
+            messages=llm_messages,
+            visitor_id=visitor_id,
+            memory_dir=self._memory_dir,
+        )
+        ordered = prioritize_local_provider(
+            self._workforce.sort_providers(self._chain, workforce_plan),
+        )
+        result, draft, _needs_rewrite, used_brief, route_log = self._route_providers(
+            full_system,
+            llm_messages,
+            conversation_state=conv_state,
+            visitor_id=visitor_id,
+            turn_index=turn_index,
+            providers=ordered,
+            workforce_plan=workforce_plan,
+            conversation_messages=messages,
+            available_employees=available_employees,
+            employee_diagnostics=[],
+            viable_cloud_ids=set(viable_cloud),
+            debug=debug,
+            route_budget_sec=FAST_ROUTE_BUDGET_SEC,
+            max_cloud_attempts_override=FAST_MAX_CLOUD_ATTEMPTS,
+            skip_calibration_escalation=True,
+        )
+        if used_brief or not (draft or "").strip():
+            trace_step("fast_lane_fallback", provider=result.provider_id)
+            return None
+
+        answer_source, cloud_llm_used = self._resolve_answer_source(
+            result.provider_id,
+            used_brief_fallback=used_brief,
+            used_brief_rewrite=False,
+        )
+        shaped = personality.finalize(
+            draft,
+            messages=messages,
+            memory=memory_data,
+            visitor_id=visitor_id,
+            user_uses_ty=personality.user_uses_ty(messages),
+            cloud_llm_used=cloud_llm_used,
+            llm_draft_from_provider=True,
+            response_style=effective_style,
+        )
+        if last_user_raw:
+            if session_id:
+                self._sessions.append_messages(
+                    session_id,
+                    user=last_user_raw,
+                    assistant=shaped,
+                    auto_title_from=last_user_raw if turn_index == 1 else None,
+                )
+            else:
+                self._memory.record_exchange(visitor_id, last_user_raw, shaped)
+        trace_step(
+            "fast_lane_ok",
+            provider=result.provider_id,
+            answer_len=len(shaped),
+        )
+        return ChatResult(
+            answer=shaped,
+            cta_href=result.cta_href,
+            cta_label=result.cta_label,
+            action=result.action,
+            provider_id=result.provider_id,
+            dev_route={
+                **route_log.to_dict(),
+                "fast_lane": True,
+                "cloud_llm_used": cloud_llm_used,
+            },
+        )
+
+    def stream_fast_lane(
+        self,
+        *,
+        system: str,
+        messages: list[dict[str, str]],
+        visitor_id: str,
+        session_id: str | None,
+        personality_mode: Literal["public", "ceo"] = "public",
+        assistant_locale: str | None = None,
+        communication_style: str | None = None,
+        intelligence_context: str | None = None,
+        workforce_task: str | None = None,
+        has_attachments: bool = False,
+    ) -> Iterator[dict[str, Any]]:
+        """Stream fast-lane tokens; yields token events then a done payload."""
+        from app.integration.genesis_brain.conversation_fast_lane import (
+            FAST_MAX_CLOUD_ATTEMPTS,
+            FAST_ROUTE_BUDGET_SEC,
+            cap_context_block,
+            cap_system_prompt,
+            prioritize_local_provider,
+            should_use_conversation_fast_lane,
+            trim_messages_for_fast_lane,
+        )
+        from app.integration.genesis_brain.ai_identity import build_vector_llm_anchor
+        from app.integration.genesis_brain.conversation_rhythm import rhythm_instruction
+        from app.integration.genesis_brain.layers.product_mind import product_mind_llm_rules
+        from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME
+        from app.integration.locale_service import assistant_llm_language_hint, effective_chat_locale
+        from app.integration.genesis_brain.communication_presets import style_llm_block
+        from app.integration.vector_pipeline_trace import trace_step
+
+        messages = clean_user_messages(messages)
+        last_user_raw = self._last_user_text(messages)
+        last_user = last_user_raw
+        if not should_use_conversation_fast_lane(
+            has_attachments=has_attachments,
+            workforce_task=workforce_task,
+            last_user=last_user,
+        ):
+            return
+
+        personality = GenesisPersonalityLayer(mode=personality_mode)
+        memory_data = self._memory.observe_messages(visitor_id, messages)
+        inferences = self._memory.get_inferences(visitor_id)
+        conv_state = self._conv_state.process(visitor_id, messages, session_id=session_id)
+        memory_block = cap_context_block(self._memory.build_context_block(visitor_id))
+        state_block = cap_context_block(conv_state.to_prompt_block())
+        turn_index = sum(1 for m in messages if m.get("role") == "user")
+        effective_style = resolve_effective_style(communication_style, last_user, inferences)
+        if last_user_raw:
+            self._memory.observe_communication_habits(visitor_id, last_user_raw)
+
+        emotional = self._emotion.analyze(last_user)
+        full_system = personality.wrap_system(
+            base_system=system,
+            knowledge_block="",
+            memory_block=memory_block,
+            emotional_hint=self._emotion.to_prompt_hint(emotional),
+        )
+        if state_block:
+            full_system += "\n\n" + state_block
+        if intelligence_context:
+            full_system += "\n\n" + cap_context_block(intelligence_context.strip())
+        language_hint = assistant_llm_language_hint(
+            effective_chat_locale(assistant_locale, last_user),
+            ASSISTANT_NAME,
+            BRAND_NAME,
+        )
+        full_system += build_vector_llm_anchor(
+            brand_name=BRAND_NAME,
+            assistant_name=ASSISTANT_NAME,
+            language_hint=language_hint,
+            style_block=style_llm_block(effective_style),
+            rhythm_block=rhythm_instruction(last_user),
+            product_rules=product_mind_llm_rules(),
+        )
+        full_system = cap_system_prompt(full_system)
+        llm_messages = trim_messages_for_fast_lane(list(messages))
+        available_employees = [p.provider_id for p in self._chain if p.available()]
+        viable_cloud = viable_cloud_employees(self._memory_dir)
+        workforce_plan = self._workforce.plan(
+            last_user,
+            None,
+            workforce_task=workforce_task or "conversation",
+            available_employees=available_employees,
+            preferred_employees=viable_cloud or None,
+            messages=llm_messages,
+            visitor_id=visitor_id,
+            memory_dir=self._memory_dir,
+        )
+        ordered = prioritize_local_provider(
+            self._workforce.sort_providers(self._chain, workforce_plan),
+        )
+        route_deadline = time.perf_counter() + FAST_ROUTE_BUDGET_SEC
+        cloud_attempts = 0
+        trace_step("conversation_fast_lane_stream", task=workforce_task or "conversation")
+
+        for provider in ordered:
+            if time.perf_counter() >= route_deadline:
+                break
+            emp = provider.provider_id
+            if not provider.available() or not hasattr(provider, "chat_stream"):
+                continue
+            if emp != "genesis-local":
+                cloud_attempts += 1
+                if cloud_attempts > FAST_MAX_CLOUD_ATTEMPTS:
+                    break
+            try:
+                draft_parts: list[str] = []
+                trace_step("provider_stream_attempt", employee=emp)
+                for chunk in provider.chat_stream(system=full_system, messages=llm_messages):
+                    draft_parts.append(chunk)
+                    yield {"type": "token", "text": chunk}
+                draft = "".join(draft_parts).strip()
+                if not draft:
+                    continue
+                parsed = provider._parse_action(draft)  # noqa: SLF001
+                raw_answer = (parsed.get("answer") or draft).strip()
+                answer_source, cloud_llm_used = self._resolve_answer_source(
+                    emp,
+                    used_brief_fallback=False,
+                    used_brief_rewrite=False,
+                )
+                shaped = personality.finalize(
+                    raw_answer,
+                    messages=messages,
+                    memory=memory_data,
+                    visitor_id=visitor_id,
+                    user_uses_ty=personality.user_uses_ty(messages),
+                    cloud_llm_used=cloud_llm_used,
+                    llm_draft_from_provider=True,
+                    response_style=effective_style,
+                )
+                if last_user_raw:
+                    if session_id:
+                        self._sessions.append_messages(
+                            session_id,
+                            user=last_user_raw,
+                            assistant=shaped,
+                            auto_title_from=last_user_raw if turn_index == 1 else None,
+                        )
+                    else:
+                        self._memory.record_exchange(visitor_id, last_user_raw, shaped)
+                self._last_provider = emp
+                self._workforce.record_success(emp)
+                trace_step("fast_lane_stream_ok", provider=emp, answer_len=len(shaped))
+                yield {
+                    "type": "done",
+                    "answer": shaped,
+                    "provider": emp,
+                    "cta_href": parsed.get("cta_href"),
+                    "cta_label": parsed.get("cta_label"),
+                    "action": parsed.get("action"),
+                    "dev_route": {
+                        "fast_lane": True,
+                        "stream": True,
+                        "cloud_llm_used": cloud_llm_used,
+                        "answer_source": answer_source,
+                    },
+                }
+                return
+            except Exception as exc:
+                logger.warning("Genesis stream_fast_lane %s failed: %s", emp, exc)
+                self._llm_router.on_provider_failure(emp, error=str(exc))
+                continue
 
     def _route_providers(
         self,
@@ -515,12 +888,28 @@ class GenesisBrain:
         conversation_messages: list[dict[str, str]] | None = None,
         available_employees: list[str] | None = None,
         employee_diagnostics: list[dict[str, Any]] | None = None,
+        viable_cloud_ids: set[str] | None = None,
         debug: bool = False,
+        route_budget_sec: float | None = None,
+        max_cloud_attempts_override: int | None = None,
+        skip_calibration_escalation: bool = False,
     ) -> tuple[ChatResult, str, bool, bool, WorkforceRouteLog]:
         """Route by Employee Score; escalate when calibration rejects a draft."""
+        import os
+
         errors: list[str] = []
         chain = providers or self._chain
         task = getattr(workforce_plan, "task", "conversation")
+        route_budget_sec = float(
+            route_budget_sec if route_budget_sec is not None else os.getenv("GENESIS_ROUTE_BUDGET_SEC", "75")
+        )
+        route_deadline = time.perf_counter() + route_budget_sec
+        max_cloud_attempts = int(
+            max_cloud_attempts_override
+            if max_cloud_attempts_override is not None
+            else os.getenv("GENESIS_MAX_CLOUD_ATTEMPTS", "4")
+        )
+        cloud_attempts = 0
         last_attempted: str | None = None
         cal_messages = conversation_messages or messages
         attempts: list[WorkforceAttemptLog] = []
@@ -571,6 +960,8 @@ class GenesisBrain:
             )
             route_log = WorkforceRouteLog(
                 task=task,
+                llm_capability=route_plan.capability,
+                proof_pin=route_plan.proof_pin,
                 chosen_employee=chosen,
                 chosen_score=self._workforce.score_for(workforce_plan, chosen),
                 chosen_latency_ms=chosen_latency_ms,
@@ -593,14 +984,23 @@ class GenesisBrain:
             return result, result.answer, used_brief, used_brief, route_log
 
         def _try_provider(provider: Any) -> ChatResult | None:
-            nonlocal last_attempted, escalation_count, chosen_latency_ms, fallback_started_at
+            nonlocal last_attempted, escalation_count, chosen_latency_ms, fallback_started_at, cloud_attempts
             emp = provider.provider_id
+            if time.perf_counter() >= route_deadline:
+                trace_step("route_budget_exceeded", employee=emp, task=task)
+                return None
             if not provider.available():
                 reason, code = _diag_reason(emp)
                 _log_skip(emp, reason, code)
                 return None
             last_attempted = emp
             model = getattr(provider, "model_name", None)
+            if emp != "genesis-local":
+                cloud_attempts += 1
+                if cloud_attempts > max_cloud_attempts:
+                    trace_step("cloud_attempt_cap", employee=emp, cap=max_cloud_attempts)
+                    return None
+            trace_step("provider_attempt", employee=emp, model=model)
             t0 = time.perf_counter()
             try:
                 result = provider.chat(
@@ -615,12 +1015,20 @@ class GenesisBrain:
                 latency_ms = (time.perf_counter() - t0) * 1000.0
                 self._workforce.record_success(emp)
                 draft = (result.answer or "").strip()
-                verdict = self._calibration.evaluate(
-                    draft, thinking_brief, messages=cal_messages
-                )
+                if thinking_brief is None:
+                    verdict = CalibrationVerdict(passed=True, needs_rewrite=False)
+                else:
+                    verdict = self._calibration.evaluate(
+                        draft, thinking_brief, messages=cal_messages
+                    )
                 raw_capture = debug
-                if verdict.needs_rewrite:
+                if verdict.needs_rewrite and not skip_calibration_escalation:
                     escalation_count += 1
+                    trace_step(
+                        "provider_escalated",
+                        employee=emp,
+                        reasons=list(verdict.reasons)[:3],
+                    )
                     self._workforce.record_outcome(
                         emp,
                         task,
@@ -668,12 +1076,20 @@ class GenesisBrain:
                 )
                 self._last_provider = emp
                 logger.info("Genesis Workforce: task=%s employee=%s model=%s", task, emp, model)
+                trace_step(
+                    "provider_selected",
+                    employee=emp,
+                    model=model,
+                    latency_ms=round(latency_ms, 1),
+                )
+                self._llm_router.on_provider_success(emp)
                 return result
             except Exception as exc:
                 latency_ms = (time.perf_counter() - t0) * 1000.0
                 escalation_count += 1
                 err_name = type(exc).__name__
                 err_text = str(exc).lower()
+                self._llm_router.on_provider_failure(emp, error=str(exc))
                 if "429" in err_text or "rate" in err_text or err_name == "HTTPStatusError":
                     self._workforce.on_rate_limit(emp)
                 self._workforce.record_outcome(
@@ -696,32 +1112,99 @@ class GenesisBrain:
                 )
                 errors.append(f"{emp}: {type(exc).__name__}")
                 logger.warning("Genesis Mind provider failed %s: %s", emp, exc)
+                trace_step(
+                    "provider_error",
+                    employee=emp,
+                    error=f"{type(exc).__name__}: {exc}",
+                    latency_ms=round(latency_ms, 1),
+                )
                 return None
 
-        for provider in chain:
-            if provider.provider_id == "genesis-local":
+        trace_step(
+            "workforce_route_start",
+            task=task,
+            order=[getattr(p, "provider_id", "") for p in chain],
+            budget_sec=route_budget_sec,
+            viable_cloud=sum(
+                1 for p in chain if getattr(p, "provider_id", "") != "genesis-local"
+            ),
+        )
+        premium_in_plan = bool(
+            workforce_plan
+            and any(
+                e in {"openai", "anthropic", "deepseek"}
+                for e in workforce_plan.employee_order
+            )
+        )
+        route_plan = self._llm_router.plan_route(
+            task,
+            premium_allowed=premium_in_plan,
+        )
+        by_id = {getattr(p, "provider_id", ""): p for p in chain}
+        tried_cloud: set[str] = set()
+
+        trace_step(
+            "llm_router_plan",
+            task=task,
+            capability=route_plan.capability,
+            primary=route_plan.primary,
+            eligible=len(route_plan.failover_order),
+            proof_pin=route_plan.proof_pin,
+        )
+
+        for eid in route_plan.failover_order:
+            provider = by_id.get(eid)
+            if provider is None:
                 continue
+            tried_cloud.add(eid)
             result = _try_provider(provider)
             if result is not None:
                 return _finalize_route(
                     result,
-                    why=getattr(workforce_plan, "reason", ""),
+                    why=route_plan.reason,
+                )
+
+        # Safety net: any remaining cloud provider not yet tried this turn.
+        for provider in chain:
+            eid = provider.provider_id
+            if eid == "genesis-local" or eid in tried_cloud:
+                continue
+            if not provider.available():
+                continue
+            tried_cloud.add(eid)
+            result = _try_provider(provider)
+            if result is not None:
+                return _finalize_route(
+                    result,
+                    why=f"{route_plan.reason}; safety_net",
                 )
 
         if fallback_started_at is None:
             fallback_started_at = "cloud_exhausted"
 
-        for provider in chain:
-            if provider.provider_id != "genesis-local":
-                continue
-            if cloud_proof_mode():
-                continue
-            if fallback_started_at == "cloud_exhausted":
-                fallback_started_at = "genesis-local"
-            result = _try_provider(provider)
-            if result is not None:
-                why = self._why_local_chosen(diagnostics)
-                return _finalize_route(result, why=why)
+        allow_emergency = self._llm_router.emergency_fallback_allowed(route_plan)
+        if not allow_emergency and route_plan.any_cloud_configured:
+            trace_step(
+                "emergency_blocked",
+                reason="cloud_configured_but_exhausted_this_turn",
+            )
+
+        def _try_local_silent(*, why_suffix: str = "") -> tuple | None:
+            """User path: local Ollama without exposing infra — no cloud outage banners."""
+            for provider in chain:
+                if provider.provider_id != "genesis-local":
+                    continue
+                if cloud_proof_mode():
+                    continue
+                result = _try_provider(provider)
+                if result is not None:
+                    why = self._why_local_chosen(diagnostics)
+                    return _finalize_route(result, why=why + why_suffix)
+            return None
+
+        local_result = _try_local_silent(why_suffix=" → local_fallback")
+        if local_result is not None:
+            return local_result
 
         if last_attempted:
             self._workforce.record_outcome(
@@ -731,6 +1214,10 @@ class GenesisBrain:
                 calibration_passed=False,
                 rewritten_heavily=True,
             )
+
+        from app.integration.locale_service import localized_service_copy
+
+        user_fallback = localized_service_copy("error_fallback", "ru")
 
         if cloud_proof_mode():
             err_text = (
@@ -766,7 +1253,72 @@ class GenesisBrain:
                 route_log,
             )
 
+        if route_plan.any_cloud_configured:
+            err_text = user_fallback
+            route_log = WorkforceRouteLog(
+                task=task,
+                chosen_employee="cloud-exhausted",
+                chosen_score=None,
+                chosen_latency_ms=0.0,
+                chosen_model=None,
+                why_chosen="All configured cloud providers failed — user-safe fallback",
+                not_chosen=self._workforce.explain_not_chosen(
+                    workforce_plan,
+                    last_attempted or "groq",
+                    available_employees=available_employees or [],
+                ),
+                attempts=attempts,
+                second_pass=False,
+                escalation_count=escalation_count,
+                used_brief_speech_fallback=False,
+                employee_diagnostics=diagnostics,
+                fallback_started_at="cloud_exhausted",
+                answer_source="cloud_failed",
+                cloud_llm_used=False,
+            )
+            return (
+                ChatResult(answer=err_text, provider_id="genesis-local"),
+                err_text,
+                False,
+                False,
+                route_log,
+            )
+
         fallback_started_at = "brief_speech"
+        if thinking_brief is None or executive_decision is None:
+            trace_step(
+                "brief_speech_skipped",
+                reason="missing_thinking_context",
+            )
+            route_log = WorkforceRouteLog(
+                task=task,
+                chosen_employee=last_attempted or "none",
+                chosen_score=None,
+                chosen_latency_ms=0.0,
+                chosen_model=None,
+                why_chosen="cloud exhausted; brief_speech skipped (no thinking context)",
+                not_chosen=self._workforce.explain_not_chosen(
+                    workforce_plan,
+                    last_attempted or "groq",
+                    available_employees=available_employees or [],
+                ),
+                attempts=attempts,
+                second_pass=False,
+                escalation_count=escalation_count,
+                used_brief_speech_fallback=False,
+                employee_diagnostics=diagnostics,
+                fallback_started_at=fallback_started_at,
+                answer_source="cloud_failed",
+                cloud_llm_used=False,
+            )
+            return (
+                ChatResult(answer="", provider_id=last_attempted or "none"),
+                "",
+                False,
+                False,
+                route_log,
+            )
+        trace_step("brief_speech_fallback", reason="cloud_exhausted_or_budget")
         synth = self._brief_speech.speak(
             thinking_brief,
             executive_decision,
@@ -907,10 +1459,17 @@ class GenesisBrain:
         return self._last_provider
 
     @staticmethod
-    def _premium_llm_allowed(thinking: Any, last_user: str) -> bool:
-        """5–20% hardest tasks may use paid employees when keys exist."""
+    def _premium_llm_allowed(
+        thinking: Any,
+        last_user: str,
+        *,
+        workforce_tier: int = 1,
+    ) -> bool:
+        """Planner tier ≥2 opens premium employees when keys exist (invisible to user)."""
         import os
 
+        if workforce_tier >= 2:
+            return True
         if os.getenv("GENESIS_PREMIUM_LLM", "").strip().lower() in ("1", "true", "yes", "on"):
             return True
         conf = float(getattr(thinking, "confidence", 0.5) or 0.5)

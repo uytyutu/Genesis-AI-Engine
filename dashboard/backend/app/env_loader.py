@@ -6,12 +6,12 @@ import os
 from pathlib import Path
 
 
-def _apply_env_line(key: str, value: str) -> None:
+def _apply_env_line(key: str, value: str, *, override: bool = False) -> None:
     """Skip empty values — empty .env must not block a later secrets file."""
     if not key or not value:
         return
     existing = os.environ.get(key, "")
-    if not existing:
+    if override or not existing:
         os.environ[key] = value
 
 
@@ -44,12 +44,17 @@ def load_local_env() -> None:
     for path in candidates:
         if not path.is_file():
             continue
-        for raw in path.read_text(encoding="utf-8").splitlines():
+        override = path.name == ".env.local" and path.parent == backend_dir
+        for raw in path.read_text(encoding="utf-8-sig").splitlines():
             line = raw.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
             key, _, value = line.partition("=")
-            _apply_env_line(key.strip(), value.strip().strip('"').strip("'"))
+            _apply_env_line(
+                key.strip(),
+                value.strip().strip('"').strip("'"),
+                override=override,
+            )
 
     _load_secrets_file(backend_dir / "secrets" / "llm.key")
     _load_secrets_file(repo_root / "secrets" / "llm.key")

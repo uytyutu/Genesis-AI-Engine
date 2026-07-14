@@ -34,6 +34,7 @@ from app.integration.genesis_brain.layers.product_mind import (
 )
 from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
 from app.integration.genesis_brain.user_text_normalizer import normalize_user_text
+from app.integration.locale_service import localized_service_copy
 
 _USER_MESSAGE_MARKER = "User message:\n"
 _BRIEF_END_MARKER = "═══ END BRIEF ═══"
@@ -175,7 +176,7 @@ class BriefSpeechSynthesizer:
         )
         if not body:
             return self._finalize_body(
-                "Давайте разберёмся вместе — что именно хотите прояснить?"
+                localized_service_copy("error_fallback", "ru")
             )
 
         return self._finalize_body(body)
@@ -237,8 +238,7 @@ class BriefSpeechSynthesizer:
 
         if "поздрав" in strategy.lower():
             return (
-                "Поздравляю! Это заслуженный шаг — приятно, когда усилия замечают.\n\n"
-                "Как ощущения после новости?"
+                "Поздравляю! Это заслуженный шаг — приятно, когда усилия замечают."
             )
 
         if (
@@ -351,7 +351,7 @@ class BriefSpeechSynthesizer:
                 "**1. Онлайн-услуга или digital** — гибкий график.\n\n"
                 "**2. Coffee to go** — короткая смена, предсказуемый режим.\n\n"
                 "**3. Локальный сервис с записью** — клиенты по расписанию.\n\n"
-                "Что ближе по образу жизни?"
+                "Следующий шаг — выбрать формат под ваш график."
             )
 
         if state.ready_for_business_advice():
@@ -360,8 +360,7 @@ class BriefSpeechSynthesizer:
         if state.has_budget() and state.uncertain_niche:
             ack = self._ack(state)
             return (
-                f"{ack}Что ближе — работа с людьми лично (кафе, салон, сервис) "
-                "или онлайн (обучение, digital)?"
+                f"{ack}Следующий шаг — выбрать формат: офлайн-точка или онлайн-услуга."
             ).strip()
 
         if state.goal == "open_business" and not state.has_country() and not state.has_budget():
@@ -425,8 +424,7 @@ class BriefSpeechSynthesizer:
 
         if "поздрав" in strategy.lower():
             return (
-                "Поздравляю! Это заслуженный шаг — приятно, когда усилия замечают.\n\n"
-                "Как ощущения после новости?"
+                "Поздравляю! Это заслуженный шаг — приятно, когда усилия замечают."
             )
 
         if action == "comfort":
@@ -498,13 +496,13 @@ class BriefSpeechSynthesizer:
 
         if re.search(r"как\s+дела|как\s+ты|как\s+вы", low):
             return (
-                "Всё хорошо, спасибо что спросили!\n\n"
-                "А у вас как? Что на уме сегодня?"
+                "Всё хорошо, спасибо что спросили.\n\n"
+                "Расскажите, чем заняты — помогу с задачей."
             )
         if re.match(r"^(привет|здравств|hello|hi)\b", low):
             return (
                 "Привет! Рад на связи.\n\n"
-                "О чём думаете — просто поболтаем или есть конкретная задача?"
+                "О чём думаете — готов помочь с задачей."
             )
 
         if thinking.confidence < 0.55 or _needs_uncertainty_voice(low, thinking):
@@ -544,8 +542,7 @@ class BriefSpeechSynthesizer:
             (
                 ("программ", "python", "javascript", "код", "frontend", "backend"),
                 "Для старта в программировании обычно работает связка: маленький проект + "
-                "регулярная практика + разбор ошибок.\n\n"
-                "Скажите, что хотите создать — подскажу конкретный первый шаг.",
+                "регулярная практика + разбор ошибок.",
             ),
             (
                 ("космос", "чёрн", "черн", "вселен", "марс", "звезд"),
@@ -560,8 +557,7 @@ class BriefSpeechSynthesizer:
             ),
             (
                 ("фильм", "кино", "сериал"),
-                "Хороший фильм часто цепляет не сюжетом, а тем, что он отражает в нас.\n\n"
-                "Если скажете настроение — подберу направление, не навязывая «единственно верный» выбор.",
+                "Хороший фильм часто цепляет не сюжетом, а тем, что он отражает в нас.",
             ),
             (
                 ("музык", "гитар", "мелоди"),
@@ -575,9 +571,8 @@ class BriefSpeechSynthesizer:
             ),
             (
                 ("путешеств", "поездк", "trip", "европ"),
-                "Первое solo-путешествие лучше делать простым: короткий маршрут, понятный язык или "
-                "переводчик, запас денег на непредвиденное.\n\n"
-                "Могу помочь собрать чек-лист под Ваш стиль.",
+                "Первое solo-путешествие лучше делать простым: короткий маршрут, понятный язык, "
+                "запас денег на непредвиденное.",
             ),
             (
                 ("бизнес", "маркетинг", "клиент", "продаж", "стартап"),
@@ -586,8 +581,7 @@ class BriefSpeechSynthesizer:
             ),
             (
                 ("учит", "экзамен", "обучен", "язык"),
-                "Эффективное обучение — это повторение + обратная связь + сон.\n\n"
-                "Если скажете срок и цель, помогу разбить на реалистичный план.",
+                "Эффективное обучение — это повторение + обратная связь + сон.",
             ),
             (
                 ("финанс", "деньг", "инвест", "ипотек", "инфляц"),
@@ -615,13 +609,7 @@ class BriefSpeechSynthesizer:
             if any(k in low for k in keys):
                 return body
 
-        need = thinking.implicit_need or thinking.real_goal or ""
-        if need in ("полезный ответ без лишних вопросов", ""):
-            need = "разобраться в теме"
-        return (
-            "Понял. Давайте разберёмся вместе — "
-            "одним предложением: что для вас сейчас главное?"
-        )
+        return localized_service_copy("error_fallback", "ru")
 
     @staticmethod
     def _explain_body(state: ConversationState) -> str:
@@ -658,7 +646,7 @@ class BriefSpeechSynthesizer:
                 f"Теперь картина понятна: {loc}, бюджет около **{bd}**.\n\n"
                 f"Честно: классическую кофейню{city_note} на такую сумму открыть практически невозможно.\n\n"
                 "Но есть варианты на **10–50 тыс. ₽**: coffee to go, доставка, услуги с записью, digital.\n\n"
-                "Что ближе — офлайн с минимальной точкой или начать онлайн?"
+                "Следующий шаг — выбрать формат: офлайн с минимальной точкой или старт онлайн."
             )
         if state.business_type == "coffee" and bd:
             return (
@@ -668,5 +656,5 @@ class BriefSpeechSynthesizer:
         return (
             f"{loc}, бюджет **{bd}** — хорошая отправная точка.\n\n"
             "Три направления: локальный сервис · небольшое кафе · онлайн-услуга.\n\n"
-            "Что ближе по духу — офлайн или онлайн?"
+            "Следующий шаг — выбрать формат: офлайн или онлайн."
         )

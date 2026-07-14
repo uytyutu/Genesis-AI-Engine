@@ -1,7 +1,8 @@
 """
-Product Mind v1 — Genesis продаёт решение, а не страницы.
+Product Mind v1 — Vector ведёт к результату, а не к продаже.
 
-Consult-first: два пути (под ключ / Studio), честный выбор, без «перейдите в раздел».
+Result-first: понять цель → предложить путь → помочь получить итог.
+Два логичных этапа (под ключ / Studio) — факты Mission 1 без изменения.
 """
 
 from __future__ import annotations
@@ -181,7 +182,7 @@ def should_handle(
     state: ConversationState,
     thinking: ThinkingBrief,
 ) -> bool:
-    """Sales specialist — only when the user is clearly buying / building now."""
+    """Product path — when the user moves toward a concrete digital result."""
     low = last_user.lower()
 
     personal = re.search(
@@ -212,7 +213,7 @@ def compose(
     thinking: ThinkingBrief,
     messages: list[dict[str, str]] | None = None,
 ) -> str:
-    """Consultant-style response — solution first, navigation never forced."""
+    """Result-first response — path to outcome, navigation never forced."""
     rec = recommend(last_user, state, messages)
     low = last_user.lower()
 
@@ -230,25 +231,27 @@ def compose(
         open_line = ""
 
     stack_lines = "\n".join(f"• {item}" for item in rec.stack)
-    stack_block = f"{stack_lines}\n\nВсё это можем сделать **под ключ** — {rec.price_hint}."
+    stack_block = (
+        f"**Что нужно для результата:**\n{stack_lines}\n\n"
+        f"Ориентир по бюджету Mission 1: {rec.price_hint}."
+    )
 
     if rec.recommend == "service":
         path_block = (
-            f"**Сейчас онлайн** — лендинг под ключ на /order ({rec.price_hint}).\n\n"
+            f"**Следующий логичный этап**, когда будете готовы оформить: "
+            f"лендинг под ключ на /order ({rec.price_hint}).\n\n"
             f"**Virtus Studio** пока в разработке — подписку купить нельзя."
         )
     elif rec.recommend == "studio":
         path_block = studio_unavailable_message()
     else:
         path_block = (
-            "**Сейчас доступно:** лендинг под ключ на /order (350 / 650 / 1200 €).\n\n"
+            "**Когда дойдёте до оформления:** лендинг под ключ на /order (350 / 650 / 1200 €).\n\n"
             + studio_unavailable_message()
         )
 
     close = (
-        "Я уже набросал оптимальный вариант — можем уточнить детали здесь.\n\n"
-        "Если захотите посмотреть цены подробнее — каталог услуг всегда доступен, "
-        "но начнём с того, что Вам действительно нужно."
+        "Беру задачу в эту сторону — уточним детали и двинемся к первому результату."
     )
 
     # Tie memory inferences if present
@@ -262,10 +265,9 @@ def compose(
 
 
 def product_mind_llm_rules() -> str:
-    return """[Product Mind v1]
-- Главный интерфейс — разговор. Не отправляй в разделы: не «перейдите в Services».
-- Консультируй: два пути (под ключ / Studio). Сначала помощь, потом каталог.
-- Один сайт/магазин → честно: подписка не нужна, услуга выгоднее.
-- Много проектов → Studio окупится.
-- Никогда не апселлить самый дорогой тариф. Рекомендуй подходящее.
-- Предлагай стек решений (сайт, бот, CRM, карты) под нишу."""
+    return """[Product Mind — инструмент следующего шага]
+- Определите, какой элемент стека (сайт, бот, CRM, документ) приближает к цели на этом этапе Journey.
+- Один конкретный следующий шаг за ответ — не каталог и не продажа.
+- Цены Mission 1: 350 / 650 / 1200 € на /order — только из фактов каталога, не выдумывать.
+- Studio, интернет-магазин, приложение: недоступны для онлайн-оформления (факт каталога).
+- Рекомендуй пакет и инструмент под цель человека — без апселла и без «перейдите в раздел»."""

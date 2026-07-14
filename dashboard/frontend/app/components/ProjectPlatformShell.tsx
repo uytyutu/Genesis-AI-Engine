@@ -113,22 +113,6 @@ export function ProjectPlatformShell({ onStartProject }: Props) {
           </>
         )
       )}
-
-      <Card padding="md" className="mt-auto border-emerald-500/20 bg-emerald-950/20">
-        <p className="text-xs font-semibold uppercase tracking-wider text-emerald-400/90">
-          {ASSISTANT_NAME} · Project Manager
-        </p>
-        <p className="mt-2 text-sm text-genesis-muted">
-          {state?.vector_hint || t("hubCooHint")}
-        </p>
-        <button
-          type="button"
-          onClick={onStartProject}
-          className="mt-3 text-sm font-medium text-genesis-accent hover:underline"
-        >
-          {t("hubOpenVector")} →
-        </button>
-      </Card>
     </div>
   );
 }
@@ -147,48 +131,36 @@ function HubHeader({ title, subtitle }: { title: string; subtitle: string }) {
 
 function ProjectIdentityCard({ project }: { project: CustomerProject }) {
   const id = project.identity;
-  const health = project.health;
   const nextAction = project.next_action;
-  const healthToneClass: Record<string, string> = {
-    green: "text-emerald-300",
-    yellow: "text-amber-300",
-    blue: "text-sky-300",
-    red: "text-rose-300",
-  };
+  const progress = project.progress;
   return (
     <Card glow padding="md" className="border-genesis-accent/25">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <p className="text-[10px] font-bold tracking-[0.22em] text-genesis-accent uppercase">
-          {BRAND_NAME} · Проект
-        </p>
-        {health && (
-          <p
-            className={`text-xs font-medium ${healthToneClass[health.tone] ?? "text-genesis-muted"}`}
-          >
-            {health.emoji} {health.label}
-          </p>
-        )}
-      </div>
-      <h1 className="mt-2 text-xl font-bold text-white sm:text-2xl">{id?.title || project.title}</h1>
-      <p className="mt-2 text-sm leading-relaxed text-genesis-muted">
-        {id?.description || project.description}
+      <p className="text-[10px] font-bold tracking-[0.22em] text-genesis-accent uppercase">
+        Ваш проект
       </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <MetaBadge label="Тип" value={id?.type_label || "Проект"} />
-        <MetaBadge label="Рынок" value={id?.market || project.market || "Не указан"} />
+      <h1 className="mt-2 text-xl font-bold text-white sm:text-2xl">{id?.title || project.title}</h1>
+      <div className="mt-3 flex flex-wrap gap-2">
         <MetaBadge label="Статус" value={id?.status || "В работе"} accent />
+        {progress ? (
+          <MetaBadge label="Готовность" value={`${progress.percent}%`} />
+        ) : null}
       </div>
-      {nextAction && (
+      {nextAction ? (
         <div className="mt-4 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-genesis-muted">
-            Следующее действие
+            Следующий шаг
           </p>
-          <p className="mt-1 text-sm font-medium text-white">✔ {nextAction.label}</p>
+          <p className="mt-1 text-sm font-medium text-white">{nextAction.label}</p>
         </div>
-      )}
-      <p className="mt-3 text-xs text-genesis-muted/80">
-        Последнее изменение: {id?.last_updated || "—"}
-      </p>
+      ) : null}
+      {id?.description ? (
+        <details className="mt-3 text-sm text-genesis-muted">
+          <summary className="cursor-pointer text-xs font-medium text-genesis-accent hover:underline">
+            Подробнее о проекте
+          </summary>
+          <p className="mt-2 leading-relaxed">{id.description}</p>
+        </details>
+      ) : null}
     </Card>
   );
 }
@@ -279,7 +251,7 @@ function ProjectMainNav({
   onSelect: (v: MainView) => void;
 }) {
   const tabs: { id: MainView; label: string }[] = [
-    { id: "artifacts", label: "Артефакты" },
+    { id: "artifacts", label: "Результаты" },
     { id: "history", label: "История" },
   ];
   return (
@@ -317,18 +289,14 @@ function ConversationEmptyState({
     <>
       <Card glow padding="lg" className="border-dashed border-genesis-accent/30 bg-genesis-panel/50">
         <p className="text-[10px] font-bold tracking-[0.22em] text-genesis-accent uppercase">
-          Добро пожаловать
+          Рабочий стол компании
         </p>
         <p className="mt-2 text-base font-semibold text-white">
-          Здесь будут храниться все проекты вашей цифровой компании
+          Здесь появятся проекты и результаты работы
         </p>
         <p className="mt-2 text-sm leading-relaxed text-genesis-muted">
           {hint ||
-            "Начните с первой идеи или поручите её Vector — сайт, бизнес-план, документы и любые результаты появятся здесь как живые проекты с версиями и артефактами."}
-        </p>
-        <p className="mt-3 text-xs text-genesis-muted/90">
-          Conversation Mode: общайтесь свободно. Когда понадобится результат — {ASSISTANT_NAME}{" "}
-          предложит создать проект.
+            "Сначала просто поговорите с Vector слева — как с сотрудником. Когда появится результат, он предложит оформить проект и всё сохранится здесь."}
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <button
@@ -336,7 +304,7 @@ function ConversationEmptyState({
             onClick={onStartProject}
             className="rounded-xl bg-gradient-to-r from-genesis-accent to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow hover:opacity-90"
           >
-            {t("hubNewProject")}
+            Написать {ASSISTANT_NAME}
           </button>
           <ButtonLink href="/services" variant="secondary" size="sm">
             {t("hubViewServices")}
@@ -450,8 +418,8 @@ function ProjectArtifactsWorkspace({ folders }: { folders: ArtifactFolder[] }) {
           Рабочая папка проекта
         </p>
         <p className="mt-2 text-sm text-genesis-muted">
-          Здесь появятся результаты работы — Website, Documents, Source и другие материалы.
-          Vector добавляет их после каждой версии.
+          Здесь появятся результаты работы — сайт, файлы проекта и другие материалы.
+          {ASSISTANT_NAME} добавляет их после каждой версии.
         </p>
       </Card>
     );
@@ -459,7 +427,7 @@ function ProjectArtifactsWorkspace({ folders }: { folders: ArtifactFolder[] }) {
 
   return (
     <div className="space-y-3">
-      <p className="genesis-label">Рабочая папка проекта</p>
+      <p className="genesis-label">Результаты работы</p>
       {folders.map((folder) => (
         <Card key={folder.id} padding="md" hover={false} className="border-white/8">
           <div className="mb-3 flex items-center gap-2">

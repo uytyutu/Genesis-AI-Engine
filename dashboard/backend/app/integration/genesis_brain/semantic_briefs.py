@@ -16,6 +16,16 @@ from app.integration.genesis_brain.layers.goal_analysis import GoalBrief, RealGo
 from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
 
 
+def _journey_ctx(phase: str, situation: str, *, gap: str = "", next_step: str = "") -> str:
+    """Situational context for Journey — not role or communication style."""
+    parts = [f"этап Journey: {phase}", f"ситуация: {situation}"]
+    if gap:
+        parts.append(f"пробел для проекта: {gap}")
+    if next_step:
+        parts.append(f"следующий шаг: {next_step}")
+    return "; ".join(parts)
+
+
 def enrich_thinking_brief(
     base: ThinkingBrief,
     goal: GoalBrief,
@@ -64,25 +74,18 @@ def _millionaire_brief(
     memory: dict[str, Any] | None,
 ) -> ThinkingBrief:
     risks = ("нереалистичные ожидания быстрого богатства", "путать символ с целью")
-    strategy = (
-        "честно объяснить, что деньги — следствие ценности, не лотерея; "
-        "не продавать продукты Genesis"
+    ctx = _journey_ctx(
+        "Открытый диалог",
+        "личный вопрос о деньгах и будущем",
+        next_step="честный ответ без каталога продуктов",
     )
-    if goal.thread.mentioned_doubt:
-        strategy += "; связать с ранее высказанным сомнением"
-    if state.user_age and state.user_age <= 30:
-        strategy += f"; учесть горизонт времени ({state.user_age} лет — ещё много итераций)"
-
-    depth = (memory or {}).get("preferred_depth", "")
-    if depth == "deep":
-        strategy += "; ответ глубже, без воды"
 
     return ThinkingBrief(
         **{
             **base.__dict__,
             "conversation_goal": "изменить жизнь через финансы",
             "real_goal": "финансовая свобода и возможность изменить жизнь",
-            "implicit_need": "наставник, который не обещает чудес",
+            "implicit_need": "ясность без пустых обещаний",
             "emotional_state": "надежда",
             "confidence": 0.84,
             "recommended_action": "advise",
@@ -91,7 +94,7 @@ def _millionaire_brief(
                 "а желание свободы и контроля над своей жизнью."
             ),
             "risks": risks,
-            "best_response_strategy": strategy,
+            "best_response_strategy": ctx,
         }
     )
 
@@ -117,9 +120,10 @@ def _success_brief(
                 "а про страх не оправдать ожидания."
             ),
             "risks": ("пустые обещания", "уход в продажу сайтов"),
-            "best_response_strategy": (
-                "поддержать без гарантий; говорить о системе и итерациях, не о «таланте»; "
-                "не предлагать Factory/Studio"
+            "best_response_strategy": _journey_ctx(
+                "Открытый диалог",
+                "сомнение в успехе",
+                next_step="поддержка без гарантий и без каталога",
             ),
         }
     )
@@ -133,30 +137,34 @@ def _life_context_brief(
 ) -> ThinkingBrief:
     age = state.user_age
     thread = goal.thread
-    real = "контекст о себе — быть услышанным"
-    strategy = "принять факт и связать с темой разговора"
+    real = "контекст о себе"
+    ctx = _journey_ctx("Открытый диалог", "человек делится фактом о себе")
     why = "Человек делится фактом о себе, ожидая, что его не проигнорируют."
 
     if age and (thread.mentioned_doubt or thread.mentioned_success):
-        real = "человек переживает, что время уходит"
+        real = "возраст в контексте сомнения об успехе"
         why = (
             f"Возраст {age} в контексте сомнения об успехе — "
             "часто сигнал «успею ли я»."
         )
-        strategy = (
-            f"принять {age} лет; связать с ранее обсуждённым сомнением; "
-            "не отвечать только «принял возраст»"
+        ctx = _journey_ctx(
+            "Открытый диалог",
+            f"возраст {age} лет на фоне сомнения",
+            next_step="связать с ранее обсуждённым",
         )
     elif age and thread.mentioned_wealth:
-        real = "добавляет контекст к разговору о будущем"
-        strategy = f"связать {age} лет с горизонтом для финансовых целей"
+        real = "контекст к разговору о будущем"
+        ctx = _journey_ctx(
+            "Открытый диалог",
+            f"возраст {age} лет на фоне финансовой цели",
+        )
 
     return ThinkingBrief(
         **{
             **base.__dict__,
             "real_goal": real,
             "why": why,
-            "best_response_strategy": strategy,
+            "best_response_strategy": ctx,
             "confidence": 0.78,
             "recommended_action": "answer",
         }
@@ -169,31 +177,55 @@ def _business_brief(
     state: ConversationState,
     messages: list[dict[str, str]],
 ) -> ThinkingBrief:
-    strategy = (
-        "Product Mind: консультант — стек решений под нишу; "
-        "два пути (под ключ / Studio); честно если подписка не нужна; "
-        "не отправлять в разделы сайта"
-    )
     optional = goal.optional_question
+    missing = state.missing_critical(messages)
+
     if state.ready_for_business_advice():
-        strategy = "дать конкретные направления с учётом страны и бюджета"
+        ctx = _journey_ctx(
+            "1. Принятие ответственности",
+            "достаточно фактов для плана",
+            next_step="предложить направления к результату",
+        )
         action = "advise"
         optional = None
     elif state.life_goal == "family_time":
-        strategy = "lean-модели с временем для семьи; упомянуть семью"
+        ctx = _journey_ctx(
+            "2. Понимание цели",
+            "семья важнее 24/7 присутствия",
+            next_step="lean-модели в плане",
+        )
         action = "advise"
         optional = None
     elif not state.has_country() and not state.has_budget():
-        strategy = "предложить три направления; не спрашивать страну первым делом"
+        ctx = _journey_ctx(
+            "1. Принятие ответственности",
+            "ранний бизнес-интент",
+            next_step="предложить направления без анкеты",
+        )
         action = "advise"
         optional = None
     elif state.has_budget() and state.uncertain_niche:
-        strategy = "подтвердить бюджет; один вопрос про формат"
+        ctx = _journey_ctx(
+            "2. Понимание цели",
+            "бюджет известен, формат неясен",
+            gap="формат результата",
+            next_step="один вопрос только если без него нельзя двигаться",
+        )
         action = "ask_one_question" if goal.optional_question else "advise"
-    elif state.missing_critical(messages):
-        strategy = "один высокоценный вопрос, не допрос"
+    elif missing:
+        ctx = _journey_ctx(
+            "2. Понимание цели",
+            "не хватает факта для brief",
+            gap=missing[0],
+            next_step="один вопрос по пробелу",
+        )
         action = "ask_one_question"
     else:
+        ctx = _journey_ctx(
+            "1. Принятие ответственности",
+            "бизнес-задача принята",
+            next_step="движение к brief",
+        )
         action = "advise"
 
     return ThinkingBrief(
@@ -203,7 +235,7 @@ def _business_brief(
             "real_goal": "практическая опора, не мотивационная речь",
             "recommended_action": action,
             "confidence": 0.76,
-            "best_response_strategy": strategy,
+            "best_response_strategy": ctx,
             "optional_question": optional,
         }
     )
@@ -222,18 +254,23 @@ def _correction_brief(
             "Пользователь сказал «нет» — предыдущий ответ не подошёл. "
             "Признать это коротко, не спрашивать «уточните»."
         )
-        strategy = (
-            f"коротко признать ошибку; вернуться к вопросу: «{prior[:140]}»"
-            if prior
-            else "коротко признать ошибку; попросить переформулировать одним предложением"
+        ctx = _journey_ctx(
+            "7. Правки и изменения",
+            "предыдущий ответ не подошёл",
+            next_step=f"вернуться к: {prior[:80]}" if prior else "попросить переформулировать",
         )
     elif prior and re.search(r"успеш|миллион|получ|стану", prior, re.I):
         why = "Ответили на бизнес/продукт вместо личного вопроса о будущем."
-        strategy = "признать ошибку; вернуться к personal thread; не продавать"
+        ctx = _journey_ctx(
+            "7. Правки и изменения",
+            "сбой темы — личный вопрос",
+            next_step="вернуться к исходному вопросу",
+        )
     else:
-        strategy = (
-            "коротко признать ошибку; исправить ответ; 2–4 предложения; "
-            "не «уточните» и не шаблон"
+        ctx = _journey_ctx(
+            "7. Правки и изменения",
+            "пользователь поправил ответ",
+            next_step="исправить по существу",
         )
 
     return ThinkingBrief(
@@ -244,7 +281,7 @@ def _correction_brief(
             "recommended_action": "answer",
             "confidence": 0.88,
             "why": why,
-            "best_response_strategy": strategy,
+            "best_response_strategy": ctx,
         }
     )
 
@@ -254,16 +291,21 @@ def _explain_brief(
     goal: GoalBrief,
     state: ConversationState,
 ) -> ThinkingBrief:
-    strategy = "объяснить логику с опорой на известные факты"
+    ctx = _journey_ctx(
+        "Открытый диалог",
+        "вопрос «почему» к предыдущему совету",
+        next_step="объяснить логику на известных фактах",
+    )
     if (
         state.country == "Россия"
         and state.budget_amount
         and state.budget_amount <= 50000
         and state.budget_currency == "RUB"
     ):
-        strategy = (
-            "объяснить, почему кофейня не влезает в бюджет (аренда, оборудование); "
-            "использовать слово «потому»"
+        ctx = _journey_ctx(
+            "2. Понимание цели",
+            "бюджет не покрывает полноценную кофейню",
+            next_step="объяснить ограничение бюджета",
         )
 
     return ThinkingBrief(
@@ -273,7 +315,7 @@ def _explain_brief(
             "implicit_need": "прозрачность, не оправдания",
             "recommended_action": "teach",
             "confidence": 0.85,
-            "best_response_strategy": strategy,
+            "best_response_strategy": ctx,
         }
     )
 
@@ -284,20 +326,21 @@ def _curiosity_brief(
     last_user: str,
 ) -> ThinkingBrief:
     low = last_user.lower()
-    strategy = "объяснить доступно, без воды"
-    conv = "понять как работает"
+    conv = "вопрос по сути"
     if "factory" in low or "фабрик" in low:
-        conv = "понять продукт Factory"
-        strategy = "объяснить Factory; упомянуть Studio как альтернативу"
+        conv = "вопрос о Factory"
+        ctx = _journey_ctx("Открытый диалог", "вопрос о продукте Factory", next_step="факты каталога")
     elif "studio" in low:
-        conv = "понять Virtus Studio"
-        strategy = "объяснить Studio и подписку"
+        conv = "вопрос о Virtus Studio"
+        ctx = _journey_ctx("Открытый диалог", "вопрос о Studio", next_step="факт: в разработке")
+    else:
+        ctx = _journey_ctx("Открытый диалог", "нужно ясное объяснение", next_step="ответ по сути")
     return replace(
         base,
         conversation_goal=conv,
         real_goal="получить ясное объяснение",
         recommended_action="teach",
-        best_response_strategy=strategy,
+        best_response_strategy=ctx,
         confidence=0.8,
     )
 
@@ -314,7 +357,11 @@ def _emotional_brief(
             "implicit_need": "поддержка или конкретная помощь — по ситуации",
             "recommended_action": "comfort",
             "confidence": 0.8,
-            "best_response_strategy": "сначала эмпатия; не торопиться с решениями",
+            "best_response_strategy": _journey_ctx(
+                "Открытый диалог",
+                "эмоциональная поддержка",
+                next_step="короткая поддержка, без навязывания решений",
+            ),
         }
     )
 
@@ -361,12 +408,17 @@ def _uncertainty_brief(
     is_medical = any(
         w in low for w in ("диагноз", "болит", "симптом", "лекарств", "таблетк", "рак", "давление")
     )
-    strategy = (
-        "не притворяться всезнайкой; сказать «не могу утверждать наверняка» или "
-        "«есть несколько точек зрения»; быть честным и полезным"
+    ctx = _journey_ctx(
+        "Открытый диалог",
+        "домен с высокой неопределённостью",
+        next_step="честные пределы знания",
     )
     if is_medical:
-        strategy += "; не ставить диагноз; рекомендовать врача при серьёзных симптомах"
+        ctx = _journey_ctx(
+            "Открытый диалог",
+            "медицинская тема",
+            next_step="не диагноз; при серьёзных симптомах — врач",
+        )
     return ThinkingBrief(
         **{
             **base.__dict__,
@@ -375,7 +427,7 @@ def _uncertainty_brief(
             "confidence": 0.42,
             "recommended_action": "advise",
             "risks": ("ложная уверенность", "вредный совет"),
-            "best_response_strategy": strategy,
+            "best_response_strategy": ctx,
             "avoid": base.avoid + ("диагноз", "гарантия", "100%"),
         }
     )
@@ -392,11 +444,15 @@ def _age_recall_brief(
             **{
                 **base.__dict__,
                 "conversation_goal": "вспомнить возраст из диалога",
-                "real_goal": "проверка памяти собеседника",
+                "real_goal": "вспомнить возраст из диалога",
                 "known_facts": base.known_facts + (f"возраст: {age}",),
                 "confidence": 0.95,
                 "recommended_action": "answer",
-                "best_response_strategy": f"ответить прямо: Вам {age} лет; не спрашивать снова",
+                "best_response_strategy": _journey_ctx(
+                    "Открытый диалог",
+                    f"возраст {age} уже в контексте",
+                    next_step="ответить фактом",
+                ),
             }
         )
     return ThinkingBrief(
@@ -406,7 +462,12 @@ def _age_recall_brief(
             "confidence": 0.5,
             "recommended_action": "ask_one_question",
             "optional_question": "Вы ещё не говорили — сколько Вам лет?",
-            "best_response_strategy": "честно сказать, что возраст не записан; один вопрос",
+            "best_response_strategy": _journey_ctx(
+                "2. Понимание цели",
+                "возраст не записан",
+                gap="возраст",
+                next_step="один вопрос",
+            ),
         }
     )
 
@@ -419,14 +480,15 @@ def _small_talk_brief(
     return ThinkingBrief(
         **{
             **base.__dict__,
-            "conversation_goal": "живой разговор",
-            "real_goal": "человеческий контакт",
-            "implicit_need": "услышать живого собеседника, не бота",
+            "conversation_goal": "свободная реплика",
+            "real_goal": "ответ по сути",
+            "implicit_need": "краткий ответ без проектов",
             "confidence": 0.85,
             "recommended_action": "answer",
-            "best_response_strategy": (
-                "1–2 коротких предложения + один вопрос о человеке; "
-                "без «Добрый день, рад видеть»; не переводить на услуги"
+            "best_response_strategy": _journey_ctx(
+                "Открытый диалог",
+                "свободная реплика",
+                next_step="краткий ответ без услуг",
             ),
             "avoid": base.avoid + ("пакет", "тариф", "studio basic", "заказать сайт"),
         }
@@ -446,9 +508,10 @@ def _factual_brief(
             "implicit_need": "ясный ответ с рассуждением, не шаблон",
             "confidence": 0.78,
             "recommended_action": "advise" if len(last_user) > 40 else "answer",
-            "best_response_strategy": (
-                "сначала суть простыми словами; пример или аналогия; "
-                "не «расскажите подробнее» без попытки ответить"
+            "best_response_strategy": _journey_ctx(
+                "Открытый диалог",
+                goal.surface_topic or "вопрос по сути",
+                next_step="суть простыми словами",
             ),
         }
     )
@@ -458,13 +521,12 @@ def _apply_memory_inferences(
     base: ThinkingBrief,
     memory: dict[str, Any],
 ) -> ThinkingBrief:
-    style = memory.get("communication_style")
+    style = memory.get("preferred_depth")
+    strategy = base.best_response_strategy
     if style == "brief":
-        strategy = base.best_response_strategy + "; короткий ответ"
+        strategy += "; предпочтение: кратко"
     elif style == "deep":
-        strategy = base.best_response_strategy + "; больше глубины"
-    else:
-        strategy = base.best_response_strategy
+        strategy += "; предпочтение: глубже"
     return ThinkingBrief(**{**base.__dict__, "best_response_strategy": strategy})
 
 

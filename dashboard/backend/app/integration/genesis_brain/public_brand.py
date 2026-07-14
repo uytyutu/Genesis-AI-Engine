@@ -18,9 +18,9 @@ STUDIO_NAME = "Virtus Studio"
 CHAT_FEATURE = ASSISTANT_NAME
 
 PUBLIC_WELCOME = (
-    f"Здравствуйте!\n"
-    f"Я — {ASSISTANT_NAME}, ваш цифровой руководитель в {BRAND_NAME}.\n"
-    "Что делаем первым — проект, документ или сайт?"
+    f"Здравствуйте! Я {ASSISTANT_NAME} — ваш цифровой сотрудник в {BRAND_NAME}.\n\n"
+    "Расскажите идею, вопрос по бизнесу или задачу — обсудим спокойно, как в обычном разговоре. "
+    "Когда понадобится хранить материалы, предложу оформить это как проект."
 )
 
 # Ordered — specific phrases before bare word.

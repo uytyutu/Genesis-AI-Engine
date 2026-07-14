@@ -1,4 +1,5 @@
 node_modules/
 .next/
+.next.launcher_backup/
 out/
 .env*.local

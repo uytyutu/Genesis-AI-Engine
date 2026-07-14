@@ -1,7 +1,7 @@
 """
-Genesis Personality Layer — Constitution v1 in code.
+Personality layer — tone, style, and post-processing only.
 
-Public + CEO personalities. Conversation Style, Emotional Intelligence, Curiosity.
+Profession and project journey live in core prompt and canon docs, not here.
 """
 
 from __future__ import annotations
@@ -13,18 +13,18 @@ from typing import Any, Literal
 from app.config import cloud_first_responses, cloud_proof_mode
 from app.integration.genesis_brain.conversation_rhythm import compact_for_turn
 from app.integration.genesis_brain.layers.conversation_state import strip_service_openers
+from app.integration.genesis_brain.ai_identity import (
+    scrub_identity_violations,
+)
+from app.integration.genesis_brain.language_constitution import apply_language_constitution
+from app.integration.locale_service import effective_chat_locale
 from app.integration.genesis_brain.layers.conversation_style import (
     ConversationStyleEngine,
 )
 from app.integration.genesis_brain.public_brand import (
     ASSISTANT_NAME,
     BRAND_NAME,
-    STUDIO_NAME,
     scrub_public_brand_text,
-)
-from app.integration.genesis_brain.layers.curiosity import CuriosityLayer
-from app.integration.genesis_brain.layers.emotional_intelligence import (
-    EmotionalIntelligenceLayer,
 )
 
 PersonalityMode = Literal["public", "ceo"]
@@ -51,13 +51,11 @@ class PublicProfile:
 
 
 class GenesisPersonalityLayer:
-    """Constitution v1 — two personalities, one finalize pipeline."""
+    """Public tone/style + CEO owner mode; finalize pipeline for language polish."""
 
     def __init__(self, mode: PersonalityMode = "public") -> None:
         self._mode = mode
         self._style = ConversationStyleEngine()
-        self._emotion = EmotionalIntelligenceLayer()
-        self._curiosity = CuriosityLayer()
 
     @property
     def mode(self) -> PersonalityMode:
@@ -69,38 +67,29 @@ class GenesisPersonalityLayer:
         return self._public_block()
 
     def _public_block(self) -> str:
-        return f"""# {ASSISTANT_NAME} — Public Personality
+        return """# Тон и стиль ответа
 
-Ты — **{ASSISTANT_NAME}**, интеллектуальный помощник **{BRAND_NAME}**. Не ChatGPT. Не анкета. Не менеджер.
-Никогда не называй себя Genesis — это внутреннее имя движка, не для пользователя.
+Спокойный · уважительный · честный · естественный.
 
-## Характер (всегда)
-- **Спокойный** — не суетишься, не давишь
-- **Уважительный** — на «Вы», без снисхождения
-- **Честный** — не всезнайка; «не могу утверждать» когда не уверен; честно скажи, если подписка не нужна
-- **Уверенный** — без извинений за каждое слово
-- **Любознательный** — интерес к человеку, не допрос
-- **Не споришь ради спора** — полезность важнее правоты
-- **Признаёшь ошибку** — «спасибо, что поправили»
-- **Иногда шутишь** — легко, без пошлости и злости
-- **Никогда не унижаешь** — даже если человек ошибается
+## Голос
+- На «Вы»; «ты» — только если пользователь стабильно пишет неформально
+- Не всезнайка: «не могу утверждать», когда не уверены
+- Полезность важнее правоты; ошибку признайте коротко
+- Лёгкий юмор допустим; без снисхождения и унижения
+- Язык ответа — как у пользователя
 
-## Обязательно
-- Обращение на **«Вы»**
-- Никогда не повторяй одни и те же приветствия дословно
-- Сначала эмпатия (если человеку тяжело) — потом дело
-- Сначала рекомендация — потом максимум один вопрос
-- Память — через **выводы** («Вы любите создавать своё»), не сухие факты («возраст: 27»)
-- Не упоминать провайдеров AI
-- Язык — как у пользователя
-- Рекомендуй **подходящее**, не самое дорогое. Один сайт → услуга, не Studio.
+## Ритм
+- 2–6 предложений в обычном ответе
+- Не повторяйте одни и те же приветствия дословно
+- На «как дела» / привет — живо, без шаблона «на связи» и без «расскажите конкретнее»
+- После первого хода — без «Добрый день, рад снова видеть Вас»
+- Если человек сказал «нет» — признайте, не «уточните, пожалуйста»
 
-## Ритм разговора (Human Conversation v1)
-- **2–6 предложений** в обычном ответе — не простыня
-- На «как дела» / привет — **живой ответ как у ChatGPT**, не «на связи» и не «расскажите конкретнее»
-- Можно на **«ты»**, если пользователь неформален («как дела», «привет» без «Вы»)
-- Без «Добрый день, рад снова видеть Вас» после первого хода
-- Если человек сказал **«нет»** — признать ошибку, не «уточните, пожалуйста»"""
+## Память в речи (если упоминаете)
+- Через выводы («Вам важно время с семьёй»), не сухие поля («возраст: 27»)
+
+## Эмпатия
+- Если человеку тяжело — короткая поддержка, затем дело"""
 
     def _ceo_block(self) -> str:
         return f"""# {ASSISTANT_NAME} — CEO mode (только владелец)
@@ -143,13 +132,18 @@ class GenesisPersonalityLayer:
         visitor_id: str = "anonymous",
         user_uses_ty: bool = False,
         cloud_llm_used: bool = False,
+        llm_draft_from_provider: bool = False,
         response_style: str | None = None,
     ) -> str:
         if self._mode == "ceo":
             return self._finalize_ceo(draft, messages=messages, memory=memory)
 
-        use_cloud_draft = cloud_llm_used and cloud_first_responses()
-        if use_cloud_draft or cloud_proof_mode():
+        use_llm_draft = (
+            cloud_proof_mode()
+            or llm_draft_from_provider
+            or (cloud_llm_used and cloud_first_responses())
+        )
+        if use_llm_draft:
             text = self._clean_vendor(draft) or (draft or "").strip()
             last_user = self._last_user_message(messages)
             if text and text[0].islower():
@@ -159,70 +153,33 @@ class GenesisPersonalityLayer:
             turn_index = sum(1 for m in (messages or []) if m.get("role") == "user")
             if turn_index > 0 and last_user and not self._style.is_greeting_message(last_user):
                 text = self._suppress_repeat_intro(text)
+            user_locale = effective_chat_locale("ru", last_user or "")
+            text = scrub_identity_violations(text)
+            text = apply_language_constitution(
+                text, user_message=last_user or "", ui_locale=user_locale
+            )
             return compact_for_turn(
                 strip_service_openers(text), last_user=last_user, style=response_style
             )
 
+        # No template pools — only polish a usable LLM draft if present
         last_user = self._last_user_message(messages)
-        mem = memory or {}
-        name = mem.get("name")
-        style_ctx = self._style.build_context(mem, visitor_id)
-        emotional = self._emotion.analyze(last_user)
-        turn_index = sum(1 for m in (messages or []) if m.get("role") == "user")
-
         cleaned = self._clean_vendor(draft) or (draft or "").strip()
-
-        # Emotional-first replies — only when there is no usable draft to keep
-        opening = self._emotion.emotional_opening(emotional, name)
-        if (
-            opening
-            and emotional.mood.value in (
-                "promotion",
-                "heavy",
-                "tired",
-                "angry",
-                "misinformed",
-                "grateful",
+        if self._usable_draft(cleaned):
+            text = cleaned
+            if text and text[0].islower():
+                text = text[0].upper() + text[1:]
+            text = self._enforce_vy(text, user_uses_ty)
+            text = self._strip_questionnaire(text)
+            user_locale = effective_chat_locale("ru", last_user or "")
+            text = scrub_identity_violations(text)
+            text = apply_language_constitution(
+                text, user_message=last_user or "", ui_locale=user_locale
             )
-            and not self._usable_draft(cleaned)
-        ):
-            text = opening
-        elif self._usable_draft(cleaned):
-            text = cleaned
-        elif last_user and self._style.is_small_talk_message(last_user):
-            text = self._style.pick_small_talk(style_ctx, last_user)
-        elif last_user and self._style.is_greeting_message(last_user):
-            text = self._style.pick_greeting(style_ctx)
-        else:
-            text = cleaned
-        if not text:
-            if last_user and self._style.is_small_talk_message(last_user):
-                text = self._style.pick_small_talk(style_ctx, last_user)
-            elif last_user and self._style.is_greeting_message(last_user):
-                text = self._style.pick_greeting(style_ctx)
-            else:
-                text = self._style.pick_greeting(style_ctx)
-
-        text = text.strip()
-        if text and text[0].islower():
-            text = text[0].upper() + text[1:]
-        text = self._enforce_vy(text, user_uses_ty)
-        text = self._strip_questionnaire(text)
-        if turn_index > 0 and not self._style.is_greeting_message(last_user):
-            text = self._suppress_repeat_intro(text)
-
-        hint = self._curiosity.suggest(
-            user_message=last_user,
-            emotional=emotional,
-            turn_index=turn_index,
-            visitor_id=visitor_id,
-            has_business_topic=CuriosityLayer.has_business_topic(last_user),
-        )
-        if hint.append and hint.append.strip() not in text and not self._is_natural_close(text):
-            text = text.rstrip() + hint.append
-
-        text = compact_for_turn(text, last_user=last_user, style=response_style)
-        return strip_service_openers(text).strip()
+            return compact_for_turn(
+                strip_service_openers(text), last_user=last_user, style=response_style
+            )
+        return cleaned
 
     @staticmethod
     def _substantive_draft(draft: str) -> bool:

@@ -120,3 +120,67 @@ def test_prepare_api_flow(tmp_path: Path):
     queue = client.get("/api/acquisition/approval-queue")
     assert queue.status_code == 200
     assert len(queue.json()["items"]) == 1
+
+
+def test_generate_drafts_force_skip_check(tmp_path: Path):
+    from app.integration.google_places_service import PlacesLead
+
+    opp = OpportunityService(tmp_path / "memory")
+    sales = SalesOrderService(tmp_path / "memory", factory_intent=object())
+    studio = AcquisitionStudioService(opp, sales)
+
+    def _fake_search(**_kwargs):
+        return [
+            PlacesLead(
+                place_id="place-hamburg-1",
+                name="Autowerkstatt Hamburg Test",
+                address="Hamburg",
+                website="https://example.com",
+                types=["car_repair"],
+            )
+        ]
+
+    studio._places.search_text = _fake_search  # type: ignore[method-assign]
+    result = studio.generate_drafts_from_places(
+        city="Hamburg",
+        query="Autowerkstatt",
+        limit=5,
+        force_skip_check=True,
+    )
+    assert result["leads_found"] == 1
+    assert result["drafted"] == 1
+    assert result["skipped_has_site"] == 0
+    queue = studio.approval_queue()
+    assert len(queue) == 1
+    assert queue[0]["company_name"] == "Autowerkstatt Hamburg Test"
+
+
+def test_generate_drafts_skips_website_without_force(tmp_path: Path):
+    from app.integration.google_places_service import PlacesLead
+
+    opp = OpportunityService(tmp_path / "memory")
+    sales = SalesOrderService(tmp_path / "memory", factory_intent=object())
+    studio = AcquisitionStudioService(opp, sales)
+
+    def _fake_search(**_kwargs):
+        return [
+            PlacesLead(
+                place_id="place-hamburg-2",
+                name="Werkstatt Mit Site",
+                address="Hamburg",
+                website="https://example.org",
+                types=["car_repair"],
+            )
+        ]
+
+    studio._places.search_text = _fake_search  # type: ignore[method-assign]
+    result = studio.generate_drafts_from_places(
+        city="Hamburg",
+        query="Autowerkstatt",
+        limit=5,
+        force_skip_check=False,
+    )
+    assert result["leads_found"] == 1
+    assert result["drafted"] == 0
+    assert result["skipped_has_site"] == 1
+    assert studio.approval_queue() == []

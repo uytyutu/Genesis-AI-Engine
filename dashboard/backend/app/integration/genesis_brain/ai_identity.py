@@ -1,7 +1,8 @@
 """
-Public AI Identity — Virtus Core (brand) · Vector (assistant) · Genesis (internal core).
+Technical AI identity layer — Virtus Core (brand) · Vector (assistant) · Genesis (internal core).
 
-Single source of truth for user-facing identity dialogue.
+Defines identity dialogue text only via genesis_core_intelligence.vector_identity_who_reply().
+This module: Rule Zero scrub, provider drift, intent routing, language lock — not profession canon.
 """
 
 from __future__ import annotations
@@ -11,15 +12,13 @@ import re
 from app.integration.genesis_brain.identity_intent import IdentityIntent, detect_identity_intent
 from app.integration.genesis_brain.public_brand import (
     ASSISTANT_NAME,
-    ASSISTANT_TAGLINE,
     BRAND_NAME,
     BRAND_SIGNATURE,
     INTERNAL_CORE_NAME,
     PUBLIC_WELCOME,
-    STUDIO_NAME,
-    brand_signature_text,
     scrub_public_brand_text,
 )
+from app.integration.genesis_core_intelligence import vector_identity_who_reply
 
 # Re-export for callers/tests.
 __all__ = [
@@ -29,27 +28,163 @@ __all__ = [
     "INTERNAL_CORE_NAME",
     "PUBLIC_WELCOME",
     "UNIVERSAL_AI_IDENTITY",
+    "build_vector_llm_anchor",
     "compose_identity_reply",
     "scrub_identity_violations",
+    "scrub_language_drift",
     "try_local_identity_reply",
 ]
 
-UNIVERSAL_AI_IDENTITY = f"""## Публичная идентичность
 
-**Компания / бренд:** {BRAND_NAME}
-**Цифровая компания (лицо):** {ASSISTANT_NAME}
-**Подпись:** {brand_signature_text()}
-**Студия:** {STUDIO_NAME}
+def build_vector_llm_anchor(
+    *,
+    brand_name: str,
+    assistant_name: str,
+    language_hint: str,
+    style_block: str,
+    rhythm_block: str,
+    product_rules: str,
+) -> str:
+    """Fast-lane technical anchor — language lock and passthrough blocks; profession lives in core prompt."""
+    return (
+        f"\n\n[{brand_name} — {assistant_name}]\n"
+        f"Не вставляйте случайные слова на других языках (gracias, merci, heute, I'm glad) — "
+        f"только язык пользователя.\n"
+        f"{language_hint}\n"
+        f"{style_block}\n"
+        f"{rhythm_block}\n"
+        f"{product_rules}"
+    )
 
-Пользователь общается с **{ASSISTANT_NAME}** — цифровым руководителем своих проектов в **{BRAND_NAME}**.
-Внутренний движок платформы — **Genesis** (кодовое имя). Его **никогда не произносите** пользователю — только {ASSISTANT_NAME} и {BRAND_NAME}.
-Если спрашивают про Genesis — объясните, что это внутреннее ядро {BRAND_NAME}, а в диалоге отвечаете Вы как {ASSISTANT_NAME}.
 
-На вопросы о себе — коротко, уверенно, естественно. Без продаж, CRM, Studio, внутренних модулей.
-Не упоминайте Director, Workforce, провайдеров, routing, calibration — если пользователь явно не спрашивает архитектуру.
-Не называйте себя «ИИ-помощником», «чат-ботом» или «ChatGPT» — вы {ASSISTANT_NAME}, цифровая компания для клиента.
+_FOREIGN_DRIFT_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"\bgracias\b", re.I),
+    re.compile(r"\bmerci\b", re.I),
+    re.compile(r"\bdanke\s+schön\b", re.I),
+    re.compile(r"\bi(?:'m|\s+am)\s+glad\b", re.I),
+    re.compile(r"\bthank\s+you\s+so\s+much\b", re.I),
+    re.compile(r"\bde\s+nada\b", re.I),
+    re.compile(r"\bpor\s+favor\b", re.I),
+    re.compile(
+        r"\b(?:heute|gerne|vielleicht|natürlich|natuerlich|wunderbar|schön|"
+        r"schon|eben|natürlich|guten\s+tag)\b",
+        re.I,
+    ),
+)
 
-Никогда не исправляйте опечатки вслух («Вы имели в виду…»).
+
+_FAST_LANE_ENGLISH_KEEP = frozenset(
+    {
+        "vector",
+        "virtus",
+        "core",
+        "site",
+        "online",
+        "pdf",
+        "api",
+        "crm",
+        "saas",
+        "seo",
+        "url",
+        "email",
+        "ok",
+        "html",
+        "python",
+        "docker",
+        "openai",
+        "ollama",
+        "gemini",
+        "groq",
+    }
+)
+
+# Underscore glitches: с_clientem, online_операции
+_UNDERSCORE_GLITCH = re.compile(
+    r"([\u0400-\u04FFa-zA-Z])_+([\u0400-\u04FFa-zA-Z])",
+)
+
+# Isolated English words in Russian replies (3+ letters)
+_ISOLATED_ENGLISH = re.compile(
+    r"\b([A-Za-z]{3,})\b",
+)
+
+_LATIN_TO_CYRILLIC = str.maketrans(
+    {
+        "A": "А",
+        "a": "а",
+        "B": "В",
+        "b": "в",
+        "C": "С",
+        "c": "с",
+        "E": "Е",
+        "e": "е",
+        "H": "Н",
+        "h": "н",
+        "K": "К",
+        "k": "к",
+        "M": "М",
+        "m": "м",
+        "O": "О",
+        "o": "о",
+        "P": "Р",
+        "p": "р",
+        "T": "Т",
+        "t": "т",
+        "X": "Х",
+        "x": "х",
+    }
+)
+
+_WORD_TOKEN = re.compile(r"[\w-]+", re.UNICODE)
+
+
+def _normalize_mixed_script(text: str) -> str:
+    out = _UNDERSCORE_GLITCH.sub(r"\1 \2", text)
+
+    def fix_word(match: re.Match[str]) -> str:
+        word = match.group(0)
+        has_cyr = bool(re.search(r"[\u0400-\u04FF]", word))
+        has_lat = bool(re.search(r"[A-Za-z]", word))
+        if not (has_cyr and has_lat):
+            return word
+        fixed = word.translate(_LATIN_TO_CYRILLIC)
+        if re.search(r"[A-Za-z]", fixed):
+            fixed = re.sub(r"[A-Za-z]+", "", fixed)
+        return fixed.strip("-") or word
+
+    return _WORD_TOKEN.sub(fix_word, out)
+
+
+def _strip_isolated_english(text: str) -> str:
+    def repl(match: re.Match[str]) -> str:
+        word = match.group(1)
+        if word.lower() in _FAST_LANE_ENGLISH_KEEP:
+            return word
+        return ""
+
+    return _ISOLATED_ENGLISH.sub(repl, text)
+
+
+def scrub_language_drift(text: str, *, user_locale: str = "ru") -> str:
+    """Drop foreign-language slips when the user expects Russian."""
+    out = (text or "").strip()
+    if not out or user_locale not in ("ru", "uk"):
+        return out
+    out = _normalize_mixed_script(out)
+    for pat in _FOREIGN_DRIFT_PATTERNS:
+        out = pat.sub("", out)
+    out = _strip_isolated_english(out)
+    out = re.sub(r"\s{2,}", " ", out)
+    out = re.sub(r"\s+([,.!?])", r"\1", out)
+    return out.strip()
+
+
+UNIVERSAL_AI_IDENTITY = f"""## Rule Zero — scrub reference (не определяет личность)
+
+Никогда не называйте себя ChatGPT, языковой моделью, провайдером, «ИИ-помощником» или чат-ботом.
+Никогда не произносите {INTERNAL_CORE_NAME} пользователю — только {ASSISTANT_NAME} и {BRAND_NAME}.
+Не упоминайте Director, Workforce, routing, calibration — если пользователь явно не спрашивает архитектуру.
+Не исправляйте опечатки вслух («Вы имели в виду…»).
 """
 
 IDENTITY_FORBIDDEN_PATTERNS: tuple[re.Pattern[str], ...] = (
@@ -72,176 +207,75 @@ IDENTITY_FORBIDDEN_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"did\s+you\s+mean", re.I),
 )
 
-_REPLY_WHO_ARE_YOU = (
-    f"Я — {ASSISTANT_NAME}, цифровой руководитель ваших проектов в {BRAND_NAME}. "
-    "Помогаю с документами, сайтами, бизнес-планами и другими задачами — "
-    "от идеи до готового результата."
-)
-
-_REPLY_NAME = f"Меня зовут {ASSISTANT_NAME}."
-
-_REPLY_NAME_FULL = (
-    f"Меня зовут {ASSISTANT_NAME} — цифровой руководитель ваших проектов в {BRAND_NAME}."
-)
-
-_REPLY_CAPABILITIES = (
-    "Я могу:\n\n"
-    "• отвечать на вопросы;\n"
-    "• помогать с программированием;\n"
-    "• искать ошибки;\n"
-    "• анализировать документы;\n"
-    "• помогать в бизнесе;\n"
-    "• создавать сайты;\n"
-    "• помогать с играми;\n"
-    "• автоматизировать процессы;\n"
-    "• работать с несколькими ИИ и выбирать наиболее подходящий."
-)
-
-_REPLY_ABOUT_SELF = (
-    f"Я — {ASSISTANT_NAME}, цифровой руководитель проектов в {BRAND_NAME}.\n"
-    "Помогаю доводить задачи до результата — документы, сайты, анализ и планирование."
-)
-
-_REPLY_ORIGIN = (
-    f"Я появился как часть платформы {BRAND_NAME} — чтобы помогать людям "
-    "с задачами, проектами и информацией в одном понятном диалоге."
-)
-
-_REPLY_CREATOR = (
-    f"Я создан как часть платформы {BRAND_NAME}. "
-    "Моё предназначение — помогать людям работать с информацией, создавать проекты, "
-    "автоматизировать процессы и решать сложные задачи."
-)
-
-_REPLY_PURPOSE = (
-    f"Моя цель — быть полезным помощником {BRAND_NAME}: быстро понимать задачу, "
-    "давать ясные ответы и помогать доводить идеи до результата."
-)
-
-_REPLY_VIRTUS_CORE = (
-    f"{BRAND_NAME} — платформа цифровой компании: проекты, документы, сайты и автоматизация.\n"
-    f"Я, {ASSISTANT_NAME}, веду вашу работу к готовому результату."
-)
-
-_REPLY_VECTOR = (
-    f"{ASSISTANT_NAME} — это моё имя: {ASSISTANT_TAGLINE.lower()} платформы {BRAND_NAME}.\n"
-    "С Вами в диалоге всегда общаюсь я."
-)
-
-_REPLY_WHY_NAME = (
-    f"Меня назвали {ASSISTANT_NAME} — как направление: я помогаю «направлять» задачу к полезному результату. "
-    f"Платформа, на которой я работаю, — {BRAND_NAME}."
-)
-
+# Rule Zero only — internal engine separation; no profession narrative.
 _REPLY_ENGINE = (
-    f"{INTERNAL_CORE_NAME} — внутреннее ядро платформы {BRAND_NAME}.\n"
-    f"Пользователи работают со мной — {ASSISTANT_NAME}, цифровым руководителем проектов."
+    f"{INTERNAL_CORE_NAME} — внутреннее ядро {BRAND_NAME}. "
+    f"В диалоге отвечает {ASSISTANT_NAME}."
 )
 
 _REPLY_ENGINE_IS_YOU = (
-    f"Нет.\n"
-    f"{INTERNAL_CORE_NAME} — внутреннее ядро платформы {BRAND_NAME}.\n"
-    f"Пользователи взаимодействуют со мной — {ASSISTANT_NAME}."
+    f"Нет. {INTERNAL_CORE_NAME} — внутреннее ядро {BRAND_NAME}. "
+    f"В диалоге с Вами — {ASSISTANT_NAME}."
 )
 
 _REPLY_WHY_OLD_NAME = (
-    f"{INTERNAL_CORE_NAME} — внутреннее имя движка платформы {BRAND_NAME}, не публичный бренд. "
-    f"В диалоге с Вами я — {ASSISTANT_NAME}."
-)
-
-_REPLY_AI_NATURE = (
-    f"Да — я {ASSISTANT_NAME}, цифровая компания {BRAND_NAME} в одном лице.\n"
-    "Понимаю задачу и довожу работу до результата — не просто отвечаю на вопросы."
-)
-
-_REPLY_NEURAL = (
-    f"Да, я основан на технологиях искусственного интеллекта. "
-    f"Меня зовут {ASSISTANT_NAME} — интеллектуальный помощник {BRAND_NAME}."
-)
-
-_REPLY_HUMAN = (
-    f"Нет, я не человек — я {ASSISTANT_NAME}, цифровой руководитель ваших проектов в {BRAND_NAME}. "
-    "Но работаю с вами как сотрудник компании — по делу и до результата."
-)
-
-_REPLY_DIFFERENCE = (
-    f"{BRAND_NAME} заточен под практические задачи: ответы, проекты, код, анализ и автоматизация "
-    f"в одном диалоге с {ASSISTANT_NAME}.\n"
-    "Я подстраиваюсь под тип запроса, а не отвечаю одним шаблоном на всё."
-)
-
-_REPLY_VECTOR_VS_VIRTUS = (
-    f"{BRAND_NAME} — это платформа и бренд.\n"
-    f"{ASSISTANT_NAME} — цифровая компания, с которой вы ведёте проекты."
+    f"{INTERNAL_CORE_NAME} — внутреннее имя движка {BRAND_NAME}, не публичный бренд. "
+    f"В диалоге — {ASSISTANT_NAME}."
 )
 
 _REPLY_VECTOR_VS_ENGINE = (
-    f"{ASSISTANT_NAME} — это я, Ваш собеседник.\n"
-    f"Внутренний движок — техническая основа {BRAND_NAME}, не отдельный «голос» в чате."
+    f"{ASSISTANT_NAME} — это я, Ваш собеседник. "
+    f"{INTERNAL_CORE_NAME} — техническая основа {BRAND_NAME}, не отдельный «голос» в чате."
 )
 
-_REPLY_HELP = (
-    "Могу помочь с вопросами, кодом, анализом документов, идеями для бизнеса, "
-    "сайтами, играми и автоматизацией — скажите, что сейчас важнее."
+_PROFESSION_KINDS = frozenset(
+    {
+        "who_are_you",
+        "about_self",
+        "capabilities",
+        "purpose",
+        "help",
+        "creator",
+        "origin",
+        "virtus_core",
+        "vector",
+        "difference",
+        "vector_vs_virtus",
+        "program",
+        "system",
+        "speaker",
+        "ai_nature",
+        "neural",
+        "name_full",
+    }
 )
 
-_REPLY_PROGRAM = (
-    f"Это {BRAND_NAME} — платформа цифровой компании.\n"
-    f"Я, {ASSISTANT_NAME}, веду ваши проекты к готовому результату."
-)
 
-_REPLY_SYSTEM = _REPLY_PROGRAM
-
-_GENESIS_REPLY_KINDS = frozenset(
-    {"genesis", "genesis_is_you", "why_genesis", "vector_vs_genesis"}
-)
-
-_REPLY_SPEAKER = (
-    f"Сейчас с вами {ASSISTANT_NAME} — "
-    f"цифровой руководитель ваших проектов в {BRAND_NAME}."
-)
-
-_REPLY_HELP_FOLLOWUP = (
-    f"Я занимаюсь тем, что помогаю людям решать задачи через {BRAND_NAME}: "
-    "информация, проекты, код, анализ и автоматизация — в зависимости от Вашего запроса."
-)
+def _canon_who_reply() -> str:
+    return scrub_public_brand_text(vector_identity_who_reply())
 
 
 def compose_identity_reply(intent: IdentityIntent) -> str:
-    """Map detected intent to a concise branded reply."""
+    """Route identity intent — profession answers delegate to core; genesis answers stay Rule Zero."""
     kind = intent.kind
-    follow = intent.is_follow_up
 
-    replies: dict[str, str] = {
-        "name": _REPLY_NAME,
-        "name_full": _REPLY_NAME_FULL,
-        "capabilities": _REPLY_CAPABILITIES,
-        "virtus_core": _REPLY_VIRTUS_CORE,
-        "vector": _REPLY_VECTOR if not follow else _REPLY_NAME,
-        "why_name": _REPLY_WHY_NAME,
-        "genesis": _REPLY_ENGINE,
-        "genesis_is_you": _REPLY_ENGINE_IS_YOU,
-        "why_genesis": _REPLY_WHY_OLD_NAME,
-        "creator": _REPLY_CREATOR,
-        "origin": _REPLY_ORIGIN,
-        "purpose": _REPLY_PURPOSE,
-        "about_self": _REPLY_ABOUT_SELF,
-        "ai_nature": _REPLY_AI_NATURE,
-        "neural": _REPLY_NEURAL,
-        "human": _REPLY_HUMAN,
-        "difference": _REPLY_DIFFERENCE,
-        "vector_vs_virtus": _REPLY_VECTOR_VS_VIRTUS,
-        "vector_vs_genesis": _REPLY_VECTOR_VS_ENGINE,
-        "help": _REPLY_HELP_FOLLOWUP if follow else _REPLY_HELP,
-        "system": _REPLY_SYSTEM,
-        "program": _REPLY_PROGRAM,
-        "speaker": _REPLY_SPEAKER,
-        "who_are_you": _REPLY_WHO_ARE_YOU,
-    }
-    raw = replies.get(kind, _REPLY_WHO_ARE_YOU)
-    if kind in _GENESIS_REPLY_KINDS:
-        return raw
-    return scrub_public_brand_text(raw)
+    if kind == "name":
+        return f"Меня зовут {ASSISTANT_NAME}."
+    if kind == "why_name":
+        return f"Меня назвали {ASSISTANT_NAME}."
+    if kind == "human":
+        return f"Нет, я не человек. С Вами — {ASSISTANT_NAME}."
+    if kind == "genesis":
+        return _REPLY_ENGINE
+    if kind == "genesis_is_you":
+        return _REPLY_ENGINE_IS_YOU
+    if kind == "why_genesis":
+        return _REPLY_WHY_OLD_NAME
+    if kind == "vector_vs_genesis":
+        return _REPLY_VECTOR_VS_ENGINE
+    if kind in _PROFESSION_KINDS:
+        return _canon_who_reply()
+    return _canon_who_reply()
 
 
 def try_local_identity_reply(

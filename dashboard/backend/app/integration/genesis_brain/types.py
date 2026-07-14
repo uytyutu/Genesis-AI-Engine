@@ -16,6 +16,7 @@ class ChatResult:
     action: dict[str, Any] | None = None
     provider_id: str = "genesis"
     trace: dict[str, Any] | None = None
+    dev_route: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -90,10 +91,14 @@ class WorkforceRouteLog:
     fallback_started_at: str | None = None
     answer_source: str = ""
     cloud_llm_used: bool = False
+    llm_capability: str = ""
+    proof_pin: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "task": self.task,
+            "llm_capability": self.llm_capability or None,
+            "proof_pin": self.proof_pin,
             "chosen_employee": self.chosen_employee,
             "chosen_score": self.chosen_score,
             "chosen_latency_sec": round(self.chosen_latency_ms / 1000.0, 3),

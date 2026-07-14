@@ -1,155 +1,115 @@
-"""Multi-turn conversation logic — context-aware replies without re-introduction."""
+"""
+Journey UX organizer — project passage only, not conversation strategy.
+
+Routes user through Project Execution Journey. No consultant persona.
+Facts from public_truth_catalog; business movement from reasoned_reply.
+"""
 
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
 
+from app.integration.genesis_brain.layers.conversation_state import ConversationState
+from app.integration.genesis_brain.reasoned_reply import reasoned_business_reply
 from app.integration.public_truth_catalog import (
     MISSION1_LANDING_TIMELINE,
     studio_unavailable_message,
     unavailable_online_message,
 )
-_COUNTRY_MAP = {
-    "герман": "Германии",
-    "germany": "Германии",
-    "росси": "России",
-    "украин": "Украине",
-    "польш": "Польше",
-    "казах": "Казахстане",
-    "сша": "США",
-    "америк": "США",
-}
+from app.integration.vector_intelligence.types import JourneyPhase
+
+_JOURNEY_CLARIFY: frozenset[JourneyPhase] = frozenset(
+    {"understand_goal", "requirements", "materials"}
+)
 
 
-@dataclass
-class BusinessContext:
-    wants_business: bool = False
-    country: str | None = None
-    budget: str | None = None
-    uncertain_niche: bool = False
-    niche: str | None = None  # coffee, salon, etc.
-    needs_website: bool = False
-    needs_app: bool = False
-    needs_marketing: bool = False
-    wants_studio: bool = False
-    user_name: str | None = None
-
-    @classmethod
-    def from_messages(cls, messages: list[dict[str, str]]) -> BusinessContext:
-        ctx = cls()
-        for m in messages:
-            if m.get("role") != "user":
-                continue
-            text = (m.get("content") or "").strip()
-            low = text.lower()
-            cls._apply(ctx, low, text)
-        return ctx
-
-    @staticmethod
-    def _apply(ctx: BusinessContext, low: str, raw: str) -> None:
-        if re.search(r"открыть бизнес|начать бизнес|хочу бизнес|открыть бизнес", low):
-            ctx.wants_business = True
-        if re.search(r"не знаю какой|не знаю, какой|какой бизнес", low):
-            ctx.uncertain_niche = True
-        for key, country in _COUNTRY_MAP.items():
-            if key in low:
-                ctx.country = country
-        bm = _BUDGET_RE.search(raw)
-        if bm:
-            val = next(g for g in bm.groups() if g)
-            ctx.budget = val.replace(" ", "").replace(",", "")
-        if any(w in low for w in ("кофейн", "кофе", "кафе")):
-            ctx.niche = "coffee"
-            ctx.wants_business = True
-        if any(w in low for w in ("салон", "красот", "барбер")):
-            ctx.niche = "salon"
-        if re.search(r"нужен сайт|хочу сайт|сайт для", low):
-            ctx.needs_website = True
-        if "приложен" in low or "app" in low:
-            ctx.needs_app = True
-        if any(w in low for w in ("продвижен", "реклам", "маркетинг")):
-            ctx.needs_marketing = True
-        if "studio" in low:
-            ctx.wants_studio = True
-        nm = re.search(r"меня\s+зовут\s+([A-Za-zА-Яа-яЁё\-]+)", raw, re.I)
-        if nm:
-            ctx.user_name = nm.group(1).strip()
-
-
-def business_reply(ctx: BusinessContext, last_user: str) -> str | None:
-    """Context-first business consultant — never re-introduces Genesis."""
+def infer_journey_phase(state: ConversationState, last_user: str) -> JourneyPhase:
+    """Map conversation state to Journey phase — UX routing only."""
     low = last_user.lower()
+    if not low.strip():
+        return "open_dialog"
+    if state.goal in ("open_business", "ai_company") or state.needs_website:
+        if state.ready_for_business_advice():
+            return "requirements"
+        missing = state.missing_critical([])
+        if missing:
+            return "understand_goal"
+        return "accept_responsibility"
+    if re.search(r"сайт|лендинг|заказ|order|оформ", low):
+        if state.has_country() or state.business_type:
+            return "requirements"
+        return "accept_responsibility"
+    if re.search(r"правк|измени|не то|нет\.?$", low):
+        return "revisions"
+    if re.search(r"готов|запуск|оплат|оформ", low):
+        return "launch"
+    return "open_dialog"
 
-    if ctx.wants_studio or ("studio" in low and "хочу" in low):
+
+def journey_ux_reply(
+    state: ConversationState,
+    last_user: str,
+    *,
+    messages: list[dict[str, str]] | None = None,
+    visitor_id: str = "anonymous",
+    turn_index: int = 1,
+) -> str | None:
+    """
+    Single UX entry for project work — continuous collaboration, not chat script.
+    Returns None when Journey does not apply (caller continues pipeline).
+    """
+    low = last_user.lower()
+    phase = infer_journey_phase(state, last_user)
+
+    if re.search(r"studio", low) and re.search(r"хочу|нужен|купить|подписк", low):
         return studio_unavailable_message()
 
-    if re.search(r"интернет-магазин|telegram-бот|чат-бот", low):
-        label = "Интернет-магазин" if "магазин" in low else "Чат-бот"
-        return unavailable_online_message(label)
-
-    if ctx.needs_app or re.search(r"приложен|\bapp\b", low):
-        return unavailable_online_message("Мобильное приложение")
-
-    if ctx.needs_marketing or any(w in low for w in ("продвижен", "реклам")):
-        return (
-            "Для продвижения кофейни или локального бизнеса обычно работают:\n"
-            "• Google Maps и отзывы\n"
-            "• Instagram с фото процесса\n"
-            "• простой лендинг с меню и записью\n\n"
-            "Могу набросать план на первые 2 недели — с чего начнём?"
+    if re.search(r"интернет-магазин|онлайн-магазин", low):
+        return unavailable_online_message("Интернет-магазин").replace(
+            "после короткой консультации с Vector",
+            "когда будете готовы",
         )
 
-    if ctx.needs_website and ctx.niche == "coffee":
-        where = f" в {ctx.country}" if ctx.country else ""
-        return (
-            f"Отлично — сайт для кофейни{where}.\n\n"
-            "Рекомендую: главная · меню · онлайн-заказ или запись · галерея · отзывы · контакты с картой.\n\n"
-            f"Пакеты **350 / 650 / 1200 €** на /order. Срок — {MISSION1_LANDING_TIMELINE}.\n\n"
-            "Кофейня уже работает или только открывается?"
-        )
-
-    if ctx.niche == "coffee" and ctx.country and ctx.budget:
-        return (
-            f"Кофейня в {ctx.country} с бюджетом около **{ctx.budget} €** — реалистичный старт.\n\n"
-            "На эти деньги обычно хватает: небольшое помещение в спальном районе или формат «кофе с собой», "
-            "базовое оборудование и первый месяц расходников.\n\n"
-            "Следующий шаг — сайт и карта в Google, чтобы первые клиенты вас нашли. Начнём с сайта?"
-        )
-
-    if ctx.uncertain_niche or ("не знаю" in low and ctx.wants_business):
-        where = f" в {ctx.country}" if ctx.country else ""
-        budget_note = f" При бюджете **{ctx.budget} €**" if ctx.budget else ""
-        return (
-            f"Понял — будем искать нишу вместе{where}.{budget_note}\n\n"
-            "Три направления, которые часто хорошо заходят:\n"
-            "• локальный сервис с онлайн-записью (салон, ремонт)\n"
-            "• кофейня или небольшое кафе\n"
-            "• онлайн-услуга (обучение, консультации, digital)\n\n"
-            "Что Вам ближе по духу — работа с людьми лично или больше онлайн?"
-        )
-
-    if re.search(r"я из|из герман|из росс", low) or (
-        ctx.country and any(k in low for k in ("герман", "росси", "украин", "польш"))
+    if re.search(r"чат-бот|чатбот|telegram-бот", low) and not re.search(
+        r"сайт|лендинг", low
     ):
-        return (
-            f"Отлично, {ctx.country} — важная деталь для налогов, аренды и конкуренции.\n\n"
-            "Какой примерно бюджет готовы вложить на старте?"
+        return unavailable_online_message("Чат-бот").replace(
+            "после короткой консультации с Vector",
+            "когда будете готовы",
         )
 
-    if _BUDGET_RE.search(last_user) and not ctx.niche:
-        return (
-            f"Бюджет **{ctx.budget} €** — хорошая отправная точка.\n\n"
-            "Есть уже идея, чем заниматься, или подберём нишу вместе?"
+    if re.search(r"приложен|\bapp\b", low) and "сайт" not in low:
+        return unavailable_online_message("Мобильное приложение").replace(
+            "после короткой консультации с Vector",
+            "когда будете готовы",
         )
 
-    if re.search(r"открыть бизнес|начать бизнес|хочу бизнес|открыть бизнес", low):
+    if state.needs_website or state.goal in ("open_business", "ai_company"):
+        routed = reasoned_business_reply(
+            state,
+            last_user,
+            visitor_id=visitor_id,
+            turn_index=turn_index,
+            messages=messages,
+        )
+        if routed:
+            return routed
+
+    if phase == "accept_responsibility" and re.search(r"сайт|лендинг", low):
+        niche = state.business_type or "бизнеса"
         return (
-            "Отличная идея. Давайте вместе подберём бизнес, который реально сможет приносить прибыль.\n\n"
-            "Задам всего несколько вопросов, чтобы не гадать:\n\n"
-            "**1.** В какой стране планируете открываться?\n\n"
-            "**2.** Какой бюджет готовы вложить?\n\n"
-            "**3.** Хотите сами управлять каждый день или максимально автоматизировать?"
+            f"Принял задачу: сайт для {niche}.\n\n"
+            f"Пакеты **350 / 650 / 1200 €** на /order. Срок — {MISSION1_LANDING_TIMELINE}.\n\n"
+            "Следующий шаг — уточнить требования или перейти к оформлению."
+        )
+
+    if phase in _JOURNEY_CLARIFY:
+        return reasoned_business_reply(
+            state,
+            last_user,
+            visitor_id=visitor_id,
+            turn_index=turn_index,
+            messages=messages,
         )
 
     return None

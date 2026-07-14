@@ -185,10 +185,57 @@ def probe_services_live(*, idle: bool = False) -> tuple[bool, bool]:
     return backend, frontend
 
 
-def owner_ready_live(*, idle: bool = False) -> bool:
-    """Ground truth: both services answer HTTP 200 on the URLs owners use."""
+def probe_backend_status(timeout: float = BACKEND_PROBE_TIMEOUT) -> dict | None:
+    """Read /api/status — includes vector_chat_ready when backend supports it."""
+    return _get_json(f"{BACKEND_URL}/api/status", timeout=timeout)
+
+
+def probe_vector_chat_ready(timeout: float = BACKEND_PROBE_TIMEOUT) -> bool:
+    """True when Vector can accept the first /site message without cold-load."""
+    data = probe_backend_status(timeout=timeout)
+    if not data:
+        return False
+    if "vector_chat_ready" not in data:
+        return False
+    return bool(data.get("vector_chat_ready"))
+
+
+def startup_progress_message(
+    *,
+    backend_up: bool,
+    frontend_up: bool,
+    vector_ready: bool,
+    elapsed_sec: int,
+) -> str:
+    """Honest owner-facing boot copy — never claim ready before Vector is."""
+    if not backend_up:
+        if elapsed_sec < 6:
+            return "🟡 Запускаю сервисы..."
+        if elapsed_sec < 18:
+            return "🟡 Загружаю интеллект..."
+        if elapsed_sec < 32:
+            return "🟡 Подготавливаю Vector..."
+        return "🟡 Проверяю модели..."
+    if backend_up and not vector_ready:
+        return "🟡 Подготавливаю Vector..."
+    if backend_up and vector_ready and not frontend_up:
+        return "🟡 Запускаю интерфейс..."
+    return "🟡 Подготовка Virtus Core..."
+
+
+def product_ready_live(*, idle: bool = False) -> bool:
+    """CEO Product Reality gate — HTTP 200 + Vector ready for first chat."""
     backend, frontend = probe_services_live(idle=idle)
-    return owner_ready_from_probes(backend, frontend)
+    if not owner_ready_from_probes(backend, frontend):
+        return False
+    return probe_vector_chat_ready(
+        timeout=IDLE_BACKEND_TIMEOUT if idle else BACKEND_PROBE_TIMEOUT
+    )
+
+
+def owner_ready_live(*, idle: bool = False) -> bool:
+    """Ground truth: services up and Vector ready for dialogue."""
+    return product_ready_live(idle=idle)
 
 
 def owner_ready_from_probes(backend: bool, frontend: bool) -> bool:

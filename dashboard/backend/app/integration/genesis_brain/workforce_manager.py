@@ -1,10 +1,7 @@
-"""
-AI Workforce Manager — delegates to Workforce Director (score + quota failover).
-"""
+"""Workforce Manager — Planner-driven task routing (single analyze_turn per turn)."""
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 from typing import Any
 
@@ -15,21 +12,6 @@ from app.integration.genesis_brain.workforce_director import (
 )
 from app.integration.genesis_brain.workforce_performance import EmployeeScoreBreakdown
 
-_CODE = re.compile(
-    r"\b(?:код|python|javascript|typescript|react|ошибк|exception|debug|"
-    r"функци|class\s|import\s|api\s|sql|regex)\b",
-    re.I,
-)
-_SEARCH = re.compile(
-    r"\b(?:найди|поиск|новост|актуальн|что\s+происходит|google|"
-    r"источник|ссылк|факт\s+о)\b",
-    re.I,
-)
-_SALES = re.compile(
-    r"\b(?:сайт|лендинг|заказ|под\s+ключ|цена|стоимость|бот|магазин|услуг)\b",
-    re.I,
-)
-
 _PREMIUM_EMPLOYEES = frozenset({"openai", "anthropic"})
 
 
@@ -37,6 +19,7 @@ class WorkforceManager:
     """Facade — task classification + Workforce Director dispatch."""
 
     def __init__(self, memory_dir: Path | None = None) -> None:
+        self._memory_dir = memory_dir
         self._director = WorkforceDirector(memory_dir)
 
     def classify_task(
@@ -45,24 +28,27 @@ class WorkforceManager:
         thinking: Any,
         *,
         executive_action: str = "answer",
+        messages: list[dict[str, str]] | None = None,
+        has_attachments: bool = False,
+        visitor_id: str | None = None,
+        memory_dir: Path | None = None,
     ) -> WorkforceTask:
-        low = (last_user or "").strip().lower()
-        if not low:
-            return "conversation"
+        from app.integration.vector_intelligence.client_life_context import build_client_life_context
+        from app.integration.vector_intelligence.pipeline import analyze_turn
 
-        if _CODE.search(low):
-            return "code"
-        if _SEARCH.search(low):
-            return "search"
-        if _SALES.search(low):
-            return "sales"
+        life = None
+        vid = (visitor_id or "").strip()[:64]
+        mem = memory_dir or self._memory_dir
+        if vid and mem:
+            life = build_client_life_context(vid, memory_dir=mem)
 
-        conf = float(getattr(thinking, "confidence", 0.5) or 0.5)
-        if len(low) < 35 and "?" not in low and conf > 0.7:
-            return "simple"
-        if len(low) > 400 or conf < 0.42:
-            return "complex"
-        return "conversation"
+        analysis = analyze_turn(
+            last_user,
+            history=messages,
+            life=life,
+            has_attachments=has_attachments,
+        )
+        return analysis.workforce_task
 
     def plan(
         self,
@@ -72,12 +58,27 @@ class WorkforceManager:
         executive_action: str = "answer",
         premium_allowed: bool = False,
         available_employees: list[str] | None = None,
+        preferred_employees: list[str] | None = None,
+        messages: list[dict[str, str]] | None = None,
+        has_attachments: bool = False,
+        workforce_task: WorkforceTask | None = None,
+        visitor_id: str | None = None,
+        memory_dir: Path | None = None,
     ) -> WorkforcePlan:
-        task = self.classify_task(last_user, thinking, executive_action=executive_action)
+        task = workforce_task or self.classify_task(
+            last_user,
+            thinking,
+            executive_action=executive_action,
+            messages=messages,
+            has_attachments=has_attachments,
+            visitor_id=visitor_id,
+            memory_dir=memory_dir,
+        )
         return self._director.plan(
             task,
             premium_allowed=premium_allowed,
             available_employees=available_employees,
+            preferred_employees=preferred_employees,
         )
 
     def record_success(self, employee_id: str) -> None:

@@ -240,12 +240,78 @@ def start_backend(root: Path | None = None) -> tuple[bool, str, subprocess.Popen
     return True, f"Backend запущен (журнал: {log_file})", proc
 
 
+def _start_frontend_dev(
+    root: Path | None,
+    *,
+    managed: ManagedProcesses | None = None,
+    on_phase: Callable[[str], None] | None = None,
+    on_progress: Callable[[str], None] | None = None,
+) -> tuple[bool, str, subprocess.Popen | None]:
+    """CEO daily path — next dev when production build is missing or corrupt."""
+    from launcher.deps import augmented_path, ensure_frontend_ready, find_npm
+    from launcher.health import probe_frontend_live
+    from launcher.process_cleanup import frontend_listener_pids, stop_frontend_listeners
+
+    if probe_frontend_live(idle=True):
+        append_log("Frontend dev already serving :3000")
+        sync_state_from_ports(managed, root)
+        return True, "Mission Control уже работает (dev)", None
+
+    if on_phase:
+        on_phase("frontend")
+    if on_progress:
+        on_progress("Zapuskayu Mission Control (dev)...")
+
+    stop_frontend_listeners(root, managed)
+    time.sleep(0.5)
+
+    ok, msg = ensure_frontend_ready(root, for_production=False, managed=managed)
+    if not ok:
+        return False, msg, None
+
+    npm = find_npm()
+    if not npm:
+        return False, "Node.js / npm не найдены.", None
+
+    fe = frontend_dir(root)
+    log_file = log_dir(root) / "frontend.log"
+    log_handle = open(log_file, "a", encoding="utf-8")
+    env = os.environ.copy()
+    env["PATH"] = augmented_path()
+    env["PORT"] = "3000"
+    proc = subprocess.Popen(
+        [npm, "run", "dev"],
+        cwd=fe,
+        stdout=log_handle,
+        stderr=subprocess.STDOUT,
+        shell=False,
+        env=env,
+        creationflags=_no_window(),
+    )
+    append_log(f"Frontend started npm_pid={proc.pid} mode=dev (next dev)")
+    deadline = time.time() + 180.0
+    while time.time() < deadline:
+        if probe_frontend_live(idle=True):
+            sync_state_from_ports(managed, root)
+            fe_ports = frontend_listener_pids()
+            listener = fe_ports[0] if fe_ports else proc.pid
+            append_log(f"Frontend dev ready pid={listener} HTTP 200 on :3000")
+            return True, f"Mission Control готов (dev · {log_file})", proc
+        if proc.poll() is not None:
+            return False, "Frontend dev завершился — см. frontend.log", None
+        time.sleep(1.0)
+
+    sync_state_from_ports(managed, root)
+    return True, f"Mission Control запускается (dev · {log_file})", proc
+
+
 def start_frontend(
     root: Path | None = None,
     *,
     managed: ManagedProcesses | None = None,
     build_policy: str = "launch_stable",
     on_phase: Callable[[str], None] | None = None,
+    on_progress: Callable[[str], None] | None = None,
 ) -> tuple[bool, str, subprocess.Popen | None]:
     from launcher.deps import (
         augmented_path,
@@ -254,10 +320,20 @@ def start_frontend(
         find_npm,
         frontend_build_integrity,
     )
+    from launcher.frontend_build_policy import POLICY_DEV_SERVER, POLICY_REBUILD_NOW
     from launcher.health import frontend_port_listening, probe_frontend_live
     from launcher.process_cleanup import frontend_listener_pids, stop_frontend_listeners
 
-    if probe_frontend_live():
+    if build_policy == POLICY_DEV_SERVER or not frontend_build_integrity(root):
+        append_log("CEO path: production unavailable — using next dev")
+        return _start_frontend_dev(
+            root,
+            managed=managed,
+            on_phase=on_phase,
+            on_progress=on_progress,
+        )
+
+    if probe_frontend_live(idle=True):
         append_log("Frontend already serving :3000 — skip duplicate start")
         sync_state_from_ports(managed, root)
         return True, "Virtus Core уже работает на :3000", None
@@ -265,7 +341,7 @@ def start_frontend(
     fe = frontend_dir(root)
 
     # Process alive but not HTTP 200 — stop before rebuild/start.
-    if frontend_port_listening() and not probe_frontend_live():
+    if frontend_port_listening() and not probe_frontend_live(idle=True):
         append_log("Frontend listener on :3000 without HTTP 200 — stopping before restart")
         stop_frontend_listeners(root, managed)
         time.sleep(0.5)
@@ -277,6 +353,8 @@ def start_frontend(
     def _build_progress(label: str) -> None:
         if on_phase:
             on_phase("build_frontend")
+        if on_progress:
+            on_progress(label)
 
     ok, msg = ensure_frontend_ready(
         root,
@@ -365,6 +443,7 @@ def launch_genesis(
     root: Path | None = None,
     install_deps: bool = True,
     on_phase: Callable[[str], None] | None = None,
+    on_progress: Callable[[str], None] | None = None,
     build_policy: str = "launch_stable",
 ) -> tuple[bool, str]:
     from launcher.backend_identity import (
@@ -375,7 +454,7 @@ def launch_genesis(
     from launcher.deps import check_dependencies, install_backend_deps
     from launcher.health import owner_ready_live, probe_backend_live, probe_frontend_live
 
-    if owner_ready_live():
+    if owner_ready_live(idle=True):
         status = fetch_backend_status()
         compatible, reason = backend_runtime_compatible(root, status)
         if compatible:
@@ -445,12 +524,18 @@ def launch_genesis(
             return False, msg
         if on_phase:
             on_phase("frontend")
-        frontend_live = probe_frontend_live()
+        frontend_live = probe_frontend_live(idle=True)
         if frontend_live and (managed.frontend is None or managed.frontend.poll() is not None):
             reconnect_managed(managed, root)
             messages.append("Frontend уже работает — подключено (24/7)")
         elif not frontend_live and (managed.frontend is None or managed.frontend.poll() is not None):
-            ok, msg, proc = start_frontend(root, managed=managed, build_policy=build_policy, on_phase=on_phase)
+            ok, msg, proc = start_frontend(
+                root,
+                managed=managed,
+                build_policy=build_policy,
+                on_phase=on_phase,
+                on_progress=on_progress,
+            )
             messages.append(msg)
             if not ok:
                 return False, msg
@@ -500,10 +585,12 @@ def wait_until_ready(
         owner_ready_live,
         probe_backend_live,
         probe_frontend_live,
+        probe_vector_chat_ready,
+        startup_progress_message,
     )
     from launcher.startup_stages import assess_startup, failure_for_stage
 
-    MAX_TOTAL_SEC = 120.0
+    MAX_TOTAL_SEC = 150.0
     REPAIR_BACKEND_SEC = 20.0
     REPAIR_FRONTEND_SEC = 20.0
     ALIVE_NOT_READY_SEC = 2.0
@@ -532,12 +619,16 @@ def wait_until_ready(
 
         assessment = assess_startup(root)
 
-        if on_progress and sec > 0 and sec != last_progress_sec and sec % 4 == 0:
+        if on_progress and sec > 0 and sec != last_progress_sec and sec % 2 == 0:
             last_progress_sec = sec
-            if assessment.stage == "backend_down":
-                on_progress(f"🟡 Запуск Backend... ({sec} с)")
-            elif assessment.stage == "frontend_down":
-                on_progress(f"🟡 Запуск Frontend... ({sec} с)")
+            on_progress(
+                startup_progress_message(
+                    backend_up=probe_backend_live(),
+                    frontend_up=probe_frontend_live(),
+                    vector_ready=probe_vector_chat_ready(),
+                    elapsed_sec=sec,
+                )
+            )
 
         # --- Stage 1: Backend only ---
         if not probe_backend_live():

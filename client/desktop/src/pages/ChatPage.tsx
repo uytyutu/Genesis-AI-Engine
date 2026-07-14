@@ -1,41 +1,23 @@
-import { useEffect, useRef, useState, type DragEvent } from "react";
-import {
-  classifyAttachment,
-  validateAttachmentSize,
-  type ChatAttachmentMeta,
-} from "@genesis/chat/attachments";
+import { useEffect, useRef, useState } from "react";
 import { useAppSettings } from "../context/AppSettingsContext";
+import { useCustomerAuth } from "../context/CustomerAuthContext";
 import { useNavigation } from "../context/NavigationContext";
-import { askAssistant } from "../lib/endpoints";
+import { askVectorPublic } from "../lib/customerApi";
 import {
   loadChat,
-  loadPinnedPrompts,
-  QUICK_COMMANDS,
-  resolveQuickCommand,
   saveChat,
-  savePinnedPrompts,
-  searchChat,
   type ChatMessage,
 } from "../lib/chatStore";
-import { copyText, MessageBody } from "../lib/markdown";
-import { ASSISTANT_NAME } from "../lib/publicBrand";
+import { MessageBody } from "../lib/markdown";
+import { ASSISTANT_NAME, PUBLIC_WELCOME } from "../lib/publicBrand";
+import { getPriorVisitorId } from "../lib/visitorId";
 
 function ChatBubble({ message }: { message: ChatMessage }) {
-  const [copied, setCopied] = useState(false);
-
-  async function onCopy() {
-    const ok = await copyText(message.text);
-    if (ok) {
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1500);
-    }
-  }
-
   return (
     <div className={`chat__row chat__row--${message.role}`}>
       <div className={`chat__bubble chat__bubble--${message.role}`}>
         <div className="chat__meta">
-          <span>{message.role === "user" ? "You" : ASSISTANT_NAME}</span>
+          <span>{message.role === "user" ? "Вы" : ASSISTANT_NAME}</span>
           <time>{message.at}</time>
         </div>
         {message.role === "assistant" ? (
@@ -43,38 +25,50 @@ function ChatBubble({ message }: { message: ChatMessage }) {
         ) : (
           <p className="chat__plain">{message.text}</p>
         )}
-        <button
-          type="button"
-          className="chat__copy"
-          onClick={() => void onCopy()}
-          aria-label="Copy message"
-        >
-          {copied ? "Copied" : "Copy"}
-        </button>
       </div>
     </div>
   );
 }
 
-export function ChatPage() {
+type Props = {
+  onBusyChange?: (busy: boolean) => void;
+};
+
+const STARTERS = [
+  "Хочу открыть кофейню — с чего начать?",
+  "Помоги придумать идею для бизнеса",
+  "Что мы уже сделали в моих проектах?",
+];
+
+export function ChatPage({ onBusyChange }: Props) {
   const { settings } = useAppSettings();
+  const { session: customerSession } = useCustomerAuth();
   const { chatPrefill, clearChatPrefill } = useNavigation();
-  const [messages, setMessages] = useState<ChatMessage[]>(loadChat);
-  const [pinned, setPinned] = useState<string[]>(loadPinnedPrompts);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const saved = loadChat();
+    if (saved.length > 0) return saved;
+    return [
+      {
+        id: "welcome",
+        role: "assistant",
+        text: customerSession?.headline
+          ? `Здравствуйте! Я — ${ASSISTANT_NAME}, ваш цифровой сотрудник.\n\nРасскажите идею или вопрос — обсудим свободно. Когда понадобится хранить материалы, я сам предложу оформить это как проект.\n\n${customerSession.headline}`
+          : PUBLIC_WELCOME,
+        at: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      },
+    ];
+  });
   const [input, setInput] = useState("");
-  const [search, setSearch] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dropHint, setDropHint] = useState<string | null>(null);
-  const [attachments, setAttachments] = useState<ChatAttachmentMeta[]>([]);
-  const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const visible = search.trim() ? searchChat(messages, search) : messages;
+  const hasUserMessages = messages.some((m) => m.role === "user");
 
   useEffect(() => {
-    saveChat(messages);
-  }, [messages]);
+    saveChat(messages.filter((m) => m.id !== "welcome" || hasUserMessages));
+  }, [messages, hasUserMessages]);
 
   useEffect(() => {
     if (chatPrefill) {
@@ -85,12 +79,18 @@ export function ChatPage() {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, sending, visible.length]);
+  }, [messages, sending]);
 
   async function send(text?: string) {
-    const raw = (text ?? input).trim();
-    const question = resolveQuickCommand(raw) ?? raw;
+    const question = (text ?? input).trim();
     if (!question || sending) return;
+
+    const visitorId =
+      customerSession?.platformVisitorId?.trim() || getPriorVisitorId().trim();
+    if (!visitorId) {
+      setError("Сессия не готова. Выйдите и войдите снова.");
+      return;
+    }
 
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
@@ -102,15 +102,24 @@ export function ChatPage() {
     setInput("");
     setSending(true);
     setError(null);
+    onBusyChange?.(true);
 
     try {
-      const res = await askAssistant(settings, question);
+      const res = await askVectorPublic(settings, {
+        question,
+        visitor_id: visitorId,
+        locale: settings.locale,
+      });
+      const answer = res.answer?.trim();
+      if (!answer) {
+        throw new Error("Пустой ответ — проверьте, что Virtus Core запущен.");
+      }
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          text: res.answer,
+          text: answer,
           at: new Date().toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -118,182 +127,99 @@ export function ChatPage() {
         },
       ]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Assistant unavailable");
+      const msg =
+        e instanceof Error
+          ? e.message
+          : `${ASSISTANT_NAME} временно недоступен. Запустите Virtus Core и попробуйте снова.`;
+      setError(msg);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          text: `Извините, сейчас не могу ответить.\n\n${msg}`,
+          at: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        },
+      ]);
     } finally {
       setSending(false);
+      onBusyChange?.(false);
     }
-  }
-
-  function pinCurrentInput() {
-    const q = input.trim();
-    if (!q || pinned.includes(q)) return;
-    const next = [q, ...pinned].slice(0, 12);
-    setPinned(next);
-    savePinnedPrompts(next);
-  }
-
-  function removePin(prompt: string) {
-    const next = pinned.filter((p) => p !== prompt);
-    setPinned(next);
-    savePinnedPrompts(next);
-  }
-
-  function addFiles(fileList: FileList | File[]) {
-    const next: ChatAttachmentMeta[] = [];
-    for (const file of fileList) {
-      const err = validateAttachmentSize(file.size);
-      if (err) {
-        setDropHint(err);
-        continue;
-      }
-      next.push({
-        id: crypto.randomUUID(),
-        name: file.name,
-        mime: file.type || "application/octet-stream",
-        size: file.size,
-        kind: classifyAttachment(file.type, file.name),
-        status: "pending",
-      });
-    }
-    if (next.length) setAttachments((prev) => [...prev, ...next].slice(0, 8));
-  }
-
-  function onDrop(e: DragEvent) {
-    e.preventDefault();
-    setDropHint(null);
-    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
   }
 
   return (
-    <div
-      className="page page--chat"
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDropHint("Отпустите файл… (upload — скоро)");
-      }}
-      onDragLeave={() => setDropHint(null)}
-      onDrop={onDrop}
-    >
-      <header className="page__header page__header--row">
-        <div>
-          <h1>Chat</h1>
-          <p>/focus · /status · /projects · /revenue</p>
-        </div>
-        <button
-          type="button"
-          className="btn btn--ghost"
-          onClick={() => {
-            setMessages([]);
-            localStorage.removeItem("genesis.client.chat.v2");
-          }}
-        >
-          Clear
-        </button>
+    <div className="page page--chat page--chat-customer">
+      <header className="page__header">
+        <h1>{ASSISTANT_NAME}</h1>
+        <p>Ваш цифровой сотрудник — спрашивайте как в обычном чате</p>
       </header>
 
-      <div className="chat-toolbar">
-        <input
-          className="chat-toolbar__search"
-          placeholder="Поиск по истории…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      {pinned.length > 0 ? (
-        <div className="pinned-row">
-          {pinned.map((p) => (
-            <button
-              key={p}
-              type="button"
-              className="pinned-chip"
-              onClick={() => void send(p)}
-              title="Unpin"
-              onContextMenu={(e) => {
-                e.preventDefault();
-                removePin(p);
-              }}
-            >
-              {p.length > 28 ? `${p.slice(0, 28)}…` : p}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
-      <div className="chat">
+      <div className="chat chat--customer">
         <div className="chat__thread" aria-live="polite">
-          {visible.length === 0 ? (
-            <p className="chat__empty">
-              Спросите о проектах, выручке или фокусе дня.
-            </p>
-          ) : (
-            visible.map((m) => <ChatBubble key={m.id} message={m} />)
-          )}
-          {sending ? <p className="chat__typing">{ASSISTANT_NAME} думает…</p> : null}
+          {messages.map((m) => (
+            <ChatBubble key={m.id} message={m} />
+          ))}
+          {sending ? (
+            <p className="chat__typing">{ASSISTANT_NAME} печатает…</p>
+          ) : null}
           <div ref={endRef} />
         </div>
 
-        {dropHint ? <p className="banner banner--warn">{dropHint}</p> : null}
-        {attachments.length > 0 ? (
-          <div className="chat-attachments">
-            {attachments.map((a) => (
-              <span key={a.id} className="chat-attachment-chip">
-                {a.name} ({a.kind})
-              </span>
+        {!hasUserMessages ? (
+          <div className="chat-starters">
+            {STARTERS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                className="btn btn--ghost chat-starter"
+                onClick={() => void send(s)}
+                disabled={sending}
+              >
+                {s}
+              </button>
             ))}
           </div>
         ) : null}
+
         {error ? <p className="banner banner--warn">{error}</p> : null}
 
         <form
-          className="chat__composer"
+          className="chat__composer chat__composer--simple"
           onSubmit={(e) => {
             e.preventDefault();
             void send();
           }}
         >
-          <input
-            ref={fileRef}
-            type="file"
-            multiple
-            hidden
-            onChange={(e) => {
-              if (e.target.files) addFiles(e.target.files);
-              e.target.value = "";
-            }}
-          />
+          <input ref={fileRef} type="file" multiple hidden />
           <button
             type="button"
-            className="btn btn--ghost"
+            className="btn btn--ghost chat__icon-btn"
+            title="Прикрепить файл"
             onClick={() => fileRef.current?.click()}
-            title="Attach file"
+            disabled={sending}
           >
             📎
           </button>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Сообщение или /команда…"
-            maxLength={500}
+            placeholder={`Сообщение для ${ASSISTANT_NAME}…`}
+            maxLength={2000}
             disabled={sending}
-            list="quick-cmds"
           />
-          <datalist id="quick-cmds">
-            {Object.keys(QUICK_COMMANDS).map((k) => (
-              <option key={k} value={k} />
-            ))}
-          </datalist>
           <button
             type="button"
-            className="btn btn--ghost"
-            onClick={pinCurrentInput}
-            disabled={!input.trim()}
-            title="Pin prompt (right-click chip to unpin)"
+            className="btn btn--ghost chat__icon-btn"
+            title="Голосовой ввод — скоро"
+            disabled
           >
-            Pin
+            🎤
           </button>
-          <button type="submit" className="btn btn--primary" disabled={sending}>
-            Send
+          <button type="submit" className="btn btn--primary" disabled={sending || !input.trim()}>
+            ➡
           </button>
         </form>
       </div>

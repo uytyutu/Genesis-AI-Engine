@@ -38,7 +38,7 @@ class ThinkingBrief:
     def to_llm_block(self) -> str:
         """For system prompt only — never user-visible."""
         lines = [
-            "[Genesis Mind — внутренний Thinking Brief. Не цитируй дословно.]",
+            "[Thinking Brief — внутренний контекст. Не цитируй дословно.]",
             f"conversation_goal: {self.conversation_goal}",
             f"real_goal: {self.real_goal}",
             f"implicit_need: {self.implicit_need}",
@@ -46,7 +46,7 @@ class ThinkingBrief:
             f"confidence: {self.confidence:.2f}",
             f"recommended_action: {self.recommended_action}",
             f"why: {self.why}",
-            f"best_response_strategy: {self.best_response_strategy}",
+            f"journey_context: {self.best_response_strategy}",
         ]
         if self.known_facts:
             lines.append("known_facts: " + "; ".join(self.known_facts))
@@ -65,10 +65,6 @@ class ThinkingBrief:
                 "uncertainty_rule: не притворяйся всезнайкой — "
                 "«Не могу утверждать наверняка» или «Есть несколько точек зрения» уместны."
             )
-        lines.append(
-            "Правило: Genesis не пытается быть правым — пытается быть полезным. "
-            "Сначала понять, потом объяснить."
-        )
         return "\n".join(lines)
 
     def to_llm_mandate(
@@ -81,7 +77,7 @@ class ThinkingBrief:
         personality: str = "Genesis",
     ) -> str:
         """
-        Structured mandate for LLM cortex — Genesis Mind thinks first, LLM speaks.
+        Structured mandate for LLM — internal Journey context only.
         Never user-visible; injected into LLM turn only.
         """
         inf = memory_inferences or {}
@@ -112,7 +108,6 @@ class ThinkingBrief:
 
         lines = [
             "THINKING BRIEF",
-            f"Personality: {personality}",
             "",
             "Known Facts:",
         ]
@@ -138,7 +133,7 @@ class ThinkingBrief:
         lines.extend(
             [
                 "",
-                f"Response Strategy: {self.best_response_strategy or 'be useful, not right'}",
+                f"Journey context: {self.best_response_strategy or '—'}",
                 f"Reasoning: {self.why or '—'}",
             ]
         )
@@ -148,10 +143,6 @@ class ThinkingBrief:
             lines.append(
                 "Uncertainty: do not fake expertise — honest limits are allowed."
             )
-        lines.append(
-            "\nLLM role: you are the language cortex of Genesis. "
-            "Genesis Mind already decided. Write the user-facing reply in Genesis voice."
-        )
         return "\n".join(lines)
 
     def to_debug_dict(self) -> dict[str, object]:

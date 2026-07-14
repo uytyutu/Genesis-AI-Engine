@@ -2,9 +2,21 @@
   "voiceStatus": {
     "ready": "⚪ Bereit",
     "listening": "🎤 Höre zu…",
+    "recognizing": "📝 Erkenne…",
+    "thinking": "🤖 Denke…",
+    "responding": "💬 Antworte…",
     "speaking": "🗣️ Spreche…",
-    "thinking": "💭 Denke…",
     "stopped": "⏹️ Gestoppt"
+  },
+  "chatWait": {
+    "preparing": "🤖 Antwort wird vorbereitet…",
+    "almost": "🤖 Gleich fertig…"
+  },
+  "lifeSign": {
+    "received": "Nachricht erhalten",
+    "understanding": "Frage wird verstanden",
+    "connecting": "KI wird verbunden…",
+    "answering": "Antwort wird vorbereitet…"
   },
   "stop": "Stopp",
   "stopAria": "Sprache oder Generierung stoppen",

@@ -66,6 +66,23 @@ def light_system_status() -> dict:
     uptime = max(0.0, (datetime.now(timezone.utc) - started).total_seconds())
     if _git_commit is None:
         mark_server_started()
+
+    vector_chat_ready = False
+    vector_warmup_skipped = False
+    try:
+        from app.integration.ollama_warmup import warmup_status
+
+        ws = warmup_status()
+        vector_warmup_skipped = bool(ws.get("skipped"))
+        vector_chat_ready = bool(ws.get("ready"))
+        if not vector_chat_ready and vector_warmup_skipped:
+            from app.integration.genesis_ai_setup_service import GenesisAISetupService
+
+            st = GenesisAISetupService().status()
+            vector_chat_ready = bool(st.get("intelligence_active") or st.get("llm_configured"))
+    except Exception:
+        pass
+
     return {
         "name": "Virtus Core",
         "version": "0.2.0",
@@ -77,4 +94,6 @@ def light_system_status() -> dict:
         "process_started": started.isoformat(),
         "runtime_identity": RUNTIME_IDENTITY,
         "backend_pid": os.getpid(),
+        "vector_chat_ready": vector_chat_ready,
+        "vector_warmup_skipped": vector_warmup_skipped,
     }

@@ -14,7 +14,7 @@ WIZARD_STEPS: tuple[WizardStep, ...] = ("occupation", "goal", "pace")
 WIZARD_QUESTIONS_RU: dict[WizardStep, str] = {
     "occupation": "Чем вы занимаетесь?",
     "goal": "Для чего хотите использовать Virtus Core?",
-    "pace": "Хотите познакомиться с системой или сразу создать первый проект?",
+    "pace": "Хотите сначала просто пообщаться или сразу перейти к делу?",
 }
 
 QUICK_ACTIONS_BY_PROFILE: dict[InferredProfile, list[dict[str, str]]] = {

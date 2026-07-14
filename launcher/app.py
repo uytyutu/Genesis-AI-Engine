@@ -217,6 +217,9 @@ class StaleReleaseDialog(ctk.CTkToplevel):
     self.geometry("540x380")
     apply_window_icon(self)
     self.grab_set()
+    from launcher.ui_modal import arm_modal
+
+    arm_modal(self, master)
 
     rel = release_label if release_label != "не активирован" else "последний доступный"
 
@@ -288,6 +291,9 @@ class RecoveryModeDialog(ctk.CTkToplevel):
     self.geometry("540x400")
     apply_window_icon(self)
     self.grab_set()
+    from launcher.ui_modal import arm_modal
+
+    arm_modal(self, master)
 
     ctk.CTkLabel(
       self,
@@ -381,15 +387,80 @@ class BootFailureDialog(ctk.CTkToplevel):
       hover_color=GENESIS_ACCENT_HOVER,
       command=self._report,
     ).pack(side="left", padx=(0, 8))
+    if "восстановлен" in (result.error or "").lower():
+      ctk.CTkButton(
+        actions,
+        text="Запустить Stable Release",
+        fg_color="#22c55e",
+        hover_color="#16a34a",
+        command=self._launch_stable,
+      ).pack(side="left", padx=(0, 8))
     ctk.CTkButton(actions, text="Закрыть", command=self.destroy).pack(side="right")
 
   def _report(self) -> None:
     write_boot_report(self.result, self.master._project_root)
     LogDialog(self.master)
 
+  def _launch_stable(self) -> None:
+    from launcher.frontend_build_policy import POLICY_LAUNCH_STABLE
+
+    self.destroy()
+    self.master._schedule_boot_workflow(POLICY_LAUNCH_STABLE)
+
 
 def _show_boot_failure(master: "GenesisLauncher", result: BootResult) -> None:
   BootFailureDialog(master, result)
+
+
+class LastBuildFailureDialog(ctk.CTkToplevel):
+  """CEO — last failed Development Update (persisted between Launcher sessions)."""
+
+  def __init__(self, master: "GenesisLauncher", record) -> None:
+    super().__init__(master)
+    self.title(f"{BRAND_NAME} — последняя неудачная сборка")
+    self.geometry("540x460")
+    apply_window_icon(self)
+    self.grab_set()
+
+    ctk.CTkLabel(
+      self,
+      text="Последняя причина неудачной сборки",
+      font=ctk.CTkFont(size=16, weight="bold"),
+      text_color="#fbbf24",
+    ).pack(pady=(16, 8))
+
+    box = ctk.CTkTextbox(self, width=500, height=320, font=ctk.CTkFont(size=13))
+    box.pack(padx=16, pady=8)
+    box.insert("1.0", record.display_text())
+    box.configure(state="disabled")
+
+    actions = ctk.CTkFrame(self, fg_color="transparent")
+    actions.pack(fill="x", padx=16, pady=(0, 16))
+    if record.restored:
+      ctk.CTkButton(
+        actions,
+        text="Запустить Stable Release",
+        fg_color="#22c55e",
+        hover_color="#16a34a",
+        command=self._launch_stable,
+      ).pack(side="left", padx=(0, 8))
+    ctk.CTkButton(actions, text="Закрыть", command=self.destroy).pack(side="right")
+
+  def _launch_stable(self) -> None:
+    from launcher.frontend_build_policy import POLICY_LAUNCH_STABLE
+
+    self.destroy()
+    self.master._schedule_boot_workflow(POLICY_LAUNCH_STABLE)
+
+
+def show_last_build_failure(master: "GenesisLauncher", root) -> None:
+  from launcher.build_failure_report import load_last_build_failure
+
+  record = load_last_build_failure(root)
+  if record is None:
+    messagebox.showinfo(BRAND_NAME, "Неудачных сборок не зафиксировано.")
+    return
+  LastBuildFailureDialog(master, record)
 
 
 def _show_error(master: "GenesisLauncher", message: str) -> None:
@@ -425,6 +496,19 @@ class GenesisLauncher(ctk.CTk):
       self.config.save()
 
     ensure_desktop_identity_async(self._project_root)
+
+    def _prune_zombie_frontend() -> None:
+      try:
+        from launcher.health import frontend_port_listening, probe_frontend_live
+        from launcher.process_cleanup import stop_frontend_listeners
+
+        if frontend_port_listening() and not probe_frontend_live(idle=True):
+          append_log("Startup: port :3000 occupied without HTTP — clearing zombie listener")
+          stop_frontend_listeners(self._project_root)
+      except Exception as exc:
+        append_log(f"Startup prune skipped: {exc}")
+
+    threading.Thread(target=_prune_zombie_frontend, daemon=True).start()
 
     self._build_ui()
     self.after(500, self.refresh_status)
@@ -574,6 +658,16 @@ class GenesisLauncher(ctk.CTk):
       hover_color="#4b5563",
       command=self._show_release_history,
     ).pack(side="left")
+    self.last_build_fail_btn = ctk.CTkButton(
+      release_nav,
+      text="⚠ Последняя неудачная сборка",
+      height=28,
+      fg_color=GENESIS_AMBER,
+      hover_color="#d97706",
+      command=self._show_last_build_failure,
+    )
+    self.last_build_fail_btn.pack(side="left", padx=(8, 0))
+    self.last_build_fail_btn.pack_forget()
 
     self.metric_labels: list[ctk.CTkLabel] = []
     for _ in range(7):
@@ -789,7 +883,7 @@ class GenesisLauncher(ctk.CTk):
       lbl.configure(text=line)
 
     if health_running and mc and mc.get("system_running"):
-      self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
+      self.status_label.configure(text="✔ Готов", text_color="#22c55e")
     elif mc and not mc.get("system_running"):
       self.status_label.configure(text="⚪ Остановлен", text_color="#9ca3af")
 
@@ -858,6 +952,7 @@ class GenesisLauncher(ctk.CTk):
     from launcher.release_ui import refresh_release_panel
 
     refresh_release_panel(self.release_panel, self._project_root)
+    self._refresh_last_build_failure_btn()
 
     if snapshot.dependency_hints:
       self.hint_label.configure(text=" · ".join(snapshot.dependency_hints))
@@ -987,6 +1082,7 @@ class GenesisLauncher(ctk.CTk):
   def _resolve_build_policy(self) -> str | None:
     """Normal Launch · Development Update · Recovery Mode."""
     from launcher.frontend_build_policy import (
+      POLICY_DEV_SERVER,
       POLICY_LAUNCH_STABLE,
       POLICY_REBUILD_NOW,
       assess_production_build,
@@ -1005,24 +1101,18 @@ class GenesisLauncher(ctk.CTk):
     release_label = release_label_for_ui(self._project_root)
 
     if needs_recovery_mode(self.config.launch_mode, state):
-      choice = RecoveryModeDialog.ask(
-        self,
-        state.detail,
-        can_restore=release_snapshot_ready(self._project_root),
-        release_label=release_label,
-      )
-      if choice == "diagnostics":
-        LogDialog(self)
-        return None
-      if choice == "restore_release":
+      from launcher.log_util import append_log
+      from launcher.stable_release import release_snapshot_ready, restore_active_release
+
+      if release_snapshot_ready(self._project_root):
         ok, msg = restore_active_release(self._project_root)
-        if not ok:
-          messagebox.showerror(BRAND_NAME, msg)
-          return None
-        return POLICY_LAUNCH_STABLE
-      if choice == "rebuild_now":
-        return POLICY_REBUILD_NOW
-      return None
+        if ok:
+          append_log(f"Auto-repair: stable release restored — {msg}")
+          return POLICY_LAUNCH_STABLE
+      append_log(
+        f"Auto-repair: production {state.status} — Mission Control via next dev (CEO path)"
+      )
+      return POLICY_DEV_SERVER
 
     if normalize_launch_mode(self.config.launch_mode) == LAUNCH_MODE_DEVELOPMENT:
       if state.status in ("missing", "corrupt"):
@@ -1082,6 +1172,44 @@ class GenesisLauncher(ctk.CTk):
 
     ReleaseHistoryDialog(self, self._project_root)
 
+  def _show_last_build_failure(self) -> None:
+    show_last_build_failure(self, self._project_root)
+
+  def _refresh_last_build_failure_btn(self) -> None:
+    from launcher.build_failure_report import load_last_build_failure
+
+    record = load_last_build_failure(self._project_root)
+    if record is None:
+      self.last_build_fail_btn.pack_forget()
+      return
+    self.last_build_fail_btn.configure(text=record.button_label())
+    self.last_build_fail_btn.pack(side="left", padx=(8, 0))
+
+  def _schedule_boot_workflow(self, build_policy: str) -> None:
+    def work() -> None:
+      def begin() -> None:
+        self._start_genesis_workflow(build_policy=build_policy)
+
+      self.after(0, lambda: ensure_launcher_components(self, self._project_root, begin))
+
+    threading.Thread(target=work, daemon=True).start()
+
+  def _open_when_already_ready(self) -> None:
+    self._launch_attempted = True
+    self._last_error = ""
+    session_id, started = begin_launch_session(self._project_root)
+
+    def open_ready() -> None:
+      ok, err = self._open_mission_control()
+      if ok:
+        record_launch_success(session_id, started, root=self._project_root)
+        self.status_label.configure(text="✔ Готов", text_color="#22c55e")
+      else:
+        record_launch_failure(session_id, started, root=self._project_root, error=err)
+      self.refresh_status()
+
+    threading.Thread(target=lambda: self.after(0, open_ready), daemon=True).start()
+
   def _on_start(self) -> None:
     if self._busy:
       self.status_label.configure(
@@ -1090,25 +1218,7 @@ class GenesisLauncher(ctk.CTk):
       )
       return
 
-    if owner_ready_live():
-      self._launch_attempted = True
-      self._last_error = ""
-      session_id, started = begin_launch_session(self._project_root)
-
-      def open_ready() -> None:
-        ok, err = self._open_mission_control()
-        if ok:
-          record_launch_success(session_id, started, root=self._project_root)
-          self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
-        else:
-          record_launch_failure(session_id, started, root=self._project_root, error=err)
-        self.refresh_status()
-
-      threading.Thread(
-        target=lambda: self.after(0, open_ready),
-        daemon=True,
-      ).start()
-      return
+    from launcher.frontend_build_policy import POLICY_LAUNCH_STABLE
 
     build_policy = self._resolve_build_policy()
     if build_policy is None:
@@ -1118,11 +1228,22 @@ class GenesisLauncher(ctk.CTk):
       )
       return
 
-    def work() -> None:
-      def begin() -> None:
-        self._start_genesis_workflow(build_policy=build_policy)
+    if build_policy != POLICY_LAUNCH_STABLE:
+      self._schedule_boot_workflow(build_policy)
+      return
 
-      self.after(0, lambda: ensure_launcher_components(self, self._project_root, begin))
+    self.status_label.configure(text=f"🟡 Проверка {BRAND_NAME}...", text_color="#eab308")
+
+    def work() -> None:
+      ready = owner_ready_live()
+
+      def apply() -> None:
+        if ready:
+          self._open_when_already_ready()
+        else:
+          self._schedule_boot_workflow(build_policy)
+
+      self.after(0, apply)
 
     threading.Thread(target=work, daemon=True).start()
 
@@ -1137,38 +1258,50 @@ class GenesisLauncher(ctk.CTk):
 
     def work() -> None:
       session_id, started = begin_launch_session(self._project_root)
+      result: BootResult | None = None
 
       def on_phase(phase: str) -> None:
         labels = {
-          "backend": "🟡 Backend...",
-          "install_frontend": "🟡 Mission Control — установка...",
-          "build_frontend": "🟡 Mission Control — сборка...",
-          "frontend": "🟡 Mission Control...",
+          "backend": "🟡 Запускаю сервисы...",
+          "install_frontend": "🟡 Запускаю интерфейс...",
+          "build_frontend": "🟡 Подготавливаю интерфейс...",
+          "frontend": "🟡 Запускаю интерфейс...",
         }
         label = labels.get(phase, f"🟡 Подготовка {BRAND_NAME}...")
-        self.after(0, lambda: self.status_label.configure(text=label, text_color="#eab308"))
+        self.after(0, lambda l=label: self.status_label.configure(text=l, text_color="#eab308"))
 
-      result = run_runtime_boot(
-        self.managed,
-        root=self._project_root,
-        on_phase=on_phase,
-        on_progress=lambda label: self.after(
-          0, lambda l=label: self.status_label.configure(text=l, text_color="#eab308")
-        ),
-        build_policy=build_policy,
-      )
-      append_log(result.message or result.error)
+      try:
+        result = run_runtime_boot(
+          self.managed,
+          root=self._project_root,
+          on_phase=on_phase,
+          on_progress=lambda label: self.after(
+            0, lambda l=label: self.status_label.configure(text=l, text_color="#eab308")
+          ),
+          build_policy=build_policy,
+        )
+        append_log(result.message or result.error)
+      except Exception as exc:
+        append_log(f"Runtime Boot exception: {exc}")
+        result = BootResult(
+          success=False,
+          ready=False,
+          launch_ok=False,
+          message=str(exc),
+          error=str(exc),
+          cause=f"{BRAND_NAME} не смог полностью запуститься.",
+        )
 
       def done() -> None:
         self._busy = False
         self.start_btn.configure(state="normal")
-        if result.success and result.ready:
+        if result is not None and result.success and result.ready:
           self._last_error = ""
           self.config.touch_launch()
           self.fix_btn.pack_forget()
           record_launch_success(session_id, started, root=self._project_root)
           self._open_mission_control()
-          self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
+          self.status_label.configure(text="✔ Готов", text_color="#22c55e")
         else:
           self._last_error = result.error or result.message
           record_launch_failure(
@@ -1200,7 +1333,7 @@ class GenesisLauncher(ctk.CTk):
           self._last_error = ""
           self.fix_btn.pack_forget()
           self._open_mission_control()
-          self.status_label.configure(text=f"✔ {BRAND_NAME} полностью готов", text_color="#22c55e")
+          self.status_label.configure(text="✔ Готов", text_color="#22c55e")
           return
         self._run_auto_fix_workflow()
 
@@ -1225,7 +1358,7 @@ class GenesisLauncher(ctk.CTk):
       ready, err = (False, msg)
       if ok:
         ready, err = wait_until_ready(
-          timeout=45.0,
+          timeout=150.0,
           poll=0.8,
           managed=self.managed,
           root=self._project_root,
@@ -1243,7 +1376,7 @@ class GenesisLauncher(ctk.CTk):
           self._last_error = ""
           self.fix_btn.pack_forget()
           self._open_mission_control()
-          self.status_label.configure(text=f"🟢 {BRAND_NAME} готов к работе", text_color="#22c55e")
+          self.status_label.configure(text="✔ Готов", text_color="#22c55e")
         else:
           self._last_error = err or msg
           self.fix_btn.pack(fill="x", pady=3, after=self.start_btn)

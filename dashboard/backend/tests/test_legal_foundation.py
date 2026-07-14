@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from app.legal.document_generators import generate_document, list_document_catalog
+from app.legal.entity_env import apply_env_overlay
 from app.legal.entity_schema import LegalEntityConfig, OperatorInfo
 from app.legal.entity_store import LegalEntityStore
 from app.legal.handoff import one_time_purchase_handoff, subscription_handoff
@@ -151,7 +152,31 @@ def test_entity_store_loads_example_when_missing(tmp_path: Path):
     store = LegalEntityStore(tmp_path)
     cfg = store.load()
     assert cfg.operator.trade_name == "Virtus Core"
+    assert cfg.operator.email == "hello@genesis-ai-engine.com"
     assert store.status()["impressum_publishable"] is False
+
+
+def test_env_overlay_makes_impressum_publishable(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("GENESIS_LEGAL_OPERATOR_NAME", "Ramish Oltiiev")
+    monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_STREET", "Musterstraße 1")
+    monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_ZIP", "01067")
+    monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_CITY", "Dresden")
+    monkeypatch.setenv("GENESIS_LEGAL_EMAIL", "hello@genesis-ai-engine.com")
+    cfg = apply_env_overlay(LegalEntityConfig())
+    assert cfg.is_impressum_publishable() is True
+    assert cfg.interview_completed is True
+
+
+def test_operator_preview_shape(tmp_path: Path):
+    store = LegalEntityStore(tmp_path)
+    store.save(_complete_entity())
+    svc = LegalFoundationService(tmp_path)
+    preview = svc.operator_preview()
+    assert preview["trade_name"] == "Virtus Core"
+    assert preview["full_name"] == "Max Mustermann"
+    assert preview["email"] == "hello@example.com"
+    assert preview["impressum_publishable"] is True
+    assert preview["address_lines"]
 
 
 def test_entity_store_save_and_reload(tmp_path: Path):
@@ -161,6 +186,25 @@ def test_entity_store_save_and_reload(tmp_path: Path):
     loaded = store.load()
     assert loaded.operator.full_name == "Max Mustermann"
     assert store.status()["impressum_publishable"] is True
+
+
+def test_entity_store_persists_env_overlay_when_publishable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setenv("GENESIS_LEGAL_OPERATOR_NAME", "Ramish Oltiiev")
+    monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_STREET", "Teststraße 1")
+    monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_ZIP", "01237")
+    monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_CITY", "Dresden")
+    monkeypatch.setenv("GENESIS_LEGAL_EMAIL", "hello@genesis-ai-engine.com")
+    store = LegalEntityStore(tmp_path)
+    cfg = store.load()
+    assert cfg.is_impressum_publishable() is True
+    assert (tmp_path / "legal_entity.json").is_file()
+    reloaded = LegalEntityStore(tmp_path)
+    monkeypatch.delenv("GENESIS_LEGAL_OPERATOR_NAME", raising=False)
+    monkeypatch.delenv("GENESIS_LEGAL_ADDRESS_STREET", raising=False)
+    persisted = reloaded.load()
+    assert persisted.operator.full_name == "Ramish Oltiiev"
 
 
 def test_legal_foundation_service_api_shape(tmp_path: Path):

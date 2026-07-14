@@ -96,7 +96,7 @@ class ThinkingEngine:
             recommended_action=recommended,
             why=goal.reasoning_chain,
             risks=(),
-            best_response_strategy="быть полезным, не правым",
+            best_response_strategy="этап Journey: по контексту хода; ситуация: уточняется goal layer",
             optional_question=goal.optional_question,
             thread=goal.thread,
         )

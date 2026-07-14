@@ -13,7 +13,7 @@ from launcher.deps import (
 from launcher.launch_mode import LAUNCH_MODE_DEVELOPMENT, LAUNCH_MODE_OWNER, normalize_launch_mode
 
 BuildStatus = Literal["ready", "stale", "missing", "corrupt"]
-BuildPolicy = Literal["launch_stable", "rebuild_now"]
+BuildPolicy = Literal["launch_stable", "rebuild_now", "dev_server"]
 
 STATUS_READY = "ready"
 STATUS_STALE = "stale"
@@ -22,6 +22,7 @@ STATUS_CORRUPT = "corrupt"
 
 POLICY_LAUNCH_STABLE = "launch_stable"
 POLICY_REBUILD_NOW = "rebuild_now"
+POLICY_DEV_SERVER = "dev_server"
 
 
 @dataclass(frozen=True)
@@ -66,11 +67,8 @@ def needs_recovery_mode(launch_mode: str | None, state: ProductionBuildState) ->
 
 
 def default_policy_for_launch(launch_mode: str | None, state: ProductionBuildState) -> BuildPolicy:
-    """Development mode may rebuild; CEO never auto-rebuilds on stale alone."""
-    mode = normalize_launch_mode(launch_mode)
+    """Missing/corrupt → rebuild; stale alone never auto-rebuilds (explicit Development Update)."""
     if state.status in (STATUS_MISSING, STATUS_CORRUPT):
-        return POLICY_REBUILD_NOW
-    if state.status == STATUS_STALE and mode == LAUNCH_MODE_DEVELOPMENT:
         return POLICY_REBUILD_NOW
     return POLICY_LAUNCH_STABLE
 
