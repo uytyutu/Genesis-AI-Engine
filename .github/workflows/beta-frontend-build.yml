@@ -1,0 +1,37 @@
+# Validates beta frontend build on every push to the beta branch.
+# Vercel genesis-beta auto-deploys from the same branch (see dashboard/BETA_PREVIEW_SETUP.md).
+
+name: Beta frontend build
+
+on:
+  push:
+    branches:
+      - cursor/mission1-genesis-brain-public-layer
+    paths:
+      - "dashboard/frontend/**"
+      - "scripts/verify_public_deploy.py"
+      - ".github/workflows/beta-frontend-build.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dashboard/frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: dashboard/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Production build
+        env:
+          NEXT_PUBLIC_API_URL: https://renewed-reprieve-production.up.railway.app
+          NEXT_PUBLIC_SITE_URL: https://beta.genesis-ai-engine.com
+        run: npm run build

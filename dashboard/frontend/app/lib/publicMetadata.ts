@@ -29,5 +29,5 @@ export function publicPageMetadata(
 }
 
 export const DEFAULT_PUBLIC_DESCRIPTION =
-  "Современный сайт для бизнеса под ключ: цена сразу, оплата онлайн, статус заказа. " +
+  "Vector — цифровой сотрудник Virtus Core: черновик сайта в реальном времени, базовая SEO-структура, оформление прав на тот же результат. " +
   SITE_TAGLINE;

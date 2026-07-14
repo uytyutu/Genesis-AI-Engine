@@ -6,8 +6,8 @@ import { publicPageMetadata } from "../lib/publicMetadata";
 import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
 
 export const metadata: Metadata = publicPageMetadata(
-  `${ASSISTANT_NAME} — цифровая компания`,
-  `${ASSISTANT_NAME} от ${BRAND_NAME}: проекты, документы, сайты. Лендинг под ключ — от 350 €.`,
+  `${ASSISTANT_NAME} — ваш цифровой сотрудник`,
+  `${ASSISTANT_NAME} от ${BRAND_NAME}: расскажите о бизнесе — черновик сайта появится сразу. Оформите права на тот же результат.`,
   "/site"
 );
 

@@ -122,13 +122,13 @@ def main() -> int:
     guided_markers = False
     if code == 200:
         guided_markers = (
-            "Получить сайт" in html
-            or "Что вы хотите получить" in html
-            or "GuidedCommerce" in html
+            "цифровой сотрудник" in html
+            or "Показать черновик" in html
+            or "VectorCommerceSteps" in html
         )
         if not guided_markers:
             chunks = re.findall(r"/_next/static/chunks/[^\"']+\.js", html)
-            for c in chunks[:24]:
+            for c in chunks[:32]:
                 try:
                     c_code, js = _get(f"{fe}{c}", timeout=15)
                     if c_code != 200:
@@ -136,19 +136,19 @@ def main() -> int:
                     if any(
                         s in js
                         for s in (
-                            "Получить сайт",
-                            "GuidedCommerce",
-                            "guided_commerce",
-                            "Продолжить оформление",
+                            "цифровой сотрудник",
+                            "Показать черновик",
+                            "VectorCommerceSteps",
+                            "GuidedFactoryProductPreview",
                         )
                     ):
                         guided_markers = True
                         break
                 except OSError:
                     continue
-        check("Guided Commerce bundle on /site", guided_markers)
+        check("Vector-first /site bundle", guided_markers)
         if not guided_markers:
-            print("  [INFO] Push latest main to Vercel beta and redeploy")
+            print("  [INFO] Redeploy Vercel genesis-beta from cursor/mission1-genesis-brain-public-layer")
         check("No localhost API leak in HTML", "localhost:8000" not in html)
 
     print(f"\nResult: {passed}/{total} checks passed")

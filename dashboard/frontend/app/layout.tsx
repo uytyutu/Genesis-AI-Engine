@@ -2,14 +2,16 @@ import type { Metadata } from "next";
 import { AppShell } from "./components/AppShell";
 import { LocaleProvider } from "./context/LocaleContext";
 import { ToastProvider } from "./components/ToastProvider";
+import { SITE_URL } from "./lib/siteConfig";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Virtus Core",
     template: "%s · Virtus Core",
   },
-  description: "Virtus Core — платформа цифровой компании. Vector ведёт ваши проекты до результата.",
+  description: "Virtus Core — Vector ведёт ваш проект: чат, черновик сайта и оформление в одном рабочем месте.",
   icons: {
     icon: [
       { url: "/brand/favicon-16.png", sizes: "16x16", type: "image/png" },

@@ -41,6 +41,10 @@ const nextConfig: NextConfig = {
         destination: `${apiBase}/api/sales/:path*`,
       },
       {
+        source: "/api/factory/:path*",
+        destination: `${apiBase}/api/factory/:path*`,
+      },
+      {
         source: "/api/webhooks/stripe",
         destination: `${apiBase}/api/webhooks/stripe`,
       },
