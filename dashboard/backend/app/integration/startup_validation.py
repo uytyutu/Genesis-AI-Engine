@@ -114,6 +114,27 @@ def _check_configuration() -> dict[str, Any]:
     }
 
 
+def _check_farm_vault() -> dict[str, Any]:
+    """Farm / exchange keys — booleans only, never log secret values."""
+    load_local_env()
+    toloka = bool(os.getenv("TOLOKA_API_TOKEN", "").strip())
+    scale = bool(os.getenv("SCALE_API_KEY", "").strip())
+    farm_live = (os.getenv("FARM_LIVE_MODE", "dry_run") or "dry_run").strip().lower()
+    farm_exec = (os.getenv("FARM_EXECUTION_MODE", "local") or "local").strip().lower()
+    pool = bool(os.getenv("FARM_WORKER_POOL_URL", "").strip())
+    return {
+        "name": "farm_vault",
+        "ok": True,
+        "env_file": "dashboard/backend/.env.local",
+        "farm_live_mode": farm_live,
+        "farm_execution_mode": farm_exec,
+        "toloka_configured": toloka,
+        "scale_configured": scale,
+        "remote_pool_configured": pool,
+        "note": "Toloka/Scale values never logged",
+    }
+
+
 def run_startup_validation(*, memory_dir: Path, repo_root: Path) -> dict[str, Any]:
     checks = [
         _check_memory(memory_dir),
@@ -122,6 +143,7 @@ def run_startup_validation(*, memory_dir: Path, repo_root: Path) -> dict[str, An
         _check_workforce(),
         _check_secrets(),
         _check_configuration(),
+        _check_farm_vault(),
     ]
     failed = [c["name"] for c in checks if not c.get("ok")]
     report: dict[str, Any] = {
@@ -171,4 +193,19 @@ def log_startup_report(report: dict[str, Any]) -> None:
                 lines.append(f"  [WARN] LLM provider {pid}: {state}")
     except Exception:
         pass
+    farm = (report.get("checks") or {}).get("farm_vault") or {}
+    if farm:
+        lines.append(f"  [OK] farm_vault — file {farm.get('env_file')}")
+        lines.append(
+            f"       FARM_LIVE_MODE={farm.get('farm_live_mode')} "
+            f"FARM_EXECUTION_MODE={farm.get('farm_execution_mode')}"
+        )
+        if farm.get("toloka_configured"):
+            lines.append("  [OK] Toloka API token: present (Pipeline v2)")
+        else:
+            lines.append("  [WARN] TOLOKA_API_TOKEN is missing")
+        if farm.get("scale_configured"):
+            lines.append("  [OK] Scale API key: present")
+        if farm.get("farm_execution_mode") == "remote" and not farm.get("remote_pool_configured"):
+            lines.append("  [WARN] FARM_WORKER_POOL_URL missing — exchange OK, remote workers blocked")
     logger.info("\n".join(lines))

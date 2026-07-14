@@ -60,6 +60,7 @@ class FinanceGuard:
         farm_state: dict[str, Any],
         pending_submit: int = 0,
         submitted_total: int = 0,
+        verified_income_eur: float | None = None,
     ) -> dict[str, Any]:
         """Прогноз «Сегодня»: расход vs ожидаемый доход vs ROI %."""
         spend_llm = round(float(farm_state.get("llm_cost_eur") or 0), 4)
@@ -95,6 +96,21 @@ class FinanceGuard:
 
         net_profit_forecast_eur = net_forecast  # alias: прибыль после расходов
 
+        confirmed = verified_income_eur
+        if confirmed is None:
+            confirmed = 0.0
+        confirmed = round(max(0.0, float(confirmed)), 4)
+        cost_per_verified_eur: float | None = None
+        if confirmed > 0 and spend_total >= 0:
+            cost_per_verified_eur = round(spend_total / confirmed, 4)
+        cost_per_euro_note_ru: str | None = None
+        if cost_per_verified_eur is not None:
+            econ = "положительная" if cost_per_verified_eur < 1.0 else "отрицательная"
+            cost_per_euro_note_ru = (
+                f"Чтобы заработать 1 € (подтверждённо), потрачено {cost_per_verified_eur:.2f} €. "
+                f"Экономика {econ}."
+            )
+
         return {
             "label_ru": "Сегодня",
             "spend_eur": spend_total,
@@ -114,6 +130,9 @@ class FinanceGuard:
                 f"Сегодня · расход {spend_total:.2f} € · валовой доход {expected_gross:.2f} € · "
                 f"прибыль ~{net_profit_forecast_eur:.2f} € · ROI {roi_pct if roi_pct is not None else '—'}%"
             ),
+            "verified_income_eur": confirmed,
+            "cost_per_verified_eur": cost_per_verified_eur,
+            "cost_per_euro_note_ru": cost_per_euro_note_ru,
         }
 
     def evaluate_tick(
@@ -198,12 +217,17 @@ class FinanceGuard:
         submitted_total: int = 0,
         toloka_status: dict[str, Any] | None = None,
         ceo_flags: dict[str, bool] | None = None,
+        verified_income_eur: float | None = None,
     ) -> dict[str, Any]:
         snap = self._load()
+        flags = ceo_flags or {}
+        if verified_income_eur is None and flags.get("wallet_toloka"):
+            verified_income_eur = float(farm_state.get("total_earned_eur") or farm_state.get("today_earned_eur") or 0)
         forecast = self.daily_forecast(
             farm_state=farm_state,
             pending_submit=pending_submit,
             submitted_total=submitted_total,
+            verified_income_eur=verified_income_eur if flags.get("wallet_toloka") else 0.0,
         )
         from swarm.revenue_confidence import compute_revenue_confidence
 

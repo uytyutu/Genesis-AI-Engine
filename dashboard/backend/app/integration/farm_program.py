@@ -223,6 +223,8 @@ def build_farm_program(
     labels_export_count: int = 0,
     ceo_flags: dict[str, bool] | None = None,
     error_ledger_summary: dict[str, Any] | None = None,
+    commercial_experiments: list[dict[str, Any]] | None = None,
+    revenue_replay: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Single bundle for CEO / agent audit — Digital Operating System view."""
     from swarm.farm_explainability import explain_vre_verdict
@@ -294,10 +296,16 @@ def build_farm_program(
         ceo_flags=ceo,
     )
 
+    verified_status = "VERIFIED" if vre_level >= 4 else "NOT VERIFIED"
+
     return {
         "program_id": "mission1_verified_revenue",
         "title_ru": "Genesis · Digital Operating System · Mission 1",
         "subtitle_ru": "ИИ — компонент. Цель — воспроизводимый доход (VRE LEVEL 4).",
+        "verified_revenue_status": verified_status,
+        "verified_revenue_label_ru": (
+            "Verified Revenue · VERIFIED" if verified_status == "VERIFIED" else "Verified Revenue · NOT VERIFIED"
+        ),
         "evaluated_at": datetime.now(timezone.utc).isoformat(),
         "vre_level": vre_level,
         "vre": vre_gate.get("vre"),
@@ -315,6 +323,8 @@ def build_farm_program(
         "error_ledger": error_ledger_summary or {"total_logged": 0, "note_ru": "Reject ещё не было"},
         "explainability": explainability,
         "force_vectors": force_vectors,
+        "commercial_experiments": commercial_experiments or [],
+        "revenue_replay": revenue_replay,
         "post_vre4_sequence_ru": POST_VRE4_SEQUENCE_RU,
         "finance_guard": {
             "forecast": forecast,

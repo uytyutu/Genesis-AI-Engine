@@ -101,14 +101,21 @@ def load_local_env() -> None:
         return
 
     candidates = (
-        backend_dir / ".env",
-        backend_dir / ".env.local",
-        backend_dir.parent / ".env",
         repo_root / ".env",
+        backend_dir / ".env",
+        backend_dir.parent / ".env",
+        backend_dir / ".env.local",
     )
     for path in candidates:
         override = path.name == ".env.local" and path.parent == backend_dir
         _load_env_file(path, override=override)
+
+    startup = __import__("logging").getLogger("genesis.startup")
+    if not is_test_env():
+        if (repo_root / ".env").is_file():
+            startup.info("Loading configuration from repo root .env (Genesis.exe folder)")
+        if (backend_dir / ".env.local").is_file():
+            startup.info("Loading configuration from dashboard/backend/.env.local")
 
     _load_secrets_file(backend_dir / "secrets" / "llm.key")
     _load_secrets_file(repo_root / "secrets" / "llm.key")

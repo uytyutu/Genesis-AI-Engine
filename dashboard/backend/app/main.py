@@ -657,6 +657,19 @@ def farm_program() -> dict:
     return _ctx().micro_farm.farm_program()
 
 
+@app.get("/api/farm/experiments")
+def farm_commercial_experiments() -> dict:
+    load_local_env()
+    rows = _ctx().micro_farm.commercial_experiments()
+    return {"ok": True, "experiments": rows}
+
+
+@app.post("/api/farm/revenue-replay")
+def farm_revenue_replay(workers: int = 10) -> dict:
+    load_local_env()
+    return _ctx().micro_farm.run_revenue_replay(workers=max(1, min(100, workers)))
+
+
 @app.post("/api/farm/feed")
 def farm_feed() -> dict:
     """Discover public URLs worldwide — fills combiner task queue."""

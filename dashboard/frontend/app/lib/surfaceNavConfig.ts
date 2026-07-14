@@ -52,6 +52,7 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
     "/settings",
     "/setup",
     "/launch",
+    "/journal",
     "/opportunities",
     "/acquisition",
     "/scanner",
@@ -86,7 +87,7 @@ export const CLIENT_NAV_LINKS = [
 
 export const CEO_PRIMARY_LINKS = [
   { href: "/", label: "Движок", hint: "Engine Mode · монетизация" },
-  { href: "/opportunities", label: "Журнал", hint: "Сканер активов" },
+  { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
   { href: "/create", label: "Factory", hint: "Сборка черновиков" },
   { href: "/finance", label: "Финансы", hint: "Деньги" },
   { href: "/company", label: "Стратегия", hint: "Компания" },
@@ -95,7 +96,7 @@ export const CEO_PRIMARY_LINKS = [
 export const CEO_STUDIO_LINKS = [
   { href: "/cursor", label: "Development", hint: "Cursor · код" },
   { href: "/acquisition", label: "Acquisition", hint: "Исходящие продажи" },
-  { href: "/opportunities", label: "Журнал", hint: "Сканер активов" },
+  { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
   { href: "/ai", label: "AI Hub", hint: "Помощник" },
   { href: "/growth", label: "Аналитика", hint: "Рост" },
 ] as const;

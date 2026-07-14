@@ -1354,13 +1354,17 @@ class MicroFarmService:
         )
 
     def farm_program(self) -> dict[str, Any]:
+        from app.integration.commercial_experiment_journal import ensure_baseline_experiments, list_experiments
         from app.integration.farm_program import build_farm_program, error_ledger_from_memory
         from app.integration.first_euro_gate import load_ceo_flags
+        from app.integration.revenue_replay import load_replay_snapshot
 
+        ensure_baseline_experiments(self._memory)
         state = self._load_state()
         toloka = self.toloka_submit_status()
+        gate = self.first_euro_gate()
         return build_farm_program(
-            vre_gate=self.first_euro_gate(),
+            vre_gate=gate,
             finance_guard=self._finance_guard_snapshot(),
             commercial_evidence=self.commercial_evidence(),
             toloka_status=toloka,
@@ -1368,16 +1372,76 @@ class MicroFarmService:
             labels_export_count=self.labels_export_count(),
             ceo_flags=load_ceo_flags(self._memory),
             error_ledger_summary=error_ledger_from_memory(self._memory),
+            commercial_experiments=list_experiments(self._memory),
+            revenue_replay=load_replay_snapshot(self._memory),
         )
+
+    def commercial_experiments(self) -> list[dict[str, Any]]:
+        from app.integration.commercial_experiment_journal import ensure_baseline_experiments, list_experiments
+
+        ensure_baseline_experiments(self._memory)
+        return list_experiments(self._memory)
+
+    def run_revenue_replay(self, *, workers: int = 10) -> dict[str, Any]:
+        """Повторить последний полевой прогон: start → tick → submit (+ save snapshot)."""
+        from app.integration.revenue_replay import (
+            build_snapshot_from_run,
+            load_replay_snapshot,
+            save_replay_snapshot,
+        )
+
+        prev = load_replay_snapshot(self._memory)
+        w = max(1, min(100, int((prev or {}).get("workers") or workers)))
+        start = self.start_swarm(workers=w)
+        tick = self.run_tick(workers=w)
+        submit = self.submit_toloka_labels(limit=50)
+        toloka = self.toloka_submit_status()
+        snap = build_snapshot_from_run(
+            workers=w,
+            feed_ok=False,
+            tick_tasks=int(tick.get("tasks_done") or 0),
+            submit_result=submit,
+            toloka_status=toloka,
+        )
+        save_replay_snapshot(self._memory, snap)
+        return {
+            "ok": True,
+            "message": "Revenue Replay: start → tick → submit (snapshot сохранён)",
+            "workers": w,
+            "start": start,
+            "tick": tick,
+            "submit": submit,
+            "replay_snapshot": snap,
+            "program": self.farm_program(),
+        }
 
     def verified_revenue_engine(self) -> dict[str, Any]:
         return self.first_euro_gate()
 
     def confirm_first_euro_step(self, step_id: str, *, done: bool = True) -> dict[str, Any]:
+        from app.integration.commercial_experiment_journal import append_experiment
         from app.integration.first_euro_gate import save_ceo_flag
 
         flags = save_ceo_flag(self._memory, step_id, done=done)
         gate = self.first_euro_gate()
+        if done and step_id == "wallet_toloka":
+            append_experiment(
+                self._memory,
+                channel="toloka_requester",
+                outcome_ru="CEO: wallet подтверждён",
+                outcome_code="CEO_WALLET",
+                detail_ru="Truth Engine → CEO_CONFIRMATION",
+                vre_level=int(gate.get("vre_level") or 0),
+            )
+        elif done and step_id == "vre_cycle_repeat":
+            append_experiment(
+                self._memory,
+                channel="toloka_requester",
+                outcome_ru="Цикл повторён ≥3",
+                outcome_code="VRE_L4",
+                detail_ru="Verified Revenue Engine",
+                vre_level=4,
+            )
         return {"ok": True, "step_id": step_id, "done": done, "flags": flags, "gate": gate}
 
     def submit_toloka_labels(self, *, limit: int = 50, trigger_run: bool | None = None) -> dict[str, Any]:

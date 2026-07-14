@@ -9,6 +9,11 @@ export default function SettingsPage() {
         <h1 className="text-center text-2xl font-bold">Настройки</h1>
         <section className="rounded-xl border border-genesis-border bg-genesis-panel p-6 text-sm text-genesis-muted">
           <p>Имя владельца и параметры запуска настраиваются в приложении Virtus Core на рабочем столе.</p>
+          <p className="mt-3">
+            Ключи бирж (Toloka, Scale) и режим фермы — только в файле{" "}
+            <code className="text-white/90">dashboard/backend/.env.local</code>. В браузере они не
+            дублируются и в базу не сохраняются.
+          </p>
           <p className="mt-3">Версия платформы: 0.2</p>
         </section>
         <p className="text-center">

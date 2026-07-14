@@ -77,6 +77,21 @@ def test_finance_guard_forecast_with_expected_pay(tmp_path: Path, monkeypatch):
     assert f["roi_pct"] is not None
 
 
+def test_finance_guard_cost_per_verified_eur(tmp_path: Path, monkeypatch):
+    ensure_swarm_importable()
+    from swarm.finance_guard import FinanceGuard
+
+    mem = tmp_path / "memory"
+    mem.mkdir()
+    g = FinanceGuard(mem)
+    f = g.daily_forecast(
+        farm_state={"today_earned_eur": 1.0, "llm_cost_eur": 0.27, "total_tasks_done": 5},
+        verified_income_eur=1.0,
+    )
+    assert f["cost_per_verified_eur"] == 0.27
+    assert "положительная" in (f.get("cost_per_euro_note_ru") or "")
+
+
 def test_vre_channel_review_verdict(tmp_path: Path, monkeypatch):
     from app.integration.first_euro_gate import build_first_euro_gate
 

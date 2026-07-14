@@ -268,6 +268,14 @@ type FarmDash = {
       }[];
     };
     post_vre4_sequence_ru?: string[];
+    verified_revenue_status?: "VERIFIED" | "NOT VERIFIED";
+    commercial_experiments?: {
+      date_ru?: string;
+      channel: string;
+      outcome_ru: string;
+      outcome_code: string;
+    }[];
+    revenue_replay?: { label_ru?: string; saved_at?: string; steps_ru?: string[] };
   };
   commercial_evidence?: CommercialEvidence;
   finance_guard?: {
@@ -283,6 +291,8 @@ type FarmDash = {
       expected_gross_revenue_eur?: number;
       expected_income_eur: number;
       net_profit_forecast_eur?: number;
+      cost_per_verified_eur?: number | null;
+      cost_per_euro_note_ru?: string | null;
       roi_pct: number | null;
       summary_ru: string;
       expected_note_ru: string;
@@ -435,6 +445,18 @@ export function FarmDashboard() {
     }
   }
 
+  async function runRevenueReplay() {
+    setBusy("replay");
+    try {
+      const res = await fetch(`${API}/api/farm/revenue-replay`, { method: "POST" });
+      const body = await res.json();
+      setMessage(body.message ?? "Revenue Replay");
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
   const connectedPlatforms = dash?.platforms.filter((p) => p.connected).length ?? 0;
   const totalPlatforms = dash?.platforms.length ?? 0;
 
@@ -442,6 +464,28 @@ export function FarmDashboard() {
     <main className="min-h-screen pb-16">
       <div className="mx-auto max-w-4xl space-y-6 px-4 pt-6">
         <header className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/50 via-genesis-panel to-genesis-panel p-6">
+          <div
+            className={`mb-4 rounded-xl border px-4 py-3 text-center ${
+              dash?.farm_program?.verified_revenue_status === "VERIFIED"
+                ? "border-emerald-400/60 bg-emerald-950/40"
+                : "border-rose-500/50 bg-rose-950/30"
+            }`}
+          >
+            <p className="text-[10px] uppercase tracking-[0.4em] text-white/60">Mission 1</p>
+            <p
+              className={`text-2xl font-black tracking-wide ${
+                dash?.farm_program?.verified_revenue_status === "VERIFIED"
+                  ? "text-emerald-300"
+                  : "text-rose-300"
+              }`}
+            >
+              Verified Revenue · {dash?.farm_program?.verified_revenue_status ?? "NOT VERIFIED"}
+            </p>
+            <p className="mt-1 text-[11px] text-white/70">
+              VRE LEVEL {dash?.first_euro_gate?.vre_level ?? dash?.farm_program?.vre_level ?? 0} · до VERIFIED —
+              только полевой эксперимент
+            </p>
+          </div>
           <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/90">Virtus Core · Рабочий инструмент</p>
           <h1 className="mt-2 text-3xl font-bold text-white">Цифровая ферма · {dash?.owner_name ?? "…"}</h1>
           <p className="mt-2 text-sm text-genesis-muted">
@@ -753,6 +797,49 @@ export function FarmDashboard() {
                 "Gross = оборот · Net = прибыль после LLM/VPS"}
             </p>
             <p className="mt-1 text-[11px] text-genesis-muted">{dash.finance_guard.forecast.expected_note_ru}</p>
+            {dash.finance_guard.forecast.cost_per_euro_note_ru ? (
+              <p className="mt-2 rounded border border-emerald-500/30 bg-emerald-950/20 p-2 text-xs text-emerald-100">
+                {dash.finance_guard.forecast.cost_per_euro_note_ru}
+              </p>
+            ) : (
+              <p className="mt-2 text-[11px] text-genesis-muted">
+                Стоимость 1 € появится после CEO_CONFIRMATION wallet (подтверждённый доход)
+              </p>
+            )}
+          </section>
+        ) : null}
+
+        {dash?.farm_program?.commercial_experiments && dash.farm_program.commercial_experiments.length > 0 ? (
+          <section className="genesis-card border-white/10 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-sm font-bold text-white">Журнал коммерческих экспериментов</h2>
+              <button
+                type="button"
+                disabled={busy === "replay"}
+                onClick={() => void runRevenueReplay()}
+                className="rounded-lg border border-violet-500/40 px-3 py-1.5 text-[11px] text-violet-200 hover:bg-violet-950/30"
+              >
+                {busy === "replay" ? "…" : "Revenue Replay"}
+              </button>
+            </div>
+            <table className="mt-3 w-full text-left text-xs">
+              <thead>
+                <tr className="text-genesis-muted">
+                  <th className="pb-2 pr-2">Дата</th>
+                  <th className="pb-2 pr-2">Канал</th>
+                  <th className="pb-2">Итог</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dash.farm_program.commercial_experiments.map((row, i) => (
+                  <tr key={`${row.channel}-${i}`} className="border-t border-white/5">
+                    <td className="py-2 pr-2 text-white/70">{row.date_ru ?? "—"}</td>
+                    <td className="py-2 pr-2 text-white/90">{row.channel}</td>
+                    <td className="py-2 text-emerald-200/90">{row.outcome_ru}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </section>
         ) : null}
 
