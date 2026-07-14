@@ -66,10 +66,17 @@ class FinancialExportBridge:
         accounting: EngineAccountingService,
         finance: FinanceService,
         memory_dir: Path | None = None,
+        *,
+        business_mode: Any | None = None,
     ) -> None:
         self._accounting = accounting
         self._finance = finance
         self._memory = memory_dir or _DEFAULT_MEMORY
+        self._business_mode = business_mode
+
+    def _require_live_export(self) -> None:
+        if self._business_mode:
+            self._business_mode.require_live()
 
     def _payment_rail(self, provider: str) -> str:
         p = (provider or "").strip().lower()
@@ -222,6 +229,7 @@ class FinancialExportBridge:
         return entries
 
     def export_summary(self) -> dict[str, Any]:
+        self._require_live_export()
         entries = self.collect_ledger_entries()
         fiat = sum(e["gross_eur"] for e in entries if e.get("payment_rail") == "fiat_stripe")
         crypto = sum(e["gross_eur"] for e in entries if e.get("payment_rail") == "crypto")
@@ -239,6 +247,7 @@ class FinancialExportBridge:
         }
 
     def export_datev_csv(self) -> str:
+        self._require_live_export()
         """DATEV-compatible Buchungsstapel (lite) — semicolon, DE decimals."""
         settings = self._accounting.load_tax_settings()
         vat = float(settings.get("vat_rate_percent") or 19)

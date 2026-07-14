@@ -968,6 +968,12 @@ class EngineTarget(BaseModel):
 
 class EngineDashboard(BaseModel):
     mode: str
+    system_mode: str = "sandbox"
+    mode_label: str = ""
+    financial_docs_enabled: bool = False
+    harvest_balance_label: str = "Баланс добычи"
+    potential_revenue: dict = {}
+    realized_revenue: dict = {}
     owner_name: str
     security_law: str
     harvest_balance_eur: float
@@ -1137,8 +1143,11 @@ class EngineHarvestLine(BaseModel):
 
 
 class EngineAccountingSummary(BaseModel):
+    system_mode: str = "sandbox"
+    financial_docs_enabled: bool = False
     tax_settings: EngineTaxSettings
     totals: dict[str, float]
+    potential_revenue: dict = {}
     harvest_count: int
     harvest_lines: list[EngineHarvestLine]
     dsgvo_note: str = ""
@@ -1146,6 +1155,13 @@ class EngineAccountingSummary(BaseModel):
     operator_ready: bool = False
     operator_trade_name: str = ""
     export_summary: dict = {}
+    sandbox_note: str = ""
+
+
+class EngineActivateBusinessRequest(BaseModel):
+    confirmed: bool = False
+    phrase: str = ""
+    owner_name: str = "CEO"
 
 
 class EngineFinancialExportSummary(BaseModel):

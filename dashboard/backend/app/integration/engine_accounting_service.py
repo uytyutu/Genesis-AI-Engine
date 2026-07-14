@@ -24,10 +24,17 @@ _DEFAULT_TAX = {
 
 
 class EngineAccountingService:
-    def __init__(self, opportunity: OpportunityService, memory_dir: Path | None = None) -> None:
+    def __init__(
+        self,
+        opportunity: OpportunityService,
+        memory_dir: Path | None = None,
+        *,
+        business_mode: Any | None = None,
+    ) -> None:
         self._opportunity = opportunity
         self._memory = memory_dir or _DEFAULT_MEMORY
         self._legal = LegalEntityStore(self._memory)
+        self._business_mode = business_mode
 
     def _config_path(self) -> Path:
         return self._memory / "engine_tax_config.json"
@@ -107,6 +114,38 @@ class EngineAccountingService:
 
     def accounting_summary(self) -> dict[str, Any]:
         settings = self.load_tax_settings()
+        mode_status = self._business_mode.status() if self._business_mode else {"system_mode": "live"}
+        rows = self._opportunity.list_opportunities(source_id="asset_scan", limit=500)
+
+        if self._business_mode and self._business_mode.is_sandbox():
+            potential = self._business_mode.compute_potential_revenue(rows)
+            entity = self._legal.load()
+            op = entity.operator
+            return {
+                "system_mode": "sandbox",
+                "financial_docs_enabled": False,
+                "tax_settings": settings,
+                "totals": {
+                    "gross_eur": 0.0,
+                    "commission_eur": 0.0,
+                    "net_after_fees_eur": 0.0,
+                    "tax_reserve_eur": 0.0,
+                    "net_clean_eur": 0.0,
+                },
+                "potential_revenue": potential,
+                "harvest_count": 0,
+                "harvest_lines": [],
+                "dsgvo_note": (
+                    "Sandbox Mode: официальные отчёты отключены. "
+                    "Видна только Potential Revenue — рыночная аналитика без Gewerbe."
+                ),
+                "service_label": settings.get("service_label"),
+                "operator_ready": bool(op.full_name and op.address_street),
+                "operator_trade_name": op.trade_name or "Virtus Core",
+                "export_summary": {},
+                "sandbox_note": mode_status.get("note"),
+            }
+
         lines = self.harvest_lines()
         totals = {
             "gross_eur": 0.0,
@@ -125,6 +164,8 @@ class EngineAccountingService:
         op = entity.operator
 
         return {
+            "system_mode": "live",
+            "financial_docs_enabled": True,
             "tax_settings": settings,
             "totals": totals,
             "harvest_count": len(lines),
@@ -141,6 +182,8 @@ class EngineAccountingService:
         }
 
     def export_csv(self) -> str:
+        if self._business_mode:
+            self._business_mode.require_live()
         settings = self.load_tax_settings()
         lines = self.harvest_lines()
         buf = io.StringIO()
@@ -173,6 +216,8 @@ class EngineAccountingService:
         return buf.getvalue()
 
     def generate_invoice_html(self, opportunity_id: str) -> str:
+        if self._business_mode:
+            self._business_mode.require_live()
         row = self._opportunity.get(opportunity_id)
         if not row:
             raise ValueError("not_found")

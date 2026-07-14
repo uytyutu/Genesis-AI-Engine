@@ -29,6 +29,7 @@ from app.integration.asset_scanner_service import AssetScannerService
 from app.integration.monetization_engine_service import MonetizationEngineService
 from app.integration.engine_accounting_service import EngineAccountingService
 from app.integration.financial_export_bridge import FinancialExportBridge
+from app.integration.business_mode_service import BusinessModeService
 from app.integration.cursor_handoff_service import CursorHandoffService
 from app.integration.public_launch_service import PublicLaunchService
 from app.integration.pricing_display_service import PricingDisplayService
@@ -82,6 +83,7 @@ class IntegrationContext:
     monetization_engine: MonetizationEngineService
     engine_accounting: EngineAccountingService
     financial_export: FinancialExportBridge
+    business_mode: BusinessModeService
     public_launch: PublicLaunchService
     pricing_display: PricingDisplayService
 
@@ -116,12 +118,16 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
         acquisition = AcquisitionStudioService(opportunity, sales)
         lead_intake = LeadIntakeService(opportunity, notifications)
         asset_scanner = AssetScannerService(opportunity)
+        business_mode = BusinessModeService(path)
         monetization_engine = MonetizationEngineService(
             opportunity, finance, checkout, asset_scanner, path,
             acquisition=acquisition, factory=factory,
+            business_mode=business_mode,
         )
-        engine_accounting = EngineAccountingService(opportunity, path)
-        financial_export = FinancialExportBridge(engine_accounting, finance, path)
+        engine_accounting = EngineAccountingService(opportunity, path, business_mode=business_mode)
+        financial_export = FinancialExportBridge(
+            engine_accounting, finance, path, business_mode=business_mode,
+        )
         company = CompanyService(
             owner, finance, modules, tasks, health, opportunity, sales, factory, notifications
         )
@@ -157,6 +163,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             monetization_engine=monetization_engine,
             engine_accounting=engine_accounting,
             financial_export=financial_export,
+            business_mode=business_mode,
             public_launch=public_launch,
             pricing_display=pricing_display,
         )

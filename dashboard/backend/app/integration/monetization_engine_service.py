@@ -129,6 +129,7 @@ class MonetizationEngineService:
         *,
         acquisition: Any | None = None,
         factory: Any | None = None,
+        business_mode: Any | None = None,
     ) -> None:
         self._opportunity = opportunity
         self._finance = finance
@@ -144,6 +145,7 @@ class MonetizationEngineService:
         self._smart_gate = SmartGateApprovalService(self._memory)
         self._digital_dust = DigitalDustService(self._memory)
         self._analytics = EngineAnalyticsService(self._memory)
+        self._business_mode = business_mode
 
     def _arbitrage_offers(self) -> dict[str, dict[str, Any]]:
         path = self._memory / "engine_arbitrage_offers.json"
@@ -295,6 +297,34 @@ class MonetizationEngineService:
                 "notes": (row.get("notes") or "") + f"\nJunk-SEO micro: +{micro_amount:.2f} €",
             },
         )
+        if self._business_mode and self._business_mode.is_sandbox():
+            meta["potential_micro_revenue_eur"] = round(
+                float(meta.get("potential_micro_revenue_eur") or 0) + micro_amount,
+                2,
+            )
+            meta["sandbox_projected"] = True
+            updated = self._opportunity.update(
+                row["id"],
+                {
+                    "meta": meta,
+                    "revenue_eur": prev_revenue,
+                    "status": "reviewed",
+                    "notes": (row.get("notes") or "")
+                    + f"\n[Sandbox] Потенциал микро-SEO: +{micro_amount:.2f} € (не зафиксировано)",
+                },
+            )
+            self._append_harvest_event(
+                {
+                    "type": "junk_micro_potential",
+                    "opportunity_id": row["id"],
+                    "amount_eur": micro_amount,
+                    "profit_score": profit_score,
+                    "lane": _PROCESSING_LANE_JUNK,
+                    "sandbox": True,
+                }
+            )
+            return updated
+
         self._finance.credit_order_payment(
             micro_amount,
             f"Junk-SEO: {row.get('company_name', '')}",
@@ -523,13 +553,40 @@ class MonetizationEngineService:
         harvested.sort(key=lambda x: x["revenue_eur"], reverse=True)
         junk_archive.sort(key=lambda x: x["micro_revenue_eur"], reverse=True)
 
+        rows_all = self._opportunity.list_opportunities(source_id="asset_scan", limit=500)
+        business = self._business_mode.status() if self._business_mode else {"system_mode": "live"}
+        potential = (
+            self._business_mode.compute_potential_revenue(rows_all)
+            if self._business_mode
+            else {"potential_revenue_eur": harvest.get("pipeline_potential_eur", 0)}
+        )
+        realized = (
+            self._business_mode.realized_revenue(rows_all)
+            if self._business_mode
+            else {"realized_revenue_eur": harvest.get("lifetime_harvest_eur", 0)}
+        )
+
+        display_harvest = (
+            float(potential.get("potential_revenue_eur") or 0)
+            if business.get("system_mode") == "sandbox"
+            else harvest.get("harvest_balance_eur", 0.0)
+        )
+
         return {
             "mode": "engine",
+            "system_mode": business.get("system_mode", "sandbox"),
+            "mode_label": business.get("mode_label", ""),
+            "financial_docs_enabled": business.get("financial_docs_enabled", True),
+            "potential_revenue": potential,
+            "realized_revenue": realized,
+            "harvest_balance_label": (
+                "Potential Revenue" if business.get("system_mode") == "sandbox" else "Баланс добычи"
+            ),
             "owner_name": owner_name,
             "security_law": (
                 "Только публичные активы. Запрещены ключи, пароли и закрытые системы."
             ),
-            "harvest_balance_eur": harvest.get("harvest_balance_eur", 0.0),
+            "harvest_balance_eur": display_harvest,
             "lifetime_harvest_eur": harvest.get("lifetime_harvest_eur", 0.0),
             "pipeline_potential_eur": harvest.get("pipeline_potential_eur", 0.0),
             "active_assets_count": harvest.get("active_assets_count", 0),

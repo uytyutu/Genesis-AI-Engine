@@ -35,6 +35,19 @@ type Wallet = {
 
 type EngineDash = {
   mode: string;
+  system_mode?: string;
+  mode_label?: string;
+  financial_docs_enabled?: boolean;
+  harvest_balance_label?: string;
+  potential_revenue?: {
+    potential_revenue_eur: number;
+    pipeline_potential_eur: number;
+    hunter_potential_eur: number;
+    active_leads: number;
+    high_score_leads: number;
+    disclaimer: string;
+  };
+  realized_revenue?: { realized_revenue_eur: number; revenue_quality: string };
   owner_name: string;
   security_law: string;
   harvest_balance_eur: number;
@@ -140,6 +153,10 @@ export function EngineDashboard() {
   const [connectLabel, setConnectLabel] = useState("");
   const [scanNiche, setScanNiche] = useState("local_service");
   const [scanCity, setScanCity] = useState("Pirna");
+  const [activateOpen, setActivateOpen] = useState(false);
+  const [activatePhrase, setActivatePhrase] = useState("");
+
+  const isSandbox = dash?.system_mode !== "live";
 
   const refresh = useCallback(async () => {
     try {
@@ -295,6 +312,33 @@ export function EngineDashboard() {
     }
   }
 
+  async function activateBusiness() {
+    setBusy("activate");
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/engine/activate-business`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          confirmed: true,
+          phrase: activatePhrase.trim(),
+          owner_name: dash?.owner_name ?? "CEO",
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setMessage("Live Mode активирован — Gewerbe-ready учёт включён");
+        setActivateOpen(false);
+        setActivatePhrase("");
+        refresh();
+      } else {
+        setMessage(typeof body.detail === "string" ? body.detail : "Ошибка активации");
+      }
+    } finally {
+      setBusy("");
+    }
+  }
+
   return (
     <main className="min-h-screen pb-16">
       <div className="mx-auto max-w-6xl space-y-6 px-4 pt-6">
@@ -358,6 +402,75 @@ export function EngineDashboard() {
           <EngineTaxAccountingPanel />
         ) : (
           <>
+        {isSandbox ? (
+          <section className="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/40 to-orange-950/30 p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-amber-300">Инкубатор · Sandbox Mode</p>
+                <h2 className="mt-1 text-lg font-bold text-white">{dash?.mode_label ?? "Искатель"}</h2>
+                <p className="mt-2 max-w-xl text-xs text-amber-100/90">
+                  Аналитика рынка без юридических обязательств. Potential Revenue — не реальный доход.
+                  Rechnungen и DATEV отключены до Gewerbe.
+                </p>
+                {dash?.potential_revenue ? (
+                  <p className="mt-3 text-2xl font-bold tabular-nums text-emerald-300">
+                    Potential: {formatEur(dash.potential_revenue.potential_revenue_eur)}
+                    <span className="ml-2 text-xs font-normal text-genesis-muted">
+                      · {dash.potential_revenue.active_leads} лидов · {dash.potential_revenue.high_score_leads} сильных
+                    </span>
+                  </p>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => setActivateOpen(true)}
+                className="rounded-xl bg-red-700 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-lg hover:bg-red-600"
+              >
+                ACTIVATE BUSINESS
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section className="rounded-xl border border-emerald-500/40 bg-emerald-950/25 px-4 py-3 text-sm text-emerald-100">
+            Live Mode · Gewerbe-ready · инвойсы и DATEV активны
+          </section>
+        )}
+        {activateOpen ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+            <div className="w-full max-w-md rounded-2xl border border-red-500/50 bg-genesis-panel p-6">
+              <h3 className="text-lg font-bold text-white">Активировать бизнес-режим?</h3>
+              <p className="mt-2 text-xs text-genesis-muted">
+                Только после Gewerbeanmeldung. Включит Rechnungen, DATEV/Lexoffice и налоговые события.
+              </p>
+              <p className="mt-3 text-xs text-amber-200">
+                Введите фразу: <strong>ACTIVATE BUSINESS</strong>
+              </p>
+              <input
+                value={activatePhrase}
+                onChange={(e) => setActivatePhrase(e.target.value)}
+                className="mt-2 w-full rounded-lg border border-genesis-border bg-genesis-bg px-3 py-2 text-sm"
+                placeholder="ACTIVATE BUSINESS"
+              />
+              <div className="mt-4 flex gap-2">
+                <button
+                  type="button"
+                  disabled={busy === "activate"}
+                  onClick={() => void activateBusiness()}
+                  className="flex-1 rounded-xl bg-red-700 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {busy === "activate" ? "Активация…" : "Подтвердить Live Mode"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActivateOpen(false)}
+                  className="rounded-xl border border-white/20 px-4 py-2.5 text-sm"
+                >
+                  Отмена
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
         <EngineDeveloperGuide />
         {dash && (
           <section id="network-kpi" className="genesis-card p-5">
@@ -492,7 +605,7 @@ export function EngineDashboard() {
 
         {dash && (
           <section id="balance-kpi" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <Kpi id="harvest-balance" label="① Баланс добычи" value={formatEur(dash.harvest_balance_eur)} accent />
+            <Kpi id="harvest-balance" label={dash.harvest_balance_label ?? "① Баланс добычи"} value={formatEur(dash.harvest_balance_eur)} accent />
             <Kpi label="② Активные активы" value={String(dash.active_assets_count)} />
             <Kpi label="Потенциал воронки" value={formatEur(dash.pipeline_potential_eur)} />
             <Kpi id="withdraw-balance" label="③ К выводу (шлюз)" value={formatEur(dash.available_for_withdrawal_eur)} accent />

@@ -118,6 +118,7 @@ from app.schemas import (
     EngineNetworkScanResponse,
     EngineGlobalSpiderScanRequest,
     EngineGlobalSpiderScanResponse,
+    EngineActivateBusinessRequest,
     ConnectWalletRequest,
     WithdrawRequest,
     WithdrawResponse,
@@ -612,10 +613,34 @@ def engine_withdraw(request: WithdrawRequest) -> WithdrawResponse:
     return WithdrawResponse(**result)
 
 
+@app.get("/api/engine/system-mode")
+def engine_system_mode() -> dict:
+    return _ctx().business_mode.status()
+
+
+@app.post("/api/engine/activate-business")
+def engine_activate_business(body: EngineActivateBusinessRequest) -> dict:
+    try:
+        return _ctx().business_mode.activate_business(
+            confirmed=body.confirmed,
+            phrase=body.phrase,
+            owner_name=body.owner_name or "CEO",
+        )
+    except ValueError as e:
+        code = str(e)
+        if code == "confirmation_required":
+            raise HTTPException(status_code=400, detail="Требуется подтверждение")
+        if code == "invalid_confirm_phrase":
+            raise HTTPException(status_code=400, detail="Неверная фраза подтверждения")
+        raise HTTPException(status_code=400, detail="Активация не выполнена")
+
+
 @app.get("/api/engine/accounting", response_model=EngineAccountingSummary)
 def engine_accounting() -> EngineAccountingSummary:
-    summary = _ctx().engine_accounting.accounting_summary()
-    summary["export_summary"] = _ctx().financial_export.export_summary()
+    ctx = _ctx()
+    summary = ctx.engine_accounting.accounting_summary()
+    if ctx.business_mode.is_live():
+        summary["export_summary"] = ctx.financial_export.export_summary()
     return EngineAccountingSummary(**summary)
 
 
@@ -632,7 +657,12 @@ def engine_accounting_settings(body: EngineTaxSettings) -> EngineTaxSettings:
 
 @app.get("/api/engine/accounting/export.csv")
 def engine_accounting_export_csv() -> PlainTextResponse:
-    csv_text = _ctx().engine_accounting.export_csv()
+    try:
+        csv_text = _ctx().engine_accounting.export_csv()
+    except ValueError as e:
+        if str(e) == "sandbox_mode_financial_docs_disabled":
+            raise HTTPException(status_code=403, detail="Sandbox: экспорт отключён до ACTIVATE BUSINESS")
+        raise
     return PlainTextResponse(
         content=csv_text,
         media_type="text/csv; charset=utf-8",
@@ -642,7 +672,12 @@ def engine_accounting_export_csv() -> PlainTextResponse:
 
 @app.get("/api/engine/accounting/export.datev.csv")
 def engine_accounting_export_datev() -> PlainTextResponse:
-    csv_text = _ctx().financial_export.export_datev_csv()
+    try:
+        csv_text = _ctx().financial_export.export_datev_csv()
+    except ValueError as e:
+        if str(e) == "sandbox_mode_financial_docs_disabled":
+            raise HTTPException(status_code=403, detail="Sandbox: DATEV отключён до ACTIVATE BUSINESS")
+        raise
     return PlainTextResponse(
         content=csv_text,
         media_type="text/csv; charset=utf-8",
@@ -667,7 +702,12 @@ def engine_hunter_dataset_csv() -> PlainTextResponse:
 
 @app.get("/api/engine/accounting/export-summary", response_model=EngineFinancialExportSummary)
 def engine_accounting_export_summary() -> EngineFinancialExportSummary:
-    return EngineFinancialExportSummary(**_ctx().financial_export.export_summary())
+    try:
+        return EngineFinancialExportSummary(**_ctx().financial_export.export_summary())
+    except ValueError as e:
+        if str(e) == "sandbox_mode_financial_docs_disabled":
+            raise HTTPException(status_code=403, detail="Sandbox: экспорт отключён до ACTIVATE BUSINESS")
+        raise
 
 
 @app.get("/api/engine/accounting/invoice/{opportunity_id}", response_class=HTMLResponse)
@@ -679,6 +719,8 @@ def engine_accounting_invoice(opportunity_id: str) -> HTMLResponse:
             raise HTTPException(status_code=404, detail="Актив не найден")
         if str(e) == "no_revenue":
             raise HTTPException(status_code=400, detail="Нет дохода для счёта")
+        if str(e) == "sandbox_mode_financial_docs_disabled":
+            raise HTTPException(status_code=403, detail="Sandbox: Rechnungen отключены до ACTIVATE BUSINESS")
         raise HTTPException(status_code=400, detail="Счёт не сформирован")
     return HTMLResponse(content=html)
 
