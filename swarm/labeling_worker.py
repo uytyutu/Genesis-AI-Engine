@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import re
+import time
 from typing import Any, Callable, Protocol
 
 from swarm.types import LabelResult, LabelTask, WorkerFlowStep
@@ -18,13 +19,27 @@ _QUALITY_KEYWORDS = {
 
 
 class ModelClient(Protocol):
-    def label_text(self, *, raw_text: str, company: str, url: str) -> dict[str, Any]: ...
+    def label_text(
+        self,
+        *,
+        raw_text: str,
+        company: str,
+        url: str,
+        router_task: str = "simple",
+    ) -> dict[str, Any]: ...
 
 
 class HeuristicModelClient:
     """Zero-cost local labeling when cloud LLM unavailable."""
 
-    def label_text(self, *, raw_text: str, company: str, url: str) -> dict[str, Any]:
+    def label_text(
+        self,
+        *,
+        raw_text: str,
+        company: str,
+        url: str,
+        router_task: str = "simple",
+    ) -> dict[str, Any]:
         blob = f"{company} {url} {raw_text}".lower()
         tags: list[str] = []
         if "https" not in blob and "http" in blob:
@@ -62,11 +77,19 @@ class EngineAIModelClient:
     def __init__(self, engine_ai_service: Any) -> None:
         self._ai = engine_ai_service
 
-    def label_text(self, *, raw_text: str, company: str, url: str) -> dict[str, Any]:
+    def label_text(
+        self,
+        *,
+        raw_text: str,
+        company: str,
+        url: str,
+        router_task: str = "simple",
+    ) -> dict[str, Any]:
         result = self._ai.classify_niche(
             analysis={"issues": [raw_text[:500]], "title": company, "tech_stack": []},
             company=company,
             url=url,
+            router_task=router_task,
         )
         tags = [str(result.get("niche") or "local_service")]
         label = str(result.get("label") or "")
@@ -85,32 +108,82 @@ class EngineAIModelClient:
 class LabelingWorker:
     """AI-labeling combiner — async batch, low RAM (no browser)."""
 
-    def __init__(self, task_source: Any, model_client: ModelClient | Callable[..., Any]) -> None:
+    def __init__(
+        self,
+        task_source: Any,
+        model_client: ModelClient | Callable[..., Any],
+        *,
+        priority_manager: Any | None = None,
+    ) -> None:
         self.task_source = task_source
         self.model = model_client
+        self.priority = priority_manager
 
-    def _compute_labels(self, task: LabelTask) -> dict[str, Any]:
+    def _compute_labels(self, task: LabelTask, *, router_task: str = "simple") -> dict[str, Any]:
         if hasattr(self.model, "label_text"):
             return self.model.label_text(
                 raw_text=task.raw_text,
                 company=task.company,
                 url=task.url,
+                router_task=router_task,
             )
         return HeuristicModelClient().label_text(
             raw_text=task.raw_text,
             company=task.company,
             url=task.url,
+            router_task=router_task,
         )
 
     async def process_one(self, task: LabelTask) -> LabelResult:
         flow = [WorkerFlowStep.TRIGGER.value]
+        started = time.perf_counter()
+        router_task = "simple"
+        cached = False
         try:
+            route: dict[str, Any] = {}
+            if self.priority is not None:
+                route = self.priority.route_label_task(task)
+                router_task = str(route.get("router_task") or "simple")
+                fingerprint = str(route.get("fingerprint") or "")
+                hit = self.priority.cache.get(fingerprint) if fingerprint else None
+                if hit:
+                    flow.append(WorkerFlowStep.COMPUTE.value)
+                    labels = dict(hit)
+                    labels["source"] = "cache"
+                    cached = True
+                    llm_cost = 0.0
+                    flow.append(WorkerFlowStep.EXECUTION.value)
+                    await asyncio.to_thread(
+                        self.task_source.submit,
+                        task.id,
+                        labels,
+                        source_id=task.source_id,
+                    )
+                    flow.append(WorkerFlowStep.RESULT.value)
+                    tag_preview = ", ".join(labels.get("niche_tags") or [])[:60]
+                    return LabelResult(
+                        task_id=task.id,
+                        ok=True,
+                        labels=labels,
+                        confidence=float(labels.get("quality_score") or 0.7),
+                        pay_eur=_LABEL_PAY_EUR,
+                        llm_cost_eur=llm_cost,
+                        detail=f"Кэш: {tag_preview}",
+                        flow=flow,
+                        duration_ms=round((time.perf_counter() - started) * 1000, 2),
+                        cached=True,
+                        router_task=router_task,
+                    )
+
             flow.append(WorkerFlowStep.COMPUTE.value)
             labels = await asyncio.to_thread(
                 self._compute_labels,
                 task,
+                router_task=router_task,
             )
-            llm_cost = 0.001 if labels.get("source") == "llm" else 0.0
+            llm_cost = 0.001 if labels.get("source") in {"llm", "llm_router"} else 0.0
+            if self.priority is not None and route.get("fingerprint"):
+                self.priority.cache.put(str(route["fingerprint"]), labels)
             flow.append(WorkerFlowStep.EXECUTION.value)
             await asyncio.to_thread(
                 self.task_source.submit,
@@ -129,6 +202,9 @@ class LabelingWorker:
                 llm_cost_eur=llm_cost,
                 detail=f"Теги: {tag_preview}",
                 flow=flow,
+                duration_ms=round((time.perf_counter() - started) * 1000, 2),
+                cached=cached,
+                router_task=router_task,
             )
         except Exception as exc:
             return LabelResult(
@@ -139,6 +215,8 @@ class LabelingWorker:
                 pay_eur=0.0,
                 detail=str(exc)[:120],
                 flow=flow,
+                duration_ms=round((time.perf_counter() - started) * 1000, 2),
+                router_task=router_task,
             )
 
     async def process_batch(self, limit: int = 10, *, concurrency: int = 20) -> list[LabelResult]:

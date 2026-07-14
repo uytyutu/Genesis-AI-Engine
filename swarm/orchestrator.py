@@ -6,6 +6,7 @@ import asyncio
 from typing import Any
 
 from swarm.labeling_worker import EngineAIModelClient, HeuristicModelClient, LabelingWorker
+from swarm.priority_manager import PriorityManager
 from swarm.raw_feed import scrape_raw_from_opportunities
 from swarm.task_source import CompositeTaskSource, InternalOpportunitySource, RawQueueSource
 from swarm.types import BatchResult
@@ -24,12 +25,16 @@ class SwarmOrchestrator:
         self._memory = memory_dir
         self._opportunity = opportunity_service
         self._ai = engine_ai_service
+        self._priority = PriorityManager(memory_dir)
         opp_src = InternalOpportunitySource(opportunity_service, memory_dir=memory_dir)
         raw_src = RawQueueSource(memory_dir)
         self._source = CompositeTaskSource(opp_src, raw_src)
         model = EngineAIModelClient(engine_ai_service)
-        self._worker = LabelingWorker(self._source, model)
-        self._fallback = LabelingWorker(self._source, HeuristicModelClient())
+        self._worker = LabelingWorker(self._source, model, priority_manager=self._priority)
+        self._fallback = LabelingWorker(self._source, HeuristicModelClient(), priority_manager=self._priority)
+
+    def priority_manager(self) -> PriorityManager:
+        return self._priority
 
     def feed_raw(self, limit: int = 40) -> int:
         return scrape_raw_from_opportunities(

@@ -143,12 +143,26 @@ def platform_status(env_var: str | None, status_key: str | None) -> tuple[str, s
 
 def list_platforms() -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
+    scale_live: dict[str, Any] | None = None
+    try:
+        from swarm.adapter_scale_ai import check_scale_ai_connection
+
+        scale_live = check_scale_ai_connection()
+    except Exception:
+        scale_live = None
+
     for p in PLATFORM_REGISTRY:
         status, status_label = platform_status(p.get("env_var"), p.get("status_key"))
         item = dict(p)
+        if p.get("id") == "scale_ai" and scale_live:
+            if scale_live.get("connected"):
+                status, status_label = "active", "Подключено · API OK"
+            elif scale_live.get("configured"):
+                status, status_label = "needs_key", scale_live.get("message", status_label)
+            item["adapter_status"] = scale_live
         item["status"] = status
         item["status_label"] = status_label
-        item["connected"] = status == "active"
+        item["connected"] = status == "active" or bool(scale_live and scale_live.get("connected"))
         out.append(item)
     return out
 

@@ -121,12 +121,23 @@ class EngineAIService:
                     return p
         return None
 
+    def _pick_provider_for_task(self, task: str = "simple") -> Any | None:
+        plan = self._router.plan_route(task, premium_allowed=False)
+        with self._temporary_key_env():
+            reg = build_provider_registry()
+            for pid in plan.failover_order:
+                p = reg.get(pid)
+                if p is not None and p.available():
+                    return p
+        return None
+
     def classify_niche(
         self,
         *,
         analysis: dict[str, Any],
         company: str,
         url: str = "",
+        router_task: str = "simple",
     ) -> dict[str, Any]:
         """Classify business niche from scan — LLM if available, heuristics fallback."""
         issues = analysis.get("issues") or []
@@ -148,13 +159,14 @@ class EngineAIService:
         elif any(w in blob for w in ("blog", "coming soon", "under construction")):
             heuristic = "expired_landing"
 
-        provider = self._pick_provider()
+        provider = self._pick_provider_for_task(router_task)
         if not provider:
             return {
                 "niche": heuristic,
                 "confidence": 0.55,
                 "source": "heuristic",
                 "label": heuristic.replace("_", " ").title(),
+                "router_task": router_task,
             }
 
         system = (
@@ -187,9 +199,10 @@ class EngineAIService:
                 return {
                     "niche": niche,
                     "confidence": float(data.get("confidence") or 0.75),
-                    "source": "llm",
+                    "source": "llm_router",
                     "label": str(data.get("label") or niche),
                     "provider": getattr(provider, "provider_id", ""),
+                    "router_task": router_task,
                 }
         except Exception:
             pass
@@ -198,6 +211,7 @@ class EngineAIService:
             "confidence": 0.55,
             "source": "heuristic_fallback",
             "label": heuristic.replace("_", " ").title(),
+            "router_task": router_task,
         }
 
     def generate_personalized_offer(

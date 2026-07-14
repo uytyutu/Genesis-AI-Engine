@@ -38,6 +38,9 @@ class LabelResult:
     llm_cost_eur: float = 0.0
     detail: str = ""
     flow: list[str] = field(default_factory=list)
+    duration_ms: float = 0.0
+    cached: bool = False
+    router_task: str = ""
 
 
 @dataclass

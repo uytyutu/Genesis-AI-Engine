@@ -7,6 +7,7 @@ External micro-task platforms connect via TaskAdapter stubs (API keys required).
 from __future__ import annotations
 
 import json
+import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -42,6 +43,7 @@ _DEFAULT_STATE: dict[str, Any] = {
     "today_date": None,
     "llm_cost_eur": 0.0,
     "active_adapter": "ai_labeling",
+    "scale_ai_last": None,
 }
 
 
@@ -112,14 +114,67 @@ class MicroFarmService:
             state["today_date"] = today
             state["today_earned_eur"] = 0.0
 
+    def _check_scale_adapter(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.adapter_scale_ai import check_scale_ai_connection
+
+        return check_scale_ai_connection()
+
+    def _priority_manager(self) -> Any:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.priority_manager import PriorityManager
+
+        return PriorityManager(self._memory)
+
+    def _record_learning(
+        self,
+        *,
+        adapter_id: str,
+        pay_eur: float,
+        llm_cost_eur: float = 0.0,
+        duration_ms: float = 0.0,
+        cached: bool = False,
+    ) -> None:
+        self._priority_manager().learning.record(
+            adapter_id=adapter_id,
+            pay_eur=pay_eur,
+            llm_cost_eur=llm_cost_eur,
+            duration_ms=duration_ms,
+            cached=cached,
+        )
+
     def start_swarm(self, *, workers: int = 10) -> dict[str, Any]:
         state = self._load_state()
+        scale = self._check_scale_adapter()
+        state["scale_ai_last"] = scale
         state["running"] = True
         state["workers_target"] = max(1, min(1000, int(workers)))
         state["workers_active"] = state["workers_target"]
         self._save_state(state)
+        self._log_event(
+            {
+                "id": uuid.uuid4().hex[:12],
+                "at": datetime.now(timezone.utc).isoformat(),
+                "adapter": "scale_ai_probe",
+                "pay_eur": 0.0,
+                "target": "scale_ai",
+                "detail": scale.get("log_line") or scale.get("message"),
+                "ok": scale.get("connected", False),
+            }
+        )
         tick = self.run_tick()
-        return {"ok": True, "message": f"Ферма запущена: {state['workers_target']} комбайнов", **tick}
+        base_msg = f"Ферма запущена: {state['workers_target']} комбайнов"
+        scale_msg = scale.get("log_line") or scale.get("message", "")
+        return {
+            "ok": True,
+            "message": f"{base_msg} · {scale_msg}",
+            "scale_ai": scale,
+            **tick,
+        }
 
     def stop_swarm(self) -> dict[str, Any]:
         state = self._load_state()
@@ -145,6 +200,7 @@ class MicroFarmService:
         return tasks
 
     def _run_data_clean(self, row: dict[str, Any]) -> dict[str, Any]:
+        started = time.perf_counter()
         meta = dict(row.get("meta") or {})
         issues = meta.get("issues") or meta.get("site_issues") or []
         cleaned = [str(i).strip() for i in issues if str(i).strip()][:12]
@@ -152,9 +208,18 @@ class MicroFarmService:
         meta["farm_data_cleaned"] = True
         meta["farm_cleaned_at"] = datetime.now(timezone.utc).isoformat()
         self._opportunity.update(str(row["id"]), {"meta": meta})
-        return {"ok": True, "adapter": "data_clean", "detail": f"Очищено {len(cleaned)} записей"}
+        pay = _ADAPTER_PAY_EUR.get("data_clean", 0.02)
+        duration_ms = round((time.perf_counter() - started) * 1000, 2)
+        self._record_learning(adapter_id="data_clean", pay_eur=pay, duration_ms=duration_ms)
+        return {
+            "ok": True,
+            "adapter": "data_clean",
+            "detail": f"Очищено {len(cleaned)} записей",
+            "duration_ms": duration_ms,
+        }
 
     def _run_text_classify(self, row: dict[str, Any]) -> dict[str, Any]:
+        started = time.perf_counter()
         meta = dict(row.get("meta") or {})
         analysis = {
             "issues": meta.get("issues") or [],
@@ -162,25 +227,42 @@ class MicroFarmService:
             "tech_stack": meta.get("tech_stack") or [],
             "url": row.get("website_url"),
         }
+        route = self._priority_manager().route_legacy(
+            adapter_id="text_classify",
+            raw_text=" ".join(str(i) for i in (meta.get("issues") or [])[:8]),
+            meta=meta,
+        )
         result = self._ai.classify_niche(
             analysis=analysis,
             company=str(row.get("company_name") or ""),
             url=str(row.get("website_url") or ""),
+            router_task=str(route.get("router_task") or "simple"),
         )
         meta["classified_niche"] = result.get("niche")
         meta["classified_label"] = result.get("label")
         meta["classified_source"] = result.get("source")
         meta["farm_data_cleaned"] = meta.get("farm_data_cleaned", True)
         self._opportunity.update(str(row["id"]), {"meta": meta})
-        llm_cost = 0.001 if result.get("source") == "llm" else 0.0
+        llm_cost = 0.001 if result.get("source") in {"llm", "llm_router"} else 0.0
+        pay = _ADAPTER_PAY_EUR.get("text_classify", 0.03)
+        duration_ms = round((time.perf_counter() - started) * 1000, 2)
+        self._record_learning(
+            adapter_id="text_classify",
+            pay_eur=pay,
+            llm_cost_eur=llm_cost,
+            duration_ms=duration_ms,
+        )
         return {
             "ok": True,
             "adapter": "text_classify",
             "detail": f"Ниша: {result.get('label')}",
             "llm_cost_eur": llm_cost,
+            "router_task": route.get("router_task"),
+            "duration_ms": duration_ms,
         }
 
     def _run_record_verify(self, row: dict[str, Any]) -> dict[str, Any]:
+        started = time.perf_counter()
         url = str(row.get("website_url") or "").strip()
         ok = False
         detail = "Нет URL"
@@ -196,19 +278,20 @@ class MicroFarmService:
         meta["farm_verify_detail"] = detail
         meta["farm_verified_at"] = datetime.now(timezone.utc).isoformat()
         self._opportunity.update(str(row["id"]), {"meta": meta})
-        return {"ok": ok, "adapter": "record_verify", "detail": detail}
+        pay = _ADAPTER_PAY_EUR.get("record_verify", 0.01)
+        duration_ms = round((time.perf_counter() - started) * 1000, 2)
+        self._record_learning(adapter_id="record_verify", pay_eur=pay if ok else 0.0, duration_ms=duration_ms)
+        return {"ok": ok, "adapter": "record_verify", "detail": detail, "duration_ms": duration_ms}
 
-    def run_tick(self, *, workers: int | None = None) -> dict[str, Any]:
-        state = self._load_state()
-        self._reset_today_if_needed(state)
-        batch = workers or (state["workers_active"] if state["running"] else 10)
-        batch = max(1, min(200, int(batch)))
-
+    def execute_labeling_batch(self, *, workers: int, adapter_id: str = "ai_labeling") -> dict[str, Any]:
+        """Worker-pool endpoint — runs labeling on this node (VPS/cloud)."""
+        if adapter_id != "ai_labeling":
+            return {"ok": False, "message": f"Adapter {adapter_id} not supported on pool", "tasks_done": 0}
+        labeling_workers = max(1, min(200, int(workers)))
         done = 0
         earned = 0.0
         llm_cost = 0.0
         results: list[dict[str, Any]] = []
-
         try:
             orch = build_swarm_orchestrator(
                 self._opportunity,
@@ -216,8 +299,8 @@ class MicroFarmService:
                 memory_dir=self._memory,
             )
             swarm = orch.run_labeling_swarm(
-                workers=batch,
-                concurrency=min(batch * 3, 150),
+                workers=labeling_workers,
+                concurrency=min(labeling_workers * 3, 150),
             )
             for lr in swarm.results:
                 if not lr.ok:
@@ -225,30 +308,166 @@ class MicroFarmService:
                 done += 1
                 earned += lr.pay_eur
                 llm_cost += lr.llm_cost_eur
-                event = {
-                    "id": uuid.uuid4().hex[:12],
-                    "at": datetime.now(timezone.utc).isoformat(),
-                    "adapter": "ai_labeling",
-                    "pay_eur": lr.pay_eur,
-                    "target": lr.task_id,
-                    "detail": lr.detail,
-                    "ok": True,
-                    "flow": lr.flow,
-                }
-                self._log_event(event)
-                results.append(event)
+                self._record_learning(
+                    adapter_id="ai_labeling",
+                    pay_eur=lr.pay_eur,
+                    llm_cost_eur=lr.llm_cost_eur,
+                    duration_ms=float(lr.duration_ms or 0),
+                    cached=bool(lr.cached),
+                )
+                results.append(
+                    {
+                        "task_id": lr.task_id,
+                        "pay_eur": lr.pay_eur,
+                        "detail": lr.detail,
+                        "cached": lr.cached,
+                    }
+                )
         except Exception as exc:
-            self._log_event(
-                {
-                    "id": uuid.uuid4().hex[:12],
-                    "at": datetime.now(timezone.utc).isoformat(),
-                    "adapter": "ai_labeling",
-                    "pay_eur": 0.0,
-                    "target": "swarm",
-                    "detail": str(exc)[:120],
-                    "ok": False,
-                }
+            return {
+                "ok": False,
+                "tasks_done": done,
+                "earned_eur": round(earned, 4),
+                "llm_cost_eur": round(llm_cost, 4),
+                "message": str(exc)[:120],
+                "results": results,
+                "role": "worker_pool",
+            }
+        return {
+            "ok": True,
+            "tasks_done": done,
+            "earned_eur": round(earned, 4),
+            "llm_cost_eur": round(llm_cost, 4),
+            "results": results[:10],
+            "message": f"Worker pool: {done} разметок · +{earned:.2f} €",
+            "role": "worker_pool",
+        }
+
+    def _run_labeling_local(
+        self,
+        *,
+        labeling_workers: int,
+        results: list[dict[str, Any]],
+    ) -> tuple[int, float, float]:
+        done = 0
+        earned = 0.0
+        llm_cost = 0.0
+        orch = build_swarm_orchestrator(
+            self._opportunity,
+            self._ai,
+            memory_dir=self._memory,
+        )
+        swarm = orch.run_labeling_swarm(
+            workers=labeling_workers,
+            concurrency=min(labeling_workers * 3, 150),
+        )
+        for lr in swarm.results:
+            if not lr.ok:
+                continue
+            done += 1
+            earned += lr.pay_eur
+            llm_cost += lr.llm_cost_eur
+            self._record_learning(
+                adapter_id="ai_labeling",
+                pay_eur=lr.pay_eur,
+                llm_cost_eur=lr.llm_cost_eur,
+                duration_ms=float(lr.duration_ms or 0),
+                cached=bool(lr.cached),
             )
+            event = {
+                "id": uuid.uuid4().hex[:12],
+                "at": datetime.now(timezone.utc).isoformat(),
+                "adapter": "ai_labeling",
+                "pay_eur": lr.pay_eur,
+                "target": lr.task_id,
+                "detail": lr.detail,
+                "ok": True,
+                "flow": lr.flow,
+                "execution": "local",
+            }
+            self._log_event(event)
+            results.append(event)
+        return done, earned, llm_cost
+
+    def run_tick(self, *, workers: int | None = None) -> dict[str, Any]:
+        state = self._load_state()
+        self._reset_today_if_needed(state)
+        batch = workers or (state["workers_active"] if state["running"] else 10)
+        batch = max(1, min(200, int(batch)))
+        pm = self._priority_manager()
+        combiner_ids = tuple(_ADAPTER_PAY_EUR.keys())
+        allocation = pm.allocate_workers(batch, combiner_ids)
+        labeling_workers = allocation.get("ai_labeling", batch)
+
+        done = 0
+        earned = 0.0
+        llm_cost = 0.0
+        results: list[dict[str, Any]] = []
+        execution_meta: dict[str, Any] = pm.dispatcher.resolve_execution(
+            adapter_id="ai_labeling",
+            profitable=True,
+        )
+        remote_result: dict[str, Any] | None = None
+
+        if execution_meta.get("target") == "remote":
+            remote_result = pm.dispatcher.dispatch_batch(
+                workers=labeling_workers,
+                adapter_id="ai_labeling",
+            )
+            if remote_result.get("ok"):
+                done = int(remote_result.get("tasks_done") or 0)
+                earned = float(remote_result.get("earned_eur") or 0)
+                llm_cost = float(remote_result.get("llm_cost_eur") or 0)
+                for item in remote_result.get("results") or []:
+                    if not isinstance(item, dict):
+                        continue
+                    event = {
+                        "id": uuid.uuid4().hex[:12],
+                        "at": datetime.now(timezone.utc).isoformat(),
+                        "adapter": "ai_labeling",
+                        "pay_eur": float(item.get("pay_eur") or 0),
+                        "target": item.get("task_id") or "remote",
+                        "detail": item.get("detail") or remote_result.get("message"),
+                        "ok": True,
+                        "execution": "remote",
+                    }
+                    self._log_event(event)
+                    results.append(event)
+                self._log_event(
+                    {
+                        "id": uuid.uuid4().hex[:12],
+                        "at": datetime.now(timezone.utc).isoformat(),
+                        "adapter": "cloud_dispatch",
+                        "pay_eur": earned,
+                        "target": pm.dispatcher.pool_url(),
+                        "detail": remote_result.get("message"),
+                        "ok": True,
+                        "execution": "remote",
+                    }
+                )
+
+        if done < labeling_workers and (remote_result is None or remote_result.get("fallback_local")):
+            try:
+                local_done, local_earned, local_cost = self._run_labeling_local(
+                    labeling_workers=labeling_workers - done if remote_result and remote_result.get("ok") else labeling_workers,
+                    results=results,
+                )
+                done += local_done
+                earned += local_earned
+                llm_cost += local_cost
+            except Exception as exc:
+                self._log_event(
+                    {
+                        "id": uuid.uuid4().hex[:12],
+                        "at": datetime.now(timezone.utc).isoformat(),
+                        "adapter": "ai_labeling",
+                        "pay_eur": 0.0,
+                        "target": "swarm",
+                        "detail": str(exc)[:120],
+                        "ok": False,
+                        "execution": "local",
+                    }
+                )
 
         if done < batch:
             legacy = self._run_legacy_adapters(batch - done)
@@ -262,6 +481,7 @@ class MicroFarmService:
         state["today_earned_eur"] = round(float(state.get("today_earned_eur") or 0) + earned, 4)
         state["llm_cost_eur"] = round(float(state.get("llm_cost_eur") or 0) + llm_cost, 4)
         state["last_tick_at"] = datetime.now(timezone.utc).isoformat()
+        state["last_execution"] = execution_meta
         if state["running"] and not state.get("workers_active"):
             state["workers_active"] = state.get("workers_target", 10)
         self._save_state(state)
@@ -272,8 +492,9 @@ class MicroFarmService:
             "earned_eur": round(earned, 4),
             "llm_cost_eur": round(llm_cost, 4),
             "results": results[:10],
+            "execution": execution_meta,
             "message": (
-                f"Рой: {done} задач · +{earned:.2f} € (AI-labeling)"
+                f"Рой ({execution_meta.get('target', 'local')}): {done} задач · +{earned:.2f} €"
                 if done
                 else "Нет сырья — нажмите «Запустить ферму» (поиск + разметка)"
             ),
@@ -433,6 +654,8 @@ class MicroFarmService:
             "ceo_checklist": self._ceo_checklist(),
             "labels_export_count": self.labels_export_count(),
             "labels_export_ready": self.labels_export_count() > 0,
+            "scale_ai": state.get("scale_ai_last") or self._check_scale_adapter(),
+            "priority_manager": self._priority_manager().snapshot(),
             "recent_tasks": self._recent_events(15),
             "last_tick_at": state.get("last_tick_at"),
             "honesty_note": (

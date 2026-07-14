@@ -51,6 +51,34 @@ type FarmDash = {
   ceo_checklist?: ChecklistItem[];
   labels_export_count?: number;
   labels_export_ready?: boolean;
+  scale_ai?: {
+    connected: boolean;
+    configured: boolean;
+    status: string;
+    status_label: string;
+    log_line?: string;
+    message?: string;
+  };
+  priority_manager?: {
+    pipeline_parallelism: boolean;
+    async_note: string;
+    router_note: string;
+    cache: { entries: number; max_entries: number };
+    learning: {
+      total_ops: number;
+      min_ops_for_priority: number;
+      investor_mode: boolean;
+      top_adapter: string | null;
+      note: string;
+      adapters: { adapter_id: string; eur_per_second: number; cache_rate: number }[];
+    };
+    cloud_dispatcher?: {
+      execution_mode: string;
+      local_note: string;
+      pool_configured: boolean;
+      pool: { ok: boolean; status: string; message: string; pool_url?: string };
+    };
+  };
   recent_tasks: TaskEvent[];
   honesty_note: string;
   cost_ratio_note: string;
@@ -187,6 +215,44 @@ export function FarmDashboard() {
             </p>
           </section>
         )}
+
+        {dash?.scale_ai ? (
+          <p
+            className={`rounded-xl border px-4 py-2 text-xs ${
+              dash.scale_ai.connected
+                ? "border-emerald-500/30 bg-emerald-950/20 text-emerald-200"
+                : "border-amber-500/30 bg-amber-950/20 text-amber-100"
+            }`}
+          >
+            {dash.scale_ai.log_line ?? `Scale AI: ${dash.scale_ai.status_label}`}
+            {dash.scale_ai.message ? ` — ${dash.scale_ai.message}` : ""}
+          </p>
+        ) : null}
+
+        {dash?.priority_manager ? (
+          <section className="genesis-card border-violet-500/25 bg-violet-950/10 p-5">
+            <h2 className="text-sm font-bold text-violet-100">Менеджер приоритетов</h2>
+            <p className="mt-1 text-xs text-violet-200/70">{dash.priority_manager.async_note}</p>
+            <p className="mt-1 text-xs text-violet-200/70">{dash.priority_manager.router_note}</p>
+            <p className="mt-3 text-sm text-white">
+              {dash.priority_manager.learning.note}
+              {dash.priority_manager.learning.investor_mode && dash.priority_manager.learning.top_adapter
+                ? ` · Лидер: ${ADAPTER_LABELS[dash.priority_manager.learning.top_adapter] ?? dash.priority_manager.learning.top_adapter}`
+                : ""}
+            </p>
+            <p className="mt-2 text-xs text-genesis-muted">
+              Кэш паттернов: {dash.priority_manager.cache.entries} / {dash.priority_manager.cache.max_entries}
+            </p>
+            {dash.priority_manager.cloud_dispatcher ? (
+              <p className="mt-2 text-xs text-violet-200/80">
+                Облако: режим <strong>{dash.priority_manager.cloud_dispatcher.execution_mode}</strong>
+                {dash.priority_manager.cloud_dispatcher.pool_configured
+                  ? ` · пул ${dash.priority_manager.cloud_dispatcher.pool.ok ? "онлайн" : "offline"}`
+                  : " · пульт на ноутбуке (задай FARM_WORKER_POOL_URL для VPS)"}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
 
         {dash && (
           <section className="genesis-card p-6">

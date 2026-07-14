@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import io
 import os
@@ -499,6 +499,35 @@ def lead_inbox(today_only: bool = True, limit: int = 50) -> LeadInboxResponse:
     items = _ctx().lead_intake.inbox(today_only=today_only, limit=limit)
     leads = [OpportunityRecord(**o) for o in items]
     return LeadInboxResponse(leads=leads, count=len(leads))
+
+
+@app.get("/api/swarm/health")
+def swarm_health() -> dict:
+    """Worker pool heartbeat — laptop probes this before remote dispatch."""
+    return {"ok": True, "role": "worker_pool", "node": "genesis"}
+
+
+@app.post("/api/swarm/execute")
+def swarm_execute(
+    payload: dict,
+    authorization: str | None = Header(default=None),
+) -> dict:
+    """Remote execution — VPS/cloud runs labeling; laptop receives report only."""
+    import os
+
+    token = os.getenv("FARM_WORKER_POOL_TOKEN", "").strip()
+    if token:
+        expected = f"Bearer {token}"
+        if authorization != expected:
+            raise HTTPException(status_code=401, detail="Invalid worker pool token")
+    workers = int(payload.get("workers") or 10)
+    adapter_id = str(payload.get("adapter_id") or "ai_labeling")
+    return _ctx().micro_farm.execute_labeling_batch(workers=workers, adapter_id=adapter_id)
+
+
+@app.get("/api/farm/scale-ai/status")
+def farm_scale_ai_status() -> dict:
+    return _ctx().micro_farm._check_scale_adapter()
 
 
 @app.get("/api/farm/platforms")

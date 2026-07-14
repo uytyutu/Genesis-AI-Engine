@@ -9,7 +9,7 @@ from app.integration.genesis_brain.public_brand import ASSISTANT_NAME
 from app.integration.genesis_brain.workforce_quotas import WorkforceQuotas
 
 _ENV_KEYS: dict[str, tuple[str, ...]] = {
-    "groq": ("GENESIS_GROQ_API_KEY", "GENESIS_LLM_API_KEY"),
+    "groq": ("GENESIS_GROQ_API_KEY", "GROQ_API_KEY", "GENESIS_LLM_API_KEY"),
     "gemini": ("GENESIS_GEMINI_API_KEY", "GOOGLE_API_KEY"),
     "openrouter": ("GENESIS_OPENROUTER_API_KEY",),
     "ollama": (),
