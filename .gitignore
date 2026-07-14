@@ -10,6 +10,7 @@ build/
 .env.*
 !.env.example
 !.env.local.example
+!.env.test
 dashboard/frontend/node_modules/
 dashboard/frontend/.next/
 dashboard/frontend/out/
@@ -17,6 +18,7 @@ dashboard/backend/sandbox/
 
 .vercel
 .env*
+!.env.test
 **/secrets/
 **/secrets/**
 *.key

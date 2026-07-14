@@ -5,7 +5,10 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from app.integration.engine_ai_service import EngineAIService
 from app.integration.genesis_brain.public_brand import BRAND_NAME
+
+_AI = EngineAIService()
 
 _LANG_MARKERS: dict[str, tuple[str, ...]] = {
     "de": ("guten tag", "ihr", "website", "öffnungszeiten", "kein https", "seitentitel"),
@@ -101,6 +104,18 @@ class OutreachLanguageService:
         row: dict[str, Any] | None = None,
     ) -> tuple[str, str, str]:
         lang = (language or (self.detect_language(row) if row else None) or "en").split("-")[0]
+
+        llm_draft = _AI.generate_personalized_offer(
+            company=company,
+            analysis=analysis or {},
+            language=lang,
+            package_name=str(package.get("name", "Web")),
+            price_eur=price,
+            fit_reason=fit_reason,
+        )
+        if llm_draft:
+            return llm_draft["subject"], llm_draft["body"], lang
+
         tpl = _TEMPLATES.get(lang) or _TEMPLATES["en"]
         issues = (analysis or {}).get("issues") or []
         issues_block = "\n".join(f"• {i}" for i in issues[:7]) if issues else "• Room to improve online presence"

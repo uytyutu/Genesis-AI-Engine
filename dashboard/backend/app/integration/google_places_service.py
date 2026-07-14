@@ -16,6 +16,8 @@ from typing import Any
 
 import httpx
 
+from app.config import env_config_file, get_api_key
+
 _SETUP_STEPS = [
     {
         "step": 1,
@@ -66,8 +68,13 @@ class PlacesLead:
 
 
 class GooglePlacesService:
-    def __init__(self) -> None:
-        self._api_key = os.getenv("GOOGLE_PLACES_API_KEY", "").strip()
+    def __init__(self, api_key: str | None = None, *, use_env: bool = True) -> None:
+        if api_key is not None:
+            self._api_key = api_key.strip()
+        elif use_env:
+            self._api_key = get_api_key("GOOGLE_PLACES_API_KEY")
+        else:
+            self._api_key = ""
 
     def configured(self) -> bool:
         return bool(self._api_key)
@@ -91,7 +98,7 @@ class GooglePlacesService:
             "configured": configured,
             "autopilot_ready": configured,
             "env_var": "GOOGLE_PLACES_API_KEY",
-            "primary_config_file": "dashboard/backend/.env.local",
+            "primary_config_file": env_config_file(),
             "config_files_found": existing_files,
             "setup_steps": _SETUP_STEPS,
             "free_tier_note": (

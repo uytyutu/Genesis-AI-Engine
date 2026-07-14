@@ -184,6 +184,9 @@ class AssetScannerService:
         if len(company) > 80:
             company = company[:77] + "…"
 
+        classified = analysis.get("classified_niche") if isinstance(analysis.get("classified_niche"), dict) else {}
+        scan_niche = str(classified.get("niche") or niche)
+
         row = self._opportunity.create(
             {
                 "source_id": "asset_scan",
@@ -195,7 +198,9 @@ class AssetScannerService:
                 "score": max(40, 100 - int(analysis.get("issue_count") or 0) * 8),
                 "notes": f"Трафик: {_estimate_traffic_band(analysis)} · Заброшен: {'да' if abandoned else 'нет'}",
                 "meta": {
-                    "niche": niche,
+                    "niche": scan_niche,
+                    "niche_source": classified.get("source", "manual"),
+                    "niche_confidence": classified.get("confidence"),
                     "traffic_band": _estimate_traffic_band(analysis),
                     "abandoned": abandoned,
                     "analyzed_at": datetime.now(timezone.utc).isoformat(),

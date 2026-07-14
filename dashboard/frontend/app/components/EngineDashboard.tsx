@@ -131,6 +131,18 @@ type EngineDash = {
     read_only: boolean;
     legal_note: string;
   };
+  ai_brain?: {
+    configured: boolean;
+    brain_ready: boolean;
+    recommended_provider: string;
+    recommendation_note: string;
+    primary_config_file: string;
+    active_provider: string | null;
+    active_model: string | null;
+    env_vars: Record<string, string>;
+    status_label: string;
+    cold_outreach_note: string;
+  };
   smart_gate?: {
     max_risk_score: number;
     min_expected_margin_eur: number;
@@ -178,6 +190,7 @@ export function EngineDashboard() {
 
   const isSandbox = dash?.system_mode !== "live";
   const placesReady = dash?.places_autopilot?.autopilot_ready ?? dash?.global_spider?.places_configured ?? false;
+  const brainReady = dash?.ai_brain?.brain_ready ?? false;
 
   const refresh = useCallback(async () => {
     try {
@@ -705,6 +718,27 @@ export function EngineDashboard() {
             {dash?.places_autopilot?.autopilot_ready ? (
               <p className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 px-4 py-2 text-xs text-emerald-200">
                 ✔ {dash.places_autopilot.status_label} — «Локальные услуги» + город → «Поиск целей» или «DE · до 1000 URL»
+              </p>
+            ) : null}
+
+            {dash?.ai_brain && !brainReady ? (
+              <section className="genesis-card border-violet-500/30 bg-violet-950/20 p-5">
+                <h2 className="text-sm font-semibold text-violet-100">Подключите «мозги» ИИ</h2>
+                <p className="mt-1 text-xs text-violet-200/80">
+                  Без ключа Genesis видит ошибки, но не пишет профессиональный оффер. Рекомендуем{" "}
+                  <strong>{dash.ai_brain.recommended_provider.toUpperCase()}</strong> — {dash.ai_brain.recommendation_note}
+                </p>
+                <div className="mt-4 rounded-xl border border-violet-500/20 bg-black/20 px-4 py-3 font-mono text-[11px] text-violet-100">
+                  <p>{dash.ai_brain.primary_config_file}</p>
+                  <p className="mt-2">GENESIS_GROQ_API_KEY=gsk_... (или OPENAI_API_KEY=sk-...)</p>
+                </div>
+                <p className="mt-3 text-[10px] text-violet-200/60">{dash.ai_brain.cold_outreach_note}</p>
+              </section>
+            ) : null}
+
+            {brainReady ? (
+              <p className="rounded-xl border border-violet-500/30 bg-violet-950/20 px-4 py-2 text-xs text-violet-200">
+                🧠 {dash?.ai_brain?.status_label} — {dash?.ai_brain?.active_provider} / {dash?.ai_brain?.active_model} · умные офферы и ниши
               </p>
             ) : null}
 

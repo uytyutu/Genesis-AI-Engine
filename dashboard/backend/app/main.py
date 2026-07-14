@@ -542,6 +542,13 @@ def engine_global_spider_scan(request: EngineGlobalSpiderScanRequest) -> dict:
     )
 
 
+@app.get("/api/engine/ai-brain-setup")
+def engine_ai_brain_setup() -> dict:
+    from app.integration.engine_ai_service import EngineAIService
+
+    return EngineAIService().setup_status()
+
+
 @app.get("/api/engine/stealth-mode")
 def engine_stealth_mode() -> dict:
     from app.integration.stealth_http import stealth_status

@@ -125,6 +125,23 @@ class SiteAnalysisService:
             strengths.append(f"Ladezeit ~{load_ms} ms")
 
         score = self._score(issues, strengths)
+        niche_info = None
+        try:
+            from app.integration.engine_ai_service import EngineAIService
+
+            niche_info = EngineAIService().classify_niche(
+                analysis={
+                    "issues": issues,
+                    "strengths": strengths,
+                    "title": title,
+                    "tech_stack": tech_stack,
+                },
+                company=title or normalized,
+                url=final_url,
+            )
+        except Exception:
+            niche_info = None
+
         return {
             "url": normalized,
             "final_url": final_url,
@@ -139,6 +156,7 @@ class SiteAnalysisService:
             "improvement_score": score,
             "tech_stack": tech_stack,
             "detected_lang": detected_lang,
+            "classified_niche": niche_info,
             "analyzed_at": __import__("datetime").datetime.now(
                 __import__("datetime").timezone.utc
             ).isoformat(),
