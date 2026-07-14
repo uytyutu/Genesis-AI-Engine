@@ -20,7 +20,7 @@ def validate_landing(html: str) -> ValidationResult:
     lower = html.lower()
     html_ok = "</html>" in lower and "<body" in lower
     responsive_ok = "@media" in html and "max-width" in html
-    accessibility_ok = 'lang="ru"' in lower and 'name="description"' in lower and "<h1" in lower
+    accessibility_ok = bool(re.search(r'lang="(?:ru|de)"', lower)) and 'name="description"' in lower and "<h1" in lower
 
     technical = [
         {"id": "html", "label": "HTML", "ok": html_ok and lower.strip().startswith("<!doctype html")},

@@ -12,15 +12,48 @@ sys.path.insert(0, str(BACKEND))
 from fastapi.testclient import TestClient
 
 from app.factory.analyzer import analyze
+from app.factory.landing_builder import build_landing_html
 from app.factory.validator import validate_landing
 from app.integration.context import get_integration, reset_integration
 from app.main import app
 
 
 def test_analyzer_dental():
-    result = analyze("Мне нужен сайт для стоматологии")
+    result = analyze("Мне нужен сайт для стоматологии Dr. Weber")
     assert result.niche == "dental"
-    assert "стоматолог" in result.business_name.lower() or "Стоматолог" in result.business_name
+    assert result.service_descriptions
+    assert "Zahn" in result.headline or "Weber" in result.business_name
+
+
+def test_analyzer_law_office():
+    result = analyze("Website for Law office Schmidt immigration and business law")
+    assert result.niche == "law"
+    assert "Kanzlei" in result.headline or "Schmidt" in result.business_name
+
+
+def test_factory_copy_three_verticals_distinct():
+    """Slice A PASS — Auto Repair, Dental Clinic, Law Office."""
+    cases = (
+        ("Website for Auto Müller car repair shop in Hamburg", "auto"),
+        ("Dental clinic family dentistry", "dental"),
+        ("Law office Schmidt immigration and business law", "law"),
+    )
+    htmls: list[str] = []
+    for description, expected_niche in cases:
+        analysis = analyze(description)
+        assert analysis.niche == expected_niche
+        html = build_landing_html(analysis)
+        htmls.append(html)
+        assert "уточним после" not in html.lower()
+        assert "Landing Page —" not in html
+        assert "Понятное предложение" not in html
+        assert analysis.phone in html
+        assert analysis.email in html
+        assert validate_landing(html).passed
+    assert htmls[0] != htmls[1] != htmls[2]
+    assert "Werkstatt" in htmls[0] or "Diagnose" in htmls[0]
+    assert "Zahn" in htmls[1] or "Zahnmedizin" in htmls[1]
+    assert "Kanzlei" in htmls[2] or "Beratung" in htmls[2]
 
 
 def test_factory_build_landing(tmp_path: Path):
@@ -43,7 +76,7 @@ def test_factory_build_landing(tmp_path: Path):
 
     sandbox_html = memory / "sandbox" / product_id / "index.html"
     assert sandbox_html.exists()
-    assert "Premium" in sandbox_html.read_text(encoding="utf-8") or "автосервис" in sandbox_html.read_text(encoding="utf-8").lower()
+    assert "Premium" in sandbox_html.read_text(encoding="utf-8") or "Werkstatt" in sandbox_html.read_text(encoding="utf-8")
 
     preview = client.get(f"/api/factory/products/{product_id}/preview")
     assert preview.status_code == 200

@@ -145,8 +145,14 @@ def analysis_for_site(
         headline=title,
         subtitle=subtitle,
         services=services,
+        service_descriptions=niche_base.service_descriptions,
         cta_label=niche_base.cta_label,
         trust_points=niche_base.trust_points,
+        about_text=niche_base.about_text,
+        benefits=niche_base.benefits,
+        hours=niche_base.hours,
+        phone=niche_base.phone,
+        email=niche_base.email,
     ), reuse
 
 
