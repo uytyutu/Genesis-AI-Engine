@@ -36,6 +36,7 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
     return "client";
   }
   if (pathname === "/") return "ceo";
+  if (pathname === "/engine" || pathname.startsWith("/engine/")) return "ceo";
   if (pathname === "/products") return "public";
   const mc = [
     "/finance",
@@ -84,8 +85,8 @@ export const CLIENT_NAV_LINKS = [
 ] as const;
 
 export const CEO_PRIMARY_LINKS = [
-  { href: "/", label: "Пульт", hint: "Mission Control" },
-  { href: "/opportunities", label: "Сканер", hint: "Журнал возможностей" },
+  { href: "/", label: "Движок", hint: "Engine Mode · монетизация" },
+  { href: "/opportunities", label: "Журнал", hint: "Сканер активов" },
   { href: "/create", label: "Factory", hint: "Сборка черновиков" },
   { href: "/finance", label: "Финансы", hint: "Деньги" },
   { href: "/company", label: "Стратегия", hint: "Компания" },

@@ -108,6 +108,13 @@ from app.schemas import (
     AssetScanResponse,
     AssetActionResponse,
     AssetTargetsResponse,
+    EngineDashboard,
+    EngineScanRequest,
+    EngineScanResponse,
+    ConnectWalletRequest,
+    WithdrawRequest,
+    WithdrawResponse,
+    PaymentSyncResponse,
     SiteAnalysisResult,
     AcquisitionStudioStatus,
     AcquisitionApprovalQueueResponse,
@@ -455,6 +462,79 @@ def lead_inbox(today_only: bool = True, limit: int = 50) -> LeadInboxResponse:
     items = _ctx().lead_intake.inbox(today_only=today_only, limit=limit)
     leads = [OpportunityRecord(**o) for o in items]
     return LeadInboxResponse(leads=leads, count=len(leads))
+
+
+@app.get("/api/engine/dashboard", response_model=EngineDashboard)
+def engine_dashboard() -> EngineDashboard:
+    dash = _ctx().owner.dashboard()
+    owner_name = str(dash.get("owner_name") or "Ramiš")
+    return EngineDashboard(**_ctx().monetization_engine.engine_dashboard(owner_name))
+
+
+@app.post("/api/engine/sync-payments", response_model=PaymentSyncResponse)
+def engine_sync_payments() -> PaymentSyncResponse:
+    return PaymentSyncResponse(**_ctx().monetization_engine.sync_payment_providers())
+
+
+@app.post("/api/engine/scan", response_model=EngineScanResponse)
+def engine_scan(request: EngineScanRequest) -> EngineScanResponse:
+    try:
+        result = _ctx().monetization_engine.scan_and_gate(request.url, niche=request.niche)
+    except ValueError as e:
+        code = str(e)
+        if code == "forbidden_target":
+            raise HTTPException(status_code=403, detail="Запрещённая цель — только публичные URL")
+        if code in ("url_required", "public_http_only"):
+            raise HTTPException(status_code=400, detail="Укажите публичный http(s) URL")
+        if code == "fetch_failed":
+            raise HTTPException(status_code=502, detail="Не удалось проанализировать URL")
+        raise HTTPException(status_code=400, detail="Сканирование не выполнено")
+    return EngineScanResponse(
+        ok=True,
+        profit_score=result["profit_score"],
+        shown_to_owner=result["shown_to_owner"],
+        message=result["message"],
+        target=OpportunityRecord(**result["target"]),
+    )
+
+
+@app.post("/api/engine/targets/{opportunity_id}/accept", response_model=AssetActionResponse)
+def engine_accept_target(opportunity_id: str) -> AssetActionResponse:
+    try:
+        row = _ctx().monetization_engine.accept_asset(opportunity_id)
+    except ValueError as e:
+        if str(e) == "not_found":
+            raise HTTPException(status_code=404, detail="Цель не найдена")
+        raise HTTPException(status_code=400, detail="Не удалось принять")
+    return AssetActionResponse(
+        ok=True,
+        target=OpportunityRecord(**row),
+        message="Актив принят — монетизация в работе.",
+    )
+
+
+@app.post("/api/engine/wallets/connect")
+def engine_connect_wallet(request: ConnectWalletRequest) -> dict:
+    return _ctx().monetization_engine.connect_payout_wallet(
+        request.wallet_id,
+        request.account_label,
+    )
+
+
+@app.post("/api/engine/withdraw", response_model=WithdrawResponse)
+def engine_withdraw(request: WithdrawRequest) -> WithdrawResponse:
+    try:
+        result = _ctx().monetization_engine.request_withdrawal(
+            request.amount_eur,
+            request.wallet_id,
+        )
+    except ValueError as e:
+        if str(e) == "insufficient_balance":
+            raise HTTPException(status_code=400, detail="Недостаточно средств на балансе добычи")
+        if str(e) == "invalid_amount":
+            raise HTTPException(status_code=400, detail="Некорректная сумма")
+        raise HTTPException(status_code=400, detail="Вывод не выполнен")
+    return WithdrawResponse(**result)
 
 
 @app.get("/api/scanner/dashboard", response_model=AssetScannerDashboard)

@@ -24,6 +24,7 @@ INTERNAL_PREFIXES = (
     "/api/acquisition",
     "/api/leads",
     "/api/scanner",
+    "/api/engine",
     "/api/modules",
     "/api/queue",
     "/api/activity",

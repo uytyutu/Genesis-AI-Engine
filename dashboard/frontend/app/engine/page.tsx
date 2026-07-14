@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function OpportunitiesRedirect() {
+export default function EngineAliasPage() {
   redirect("/");
 }

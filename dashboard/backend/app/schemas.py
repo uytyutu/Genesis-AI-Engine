@@ -948,6 +948,83 @@ class AssetTargetsResponse(BaseModel):
     count: int
 
 
+class EngineTarget(BaseModel):
+    id: str
+    name: str
+    url: str = ""
+    potential_eur: float = 0.0
+    profit_score: int = 0
+    traffic_band: str = "trace"
+    abandoned: bool = False
+    status: str = ""
+    status_label: str = ""
+    income_rationale: str = ""
+    revenue_eur: float = 0.0
+    niche: str = "local_service"
+
+
+class EngineDashboard(BaseModel):
+    mode: str
+    owner_name: str
+    security_law: str
+    harvest_balance_eur: float
+    lifetime_harvest_eur: float
+    pipeline_potential_eur: float
+    active_assets_count: int
+    available_for_withdrawal_eur: float
+    pending_payouts_eur: float
+    payment_connected: bool
+    payment_provider: str | None = None
+    payment_provider_label: str = ""
+    last_sync_at: str | None = None
+    auto_gate_min_score: int
+    pending_targets: list[EngineTarget]
+    active_assets: list[EngineTarget]
+    wallets: list[dict] = []
+    withdrawal_enabled: bool = False
+
+
+class EngineScanRequest(BaseModel):
+    url: str
+    niche: str = "local_service"
+
+
+class EngineScanResponse(BaseModel):
+    ok: bool
+    profit_score: int
+    shown_to_owner: bool
+    message: str
+    target: OpportunityRecord
+
+
+class ConnectWalletRequest(BaseModel):
+    wallet_id: str
+    account_label: str
+
+
+class WithdrawRequest(BaseModel):
+    amount_eur: float
+    wallet_id: str
+
+
+class WithdrawResponse(BaseModel):
+    ok: bool
+    amount_eur: float
+    wallet_id: str
+    status: str
+    sync: str
+    message: str
+
+
+class PaymentSyncResponse(BaseModel):
+    provider: str | None = None
+    configured: bool
+    live_mode: bool = False
+    synced_at: str
+    stripe_available_eur: float | None = None
+    stripe_error: str | None = None
+
+
 class AcquisitionStudioStatus(BaseModel):
     version: str
     name: str
