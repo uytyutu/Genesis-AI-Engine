@@ -225,6 +225,7 @@ def build_farm_program(
     error_ledger_summary: dict[str, Any] | None = None,
     commercial_experiments: list[dict[str, Any]] | None = None,
     revenue_replay: dict[str, Any] | None = None,
+    production_platform: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Single bundle for CEO / agent audit — Digital Operating System view."""
     from swarm.farm_explainability import explain_vre_verdict
@@ -325,6 +326,7 @@ def build_farm_program(
         "force_vectors": force_vectors,
         "commercial_experiments": commercial_experiments or [],
         "revenue_replay": revenue_replay,
+        "production_platform": production_platform,
         "post_vre4_sequence_ru": POST_VRE4_SEQUENCE_RU,
         "finance_guard": {
             "forecast": forecast,

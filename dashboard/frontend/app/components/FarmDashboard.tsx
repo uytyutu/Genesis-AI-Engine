@@ -277,6 +277,79 @@ type FarmDash = {
     }[];
     revenue_replay?: { label_ru?: string; saved_at?: string; steps_ru?: string[] };
   };
+  production_platform?: {
+    title_ru: string;
+    subtitle_ru: string;
+    conveyor_status_ru: string;
+    toloka_role_ru: string;
+    b2b_brief?: {
+      tagline_ru: string;
+      we_sell_ru: string[];
+      problems_we_solve_ru: string[];
+      pitch_ru: string;
+      packages_ru: { scenario: string; client_says: string; genesis_says: string }[];
+      cta_ru: string;
+    };
+    product_catalog?: {
+      service_number: number;
+      title_ru: string;
+      problem_ru: string;
+      price_b2b_eur: number;
+      unit_label_ru: string;
+      sla_example_ru: string;
+    }[];
+    capability_marketplace?: { id: string; label_ru: string; ready: boolean }[];
+    revenue_router?: {
+      channels: {
+        id: string;
+        label_ru: string;
+        potential_ru: string;
+        why_ru: string;
+        status: string;
+      }[];
+      recommended_ru: string;
+    };
+  };
+  opportunity_discovery?: {
+    title_ru: string;
+    subtitle_ru: string;
+    tagline_ru?: string;
+    cto_warning_ru?: string;
+    automation_level_ru?: string;
+    mission_formula_ru?: string[];
+    ceo_hints_ru?: string[];
+    stats?: {
+      scanned: number;
+      evaluated: number;
+      high_win_probability: number;
+      pipeline_value_eur: number;
+    };
+    methods?: { id: string; title_ru: string; summary_ru: string; status_ru: string }[];
+    top_opportunities?: {
+      opportunity_id: string;
+      company_name: string;
+      primary_problem_ru?: string;
+      win_probability_pct: number;
+      win_probability_reasons_ru?: string[];
+      problems_count: number;
+      sell_price_eur: number;
+      duration_label_ru?: string;
+      service_label_ru?: string;
+      proposal_ready?: boolean;
+      market_memory?: { prior_lost?: number; last_lost_reason_ru?: string | null };
+    }[];
+    lost_reason_database?: {
+      title_ru: string;
+      hint_ru: string;
+      reason_options: { code: string; label_ru: string }[];
+      by_reason?: { code: string; label_ru: string; count: number }[];
+    };
+    success_patterns?: {
+      title_ru: string;
+      hint_ru: string;
+      patterns: { pattern_ru: string; insight_ru: string; action_hint_ru: string }[];
+    };
+  };
   commercial_evidence?: CommercialEvidence;
   finance_guard?: {
     negative_streak?: number;
@@ -323,7 +396,22 @@ export function FarmDashboard() {
   const [dash, setDash] = useState<FarmDash | null>(null);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
+  const [quoteVolume, setQuoteVolume] = useState(18200);
+  const [quoteService, setQuoteService] = useState("svc_data_qa");
   const [workers, setWorkers] = useState(10);
+  const [quoteResult, setQuoteResult] = useState<{
+    sell_price_eur?: number;
+    internal_cost_eur?: number;
+    margin_eur?: number;
+    margin_pct?: number;
+    duration_label_ru?: string;
+    summary_ru?: string;
+    invoice_line_ru?: string;
+    truth_note_ru?: string;
+  } | null>(null);
+  const [proposalPreview, setProposalPreview] = useState<string>("");
+  const [lostReasonCode, setLostReasonCode] = useState("expensive");
+  const [lostTargetId, setLostTargetId] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -445,6 +533,53 @@ export function FarmDashboard() {
     }
   }
 
+  async function fetchAutoQuote() {
+    setBusy("quote");
+    try {
+      const res = await fetch(
+        `${API}/api/farm/quote?service_id=${encodeURIComponent(quoteService)}&volume=${quoteVolume}&workers=${workers}`,
+      );
+      if (res.ok) setQuoteResult(await res.json());
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function prepareOpportunityProposal(opportunityId: string) {
+    setBusy(`prep-${opportunityId}`);
+    try {
+      const res = await fetch(
+        `${API}/api/farm/opportunity-discovery/${encodeURIComponent(opportunityId)}/prepare`,
+        { method: "POST" },
+      );
+      const body = await res.json();
+      if (body.proposal_ru) setProposalPreview(body.proposal_ru);
+      setMessage(
+        body.message_ru ??
+          `Черновик готов · Win ${body.win_probability_pct ?? body.evaluation?.win_probability_pct ?? "?"}% · отправьте сами`,
+      );
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function recordLostReason(opportunityId: string) {
+    setBusy(`lost-${opportunityId}`);
+    try {
+      const res = await fetch(
+        `${API}/api/farm/opportunity-discovery/${encodeURIComponent(opportunityId)}/lost?reason_code=${encodeURIComponent(lostReasonCode)}`,
+        { method: "POST" },
+      );
+      const body = await res.json();
+      setMessage(body.message_ru ?? "Причина отказа сохранена");
+      setLostTargetId(null);
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
   async function runRevenueReplay() {
     setBusy("replay");
     try {
@@ -486,11 +621,18 @@ export function FarmDashboard() {
               только полевой эксперимент
             </p>
           </div>
-          <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/90">Virtus Core · Рабочий инструмент</p>
-          <h1 className="mt-2 text-3xl font-bold text-white">Цифровая ферма · {dash?.owner_name ?? "…"}</h1>
+          <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/90">
+            Genesis Production Platform · B2B
+          </p>
+          <h1 className="mt-2 text-3xl font-bold text-white">
+            Фабрика данных · {dash?.owner_name ?? "…"}
+          </h1>
           <p className="mt-2 text-sm text-genesis-muted">
-            Одна кнопка — рой комбайнов размечает данные. Биржи подключаешь ты (без твоего ключа Genesis не может
-            получать € с Scale/Toloka/MTurk).
+            {dash?.production_platform?.subtitle_ru ??
+              "Конвейер: Spider → Workers → Export → B2B / адаптеры. Toloka — только crash-test."}
+          </p>
+          <p className="mt-1 text-xs text-sky-200/80">
+            {dash?.production_platform?.conveyor_status_ru ?? ""}
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
             <Link href="/journal" className="rounded-lg border border-emerald-500/40 px-3 py-1.5 text-emerald-100 hover:bg-emerald-950/30">
@@ -510,6 +652,309 @@ export function FarmDashboard() {
             </a>
           </div>
         </header>
+
+        {dash?.production_platform?.b2b_brief ? (
+          <section className="genesis-card border-sky-500/30 bg-sky-950/10 p-5 space-y-4">
+            <h2 className="text-lg font-bold text-sky-100">{dash.production_platform.b2b_brief.tagline_ru}</h2>
+            <p className="text-sm text-white/90">{dash.production_platform.b2b_brief.pitch_ru}</p>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-lg border border-emerald-500/20 bg-emerald-950/15 p-3 text-xs">
+                <p className="font-semibold text-emerald-200">Что продаём бизнесу</p>
+                <ul className="mt-2 list-disc space-y-1 pl-4 text-white/85">
+                  {dash.production_platform.b2b_brief.we_sell_ru.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-lg border border-sky-500/20 bg-sky-950/15 p-3 text-xs">
+                <p className="font-semibold text-sky-200">Какие проблемы решаем</p>
+                <ul className="mt-2 list-disc space-y-1 pl-4 text-white/85">
+                  {dash.production_platform.b2b_brief.problems_we_solve_ru.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {dash.production_platform.b2b_brief.packages_ru.map((pkg) => (
+                <div key={pkg.scenario} className="rounded-lg border border-white/10 p-3 text-xs">
+                  <p className="font-semibold text-emerald-200">{pkg.scenario}</p>
+                  <p className="mt-1 text-white/80">«{pkg.client_says}»</p>
+                  <p className="mt-2 text-sky-100">{pkg.genesis_says}</p>
+                </div>
+              ))}
+            </div>
+            {dash.production_platform.product_catalog ? (
+              <div>
+                <h3 className="text-sm font-bold text-white">Product Catalog</h3>
+                <table className="mt-2 w-full text-left text-xs">
+                  <thead>
+                    <tr className="text-genesis-muted">
+                      <th className="pb-2 pr-2">#</th>
+                      <th className="pb-2 pr-2">Услуга</th>
+                      <th className="pb-2 pr-2">Цена B2B</th>
+                      <th className="pb-2">SLA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dash.production_platform.product_catalog.map((s) => (
+                      <tr key={s.service_number} className="border-t border-white/5">
+                        <td className="py-2 pr-2">{s.service_number}</td>
+                        <td className="py-2 pr-2 text-white">{s.title_ru}</td>
+                        <td className="py-2 pr-2 text-emerald-200">
+                          {s.price_b2b_eur} {s.unit_label_ru}
+                        </td>
+                        <td className="py-2 text-genesis-muted">{s.sla_example_ru}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+            {dash.production_platform.capability_marketplace ? (
+              <div className="flex flex-wrap gap-2">
+                {dash.production_platform.capability_marketplace.map((c) => (
+                  <span
+                    key={c.id}
+                    className={`rounded px-2 py-1 text-[10px] ${
+                      c.ready ? "bg-emerald-900/50 text-emerald-200" : "bg-white/5 text-white/50"
+                    }`}
+                  >
+                    {c.ready ? "✓" : "○"} {c.label_ru}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            <div className="rounded-lg border border-violet-500/30 bg-violet-950/15 p-4">
+              <h3 className="text-sm font-bold text-violet-100">Auto Quote · Cost Engine</h3>
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                <select
+                  value={quoteService}
+                  onChange={(e) => setQuoteService(e.target.value)}
+                  className="rounded border border-white/20 bg-black/30 px-2 py-1 text-white"
+                >
+                  <option value="svc_data_qa">Проверка данных</option>
+                  <option value="svc_document_labeling">Разметка документов</option>
+                  <option value="svc_ocr">OCR</option>
+                  <option value="svc_catalog">Каталог товаров</option>
+                  <option value="svc_translation_qa">Translation QA</option>
+                </select>
+                <input
+                  type="number"
+                  value={quoteVolume}
+                  onChange={(e) => setQuoteVolume(Number(e.target.value) || 0)}
+                  className="w-32 rounded border border-white/20 bg-black/30 px-2 py-1 text-white"
+                  min={1}
+                />
+                <button
+                  type="button"
+                  disabled={busy === "quote"}
+                  onClick={() => void fetchAutoQuote()}
+                  className="rounded border border-violet-400/50 px-3 py-1 text-violet-100 hover:bg-violet-950/40"
+                >
+                  {busy === "quote" ? "…" : "Рассчитать"}
+                </button>
+              </div>
+              {quoteResult?.summary_ru ? (
+                <p className="mt-3 text-sm text-emerald-100">{quoteResult.summary_ru}</p>
+              ) : null}
+              {quoteResult?.internal_cost_eur != null && quoteResult.sell_price_eur != null ? (
+                <p className="mt-2 text-xs text-white/80">
+                  Себестоимость {quoteResult.internal_cost_eur.toFixed(2)} € · продать{" "}
+                  {quoteResult.sell_price_eur.toFixed(2)} €
+                  {quoteResult.margin_pct != null ? ` · маржа ${quoteResult.margin_pct}%` : ""}
+                </p>
+              ) : null}
+              {quoteResult?.invoice_line_ru ? (
+                <p className="mt-1 text-xs text-white/80">{quoteResult.invoice_line_ru}</p>
+              ) : null}
+              {quoteResult?.truth_note_ru ? (
+                <p className="mt-1 text-[10px] text-amber-200/80">{quoteResult.truth_note_ru}</p>
+              ) : null}
+            </div>
+            {dash.production_platform.revenue_router ? (
+              <div>
+                <h3 className="text-sm font-bold text-amber-100">{dash.production_platform.revenue_router.recommended_ru}</h3>
+                <ul className="mt-2 space-y-1 text-xs">
+                  {dash.production_platform.revenue_router.channels.map((ch) => (
+                    <li key={ch.id} className="flex flex-wrap gap-2 text-white/85">
+                      <span className="font-medium">{ch.label_ru}</span>
+                      <span className="text-emerald-300">{ch.potential_ru}</span>
+                      <span className="text-genesis-muted">{ch.why_ru}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            <p className="text-[11px] text-genesis-muted">{dash.production_platform.b2b_brief.cta_ru}</p>
+          </section>
+        ) : null}
+
+        {dash?.opportunity_discovery ? (
+          <section className="genesis-card border-amber-500/35 bg-amber-950/10 p-5 space-y-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.35em] text-amber-300/80">Opportunity Discovery</p>
+              <h2 className="text-lg font-bold text-amber-100">{dash.opportunity_discovery.title_ru}</h2>
+              <p className="text-sm text-white/85">{dash.opportunity_discovery.subtitle_ru}</p>
+              {dash.opportunity_discovery.stats ? (
+                <p className="mt-2 text-xs text-amber-200/90">
+                  Найдено и оценено: <strong>{dash.opportunity_discovery.stats.evaluated}</strong> · Win ≥55%:{" "}
+                  <strong>{dash.opportunity_discovery.stats.high_win_probability}</strong> · Потенциал топ-5:{" "}
+                  <strong>{formatEur(dash.opportunity_discovery.stats.pipeline_value_eur)}</strong>
+                </p>
+              ) : null}
+            </div>
+
+            {dash.opportunity_discovery.ceo_hints_ru ? (
+              <div className="rounded-lg border border-sky-500/25 bg-sky-950/15 p-3 text-xs text-sky-100">
+                <p className="font-semibold">Как работать с этим блоком</p>
+                <ul className="mt-2 list-decimal space-y-1 pl-4 text-white/85">
+                  {dash.opportunity_discovery.ceo_hints_ru.map((h) => (
+                    <li key={h}>{h}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {dash.opportunity_discovery.success_patterns ? (
+              <div className="rounded-lg border border-emerald-500/25 bg-emerald-950/15 p-3 text-xs">
+                <p className="font-semibold text-emerald-200">{dash.opportunity_discovery.success_patterns.title_ru}</p>
+                <p className="mt-1 text-genesis-muted">{dash.opportunity_discovery.success_patterns.hint_ru}</p>
+                <ul className="mt-2 space-y-2">
+                  {dash.opportunity_discovery.success_patterns.patterns.map((p) => (
+                    <li key={p.pattern_ru} className="text-white/85">
+                      <strong>{p.pattern_ru}</strong> — {p.insight_ru}
+                      <span className="block text-emerald-200/80">→ {p.action_hint_ru}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {dash.opportunity_discovery.top_opportunities && dash.opportunity_discovery.top_opportunities.length > 0 ? (
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-white">Активные возможности · не деньги, а шансы</h3>
+                {dash.opportunity_discovery.top_opportunities.slice(0, 6).map((opp) => (
+                  <div
+                    key={opp.opportunity_id}
+                    className="rounded-lg border border-amber-500/20 bg-black/25 p-3 text-xs"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-semibold text-white">{opp.company_name}</p>
+                      <span className="rounded-full bg-violet-900/60 px-2 py-0.5 font-bold text-violet-100">
+                        Win {opp.win_probability_pct}%
+                      </span>
+                    </div>
+                    <p className="mt-1 text-white/80">
+                      Проблема: {opp.primary_problem_ru ?? opp.service_label_ru} · Стоимость:{" "}
+                      <strong className="text-emerald-200">{formatEur(opp.sell_price_eur)}</strong>
+                      {opp.duration_label_ru ? ` · Срок: ${opp.duration_label_ru}` : ""}
+                    </p>
+                    {opp.win_probability_reasons_ru?.length ? (
+                      <div className="mt-2 rounded border border-white/5 bg-black/30 p-2">
+                        <p className="font-medium text-amber-200">Почему именно {opp.win_probability_pct}%</p>
+                        <ul className="mt-1 list-disc space-y-0.5 pl-4 text-white/75">
+                          {opp.win_probability_reasons_ru.map((r) => (
+                            <li key={r}>{r}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {opp.market_memory?.prior_lost ? (
+                      <p className="mt-1 text-rose-200/80">
+                        Память: был отказ ({opp.market_memory.prior_lost}×)
+                        {opp.market_memory.last_lost_reason_ru ? ` — ${opp.market_memory.last_lost_reason_ru}` : ""}
+                      </p>
+                    ) : null}
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {opp.proposal_ready ? (
+                        <button
+                          type="button"
+                          disabled={busy === `prep-${opp.opportunity_id}`}
+                          onClick={() => void prepareOpportunityProposal(opp.opportunity_id)}
+                          className="rounded border border-emerald-500/40 px-3 py-1 text-emerald-100 hover:bg-emerald-950/30"
+                        >
+                          {busy === `prep-${opp.opportunity_id}` ? "…" : "Подготовить предложение"}
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLostTargetId(lostTargetId === opp.opportunity_id ? null : opp.opportunity_id)
+                        }
+                        className="rounded border border-rose-500/30 px-3 py-1 text-rose-200 hover:bg-rose-950/30"
+                      >
+                        Клиент отказал
+                      </button>
+                    </div>
+                    {lostTargetId === opp.opportunity_id ? (
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <select
+                          value={lostReasonCode}
+                          onChange={(e) => setLostReasonCode(e.target.value)}
+                          className="rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
+                        >
+                          {(dash.opportunity_discovery.lost_reason_database?.reason_options ?? []).map((o) => (
+                            <option key={o.code} value={o.code}>
+                              {o.label_ru}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          disabled={busy === `lost-${opp.opportunity_id}`}
+                          onClick={() => void recordLostReason(opp.opportunity_id)}
+                          className="rounded border border-rose-400/40 px-2 py-1 text-rose-100"
+                        >
+                          Запомнить причину
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-genesis-muted">
+                Пока пусто. Нажмите «Запустить ферму» — Spider найдёт компании. Здесь появятся проблемы, цена и Win
+                Probability.
+              </p>
+            )}
+
+            {proposalPreview ? (
+              <pre className="max-h-48 overflow-auto rounded border border-white/10 bg-black/40 p-3 text-[11px] text-white/90 whitespace-pre-wrap">
+                {proposalPreview}
+              </pre>
+            ) : null}
+
+            {dash.opportunity_discovery.lost_reason_database ? (
+              <div className="rounded-lg border border-rose-500/20 bg-rose-950/10 p-3 text-xs">
+                <p className="font-semibold text-rose-100">{dash.opportunity_discovery.lost_reason_database.title_ru}</p>
+                <p className="mt-1 text-genesis-muted">{dash.opportunity_discovery.lost_reason_database.hint_ru}</p>
+                {dash.opportunity_discovery.lost_reason_database.by_reason?.length ? (
+                  <ul className="mt-2 flex flex-wrap gap-2">
+                    {dash.opportunity_discovery.lost_reason_database.by_reason.map((r) => (
+                      <li key={r.code} className="rounded bg-black/30 px-2 py-1 text-white/80">
+                        {r.label_ru}: {r.count}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-white/60">Пока нет отказов — база наполнится после первых «Клиент отказал».</p>
+                )}
+              </div>
+            ) : null}
+
+            {dash.opportunity_discovery.cto_warning_ru ? (
+              <p className="rounded border border-rose-500/30 bg-rose-950/20 p-2 text-[11px] text-rose-100">
+                {dash.opportunity_discovery.cto_warning_ru}
+              </p>
+            ) : null}
+
+            {dash.opportunity_discovery.automation_level_ru ? (
+              <p className="text-[10px] text-genesis-muted">{dash.opportunity_discovery.automation_level_ru}</p>
+            ) : null}
+          </section>
+        ) : null}
 
         {dash?.first_euro_gate ? (
           <section
@@ -953,11 +1398,12 @@ export function FarmDashboard() {
           </section>
         ) : null}
 
-        ) : null}
-
         {dash?.toloka_submit?.configured ? (
           <section className="genesis-card border-violet-500/30 bg-violet-950/10 p-5">
-            <h2 className="text-sm font-bold text-violet-100">Toloka · auto-submit</h2>
+            <h2 className="text-sm font-bold text-violet-100">Toloka · crash-test (адаптер)</h2>
+            <p className="mt-1 text-[11px] text-genesis-muted">
+              {dash?.production_platform?.toloka_role_ru ?? "Не центр стратегии — только проверка прочности"}
+            </p>
             <p className="mt-1 text-xs text-violet-200/80">
               {dash.toloka_submit.auto_submit_enabled
                 ? "Live: после каждого tick разметка уходит на platform.toloka.ai автоматически."

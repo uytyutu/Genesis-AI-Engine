@@ -1374,7 +1374,107 @@ class MicroFarmService:
             error_ledger_summary=error_ledger_from_memory(self._memory),
             commercial_experiments=list_experiments(self._memory),
             revenue_replay=load_replay_snapshot(self._memory),
+            production_platform=self.production_platform(),
         )
+
+    def production_platform(self) -> dict[str, Any]:
+        from app.integration.production_platform import build_production_platform
+
+        gate = self.first_euro_gate()
+        return build_production_platform(
+            farm_state={
+                "labels_export_count": self.labels_export_count(),
+                "total_tasks_done": int(self._load_state().get("total_tasks_done") or 0),
+            },
+            toloka_verdict=str(gate.get("verdict") or ""),
+        )
+
+    def auto_quote(self, *, service_id: str, volume: float, workers: int = 10) -> dict[str, Any]:
+        from app.integration.production_platform import auto_quote_from_rows, cost_engine_quote
+
+        if service_id == "svc_data_qa" and volume == int(volume):
+            return auto_quote_from_rows(row_count=int(volume), workers=workers)
+        q = cost_engine_quote(service_id=service_id, volume=volume, workers=workers)
+        if not q.get("ok"):
+            return q
+        vol = int(volume) if volume == int(volume) else volume
+        return {
+            **q,
+            "quote_type": "auto_quote",
+            "input_ru": f"Объём · {vol:,} {q.get('volume_unit_ru', '')}".replace(",", " "),
+            "invoice_line_ru": (
+                f"Объём {vol:,} · Стоимость {q['sell_price_eur']:.2f} € · "
+                f"Срок {q['duration_label_ru']}"
+            ).replace(",", " "),
+            "cta_ru": "Подтвердите заказ — конвейер запустится с тем же Workers/Export, выход B2B JSON/CSV",
+        }
+
+    def opportunity_discovery(self) -> dict[str, Any]:
+        from app.integration.opportunity_discovery_engine import build_opportunity_discovery
+
+        hunter_rows = 0
+        ds_path = self._memory / "hunter_dataset.jsonl"
+        if ds_path.is_file():
+            hunter_rows = sum(1 for ln in ds_path.read_text(encoding="utf-8").splitlines() if ln.strip())
+
+        gate = self.first_euro_gate()
+        state = self._load_state()
+        opportunities = self._opportunity.list_opportunities(limit=300)
+        return build_opportunity_discovery(
+            opportunities,
+            farm_state={
+                "labels_export_count": self.labels_export_count(),
+                "hunter_dataset_rows": hunter_rows,
+            },
+            toloka_verdict=str(gate.get("verdict") or ""),
+            workers=int(state.get("workers_target") or 10),
+            memory_dir=self._memory,
+        )
+
+    def prepare_opportunity_proposal(self, opportunity_id: str) -> dict[str, Any]:
+        from app.integration.opportunity_discovery_engine import prepare_commercial_proposal
+
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            return {"ok": False, "message_ru": "Возможность не найдена"}
+        all_rows = self._opportunity.list_opportunities(limit=500)
+        prep = prepare_commercial_proposal(row, all_rows=all_rows)
+        if prep.get("ok"):
+            self._opportunity.update(
+                opportunity_id,
+                {
+                    "proposed_message": prep["proposal_ru"],
+                    "recommended_package_id": prep["recommended_package_id"],
+                    "recommended_price_eur": prep["recommended_price_eur"],
+                    "pricing_rationale": f"Win {prep.get('win_probability_pct')}%",
+                    "status": "proposed",
+                    "outreach_status": "pending_approval",
+                },
+            )
+        return prep
+
+    def record_opportunity_lost(self, opportunity_id: str, *, reason_code: str, note_ru: str = "") -> dict[str, Any]:
+        from app.integration.opportunity_discovery_engine import record_lost_reason
+
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            return {"ok": False, "message_ru": "Возможность не найдена"}
+        entry = record_lost_reason(
+            opportunity_id=opportunity_id,
+            reason_code=reason_code,
+            company_name=str(row.get("company_name") or ""),
+            note_ru=note_ru,
+            memory_dir=self._memory,
+        )
+        meta = dict(row.get("meta") or {})
+        meta["lost_reason_code"] = entry["reason_code"]
+        meta["lost_reason_ru"] = entry["reason_ru"]
+        meta["lost_at"] = entry["at"]
+        self._opportunity.update(
+            opportunity_id,
+            {"status": "lost", "notes": note_ru or entry["reason_ru"], "meta": meta},
+        )
+        return {"ok": True, "message_ru": f"Отказ записан: {entry['reason_ru']}", "entry": entry}
 
     def commercial_experiments(self) -> list[dict[str, Any]]:
         from app.integration.commercial_experiment_journal import ensure_baseline_experiments, list_experiments
@@ -1607,6 +1707,8 @@ class MicroFarmService:
             "commercial_evidence": self.commercial_evidence(),
             "finance_guard": self._finance_guard_snapshot(),
             "farm_program": self.farm_program(),
+            "production_platform": self.production_platform(),
+            "opportunity_discovery": self.opportunity_discovery(),
             "recent_tasks": self._recent_events(15),
             "last_tick_at": state.get("last_tick_at"),
             "honesty_note": (

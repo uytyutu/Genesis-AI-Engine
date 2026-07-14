@@ -670,6 +670,44 @@ def farm_revenue_replay(workers: int = 10) -> dict:
     return _ctx().micro_farm.run_revenue_replay(workers=max(1, min(100, workers)))
 
 
+@app.get("/api/farm/production-platform")
+def farm_production_platform() -> dict:
+    load_local_env()
+    return _ctx().micro_farm.production_platform()
+
+
+@app.get("/api/farm/quote")
+def farm_auto_quote(service_id: str = "svc_data_qa", volume: float = 1000, workers: int = 10) -> dict:
+    load_local_env()
+    return _ctx().micro_farm.auto_quote(
+        service_id=service_id,
+        volume=volume,
+        workers=max(1, min(100, workers)),
+    )
+
+
+@app.get("/api/farm/opportunity-discovery")
+def farm_opportunity_discovery() -> dict:
+    load_local_env()
+    return _ctx().micro_farm.opportunity_discovery()
+
+
+@app.post("/api/farm/opportunity-discovery/{opportunity_id}/prepare")
+def farm_prepare_opportunity_proposal(opportunity_id: str) -> dict:
+    load_local_env()
+    return _ctx().micro_farm.prepare_opportunity_proposal(opportunity_id)
+
+
+@app.post("/api/farm/opportunity-discovery/{opportunity_id}/lost")
+def farm_record_opportunity_lost(opportunity_id: str, reason_code: str = "other", note_ru: str = "") -> dict:
+    load_local_env()
+    return _ctx().micro_farm.record_opportunity_lost(
+        opportunity_id,
+        reason_code=reason_code,
+        note_ru=note_ru,
+    )
+
+
 @app.post("/api/farm/feed")
 def farm_feed() -> dict:
     """Discover public URLs worldwide — fills combiner task queue."""
