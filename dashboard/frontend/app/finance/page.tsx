@@ -237,6 +237,36 @@ export default function FinancePage() {
         <p className="rounded-xl border border-dashed border-genesis-border px-4 py-3 text-xs leading-relaxed text-genesis-muted">
           {finance?.data_source_note}
         </p>
+
+        <GenesisCard title="Отчётность Engine · DATEV">
+          <p className="text-sm text-genesis-muted">
+            Полный финансовый контур: harvest_ledger + Stripe + crypto → один файл для Steuerberater (Lexoffice/DATEV).
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href="/"
+              className="rounded-lg border border-sky-500/40 px-3 py-2 text-xs text-sky-100 hover:bg-sky-950/30"
+            >
+              Engine → Tax &amp; Accounting
+            </Link>
+            <a
+              href={`${API}/api/engine/accounting/export.datev.csv`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-emerald-500/40 px-3 py-2 text-xs text-emerald-100 hover:bg-emerald-950/30"
+            >
+              ⬇ Скачать DATEV
+            </a>
+            <a
+              href={`${API}/api/engine/accounting/export.csv`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-white/15 px-3 py-2 text-xs hover:bg-white/5"
+            >
+              ⬇ CSV Finanzamt
+            </a>
+          </div>
+        </GenesisCard>
       </div>
 
       <WithdrawModal

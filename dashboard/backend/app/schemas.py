@@ -1115,6 +1115,18 @@ class EngineAccountingSummary(BaseModel):
     service_label: str = ""
     operator_ready: bool = False
     operator_trade_name: str = ""
+    export_summary: dict = {}
+
+
+class EngineFinancialExportSummary(BaseModel):
+    entries_count: int
+    fiat_gross_eur: float
+    crypto_gross_eur: float
+    payouts_eur: float
+    platform_balance_eur: float
+    available_for_withdrawal_eur: float
+    format: str
+    note: str
 
 
 class AcquisitionStudioStatus(BaseModel):

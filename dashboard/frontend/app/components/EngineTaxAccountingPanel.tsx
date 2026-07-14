@@ -35,6 +35,16 @@ type AccountingSummary = {
   service_label: string;
   operator_ready: boolean;
   operator_trade_name: string;
+  export_summary?: {
+    entries_count: number;
+    fiat_gross_eur: number;
+    crypto_gross_eur: number;
+    payouts_eur: number;
+    platform_balance_eur: number;
+    available_for_withdrawal_eur: number;
+    format: string;
+    note: string;
+  };
 };
 
 export function EngineTaxAccountingPanel() {
@@ -86,6 +96,10 @@ export function EngineTaxAccountingPanel() {
     window.open(`${API}/api/engine/accounting/export.csv`, "_blank");
   }
 
+  function downloadDatev() {
+    window.open(`${API}/api/engine/accounting/export.datev.csv`, "_blank");
+  }
+
   function openInvoice(assetId: string) {
     window.open(`${API}/api/engine/accounting/invoice/${assetId}`, "_blank");
   }
@@ -98,9 +112,16 @@ export function EngineTaxAccountingPanel() {
         <p className="text-xs uppercase tracking-[0.4em] text-sky-300/90">Tax &amp; Accounting</p>
         <h2 className="mt-2 text-2xl font-bold text-white">Учёт и отчётность для Finanzamt</h2>
         <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
-          Прозрачный учёт добычи: брутто → комиссия Stripe → резерв MwSt → чистый доход. CSV для налоговой, Rechnungen для
-          партнёров.
+          Fiat (Stripe → банк DE) + crypto ledger (Konto 2742). Finanzamt CSV, DATEV для Steuerberater, Rechnungen B2B.
         </p>
+        {data?.export_summary ? (
+          <p className="mt-2 text-xs text-sky-200">
+            FinancialExportBridge: {data.export_summary.entries_count} проводок · Fiat{" "}
+            {formatEur(data.export_summary.fiat_gross_eur)} · Crypto{" "}
+            {formatEur(data.export_summary.crypto_gross_eur)} · баланс{" "}
+            {formatEur(data.export_summary.platform_balance_eur)}
+          </p>
+        ) : null}
         {data?.dsgvo_note ? (
           <p className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-950/25 px-3 py-2 text-[11px] text-emerald-100">
             🔒 {data.dsgvo_note}
@@ -198,13 +219,22 @@ export function EngineTaxAccountingPanel() {
         <section className="genesis-card p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-sm font-semibold">Журнал добычи · {data?.harvest_count ?? 0} записей</h3>
-            <button
-              type="button"
-              onClick={downloadCsv}
-              className="rounded-lg border border-sky-500/40 bg-sky-950/30 px-3 py-1.5 text-xs text-sky-100 hover:bg-sky-900/40"
-            >
-              ⬇ CSV для Finanzamt
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={downloadCsv}
+                className="rounded-lg border border-sky-500/40 bg-sky-950/30 px-3 py-1.5 text-xs text-sky-100 hover:bg-sky-900/40"
+              >
+                ⬇ CSV Finanzamt
+              </button>
+              <button
+                type="button"
+                onClick={downloadDatev}
+                className="rounded-lg border border-emerald-500/40 bg-emerald-950/30 px-3 py-1.5 text-xs text-emerald-100 hover:bg-emerald-900/40"
+              >
+                ⬇ DATEV / Lexoffice
+              </button>
+            </div>
           </div>
           <p className="mt-1 text-xs text-genesis-muted">
             Формат DE: разделитель «;», запятая как десятичный разделитель. Печать → PDF.

@@ -122,6 +122,7 @@ from app.schemas import (
     PaymentSyncResponse,
     EngineTaxSettings,
     EngineAccountingSummary,
+    EngineFinancialExportSummary,
     SiteAnalysisResult,
     AcquisitionStudioStatus,
     AcquisitionApprovalQueueResponse,
@@ -571,7 +572,9 @@ def engine_withdraw(request: WithdrawRequest) -> WithdrawResponse:
 
 @app.get("/api/engine/accounting", response_model=EngineAccountingSummary)
 def engine_accounting() -> EngineAccountingSummary:
-    return EngineAccountingSummary(**_ctx().engine_accounting.accounting_summary())
+    summary = _ctx().engine_accounting.accounting_summary()
+    summary["export_summary"] = _ctx().financial_export.export_summary()
+    return EngineAccountingSummary(**summary)
 
 
 @app.patch("/api/engine/accounting/settings", response_model=EngineTaxSettings)
@@ -593,6 +596,21 @@ def engine_accounting_export_csv() -> PlainTextResponse:
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="harvest_report.csv"'},
     )
+
+
+@app.get("/api/engine/accounting/export.datev.csv")
+def engine_accounting_export_datev() -> PlainTextResponse:
+    csv_text = _ctx().financial_export.export_datev_csv()
+    return PlainTextResponse(
+        content=csv_text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="virtus_datev_export.csv"'},
+    )
+
+
+@app.get("/api/engine/accounting/export-summary", response_model=EngineFinancialExportSummary)
+def engine_accounting_export_summary() -> EngineFinancialExportSummary:
+    return EngineFinancialExportSummary(**_ctx().financial_export.export_summary())
 
 
 @app.get("/api/engine/accounting/invoice/{opportunity_id}", response_class=HTMLResponse)

@@ -28,6 +28,7 @@ from app.integration.lead_intake_service import LeadIntakeService
 from app.integration.asset_scanner_service import AssetScannerService
 from app.integration.monetization_engine_service import MonetizationEngineService
 from app.integration.engine_accounting_service import EngineAccountingService
+from app.integration.financial_export_bridge import FinancialExportBridge
 from app.integration.cursor_handoff_service import CursorHandoffService
 from app.integration.public_launch_service import PublicLaunchService
 from app.integration.pricing_display_service import PricingDisplayService
@@ -80,6 +81,7 @@ class IntegrationContext:
     asset_scanner: AssetScannerService
     monetization_engine: MonetizationEngineService
     engine_accounting: EngineAccountingService
+    financial_export: FinancialExportBridge
     public_launch: PublicLaunchService
     pricing_display: PricingDisplayService
 
@@ -118,6 +120,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             opportunity, finance, checkout, asset_scanner, path
         )
         engine_accounting = EngineAccountingService(opportunity, path)
+        financial_export = FinancialExportBridge(engine_accounting, finance, path)
         company = CompanyService(
             owner, finance, modules, tasks, health, opportunity, sales, factory, notifications
         )
@@ -152,6 +155,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             asset_scanner=asset_scanner,
             monetization_engine=monetization_engine,
             engine_accounting=engine_accounting,
+            financial_export=financial_export,
             public_launch=public_launch,
             pricing_display=pricing_display,
         )
