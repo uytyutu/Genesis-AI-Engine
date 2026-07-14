@@ -980,8 +980,29 @@ class EngineDashboard(BaseModel):
     auto_gate_min_score: int
     pending_targets: list[EngineTarget]
     active_assets: list[EngineTarget]
+    harvested_assets: list[EngineTarget] = []
+    harvested_count: int = 0
+    finance_gateway: dict = {}
     wallets: list[dict] = []
     withdrawal_enabled: bool = False
+
+
+class EngineScanModeRequest(BaseModel):
+    niche: str = "local_service"
+    city: str = "Pirna"
+    limit: int = 8
+
+
+class EngineScanModeResponse(BaseModel):
+    ok: bool
+    niche: str
+    city: str
+    query: str
+    scanned: int
+    passed_gate: int
+    hidden: int
+    errors: list[str] = []
+    message: str
 
 
 class EngineScanRequest(BaseModel):

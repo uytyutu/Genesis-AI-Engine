@@ -45,9 +45,17 @@ type EngineDash = {
   auto_gate_min_score: number;
   pending_targets: Target[];
   active_assets: Target[];
+  harvested_assets?: Target[];
+  harvested_count?: number;
   wallets: Wallet[];
   withdrawal_enabled: boolean;
 };
+
+const NICHE_OPTIONS = [
+  { id: "local_service", label: "Локальные услуги" },
+  { id: "expired_landing", label: "Заброшенные лендинги" },
+  { id: "niche_blog", label: "Нишевые блоги" },
+];
 
 const TRAFFIC: Record<string, string> = {
   medium: "Средний",
@@ -71,6 +79,8 @@ export function EngineDashboard() {
   const [withdrawWallet, setWithdrawWallet] = useState("stripe");
   const [connectWallet, setConnectWallet] = useState("stripe");
   const [connectLabel, setConnectLabel] = useState("");
+  const [scanNiche, setScanNiche] = useState("local_service");
+  const [scanCity, setScanCity] = useState("Pirna");
 
   const refresh = useCallback(async () => {
     try {
@@ -97,6 +107,23 @@ export function EngineDashboard() {
           ? `Stripe синхронизирован: ${formatEur(body.stripe_available_eur)}`
           : "Синхронизация завершена",
       );
+      refresh();
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function runScanMode() {
+    setBusy("scan-mode");
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/engine/scan-mode`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ niche: scanNiche, city: scanCity, limit: 8 }),
+      });
+      const body = await res.json();
+      setMessage(body.message ?? (res.ok ? "Сканирование завершено" : "Ошибка"));
       refresh();
     } finally {
       setBusy("");
@@ -210,19 +237,62 @@ export function EngineDashboard() {
         </header>
 
         {dash && (
-          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <Kpi label="Баланс добычи" value={formatEur(dash.harvest_balance_eur)} accent />
-            <Kpi label="Активные активы" value={String(dash.active_assets_count)} />
+          <section id="balance-kpi" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <Kpi id="harvest-balance" label="① Баланс добычи" value={formatEur(dash.harvest_balance_eur)} accent />
+            <Kpi label="② Активные активы" value={String(dash.active_assets_count)} />
             <Kpi label="Потенциал воронки" value={formatEur(dash.pipeline_potential_eur)} />
-            <Kpi label="К выводу" value={formatEur(dash.available_for_withdrawal_eur)} accent />
-            <Kpi label="Всего добыто" value={formatEur(dash.lifetime_harvest_eur)} />
+            <Kpi id="withdraw-balance" label="③ К выводу (шлюз)" value={formatEur(dash.available_for_withdrawal_eur)} accent />
+            <Kpi label="④ Всего добыто" value={formatEur(dash.lifetime_harvest_eur)} />
           </section>
         )}
 
+        <nav className="flex flex-wrap gap-2 text-[11px] text-genesis-muted">
+          <a href="#balance-kpi" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Баланс</a>
+          <a href="#scan-mode" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Сканирование</a>
+          <a href="#pending-journal" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Журнал</a>
+          <a href="#active-assets" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Активные</a>
+          <a href="#harvested-assets" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Добытые</a>
+          <a href="#finance-gateway" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Шлюз</a>
+        </nav>
+
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <div className="space-y-6">
+            <section id="scan-mode" className="genesis-card p-5">
+              <h2 className="text-sm font-semibold">Режим сканирования</h2>
+              <p className="mt-1 text-xs text-genesis-muted">
+                Ручной запуск поиска по нише и городу. Google Places — если задан <code>GOOGLE_PLACES_API_KEY</code>.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <select
+                  value={scanNiche}
+                  onChange={(e) => setScanNiche(e.target.value)}
+                  className="rounded-xl border border-genesis-border bg-genesis-bg px-3 py-2 text-sm"
+                >
+                  {NICHE_OPTIONS.map((n) => (
+                    <option key={n.id} value={n.id}>
+                      {n.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={scanCity}
+                  onChange={(e) => setScanCity(e.target.value)}
+                  placeholder="Город"
+                  className="w-36 rounded-xl border border-genesis-border bg-genesis-bg px-3 py-2 text-sm"
+                />
+                <button
+                  type="button"
+                  disabled={busy === "scan-mode"}
+                  onClick={() => void runScanMode()}
+                  className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {busy === "scan-mode" ? "Сканирую нишу…" : "▶ Режим сканирования"}
+                </button>
+              </div>
+            </section>
+
             <section className="genesis-card p-5">
-              <h2 className="text-sm font-semibold">Сканер рынка</h2>
+              <h2 className="text-sm font-semibold">Точечный URL</h2>
               <p className="mt-1 text-xs text-genesis-muted">
                 Auto-gate: показываю только цели с score ≥ {dash?.auto_gate_min_score ?? 45}. Остальное отсекается автоматически.
               </p>
@@ -245,7 +315,7 @@ export function EngineDashboard() {
               </form>
             </section>
 
-            <section className="genesis-card p-5">
+            <section id="pending-journal" className="genesis-card p-5">
               <h2 className="text-sm font-semibold">Журнал возможностей — на подтверждение</h2>
               <p className="mt-1 text-xs text-genesis-muted">
                 Движок уже оценил доходность. Вам остаётся подтвердить перехват.
@@ -267,8 +337,8 @@ export function EngineDashboard() {
               )}
             </section>
 
-            <section className="genesis-card p-5">
-              <h2 className="text-sm font-semibold">Активные активы</h2>
+            <section id="active-assets" className="genesis-card p-5">
+              <h2 className="text-sm font-semibold">Активные активы (перехвачены)</h2>
               <p className="mt-1 text-xs text-genesis-muted">Перехвачены и в монетизации.</p>
               {!dash?.active_assets.length ? (
                 <p className="mt-4 text-sm text-genesis-muted">Пока нет — нажмите «Принять в работу» у цели выше.</p>
@@ -280,11 +350,27 @@ export function EngineDashboard() {
                 </ul>
               )}
             </section>
+
+            <section id="harvested-assets" className="genesis-card p-5">
+              <h2 className="text-sm font-semibold">Добытые активы (монетизированы)</h2>
+              <p className="mt-1 text-xs text-genesis-muted">
+                Здесь — результат добычи, привязанный к балансу шлюза. Счётчик: {dash?.harvested_count ?? 0}
+              </p>
+              {!dash?.harvested_assets?.length ? (
+                <p className="mt-4 text-sm text-genesis-muted">Пока пусто. После монетизации актив появится здесь с суммой добычи.</p>
+              ) : (
+                <ul className="mt-4 space-y-3">
+                  {dash.harvested_assets.map((t) => (
+                    <TargetCard key={t.id} target={t} busy={busy} />
+                  ))}
+                </ul>
+              )}
+            </section>
           </div>
 
           <aside className="space-y-6">
-            <section className="genesis-card p-5">
-              <h2 className="text-sm font-semibold">Финансовый шлюз</h2>
+            <section id="finance-gateway" className="genesis-card p-5">
+              <h2 className="text-sm font-semibold">Финансовый шлюз (сердце движка)</h2>
               <p className="mt-1 text-xs text-genesis-muted">
                 Провайдер: {dash?.payment_provider_label ?? "—"} · синхр. {dash?.last_sync_at ? "активна" : "ожидает"}
               </p>
@@ -419,9 +505,20 @@ function TargetCard({
   );
 }
 
-function Kpi({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+function Kpi({
+  label,
+  value,
+  accent,
+  id,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+  id?: string;
+}) {
   return (
     <div
+      id={id}
       className={`rounded-xl border p-4 ${
         accent ? "border-amber-500/35 bg-amber-950/20" : "border-genesis-border-subtle bg-genesis-bg/40"
       }`}

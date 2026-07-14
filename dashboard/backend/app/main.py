@@ -111,6 +111,8 @@ from app.schemas import (
     EngineDashboard,
     EngineScanRequest,
     EngineScanResponse,
+    EngineScanModeRequest,
+    EngineScanModeResponse,
     ConnectWalletRequest,
     WithdrawRequest,
     WithdrawResponse,
@@ -474,6 +476,16 @@ def engine_dashboard() -> EngineDashboard:
 @app.post("/api/engine/sync-payments", response_model=PaymentSyncResponse)
 def engine_sync_payments() -> PaymentSyncResponse:
     return PaymentSyncResponse(**_ctx().monetization_engine.sync_payment_providers())
+
+
+@app.post("/api/engine/scan-mode", response_model=EngineScanModeResponse)
+def engine_scan_mode(request: EngineScanModeRequest) -> EngineScanModeResponse:
+    result = _ctx().monetization_engine.run_scan_mode(
+        niche=request.niche,
+        city=request.city,
+        limit=min(20, max(1, request.limit)),
+    )
+    return EngineScanModeResponse(**result)
 
 
 @app.post("/api/engine/scan", response_model=EngineScanResponse)

@@ -15,6 +15,7 @@ import httpx
 
 from app.integration.asset_scanner_service import AssetScannerService, assert_public_scan_allowed
 from app.integration.finance_service import FinanceService
+from app.integration.google_places_service import GooglePlacesService
 from app.integration.opportunity_service import OpportunityService
 from app.integration.payment_checkout_service import PaymentCheckoutService
 
@@ -26,6 +27,12 @@ STRONG_PROFIT_SCORE = 70
 
 _ACTIVE_STATUSES = frozenset({"proposed", "contacted", "qualified", "won"})
 _PENDING_STATUSES = frozenset({"new", "reviewed"})
+
+_NICHE_SCAN_QUERIES: dict[str, str] = {
+    "local_service": "Autowerkstatt",
+    "expired_landing": "Handwerker website",
+    "niche_blog": "Lokaler Blog",
+}
 
 
 def compute_profitability_score(
@@ -63,6 +70,14 @@ class MonetizationEngineService:
         self._checkout = checkout
         self._scanner = scanner
         self._memory = memory_dir or _DEFAULT_MEMORY
+        self._places = GooglePlacesService()
+
+    def _append_harvest_event(self, event: dict[str, Any]) -> None:
+        path = self._memory / "engine_harvest_events.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        event["at"] = datetime.now(timezone.utc).isoformat()
+        with path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(event, ensure_ascii=False) + "\n")
 
     def _harvest_path(self) -> Path:
         return self._memory / "engine_harvest.json"
@@ -145,8 +160,21 @@ class MonetizationEngineService:
                         snap["source"] = "stripe"
                         self._finance._save_snapshot(snap)  # noqa: SLF001
                         result["stripe_available_eur"] = amount
+                        self.connect_payout_wallet("stripe", f"Stripe · {amount:.2f} €")
             except httpx.HTTPError:
                 result["stripe_error"] = "balance_fetch_failed"
+        elif self._checkout.is_configured():
+            path = self._memory / "finance_config.json"
+            config: dict[str, Any] = {}
+            if path.is_file():
+                try:
+                    config = json.loads(path.read_text(encoding="utf-8"))
+                except (json.JSONDecodeError, OSError):
+                    config = {}
+            if not config.get("payment_provider"):
+                config["payment_provider"] = provider
+                config["payment_provider_label"] = "Stripe" if provider == "stripe" else "Sandbox"
+                path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
         self._sync_harvest_from_assets()
         return result
 
@@ -157,6 +185,7 @@ class MonetizationEngineService:
 
         pending = []
         active = []
+        harvested = []
         for row in rows:
             meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
             profit_score = int(meta.get("profit_score") or row.get("score") or 0)
@@ -174,13 +203,16 @@ class MonetizationEngineService:
                 "revenue_eur": float(row.get("revenue_eur") or 0),
                 "niche": meta.get("niche", "local_service"),
             }
-            if row.get("status") in _ACTIVE_STATUSES:
+            if row.get("status") == "won":
+                harvested.append(item)
+            elif row.get("status") in _ACTIVE_STATUSES:
                 active.append(item)
             elif row.get("status") in _PENDING_STATUSES and profit_score >= MIN_PROFIT_SCORE:
                 pending.append(item)
 
         pending.sort(key=lambda x: x["profit_score"], reverse=True)
         active.sort(key=lambda x: x["potential_eur"], reverse=True)
+        harvested.sort(key=lambda x: x["revenue_eur"], reverse=True)
 
         return {
             "mode": "engine",
@@ -201,6 +233,15 @@ class MonetizationEngineService:
             "auto_gate_min_score": MIN_PROFIT_SCORE,
             "pending_targets": pending,
             "active_assets": active,
+            "harvested_assets": harvested,
+            "harvested_count": len(harvested),
+            "finance_gateway": {
+                "provider": fin.get("payment_provider"),
+                "connected": fin.get("payment_connected", False),
+                "sync_path": "monetization_engine_service.sync_payment_providers",
+                "withdraw_path": "monetization_engine_service.request_withdrawal",
+                "ledger": "memory/finance_snapshot.json + engine_harvest.json",
+            },
             "wallets": fin.get("wallets", []),
             "withdrawal_enabled": fin.get("withdrawal_enabled", False),
         }
@@ -241,9 +282,92 @@ class MonetizationEngineService:
         }
 
     def accept_asset(self, opportunity_id: str) -> dict:
-        row = self._scanner.accept_for_work(opportunity_id)
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            raise ValueError("not_found")
+        accepted = self._scanner.accept_for_work(opportunity_id)
+        potential = float(accepted.get("potential_value_eur") or 0)
+        self._append_harvest_event(
+            {
+                "type": "asset_accepted",
+                "opportunity_id": opportunity_id,
+                "potential_eur": potential,
+                "company": accepted.get("company_name", ""),
+            }
+        )
+        harvest = self._load_harvest()
+        harvest["pipeline_locked_eur"] = round(
+            float(harvest.get("pipeline_locked_eur") or 0) + potential,
+            2,
+        )
+        self._save_harvest(harvest)
         self._sync_harvest_from_assets()
-        return row
+        if self._checkout.is_configured():
+            self.sync_payment_providers()
+        return accepted
+
+    def run_scan_mode(
+        self,
+        *,
+        niche: str = "local_service",
+        city: str = "Pirna",
+        limit: int = 8,
+    ) -> dict[str, Any]:
+        """Manual niche scan — public leads with websites only."""
+        niche_key = niche if niche in _NICHE_SCAN_QUERIES else "local_service"
+        query_base = _NICHE_SCAN_QUERIES[niche_key]
+        query = f"{query_base} {city}".strip()
+        scanned = 0
+        passed = 0
+        hidden = 0
+        errors: list[str] = []
+
+        urls: list[str] = []
+        if self._places.configured():
+            try:
+                leads = self._places.search_text(query=query, limit=limit)
+                for lead in leads:
+                    site = (lead.website or "").strip()
+                    if site.startswith(("http://", "https://")):
+                        urls.append(site)
+            except ValueError as exc:
+                errors.append(str(exc))
+        else:
+            journal = self._opportunity.list_opportunities(limit=limit * 3)
+            for row in journal:
+                site = (row.get("website_url") or "").strip()
+                if site.startswith(("http://", "https://")):
+                    urls.append(site)
+            if not urls:
+                errors.append("places_not_configured_add_GOOGLE_PLACES_API_KEY_or_scan_URL_manually")
+
+        seen: set[str] = set()
+        for url in urls:
+            if url in seen:
+                continue
+            seen.add(url)
+            try:
+                result = self.scan_and_gate(url, niche=niche_key)
+                scanned += 1
+                if result["shown_to_owner"]:
+                    passed += 1
+                else:
+                    hidden += 1
+            except ValueError as exc:
+                errors.append(f"{url}: {exc}")
+
+        self.sync_payment_providers()
+        return {
+            "ok": True,
+            "niche": niche_key,
+            "city": city,
+            "query": query,
+            "scanned": scanned,
+            "passed_gate": passed,
+            "hidden": hidden,
+            "errors": errors[:5],
+            "message": f"Режим сканирования: проверено {scanned}, в журнал {passed}, отсечено {hidden}.",
+        }
 
     def record_asset_revenue(self, opportunity_id: str, amount_eur: float) -> dict:
         row = self._scanner.record_income(opportunity_id, amount_eur)
