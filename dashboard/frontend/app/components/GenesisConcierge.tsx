@@ -26,6 +26,7 @@ import {
   BRAND_NAME,
   PUBLIC_WELCOME,
   PUBLIC_SITE_WELCOME,
+  publicLeadCaptureWelcome,
 } from "../lib/publicBrand";
 import { VectorBrandSignature } from "./VectorBrandSignature";
 import { Badge } from "./ui/Badge";
@@ -70,6 +71,21 @@ import {
   PROJECT_STATE_EVENT,
 } from "../lib/projectStateEngine";
 import { fetchProjectPlatform, type ProjectPlatformState } from "../lib/projectApi";
+import { loadGuidedCommerce } from "../lib/guidedCommerce";
+import {
+  buildGuidedJourneyContext,
+  enrichAnswerWithDialogFollowUp,
+  ingestGuidedDialogMessage,
+} from "../lib/guidedDialogEngine";
+import {
+  buildLeadCaptureContext,
+  enrichAnswerWithLeadFollowUp,
+  ingestLeadDialogMessage,
+  leadNicheLabel,
+  loadLeadCapture,
+  submitLeadIntake,
+  type LeadNiche,
+} from "../lib/leadDialogEngine";
 import {
   flushProductPath,
   markProductPath,
@@ -215,18 +231,28 @@ type Props = {
   scope?: "public" | "owner";
   /** Customer hub — Vector panel beside projects, not full-screen chat */
   hubMode?: boolean;
+  /** Lead trap — chat-only qualification (Model 3), no website draft */
+  leadCapture?: { niche: LeadNiche };
 };
 
-export function GenesisConcierge({ onConversationActive, scope = "public", hubMode = false }: Props) {
+export function GenesisConcierge({
+  onConversationActive,
+  scope = "public",
+  hubMode = false,
+  leadCapture,
+}: Props) {
   const router = useRouter();
   const { t } = useTranslation(["chat", "errors", "common"]);
   const { uiLocale, assistantLocale } = useLocale();
   const isPublic = scope === "public";
-  const isPublicHub = isPublic && hubMode;
+  const isLeadCapture = isPublic && Boolean(leadCapture);
+  const isPublicHub = isPublic && hubMode && !isLeadCapture;
   const fallbackWelcome = isPublic
-    ? isPublicHub
-      ? PUBLIC_SITE_WELCOME
-      : FALLBACK_WELCOME_PUBLIC
+    ? isLeadCapture
+      ? publicLeadCaptureWelcome(leadNicheLabel(leadCapture!.niche))
+      : isPublicHub
+        ? PUBLIC_SITE_WELCOME
+        : FALLBACK_WELCOME_PUBLIC
     : FALLBACK_WELCOME_OWNER;
   const assistantLabel = ASSISTANT_NAME;
   const [input, setInput] = useState("");
@@ -474,6 +500,19 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
       return prev;
     });
   }, [isPublicHub]);
+
+  useEffect(() => {
+    if (!isLeadCapture || !leadCapture) return;
+    const welcome = publicLeadCaptureWelcome(leadNicheLabel(leadCapture.niche));
+    setWelcomeText(welcome);
+    setMessages((prev) => {
+      if (prev.some((m) => m.role === "user")) return prev;
+      if (prev.length === 1 && prev[0]?.role === "assistant") {
+        return [{ ...prev[0], text: welcome }];
+      }
+      return prev;
+    });
+  }, [isLeadCapture, leadCapture]);
 
   useEffect(() => {
     if (!isPublic) return;
@@ -767,6 +806,16 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
       resetProductPath();
       markProductPath("message_sent");
       onUserMessageForProject(q, visitorId);
+      let leadStateForContext = null;
+      if (isLeadCapture && q) {
+        const leadState = ingestLeadDialogMessage(q, leadCapture!.niche);
+        leadStateForContext = leadState;
+        if (leadState.hot) {
+          void submitLeadIntake(leadState, q);
+        }
+      } else if (isPublicHub && q) {
+        ingestGuidedDialogMessage(q);
+      }
       markProductPath("project_state");
 
       setVoiceRecognizing(false);
@@ -837,6 +886,15 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
       const jsonEndpoint = `${API}/api/public/genesis-ai${developerMode ? "?debug=true" : ""}`;
 
       try {
+        const hubContext = isLeadCapture
+          ? {
+              lead_capture: buildLeadCaptureContext(
+                leadStateForContext ?? loadLeadCapture(leadCapture!.niche),
+              ),
+            }
+          : isPublicHub
+            ? { guided_journey: buildGuidedJourneyContext(loadGuidedCommerce()) }
+            : undefined;
         const requestBody = {
           question: q || t("filesOnlyPrompt"),
           history,
@@ -845,16 +903,27 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
           ui_locale: uiLocale,
           assistant_locale: assistantLocale,
           communication_style: communicationStyleRef.current,
-          context: scope === "owner" ? { personality_mode: "ceo" } : undefined,
+          context:
+            scope === "owner"
+              ? { personality_mode: "ceo" }
+              : hubContext,
           attachment_ids: files.map((f) => f.id).filter(Boolean),
         };
         const t0 = performance.now();
 
         const applyAssistantReply = (data: ChatApiResponse) => {
-          const answer =
-            rewritePublicSiteUrls(
-              data?.answer?.trim() || t("emptyAnswer", { ns: "errors" }),
-            );
+          const rawAnswer =
+            data?.answer?.trim() || t("emptyAnswer", { ns: "errors" });
+          const answer = rewritePublicSiteUrls(
+            isLeadCapture
+              ? enrichAnswerWithLeadFollowUp(
+                  rawAnswer,
+                  leadStateForContext ?? loadLeadCapture(leadCapture!.niche),
+                )
+              : isPublicHub
+                ? enrichAnswerWithDialogFollowUp(rawAnswer, loadGuidedCommerce())
+                : rawAnswer,
+          );
 
           setMessages((prev) => {
             const base = prev[prev.length - 1]?.generating ? prev.slice(0, -1) : prev;
@@ -1110,6 +1179,9 @@ export function GenesisConcierge({ onConversationActive, scope = "public", hubMo
       pinToBottom,
       t,
       attachmentsUploading,
+      isPublicHub,
+      isLeadCapture,
+      leadCapture,
     ],
   );
 

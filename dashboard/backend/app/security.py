@@ -22,6 +22,7 @@ INTERNAL_PREFIXES = (
     "/api/ai-hub/",
     "/api/opportunities",
     "/api/acquisition",
+    "/api/leads",
     "/api/modules",
     "/api/queue",
     "/api/activity",

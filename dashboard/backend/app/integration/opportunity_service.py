@@ -113,6 +113,13 @@ _SOURCE_REGISTRY: dict[str, dict[str, Any]] = {
         "enabled": False,
         "auto_search": False,
     },
+    "inbound_chat": {
+        "id": "inbound_chat",
+        "label": "Чат-ловушка",
+        "adapter": "inbound_chat",
+        "enabled": True,
+        "auto_search": False,
+    },
 }
 
 

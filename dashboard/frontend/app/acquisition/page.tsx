@@ -55,9 +55,21 @@ type Worklist = {
   segments: { id: string; label: string; cities: string[]; signals: string[] }[];
 };
 
+type InboundLead = {
+  id: string;
+  company_name: string;
+  contact: string;
+  fit_reason: string;
+  score: number;
+  potential_value_eur: number;
+  found_at: string;
+  notes?: string;
+};
+
 export default function AcquisitionPage() {
   const [status, setStatus] = useState<StudioStatus | null>(null);
   const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [inboundLeads, setInboundLeads] = useState<InboundLead[]>([]);
   const [evidence, setEvidence] = useState<Evidence | null>(null);
   const [worklist, setWorklist] = useState<Worklist | null>(null);
   const [selected, setSelected] = useState<QueueItem | null>(null);
@@ -68,14 +80,16 @@ export default function AcquisitionPage() {
   const [genCity, setGenCity] = useState("Pirna");
   const [genQuery, setGenQuery] = useState("Autowerkstatt");
   const [genLimit, setGenLimit] = useState(10);
+  const [forceSkipCheck, setForceSkipCheck] = useState(true);
 
   const refresh = useCallback(async () => {
     try {
-      const [st, q, ev, wl] = await Promise.all([
+      const [st, q, ev, wl, inbox] = await Promise.all([
         fetch(`${API}/api/acquisition/status`),
         fetch(`${API}/api/acquisition/approval-queue`),
         fetch(`${API}/api/acquisition/evidence`),
         fetch(`${API}/api/acquisition/worklist`),
+        fetch(`${API}/api/leads/inbox?today_only=true&limit=20`),
       ]);
       if (st.ok) setStatus(await st.json());
       if (q.ok) {
@@ -86,6 +100,10 @@ export default function AcquisitionPage() {
       }
       if (ev.ok) setEvidence(await ev.json());
       if (wl.ok) setWorklist(await wl.json());
+      if (inbox.ok) {
+        const body = await inbox.json();
+        setInboundLeads(body.leads ?? []);
+      }
     } catch {
       setMessage("Не удалось загрузить Studio. Проверьте backend.");
     }
@@ -129,12 +147,13 @@ export default function AcquisitionPage() {
           limit: genLimit,
           language: "de",
           throttle_ms: 300,
+          force_skip_check: forceSkipCheck,
         }),
       });
       const body = await res.json();
       setMessage(
         res.ok
-          ? `Готово: created=${body.created ?? 0}, drafted=${body.drafted ?? 0}, skipped_has_site=${body.skipped_has_site ?? 0}`
+          ? `Готово: leads=${body.leads_found ?? 0}, created=${body.created ?? 0}, drafted=${body.drafted ?? 0}, skipped_has_site=${body.skipped_has_site ?? 0}, already_queued=${body.skipped_already_queued ?? 0}`
           : body.detail ?? "Ошибка генерации"
       );
       refresh();
@@ -194,6 +213,12 @@ export default function AcquisitionPage() {
           )}
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
             <Link
+              href="/capture?niche=autoservice"
+              className="rounded-lg border border-emerald-500/40 px-3 py-1.5 text-emerald-100 hover:bg-emerald-950/30"
+            >
+              Чат-ловушка (лиды)
+            </Link>
+            <Link
               href="/opportunities"
               className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40"
             >
@@ -212,6 +237,35 @@ export default function AcquisitionPage() {
           <p className="rounded-xl border border-amber-500/30 bg-amber-950/20 px-4 py-3 text-xs text-amber-100/90">
             {status.outreach_send_note}
           </p>
+        )}
+
+        {worklist && (
+          <section className="genesis-card p-5">
+            <h2 className="text-sm font-semibold">Горячие лиды из чата (сегодня)</h2>
+            <p className="mt-2 text-xs text-genesis-muted">
+              Model 3 — посетитель пишет на /capture, система квалифицирует и кладёт сюда. Продаёте лид партнёру.
+            </p>
+            {inboundLeads.length ? (
+              <ul className="mt-4 space-y-3">
+                {inboundLeads.map((lead) => (
+                  <li key={lead.id} className="rounded-xl border border-emerald-500/20 bg-emerald-950/10 p-3 text-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-medium text-white">{lead.company_name}</p>
+                      <span className="text-xs text-emerald-300">
+                        {formatEur(lead.potential_value_eur)} · score {lead.score}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-genesis-muted">{lead.fit_reason}</p>
+                    <p className="mt-1 text-xs text-genesis-muted">Контакт: {lead.contact || "—"}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 text-xs text-genesis-muted">
+                Пока пусто. Лейте трафик на /capture?niche=autoservice (или laptop_repair, plumber).
+              </p>
+            )}
+          </section>
         )}
 
         {worklist && (
@@ -268,6 +322,15 @@ export default function AcquisitionPage() {
               />
             </label>
           </div>
+          <label className="mt-4 flex items-center gap-2 text-xs text-genesis-muted">
+            <input
+              type="checkbox"
+              checked={forceSkipCheck}
+              onChange={(e) => setForceSkipCheck(e.target.checked)}
+              className="rounded border-genesis-border"
+            />
+            Черновик даже если у компании уже есть сайт (CEO force)
+          </label>
           <div className="mt-4">
             <button
               type="button"

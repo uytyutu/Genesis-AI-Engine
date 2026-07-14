@@ -99,6 +99,9 @@ from app.schemas import (
     OpportunityStatusOption,
     OpportunityUpdatedResponse,
     OpportunityUpdateRequest,
+    LeadIntakeRequest,
+    LeadIntakeResponse,
+    LeadInboxResponse,
     SiteAnalysisResult,
     AcquisitionStudioStatus,
     AcquisitionApprovalQueueResponse,
@@ -430,6 +433,24 @@ def update_opportunity(
     )
 
 
+@app.post("/api/public/leads/intake", response_model=LeadIntakeResponse)
+def public_lead_intake(request: LeadIntakeRequest) -> LeadIntakeResponse:
+    result = _ctx().lead_intake.intake(
+        niche=request.niche,
+        known={k: str(v) for k, v in (request.known or {}).items()},
+        visitor_id=request.visitor_id,
+        transcript=request.transcript,
+    )
+    return LeadIntakeResponse(**result)
+
+
+@app.get("/api/leads/inbox", response_model=LeadInboxResponse)
+def lead_inbox(today_only: bool = True, limit: int = 50) -> LeadInboxResponse:
+    items = _ctx().lead_intake.inbox(today_only=today_only, limit=limit)
+    leads = [OpportunityRecord(**o) for o in items]
+    return LeadInboxResponse(leads=leads, count=len(leads))
+
+
 @app.get("/api/acquisition/status", response_model=AcquisitionStudioStatus)
 def acquisition_studio_status() -> AcquisitionStudioStatus:
     return AcquisitionStudioStatus(**_ctx().acquisition.studio_status())
@@ -466,18 +487,23 @@ def acquisition_generate_drafts(body: dict) -> dict:
         limit = int(body.get("limit") or 10)
         language = str(body.get("language") or "de").strip() or "de"
         throttle_ms = int(body.get("throttle_ms") or 250)
+        force_skip_check = bool(body.get("force_skip_check"))
         result = _ctx().acquisition.generate_drafts_from_places(
             city=city,
             query=query,
             limit=limit,
             language=language,
             throttle_ms=throttle_ms,
+            force_skip_check=force_skip_check,
         )
         return {
             "ok": True,
+            "leads_found": int(result.get("leads_found") or 0),
             "created": int(result.get("created") or 0),
             "drafted": int(result.get("drafted") or 0),
             "skipped_has_site": int(result.get("skipped_has_site") or 0),
+            "skipped_already_queued": int(result.get("skipped_already_queued") or 0),
+            "force_skip_check": force_skip_check,
             "message": "Drafts generated",
         }
     except ValueError as exc:

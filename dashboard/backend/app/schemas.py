@@ -884,6 +884,28 @@ class SiteAnalysisResult(BaseModel):
     error: str | None = None
 
 
+class LeadIntakeRequest(BaseModel):
+    niche: str = "generic"
+    known: dict[str, str] = {}
+    visitor_id: str = ""
+    transcript: str = ""
+
+
+class LeadIntakeResponse(BaseModel):
+    hot: bool
+    score: int
+    gaps: list[str] = []
+    follow_up: str | None = None
+    lead_id: str | None = None
+    message: str = ""
+    duplicate: bool = False
+
+
+class LeadInboxResponse(BaseModel):
+    leads: list[OpportunityRecord]
+    count: int
+
+
 class AcquisitionStudioStatus(BaseModel):
     version: str
     name: str
