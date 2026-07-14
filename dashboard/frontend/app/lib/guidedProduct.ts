@@ -1,15 +1,12 @@
 import { formatApiDetail } from "./formatApiError";
-import { GUIDED_GOALS, type GuidedCommerceState } from "./guidedCommerce";
+import { type GuidedCommerceState } from "./guidedCommerce";
+import { buildGuidedSalesBrief } from "./guidedJourney";
 import { publicApiBase } from "./publicApiBase";
 
 const API = publicApiBase();
 
 export function buildGuidedFactoryBrief(state: GuidedCommerceState): string {
-  const name = state.companyName.trim();
-  const goalLabel = state.goalId
-    ? (GUIDED_GOALS.find((g) => g.id === state.goalId)?.label ?? "Получить сайт")
-    : "Получить сайт";
-  return `Website for ${name}. Business: ${name}. Goal: ${goalLabel}.`;
+  return buildGuidedSalesBrief(state);
 }
 
 /** Create draft Factory Product — same object shown in preview and sold at checkout. */
@@ -19,7 +16,7 @@ export async function ensureGuidedDraftProduct(
   if (state.productId) return state.productId;
   const name = state.companyName.trim();
   if (!name || !state.goalId) {
-    throw new Error("Укажите название компании");
+    throw new Error("Сначала ответьте на вопросы о бизнесе и видении");
   }
   const res = await fetch(`${API}/api/factory/intent`, {
     method: "POST",

@@ -12,7 +12,18 @@ export type GuidedGoalId =
   | "fix_problem"
   | "improve_site";
 
-export type GuidedStep = "goal" | "company" | "logo" | "draft_ready" | "offer" | "pay" | "tune";
+export type GuidedStep =
+  | "goal"
+  | "company"
+  | "activity"
+  | "vision"
+  | "contacts"
+  | "logo"
+  | "review"
+  | "draft_ready"
+  | "offer"
+  | "pay"
+  | "tune";
 
 export type LogoChoice = "yes" | "no" | "auto" | null;
 
@@ -22,9 +33,14 @@ export type GuidedCommerceState = {
   step: GuidedStep;
   goalId: GuidedGoalId | null;
   companyName: string;
+  businessActivity: string;
+  siteVision: string;
+  clientCity: string;
+  clientPhone: string;
   logoChoice: LogoChoice;
   brandHue: number | null;
   clientEmail: string;
+  draftReviewed: boolean;
   orderId: string | null;
   priceEur: number | null;
   priceLabel: string | null;
@@ -63,12 +79,14 @@ export function isGuidedGoalAvailable(goalId: GuidedGoalId): boolean {
 
 export const GUIDED_PREVIEW_STEPS = [
   { id: "name", label: "Название" },
-  { id: "colors", label: "Черновик" },
-  { id: "logo", label: "Логотип" },
+  { id: "activity", label: "О бизнесе" },
+  { id: "vision", label: "Цель сайта" },
   { id: "contacts", label: "Контакты" },
+  { id: "logo", label: "Логотип" },
+  { id: "draft", label: "Черновик" },
 ] as const;
 
-const STORAGE_KEY = "vc_guided_commerce_s4";
+const STORAGE_KEY = "vc_guided_commerce_s5";
 
 export const GUIDED_COMMERCE_EVENT = "genesis:guided-commerce";
 
@@ -76,9 +94,14 @@ const EMPTY: GuidedCommerceState = {
   step: "goal",
   goalId: null,
   companyName: "",
+  businessActivity: "",
+  siteVision: "",
+  clientCity: "",
+  clientPhone: "",
   logoChoice: null,
   brandHue: null,
   clientEmail: "",
+  draftReviewed: false,
   orderId: null,
   priceEur: null,
   priceLabel: null,
@@ -97,11 +120,23 @@ function normalizeState(raw: Partial<GuidedCommerceState>): GuidedCommerceState 
   if (merged.companyName.trim() && merged.brandHue == null) {
     merged.brandHue = hashHue(merged.companyName.trim());
   }
-  if (!merged.companyName.trim() && merged.step === "logo") {
+  if (!merged.companyName.trim() && merged.step !== "goal" && merged.step !== "company") {
     merged.step = "company";
   }
-  if (!merged.logoChoice && (merged.step === "draft_ready" || merged.step === "offer" || merged.step === "pay")) {
-    merged.step = merged.companyName.trim() ? "logo" : "company";
+  if (merged.companyName.trim() && !merged.businessActivity.trim() && !["goal", "company"].includes(merged.step)) {
+    merged.step = "activity";
+  }
+  if (merged.businessActivity.trim() && !merged.siteVision.trim() && !["goal", "company", "activity"].includes(merged.step)) {
+    merged.step = "vision";
+  }
+  if (merged.siteVision.trim() && !merged.clientEmail.trim() && ["logo", "review", "draft_ready", "offer", "pay"].includes(merged.step)) {
+    merged.step = "contacts";
+  }
+  if (!merged.logoChoice && (merged.step === "review" || merged.step === "draft_ready" || merged.step === "offer" || merged.step === "pay")) {
+    merged.step = merged.clientEmail.trim() ? "logo" : "contacts";
+  }
+  if (merged.step === "offer" && !merged.draftReviewed) {
+    merged.step = merged.productId ? "review" : "logo";
   }
   return merged;
 }
@@ -113,6 +148,8 @@ export function loadGuidedCommerce(): GuidedCommerceState {
     if (!raw) {
       const legacy = sessionStorage.getItem("vc_guided_commerce_s1");
       if (legacy) return normalizeState(JSON.parse(legacy) as Partial<GuidedCommerceState>);
+      const legacyS4 = sessionStorage.getItem("vc_guided_commerce_s4");
+      if (legacyS4) return normalizeState(JSON.parse(legacyS4) as Partial<GuidedCommerceState>);
       return { ...EMPTY };
     }
     return normalizeState(JSON.parse(raw) as Partial<GuidedCommerceState>);
@@ -141,9 +178,14 @@ export function selectGuidedGoal(goalId: GuidedGoalId): GuidedCommerceState {
     step: "company",
     goalId,
     companyName: "",
+    businessActivity: "",
+    siteVision: "",
+    clientCity: "",
+    clientPhone: "",
     logoChoice: null,
     brandHue: null,
     clientEmail: "",
+    draftReviewed: false,
     orderId: null,
     priceEur: null,
     priceLabel: null,
@@ -164,13 +206,71 @@ export function submitCompanyNameAndAdvance(name: string): GuidedCommerceState {
     ...prev,
     companyName: trimmed,
     brandHue: hashHue(trimmed),
-    step: "logo",
-    logoChoice: null,
+    step: "activity",
+    logoChoice: nameChanged ? null : prev.logoChoice,
     productId: nameChanged ? null : prev.productId,
     productStage: "draft",
+    draftReviewed: nameChanged ? false : prev.draftReviewed,
+    businessActivity: nameChanged ? "" : prev.businessActivity,
+    siteVision: nameChanged ? "" : prev.siteVision,
   };
   saveGuidedCommerce(next);
   syncCompanyToProjectDraft(trimmed, prev.goalId);
+  return next;
+}
+
+export function submitBusinessActivity(activity: string): GuidedCommerceState {
+  const prev = loadGuidedCommerce();
+  const trimmed = activity.trim();
+  if (!trimmed) return prev;
+  const changed = prev.businessActivity.trim() !== trimmed;
+  const next: GuidedCommerceState = {
+    ...prev,
+    businessActivity: trimmed,
+    step: "vision",
+    productId: changed ? null : prev.productId,
+    draftReviewed: changed ? false : prev.draftReviewed,
+  };
+  saveGuidedCommerce(next);
+  mergeClaimDraft(`Деятельность: ${trimmed}`);
+  return next;
+}
+
+export function submitSiteVision(vision: string): GuidedCommerceState {
+  const prev = loadGuidedCommerce();
+  const trimmed = vision.trim();
+  if (!trimmed) return prev;
+  const changed = prev.siteVision.trim() !== trimmed;
+  const next: GuidedCommerceState = {
+    ...prev,
+    siteVision: trimmed,
+    step: "contacts",
+    productId: changed ? null : prev.productId,
+    draftReviewed: changed ? false : prev.draftReviewed,
+  };
+  saveGuidedCommerce(next);
+  mergeClaimDraft(`Цель сайта: ${trimmed}`);
+  return next;
+}
+
+export function submitContactDetails(payload: {
+  email: string;
+  phone?: string;
+  city?: string;
+}): GuidedCommerceState {
+  const prev = loadGuidedCommerce();
+  const email = payload.email.trim();
+  if (!email) return prev;
+  const next: GuidedCommerceState = {
+    ...prev,
+    clientEmail: email,
+    clientPhone: (payload.phone ?? prev.clientPhone).trim(),
+    clientCity: (payload.city ?? prev.clientCity).trim(),
+    step: "logo",
+  };
+  saveGuidedCommerce(next);
+  const contactBits = [email, next.clientPhone, next.clientCity].filter(Boolean).join(", ");
+  mergeClaimDraft(`Контакты: ${contactBits}`);
   return next;
 }
 
@@ -179,14 +279,25 @@ export function setGuidedLogoChoice(choice: LogoChoice): GuidedCommerceState {
   const next: GuidedCommerceState = {
     ...prev,
     logoChoice: choice,
-    step: choice ? "draft_ready" : prev.step,
+    step: choice ? "review" : prev.step,
+    draftReviewed: false,
+    productId: choice && choice !== prev.logoChoice ? null : prev.productId,
   };
+  saveGuidedCommerce(next);
+  return next;
+}
+
+export function confirmGuidedDraftReview(): GuidedCommerceState {
+  const prev = loadGuidedCommerce();
+  if (!prev.productId) return prev;
+  const next: GuidedCommerceState = { ...prev, draftReviewed: true };
   saveGuidedCommerce(next);
   return next;
 }
 
 export function advanceGuidedToOffer(priceEur: number, priceLabel: string | null): GuidedCommerceState {
   const prev = loadGuidedCommerce();
+  if (!prev.draftReviewed || !prev.productId) return prev;
   const next: GuidedCommerceState = {
     ...prev,
     step: "offer",
@@ -260,10 +371,14 @@ export function guidedPreviewPercent(state: GuidedCommerceState): number {
   let done = 0;
   if (state.goalId) done += 1;
   if (state.companyName.trim()) done += 1;
-  if (state.productId) done += 2;
+  if (state.businessActivity.trim()) done += 1;
+  if (state.siteVision.trim()) done += 1;
+  if (state.clientEmail.trim()) done += 1;
   if (state.logoChoice) done += 1;
-  if (state.step === "offer" || state.step === "pay") done += 1;
-  return Math.min(100, Math.round((done / 6) * 100));
+  if (state.productId) done += 1;
+  if (state.draftReviewed) done += 1;
+  if (state.step === "pay") done += 1;
+  return Math.min(100, Math.round((done / 9) * 100));
 }
 
 export function previewStepStatus(
@@ -271,24 +386,36 @@ export function previewStepStatus(
   state: GuidedCommerceState,
 ): "done" | "active" | "pending" {
   const hasName = Boolean(state.companyName.trim());
+  const hasActivity = Boolean(state.businessActivity.trim());
+  const hasVision = Boolean(state.siteVision.trim());
+  const hasContacts = Boolean(state.clientEmail.trim());
   const hasLogo = Boolean(state.logoChoice);
 
   switch (stepId) {
     case "name":
       if (hasName) return "done";
       if (state.step === "company") return "active";
-      return state.goalId ? "pending" : "pending";
-    case "colors":
-      if (state.productId) return "done";
-      if (hasName) return "active";
+      return "pending";
+    case "activity":
+      if (hasActivity) return "done";
+      if (state.step === "activity") return "active";
+      return "pending";
+    case "vision":
+      if (hasVision) return "done";
+      if (state.step === "vision") return "active";
+      return "pending";
+    case "contacts":
+      if (hasContacts) return "done";
+      if (state.step === "contacts") return "active";
       return "pending";
     case "logo":
       if (hasLogo) return "done";
       if (state.step === "logo") return "active";
       return "pending";
-    case "contacts":
-      if (state.step === "offer" || state.step === "pay") return "done";
-      if (state.step === "draft_ready" && hasLogo) return "active";
+    case "draft":
+      if (state.draftReviewed) return "done";
+      if (state.productId) return "active";
+      if (state.step === "review") return "active";
       return "pending";
     default:
       return "pending";

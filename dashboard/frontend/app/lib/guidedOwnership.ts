@@ -44,11 +44,35 @@ export function buildPreviewProvenance(state: GuidedCommerceState): ProvenanceLi
       becomes: "вывеска, домен и шапка сайта",
       done: true,
     });
+  }
+  if (state.businessActivity.trim()) {
     lines.push({
-      id: "colors",
-      answer: `Название: «${name}»`,
-      becomes: "цвета бренда и кнопка записи",
+      id: "activity",
+      answer: `Деятельность: «${state.businessActivity.trim()}»`,
+      becomes: "тексты услуг и описание на сайте",
       done: true,
+    });
+  }
+  if (state.siteVision.trim()) {
+    lines.push({
+      id: "vision",
+      answer: `Цель: «${state.siteVision.trim()}»`,
+      becomes: "кнопка действия и структура страницы",
+      done: true,
+    });
+  }
+  if (state.clientEmail.trim() || state.clientPhone.trim() || state.clientCity.trim()) {
+    lines.push({
+      id: "contacts",
+      answer: [
+        state.clientCity.trim() && `Город: ${state.clientCity.trim()}`,
+        state.clientPhone.trim() && `Телефон: ${state.clientPhone.trim()}`,
+        state.clientEmail.trim() && `Email: ${state.clientEmail.trim()}`,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+      becomes: "блок контактов в черновике",
+      done: Boolean(state.clientEmail.trim()),
     });
   }
   if (state.logoChoice) {

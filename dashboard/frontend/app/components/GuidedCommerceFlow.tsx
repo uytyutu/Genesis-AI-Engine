@@ -8,19 +8,22 @@ import {
   GUIDED_SITE_INCLUDES,
   advanceGuidedToOffer,
   advanceGuidedToPay,
-  advanceGuidedToTune,
   loadGuidedCommerce,
+  markGuidedProductOwned,
   resetGuidedCommerce,
   saveGuidedCommerce,
   selectGuidedGoal,
   setGuidedClientEmail,
   setGuidedLogoChoice,
+  setGuidedProductId,
   submitCompanyNameAndAdvance,
   type GuidedCommerceState,
   type GuidedGoalId,
   type LogoChoice,
 } from "../lib/guidedCommerce";
 import { createGuidedSiteOrder, fetchGuidedBasicPackage } from "../lib/guidedOrder";
+import { ensureGuidedDraftProduct } from "../lib/guidedProduct";
+import { buildGuidedSalesBrief } from "../lib/guidedJourney";
 import { fetchPaymentInfo, startOrderCheckout } from "../lib/orderCheckout";
 import { formatLocalizedMoney } from "../lib/formatEur";
 import { getIndustryProfile } from "../lib/guidedOwnership";
@@ -65,26 +68,70 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
     return () => window.removeEventListener(GUIDED_COMMERCE_EVENT, sync);
   }, []);
 
+  const [flowBusy, setFlowBusy] = useState(false);
+  const [flowError, setFlowError] = useState("");
+  const [comingSoonNote, setComingSoonNote] = useState("");
+  const [productBusy, setProductBusy] = useState(false);
+  const [productError, setProductError] = useState("");
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("genesis:guided-product-status", {
+        detail: { loading: productBusy, error: productError },
+      }),
+    );
+  }, [productBusy, productError]);
+
+  const buildDraftProduct = useCallback(async (base: GuidedCommerceState) => {
+    if (base.productId) return base;
+    setProductBusy(true);
+    setProductError("");
+    try {
+      const productId = await ensureGuidedDraftProduct(base);
+      return setGuidedProductId(productId);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Не удалось собрать черновик";
+      setProductError(message);
+      throw e;
+    } finally {
+      setProductBusy(false);
+    }
+  }, []);
+
+  const submitCompany = useCallback(async () => {
+    const next = submitCompanyNameAndAdvance(companyInput);
+    setState(next);
+    try {
+      const withProduct = await buildDraftProduct(next);
+      setState(withProduct);
+    } catch {
+      /* productError surfaced in preview panel */
+    }
+  }, [companyInput, buildDraftProduct]);
+
   const pickGoal = useCallback((goalId: GuidedGoalId) => {
+    if (!GUIDED_GOALS.find((g) => g.id === goalId)?.available) {
+      setComingSoonNote(
+        "Этот сценарий ещё в разработке. Сейчас доступен путь «Получить сайт».",
+      );
+      return;
+    }
+    setComingSoonNote("");
     const next = selectGuidedGoal(goalId);
     setState(next);
     setCompanyInput("");
   }, []);
-
-  const submitCompany = useCallback(() => {
-    const next = submitCompanyNameAndAdvance(companyInput);
-    setState(next);
-  }, [companyInput]);
 
   const pickLogo = useCallback((choice: LogoChoice) => {
     const next = setGuidedLogoChoice(choice);
     setState(next);
   }, []);
 
-  const [flowBusy, setFlowBusy] = useState(false);
-  const [flowError, setFlowError] = useState("");
-
   const continueToOffer = useCallback(async () => {
+    if (!state.productId) {
+      setFlowError("Дождитесь сборки черновика справа — затем можно оформить заказ");
+      return;
+    }
     setFlowBusy(true);
     setFlowError("");
     try {
@@ -97,11 +144,7 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
     } finally {
       setFlowBusy(false);
     }
-  }, []);
-
-  const continueToTune = useCallback(() => {
-    setState(advanceGuidedToTune());
-  }, []);
+  }, [state.productId]);
 
   const buySite = useCallback(async () => {
     const email = state.clientEmail.trim();
@@ -109,7 +152,10 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
       setFlowError("Укажите email — на него придёт подтверждение и чек");
       return;
     }
-    if (!state.goalId || !state.logoChoice) return;
+    if (!state.goalId || !state.logoChoice || !state.productId) {
+      setFlowError("Сначала дождитесь черновика Product справа");
+      return;
+    }
     setFlowBusy(true);
     setFlowError("");
     try {
@@ -120,6 +166,11 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
         visitorId: getVisitorId("public"),
         goalLabel,
         logoChoice: state.logoChoice,
+        productId: state.productId,
+        description: buildGuidedSalesBrief(state),
+        city: state.clientCity,
+        phone: state.clientPhone,
+        extraWishes: state.siteVision,
       });
       setState(
         advanceGuidedToPay(order.orderId, order.priceEur, order.priceLabel ?? state.priceLabel),
@@ -130,6 +181,10 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
       setFlowBusy(false);
     }
   }, [state]);
+
+  const returnToOffer = useCallback(() => {
+    void continueToOffer();
+  }, [continueToOffer]);
 
   const goalLabel = GUIDED_GOALS.find((g) => g.id === state.goalId)?.label ?? "";
   const industry = getIndustryProfile(state.goalId);
@@ -179,8 +234,8 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
           <h2 className="mt-3 text-xl font-bold text-white sm:text-2xl">Ваш сайт готов</h2>
           <GuidedTrustPromise className="mt-3" />
           <p className="mt-2 text-sm text-genesis-muted">
-            {state.companyName.trim()} — справа то, что вы получите после оплаты. Осталось принять
-            решение.
+            {state.companyName.trim()} — справа черновик вашего Product. После оплаты вы получаете
+            права на тот же объект, без повторной сборки.
           </p>
         </SpringIn>
 
@@ -232,14 +287,6 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
           >
             {flowBusy ? "Оформляем…" : "Купить сайт"}
           </SpringPressable>
-          <SpringPressable
-            type="button"
-            disabled={flowBusy}
-            onClick={continueToTune}
-            className="w-full rounded-xl border border-white/15 bg-white/5 py-3.5 text-sm font-medium text-white transition hover:border-genesis-accent/40 hover:bg-genesis-accent/10 disabled:opacity-50"
-          >
-            Продолжить настройку
-          </SpringPressable>
         </div>
 
         <HelpLink onNeedHelp={onNeedHelp} />
@@ -270,27 +317,20 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400">
             Настройка
           </p>
-          <h2 className="mt-3 text-xl font-bold text-white sm:text-2xl">Продолжаем улучшать сайт</h2>
+          <h2 className="mt-3 text-xl font-bold text-white sm:text-2xl">Почти готово к оплате</h2>
           <p className="mt-2 text-sm text-genesis-muted">
-            Следующий вопрос — фотогалерея. Каждый ответ обновит предпросмотр справа.
-          </p>
-        </SpringIn>
-
-        <SpringIn className="mt-5 rounded-xl border border-dashed border-white/15 bg-white/[0.03] px-4 py-4 text-sm text-genesis-muted">
-          <p className="font-medium text-white">🟡 Галерея — в следующем обновлении</p>
-          <p className="mt-2">
-            Вы можете вернуться к оформлению и купить сайт в любой момент — ваш черновик сохранён.
+            Дополнительная настройка (галерея, контакты) появится позже. Сейчас можно перейти к
+            оформлению — ваш черновик справа уже сохранён.
           </p>
         </SpringIn>
 
         <SpringPressable
           type="button"
-          onClick={() => {
-            void continueToOffer();
-          }}
-          className="mt-5 w-full rounded-xl bg-genesis-accent py-3 text-sm font-semibold text-white transition hover:opacity-90"
+          disabled={flowBusy}
+          onClick={returnToOffer}
+          className="mt-5 w-full rounded-xl bg-genesis-accent py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
         >
-          Вернуться к оформлению
+          {flowBusy ? "Загружаем…" : "Перейти к оформлению и оплате"}
         </SpringPressable>
 
         <HelpLink onNeedHelp={onNeedHelp} />
@@ -322,28 +362,21 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
             {goalLabel}
           </p>
           <h2 className="mt-3 text-xl font-bold text-white sm:text-2xl">
-            Ваш сайт собран из ответов
+            Черновик вашего Product готов
           </h2>
           <GuidedTrustPromise className="mt-3" />
           <p className="mt-3 text-sm text-genesis-muted">
-            {state.companyName.trim()} — справа не картинка, а предварительная версия вашего{" "}
-            {industry.categoryLabel.toLowerCase()}. Теперь можно:
+            {state.companyName.trim()} — справа сайт, собранный Factory. Проверьте черновик и
+            переходите к оформлению.
           </p>
         </SpringIn>
 
         <ul className="mt-5 space-y-3 text-sm">
           <li className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-emerald-100">
             <span className="mr-2">🟢</span>
-            <strong className="font-medium text-white">Купить его сейчас</strong>
+            <strong className="font-medium text-white">Узнать стоимость и купить</strong>
             <span className="mt-1 block text-genesis-muted">
-              Узнать стоимость и оплатить — без выхода из этого кабинета
-            </span>
-          </li>
-          <li className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-amber-100">
-            <span className="mr-2">🟡</span>
-            <strong className="font-medium text-white">Продолжить улучшать</strong>
-            <span className="mt-1 block text-genesis-muted">
-              Галерея, контакты и другие детали — перед оплатой
+              Фиксированная цена — справа тот же Product, что вы покупаете
             </span>
           </li>
         </ul>
@@ -362,14 +395,6 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
             className="w-full rounded-xl bg-genesis-accent py-3.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
           >
             {flowBusy ? "Загружаем…" : "Продолжить оформление"}
-          </SpringPressable>
-          <SpringPressable
-            type="button"
-            disabled={flowBusy}
-            onClick={continueToTune}
-            className="w-full rounded-xl border border-white/15 bg-white/5 py-3.5 text-sm font-medium text-white transition hover:border-amber-500/30 hover:bg-amber-500/10 disabled:opacity-50"
-          >
-            Продолжить улучшать
           </SpringPressable>
         </div>
 
@@ -403,7 +428,7 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
           </p>
           <h2 className="mt-3 text-xl font-bold text-white sm:text-2xl">У вас уже есть логотип?</h2>
           <p className="mt-2 text-sm text-genesis-muted">
-            Справа вы уже видите черновик — {ASSISTANT_NAME} собирает его под вас.
+            Справа — черновик вашего Product. Выберите вариант с логотипом.
           </p>
         </SpringIn>
 
@@ -463,7 +488,7 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
           </p>
           <h2 className="mt-3 text-xl font-bold text-white sm:text-2xl">Как называется ваша компания?</h2>
           <p className="mt-2 text-sm text-genesis-muted">
-            Один вопрос — и справа появится ваш будущий сайт.
+            Один вопрос — и справа Factory соберёт черновик вашего сайта.
           </p>
         </SpringIn>
 
@@ -513,10 +538,16 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
         </div>
         <h2 className="mt-2 text-xl font-bold leading-snug text-white sm:text-2xl">Здравствуйте.</h2>
         <p className="mt-2 text-sm leading-relaxed text-genesis-muted sm:text-base">
-          Я помогу создать цифровой продукт для вашего бизнеса.
+          Сейчас доступен путь «Получить сайт». Остальные сценарии — в разработке.
         </p>
         <p className="mt-3 text-base font-semibold text-white">Что вы хотите получить сегодня?</p>
       </SpringIn>
+
+      {comingSoonNote ? (
+        <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-xs text-amber-100/90">
+          {comingSoonNote}
+        </p>
+      ) : null}
 
       <ul className="mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
         {GUIDED_GOALS.map((goal, i) => (
@@ -525,12 +556,29 @@ export function GuidedCommerceFlow({ onNeedHelp }: Props) {
               <SpringPressable
                 type="button"
                 onClick={() => pickGoal(goal.id)}
-                className="flex w-full items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-left text-sm font-medium text-white transition hover:border-genesis-accent/40 hover:bg-genesis-accent/10 hover:shadow-[0_0_24px_rgba(99,102,241,0.12)] sm:text-base"
+                className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-medium transition sm:text-base ${
+                  goal.available
+                    ? "border-white/10 bg-white/5 text-white hover:border-genesis-accent/40 hover:bg-genesis-accent/10 hover:shadow-[0_0_24px_rgba(99,102,241,0.12)]"
+                    : "border-white/6 bg-white/[0.02] text-genesis-muted hover:border-white/12"
+                }`}
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-white/10 to-white/5 text-xl">
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xl ${
+                    goal.available
+                      ? "bg-gradient-to-br from-white/10 to-white/5"
+                      : "bg-white/[0.04] opacity-60"
+                  }`}
+                >
                   {goal.emoji}
                 </span>
-                {goal.label}
+                <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                  <span>{goal.label}</span>
+                  {!goal.available ? (
+                    <span className="shrink-0 rounded-full border border-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-genesis-muted">
+                      Скоро
+                    </span>
+                  ) : null}
+                </span>
               </SpringPressable>
             </li>
           </SpringIn>
@@ -579,6 +627,7 @@ function GuidedPayStep({
           setError(typeof body.detail === "string" ? body.detail : "Оплата не прошла");
           return;
         }
+        markGuidedProductOwned();
         window.location.href = `/order/status/${state.orderId}?paid=1`;
         return;
       }
@@ -612,7 +661,7 @@ function GuidedPayStep({
           {state.companyName.trim()}
         </h2>
         <p className="mt-2 text-sm text-genesis-muted">
-          Заказ № {state.orderId}. Вы остаётесь в своём кабинете — сайт справа ваш.
+          Заказ № {state.orderId}. Справа — тот же Product; оплата передаёт вам права на него.
         </p>
       </SpringIn>
 

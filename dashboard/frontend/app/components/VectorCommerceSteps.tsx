@@ -7,16 +7,19 @@ import {
   GUIDED_SITE_INCLUDES,
   advanceGuidedToOffer,
   advanceGuidedToPay,
+  confirmGuidedDraftReview,
   loadGuidedCommerce,
   markGuidedProductOwned,
-  saveGuidedCommerce,
-  setGuidedClientEmail,
   setGuidedLogoChoice,
   setGuidedProductId,
+  submitBusinessActivity,
   submitCompanyNameAndAdvance,
+  submitContactDetails,
+  submitSiteVision,
   type GuidedCommerceState,
   type LogoChoice,
 } from "../lib/guidedCommerce";
+import { JOURNEY_STEP_HINTS, buildGuidedSalesBrief, guidedReviewSummary } from "../lib/guidedJourney";
 import { createGuidedSiteOrder, fetchGuidedBasicPackage } from "../lib/guidedOrder";
 import { ensureGuidedDraftProduct } from "../lib/guidedProduct";
 import { fetchPaymentInfo, startOrderCheckout } from "../lib/orderCheckout";
@@ -27,9 +30,27 @@ import { SpringPressable } from "./motion/SpringPressable";
 
 const API = publicApiBase();
 
+const inputClass =
+  "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none ring-genesis-accent/40 placeholder:text-genesis-muted/60 focus:border-genesis-accent/50 focus:ring-2";
+
+function StepHint({ step }: { step: keyof typeof JOURNEY_STEP_HINTS }) {
+  const hint = JOURNEY_STEP_HINTS[step];
+  return (
+    <div className="space-y-1">
+      <p className="text-xs font-medium text-white">{hint.title}</p>
+      <p className="text-[11px] leading-relaxed text-genesis-muted">{hint.why}</p>
+    </div>
+  );
+}
+
 export function VectorCommerceSteps() {
   const [state, setState] = useState<GuidedCommerceState>(() => loadGuidedCommerce());
   const [companyInput, setCompanyInput] = useState(() => loadGuidedCommerce().companyName);
+  const [activityInput, setActivityInput] = useState(() => loadGuidedCommerce().businessActivity);
+  const [visionInput, setVisionInput] = useState(() => loadGuidedCommerce().siteVision);
+  const [emailInput, setEmailInput] = useState(() => loadGuidedCommerce().clientEmail);
+  const [phoneInput, setPhoneInput] = useState(() => loadGuidedCommerce().clientPhone);
+  const [cityInput, setCityInput] = useState(() => loadGuidedCommerce().clientCity);
   const [flowBusy, setFlowBusy] = useState(false);
   const [flowError, setFlowError] = useState("");
   const [productBusy, setProductBusy] = useState(false);
@@ -78,24 +99,50 @@ export function VectorCommerceSteps() {
     }
   }, []);
 
-  const submitCompany = useCallback(async () => {
+  const submitCompany = useCallback(() => {
     const next = submitCompanyNameAndAdvance(companyInput);
     setState(next);
-    try {
-      const withProduct = await buildDraftProduct(next);
-      setState(withProduct);
-    } catch {
-      /* surfaced in preview */
-    }
-  }, [companyInput, buildDraftProduct]);
+  }, [companyInput]);
 
-  const pickLogo = useCallback((choice: LogoChoice) => {
-    setState(setGuidedLogoChoice(choice));
-  }, []);
+  const submitActivity = useCallback(() => {
+    const next = submitBusinessActivity(activityInput);
+    setState(next);
+  }, [activityInput]);
+
+  const submitVision = useCallback(() => {
+    const next = submitSiteVision(visionInput);
+    setState(next);
+  }, [visionInput]);
+
+  const submitContacts = useCallback(() => {
+    const next = submitContactDetails({
+      email: emailInput,
+      phone: phoneInput,
+      city: cityInput,
+    });
+    setState(next);
+  }, [emailInput, phoneInput, cityInput]);
+
+  const pickLogo = useCallback(
+    (choice: LogoChoice) => {
+      const next = setGuidedLogoChoice(choice);
+      setState(next);
+      if (choice) {
+        void buildDraftProduct(next).then((withProduct) => setState(withProduct)).catch(() => {
+          /* surfaced in preview */
+        });
+      }
+    },
+    [buildDraftProduct],
+  );
 
   const continueToOffer = useCallback(async () => {
     if (!state.productId) {
-      setFlowError("Дождитесь черновика справа — затем можно оформить");
+      setFlowError("Дождитесь черновика справа — он собирается из ваших ответов");
+      return;
+    }
+    if (!state.draftReviewed) {
+      setFlowError("Сначала подтвердите, что черновик справа вас устраивает");
       return;
     }
     setFlowBusy(true);
@@ -108,7 +155,13 @@ export function VectorCommerceSteps() {
     } finally {
       setFlowBusy(false);
     }
-  }, [state.productId]);
+  }, [state.productId, state.draftReviewed]);
+
+  const approveDraft = useCallback(() => {
+    const next = confirmGuidedDraftReview();
+    setState(next);
+    void continueToOffer();
+  }, [continueToOffer]);
 
   const buySite = useCallback(async () => {
     const email = state.clientEmail.trim();
@@ -116,7 +169,7 @@ export function VectorCommerceSteps() {
       setFlowError("Укажите email для подтверждения и чека");
       return;
     }
-    if (!state.productId || !state.logoChoice) return;
+    if (!state.productId || !state.logoChoice || !state.draftReviewed) return;
     setFlowBusy(true);
     setFlowError("");
     try {
@@ -127,6 +180,10 @@ export function VectorCommerceSteps() {
         goalLabel: "Получить сайт",
         logoChoice: state.logoChoice,
         productId: state.productId,
+        description: buildGuidedSalesBrief(state),
+        city: state.clientCity,
+        phone: state.clientPhone,
+        extraWishes: state.siteVision,
       });
       setState(
         advanceGuidedToPay(order.orderId, order.priceEur, order.priceLabel ?? state.priceLabel),
@@ -165,46 +222,125 @@ export function VectorCommerceSteps() {
     }
   }, [state.orderId, isSandbox]);
 
-  const priceDisplay =
-    state.priceLabel ?? formatLocalizedMoney(state.priceEur ?? 399, "EUR");
+  const priceDisplay = state.priceLabel ?? formatLocalizedMoney(state.priceEur ?? 399, "EUR");
 
   if (!state.goalId) return null;
+
+  const reviewLines = guidedReviewSummary(state);
 
   return (
     <div className="mt-3 shrink-0 space-y-3 border-t border-white/8 pt-3">
       <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-genesis-accent">
-        {ASSISTANT_NAME} — следующий шаг
+        {ASSISTANT_NAME} ведёт к результату
+      </p>
+      <p className="text-[11px] text-genesis-muted">
+        Сначала ваш бизнес и видение — потом черновик — оплата только если результат подходит.
       </p>
 
       {state.step === "company" ? (
         <div className="space-y-2">
-          <p className="text-xs text-genesis-muted">
-            Как называется ваша компания? {ASSISTANT_NAME} соберёт черновик сайта.
-          </p>
+          <StepHint step="company" />
           <input
             type="text"
             value={companyInput}
             onChange={(e) => setCompanyInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && companyInput.trim()) void submitCompany();
+              if (e.key === "Enter" && companyInput.trim()) submitCompany();
             }}
             placeholder="Например: Dr. Weber Zahnarzt"
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none ring-genesis-accent/40 placeholder:text-genesis-muted/60 focus:border-genesis-accent/50 focus:ring-2"
+            className={inputClass}
           />
           <SpringPressable
             type="button"
-            disabled={!companyInput.trim() || productBusy}
-            onClick={() => void submitCompany()}
+            disabled={!companyInput.trim()}
+            onClick={submitCompany}
             className="w-full rounded-xl bg-genesis-accent py-2.5 text-sm font-semibold text-white disabled:opacity-40"
           >
-            {productBusy ? "Собираю черновик…" : "Показать черновик"}
+            Далее
           </SpringPressable>
         </div>
       ) : null}
 
-      {state.step === "logo" && state.companyName.trim() ? (
+      {state.step === "activity" ? (
         <div className="space-y-2">
-          <p className="text-xs text-genesis-muted">Есть логотип?</p>
+          <StepHint step="activity" />
+          <textarea
+            value={activityInput}
+            onChange={(e) => setActivityInput(e.target.value)}
+            rows={3}
+            placeholder="Например: стоматология, импланты и гигиена для семей в Берлине"
+            className={`${inputClass} resize-none`}
+          />
+          <SpringPressable
+            type="button"
+            disabled={!activityInput.trim()}
+            onClick={submitActivity}
+            className="w-full rounded-xl bg-genesis-accent py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+          >
+            Далее
+          </SpringPressable>
+        </div>
+      ) : null}
+
+      {state.step === "vision" ? (
+        <div className="space-y-2">
+          <StepHint step="vision" />
+          <textarea
+            value={visionInput}
+            onChange={(e) => setVisionInput(e.target.value)}
+            rows={3}
+            placeholder="Например: записаться на приём онлайн, позвонить, узнать цены"
+            className={`${inputClass} resize-none`}
+          />
+          <SpringPressable
+            type="button"
+            disabled={!visionInput.trim()}
+            onClick={submitVision}
+            className="w-full rounded-xl bg-genesis-accent py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+          >
+            Далее
+          </SpringPressable>
+        </div>
+      ) : null}
+
+      {state.step === "contacts" ? (
+        <div className="space-y-2">
+          <StepHint step="contacts" />
+          <input
+            type="email"
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            placeholder="Email *"
+            className={inputClass}
+          />
+          <input
+            type="tel"
+            value={phoneInput}
+            onChange={(e) => setPhoneInput(e.target.value)}
+            placeholder="Телефон"
+            className={inputClass}
+          />
+          <input
+            type="text"
+            value={cityInput}
+            onChange={(e) => setCityInput(e.target.value)}
+            placeholder="Город"
+            className={inputClass}
+          />
+          <SpringPressable
+            type="button"
+            disabled={!emailInput.trim()}
+            onClick={submitContacts}
+            className="w-full rounded-xl bg-genesis-accent py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+          >
+            Далее
+          </SpringPressable>
+        </div>
+      ) : null}
+
+      {state.step === "logo" ? (
+        <div className="space-y-2">
+          <StepHint step="logo" />
           <div className="flex flex-wrap gap-2">
             {(
               [
@@ -217,6 +353,7 @@ export function VectorCommerceSteps() {
                 key={opt.id}
                 type="button"
                 onClick={() => pickLogo(opt.id)}
+                disabled={productBusy}
                 className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${
                   state.logoChoice === opt.id
                     ? "border-genesis-accent/50 bg-genesis-accent/15 text-white"
@@ -227,30 +364,41 @@ export function VectorCommerceSteps() {
               </button>
             ))}
           </div>
+          {productBusy ? (
+            <p className="text-xs text-genesis-muted">Собираю черновик из ваших ответов…</p>
+          ) : null}
         </div>
       ) : null}
 
-      {state.step === "draft_ready" && state.logoChoice ? (
-        <SpringPressable
-          type="button"
-          disabled={flowBusy || !state.productId}
-          onClick={() => void continueToOffer()}
-          className="w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-        >
-          {flowBusy ? "Загружаем…" : "Оформить права на черновик"}
-        </SpringPressable>
+      {state.step === "review" ? (
+        <div className="space-y-2">
+          <StepHint step="review" />
+          <ul className="space-y-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] text-genesis-muted">
+            {reviewLines.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <p className="text-xs text-emerald-100/90">
+            Сверьте черновик справа с ответами выше. Не подходит — уточните слева у {ASSISTANT_NAME}.
+          </p>
+          <SpringPressable
+            type="button"
+            disabled={flowBusy || productBusy || !state.productId}
+            onClick={approveDraft}
+            className="w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+          >
+            {flowBusy ? "Готовим оформление…" : "Черновик подходит — оформить права"}
+          </SpringPressable>
+        </div>
       ) : null}
 
       {state.step === "offer" ? (
         <div className="space-y-2">
+          <StepHint step="offer" />
           <p className="text-lg font-bold text-white">{priceDisplay}</p>
-          <input
-            type="email"
-            value={state.clientEmail}
-            onChange={(e) => setState(setGuidedClientEmail(e.target.value))}
-            placeholder="Email"
-            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white"
-          />
+          <p className="text-xs text-genesis-muted">
+            Вы оформляете права на черновик справа — тот же сайт, без пересборки.
+          </p>
           <SpringPressable
             type="button"
             disabled={flowBusy}
@@ -260,7 +408,7 @@ export function VectorCommerceSteps() {
             {flowBusy ? "Оформляем…" : "Перейти к оплате"}
           </SpringPressable>
           <ul className="text-[10px] text-genesis-muted">
-            {GUIDED_SITE_INCLUDES.slice(0, 4).map((item) => (
+            {GUIDED_SITE_INCLUDES.map((item) => (
               <li key={item}>✓ {item}</li>
             ))}
           </ul>
@@ -270,7 +418,7 @@ export function VectorCommerceSteps() {
       {state.step === "pay" && state.orderId ? (
         <div className="space-y-2">
           <p className="text-xs text-genesis-muted">
-            Заказ {state.orderId} — оплата передаёт вам права на черновик справа.
+            Заказ {state.orderId} — оплата закрепляет права на согласованный черновик.
           </p>
           {paymentReady ? (
             <SpringPressable
@@ -290,6 +438,11 @@ export function VectorCommerceSteps() {
       {flowError ? (
         <p className="text-xs text-rose-300" role="alert">
           {flowError}
+        </p>
+      ) : null}
+      {productError ? (
+        <p className="text-xs text-rose-300" role="alert">
+          {productError}
         </p>
       ) : null}
     </div>
