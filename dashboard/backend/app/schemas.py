@@ -988,6 +988,8 @@ class EngineDashboard(BaseModel):
     junk_archive_count: int = 0
     junk_micro_revenue_eur: float = 0.0
     network: dict = {}
+    pattern_intel_value_eur: float = 0.0
+    pattern_hits_total: int = 0
     finance_gateway: dict = {}
     wallets: list[dict] = []
     withdrawal_enabled: bool = False

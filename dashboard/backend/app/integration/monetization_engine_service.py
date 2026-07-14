@@ -18,6 +18,7 @@ from app.integration.finance_service import FinanceService
 from app.integration.google_places_service import GooglePlacesService
 from app.integration.opportunity_service import OpportunityService
 from app.integration.payment_checkout_service import PaymentCheckoutService
+from app.integration.public_intel_miner import PublicIntelMiner
 
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
@@ -127,6 +128,7 @@ class MonetizationEngineService:
         self._scanner = scanner
         self._memory = memory_dir or _DEFAULT_MEMORY
         self._places = GooglePlacesService()
+        self._intel_miner = PublicIntelMiner(self._memory)
 
     def _arbitrage_offers(self) -> dict[str, dict[str, Any]]:
         path = self._memory / "engine_arbitrage_offers.json"
@@ -512,6 +514,8 @@ class MonetizationEngineService:
             "junk_archive_count": len(junk_archive),
             "junk_micro_revenue_eur": junk_micro_total,
             "network": network,
+            "pattern_intel_value_eur": float(harvest.get("pattern_intel_value_eur") or 0),
+            "pattern_hits_total": int(harvest.get("pattern_hits_total") or 0),
             "finance_gateway": {
                 "provider": fin.get("payment_provider"),
                 "connected": fin.get("payment_connected", False),
@@ -522,6 +526,88 @@ class MonetizationEngineService:
             "wallets": fin.get("wallets", []),
             "withdrawal_enabled": fin.get("withdrawal_enabled", False),
         }
+
+    def process_pattern_hits(self, opportunity_id: str) -> dict[str, Any]:
+        """PublicIntelMiner hook — pattern hits → meta + harvest ledger (no auto-buy)."""
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            raise ValueError("not_found")
+
+        hits = self._intel_miner.mine_patterns_from_scan(row)
+        hit_dicts = self._intel_miner.hits_to_dicts(hits)
+        meta = dict(row.get("meta") or {})
+
+        data_value = round(
+            sum(h.valuation_eur for h in hits if h.lane == "data_product"),
+            2,
+        )
+        alert_hits = [h for h in hits if h.lane == "arbitrage_alert"]
+        pending_tx: list[dict[str, Any]] = []
+
+        for h in alert_hits:
+            pending_tx.append(
+                {
+                    "type": "arbitrage_buy_draft",
+                    "pattern_id": h.pattern_id,
+                    "asset_ref": h.matched_value,
+                    "source_url": h.source_url,
+                    "estimated_value_eur": h.valuation_eur,
+                    "status": "pending_ceo_approval",
+                    "auto_execute": False,
+                }
+            )
+
+        meta["pattern_hits"] = hit_dicts
+        meta["pattern_hits_count"] = len(hit_dicts)
+        meta["pattern_value_eur"] = data_value
+        meta["pattern_intel_at"] = datetime.now(timezone.utc).isoformat()
+
+        if alert_hits:
+            meta["execution_status"] = "pending_ceo_approval"
+            meta["arbitrage_alerts"] = [
+                {
+                    "pattern_id": h.pattern_id,
+                    "matched_value": h.matched_value,
+                    "valuation_eur": h.valuation_eur,
+                    "context_snippet": h.context_snippet,
+                }
+                for h in alert_hits
+            ]
+        if pending_tx:
+            meta["pending_transactions"] = pending_tx
+
+        potential_boost = round(float(row.get("potential_value_eur") or 0) + data_value, 2)
+        updated = self._opportunity.update(
+            opportunity_id,
+            {
+                "meta": meta,
+                "potential_value_eur": potential_boost,
+            },
+        )
+
+        if hit_dicts:
+            self._append_harvest_event(
+                {
+                    "type": "pattern_intel",
+                    "opportunity_id": opportunity_id,
+                    "hits_count": len(hit_dicts),
+                    "data_product_value_eur": data_value,
+                    "arbitrage_alerts": len(alert_hits),
+                    "execution_status": meta.get("execution_status") or "logged_only",
+                    "pending_transactions": len(pending_tx),
+                    "company": row.get("company_name", ""),
+                }
+            )
+
+        harvest = self._load_harvest()
+        harvest["pattern_intel_value_eur"] = round(
+            float(harvest.get("pattern_intel_value_eur") or 0) + data_value,
+            2,
+        )
+        harvest["pattern_hits_total"] = int(harvest.get("pattern_hits_total") or 0) + len(hit_dicts)
+        self._save_harvest(harvest)
+
+        return updated
 
     def scan_and_gate(self, url: str, *, niche: str = "local_service", manual: bool = False) -> dict[str, Any]:
         assert_public_scan_allowed(url)
@@ -540,6 +626,11 @@ class MonetizationEngineService:
         meta["profit_score"] = profit_score
         meta["niche"] = niche
         result = self._route_scanned_target(row, profit_score=profit_score, meta=meta, manual=manual)
+        target_id = result["target"]["id"]
+        enriched = self.process_pattern_hits(target_id)
+        result["target"] = enriched
+        result["pattern_hits"] = (enriched.get("meta") or {}).get("pattern_hits", [])
+        result["pattern_hits_count"] = len(result["pattern_hits"])
         self._sync_harvest_from_assets()
         return result
 

@@ -45,7 +45,7 @@ def _bootstrap_memory(path: Path) -> None:
     if not os.getenv("GENESIS_MEMORY_DIR"):
         return
     path.mkdir(parents=True, exist_ok=True)
-    for name in ("public_launch.json", "pricing_display.json"):
+    for name in ("public_launch.json", "pricing_display.json", "engine_pattern_config.json"):
         target = path / name
         if target.is_file():
             continue

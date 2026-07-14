@@ -65,6 +65,8 @@ type EngineDash = {
     expired_domain_watch: string;
     batch_scan_max: number;
   };
+  pattern_intel_value_eur?: number;
+  pattern_hits_total?: number;
   wallets: Wallet[];
   withdrawal_enabled: boolean;
 };
@@ -321,6 +323,10 @@ export function EngineDashboard() {
                 value={`${dash.network?.target_progress_percent ?? 0}%`}
               />
             </div>
+            <p className="mt-3 text-xs text-violet-200">
+              PublicIntelMiner: {dash.pattern_hits_total ?? 0} паттернов · потенциал датасета{" "}
+              {formatEur(dash.pattern_intel_value_eur ?? 0)} · покупки только после CEO Approve
+            </p>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
               <div
                 className="h-full rounded-full bg-emerald-500 transition-all"
