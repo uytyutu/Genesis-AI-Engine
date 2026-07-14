@@ -115,7 +115,7 @@ export function GuidedProgressPanel({ compact, productLoading: productLoadingPro
         </>
       ) : (
         <div className="mt-4 flex min-h-[10rem] items-center justify-center rounded-xl border border-dashed border-white/12 bg-white/[0.02] px-4 text-center text-sm text-genesis-muted">
-          Название компании — в блоке ниже. {ASSISTANT_NAME} соберёт черновик здесь.
+          Расскажите о бизнесе в чате слева — {ASSISTANT_NAME} соберёт черновик здесь.
         </div>
       )}
 
@@ -145,20 +145,16 @@ export function GuidedProgressPanel({ compact, productLoading: productLoadingPro
 
       <p className="mt-3 text-xs text-genesis-muted">
         {state.step === "pay"
-          ? "Последний шаг — оплата. Сайт справа остаётся вашим."
+          ? "Оплата закрепляет согласованный черновик — сайт справа остаётся вашим."
           : state.step === "offer"
             ? "Вы оформляете права на согласованный черновик — не новую генерацию."
             : state.step === "review"
-              ? "Сверьте черновик с ответами. Не подходит — уточните у Vector слева."
-              : state.step === "logo"
-                ? productLoading
-                  ? `${ASSISTANT_NAME} собирает черновик из ваших ответов…`
-                  : "После логотипа появится черновик — только из того, что вы рассказали."
-                : ["activity", "vision", "contacts"].includes(state.step)
-                  ? "Каждый ответ попадёт в черновик — не в скрытую форму."
-                  : state.goalId
-                    ? `${ASSISTANT_NAME} ведёт к вашему результату — шаг за шагом.`
-                    : `Расскажите о бизнесе слева — ${ASSISTANT_NAME} начнёт работу.`}
+              ? "Сверьте черновик с разговором. Не подходит — продолжайте диалог слева."
+              : productLoading
+                ? `${ASSISTANT_NAME} собирает черновик из вашего разговора…`
+                : state.goalId
+                  ? `${ASSISTANT_NAME} выцепляет детали из чата — без анкеты.`
+                  : `Расскажите о бизнесе слева — ${ASSISTANT_NAME} начнёт работу.`}
       </p>
     </Card>
   );

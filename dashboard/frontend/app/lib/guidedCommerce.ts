@@ -14,6 +14,7 @@ export type GuidedGoalId =
 
 export type GuidedStep =
   | "goal"
+  | "discover"
   | "company"
   | "activity"
   | "vision"
@@ -120,23 +121,12 @@ function normalizeState(raw: Partial<GuidedCommerceState>): GuidedCommerceState 
   if (merged.companyName.trim() && merged.brandHue == null) {
     merged.brandHue = hashHue(merged.companyName.trim());
   }
-  if (!merged.companyName.trim() && merged.step !== "goal" && merged.step !== "company") {
-    merged.step = "company";
-  }
-  if (merged.companyName.trim() && !merged.businessActivity.trim() && !["goal", "company"].includes(merged.step)) {
-    merged.step = "activity";
-  }
-  if (merged.businessActivity.trim() && !merged.siteVision.trim() && !["goal", "company", "activity"].includes(merged.step)) {
-    merged.step = "vision";
-  }
-  if (merged.siteVision.trim() && !merged.clientEmail.trim() && ["logo", "review", "draft_ready", "offer", "pay"].includes(merged.step)) {
-    merged.step = "contacts";
-  }
-  if (!merged.logoChoice && (merged.step === "review" || merged.step === "draft_ready" || merged.step === "offer" || merged.step === "pay")) {
-    merged.step = merged.clientEmail.trim() ? "logo" : "contacts";
-  }
   if (merged.step === "offer" && !merged.draftReviewed) {
-    merged.step = merged.productId ? "review" : "logo";
+    merged.step = merged.productId ? "review" : "discover";
+  }
+  if (!["offer", "pay"].includes(merged.step)) {
+    merged.step = merged.productId && merged.logoChoice ? "review" : "discover";
+    if (merged.draftReviewed && merged.productId) merged.step = "offer";
   }
   return merged;
 }
@@ -175,7 +165,7 @@ export function selectGuidedGoal(goalId: GuidedGoalId): GuidedCommerceState {
     return loadGuidedCommerce();
   }
   const next: GuidedCommerceState = {
-    step: "company",
+    step: "discover",
     goalId,
     companyName: "",
     businessActivity: "",
@@ -394,23 +384,23 @@ export function previewStepStatus(
   switch (stepId) {
     case "name":
       if (hasName) return "done";
-      if (state.step === "company") return "active";
+      if (state.step === "discover" && !hasName) return "active";
       return "pending";
     case "activity":
       if (hasActivity) return "done";
-      if (state.step === "activity") return "active";
+      if (state.step === "discover" && hasName && !hasActivity) return "active";
       return "pending";
     case "vision":
       if (hasVision) return "done";
-      if (state.step === "vision") return "active";
+      if (state.step === "discover" && hasActivity && !hasVision) return "active";
       return "pending";
     case "contacts":
       if (hasContacts) return "done";
-      if (state.step === "contacts") return "active";
+      if (state.step === "discover" && hasVision && !hasContacts) return "active";
       return "pending";
     case "logo":
       if (hasLogo) return "done";
-      if (state.step === "logo") return "active";
+      if (state.step === "discover" && hasContacts && !hasLogo) return "active";
       return "pending";
     case "draft":
       if (state.draftReviewed) return "done";

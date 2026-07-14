@@ -37,7 +37,7 @@ export function SitePage() {
     <PublicPageShell minimal>
       <p className="mb-3 text-sm text-genesis-muted">
         <span className="font-semibold text-white">{ASSISTANT_NAME}</span> — ваш цифровой сотрудник.
-        Сначала уточним бизнес и видение; черновик справа — из ваших ответов. Оплата только если результат подходит.
+        Просто расскажите в чате о бизнесе и видении — без анкеты. Черновик справа собирается из диалога. Оплата только если результат подходит.
       </p>
       <div className="grid min-h-0 gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,42%)] lg:gap-6">
         <section
