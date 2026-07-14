@@ -21,9 +21,13 @@ from app.integration.payment_checkout_service import PaymentCheckoutService
 
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
-# Auto-gate: engine hides low-yield targets before owner sees them
+# Auto-gate: high-yield → owner journal; low-yield → junk archive (micro-monetization)
 MIN_PROFIT_SCORE = 45
 STRONG_PROFIT_SCORE = 70
+MICRO_REVENUE_MIN_EUR = 0.50
+MICRO_REVENUE_MAX_EUR = 1.00
+_PROCESSING_LANE_HIGH = "high"
+_PROCESSING_LANE_JUNK = "junk_archive"
 
 _ACTIVE_STATUSES = frozenset({"proposed", "contacted", "qualified", "won"})
 _PENDING_STATUSES = frozenset({"new", "reviewed"})
@@ -100,6 +104,151 @@ class MonetizationEngineService:
         path = self._harvest_path()
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def _micro_revenue_for_score(self, profit_score: int) -> float:
+        if profit_score >= MIN_PROFIT_SCORE:
+            return 0.0
+        ratio = max(0.0, min(1.0, profit_score / max(1, MIN_PROFIT_SCORE)))
+        amount = MICRO_REVENUE_MIN_EUR + ratio * (MICRO_REVENUE_MAX_EUR - MICRO_REVENUE_MIN_EUR)
+        return round(amount, 2)
+
+    def _apply_junk_micro_monetization(self, row: dict[str, Any]) -> dict[str, Any]:
+        """Secondary processing: auto SEO micro-fixes → €0.50–1.00 per junk asset."""
+        meta = dict(row.get("meta") or {})
+        profit_score = int(meta.get("profit_score") or row.get("score") or 0)
+        if meta.get("processing_lane") != _PROCESSING_LANE_JUNK:
+            return row
+
+        micro_amount = self._micro_revenue_for_score(profit_score)
+        if micro_amount <= 0:
+            return row
+
+        analysis = row.get("site_analysis") if isinstance(row.get("site_analysis"), dict) else {}
+        title = str(analysis.get("title") or row.get("company_name") or "Asset")
+        seo_actions = [
+            f"Meta title optimiert: «{title[:48]} · Service»",
+            "Meta description auf DE ergänzt (120 Zeichen)",
+            "Open-Graph og:title / og:description synchronisiert",
+        ]
+        prev_revenue = float(row.get("revenue_eur") or 0)
+        new_revenue = round(prev_revenue + micro_amount, 2)
+        meta.update(
+            {
+                "junk_micro_seo": seo_actions,
+                "junk_micro_revenue_eur": round(float(meta.get("junk_micro_revenue_eur") or 0) + micro_amount, 2),
+                "junk_last_micro_at": datetime.now(timezone.utc).isoformat(),
+                "junk_micro_cycles": int(meta.get("junk_micro_cycles") or 0) + 1,
+            }
+        )
+        updated = self._opportunity.update(
+            row["id"],
+            {
+                "meta": meta,
+                "revenue_eur": new_revenue,
+                "status": "won" if new_revenue >= MICRO_REVENUE_MAX_EUR else "reviewed",
+                "notes": (row.get("notes") or "") + f"\nJunk-SEO micro: +{micro_amount:.2f} €",
+            },
+        )
+        self._finance.credit_order_payment(
+            micro_amount,
+            f"Junk-SEO: {row.get('company_name', '')}",
+            provider=str(self._checkout.provider() or "engine"),
+            order_id=row["id"],
+        )
+        self._append_harvest_event(
+            {
+                "type": "junk_micro_revenue",
+                "opportunity_id": row["id"],
+                "amount_eur": micro_amount,
+                "profit_score": profit_score,
+                "lane": _PROCESSING_LANE_JUNK,
+            }
+        )
+        return updated
+
+    def process_junk_archive_cycle(self, *, limit: int = 50) -> dict[str, Any]:
+        """Batch secondary processing for archived low-score assets."""
+        rows = self._opportunity.list_opportunities(source_id="asset_scan", limit=500)
+        processed = 0
+        revenue_eur = 0.0
+        for row in rows:
+            if processed >= limit:
+                break
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            if meta.get("processing_lane") != _PROCESSING_LANE_JUNK:
+                continue
+            if meta.get("junk_last_micro_at"):
+                continue
+            before = float(row.get("revenue_eur") or 0)
+            updated = self._apply_junk_micro_monetization(row)
+            after = float(updated.get("revenue_eur") or 0)
+            delta = round(after - before, 2)
+            if delta > 0:
+                processed += 1
+                revenue_eur = round(revenue_eur + delta, 2)
+        self._sync_harvest_from_assets()
+        return {
+            "ok": True,
+            "processed": processed,
+            "revenue_eur": revenue_eur,
+            "message": (
+                f"Вторичная обработка: {processed} активов, +{revenue_eur:.2f} € микро-дохода."
+                if processed
+                else "Архив мусора: новых активов для микро-обработки нет."
+            ),
+        }
+
+    def _route_scanned_target(
+        self,
+        row: dict[str, Any],
+        *,
+        profit_score: int,
+        meta: dict[str, Any],
+        manual: bool = False,
+    ) -> dict[str, Any]:
+        if profit_score >= MIN_PROFIT_SCORE:
+            meta["processing_lane"] = _PROCESSING_LANE_HIGH
+            meta["auto_gate_pass"] = True
+            meta["auto_gate_reason"] = (
+                "Достаточная доходность — в журнал владельца"
+                if not manual
+                else "Ручной URL — высокий score, готов к активации"
+            )
+            updated = self._opportunity.update(row["id"], {"meta": meta, "score": profit_score})
+            return {
+                "target": updated,
+                "profit_score": profit_score,
+                "lane": _PROCESSING_LANE_HIGH,
+                "shown_to_owner": True,
+                "archived": False,
+                "message": meta["auto_gate_reason"],
+            }
+
+        meta["processing_lane"] = _PROCESSING_LANE_JUNK
+        meta["auto_gate_pass"] = False
+        meta["auto_gate_reason"] = (
+            "Низкий score — в архив мусора, запущена микро-монетизация SEO"
+            if not manual
+            else "Ручной URL — низкий score, вторичная обработка в архиве"
+        )
+        updated = self._opportunity.update(
+            row["id"],
+            {
+                "meta": meta,
+                "score": profit_score,
+                "status": "reviewed",
+                "notes": (row.get("notes") or "") + "\nAuto-gate: junk archive (SEO micro).",
+            },
+        )
+        updated = self._apply_junk_micro_monetization(updated)
+        return {
+            "target": updated,
+            "profit_score": profit_score,
+            "lane": _PROCESSING_LANE_JUNK,
+            "shown_to_owner": False,
+            "archived": True,
+            "message": meta["auto_gate_reason"],
+        }
 
     def _sync_harvest_from_assets(self) -> dict[str, Any]:
         rows = self._opportunity.list_opportunities(source_id="asset_scan", limit=500)
@@ -186,9 +335,13 @@ class MonetizationEngineService:
         pending = []
         active = []
         harvested = []
+        junk_archive = []
+        junk_micro_total = 0.0
         for row in rows:
             meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
             profit_score = int(meta.get("profit_score") or row.get("score") or 0)
+            lane = str(meta.get("processing_lane") or "")
+            micro_rev = float(meta.get("junk_micro_revenue_eur") or 0)
             item = {
                 "id": row["id"],
                 "name": row.get("company_name", ""),
@@ -202,7 +355,13 @@ class MonetizationEngineService:
                 "income_rationale": row.get("fit_reason", ""),
                 "revenue_eur": float(row.get("revenue_eur") or 0),
                 "niche": meta.get("niche", "local_service"),
+                "processing_lane": lane,
+                "micro_revenue_eur": micro_rev,
             }
+            if lane == _PROCESSING_LANE_JUNK:
+                junk_archive.append(item)
+                junk_micro_total = round(junk_micro_total + micro_rev, 2)
+                continue
             if row.get("status") == "won":
                 harvested.append(item)
             elif row.get("status") in _ACTIVE_STATUSES:
@@ -213,6 +372,7 @@ class MonetizationEngineService:
         pending.sort(key=lambda x: x["profit_score"], reverse=True)
         active.sort(key=lambda x: x["potential_eur"], reverse=True)
         harvested.sort(key=lambda x: x["revenue_eur"], reverse=True)
+        junk_archive.sort(key=lambda x: x["micro_revenue_eur"], reverse=True)
 
         return {
             "mode": "engine",
@@ -235,6 +395,9 @@ class MonetizationEngineService:
             "active_assets": active,
             "harvested_assets": harvested,
             "harvested_count": len(harvested),
+            "junk_archive_assets": junk_archive,
+            "junk_archive_count": len(junk_archive),
+            "junk_micro_revenue_eur": junk_micro_total,
             "finance_gateway": {
                 "provider": fin.get("payment_provider"),
                 "connected": fin.get("payment_connected", False),
@@ -246,7 +409,7 @@ class MonetizationEngineService:
             "withdrawal_enabled": fin.get("withdrawal_enabled", False),
         }
 
-    def scan_and_gate(self, url: str, *, niche: str = "local_service") -> dict[str, Any]:
+    def scan_and_gate(self, url: str, *, niche: str = "local_service", manual: bool = False) -> dict[str, Any]:
         assert_public_scan_allowed(url)
         row = self._scanner.scan_url(url, niche=niche)
         analysis = row.get("site_analysis") or {}
@@ -261,25 +424,10 @@ class MonetizationEngineService:
             issue_count=int(analysis.get("issue_count") or 0),
         )
         meta["profit_score"] = profit_score
-        meta["auto_gate_pass"] = profit_score >= MIN_PROFIT_SCORE
-        meta["auto_gate_reason"] = (
-            "Достаточная доходность — предложено владельцу"
-            if profit_score >= MIN_PROFIT_SCORE
-            else "Низкая доходность — скрыто автоматическим фильтром"
-        )
-        updated = self._opportunity.update(row["id"], {"meta": meta, "score": profit_score})
-        if profit_score < MIN_PROFIT_SCORE:
-            updated = self._opportunity.update(
-                row["id"],
-                {"status": "lost", "notes": (row.get("notes") or "") + "\nAuto-gate: низкий потенциал."},
-            )
+        meta["niche"] = niche
+        result = self._route_scanned_target(row, profit_score=profit_score, meta=meta, manual=manual)
         self._sync_harvest_from_assets()
-        return {
-            "target": updated,
-            "profit_score": profit_score,
-            "shown_to_owner": profit_score >= MIN_PROFIT_SCORE,
-            "message": meta["auto_gate_reason"],
-        }
+        return result
 
     def accept_asset(self, opportunity_id: str) -> dict:
         row = self._opportunity.get(opportunity_id)
@@ -319,7 +467,7 @@ class MonetizationEngineService:
         query = f"{query_base} {city}".strip()
         scanned = 0
         passed = 0
-        hidden = 0
+        archived = 0
         errors: list[str] = []
 
         urls: list[str] = []
@@ -349,13 +497,14 @@ class MonetizationEngineService:
             try:
                 result = self.scan_and_gate(url, niche=niche_key)
                 scanned += 1
-                if result["shown_to_owner"]:
+                if result.get("lane") == _PROCESSING_LANE_HIGH:
                     passed += 1
                 else:
-                    hidden += 1
+                    archived += 1
             except ValueError as exc:
                 errors.append(f"{url}: {exc}")
 
+        junk_batch = self.process_junk_archive_cycle()
         self.sync_payment_providers()
         return {
             "ok": True,
@@ -364,9 +513,14 @@ class MonetizationEngineService:
             "query": query,
             "scanned": scanned,
             "passed_gate": passed,
-            "hidden": hidden,
+            "archived": archived,
+            "hidden": archived,
+            "junk_micro_revenue_eur": junk_batch.get("revenue_eur", 0.0),
             "errors": errors[:5],
-            "message": f"Режим сканирования: проверено {scanned}, в журнал {passed}, отсечено {hidden}.",
+            "message": (
+                f"Поиск целей: {scanned} URL · журнал {passed} · архив {archived} · "
+                f"микро +{float(junk_batch.get('revenue_eur') or 0):.2f} €"
+            ),
         }
 
     def record_asset_revenue(self, opportunity_id: str, amount_eur: float) -> dict:

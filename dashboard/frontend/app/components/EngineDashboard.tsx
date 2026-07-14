@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEur } from "../lib/formatEur";
+import { EngineTaxAccountingPanel } from "./EngineTaxAccountingPanel";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -19,6 +20,8 @@ type Target = {
   income_rationale: string;
   revenue_eur: number;
   niche: string;
+  processing_lane?: string;
+  micro_revenue_eur?: number;
 };
 
 type Wallet = {
@@ -47,6 +50,9 @@ type EngineDash = {
   active_assets: Target[];
   harvested_assets?: Target[];
   harvested_count?: number;
+  junk_archive_assets?: Target[];
+  junk_archive_count?: number;
+  junk_micro_revenue_eur?: number;
   wallets: Wallet[];
   withdrawal_enabled: boolean;
 };
@@ -71,6 +77,7 @@ const WALLET_OPTIONS = [
 ];
 
 export function EngineDashboard() {
+  const [tab, setTab] = useState<"engine" | "tax">("engine");
   const [dash, setDash] = useState<EngineDash | null>(null);
   const [scanUrl, setScanUrl] = useState("");
   const [busy, setBusy] = useState("");
@@ -139,7 +146,7 @@ export function EngineDashboard() {
       const res = await fetch(`${API}/api/engine/scan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: scanUrl.trim(), niche: "expired_landing" }),
+        body: JSON.stringify({ url: scanUrl.trim(), niche: "expired_landing", manual: true }),
       });
       const body = await res.json();
       setMessage(body.message ?? (res.ok ? "Сканирование завершено" : "Ошибка"));
@@ -211,7 +218,8 @@ export function EngineDashboard() {
             Движок монетизации · {dash?.owner_name ?? "Владелец"}
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
-            Автономный сканер рынка → аккумуляция дохода от перехваченных активов. Не продажа услуг — добыча.
+            Единая логика: <strong className="text-white">Поиск целей</strong> (автопилот) или вставка URL (ручной контроль).
+            High-score → журнал · Low-score → архив мусора с микро-SEO (€0,50–1).
           </p>
           {dash?.security_law ? (
             <p className="mt-3 rounded-xl border border-rose-500/30 bg-rose-950/25 px-3 py-2 text-[11px] text-rose-100">
@@ -221,12 +229,36 @@ export function EngineDashboard() {
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
             <button
               type="button"
-              disabled={busy === "sync"}
-              onClick={() => void syncPayments()}
-              className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-1.5 text-amber-100 hover:bg-amber-900/40 disabled:opacity-50"
+              onClick={() => setTab("engine")}
+              className={`rounded-lg border px-3 py-1.5 ${
+                tab === "engine"
+                  ? "border-amber-500/60 bg-amber-950/40 text-amber-100"
+                  : "border-genesis-border hover:bg-genesis-elevated/40"
+              }`}
             >
-              {busy === "sync" ? "Синхронизация…" : "Синхр. Stripe / API"}
+              Движок
             </button>
+            <button
+              type="button"
+              onClick={() => setTab("tax")}
+              className={`rounded-lg border px-3 py-1.5 ${
+                tab === "tax"
+                  ? "border-sky-500/60 bg-sky-950/40 text-sky-100"
+                  : "border-genesis-border hover:bg-genesis-elevated/40"
+              }`}
+            >
+              Tax &amp; Accounting
+            </button>
+            {tab === "engine" ? (
+              <button
+                type="button"
+                disabled={busy === "sync"}
+                onClick={() => void syncPayments()}
+                className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-1.5 text-amber-100 hover:bg-amber-900/40 disabled:opacity-50"
+              >
+                {busy === "sync" ? "Синхронизация…" : "Синхр. Stripe / API"}
+              </button>
+            ) : null}
             <Link href="/monitor" className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40">
               Классический пульт
             </Link>
@@ -236,6 +268,10 @@ export function EngineDashboard() {
           </div>
         </header>
 
+        {tab === "tax" ? (
+          <EngineTaxAccountingPanel />
+        ) : (
+          <>
         {dash && (
           <section id="balance-kpi" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <Kpi id="harvest-balance" label="① Баланс добычи" value={formatEur(dash.harvest_balance_eur)} accent />
@@ -252,15 +288,17 @@ export function EngineDashboard() {
           <a href="#pending-journal" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Журнал</a>
           <a href="#active-assets" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Активные</a>
           <a href="#harvested-assets" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Добытые</a>
+          <a href="#junk-archive" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Архив мусора</a>
           <a href="#finance-gateway" className="rounded-full border border-white/10 px-2 py-0.5 hover:text-white">Шлюз</a>
         </nav>
 
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <div className="space-y-6">
             <section id="scan-mode" className="genesis-card p-5">
-              <h2 className="text-sm font-semibold">Режим сканирования</h2>
+              <h2 className="text-sm font-semibold">Поиск целей (автопилот)</h2>
               <p className="mt-1 text-xs text-genesis-muted">
-                Ручной запуск поиска по нише и городу. Google Places — если задан <code>GOOGLE_PLACES_API_KEY</code>.
+                Команда движку: найти заброшенные сайты по нише и городу. Google Places — если задан{" "}
+                <code>GOOGLE_PLACES_API_KEY</code>.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <select
@@ -286,15 +324,16 @@ export function EngineDashboard() {
                   onClick={() => void runScanMode()}
                   className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                 >
-                  {busy === "scan-mode" ? "Сканирую нишу…" : "▶ Режим сканирования"}
+                  {busy === "scan-mode" ? "Ищу цели…" : "▶ Поиск целей"}
                 </button>
               </div>
             </section>
 
             <section className="genesis-card p-5">
-              <h2 className="text-sm font-semibold">Точечный URL</h2>
+              <h2 className="text-sm font-semibold">Ручной контроль — ваш URL</h2>
               <p className="mt-1 text-xs text-genesis-muted">
-                Auto-gate: показываю только цели с score ≥ {dash?.auto_gate_min_score ?? 45}. Остальное отсекается автоматически.
+                Вставьте конкретные ссылки конкурентов или мастерских. Score ≥ {dash?.auto_gate_min_score ?? 45} → журнал;
+                ниже → архив мусора с авто-SEO.
               </p>
               <form onSubmit={runScan} className="mt-4 flex gap-2">
                 <input
@@ -354,7 +393,7 @@ export function EngineDashboard() {
             <section id="harvested-assets" className="genesis-card p-5">
               <h2 className="text-sm font-semibold">Добытые активы (монетизированы)</h2>
               <p className="mt-1 text-xs text-genesis-muted">
-                Здесь — результат добычи, привязанный к балансу шлюза. Счётчик: {dash?.harvested_count ?? 0}
+                High-score результат. Счётчик: {dash?.harvested_count ?? 0}
               </p>
               {!dash?.harvested_assets?.length ? (
                 <p className="mt-4 text-sm text-genesis-muted">Пока пусто. После монетизации актив появится здесь с суммой добычи.</p>
@@ -362,6 +401,26 @@ export function EngineDashboard() {
                 <ul className="mt-4 space-y-3">
                   {dash.harvested_assets.map((t) => (
                     <TargetCard key={t.id} target={t} busy={busy} />
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section id="junk-archive" className="genesis-card p-5">
+              <h2 className="text-sm font-semibold">Архив мусора · вторичная обработка</h2>
+              <p className="mt-1 text-xs text-genesis-muted">
+                Low-score активы не удаляются — авто-SEO (meta-теги, описания) даёт микро-доход €0,50–1.
+                Всего в архиве: {dash?.junk_archive_count ?? 0} · микро-поток:{" "}
+                {formatEur(dash?.junk_micro_revenue_eur ?? 0)}
+              </p>
+              {!dash?.junk_archive_assets?.length ? (
+                <p className="mt-4 text-sm text-genesis-muted">
+                  Пусто. Запустите поиск целей или вставьте URL — низкий score попадёт сюда автоматически.
+                </p>
+              ) : (
+                <ul className="mt-4 space-y-3">
+                  {dash.junk_archive_assets.map((t) => (
+                    <TargetCard key={t.id} target={t} busy={busy} junk />
                   ))}
                 </ul>
               )}
@@ -452,6 +511,8 @@ export function EngineDashboard() {
             ) : null}
           </aside>
         </div>
+          </>
+        )}
       </div>
     </main>
   );
@@ -462,11 +523,13 @@ function TargetCard({
   busy,
   onAccept,
   showAccept,
+  junk,
 }: {
   target: Target;
   busy: string;
   onAccept?: () => void;
   showAccept?: boolean;
+  junk?: boolean;
 }) {
   return (
     <li className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
@@ -500,6 +563,11 @@ function TargetCard({
       ) : null}
       {t.revenue_eur > 0 ? (
         <p className="mt-2 text-sm text-emerald-200">Добыча: {formatEur(t.revenue_eur)}</p>
+      ) : null}
+      {junk && (t.micro_revenue_eur ?? 0) > 0 ? (
+        <p className="mt-1 text-[11px] text-violet-200">
+          Микро-SEO: {formatEur(t.micro_revenue_eur ?? 0)} · score {t.profit_score}
+        </p>
       ) : null}
     </li>
   );

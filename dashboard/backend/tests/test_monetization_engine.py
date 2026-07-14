@@ -42,7 +42,7 @@ def test_profitability_score_gate():
     assert low < MIN_PROFIT_SCORE
 
 
-def test_scan_and_gate_hides_low_yield(engine: MonetizationEngineService):
+def test_scan_and_gate_routes_low_yield_to_junk_archive(engine: MonetizationEngineService):
     fake_weak = {
         "url": "https://weak.example",
         "final_url": "https://weak.example",
@@ -56,9 +56,30 @@ def test_scan_and_gate_hides_low_yield(engine: MonetizationEngineService):
         "app.integration.asset_scanner_service.SiteAnalysisService.analyze",
         return_value=fake_weak,
     ):
-        result = engine.scan_and_gate("https://weak.example")
+        result = engine.scan_and_gate("https://weak.example", manual=True)
     assert result["shown_to_owner"] is False
-    assert result["target"]["status"] == "lost"
+    assert result["archived"] is True
+    assert result["lane"] == "junk_archive"
+    meta = result["target"].get("meta") or {}
+    assert meta.get("processing_lane") == "junk_archive"
+    assert float(meta.get("junk_micro_revenue_eur") or 0) >= 0.5
+
+
+def test_junk_archive_batch(engine: MonetizationEngineService):
+    row = engine._opportunity.create(
+        {
+            "source_id": "asset_scan",
+            "opportunity_type": "asset",
+            "company_name": "Junk Site",
+            "website_url": "https://junk.example",
+            "status": "reviewed",
+            "meta": {"processing_lane": "junk_archive", "profit_score": 20},
+        }
+    )
+    batch = engine.process_junk_archive_cycle()
+    assert batch["processed"] >= 1
+    updated = engine._opportunity.get(row["id"])
+    assert float(updated.get("revenue_eur") or 0) >= 0.5
 
 
 def test_withdraw_queues_payout(engine: MonetizationEngineService):

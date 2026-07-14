@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import io
 import os
 
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from contextlib import asynccontextmanager
 import logging
 
@@ -113,10 +113,13 @@ from app.schemas import (
     EngineScanResponse,
     EngineScanModeRequest,
     EngineScanModeResponse,
+    EngineJunkArchiveResponse,
     ConnectWalletRequest,
     WithdrawRequest,
     WithdrawResponse,
     PaymentSyncResponse,
+    EngineTaxSettings,
+    EngineAccountingSummary,
     SiteAnalysisResult,
     AcquisitionStudioStatus,
     AcquisitionApprovalQueueResponse,
@@ -488,10 +491,15 @@ def engine_scan_mode(request: EngineScanModeRequest) -> EngineScanModeResponse:
     return EngineScanModeResponse(**result)
 
 
+@app.post("/api/engine/junk-archive/run", response_model=EngineJunkArchiveResponse)
+def engine_junk_archive_run() -> EngineJunkArchiveResponse:
+    return EngineJunkArchiveResponse(**_ctx().monetization_engine.process_junk_archive_cycle())
+
+
 @app.post("/api/engine/scan", response_model=EngineScanResponse)
 def engine_scan(request: EngineScanRequest) -> EngineScanResponse:
     try:
-        result = _ctx().monetization_engine.scan_and_gate(request.url, niche=request.niche)
+        result = _ctx().monetization_engine.scan_and_gate(request.url, niche=request.niche, manual=request.manual)
     except ValueError as e:
         code = str(e)
         if code == "forbidden_target":
@@ -547,6 +555,45 @@ def engine_withdraw(request: WithdrawRequest) -> WithdrawResponse:
             raise HTTPException(status_code=400, detail="Некорректная сумма")
         raise HTTPException(status_code=400, detail="Вывод не выполнен")
     return WithdrawResponse(**result)
+
+
+@app.get("/api/engine/accounting", response_model=EngineAccountingSummary)
+def engine_accounting() -> EngineAccountingSummary:
+    return EngineAccountingSummary(**_ctx().engine_accounting.accounting_summary())
+
+
+@app.patch("/api/engine/accounting/settings", response_model=EngineTaxSettings)
+def engine_accounting_settings(body: EngineTaxSettings) -> EngineTaxSettings:
+    saved = _ctx().engine_accounting.save_tax_settings(body.model_dump())
+    return EngineTaxSettings(
+        vat_rate_percent=float(saved.get("vat_rate_percent") or 19),
+        stripe_fee_percent=float(saved.get("stripe_fee_percent") or 1.4),
+        stripe_fee_fixed_eur=float(saved.get("stripe_fee_fixed_eur") or 0.25),
+        service_label=str(saved.get("service_label") or ""),
+    )
+
+
+@app.get("/api/engine/accounting/export.csv")
+def engine_accounting_export_csv() -> PlainTextResponse:
+    csv_text = _ctx().engine_accounting.export_csv()
+    return PlainTextResponse(
+        content=csv_text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="harvest_report.csv"'},
+    )
+
+
+@app.get("/api/engine/accounting/invoice/{opportunity_id}", response_class=HTMLResponse)
+def engine_accounting_invoice(opportunity_id: str) -> HTMLResponse:
+    try:
+        html = _ctx().engine_accounting.generate_invoice_html(opportunity_id)
+    except ValueError as e:
+        if str(e) == "not_found":
+            raise HTTPException(status_code=404, detail="Актив не найден")
+        if str(e) == "no_revenue":
+            raise HTTPException(status_code=400, detail="Нет дохода для счёта")
+        raise HTTPException(status_code=400, detail="Счёт не сформирован")
+    return HTMLResponse(content=html)
 
 
 @app.get("/api/scanner/dashboard", response_model=AssetScannerDashboard)

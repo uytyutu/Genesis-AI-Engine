@@ -961,6 +961,8 @@ class EngineTarget(BaseModel):
     income_rationale: str = ""
     revenue_eur: float = 0.0
     niche: str = "local_service"
+    processing_lane: str = ""
+    micro_revenue_eur: float = 0.0
 
 
 class EngineDashboard(BaseModel):
@@ -982,6 +984,9 @@ class EngineDashboard(BaseModel):
     active_assets: list[EngineTarget]
     harvested_assets: list[EngineTarget] = []
     harvested_count: int = 0
+    junk_archive_assets: list[EngineTarget] = []
+    junk_archive_count: int = 0
+    junk_micro_revenue_eur: float = 0.0
     finance_gateway: dict = {}
     wallets: list[dict] = []
     withdrawal_enabled: bool = False
@@ -1001,13 +1006,23 @@ class EngineScanModeResponse(BaseModel):
     scanned: int
     passed_gate: int
     hidden: int
+    archived: int = 0
+    junk_micro_revenue_eur: float = 0.0
     errors: list[str] = []
+    message: str
+
+
+class EngineJunkArchiveResponse(BaseModel):
+    ok: bool
+    processed: int
+    revenue_eur: float
     message: str
 
 
 class EngineScanRequest(BaseModel):
     url: str
     niche: str = "local_service"
+    manual: bool = True
 
 
 class EngineScanResponse(BaseModel):
@@ -1044,6 +1059,38 @@ class PaymentSyncResponse(BaseModel):
     synced_at: str
     stripe_available_eur: float | None = None
     stripe_error: str | None = None
+
+
+class EngineTaxSettings(BaseModel):
+    vat_rate_percent: float = 19.0
+    stripe_fee_percent: float = 1.4
+    stripe_fee_fixed_eur: float = 0.25
+    service_label: str = "IT-Analyse und Automatisierung von Internet-Assets"
+
+
+class EngineHarvestLine(BaseModel):
+    date: str = ""
+    asset_id: str = ""
+    asset_name: str = ""
+    asset_url: str = ""
+    niche: str = ""
+    status: str = ""
+    gross_eur: float = 0.0
+    commission_eur: float = 0.0
+    net_after_fees_eur: float = 0.0
+    tax_reserve_eur: float = 0.0
+    net_clean_eur: float = 0.0
+
+
+class EngineAccountingSummary(BaseModel):
+    tax_settings: EngineTaxSettings
+    totals: dict[str, float]
+    harvest_count: int
+    harvest_lines: list[EngineHarvestLine]
+    dsgvo_note: str = ""
+    service_label: str = ""
+    operator_ready: bool = False
+    operator_trade_name: str = ""
 
 
 class AcquisitionStudioStatus(BaseModel):
