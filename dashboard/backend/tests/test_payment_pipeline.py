@@ -104,6 +104,59 @@ def test_stripe_webhook_signature_required(tmp_path: Path, monkeypatch: pytest.M
     assert parsed["amount_eur"] == 350.0
 
 
+def test_stripe_webhook_confirms_order(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_test")
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake")
+    monkeypatch.delenv("GENESIS_PAYMENT_SANDBOX", raising=False)
+
+    sales, revenue = _pipeline(tmp_path)
+    created = sales.create_order(
+        {
+            "business_name": "Webhook Cafe",
+            "description": "Test",
+            "email": "webhook@test.com",
+            "package_id": "basic",
+            "city": "Berlin",
+        }
+    )
+    order_id = created["order_id"]
+    order = sales.get_order(order_id)
+    order["status"] = "awaiting_payment"
+    order["price_eur"] = 350.0
+    sales._save_order(order)
+
+    payload = json.dumps(
+        {
+            "type": "checkout.session.completed",
+            "data": {
+                "object": {
+                    "id": "cs_live_test",
+                    "payment_intent": "pi_live_test",
+                    "amount_total": 35000,
+                    "metadata": {"order_id": order_id},
+                    "customer_details": {"email": "webhook@test.com"},
+                }
+            },
+        }
+    ).encode()
+    sig = _stripe_signature(payload, "whsec_test")
+
+    from app.services.finance_center import handle_stripe_webhook_event
+
+    result = handle_stripe_webhook_event(payload, sig, revenue)
+    assert result["status"] == "success"
+    assert result["ok"] is True
+
+    updated = sales.get_order(order_id)
+    assert updated["status"] in ("paid", "in_production")
+    assert updated.get("paid_at")
+
+    settlements_path = tmp_path / "finance_settlements.jsonl"
+    assert settlements_path.is_file()
+    rows = [json.loads(line) for line in settlements_path.read_text(encoding="utf-8").splitlines()]
+    assert any(r.get("order_id") == order_id and r.get("amount_eur") == 350.0 for r in rows)
+
+
 def test_payment_status_stripe_test_fields(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_abc")
     monkeypatch.setenv("STRIPE_PUBLISHABLE_KEY", "pk_test_xyz")

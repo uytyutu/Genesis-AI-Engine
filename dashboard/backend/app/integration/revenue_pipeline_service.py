@@ -88,16 +88,43 @@ class RevenuePipelineService:
         )
 
     def handle_stripe_webhook(self, payload: bytes, signature: str) -> dict:
-        parsed = self._checkout.verify_stripe_webhook(payload, signature)
-        if not parsed:
-            raise ValueError("invalid_webhook")
-        return self._apply_payment(
-            order_id=parsed["order_id"],
-            amount_eur=parsed["amount_eur"],
-            provider="stripe",
-            sender=parsed.get("sender"),
-            external_id=str(parsed.get("session_id", "")),
+        from app.services.finance_center import (
+            StripeWebhookCriticalError,
+            StripeWebhookError,
+            handle_stripe_webhook_event,
         )
+
+        try:
+            return handle_stripe_webhook_event(payload, signature, self)
+        except StripeWebhookCriticalError as exc:
+            raise ValueError(str(exc)) from exc
+        except StripeWebhookError as exc:
+            raise ValueError("invalid_webhook") from exc
+
+    def apply_stripe_checkout_payment(
+        self,
+        *,
+        order_id: str,
+        amount_eur: float,
+        session_id: str,
+        payment_intent: str = "",
+        sender: str | None = None,
+    ) -> dict:
+        """Confirm order after verified checkout.session.completed webhook."""
+        external_id = session_id or payment_intent
+        result = self._apply_payment(
+            order_id=order_id,
+            amount_eur=amount_eur,
+            provider="stripe",
+            sender=sender,
+            external_id=external_id,
+        )
+        if payment_intent:
+            order = self._sales.get_order(order_id)
+            if order is not None:
+                order["stripe_payment_intent"] = payment_intent
+                self._sales._save_order(order)
+        return result
 
     def confirm_stripe_payment(self, order_id: str) -> dict:
         """Confirm payment after Stripe redirect when webhook has not arrived yet."""

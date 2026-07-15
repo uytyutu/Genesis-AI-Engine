@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import html
 import os
+from pathlib import Path
 
 import httpx
 
 from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.product_line import project_awaiting_payment_message
+from app.legal.service import LegalFoundationService
+
+_DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
 
 def _public_url(path: str) -> str:
@@ -23,6 +27,7 @@ def _html_email(
     rows: list[tuple[str, str]],
     cta_href: str | None = None,
     cta_label: str | None = None,
+    footer_html: str = "",
 ) -> str:
     row_html = "".join(
         f'<tr><td style="padding:8px 12px 8px 0;color:#8b8b9a;vertical-align:top">{html.escape(k)}</td>'
@@ -51,6 +56,7 @@ color:#fff;font-weight:700;font-size:16px;line-height:40px;text-align:center">V<
 <p style="margin:12px 0 0;color:#8b8b9a;font-size:15px;line-height:1.5">{html.escape(intro)}</p>
 <table style="margin:24px 0 0;width:100%;font-size:14px">{row_html}</table>
 {cta}
+{footer_html}
 <p style="margin:32px 0 0;font-size:12px;color:#52525b">{BRAND_NAME} · hello@genesis-ai-engine.com</p>
 </td></tr></table>
 </td></tr></table>
@@ -58,6 +64,15 @@ color:#fff;font-weight:700;font-size:16px;line-height:40px;text-align:center">V<
 
 
 class ReceiptEmailService:
+    def __init__(self, memory_dir: Path | None = None) -> None:
+        raw = os.getenv("GENESIS_MEMORY_DIR", "").strip()
+        if memory_dir is not None:
+            self._memory = memory_dir
+        elif raw:
+            self._memory = Path(raw).expanduser()
+        else:
+            self._memory = _DEFAULT_MEMORY
+
     def configuration_status(self) -> dict:
         has_key = bool(os.getenv("RESEND_API_KEY", "").strip())
         has_from = bool(os.getenv("GENESIS_EMAIL_FROM", "").strip())
@@ -134,17 +149,47 @@ class ReceiptEmailService:
         )
 
     def send_outreach(self, *, to: str, subject: str, text: str) -> dict:
-        """CEO-approved cold outreach only — plain text + minimal HTML."""
+        """CEO-approved cold outreach — Impressum + UWG opt-out footer required."""
+        legal = LegalFoundationService(self._memory)
+        footer = legal.email_footer_de(include_opt_out=True, for_outreach=True)
+        if not footer.get("ready_for_outreach"):
+            return {
+                "ok": False,
+                "skipped": True,
+                "reason": "impressum_not_ready",
+                "detail": (
+                    "Legal Foundation unvollständig — Gewerbedaten ergänzen "
+                    "(py scripts/bootstrap_legal_from_env.py)"
+                ),
+                "missing_impressum": not footer.get("impressum_publishable"),
+            }
+
+        body_text = text.rstrip() + "\n\n" + footer["text"]
         paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
         intro = paragraphs[0] if paragraphs else text[:200]
         html_body = _html_email(
             title=subject,
             intro=intro,
             rows=[("Nachricht", text.replace("\n", " ")[:500] + ("…" if len(text) > 500 else ""))],
+            footer_html=str(footer.get("html") or ""),
         )
-        return self._send(to=to, subject=subject, text=text, html=html_body)
+        return self._send(
+            to=to,
+            subject=subject,
+            text=body_text,
+            html=html_body,
+            list_unsubscribe=str(footer.get("list_unsubscribe") or ""),
+        )
 
-    def _send(self, *, to: str, subject: str, text: str, html: str) -> dict:
+    def _send(
+        self,
+        *,
+        to: str,
+        subject: str,
+        text: str,
+        html: str,
+        list_unsubscribe: str = "",
+    ) -> dict:
         if not to:
             return {"ok": False, "skipped": True, "reason": "no_email"}
         api_key = os.getenv("RESEND_API_KEY", "").strip()
@@ -159,11 +204,14 @@ class ReceiptEmailService:
             "text": text,
             "html": html,
         }
+        headers = {"Authorization": f"Bearer {api_key}"}
+        if list_unsubscribe.strip():
+            headers["List-Unsubscribe"] = list_unsubscribe.strip()
         with httpx.Client(timeout=30.0) as client:
             res = client.post(
                 "https://api.resend.com/emails",
                 json=payload,
-                headers={"Authorization": f"Bearer {api_key}"},
+                headers=headers,
             )
         if res.status_code >= 400:
             return {

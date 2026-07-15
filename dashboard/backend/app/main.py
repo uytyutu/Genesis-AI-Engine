@@ -235,6 +235,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from app.api.webhooks.stripe import router as stripe_webhook_router
+
+app.include_router(stripe_webhook_router)
+
 
 @app.middleware("http")
 async def rate_limit_public(request: Request, call_next):
@@ -2085,18 +2089,6 @@ def sales_order_pay_sandbox(order_id: str) -> RevenuePaymentResponse:
         if code == "amount_mismatch":
             raise HTTPException(status_code=400, detail="Сумма не совпадает")
         raise HTTPException(status_code=400, detail="Оплата не прошла")
-    return RevenuePaymentResponse(**result)
-
-
-@app.post("/api/webhooks/stripe")
-@app.post("/webhooks/stripe")
-async def stripe_webhook(request: Request) -> RevenuePaymentResponse:
-    payload = await request.body()
-    signature = request.headers.get("stripe-signature", "")
-    try:
-        result = _ctx().revenue.handle_stripe_webhook(payload, signature)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Некорректный webhook")
     return RevenuePaymentResponse(**result)
 
 

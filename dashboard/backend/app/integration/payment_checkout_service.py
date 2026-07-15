@@ -170,13 +170,17 @@ class PaymentCheckoutService:
     def verify_stripe_webhook(self, payload: bytes, signature: str) -> dict | None:
         secret = os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()
         try:
-            event = json.loads(payload.decode("utf-8"))
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            return None
-        if secret:
-            if not signature or not self._verify_stripe_signature(payload, signature, secret):
-                return None
-        elif signature:
+            if secret:
+                if not signature:
+                    return None
+                import stripe
+
+                event = stripe.Webhook.construct_event(payload, signature, secret)
+            else:
+                if signature:
+                    return None
+                event = json.loads(payload.decode("utf-8"))
+        except Exception:
             return None
         if event.get("type") != "checkout.session.completed":
             return None
@@ -190,6 +194,7 @@ class PaymentCheckoutService:
             "amount_eur": amount,
             "provider": "stripe",
             "session_id": session.get("id"),
+            "payment_intent": session.get("payment_intent"),
             "sender": str(session.get("customer_details", {}).get("email") or ""),
         }
 

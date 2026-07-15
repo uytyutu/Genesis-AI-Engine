@@ -219,3 +219,36 @@ def test_legal_foundation_service_api_shape(tmp_path: Path):
     assert doc is not None
     assert doc["publishable"] is True
     assert svc.handoff_one_time()["type"] == "one_time"
+
+
+def test_email_footer_de_complete(tmp_path: Path):
+    LegalEntityStore(tmp_path).save(_complete_entity())
+    svc = LegalFoundationService(tmp_path)
+    footer = svc.email_footer_de(include_opt_out=True, for_outreach=True)
+    assert footer["impressum_publishable"] is True
+    assert footer["ready_for_outreach"] is True
+    assert "Impressum (§ 5 DDG)" in footer["text"]
+    assert "Max Mustermann" in footer["text"]
+    assert "Abmelden" in footer["text"]
+    assert "UWG § 7" in footer["text"]
+    assert footer["list_unsubscribe"].startswith("<mailto:")
+
+
+def test_email_footer_de_blocks_outreach_when_incomplete(tmp_path: Path):
+    svc = LegalFoundationService(tmp_path)
+    footer = svc.email_footer_de(include_opt_out=True, for_outreach=True)
+    assert footer["impressum_publishable"] is False
+    assert footer["ready_for_outreach"] is False
+    assert "unvollständig" in footer["text"]
+
+
+def test_send_outreach_requires_impressum(tmp_path: Path):
+    from app.integration.receipt_email_service import ReceiptEmailService
+
+    result = ReceiptEmailService(tmp_path).send_outreach(
+        to="lead@test.de",
+        subject="Test",
+        text="Hallo",
+    )
+    assert result["ok"] is False
+    assert result.get("reason") == "impressum_not_ready"
