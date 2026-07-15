@@ -12,6 +12,8 @@ class SystemStatus(BaseModel):
     process_started: str | None = None
     runtime_identity: str | None = None
     backend_pid: int | None = None
+    vector_chat_ready: bool | None = None
+    vector_warmup_skipped: bool | None = None
 
 
 class ModuleStatus(BaseModel):

@@ -977,7 +977,7 @@ export function FarmDashboard() {
                           onChange={(e) => setLostReasonCode(e.target.value)}
                           className="rounded border border-white/20 bg-black/40 px-2 py-1 text-white"
                         >
-                          {(dash.opportunity_discovery.lost_reason_database?.reason_options ?? []).map((o) => (
+                          {(dash?.opportunity_discovery?.lost_reason_database?.reason_options ?? []).map((o) => (
                             <option key={o.code} value={o.code}>
                               {o.label_ru}
                             </option>

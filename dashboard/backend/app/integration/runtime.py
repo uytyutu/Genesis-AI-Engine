@@ -75,11 +75,15 @@ def light_system_status() -> dict:
         ws = warmup_status()
         vector_warmup_skipped = bool(ws.get("skipped"))
         vector_chat_ready = bool(ws.get("ready"))
-        if not vector_chat_ready and vector_warmup_skipped:
+        if not vector_chat_ready:
             from app.integration.genesis_ai_setup_service import GenesisAISetupService
 
             st = GenesisAISetupService().status()
-            vector_chat_ready = bool(st.get("intelligence_active") or st.get("llm_configured"))
+            vector_chat_ready = bool(
+                st.get("genesis_ready")
+                or st.get("intelligence_active")
+                or st.get("llm_configured")
+            )
     except Exception:
         pass
 

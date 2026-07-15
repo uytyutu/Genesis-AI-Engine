@@ -87,6 +87,7 @@ def test_twenty_sequential_status_checks_never_false_error(monkeypatch):
     monkeypatch.setattr("launcher.health.port_open", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_frontend_live", lambda *a, **k: True)
+    monkeypatch.setattr("launcher.health.probe_vector_chat_ready", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health._get_json", lambda url, timeout=8: {"modules": []})
     monkeypatch.setattr("launcher.health._probe_url", lambda *a, **k: True)
 

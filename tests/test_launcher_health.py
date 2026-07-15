@@ -48,6 +48,7 @@ def test_owner_ready_live(monkeypatch):
 
     monkeypatch.setattr("launcher.health.probe_backend_live", lambda *a, **k: True)
     monkeypatch.setattr("launcher.health.probe_frontend_live", lambda *a, **k: True)
+    monkeypatch.setattr("launcher.health.probe_vector_chat_ready", lambda *a, **k: True)
     assert owner_ready_live()
 
 
