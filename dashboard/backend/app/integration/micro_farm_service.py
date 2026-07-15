@@ -311,6 +311,37 @@ class MicroFarmService:
             except Exception:
                 _farm_logger.exception("farm boot warm failed: %s", key)
 
+    def money_monitor_panel(self, *, lite: bool = False) -> dict[str, Any]:
+        from app.integration.money_monitor_service import build_money_monitor
+        from swarm.payout_notifier import PayoutNotifier
+
+        state = self._load_state()
+        toloka = self.toloka_submit_status()
+        opps = self._opportunity.list_opportunities(limit=300)
+        pending = sum(1 for r in opps if r.get("outreach_status") == "pending_approval")
+
+        if lite:
+            pm: dict[str, Any] = {
+                "monitor": {
+                    "toloka": {
+                        "connected": bool(toloka.get("auto_submit_enabled") or toloka.get("submitted_count")),
+                        "balance_note": "Баланс биржи — дашборд фермы или toloka.ai → Wallet",
+                    },
+                    "scale": {"connected": False},
+                },
+                "payout": PayoutNotifier(self._memory).snapshot({}),
+            }
+        else:
+            pm = self._payment_monitor_for_dashboard()
+
+        return build_money_monitor(
+            farm_state=state,
+            payment_monitor=pm,
+            opportunities=opps,
+            outbox_pending=pending,
+            toloka_submit_count=int(toloka.get("submitted_count") or 0),
+        )
+
     def dashboard_lite(self, owner_name: str = "Владелец") -> dict[str, Any]:
         """Fast journal payload — no Toloka live probe, no heavy discovery scan."""
         from app.env_loader import load_local_env
@@ -333,17 +364,14 @@ class MicroFarmService:
             "total_tasks_done": int(state.get("total_tasks_done") or 0),
             "llm_cost_eur": float(state.get("llm_cost_eur") or 0),
             "net_profit_eur": max(0.0, net),
-            "balance_label": (
-                "Накоплено (учебный режим — не банк)"
-                if sandbox
-                else "Накоплено на счёте"
-            ),
+            "balance_label": "Учебный журнал · не выводить (реальный € = B2B-клиент)",
             "sandbox": sandbox,
             "dry_run": self.dry_run_status(),
             "global_spider": self.global_spider_vector(),
             "last_live_connection_test": state.get("last_live_connection_test"),
             "payout_guide": self._payout_guide(),
             "payment_monitor": {"monitor": None, "payout": None, "note": "lite"},
+            "money_monitor": self.money_monitor_panel(lite=True),
             "recent_tasks": self._recent_events(15),
             "last_tick_at": state.get("last_tick_at"),
         }
@@ -1823,7 +1851,7 @@ class MicroFarmService:
                 "step": 4,
                 "id": "result",
                 "title": "Микро-оплата",
-                "detail": "Копейки за задачу суммируются на счёт фермы.",
+                "detail": "Учебный ledger (~0,05 €/задача) — тест конвейера, не банк.",
             },
         ]
 
@@ -1841,11 +1869,7 @@ class MicroFarmService:
             "available_for_withdraw_eur": fin.get("available_for_withdrawal_eur", 0.0),
             "withdraw_min_eur": 5.0,
             "sandbox": sandbox,
-            "balance_label": (
-                "Накоплено (учебный режим — не банк)"
-                if sandbox
-                else "Накоплено на счёте"
-            ),
+            "balance_label": "Учебный журнал · не выводить (реальный € = B2B-клиент)",
             "combiners": combiners,
             "worker_flow": worker_flow,
             "primary_combiner": "ai_labeling",
@@ -1890,6 +1914,7 @@ class MicroFarmService:
                 self._payment_monitor_for_dashboard,
                 deadline=deadline,
             ),
+            "money_monitor": self.money_monitor_panel(lite=False),
             "last_live_connection_test": state.get("last_live_connection_test"),
             "payout_guide": self._payout_guide(),
             "toloka_submit": self._cached_section(

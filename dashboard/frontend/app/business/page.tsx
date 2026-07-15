@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { MoneyMonitorPanel, type MoneyMonitorData } from "../components/MoneyMonitorPanel";
 import { formatEur } from "../lib/formatEur";
 import { BRAND_NAME } from "../lib/publicBrand";
 
@@ -69,6 +70,7 @@ type Health = {
       score?: number;
     }[];
   };
+  money_monitor?: MoneyMonitorData;
 };
 
 const KPI_ORDER = ["conversations", "proposals", "payments", "repeats"] as const;
@@ -191,6 +193,8 @@ export default function BusinessHealthPage() {
             </div>
           )}
         </header>
+
+        {data?.money_monitor ? <MoneyMonitorPanel data={data.money_monitor} /> : null}
 
         {data?.ceo_outbox && (
           <section className="rounded-2xl border border-amber-500/30 bg-amber-950/15 p-6">

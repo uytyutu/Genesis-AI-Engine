@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { MoneyMonitorPanel, type MoneyMonitorData } from "./MoneyMonitorPanel";
 import { formatEur } from "../lib/formatEur";
 import { fetchApi } from "../lib/fetchApi";
 import {
@@ -53,6 +54,7 @@ type FarmDash = {
   withdraw_min_eur: number;
   sandbox: boolean;
   balance_label: string;
+  money_monitor?: MoneyMonitorData;
   combiners: Combiner[];
   worker_flow?: { step: number; id: string; title: string; detail: string }[];
   primary_combiner?: string;
@@ -713,6 +715,8 @@ export function FarmDashboard() {
             </button>
           </div>
         ) : null}
+
+        {dash?.money_monitor ? <MoneyMonitorPanel data={dash.money_monitor} /> : null}
 
         {dash?.production_platform?.b2b_brief ? (
           <section className="genesis-card border-sky-500/30 bg-sky-950/10 p-5 space-y-4">

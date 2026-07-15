@@ -1806,6 +1806,42 @@ class BusinessHealthCeoOutbox(BaseModel):
     items: list[BusinessHealthCeoOutboxItem]
 
 
+class MoneyMonitorWithdrawAlert(BaseModel):
+    active: bool
+    level: str
+    title_ru: str
+    message_ru: str
+    ceo_action_ru: str
+    threshold_usd: float | None = None
+
+
+class MoneyMonitorLane(BaseModel):
+    id: str
+    icon: str = ""
+    label_ru: str
+    amount_label_ru: str
+    status_ru: str
+    detail_ru: str
+
+
+class MoneyMonitorPipelineStep(BaseModel):
+    step: int
+    id: str = ""
+    title_ru: str
+    detail_ru: str
+
+
+class MoneyMonitorDashboard(BaseModel):
+    title_ru: str
+    subtitle_ru: str
+    lanes: list[MoneyMonitorLane]
+    withdraw_alert: MoneyMonitorWithdrawAlert
+    pipeline: list[MoneyMonitorPipelineStep] = Field(default_factory=list)
+    model_proven: bool
+    model_verdict_ru: str
+    toloka_role_ru: str = ""
+
+
 class BusinessHealthDashboard(BaseModel):
     mission: str
     date: str
@@ -1820,6 +1856,7 @@ class BusinessHealthDashboard(BaseModel):
     market_signal: BusinessHealthMarketSignal
     links: dict[str, str]
     ceo_outbox: BusinessHealthCeoOutbox | None = None
+    money_monitor: MoneyMonitorDashboard | None = None
 
 
 class BusinessHealthManualBumpRequest(BaseModel):

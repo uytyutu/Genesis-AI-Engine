@@ -12,6 +12,7 @@ import {
   showPayAmount,
   taskTone,
 } from "../lib/farmLifecycleUi";
+import { MoneyMonitorPanel, type MoneyMonitorData } from "./MoneyMonitorPanel";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -41,6 +42,7 @@ type FarmDash = {
   };
   last_live_connection_test?: { ok: boolean; log_line?: string };
   payout_guide?: PayoutGuide;
+  money_monitor?: MoneyMonitorData;
   global_spider?: {
     polling_interval_sec?: number;
     min_task_price?: number;
@@ -160,6 +162,8 @@ export function FarmJournal() {
 
         {dash ? (
           <>
+            <MoneyMonitorPanel data={dash.money_monitor} compact />
+
             <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="genesis-card border-emerald-500/30 bg-emerald-950/15 p-4">
                 <p className="text-xs text-emerald-200/70">Сегодня</p>

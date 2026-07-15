@@ -401,6 +401,7 @@ def _business_health():
 def get_business_health() -> BusinessHealthDashboard:
     data = _business_health().dashboard()
     data["ceo_outbox"] = _ctx().acquisition.ceo_outbox_summary()
+    data["money_monitor"] = _ctx().micro_farm.money_monitor_panel(lite=True)
     return BusinessHealthDashboard(**data)
 
 
