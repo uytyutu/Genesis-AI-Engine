@@ -6,6 +6,7 @@ Stealth Mode: robots.txt, rate limit, browser UA, read-only GET.
 from __future__ import annotations
 
 import re
+from urllib.parse import urlparse
 
 from app.integration.stealth_crawl_service import stealth_fetch_get, stealth_preflight
 from app.integration.stealth_http import UnauthorizedOperation

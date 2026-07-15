@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEur } from "../lib/formatEur";
+import { fetchApi } from "../lib/fetchApi";
 import {
   FarmTaskEvent,
   PayoutGuide,
@@ -415,6 +416,7 @@ export function FarmDashboard() {
   const [dash, setDash] = useState<FarmDash | null>(null);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
+  const [loadError, setLoadError] = useState("");
   const [quoteVolume, setQuoteVolume] = useState(18200);
   const [quoteService, setQuoteService] = useState("svc_data_qa");
   const [workers, setWorkers] = useState(10);
@@ -434,10 +436,12 @@ export function FarmDashboard() {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/farm/dashboard`);
-      if (res.ok) setDash(await res.json());
+      const res = await fetchApi(`${API}/api/farm/dashboard`, { timeoutMs: 20_000 });
+      if (!res.ok) throw new Error("dashboard");
+      setDash(await res.json());
+      setLoadError("");
     } catch {
-      setMessage("Не удалось загрузить ферму. Запустите Genesis.exe.");
+      setLoadError("Backend не отвечает. Genesis.exe → Запустить → «✔ Готов».");
     }
   }, []);
 
@@ -451,7 +455,7 @@ export function FarmDashboard() {
     if (!dash?.running) return;
     const tick = window.setInterval(async () => {
       try {
-        await fetch(`${API}/api/farm/tick`, { method: "POST" });
+        await fetchApi(`${API}/api/farm/tick`, { method: "POST", timeoutMs: 8_000 });
         refresh();
       } catch {
         /* background */
@@ -671,6 +675,19 @@ export function FarmDashboard() {
             </a>
           </div>
         </header>
+
+        {loadError ? (
+          <div className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4 text-sm text-rose-200 space-y-2">
+            <p>{loadError}</p>
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              className="rounded-lg border border-rose-400/40 px-3 py-1.5 text-xs text-rose-100 hover:bg-rose-950/40"
+            >
+              Повторить
+            </button>
+          </div>
+        ) : null}
 
         {dash?.production_platform?.b2b_brief ? (
           <section className="genesis-card border-sky-500/30 bg-sky-950/10 p-5 space-y-4">

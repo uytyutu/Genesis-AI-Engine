@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatEur } from "../lib/formatEur";
+import { fetchApi } from "../lib/fetchApi";
 import {
   FarmTaskEvent,
   PayoutGuide,
@@ -69,17 +70,20 @@ function formatTime(iso: string): string {
 export function FarmJournal() {
   const [dash, setDash] = useState<FarmDash | null>(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const [pulse, setPulse] = useState(0);
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/farm/dashboard`);
+      const res = await fetchApi(`${API}/api/farm/dashboard`, { timeoutMs: 20_000 });
       if (!res.ok) throw new Error("dashboard");
       setDash(await res.json());
       setError("");
       setPulse((p) => p + 1);
     } catch {
-      setError("Не удалось загрузить журнал. Запустите Genesis.exe.");
+      setError("Backend не отвечает. Откройте Genesis.exe → Запустить → дождитесь «✔ Готов».");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -96,7 +100,7 @@ export function FarmJournal() {
     if (!dash?.running) return;
     const tick = window.setInterval(async () => {
       try {
-        await fetch(`${API}/api/farm/feed`, { method: "POST" });
+        await fetchApi(`${API}/api/farm/feed`, { method: "POST", timeoutMs: 8_000 });
         await refresh();
       } catch {
         /* background */
@@ -135,9 +139,19 @@ export function FarmJournal() {
         </header>
 
         {error ? (
-          <p className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4 text-sm text-rose-200">
-            {error}
-          </p>
+          <div className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4 text-sm text-rose-200 space-y-2">
+            <p>{error}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setLoading(true);
+                void refresh();
+              }}
+              className="rounded-lg border border-rose-400/40 px-3 py-1.5 text-xs text-rose-100 hover:bg-rose-950/40"
+            >
+              Повторить
+            </button>
+          </div>
         ) : null}
 
         {dash ? (
@@ -247,9 +261,9 @@ export function FarmJournal() {
               )}
             </section>
           </>
-        ) : (
+        ) : loading ? (
           <p className="text-sm text-genesis-muted">Загрузка журнала…</p>
-        )}
+        ) : null}
       </div>
     </main>
   );

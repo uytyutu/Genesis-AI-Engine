@@ -55,7 +55,8 @@ def test_wait_until_ready_restarts_alive_not_ready(monkeypatch):
     managed = ManagedProcesses()
     state = {"listening": True, "http200": False, "repaired": False}
 
-    monkeypatch.setattr("launcher.health.owner_ready_live", lambda: False)
+    monkeypatch.setattr("launcher.health.owner_ready_live", lambda: state["http200"])
+    monkeypatch.setattr("launcher.health.probe_vector_chat_ready", lambda *a, **k: state["http200"])
     monkeypatch.setattr("launcher.health.probe_backend_live", lambda: True)
     monkeypatch.setattr("launcher.health.probe_frontend_live", lambda: state["http200"])
     monkeypatch.setattr(

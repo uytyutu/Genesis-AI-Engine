@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -13,6 +14,8 @@ _server_started_at: datetime | None = None
 _build_time: str | None = None
 _git_commit: str | None = None
 _brain_paused: bool = False
+_vector_ready_cache: tuple[float, bool, bool] | None = None
+_VECTOR_READY_TTL_SEC = 10.0
 
 
 def _repo_root() -> Path:
@@ -60,12 +63,27 @@ def is_brain_paused() -> bool:
     return _brain_paused
 
 
-def light_system_status() -> dict:
-    """Fast /api/status payload — no Brain/Kernel init."""
-    started = get_server_started_at()
-    uptime = max(0.0, (datetime.now(timezone.utc) - started).total_seconds())
-    if _git_commit is None:
-        mark_server_started()
+def _cloud_llm_configured() -> bool:
+    """Fast path for /api/status — no provider probes on every launcher poll."""
+    from app.env_loader import load_local_env
+
+    load_local_env()
+    keys = (
+        "GENESIS_GROQ_API_KEY",
+        "GENESIS_GEMINI_API_KEY",
+        "GENESIS_OPENROUTER_API_KEY",
+        "GENESIS_LLM_API_KEY",
+        "GOOGLE_API_KEY",
+    )
+    return any(os.getenv(key, "").strip() for key in keys)
+
+
+def _resolve_vector_chat_ready() -> tuple[bool, bool]:
+    """Cached Vector readiness — launcher polls /api/status frequently."""
+    global _vector_ready_cache
+    now = time.monotonic()
+    if _vector_ready_cache and now - _vector_ready_cache[0] < _VECTOR_READY_TTL_SEC:
+        return _vector_ready_cache[1], _vector_ready_cache[2]
 
     vector_chat_ready = False
     vector_warmup_skipped = False
@@ -75,17 +93,23 @@ def light_system_status() -> dict:
         ws = warmup_status()
         vector_warmup_skipped = bool(ws.get("skipped"))
         vector_chat_ready = bool(ws.get("ready"))
-        if not vector_chat_ready:
-            from app.integration.genesis_ai_setup_service import GenesisAISetupService
-
-            st = GenesisAISetupService().status()
-            vector_chat_ready = bool(
-                st.get("genesis_ready")
-                or st.get("intelligence_active")
-                or st.get("llm_configured")
-            )
+        if not vector_chat_ready and (_cloud_llm_configured() or vector_warmup_skipped):
+            vector_chat_ready = True
     except Exception:
         pass
+
+    _vector_ready_cache = (now, vector_chat_ready, vector_warmup_skipped)
+    return vector_chat_ready, vector_warmup_skipped
+
+
+def light_system_status() -> dict:
+    """Fast /api/status payload — no Brain/Kernel init."""
+    started = get_server_started_at()
+    uptime = max(0.0, (datetime.now(timezone.utc) - started).total_seconds())
+    if _git_commit is None:
+        mark_server_started()
+
+    vector_chat_ready, vector_warmup_skipped = _resolve_vector_chat_ready()
 
     return {
         "name": "Virtus Core",

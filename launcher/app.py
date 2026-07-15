@@ -479,6 +479,7 @@ class GenesisLauncher(ctk.CTk):
     self.managed = ManagedProcesses()
     self.config = LauncherConfig.load()
     self._busy = False
+    self._boot_cancelled = False
     self._dev_open = False
     self._status_busy = False
     self._launch_session_id = ""
@@ -1251,6 +1252,7 @@ class GenesisLauncher(ctk.CTk):
     if self._busy:
       return
     self._busy = True
+    self._boot_cancelled = False
     self._launch_attempted = True
     self._last_error = ""
     self.status_label.configure(text=f"🟡 Подготовка {BRAND_NAME}...", text_color="#eab308")
@@ -1295,6 +1297,9 @@ class GenesisLauncher(ctk.CTk):
       def done() -> None:
         self._busy = False
         self.start_btn.configure(state="normal")
+        if self._boot_cancelled:
+          self.refresh_status()
+          return
         if result is not None and result.success and result.ready:
           self._last_error = ""
           self.config.touch_launch()
@@ -1389,13 +1394,18 @@ class GenesisLauncher(ctk.CTk):
 
   def _on_stop(self) -> None:
     if self._busy:
-      return
-    if not messagebox.askyesno(
+      if not messagebox.askyesno(
+        f"Остановить {BRAND_NAME}",
+        "Запуск ещё выполняется.\n\nПрервать запуск и остановить Backend и Mission Control?",
+      ):
+        return
+    elif not messagebox.askyesno(
       f"Остановить {BRAND_NAME}",
       "Остановить Backend и Mission Control?\n\nДанные проекта сохранятся.",
     ):
       return
     self._busy = True
+    self._boot_cancelled = True
     self.stop_btn.configure(state="disabled")
     self.start_btn.configure(state="disabled")
 

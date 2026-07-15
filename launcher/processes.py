@@ -666,9 +666,13 @@ def wait_until_ready(
             continue
 
         # --- Stage 2+: Frontend only after Backend responds ---
-        if probe_frontend_live():
+        if owner_ready_live():
             _sync()
             return True, ""
+
+        if probe_frontend_live() and not probe_vector_chat_ready():
+            time.sleep(poll)
+            continue
 
         if (
             probe_backend_live()
@@ -689,7 +693,7 @@ def wait_until_ready(
                 append_log("Frontend alive on :3000 without HTTP 200 — restart with safe rebuild")
                 ok, repair_msg = repair_frontend(managed, root)
                 append_log(f"Product restart frontend: {repair_msg}")
-                if ok and probe_frontend_live():
+                if ok and owner_ready_live():
                     _record_recovery(repair_msg, root)
                     _sync()
                     return True, ""
@@ -699,7 +703,7 @@ def wait_until_ready(
             alive_not_ready_since = None
 
         if _frontend_exited(managed):
-            if probe_frontend_live():
+            if owner_ready_live():
                 reconnect_managed(managed, root)
                 _sync()
                 return True, ""
@@ -709,7 +713,7 @@ def wait_until_ready(
                     on_progress("🟡 Исправление Frontend...")
                 ok, repair_msg = repair_frontend(managed, root)
                 append_log(f"Staged repair frontend (crashed): {repair_msg}")
-                if ok and probe_frontend_live():
+                if ok and owner_ready_live():
                     _record_recovery(repair_msg, root)
                     _sync()
                     return True, ""
@@ -725,7 +729,7 @@ def wait_until_ready(
                     on_progress("🟡 Исправление Frontend...")
                 ok, repair_msg = repair_frontend(managed, root)
                 append_log(f"Staged repair frontend (log): {repair_msg}")
-                if ok and probe_frontend_live():
+                if ok and owner_ready_live():
                     _record_recovery(repair_msg, root)
                     _sync()
                     return True, ""
@@ -744,7 +748,7 @@ def wait_until_ready(
                 on_progress("🟡 Исправление Frontend...")
             ok, repair_msg = repair_frontend(managed, root)
             append_log(f"Staged repair frontend (timeout): {repair_msg}")
-            if ok and probe_frontend_live():
+            if ok and owner_ready_live():
                 _record_recovery(repair_msg, root)
                 _sync()
                 return True, ""

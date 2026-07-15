@@ -122,12 +122,42 @@ def run_runtime_boot(
 
     if frontend_up:
         reconnect_managed(managed, root)
-        _phase(phases, "mission_control", True, "ready")
+        if owner_ready_live():
+            _phase(phases, "mission_control", True, "ready")
+            return BootResult(
+                success=True,
+                ready=True,
+                launch_ok=True,
+                message="Backend и Frontend работают",
+                phases=phases,
+            )
+
+        ready, err = wait_until_ready(
+            timeout=90.0,
+            poll=0.8,
+            managed=managed,
+            root=root,
+            on_progress=on_progress,
+            auto_repair=False,
+        )
+        if ready:
+            _phase(phases, "mission_control", True, "verified")
+            return BootResult(
+                success=True,
+                ready=True,
+                launch_ok=True,
+                message="Backend и Frontend работают",
+                phases=phases,
+            )
+
+        _phase(phases, "mission_control", False, err or "Vector warming")
         return BootResult(
-            success=True,
-            ready=True,
+            success=False,
+            ready=False,
             launch_ok=True,
-            message="Backend и Frontend работают",
+            message=err or "Подготавливаю Vector...",
+            error=err or "Vector ещё не готов для диалога",
+            cause="Vector ещё не готов — подождите или нажмите «Исправить автоматически».",
             phases=phases,
         )
 
