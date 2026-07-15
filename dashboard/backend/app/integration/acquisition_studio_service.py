@@ -114,7 +114,8 @@ class AcquisitionStudioService:
     def __init__(self, opportunity_service: object, sales_service: object) -> None:
         self._opportunity = opportunity_service
         self._sales = sales_service
-        self._site = SiteAnalysisService()
+        mem = getattr(opportunity_service, "memory_dir", None)
+        self._site = SiteAnalysisService(memory_dir=mem)
         self._email = ReceiptEmailService()
         self._places = GooglePlacesService()
         self._outreach_lang = OutreachLanguageService()
@@ -294,7 +295,14 @@ class AcquisitionStudioService:
         opportunity_id: str,
         *,
         website_url: str | None = None,
+        skip_qualification: bool = False,
     ) -> dict:
+        from app.integration.lead_qualification_gate import (
+            build_audit_report_md,
+            qualify_lead,
+        )
+        from app.integration.opportunity_discovery_engine import evaluate_opportunity
+
         row = self._opportunity.get(opportunity_id)
         if not row:
             raise ValueError("not_found")
@@ -306,9 +314,40 @@ class AcquisitionStudioService:
             row["website_url"] = url
             row["site_analysis"] = analysis
 
+        all_rows = self._opportunity.list_opportunities(limit=500)
+        evaluation = evaluate_opportunity(row, all_rows=all_rows)
+
+        if not skip_qualification:
+            qual = qualify_lead(row, analysis, evaluation=evaluation)
+            meta = dict(row.get("meta") or {})
+            meta["qualification"] = qual
+            if not qual["passed"]:
+                meta["qualification_blocked_at"] = datetime.now(timezone.utc).isoformat()
+                row["meta"] = meta
+                row["updated_at"] = datetime.now(timezone.utc).isoformat()
+                self._log_interaction(
+                    row,
+                    "qualification_failed",
+                    "; ".join(qual["blockers_ru"]) or "квалификация не пройдена",
+                )
+                self._opportunity._save_rows(self._replace_row(opportunity_id, row))
+                raise ValueError("qualification_failed")
+
+            channels = qual["channels"]
+            if channels.get("primary_email") and not self._extract_email(row.get("contact", "")):
+                row["contact"] = channels["primary_email"]
+
         package_id, price, rationale = self._recommend_pricing(row, analysis)
         packages = {p["id"]: p for p in self._sales.packages()}
         package = packages.get(package_id, packages["basic"])
+
+        audit_md = build_audit_report_md(
+            row,
+            analysis,
+            service_label=str(evaluation.get("service_label_ru") or package.get("name") or "Аудит"),
+            price_eur=float(price),
+            win_pct=int(evaluation.get("win_probability_pct") or 0),
+        )
 
         subject, body, lang = self._outreach_lang.draft_outreach(
             company=row.get("company_name", ""),
@@ -320,6 +359,9 @@ class AcquisitionStudioService:
         )
         meta = dict(row.get("meta") or {})
         meta["outreach_language"] = lang
+        meta["qualification"] = qualify_lead(row, analysis, evaluation=evaluation)
+        meta["audit_report_md"] = audit_md
+        meta["product_type"] = "site_audit_report"
         row["meta"] = meta
 
         now = datetime.now(timezone.utc).isoformat()
@@ -381,12 +423,18 @@ class AcquisitionStudioService:
 
         candidates.sort(key=lambda x: (-x[0], -int(x[1].get("score") or 0)))
         prepared: list[str] = []
+        skipped_qual: list[str] = []
         errors: list[str] = []
 
         for _, row in candidates[: max(1, limit)]:
             try:
                 self.prepare_opportunity(row["id"], website_url=row.get("website_url"))
                 prepared.append(str(row.get("company_name") or row["id"]))
+            except ValueError as exc:
+                if str(exc) == "qualification_failed":
+                    skipped_qual.append(str(row.get("company_name") or row["id"]))
+                else:
+                    errors.append(f"{row.get('company_name')}: {exc}"[:80])
             except Exception as exc:
                 errors.append(f"{row.get('company_name')}: {exc}"[:80])
 
@@ -396,11 +444,17 @@ class AcquisitionStudioService:
             "candidates": len(candidates),
             "prepared": len(prepared),
             "prepared_names": prepared,
+            "skipped_qualification": len(skipped_qual),
+            "skipped_names": skipped_qual,
             "errors": errors,
             "message_ru": (
-                f"Подготовлено {len(prepared)} писем — ждут Approve CEO."
+                f"Подготовлено {len(prepared)} писем с аудитом — ждут Approve CEO."
                 if prepared
-                else "Нет новых лидов для автоподготовки (или уже в очереди)."
+                else (
+                    f"Квалификация отсеяла {len(skipped_qual)} лидов — нужен email/живой сайт."
+                    if skipped_qual
+                    else "Нет новых лидов для автоподготовки (или уже в очереди)."
+                )
             ),
         }
 
@@ -443,11 +497,33 @@ class AcquisitionStudioService:
             "title_ru": "CEO Outbox — Plan → Approve → Act",
             "pending_count": len(queue),
             "outreach_send_enabled": outreach_enabled,
+            "pipeline_steps_ru": [
+                "Spider",
+                "Discovery",
+                "Оценка лида",
+                "Проверка сайта",
+                "Поиск email",
+                "Подготовка КП + аудит",
+                "Approve CEO",
+                "Отправка",
+                "Ответ клиента",
+                "Оплата",
+                "Feedback",
+            ],
+            "week_targets_ru": {
+                "week1": "20 лидов · 10 писем · 5 ответов",
+                "week2": "3 созвона · 2 КП · 1 оплата",
+            },
             "money_path_ru": (
-                "Ферма находит проблемы → Genesis готовит письмо → вы жмёте «Одобрить» → "
-                "клиент платит на Stripe/счёт → первый реальный € (не биржа Toloka)."
+                "Реальный € = клиент платит за аудит/отчёт (50–500 €), не Toloka ledger. "
+                "Ферма ищет — Genesis готовит отчёт — вы Approve — оплата на Stripe/счёт."
             ),
-            "law_ru": "Автоотправка только после Approve. Без email в контакте — копируйте текст вручную.",
+            "money_accounts_ru": [
+                "B2B (главный): Stripe live + счёт → банк SEPA после первого клиента",
+                "Scale Contributor: отдельный аккаунт исполнителя на scale.com (не API requester)",
+                "Toloka Pipeline API: вы заказчик — wallet $0 нормален; performer = другой аккаунт toloka.ai",
+            ],
+            "law_ru": "Автоотправка только после Approve. Без email — копируйте отчёт вручную (WhatsApp/форма).",
             "items": queue,
         }
 

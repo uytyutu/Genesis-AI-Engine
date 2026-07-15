@@ -52,7 +52,8 @@ PLATFORM_REGISTRY: list[dict[str, Any]] = [
             ".env.local: TOLOKA_API_TOKEN=... (можно без префикса — Genesis добавит ApiKey).",
             "Перезапусти Genesis.",
         ],
-        "note": "Pipeline API v2-beta — проекты и pipelines через platform.toloka.ai.",
+        "note": "Pipeline API v2-beta — вы заказчик (requester). Wallet $0 нормален. "
+        "Заработок performer = отдельный аккаунт toloka.ai (не этот API-ключ).",
     },
     {
         "id": "appen",

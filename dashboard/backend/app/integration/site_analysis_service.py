@@ -5,11 +5,18 @@ Stealth Mode: robots.txt, rate limit, browser UA, read-only GET.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
+from pathlib import Path
 from urllib.parse import urlparse
 
+from app.integration.lead_qualification_gate import extract_emails_from_text
 from app.integration.stealth_crawl_service import stealth_fetch_get, stealth_preflight
 from app.integration.stealth_http import UnauthorizedOperation
+
+_DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
+_CACHE_TTL_HOURS = 72
 
 
 def _stealth_issue_message(err: str) -> list[str]:
@@ -23,10 +30,49 @@ def _stealth_issue_message(err: str) -> list[str]:
 
 
 class SiteAnalysisService:
-    def analyze(self, url: str) -> dict:
+    def __init__(self, memory_dir: Path | None = None) -> None:
+        self._memory = memory_dir or _DEFAULT_MEMORY
+
+    def _cache_path(self, url: str) -> Path:
+        key = hashlib.sha256(url.encode("utf-8")).hexdigest()[:24]
+        return self._memory / "site_analysis_cache" / f"{key}.json"
+
+    def _load_cache(self, url: str) -> dict | None:
+        path = self._cache_path(url)
+        if not path.is_file():
+            return None
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                return None
+            analyzed = str(data.get("analyzed_at") or "")
+            if analyzed:
+                from datetime import datetime, timezone, timedelta
+
+                dt = datetime.fromisoformat(analyzed.replace("Z", "+00:00"))
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                if datetime.now(timezone.utc) - dt > timedelta(hours=_CACHE_TTL_HOURS):
+                    return None
+            return data
+        except (json.JSONDecodeError, OSError, ValueError):
+            return None
+
+    def _save_cache(self, url: str, result: dict) -> None:
+        path = self._cache_path(url)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    def analyze(self, url: str, *, use_cache: bool = True) -> dict:
         normalized = self._normalize_url(url)
         if not normalized:
             return self._empty_result(url, error="invalid_url")
+
+        if use_cache:
+            cached = self._load_cache(normalized)
+            if cached:
+                cached["from_cache"] = True
+                return cached
 
         try:
             started = stealth_fetch_get(normalized)
@@ -125,6 +171,11 @@ class SiteAnalysisService:
         elif load_ms > 0:
             strengths.append(f"Ladezeit ~{load_ms} ms")
 
+        emails_found = extract_emails_from_text(html)
+        for m in re.findall(r"mailto:([^\s\"'?]+)", html, re.I):
+            emails_found.extend(extract_emails_from_text(m))
+        emails_found = list(dict.fromkeys(emails_found))[:5]
+
         score = self._score(issues, strengths)
         niche_info = None
         try:
@@ -143,7 +194,7 @@ class SiteAnalysisService:
         except Exception:
             niche_info = None
 
-        return {
+        result = {
             "url": normalized,
             "final_url": final_url,
             "status_code": started.status_code,
@@ -157,11 +208,13 @@ class SiteAnalysisService:
             "improvement_score": score,
             "tech_stack": tech_stack,
             "detected_lang": detected_lang,
+            "emails_found": emails_found,
             "classified_niche": niche_info,
             "analyzed_at": __import__("datetime").datetime.now(
                 __import__("datetime").timezone.utc
             ).isoformat(),
             "error": None,
+            "from_cache": False,
             "stealth": {
                 "mode": "stealth",
                 "robots_checked": gate.robots_checked,
@@ -169,6 +222,8 @@ class SiteAnalysisService:
                 "read_only": True,
             },
         }
+        self._save_cache(normalized, result)
+        return result
 
     def _normalize_url(self, url: str) -> str:
         raw = (url or "").strip()

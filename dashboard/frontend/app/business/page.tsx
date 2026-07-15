@@ -56,6 +56,9 @@ type Health = {
     outreach_send_enabled: boolean;
     money_path_ru: string;
     law_ru: string;
+    pipeline_steps_ru?: string[];
+    week_targets_ru?: Record<string, string>;
+    money_accounts_ru?: string[];
     items: {
       id: string;
       company_name?: string;
@@ -195,6 +198,17 @@ export default function BusinessHealthPage() {
               <div>
                 <h2 className="text-lg font-semibold">{data.ceo_outbox.title_ru}</h2>
                 <p className="mt-1 text-sm text-genesis-muted">{data.ceo_outbox.money_path_ru}</p>
+                {data.ceo_outbox.pipeline_steps_ru && data.ceo_outbox.pipeline_steps_ru.length > 0 ? (
+                  <p className="mt-3 text-xs text-genesis-muted">
+                    {data.ceo_outbox.pipeline_steps_ru.join(" → ")}
+                  </p>
+                ) : null}
+                {data.ceo_outbox.week_targets_ru ? (
+                  <p className="mt-2 text-xs text-amber-200/90">
+                    Неделя 1: {data.ceo_outbox.week_targets_ru.week1} · Неделя 2:{" "}
+                    {data.ceo_outbox.week_targets_ru.week2}
+                  </p>
+                ) : null}
                 <p className="mt-2 text-xs text-amber-200/80">{data.ceo_outbox.law_ru}</p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -248,12 +262,19 @@ export default function BusinessHealthPage() {
               </p>
             )}
             <p className="mt-4 text-xs text-genesis-muted">
-              Биржа Toloka (112 € в журнале) — не этот путь. Реальные € = оплата клиента →{" "}
+              Биржа Toloka (112 € в журнале) — учебный ledger, не банк. Реальные € = B2B-аудит →{" "}
               <Link href="/finance" className="text-emerald-400 underline">
                 Финансы
               </Link>
               .
             </p>
+            {data.ceo_outbox.money_accounts_ru && data.ceo_outbox.money_accounts_ru.length > 0 ? (
+              <ul className="mt-3 space-y-1 text-xs text-genesis-muted">
+                {data.ceo_outbox.money_accounts_ru.map((line) => (
+                  <li key={line}>· {line}</li>
+                ))}
+              </ul>
+            ) : null}
           </section>
         )}
 

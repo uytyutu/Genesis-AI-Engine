@@ -49,7 +49,7 @@ def test_auto_prepare_skips_blocklist(studio):
 def test_ceo_outbox_summary(studio):
     svc, opp = studio
     row = opp.create(_row("Test GmbH", "https://test-gmbh.de"))
-    svc.prepare_opportunity(row["id"])
+    svc.prepare_opportunity(row["id"], skip_qualification=True)
     outbox = svc.ceo_outbox_summary()
     assert outbox["pending_count"] >= 1
     assert "Stripe" in outbox["money_path_ru"] or "клиент" in outbox["money_path_ru"]
@@ -58,7 +58,7 @@ def test_ceo_outbox_summary(studio):
 def test_approve_batch(studio):
     svc, opp = studio
     row = opp.create(_row("Batch Co", "https://batch-co.de"))
-    svc.prepare_opportunity(row["id"])
+    svc.prepare_opportunity(row["id"], skip_qualification=True)
     result = svc.approve_batch(limit=5)
     assert result["approved_count"] >= 1
     updated = opp.get(row["id"])

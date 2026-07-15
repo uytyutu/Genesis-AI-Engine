@@ -1800,6 +1800,9 @@ class BusinessHealthCeoOutbox(BaseModel):
     outreach_send_enabled: bool
     money_path_ru: str
     law_ru: str
+    pipeline_steps_ru: list[str] = Field(default_factory=list)
+    week_targets_ru: dict[str, str] = Field(default_factory=dict)
+    money_accounts_ru: list[str] = Field(default_factory=list)
     items: list[BusinessHealthCeoOutboxItem]
 
 
