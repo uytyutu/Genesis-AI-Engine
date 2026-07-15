@@ -19,6 +19,11 @@ function farmList<T>(value: T[] | null | undefined): T[] {
   return Array.isArray(value) ? value : [];
 }
 
+function isFarmSectionReady(value: unknown): boolean {
+  if (value == null || typeof value !== "object") return false;
+  return !(value as { _pending?: boolean })._pending;
+}
+
 type Combiner = { id: string; label: string; pay_eur: number; pay_label: string; primary?: boolean };
 type Platform = {
   id: string;
@@ -632,8 +637,11 @@ export function FarmDashboard() {
     }
   }
 
-  const connectedPlatforms = dash?.platforms.filter((p) => p.connected).length ?? 0;
-  const totalPlatforms = dash?.platforms.length ?? 0;
+  const connectedPlatforms = farmList(dash?.platforms).filter((p) => p.connected).length;
+  const totalPlatforms = farmList(dash?.platforms).length;
+  const firstEuroGate = isFarmSectionReady(dash?.first_euro_gate) ? dash?.first_euro_gate : null;
+  const priorityManager = isFarmSectionReady(dash?.priority_manager) ? dash?.priority_manager : null;
+  const tolokaSubmit = isFarmSectionReady(dash?.toloka_submit) ? dash?.toloka_submit : null;
 
   return (
     <main className="min-h-screen pb-16">
@@ -929,7 +937,8 @@ export function FarmDashboard() {
               </div>
             ) : null}
 
-            {dash.opportunity_discovery.top_opportunities && dash.opportunity_discovery.top_opportunities.length > 0 ? (
+            {dash.opportunity_discovery.top_opportunities &&
+            farmList(dash.opportunity_discovery.top_opportunities).length > 0 ? (
               <div className="space-y-3">
                 <h3 className="text-sm font-bold text-white">Активные возможности · не деньги, а шансы</h3>
                 {farmList(dash.opportunity_discovery.top_opportunities).slice(0, 6).map((opp) => (
@@ -1073,62 +1082,62 @@ export function FarmDashboard() {
           </section>
         ) : null}
 
-        {dash?.first_euro_gate ? (
+        {firstEuroGate ? (
           <section
             className={`genesis-card p-5 ${
-              dash.first_euro_gate.verdict === "PASS"
+              firstEuroGate.verdict === "PASS"
                 ? "border-emerald-500/40 bg-emerald-950/15"
-                : dash.first_euro_gate.verdict === "CHANNEL_REVIEW"
+                : firstEuroGate.verdict === "CHANNEL_REVIEW"
                   ? "border-rose-500/50 bg-rose-950/20"
-                : dash.first_euro_gate.verdict === "COMMERCIAL_GATE"
+                : firstEuroGate.verdict === "COMMERCIAL_GATE"
                   ? "border-amber-500/40 bg-amber-950/15"
                   : "border-sky-500/30 bg-sky-950/10"
             }`}
           >
             <h2 className="text-sm font-bold text-white">
-              {dash.first_euro_gate.title_ru ?? "Движок проверяемого дохода (VRE)"}
+              {firstEuroGate.title_ru ?? "Движок проверяемого дохода (VRE)"}
             </h2>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-sky-400/50 bg-sky-950/40 px-3 py-1 text-xs font-semibold text-sky-100">
-                VRE LEVEL {dash.first_euro_gate.vre_level ?? dash.first_euro_gate.vre?.level ?? 0}
+                VRE LEVEL {firstEuroGate.vre_level ?? firstEuroGate.vre?.level ?? 0}
               </span>
-              {dash.first_euro_gate.vre?.level_label_ru ? (
-                <span className="text-[11px] text-white/75">{dash.first_euro_gate.vre.level_label_ru}</span>
+              {firstEuroGate.vre?.level_label_ru ? (
+                <span className="text-[11px] text-white/75">{firstEuroGate.vre.level_label_ru}</span>
               ) : null}
             </div>
-            {dash.first_euro_gate.mission1_freeze ? (
+            {firstEuroGate.mission1_freeze ? (
               <div className="mt-3 rounded-lg border border-white/10 bg-black/20 p-3 text-[11px] text-white/85">
-                <p className="font-semibold">{dash.first_euro_gate.mission1_freeze.title_ru}</p>
-                {dash.first_euro_gate.mission1_freeze.pr_gate_question_ru ? (
+                <p className="font-semibold">{firstEuroGate.mission1_freeze.title_ru}</p>
+                {firstEuroGate.mission1_freeze.pr_gate_question_ru ? (
                   <p className="mt-2 rounded border border-amber-500/30 bg-amber-950/20 p-2 text-amber-100">
-                    PR: {dash.first_euro_gate.mission1_freeze.pr_gate_question_ru}{" "}
-                    {dash.first_euro_gate.mission1_freeze.pr_gate_rule_ru ?? "→ Нет = не принимается"}
+                    PR: {firstEuroGate.mission1_freeze.pr_gate_question_ru}{" "}
+                    {firstEuroGate.mission1_freeze.pr_gate_rule_ru ?? "→ Нет = не принимается"}
                   </p>
                 ) : null}
                 <p className="mt-1 text-emerald-200/90">
-                  ✓ {dash.first_euro_gate.mission1_freeze.allowed_ru.join(" · ")}
+                  ✓ {farmList(firstEuroGate.mission1_freeze.allowed_ru).join(" · ")}
                 </p>
                 <p className="mt-1 text-rose-200/80">
-                  ✗ {dash.first_euro_gate.mission1_freeze.forbidden_ru.join(" · ")}
+                  ✗ {farmList(firstEuroGate.mission1_freeze.forbidden_ru).join(" · ")}
                 </p>
-                {dash.first_euro_gate.mission1_freeze.until_ru ? (
-                  <p className="mt-1 text-genesis-muted">{dash.first_euro_gate.mission1_freeze.until_ru}</p>
+                {firstEuroGate.mission1_freeze.until_ru ? (
+                  <p className="mt-1 text-genesis-muted">{firstEuroGate.mission1_freeze.until_ru}</p>
                 ) : null}
               </div>
             ) : null}
-            {dash.first_euro_gate.channel_review_message_ru ? (
+            {firstEuroGate.channel_review_message_ru ? (
               <p className="mt-3 rounded border border-rose-500/40 bg-rose-950/30 p-2 text-xs text-rose-100">
-                {dash.first_euro_gate.channel_review_message_ru}
+                {firstEuroGate.channel_review_message_ru}
               </p>
             ) : null}
-            <p className="mt-1 text-xs text-white/80">{dash.first_euro_gate.core_question}</p>
-            <p className="mt-2 text-sm font-medium text-emerald-100">{dash.first_euro_gate.headline}</p>
+            <p className="mt-1 text-xs text-white/80">{firstEuroGate.core_question}</p>
+            <p className="mt-2 text-sm font-medium text-emerald-100">{firstEuroGate.headline}</p>
             <p className="mt-1 text-[11px] text-genesis-muted">
-              Авто: {dash.first_euro_gate.auto_steps_done}/{dash.first_euro_gate.auto_steps_total} ·{" "}
-              {dash.first_euro_gate.ceo_action_now}
+              Авто: {firstEuroGate.auto_steps_done}/{firstEuroGate.auto_steps_total} ·{" "}
+              {firstEuroGate.ceo_action_now}
             </p>
             <ol className="mt-4 space-y-2">
-              {farmList(dash.first_euro_gate.steps).map((step) => (
+              {farmList(firstEuroGate.steps).map((step) => (
                 <li
                   key={step.id}
                   className="flex flex-wrap items-start justify-between gap-2 rounded-lg border border-white/5 px-3 py-2 text-xs"
@@ -1371,7 +1380,8 @@ export function FarmDashboard() {
           </section>
         ) : null}
 
-        {dash?.farm_program?.commercial_experiments && dash.farm_program.commercial_experiments.length > 0 ? (
+        {dash?.farm_program?.commercial_experiments &&
+        farmList(dash.farm_program.commercial_experiments).length > 0 ? (
           <section className="genesis-card border-white/10 p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-sm font-bold text-white">Журнал коммерческих экспериментов</h2>
@@ -1515,39 +1525,39 @@ export function FarmDashboard() {
           </section>
         ) : null}
 
-        {dash?.toloka_submit?.configured ? (
+        {tolokaSubmit?.configured ? (
           <section className="genesis-card border-violet-500/30 bg-violet-950/10 p-5">
             <h2 className="text-sm font-bold text-violet-100">Toloka · crash-test (адаптер)</h2>
             <p className="mt-1 text-[11px] text-genesis-muted">
               {dash?.production_platform?.toloka_role_ru ?? "Не центр стратегии — только проверка прочности"}
             </p>
             <p className="mt-1 text-xs text-violet-200/80">
-              {dash.toloka_submit.auto_submit_enabled
+              {tolokaSubmit.auto_submit_enabled
                 ? "Live: после каждого tick разметка уходит на platform.toloka.ai автоматически."
                 : "Auto-submit выключен — нажми кнопку или включи TOLOKA_AUTO_SUBMIT=1."}
             </p>
             <p className="mt-2 text-sm text-white">
-              Ожидает: <strong>{dash.toloka_submit.pending_count ?? 0}</strong> · Отправлено:{" "}
-              <strong>{dash.toloka_submit.submitted_count ?? 0}</strong>
-              {dash.toloka_submit.connected ? " · 🟢 API" : " · ⚪ offline"}
+              Ожидает: <strong>{tolokaSubmit.pending_count ?? 0}</strong> · Отправлено:{" "}
+              <strong>{tolokaSubmit.submitted_count ?? 0}</strong>
+              {tolokaSubmit.connected ? " · 🟢 API" : " · ⚪ offline"}
             </p>
-            {dash.toloka_submit.last_error ? (
-              <p className="mt-2 text-xs text-rose-300">{dash.toloka_submit.last_error}</p>
+            {tolokaSubmit.last_error ? (
+              <p className="mt-2 text-xs text-rose-300">{tolokaSubmit.last_error}</p>
             ) : null}
-            {dash.toloka_submit.circuit_breaker?.safe_mode ? (
+            {tolokaSubmit.circuit_breaker?.safe_mode ? (
               <p className="mt-2 rounded border border-amber-500/40 bg-amber-950/30 p-2 text-xs text-amber-100">
-                Safe Mode · {dash.toloka_submit.circuit_breaker.safe_mode_reason ?? "circuit open"} ·{" "}
-                {dash.toloka_submit.circuit_breaker.seconds_remaining}s
+                Safe Mode · {tolokaSubmit.circuit_breaker.safe_mode_reason ?? "circuit open"} ·{" "}
+                {tolokaSubmit.circuit_breaker.seconds_remaining}s
               </p>
             ) : null}
-            {dash.toloka_submit.last_run_status ? (
+            {tolokaSubmit.last_run_status ? (
               <p className="mt-2 text-xs text-violet-200/90">
-                Pipeline run: {dash.toloka_submit.last_run_status}
+                Pipeline run: {tolokaSubmit.last_run_status}
               </p>
             ) : null}
             <button
               type="button"
-              disabled={busy === "toloka" || !dash.toloka_submit.pending_count}
+              disabled={busy === "toloka" || !tolokaSubmit.pending_count}
               onClick={() => void submitToloka()}
               className="mt-3 rounded-xl border border-violet-400/40 px-4 py-2 text-sm text-violet-100 hover:bg-violet-950/40 disabled:opacity-40"
             >
@@ -1569,25 +1579,25 @@ export function FarmDashboard() {
           </p>
         ) : null}
 
-        {dash?.priority_manager ? (
+        {priorityManager ? (
           <section className="genesis-card border-violet-500/25 bg-violet-950/10 p-5">
             <h2 className="text-sm font-bold text-violet-100">Менеджер приоритетов</h2>
-            <p className="mt-1 text-xs text-violet-200/70">{dash.priority_manager.async_note}</p>
-            <p className="mt-1 text-xs text-violet-200/70">{dash.priority_manager.router_note}</p>
+            <p className="mt-1 text-xs text-violet-200/70">{priorityManager.async_note}</p>
+            <p className="mt-1 text-xs text-violet-200/70">{priorityManager.router_note}</p>
             <p className="mt-3 text-sm text-white">
-              {dash.priority_manager.learning.note}
-              {dash.priority_manager.learning.investor_mode && dash.priority_manager.learning.top_adapter
-                ? ` · Лидер: ${ADAPTER_LABELS[dash.priority_manager.learning.top_adapter] ?? dash.priority_manager.learning.top_adapter}`
+              {priorityManager.learning?.note}
+              {priorityManager.learning?.investor_mode && priorityManager.learning?.top_adapter
+                ? ` · Лидер: ${ADAPTER_LABELS[priorityManager.learning.top_adapter] ?? priorityManager.learning.top_adapter}`
                 : ""}
             </p>
             <p className="mt-2 text-xs text-genesis-muted">
-              Кэш паттернов: {dash.priority_manager.cache.entries} / {dash.priority_manager.cache.max_entries}
+              Кэш паттернов: {priorityManager.cache?.entries ?? 0} / {priorityManager.cache?.max_entries ?? 0}
             </p>
-            {dash.priority_manager.cloud_dispatcher ? (
+            {priorityManager.cloud_dispatcher ? (
               <p className="mt-2 text-xs text-violet-200/80">
-                Облако: режим <strong>{dash.priority_manager.cloud_dispatcher.execution_mode}</strong>
-                {dash.priority_manager.cloud_dispatcher.pool_configured
-                  ? ` · пул ${dash.priority_manager.cloud_dispatcher.pool.ok ? "онлайн" : "offline"}`
+                Облако: режим <strong>{priorityManager.cloud_dispatcher.execution_mode}</strong>
+                {priorityManager.cloud_dispatcher.pool_configured
+                  ? ` · пул ${priorityManager.cloud_dispatcher.pool.ok ? "онлайн" : "offline"}`
                   : " · пульт на ноутбуке (задай FARM_WORKER_POOL_URL для VPS)"}
               </p>
             ) : null}
