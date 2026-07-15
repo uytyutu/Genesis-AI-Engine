@@ -100,7 +100,7 @@ export const CEO_STUDIO_LINKS = [
   { href: "/acquisition", label: "Acquisition", hint: "Исходящие продажи" },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
   { href: "/ai", label: "AI Hub", hint: "Помощник" },
-  { href: "/growth", label: "Аналитика", hint: "Рост" },
+  { href: "/growth", label: "Аналитика", hint: "Mission 2 · Конверсия" },
 ] as const;
 
 export const CEO_SYSTEM_LINKS = [

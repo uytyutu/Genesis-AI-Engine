@@ -15,6 +15,8 @@ export type RealMoneyTier = {
 
 export type RealMoneyData = {
   rule_ru: string;
+  paid_by_client?: RealMoneyTier;
+  available?: RealMoneyTier;
   received: RealMoneyTier;
   pending: RealMoneyTier;
   forecast: RealMoneyTier;
@@ -39,6 +41,7 @@ export type SalesFunnelData = {
   subtitle_ru: string;
   steps: SalesFunnelStep[];
   training_note_ru?: string;
+  next_action_href?: string;
 };
 
 export type MoneyMonitorLane = {
@@ -54,6 +57,22 @@ export type MoneyMonitorLane = {
 export type MoneyMonitorData = {
   title_ru: string;
   subtitle_ru: string;
+  actual_revenue?: {
+    paid_by_client_eur: number;
+    pending_settlement_eur: number;
+    available_for_withdrawal_eur: number;
+    withdrawable_label_ru: string;
+    paid_by_client_label_ru: string;
+    pending_settlement_label_ru: string;
+    source_ru: string;
+    payment_count: number;
+  } | null;
+  farm_potential?: {
+    farm_journal_eur: number;
+    amount_label_ru: string;
+    label_ru: string;
+    detail_ru: string;
+  } | null;
   real_money?: RealMoneyData | null;
   sales_funnel?: SalesFunnelData | null;
   lanes: MoneyMonitorLane[];
@@ -75,56 +94,76 @@ type Props = {
   compact?: boolean;
 };
 
-function RealMoneyHero({ rm, compact }: { rm: RealMoneyData; compact?: boolean }) {
+function RealMoneyHero({
+  rm,
+  actual,
+  farm,
+  compact,
+}: {
+  rm: RealMoneyData;
+  actual?: MoneyMonitorData["actual_revenue"];
+  farm?: MoneyMonitorData["farm_potential"];
+  compact?: boolean;
+}) {
+  const withdrawable =
+    actual?.withdrawable_label_ru ?? rm.available?.amount_label_ru ?? rm.received.amount_label_ru;
+  const paid =
+    actual?.paid_by_client_label_ru ?? rm.paid_by_client?.amount_label_ru ?? "0,00 €";
+  const settling =
+    actual?.pending_settlement_label_ru ?? rm.pending.amount_label_ru;
+
   return (
-    <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-950/40 to-genesis-bg/60 p-5">
-      <p className="text-xs uppercase tracking-widest text-emerald-300/80">Реальные деньги</p>
-      <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-2">
-        <div>
-          <p className="text-sm text-genesis-muted">
-            {rm.received.icon} {rm.received.label_ru}
+    <div className="mt-4 space-y-4">
+      <div className="rounded-2xl border border-emerald-500/50 bg-gradient-to-br from-emerald-950/50 to-genesis-bg/60 p-5 sm:p-6">
+        <p className="text-xs uppercase tracking-widest text-emerald-300/90">Выручка к выводу</p>
+        <p className="mt-2 text-xs text-genesis-muted">
+          {actual?.source_ru ?? rm.rule_ru}
+        </p>
+        <p
+          className={`mt-3 font-bold tabular-nums tracking-tight text-emerald-100 ${
+            compact ? "text-4xl" : "text-5xl sm:text-6xl"
+          }`}
+        >
+          {withdrawable}
+        </p>
+        {!compact ? (
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <div>
+              <p className="text-genesis-muted">Оплачено клиентом</p>
+              <p className="font-semibold tabular-nums text-sky-100">{paid}</p>
+            </div>
+            <div>
+              <p className="text-genesis-muted">Settling (DE ~3 дня)</p>
+              <p className="font-semibold tabular-nums text-amber-100">{settling}</p>
+            </div>
+            <div>
+              <p className="text-genesis-muted">{rm.forecast.icon} {rm.forecast.label_ru}</p>
+              <p className="font-semibold tabular-nums text-sky-200/80">{rm.forecast.amount_label_ru}</p>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-3 text-xs text-genesis-muted">
+            Оплачено: {paid} · Settling: {settling}
           </p>
-          <p className={`font-bold tabular-nums text-emerald-100 ${compact ? "text-3xl" : "text-4xl"}`}>
-            {rm.received.amount_label_ru}
+        )}
+        {actual && actual.payment_count === 0 ? (
+          <p className="mt-3 rounded-lg border border-amber-500/25 bg-amber-950/20 px-3 py-2 text-xs text-amber-100/90">
+            Stripe пуст — 0 € до первого webhook-платежа. Учебный журнал фермы не смешивается с выручкой.
           </p>
-          {!compact && rm.received.payment_count != null ? (
-            <p className="mt-1 text-xs text-genesis-muted">
-              Подтверждено оплат: {rm.received.payment_count}
-            </p>
-          ) : null}
-        </div>
-        <div>
-          <p className="text-sm text-genesis-muted">
-            {rm.pending.icon} {rm.pending.label_ru}
-          </p>
-          <p className={`font-semibold tabular-nums text-amber-100 ${compact ? "text-xl" : "text-2xl"}`}>
-            {rm.pending.amount_label_ru}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm text-genesis-muted">
-            {rm.forecast.icon} {rm.forecast.label_ru}
-          </p>
-          <p className={`font-semibold tabular-nums text-sky-200/90 ${compact ? "text-xl" : "text-2xl"}`}>
-            {rm.forecast.amount_label_ru}
-          </p>
-        </div>
+        ) : null}
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3">
-        <p className="text-xs text-genesis-muted">
-          {rm.training.icon} {rm.training.label_ru}:{" "}
-          <span className="tabular-nums text-white/70">{rm.training.amount_label_ru}</span>
-          <span className="ml-1 text-white/40">— симуляция, не смешивается</span>
+
+      <div className="rounded-xl border border-white/10 bg-genesis-bg/40 p-4">
+        <p className="text-xs uppercase tracking-wide text-genesis-muted">
+          {farm?.label_ru ?? rm.training.label_ru} · не Stripe
+        </p>
+        <p className="mt-1 text-xl font-semibold tabular-nums text-white/70">
+          {farm?.amount_label_ru ?? rm.training.amount_label_ru}
+        </p>
+        <p className="mt-2 text-[11px] leading-relaxed text-genesis-muted">
+          {farm?.detail_ru ?? rm.training.detail_ru}
         </p>
       </div>
-      <p className="mt-2 text-[11px] leading-relaxed text-emerald-200/60">{rm.rule_ru}</p>
-      {rm.bindings_needed && rm.bindings_needed.length > 0 && !compact ? (
-        <ul className="mt-2 space-y-0.5 text-[11px] text-amber-200/80">
-          {rm.bindings_needed.map((b) => (
-            <li key={b}>→ Привязка: {b}</li>
-          ))}
-        </ul>
-      ) : null}
     </div>
   );
 }
@@ -142,9 +181,23 @@ export function MoneyMonitorPanel({ data, compact }: Props) {
 
   return (
     <section className={`rounded-2xl border p-5 ${alertBorder}`}>
-      {data.sales_funnel ? <SalesFunnelPanel data={data.sales_funnel} compact={compact} /> : null}
+      {data.sales_funnel && compact ? (
+        <div className="rounded-xl border border-violet-500/30 bg-violet-950/20 p-4">
+          <p className="text-xs uppercase tracking-wider text-violet-200/80">Mission 2</p>
+          <p className="mt-1 text-lg font-semibold text-white">{data.sales_funnel.headline_ru}</p>
+          <p className="mt-1 text-xs text-genesis-muted">{data.sales_funnel.subtitle_ru}</p>
+          <Link
+            href={data.sales_funnel.next_action_href ?? "/business"}
+            className="mt-3 inline-flex text-sm text-emerald-400 hover:underline"
+          >
+            Открыть Business Health →
+          </Link>
+        </div>
+      ) : null}
 
-      <div className={`${data.sales_funnel ? "mt-4" : ""} flex flex-wrap items-start justify-between gap-3`}>
+      {!compact && data.sales_funnel ? <SalesFunnelPanel data={data.sales_funnel} compact={compact} /> : null}
+
+      <div className={`${data.sales_funnel && !compact ? "mt-4" : compact && data.sales_funnel ? "mt-4" : ""} flex flex-wrap items-start justify-between gap-3`}>
         <div>
           <h2 className="text-lg font-semibold text-white">{data.title_ru}</h2>
           <p className="mt-1 text-sm text-genesis-muted">{data.subtitle_ru}</p>
@@ -159,7 +212,14 @@ export function MoneyMonitorPanel({ data, compact }: Props) {
         ) : null}
       </div>
 
-      {data.real_money ? <RealMoneyHero rm={data.real_money} compact={compact} /> : null}
+      {data.real_money ? (
+        <RealMoneyHero
+          rm={data.real_money}
+          actual={data.actual_revenue}
+          farm={data.farm_potential}
+          compact={compact}
+        />
+      ) : null}
 
       <div className={`mt-4 grid gap-3 ${compact ? "sm:grid-cols-1" : "sm:grid-cols-3"}`}>
         {data.lanes.map((lane) => (

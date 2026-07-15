@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { StripeSetupPanel } from "../components/StripeSetupPanel";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import { formatEur, formatSignedEur } from "../lib/formatEur";
 import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
 import { GenesisCard } from "../components/GenesisCard";
 import { Sparkline } from "../components/Sparkline";
 import { WithdrawModal } from "../components/WithdrawModal";
 import { PendingPaymentsPanel } from "../components/PendingPaymentsPanel";
+import { SettlementsPanel, type SettlementRow } from "../components/SettlementsPanel";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -55,6 +57,10 @@ type Finance = {
   last_withdrawal: { at: string; amount_eur: number; provider: string; status_label: string } | null;
   revenue_sparkline: number[];
   pending_payments: PendingPayment[];
+  settlements?: SettlementRow[];
+  settlement_note_ru?: string;
+  paid_by_client_eur?: number;
+  pending_settlement_eur?: number;
   financial_view?: FinancialView;
   global_revenue?: {
     currency: string;
@@ -79,6 +85,8 @@ type FinancialView = {
   safe_to_withdraw_status: "sandbox" | "green" | "amber";
   safe_to_withdraw_label: string;
   pending_at_provider_eur: number;
+  paid_by_client_eur?: number;
+  pending_settlement_eur?: number;
   potential_revenue_eur: number;
   potential_revenue?: {
     potential_revenue_eur: number;
@@ -149,6 +157,8 @@ export default function FinancePage() {
             </p>
           )}
         </header>
+
+        <StripeSetupPanel />
 
         {view ? (
           <section className="genesis-card overflow-hidden border-emerald-500/25 p-0">
@@ -241,21 +251,32 @@ export default function FinancePage() {
 
         <PendingPaymentsPanel payments={finance?.pending_payments ?? []} />
 
+        <SettlementsPanel
+          rows={finance?.settlements ?? []}
+          note={finance?.settlement_note_ru}
+          pendingTotalEur={finance?.pending_settlement_eur ?? view?.pending_settlement_eur}
+          availableTotalEur={finance?.available_for_withdrawal_eur}
+        />
+
         {showLive ? (
           <>
             <section className="genesis-card overflow-hidden border-genesis-accent/20 p-0 shadow-glow">
               <div className="bg-gradient-to-br from-genesis-accent/10 via-transparent to-emerald-500/5 p-6 sm:p-8">
-                <p className="genesis-label">Баланс</p>
+                <p className="genesis-label">Выручка к выводу</p>
                 <p className="mt-2 text-4xl font-bold tabular-nums tracking-tight sm:text-5xl">
-                  {formatEur(finance?.platform_balance_eur)}
+                  {formatEur(finance?.available_for_withdrawal_eur ?? 0)}
+                </p>
+                <p className="mt-2 text-xs text-genesis-muted">
+                  Stripe sync (баланс провайдера): {formatEur(finance?.platform_balance_eur ?? 0)} · только для сверки
                 </p>
                 <div className="mt-6 h-14">
                   <Sparkline values={finance?.revenue_sparkline ?? []} height={56} />
                 </div>
               </div>
               <div className="divide-y divide-genesis-border-subtle border-t border-genesis-border-subtle">
-                <FinanceRow label="Доступно" value={formatEur(finance?.available_for_withdrawal_eur)} highlight />
-                <FinanceRow label="Ожидает" value={formatEur(finance?.pending_payouts_eur)} />
+                <FinanceRow label="Оплачено клиентом" value={formatEur(finance?.paid_by_client_eur ?? view?.paid_by_client_eur ?? 0)} />
+                <FinanceRow label="Settlement (DE ~3 дня)" value={formatEur(finance?.pending_settlement_eur ?? view?.pending_settlement_eur ?? 0)} />
+                <FinanceRow label="Доступно к выводу" value={formatEur(finance?.available_for_withdrawal_eur)} highlight />
                 <FinanceRow label="Сегодня" value={`+${formatEur(finance?.revenue_today_eur).replace(" €", "")} €`} positive />
                 <FinanceRow label="За месяц" value={`+${formatEur(finance?.revenue_month_eur).replace(" €", "")} €`} positive />
               </div>
@@ -284,7 +305,7 @@ export default function FinancePage() {
                 onClick={() => setWithdrawOpen(true)}
                 className="flex-1 rounded-2xl bg-gradient-to-r from-genesis-accent to-blue-600 py-3.5 text-sm font-semibold text-white shadow-glow disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {isSandbox ? "Вывод в Sandbox недоступен" : "Вывести средства"}
+                {isSandbox ? "Вывод в Sandbox недоступен" : canWithdraw ? "Вывести средства" : "Вывод после settlement (~3 раб. дня DE)"}
               </button>
               <Link
                 href="/"

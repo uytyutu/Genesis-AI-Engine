@@ -58,6 +58,8 @@ _ZERO_SNAPSHOT = {
     "gross_revenue_eur": 0.0,
     "expenses_eur": 0.0,
     "net_profit_eur": 0.0,
+    "paid_by_client_eur": 0.0,
+    "pending_settlement_eur": 0.0,
     "available_for_withdrawal_eur": 0.0,
     "pending_payouts_eur": 0.0,
     "products_sold": 0,
@@ -73,6 +75,15 @@ class FinanceService:
 
     def __init__(self, memory_dir: Path | None = None) -> None:
         self._memory = memory_dir or _DEFAULT_MEMORY
+
+    def _settlements(self):
+        from app.integration.payment_settlement_service import PaymentSettlementService
+
+        return PaymentSettlementService(self._memory)
+
+    def _sync_settlement_snapshot(self, snap: dict | None = None) -> dict:
+        snap = dict(snap if snap is not None else self._load_snapshot())
+        return self._settlements().apply_to_snapshot(snap)
 
     def _load_config(self) -> dict:
         path = self._memory / "finance_config.json"
@@ -293,22 +304,25 @@ class FinanceService:
             available = float(_DEMO_FINANCE["available_for_withdrawal_eur"])
             pending = float(_DEMO_FINANCE["pending_payouts_eur"])
         else:
-            gross = float(snap.get("gross_revenue_eur") or snap.get("platform_balance_eur") or 0)
+            gross = float(snap.get("paid_by_client_eur") or snap.get("gross_revenue_eur") or 0)
             available = float(snap.get("available_for_withdrawal_eur") or 0)
-            pending = float(snap.get("pending_payouts_eur") or 0)
+            pending = float(snap.get("pending_settlement_eur") or snap.get("pending_payouts_eur") or 0)
 
         commission = self._stripe_fee(gross, settings)
         net_after_fees = round(max(0.0, gross - commission), 2)
         vat_rate = float(settings.get("vat_rate_percent") or 19) / 100.0
         tax_reserve = round(net_after_fees * vat_rate, 2)
         net_clean = round(net_after_fees - tax_reserve, 2)
-        provider_available = round(max(0.0, available - pending), 2)
+        provider_available = round(max(0.0, available), 2)
         safe = round(max(0.0, min(provider_available, net_clean)), 2)
 
         if safe > 0:
             status = "green"
-            label = "Safe to Withdraw"
-        elif gross > 0 or available > 0:
+            label = "Доступно к выводу (settlement пройден)"
+        elif gross > 0 and pending > 0:
+            status = "amber"
+            label = f"Оплачено клиентом — удержание Stripe DE (~{3} раб. дня)"
+        elif gross > 0:
             status = "amber"
             label = "Резерв под налоги или ожидание выплаты"
         else:
@@ -316,6 +330,8 @@ class FinanceService:
             label = "Ожидание первой оплаты"
 
         can_withdraw = (connected or demo) and safe > 0
+        paid_by_client = float(snap.get("paid_by_client_eur") or 0)
+        pending_settlement = float(snap.get("pending_settlement_eur") or 0)
         return {
             "system_mode": "live",
             "funds_held_by_genesis_eur": 0.0,
@@ -323,6 +339,9 @@ class FinanceService:
             "money_route": money_route,
             "custody_note": custody_note,
             "gross_synced_eur": round(gross, 2),
+            "paid_by_client_eur": round(paid_by_client, 2),
+            "pending_settlement_eur": round(pending_settlement, 2),
+            "available_for_withdrawal_eur": round(available, 2),
             "commission_eur": commission,
             "net_after_fees_eur": net_after_fees,
             "tax_reserve_eur": tax_reserve,
@@ -350,6 +369,8 @@ class FinanceService:
         path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
         connected = bool(config.get("payment_provider"))
         demo = bool(config.get("demo_mode"))
+        snap = self._sync_settlement_snapshot()
+        self._save_snapshot(snap)
         view = self.financial_view(
             business_mode=business_mode,
             opportunities=opportunities,
@@ -367,7 +388,8 @@ class FinanceService:
         opportunities: list[dict] | None = None,
     ) -> dict:
         config = self._load_config()
-        snap = self._load_snapshot()
+        snap = self._sync_settlement_snapshot(self._load_snapshot())
+        self._save_snapshot(snap)
         provider = config.get("payment_provider")
         connected = bool(provider)
         demo = bool(config.get("demo_mode"))
@@ -407,6 +429,8 @@ class FinanceService:
             "data_source_note": base_note,
             "currency": snap["currency"],
             "platform_balance_eur": float(snap["platform_balance_eur"]),
+            "paid_by_client_eur": float(snap.get("paid_by_client_eur") or 0),
+            "pending_settlement_eur": float(snap.get("pending_settlement_eur") or 0),
             "revenue_today_eur": float(snap["revenue_today_eur"]),
             "revenue_month_eur": float(snap["revenue_month_eur"]),
             "gross_revenue_eur": float(snap["gross_revenue_eur"]),
@@ -426,6 +450,11 @@ class FinanceService:
             "last_withdrawal": last_wd,
             "revenue_sparkline": sparkline,
             "pending_payments": self._pending_payments(),
+            "settlements": self._settlements().list_settlements(),
+            "settlement_note_ru": (
+                "DE: Stripe удерживает ~3 рабочих дня. «Оплачено клиентом» — после webhook; "
+                "«Доступно к выводу» — после settlement."
+            ),
         }
 
         if demo:
@@ -625,10 +654,16 @@ class FinanceService:
         snap["gross_revenue_eur"] = round(float(snap.get("gross_revenue_eur", 0)) + amount, 2)
         snap["net_profit_eur"] = round(float(snap.get("net_profit_eur", 0)) + amount, 2)
         snap["platform_balance_eur"] = round(float(snap.get("platform_balance_eur", 0)) + amount, 2)
-        snap["available_for_withdrawal_eur"] = round(
-            float(snap.get("available_for_withdrawal_eur", 0)) + amount, 2
-        )
         snap["products_sold"] = int(snap.get("products_sold", 0)) + 1
+
+        self._settlements().record_payment(
+            amount_eur=amount,
+            payment_id=payment_id,
+            provider=provider,
+            label=label,
+            immediate_available=provider == "sandbox",
+        )
+        snap = self._sync_settlement_snapshot(snap)
         self._save_snapshot(snap)
 
         self._append_transaction(
@@ -640,6 +675,7 @@ class FinanceService:
                 "provider": provider,
                 "product_id": product_id,
                 "payment_id": payment_id,
+                "settlement_status": "pending_settlement",
             }
         )
         self._touch_milestone("first_payment", True)
@@ -688,10 +724,18 @@ class FinanceService:
         snap["gross_revenue_eur"] = round(float(snap.get("gross_revenue_eur", 0)) + amount, 2)
         snap["net_profit_eur"] = round(float(snap.get("net_profit_eur", 0)) + amount, 2)
         snap["platform_balance_eur"] = round(float(snap.get("platform_balance_eur", 0)) + amount, 2)
-        snap["available_for_withdrawal_eur"] = round(
-            float(snap.get("available_for_withdrawal_eur", 0)) + amount, 2
-        )
         snap["products_sold"] = int(snap.get("products_sold", 0)) + 1
+
+        self._settlements().record_payment(
+            amount_eur=amount,
+            payment_id=payment_id,
+            provider=provider,
+            label=label,
+            order_id=order_id,
+            sender=sender,
+            immediate_available=provider == "sandbox",
+        )
+        snap = self._sync_settlement_snapshot(snap)
         self._save_snapshot(snap)
 
         self._append_transaction(
@@ -703,6 +747,8 @@ class FinanceService:
                 "provider": provider,
                 "order_id": order_id,
                 "payment_id": payment_id,
+                "external_id": external_id,
+                "settlement_status": "pending_settlement",
             }
         )
         self._touch_milestone("first_payment", True)
@@ -754,11 +800,14 @@ class FinanceService:
     def real_money_inputs(self) -> dict:
         """Raw inputs for real-money tiers — no ledger mixing."""
         config = self._load_config()
+        snap = self._sync_settlement_snapshot(self._load_snapshot())
+        self._save_snapshot(snap)
         return {
-            "finance_snapshot": self._load_snapshot(),
+            "finance_snapshot": snap,
             "transactions": self._load_all_transactions(),
             "pending_payments": self._pending_payments(),
             "payout_history": self._payout_history(limit=50),
+            "settlements": self._settlements().list_settlements(limit=100),
             "payment_connected": self.payment_connected(),
             "demo_mode": bool(config.get("demo_mode")),
         }

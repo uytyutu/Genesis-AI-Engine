@@ -67,6 +67,27 @@ def test_reconcile_updates_sync_timestamp(tmp_path: Path):
     assert config.get("last_sync_at") == result["synced_at"]
 
 
+def test_finance_center_includes_settlements(tmp_path: Path):
+    mode = BusinessModeService(tmp_path)
+    fin = FinanceService(tmp_path)
+    fin.credit_order_payment(
+        150.0,
+        "Test webhook",
+        provider="stripe",
+        order_id="ord_settle_1",
+        external_id="cs_settle_1",
+    )
+    center = fin.finance_center("CEO", "Привет", business_mode=mode, opportunities=[])
+    assert len(center["settlements"]) == 1
+    row = center["settlements"][0]
+    assert row["amount_eur"] == 150.0
+    assert row["settlement_status"] == "pending_settlement"
+    assert row["paid_at"]
+    assert row["available_at"]
+    assert center["paid_by_client_eur"] == 150.0
+    assert center["pending_settlement_eur"] == 150.0
+
+
 def test_finance_center_includes_financial_view(tmp_path: Path):
     mode = BusinessModeService(tmp_path)
     fin = FinanceService(tmp_path)

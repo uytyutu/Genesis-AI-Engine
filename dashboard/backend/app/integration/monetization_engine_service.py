@@ -485,11 +485,17 @@ class MonetizationEngineService:
                         amount = round(int(eur_avail.get("amount", 0)) / 100, 2)
                         snap = self._finance._load_snapshot()  # noqa: SLF001
                         snap["platform_balance_eur"] = amount
-                        snap["available_for_withdrawal_eur"] = amount
                         snap["source"] = "stripe"
+                        snap = self._finance._sync_settlement_snapshot(snap)  # noqa: SLF001
                         self._finance._save_snapshot(snap)  # noqa: SLF001
-                        result["stripe_available_eur"] = amount
-                        self.connect_payout_wallet("stripe", f"Stripe · {amount:.2f} €")
+                        result["stripe_available_eur"] = float(
+                            snap.get("available_for_withdrawal_eur") or 0
+                        )
+                        result["stripe_balance_eur"] = amount
+                        self.connect_payout_wallet(
+                            "stripe",
+                            f"Stripe · {amount:.2f} € (доступно {result['stripe_available_eur']:.2f} €)",
+                        )
             except httpx.HTTPError:
                 result["stripe_error"] = "balance_fetch_failed"
         elif self._checkout.is_configured():
@@ -1100,13 +1106,17 @@ class MonetizationEngineService:
         amount = round(float(amount_eur), 2)
         if amount <= 0:
             raise ValueError("invalid_amount")
-        snap = self._finance._load_snapshot()  # noqa: SLF001
+        snap = self._finance._sync_settlement_snapshot(self._finance._load_snapshot())  # noqa: SLF001
         available = float(snap.get("available_for_withdrawal_eur") or 0)
+        pending_settlement = float(snap.get("pending_settlement_eur") or 0)
         if amount > available:
+            if pending_settlement > 0:
+                raise ValueError("settlement_hold_period")
             raise ValueError("insufficient_balance")
 
         now = datetime.now(timezone.utc).isoformat()
-        snap["available_for_withdrawal_eur"] = round(available - amount, 2)
+        self._finance._settlements().allocate_withdrawal(amount)  # noqa: SLF001
+        snap = self._finance._sync_settlement_snapshot(snap)  # noqa: SLF001
         snap["pending_payouts_eur"] = round(float(snap.get("pending_payouts_eur") or 0) + amount, 2)
         self._finance._save_snapshot(snap)  # noqa: SLF001
 

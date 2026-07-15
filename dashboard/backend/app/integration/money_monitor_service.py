@@ -4,8 +4,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.integration.real_money_service import build_real_money_tiers
-from app.integration.sales_funnel_service import build_sales_funnel_progress
+from app.integration.real_money_service import (
+    build_real_money_tiers,
+    get_actual_revenue,
+    get_farm_potential,
+)
+from app.integration.mission2_kpi_service import build_mission2_kpi, build_sales_funnel_progress
 
 
 def build_money_monitor(
@@ -29,19 +33,26 @@ def build_money_monitor(
     tasks = int(farm_state.get("total_tasks_done") or 0)
 
     fin = finance_inputs or {}
+    actual_revenue = get_actual_revenue(
+        finance_snapshot=fin.get("finance_snapshot") or {},
+        settlements=fin.get("settlements") or [],
+    )
+    farm_potential = get_farm_potential(farm_state=farm_state)
     real_money = build_real_money_tiers(
         finance_snapshot=fin.get("finance_snapshot") or {},
         transactions=fin.get("transactions") or [],
         pending_payments=fin.get("pending_payments") or [],
         payout_history=fin.get("payout_history") or [],
+        settlements=fin.get("settlements") or [],
         payment_connected=bool(fin.get("payment_connected")),
         demo_mode=bool(fin.get("demo_mode")),
         farm_training_eur=training_eur,
         opportunities=opps,
         revenue_forecast=revenue_forecast,
     )
-    received_eur = float(real_money["received"]["amount_eur"])
-    pending_eur = float(real_money["pending"]["amount_eur"])
+    paid_by_client_eur = float(actual_revenue["paid_by_client_eur"])
+    received_eur = float(actual_revenue["available_for_withdrawal_eur"])
+    pending_eur = float(actual_revenue["pending_settlement_eur"])
 
     pending_proposals = sum(
         1 for r in opps if r.get("outreach_status") == "pending_approval"
@@ -68,15 +79,12 @@ def build_money_monitor(
         {
             "id": "training_ledger",
             "icon": "📊",
-            "label_ru": "Учебный счётчик фермы",
-            "amount_eur": training_eur,
-            "amount_label_ru": f"{training_eur:.2f} €",
+            "label_ru": "Журнал фермы (не Stripe)",
+            "amount_eur": farm_potential["farm_journal_eur"],
+            "amount_label_ru": farm_potential["amount_label_ru"],
             "status": "simulation",
-            "status_ru": "Не банк · не выводить",
-            "detail_ru": (
-                f"{tasks} задач × ~0,05 € — журнал для теста конвейера. "
-                f"Расход LLM (реальный): {llm_cost:.2f} €."
-            ),
+            "status_ru": "Учебный · не выручка CEO",
+            "detail_ru": farm_potential["detail_ru"],
         },
         {
             "id": "exchange_factory",
@@ -106,15 +114,15 @@ def build_money_monitor(
             "id": "b2b_client",
             "icon": "💶",
             "label_ru": "B2B — путь к банку",
-            "amount_eur": received_eur,
-            "amount_label_ru": f"{received_eur:.2f} € получено",
-            "status": "primary" if received_eur > 0 else "waiting",
+            "amount_eur": paid_by_client_eur,
+            "amount_label_ru": f"{paid_by_client_eur:.2f} € оплачено",
+            "status": "primary" if paid_by_client_eur > 0 else "waiting",
             "status_ru": (
-                "Первый € на счёте" if received_eur > 0 else "Ждём первую оплату клиента"
+                "Клиент оплатил (webhook)" if paid_by_client_eur > 0 else "Ждём первую оплату клиента"
             ),
             "detail_ru": (
-                f"Ожидается: {pending_eur:.2f} € · Outbox: {outbox_pending or pending_proposals} на Approve · "
-                f"разговоров: {contacted}. Продаём аудит 50–500 €, не разметку."
+                f"Доступно к выводу: {received_eur:.2f} € · Settlement: {pending_eur:.2f} € · "
+                f"Outbox: {outbox_pending or pending_proposals} · разговоров: {contacted}."
             ),
         },
     ]
@@ -124,10 +132,10 @@ def build_money_monitor(
         "level": (
             "green"
             if withdraw_ready
-            else ("amber" if received_eur <= 0 and pending_proposals else "none")
+            else ("amber" if pending_proposals else "none")
         ),
         "title_ru": (
-            "🟢 Пора вывести с биржи"
+            "🟢 Биржа: можно вывести на Stripe (не B2B-выручка)"
             if withdraw_ready
             else (
                 "🟡 Одобрите письма в Outbox — путь к первому €"
@@ -160,14 +168,28 @@ def build_money_monitor(
         {"step": 9, "id": "factory", "title_ru": "Биржа (фон)", "detail_ru": "Crash-test + делегирование, не доход"},
     ]
 
-    model_proven = received_eur > 0
-    sales_funnel = build_sales_funnel_progress(opps, received_eur=received_eur, training_eur=training_eur)
+    model_proven = paid_by_client_eur > 0
+    sales_funnel = build_sales_funnel_progress(
+        opps,
+        received_eur=paid_by_client_eur,
+        training_eur=training_eur,
+        outbox_pending=outbox_pending or pending_proposals,
+    )
+    mission2_kpi = build_mission2_kpi(
+        opps,
+        received_eur=paid_by_client_eur,
+        training_eur=training_eur,
+        outbox_pending=outbox_pending or pending_proposals,
+    )
 
     return {
         "title_ru": "Приборная панель — деньги",
-        "subtitle_ru": "Получено = только внешнее подтверждение · Прогноз = аналитика",
+        "subtitle_ru": "Hero = только Stripe/B2B · ферма и биржа — отдельно",
+        "actual_revenue": actual_revenue,
+        "farm_potential": farm_potential,
         "real_money": real_money,
         "sales_funnel": sales_funnel,
+        "mission2_kpi": mission2_kpi,
         "lanes": lanes,
         "withdraw_alert": withdraw_alert,
         "pipeline": pipeline,

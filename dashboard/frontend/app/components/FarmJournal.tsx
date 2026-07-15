@@ -171,9 +171,11 @@ export function FarmJournal() {
                   {formatEur(dash.today_earned_eur)}
                 </p>
               </div>
-              <div className="genesis-card p-4">
-                <p className="text-xs text-genesis-muted">Всего накоплено</p>
-                <p className="mt-1 text-2xl font-bold text-white">{formatEur(dash.total_earned_eur)}</p>
+              <div className="genesis-card border-amber-500/20 bg-amber-950/10 p-4">
+                <p className="text-xs text-amber-200/80">Журнал фермы · не Stripe</p>
+                <p className="mt-1 text-xl font-bold tabular-nums text-white/80">
+                  {formatEur(dash.total_earned_eur)}
+                </p>
                 <p className="mt-1 text-[11px] text-genesis-muted">{dash.balance_label}</p>
               </div>
               <div className="genesis-card p-4">

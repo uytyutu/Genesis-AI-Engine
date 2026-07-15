@@ -401,8 +401,65 @@ def _business_health():
 def get_business_health() -> BusinessHealthDashboard:
     data = _business_health().dashboard()
     data["ceo_outbox"] = _ctx().acquisition.ceo_outbox_summary()
-    data["money_monitor"] = _ctx().micro_farm.money_monitor_panel(lite=True)
+    monitor = _ctx().micro_farm.money_monitor_panel(lite=True)
+    data["money_monitor"] = monitor
+    data["mission2_kpi"] = monitor.get("mission2_kpi")
+    from app.integration.mission_proof_service import build_mission_proof
+
+    ctx = _ctx()
+    fin = ctx.finance
+    inputs = fin.real_money_inputs()
+    data["mission_proof"] = build_mission_proof(
+        ctx.opportunity.list_opportunities(limit=5000),
+        settlements=inputs.get("settlements"),
+        memory_dir=ctx.opportunity.memory_dir,
+    )
+    from app.integration.revenue_engines_service import build_revenue_engines
+
+    data["revenue_engines"] = build_revenue_engines(
+        memory_dir=ctx.opportunity.memory_dir,
+        finance_snapshot=inputs.get("finance_snapshot") or {},
+        settlements=inputs.get("settlements"),
+        farm_state=ctx.micro_farm._load_state(),  # noqa: SLF001
+    )
     return BusinessHealthDashboard(**data)
+
+
+@app.get("/api/owner/mission2-kpi")
+def get_mission2_kpi() -> dict:
+    from app.integration.mission2_kpi_service import build_mission2_kpi
+    from app.integration.finance_service import FinanceService
+
+    ctx = _ctx()
+    opps = ctx.opportunity.list_opportunities(limit=5000)
+    pending = sum(1 for r in opps if r.get("outreach_status") == "pending_approval")
+    state = ctx.micro_farm._load_state()  # noqa: SLF001
+    fin = FinanceService(ctx.opportunity.memory_dir)
+    inputs = fin.real_money_inputs()
+    from app.integration.real_money_service import build_real_money_tiers
+
+    tiers = build_real_money_tiers(
+        finance_snapshot=inputs["finance_snapshot"],
+        transactions=inputs["transactions"],
+        pending_payments=inputs["pending_payments"],
+        payout_history=inputs["payout_history"],
+        payment_connected=inputs["payment_connected"],
+        demo_mode=inputs["demo_mode"],
+        farm_training_eur=float(state.get("total_earned_eur") or 0),
+        opportunities=opps,
+    )
+    return build_mission2_kpi(
+        opps,
+        received_eur=float(tiers.get("paid_by_client", tiers["received"])["amount_eur"]),
+        training_eur=float(state.get("total_earned_eur") or 0),
+        outbox_pending=pending,
+    )
+
+
+@app.get("/api/owner/stripe-setup")
+def get_stripe_setup(request: Request) -> dict:
+    base = str(request.base_url).rstrip("/")
+    return _ctx().monetization_engine._checkout.stripe_setup_status(public_api_base=base)  # noqa: SLF001
 
 
 @app.post("/api/acquisition/auto-prepare-discovery")

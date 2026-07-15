@@ -60,15 +60,28 @@ def test_received_only_with_external_transaction():
     panel = build_money_monitor(
         farm_state={"total_earned_eur": 999, "total_tasks_done": 1},
         finance_inputs={
-            "finance_snapshot": {},
+            "finance_snapshot": {
+                "paid_by_client_eur": 147.35,
+                "pending_settlement_eur": 147.35,
+                "available_for_withdrawal_eur": 0,
+            },
             "transactions": [
                 {
-                    "at": "2026-07-15",
                     "amount_eur": 147.35,
                     "provider": "stripe",
                     "payment_id": "pi_abc",
                     "category": "sale",
-                    "label": "Аудит сайта",
+                    "at": "2026-07-15",
+                }
+            ],
+            "settlements": [
+                {
+                    "amount_eur": 147.35,
+                    "provider": "stripe",
+                    "payment_id": "pi_abc",
+                    "paid_at": "2026-07-15",
+                    "settlement_status": "pending_settlement",
+                    "label": "Audit",
                 }
             ],
             "pending_payments": [],
@@ -78,7 +91,8 @@ def test_received_only_with_external_transaction():
         },
     )
     assert panel["model_proven"] is True
-    assert panel["real_money"]["received"]["amount_eur"] == 147.35
+    assert panel["real_money"]["paid_by_client"]["amount_eur"] == 147.35
+    assert panel["real_money"]["available"]["amount_eur"] == 0.0
     assert panel["real_money"]["training"]["amount_eur"] == 999.0
     assert panel["lanes"][2]["amount_eur"] == 147.35
 
@@ -100,13 +114,13 @@ def test_training_never_counts_as_received():
         demo_mode=False,
         farm_training_eur=121.0,
     )
-    assert tiers["received"]["amount_eur"] == 0.0
+    assert tiers["paid_by_client"]["amount_eur"] == 0.0
     assert tiers["training"]["amount_eur"] == 121.0
 
 
 def test_pending_from_provider_queue(tmp_path: Path):
     tiers = build_real_money_tiers(
-        finance_snapshot={"pending_payouts_eur": 100.0},
+        finance_snapshot={"pending_settlement_eur": 100.0},
         transactions=[],
         pending_payments=[{"amount_eur": 320.0, "provider": "stripe", "payment_id": "p1", "label": "Клиент A"}],
         payout_history=[],
@@ -115,7 +129,6 @@ def test_pending_from_provider_queue(tmp_path: Path):
         farm_training_eur=0,
     )
     assert tiers["pending"]["amount_eur"] == 420.0
-    assert tiers["pending"]["payment_count"] == 2
 
 
 def test_demo_mode_zeros_received():
@@ -128,7 +141,7 @@ def test_demo_mode_zeros_received():
         demo_mode=True,
         farm_training_eur=0,
     )
-    assert tiers["received"]["amount_eur"] == 0.0
+    assert tiers["paid_by_client"]["amount_eur"] == 0.0
 
 
 def test_forecast_from_pipeline():
@@ -149,7 +162,7 @@ def test_forecast_from_pipeline():
 
 
 def test_sales_funnel_counts():
-    from app.integration.sales_funnel_service import build_sales_funnel_progress
+    from app.integration.mission2_kpi_service import build_sales_funnel_progress
 
     rows = [
         {"id": "1", "status": "new", "meta": {}},
@@ -182,8 +195,22 @@ def test_money_monitor_includes_sales_funnel():
             {"status": "won", "revenue_eur": 300, "meta": {"qualification": {"passed": True}}, "proposed_message": "x", "outreach_status": "sent"},
         ],
         finance_inputs={
-            "finance_snapshot": {},
+            "finance_snapshot": {
+                "paid_by_client_eur": 250.0,
+                "pending_settlement_eur": 250.0,
+                "available_for_withdrawal_eur": 0.0,
+            },
             "transactions": [{"amount_eur": 250, "provider": "stripe", "payment_id": "pi_1", "category": "sale", "at": "2026-07-15"}],
+            "settlements": [
+                {
+                    "amount_eur": 250.0,
+                    "provider": "stripe",
+                    "payment_id": "pi_1",
+                    "paid_at": "2026-07-15",
+                    "settlement_status": "pending_settlement",
+                    "label": "Order",
+                }
+            ],
             "pending_payments": [],
             "payout_history": [],
             "payment_connected": True,

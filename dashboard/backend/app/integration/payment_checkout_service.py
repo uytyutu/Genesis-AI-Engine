@@ -192,3 +192,77 @@ class PaymentCheckoutService:
             "session_id": session.get("id"),
             "sender": str(session.get("customer_details", {}).get("email") or ""),
         }
+
+    def stripe_setup_status(self, *, public_api_base: str = "http://localhost:8000") -> dict:
+        """CEO checklist — Stripe Live wiring (env + webhook + confirm path)."""
+        sk = os.getenv("STRIPE_SECRET_KEY", "").strip()
+        pk = os.getenv("STRIPE_PUBLISHABLE_KEY", "").strip()
+        wh = os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()
+        live = sk.startswith("sk_live_")
+        test = sk.startswith("sk_test_")
+        configured = bool(sk)
+        webhook_url = f"{public_api_base.rstrip('/')}/api/webhooks/stripe"
+
+        steps = [
+            {
+                "id": "secret_key",
+                "label_ru": "STRIPE_SECRET_KEY в .env.local",
+                "done": configured,
+                "detail_ru": "sk_live_… после Gewerbe · sk_test_… для проверки",
+            },
+            {
+                "id": "publishable_key",
+                "label_ru": "STRIPE_PUBLISHABLE_KEY",
+                "done": bool(pk),
+                "detail_ru": "pk_live_… для checkout на сайте",
+            },
+            {
+                "id": "webhook",
+                "label_ru": "Webhook checkout.session.completed",
+                "done": bool(wh),
+                "detail_ru": f"URL: {webhook_url}",
+            },
+            {
+                "id": "demo_off",
+                "label_ru": "demo_mode выключен в finance_config",
+                "done": not self._load_config().get("demo_mode"),
+                "detail_ru": "Иначе «Получено» остаётся 0 €",
+            },
+        ]
+
+        if configured and live:
+            mode_ru = "Stripe Live — реальные €"
+        elif configured and test:
+            mode_ru = "Stripe Test — без реального банка"
+        else:
+            mode_ru = "Не подключено"
+
+        from app.integration.payment_settlement_service import PaymentSettlementService
+
+        settlements = PaymentSettlementService(self._memory)
+        has_webhook_payment = settlements.has_stripe_webhook_payment()
+        return {
+            "configured": configured,
+            "live_mode": live,
+            "test_mode": test,
+            "webhook_configured": bool(wh),
+            "mode_label_ru": mode_ru,
+            "implementation_status_ru": "Поддержка Stripe реализована",
+            "operational_status_ru": (
+                "Stripe проверен — есть webhook-оплата"
+                if has_webhook_payment
+                else "Stripe не проверен — нужна тестовая оплата + webhook"
+            ),
+            "operational": has_webhook_payment and configured,
+            "webhook_url": webhook_url,
+            "steps": steps,
+            "ceo_path_ru": [
+                "1. Stripe Dashboard → Developers → API keys → sk_live + pk_live в dashboard/backend/.env.local",
+                f"2. Webhooks → Add endpoint → {webhook_url} → checkout.session.completed",
+                "3. Скопировать whsec_… → STRIPE_WEBHOOK_SECRET",
+                "4. Genesis.exe → Перезапуск → /finance → «Синхронизировать Stripe»",
+                "5. Клиент оплатил → webhook → «Получено» на /business/kpi",
+                "6. CEO confirm на /finance если платёж в очереди pending",
+            ],
+            "sync_hint_ru": "POST /api/owner/payment-sync после сохранения ключей",
+        }

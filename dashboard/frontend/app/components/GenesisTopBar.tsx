@@ -6,6 +6,7 @@ import { BRAND_NAME } from "../lib/publicBrand";
 
 const TITLES: Record<string, string> = {
   "/business": "Business Health",
+  "/business/kpi": "Mission 2 · KPI",
   "/": "Цифровая ферма",
   "/journal": "Журнал",
   "/company": "Компания",
@@ -14,7 +15,7 @@ const TITLES: Record<string, string> = {
   "/cursor": "Development Studio",
   "/acquisition": "Sales Studio",
   "/ai": "AI Hub",
-  "/growth": "Аналитика",
+  "/growth": "Mission 2 · Конверсия",
   "/launch": "Запуск",
   "/order": "Заказ",
   "/check": "Разработчик",
@@ -34,6 +35,12 @@ function titleForPath(pathname: string): string {
 export function GenesisTopBar() {
   const pathname = usePathname() ?? "/";
   const title = titleForPath(pathname);
+  const businessFocus =
+    pathname === "/business" ||
+    pathname.startsWith("/business/") ||
+    pathname === "/growth" ||
+    pathname === "/acquisition" ||
+    pathname === "/finance";
 
   return (
     <header className="genesis-topbar">
@@ -42,12 +49,25 @@ export function GenesisTopBar() {
         <h1 className="genesis-topbar__title">{title}</h1>
       </div>
       <div className="genesis-topbar__actions">
-        <Link href="/site" className="genesis-topbar__link">
-          Сайт для клиентов
-        </Link>
-        <Link href="/create" className="genesis-topbar__cta">
-          + Продукт
-        </Link>
+        {!businessFocus ? (
+          <>
+            <Link href="/site" className="genesis-topbar__link">
+              Сайт для клиентов
+            </Link>
+            <Link href="/create" className="genesis-topbar__cta">
+              + Продукт
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link href="/acquisition" className="genesis-topbar__link">
+              Outbox
+            </Link>
+            <Link href="/finance" className="genesis-topbar__cta">
+              Финансы
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );

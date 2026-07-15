@@ -516,6 +516,18 @@ class LastWithdrawal(BaseModel):
     status_label: str
 
 
+class SettlementRecord(BaseModel):
+    settlement_id: str | None = None
+    payment_id: str | None = None
+    amount_eur: float
+    provider: str | None = None
+    label: str | None = None
+    paid_at: str | None = None
+    available_at: str | None = None
+    settlement_status: str | None = None
+    settlement_status_ru: str | None = None
+
+
 class FinancialView(BaseModel):
     system_mode: str = "sandbox"
     funds_held_by_genesis_eur: float = 0.0
@@ -523,6 +535,9 @@ class FinancialView(BaseModel):
     money_route: str = ""
     custody_note: str = ""
     gross_synced_eur: float = 0.0
+    paid_by_client_eur: float = 0.0
+    pending_settlement_eur: float = 0.0
+    available_for_withdrawal_eur: float = 0.0
     commission_eur: float = 0.0
     net_after_fees_eur: float = 0.0
     tax_reserve_eur: float = 0.0
@@ -550,6 +565,8 @@ class FinanceCenter(BaseModel):
     data_source_note: str
     currency: str
     platform_balance_eur: float
+    paid_by_client_eur: float = 0.0
+    pending_settlement_eur: float = 0.0
     revenue_today_eur: float
     revenue_month_eur: float
     gross_revenue_eur: float
@@ -567,6 +584,8 @@ class FinanceCenter(BaseModel):
     last_withdrawal: LastWithdrawal | None = None
     revenue_sparkline: list[float] = []
     pending_payments: list[PendingPayment] = []
+    settlements: list[SettlementRecord] = []
+    settlement_note_ru: str = ""
     global_revenue: dict = {}
     system_mode: str = "sandbox"
     financial_view: FinancialView | dict = {}
@@ -1853,6 +1872,114 @@ class SalesFunnelDashboard(BaseModel):
     subtitle_ru: str
     steps: list[SalesFunnelStep]
     training_note_ru: str = ""
+    next_action_href: str = "/business"
+
+
+class Mission2KpiMetric(BaseModel):
+    id: str
+    label_ru: str
+    value: float
+    format: str
+    display: str | None = None
+
+
+class Mission2Conversion(BaseModel):
+    id: str
+    label_ru: str
+    from_label_ru: str
+    to_label_ru: str
+    percent: int
+    from_count: int
+    to_count: int
+
+
+class Mission2NextAction(BaseModel):
+    title_ru: str
+    text_ru: str
+    detail_ru: str
+    href: str
+    priority: str
+    action_id: str
+
+
+class Mission2NavSection(BaseModel):
+    href: str
+    label_ru: str
+    hint_ru: str
+
+
+class Mission2KpiDashboard(BaseModel):
+    title_ru: str
+    subtitle_ru: str
+    metrics: list[Mission2KpiMetric]
+    conversions: list[Mission2Conversion]
+    bottleneck_ru: str
+    next_action: Mission2NextAction
+    nav_sections: list[Mission2NavSection]
+    training_eur: float = 0.0
+    training_note_ru: str = ""
+
+
+class MissionProofStep(BaseModel):
+    id: str
+    label_ru: str
+    done: bool
+    icon: str = ""
+
+
+class MissionProofDashboard(BaseModel):
+    title_ru: str
+    subtitle_ru: str
+    progress_pct: int
+    progress_label_ru: str
+    steps: list[MissionProofStep]
+    next_unproven_ru: str
+
+
+class RevenueEngineEntry(BaseModel):
+    id: str
+    number: int
+    label_ru: str
+    subtitle_ru: str
+    counts_as_profit: bool
+    wallet_ru: str
+    promotion_ru: str = ""
+    confirmed_eur: float = 0.0
+    confirmed_label_ru: str = ""
+    available_eur: float = 0.0
+    pending_settlement_eur: float = 0.0
+    lab_journal_eur: float = 0.0
+    lab_journal_label_ru: str = ""
+
+
+class RevenueEnginesDashboard(BaseModel):
+    title_ru: str
+    subtitle_ru: str
+    engines: list[RevenueEngineEntry]
+    experiments: list[dict] = Field(default_factory=list)
+    money_route_ru: str
+    lab_rule_ru: str
+    stripe_operational_note_ru: str = ""
+    generated_at: str = ""
+
+
+class StripeSetupStep(BaseModel):
+    id: str
+    label_ru: str
+    done: bool
+    detail_ru: str
+
+
+class StripeSetupDashboard(BaseModel):
+    configured: bool
+    live_mode: bool
+    test_mode: bool
+    webhook_configured: bool
+    mode_label_ru: str
+    webhook_url: str
+    steps: list[StripeSetupStep]
+    ceo_path_ru: list[str]
+    sync_hint_ru: str
 
 
 class MoneyMonitorLane(BaseModel):
@@ -1876,6 +2003,7 @@ class MoneyMonitorDashboard(BaseModel):
     subtitle_ru: str
     real_money: RealMoneyDashboard | None = None
     sales_funnel: SalesFunnelDashboard | None = None
+    mission2_kpi: Mission2KpiDashboard | None = None
     lanes: list[MoneyMonitorLane]
     withdraw_alert: MoneyMonitorWithdrawAlert
     pipeline: list[MoneyMonitorPipelineStep] = Field(default_factory=list)
@@ -1899,6 +2027,9 @@ class BusinessHealthDashboard(BaseModel):
     links: dict[str, str]
     ceo_outbox: BusinessHealthCeoOutbox | None = None
     money_monitor: MoneyMonitorDashboard | None = None
+    mission2_kpi: Mission2KpiDashboard | None = None
+    mission_proof: MissionProofDashboard | None = None
+    revenue_engines: RevenueEnginesDashboard | None = None
 
 
 class BusinessHealthManualBumpRequest(BaseModel):
