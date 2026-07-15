@@ -20,7 +20,11 @@ from app.integration.opportunity_service import OpportunityService
 from app.integration.payment_checkout_service import PaymentCheckoutService
 from app.integration.public_intel_miner import PublicIntelMiner
 from app.integration.engine_hunter_service import EngineHunterService
-from app.integration.global_spider_service import GlobalSpiderService, world_scan_regions
+from app.integration.global_spider_service import (
+    DE_MAJOR_HUBS as _DE_BATCH_CITIES,
+    GlobalSpiderService,
+    world_scan_regions,
+)
 from app.integration.smart_gate_approval import SmartGateApprovalService
 from app.integration.engine_ai_service import EngineAIService
 from app.integration.stealth_http import stealth_status
@@ -43,29 +47,6 @@ _PENDING_STATUSES = frozenset({"new", "reviewed"})
 _NETWORK_MRR_PER_ASSET_EUR = 20.0
 _NETWORK_TARGET_MRR_EUR = 10_000.0
 _NETWORK_BATCH_MAX = 1000
-
-_DE_BATCH_CITIES = (
-    "Berlin",
-    "Hamburg",
-    "München",
-    "Köln",
-    "Frankfurt",
-    "Stuttgart",
-    "Düsseldorf",
-    "Leipzig",
-    "Dresden",
-    "Hannover",
-    "Nürnberg",
-    "Dortmund",
-    "Essen",
-    "Bremen",
-    "Pirna",
-    "Chemnitz",
-    "Bonn",
-    "Mannheim",
-    "Karlsruhe",
-    "Augsburg",
-)
 
 _NICHE_SCAN_QUERIES: dict[str, str] = {
     "local_service": "local service business",
@@ -327,12 +308,7 @@ class MonetizationEngineService:
             )
             return updated
 
-        self._finance.credit_order_payment(
-            micro_amount,
-            f"Junk-SEO: {row.get('company_name', '')}",
-            provider=str(self._checkout.provider() or "engine"),
-            order_id=row["id"],
-        )
+        # Lab / Junk-SEO must NEVER credit Stripe settlements — journal only.
         self._append_harvest_event(
             {
                 "type": "junk_micro_revenue",

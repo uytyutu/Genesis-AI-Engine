@@ -13,10 +13,17 @@ _JUNK_EMAIL_SUFFIXES = ("example.com", "wixpress.com", "sentry.io", "cloudflare.
 _SKIP_DOMAINS = frozenset(
     {
         "wikipedia.org",
+        "python.org",
+        "mozilla.org",
+        "debian.org",
+        "nginx.com",
         "cloudflare.com",
+        "f5.com",
         "example.com",
         "google.com",
         "facebook.com",
+        "github.com",
+        "apache.org",
     }
 )
 

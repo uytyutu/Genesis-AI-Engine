@@ -25,6 +25,39 @@ _LEGAL_SOURCES = frozenset(
 
 _FORBIDDEN_OPPORTUNITY_TYPES = frozenset({"exploit", "pentest"})
 
+# Demo spider seeds / megacorp — never show as B2B «активные возможности»
+_DEMO_HOSTS = frozenset(
+    {
+        "wikipedia.org",
+        "python.org",
+        "mozilla.org",
+        "debian.org",
+        "nginx.com",
+        "cloudflare.com",
+        "example.com",
+        "f5.com",
+        "w3.org",
+        "github.com",
+        "google.com",
+        "facebook.com",
+        "apache.org",
+        "kernel.org",
+        "gnu.org",
+    }
+)
+
+
+def _host_of(url: str) -> str:
+    host = (urlparse(url or "").hostname or "").lower()
+    return host[4:] if host.startswith("www.") else host
+
+
+def is_demo_seed_opportunity(row: dict[str, Any]) -> bool:
+    host = _host_of(str(row.get("website_url") or ""))
+    if not host:
+        return False
+    return any(host == d or host.endswith("." + d) for d in _DEMO_HOSTS)
+
 _LOST_REASON_CODES: dict[str, str] = {
     "expensive": "Дорого",
     "has_contractor": "Уже есть подрядчик",
@@ -202,12 +235,18 @@ def _legal_gate(row: dict[str, Any]) -> dict[str, Any]:
     legal = source in _LEGAL_SOURCES and opp_type not in _FORBIDDEN_OPPORTUNITY_TYPES
     if url and not url.startswith(("http://", "https://")):
         legal = False
+    if is_demo_seed_opportunity(row):
+        legal = False
     if int(hunter.get("bounty") or 0) > 0 and not meta.get("official_bounty_program"):
         legal = False
 
     return {
         "legal": legal,
-        "note_ru": "Только публичные данные · CEO решает · без автопродаж",
+        "note_ru": (
+            "Демо-seed / megacorp — не B2B-лид"
+            if is_demo_seed_opportunity(row)
+            else "Только публичные данные · CEO решает · без автопродаж"
+        ),
     }
 
 
@@ -628,6 +667,8 @@ def build_opportunity_discovery(
     for row in opportunities:
         if row.get("status") in ("won", "lost"):
             continue
+        if is_demo_seed_opportunity(row):
+            continue
         ev = evaluate_opportunity(
             row,
             all_rows=opportunities,
@@ -652,8 +693,8 @@ def build_opportunity_discovery(
         "methods": _METHODS_RU,
         "cto_warning_ru": _CTO_WARNING_RU,
         "ceo_hints_ru": [
-            "Цель: 10 реальных B2B-разговоров — не обязательно 10 продаж",
-            "1. Запустите ферму (feed) — Spider найдёт компании с проблемами",
+            "Цель: 10 реальных B2B-разговоров в DE — не Wikipedia/demo seeds",
+            "1. Google Places + city Köln (или ваш город) → реальные Handwerker/IT",
             "2. Смотрите Score + Win% + Confidence — честная тройка оценки",
             "3. «Подготовить предложение» — черновик КП, вы отправляете сами",
             "4. При отказе — укажите причину (база учится)",

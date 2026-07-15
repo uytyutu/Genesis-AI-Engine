@@ -21,12 +21,12 @@ from app.config import env_config_file, get_api_key
 _SETUP_STEPS = [
     {
         "step": 1,
-        "title": "Google Cloud Console",
+        "title": "Google Cloud Console — Places API (New)",
         "detail": (
-            "console.cloud.google.com → новый проект (Genesis-Engine) → "
-            "APIs & Services → Library → Places API → Enable."
+            "console.cloud.google.com → APIs & Services → Library → "
+            "«Places API (New)» → Enable. Legacy Place Text Search не используется."
         ),
-        "url": "https://console.cloud.google.com/apis/library/places-backend.googleapis.com",
+        "url": "https://console.cloud.google.com/apis/library/places.googleapis.com",
     },
     {
         "step": 2,
@@ -38,8 +38,8 @@ _SETUP_STEPS = [
         "step": 3,
         "title": "Вставить в Genesis",
         "detail": (
-            "Файл dashboard/backend/.env.local — строка "
-            "GOOGLE_PLACES_API_KEY=ваш_ключ (без кавычек)."
+            "dashboard/backend/.env.local — GOOGLE_API_KEY=AIza… "
+            "или GOOGLE_PLACES_API_KEY=… (без кавычек). Старый невалидный ключ удалите."
         ),
     },
     {
@@ -51,11 +51,16 @@ _SETUP_STEPS = [
         "step": 5,
         "title": "Запустить автопилот",
         "detail": (
-            "Engine → город (New York, London, Berlin…) → "
-            "«Запустить авто-поиск» или «Поиск в одном городе»."
+            "Spider / Acquisition → DE hubs (Berlin, Köln…) → "
+            "появятся Handwerker / IT с сайтами."
         ),
     },
 ]
+
+_PLACES_NEW_SEARCH = "https://places.googleapis.com/v1/places:searchText"
+_PLACES_FIELD_MASK = (
+    "places.id,places.displayName,places.formattedAddress,places.websiteUri,places.types"
+)
 
 
 @dataclass
@@ -67,17 +72,41 @@ class PlacesLead:
     types: list[str]
 
 
+def _resolve_places_api_key() -> tuple[str, str]:
+    """Load Places key from .env.local.
+
+    Prefer GOOGLE_API_KEY when it looks like a standard Cloud key (AIza…),
+    because a stale GOOGLE_PLACES_API_KEY often shadows the new working key.
+    Returns (key, env_var_name).
+    """
+    places = get_api_key("GOOGLE_PLACES_API_KEY")
+    google = get_api_key("GOOGLE_API_KEY")
+    if google.startswith("AIza"):
+        return google, "GOOGLE_API_KEY"
+    if places:
+        return places, "GOOGLE_PLACES_API_KEY"
+    if google:
+        return google, "GOOGLE_API_KEY"
+    return "", "none"
+
+
 class GooglePlacesService:
     def __init__(self, api_key: str | None = None, *, use_env: bool = True) -> None:
+        self._key_source = "injected"
         if api_key is not None:
             self._api_key = api_key.strip()
         elif use_env:
-            self._api_key = get_api_key("GOOGLE_PLACES_API_KEY")
+            self._api_key, self._key_source = _resolve_places_api_key()
         else:
             self._api_key = ""
+            self._key_source = "none"
 
     def configured(self) -> bool:
         return bool(self._api_key)
+
+    def key_source(self) -> str:
+        """Which env var supplied the key (never returns the secret)."""
+        return self._key_source
 
     def setup_status(self) -> dict[str, Any]:
         """CEO onboarding — where to put GOOGLE_PLACES_API_KEY for Germany autopilot."""
@@ -97,7 +126,7 @@ class GooglePlacesService:
         return {
             "configured": configured,
             "autopilot_ready": configured,
-            "env_var": "GOOGLE_PLACES_API_KEY",
+            "env_var": self.key_source() if configured else "GOOGLE_PLACES_API_KEY|GOOGLE_API_KEY",
             "primary_config_file": env_config_file(),
             "config_files_found": existing_files,
             "setup_steps": _SETUP_STEPS,
@@ -106,8 +135,8 @@ class GooglePlacesService:
                 "обычно хватает бесплатного тарифа."
             ),
             "security_note": (
-                "В Google Cloud → Credentials → API Key → Application restrictions: "
-                "IP addresses (ваш IP или 127.0.0.1 для локального Genesis)."
+                "Credentials → API Key → API restrictions: разрешите «Places API (New)». "
+                "Если стоит Restrict key и нет Places — будет Requests … are blocked."
             ),
             "usage": {
                 "scan_mode": "Город + ниша → Поиск в одном городе",
@@ -125,10 +154,13 @@ class GooglePlacesService:
         region: str = "de",
         limit: int = 20,
         throttle_ms: int = 250,
+        lat: float | None = None,
+        lng: float | None = None,
+        radius_m: int = 25000,
     ) -> list[PlacesLead]:
-        """Text search + details (website). Returns up to `limit` leads.
+        """Text search via Places API (New). Returns up to `limit` leads.
 
-        Uses Places Text Search + Place Details (website field).
+        Optional lat/lng biases results to a city radius (e.g. Köln).
         """
         if not self._api_key:
             raise ValueError("places_not_configured")
@@ -137,58 +169,64 @@ class GooglePlacesService:
             return []
         limit = max(1, min(int(limit), 50))
 
-        leads: list[PlacesLead] = []
-        next_page: str | None = None
+        body: dict[str, Any] = {
+            "textQuery": q,
+            "languageCode": (language or "de").split("-")[0],
+            "regionCode": (region or "de").upper()[:2],
+            "maxResultCount": min(limit, 20),
+        }
+        if lat is not None and lng is not None:
+            body["locationBias"] = {
+                "circle": {
+                    "center": {"latitude": float(lat), "longitude": float(lng)},
+                    "radius": float(max(1000, min(int(radius_m), 50000))),
+                }
+            }
+
+        headers = {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": self._api_key,
+            "X-Goog-FieldMask": _PLACES_FIELD_MASK,
+        }
 
         with httpx.Client(timeout=30.0) as client:
-            while len(leads) < limit:
-                params = {
-                    "query": q,
-                    "language": language,
-                    "region": region,
-                    "key": self._api_key,
-                }
-                if next_page:
-                    params["pagetoken"] = next_page
-                res = client.get(
-                    "https://maps.googleapis.com/maps/api/place/textsearch/json",
-                    params=params,
-                )
-                if res.status_code >= 400:
-                    raise RuntimeError(f"places_textsearch_error:{res.status_code}")
-                payload = res.json()
-                status = str(payload.get("status") or "").strip()
-                if status and status not in ("OK", "ZERO_RESULTS"):
-                    message = str(payload.get("error_message") or status).strip()
-                    raise RuntimeError(f"places_textsearch_status:{message}")
-                results = payload.get("results") or []
-                for r in results:
-                    if len(leads) >= limit:
-                        break
-                    place_id = str(r.get("place_id") or "").strip()
-                    if not place_id:
-                        continue
-                    name = str(r.get("name") or "").strip()
-                    address = str(r.get("formatted_address") or r.get("vicinity") or "").strip()
-                    types = [str(t) for t in (r.get("types") or []) if str(t).strip()]
+            if throttle_ms > 0:
+                time.sleep(min(throttle_ms / 1000.0, 1.0))
+            res = client.post(_PLACES_NEW_SEARCH, json=body, headers=headers)
+            if res.status_code >= 400:
+                detail = ""
+                try:
+                    detail = str((res.json() or {}).get("error", {}).get("message") or res.text)[:220]
+                except Exception:
+                    detail = res.text[:220]
+                raise RuntimeError(f"places_textsearch_status:{detail or res.status_code}")
 
-                    website = self._fetch_website(client=client, place_id=place_id, throttle_ms=throttle_ms)
-                    leads.append(
-                        PlacesLead(
-                            place_id=place_id,
-                            name=name,
-                            address=address,
-                            website=website or None,
-                            types=types,
-                        )
-                    )
-                next_page = payload.get("next_page_token")
-                if not next_page:
+            payload = res.json() if res.content else {}
+            places = payload.get("places") or []
+            leads: list[PlacesLead] = []
+            for r in places:
+                if len(leads) >= limit:
                     break
-                # Google requires a short delay before token becomes valid.
-                time.sleep(max(0.2, throttle_ms / 1000.0))
-
-        return leads
+                place_id = str(r.get("id") or "").strip()
+                if place_id.startswith("places/"):
+                    place_id = place_id.split("/", 1)[-1]
+                display = r.get("displayName") if isinstance(r.get("displayName"), dict) else {}
+                name = str(display.get("text") or "").strip()
+                address = str(r.get("formattedAddress") or "").strip()
+                website = str(r.get("websiteUri") or "").strip() or None
+                types = [str(t) for t in (r.get("types") or []) if str(t).strip()]
+                if not place_id and not name:
+                    continue
+                leads.append(
+                    PlacesLead(
+                        place_id=place_id or name,
+                        name=name or place_id,
+                        address=address,
+                        website=website,
+                        types=types,
+                    )
+                )
+            return leads
 
     def _fetch_website(self, *, client: httpx.Client, place_id: str, throttle_ms: int) -> str:
         time.sleep(max(0.05, throttle_ms / 1000.0))

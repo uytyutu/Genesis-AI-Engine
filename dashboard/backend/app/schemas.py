@@ -336,6 +336,17 @@ class RevenuePaymentResponse(BaseModel):
     receipt_email: dict | None = None
 
 
+class StripeWebhookResponse(BaseModel):
+    status: str
+    ok: bool = True
+    event_type: str | None = None
+    order_id: str | None = None
+    amount_eur: float | None = None
+    product_id: str | None = None
+    client_message: str = ""
+    already_processed: bool = False
+
+
 class OwnerNotification(BaseModel):
     at: str
     title: str
@@ -1317,6 +1328,9 @@ class AcquisitionDailyWorklist(BaseModel):
     target_per_day: int
     segments: list[dict] = []
     sources_disabled: list[str] = []
+    target_city: str | None = None
+    search_radius: int | None = None
+    profitable_niches: list[str] = []
 
 
 class AcquisitionCatalogResponse(BaseModel):

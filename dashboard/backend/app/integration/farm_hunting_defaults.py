@@ -55,9 +55,14 @@ DEFAULT_POLLING_INTERVAL_SEC = 8
 
 def merge_hunting_config(cfg: dict[str, Any]) -> dict[str, Any]:
     out = dict(cfg)
+    # CEO lock: do not re-inject lab/demo seeds when targeting real DE businesses.
+    freeze = bool(out.get("freeze_lists") or out.get("target_mode") == "places_only")
 
     def _merge_list(key: str, defaults: list[str]) -> None:
         existing = [str(x).strip() for x in (out.get(key) or []) if str(x).strip()]
+        if freeze:
+            out[key] = existing
+            return
         seen = {x.casefold() for x in existing}
         for item in defaults:
             if item.casefold() not in seen:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -39,6 +40,118 @@ def test_global_spider_load_merges_config(tmp_path: Path):
     assert cfg["min_task_price"] == 0.03
     assert "https://only.example" in cfg["seed_targets"]
     assert "проверка фактов в текстах" in cfg["seed_targets"]
+
+
+def test_freeze_lists_keeps_ceo_targets(tmp_path: Path):
+    path = tmp_path / "global_spider_config.json"
+    path.write_text(
+        json.dumps(
+            {
+                "freeze_lists": True,
+                "target_mode": "places_only",
+                "seed_targets": [],
+                "places_queries": ["Autowerkstatt", "Handwerker"],
+                "search_city": "Köln",
+                "search_lat": 50.9375,
+                "search_lng": 6.9603,
+            }
+        ),
+        encoding="utf-8",
+    )
+    cfg = GlobalSpiderService(tmp_path).load_config()
+    assert cfg["seed_targets"] == []
+    assert cfg["places_queries"] == ["Autowerkstatt", "Handwerker"]
+    assert "сравнение ответов чат-ботов" not in cfg["seed_targets"]
+    assert cfg["search_city"] == "Köln"
+
+
+def test_profitable_niches_cycle_target_city(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    path = tmp_path / "global_spider_config.json"
+    path.write_text(
+        json.dumps(
+            {
+                "freeze_lists": True,
+                "seed_targets": [],
+                "profitable_niches": ["Kfz-Werkstatt", "Dachdecker"],
+                "target_city": "Köln",
+                "search_radius": 20000,
+                "search_lat": 50.9375,
+                "search_lng": 6.9603,
+                "max_batch": 4,
+            }
+        ),
+        encoding="utf-8",
+    )
+    spider = GlobalSpiderService(tmp_path)
+    seen_queries: list[str] = []
+    seen_cities: list[str] = []
+    seen_radius: list[int] = []
+
+    def _fake_search(
+        self,
+        query,
+        *,
+        region,
+        city,
+        seen,
+        urls,
+        batch_limit,
+        stats,
+        stat_key="query_seeds",
+        lat=None,
+        lng=None,
+        radius_m=25000,
+    ):
+        seen_queries.append(query)
+        seen_cities.append(city)
+        seen_radius.append(radius_m)
+        u = f"https://{query.replace(' ', '-').lower()}-{len(urls)}.koeln.de"
+        if u not in seen and len(urls) < batch_limit:
+            seen.add(u)
+            urls.append(u)
+            stats["places"] = int(stats.get("places") or 0) + 1
+
+    monkeypatch.setattr(GlobalSpiderService, "_places_text_search", _fake_search)
+    monkeypatch.setattr(spider._places, "configured", lambda: True)
+    urls, stats = spider.discover_candidate_urls(batch_limit=4)
+    assert stats.get("target_city") == "Köln"
+    assert stats.get("search_radius_m") == 20000
+    assert seen_cities and all(c == "Köln" for c in seen_cities)
+    assert seen_queries == ["Kfz-Werkstatt", "Dachdecker"]
+    assert seen_radius and all(r == 20000 for r in seen_radius)
+    assert len(urls) == 2
+    assert "Pirna" not in seen_cities
+
+
+def test_acquisition_worklist_uses_target_city(tmp_path: Path):
+    from app.integration.acquisition_studio_service import AcquisitionStudioService
+    from app.integration.opportunity_service import OpportunityService
+
+    memory = tmp_path / "memory"
+    memory.mkdir()
+    (memory / "global_spider_config.json").write_text(
+        json.dumps(
+            {
+                "freeze_lists": True,
+                "target_city": "Köln",
+                "search_radius": 20000,
+                "profitable_niches": ["Kfz-Werkstatt", "Dachdecker"],
+                "seed_targets": [],
+                "places_queries": [],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    opp = OpportunityService(memory)
+    studio = AcquisitionStudioService(opp, sales_service=object())
+    wl = studio.daily_worklist()
+    assert wl["target_city"] == "Köln"
+    assert wl["search_radius"] == 20000
+    assert wl["profitable_niches"] == ["Kfz-Werkstatt", "Dachdecker"]
+    cities = {c for seg in wl["segments"] for c in seg["cities"]}
+    assert cities == {"Köln"}
+    assert "Pirna" not in cities
 
 
 def test_price_filter_skips_record_verify(tmp_path: Path):

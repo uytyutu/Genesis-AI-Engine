@@ -46,7 +46,7 @@ _NICHE_CATALOG: dict[str, dict[str, Any]] = {
     "local_service": {
         "label": "Локальные услуги",
         "lead_value_eur": 25.0,
-        "seed_queries": ["autowerkstatt pirna", "sanitaer dresden"],
+        "seed_queries": ["Autowerkstatt", "Sanitär"],
     },
     "expired_landing": {
         "label": "Заброшенные лендинги",
@@ -59,6 +59,17 @@ _NICHE_CATALOG: dict[str, dict[str, Any]] = {
         "seed_queries": ["old blog archive", "veraltete website"],
     },
 }
+
+
+def _hunt_seed_queries(memory_dir=None) -> list[str]:
+    """Build Places-style seeds from profitable_niches + target_city (not hardcoded Pirna)."""
+    from app.integration.global_spider_service import GlobalSpiderService
+
+    hunt = GlobalSpiderService(memory_dir).hunting_target()
+    city = hunt["target_city"]
+    niches = hunt["profitable_niches"] or ["Autowerkstatt"]
+    return [f"{n} {city}" for n in niches[:8]]
+
 
 
 def assert_public_scan_allowed(url: str) -> None:
@@ -140,12 +151,26 @@ class AssetScannerService:
         self._analyzer = SiteAnalysisService()
 
     def niches(self) -> list[dict[str, Any]]:
-        return [
-            {"id": k, "label": v["label"], "default_value_eur": v["lead_value_eur"]}
-            for k, v in _NICHE_CATALOG.items()
-        ]
+        mem = getattr(self._opportunity, "memory_dir", None)
+        hunt_seeds = _hunt_seed_queries(mem)
+        rows: list[dict[str, Any]] = []
+        for k, v in _NICHE_CATALOG.items():
+            seeds = hunt_seeds if k == "local_service" else list(v.get("seed_queries") or [])
+            rows.append(
+                {
+                    "id": k,
+                    "label": v["label"],
+                    "default_value_eur": v["lead_value_eur"],
+                    "seed_queries": seeds,
+                }
+            )
+        return rows
 
     def dashboard(self) -> dict[str, Any]:
+        from app.integration.global_spider_service import GlobalSpiderService
+
+        mem = getattr(self._opportunity, "memory_dir", None)
+        hunt = GlobalSpiderService(mem).hunting_target()
         rows = self._opportunity.list_opportunities(limit=200)
         assets = [r for r in rows if r.get("source_id") == "asset_scan"]
         won = [r for r in assets if r.get("status") == "won"]
@@ -159,6 +184,10 @@ class AssetScannerService:
             "monetized": len(won),
             "my_income_eur": round(my_income, 2),
             "pipeline_potential_eur": round(potential, 2),
+            "target_city": hunt["target_city"],
+            "search_radius": hunt["search_radius"],
+            "profitable_niches": hunt["profitable_niches"],
+            "seed_queries": _hunt_seed_queries(mem),
             "security_law": (
                 "Только публичные URL. Запрещены ключи, пароли, закрытые системы и приватные хранилища."
             ),

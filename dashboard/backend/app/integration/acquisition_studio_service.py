@@ -73,40 +73,34 @@ _SKIP_OUTREACH_DOMAINS = frozenset(
     {
         "wikipedia.org",
         "www.wikipedia.org",
+        "python.org",
+        "www.python.org",
+        "mozilla.org",
+        "www.mozilla.org",
+        "debian.org",
+        "www.debian.org",
+        "nginx.com",
+        "www.nginx.com",
         "cloudflare.com",
         "www.cloudflare.com",
+        "f5.com",
+        "www.f5.com",
         "example.com",
         "www.example.com",
         "google.com",
         "facebook.com",
+        "github.com",
+        "apache.org",
     }
 )
 
-_DAILY_SEGMENTS = [
-    {
-        "id": "autowerkstatt",
-        "label": "Автосервис",
-        "cities": ["Pirna", "Bautzen", "Freital", "Radebeul"],
-        "signals": ["нет сайта", "http://", "kein HTTPS", "nur Facebook"],
-    },
-    {
-        "id": "zahnarzt",
-        "label": "Стоматология",
-        "cities": ["Pirna", "Görlitz", "Bautzen"],
-        "signals": ["нет онлайн-записи", "устаревший дизайн"],
-    },
-    {
-        "id": "cafe",
-        "label": "Кафе / ресторан",
-        "cities": ["Pirna", "Radebeul", "Freital"],
-        "signals": ["нет меню онлайн", "только Instagram"],
-    },
-    {
-        "id": "handwerk",
-        "label": "Строительство / ремесло",
-        "cities": ["Bautzen", "Görlitz", "Pirna"],
-        "signals": ["нет портфолио", "Gelbe Seiten без сайта"],
-    },
+_SEGMENT_SIGNALS = [
+    "нет сайта",
+    "http://",
+    "kein HTTPS",
+    "nur Facebook",
+    "Gelbe Seiten без сайта",
+    "устаревший дизайн",
 ]
 
 
@@ -115,10 +109,30 @@ class AcquisitionStudioService:
         self._opportunity = opportunity_service
         self._sales = sales_service
         mem = getattr(opportunity_service, "memory_dir", None)
+        self._memory_dir = mem
         self._site = SiteAnalysisService(memory_dir=mem)
-        self._email = ReceiptEmailService()
+        self._email = ReceiptEmailService(memory_dir=mem)
         self._places = GooglePlacesService()
         self._outreach_lang = OutreachLanguageService()
+
+    def _hunt(self) -> dict[str, Any]:
+        from app.integration.global_spider_service import GlobalSpiderService
+
+        return GlobalSpiderService(self._memory_dir).hunting_target()
+
+    def _daily_segments(self) -> list[dict[str, Any]]:
+        hunt = self._hunt()
+        city = hunt["target_city"]
+        niches = hunt["profitable_niches"]
+        return [
+            {
+                "id": str(niche).casefold().replace(" ", "_")[:48],
+                "label": niche,
+                "cities": [city],
+                "signals": list(_SEGMENT_SIGNALS),
+            }
+            for niche in niches
+        ]
 
     def studio_status(self) -> dict:
         rows = self._opportunity._load_rows()
@@ -132,8 +146,8 @@ class AcquisitionStudioService:
             "auto_send": False,
             "outreach_send_enabled": outreach_enabled,
             "outreach_send_note": (
-                "Отправка через API только при GENESIS_OUTREACH_ENABLED=true и Approve CEO. "
-                "До Gewerbe — готовьте черновики, отправляйте вручную."
+                "Отправка через API nur mit GENESIS_OUTREACH_ENABLED=true, CEO Approve "
+                "und vollständigem Impressum + Abmelde-Link. Ohne Gewerbedaten — Versand gesperrt."
             ),
             "law": "Plan → Approve → Act",
             "pending_approval_count": pending,
@@ -159,15 +173,20 @@ class AcquisitionStudioService:
         return self._site.analyze(url)
 
     def daily_worklist(self) -> dict:
+        hunt = self._hunt()
         return {
             "date": datetime.now(timezone.utc).date().isoformat(),
-            "mode": "manual_search",
+            "mode": "config_locked",
             "note": (
-                "Автопоиск выключен. CEO ищет вручную (Maps, Gelbe Seiten, Instagram) "
-                f"и добавляет в журнал — {BRAND_NAME} готовит анализ и КП."
+                f"Локация из config: {hunt['target_city']} · радиус {hunt['search_radius']} м · "
+                f"ниши: {', '.join(hunt['profitable_niches'][:5])}. "
+                f"{BRAND_NAME} берёт город и ниши из global_spider_config.json."
             ),
+            "target_city": hunt["target_city"],
+            "search_radius": hunt["search_radius"],
+            "profitable_niches": hunt["profitable_niches"],
             "target_per_day": 5,
-            "segments": _DAILY_SEGMENTS,
+            "segments": self._daily_segments(),
             "sources_disabled": [
                 s["id"]
                 for s in self._opportunity.list_sources()
@@ -190,20 +209,28 @@ class AcquisitionStudioService:
 
         By default drafts only leads without a website. With force_skip_check=true
         CEO can draft improvement proposals even when a website exists.
+        Empty city → locked target_city from global_spider_config.json.
         """
         if not self._places.configured():
             raise ValueError("places_not_configured")
-        city = city.strip()
+        hunt = self._hunt()
+        city = (city or "").strip() or hunt["target_city"]
         query = query.strip()
         if not city or not query:
             raise ValueError("invalid_query")
+        from app.integration.global_spider_service import _city_coords
+
+        coords = _city_coords(city)
         try:
             leads = self._places.search_text(
                 query=f"{query} {city}",
                 language=language,
-                region="de",
+                region=hunt["search_region"],
                 limit=limit,
                 throttle_ms=throttle_ms,
+                lat=coords[0] if coords else None,
+                lng=coords[1] if coords else None,
+                radius_m=hunt["search_radius"],
             )
         except RuntimeError as exc:
             raise ValueError(str(exc).replace("places_textsearch_status:", "places_error:")) from exc
@@ -287,6 +314,8 @@ class AcquisitionStudioService:
             "skipped_has_site": skipped_has_site,
             "skipped_already_queued": skipped_already_queued,
             "force_skip_check": force_skip_check,
+            "city": city,
+            "search_radius": hunt["search_radius"],
             "results": [l.__dict__ for l in leads],
         }
 
