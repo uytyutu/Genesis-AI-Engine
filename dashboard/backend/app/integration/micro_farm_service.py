@@ -312,6 +312,7 @@ class MicroFarmService:
                 _farm_logger.exception("farm boot warm failed: %s", key)
 
     def money_monitor_panel(self, *, lite: bool = False) -> dict[str, Any]:
+        from app.integration.finance_service import FinanceService
         from app.integration.money_monitor_service import build_money_monitor
         from swarm.payout_notifier import PayoutNotifier
 
@@ -319,6 +320,9 @@ class MicroFarmService:
         toloka = self.toloka_submit_status()
         opps = self._opportunity.list_opportunities(limit=300)
         pending = sum(1 for r in opps if r.get("outreach_status") == "pending_approval")
+        finance = FinanceService(self._memory)
+        finance_inputs = finance.real_money_inputs()
+        revenue_forecast = None if lite else self.revenue_forecast(labeling_nodes=10)
 
         if lite:
             pm: dict[str, Any] = {
@@ -340,6 +344,8 @@ class MicroFarmService:
             opportunities=opps,
             outbox_pending=pending,
             toloka_submit_count=int(toloka.get("submitted_count") or 0),
+            finance_inputs=finance_inputs,
+            revenue_forecast=revenue_forecast,
         )
 
     def dashboard_lite(self, owner_name: str = "Владелец") -> dict[str, Any]:

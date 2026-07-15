@@ -731,3 +731,34 @@ class FinanceService:
             "revenue_today_eur": float(snap["revenue_today_eur"]),
             "revenue_month_eur": float(snap["revenue_month_eur"]),
         }
+
+    def _load_all_transactions(self) -> list[dict]:
+        path = self._memory / "finance_transactions.jsonl"
+        if not path.exists():
+            return []
+        rows: list[dict] = []
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+        rows.sort(key=lambda r: str(r.get("at", "")), reverse=True)
+        return rows
+
+    def payment_connected(self) -> bool:
+        config = self._load_config()
+        return bool(config.get("payment_provider")) and not bool(config.get("demo_mode"))
+
+    def real_money_inputs(self) -> dict:
+        """Raw inputs for real-money tiers — no ledger mixing."""
+        config = self._load_config()
+        return {
+            "finance_snapshot": self._load_snapshot(),
+            "transactions": self._load_all_transactions(),
+            "pending_payments": self._pending_payments(),
+            "payout_history": self._payout_history(limit=50),
+            "payment_connected": self.payment_connected(),
+            "demo_mode": bool(config.get("demo_mode")),
+        }

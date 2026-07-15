@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.integration.real_money_service import build_real_money_tiers
+from app.integration.sales_funnel_service import build_sales_funnel_progress
+
 
 def build_money_monitor(
     *,
@@ -12,6 +15,8 @@ def build_money_monitor(
     opportunities: list[dict[str, Any]] | None = None,
     outbox_pending: int = 0,
     toloka_submit_count: int = 0,
+    finance_inputs: dict[str, Any] | None = None,
+    revenue_forecast: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Genesis = приборная панель. Биржа = касса (CEO вручную). B2B = реальный €."""
     pm = payment_monitor or {}
@@ -23,8 +28,21 @@ def build_money_monitor(
     llm_cost = round(float(farm_state.get("llm_cost_eur") or 0), 2)
     tasks = int(farm_state.get("total_tasks_done") or 0)
 
-    won = [r for r in opps if r.get("status") == "won"]
-    b2b_revenue = round(sum(float(r.get("revenue_eur") or 0) for r in won), 2)
+    fin = finance_inputs or {}
+    real_money = build_real_money_tiers(
+        finance_snapshot=fin.get("finance_snapshot") or {},
+        transactions=fin.get("transactions") or [],
+        pending_payments=fin.get("pending_payments") or [],
+        payout_history=fin.get("payout_history") or [],
+        payment_connected=bool(fin.get("payment_connected")),
+        demo_mode=bool(fin.get("demo_mode")),
+        farm_training_eur=training_eur,
+        opportunities=opps,
+        revenue_forecast=revenue_forecast,
+    )
+    received_eur = float(real_money["received"]["amount_eur"])
+    pending_eur = float(real_money["pending"]["amount_eur"])
+
     pending_proposals = sum(
         1 for r in opps if r.get("outreach_status") == "pending_approval"
     )
@@ -88,14 +106,14 @@ def build_money_monitor(
             "id": "b2b_client",
             "icon": "💶",
             "label_ru": "B2B — путь к банку",
-            "amount_eur": b2b_revenue,
-            "amount_label_ru": f"{b2b_revenue:.2f} € подтверждено",
-            "status": "primary" if b2b_revenue > 0 else "waiting",
+            "amount_eur": received_eur,
+            "amount_label_ru": f"{received_eur:.2f} € получено",
+            "status": "primary" if received_eur > 0 else "waiting",
             "status_ru": (
-                "Первый € получен" if b2b_revenue > 0 else "Ждём первую оплату клиента"
+                "Первый € на счёте" if received_eur > 0 else "Ждём первую оплату клиента"
             ),
             "detail_ru": (
-                f"Outbox: {outbox_pending or pending_proposals} на Approve · "
+                f"Ожидается: {pending_eur:.2f} € · Outbox: {outbox_pending or pending_proposals} на Approve · "
                 f"разговоров: {contacted}. Продаём аудит 50–500 €, не разметку."
             ),
         },
@@ -103,7 +121,11 @@ def build_money_monitor(
 
     withdraw_alert = {
         "active": withdraw_ready,
-        "level": "green" if withdraw_ready else ("amber" if b2b_revenue <= 0 and pending_proposals else "none"),
+        "level": (
+            "green"
+            if withdraw_ready
+            else ("amber" if received_eur <= 0 and pending_proposals else "none")
+        ),
         "title_ru": (
             "🟢 Пора вывести с биржи"
             if withdraw_ready
@@ -134,23 +156,26 @@ def build_money_monitor(
         {"step": 5, "id": "approve", "title_ru": "Approve CEO", "detail_ru": "Одна кнопка — вы"},
         {"step": 6, "id": "send", "title_ru": "Отправка", "detail_ru": "Email / WhatsApp"},
         {"step": 7, "id": "reply", "title_ru": "Ответ клиента", "detail_ru": "Журнал возможностей"},
-        {"step": 8, "id": "pay", "title_ru": "Оплата", "detail_ru": "Stripe / счёт → банк"},
+        {"step": 8, "id": "pay", "title_ru": "Оплата", "detail_ru": "Stripe / счёт → банк · рыночный риск"},
         {"step": 9, "id": "factory", "title_ru": "Биржа (фон)", "detail_ru": "Crash-test + делегирование, не доход"},
     ]
 
-    model_proven = b2b_revenue > 0
+    model_proven = received_eur > 0
+    sales_funnel = build_sales_funnel_progress(opps, received_eur=received_eur, training_eur=training_eur)
 
     return {
         "title_ru": "Приборная панель — деньги",
-        "subtitle_ru": "Genesis показывает · биржа выдаёт по команде CEO · B2B = банк",
+        "subtitle_ru": "Получено = только внешнее подтверждение · Прогноз = аналитика",
+        "real_money": real_money,
+        "sales_funnel": sales_funnel,
         "lanes": lanes,
         "withdraw_alert": withdraw_alert,
         "pipeline": pipeline,
         "model_proven": model_proven,
         "model_verdict_ru": (
-            "Модель доказана — есть оплата клиента."
+            "Модель доказана — деньги поступили на подключённый счёт."
             if model_proven
-            else "Модель не доказана — нужна хотя бы 1 успешная B2B-сделка."
+            else "Модель не доказана — нужна хотя бы 1 успешная B2B-сделка с оплатой."
         ),
         "toloka_role_ru": (
             "Toloka сейчас: Requester (заводской цех). "

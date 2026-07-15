@@ -1815,6 +1815,46 @@ class MoneyMonitorWithdrawAlert(BaseModel):
     threshold_usd: float | None = None
 
 
+class RealMoneyTier(BaseModel):
+    id: str
+    icon: str = ""
+    label_ru: str
+    amount_eur: float
+    amount_label_ru: str
+    detail_ru: str
+    payment_count: int | None = None
+    b2b_pipeline_eur: float | None = None
+    farm_analytics_eur: float | None = None
+
+
+class RealMoneyDashboard(BaseModel):
+    rule_ru: str
+    received: RealMoneyTier
+    pending: RealMoneyTier
+    forecast: RealMoneyTier
+    training: RealMoneyTier
+    bindings_needed: list[str] = Field(default_factory=list)
+    demo_mode: bool = False
+    payment_connected: bool = False
+
+
+class SalesFunnelStep(BaseModel):
+    id: str
+    label_ru: str
+    count: int | None = None
+    amount_eur: float | None = None
+    amount_label_ru: str | None = None
+    icon: str = ""
+
+
+class SalesFunnelDashboard(BaseModel):
+    title_ru: str
+    headline_ru: str
+    subtitle_ru: str
+    steps: list[SalesFunnelStep]
+    training_note_ru: str = ""
+
+
 class MoneyMonitorLane(BaseModel):
     id: str
     icon: str = ""
@@ -1834,6 +1874,8 @@ class MoneyMonitorPipelineStep(BaseModel):
 class MoneyMonitorDashboard(BaseModel):
     title_ru: str
     subtitle_ru: str
+    real_money: RealMoneyDashboard | None = None
+    sales_funnel: SalesFunnelDashboard | None = None
     lanes: list[MoneyMonitorLane]
     withdraw_alert: MoneyMonitorWithdrawAlert
     pipeline: list[MoneyMonitorPipelineStep] = Field(default_factory=list)

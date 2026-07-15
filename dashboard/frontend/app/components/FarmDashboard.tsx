@@ -1744,13 +1744,14 @@ export function FarmDashboard() {
           <section className="genesis-card p-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-xs text-genesis-muted">{dash.balance_label}</p>
-                <p className="mt-1 text-4xl font-bold tabular-nums text-emerald-300">
-                  {formatEur(dash.total_earned_eur)}
+                <p className="text-xs uppercase tracking-wide text-genesis-muted">Конвейер фермы</p>
+                <p className="mt-1 text-sm text-white/80">
+                  Задач: <strong>{dash.total_tasks_done}</strong> · Сегодня (учебный журнал):{" "}
+                  <span className="tabular-nums text-white/50">{formatEur(dash.today_earned_eur)}</span>
                 </p>
-                <p className="mt-2 text-sm text-white/80">
-                  Сегодня: <strong>{formatEur(dash.today_earned_eur)}</strong> · Задач:{" "}
-                  <strong>{dash.total_tasks_done}</strong>
+                <p className="mt-1 text-xs text-amber-200/70">
+                  {dash.balance_label} — всего{" "}
+                  <span className="tabular-nums">{formatEur(dash.total_earned_eur)}</span> (не банк)
                 </p>
                 <p className="mt-1 text-xs text-genesis-muted">{dash.cost_ratio_note}</p>
               </div>
