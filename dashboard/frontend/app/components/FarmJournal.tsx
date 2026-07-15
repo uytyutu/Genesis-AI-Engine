@@ -15,6 +15,10 @@ import {
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+function farmList<T>(value: T[] | null | undefined): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
 type FarmDash = {
   owner_name: string;
   running: boolean;
@@ -75,7 +79,7 @@ export function FarmJournal() {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetchApi(`${API}/api/farm/dashboard`, { timeoutMs: 20_000 });
+      const res = await fetchApi(`${API}/api/farm/dashboard/lite`, { timeoutMs: 12_000 });
       if (!res.ok) throw new Error("dashboard");
       setDash(await res.json());
       setError("");
@@ -195,7 +199,7 @@ export function FarmJournal() {
                   Порог алерта ≈ ${guide.threshold_usd.toFixed(0)} · {guide.note}
                 </p>
                 <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-white/90">
-                  {guide.steps.map((step, i) => (
+                  {farmList(guide.steps).map((step, i) => (
                     <li key={i}>{step}</li>
                   ))}
                 </ol>
@@ -227,7 +231,7 @@ export function FarmJournal() {
               <p className="mt-1 text-[11px] text-genesis-muted">
                 Задача принята → выполнена → платформа подтвердила → баланс вырос
               </p>
-              {!dash.recent_tasks.length ? (
+              {!farmList(dash.recent_tasks).length ? (
                 <p className="mt-4 text-sm text-genesis-muted">
                   Пусто — на{" "}
                   <Link href="/" className="text-emerald-300 underline">
@@ -237,7 +241,7 @@ export function FarmJournal() {
                 </p>
               ) : (
                 <ul className="mt-4 max-h-[32rem] space-y-2 overflow-y-auto text-xs">
-                  {dash.recent_tasks.map((t) => (
+                  {farmList(dash.recent_tasks).map((t) => (
                     <li
                       key={t.id}
                       className={`rounded-lg border px-3 py-2.5 ${lifecycleRowClass(t.lifecycle_stage)}`}

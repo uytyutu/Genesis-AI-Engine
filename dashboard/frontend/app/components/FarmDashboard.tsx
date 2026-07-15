@@ -15,6 +15,10 @@ import {
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+function farmList<T>(value: T[] | null | undefined): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
 type Combiner = { id: string; label: string; pay_eur: number; pay_label: string; primary?: boolean };
 type Platform = {
   id: string;
@@ -697,7 +701,7 @@ export function FarmDashboard() {
               <div className="rounded-lg border border-emerald-500/20 bg-emerald-950/15 p-3 text-xs">
                 <p className="font-semibold text-emerald-200">Что продаём бизнесу</p>
                 <ul className="mt-2 list-disc space-y-1 pl-4 text-white/85">
-                  {dash.production_platform.b2b_brief.we_sell_ru.map((item) => (
+                  {farmList(dash.production_platform.b2b_brief.we_sell_ru).map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
@@ -705,14 +709,14 @@ export function FarmDashboard() {
               <div className="rounded-lg border border-sky-500/20 bg-sky-950/15 p-3 text-xs">
                 <p className="font-semibold text-sky-200">Какие проблемы решаем</p>
                 <ul className="mt-2 list-disc space-y-1 pl-4 text-white/85">
-                  {dash.production_platform.b2b_brief.problems_we_solve_ru.map((item) => (
+                  {farmList(dash.production_platform.b2b_brief.problems_we_solve_ru).map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
               </div>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
-              {dash.production_platform.b2b_brief.packages_ru.map((pkg) => (
+              {farmList(dash.production_platform.b2b_brief.packages_ru).map((pkg) => (
                 <div key={pkg.scenario} className="rounded-lg border border-white/10 p-3 text-xs">
                   <p className="font-semibold text-emerald-200">{pkg.scenario}</p>
                   <p className="mt-1 text-white/80">«{pkg.client_says}»</p>
@@ -733,7 +737,7 @@ export function FarmDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {dash.production_platform.product_catalog.map((s) => (
+                    {farmList(dash.production_platform.product_catalog).map((s) => (
                       <tr key={s.service_number} className="border-t border-white/5">
                         <td className="py-2 pr-2">{s.service_number}</td>
                         <td className="py-2 pr-2 text-white">{s.title_ru}</td>
@@ -749,7 +753,7 @@ export function FarmDashboard() {
             ) : null}
             {dash.production_platform.capability_marketplace ? (
               <div className="flex flex-wrap gap-2">
-                {dash.production_platform.capability_marketplace.map((c) => (
+                {farmList(dash.production_platform.capability_marketplace).map((c) => (
                   <span
                     key={c.id}
                     className={`rounded px-2 py-1 text-[10px] ${
@@ -812,7 +816,7 @@ export function FarmDashboard() {
               <div>
                 <h3 className="text-sm font-bold text-amber-100">{dash.production_platform.revenue_router.recommended_ru}</h3>
                 <ul className="mt-2 space-y-1 text-xs">
-                  {dash.production_platform.revenue_router.channels.map((ch) => (
+                  {farmList(dash.production_platform.revenue_router?.channels).map((ch) => (
                     <li key={ch.id} className="flex flex-wrap gap-2 text-white/85">
                       <span className="font-medium">{ch.label_ru}</span>
                       <span className="text-emerald-300">{ch.potential_ru}</span>
@@ -845,7 +849,7 @@ export function FarmDashboard() {
               <div className="rounded-lg border border-sky-500/25 bg-sky-950/15 p-3 text-xs text-sky-100">
                 <p className="font-semibold">Как работать с этим блоком</p>
                 <ul className="mt-2 list-decimal space-y-1 pl-4 text-white/85">
-                  {dash.opportunity_discovery.ceo_hints_ru.map((h) => (
+                  {farmList(dash.opportunity_discovery.ceo_hints_ru).map((h) => (
                     <li key={h}>{h}</li>
                   ))}
                 </ul>
@@ -864,7 +868,7 @@ export function FarmDashboard() {
                   </p>
                 ) : null}
                 <ul className="mt-2 list-disc space-y-0.5 pl-4 text-white/75">
-                  {dash.opportunity_discovery.confidence.confidence_reasons_ru.map((r) => (
+                  {farmList(dash.opportunity_discovery.confidence.confidence_reasons_ru).map((r) => (
                     <li key={r}>{r}</li>
                   ))}
                 </ul>
@@ -876,7 +880,7 @@ export function FarmDashboard() {
                 <p className="font-semibold text-sky-100">{dash.opportunity_discovery.learning_timeline.title_ru}</p>
                 <p className="mt-1 text-genesis-muted">{dash.opportunity_discovery.learning_timeline.hint_ru}</p>
                 <ul className="mt-2 space-y-2">
-                  {dash.opportunity_discovery.learning_timeline.stages.map((s) => (
+                  {farmList(dash.opportunity_discovery.learning_timeline.stages).map((s) => (
                     <li key={s.milestone} className="flex flex-wrap gap-2 text-white/85">
                       <span
                         className={
@@ -902,7 +906,7 @@ export function FarmDashboard() {
                 <p className="font-semibold text-emerald-200">{dash.opportunity_discovery.success_patterns.title_ru}</p>
                 <p className="mt-1 text-genesis-muted">{dash.opportunity_discovery.success_patterns.hint_ru}</p>
                 <ul className="mt-2 space-y-2">
-                  {dash.opportunity_discovery.success_patterns.patterns.map((p) => (
+                  {farmList(dash.opportunity_discovery.success_patterns.patterns).map((p) => (
                     <li key={p.pattern_ru} className="text-white/85">
                       <strong>{p.pattern_ru}</strong> — {p.insight_ru}
                       <span className="block text-emerald-200/80">→ {p.action_hint_ru}</span>
@@ -915,7 +919,7 @@ export function FarmDashboard() {
             {dash.opportunity_discovery.top_opportunities && dash.opportunity_discovery.top_opportunities.length > 0 ? (
               <div className="space-y-3">
                 <h3 className="text-sm font-bold text-white">Активные возможности · не деньги, а шансы</h3>
-                {dash.opportunity_discovery.top_opportunities.slice(0, 6).map((opp) => (
+                {farmList(dash.opportunity_discovery.top_opportunities).slice(0, 6).map((opp) => (
                   <div
                     key={opp.opportunity_id}
                     className="rounded-lg border border-amber-500/20 bg-black/25 p-3 text-xs"
@@ -954,7 +958,7 @@ export function FarmDashboard() {
                       <div className="mt-2 rounded border border-white/5 bg-black/30 p-2">
                         <p className="font-medium text-amber-200">Почему именно {opp.win_probability_pct}%</p>
                         <ul className="mt-1 list-disc space-y-0.5 pl-4 text-white/75">
-                          {opp.win_probability_reasons_ru.map((r) => (
+                          {farmList(opp.win_probability_reasons_ru).map((r) => (
                             <li key={r}>{r}</li>
                           ))}
                         </ul>
@@ -1032,7 +1036,7 @@ export function FarmDashboard() {
                 <p className="mt-1 text-genesis-muted">{dash.opportunity_discovery.lost_reason_database.hint_ru}</p>
                 {dash.opportunity_discovery.lost_reason_database.by_reason?.length ? (
                   <ul className="mt-2 flex flex-wrap gap-2">
-                    {dash.opportunity_discovery.lost_reason_database.by_reason.map((r) => (
+                    {farmList(dash.opportunity_discovery.lost_reason_database?.by_reason).map((r) => (
                       <li key={r.code} className="rounded bg-black/30 px-2 py-1 text-white/80">
                         {r.label_ru}: {r.count}
                       </li>
@@ -1111,7 +1115,7 @@ export function FarmDashboard() {
               {dash.first_euro_gate.ceo_action_now}
             </p>
             <ol className="mt-4 space-y-2">
-              {dash.first_euro_gate.steps.map((step) => (
+              {farmList(dash.first_euro_gate.steps).map((step) => (
                 <li
                   key={step.id}
                   className="flex flex-wrap items-start justify-between gap-2 rounded-lg border border-white/5 px-3 py-2 text-xs"
@@ -1145,7 +1149,7 @@ export function FarmDashboard() {
               <h2 className="text-sm font-bold text-emerald-100">{dash.farm_program.title_ru}</h2>
               <p className="mt-1 text-[11px] text-genesis-muted">{dash.farm_program.pipeline?.diagram_ru}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {dash.farm_program.pipeline?.stages.map((s) => (
+                {farmList(dash.farm_program.pipeline?.stages).map((s) => (
                   <span
                     key={s.id}
                     className={`rounded px-2 py-1 text-[10px] ${
@@ -1169,7 +1173,7 @@ export function FarmDashboard() {
                   <p className="mt-2 text-xs text-rose-200">{dash.farm_program.revenue_path_map.blocker_ru}</p>
                 ) : null}
                 <ol className="mt-3 space-y-1.5">
-                  {dash.farm_program.revenue_path_map.steps.map((step) => (
+                  {farmList(dash.farm_program.revenue_path_map.steps).map((step) => (
                     <li key={step.id} className="flex flex-wrap gap-2 text-[11px]">
                       <span className={step.done ? "text-emerald-300" : "text-white/60"}>
                         {step.done ? "✓" : "○"} {step.title_ru}
@@ -1187,7 +1191,7 @@ export function FarmDashboard() {
                 <h3 className="text-xs font-bold text-sky-100">{dash.farm_program.explainability.title_ru}</h3>
                 <p className="mt-1 text-sm text-white">{dash.farm_program.explainability.recommendation_ru}</p>
                 <ul className="mt-2 list-inside list-disc text-[11px] text-white/80">
-                  {dash.farm_program.explainability.reasons.filter(Boolean).map((r) => (
+                  {farmList(dash.farm_program.explainability.reasons).filter(Boolean).map((r) => (
                     <li key={r}>{r}</li>
                   ))}
                 </ul>
@@ -1209,7 +1213,7 @@ export function FarmDashboard() {
                 <h3 className="text-xs font-bold text-white">{dash.farm_program.truth_engine.title_ru}</h3>
                 <table className="mt-2 w-full text-left text-[11px]">
                   <tbody>
-                    {dash.farm_program.truth_engine.records.map((rec) => (
+                    {farmList(dash.farm_program.truth_engine.records).map((rec) => (
                       <tr key={rec.label_ru} className="border-t border-white/5">
                         <td className="py-1.5 pr-2 text-white/90">{rec.label_ru}</td>
                         <td className="py-1.5 pr-2 font-mono text-emerald-200">{String(rec.value)}</td>
@@ -1256,7 +1260,7 @@ export function FarmDashboard() {
                 <h3 className="text-xs font-bold text-violet-100">{dash.farm_program.force_vectors.title_ru}</h3>
                 <p className="mt-1 text-[10px] text-genesis-muted">{dash.farm_program.force_vectors.note_ru}</p>
                 <ul className="mt-3 space-y-2">
-                  {dash.farm_program.force_vectors.vectors.map((v) => (
+                  {farmList(dash.farm_program.force_vectors.vectors).map((v) => (
                     <li
                       key={v.id}
                       className={`rounded border px-3 py-2 text-[11px] ${
@@ -1276,7 +1280,7 @@ export function FarmDashboard() {
 
             {dash.farm_program.post_first_revenue_questions_ru ? (
               <ul className="list-inside list-disc text-[11px] text-white/70">
-                {dash.farm_program.post_first_revenue_questions_ru.map((q) => (
+                {farmList(dash.farm_program.post_first_revenue_questions_ru).map((q) => (
                   <li key={q}>{q}</li>
                 ))}
               </ul>
@@ -1376,7 +1380,7 @@ export function FarmDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {dash.farm_program.commercial_experiments.map((row, i) => (
+                {farmList(dash.farm_program.commercial_experiments).map((row, i) => (
                   <tr key={`${row.channel}-${i}`} className="border-t border-white/5">
                     <td className="py-2 pr-2 text-white/70">{row.date_ru ?? "—"}</td>
                     <td className="py-2 pr-2 text-white/90">{row.channel}</td>
@@ -1408,9 +1412,9 @@ export function FarmDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {(
-                  dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence
-                )?.rows.map((row) => (
+                {farmList(
+                  (dash.commercial_evidence ?? dash.first_euro_gate?.commercial_evidence)?.rows
+                ).map((row) => (
                   <tr key={row.step} className="border-t border-white/5">
                     <td className="py-2 pr-2 text-white/90">{row.title_ru}</td>
                     <td className="py-2 pr-2">{row.status}</td>
@@ -1436,7 +1440,7 @@ export function FarmDashboard() {
           <section className="genesis-card border-amber-500/30 bg-amber-950/15 p-5">
             <h2 className="text-sm font-bold text-amber-100">Что сделать тебе (по порядку)</h2>
             <ol className="mt-3 space-y-3">
-              {dash.ceo_checklist.map((item) => (
+              {farmList(dash.ceo_checklist).map((item) => (
                 <li key={item.step} className="flex gap-3 text-sm">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500/25 text-xs font-bold text-amber-100">
                     {item.step}
@@ -1457,7 +1461,7 @@ export function FarmDashboard() {
                   Боевой режим: {dash.prepare_live.farm_mode === "live" ? "LIVE" : "dry_run"}
                 </p>
                 <ul className="mt-2 space-y-1 text-xs text-emerald-200/80">
-                  {dash.prepare_live.checklist.map((c) => (
+                  {farmList(dash.prepare_live.checklist).map((c) => (
                     <li key={c.step}>
                       {c.done ? "✓" : "○"} {c.title}
                     </li>
@@ -1485,7 +1489,7 @@ export function FarmDashboard() {
             </p>
             {dash.global_spider.toloka_task_categories?.length ? (
               <ul className="mt-3 flex flex-wrap gap-2 text-[11px]">
-                {dash.global_spider.toloka_task_categories.slice(0, 8).map((t) => (
+                {farmList(dash.global_spider.toloka_task_categories).slice(0, 8).map((t) => (
                   <li key={t} className="rounded-full border border-cyan-500/30 px-2 py-0.5 text-cyan-100/90">
                     {t}
                   </li>
@@ -1593,7 +1597,7 @@ export function FarmDashboard() {
             </p>
             {dash.dry_run.task_selection?.pipeline ? (
               <ol className="mt-3 space-y-1 text-xs text-sky-100/80">
-                {dash.dry_run.task_selection.pipeline.map((p) => (
+                {farmList(dash.dry_run.task_selection?.pipeline).map((p) => (
                   <li key={p.step}>
                     {p.step}. <strong>{p.name}</strong> — {p.detail}
                   </li>
@@ -1677,7 +1681,7 @@ export function FarmDashboard() {
             <h2 className="text-sm font-semibold text-white">{dash.payout_guide.title}</h2>
             <p className="mt-1 text-[11px] text-genesis-muted">{dash.payout_guide.note}</p>
             <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-white/85">
-              {dash.payout_guide.steps.map((s, i) => (
+              {farmList(dash.payout_guide.steps).map((s, i) => (
                 <li key={i}>{s}</li>
               ))}
             </ol>
@@ -1700,7 +1704,7 @@ export function FarmDashboard() {
               </p>
             ) : null}
             <ul className="mt-3 space-y-1 text-xs text-genesis-muted">
-              {dash.revenue_forecast.phases.map((p) => (
+              {farmList(dash.revenue_forecast.phases).map((p) => (
                 <li key={p.label}>
                   <strong>{p.label}</strong>: {p.eur_per_day} €/день — {p.note}
                 </li>
@@ -1796,7 +1800,7 @@ export function FarmDashboard() {
               Genesis видит список. Подключение — только после твоей регистрации и ключа в .env.local.
             </p>
             <ul className="mt-4 space-y-4">
-              {dash.platforms.map((p) => (
+              {farmList(dash.platforms).map((p) => (
                 <li
                   key={p.id}
                   className={`rounded-xl border px-4 py-3 ${
@@ -1813,7 +1817,7 @@ export function FarmDashboard() {
                   <p className="mt-1 text-xs text-genesis-muted">{p.note}</p>
                   {p.steps && p.steps.length > 0 && !p.connected ? (
                     <ol className="mt-2 list-decimal space-y-1 pl-4 text-[11px] text-amber-100/80">
-                      {p.steps.map((s, i) => (
+                      {farmList(p.steps).map((s, i) => (
                         <li key={i}>{s}</li>
                       ))}
                     </ol>
@@ -1845,11 +1849,11 @@ export function FarmDashboard() {
             <p className="mt-1 text-[11px] text-genesis-muted">
               Задача принята → выполнена → оплата → баланс · жёлтый = Scale пропущен
             </p>
-            {!dash.recent_tasks.length ? (
+            {!farmList(dash.recent_tasks).length ? (
               <p className="mt-3 text-sm text-genesis-muted">Пусто — жми «Запустить ферму».</p>
             ) : (
               <ul className="mt-3 max-h-72 space-y-2 overflow-y-auto text-xs">
-                {dash.recent_tasks.map((t) => (
+                {farmList(dash.recent_tasks).map((t) => (
                   <li
                     key={t.id}
                     className={`rounded-lg border px-3 py-2 ${lifecycleRowClass(t.lifecycle_stage)}`}

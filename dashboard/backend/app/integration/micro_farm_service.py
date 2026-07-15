@@ -24,6 +24,9 @@ from app.integration.stealth_http import stealth_fetch_get
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 _farm_logger = logging.getLogger("genesis.farm")
 
+_DASHBOARD_SECTION_CACHE: dict[str, tuple[float, Any]] = {}
+_DASHBOARD_SECTION_TTL_SEC = 45.0
+
 # Pay per completed micro-task (internal queue — real platforms override via adapters).
 _ADAPTER_PAY_EUR: dict[str, float] = {
     "ai_labeling": 0.05,
@@ -220,7 +223,57 @@ class MicroFarmService:
         return False
 
     def _refresh_live_test_if_stale(self, state: dict[str, Any]) -> None:
-        """Heal old Live test FAIL in UI when Toloka is already connected."""
+        """Heal stale Live test UI — only via explicit CEO action, never on dashboard GET."""
+        return
+
+    def _cached_section(self, key: str, factory) -> Any:
+        now = time.monotonic()
+        hit = _DASHBOARD_SECTION_CACHE.get(key)
+        if hit and now - hit[0] < _DASHBOARD_SECTION_TTL_SEC:
+            return hit[1]
+        value = factory()
+        _DASHBOARD_SECTION_CACHE[key] = (now, value)
+        return value
+
+    def dashboard_lite(self, owner_name: str = "Владелец") -> dict[str, Any]:
+        """Fast journal payload — no Toloka live probe, no heavy discovery scan."""
+        from app.env_loader import load_local_env
+
+        load_local_env()
+        state = self._load_state()
+        self._reset_today_if_needed(state)
+        sandbox = self._business_mode.is_sandbox()
+        net = round(
+            float(state.get("today_earned_eur") or 0) - float(state.get("llm_cost_eur") or 0),
+            4,
+        )
+        return {
+            "mode": "micro_farm",
+            "owner_name": owner_name,
+            "running": bool(state.get("running")),
+            "workers_active": int(state.get("workers_active") or 0),
+            "today_earned_eur": float(state.get("today_earned_eur") or 0),
+            "total_earned_eur": float(state.get("total_earned_eur") or 0),
+            "total_tasks_done": int(state.get("total_tasks_done") or 0),
+            "llm_cost_eur": float(state.get("llm_cost_eur") or 0),
+            "net_profit_eur": max(0.0, net),
+            "balance_label": (
+                "Накоплено (учебный режим — не банк)"
+                if sandbox
+                else "Накоплено на счёте"
+            ),
+            "sandbox": sandbox,
+            "dry_run": self.dry_run_status(),
+            "global_spider": self.global_spider_vector(),
+            "last_live_connection_test": state.get("last_live_connection_test"),
+            "payout_guide": self._payout_guide(),
+            "payment_monitor": {"monitor": None, "payout": None, "note": "lite"},
+            "recent_tasks": self._recent_events(15),
+            "last_tick_at": state.get("last_tick_at"),
+        }
+
+    def _refresh_live_test_legacy(self, state: dict[str, Any]) -> None:
+        """CEO-only live Toloka probe — can take 30–90s; never call from dashboard GET."""
         if self._is_dry_run():
             return
         last = state.get("last_live_connection_test") or {}
@@ -1378,6 +1431,9 @@ class MicroFarmService:
         )
 
     def production_platform(self) -> dict[str, Any]:
+        return self._cached_section("production_platform", self._build_production_platform)
+
+    def _build_production_platform(self) -> dict[str, Any]:
         from app.integration.production_platform import build_production_platform
 
         gate = self.first_euro_gate()
@@ -1410,6 +1466,9 @@ class MicroFarmService:
         }
 
     def opportunity_discovery(self) -> dict[str, Any]:
+        return self._cached_section("opportunity_discovery", self._build_opportunity_discovery)
+
+    def _build_opportunity_discovery(self) -> dict[str, Any]:
         from app.integration.opportunity_discovery_engine import build_opportunity_discovery
 
         hunter_rows = 0
@@ -1419,7 +1478,7 @@ class MicroFarmService:
 
         gate = self.first_euro_gate()
         state = self._load_state()
-        opportunities = self._opportunity.list_opportunities(limit=300)
+        opportunities = self._opportunity.list_opportunities(limit=80)
         return build_opportunity_discovery(
             opportunities,
             farm_state={
@@ -1608,7 +1667,6 @@ class MicroFarmService:
         load_local_env()
         state = self._load_state()
         self._reset_today_if_needed(state)
-        self._refresh_live_test_if_stale(state)
         self._save_state(state)
         fin = self._finance.financial_view()
         sandbox = self._business_mode.is_sandbox()
@@ -1688,25 +1746,35 @@ class MicroFarmService:
             "ceo_checklist": self._ceo_checklist(),
             "labels_export_count": self.labels_export_count(),
             "labels_export_ready": self.labels_export_count() > 0,
-            "scale_ai": state.get("scale_ai_last") or self._check_scale_adapter(),
+            "scale_ai": state.get("scale_ai_last")
+            or self._cached_section("scale_ai", self._check_scale_adapter),
             "priority_manager": self._priority_manager().snapshot(),
-            "revenue_forecast": self.revenue_forecast(
-                labeling_nodes=int(state.get("workers_target") or 10),
+            "revenue_forecast": self._cached_section(
+                "revenue_forecast",
+                lambda: self.revenue_forecast(
+                    labeling_nodes=int(state.get("workers_target") or 10),
+                ),
             ),
             "last_battle_test": state.get("last_battle_test"),
             "platform_vault": self.platform_vault_status(),
             "global_spider": self.global_spider_vector(),
             "prepare_live": self.prepare_live_mode(),
             "dry_run": self.dry_run_status(),
-            "payment_monitor": self._payment_monitor_for_dashboard(),
+            "payment_monitor": self._cached_section(
+                "payment_monitor",
+                self._payment_monitor_for_dashboard,
+            ),
             "last_live_connection_test": state.get("last_live_connection_test"),
             "payout_guide": self._payout_guide(),
             "toloka_submit": self.toloka_submit_status(),
-            "first_euro_gate": self.first_euro_gate(),
-            "verified_revenue_engine": self.verified_revenue_engine(),
+            "first_euro_gate": self._cached_section("first_euro_gate", self.first_euro_gate),
+            "verified_revenue_engine": self._cached_section(
+                "verified_revenue_engine",
+                self.verified_revenue_engine,
+            ),
             "commercial_evidence": self.commercial_evidence(),
             "finance_guard": self._finance_guard_snapshot(),
-            "farm_program": self.farm_program(),
+            "farm_program": self._cached_section("farm_program", self.farm_program),
             "production_platform": self.production_platform(),
             "opportunity_discovery": self.opportunity_discovery(),
             "recent_tasks": self._recent_events(15),

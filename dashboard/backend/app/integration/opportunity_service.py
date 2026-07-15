@@ -169,7 +169,7 @@ class OpportunityService:
         if not path.is_file():
             return []
         rows: list[dict] = []
-        for line in path.read_text(encoding="utf-8").splitlines():
+        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
             if line.strip():
                 try:
                     rows.append(self._normalize_row(json.loads(line)))

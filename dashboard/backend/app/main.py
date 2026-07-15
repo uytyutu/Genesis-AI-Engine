@@ -551,9 +551,16 @@ def farm_export_labels():
 @app.get("/api/farm/dashboard")
 def farm_dashboard() -> dict:
     load_local_env()
-    dash = _ctx().owner.dashboard()
-    owner_name = str(dash.get("owner_name") or "Ramiš")
+    owner_name = _ctx().owner.owner_name()
     return _ctx().micro_farm.dashboard(owner_name)
+
+
+@app.get("/api/farm/dashboard/lite")
+def farm_dashboard_lite() -> dict:
+    """Journal-safe dashboard — no blocking Toloka live probe."""
+    load_local_env()
+    owner_name = _ctx().owner.owner_name()
+    return _ctx().micro_farm.dashboard_lite(owner_name)
 
 
 @app.post("/api/farm/start")
