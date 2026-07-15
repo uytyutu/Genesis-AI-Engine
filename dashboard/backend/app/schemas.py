@@ -1737,3 +1737,67 @@ class ClientWelcomeAnswerRequest(BaseModel):
 
 class ClientMergeVisitorRequest(BaseModel):
     visitor_id: str = Field(min_length=8, max_length=64)
+
+
+class BusinessHealthKpi(BaseModel):
+    current: int
+    target: int
+    auto: int
+    manual: int
+    progress_pct: int
+
+
+class BusinessHealthFunnelWeek(BaseModel):
+    companies_found: int
+    conversations: int
+    proposals: int
+    deals: int
+    revenue_eur: float
+    net_profit_eur: float
+
+
+class BusinessHealthWeeklyReview(BaseModel):
+    period_label_ru: str
+    best_seller_ru: str
+    worst_seller_ru: str
+    top_rejection_ru: str
+    top_rejection_count: int
+    recommendation_ru: str
+
+
+class BusinessHealthMorningLine(BaseModel):
+    text: str
+    highlight: bool = False
+
+
+class BusinessHealthMorningBrief(BaseModel):
+    headline_ru: str
+    lines_ru: list[BusinessHealthMorningLine]
+    recommendation_ru: str
+
+
+class BusinessHealthMarketSignal(BaseModel):
+    opportunities_total: int
+    lost_reasons_logged: int
+    pipeline_active: int
+    data_honesty_ru: str
+
+
+class BusinessHealthDashboard(BaseModel):
+    mission: str
+    date: str
+    week_start: str
+    kpi_note_ru: str
+    kpis: dict[str, BusinessHealthKpi]
+    kpi_labels_ru: dict[str, str]
+    funnel_week: BusinessHealthFunnelWeek
+    funnel_steps_ru: list[str]
+    weekly_review: BusinessHealthWeeklyReview
+    morning_brief: BusinessHealthMorningBrief
+    market_signal: BusinessHealthMarketSignal
+    links: dict[str, str]
+
+
+class BusinessHealthManualBumpRequest(BaseModel):
+    field: str = Field(pattern="^(conversations|proposals|payments|repeats)$")
+    delta: int = Field(default=1, ge=-10, le=10)

@@ -77,6 +77,8 @@ from app.schemas import (
     SalesPackage,
     SalesPackagesResponse,
     CompanyOverview,
+    BusinessHealthDashboard,
+    BusinessHealthManualBumpRequest,
     DemoModeRequest,
     DemoModeResponse,
     FinanceCenter,
@@ -386,6 +388,29 @@ def get_global_revenue_report() -> dict:
 def get_company_overview() -> CompanyOverview:
     data = _ctx().company.overview()
     return CompanyOverview(**data)
+
+
+def _business_health():
+    from app.integration.business_health_service import BusinessHealthService
+
+    ctx = _ctx()
+    return BusinessHealthService(ctx.opportunity.memory_dir, ctx.opportunity)
+
+
+@app.get("/api/owner/business-health", response_model=BusinessHealthDashboard)
+def get_business_health() -> BusinessHealthDashboard:
+    return BusinessHealthDashboard(**_business_health().dashboard())
+
+
+@app.post("/api/owner/business-health/manual", response_model=BusinessHealthDashboard)
+def bump_business_health_manual(body: BusinessHealthManualBumpRequest) -> BusinessHealthDashboard:
+    try:
+        data = _business_health().bump_manual(body.field, body.delta)
+    except ValueError as exc:
+        if str(exc) == "invalid_field":
+            raise HTTPException(status_code=400, detail="invalid_field") from exc
+        raise
+    return BusinessHealthDashboard(**data)
 
 
 @app.get("/api/owner/system-check", response_model=SystemCheckResponse)

@@ -22,7 +22,7 @@ export function CeoWorkspaceNav() {
   const primary = master
     ? CEO_PRIMARY_LINKS.map((item) =>
         item.href === "/" ? { ...item, label: UI_LAYOUT.home_label, hint: "DRY RUN · local" } : item,
-      ).filter((item) => ["/", "/journal", "/finance", "/settings"].includes(item.href))
+      ).filter((item) => ["/business", "/", "/journal", "/finance", "/settings"].includes(item.href))
     : CEO_PRIMARY_LINKS;
 
   const sections = master

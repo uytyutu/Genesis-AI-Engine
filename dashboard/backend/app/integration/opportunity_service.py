@@ -135,6 +135,10 @@ class OpportunityService:
     def __init__(self, memory_dir: Path | None = None) -> None:
         self._memory = memory_dir or _DEFAULT_MEMORY
         self._memory.mkdir(parents=True, exist_ok=True)
+
+    @property
+    def memory_dir(self) -> Path:
+        return self._memory
         self._ensure_engine_config()
 
     def _config_path(self) -> Path:

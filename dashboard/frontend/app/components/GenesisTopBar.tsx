@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { BRAND_NAME } from "../lib/publicBrand";
 
 const TITLES: Record<string, string> = {
+  "/business": "Business Health",
   "/": "Цифровая ферма",
   "/journal": "Журнал",
   "/company": "Компания",

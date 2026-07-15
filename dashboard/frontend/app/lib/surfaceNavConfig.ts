@@ -53,6 +53,7 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
     "/setup",
     "/launch",
     "/journal",
+    "/business",
     "/opportunities",
     "/acquisition",
     "/scanner",
@@ -86,6 +87,7 @@ export const CLIENT_NAV_LINKS = [
 ] as const;
 
 export const CEO_PRIMARY_LINKS = [
+  { href: "/business", label: "Бизнес", hint: "Mission 2 · KPI" },
   { href: "/", label: "Движок", hint: "Engine Mode · монетизация" },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
   { href: "/create", label: "Factory", hint: "Сборка черновиков" },
