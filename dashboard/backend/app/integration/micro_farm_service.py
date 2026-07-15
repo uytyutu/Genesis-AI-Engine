@@ -1249,6 +1249,10 @@ class MicroFarmService:
             self._save_state(state)
         evidence = self._refresh_commercial_evidence(farm_state=state, tick_result=tick_payload)
 
+        outbox_prep = None
+        if done > 0 and state.get("running"):
+            outbox_prep = self._maybe_auto_prepare_outreach(state)
+
         return {
             "ok": True,
             "tasks_done": done,
@@ -1259,6 +1263,7 @@ class MicroFarmService:
             "toloka_submit": toloka_submit,
             "finance_guard": finance_guard,
             "commercial_evidence": evidence,
+            "outbox_auto_prepare": outbox_prep,
             "message": (
                 f"Рой ({execution_meta.get('target', 'local')}): {done} задач · +{earned:.2f} €"
                 if done
@@ -1565,6 +1570,30 @@ class MicroFarmService:
             workers=int(state.get("workers_target") or 10),
             memory_dir=self._memory,
         )
+
+    def _maybe_auto_prepare_outreach(self, state: dict[str, Any]) -> dict[str, Any] | None:
+        """Throttled: farm tick → auto-draft B2B letters for CEO outbox."""
+        now = datetime.now(timezone.utc)
+        last_raw = state.get("last_auto_outreach_at")
+        if last_raw:
+            try:
+                last = datetime.fromisoformat(str(last_raw).replace("Z", "+00:00"))
+                if last.tzinfo is None:
+                    last = last.replace(tzinfo=timezone.utc)
+                if (now - last).total_seconds() < 1200:
+                    return None
+            except ValueError:
+                pass
+        try:
+            from app.integration.context import get_integration
+
+            result = get_integration().acquisition.auto_prepare_discovery_leads(limit=2)
+            if int(result.get("prepared") or 0) > 0:
+                state["last_auto_outreach_at"] = now.isoformat()
+                self._save_state(state)
+            return result
+        except Exception:
+            return None
 
     def prepare_opportunity_proposal(self, opportunity_id: str) -> dict[str, Any]:
         from app.integration.opportunity_discovery_engine import prepare_commercial_proposal

@@ -1783,6 +1783,26 @@ class BusinessHealthMarketSignal(BaseModel):
     data_honesty_ru: str
 
 
+class BusinessHealthCeoOutboxItem(BaseModel):
+    id: str
+    company_name: str | None = None
+    contact: str | None = None
+    website_url: str | None = None
+    recommended_price_eur: float | None = None
+    email_subject: str | None = None
+    proposed_message: str | None = None
+    score: int | None = None
+
+
+class BusinessHealthCeoOutbox(BaseModel):
+    title_ru: str
+    pending_count: int
+    outreach_send_enabled: bool
+    money_path_ru: str
+    law_ru: str
+    items: list[BusinessHealthCeoOutboxItem]
+
+
 class BusinessHealthDashboard(BaseModel):
     mission: str
     date: str
@@ -1796,6 +1816,7 @@ class BusinessHealthDashboard(BaseModel):
     morning_brief: BusinessHealthMorningBrief
     market_signal: BusinessHealthMarketSignal
     links: dict[str, str]
+    ceo_outbox: BusinessHealthCeoOutbox | None = None
 
 
 class BusinessHealthManualBumpRequest(BaseModel):

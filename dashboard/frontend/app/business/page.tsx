@@ -50,6 +50,22 @@ type Health = {
     data_honesty_ru: string;
   };
   links: Record<string, string>;
+  ceo_outbox?: {
+    title_ru: string;
+    pending_count: number;
+    outreach_send_enabled: boolean;
+    money_path_ru: string;
+    law_ru: string;
+    items: {
+      id: string;
+      company_name?: string;
+      website_url?: string;
+      recommended_price_eur?: number;
+      email_subject?: string;
+      proposed_message?: string;
+      score?: number;
+    }[];
+  };
 };
 
 const KPI_ORDER = ["conversations", "proposals", "payments", "repeats"] as const;
@@ -82,6 +98,7 @@ function KpiBar({ label, kpi }: { label: string; kpi: Kpi }) {
 export default function BusinessHealthPage() {
   const [data, setData] = useState<Health | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [outboxMsg, setOutboxMsg] = useState("");
 
   const refresh = useCallback(async () => {
     try {
@@ -112,6 +129,40 @@ export default function BusinessHealthPage() {
     }
   };
 
+  const approveAll = async () => {
+    setBusy("outbox");
+    setOutboxMsg("");
+    try {
+      const res = await fetch(`${API}/api/acquisition/approve-batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: 5 }),
+      });
+      const body = await res.json();
+      setOutboxMsg(body.message_ru ?? "Готово");
+      await refresh();
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const prepareNow = async () => {
+    setBusy("prepare");
+    setOutboxMsg("");
+    try {
+      const res = await fetch(`${API}/api/acquisition/auto-prepare-discovery`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: 3 }),
+      });
+      const body = await res.json();
+      setOutboxMsg(body.message_ru ?? "Готово");
+      await refresh();
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const funnel = data?.funnel_week;
   const review = data?.weekly_review;
   const brief = data?.morning_brief;
@@ -137,6 +188,74 @@ export default function BusinessHealthPage() {
             </div>
           )}
         </header>
+
+        {data?.ceo_outbox && (
+          <section className="rounded-2xl border border-amber-500/30 bg-amber-950/15 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold">{data.ceo_outbox.title_ru}</h2>
+                <p className="mt-1 text-sm text-genesis-muted">{data.ceo_outbox.money_path_ru}</p>
+                <p className="mt-2 text-xs text-amber-200/80">{data.ceo_outbox.law_ru}</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={busy !== null}
+                  onClick={() => void prepareNow()}
+                  className="rounded-lg border border-white/15 px-3 py-1.5 text-sm hover:bg-white/5 disabled:opacity-50"
+                >
+                  {busy === "prepare" ? "…" : "Подготовить лиды"}
+                </button>
+                {data.ceo_outbox.pending_count > 0 && (
+                  <button
+                    type="button"
+                    disabled={busy !== null}
+                    onClick={() => void approveAll()}
+                    className="rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+                  >
+                    {busy === "outbox" ? "…" : `Одобрить все (${data.ceo_outbox.pending_count})`}
+                  </button>
+                )}
+              </div>
+            </div>
+            {outboxMsg ? <p className="mt-3 text-sm text-emerald-300">{outboxMsg}</p> : null}
+            {data.ceo_outbox.items.length > 0 ? (
+              <ul className="mt-4 space-y-3">
+                {data.ceo_outbox.items.map((item) => (
+                  <li key={item.id} className="rounded-xl border border-white/10 bg-genesis-bg/40 p-4 text-sm">
+                    <p className="font-medium">
+                      {item.company_name ?? "Лид"} · {formatEur(item.recommended_price_eur ?? 0)}
+                      {item.score != null ? ` · score ${item.score}` : ""}
+                    </p>
+                    {item.website_url ? (
+                      <p className="mt-1 truncate text-xs text-genesis-muted">{item.website_url}</p>
+                    ) : null}
+                    {item.email_subject ? (
+                      <p className="mt-2 text-xs text-emerald-200/90">Тема: {item.email_subject}</p>
+                    ) : null}
+                    {item.proposed_message ? (
+                      <p className="mt-2 line-clamp-3 text-xs text-genesis-muted whitespace-pre-wrap">
+                        {item.proposed_message}
+                      </p>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 text-sm text-genesis-muted">
+                Очередь пуста. Запустите ферму — письма подготовятся автоматически (раз в ~20 мин) или нажмите
+                «Подготовить лиды».
+              </p>
+            )}
+            <p className="mt-4 text-xs text-genesis-muted">
+              Биржа Toloka (112 € в журнале) — не этот путь. Реальные € = оплата клиента →{" "}
+              <Link href="/finance" className="text-emerald-400 underline">
+                Финансы
+              </Link>
+              .
+            </p>
+          </section>
+        )}
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">

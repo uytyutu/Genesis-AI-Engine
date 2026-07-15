@@ -399,7 +399,32 @@ def _business_health():
 
 @app.get("/api/owner/business-health", response_model=BusinessHealthDashboard)
 def get_business_health() -> BusinessHealthDashboard:
-    return BusinessHealthDashboard(**_business_health().dashboard())
+    data = _business_health().dashboard()
+    data["ceo_outbox"] = _ctx().acquisition.ceo_outbox_summary()
+    return BusinessHealthDashboard(**data)
+
+
+@app.post("/api/acquisition/auto-prepare-discovery")
+def acquisition_auto_prepare_discovery(body: dict | None = None) -> dict:
+    body = body or {}
+    limit = int(body.get("limit") or 3)
+    return _ctx().acquisition.auto_prepare_discovery_leads(
+        limit=limit,
+        min_score=int(body.get("min_score") or 50),
+        min_win_pct=int(body.get("min_win_pct") or 55),
+    )
+
+
+@app.post("/api/acquisition/approve-batch")
+def acquisition_approve_batch(body: dict | None = None) -> dict:
+    body = body or {}
+    ids = body.get("opportunity_ids")
+    if ids is not None and not isinstance(ids, list):
+        raise HTTPException(status_code=400, detail="opportunity_ids must be a list")
+    return _ctx().acquisition.approve_batch(
+        opportunity_ids=ids,
+        limit=int(body.get("limit") or 5),
+    )
 
 
 @app.post("/api/owner/business-health/manual", response_model=BusinessHealthDashboard)

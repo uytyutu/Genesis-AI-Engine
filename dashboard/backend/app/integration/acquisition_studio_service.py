@@ -69,6 +69,19 @@ _ACQUISITION_CHANNELS = [
     {"id": "partner", "label": "Партнёрство", "source": 5},
 ]
 
+_SKIP_OUTREACH_DOMAINS = frozenset(
+    {
+        "wikipedia.org",
+        "www.wikipedia.org",
+        "cloudflare.com",
+        "www.cloudflare.com",
+        "example.com",
+        "www.example.com",
+        "google.com",
+        "facebook.com",
+    }
+)
+
 _DAILY_SEGMENTS = [
     {
         "id": "autowerkstatt",
@@ -324,6 +337,119 @@ class AcquisitionStudioService:
         self._log_interaction(row, "prepared", "КП и письмо подготовлены Studio")
         self._opportunity._save_rows(self._replace_row(opportunity_id, row))
         return row
+
+    def _domain_blocked(self, url: str) -> bool:
+        from urllib.parse import urlparse
+
+        host = urlparse(url).netloc.lower()
+        if host.startswith("www."):
+            host = host[4:]
+        return host in _SKIP_OUTREACH_DOMAINS or not host
+
+    def auto_prepare_discovery_leads(
+        self,
+        *,
+        limit: int = 3,
+        min_score: int = 50,
+        min_win_pct: int = 55,
+    ) -> dict[str, Any]:
+        """After farm spider — draft outreach for top B2B leads (CEO still approves send)."""
+        from app.integration.opportunity_discovery_engine import evaluate_opportunity
+
+        rows = self._opportunity.list_opportunities(limit=200)
+        candidates: list[tuple[int, dict]] = []
+
+        for row in rows:
+            if row.get("status") in ("won", "lost", "contacted"):
+                continue
+            if row.get("outreach_status") in ("pending_approval", "sent", "approved"):
+                continue
+            if row.get("proposed_message"):
+                continue
+            url = str(row.get("website_url") or "").strip()
+            if not url or self._domain_blocked(url):
+                continue
+            score = int(row.get("score") or 0)
+            if score < min_score:
+                continue
+            ev = evaluate_opportunity(row, all_rows=rows)
+            if int(ev.get("win_probability_pct") or 0) < min_win_pct:
+                continue
+            if not ev.get("legal_gate", {}).get("legal", True):
+                continue
+            candidates.append((int(ev.get("win_probability_pct") or 0), row))
+
+        candidates.sort(key=lambda x: (-x[0], -int(x[1].get("score") or 0)))
+        prepared: list[str] = []
+        errors: list[str] = []
+
+        for _, row in candidates[: max(1, limit)]:
+            try:
+                self.prepare_opportunity(row["id"], website_url=row.get("website_url"))
+                prepared.append(str(row.get("company_name") or row["id"]))
+            except Exception as exc:
+                errors.append(f"{row.get('company_name')}: {exc}"[:80])
+
+        return {
+            "ok": True,
+            "scanned": len(rows),
+            "candidates": len(candidates),
+            "prepared": len(prepared),
+            "prepared_names": prepared,
+            "errors": errors,
+            "message_ru": (
+                f"Подготовлено {len(prepared)} писем — ждут Approve CEO."
+                if prepared
+                else "Нет новых лидов для автоподготовки (или уже в очереди)."
+            ),
+        }
+
+    def approve_batch(self, opportunity_ids: list[str] | None = None, *, limit: int = 5) -> dict[str, Any]:
+        """CEO one-click: approve top pending drafts (send if outreach enabled + email)."""
+        queue = self.approval_queue(limit=limit if not opportunity_ids else 50)
+        ids = opportunity_ids or [q["id"] for q in queue[:limit]]
+        approved: list[str] = []
+        sent: list[str] = []
+        failed: list[str] = []
+
+        for oid in ids:
+            try:
+                result = self.approve_outreach(oid)
+                name = str(result["opportunity"].get("company_name") or oid)
+                approved.append(name)
+                if (result.get("send_result") or {}).get("ok"):
+                    sent.append(name)
+            except ValueError:
+                failed.append(oid)
+
+        return {
+            "ok": True,
+            "approved_count": len(approved),
+            "sent_count": len(sent),
+            "approved_names": approved,
+            "sent_names": sent,
+            "failed_ids": failed,
+            "message_ru": (
+                f"Одобрено {len(approved)}"
+                + (f", отправлено {len(sent)}" if sent else " — скопируйте письма вручную")
+            ),
+        }
+
+    def ceo_outbox_summary(self, limit: int = 5) -> dict[str, Any]:
+        """Pending outreach for Business Health / morning CEO path."""
+        queue = self.approval_queue(limit=limit)
+        outreach_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        return {
+            "title_ru": "CEO Outbox — Plan → Approve → Act",
+            "pending_count": len(queue),
+            "outreach_send_enabled": outreach_enabled,
+            "money_path_ru": (
+                "Ферма находит проблемы → Genesis готовит письмо → вы жмёте «Одобрить» → "
+                "клиент платит на Stripe/счёт → первый реальный € (не биржа Toloka)."
+            ),
+            "law_ru": "Автоотправка только после Approve. Без email в контакте — копируйте текст вручную.",
+            "items": queue,
+        }
 
     def approval_queue(self, limit: int = 20) -> list[dict]:
         rows = self._opportunity._load_rows()
