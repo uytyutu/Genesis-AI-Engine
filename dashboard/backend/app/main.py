@@ -197,8 +197,10 @@ async def lifespan(app: FastAPI):
         try:
             ctx = get_integration()
             set_brain_paused(ctx.adapter.is_paused)
+            owner_name = ctx.owner.owner_name()
+            ctx.micro_farm.warm_dashboard_cache(owner_name)
         except Exception:
-            pass
+            logging.getLogger("genesis").exception("startup warm failed")
 
     import threading
 

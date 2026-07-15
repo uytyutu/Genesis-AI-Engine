@@ -26,6 +26,14 @@ _farm_logger = logging.getLogger("genesis.farm")
 
 _DASHBOARD_SECTION_CACHE: dict[str, tuple[float, Any]] = {}
 _DASHBOARD_SECTION_TTL_SEC = 45.0
+_DASHBOARD_HARD_CAP_SEC = 2.0
+_SECTION_WARMING: dict[str, Any] = {
+    "_pending": True,
+    "title_ru": "Загрузка…",
+    "note_ru": "Данные подгружаются в фоне — обновится через несколько секунд.",
+}
+_warm_lock = __import__("threading").Lock()
+_warm_scheduled: set[str] = set()
 
 # Pay per completed micro-task (internal queue — real platforms override via adapters).
 _ADAPTER_PAY_EUR: dict[str, float] = {
@@ -226,14 +234,82 @@ class MicroFarmService:
         """Heal stale Live test UI — only via explicit CEO action, never on dashboard GET."""
         return
 
-    def _cached_section(self, key: str, factory) -> Any:
+    def _cached_section(
+        self,
+        key: str,
+        factory,
+        *,
+        deadline: float | None = None,
+    ) -> Any:
         now = time.monotonic()
         hit = _DASHBOARD_SECTION_CACHE.get(key)
         if hit and now - hit[0] < _DASHBOARD_SECTION_TTL_SEC:
             return hit[1]
+        if deadline is not None:
+            remaining = deadline - now
+            if remaining <= 0.05:
+                self._schedule_section_warm(key, factory)
+                return dict(_SECTION_WARMING)
+            from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutTimeout
+
+            executor = ThreadPoolExecutor(max_workers=1)
+            fut = executor.submit(factory)
+            try:
+                value = fut.result(timeout=remaining)
+            except FutTimeout:
+                executor.shutdown(wait=False, cancel_futures=True)
+                self._schedule_section_warm(key, factory)
+                return dict(_SECTION_WARMING)
+            executor.shutdown(wait=False, cancel_futures=True)
+            _DASHBOARD_SECTION_CACHE[key] = (time.monotonic(), value)
+            return value
         value = factory()
         _DASHBOARD_SECTION_CACHE[key] = (now, value)
         return value
+
+    def _schedule_section_warm(self, key: str, factory) -> None:
+        with _warm_lock:
+            if key in _warm_scheduled:
+                return
+            _warm_scheduled.add(key)
+
+        def _run() -> None:
+            try:
+                self._cached_section(key, factory)
+            except Exception:
+                _farm_logger.exception("farm dashboard warm failed: %s", key)
+            finally:
+                with _warm_lock:
+                    _warm_scheduled.discard(key)
+
+        __import__("threading").Thread(
+            target=_run,
+            daemon=True,
+            name=f"farm-warm-{key}",
+        ).start()
+
+    def warm_dashboard_cache(self, owner_name: str = "Владелец") -> None:
+        """Boot-time warm — CEO GET must not pay cold-cache cost."""
+        self.dashboard_lite(owner_name)
+        warm_sections: list[tuple[str, Any]] = [
+            ("production_platform", self._build_production_platform),
+            ("opportunity_discovery", self._build_opportunity_discovery),
+            ("farm_program", self.farm_program),
+            ("first_euro_gate", self.first_euro_gate),
+            ("verified_revenue_engine", self.verified_revenue_engine),
+            ("payment_monitor", self._payment_monitor_for_dashboard),
+            ("revenue_forecast", lambda: self.revenue_forecast(labeling_nodes=10)),
+            ("scale_ai", self._check_scale_adapter),
+            ("commercial_evidence", self.commercial_evidence),
+            ("finance_guard", self._finance_guard_snapshot),
+            ("platforms", self._platforms),
+            ("ceo_checklist", self._ceo_checklist),
+        ]
+        for key, factory in warm_sections:
+            try:
+                self._cached_section(key, factory)
+            except Exception:
+                _farm_logger.exception("farm boot warm failed: %s", key)
 
     def dashboard_lite(self, owner_name: str = "Владелец") -> dict[str, Any]:
         """Fast journal payload — no Toloka live probe, no heavy discovery scan."""
@@ -1665,9 +1741,12 @@ class MicroFarmService:
         from app.env_loader import load_local_env
 
         load_local_env()
+        deadline = time.monotonic() + _DASHBOARD_HARD_CAP_SEC
         state = self._load_state()
+        prior_date = state.get("today_date")
         self._reset_today_if_needed(state)
-        self._save_state(state)
+        if state.get("today_date") != prior_date:
+            self._save_state(state)
         fin = self._finance.financial_view()
         sandbox = self._business_mode.is_sandbox()
         net = round(
@@ -1742,43 +1821,87 @@ class MicroFarmService:
             "worker_flow": worker_flow,
             "primary_combiner": "ai_labeling",
             "async_concurrency": min(int(state.get("workers_target") or 10) * 3, 150),
-            "platforms": self._platforms(),
-            "ceo_checklist": self._ceo_checklist(),
+            "platforms": self._cached_section("platforms", self._platforms, deadline=deadline),
+            "ceo_checklist": self._cached_section(
+                "ceo_checklist",
+                self._ceo_checklist,
+                deadline=deadline,
+            ),
             "labels_export_count": self.labels_export_count(),
             "labels_export_ready": self.labels_export_count() > 0,
             "scale_ai": state.get("scale_ai_last")
-            or self._cached_section("scale_ai", self._check_scale_adapter),
-            "priority_manager": self._priority_manager().snapshot(),
+            or self._cached_section("scale_ai", self._check_scale_adapter, deadline=deadline),
+            "priority_manager": self._cached_section(
+                "priority_manager",
+                lambda: self._priority_manager().snapshot(),
+                deadline=deadline,
+            ),
             "revenue_forecast": self._cached_section(
                 "revenue_forecast",
                 lambda: self.revenue_forecast(
                     labeling_nodes=int(state.get("workers_target") or 10),
                 ),
+                deadline=deadline,
             ),
             "last_battle_test": state.get("last_battle_test"),
-            "platform_vault": self.platform_vault_status(),
+            "platform_vault": self._cached_section(
+                "platform_vault",
+                self.platform_vault_status,
+                deadline=deadline,
+            ),
             "global_spider": self.global_spider_vector(),
-            "prepare_live": self.prepare_live_mode(),
+            "prepare_live": self._cached_section(
+                "prepare_live",
+                self.prepare_live_mode,
+                deadline=deadline,
+            ),
             "dry_run": self.dry_run_status(),
             "payment_monitor": self._cached_section(
                 "payment_monitor",
                 self._payment_monitor_for_dashboard,
+                deadline=deadline,
             ),
             "last_live_connection_test": state.get("last_live_connection_test"),
             "payout_guide": self._payout_guide(),
-            "toloka_submit": self.toloka_submit_status(),
-            "first_euro_gate": self._cached_section("first_euro_gate", self.first_euro_gate),
+            "toloka_submit": self._cached_section(
+                "toloka_submit",
+                self.toloka_submit_status,
+                deadline=deadline,
+            ),
+            "first_euro_gate": self._cached_section(
+                "first_euro_gate",
+                self.first_euro_gate,
+                deadline=deadline,
+            ),
             "verified_revenue_engine": self._cached_section(
                 "verified_revenue_engine",
                 self.verified_revenue_engine,
+                deadline=deadline,
             ),
-            "commercial_evidence": self.commercial_evidence(),
-            "finance_guard": self._finance_guard_snapshot(),
-            "farm_program": self._cached_section("farm_program", self.farm_program),
-            "production_platform": self.production_platform(),
-            "opportunity_discovery": self.opportunity_discovery(),
+            "commercial_evidence": self._cached_section(
+                "commercial_evidence",
+                self.commercial_evidence,
+                deadline=deadline,
+            ),
+            "finance_guard": self._cached_section(
+                "finance_guard",
+                self._finance_guard_snapshot,
+                deadline=deadline,
+            ),
+            "farm_program": self._cached_section("farm_program", self.farm_program, deadline=deadline),
+            "production_platform": self._cached_section(
+                "production_platform",
+                self._build_production_platform,
+                deadline=deadline,
+            ),
+            "opportunity_discovery": self._cached_section(
+                "opportunity_discovery",
+                self._build_opportunity_discovery,
+                deadline=deadline,
+            ),
             "recent_tasks": self._recent_events(15),
             "last_tick_at": state.get("last_tick_at"),
+            "dashboard_fast": True,
             "honesty_note": (
                 "Биржи (Scale, Toloka, MTurk…) подключаются только твоим API-ключом — "
                 "без регистрации на площадке Genesis не может получать реальные €. "

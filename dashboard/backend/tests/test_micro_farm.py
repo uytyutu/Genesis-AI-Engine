@@ -64,3 +64,35 @@ def test_farm_start_stop(farm_memory: Path):
     assert farm._load_state()["running"] is True
     stop = farm.stop_swarm()
     assert stop["running"] is False
+
+
+def test_dashboard_hard_cap_skips_slow_sections(farm_memory: Path, monkeypatch):
+    import time
+
+    from app.integration import micro_farm_service as mfs
+
+    mfs._DASHBOARD_SECTION_CACHE.clear()
+    farm = _make_farm(farm_memory)
+
+    def _slow_discovery() -> dict:
+        time.sleep(10)
+        return {"title_ru": "slow"}
+
+    monkeypatch.setattr(farm, "_build_opportunity_discovery", _slow_discovery)
+    t0 = time.monotonic()
+    dash = farm.dashboard("Test")
+    elapsed = time.monotonic() - t0
+    assert elapsed < 3.5
+    assert dash.get("dashboard_fast") is True
+    assert dash["opportunity_discovery"].get("_pending") is True
+
+
+def test_warm_dashboard_cache_populates_sections(farm_memory: Path):
+    from app.integration import micro_farm_service as mfs
+
+    mfs._DASHBOARD_SECTION_CACHE.clear()
+    farm = _make_farm(farm_memory)
+    farm.warm_dashboard_cache("Test")
+    dash = farm.dashboard("Test")
+    assert dash["opportunity_discovery"].get("_pending") is not True
+    assert dash["production_platform"].get("_pending") is not True

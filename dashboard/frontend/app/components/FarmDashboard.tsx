@@ -439,13 +439,26 @@ export function FarmDashboard() {
   const [lostTargetId, setLostTargetId] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    let liteOk = false;
     try {
-      const res = await fetchApi(`${API}/api/farm/dashboard`, { timeoutMs: 20_000 });
-      if (!res.ok) throw new Error("dashboard");
-      setDash(await res.json());
-      setLoadError("");
+      const liteRes = await fetchApi(`${API}/api/farm/dashboard/lite`, { timeoutMs: 8_000 });
+      if (liteRes.ok) {
+        const lite = await liteRes.json();
+        setDash((prev) => ({ ...(prev ?? {}), ...lite } as FarmDash));
+        setLoadError("");
+        liteOk = true;
+      }
+      const fullRes = await fetchApi(`${API}/api/farm/dashboard`, { timeoutMs: 12_000 });
+      if (fullRes.ok) {
+        setDash(await fullRes.json());
+        setLoadError("");
+        return;
+      }
+      if (!liteOk) throw new Error("dashboard");
     } catch {
-      setLoadError("Backend не отвечает. Genesis.exe → Запустить → «✔ Готов».");
+      if (!liteOk) {
+        setLoadError("Backend не отвечает. Genesis.exe → Остановить → Запустить → «✔ Готов».");
+      }
     }
   }, []);
 
