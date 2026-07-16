@@ -208,18 +208,34 @@ type ChatApiResponse = {
   session_id?: string | null;
 };
 
-const STARTERS_VISIBLE = [
+/** Public /site starters — visitor journey. */
+const STARTERS_VISIBLE_PUBLIC = [
   { label: "💇 Сайт салона", message: "Хочу сайт для салона красоты" },
   { label: "🍽️ Сайт кафе", message: "Мне нужен сайт для кафе" },
-  { label: "📋 Заказать сайт", message: "Хочу заказать лендинг под ключ" },
+  { label: "🚗 Автосервис", message: "Мне нужен сайт для автосервиса" },
 ];
 
-const STARTERS_MORE = [
+const STARTERS_MORE_PUBLIC = [
   { label: "🏪 Интернет-магазин", message: "Мне нужен интернет-магазин" },
-  { label: "🚗 Автосервис", message: "Мне нужен сайт для автосервиса" },
   { label: "✈️ Telegram-бот", message: "Мне нужен Telegram-бот для бизнеса" },
   { label: "🤖 AI на сайте", message: "Хочу AI-консультанта на сайте" },
 ];
+
+/** CEO / Mission Control — Country Desk, not consumer «купить сайт». */
+const STARTERS_VISIBLE_OWNER = [
+  { label: "🇩🇪 Country Desk DE", message: "Покажи статус Country Desk Германия и очередь лидов" },
+  { label: "🔧 Ниша KFZ", message: "Обнови поиск лидов: Kfz-Werkstatt в Германии" },
+  { label: "🦷 Ниша Zahnarzt", message: "Обнови поиск лидов: Zahnarzt в Германии" },
+];
+
+const STARTERS_MORE_OWNER = [
+  { label: "📦 Архив отказов", message: "Покажи архив отказов и причины lost_reasons" },
+  { label: "✉️ Outbox Approve", message: "Что ждёт моего Approve в Outbox?" },
+  { label: "⚖️ Legal / Impressum", message: "Можно ли включать автоотправку писем?" },
+];
+
+const STARTERS_VISIBLE = STARTERS_VISIBLE_PUBLIC;
+const STARTERS_MORE = STARTERS_MORE_PUBLIC;
 
 const FALLBACK_WELCOME_PUBLIC = PUBLIC_WELCOME;
 
@@ -1904,7 +1920,7 @@ export function GenesisConcierge({
       {!hasConversation && showThread && (
         <div className={`shrink-0 overflow-x-auto px-3 pb-1 sm:px-6 ${isPublicHub ? "border-b border-white/5 py-2" : ""}`}>
           <div className="flex w-max max-w-full gap-2 sm:flex-wrap">
-          {STARTERS_VISIBLE.map((s) => (
+          {(scope === "owner" ? STARTERS_VISIBLE_OWNER : STARTERS_VISIBLE_PUBLIC).map((s) => (
             <button
               key={s.label}
               type="button"
@@ -1925,7 +1941,7 @@ export function GenesisConcierge({
               Ещё
             </button>
           ) : (
-            STARTERS_MORE.map((s) => (
+            (scope === "owner" ? STARTERS_MORE_OWNER : STARTERS_MORE_PUBLIC).map((s) => (
               <button
                 key={s.label}
                 type="button"

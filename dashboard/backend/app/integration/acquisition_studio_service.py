@@ -94,6 +94,28 @@ _SKIP_OUTREACH_DOMAINS = frozenset(
     }
 )
 
+# Country Desk price lanes (Mission 1): auto-draft ≤50€; above → manual_review.
+# Auto-send remains gated by GENESIS_OUTREACH_ENABLED + Impressum (never by this tier alone).
+AUTO_DRAFT_MAX_EUR = 50.0
+# High win: queue for Approve even if price > 50€. Confirm (≥) marks approved without send unless outreach on.
+HIGH_WIN_AUTO_QUEUE_PCT = 65
+HIGH_WIN_AUTO_CONFIRM_PCT = 75
+QUALITY_ARCHIVE_FILE = "quality_archive.jsonl"
+
+# Structured market lessons (Evidence First) — reason code + optional CEO comment.
+MARKET_REASON_LABELS_RU: dict[str, str] = {
+    "subject_weak": "Тема письма",
+    "offer_miss": "Оффер",
+    "price": "Цена",
+    "not_relevant": "Неактуально",
+    "has_vendor": "Уже есть подрядчик",
+    "no_budget": "Нет бюджета",
+    "no_reply": "Не удалось связаться / нет ответа",
+    "interested": "Заинтересовались",
+    "other": "Другое",
+}
+MARKET_OUTCOME_EVENTS = frozenset({"replied", "qualified", "won", "lost", "no_reply"})
+
 _SEGMENT_SIGNALS = [
     "нет сайта",
     "http://",
@@ -134,23 +156,32 @@ class AcquisitionStudioService:
             for niche in niches
         ]
 
+    def gate_funnel(self) -> dict[str, Any]:
+        from app.integration.lead_pipeline_service import gate_funnel_metrics
+
+        return gate_funnel_metrics(self._opportunity, memory_dir=self._memory_dir)
+
     def studio_status(self) -> dict:
         rows = self._opportunity._load_rows()
         pending = sum(1 for r in rows if r.get("outreach_status") == "pending_approval")
+        manual = sum(1 for r in rows if r.get("outreach_status") == "manual_review")
         sent = sum(1 for r in rows if r.get("outreach_status") == "sent")
         outreach_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
         return {
             "version": "1.5-foundation",
-            "name": "Business Acquisition Studio",
+            "name": "Country Desk · DE",
             "auto_search": False,
             "auto_send": False,
             "outreach_send_enabled": outreach_enabled,
             "outreach_send_note": (
-                "Отправка через API nur mit GENESIS_OUTREACH_ENABLED=true, CEO Approve "
-                "und vollständigem Impressum + Abmelde-Link. Ohne Gewerbedaten — Versand gesperrt."
+                "API-send nur mit GENESIS_OUTREACH_ENABLED=true, CEO Approve "
+                "und Impressum-Footer + Abmelde-Link. "
+                "Mechanismen ≠ Rechtsgarantie — Verantwortung beim Absender."
             ),
             "law": "Plan → Approve → Act",
             "pending_approval_count": pending,
+            "manual_review_count": manual,
+            "auto_draft_max_eur": AUTO_DRAFT_MAX_EUR,
             "sent_count": sent,
             "pipeline_count": sum(
                 1 for r in rows if r.get("status") not in ("won", "lost")
@@ -239,19 +270,14 @@ class AcquisitionStudioService:
         drafted = 0
         skipped_has_site = 0
         skipped_already_queued = 0
-        rows = self._opportunity._load_rows()
+        duplicates = 0
+        blocked = 0
 
-        # Index by place_id stored in meta.
-        by_place: dict[str, dict] = {}
-        for r in rows:
-            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
-            pid = str(meta.get("place_id") or "").strip()
-            if pid:
-                by_place[pid] = r
+        from app.integration.lead_pipeline_service import ingest_lead
 
         for lead in leads:
-            existing = by_place.get(lead.place_id)
-            row = existing or self._opportunity._normalize_row(
+            result = ingest_lead(
+                self._opportunity,
                 {
                     "source_id": "google_maps",
                     "opportunity_type": "lead",
@@ -259,27 +285,24 @@ class AcquisitionStudioService:
                     "contact": "",
                     "website_url": lead.website or "",
                     "fit_reason": "Google Places: нет сайта или слабый сайт",
-                    "notes": "",
-                    "meta": {},
-                }
+                    "query": query,
+                    "meta": {
+                        "place_id": lead.place_id,
+                        "address": lead.address,
+                        "types": lead.types,
+                    },
+                },
             )
-            row["company_name"] = lead.name or row.get("company_name") or ""
-            row["website_url"] = lead.website or row.get("website_url") or ""
-            row["meta"] = {
-                **(row.get("meta") or {}),
-                "place_id": lead.place_id,
-                "address": lead.address,
-                "types": lead.types,
-            }
-
-            if not existing:
+            if result.get("blocked"):
+                blocked += 1
+                continue
+            if result.get("duplicate"):
+                duplicates += 1
+            elif result.get("created"):
                 created += 1
-                rows.append(row)
-                by_place[lead.place_id] = row
-            else:
-                idx = next((i for i, rr in enumerate(rows) if rr is existing), None)
-                if idx is not None:
-                    rows[idx] = row
+            row = result.get("row")
+            if not row:
+                continue
 
             has_site = bool(str(row.get("website_url") or "").strip())
             if has_site and not force_skip_check:
@@ -291,26 +314,30 @@ class AcquisitionStudioService:
                 continue
 
             if has_site and force_skip_check:
-                row["fit_reason"] = "CEO force: сайт есть — предложим улучшение онлайн-присутствия"
+                self._opportunity.update(
+                    row["id"],
+                    {"fit_reason": "CEO force: сайт есть — предложим улучшение онлайн-присутствия"},
+                )
 
-            self._opportunity._save_rows(rows)
-            refreshed = None
-            for rr in self._opportunity._load_rows():
-                mm = rr.get("meta") if isinstance(rr.get("meta"), dict) else {}
-                if str(mm.get("place_id") or "").strip() == lead.place_id:
-                    refreshed = rr
-                    break
-            if not refreshed:
+            website = str(row.get("website_url") or "").strip() or None
+            try:
+                self.prepare_opportunity(
+                    row["id"],
+                    website_url=website,
+                    auto_lane=True,
+                    skip_qualification=force_skip_check,
+                )
+                drafted += 1
+            except ValueError:
                 continue
-            website = str(refreshed.get("website_url") or "").strip() or None
-            self.prepare_opportunity(refreshed["id"], website_url=website)
-            drafted += 1
 
         return {
             "ok": True,
             "leads_found": len(leads),
             "created": created,
             "drafted": drafted,
+            "duplicates": duplicates,
+            "blocked": blocked,
             "skipped_has_site": skipped_has_site,
             "skipped_already_queued": skipped_already_queued,
             "force_skip_check": force_skip_check,
@@ -325,6 +352,7 @@ class AcquisitionStudioService:
         *,
         website_url: str | None = None,
         skip_qualification: bool = False,
+        auto_lane: bool = False,
     ) -> dict:
         from app.integration.lead_qualification_gate import (
             build_audit_report_md,
@@ -400,12 +428,44 @@ class AcquisitionStudioService:
         row["potential_value_eur"] = price
         row["email_subject"] = subject
         row["proposed_message"] = body
-        row["outreach_status"] = "pending_approval"
+        # Tier + high-win override:
+        # - CEO prepare → always pending_approval
+        # - auto + win≥65 → pending_approval (even if price > 50)
+        # - auto + price>50 + win<65 → manual_review
+        # - auto + price≤50 → pending_approval
+        price_f = float(price or 0)
+        win_pct = int(evaluation.get("win_probability_pct") or 0)
+        meta["win_probability_pct"] = win_pct
+        if auto_lane and win_pct >= HIGH_WIN_AUTO_QUEUE_PCT:
+            row["outreach_status"] = "pending_approval"
+            lane = "high_win_auto_queue"
+        elif auto_lane and price_f > AUTO_DRAFT_MAX_EUR:
+            row["outreach_status"] = "manual_review"
+            lane = "manual_review"
+        else:
+            row["outreach_status"] = "pending_approval"
+            lane = "auto_draft" if (auto_lane and price_f <= AUTO_DRAFT_MAX_EUR) else "ceo_prepare"
+        meta["price_tier"] = lane
+        meta["auto_draft_max_eur"] = AUTO_DRAFT_MAX_EUR
+        meta["high_win_auto_queue_pct"] = HIGH_WIN_AUTO_QUEUE_PCT
+        row["meta"] = meta
         row["status"] = "proposed"
-        row["status_label"] = "Предложение готово"
+        row["status_label"] = (
+            "Ручная проверка (цена > 50 €)"
+            if row["outreach_status"] == "manual_review"
+            else (
+                f"Высокий win {win_pct}% · в Approve"
+                if lane == "high_win_auto_queue"
+                else "Предложение готово"
+            )
+        )
         row["score"] = self._refresh_score(row, analysis)
         row["updated_at"] = now
-        self._log_interaction(row, "prepared", "КП и письмо подготовлены Studio")
+        self._log_interaction(
+            row,
+            "prepared",
+            f"КП и письмо · lane={lane} · {price_f:.0f} € · win={win_pct}%",
+        )
         self._opportunity._save_rows(self._replace_row(opportunity_id, row))
         return row
 
@@ -429,11 +489,20 @@ class AcquisitionStudioService:
 
         rows = self._opportunity.list_opportunities(limit=200)
         candidates: list[tuple[int, dict]] = []
+        archived = 0
 
         for row in rows:
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
             if row.get("status") in ("won", "lost", "contacted"):
                 continue
-            if row.get("outreach_status") in ("pending_approval", "sent", "approved"):
+            if row.get("outreach_status") in (
+                "pending_approval",
+                "sent",
+                "approved",
+                "manual_review",
+            ):
                 continue
             if row.get("proposed_message"):
                 continue
@@ -442,23 +511,53 @@ class AcquisitionStudioService:
                 continue
             score = int(row.get("score") or 0)
             if score < min_score:
+                self._archive_quality(
+                    row,
+                    reason="low_score",
+                    detail=f"score {score} < {min_score}",
+                )
+                archived += 1
                 continue
             ev = evaluate_opportunity(row, all_rows=rows)
-            if int(ev.get("win_probability_pct") or 0) < min_win_pct:
+            win_pct = int(ev.get("win_probability_pct") or 0)
+            if win_pct < min_win_pct:
+                self._archive_quality(
+                    row,
+                    reason="low_win_probability",
+                    detail=f"win {win_pct}% < {min_win_pct}%",
+                    win_pct=win_pct,
+                )
+                archived += 1
                 continue
             if not ev.get("legal_gate", {}).get("legal", True):
+                self._archive_quality(
+                    row,
+                    reason="legal_gate",
+                    detail="legal_gate failed",
+                    win_pct=win_pct,
+                )
+                archived += 1
                 continue
-            candidates.append((int(ev.get("win_probability_pct") or 0), row))
+            candidates.append((win_pct, row))
 
         candidates.sort(key=lambda x: (-x[0], -int(x[1].get("score") or 0)))
         prepared: list[str] = []
+        manual_review: list[str] = []
         skipped_qual: list[str] = []
         errors: list[str] = []
 
         for _, row in candidates[: max(1, limit)]:
             try:
-                self.prepare_opportunity(row["id"], website_url=row.get("website_url"))
-                prepared.append(str(row.get("company_name") or row["id"]))
+                updated = self.prepare_opportunity(
+                    row["id"],
+                    website_url=row.get("website_url"),
+                    auto_lane=True,
+                )
+                name = str(updated.get("company_name") or row.get("company_name") or row["id"])
+                if updated.get("outreach_status") == "manual_review":
+                    manual_review.append(name)
+                else:
+                    prepared.append(name)
             except ValueError as exc:
                 if str(exc) == "qualification_failed":
                     skipped_qual.append(str(row.get("company_name") or row["id"]))
@@ -473,12 +572,17 @@ class AcquisitionStudioService:
             "candidates": len(candidates),
             "prepared": len(prepared),
             "prepared_names": prepared,
+            "manual_review": len(manual_review),
+            "manual_review_names": manual_review,
+            "archived_quality": archived,
             "skipped_qualification": len(skipped_qual),
             "skipped_names": skipped_qual,
             "errors": errors,
+            "auto_draft_max_eur": AUTO_DRAFT_MAX_EUR,
             "message_ru": (
-                f"Подготовлено {len(prepared)} писем с аудитом — ждут Approve CEO."
-                if prepared
+                f"Auto-draft ≤{AUTO_DRAFT_MAX_EUR:.0f}€: {len(prepared)} · "
+                f"manual-review: {len(manual_review)} · архив качества: {archived}."
+                if (prepared or manual_review or archived)
                 else (
                     f"Квалификация отсеяла {len(skipped_qual)} лидов — нужен email/живой сайт."
                     if skipped_qual
@@ -558,30 +662,229 @@ class AcquisitionStudioService:
 
     def approval_queue(self, limit: int = 20) -> list[dict]:
         rows = self._opportunity._load_rows()
-        pending = [
-            r
-            for r in rows
-            if r.get("outreach_status") == "pending_approval"
-            or (r.get("status") == "proposed" and r.get("proposed_message"))
-        ]
+        pending = [r for r in rows if r.get("outreach_status") == "pending_approval"]
         pending.sort(key=lambda r: int(r.get("score") or 0), reverse=True)
-        return [
-            {
-                "id": r["id"],
-                "company_name": r.get("company_name"),
-                "contact": r.get("contact"),
-                "website_url": r.get("website_url"),
-                "recommended_price_eur": r.get("recommended_price_eur"),
-                "recommended_package_id": r.get("recommended_package_id"),
-                "email_subject": r.get("email_subject"),
-                "proposed_message": r.get("proposed_message"),
-                "fit_reason": r.get("fit_reason"),
-                "pricing_rationale": r.get("pricing_rationale"),
-                "issue_count": (r.get("site_analysis") or {}).get("issue_count", 0),
-                "score": r.get("score"),
-            }
-            for r in pending[:limit]
-        ]
+        return [self._queue_item(r) for r in pending[:limit]]
+
+    def manual_review_queue(self, limit: int = 20) -> list[dict]:
+        rows = self._opportunity._load_rows()
+        pending = [r for r in rows if r.get("outreach_status") == "manual_review"]
+        pending.sort(key=lambda r: float(r.get("recommended_price_eur") or 0), reverse=True)
+        return [self._queue_item(r) for r in pending[:limit]]
+
+    @staticmethod
+    def _queue_item(r: dict) -> dict:
+        meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+        return {
+            "id": r["id"],
+            "company_name": r.get("company_name"),
+            "contact": r.get("contact"),
+            "website_url": r.get("website_url"),
+            "recommended_price_eur": r.get("recommended_price_eur"),
+            "recommended_package_id": r.get("recommended_package_id"),
+            "email_subject": r.get("email_subject"),
+            "proposed_message": r.get("proposed_message"),
+            "fit_reason": r.get("fit_reason"),
+            "pricing_rationale": r.get("pricing_rationale"),
+            "issue_count": (r.get("site_analysis") or {}).get("issue_count", 0),
+            "site_issues": list((r.get("site_analysis") or {}).get("issues") or [])[:5],
+            "score": r.get("score"),
+            "outreach_status": r.get("outreach_status"),
+            "price_tier": meta.get("price_tier"),
+            "last_market_lesson": meta.get("last_market_lesson"),
+            "crm_status": r.get("status"),
+        }
+
+    def pipeline_leads(self, *, limit: int = 50) -> list[dict]:
+        """Все активные лиды Country Desk — не только Approve-очередь."""
+        rows = self._opportunity.list_opportunities(limit=200)
+        out: list[dict] = []
+        for r in rows:
+            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
+            if r.get("status") in ("won", "lost"):
+                continue
+            item = self._queue_item(r)
+            item["status"] = r.get("status")
+            item["status_label"] = r.get("status_label")
+            item["source_id"] = r.get("source_id")
+            item["win_probability_pct"] = meta.get("win_probability_pct")
+            item["niche"] = meta.get("niche")
+            item["quality_archive"] = bool(meta.get("quality_archive"))
+            out.append(item)
+        out.sort(
+            key=lambda x: (
+                0 if x.get("outreach_status") == "pending_approval" else 1,
+                0 if x.get("outreach_status") == "manual_review" else 1,
+                -int(x.get("win_probability_pct") or 0),
+                -int(x.get("score") or 0),
+            )
+        )
+        return out[:limit]
+
+    def auto_confirm_high_probability(self, *, min_win_pct: int = HIGH_WIN_AUTO_CONFIRM_PCT) -> dict[str, Any]:
+        """Подтвердить (без обязательной отправки) черновики с высоким win%.
+
+        approve_outreach при выключенном GENESIS_OUTREACH_ENABLED только ставит approved —
+        письмо не уходит. Это и есть «автоподтверждение» для CEO-копирования.
+        """
+        confirmed: list[str] = []
+        queued: list[str] = []
+        skipped: list[str] = []
+        for row in self._opportunity.list_opportunities(limit=200):
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
+            win = int(meta.get("win_probability_pct") or 0)
+            if win < min_win_pct:
+                continue
+            name = str(row.get("company_name") or row.get("id"))
+            status = str(row.get("outreach_status") or "")
+            if status == "manual_review":
+                try:
+                    self.promote_manual_review(row["id"])
+                    queued.append(name)
+                    status = "pending_approval"
+                except ValueError:
+                    skipped.append(name)
+                    continue
+            if status == "pending_approval" and row.get("proposed_message"):
+                try:
+                    result = self.approve_outreach(row["id"])
+                    confirmed.append(str(result["opportunity"].get("company_name") or name))
+                except ValueError:
+                    skipped.append(name)
+            elif status in ("approved", "sent"):
+                continue
+            else:
+                skipped.append(name)
+        return {
+            "ok": True,
+            "min_win_pct": min_win_pct,
+            "confirmed": len(confirmed),
+            "confirmed_names": confirmed,
+            "promoted_to_queue": len(queued),
+            "skipped": len(skipped),
+            "outreach_send_enabled": os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true",
+            "message_ru": (
+                f"Автоподтверждение win≥{min_win_pct}%: {len(confirmed)} шт. "
+                + (
+                    "Отправка включена."
+                    if os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+                    else "Письма НЕ отправлены (outreach выкл.) — скопируйте из Outbox."
+                )
+            ),
+        }
+
+    def refresh_country_desk_leads(
+        self,
+        *,
+        limit: int = 8,
+        query: str | None = None,
+        city: str | None = None,
+        auto_confirm: bool = True,
+    ) -> dict[str, Any]:
+        """Одна кнопка «Обновить лиды»: Places → ingest → prepare → high-win confirm."""
+        hunt = self._hunt()
+        city = (city or hunt["target_city"]).strip()
+        niches = hunt.get("profitable_niches") or ["Kfz-Werkstatt"]
+        query = (query or niches[0]).strip()
+        drafts = self.generate_drafts_from_places(
+            city=city,
+            query=query,
+            limit=limit,
+            force_skip_check=True,
+        )
+        # Also run auto_prepare on existing raw leads (status none)
+        prep = self.auto_prepare_discovery_leads(limit=limit, min_score=40, min_win_pct=40)
+        confirm = (
+            self.auto_confirm_high_probability(min_win_pct=HIGH_WIN_AUTO_CONFIRM_PCT)
+            if auto_confirm
+            else {"confirmed": 0, "message_ru": "auto_confirm выкл."}
+        )
+        return {
+            "ok": True,
+            "city": city,
+            "query": query,
+            "drafts": drafts,
+            "auto_prepare": prep,
+            "auto_confirm": confirm,
+            "pipeline": self.pipeline_leads(limit=40),
+            "gate_funnel": self.gate_funnel(),
+            "message_ru": (
+                f"Обновлено · {city} · «{query}»: "
+                f"Places created={drafts.get('created', 0)} drafted={drafts.get('drafted', 0)} · "
+                f"prepare={prep.get('prepared', 0)}+manual={prep.get('manual_review', 0)} · "
+                f"auto-confirm={confirm.get('confirmed', 0)}"
+            ),
+        }
+
+    def promote_manual_review(self, opportunity_id: str) -> dict:
+        """CEO: move >50€ draft from manual_review into Approve queue."""
+        row = self._opportunity.get(opportunity_id)
+        if not row:
+            raise ValueError("not_found")
+        if row.get("outreach_status") != "manual_review":
+            raise ValueError("not_manual_review")
+        if not row.get("proposed_message"):
+            raise ValueError("no_draft")
+        row["outreach_status"] = "pending_approval"
+        row["status_label"] = "Предложение готово · после ручной проверки"
+        meta = dict(row.get("meta") or {})
+        meta["price_tier"] = "ceo_promoted"
+        row["meta"] = meta
+        row["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._log_interaction(row, "promoted_to_approval", "CEO: manual_review → pending_approval")
+        self._opportunity._save_rows(self._replace_row(opportunity_id, row))
+        return row
+
+    def _archive_quality(
+        self,
+        row: dict,
+        *,
+        reason: str,
+        detail: str,
+        win_pct: int | None = None,
+    ) -> None:
+        """Never delete weak leads — park in quality archive for later learning."""
+        import json
+        from pathlib import Path
+
+        meta = dict(row.get("meta") or {})
+        if meta.get("quality_archive"):
+            return
+        now = datetime.now(timezone.utc).isoformat()
+        meta["quality_archive"] = True
+        meta["quality_archive_reason"] = reason
+        meta["quality_archive_detail"] = detail
+        meta["quality_archived_at"] = now
+        if win_pct is not None:
+            meta["quality_archive_win_pct"] = int(win_pct)
+        row["meta"] = meta
+        row["updated_at"] = now
+        self._log_interaction(row, "quality_archive", f"{reason}: {detail}"[:160])
+        self._opportunity._save_rows(self._replace_row(str(row["id"]), row))
+
+        mem = Path(getattr(self._opportunity, "memory_dir", None) or getattr(self, "_memory_dir", None) or ".")
+        path = mem / QUALITY_ARCHIVE_FILE
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(
+                json.dumps(
+                    {
+                        "id": row.get("id"),
+                        "company_name": row.get("company_name"),
+                        "website_url": row.get("website_url"),
+                        "reason": reason,
+                        "detail": detail,
+                        "win_pct": win_pct,
+                        "at": now,
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
 
     def approve_outreach(self, opportunity_id: str) -> dict:
         row = self._opportunity.get(opportunity_id)
@@ -653,7 +956,15 @@ class AcquisitionStudioService:
         self._opportunity._save_rows(self._replace_row(opportunity_id, row))
         return row
 
-    def record_interaction(self, opportunity_id: str, event: str, note: str = "") -> dict:
+    def record_interaction(
+        self,
+        opportunity_id: str,
+        event: str,
+        note: str = "",
+        *,
+        market_lesson: str = "",
+        market_reason: str = "",
+    ) -> dict:
         row = self._opportunity.get(opportunity_id)
         if not row:
             raise ValueError("not_found")
@@ -662,16 +973,58 @@ class AcquisitionStudioService:
             "qualified": "qualified",
             "won": "won",
             "lost": "lost",
+            "no_reply": "contacted",
         }
         if event in status_map:
             row["status"] = status_map[event]
             from app.integration.opportunity_service import _STATUSES
 
-            row["status_label"] = _STATUSES.get(status_map[event], status_map[event])
+            label_key = status_map[event]
+            if event == "no_reply":
+                row["status_label"] = "Без ответа"
+            else:
+                row["status_label"] = _STATUSES.get(label_key, label_key)
         if event == "lost" and note:
             row["notes"] = (row.get("notes") or "") + f"\nОтказ: {note}".strip()
+
+        comment = (market_lesson or note or "").strip()
+        reason = (market_reason or "").strip().lower()
+        if event in MARKET_OUTCOME_EVENTS:
+            if reason not in MARKET_REASON_LABELS_RU:
+                # Legacy: free-text only → treat as other + comment required
+                if comment and not reason:
+                    reason = "other"
+                else:
+                    raise ValueError("market_reason_required")
+            if reason == "other" and not comment:
+                raise ValueError("market_lesson_required")
+
+        meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+        if event in MARKET_OUTCOME_EVENTS and reason:
+            reason_label = MARKET_REASON_LABELS_RU[reason]
+            lesson_text = f"{reason_label}" + (f" — {comment}" if comment else "")
+            lessons = list(meta.get("market_lessons") or [])
+            lessons.append(
+                {
+                    "at": datetime.now(timezone.utc).isoformat(),
+                    "event": event,
+                    "reason": reason,
+                    "reason_label_ru": reason_label,
+                    "comment": comment[:500],
+                    "lesson": lesson_text[:500],
+                    "note": (note or "")[:200],
+                }
+            )
+            meta["market_lessons"] = lessons[-20:]
+            meta["last_market_lesson"] = lesson_text[:500]
+            meta["last_market_reason"] = reason
+            row["meta"] = meta
+
         row["updated_at"] = datetime.now(timezone.utc).isoformat()
-        self._log_interaction(row, event, note)
+        log_note = meta.get("last_market_lesson") if reason else note
+        if comment and reason and note and note != comment:
+            log_note = f"{note} | {meta.get('last_market_lesson')}"
+        self._log_interaction(row, event, log_note or note)
         self._opportunity._save_rows(self._replace_row(opportunity_id, row))
         return row
 
@@ -681,6 +1034,12 @@ class AcquisitionStudioService:
         replied = [r for r in rows if r.get("status") in ("replied", "qualified", "won")]
         won = [r for r in rows if r.get("status") == "won"]
         lost = [r for r in rows if r.get("status") == "lost"]
+        sent_rows = [
+            r
+            for r in rows
+            if r.get("outreach_status") == "sent"
+            or r.get("status") in ("contacted", "replied", "qualified", "won", "lost")
+        ]
 
         by_segment: dict[str, dict[str, int]] = defaultdict(lambda: {"sent": 0, "replied": 0, "won": 0})
         by_price: dict[str, dict[str, int]] = defaultdict(lambda: {"sent": 0, "replied": 0, "won": 0})
@@ -722,6 +1081,91 @@ class AcquisitionStudioService:
             else:
                 lost_reasons["без причины"] += 1
 
+        reason_counts: Counter[str] = Counter()
+        recent_lessons: list[dict] = []
+        lessons_logged = 0
+        for r in rows:
+            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            row_lessons = meta.get("market_lessons") or []
+            if row_lessons:
+                lessons_logged += 1
+            for lesson in row_lessons:
+                if not isinstance(lesson, dict):
+                    continue
+                reason = str(lesson.get("reason") or "")
+                if reason in MARKET_REASON_LABELS_RU:
+                    reason_counts[reason] += 1
+                elif lesson.get("lesson"):
+                    reason_counts["other"] += 1
+                if lesson.get("lesson") or lesson.get("reason"):
+                    recent_lessons.append(
+                        {
+                            "company": r.get("company_name"),
+                            "event": lesson.get("event"),
+                            "reason": reason or "other",
+                            "reason_label_ru": lesson.get("reason_label_ru")
+                            or MARKET_REASON_LABELS_RU.get(reason, "Другое"),
+                            "comment": lesson.get("comment") or "",
+                            "lesson": lesson.get("lesson"),
+                            "at": lesson.get("at"),
+                        }
+                    )
+        recent_lessons.sort(key=lambda x: str(x.get("at") or ""), reverse=True)
+        recent_lessons = recent_lessons[:12]
+
+        sent_count = len(sent_rows)
+        pending_lessons = max(0, sent_count - lessons_logged)
+        completeness_pct = (
+            round(100.0 * lessons_logged / sent_count, 1) if sent_count else 100.0
+        )
+
+        reason_table = [
+            {
+                "reason": code,
+                "label_ru": MARKET_REASON_LABELS_RU[code],
+                "count": reason_counts[code],
+            }
+            for code in sorted(reason_counts.keys(), key=lambda c: (-reason_counts[c], c))
+        ]
+
+        if reason_counts:
+            top_code, top_n = reason_counts.most_common(1)[0]
+            top_label = MARKET_REASON_LABELS_RU.get(top_code, top_code)
+            if top_code == "no_reply":
+                insights.insert(
+                    0,
+                    f"Статистика: чаще всего «{top_label}» ({top_n}). "
+                    "Значит, сначала улучшить тему письма и первые две строки — не цену.",
+                )
+            elif top_code == "price":
+                insights.insert(
+                    0,
+                    f"Статистика: чаще всего «{top_label}» ({top_n}). "
+                    "Проверьте микс Basic/Business и ясность ценности Path A.",
+                )
+            elif top_code == "interested":
+                insights.insert(
+                    0,
+                    f"Статистика: «{top_label}» лидирует ({top_n}). "
+                    "Сохраняйте удачные шаблоны и усиливайте follow-up.",
+                )
+            else:
+                insights.insert(
+                    0,
+                    f"Статистика причин: чаще всего «{top_label}» ({top_n}).",
+                )
+        elif recent_lessons:
+            insights.insert(
+                0,
+                f"Последний урок рынка: {recent_lessons[0].get('lesson')}",
+            )
+
+        if sent_count and pending_lessons > 0:
+            insights.append(
+                f"Learning Score: {lessons_logged}/{sent_count} уроков · "
+                f"необработанных {pending_lessons} — зафиксируйте исходы, иначе Evidence дырявый."
+            )
+
         return {
             "sample_size": len(rows),
             "contacted": len(contacted),
@@ -732,9 +1176,28 @@ class AcquisitionStudioService:
             "by_segment": dict(by_segment),
             "by_price_band": dict(by_price),
             "lost_reasons": dict(lost_reasons),
+            "reason_counts": reason_table,
+            "market_reason_catalog": [
+                {"id": k, "label_ru": v} for k, v in MARKET_REASON_LABELS_RU.items()
+            ],
+            "learning": {
+                "sent": sent_count,
+                "lessons_logged": lessons_logged,
+                "pending_lessons": pending_lessons,
+                "completeness_pct": completeness_pct,
+            },
             "insights": insights,
+            "recent_lessons": recent_lessons,
             "evidence_ready": len(contacted) >= 30,
-            "note": "Evidence Before Automation — автоматизация после 30–50 реальных продаж.",
+            "milestone_ru": (
+                "KPI: sniper-контакты Path A (лучше 8 сильных) → сигнал рынка "
+                "(ответ или клик на /order). Не объём писем. Авто-ZIP = Tier 2 после первой оплаты."
+            ),
+            "note": (
+                "Evidence First — причина + комментарий. "
+                "Sniper: Approve только если Neustart уместен. "
+                "Toloka/TikTok/найм — не в этом цикле."
+            ),
         }
 
     def _recommend_pricing(
@@ -770,29 +1233,33 @@ class AcquisitionStudioService:
         price: float,
         fit_reason: str,
     ) -> tuple[str, str]:
+        # Fallback DE draft — same Path A honesty as OutreachLanguageService templates.
         issues = (analysis or {}).get("issues") or []
-        issues_block = "\n".join(f"• {i}" for i in issues[:7]) if issues else "• Online-Präsenz lässt sich deutlich verbessern"
-        subject = f"Idee für {company} — moderner Auftritt online"
+        issues_block = (
+            "\n".join(f"• {i}" for i in issues[:7])
+            if issues
+            else "• Online-Auftritt technisch veraltet oder schwer erreichbar"
+        )
+        subject = f"{company} — digitaler Neustart mit moderner Landing Page"
 
+        from app.integration.outreach_language_service import public_order_url
+
+        order_url = public_order_url()
         body = (
             f"Guten Tag,\n\n"
-            f"wir haben uns {company} angeschaut und möchten einen konkreten Vorschlag machen — "
-            f"ohne Verkaufsdruck, eher als möglicher Partner für Ihren Online-Auftritt.\n\n"
-            f"Was uns aufgefallen ist:\n{issues_block}\n\n"
-            f"Wir können einen modernen Auftritt liefern — Paket «{package['name']}» für {price:.0f} €, "
-            f"Lieferzeit ca. 5–7 Werktage nach Bestätigung.\n\n"
-            f"Wenn Sie möchten, zeigen wir Ihnen gern ein Beispiel, wie Ihre Seite aussehen könnte — "
-            f"danach entscheiden Sie in Ruhe.\n\n"
+            f"wir haben uns den aktuellen Online-Auftritt von {company} angeschaut. "
+            f"Statt an einem veralteten System zu „reparieren“, schlagen wir einen klaren Neustart vor: "
+            f"eine moderne, schnelle Landing Page — mobil optimiert, mit klarem Kontakt-/Terminweg"
+            f"{f' ({fit_reason.strip()[:80]})' if fit_reason else ''}.\n\n"
+            f"Warum ein Neustart sinnvoll ist (Ist-Zustand):\n{issues_block}\n\n"
+            f"Paket «{package['name']}» für {price:.0f} € — fertige Landing Page in ca. 5–7 Werktagen "
+            f"(HTML-Dateien, bereit für Ihren Hosting-Anbieter). "
+            f"Optional: Upload auf Ihre Domain durch uns (Sorglos-Paket).\n\n"
+            f"Wenn das für Sie interessant klingt — hier die Pakete und Bestellung "
+            f"(ohne Verpflichtung):\n{order_url}\n\n"
             f"Beste Grüße\n"
             f"Ramish · {BRAND_NAME}\n"
-            f"https://genesis-ai-engine.vercel.app/site\n"
         )
-        if fit_reason:
-            body = body.replace(
-                "ohne Verkaufsdruck",
-                f"({fit_reason.strip()[:80]}) — ohne Verkaufsdruck",
-                1,
-            )
         return subject, body
 
     def _refresh_score(self, row: dict, analysis: dict | None) -> int:

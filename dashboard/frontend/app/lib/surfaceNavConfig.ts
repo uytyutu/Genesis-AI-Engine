@@ -59,6 +59,8 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
     "/scanner",
     "/growth",
     "/tasks",
+    "/tiktok-horizon",
+    "/ceo-site",
   ];
   if (mc.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return "ceo";
@@ -88,18 +90,21 @@ export const CLIENT_NAV_LINKS = [
 
 export const CEO_PRIMARY_LINKS = [
   { href: "/business", label: "Бизнес", hint: "Mission 2 · KPI" },
-  { href: "/", label: "Движок", hint: "Engine Mode · монетизация" },
+  { href: "/acquisition", label: "Поиск лидов", hint: "Country Desk · DE · Path A" },
+  { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
+  { href: "/", label: "Ферма", hint: "Labeling · Toloka (не Desk)" },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
-  { href: "/create", label: "Factory", hint: "Сборка черновиков" },
   { href: "/finance", label: "Финансы", hint: "Деньги" },
-  { href: "/company", label: "Стратегия", hint: "Компания" },
 ] as const;
 
 export const CEO_STUDIO_LINKS = [
   { href: "/cursor", label: "Development", hint: "Cursor · код" },
-  { href: "/acquisition", label: "Acquisition", hint: "Исходящие продажи" },
-  { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
-  { href: "/ai", label: "AI Hub", hint: "Помощник" },
+  { href: "/acquisition", label: "Country Desk", hint: "Германия · sniper · Outbox" },
+  { href: "/ceo-site", label: "Сайт клиентов", hint: "Как видит покупатель" },
+  { href: "/tiktok-horizon", label: "TikTok Horizon", hint: "Kill switch OFF · полка" },
+  { href: "/#lost-archive", label: "Архив отказов", hint: "lost_reasons · не удалять" },
+  { href: "/create", label: "Factory", hint: "Сборка Landing" },
+  { href: "/ai", label: "AI Hub", hint: "Помощник CEO" },
   { href: "/growth", label: "Аналитика", hint: "Mission 2 · Конверсия" },
 ] as const;
 

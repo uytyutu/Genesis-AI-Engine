@@ -396,12 +396,18 @@
     text-decoration: none;
     border-radius: 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: border-color 0.2s ease, color 0.2s ease;
+    transition:
+      border-color 0.25s ease,
+      color 0.25s ease,
+      background-color 0.25s ease,
+      transform 0.2s ease;
   }
 
   .genesis-topbar__link:hover {
-    border-color: rgba(91, 141, 239, 0.35);
+    border-color: rgba(52, 211, 153, 0.4);
     color: #ececf1;
+    background: rgba(16, 185, 129, 0.08);
+    transform: translateY(-1px);
   }
 
   .genesis-topbar__cta {
@@ -411,8 +417,14 @@
     color: #fff;
     text-decoration: none;
     border-radius: 0.75rem;
-    background: linear-gradient(135deg, #5b8def 0%, #4f46e5 100%);
-    box-shadow: 0 0 24px -8px rgba(91, 141, 239, 0.45);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 0 24px -8px rgba(16, 185, 129, 0.45);
+    transition: transform 0.2s ease, filter 0.2s ease;
+  }
+
+  .genesis-topbar__cta:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
   }
 
   .genesis-mobile-nav {

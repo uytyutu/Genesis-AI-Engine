@@ -254,7 +254,10 @@ class LeadIntakeService:
             or f"Лид: {profile['label']}"
         )
         notes = self._format_notes(known, transcript, visitor_id)
-        row = self._opportunity.create(
+        from app.integration.lead_pipeline_service import ingest_lead
+
+        ingested = ingest_lead(
+            self._opportunity,
             {
                 "source_id": "inbound_chat",
                 "opportunity_type": "lead",
@@ -271,8 +274,29 @@ class LeadIntakeService:
                     "location": known.get("location", ""),
                     "problem": known.get("problem", ""),
                 },
-            }
+            },
         )
+        if ingested.get("blocked"):
+            return {
+                "hot": False,
+                "score": score,
+                "gaps": [],
+                "follow_up": None,
+                "lead_id": None,
+                "message": "Источник отклонён политикой качества.",
+                "duplicate": False,
+            }
+        row = ingested["row"]
+        if ingested.get("duplicate"):
+            return {
+                "hot": True,
+                "score": score,
+                "gaps": [],
+                "follow_up": None,
+                "lead_id": row["id"],
+                "message": "Заявка уже в журнале (дубликат).",
+                "duplicate": True,
+            }
         qualified = self._opportunity.update(row["id"], {"status": "qualified"})
         self._notify_owner(qualified, profile)
         return {

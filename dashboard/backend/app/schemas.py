@@ -1247,6 +1247,8 @@ class AcquisitionStudioStatus(BaseModel):
     sent_count: int
     pipeline_count: int
     channels: list[dict] = []
+    manual_review_count: int = 0
+    auto_draft_max_eur: float = 50.0
 
 
 class AcquisitionApprovalItem(BaseModel):
@@ -1262,6 +1264,8 @@ class AcquisitionApprovalItem(BaseModel):
     pricing_rationale: str = ""
     issue_count: int = 0
     score: int = 0
+    outreach_status: str | None = None
+    price_tier: str | None = None
 
 
 class AcquisitionApprovalQueueResponse(BaseModel):
@@ -1304,6 +1308,8 @@ class AcquisitionApproveResponse(BaseModel):
 class AcquisitionInteractionRequest(BaseModel):
     event: str
     note: str = ""
+    market_lesson: str = ""
+    market_reason: str = ""
 
 
 class AcquisitionEvidenceReport(BaseModel):
@@ -1316,9 +1322,14 @@ class AcquisitionEvidenceReport(BaseModel):
     by_segment: dict = {}
     by_price_band: dict = {}
     lost_reasons: dict = {}
+    reason_counts: list[dict] = []
+    market_reason_catalog: list[dict] = []
+    learning: dict = {}
     insights: list[str] = []
+    recent_lessons: list[dict] = []
     evidence_ready: bool
     note: str
+    milestone_ru: str = ""
 
 
 class AcquisitionDailyWorklist(BaseModel):

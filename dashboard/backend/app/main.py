@@ -511,6 +511,35 @@ def get_public_launch_checklist() -> PublicLaunchChecklist:
     return PublicLaunchChecklist(**_ctx().public_launch.run())
 
 
+@app.get("/api/owner/features")
+def owner_features_snapshot() -> dict:
+    from app.integration.feature_flags_service import snapshot
+
+    return snapshot()
+
+
+@app.post("/api/owner/features/tiktok/activate")
+def owner_tiktok_activate(body: dict) -> dict:
+    from app.integration.feature_flags_service import activate_tiktok
+
+    if not body.get("ceo_confirmed"):
+        raise HTTPException(
+            status_code=400,
+            detail="Нужно ceo_confirmed=true — явное подтверждение CEO.",
+        )
+    try:
+        return activate_tiktok(ceo_confirmed=True)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/owner/features/tiktok/deactivate")
+def owner_tiktok_deactivate() -> dict:
+    from app.integration.feature_flags_service import deactivate_tiktok
+
+    return deactivate_tiktok()
+
+
 @app.get("/api/owner/growth", response_model=GrowthCenter)
 def get_growth_center() -> GrowthCenter:
     data = _ctx().growth.center()
@@ -1211,6 +1240,35 @@ def acquisition_studio_status() -> AcquisitionStudioStatus:
     return AcquisitionStudioStatus(**_ctx().acquisition.studio_status())
 
 
+@app.get("/api/acquisition/gate-funnel")
+def acquisition_gate_funnel() -> dict:
+    return _ctx().acquisition.gate_funnel()
+
+
+@app.get("/api/acquisition/pipeline")
+def acquisition_pipeline(limit: int = 50) -> dict:
+    items = _ctx().acquisition.pipeline_leads(limit=max(1, min(100, limit)))
+    return {"items": items, "count": len(items)}
+
+
+@app.post("/api/acquisition/refresh-leads")
+def acquisition_refresh_leads(body: dict | None = None) -> dict:
+    body = body or {}
+    return _ctx().acquisition.refresh_country_desk_leads(
+        limit=max(1, min(20, int(body.get("limit") or 8))),
+        query=str(body.get("query") or "").strip() or None,
+        city=str(body.get("city") or "").strip() or None,
+        auto_confirm=bool(body.get("auto_confirm", True)),
+    )
+
+
+@app.post("/api/acquisition/auto-confirm-high-win")
+def acquisition_auto_confirm_high_win(body: dict | None = None) -> dict:
+    body = body or {}
+    min_win = int(body.get("min_win_pct") or 75)
+    return _ctx().acquisition.auto_confirm_high_probability(min_win_pct=max(55, min(95, min_win)))
+
+
 @app.get("/api/acquisition/catalog", response_model=AcquisitionCatalogResponse)
 def acquisition_catalog(public_only: bool = True) -> AcquisitionCatalogResponse:
     return AcquisitionCatalogResponse(**_ctx().acquisition.catalog(public_only=public_only))
@@ -1227,6 +1285,21 @@ def acquisition_approval_queue() -> AcquisitionApprovalQueueResponse:
     return AcquisitionApprovalQueueResponse(
         items=[AcquisitionApprovalItem(**i) for i in items]
     )
+
+
+@app.get("/api/acquisition/manual-review-queue")
+def acquisition_manual_review_queue() -> dict:
+    items = _ctx().acquisition.manual_review_queue()
+    return {"items": items, "auto_draft_max_eur": 50.0}
+
+
+@app.post("/api/acquisition/opportunities/{opportunity_id}/promote-review")
+def acquisition_promote_review(opportunity_id: str) -> dict:
+    try:
+        row = _ctx().acquisition.promote_manual_review(opportunity_id)
+        return {"ok": True, "opportunity": row, "message": "В очереди Approve"}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/acquisition/evidence", response_model=AcquisitionEvidenceReport)
@@ -1371,16 +1444,30 @@ def acquisition_record_interaction(
 ) -> AcquisitionPrepareResponse:
     try:
         row = _ctx().acquisition.record_interaction(
-            opportunity_id, request.event, request.note
+            opportunity_id,
+            request.event,
+            request.note,
+            market_lesson=request.market_lesson,
+            market_reason=request.market_reason,
         )
     except ValueError as e:
         if str(e) == "not_found":
             raise HTTPException(status_code=404, detail="Возможность не найдена")
+        if str(e) == "market_reason_required":
+            raise HTTPException(
+                status_code=400,
+                detail="Выберите причину из списка — иначе исход не сохраняем (Evidence First).",
+            )
+        if str(e) == "market_lesson_required":
+            raise HTTPException(
+                status_code=400,
+                detail="Для «Другое» нужен короткий комментарий CEO.",
+            )
         raise HTTPException(status_code=400, detail="Не удалось записать событие")
     return AcquisitionPrepareResponse(
         ok=True,
         opportunity=OpportunityRecord(**row),
-        message="Событие записано в CRM.",
+        message="Событие и урок рынка записаны.",
     )
 
 

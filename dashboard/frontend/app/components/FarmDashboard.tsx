@@ -672,19 +672,39 @@ export function FarmDashboard() {
             </p>
           </div>
           <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/90">
-            Genesis Production Platform · B2B
+            Labeling Farm · Toloka (не Country Desk)
           </p>
           <h1 className="mt-2 text-3xl font-bold text-white">
-            Фабрика данных · {dash?.owner_name ?? "…"}
+            Ферма разметки · {dash?.owner_name ?? "…"}
           </h1>
           <p className="mt-2 text-sm text-genesis-muted">
             {dash?.production_platform?.subtitle_ru ??
-              "Конвейер: Spider → Workers → Export → B2B / адаптеры. Toloka — только crash-test."}
+              "Toloka / комбайны: Spider → Workers → Export. B2B-продажи — в Country Desk."}
           </p>
           <p className="mt-1 text-xs text-sky-200/80">
             {dash?.production_platform?.conveyor_status_ru ?? ""}
           </p>
+          <div id="country-desk" className="mt-4 flex flex-wrap gap-2 text-xs">
+            <span className="rounded-lg border border-emerald-400/50 bg-emerald-950/40 px-3 py-1.5 font-semibold text-emerald-100">
+              🇩🇪 Германия · активна
+            </span>
+            <span className="rounded-lg border border-white/10 px-3 py-1.5 text-white/40" title="После Mission 1">
+              AT · скоро
+            </span>
+            <span className="rounded-lg border border-white/10 px-3 py-1.5 text-white/40" title="После Mission 1">
+              FR · скоро
+            </span>
+            <span className="rounded-lg border border-white/10 px-3 py-1.5 text-white/40" title="После Mission 1">
+              NL · скоро
+            </span>
+          </div>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <Link href="/acquisition" className="rounded-lg border border-sky-500/40 px-3 py-1.5 text-sky-100 hover:bg-sky-950/30">
+              Поиск лидов · Country Desk
+            </Link>
+            <Link href="/#lost-archive" className="rounded-lg border border-rose-500/40 px-3 py-1.5 text-rose-100 hover:bg-rose-950/30">
+              Архив отказов
+            </Link>
             <Link href="/journal" className="rounded-lg border border-emerald-500/40 px-3 py-1.5 text-emerald-100 hover:bg-emerald-950/30">
               Журнал · live
             </Link>
@@ -1057,9 +1077,12 @@ export function FarmDashboard() {
             ) : null}
 
             {dash.opportunity_discovery.lost_reason_database ? (
-              <div className="rounded-lg border border-rose-500/20 bg-rose-950/10 p-3 text-xs">
+              <div id="lost-archive" className="scroll-mt-24 rounded-lg border border-rose-500/20 bg-rose-950/10 p-3 text-xs">
                 <p className="font-semibold text-rose-100">{dash.opportunity_discovery.lost_reason_database.title_ru}</p>
                 <p className="mt-1 text-genesis-muted">{dash.opportunity_discovery.lost_reason_database.hint_ru}</p>
+                <p className="mt-2 text-[11px] text-rose-200/70">
+                  Политика: не удалять отказы — архив = база знаний для следующего витка.
+                </p>
                 {dash.opportunity_discovery.lost_reason_database.by_reason?.length ? (
                   <ul className="mt-2 flex flex-wrap gap-2">
                     {farmList(dash.opportunity_discovery.lost_reason_database?.by_reason).map((r) => (

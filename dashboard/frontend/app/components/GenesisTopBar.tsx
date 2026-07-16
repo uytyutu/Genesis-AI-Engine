@@ -7,20 +7,22 @@ import { BRAND_NAME } from "../lib/publicBrand";
 const TITLES: Record<string, string> = {
   "/business": "Business Health",
   "/business/kpi": "Mission 2 · KPI",
-  "/": "Цифровая ферма",
+  "/": "Labeling Farm",
   "/journal": "Журнал",
   "/company": "Компания",
   "/finance": "Финансы",
   "/projects": "Проекты",
   "/cursor": "Development Studio",
-  "/acquisition": "Sales Studio",
+  "/acquisition": "Country Desk · DE",
+  "/ceo-site": "Сайт клиентов",
+  "/tiktok-horizon": "TikTok Horizon",
   "/ai": "AI Hub",
   "/growth": "Mission 2 · Конверсия",
   "/launch": "Запуск",
   "/order": "Заказ",
   "/check": "Разработчик",
   "/settings": "Настройки",
-  "/create": "Создать продукт",
+  "/create": "Factory",
   "/opportunities": "Возможности",
   "/monitor": "Мониторинг",
   "/tasks": "Задачи",
@@ -35,12 +37,6 @@ function titleForPath(pathname: string): string {
 export function GenesisTopBar() {
   const pathname = usePathname() ?? "/";
   const title = titleForPath(pathname);
-  const businessFocus =
-    pathname === "/business" ||
-    pathname.startsWith("/business/") ||
-    pathname === "/growth" ||
-    pathname === "/acquisition" ||
-    pathname === "/finance";
 
   return (
     <header className="genesis-topbar">
@@ -49,25 +45,15 @@ export function GenesisTopBar() {
         <h1 className="genesis-topbar__title">{title}</h1>
       </div>
       <div className="genesis-topbar__actions">
-        {!businessFocus ? (
-          <>
-            <Link href="/site" className="genesis-topbar__link">
-              Сайт для клиентов
-            </Link>
-            <Link href="/create" className="genesis-topbar__cta">
-              + Продукт
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link href="/acquisition" className="genesis-topbar__link">
-              Outbox
-            </Link>
-            <Link href="/finance" className="genesis-topbar__cta">
-              Финансы
-            </Link>
-          </>
-        )}
+        <Link href="/ceo-site" className="genesis-topbar__link">
+          Сайт клиентов
+        </Link>
+        <Link href="/acquisition" className="genesis-topbar__link">
+          Country Desk
+        </Link>
+        <Link href="/order" className="genesis-topbar__cta">
+          /order
+        </Link>
       </div>
     </header>
   );

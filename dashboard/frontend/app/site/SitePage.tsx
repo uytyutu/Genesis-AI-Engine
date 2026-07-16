@@ -1,64 +1,69 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import Link from "next/link";
 import { PublicPageShell } from "../components/PublicPageShell";
-import { GenesisConcierge } from "../components/GenesisConcierge";
-import { GenesisChatErrorBoundary } from "../components/GenesisChatErrorBoundary";
-import { GuidedProgressPanel } from "../components/GuidedProgressPanel";
-import { VectorCommerceSteps } from "../components/VectorCommerceSteps";
-import { initVectorWorkspace } from "../lib/guidedSiteBootstrap";
-import { initPublicSiteSession } from "../lib/visitorId";
-import { ASSISTANT_NAME } from "../lib/publicBrand";
+import { BRAND_NAME } from "../lib/publicBrand";
 
 /**
- * Product Identity v1.0 — Vector-first workspace.
- * Left: digital employee. Right: live draft + ownership steps.
+ * Public Path A storefront — Landing Neustart.
+ * Vector chat removed from /site (not the sniper/partner path). Buy flow = /order.
  */
 export function SitePage() {
-  const { t: tCommon } = useTranslation("common");
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    initPublicSiteSession();
-    initVectorWorkspace();
-    setReady(true);
-  }, []);
-
-  if (!ready) {
-    return (
-      <PublicPageShell minimal>
-        <p className="text-sm text-genesis-muted">Открываем рабочее место…</p>
-      </PublicPageShell>
-    );
-  }
-
   return (
-    <PublicPageShell minimal>
-      <p className="mb-3 text-sm text-genesis-muted">
-        <span className="font-semibold text-white">{ASSISTANT_NAME}</span> — ваш цифровой сотрудник.
-        Просто расскажите в чате о бизнесе и видении — без анкеты. Черновик справа собирается из диалога. Оплата только если результат подходит.
-      </p>
-      <div className="grid min-h-0 gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,42%)] lg:gap-6">
-        <section
-          id="vector-panel"
-          className="order-1 flex min-h-[min(56dvh,32rem)] max-h-[min(62dvh,36rem)] min-w-0 flex-col lg:min-h-0"
-          aria-label={tCommon("nav.vector")}
-        >
-          <GenesisChatErrorBoundary publicMode>
-            <GenesisConcierge hubMode />
-          </GenesisChatErrorBoundary>
+    <PublicPageShell>
+      <div className="mx-auto max-w-3xl space-y-10 py-6 animate-fade-up">
+        <header className="space-y-4 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300/90">
+            {BRAND_NAME}
+          </p>
+          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            Landing Page · digitaler Neustart
+          </h1>
+          <p className="mx-auto max-w-2xl text-base text-genesis-muted sm:text-lg">
+            Современная быстрая страница для вашего бизнеса: мобильная версия, понятный путь к
+            записи или звонку. Не «починка» старого WordPress — новый чистый старт за 5–7 дней.
+          </p>
+        </header>
+
+        <section className="grid gap-3 sm:grid-cols-3">
+          {[
+            { name: "Basic", price: "350 €", note: "Одна сильная страница" },
+            { name: "Business", price: "650 €", note: "Основной пакет Mission 1" },
+            { name: "Premium", price: "1 200 €", note: "Расширенный пакет" },
+          ].map((p) => (
+            <div
+              key={p.name}
+              className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center"
+            >
+              <p className="text-sm text-genesis-muted">{p.name}</p>
+              <p className="mt-1 text-2xl font-semibold text-white">{p.price}</p>
+              <p className="mt-1 text-xs text-white/60">{p.note}</p>
+            </div>
+          ))}
         </section>
 
-        <section
-          className="order-2 flex min-h-0 min-w-0 flex-col"
-          aria-label="Ваш проект"
-        >
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <GuidedProgressPanel />
-            <VectorCommerceSteps />
-          </div>
+        <section className="rounded-2xl border border-emerald-500/25 bg-emerald-950/20 p-6">
+          <h2 className="text-lg font-semibold text-white">Что вы получаете</h2>
+          <ul className="mt-3 space-y-2 text-sm text-white/80">
+            <li>• Готовая Landing Page (HTML), оптимизированная под телефон</li>
+            <li>• Контакты, форма заявки, ясный призыв к действию</li>
+            <li>• Базовое SEO и адаптация под экраны</li>
+            <li>• Опционально: загрузка на ваш домен (Sorglos)</li>
+          </ul>
+          <p className="mt-4 text-sm text-genesis-muted">
+            После оплаты производство запускается в Factory. Статус заказа — на странице оплаты.
+          </p>
+          <Link
+            href="/order"
+            className="mt-6 inline-flex rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:brightness-110"
+          >
+            Заказать Landing Page →
+          </Link>
         </section>
+
+        <p className="text-center text-xs text-genesis-muted">
+          Virtus Core · Path A · не TikTok, не «починка CMS», не чат-конструктор.
+        </p>
       </div>
     </PublicPageShell>
   );

@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SitePage } from "./SitePage";
 import { publicPageMetadata } from "../lib/publicMetadata";
-
-import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
+import { BRAND_NAME } from "../lib/publicBrand";
 
 export const metadata: Metadata = publicPageMetadata(
-  `${ASSISTANT_NAME} — ваш цифровой сотрудник`,
-  `${ASSISTANT_NAME} от ${BRAND_NAME}: расскажите о бизнесе — черновик сайта появится сразу. Оформите права на тот же результат.`,
+  `Landing Page Neustart · ${BRAND_NAME}`,
+  `Современная Landing Page за 5–7 дней. Пакеты 350 / 650 / 1 200 €. Не починка WordPress — digitaler Neustart.`,
   "/site"
 );
 

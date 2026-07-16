@@ -100,7 +100,7 @@ class FactoryService:
         )
         if strength_line:
             description += f" Stärken: {strength_line}."
-        description += " Ziel: professioneller Fix-Landing — Hilfe, kein Spam."
+        description += " Ziel: neue Landing Page (digitaler Neustart) — Hilfe, kein Spam."
 
         return self.build_landing(description[:900])
 

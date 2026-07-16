@@ -1,0 +1,5 @@
+{
+  "tiktok_enabled": false,
+  "media_engine_enabled": false,
+  "note": "Kill switches. Path A (Country Desk → Stripe → Factory) never depends on these flags."
+}

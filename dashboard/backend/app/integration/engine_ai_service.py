@@ -237,11 +237,23 @@ class EngineAIService:
 
         system = (
             f"You write ONE professional cold-outreach email in {lang_label} for Virtus Core / {BRAND_NAME}. "
-            "Tone: helpful expert, not spam. Mention SPECIFIC website issues found. "
-            "Explain business impact (lost customers, missing price list, slow mobile). "
-            "Offer a concrete fix package. No hype, no ALL CAPS, no mass-mail tone. "
+            "Tone: helpful expert, not spam. Mention SPECIFIC website issues as DIAGNOSIS only. "
+            "Do NOT promise to repair, patch, or connect to their existing WordPress/Wix/CMS. "
+            "Sell Path A: a NEW modern Landing Page = digital restart of their online presence "
+            "(fast, mobile-first, clear contact/booking). "
+            "Deliverable: finished HTML landing in ~5–7 business days, ready for their host; "
+            "optional: we upload to their domain (hands-off / Sorglos). "
+            "Primary CTA: invite them to open the order page URL (included in user JSON) — "
+            "do NOT make 'reply to this email' the main call to action. "
+            "Explain business impact (lost customers, no HTTPS, weak mobile). "
+            "No hype, no ALL CAPS, no mass-mail tone. "
             "Reply JSON only: {\"subject\": \"...\", \"body\": \"...\"}"
         )
+        order_base = (
+            os.getenv("GENESIS_PUBLIC_URL", "").strip()
+            or os.getenv("NEXT_PUBLIC_SITE_URL", "").strip()
+            or "https://genesis-ai-engine.vercel.app"
+        ).rstrip("/")
         user = json.dumps(
             {
                 "company": company,
@@ -251,6 +263,7 @@ class EngineAIService:
                 "price_eur": price_eur,
                 "fit_reason": fit_reason[:200],
                 "site_url": analysis.get("final_url") or analysis.get("url"),
+                "order_url": f"{order_base}/order",
             },
             ensure_ascii=False,
         )

@@ -323,13 +323,20 @@ export default function OrderSitePage() {
             Virtus Core
           </Badge>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
-            {launch ? "Запустить готовый проект" : "Заказать сайт"}
+            {launch ? "Запустить готовый проект" : "Landing Page · digitaler Neustart"}
           </h1>
           <p className="mt-2 text-genesis-muted">
             {launch
               ? "Сайт уже собран вместе с Vector — осталось оформить запуск и публикацию"
-              : "Ответьте на несколько вопросов — мы сразу покажем цену и что вы получите"}
+              : "Новая быстрая Landing Page за 5–7 дней (HTML, мобильная, путь к записи). Не «починка» старого WordPress — честный Neustart онлайн-присутствия."}
           </p>
+          {!launch ? (
+            <ul className="mx-auto mt-4 max-w-lg space-y-1 text-left text-sm text-white/75">
+              <li>• Basic 350 € · Business 650 € · Premium 1 200 €</li>
+              <li>• После оплаты — производство Landing в Factory</li>
+              <li>• Опционально: загрузка на ваш домен (Sorglos)</li>
+            </ul>
+          ) : null}
         </div>
 
         {launch ? <OrderProjectSummary launch={launch} /> : null}
