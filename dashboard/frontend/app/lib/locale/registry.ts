@@ -45,7 +45,7 @@ export type LocaleState = {
   autoDetect: boolean;
 };
 
-export const DEFAULT_UI_LOCALE: UiLocale = "en";
+export const DEFAULT_UI_LOCALE: UiLocale = "de";
 
 const LOCALE_BY_CODE = new Map(LOCALE_REGISTRY.map((def) => [def.code, def]));
 

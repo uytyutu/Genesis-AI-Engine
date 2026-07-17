@@ -63,14 +63,14 @@ def test_project_order_created_message_crm_launch():
 
 def test_project_awaiting_payment_launch_preserves_project():
     msg = project_awaiting_payment_message(launch_mode=True)
-    assert "согласовали" in msg
+    assert "abgestimmt" in msg
     assert "сайт" not in msg.lower()
 
 
 def test_project_client_current_step_universal():
     step = project_client_current_step(SERVICE_AUTOMATION, "paid")
     assert "сайт" not in step.lower()
-    assert "передач" in step.lower()
+    assert "übergabe" in step.lower() or "uebergabe" in step.lower() or "Übergabe" in step
 
 
 def test_universal_journey_for_crm_project(tmp_path: Path):

@@ -188,7 +188,7 @@ class GenesisBrain:
         if fast_lane_only:
             from app.integration.locale_service import localized_service_copy
 
-            loc = assistant_locale or "ru"
+            loc = assistant_locale or "de"
             return ChatResult(
                 answer=localized_service_copy("error_fallback", loc),
                 provider_id="genesis-local",

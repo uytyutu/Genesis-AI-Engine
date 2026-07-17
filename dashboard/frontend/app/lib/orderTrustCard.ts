@@ -11,11 +11,11 @@ export const ORDER_TRUST_CONTENT: Record<OrderPurchaseType, OrderTrustLine[]> = 
   one_time: [
     {
       emoji: "🔒",
-      text: "Ваши данные защищены согласно требованиям GDPR.",
+      text: "Ihre Daten sind gemäß den DSGVO-Anforderungen geschützt.",
     },
     {
       emoji: "📄",
-      text: "Юридическая информация доступна в",
+      text: "Rechtliche Informationen finden Sie unter",
       links: [
         { href: "/impressum", label: "Impressum" },
         { href: "/datenschutz", label: "Datenschutz" },
@@ -23,27 +23,27 @@ export const ORDER_TRUST_CONTENT: Record<OrderPurchaseType, OrderTrustLine[]> = 
     },
     {
       emoji: "🏢",
-      text: "Virtus Core не продаёт персональные данные третьим лицам.",
+      text: "Virtus Core verkauft keine personenbezogenen Daten an Dritte.",
     },
     {
       emoji: "✅",
-      text: "До оплаты вы видите предварительную смету проекта.",
+      text: "Vor der Zahlung sehen Sie die vorläufige Projektkalkulation.",
     },
     {
       emoji: "📦",
-      text: "После оплаты вы получите полный комплект проекта:",
+      text: "Nach der Zahlung erhalten Sie das vollständige Projektpaket:",
       bullets: [
         "ZIP",
-        "исходный код",
-        "инструкции",
-        "права использования согласно условиям покупки",
+        "Quellcode",
+        "Anleitungen",
+        "Nutzungsrechte gemäß Kaufbedingungen",
       ],
     },
   ],
   subscription: [
     {
       emoji: "🔒",
-      text: "Ваши данные защищены согласно требованиям GDPR.",
+      text: "Ihre Daten sind gemäß den DSGVO-Anforderungen geschützt.",
     },
     {
       emoji: "📄",
@@ -55,15 +55,15 @@ export const ORDER_TRUST_CONTENT: Record<OrderPurchaseType, OrderTrustLine[]> = 
     },
     {
       emoji: "🏢",
-      text: "Virtus Core не продаёт персональные данные.",
+      text: "Virtus Core verkauft keine personenbezogenen Daten.",
     },
     {
       emoji: "✅",
-      text: "Проект сохраняется внутри Virtus Core.",
+      text: "Das Projekt bleibt innerhalb von Virtus Core gespeichert.",
     },
     {
       emoji: "🔄",
-      text: "Vector продолжает сопровождать проект в рамках подписки.",
+      text: "Vector begleitet das Projekt weiterhin im Rahmen des Abos.",
     },
   ],
 };

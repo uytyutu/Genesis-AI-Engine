@@ -21,7 +21,7 @@ export function OrderTrustCard({
       className="border-emerald-500/15 bg-emerald-950/10 text-left"
     >
       <p className="genesis-label text-emerald-200/80">
-        {purchaseType === "subscription" ? "Доверие · подписка" : "Доверие · разовая покупка"}
+        {purchaseType === "subscription" ? "Vertrauen · Abo" : "Vertrauen · Einmalkauf"}
       </p>
       <ul className="mt-3 space-y-3 text-xs leading-relaxed text-genesis-muted">
         {lines.map((line, index) => (
@@ -34,7 +34,7 @@ export function OrderTrustCard({
                 <span>
                   {legalReady === false ? (
                     <>
-                      Полный Impressum готовится. Контакт:{" "}
+                      Das vollständige Impressum wird vorbereitet. Kontakt:{" "}
                       <a href="mailto:hello@genesis-ai-engine.com" className="text-genesis-accent hover:underline">
                         hello@genesis-ai-engine.com
                       </a>
@@ -45,17 +45,17 @@ export function OrderTrustCard({
                       <Link href="/impressum" className="text-genesis-accent hover:underline">
                         Impressum
                       </Link>
-                      {" и "}
+                      {" und "}
                       <Link href="/datenschutz" className="text-genesis-accent hover:underline">
                         Datenschutz
                       </Link>
-                      {" доступны всегда."}
+                      {" sind jederzeit verfügbar."}
                     </>
                   )}
                 </span>
               ) : line.emoji === "📄" && legalReady === false ? (
                 <span>
-                  Юридические документы готовятся. Контакт продавца:{" "}
+                  Rechtliche Dokumente werden vorbereitet. Verkäuferkontakt:{" "}
                   <a href="mailto:hello@genesis-ai-engine.com" className="text-genesis-accent hover:underline">
                     hello@genesis-ai-engine.com
                   </a>
@@ -69,7 +69,7 @@ export function OrderTrustCard({
                       {" "}
                       {line.links.map((link, i) => (
                         <span key={link.href}>
-                          {i > 0 ? " и " : null}
+                          {i > 0 ? " und " : null}
                           <Link href={link.href} className="text-genesis-accent hover:underline">
                             {link.label}
                           </Link>
@@ -93,7 +93,7 @@ export function OrderTrustCard({
       </ul>
       <p className="mt-3 text-[10px] text-genesis-muted/80">
         <Link href="/trust" className="text-genesis-accent hover:underline">
-          Подробнее о данных и доверии
+          Mehr zu Daten und Vertrauen
         </Link>
       </p>
     </Card>

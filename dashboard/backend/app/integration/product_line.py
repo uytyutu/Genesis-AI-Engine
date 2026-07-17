@@ -382,41 +382,41 @@ def project_order_created_message(
     name = project_display_name(service_id, project_name=project_name)
     if launch_mode:
         return (
-            f"Спасибо. {name} зафиксирован — "
-            "начинаем подготовку к передаче согласованной версии."
+            f"Danke. {name} ist erfasst — "
+            "wir bereiten die Übergabe der abgestimmten Version vor."
         )
     return (
-        f"Спасибо! Заявка на {name.lower()} принята. "
-        "Оплатите сейчас — и мы зафиксируем запуск проекта."
+        f"Danke! Ihre Anfrage für {name} ist eingegangen. "
+        "Bitte zahlen Sie jetzt — dann fixieren wir den Projektstart."
     )
 
 
 def project_awaiting_payment_message(*, launch_mode: bool = False) -> str:
     if launch_mode:
         return (
-            "Оплатите заказ — проект останется в том виде, который вы согласовали. "
-            "Меняется только статус."
+            "Bitte bezahlen Sie die Bestellung — das Projekt bleibt wie abgestimmt. "
+            "Es ändert sich nur der Status."
         )
-    return "Оплатите заказ — и мы зафиксируем старт проекта."
+    return "Bitte bezahlen Sie die Bestellung — dann fixieren wir den Projektstart."
 
 
 def project_client_current_step(service_id: str, status: str) -> str:
     if status == "awaiting_payment":
-        return "Ожидаем оплату для фиксации проекта"
+        return "Wir warten auf die Zahlung zur Projektfixierung"
     if status in ("paid", "in_production"):
-        return "Подготавливаем согласованную версию к передаче"
+        return "Wir bereiten die abgestimmte Version zur Übergabe vor"
     if status == "ready":
-        return "Проект готов — готовим передачу"
+        return "Projekt fertig — Übergabe wird vorbereitet"
     if status == "delivered":
-        return "Проект передан — спасибо, что доверили нам работу!"
-    return "Обрабатываем ваш проект"
+        return "Projekt übergeben — danke für Ihr Vertrauen!"
+    return "Wir bearbeiten Ihr Projekt"
 
 
 def project_client_next_step(service_id: str, status: str) -> str:
     if status == "awaiting_payment":
-        return "Оплата проекта"
+        return "Projektzahlung"
     if status in ("paid", "in_production"):
-        return "Передача согласованной версии"
+        return "Übergabe der abgestimmten Version"
     if status == "ready":
         return "Финальная передача проекта"
     if status == "delivered":
@@ -435,12 +435,13 @@ def project_client_timeline(status: str) -> list[dict[str, Any]]:
 
 def project_launch_deliverables(service_id: str) -> list[str]:
     """Launch-mode checklist — publication/handoff, not «build from scratch»."""
-    label = service_label_ru(service_id, fallback="проект").lower()
+    # Client-facing DE (Path A market); keep label short and language-neutral where possible.
+    label = "Website" if service_id == SERVICE_WEBSITE else service_label_ru(service_id, fallback="Projekt")
     return [
-        f"Передача согласованной версии ({label})",
-        "Финальная проверка перед запуском",
-        "Инструкции и доступы",
-        "Сопровождение при внедрении",
+        f"Übergabe der abgestimmten Version ({label})",
+        "Finale Prüfung vor dem Go-live",
+        "Anleitungen und Zugänge",
+        "Begleitung bei der Einführung",
     ]
 
 

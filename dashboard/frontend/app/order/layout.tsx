@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
-  "Заказать сайт",
-  "Закажите лендинг для бизнеса: цена сразу на /order, статус заказа. Онлайн-оплата — когда подключена.",
+  "Landing bestellen",
+  "Landing Page · digitaler Neustart: Preise auf /order, Bestellstatus, Online-Zahlung wenn verbunden.",
   "/order"
 );
 

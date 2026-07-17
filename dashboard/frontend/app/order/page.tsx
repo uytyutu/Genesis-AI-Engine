@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { PackageSkeleton } from "../components/Skeleton";
 import { formatLocalizedMoney } from "../lib/formatEur";
@@ -40,14 +41,12 @@ function suggestPackage(needsLogo: boolean, needsDomain: boolean, extra: string)
   return "basic";
 }
 
-const LAUNCH_DELIVERABLES = [
-  "Публикация согласованной версии сайта",
-  "Подключение домена и SSL",
-  "Финальная проверка перед запуском",
-  "Сопровождение при публикации",
-];
-
 export default function OrderSitePage() {
+  const { t } = useTranslation("site");
+  const launchDeliverables = useMemo(
+    () => [t("order.launchD1"), t("order.launchD2"), t("order.launchD3"), t("order.launchD4")],
+    [t],
+  );
   const [packages, setPackages] = useState<Package[]>([]);
   const [commerce, setCommerce] = useState<CommerceContext>({
     currency: "EUR",
@@ -172,7 +171,7 @@ export default function OrderSitePage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) {
-      setError("Укажите email — на него придёт подтверждение и ссылка на оплату");
+      setError(t("order.emailRequired"));
       return;
     }
     setBusy(true);
@@ -197,7 +196,7 @@ export default function OrderSitePage() {
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(formatApiDetail(body.detail) || "Не удалось отправить заявку");
+        setError(formatApiDetail(body.detail) || t("order.submitFail"));
         return;
       }
       setDone({
@@ -210,7 +209,7 @@ export default function OrderSitePage() {
         price_label: body.price_label,
       });
     } catch {
-      setError("Сервер недоступен. Попробуйте позже.");
+      setError(t("order.serverDown"));
     } finally {
       setBusy(false);
     }
@@ -224,7 +223,7 @@ export default function OrderSitePage() {
       const url = await startOrderCheckout(done.order_id);
       window.location.href = url;
     } catch (e) {
-      setPayError(e instanceof Error ? e.message : "Сервер недоступен");
+      setPayError(e instanceof Error ? e.message : t("order.serverDown"));
       setPayBusy(false);
     }
   }
@@ -239,7 +238,7 @@ export default function OrderSitePage() {
               ✓
             </p>
             <h1 className="mt-4 text-2xl font-bold">
-              {launch ? "Проект зафиксирован" : "Спасибо!"}
+              {launch ? t("order.projectLocked") : t("order.thanks")}
             </h1>
             <p className="mt-3 text-genesis-muted">{done.message}</p>
             <Badge variant="muted" className="mt-3">
@@ -248,15 +247,15 @@ export default function OrderSitePage() {
             <Card hover={false} className="mt-6 text-left" padding="md">
               {launch ? (
                 <>
-                  <p className="text-sm text-genesis-muted">К оплате</p>
+                  <p className="text-sm text-genesis-muted">{t("order.toPay")}</p>
                   <p className="mt-1 text-xl font-semibold">
                     {launch.projectLabel} {launch.company} — {formatPrice(done.price_eur, done)}
                   </p>
-                  <p className="genesis-label mt-4">После оплаты</p>
+                  <p className="genesis-label mt-4">{t("order.afterPay")}</p>
                   <ul className="mt-2 space-y-1.5 text-sm">
                     {(launch && done.deliverables.length > 0
                       ? done.deliverables
-                      : LAUNCH_DELIVERABLES
+                      : launchDeliverables
                     ).map((d) => (
                       <li key={d} className="flex gap-2">
                         <span className="text-emerald-400">✔</span>
@@ -267,11 +266,11 @@ export default function OrderSitePage() {
                 </>
               ) : (
                 <>
-                  <p className="text-sm text-genesis-muted">Ваш проект оценён</p>
+                  <p className="text-sm text-genesis-muted">{t("order.projectPriced")}</p>
                   <p className="mt-1 text-xl font-semibold">
                     {done.package_name} — {formatPrice(done.price_eur, done)}
                   </p>
-                  <p className="genesis-label mt-4">Вы получите</p>
+                  <p className="genesis-label mt-4">{t("order.youReceive")}</p>
                   <ul className="mt-2 space-y-1.5 text-sm">
                     {done.deliverables.map((d) => (
                       <li key={d} className="flex gap-2">
@@ -287,7 +286,9 @@ export default function OrderSitePage() {
               <div className="mt-6 space-y-3">
                 <OrderTrustCard purchaseType={purchaseType} />
                 <Button variant="success" size="lg" fullWidth loading={payBusy} onClick={payNow}>
-                  {payBusy ? "Переход к оплате…" : `Оплатить ${formatPrice(done.price_eur, done)}`}
+                  {payBusy
+                    ? t("order.payBusy")
+                    : t("order.payNow", { price: formatPrice(done.price_eur, done) })}
                 </Button>
                 {payError && (
                   <p className="text-xs text-rose-300" role="alert">
@@ -296,9 +297,7 @@ export default function OrderSitePage() {
                 )}
               </div>
             ) : (
-              <p className="mt-6 text-sm text-amber-200/90">
-                Оплата временно недоступна — мы свяжемся с вами для выставления счёта.
-              </p>
+              <p className="mt-6 text-sm text-amber-200/90">{t("order.payUnavailable")}</p>
             )}
             <ButtonLink
               href={`/order/status/${done.order_id}`}
@@ -306,7 +305,7 @@ export default function OrderSitePage() {
               size="sm"
               className="mt-4"
             >
-              Отслеживать статус заказа →
+              {t("order.trackStatus")}
             </ButtonLink>
           </Card>
         </main>
@@ -320,55 +319,67 @@ export default function OrderSitePage() {
         <OrderSteps current={1} launch={Boolean(launch)} />
         <div className="mb-8 text-center animate-fade-up">
           <Badge variant="accent" className="tracking-[0.2em]">
-            Virtus Core
+            {t("order.badge")}
           </Badge>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
-            {launch ? "Запустить готовый проект" : "Landing Page · digitaler Neustart"}
+            {launch ? t("order.titleLaunch") : t("order.title")}
           </h1>
           <p className="mt-2 text-genesis-muted">
-            {launch
-              ? "Сайт уже собран вместе с Vector — осталось оформить запуск и публикацию"
-              : "Новая быстрая Landing Page за 5–7 дней (HTML, мобильная, путь к записи). Не «починка» старого WordPress — честный Neustart онлайн-присутствия."}
+            {launch ? t("order.subtitleLaunch") : t("order.subtitle")}
           </p>
           {!launch ? (
             <ul className="mx-auto mt-4 max-w-lg space-y-1 text-left text-sm text-white/75">
-              <li>• Basic 350 € · Business 650 € · Premium 1 200 €</li>
-              <li>• После оплаты — производство Landing в Factory</li>
-              <li>• Опционально: загрузка на ваш домен (Sorglos)</li>
+              <li>• {t("order.bulletPkg")}</li>
+              <li>• {t("order.bulletFactory")}</li>
+              <li>• {t("order.bulletSorglos")}</li>
+            </ul>
+          ) : null}
+          {!launch ? (
+            <ul className="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-2 text-xs">
+              {[t("pathA.benefitMobile"), t("pathA.benefitSeo"), t("pathA.benefitSpeed")].map(
+                (label) => (
+                  <li
+                    key={label}
+                    className="rounded-full border border-emerald-500/30 bg-emerald-950/30 px-3 py-1 text-emerald-100/90"
+                  >
+                    ✓ {label}
+                  </li>
+                ),
+              )}
             </ul>
           ) : null}
         </div>
 
         {launch ? <OrderProjectSummary launch={launch} /> : null}
         {launchLoading && !launch ? (
-          <p className="mb-6 text-center text-sm text-genesis-muted">Загружаем ваш проект…</p>
+          <p className="mb-6 text-center text-sm text-genesis-muted">{t("order.loadingProject")}</p>
         ) : null}
 
         <form onSubmit={submit} className={`grid gap-6 lg:grid-cols-5 ${launch ? "mt-6" : ""}`}>
           <div className="space-y-4 lg:col-span-3">
             {!launch ? (
               <>
-            <Field label="Название бизнеса" required>
+            <Field label={t("order.businessName")} required>
               <Input
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="Например: Стоматология Дента"
+                placeholder={t("order.businessNamePh")}
                 required
               />
             </Field>
-            <Field label="Чем занимаетесь" required>
+            <Field label={t("order.description")} required>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Кратко: услуги, для кого, чем отличаетесь"
+                placeholder={t("order.descriptionPh")}
                 required
               />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Город">
-                <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Краков" />
+              <Field label={t("order.city")}>
+                <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("order.cityPh")} />
               </Field>
-              <Field label="Телефон">
+              <Field label={t("order.phone")}>
                 <Input
                   type="tel"
                   value={phone}
@@ -378,10 +389,10 @@ export default function OrderSitePage() {
               </Field>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="WhatsApp">
+              <Field label={t("order.whatsapp")}>
                 <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+49 …" />
               </Field>
-              <Field label="Email" required error={error && !email.trim() ? error : undefined}>
+              <Field label={t("order.email")} required error={error && !email.trim() ? error : undefined}>
                 <Input
                   type="email"
                   value={email}
@@ -400,7 +411,7 @@ export default function OrderSitePage() {
                   onChange={(e) => setNeedsLogo(e.target.checked)}
                   className="rounded border-genesis-border accent-genesis-accent"
                 />
-                Нужен логотип
+                {t("order.needsLogo")}
               </label>
               <label className="flex cursor-pointer items-center gap-2 text-sm transition-smooth hover:text-white">
                 <input
@@ -409,21 +420,25 @@ export default function OrderSitePage() {
                   onChange={(e) => setNeedsDomain(e.target.checked)}
                   className="rounded border-genesis-border accent-genesis-accent"
                 />
-                Нужен домен
+                {t("order.needsDomain")}
               </label>
             </div>
-            <Field label="Дополнительные пожелания">
+            <Field label={t("order.extraWishes")}>
               <Textarea
                 className="min-h-[72px]"
                 value={extraWishes}
                 onChange={(e) => setExtraWishes(e.target.value)}
-                placeholder="Цвета, примеры сайтов, особые блоки…"
+                placeholder={t("order.extraWishesPh")}
               />
             </Field>
               </>
             ) : (
               <>
-                <Field label="Email для подтверждения запуска" required error={error && !email.trim() ? error : undefined}>
+                <Field
+                  label={t("order.emailLaunch")}
+                  required
+                  error={error && !email.trim() ? error : undefined}
+                >
                   <Input
                     type="email"
                     value={email}
@@ -433,7 +448,7 @@ export default function OrderSitePage() {
                     error={Boolean(error && !email.trim())}
                   />
                 </Field>
-                <Field label="Телефон (необязательно)">
+                <Field label={t("order.phoneOptional")}>
                   <Input
                     type="tel"
                     value={phone}
@@ -448,12 +463,12 @@ export default function OrderSitePage() {
           <aside className="lg:col-span-2">
             <Card glow className="sticky top-4" padding="md">
               <p className="genesis-label">
-                {launch ? "Запуск проекта" : "Пакет и стоимость"}
+                {launch ? t("order.launchTitle") : t("order.packageAndPrice")}
               </p>
               {packagesLoading ? (
                 <PackageSkeleton />
               ) : packages.length === 0 ? (
-                <p className="mt-4 text-sm text-genesis-muted">Не удалось загрузить пакеты</p>
+                <p className="mt-4 text-sm text-genesis-muted">{t("order.packagesFail")}</p>
               ) : launch && selected ? (
                 <div className="mt-3">
                   <p className="text-lg font-semibold">
@@ -463,12 +478,11 @@ export default function OrderSitePage() {
                     {formatPrice(selected.price_eur, selected)}
                   </p>
                   <p className="mt-2 text-xs text-genesis-muted leading-relaxed">
-                    Фиксированная стоимость запуска согласованной версии — без выбора тарифов и
-                    пересборки проекта.
+                    {t("order.launchFixed")}
                   </p>
-                  <p className="genesis-label mt-4">Входит в запуск</p>
+                  <p className="genesis-label mt-4">{t("order.launchIncludes")}</p>
                   <ul className="space-y-1.5 text-xs">
-                    {LAUNCH_DELIVERABLES.map((d) => (
+                    {launchDeliverables.map((d) => (
                       <li key={d} className="flex gap-2">
                         <span className="text-emerald-400">✔</span>
                         <span>{d}</span>
@@ -507,12 +521,12 @@ export default function OrderSitePage() {
               )}
               {!launch && !manualPackage && selected && (
                 <p className="mt-2 text-xs text-genesis-muted">
-                  Рекомендуем: {selected.name} — по вашим ответам
+                  {t("order.recommend", { name: selected.name })}
                 </p>
               )}
               {!launch && selected && (
                 <>
-                  <p className="genesis-label mt-4">Что вы получите</p>
+                  <p className="genesis-label mt-4">{t("order.youGet")}</p>
                   <ul className="space-y-1.5 text-xs">
                     {selected.deliverables.map((d) => (
                       <li key={d} className="flex gap-2">
@@ -525,29 +539,29 @@ export default function OrderSitePage() {
               )}
               <Button type="submit" variant="primary" size="lg" fullWidth loading={busy} className="mt-4">
                 {busy
-                  ? "Отправка…"
+                  ? t("order.submitBusy")
                   : launch
-                    ? `Запустить проект — ${selected ? formatPrice(selected.price_eur, selected) : "…"}`
-                    : "Оставить заявку"}
+                    ? t("order.submitLaunch", {
+                        price: selected ? formatPrice(selected.price_eur, selected) : "…",
+                      })
+                    : t("order.submit")}
               </Button>
               {error && email.trim() && (
                 <p className="mt-2 text-xs text-rose-300" role="alert">
                   {error}
                 </p>
               )}
-              <p className="mt-3 text-[10px] text-genesis-muted">
-                Оплата — после подтверждения. Без скрытых платежей.
-              </p>
+              <p className="mt-3 text-[10px] text-genesis-muted">{t("order.payAfter")}</p>
             </Card>
           </aside>
         </form>
 
         <p className="mt-6 text-center text-xs text-genesis-muted">
-          {launch ? "Нажимая «Запустить проект», вы соглашаетесь с " : "Нажимая «Оставить заявку», вы соглашаетесь с "}
+          {launch ? t("order.agreeLaunch") : t("order.agreeSubmit")}
           <Link href="/agb" className="text-genesis-accent hover:underline">
             AGB
-          </Link>{" "}
-          и{" "}
+          </Link>
+          {t("order.and")}
           <Link href="/datenschutz" className="text-genesis-accent hover:underline">
             Datenschutz
           </Link>
@@ -559,19 +573,20 @@ export default function OrderSitePage() {
 }
 
 function OrderSteps({ current, launch = false }: { current: number; launch?: boolean }) {
+  const { t } = useTranslation("site");
   const steps = launch
     ? [
-        { n: 1, label: "Ваш проект" },
-        { n: 2, label: "Запуск" },
-        { n: 3, label: "Публикация" },
+        { n: 1, label: t("order.stepProject") },
+        { n: 2, label: t("order.stepLaunch") },
+        { n: 3, label: t("order.stepPublish") },
       ]
     : [
-        { n: 1, label: "Анкета" },
-        { n: 2, label: "Подтверждение" },
-        { n: 3, label: "Оплата" },
+        { n: 1, label: t("order.stepForm") },
+        { n: 2, label: t("order.stepConfirm") },
+        { n: 3, label: t("order.stepPay") },
       ];
   return (
-    <ol className="mb-8 flex justify-center gap-2 sm:gap-4" aria-label="Шаги заказа">
+    <ol className="mb-8 flex justify-center gap-2 sm:gap-4" aria-label={t("order.stepsAria")}>
       {steps.map((s) => (
         <li
           key={s.n}

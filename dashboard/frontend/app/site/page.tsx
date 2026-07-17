@@ -6,7 +6,7 @@ import { BRAND_NAME } from "../lib/publicBrand";
 
 export const metadata: Metadata = publicPageMetadata(
   `Landing Page Neustart · ${BRAND_NAME}`,
-  `Современная Landing Page за 5–7 дней. Пакеты 350 / 650 / 1 200 €. Не починка WordPress — digitaler Neustart.`,
+  `Moderne Landing Page in 5–7 Werktagen. Pakete 350 / 650 / 1.200 €. Kein WordPress-Flickwerk — digitaler Neustart.`,
   "/site"
 );
 

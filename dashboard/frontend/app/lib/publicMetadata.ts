@@ -12,7 +12,7 @@ export function publicPageMetadata(
     description,
     openGraph: {
       type: "website",
-      locale: "ru_RU",
+      locale: "de_DE",
       url,
       siteName: SITE_NAME,
       title: `${title} — ${SITE_NAME}`,
@@ -29,5 +29,5 @@ export function publicPageMetadata(
 }
 
 export const DEFAULT_PUBLIC_DESCRIPTION =
-  "Vector — цифровой сотрудник Virtus Core: черновик сайта в реальном времени, базовая SEO-структура, оформление прав на тот же результат. " +
+  "Virtus Core: Landing Page Neustart für lokale Betriebe in Deutschland — mobil, klarer Terminweg, 350 / 650 / 1200 €. " +
   SITE_TAGLINE;

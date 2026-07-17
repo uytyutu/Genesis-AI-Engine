@@ -31,11 +31,11 @@ _PACKAGES = {
         "name": "Landing Basic",
         "price_eur": 350,
         "deliverables": [
-            "Современный одностраничный сайт",
-            "Адаптация под телефон, планшет и ПК",
-            "Базовая SEO-оптимизация",
-            "Контакты и форма заявки",
-            "Кнопка WhatsApp",
+            "Moderne One-Page-Website",
+            "Responsive für Smartphone, Tablet und Desktop",
+            "Basis-SEO",
+            "Kontakte und Anfrageformular",
+            "WhatsApp-Button",
         ],
     },
     "business": {
@@ -43,12 +43,12 @@ _PACKAGES = {
         "name": "Landing Business",
         "price_eur": 650,
         "deliverables": [
-            "Всё из Basic",
-            "Карта Google",
-            "Блок отзывов",
-            "Логотип в макете",
-            "Расширенное SEO",
-            "1 раунд правок",
+            "Alles aus Basic",
+            "Google Maps",
+            "Bewertungsblock",
+            "Logo im Layout",
+            "Erweitertes SEO",
+            "1 Korrekturrunde",
         ],
     },
     "premium": {
@@ -56,16 +56,16 @@ _PACKAGES = {
         "name": "Landing Premium",
         "price_eur": 1200,
         "deliverables": [
-            "Всё из Business",
-            "Премиум-дизайн",
-            "Адаптация под телефон, планшет и ПК",
-            "Базовая SEO-оптимизация",
-            "Настройка Google Analytics",
-            "Помощь с доменом",
-            "Форма записи / калькулятор",
-            "14 дней поддержки после запуска",
-            "3 раунда правок",
-            "Приоритетная поддержка",
+            "Alles aus Business",
+            "Premium-Design",
+            "Responsive für Smartphone, Tablet und Desktop",
+            "Basis-SEO",
+            "Google Analytics Einrichtung",
+            "Hilfe mit Domain",
+            "Termin-/Anfrageformular oder Rechner",
+            "14 Tage Support nach dem Launch",
+            "3 Korrekturrunden",
+            "Prioritäts-Support",
         ],
     },
 }
@@ -163,7 +163,7 @@ class SalesOrderService:
         order = {
             "order_id": order_id,
             "status": "awaiting_payment",
-            "status_label": "Ожидает оплаты",
+            "status_label": "Wartet auf Zahlung",
             "package_id": package_id,
             "package_name": package["name"],
             "price_eur": package["price_eur"],
@@ -328,13 +328,13 @@ class SalesOrderService:
             )
         price_line = package.get("price_label") or f"{package['price_eur']} {package.get('symbol', '€')}"
         return (
-            f"Здравствуйте!\n\n"
-            f"Спасибо за заявку на {label.lower()} «{name}».\n\n"
-            f"Стоимость запуска: {price_line}\n\n"
-            f"После оплаты:\n{deliverables}\n\n"
-            f"Срок: 5–7 рабочих дней после подтверждения и оплаты.\n\n"
-            f"Готовы начать — напишите, и мы вышлем счёт / ссылку на оплату.\n\n"
-            f"С уважением,\n{BRAND_NAME}"
+            f"Guten Tag,\n\n"
+            f"vielen Dank für Ihre Anfrage zu {label} «{name}».\n\n"
+            f"Startpreis: {price_line}\n\n"
+            f"Nach der Zahlung:\n{deliverables}\n\n"
+            f"Lieferzeit: 5–7 Werktage nach Bestätigung und Zahlung.\n\n"
+            f"Wenn Sie starten möchten, schreiben Sie uns — wir senden Rechnung / Zahlungslink.\n\n"
+            f"Mit freundlichen Grüßen\n{BRAND_NAME}"
         )
 
     def _resolve_project_context(self, visitor_id: str | None) -> dict:
@@ -423,13 +423,13 @@ class SalesOrderService:
 
     def _client_status_label(self, order: dict) -> str:
         mapping = {
-            "awaiting_payment": "Ожидает оплаты",
-            "pending_confirmation": "Ожидает подтверждения",
-            "confirmed": "Подтверждено",
-            "paid": "Оплачен",
-            "in_production": "В работе",
-            "ready": "Готово",
-            "delivered": "Передано клиенту",
+            "awaiting_payment": "Wartet auf Zahlung",
+            "pending_confirmation": "Wartet auf Bestätigung",
+            "confirmed": "Bestätigt",
+            "paid": "Bezahlt",
+            "in_production": "In Arbeit",
+            "ready": "Fertig",
+            "delivered": "An den Kunden übergeben",
         }
         return mapping.get(order.get("status", ""), order.get("status_label", ""))
 
