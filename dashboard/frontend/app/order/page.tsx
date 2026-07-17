@@ -37,7 +37,9 @@ type CommerceContext = {
 
 function suggestPackage(needsLogo: boolean, needsDomain: boolean, extra: string): string {
   if (needsDomain) return "premium";
-  if (needsLogo || extra.trim().length > 120) return "business";
+  // Logo-Einbindung allein ist kein Premium-Upsell — nur komplexere Wünsche → Business
+  if (extra.trim().length > 120) return "business";
+  if (needsLogo) return "business";
   return "basic";
 }
 
@@ -435,6 +437,7 @@ export default function OrderSitePage() {
                 {t("order.needsDomain")}
               </label>
             </div>
+            <p className="text-xs leading-relaxed text-genesis-muted">{t("order.logoNote")}</p>
             <p className="text-xs leading-relaxed text-genesis-muted">{t("order.domainHostingNote")}</p>
             <Field label={t("order.extraWishes")}>
               <Textarea

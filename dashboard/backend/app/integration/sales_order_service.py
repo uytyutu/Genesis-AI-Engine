@@ -47,7 +47,7 @@ _PACKAGES = {
             "Alles aus Basic",
             "Google Maps",
             "Bewertungsblock",
-            "Logo im Layout",
+            "Logo im Layout (bestehendes Kundenlogo)",
             "Erweitertes SEO",
             "1 Korrekturrunde",
         ],
@@ -62,7 +62,7 @@ _PACKAGES = {
             "Responsive für Smartphone, Tablet und Desktop",
             "Basis-SEO",
             "Google Analytics Einrichtung",
-            "Hilfe mit Domain",
+            "Hilfe bei Domain-Auswahl, Kauf und Einrichtung",
             "Termin-/Anfrageformular oder Rechner",
             "14 Tage Support nach dem Launch",
             "3 Korrekturrunden",
@@ -342,9 +342,15 @@ class SalesOrderService:
                 "Landing trotzdem am Geschäft ausrichten (Path A Neustart)."
             )
         if order.get("needs_logo"):
-            lines.append("Logo im Layout benötigt.")
+            lines.append(
+                "Kundenlogo einbinden (bestehende Datei nach Bestellung) "
+                "und Firmenfarben berücksichtigen — kein neues Logo-Design."
+            )
         if order.get("needs_domain"):
-            lines.append("Hilfe mit Domain benötigt.")
+            lines.append(
+                "Hilfe bei Domain-Auswahl, Kauf und Einrichtung "
+                "(laufende Gebühren zahlt der Kunde beim Registrar)."
+            )
         if order.get("extra_wishes"):
             lines.append(f"Wünsche: {order['extra_wishes']}")
         return "\n".join(lines)
