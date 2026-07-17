@@ -38,6 +38,7 @@ _NICHE_KEYWORDS = {
         "car repair",
         "repair shop",
         "garage",
+        "kfz",
     ),
     "law": (
         "юрист",
@@ -108,7 +109,7 @@ def _preset_auto(
             "Herstellerkonformes Service nach Plan — nur was wirklich nötig ist.",
             "Wechsel, Auswuchten und saisonale Einlagerung unter einem Dach.",
         ),
-        cta_label="Termin vereinbaren" if cta_label == "Связаться с нами" else cta_label,
+        cta_label="Termin vereinbaren" if cta_label == "Kontakt aufnehmen" else cta_label,
         trust_points=("Meisterbetrieb", "Festpreis vor Start", "Garantie auf Arbeit"),
         about_text=(
             f"{business_name} ist Ihre Werkstatt für alle Marken — von der schnellen Diagnose "
@@ -147,7 +148,7 @@ def _preset_dental(
             "Feste Zähne mit Plan und transparenter Kostenübersicht.",
             "Termin in zwei Minuten — ohne Warteschleife am Telefon.",
         ),
-        cta_label="Termin buchen" if cta_label == "Связаться с нами" else cta_label,
+        cta_label="Termin buchen" if cta_label == "Kontakt aufnehmen" else cta_label,
         trust_points=("Erfahrene Ärzte", "Digitales Röntgen", "Garantie auf Arbeit"),
         about_text=(
             f"In der {business_name} verbinden wir moderne Zahnmedizin mit Zeit für Ihre Fragen. "
@@ -191,7 +192,7 @@ def _preset_law(
             "Strukturierte Anträge und Fristen — ohne Formular-Stress.",
             "Diskret und vorbereitet — wir vertreten Ihre Position klar.",
         ),
-        cta_label="Beratung anfragen" if cta_label == "Связаться с нами" else cta_label,
+        cta_label="Beratung anfragen" if cta_label == "Kontakt aufnehmen" else cta_label,
         trust_points=("Zertifizierte Anwälte", "Vertraulich", "Deutsch & Englisch"),
         about_text=(
             f"{business_name} unterstützt Mandanten im {focus} mit pragmatischen Lösungen. "
@@ -225,7 +226,7 @@ def _preset_beauty(
             "Individuelle Pflegepläne für empfindliche Haut.",
             "Geschenke, die wirklich Freude machen.",
         ),
-        cta_label=cta_label if cta_label != "Связаться с нами" else "Termin buchen",
+        cta_label=cta_label if cta_label != "Kontakt aufnehmen" else "Termin buchen",
         trust_points=("Sterile Tools", "Premium-Marken", "Ruhige Atmosphäre"),
         about_text=f"{business_name} ist Ihr Salon für Looks, die im Alltag funktionieren.",
         benefits=("Online-Termine", "Stammstylist auf Wunsch", "Fair kalkulierte Preise"),
@@ -380,7 +381,7 @@ def _detect_cta_label(lower: str) -> str:
         return "Jetzt anrufen"
     if re.search(r"купить|заказ", lower):
         return "Bestellen"
-    return "Связаться с нами"
+    return "Kontakt aufnehmen"
 
 
 def _merge_trust_points(default: tuple[str, ...], raw: str) -> tuple[str, ...]:

@@ -25,6 +25,24 @@
 
 Пилот **легален** при ручной доводке Factory под оплаченный пакет. Открытый рынок — нет, пока обещание ≠ артефакт и язык клиента не чистый DE.
 
+### Матрица Factory ↔ пакеты (HTML)
+
+| Фича | Basic | Business | Premium |
+|------|-------|----------|---------|
+| One-page + responsive + Basis-SEO | ✅ | ✅ | ✅ |
+| Kontakte + Anfrageformular | ✅ | ✅ | ✅ |
+| WhatsApp-Button | ✅ | ✅ | ✅ |
+| Google Maps embed | — | ✅ | ✅ |
+| Bewertungsblock | — | ✅ | ✅ |
+| Logo-Platzhalter (`logo.png`) | — | ✅ | ✅ |
+| Erweitertes SEO (OG + LocalBusiness) | — | ✅ | ✅ |
+| Premium-Design | — | — | ✅ |
+| Kostenrechner | — | — | ✅ |
+| Analytics-Snippet (`G-XXXXXXXXXX`) | — | — | ✅ |
+| Korrekturen / Support / Domain-Hilfe | Prozess (CEO) | Prozess | Prozess |
+
+Код: `app/factory/package_features.py` → `build_landing` / `start_production`.
+
 ### Двигатели денег (проверка 2026-07-17)
 
 | Двигатель | Роль | Статус логики |

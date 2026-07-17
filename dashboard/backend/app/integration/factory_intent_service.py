@@ -16,13 +16,15 @@ def compose_factory_brief(request: FactoryIntentRequest) -> str:
     """Merge wizard fields into one brief for the landing analyzer."""
     parts = [request.description.strip()]
     if request.audience and request.audience.strip():
-        parts.append(f"Целевая аудитория: {request.audience.strip()}")
+        parts.append(f"Zielgruppe: {request.audience.strip()}")
     if request.goal and request.goal.strip():
-        parts.append(f"Цель продукта: {request.goal.strip()}")
+        parts.append(f"Ziel des Produkts: {request.goal.strip()}")
     if request.price_eur is not None:
-        parts.append(f"Планируемая цена: {request.price_eur:g} €")
+        parts.append(f"Geplanter Preis: {request.price_eur:g} €")
     if request.deadline and request.deadline.strip():
-        parts.append(f"Дедлайн: {request.deadline.strip()}")
+        parts.append(f"Frist: {request.deadline.strip()}")
+    if request.package_id:
+        parts.append(f"Paket-ID: {request.package_id}")
     return "\n".join(parts)
 
 
@@ -43,6 +45,7 @@ class FactoryIntentService:
             "goal": request.goal,
             "price_eur": request.price_eur,
             "deadline": request.deadline,
+            "package_id": request.package_id,
             "brief": brief,
             "at": datetime.now(timezone.utc).isoformat(),
             "status": "building",
@@ -62,6 +65,8 @@ class FactoryIntentService:
             brief,
             intent_id=intent_id,
             client_legal=request.client_legal if isinstance(request.client_legal, dict) else None,
+            package_id=request.package_id,
+            contacts=request.contacts if isinstance(request.contacts, dict) else None,
         )
         record["status"] = "completed"
         record["product_id"] = product["product_id"]

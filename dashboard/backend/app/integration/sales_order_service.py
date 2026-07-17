@@ -275,6 +275,19 @@ class SalesOrderService:
 
         brief = self._factory_brief(order)
         legal = order.get("client_legal") if isinstance(order.get("client_legal"), dict) else {}
+        legal = dict(legal)
+        package_id = str(order.get("package_id") or "basic")
+        street = str(legal.get("street") or "").strip()
+        contacts = {
+            "business_name": order.get("business_name"),
+            "phone": order.get("phone"),
+            "whatsapp": order.get("whatsapp") or order.get("phone"),
+            "email": order.get("email") or legal.get("email"),
+            "city": order.get("city") or legal.get("city"),
+            "street": street,
+            "package_id": package_id,
+            "needs_logo": bool(order.get("needs_logo")),
+        }
         intent = FactoryIntentRequest(
             product_type="landing-page",
             description=brief,
@@ -283,6 +296,8 @@ class SalesOrderService:
             price_eur=float(order["price_eur"]),
             deadline=None,
             client_legal=legal or None,
+            package_id=package_id if package_id in ("basic", "business", "premium") else "basic",
+            contacts=contacts,
         )
         result = self._factory_intent.submit(intent)
         order["status"] = "in_production"

@@ -26,7 +26,9 @@ _DEPLOY_README = """# Website veröffentlichen (Path A)
 1. Archiv entpacken.
 2. index.html, impressum.html und datenschutz.html im Browser prüfen.
 3. Impressum und Datenschutz nur freigeben, wenn alle Angaben stimmen (Kunde muss prüfen).
-4. Alle Dateien auf Hosting laden (FTP / Netlify Drop / Dateimanager).
+4. Optional: logo.png neben index.html legen (Business/Premium — Logo-Platzhalter).
+5. Premium: Google Analytics Measurement-ID G-XXXXXXXXXX in index.html ersetzen.
+6. Alle Dateien auf Hosting laden (FTP / Netlify Drop / Dateimanager).
 
 Hinweis: Die Rechtsseiten sind aus Kundendaten befüllte Vorlagen — keine Rechtsberatung.
 Ohne vollständiges Impressum gilt die Seite nicht als publish-ready für Deutschland.
@@ -53,20 +55,50 @@ class FactoryService:
         intent_id: str | None = None,
         *,
         client_legal: dict | None = None,
+        package_id: str | None = None,
+        contacts: dict | None = None,
     ) -> dict:
+        from app.factory.package_features import (
+            apply_order_contacts,
+            delivery_meta,
+            resolve_package_features,
+        )
+
         product_id = intent_id or str(uuid.uuid4())
         analysis = analyze(description)
-        html = build_landing_html(analysis)
+        contacts = contacts if isinstance(contacts, dict) else {}
+        analysis = apply_order_contacts(
+            analysis,
+            business_name=str(contacts.get("business_name") or "") or None,
+            phone=str(contacts.get("phone") or "") or None,
+            email=str(contacts.get("email") or "") or None,
+        )
+        features = resolve_package_features(package_id or contacts.get("package_id"))
+        city = str(contacts.get("city") or "").strip()
+        street = str(contacts.get("street") or "").strip()
+        whatsapp = str(contacts.get("whatsapp") or contacts.get("phone") or "").strip()
+        html = build_landing_html(
+            analysis,
+            features=features,
+            whatsapp=whatsapp,
+            city=city,
+            street=street,
+        )
         validation = validate_landing(html)
 
         product_dir = self._sandbox / product_id
         product_dir.mkdir(parents=True, exist_ok=True)
         (product_dir / "index.html").write_text(html, encoding="utf-8")
 
+        legal_payload = dict(client_legal or {})
+        if features.maps:
+            legal_payload["uses_maps"] = True
+        if features.analytics:
+            legal_payload["uses_analytics"] = True
         legal_info = ClientLegalInfo.from_order(
             {
                 "business_name": analysis.business_name,
-                "client_legal": client_legal or {},
+                "client_legal": legal_payload,
             }
         )
         # Prefer contacts from analysis when order legal email/phone empty
@@ -95,7 +127,13 @@ class FactoryService:
             "revision": 0,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "updated_at": datetime.now(timezone.utc).isoformat(),
-            "style_flags": {"modern": False, "blue_boost": False, "calculator": False},
+            "style_flags": {
+                "modern": features.premium_design,
+                "blue_boost": False,
+                "calculator": features.calculator,
+                "testimonials": features.testimonials,
+            },
+            "package_delivery": delivery_meta(features),
             "client_legal": legal_info.to_dict(),
             "legal_pages": legal_meta,
             "publish_ready_de": bool(legal_meta.get("impressum_ready")),
@@ -155,13 +193,22 @@ class FactoryService:
                 flags["large_headline"] = True
 
             analysis = analyze(meta["description"])
+            from app.factory.package_features import resolve_package_features
+
+            delivery = meta.get("package_delivery") if isinstance(meta.get("package_delivery"), dict) else {}
+            features = resolve_package_features(str(delivery.get("package_id") or "basic"))
+            contacts = meta.get("client_legal") if isinstance(meta.get("client_legal"), dict) else {}
             html = build_landing_html(
                 analysis,
-                modern=flags.get("modern", False),
+                features=features,
+                whatsapp=str(contacts.get("phone") or ""),
+                city=str(contacts.get("city") or ""),
+                street=str(contacts.get("street") or ""),
+                modern=flags.get("modern", False) or features.premium_design,
                 blue_boost=flags.get("blue_boost", False),
-                calculator=flags.get("calculator", False),
-                include_testimonials=flags.get("testimonials", False),
-                large_headline=flags.get("large_headline", False),
+                calculator=flags.get("calculator", False) or features.calculator,
+                include_testimonials=flags.get("testimonials", False) or features.testimonials,
+                large_headline=flags.get("large_headline", False) or features.premium_design,
             )
 
         validation = validate_landing(html)

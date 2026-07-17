@@ -124,6 +124,11 @@ class FactoryIntentRequest(BaseModel):
         default=None,
         description="Optional DE Impressum/Datenschutz fields for Factory legal pages",
     )
+    package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
+    contacts: dict | None = Field(
+        default=None,
+        description="Order contacts for Path A package delivery (phone, whatsapp, city, …)",
+    )
 
 
 class ClientLegalFields(BaseModel):
