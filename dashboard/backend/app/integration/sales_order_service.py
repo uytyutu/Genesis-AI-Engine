@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -160,6 +161,8 @@ class SalesOrderService:
         order_id = f"ord-{uuid.uuid4().hex[:10]}"
         now = datetime.now(timezone.utc).isoformat()
         client_message = project_awaiting_payment_message(launch_mode=launch_mode)
+        company_website = self._normalize_company_website(payload.get("company_website"))
+        site_analysis = self._analyze_company_website(company_website) if company_website else None
         order = {
             "order_id": order_id,
             "status": "awaiting_payment",
@@ -185,6 +188,8 @@ class SalesOrderService:
             "needs_logo": bool(payload.get("needs_logo")),
             "needs_domain": bool(payload.get("needs_domain")),
             "extra_wishes": (payload.get("extra_wishes") or "").strip(),
+            "company_website": company_website,
+            "site_analysis": site_analysis,
             "visitor_id": (payload.get("visitor_id") or "").strip()[:64] or None,
             "service_id": service_id,
             "launch_mode": launch_mode,
@@ -300,21 +305,88 @@ class SalesOrderService:
 
     def _factory_brief(self, order: dict) -> str:
         lines = [
-            f"Заказ клиента: {order['business_name']}",
+            f"Kundenauftrag: {order['business_name']}",
             order["description"],
-            f"Город: {order.get('city') or 'не указан'}",
-            f"Телефон: {order.get('phone') or '—'}",
+            f"Stadt: {order.get('city') or 'nicht angegeben'}",
+            f"Telefon: {order.get('phone') or '—'}",
             f"WhatsApp: {order.get('whatsapp') or '—'}",
-            f"Email: {order.get('email') or '—'}",
-            f"Пакет: {order['package_name']} ({order.get('price_label') or order['price_eur']})",
+            f"E-Mail: {order.get('email') or '—'}",
+            f"Paket: {order['package_name']} ({order.get('price_label') or order['price_eur']})",
         ]
+        website = (order.get("company_website") or "").strip()
+        if website:
+            lines.append(f"Bestehende Website: {website}")
+        analysis = order.get("site_analysis")
+        if isinstance(analysis, dict) and not analysis.get("error"):
+            lines.append("Analyse der bestehenden Website (für den neuen Landing-Neustart):")
+            if analysis.get("title"):
+                lines.append(f"  Titel: {analysis['title']}")
+            if analysis.get("tech_stack"):
+                lines.append(f"  Technik: {', '.join(analysis['tech_stack'])}")
+            strengths = analysis.get("strengths") or []
+            issues = analysis.get("issues") or []
+            if strengths:
+                lines.append("  Stärken: " + "; ".join(str(s) for s in strengths[:6]))
+            if issues:
+                lines.append("  Schwächen / Chancen: " + "; ".join(str(i) for i in issues[:8]))
+            score = analysis.get("improvement_score")
+            if score is not None:
+                lines.append(f"  Verbesserungs-Score: {score}")
+            lines.append(
+                "Bitte nutze diese Analyse zusammen mit den Kundenantworten — "
+                "neuer Landing Page Neustart, kein Flickwerk am alten CMS."
+            )
+        elif website:
+            lines.append(
+                "Website angegeben, Analyse nicht verfügbar — "
+                "Landing trotzdem am Geschäft ausrichten (Path A Neustart)."
+            )
         if order.get("needs_logo"):
-            lines.append("Нужен логотип в макете.")
+            lines.append("Logo im Layout benötigt.")
         if order.get("needs_domain"):
-            lines.append("Нужна помощь с доменом.")
+            lines.append("Hilfe mit Domain benötigt.")
         if order.get("extra_wishes"):
-            lines.append(f"Пожелания: {order['extra_wishes']}")
+            lines.append(f"Wünsche: {order['extra_wishes']}")
         return "\n".join(lines)
+
+    @staticmethod
+    def _normalize_company_website(raw: object) -> str | None:
+        text = str(raw or "").strip()
+        if not text:
+            return None
+        if not re.match(r"^https?://", text, flags=re.I):
+            text = f"https://{text}"
+        if len(text) > 400:
+            return None
+        return text
+
+    def _analyze_company_website(self, url: str) -> dict | None:
+        """Best-effort Path A analysis — never blocks order creation."""
+        try:
+            from app.integration.site_analysis_service import SiteAnalysisService
+
+            result = SiteAnalysisService(self._memory).analyze(url, use_cache=True)
+            if not isinstance(result, dict):
+                return {"url": url, "error": "invalid_analysis"}
+            # Persist a compact snapshot for Factory / CEO review
+            return {
+                "url": result.get("url") or url,
+                "final_url": result.get("final_url"),
+                "title": result.get("title"),
+                "has_https": result.get("has_https"),
+                "has_viewport": result.get("has_viewport"),
+                "load_ms": result.get("load_ms"),
+                "issues": list(result.get("issues") or [])[:12],
+                "strengths": list(result.get("strengths") or [])[:8],
+                "tech_stack": list(result.get("tech_stack") or [])[:6],
+                "improvement_score": result.get("improvement_score"),
+                "detected_lang": result.get("detected_lang"),
+                "error": result.get("error"),
+                "analyzed_at": result.get("analyzed_at"),
+                "from_cache": bool(result.get("from_cache")),
+            }
+        except Exception as exc:
+            return {"url": url, "error": f"analysis_failed:{type(exc).__name__}"}
 
     def _proposal_text(self, package: dict, payload: dict, *, project_ctx: dict | None = None) -> str:
         ctx = project_ctx or {}

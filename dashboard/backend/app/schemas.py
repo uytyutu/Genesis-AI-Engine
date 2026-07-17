@@ -230,8 +230,14 @@ class SalesOrderCreateRequest(BaseModel):
     needs_logo: bool = False
     needs_domain: bool = False
     extra_wishes: str | None = Field(default=None, max_length=2000)
+    company_website: str | None = Field(
+        default=None,
+        max_length=400,
+        description="Optional existing company site for Path A analysis → Factory brief",
+    )
     package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
     product_id: str | None = Field(default=None, max_length=80)
+    visitor_id: str | None = Field(default=None, max_length=64)
 
 
 class SalesOrderCreatedResponse(BaseModel):

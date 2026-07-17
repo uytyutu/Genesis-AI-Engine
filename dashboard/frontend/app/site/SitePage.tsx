@@ -63,6 +63,7 @@ export function SitePage() {
             <li>• {t("pathA.what2")}</li>
             <li>• {t("pathA.what3")}</li>
             <li>• {t("pathA.what4")}</li>
+            <li>• {t("pathA.what5")}</li>
           </ul>
           <h3 className="mt-6 text-sm font-semibold text-white">{t("pathA.processTitle")}</h3>
           <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-white/75">

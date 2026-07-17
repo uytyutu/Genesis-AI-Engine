@@ -56,6 +56,7 @@ export default function OrderSitePage() {
   const [packagesLoading, setPackagesLoading] = useState(true);
   const [businessName, setBusinessName] = useState("");
   const [description, setDescription] = useState("");
+  const [companyWebsite, setCompanyWebsite] = useState("");
   const [city, setCity] = useState("");
   const [phone, setPhone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -190,6 +191,7 @@ export default function OrderSitePage() {
           needs_logo: needsLogo,
           needs_domain: needsDomain,
           extra_wishes: extraWishes.trim() || null,
+          company_website: companyWebsite.trim() || null,
           package_id: packageId,
           visitor_id: visitorId,
         }),
@@ -373,6 +375,16 @@ export default function OrderSitePage() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t("order.descriptionPh")}
                 required
+              />
+            </Field>
+            <Field label={t("order.companyWebsite")} hint={t("order.companyWebsiteHint")}>
+              <Input
+                type="text"
+                inputMode="url"
+                value={companyWebsite}
+                onChange={(e) => setCompanyWebsite(e.target.value)}
+                placeholder={t("order.companyWebsitePh")}
+                autoComplete="url"
               />
             </Field>
             <div className="grid gap-4 sm:grid-cols-2">
