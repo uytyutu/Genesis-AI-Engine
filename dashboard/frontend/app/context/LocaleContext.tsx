@@ -29,6 +29,21 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<LocaleState>(() => loadLocaleState());
   const i18n = useMemo(() => ensureI18n(state.uiLocale), [state.uiLocale]);
 
+  // Re-apply browser locale after mount when auto-detect is on (avoids stale RU from old sessions).
+  useEffect(() => {
+    if (!state.autoDetect) return;
+    const browser = detectBrowserLocale();
+    if (browser === state.uiLocale) return;
+    const next: LocaleState = {
+      autoDetect: true,
+      uiLocale: browser,
+      assistantLocale: browser,
+    };
+    setState(next);
+    persistLocaleState(next);
+    void i18n.changeLanguage(browser);
+  }, [state.autoDetect, state.uiLocale, i18n]);
+
   useEffect(() => {
     const def = getLocaleDefinition(state.uiLocale);
     document.documentElement.lang = state.uiLocale;

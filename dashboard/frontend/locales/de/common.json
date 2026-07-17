@@ -16,10 +16,27 @@
     "assistant": "Antworten des Assistenten",
     "search": "Sprache suchen…",
     "noResults": "Keine Sprachen gefunden",
+    "more": "Weitere Sprachen…",
+    "less": "Weniger",
     "fallbackNote": "Sprachen ohne vollständiges Paket nutzen Englisch für die Oberfläche.",
     "ru": "Русский",
     "en": "English",
     "de": "Deutsch"
   },
-  "skipToContent": "Zum Inhalt springen"
+  "skipToContent": "Zum Inhalt springen",
+  "surface": {
+    "public": "Schaufenster",
+    "client": "Mein Unternehmen",
+    "ceo": "Inhaber-Bereich",
+    "workingWith": "Ich arbeite mit {{name}}"
+  },
+  "footer": {
+    "tagline": "{{name}} — Ihr digitaler Mitarbeiter",
+    "about": "Über uns",
+    "privacy": "Datenschutz",
+    "support": "Support",
+    "contact": "Kontakt",
+    "legal": "Rechtliche Informationen",
+    "mainNav": "Hauptlinks"
+  }
 }

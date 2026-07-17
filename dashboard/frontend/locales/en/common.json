@@ -16,10 +16,27 @@
     "assistant": "Assistant replies",
     "search": "Search language…",
     "noResults": "No languages found",
+    "more": "More languages…",
+    "less": "Less",
     "fallbackNote": "Languages without a full UI pack use English interface strings.",
     "ru": "Русский",
     "en": "English",
     "de": "Deutsch"
   },
-  "skipToContent": "Skip to content"
+  "skipToContent": "Skip to content",
+  "surface": {
+    "public": "Storefront",
+    "client": "My company",
+    "ceo": "Owner workspace",
+    "workingWith": "Working with {{name}}"
+  },
+  "footer": {
+    "tagline": "{{name}} — your digital teammate",
+    "about": "About",
+    "privacy": "Privacy",
+    "support": "Support",
+    "contact": "Contact",
+    "legal": "Legal information",
+    "mainNav": "Main links"
+  }
 }

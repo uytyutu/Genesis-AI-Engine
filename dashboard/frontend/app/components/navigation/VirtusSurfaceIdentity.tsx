@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { VirtusMark } from "../VirtusMark";
 import { ASSISTANT_NAME, BRAND_NAME } from "../../lib/publicBrand";
-import { surfaceNavMeta } from "../../lib/surfaceNavConfig";
 import type { SurfaceTarget } from "../../lib/surfaceRegistry";
 
 type Props = {
@@ -12,13 +12,9 @@ type Props = {
 };
 
 export function VirtusSurfaceIdentity({ surface, homeHref = "/" }: Props) {
-  const meta = surfaceNavMeta(surface);
-  const roleLabel =
-    surface === "public"
-      ? "Витрина"
-      : surface === "client"
-        ? "Моя компания"
-        : "Кабинет владельца";
+  const { t } = useTranslation("common");
+  const roleKey =
+    surface === "public" ? "surface.public" : surface === "client" ? "surface.client" : "surface.ceo";
 
   return (
     <div className="virtus-surface-identity">
@@ -27,17 +23,14 @@ export function VirtusSurfaceIdentity({ surface, homeHref = "/" }: Props) {
         <div className="min-w-0">
           <p className="virtus-surface-identity__name">{BRAND_NAME}</p>
           <p className="virtus-surface-identity__tag">
-            {ASSISTANT_NAME} · {roleLabel}
+            {ASSISTANT_NAME} · {t(roleKey)}
           </p>
         </div>
       </Link>
       <p className="virtus-surface-identity__vector">
         <span className="virtus-surface-identity__dot" aria-hidden />
-        Работаю с <strong>{ASSISTANT_NAME}</strong>
+        {t("surface.workingWith", { name: ASSISTANT_NAME })}
       </p>
-      {meta.scenario ? (
-        <p className="virtus-surface-identity__scenario">{meta.scenario}</p>
-      ) : null}
     </div>
   );
 }
