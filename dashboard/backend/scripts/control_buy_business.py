@@ -53,17 +53,25 @@ def main() -> int:
     checks = {
         "wa.me": "wa.me/" in html,
         "maps_iframe": "maps.google.com" in html and 'id="maps"' in html,
-        "testimonials": 'id="testimonials"' in html,
-        "logo.png": "assets/logo.png" in html,
-        "ld_json": "application/ld+json" in html,
+        "testimonials": 'id="testimonials"' in html and "Beispieltexte" in html,
+        "logo.png": 'src="assets/logo.png"' in html,
+        "ld_json": "application/ld+json" in html and "LocalBusiness" in html,
         "og_title": "og:title" in html,
         "no_analytics": "G-XXXXXXXXXX" not in html,
         "no_calculator": 'id="calculator"' not in html,
         "real_phone": "+49 221 555 1212" in html,
         "business_name": "Autowerkstatt Kontrolle" in html,
+        "readme_manual": False,
     }
     zip_bytes, zip_name = factory.build_client_delivery_zip(product_id)
     names = zipfile.ZipFile(io.BytesIO(zip_bytes)).namelist()
+    readme = zipfile.ZipFile(io.BytesIO(zip_bytes)).read("README_PUBLISH.txt").decode("utf-8")
+    checks["readme_manual"] = (
+        "assets/logo.png" in readme
+        and "Domain" in readme
+        and "G-XXXXXXXXXX" in readme
+        and "manuelle" in readme.lower()
+    )
     print("ZIP_NAME", zip_name)
     print("TMP", tmp)
     print("PRODUCT", product_id)

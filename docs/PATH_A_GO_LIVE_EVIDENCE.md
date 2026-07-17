@@ -74,33 +74,42 @@
 
 **Фокус сейчас:** доступность стека → живой Gate 1 → первая реальная оплата → выполнение → реакция → postmortem.
 
-## Gate 1 — пользовательский опыт
+## Gate 1 — приёмка (PASS только при трёх уровнях)
 
-**Hold at Gate 1:** пока UI (Genesis.exe / :8000/:3000) недоступен — первоочередная задача **доступность**, не новые фичи. Сигнал CEO, когда стек зелёный → проход `/order` Business.
+**Правило:** Gate 1 = PASS **только** если совпали **все три** уровня. Один зелёный слой не засчитывает Gate.
 
-Клиент сам проходит весь обещанный путь (Genesis.exe → зелёный стек):
+| Уровень | Что подтверждает | Инструмент |
+|---------|------------------|------------|
+| **A. Автоматические тесты** | Логика работает | `pytest` (`test_package_delivery`) + `control_buy_business.py` → `ALL_OK` |
+| **B. Живой UI-проход** | Пользователь оформляет заказ без скрытых проблем | Genesis.exe → зелёный стек → браузер `/order` |
+| **C. Артефакт** | ZIP соответствует обещаниям выбранного пакета | Открытый `index.html` + `README_PUBLISH.txt` из **скачанного** ZIP |
 
-- [ ] заказ (`/order`, пакет **Business**)
-- [ ] оплата (sandbox или Stripe test)
-- [ ] статус заказа
-- [ ] скачивание ZIP
-- [ ] открытие `index.html` — WhatsApp · Maps iframe · отзывы-шаблоны · `assets/logo.png` · OG + Schema
-- [ ] правовые страницы клиента (Impressum / Datenschutz)
-- [ ] нет неожиданных языковых или интерфейсных сбоев (DE-first Path A; `/order/pay` без RU)
+**Hold at Gate 1:** пока UI недоступен — задача **доступность стека**, не новые фичи.
 
-### Gate 1 — чеклист Business ZIP
+### Gate 1 Business — критерии живого прохода (B + C)
 
-| Элемент | Ожидание | Верификация |
-|---------|----------|-------------|
-| WhatsApp | `wa.me/…` | ссылка из номера заказа |
-| Maps | iframe | контейнер `#maps` + `maps.google.com` |
-| Testimonials | slot + disclaimer | `#testimonials` + `Beispieltexte` |
-| Logo | slot | `img` с `src="assets/logo.png"` |
-| OG + Schema | meta | `og:title` + `LocalBusiness` в `head` |
-| Exclude | Analytics / Rechner | нет `G-XXXXXXXXXX`, нет `#calculator` |
-| ZIP | полный набор | `impressum.html`, `datenschutz.html`, `README_PUBLISH.txt` |
+- [ ] `/order` полностью на немецком (включая pay / status / ошибки)
+- [ ] заказ Business оформляется без ошибок
+- [ ] платёжный сценарий (sandbox или Stripe test) проходит корректно
+- [ ] после оплаты доступен Download ZIP
+- [ ] в `index.html` есть:
+  - [ ] `wa.me/...`
+  - [ ] Google Maps iframe
+  - [ ] блок отзывов с пометкой `Beispieltexte`
+  - [ ] `<img src="assets/logo.png">`
+  - [ ] Open Graph и Schema.org `LocalBusiness`
+- [ ] **нет** Premium-функций: Analytics (`G-XXXXXXXXXX`) и Rechner (`#calculator`)
+- [ ] `README_PUBLISH.txt` ясно объясняет ручные шаги (logo, Domain, Analytics ID, отзывы)
 
-**Эталон без UI:** `py -3.12 dashboard/backend/scripts/control_buy_business.py` → `ALL_OK True`.
+### Gate 1 — статус слоёв (факт)
+
+| Слой | Статус (2026-07-18) |
+|------|---------------------|
+| A. Автотесты + control-buy | ✅ `7 passed` · `ALL_OK True` |
+| B. Живой UI | ❌ стек `:8000`/`:3000` down — проход не выполнен |
+| C. ZIP из живого Download | ❌ нет (C через control-buy sandbox ✅, но **не** заменяет B+C из UI) |
+
+**Итог Gate 1:** ❌ **не PASS** — A есть, B и живой C нет.
 
 ## Gate 2 — эксплуатационная готовность
 
@@ -117,8 +126,8 @@
 | Уровень | Статус |
 |---------|--------|
 | Sandbox | ✅ тесты + `control_buy_business.py` — структура Business ZIP |
-| Gate 1 (UI) | 🔄 **Hold** — ждёт зелёный стек Genesis.exe (:8000/:3000), затем CEO-проход |
+| Gate 1 | ❌ **не PASS** — нужен A+B+C; сейчас только A (стек down) |
 | Gate 2 | 🔄 ждёт live Stripe/webhook + ops checklist |
 | Коммерческое доказательство | ⏳ первый немецкий клиент + postmortem |
 
-**Вердикт:** Ready for Pilot по техническому контуру (тесты + control-buy). **Не** Ready for Mass Market. Следующий вопрос бизнеса — живой Gate 1 и первый оплаченный клиент, не новые фичи.
+**Вердикт:** слой A готов. Gate 1 **не** закрыт без живого UI + скачанного ZIP. Mass market — нет.
