@@ -26,9 +26,12 @@ _DEPLOY_README = """# Website veröffentlichen (Path A)
 1. Archiv entpacken.
 2. index.html, impressum.html und datenschutz.html im Browser prüfen.
 3. Impressum und Datenschutz nur freigeben, wenn alle Angaben stimmen (Kunde muss prüfen).
-4. Optional: logo.png neben index.html legen (Business/Premium — Logo-Platzhalter).
-5. Premium: Google Analytics Measurement-ID G-XXXXXXXXXX in index.html ersetzen.
-6. Alle Dateien auf Hosting laden (FTP / Netlify Drop / Dateimanager).
+4. Business/Premium: echte logo.png neben index.html legen (ersetzt den Platzhalter).
+5. Premium: in index.html G-XXXXXXXXXX durch Ihre Google-Analytics Measurement-ID ersetzen.
+6. Bewertungsblock: Beispieltexte durch echte Kundenstimmen ersetzen.
+7. Alle Dateien auf Hosting laden (FTP / Netlify Drop / Dateimanager).
+
+Nicht im ZIP (manuelle Leistung): Domain-Kauf, DNS/Hosting-Anbindung, Korrekturrunden, Support.
 
 Hinweis: Die Rechtsseiten sind aus Kundendaten befüllte Vorlagen — keine Rechtsberatung.
 Ohne vollständiges Impressum gilt die Seite nicht als publish-ready für Deutschland.

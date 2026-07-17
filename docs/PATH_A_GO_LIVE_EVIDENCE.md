@@ -35,13 +35,17 @@
 | Google Maps embed | — | ✅ | ✅ |
 | Bewertungsblock | — | ✅ | ✅ |
 | Logo-Platzhalter (`logo.png`) | — | ✅ | ✅ |
-| Erweitertes SEO (OG + LocalBusiness) | — | ✅ | ✅ |
+| Erweitertes SEO = OG + Schema.org LocalBusiness (**kein** sitemap) | — | ✅ | ✅ |
 | Premium-Design | — | — | ✅ |
 | Kostenrechner | — | — | ✅ |
-| Analytics-Snippet (`G-XXXXXXXXXX`) | — | — | ✅ |
+| Analytics-Platzhalter `G-XXXXXXXXXX` (ID manuell) | — | — | ✅ |
+| Bewertungen = Textvorlagen (nicht echte Reviews) | — | ✅ | ✅ |
+| Maps = Google Maps iframe nach Firmendaten | — | ✅ | ✅ |
+| logo.png = Platzhalter bis Kundendatei | — | ✅ | ✅ |
 | Korrekturen / Support / Domain-Hilfe | Prozess (CEO) | Prozess | Prozess |
 
-Код: `app/factory/package_features.py` → `build_landing` / `start_production`.
+Код: `app/factory/package_features.py` → `build_landing` / `start_production`.  
+Контрольная закупка (без UI): `dashboard/backend/scripts/control_buy_business.py`.
 
 ### Двигатели денег (проверка 2026-07-17)
 

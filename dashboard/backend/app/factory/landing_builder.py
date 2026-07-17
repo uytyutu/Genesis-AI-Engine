@@ -378,6 +378,7 @@ def _testimonials_section(enabled: bool) -> str:
     return """
   <section class="section testimonials" id="testimonials">
     <h2>Kundenstimmen</h2>
+    <p class="muted">Beispieltexte — bitte durch echte Kundenstimmen ersetzen.</p>
     <div class="testimonial-grid">
       <blockquote class="testimonial-card"><p>«Professionell und zuverlässig — klare Empfehlung.»</p><cite>— Anna K.</cite></blockquote>
       <blockquote class="testimonial-card"><p>«Transparente Preise und gutes Ergebnis.»</p><cite>— Michael W.</cite></blockquote>
