@@ -435,6 +435,7 @@ export default function OrderSitePage() {
                 {t("order.needsDomain")}
               </label>
             </div>
+            <p className="text-xs leading-relaxed text-genesis-muted">{t("order.domainHostingNote")}</p>
             <Field label={t("order.extraWishes")}>
               <Textarea
                 className="min-h-[72px]"
