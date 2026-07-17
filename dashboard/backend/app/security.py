@@ -52,6 +52,7 @@ _PUBLIC_PREFIXES = (
 _PUBLIC_PATTERNS: tuple[tuple[str, str], ...] = (
     (r"^/api/sales/orders$", "POST"),
     (r"^/api/sales/orders/[^/]+/status$", "GET"),
+    (r"^/api/sales/orders/[^/]+/download$", "GET"),
     (r"^/api/sales/orders/[^/]+/checkout$", "POST"),
     (r"^/api/sales/orders/[^/]+/confirm-payment$", "POST"),
     (r"^/api/sales/orders/[^/]+/pay-sandbox$", "POST"),
