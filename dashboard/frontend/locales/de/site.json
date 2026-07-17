@@ -116,7 +116,24 @@
     "stepPay": "Zahlung",
     "stepProject": "Ihr Projekt",
     "stepLaunch": "Start",
-    "stepPublish": "Veröffentlichung"
+    "stepPublish": "Veröffentlichung",
+    "status": {
+      "loading": "Status wird geladen…",
+      "notFound": "Bestellung nicht gefunden",
+      "newOrder": "Neue Bestellung",
+      "thanks": "Vielen Dank!",
+      "title": "Bestellstatus",
+      "yourOrder": "Ihre Bestellung",
+      "status": "Status",
+      "progress": "Fortschritt",
+      "next": "Nächster Schritt",
+      "eta": "Voraussichtliche Zeit",
+      "etaHours": "{{hours}} Stunden",
+      "copyReceipt": "Bestätigung kopieren",
+      "copied": "Text kopiert",
+      "bookmark": "Speichern Sie diese Seite — hier sehen Sie immer den aktuellen Status.",
+      "payFail": "Zahlung konnte nicht gestartet werden"
+    }
   },
   "kontakt": {
     "title": "Kontakt",

@@ -3,12 +3,14 @@
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../../../components/PublicPageShell";
 import { Button, ButtonLink, Loader } from "../../../components/ui";
 import { formatEur } from "../../../lib/formatEur";
 import { fetchPaymentReady, startOrderCheckout } from "../../../lib/orderCheckout";
+import { publicApiBase } from "../../../lib/publicApiBase";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = publicApiBase();
 
 type TimelineStep = { id: string; label: string; done: boolean };
 
@@ -30,6 +32,7 @@ type OrderStatus = {
 };
 
 function OrderStatusContent() {
+  const { t, i18n } = useTranslation("site");
   const routeParams = useParams();
   const search = useSearchParams();
   const orderId = String(routeParams.orderId ?? "");
@@ -64,10 +67,10 @@ function OrderStatusContent() {
       }
     }
     load();
-    const t = setInterval(load, 8000);
+    const tmr = setInterval(load, 8000);
     return () => {
       cancelled = true;
-      clearInterval(t);
+      clearInterval(tmr);
     };
   }, [orderId, justPaid]);
 
@@ -78,7 +81,7 @@ function OrderStatusContent() {
       const url = await startOrderCheckout(orderId);
       window.location.href = url;
     } catch (e) {
-      setPayError(e instanceof Error ? e.message : "Не удалось начать оплату");
+      setPayError(e instanceof Error ? e.message : t("order.status.payFail"));
       setPayBusy(false);
     }
   }
@@ -88,7 +91,7 @@ function OrderStatusContent() {
     const url = typeof window !== "undefined" ? window.location.href.split("?")[0] : "";
     const text = data.client_receipt_text.replace(
       `/order/status/${orderId}`,
-      url || `/order/status/${orderId}`
+      url || `/order/status/${orderId}`,
     );
     try {
       await navigator.clipboard.writeText(text);
@@ -102,7 +105,7 @@ function OrderStatusContent() {
   if (loading) {
     return (
       <PublicPageShell>
-        <Loader label="Загрузка статуса…" />
+        <Loader label={t("order.status.loading")} />
       </PublicPageShell>
     );
   }
@@ -111,9 +114,9 @@ function OrderStatusContent() {
     return (
       <PublicPageShell>
         <main className="mx-auto max-w-lg py-12 text-center">
-          <p className="text-genesis-muted">Заказ не найден</p>
+          <p className="text-genesis-muted">{t("order.status.notFound")}</p>
           <Link href="/order" className="mt-4 inline-block text-genesis-accent hover:underline">
-            Заказать сайт
+            {t("order.status.newOrder")}
           </Link>
         </main>
       </PublicPageShell>
@@ -122,6 +125,7 @@ function OrderStatusContent() {
 
   const showThankYou = justPaid || data.paid;
   const awaitingPayment = data.status === "awaiting_payment" && !data.paid;
+  const dateLocale = i18n.language?.startsWith("ru") ? "ru-RU" : "de-DE";
 
   return (
     <PublicPageShell>
@@ -130,13 +134,16 @@ function OrderStatusContent() {
           {showThankYou && (
             <>
               <p className="text-center text-4xl">✓</p>
-              <h1 className="mt-3 text-center text-2xl font-bold">Спасибо!</h1>
+              <h1 className="mt-3 text-center text-2xl font-bold">{t("order.status.thanks")}</h1>
             </>
           )}
-          {!showThankYou && <p className="genesis-label text-center">Статус заказа</p>}
+          {!showThankYou && (
+            <p className="genesis-label text-center">{t("order.status.title")}</p>
+          )}
 
           <p className="mt-4 text-center text-sm text-genesis-muted">
-            Ваш заказ <span className="font-mono text-genesis-text">№ {data.order_id}</span>
+            {t("order.status.yourOrder")}{" "}
+            <span className="font-mono text-genesis-text">№ {data.order_id}</span>
           </p>
           <p className="mt-1 text-center font-medium">{data.business_name}</p>
           <p className="text-center text-xs text-genesis-muted">
@@ -145,21 +152,17 @@ function OrderStatusContent() {
 
           {awaitingPayment && paymentReady && (
             <div className="mt-6">
-              <Button
-                variant="success"
-                size="lg"
-                fullWidth
-                loading={payBusy}
-                onClick={payNow}
-              >
-                {payBusy ? "Переход к оплате…" : `Оплатить ${formatEur(data.price_eur)}`}
+              <Button variant="success" size="lg" fullWidth loading={payBusy} onClick={payNow}>
+                {payBusy
+                  ? t("order.payBusy")
+                  : t("order.payNow", { price: formatEur(data.price_eur) })}
               </Button>
               {payError && <p className="mt-2 text-center text-xs text-rose-300">{payError}</p>}
             </div>
           )}
 
           <div className="mt-6 rounded-2xl border border-genesis-border-subtle bg-genesis-bg/50 p-5">
-            <p className="genesis-label">Статус</p>
+            <p className="genesis-label">{t("order.status.status")}</p>
             <p className="mt-1 flex items-center justify-center gap-2 text-lg font-semibold text-emerald-300">
               {data.paid && <span>🟢</span>}
               {data.status_label}
@@ -167,7 +170,7 @@ function OrderStatusContent() {
 
             {data.timeline.length > 0 && (
               <div className="mt-5">
-                <p className="genesis-label">Прогресс</p>
+                <p className="genesis-label">{t("order.status.progress")}</p>
                 <ul className="mt-2 space-y-2 text-sm">
                   {data.timeline.map((step) => (
                     <li key={step.id} className="flex items-center gap-2">
@@ -185,19 +188,19 @@ function OrderStatusContent() {
 
             {data.next_step && (
               <div className="mt-5">
-                <p className="genesis-label">Следующий этап</p>
+                <p className="genesis-label">{t("order.status.next")}</p>
                 <p className="mt-1 text-sm">{data.next_step}</p>
               </div>
             )}
 
             {(data.estimated_hours || data.estimated_delivery_at) && (
               <div className="mt-5">
-                <p className="genesis-label">Ориентировочное время</p>
+                <p className="genesis-label">{t("order.status.eta")}</p>
                 <p className="mt-1 text-sm font-medium">
                   {data.estimated_hours
-                    ? `${data.estimated_hours} часов`
+                    ? t("order.status.etaHours", { hours: data.estimated_hours })
                     : data.estimated_delivery_at
-                      ? new Date(data.estimated_delivery_at).toLocaleDateString("ru-RU")
+                      ? new Date(data.estimated_delivery_at).toLocaleDateString(dateLocale)
                       : "—"}
                 </p>
               </div>
@@ -214,16 +217,14 @@ function OrderStatusContent() {
               onClick={copyReceipt}
               className="mt-5 w-full rounded-xl border border-genesis-border-subtle py-2.5 text-xs text-genesis-muted hover:bg-genesis-elevated"
             >
-              {copied ? "Текст скопирован" : "Скопировать подтверждение"}
+              {copied ? t("order.status.copied") : t("order.status.copyReceipt")}
             </button>
           )}
 
-          <p className="mt-4 text-center text-[10px] text-genesis-muted">
-            Сохраните эту страницу — здесь всегда актуальный статус заказа.
-          </p>
+          <p className="mt-4 text-center text-[10px] text-genesis-muted">{t("order.status.bookmark")}</p>
 
-            <ButtonLink href="/order" variant="ghost" size="sm" className="mt-4">
-            ← Новый заказ
+          <ButtonLink href="/order" variant="ghost" size="sm" className="mt-4">
+            ← {t("order.status.newOrder")}
           </ButtonLink>
         </div>
       </main>
@@ -232,12 +233,13 @@ function OrderStatusContent() {
 }
 
 export default function OrderStatusPage() {
+  const { t } = useTranslation("site");
   return (
     <Suspense
       fallback={
         <PublicPageShell>
           <main className="mx-auto max-w-lg py-12 text-center text-genesis-muted">
-            Загрузка…
+            {t("order.status.loading")}
           </main>
         </PublicPageShell>
       }

@@ -45,7 +45,7 @@ def test_project_order_created_message_launch_not_site_specific():
         project_name="GreenLine",
     )
     assert "GreenLine" in msg
-    assert "зафиксирован" in msg
+    assert "erfasst" in msg
     assert "сайтом" not in msg.lower()
     assert "начнём работу" not in msg.lower()
 
@@ -125,9 +125,9 @@ def test_sales_order_launch_message_with_visitor(tmp_path: Path):
         }
     )
     assert "GreenLine" in out["message"]
-    assert "зафиксирован" in out["message"]
+    assert "erfasst" in out["message"]
     assert "сайтом" not in out["message"].lower()
-    assert out["deliverables"][0].startswith("Передача согласованной версии")
+    assert "Übergabe" in out["deliverables"][0] or "Uebergabe" in out["deliverables"][0]
 
     status = sales.public_status(out["order_id"])
     assert "сайт" not in status["current_step"].lower()

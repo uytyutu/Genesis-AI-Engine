@@ -366,9 +366,12 @@ def one_time_handoff_summary(service_id: str) -> str:
 
 def project_display_name(service_id: str, *, project_name: str | None = None) -> str:
     """Customer-facing project label — never a package code."""
-    label = service_label_ru(service_id, fallback="Проект")
+    if service_id == SERVICE_WEBSITE:
+        label = "Landing Page"
+    else:
+        label = service_label_ru(service_id, fallback="Projekt")
     if project_name and project_name.strip():
-        return f"{label} {project_name.strip()}"
+        return f"{label} «{project_name.strip()}»"
     return label
 
 
@@ -428,8 +431,8 @@ def project_client_timeline(status: str) -> list[dict[str, Any]]:
     paid = status in ("paid", "in_production", "ready", "delivered")
     handoff = status in ("in_production", "ready", "delivered")
     return [
-        {"id": "payment", "label": "Оплата получена", "done": paid},
-        {"id": "handoff", "label": "Подготовка к передаче", "done": handoff},
+        {"id": "payment", "label": "Zahlung eingegangen", "done": paid},
+        {"id": "handoff", "label": "Vorbereitung der Übergabe", "done": handoff},
     ]
 
 

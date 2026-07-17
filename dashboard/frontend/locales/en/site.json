@@ -116,7 +116,24 @@
     "stepPay": "Payment",
     "stepProject": "Your project",
     "stepLaunch": "Launch",
-    "stepPublish": "Publish"
+    "stepPublish": "Publish",
+    "status": {
+      "loading": "Loading status…",
+      "notFound": "Order not found",
+      "newOrder": "New order",
+      "thanks": "Thank you!",
+      "title": "Order status",
+      "yourOrder": "Your order",
+      "status": "Status",
+      "progress": "Progress",
+      "next": "Next step",
+      "eta": "Estimated time",
+      "etaHours": "{{hours}} hours",
+      "copyReceipt": "Copy confirmation",
+      "copied": "Copied",
+      "bookmark": "Bookmark this page — order status stays up to date here.",
+      "payFail": "Could not start payment"
+    }
   },
   "kontakt": {
     "title": "Contact",

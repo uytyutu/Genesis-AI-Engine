@@ -70,7 +70,7 @@ class RevenuePipelineService:
             currency=currency,
         )
         order["status"] = "awaiting_payment"
-        order["status_label"] = "Ожидает оплаты"
+        order["status_label"] = "Wartet auf Zahlung"
         order["checkout_session_id"] = session.get("session_id")
         order["updated_at"] = datetime.now(timezone.utc).isoformat()
         self._sales._save_order(order)
@@ -186,7 +186,7 @@ class RevenuePipelineService:
         if abs(paid - expected) > 0.01:
             raise ValueError("amount_mismatch")
 
-        label = f"Заказ {order_id}: {order['business_name']}"
+        label = f"Bestellung {order_id}: {order['business_name']}"
         self._finance.credit_order_payment(
             paid,
             label,
@@ -198,7 +198,7 @@ class RevenuePipelineService:
 
         now = datetime.now(timezone.utc)
         order["status"] = "paid"
-        order["status_label"] = "Оплачено"
+        order["status_label"] = "Bezahlt"
         order["paid_at"] = now.isoformat()
         order["payment_provider"] = provider
         order["payment_external_id"] = external_id
@@ -212,18 +212,18 @@ class RevenuePipelineService:
         order["estimated_delivery_at"] = eta.isoformat()
         order["estimated_hours"] = eta_hours
         order["client_status_message"] = (
-            "Спасибо за оплату! Мы начали работу над вашим сайтом. "
-            "Следите за прогрессом на странице статуса заказа."
+            "Danke für Ihre Zahlung! Wir haben mit Ihrer Landing Page begonnen. "
+            "Den Fortschritt sehen Sie auf der Bestellstatus-Seite."
         )
         order["client_receipt_text"] = (
-            f"Здравствуйте!\n\n"
-            f"Спасибо за заказ «{order['business_name']}».\n\n"
-            f"Заказ № {order_id}\n"
-            f"Пакет: {order['package_name']} — {price_display}\n"
-            f"Статус: Оплачено\n"
-            f"Ориентировочный срок: {eta_hours} часов\n\n"
-            f"Отслеживать заказ: {status_path}\n\n"
-            f"С уважением,\n{BRAND_NAME}"
+            f"Guten Tag,\n\n"
+            f"vielen Dank für Ihre Bestellung «{order['business_name']}».\n\n"
+            f"Bestellnr. {order_id}\n"
+            f"Paket: {order['package_name']} — {price_display}\n"
+            f"Status: Bezahlt\n"
+            f"Voraussichtliche Lieferzeit: {eta_hours} Stunden\n\n"
+            f"Status verfolgen: {status_path}\n\n"
+            f"Mit freundlichen Grüßen\n{BRAND_NAME}"
         )
         self._sales._save_order(order)
 
@@ -232,10 +232,10 @@ class RevenuePipelineService:
         price_display = str(order.get("price_label") or f"{paid:.0f} €")
 
         self._notifications.notify(
-            title="Новая оплата",
+            title="Neue Zahlung",
             message=(
                 f"🟢 {order['business_name']} — {price_display} ({order['package_name']}). "
-                f"Производство запущено автоматически."
+                f"Produktion automatisch gestartet."
             ),
             order_id=order_id,
         )

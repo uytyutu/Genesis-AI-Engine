@@ -9,7 +9,7 @@ export async function startOrderCheckout(orderId: string): Promise<string> {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      success_url: `${origin}/order/status/${orderId}`,
+      success_url: `${origin}/order/status/${orderId}?paid=1`,
       cancel_url: `${origin}/order/status/${orderId}`,
     }),
   });

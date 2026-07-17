@@ -262,7 +262,7 @@ class SalesOrderService:
             if not product:
                 raise ValueError("product_not_found")
             order["status"] = "in_production"
-            order["status_label"] = "В производстве"
+            order["status_label"] = "In Arbeit"
             order["product_id"] = existing_product_id
             order["updated_at"] = datetime.now(timezone.utc).isoformat()
             self._save_order(order)
@@ -270,7 +270,7 @@ class SalesOrderService:
                 "ok": True,
                 "order": self._summary(order),
                 "product_id": existing_product_id,
-                "message": "Оплата принята. Ваш Product уже собран — продолжайте с тем же черновиком.",
+                "message": "Zahlung erhalten. Produktion läuft mit dem bestehenden Entwurf.",
             }
 
         brief = self._factory_brief(order)
@@ -286,7 +286,7 @@ class SalesOrderService:
         )
         result = self._factory_intent.submit(intent)
         order["status"] = "in_production"
-        order["status_label"] = "В производстве"
+        order["status_label"] = "In Arbeit"
         order["product_id"] = result.get("product_id")
         order["updated_at"] = datetime.now(timezone.utc).isoformat()
         self._save_order(order)
@@ -294,7 +294,7 @@ class SalesOrderService:
             "ok": True,
             "order": self._summary(order),
             "product_id": result.get("product_id"),
-            "message": "Производство запущено. Проверьте продукт в разделе «Продукты».",
+            "message": "Produktion gestartet. Landing Page wird vorbereitet.",
         }
 
     def _suggest_package(self, payload: dict) -> str:
