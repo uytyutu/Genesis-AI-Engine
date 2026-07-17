@@ -57,17 +57,38 @@
 
 ---
 
+## Freeze — до первого пилотного клиента
+
+**Не расширять:** TikTok · Content Engine · панель «Развитие» · новые направления Farm · админ-формы domain/GA до живого Gate 1 PASS.
+
+**Фокус:** Gate 1 → первая реальная оплата → выполнение заказа → реакция клиента → только потом фичи.
+
 ## Gate 1 — пользовательский опыт
 
-Клиент сам проходит весь обещанный путь:
+Клиент сам проходит весь обещанный путь (Genesis.exe → зелёный стек):
 
-- [ ] заказ
-- [ ] оплата
+- [ ] заказ (`/order`, пакет **Business**)
+- [ ] оплата (sandbox или Stripe test)
 - [ ] статус заказа
 - [ ] скачивание ZIP
-- [ ] открытие сайта
+- [ ] открытие `index.html` — WhatsApp · Maps iframe · отзывы-шаблоны · `logo.png` · OG + Schema
 - [ ] правовые страницы клиента (Impressum / Datenschutz)
-- [ ] нет неожиданных языковых или интерфейсных сбоев (DE-first Path A)
+- [ ] нет неожиданных языковых или интерфейсных сбоев (DE-first Path A; `/order/pay` без RU)
+
+### Gate 1 — чеклист Business ZIP
+
+| Артефакт | Ожидание |
+|----------|----------|
+| `index.html` | имя фирмы, телефон из заказа |
+| WhatsApp | `wa.me/…` |
+| Maps | iframe `maps.google.com` + `#maps` |
+| Bewertungen | `#testimonials` + пометка Beispieltexte |
+| Logo | `logo.png` в разметке (файл кладёт клиент/CEO) |
+| SEO | `og:title` + `application/ld+json` |
+| Premium-only отсутствует | нет `G-XXXXXXXXXX`, нет `#calculator` |
+| ZIP | `impressum.html`, `datenschutz.html`, `README_PUBLISH.txt` |
+
+**Эталон без UI:** `py -3.12 dashboard/backend/scripts/control_buy_business.py` → `ALL_OK True`.
 
 ## Gate 2 — эксплуатационная готовность
 
@@ -83,7 +104,9 @@
 
 | Уровень | Статус |
 |---------|--------|
-| Sandbox | ✅ логика Path A в тестах / локальных сценариях |
-| Gate 1 | 🔄 ждёт живой проход CEO (Genesis.exe → клиентский путь) |
+| Sandbox | ✅ `control_buy_business.py` ALL_OK (2026-07-18) — Business ZIP структура |
+| Gate 1 (UI) | 🔄 **ждёт CEO** — стек :8000/:3000 не был зелёным после запуска Genesis.exe агентом |
 | Gate 2 | 🔄 ждёт live Stripe/webhook + ops checklist |
-| Коммерческое доказательство | ⏳ после Gate 1 + Gate 2 |
+| Коммерческое доказательство | ⏳ первый немецкий клиент 350–1200 € + довольный результат |
+
+**Вердикт на сейчас:** продукт **готовится к контролируемому пилоту**, не к массовому рынку. Следующий вопрос бизнеса — не Factory, а «заплатит ли первый реальный клиент и останется ли доволен».
