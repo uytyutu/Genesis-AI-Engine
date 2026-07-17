@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 import uuid
 from datetime import datetime, timezone
@@ -1606,7 +1607,14 @@ class MicroFarmService:
         )
 
     def _maybe_auto_prepare_outreach(self, state: dict[str, Any]) -> dict[str, Any] | None:
-        """Throttled: farm tick → auto-draft B2B letters for CEO outbox."""
+        """Opt-in: farm tick → auto-draft B2B letters for CEO outbox.
+
+        Default OFF — Toloka/Farm must not pollute Path A Country Desk during
+        controlled pilot. Enable with FARM_AUTO_PREPARE_OUTREACH=1.
+        """
+        raw = os.getenv("FARM_AUTO_PREPARE_OUTREACH", "").strip().lower()
+        if raw not in {"1", "true", "yes", "on"}:
+            return None
         now = datetime.now(timezone.utc)
         last_raw = state.get("last_auto_outreach_at")
         if last_raw:

@@ -26,12 +26,12 @@ async def stripe_webhook(request: Request) -> StripeWebhookResponse:
     except StripeWebhookCriticalError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except StripeWebhookError as exc:
-        raise HTTPException(status_code=400, detail="Некорректный webhook") from exc
+        raise HTTPException(status_code=400, detail="Ungültiger Webhook") from exc
     except ValueError as exc:
         code = str(exc)
         if code == "order_not_found":
-            raise HTTPException(status_code=404, detail="Заказ не найден") from exc
+            raise HTTPException(status_code=404, detail="Bestellung nicht gefunden") from exc
         if code == "amount_mismatch":
-            raise HTTPException(status_code=400, detail="Сумма не совпадает") from exc
-        raise HTTPException(status_code=400, detail="Оплата не прошла") from exc
+            raise HTTPException(status_code=400, detail="Betrag stimmt nicht überein") from exc
+        raise HTTPException(status_code=400, detail="Zahlung fehlgeschlagen") from exc
     return StripeWebhookResponse(**result)

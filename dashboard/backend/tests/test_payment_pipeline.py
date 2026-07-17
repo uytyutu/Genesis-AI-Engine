@@ -104,6 +104,57 @@ def test_stripe_webhook_signature_required(tmp_path: Path, monkeypatch: pytest.M
     assert parsed["amount_eur"] == 350.0
 
 
+def test_stripe_webhook_rejects_without_secret(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.delenv("STRIPE_WEBHOOK_SECRET", raising=False)
+    checkout = PaymentCheckoutService(tmp_path)
+    payload = json.dumps(
+        {
+            "type": "checkout.session.completed",
+            "data": {
+                "object": {
+                    "id": "cs_unsigned",
+                    "amount_total": 35000,
+                    "metadata": {"order_id": "ord-x"},
+                }
+            },
+        }
+    ).encode()
+    assert checkout.verify_stripe_webhook(payload, "") is None
+    assert checkout.verify_stripe_webhook(payload, "t=1,v1=dead") is None
+
+
+def test_farm_auto_prepare_outreach_opt_in(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    from app.integration.micro_farm_service import MicroFarmService
+    from app.integration.opportunity_service import OpportunityService
+
+    farm = MicroFarmService(
+        OpportunityService(tmp_path),
+        FinanceService(tmp_path),
+        memory_dir=tmp_path,
+    )
+    state: dict = {}
+    monkeypatch.delenv("FARM_AUTO_PREPARE_OUTREACH", raising=False)
+    assert farm._maybe_auto_prepare_outreach(state) is None
+
+    monkeypatch.setenv("FARM_AUTO_PREPARE_OUTREACH", "1")
+
+    class _Acq:
+        def auto_prepare_discovery_leads(self, limit=2):
+            return {"prepared": 1, "limit": limit}
+
+    class _Ctx:
+        acquisition = _Acq()
+
+    monkeypatch.setattr(
+        "app.integration.context.get_integration",
+        lambda: _Ctx(),
+    )
+    result = farm._maybe_auto_prepare_outreach(state)
+    assert result is not None
+    assert result.get("prepared") == 1
+    assert state.get("last_auto_outreach_at")
+
+
 def test_stripe_webhook_confirms_order(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_test")
     monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake")
