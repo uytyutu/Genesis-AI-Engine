@@ -66,6 +66,15 @@ export default function OrderSitePage() {
   const [needsLogo, setNeedsLogo] = useState(false);
   const [needsDomain, setNeedsDomain] = useState(false);
   const [extraWishes, setExtraWishes] = useState("");
+  const [legalOwner, setLegalOwner] = useState("");
+  const [legalForm, setLegalForm] = useState("");
+  const [legalStreet, setLegalStreet] = useState("");
+  const [legalZip, setLegalZip] = useState("");
+  const [legalCity, setLegalCity] = useState("");
+  const [legalDirector, setLegalDirector] = useState("");
+  const [legalVat, setLegalVat] = useState("");
+  const [legalMaps, setLegalMaps] = useState(false);
+  const [legalAnalytics, setLegalAnalytics] = useState(false);
   const [packageId, setPackageId] = useState("basic");
   const [manualPackage, setManualPackage] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -194,6 +203,20 @@ export default function OrderSitePage() {
           needs_domain: needsDomain,
           extra_wishes: extraWishes.trim() || null,
           company_website: companyWebsite.trim() || null,
+          client_legal: {
+            owner_name: legalOwner.trim() || businessName.trim() || null,
+            legal_form: legalForm.trim() || null,
+            street: legalStreet.trim() || null,
+            zip: legalZip.trim() || null,
+            city: legalCity.trim() || city.trim() || null,
+            country: "DE",
+            email: email.trim() || null,
+            phone: phone.trim() || null,
+            managing_director: legalDirector.trim() || null,
+            vat_id: legalVat.trim() || null,
+            uses_maps: legalMaps,
+            uses_analytics: legalAnalytics,
+          },
           package_id: packageId,
           visitor_id: visitorId,
         }),
@@ -439,6 +462,61 @@ export default function OrderSitePage() {
             </div>
             <p className="text-xs leading-relaxed text-genesis-muted">{t("order.logoNote")}</p>
             <p className="text-xs leading-relaxed text-genesis-muted">{t("order.domainHostingNote")}</p>
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
+              <p className="text-sm font-medium text-white">{t("order.legalTitle")}</p>
+              <p className="text-xs text-genesis-muted">{t("order.legalHint")}</p>
+              <Field label={t("order.legalOwner")}>
+                <Input
+                  value={legalOwner}
+                  onChange={(e) => setLegalOwner(e.target.value)}
+                  placeholder={t("order.businessNamePh")}
+                />
+              </Field>
+              <Field label={t("order.legalForm")}>
+                <Input
+                  value={legalForm}
+                  onChange={(e) => setLegalForm(e.target.value)}
+                  placeholder={t("order.legalFormPh")}
+                />
+              </Field>
+              <Field label={t("order.legalStreet")}>
+                <Input value={legalStreet} onChange={(e) => setLegalStreet(e.target.value)} />
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label={t("order.legalZip")}>
+                  <Input value={legalZip} onChange={(e) => setLegalZip(e.target.value)} placeholder="50667" />
+                </Field>
+                <Field label={t("order.legalCity")}>
+                  <Input value={legalCity} onChange={(e) => setLegalCity(e.target.value)} placeholder={t("order.cityPh")} />
+                </Field>
+              </div>
+              <Field label={t("order.legalDirector")}>
+                <Input value={legalDirector} onChange={(e) => setLegalDirector(e.target.value)} />
+              </Field>
+              <Field label={t("order.legalVat")}>
+                <Input value={legalVat} onChange={(e) => setLegalVat(e.target.value)} placeholder="DE…" />
+              </Field>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-genesis-muted">
+                  <input
+                    type="checkbox"
+                    checked={legalMaps}
+                    onChange={(e) => setLegalMaps(e.target.checked)}
+                    className="rounded border-genesis-border accent-genesis-accent"
+                  />
+                  {t("order.legalMaps")}
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-genesis-muted">
+                  <input
+                    type="checkbox"
+                    checked={legalAnalytics}
+                    onChange={(e) => setLegalAnalytics(e.target.checked)}
+                    className="rounded border-genesis-border accent-genesis-accent"
+                  />
+                  {t("order.legalAnalytics")}
+                </label>
+              </div>
+            </div>
             <Field label={t("order.extraWishes")}>
               <Textarea
                 className="min-h-[72px]"

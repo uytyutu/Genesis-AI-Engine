@@ -65,6 +65,7 @@ export function SitePage() {
             <li>• {t("pathA.whatLogo")}</li>
             <li>• {t("pathA.what4")}</li>
             <li>• {t("pathA.whatDomain")}</li>
+            <li>• {t("pathA.whatLegal")}</li>
             <li>• {t("pathA.what5")}</li>
           </ul>
           <h3 className="mt-6 text-sm font-semibold text-white">{t("pathA.processTitle")}</h3>

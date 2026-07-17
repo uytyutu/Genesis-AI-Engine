@@ -190,6 +190,7 @@ class SalesOrderService:
             "extra_wishes": (payload.get("extra_wishes") or "").strip(),
             "company_website": company_website,
             "site_analysis": site_analysis,
+            "client_legal": self._client_legal_payload(payload),
             "visitor_id": (payload.get("visitor_id") or "").strip()[:64] or None,
             "service_id": service_id,
             "launch_mode": launch_mode,
@@ -273,13 +274,15 @@ class SalesOrderService:
             }
 
         brief = self._factory_brief(order)
+        legal = order.get("client_legal") if isinstance(order.get("client_legal"), dict) else {}
         intent = FactoryIntentRequest(
             product_type="landing-page",
             description=brief,
-            audience=f"Клиенты в {order.get('city') or 'регионе'}",
-            goal="Получать заявки с сайта",
+            audience=f"Kunden in {order.get('city') or 'der Region'}",
+            goal="Anfragen und Termine über die Website",
             price_eur=float(order["price_eur"]),
             deadline=None,
+            client_legal=legal or None,
         )
         result = self._factory_intent.submit(intent)
         order["status"] = "in_production"
@@ -353,7 +356,47 @@ class SalesOrderService:
             )
         if order.get("extra_wishes"):
             lines.append(f"Wünsche: {order['extra_wishes']}")
+        legal = order.get("client_legal") if isinstance(order.get("client_legal"), dict) else {}
+        if legal:
+            lines.append("Impressum-Daten (für DE Go-live, Kunde muss prüfen):")
+            for key in (
+                "owner_name",
+                "legal_form",
+                "street",
+                "zip",
+                "city",
+                "managing_director",
+                "vat_id",
+            ):
+                val = str(legal.get(key) or "").strip()
+                if val:
+                    lines.append(f"  {key}: {val}")
         return "\n".join(lines)
+
+    @staticmethod
+    def _client_legal_payload(payload: dict) -> dict:
+        raw = payload.get("client_legal")
+        if isinstance(raw, dict):
+            return {k: v for k, v in raw.items() if v not in (None, "")}
+        # Flattened optional fields from older clients
+        keys = (
+            "owner_name",
+            "legal_form",
+            "street",
+            "zip",
+            "city",
+            "country",
+            "email",
+            "phone",
+            "managing_director",
+            "vat_id",
+            "handelsregister",
+            "register_court",
+            "uses_maps",
+            "uses_analytics",
+        )
+        out = {k: payload.get(k) for k in keys if payload.get(k) not in (None, "")}
+        return out
 
     @staticmethod
     def _normalize_company_website(raw: object) -> str | None:

@@ -120,6 +120,29 @@ class FactoryIntentRequest(BaseModel):
     goal: str | None = Field(default=None, max_length=500)
     price_eur: float | None = Field(default=None, ge=0)
     deadline: str | None = Field(default=None, max_length=100)
+    client_legal: dict | None = Field(
+        default=None,
+        description="Optional DE Impressum/Datenschutz fields for Factory legal pages",
+    )
+
+
+class ClientLegalFields(BaseModel):
+    """Optional Path A fields for DE Impressum / Datenschutz templates."""
+
+    owner_name: str | None = Field(default=None, max_length=200)
+    legal_form: str | None = Field(default=None, max_length=120)
+    street: str | None = Field(default=None, max_length=200)
+    zip: str | None = Field(default=None, max_length=20)
+    city: str | None = Field(default=None, max_length=120)
+    country: str | None = Field(default="DE", max_length=8)
+    email: str | None = Field(default=None, max_length=120)
+    phone: str | None = Field(default=None, max_length=40)
+    managing_director: str | None = Field(default=None, max_length=200)
+    vat_id: str | None = Field(default=None, max_length=40)
+    handelsregister: str | None = Field(default=None, max_length=80)
+    register_court: str | None = Field(default=None, max_length=120)
+    uses_maps: bool = False
+    uses_analytics: bool = False
 
 
 class FactoryIntentResponse(BaseModel):
@@ -235,6 +258,7 @@ class SalesOrderCreateRequest(BaseModel):
         max_length=400,
         description="Optional existing company site for Path A analysis → Factory brief",
     )
+    client_legal: ClientLegalFields | None = None
     package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
     product_id: str | None = Field(default=None, max_length=80)
     visitor_id: str | None = Field(default=None, max_length=64)

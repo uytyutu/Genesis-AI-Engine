@@ -196,7 +196,11 @@ def build_landing_html(
       <p><strong>Öffnungszeiten:</strong> {analysis.hours}</p>
     </div>
   </section>
-  <footer>{analysis.business_name} · © {analysis.business_name}</footer>
+  <footer>
+    {analysis.business_name} · © {analysis.business_name}<br>
+    <a href="impressum.html" style="color:#94a3b8;margin-right:0.75rem">Impressum</a>
+    <a href="datenschutz.html" style="color:#94a3b8">Datenschutz</a>
+  </footer>
 </body>
 </html>
 """

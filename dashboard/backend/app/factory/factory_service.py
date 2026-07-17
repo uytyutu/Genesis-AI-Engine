@@ -14,24 +14,24 @@ from pathlib import Path
 from app.factory.analyzer import analyze
 from app.factory.landing_patcher import try_patch
 from app.factory.landing_builder import build_landing_html
+from app.factory.client_legal_pages import ClientLegalInfo, write_client_legal_pages
 from app.factory.validator import owner_review_check, validate_landing
 
 _BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
 _DEFAULT_SANDBOX = _BACKEND_ROOT / "sandbox"
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
-_DEPLOY_README = """# Как опубликовать сайт за 5 минут
+_DEPLOY_README = """# Website veröffentlichen (Path A)
 
-1. Распакуйте этот архив.
-2. Откройте index.html в браузере — проверьте, что всё выглядит правильно.
-3. Загрузите index.html на хостинг:
-   - Netlify: перетащите папку на app.netlify.com/drop
-   - GitHub Pages: загрузите в репозиторий и включите Pages
-   - Ваш хостинг: через FTP или панель «Файловый менеджер»
+1. Archiv entpacken.
+2. index.html, impressum.html und datenschutz.html im Browser prüfen.
+3. Impressum und Datenschutz nur freigeben, wenn alle Angaben stimmen (Kunde muss prüfen).
+4. Alle Dateien auf Hosting laden (FTP / Netlify Drop / Dateimanager).
 
-Сайт состоит из одного файла — дополнительная сборка не нужна.
+Hinweis: Die Rechtsseiten sind aus Kundendaten befüllte Vorlagen — keine Rechtsberatung.
+Ohne vollständiges Impressum gilt die Seite nicht als publish-ready für Deutschland.
 
-Создано Factory · Virtus Core.
+Erstellt von Factory · Virtus Core.
 """
 
 
@@ -47,7 +47,13 @@ class FactoryService:
         self._memory.mkdir(parents=True, exist_ok=True)
         self._sandbox.mkdir(parents=True, exist_ok=True)
 
-    def build_landing(self, description: str, intent_id: str | None = None) -> dict:
+    def build_landing(
+        self,
+        description: str,
+        intent_id: str | None = None,
+        *,
+        client_legal: dict | None = None,
+    ) -> dict:
         product_id = intent_id or str(uuid.uuid4())
         analysis = analyze(description)
         html = build_landing_html(analysis)
@@ -56,6 +62,21 @@ class FactoryService:
         product_dir = self._sandbox / product_id
         product_dir.mkdir(parents=True, exist_ok=True)
         (product_dir / "index.html").write_text(html, encoding="utf-8")
+
+        legal_info = ClientLegalInfo.from_order(
+            {
+                "business_name": analysis.business_name,
+                "client_legal": client_legal or {},
+            }
+        )
+        # Prefer contacts from analysis when order legal email/phone empty
+        if not legal_info.email and analysis.email:
+            legal_info.email = analysis.email
+        if not legal_info.phone and analysis.phone:
+            legal_info.phone = analysis.phone
+        if not legal_info.business_name:
+            legal_info.business_name = analysis.business_name
+        legal_meta = write_client_legal_pages(product_dir, legal_info)
 
         meta = {
             "product_id": product_id,
@@ -75,6 +96,9 @@ class FactoryService:
             "created_at": datetime.now(timezone.utc).isoformat(),
             "updated_at": datetime.now(timezone.utc).isoformat(),
             "style_flags": {"modern": False, "blue_boost": False, "calculator": False},
+            "client_legal": legal_info.to_dict(),
+            "legal_pages": legal_meta,
+            "publish_ready_de": bool(legal_meta.get("impressum_ready")),
         }
         (product_dir / "meta.json").write_text(
             json.dumps(meta, ensure_ascii=False, indent=2),
@@ -213,7 +237,11 @@ class FactoryService:
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as archive:
             archive.writestr("index.html", html_path.read_text(encoding="utf-8"))
-            archive.writestr("КАК_ОПУБЛИКОВАТЬ.txt", _DEPLOY_README)
+            for legal_name in ("impressum.html", "datenschutz.html"):
+                legal_path = product_dir / legal_name
+                if legal_path.is_file():
+                    archive.writestr(legal_name, legal_path.read_text(encoding="utf-8"))
+            archive.writestr("README_PUBLISH.txt", _DEPLOY_README)
 
         meta["export_downloaded_at"] = datetime.now(timezone.utc).isoformat()
         meta["updated_at"] = meta["export_downloaded_at"]

@@ -58,7 +58,11 @@ class FactoryIntentService:
                 "message": "Заявка принята. Отдел создания продуктов готовится к сборке.",
             }
 
-        product = self._factory.build_landing(brief, intent_id=intent_id)
+        product = self._factory.build_landing(
+            brief,
+            intent_id=intent_id,
+            client_legal=request.client_legal if isinstance(request.client_legal, dict) else None,
+        )
         record["status"] = "completed"
         record["product_id"] = product["product_id"]
         with open(path, "a", encoding="utf-8") as handle:
