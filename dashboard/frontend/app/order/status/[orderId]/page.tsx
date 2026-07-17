@@ -29,6 +29,9 @@ type OrderStatus = {
   client_message: string;
   client_receipt_text: string;
   paid: boolean;
+  download_ready?: boolean;
+  download_url?: string | null;
+  product_id?: string | null;
 };
 
 function OrderStatusContent() {
@@ -211,11 +214,20 @@ function OrderStatusContent() {
             <p className="mt-4 text-center text-sm text-genesis-muted">{data.client_message}</p>
           )}
 
+          {data.paid && data.download_ready && (
+            <a
+              href={`${API}${data.download_url || `/api/sales/orders/${orderId}/download`}`}
+              className="mt-5 flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:brightness-110"
+            >
+              {t("order.status.downloadZip")}
+            </a>
+          )}
+
           {data.paid && data.client_receipt_text && (
             <button
               type="button"
               onClick={copyReceipt}
-              className="mt-5 w-full rounded-xl border border-genesis-border-subtle py-2.5 text-xs text-genesis-muted hover:bg-genesis-elevated"
+              className="mt-3 w-full rounded-xl border border-genesis-border-subtle py-2.5 text-xs text-genesis-muted hover:bg-genesis-elevated"
             >
               {copied ? t("order.status.copied") : t("order.status.copyReceipt")}
             </button>

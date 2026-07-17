@@ -132,7 +132,8 @@
       "copyReceipt": "Copy confirmation",
       "copied": "Copied",
       "bookmark": "Bookmark this page — order status stays up to date here.",
-      "payFail": "Could not start payment"
+      "payFail": "Could not start payment",
+      "downloadZip": "Download website (ZIP)"
     }
   },
   "kontakt": {

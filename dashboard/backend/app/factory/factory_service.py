@@ -229,6 +229,22 @@ class FactoryService:
             raise ValueError("not_approved")
         if not meta.get("published"):
             raise ValueError("not_published")
+        return self._pack_product_zip(product_id, meta, mark_download=True)
+
+    def build_client_delivery_zip(self, product_id: str) -> tuple[bytes, str]:
+        """Path A — client download after payment/production (no CEO approve gate)."""
+        meta = self._load_meta(product_id)
+        if not meta:
+            raise ValueError("product_not_found")
+        return self._pack_product_zip(product_id, meta, mark_download=True)
+
+    def _pack_product_zip(
+        self,
+        product_id: str,
+        meta: dict,
+        *,
+        mark_download: bool,
+    ) -> tuple[bytes, str]:
         product_dir = self._sandbox / product_id
         html_path = product_dir / "index.html"
         if not html_path.is_file():
@@ -243,15 +259,16 @@ class FactoryService:
                     archive.writestr(legal_name, legal_path.read_text(encoding="utf-8"))
             archive.writestr("README_PUBLISH.txt", _DEPLOY_README)
 
-        meta["export_downloaded_at"] = datetime.now(timezone.utc).isoformat()
-        meta["updated_at"] = meta["export_downloaded_at"]
-        (product_dir / "meta.json").write_text(
-            json.dumps(meta, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
+        if mark_download:
+            meta["export_downloaded_at"] = datetime.now(timezone.utc).isoformat()
+            meta["updated_at"] = meta["export_downloaded_at"]
+            (product_dir / "meta.json").write_text(
+                json.dumps(meta, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
 
         slug = self._zip_slug(meta.get("business_name") or "", product_id)
-        return buf.getvalue(), f"{slug}-genesis.zip"
+        return buf.getvalue(), f"{slug}-virtus.zip"
 
     def mark_delivered(self, product_id: str) -> dict:
         meta = self._load_meta(product_id)

@@ -512,6 +512,7 @@ class SalesOrderService:
         timeline = self._client_timeline(order)
         service_id = str(order.get("service_id") or SERVICE_WEBSITE)
         launch_mode = bool(order.get("launch_mode"))
+        download_ready = self._client_download_ready(order)
         return {
             "order_id": order["order_id"],
             "business_name": order["business_name"],
@@ -529,9 +530,42 @@ class SalesOrderService:
             "client_receipt_text": order.get("client_receipt_text", ""),
             "product_id": order.get("product_id"),
             "paid": order.get("status") in ("paid", "in_production", "ready", "delivered"),
+            "download_ready": download_ready,
+            "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
             "service_id": service_id,
             "launch_mode": launch_mode,
         }
+
+    def build_client_download(self, order_id: str) -> tuple[bytes, str]:
+        """Paid Path A order → ZIP with landing + legal pages (no CEO gate)."""
+        order = self.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if not self._client_download_ready(order):
+            raise ValueError("download_not_ready")
+        product_id = str(order.get("product_id") or "").strip()
+        factory = getattr(self._factory_intent, "_factory", None)
+        if factory is None or not hasattr(factory, "build_client_delivery_zip"):
+            raise ValueError("factory_unavailable")
+        data, filename = factory.build_client_delivery_zip(product_id)
+        order["client_downloaded_at"] = datetime.now(timezone.utc).isoformat()
+        if order.get("status") == "in_production":
+            order["status"] = "ready"
+            order["status_label"] = "Fertig"
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save_order(order)
+        return data, filename
+
+    def _client_download_ready(self, order: dict) -> bool:
+        if order.get("status") not in ("paid", "in_production", "ready", "delivered"):
+            return False
+        product_id = str(order.get("product_id") or "").strip()
+        if not product_id:
+            return False
+        factory = getattr(self._factory_intent, "_factory", None)
+        if factory is None or not hasattr(factory, "get_product"):
+            return False
+        return bool(factory.get_product(product_id))
 
     def _client_timeline(self, order: dict) -> list[dict]:
         return project_client_timeline(str(order.get("status", "")))

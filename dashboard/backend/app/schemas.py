@@ -313,6 +313,10 @@ class SalesOrderPublicStatus(BaseModel):
     client_receipt_text: str = ""
     product_id: str | None = None
     paid: bool = False
+    download_ready: bool = False
+    download_url: str | None = None
+    service_id: str | None = None
+    launch_mode: bool = False
 
 
 class SalesCheckoutRequest(BaseModel):

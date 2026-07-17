@@ -2137,8 +2137,32 @@ def sales_order_public_status(order_id: str) -> SalesOrderPublicStatus:
     try:
         data = _ctx().sales.public_status(order_id)
     except ValueError:
-        raise HTTPException(status_code=404, detail="Заказ не найден")
+        raise HTTPException(status_code=404, detail="Bestellung nicht gefunden")
     return SalesOrderPublicStatus(**data)
+
+
+@app.get("/api/sales/orders/{order_id}/download")
+def sales_order_client_download(order_id: str) -> StreamingResponse:
+    """Path A — client downloads landing ZIP after payment/production."""
+    try:
+        data, filename = _ctx().sales.build_client_download(order_id)
+    except ValueError as exc:
+        code = str(exc)
+        if code == "order_not_found":
+            raise HTTPException(status_code=404, detail="Bestellung nicht gefunden") from None
+        if code == "download_not_ready":
+            raise HTTPException(
+                status_code=409,
+                detail="Download noch nicht bereit — Zahlung und Produktion abwarten.",
+            ) from None
+        if code == "factory_unavailable":
+            raise HTTPException(status_code=503, detail="Factory nicht verfügbar") from None
+        raise HTTPException(status_code=404, detail="Produkt nicht gefunden") from None
+    return StreamingResponse(
+        io.BytesIO(data),
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @app.post("/api/sales/orders/{order_id}/confirm-payment", response_model=RevenuePaymentResponse)

@@ -132,7 +132,8 @@
       "copyReceipt": "Bestätigung kopieren",
       "copied": "Text kopiert",
       "bookmark": "Speichern Sie diese Seite — hier sehen Sie immer den aktuellen Status.",
-      "payFail": "Zahlung konnte nicht gestartet werden"
+      "payFail": "Zahlung konnte nicht gestartet werden",
+      "downloadZip": "Website als ZIP herunterladen"
     }
   },
   "kontakt": {
