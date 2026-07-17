@@ -54,7 +54,7 @@ def main() -> int:
         "wa.me": "wa.me/" in html,
         "maps_iframe": "maps.google.com" in html and 'id="maps"' in html,
         "testimonials": 'id="testimonials"' in html,
-        "logo.png": "logo.png" in html,
+        "logo.png": "assets/logo.png" in html,
         "ld_json": "application/ld+json" in html,
         "og_title": "og:title" in html,
         "no_analytics": "G-XXXXXXXXXX" not in html,

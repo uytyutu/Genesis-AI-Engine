@@ -323,7 +323,7 @@ def _logo_block(business_name: str) -> str:
     safe = html_lib.escape(business_name)
     initials = "".join(w[0] for w in re.findall(r"[A-Za-zÄÖÜäöüß0-9]+", business_name)[:2]) or "VC"
     return (
-        f'<img src="logo.png" alt="{safe}" '
+        f'<img src="assets/logo.png" alt="{safe}" '
         f'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
         f'<span class="logo-fallback" style="display:none">{html_lib.escape(initials[:2].upper())}</span>'
         f"<strong>{safe}</strong>"

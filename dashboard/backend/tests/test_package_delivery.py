@@ -64,7 +64,7 @@ def test_factory_business_maps_reviews_logo(tmp_path: Path):
     assert 'id="maps"' in html
     assert "maps.google.com" in html
     assert 'id="testimonials"' in html
-    assert 'src="logo.png"' in html
+    assert 'src="assets/logo.png"' in html
     assert "application/ld+json" in html
     assert "G-XXXXXXXXXX" not in html
 

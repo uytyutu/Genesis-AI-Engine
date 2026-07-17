@@ -39,7 +39,7 @@ const FALLBACK_PACKAGES: PackageCard[] = [
       "Alles aus Basic",
       "Google-Maps-Einbettung (Standort aus Firmendaten)",
       "Bewertungsblock (editierbare Textvorlagen)",
-      "Logo-Platzhalter (logo.png — Ihre Datei)",
+      "Logo-Platzhalter (assets/logo.png — Ihre Datei)",
       "Erweitertes SEO (Open Graph + Schema.org LocalBusiness)",
       "1 Korrekturrunde (manuell)",
     ],

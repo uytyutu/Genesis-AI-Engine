@@ -26,7 +26,7 @@ _DEPLOY_README = """# Website veröffentlichen (Path A)
 1. Archiv entpacken.
 2. index.html, impressum.html und datenschutz.html im Browser prüfen.
 3. Impressum und Datenschutz nur freigeben, wenn alle Angaben stimmen (Kunde muss prüfen).
-4. Business/Premium: echte logo.png neben index.html legen (ersetzt den Platzhalter).
+4. Business/Premium: Ordner assets/ anlegen und echte logo.png als assets/logo.png legen.
 5. Premium: in index.html G-XXXXXXXXXX durch Ihre Google-Analytics Measurement-ID ersetzen.
 6. Bewertungsblock: Beispieltexte durch echte Kundenstimmen ersetzen.
 7. Alle Dateien auf Hosting laden (FTP / Netlify Drop / Dateimanager).
