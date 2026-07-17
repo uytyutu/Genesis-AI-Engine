@@ -92,7 +92,7 @@ export function LanguageSwitcher({
   compact?: boolean;
 }) {
   const { t } = useTranslation("common");
-  const { autoDetect, uiLocale, assistantLocale, setAutoDetect, setUiLocale, setAssistantLocale } =
+  const { autoDetect, uiLocale, assistantLocale, setAutoDetect, setUiLocale, setAssistantLocale, applyUiLocale } =
     useLocale();
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -125,9 +125,7 @@ export function LanguageSwitcher({
   }, [open]);
 
   function pickPublic(code: UiLocale) {
-    setAutoDetect(false);
-    setUiLocale(code);
-    setAssistantLocale(code);
+    applyUiLocale(code);
     setOpen(false);
     setMoreOpen(false);
   }
@@ -178,9 +176,8 @@ export function LanguageSwitcher({
                     <button
                       key={code}
                       type="button"
-                      disabled={autoDetect}
                       onClick={() => pickPublic(code)}
-                      className={`rounded-lg border px-2 py-2.5 text-center text-sm transition disabled:opacity-40 ${
+                      className={`rounded-lg border px-2 py-2.5 text-center text-sm transition ${
                         active
                           ? "border-genesis-accent/50 bg-genesis-accent/15 text-white"
                           : "border-genesis-border-subtle text-genesis-text hover:border-genesis-accent/30"
@@ -207,11 +204,8 @@ export function LanguageSwitcher({
                   <LocaleSearchList
                     label={t("language.ui")}
                     value={uiLocale}
-                    disabled={autoDetect}
-                    onPick={(code) => {
-                      setUiLocale(code);
-                      setAssistantLocale(code);
-                    }}
+                    disabled={false}
+                    onPick={(code) => applyUiLocale(code)}
                   />
                 </div>
               ) : null}

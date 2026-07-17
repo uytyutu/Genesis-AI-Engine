@@ -21,6 +21,8 @@ type LocaleContextValue = LocaleState & {
   setAutoDetect: (auto: boolean) => void;
   setUiLocale: (locale: UiLocale) => void;
   setAssistantLocale: (locale: AssistantLocale) => void;
+  /** One atomic write — use from public language chips. */
+  applyUiLocale: (locale: UiLocale) => void;
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -29,20 +31,26 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<LocaleState>(() => loadLocaleState());
   const i18n = useMemo(() => ensureI18n(state.uiLocale), [state.uiLocale]);
 
-  // Re-apply browser locale after mount when auto-detect is on (avoids stale RU from old sessions).
+  const commit = useCallback(
+    (next: LocaleState) => {
+      setState(next);
+      persistLocaleState(next);
+      void i18n.changeLanguage(next.uiLocale);
+    },
+    [i18n],
+  );
+
+  // Re-apply browser locale after mount when auto-detect is on.
   useEffect(() => {
     if (!state.autoDetect) return;
     const browser = detectBrowserLocale();
     if (browser === state.uiLocale) return;
-    const next: LocaleState = {
+    commit({
       autoDetect: true,
       uiLocale: browser,
       assistantLocale: browser,
-    };
-    setState(next);
-    persistLocaleState(next);
-    void i18n.changeLanguage(browser);
-  }, [state.autoDetect, state.uiLocale, i18n]);
+    });
+  }, [state.autoDetect, state.uiLocale, commit]);
 
   useEffect(() => {
     const def = getLocaleDefinition(state.uiLocale);
@@ -55,40 +63,60 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     }
   }, [state.uiLocale]);
 
-  const commit = useCallback((next: LocaleState) => {
-    setState(next);
-    persistLocaleState(next);
-    void i18n.changeLanguage(next.uiLocale);
-  }, [i18n]);
-
   const setAutoDetect = useCallback(
     (auto: boolean) => {
-      const uiLocale = auto ? detectBrowserLocale() : state.uiLocale;
-      commit({
-        autoDetect: auto,
-        uiLocale,
-        assistantLocale: state.assistantLocale,
+      setState((prev) => {
+        const uiLocale = auto ? detectBrowserLocale() : prev.uiLocale;
+        const next: LocaleState = {
+          autoDetect: auto,
+          uiLocale,
+          assistantLocale: auto ? uiLocale : prev.assistantLocale,
+        };
+        persistLocaleState(next);
+        void i18n.changeLanguage(next.uiLocale);
+        return next;
       });
     },
-    [commit, state.assistantLocale, state.uiLocale],
+    [i18n],
   );
 
   const setUiLocale = useCallback(
     (uiLocale: UiLocale) => {
-      commit({
-        autoDetect: false,
-        uiLocale,
-        assistantLocale: state.assistantLocale === state.uiLocale ? uiLocale : state.assistantLocale,
+      setState((prev) => {
+        const next: LocaleState = {
+          autoDetect: false,
+          uiLocale,
+          assistantLocale: prev.assistantLocale === prev.uiLocale ? uiLocale : prev.assistantLocale,
+        };
+        persistLocaleState(next);
+        void i18n.changeLanguage(next.uiLocale);
+        return next;
       });
     },
-    [commit, state.assistantLocale, state.uiLocale],
+    [i18n],
   );
 
   const setAssistantLocale = useCallback(
     (assistantLocale: AssistantLocale) => {
-      commit({ ...state, autoDetect: false, assistantLocale });
+      setState((prev) => {
+        const next: LocaleState = { ...prev, autoDetect: false, assistantLocale };
+        persistLocaleState(next);
+        return next;
+      });
     },
-    [commit, state],
+    [],
+  );
+
+  const applyUiLocale = useCallback(
+    (uiLocale: UiLocale) => {
+      const next: LocaleState = {
+        autoDetect: false,
+        uiLocale,
+        assistantLocale: uiLocale,
+      };
+      commit(next);
+    },
+    [commit],
   );
 
   const value = useMemo(
@@ -97,8 +125,9 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       setAutoDetect,
       setUiLocale,
       setAssistantLocale,
+      applyUiLocale,
     }),
-    [state, setAutoDetect, setUiLocale, setAssistantLocale],
+    [state, setAutoDetect, setUiLocale, setAssistantLocale, applyUiLocale],
   );
 
   return (
