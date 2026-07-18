@@ -18,10 +18,20 @@ import { BRAND_NAME } from "../lib/publicBrand";
 function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
   const href = item.cta_href;
   const available = item.available;
+  const tier = item.tier || (available ? "checkout" : "horizon");
+  const isQuote = tier === "pilot_quote" || (!available && Boolean(href?.startsWith("mailto:")));
 
   const ctaClass = available
     ? "bg-genesis-accent text-white shadow-glow hover:brightness-110"
     : "border border-genesis-border-subtle text-genesis-muted hover:text-white";
+
+  const badge = available ? (
+    <Badge variant="success">Checkout</Badge>
+  ) : isQuote ? (
+    <Badge variant="outline">Pilot · Anfrage</Badge>
+  ) : (
+    <Badge variant="outline">Horizon</Badge>
+  );
 
   return (
     <Card
@@ -31,15 +41,7 @@ function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
       }`}
       padding="lg"
     >
-      {available ? (
-        <div className="absolute right-4 top-4">
-          <Badge variant="success">Заказ онлайн</Badge>
-        </div>
-      ) : (
-        <div className="absolute right-4 top-4">
-          <Badge variant="outline">По запросу</Badge>
-        </div>
-      )}
+      <div className="absolute right-4 top-4">{badge}</div>
       <h3 className="pr-28 text-lg font-semibold">{item.name}</h3>
       <p className="mt-2 text-2xl font-bold text-genesis-accent">{item.price_label}</p>
       {item.timeline && (
@@ -131,24 +133,32 @@ export default function ServicesPage() {
             },
           ]
         : []
-  ).map((cat) => ({
-    ...cat,
-    items: cat.items.filter((item) => item.available),
-  })).filter((cat) => cat.items.length > 0);
+  )
+    .map((cat) => ({
+      ...cat,
+      // Show checkout + pilot quotes; hide pure horizon rows inside legacy categories
+      items: cat.items.filter((item) => {
+        const tier = item.tier || (item.available ? "checkout" : "");
+        if (cat.id === "horizon_agency") return true;
+        if (tier === "horizon" && !item.available && cat.id !== "path_a_pilot") return false;
+        return true;
+      }),
+    }))
+    .filter((cat) => cat.items.length > 0);
 
   return (
     <PublicPageShell>
       <PublicPageHero
-        badge="Лендинг под ключ"
+        badge="Path A + Pilot"
         badgeVariant="success"
         title={`Услуги ${BRAND_NAME}`}
-        description="Сначала — поручение Vector. Затем заказ лендинга: пакеты 350 / 650 / 1200 €."
+        description="Checkout online: Landing 350 / 650 / 1200 €. Site Boost, Audits und weitere Leistungen — per Anfrage (erweitert den Weg zum ersten Euro)."
       >
-        <ButtonLink href="/site" variant="primary" size="lg">
-          Начать с Vector →
+        <ButtonLink href="/order" variant="success" size="lg">
+          Landing bestellen →
         </ButtonLink>
-        <ButtonLink href="/order" variant="success" size="lg" className="ml-2">
-          Заказать лендинг →
+        <ButtonLink href="/site" variant="primary" size="lg" className="ml-2">
+          Vector →
         </ButtonLink>
       </PublicPageHero>
 

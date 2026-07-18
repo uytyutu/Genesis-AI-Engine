@@ -15,6 +15,11 @@ from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.site_analysis_service import SiteAnalysisService
 from app.integration.google_places_service import GooglePlacesService
 from app.integration.outreach_language_service import OutreachLanguageService
+from app.integration.pilot_service_catalog import (
+    ceo_catalog_snapshot,
+    suggest_services_for_signals,
+    suggest_services_for_site_issues,
+)
 
 
 # Services Genesis can offer today (dogfood-first — public catalog only when True).
@@ -52,12 +57,46 @@ _SERVICE_CATALOG: list[dict[str, Any]] = [
     {
         "id": "site_audit",
         "category": "consulting",
-        "name": "Аудит сайта",
+        "name": "Website Audit",
         "package_id": None,
-        "price_eur": 0,
+        "price_eur": 79,
         "dogfood": True,
-        "public": False,
-        "note": "Внутренний инструмент Studio — не продаём отдельно пока",
+        "public": True,
+        "note": "Pilot-Anfrage — Bericht + Angebot (kein Auto-Checkout)",
+        "pilot_service_id": "website_audit",
+    },
+    {
+        "id": "site_boost",
+        "category": "web",
+        "name": "Site Boost",
+        "package_id": None,
+        "price_eur": 149,
+        "dogfood": True,
+        "public": True,
+        "note": "Pilot-Anfrage — WhatsApp/Maps/SEO am bestehenden Auftritt",
+        "pilot_service_id": "site_boost",
+    },
+    {
+        "id": "seo_audit",
+        "category": "consulting",
+        "name": "SEO Audit",
+        "package_id": None,
+        "price_eur": 99,
+        "dogfood": True,
+        "public": True,
+        "note": "Pilot-Anfrage — technisches SEO",
+        "pilot_service_id": "seo_audit",
+    },
+    {
+        "id": "google_business_setup",
+        "category": "local",
+        "name": "Google Business Setup",
+        "package_id": None,
+        "price_eur": 129,
+        "dogfood": True,
+        "public": True,
+        "note": "Pilot-Anfrage — Profil / Bewertungen",
+        "pilot_service_id": "google_business_setup",
     },
 ]
 
@@ -187,6 +226,7 @@ class AcquisitionStudioService:
                 1 for r in rows if r.get("status") not in ("won", "lost")
             ),
             "channels": _ACQUISITION_CHANNELS,
+            "pilot_catalog": ceo_catalog_snapshot(),
         }
 
     def catalog(self, *, public_only: bool = False) -> dict:
@@ -195,9 +235,14 @@ class AcquisitionStudioService:
             items = [i for i in items if i.get("public")]
         return {
             "principle": (
-                f"Услуга в публичном каталоге только если {BRAND_NAME} умеет выполнять и dogfood."
+                f"Услуга в публичном каталоге только если {BRAND_NAME} умеет выполнять и dogfood. "
+                "Checkout online: Landing /order. Übrige Pilot-Leistungen = Anfrage."
             ),
             "services": items,
+            "pilot": ceo_catalog_snapshot(),
+            "suggest_example": suggest_services_for_signals(
+                ["no_whatsapp", "no_https", "poor_seo"]
+            ),
         }
 
     def analyze_site(self, url: str) -> dict:
@@ -675,6 +720,7 @@ class AcquisitionStudioService:
     @staticmethod
     def _queue_item(r: dict) -> dict:
         meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+        issues = list((r.get("site_analysis") or {}).get("issues") or [])[:5]
         return {
             "id": r["id"],
             "company_name": r.get("company_name"),
@@ -687,7 +733,8 @@ class AcquisitionStudioService:
             "fit_reason": r.get("fit_reason"),
             "pricing_rationale": r.get("pricing_rationale"),
             "issue_count": (r.get("site_analysis") or {}).get("issue_count", 0),
-            "site_issues": list((r.get("site_analysis") or {}).get("issues") or [])[:5],
+            "site_issues": issues,
+            "suggested_services": suggest_services_for_site_issues(issues),
             "score": r.get("score"),
             "outreach_status": r.get("outreach_status"),
             "price_tier": meta.get("price_tier"),

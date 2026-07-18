@@ -26,7 +26,7 @@ from app.integration.product_line import (
 )
 from app.integration.sales_order_service import _PACKAGES as SALES_PACKAGES
 
-TRUTH_VERSION = "mission1-truth-12"
+TRUTH_VERSION = "mission1-truth-13"
 MISSION1_LANDING_TIMELINE = "5–14 дней"
 MISSION1_PACKAGE_PRICES_EUR = (350, 650, 1200)
 
@@ -75,32 +75,40 @@ def unavailable_online_message(product_label: str) -> str:
 
 
 def _build_service_categories(packages: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Universal service catalog — website has priced packages; others are horizon."""
-    categories: list[dict[str, Any]] = []
+    """Path A packages + pilot quote catalog + legacy one-time horizon rows."""
+    from app.integration.pilot_service_catalog import public_pilot_categories
+
+    categories: list[dict[str, Any]] = list(public_pilot_categories())
+
+    # Keep priced Path A packages as explicit checkout cards (DE labels via package names).
+    website_items = [
+        {
+            "id": p["id"],
+            "name": WEBSITE_PACKAGE_LABELS.get(p["id"], p["name"]),
+            "price_label": f"{p['price_eur']} €",
+            "timeline": MISSION1_LANDING_TIMELINE,
+            "includes": p.get("deliverables", [])[:4],
+            "description": "Path A Checkout — einmalig, nicht Abo",
+            "cta": "Jetzt bestellen",
+            "cta_href": "/order",
+            "available": True,
+            "tier": "checkout",
+        }
+        for p in packages
+    ]
+    categories.insert(
+        0,
+        {
+            "id": "path_a_packages",
+            "name": "Landing Packages (Checkout)",
+            "description": "Einziger Stripe-Checkout-Pfad heute. Andere Leistungen = Anfrage.",
+            "items": website_items,
+        },
+    )
+
     for svc in ONE_TIME_SERVICES:
         sid = str(svc["id"])
         if sid == SERVICE_WEBSITE:
-            categories.append(
-                {
-                    "id": sid,
-                    "name": svc["customer_name_ru"],
-                    "description": svc["description_ru"],
-                    "items": [
-                        {
-                            "id": p["id"],
-                            "name": WEBSITE_PACKAGE_LABELS.get(p["id"], p["name"]),
-                            "price_label": f"{p['price_eur']} €",
-                            "timeline": MISSION1_LANDING_TIMELINE,
-                            "includes": p.get("deliverables", [])[:4],
-                            "description": "Разовая услуга — не подписка",
-                            "cta": "Обсудить с Vector",
-                            "cta_href": "/site",
-                            "available": True,
-                        }
-                        for p in packages
-                    ],
-                }
-            )
             continue
         online = bool(svc.get("online"))
         categories.append(
@@ -123,6 +131,7 @@ def _build_service_categories(packages: list[dict[str, Any]]) -> list[dict[str, 
                         "cta": "Обсудить с Vector" if online else "Скоро",
                         "cta_href": "/site",
                         "available": online,
+                        "tier": "vector" if online else "horizon",
                     }
                 ],
             }

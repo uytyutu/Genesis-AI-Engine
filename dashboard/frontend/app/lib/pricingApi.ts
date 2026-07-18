@@ -39,6 +39,7 @@ export type ServiceCatalogItem = {
   cta: string;
   cta_href: string;
   available?: boolean;
+  tier?: string;
 };
 
 export type ServiceCategory = {

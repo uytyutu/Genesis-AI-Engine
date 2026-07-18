@@ -21,6 +21,12 @@ type StudioStatus = {
   pipeline_count: number;
   manual_review_count?: number;
   auto_draft_max_eur?: number;
+  pilot_catalog?: {
+    checkout_online: string[];
+    pilot_quote: string[];
+    horizon: string[];
+    note?: string;
+  };
 };
 
 type QueueItem = {
@@ -36,6 +42,7 @@ type QueueItem = {
   pricing_rationale: string;
   issue_count: number;
   site_issues?: string[];
+  suggested_services?: string[];
   score: number;
   outreach_status?: string | null;
   price_tier?: string | null;
@@ -372,6 +379,20 @@ export default function AcquisitionPage() {
               <span className="text-genesis-muted self-center">
                 Approve: {status.pending_approval_count} · Отправлено: {status.sent_count}
               </span>
+            </div>
+          )}
+          {status?.pilot_catalog && (
+            <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-genesis-muted">
+              <p className="font-medium text-white/90">Каталог услуг (пилот)</p>
+              <p className="mt-1">
+                Checkout: {(status.pilot_catalog.checkout_online || []).join(", ")} · Anfrage:{" "}
+                {(status.pilot_catalog.pilot_quote || []).slice(0, 6).join(", ")}
+                {(status.pilot_catalog.pilot_quote || []).length > 6 ? "…" : ""}
+              </p>
+              <p className="mt-1">{status.pilot_catalog.note}</p>
+              <Link href="/services" className="mt-2 inline-block text-emerald-300 hover:underline">
+                Открыть /services →
+              </Link>
             </div>
           )}
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -733,6 +754,14 @@ export default function AcquisitionPage() {
                       </p>
                     )}
                   </div>
+                  {selected.suggested_services && selected.suggested_services.length > 0 && (
+                    <div>
+                      <p className="text-xs text-genesis-muted">Подходящие услуги (каталог)</p>
+                      <p className="mt-1 text-sm text-sky-100/90">
+                        {selected.suggested_services.join(" · ")}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <p className="text-xs text-genesis-muted">Тема</p>
                     <p className="text-sm">{selected.email_subject}</p>
