@@ -8,6 +8,7 @@ import pytest
 
 from app.factory.analyzer import analyze
 from app.factory.factory_service import FactoryService
+from app.factory.landing_builder import build_landing_html
 from app.integration.factory_intent_service import FactoryIntentService
 from app.integration.finance_service import FinanceService
 from app.integration.owner_notification_service import OwnerNotificationService
@@ -83,10 +84,18 @@ def test_currency_mismatch_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPa
         )
 
 
-def test_niche_handwerk_computer_appliance():
-    assert analyze("Handwerker Allrounder — alles aus einer Hand in Köln").niche == "handwerk"
-    assert analyze("PC-Reparatur und Laptop Service in Bonn").niche == "computer"
-    assert analyze("Hausgeräte Waschmaschine Kühlschrank Reparatur").niche == "appliance"
+def test_niche_profiles_ready_for_niche_id():
+    from app.factory.niche_profiles import known_niche_ids, resolve_niche_profile
+
+    assert "auto" in known_niche_ids()
+    assert resolve_niche_profile("auto").style.primary.startswith("#")
+    assert resolve_niche_profile("dental").niche_id == "dental"
+    assert resolve_niche_profile("unknown-xyz").niche_id == "generic"
+    html_auto = build_landing_html(analyze("Autowerkstatt Müller KFZ Köln"))
+    html_dental = build_landing_html(analyze("Zahnarztpraxis Weber dental Köln"))
+    assert html_auto != html_dental
+    assert "#b91c1c" in html_auto or "b91c1c" in html_auto
+    assert "Zahn" in html_dental or "dental" in html_dental.lower()
 
 
 def test_business_factory_path_three_meister_niches(tmp_path: Path):

@@ -79,6 +79,16 @@ HOLD = отсутствует одно (или более) из **необход
 
 **Ниши Factory (DE Path A):** dental · auto · **handwerk** · **computer** · **appliance** · law · beauty · energy · green · generic.
 
+### Niche profiles — готовность к `niche_id` (ответ CTO)
+
+| Вопрос | Ответ |
+|--------|--------|
+| Gate 1 завязан на один шаблон? | **Нет.** Уже есть `analysis.niche` + `resolve_niche_profile(niche_id)` + разные copy/palette. |
+| Можно завтра добавить `niche_id`? | **Да.** Точка расширения: `app/factory/niche_profiles.py` → `resolve_niche_profile()`. `build_landing` уже берёт стиль по niche. |
+| Полный `themes/{niche}/config.json` + бренд со старого сайта? | **Horizon после пилота** (15–20 отраслевых ключей, не 1000 шаблонов). |
+
+Gate 1 проверяет **механику** (продажа → оплата → ZIP-структура). Визуальные niche profiles уже не «случайный цвет», но file-based theme pack — не блокер Gate 1.
+
 ---
 
 ## Freeze — до первого пилотного клиента и после него

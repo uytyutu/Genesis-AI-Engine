@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass
 
 from app.factory.analyzer import AnalysisResult
+from app.factory.niche_profiles import resolve_niche_profile
 from app.factory.package_features import (
     PackageFeatures,
     maps_embed_src,
@@ -23,18 +24,30 @@ class BuildStyle:
     hero_gradient: str
 
 
-_STYLES = {
-    "dental": BuildStyle("#0ea5e9", "#0369a1", "#22d3ee", "linear-gradient(135deg,#0c4a6e,#0ea5e9)"),
-    "auto": BuildStyle("#f97316", "#c2410c", "#fbbf24", "linear-gradient(135deg,#1c1917,#ea580c)"),
-    "computer": BuildStyle("#0ea5e9", "#0369a1", "#38bdf8", "linear-gradient(135deg,#0f172a,#0284c7)"),
-    "appliance": BuildStyle("#64748b", "#334155", "#94a3b8", "linear-gradient(135deg,#1e293b,#475569)"),
-    "handwerk": BuildStyle("#ca8a04", "#a16207", "#facc15", "linear-gradient(135deg,#422006,#ca8a04)"),
-    "law": BuildStyle("#1e3a5f", "#0f172a", "#c9a227", "linear-gradient(135deg,#0f172a,#1e40af)"),
-    "beauty": BuildStyle("#a855f7", "#7e22ce", "#f472b6", "linear-gradient(135deg,#581c87,#c026d3)"),
-    "energy": BuildStyle("#16a34a", "#15803d", "#facc15", "linear-gradient(135deg,#14532d,#16a34a)"),
-    "green": BuildStyle("#22c55e", "#166534", "#86efac", "linear-gradient(135deg,#14532d,#22c55e)"),
-    "generic": BuildStyle("#6366f1", "#4338ca", "#818cf8", "linear-gradient(135deg,#312e81,#6366f1)"),
-}
+def _style_from_niche(niche_id: str, *, modern: bool = False, blue_boost: bool = False) -> BuildStyle:
+    profile = resolve_niche_profile(niche_id)
+    style = BuildStyle(
+        profile.style.primary,
+        profile.style.primary_dark,
+        profile.style.accent,
+        profile.style.hero_gradient,
+    )
+    if modern:
+        style = BuildStyle(
+            style.primary,
+            style.primary_dark,
+            style.accent,
+            f"linear-gradient(160deg,#0f172a,{style.primary})",
+        )
+    if blue_boost and niche_id == "dental":
+        # Keep dental clean; do not recolor other niches to dental blue.
+        style = BuildStyle(
+            profile.style.primary,
+            profile.style.primary_dark,
+            profile.style.accent,
+            profile.style.hero_gradient,
+        )
+    return style
 
 _FORBIDDEN_SNIPPETS = (
     "уточним после",
@@ -66,16 +79,7 @@ def build_landing_html(
     if feat.testimonials:
         include_testimonials = True
 
-    style = _STYLES.get(analysis.niche, _STYLES["generic"])
-    if blue_boost or analysis.niche == "dental":
-        style = _STYLES["dental"]
-    if modern:
-        style = BuildStyle(
-            style.primary,
-            style.primary_dark,
-            style.accent,
-            f"linear-gradient(160deg,#0f172a,{style.primary})",
-        )
+    style = _style_from_niche(analysis.niche, modern=modern, blue_boost=blue_boost)
 
     descriptions = analysis.service_descriptions
     if len(descriptions) < len(analysis.services):
