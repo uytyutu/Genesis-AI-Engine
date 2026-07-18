@@ -436,6 +436,9 @@ class ClientReviewModerationItem(BaseModel):
 class ClientReviewsPendingResponse(BaseModel):
     pending: list[ClientReviewModerationItem] = []
     count: int = 0
+
+
+class SalesCheckoutRequest(BaseModel):
     success_url: str = Field(min_length=8, max_length=500)
     cancel_url: str = Field(min_length=8, max_length=500)
 

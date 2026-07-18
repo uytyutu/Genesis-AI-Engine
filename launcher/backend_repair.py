@@ -32,8 +32,13 @@ _ERROR_MARKERS: tuple[tuple[str, str, bool], ...] = (
     ("10048", "Порт 8000 занят — Virtus Core освободит и перезапустит Backend.", True),
     ("eaddrinuse", "Порт 8000 занят — Virtus Core освободит и перезапустит Backend.", True),
     ("address already in use", "Порт 8000 занят — Virtus Core освободит и перезапустит Backend.", True),
+    (
+        "cannot import name",
+        "Ошибка в коде Backend (битый import в app/) — не pip. См. backend.log; обычно правка schemas/main.",
+        False,
+    ),
     ("modulenotfounderror", "Не установлены Python-зависимости Backend.", True),
-    ("importerror", "Ошибка импорта Backend — проверьте requirements.txt.", True),
+    ("importerror", "Ошибка импорта Backend — проверьте код приложения или requirements.txt.", False),
     ("traceback", "Backend завершился с ошибкой Python.", True),
 )
 
