@@ -24,19 +24,18 @@ type GoToMarket = {
 function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
   const href = item.cta_href;
   const available = item.available;
-  const tier = item.tier || (available ? "checkout" : "horizon");
-  const isQuote = tier === "pilot_quote" || (!available && Boolean(href?.startsWith("mailto:")));
+  const isQuote = !available && Boolean(href?.startsWith("mailto:"));
 
   const ctaClass = available
     ? "bg-genesis-accent text-white shadow-glow hover:brightness-110"
     : "border border-genesis-border-subtle text-genesis-muted hover:text-white";
 
   const badge = available ? (
-    <Badge variant="success">Auto · Checkout</Badge>
+    <Badge variant="success">Online bestellen</Badge>
   ) : isQuote ? (
-    <Badge variant="outline">Expert · Anfrage</Badge>
+    <Badge variant="outline">Auf Anfrage</Badge>
   ) : (
-    <Badge variant="outline">Horizon</Badge>
+    <Badge variant="outline">Bald</Badge>
   );
 
   return (
@@ -48,10 +47,10 @@ function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
       padding="lg"
     >
       <div className="absolute right-4 top-4">{badge}</div>
-      <h3 className="pr-32 text-lg font-semibold">{item.name}</h3>
+      <h3 className="pr-36 text-lg font-semibold">{item.name}</h3>
       <p className="mt-2 text-2xl font-bold text-genesis-accent">{item.price_label}</p>
       {item.timeline && (
-        <p className="mt-1 text-xs text-genesis-muted">Frist: {item.timeline}</p>
+        <p className="mt-1 text-xs text-genesis-muted">Dauer: {item.timeline}</p>
       )}
       <p className="mt-3 flex-1 text-sm text-genesis-muted">{item.description}</p>
       {item.includes && item.includes.length > 0 && (
@@ -91,7 +90,7 @@ function pickCategories(data: PricingDisplay | null): ServiceCategory[] {
       ? [
           {
             id: "legacy",
-            name: "Services",
+            name: "Leistungen",
             description: "",
             items: data.services.map((s) => ({
               ...s,
@@ -102,20 +101,17 @@ function pickCategories(data: PricingDisplay | null): ServiceCategory[] {
         ]
       : [];
 
-  const preferred = ["path_a_packages", "path_a_pilot", "horizon_agency"];
+  const preferred = ["path_a_packages", "path_a_pilot"];
   const ordered = [
     ...preferred.map((id) => raw.find((c) => c.id === id)).filter(Boolean),
-    ...raw.filter((c) => !preferred.includes(c.id)),
+    ...raw.filter((c) => preferred.includes(c.id) === false && c.id !== "horizon_agency"),
   ] as ServiceCategory[];
 
   return ordered
     .map((cat) => ({
       ...cat,
       items: cat.items.filter((item) => {
-        if (cat.id === "path_a_packages" || cat.id === "path_a_pilot" || cat.id === "horizon_agency") {
-          return true;
-        }
-        // Hide noisy legacy one-time rows — catalog is Path A + Pilot + Horizon
+        if (cat.id === "path_a_packages" || cat.id === "path_a_pilot") return true;
         return false;
       }),
     }))
@@ -140,16 +136,16 @@ export default function ServicesPage() {
   return (
     <PublicPageShell>
       <PublicPageHero
-        badge="Digitale Präsenz für DE-SMB"
+        badge="Für lokale Betriebe in Deutschland"
         badgeVariant="success"
         title={`Leistungen · ${BRAND_NAME}`}
-        description="Wir prüfen die digitale Lücke und schlagen die passende Leistung vor — nicht „kaufen Sie irgendeine Website“."
+        description="Wir helfen Ihnen zu einem klaren digitalen Auftritt — moderne Website, Kontakte und Weg zur Anfrage. Weitere Verbesserungen auf Anfrage."
       >
         <ButtonLink href="/order" variant="success" size="lg">
-          Landing bestellen →
+          Website bestellen →
         </ButtonLink>
-        <ButtonLink href="/site" variant="primary" size="lg" className="ml-2">
-          Vector →
+        <ButtonLink href="/kontakt" variant="primary" size="lg" className="ml-2">
+          Frage stellen →
         </ButtonLink>
       </PublicPageHero>
 
@@ -157,18 +153,18 @@ export default function ServicesPage() {
         {(gtm?.levels ?? [
           {
             id: "1",
-            title: "1 · Produkt",
-            body: "Landing Neustart — Checkout online.",
+            title: "1 · Leistung",
+            body: "Fertige Website für Ihren Betrieb.",
           },
           {
             id: "2",
-            title: "2 · Zielgruppen",
-            body: "Handwerk, Reparatur, Auto, Gesundheit, Beauty…",
+            title: "2 · Für wen",
+            body: "Handwerk, Auto, Gesundheit, Beauty und lokale Services.",
           },
           {
             id: "3",
-            title: "3 · Lead = Firma + Problem",
-            body: "Signal → passende Leistung (Auto oder Anfrage).",
+            title: "3 · Passgenau",
+            body: "Wir schauen, was fehlt — und schlagen die passende Lösung vor.",
           },
         ]).map((level) => (
           <Card key={level.id} padding="md" className="border-white/10 bg-black/20">
@@ -176,27 +172,6 @@ export default function ServicesPage() {
             <p className="mt-2 text-sm text-genesis-muted">{level.body}</p>
           </Card>
         ))}
-      </section>
-
-      <section className="mt-8 grid gap-3 sm:grid-cols-2">
-        <Card padding="md" className="border-emerald-500/25 bg-emerald-950/20">
-          <Badge variant="success">Auto</Badge>
-          <p className="mt-2 text-sm font-medium text-white">
-            {gtm?.modes?.auto ?? "Landing — online Checkout"}
-          </p>
-          <p className="mt-1 text-xs text-genesis-muted">
-            /order → Zahlung → Factory → ZIP. Anker-Umsatz.
-          </p>
-        </Card>
-        <Card padding="md" className="border-sky-500/25 bg-sky-950/20">
-          <Badge variant="outline">Expert</Badge>
-          <p className="mt-2 text-sm font-medium text-white">
-            {gtm?.modes?.expert ?? "Pilot — Anfrage"}
-          </p>
-          <p className="mt-1 text-xs text-genesis-muted">
-            Site Boost, Audits, Migration… — Nachfrage-Radar für das nächste Auto-Produkt.
-          </p>
-        </Card>
       </section>
 
       {loading && categories.length === 0 && (
@@ -218,9 +193,9 @@ export default function ServicesPage() {
       ))}
 
       <section className="mt-16">
-        <h2 className="text-xl font-bold">Zielgruppen (Pilot-Fokus)</h2>
+        <h2 className="text-xl font-bold">Für wen geeignet</h2>
         <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
-          Branchen, in denen die Website Anrufe und Anfragen bringt.
+          Branchen, in denen Kunden online nach dem richtigen Betrieb suchen.
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(gtm?.niches ?? []).map((n) => (
@@ -233,16 +208,16 @@ export default function ServicesPage() {
       </section>
 
       <section className="mt-16">
-        <h2 className="text-xl font-bold">Signal → Angebot</h2>
+        <h2 className="text-xl font-bold">Typische Situationen</h2>
         <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
-          Lead ist Firma + Problem. So bleibt der Dialog adressgenau.
+          Wenn etwas fehlt, gibt es oft eine passende Leistung.
         </p>
         <div className="mt-6 overflow-x-auto rounded-xl border border-white/10">
           <table className="min-w-full text-left text-sm">
             <thead className="bg-white/5 text-xs uppercase tracking-wide text-genesis-muted">
               <tr>
-                <th className="px-4 py-3">Signal</th>
-                <th className="px-4 py-3">Leistung</th>
+                <th className="px-4 py-3">Situation</th>
+                <th className="px-4 py-3">Mögliche Leistung</th>
               </tr>
             </thead>
             <tbody>
@@ -259,19 +234,14 @@ export default function ServicesPage() {
 
       <Card className="mt-12 text-center" padding="md">
         <p className="text-sm text-genesis-muted">
-          Nächstes Auto-Produkt = was Kunden nach dem Landing wirklich nachfragen (oft Site Boost) —
-          nicht die längste Wunschliste.
-        </p>
-        <p className="mt-3 text-xs text-genesis-muted/80">
-          Später (nach Pilot): nicht nur Technik-Lücken, sondern Ereignisse — neu eröffnet, Umzug,
-          neue Leistungen, viele Reviews, Rebrand. Heute bewusst nicht verkauft.
+          Fragen zu Bestellung oder Status? Schreiben Sie an hello@genesis-ai-engine.com — auf Deutsch.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <ButtonLink href="/order" variant="success" size="sm">
-            Landing →
+            Website bestellen →
           </ButtonLink>
           <ButtonLink href="/kontakt" variant="secondary" size="sm">
-            Anfrage →
+            Kontakt →
           </ButtonLink>
         </div>
       </Card>

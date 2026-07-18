@@ -173,7 +173,7 @@ HORIZON_CATALOG_ITEMS: tuple[dict[str, Any], ...] = (
         "id": "social_audit",
         "name": "Social Audit",
         "price_label": "Horizon",
-        "description": "Instagram / Facebook / LinkedIn — nicht im Path A Pilot.",
+        "description": "Instagram / Facebook / LinkedIn — später.",
         "cta": "Bald",
         "cta_href": "/services",
         "available": False,
@@ -266,19 +266,14 @@ def public_pilot_categories() -> list[dict[str, Any]]:
     return [
         {
             "id": "path_a_pilot",
-            "name": "Path A · jetzt & Pilot-Anfragen",
+            "name": "Weitere Leistungen · auf Anfrage",
             "description": (
-                "Online-Checkout: Landing. Weitere Leistungen per Anfrage — "
-                "erweitert den Weg zum ersten Euro ohne neues Factory-Kern."
+                "Verbesserungen und Checks für bestehende Auftritte — "
+                "kurze Anfrage, persönliches Angebot."
             ),
             "items": [_item(r) for r in PILOT_CATALOG_ITEMS],
         },
-        {
-            "id": "horizon_agency",
-            "name": "Horizon · späteres Agentur-Katalog",
-            "description": "Geplant nach Gate 1 und ersten Kunden — nicht one-click.",
-            "items": [_item(r) for r in HORIZON_CATALOG_ITEMS],
-        },
+        # Horizon NOT exposed on public storefront — CEO only via Desk.
     ]
 
 
@@ -328,27 +323,26 @@ def public_go_to_market() -> dict[str, Any]:
         "levels": [
             {
                 "id": "1",
-                "title": "Produkt — digitaler Neustart",
-                "body": "Landing mit Nische, SEO-Basics, Kontakten, Karten, Publish-Hilfe je Paket.",
+                "title": "1 · Leistung",
+                "body": "Fertige Website für Ihren Betrieb — klar und mobil.",
             },
             {
                 "id": "2",
-                "title": "Zielgruppen",
-                "body": "DE-SMB, wo die Website Anrufe und Anfragen bringt.",
+                "title": "2 · Für wen",
+                "body": "Lokale Betriebe in Deutschland, die Anfragen online gewinnen wollen.",
             },
             {
                 "id": "3",
-                "title": "Leads = Firma + Problem",
-                "body": "Nicht nur Namen — konkrete Lücken und passende Leistung.",
+                "title": "3 · Passgenau",
+                "body": "Wir schauen, was fehlt — und schlagen die passende Lösung vor.",
             },
         ],
         "niches": [{"id": n["id"], "label": n["label"], "examples": n["examples"]} for n in FOCUS_NICHES_DE],
         "signals": list(SIGNAL_OFFER_ROWS_DE),
         "modes": {
-            "auto": "Landing — online Checkout",
-            "expert": "Pilot — Anfrage an hello@",
+            "auto": "Website online bestellen",
+            "expert": "Weitere Leistungen auf Anfrage",
         },
-        # After pilot proof only — do not promise on storefront as product.
         "horizon_after_pilot": {
             "id": "event_signals",
             "title": "Ereignisse statt nur Technik-Lücken",
