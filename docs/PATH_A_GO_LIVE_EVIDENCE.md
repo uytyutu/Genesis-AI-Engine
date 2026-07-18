@@ -190,11 +190,13 @@ Gate 1 проверяет **механику** (продажа → оплата 
 
 | Слой | Статус (2026-07-18) |
 |------|---------------------|
-| A. Автотесты + control-buy | ✅ `7 passed` · `ALL_OK True` |
-| B. Живой UI | ❌ стек `:8000`/`:3000` down — проход не выполнен |
-| C. ZIP из живого Download | ❌ нет (C через control-buy sandbox ✅, но **не** заменяет B+C из UI) |
+| A. Автотесты + control-buy | ✅ pytest package/ZIP/legal/payment **40 passed** (повтор Inspector); control-buy ALL_OK — в журнале ранее, **сегодня не прогнан** (backend down) |
+| B. Живой UI | ❌ **Inspector probe:** `:8000`/`:3000` connection refused · Genesis.exe не в процессах · `/order` недоступен |
+| C. ZIP из живого Download | ❌ нет (без B невозможно) |
 
-**Итог Gate 1:** ❌ **не PASS** — A есть, B и живой C нет.
+**Итог Gate 1:** ❌ **не PASS** — A offline подтверждён тестами; B и живой C нет.
+
+**«СТЭК ЗЕЛЁНЫЙ» = только когда:** Genesis.exe → живые `:8000`+`:3000` → путь `/order` → Business → оплата → Download ZIP → сверка с чек-листом Business. До этого Inspector не стартует финальный PASS.
 
 ## Gate 2 — эксплуатационная готовность
 
