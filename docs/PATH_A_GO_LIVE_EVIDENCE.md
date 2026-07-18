@@ -233,3 +233,13 @@ Gate 1 проверяет **механику** (продажа → оплата 
 - public chrome: Storefront / Working with Vector removed from buyer header
 - services `pickCategories` falls back to website while API on truth-12
 - CEO must restart Genesis (backend + frontend) for truth-13 + new locales
+
+## Final go-live check 2026-07-18 (Inspector)
+
+- **Verdict:** Virtus Core ready to accept money (Landing Auto path).
+- **Stack:** restarted → `mission1-truth-13`; `/order` DE clean to **Bezahlen 350 €** (`ORD-309A358ACD`, not paid).
+- **Buyer jargon:** Factory / Path A / Storefront / Working with Vector = **0** on confirm.
+- **Catalog:** Online bestellen + Anfrage; Horizon off public list.
+- **CEO notify after pay:** Mission Control `Neue Zahlung` (owner_notifications) + email alert/BCC to `hello@genesis-ai-engine.com` when Resend (`RESEND_API_KEY` + `GENESIS_EMAIL_FROM`) is configured; client receipt from `docs/support_templates/01_receipt_de.txt`.
+- **Cosmetics deferred:** tab title flicker, «5–14 дней» timeline string — not blockers for first €.
+- **Next:** first real paid order → fulfill → postmortem → then automate.

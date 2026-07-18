@@ -124,27 +124,71 @@ class ReceiptEmailService:
         status_path = f"/order/status/{order_id}"
         status_url = _public_url(status_path)
         body = receipt_text.replace(f"/order/status/{order_id}", status_url)
+        # CEO inbox sees every paid order (BCC), even when client mail is primary.
+        bcc = (
+            os.getenv("GENESIS_SUPPORT_EMAIL", "").strip()
+            or os.getenv("GENESIS_OWNER_NOTIFY_EMAIL", "").strip()
+            or "hello@genesis-ai-engine.com"
+        )
 
         eta = order.get("estimated_hours")
         rows = [
-            ("Заказ", f"№ {order_id}"),
-            ("Пакет", f"{order.get('package_name', '')} — {order.get('price_eur', '')} €"),
-            ("Статус", "Оплачено"),
+            ("Bestellung", f"Nr. {order_id}"),
+            ("Paket", f"{order.get('package_name', '')} — {order.get('price_eur', '')} €"),
+            ("Status", "Bezahlt"),
         ]
         if eta:
-            rows.append(("Срок", f"~{eta} часов"))
+            rows.append(("Lieferzeit", f"~{eta} Stunden"))
         html_body = _html_email(
-            title="Оплата подтверждена",
-            intro=str(order.get("client_status_message") or "Спасибо за оплату! Мы начали работу."),
+            title="Zahlung bestätigt",
+            intro=str(
+                order.get("client_status_message")
+                or "Danke für Ihre Zahlung! Wir haben mit der Arbeit begonnen."
+            ),
             rows=rows,
             cta_href=status_url,
-            cta_label="Статус заказа",
+            cta_label="Bestellstatus",
         )
-        business = str(order.get("business_name") or "заказ")
+        business = str(order.get("business_name") or "Bestellung")
         return self._send(
             to=to,
-            subject=f"Подтверждение оплаты — {business} (№ {order_id})",
+            subject=f"Zahlung erhalten — {business} (Nr. {order_id})",
             text=body,
+            html=html_body,
+            bcc=bcc if bcc.lower() != to.lower() else "",
+        )
+
+    def send_owner_payment_alert(self, *, order: dict, support_email: str) -> dict:
+        """Direct alert to CEO inbox when a Landing order is paid."""
+        to = (support_email or "").strip() or "hello@genesis-ai-engine.com"
+        order_id = str(order.get("order_id") or "")
+        business = str(order.get("business_name") or "")
+        package = str(order.get("package_name") or "")
+        price = str(order.get("price_label") or f"{order.get('price_eur', '')} €")
+        status_url = _public_url(f"/order/status/{order_id}")
+        text = (
+            f"Neue Zahlung · Virtus Core\n\n"
+            f"Geschäft: {business}\n"
+            f"Bestellung: {order_id}\n"
+            f"Paket: {package} — {price}\n"
+            f"Status: {_public_url(f'/order/status/{order_id}')}\n\n"
+            f"Produktion wurde gestartet."
+        )
+        html_body = _html_email(
+            title="Neue Zahlung",
+            intro=f"{business} — {package} ({price}). Produktion gestartet.",
+            rows=[
+                ("Bestellung", order_id),
+                ("Geschäft", business),
+                ("Paket", f"{package} — {price}"),
+            ],
+            cta_href=status_url,
+            cta_label="Bestellung öffnen",
+        )
+        return self._send(
+            to=to,
+            subject=f"Neue Zahlung — {business or order_id} ({price})",
+            text=text,
             html=html_body,
         )
 
@@ -189,6 +233,7 @@ class ReceiptEmailService:
         text: str,
         html: str,
         list_unsubscribe: str = "",
+        bcc: str = "",
     ) -> dict:
         if not to:
             return {"ok": False, "skipped": True, "reason": "no_email"}
@@ -197,13 +242,15 @@ class ReceiptEmailService:
         if not api_key or not from_addr:
             return {"ok": False, "skipped": True, "reason": "not_configured"}
 
-        payload = {
+        payload: dict = {
             "from": from_addr,
             "to": [to],
             "subject": subject,
             "text": text,
             "html": html,
         }
+        if bcc.strip():
+            payload["bcc"] = [bcc.strip()]
         headers = {"Authorization": f"Bearer {api_key}"}
         if list_unsubscribe.strip():
             headers["List-Unsubscribe"] = list_unsubscribe.strip()

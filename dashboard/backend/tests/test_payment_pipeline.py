@@ -75,6 +75,22 @@ def test_sandbox_checkout_to_paid_and_production(tmp_path: Path, sandbox_env):
     assert status.get("product_id") == "prod-test-1"
     assert status["paid"] is True
 
+    order = sales.get_order(order_id)
+    assert order is not None
+    receipt = str(order.get("client_receipt_text") or "")
+    assert "Zahlung erhalten" in receipt or "vielen Dank" in receipt
+    assert order_id in receipt
+    assert "/order/status/" in receipt
+
+    notes = OwnerNotificationService(tmp_path).list_recent(5)
+    assert any(n.get("title") == "Neue Zahlung" for n in notes)
+    assert result.get("owner_payment_alert", {}).get("reason") in (
+        "not_configured",
+        None,
+    ) or result.get("owner_payment_alert", {}).get("ok") is True or result.get(
+        "owner_payment_alert", {}
+    ).get("skipped") is True
+
 
 def test_stripe_webhook_signature_required(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_test")

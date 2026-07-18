@@ -4,12 +4,56 @@ from __future__ import annotations
 
 import os
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from app.integration.finance_service import FinanceService
 from app.integration.owner_notification_service import OwnerNotificationService
 from app.integration.receipt_email_service import ReceiptEmailService
 from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.payment_checkout_service import PaymentCheckoutService
+
+_SUPPORT_EMAIL = "hello@genesis-ai-engine.com"
+_RECEIPT_TEMPLATE = (
+    Path(__file__).resolve().parents[4] / "docs" / "support_templates" / "01_receipt_de.txt"
+)
+
+
+def _support_email() -> str:
+    return (
+        os.getenv("GENESIS_SUPPORT_EMAIL", "").strip()
+        or os.getenv("GENESIS_OWNER_NOTIFY_EMAIL", "").strip()
+        or _SUPPORT_EMAIL
+    )
+
+
+def _render_client_receipt(*, order: dict, status_path: str, paid: float) -> str:
+    """DE receipt for the buyer — prefer docs/support_templates/01_receipt_de.txt."""
+    name = str(order.get("business_name") or "").strip() or "Kunde"
+    order_id = str(order.get("order_id") or "")
+    package = str(order.get("package_name") or order.get("package_id") or "")
+    amount = str(order.get("price_label") or f"{paid:.0f}")
+    support = _support_email()
+    tpl_path = _RECEIPT_TEMPLATE
+    if tpl_path.is_file():
+        text = tpl_path.read_text(encoding="utf-8")
+        return (
+            text.replace("{{name}}", name)
+            .replace("{{order_id}}", order_id)
+            .replace("{{package}}", package)
+            .replace("{{amount}}", amount.replace(" €", "").replace("€", "").strip())
+            .replace("{{status_url}}", status_path)
+            .replace("{{support_email}}", support)
+        )
+    price_display = str(order.get("price_label") or f"{paid:.0f} €")
+    return (
+        f"Guten Tag,\n\n"
+        f"vielen Dank für Ihre Bestellung «{name}».\n\n"
+        f"Bestellnr. {order_id}\n"
+        f"Paket: {package} — {price_display}\n"
+        f"Status: Bezahlt\n\n"
+        f"Status verfolgen: {status_path}\n\n"
+        f"Mit freundlichen Grüßen\n{BRAND_NAME}\n{support}"
+    )
 
 
 class RevenuePipelineService:
@@ -225,15 +269,8 @@ class RevenuePipelineService:
             "Danke für Ihre Zahlung! Wir haben mit Ihrer Landing Page begonnen. "
             "Den Fortschritt sehen Sie auf der Bestellstatus-Seite."
         )
-        order["client_receipt_text"] = (
-            f"Guten Tag,\n\n"
-            f"vielen Dank für Ihre Bestellung «{order['business_name']}».\n\n"
-            f"Bestellnr. {order_id}\n"
-            f"Paket: {order['package_name']} — {price_display}\n"
-            f"Status: Bezahlt\n"
-            f"Voraussichtliche Lieferzeit: {eta_hours} Stunden\n\n"
-            f"Status verfolgen: {status_path}\n\n"
-            f"Mit freundlichen Grüßen\n{BRAND_NAME}"
+        order["client_receipt_text"] = _render_client_receipt(
+            order=order, status_path=status_path, paid=paid
         )
         self._sales._save_order(order)
 
@@ -254,6 +291,11 @@ class RevenuePipelineService:
         self._ensure_order_email(order, sender)
         self._backfill_email_from_checkout(order)
         email_result = self._send_receipt_if_needed(order)
+        owner_mail = self._receipt_email.send_owner_payment_alert(
+            order=order, support_email=_support_email()
+        )
+        order["owner_payment_alert"] = owner_mail
+        self._sales._save_order(order)
 
         return {
             "ok": True,
@@ -263,6 +305,7 @@ class RevenuePipelineService:
             "client_message": order["client_status_message"],
             "order": self._sales.public_status(order_id),
             "receipt_email": email_result,
+            "owner_payment_alert": owner_mail,
         }
 
     def _ensure_order_email(self, order: dict, sender: str | None) -> None:
