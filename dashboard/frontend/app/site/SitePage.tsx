@@ -24,11 +24,11 @@ const FALLBACK_PACKAGES: PackageCard[] = [
     name: "Landing Basic",
     price_eur: 350,
     deliverables: [
-      "Moderne One-Page-Website (HTML)",
-      "Responsive für Smartphone, Tablet und Desktop",
-      "Basis-SEO (Titel + Meta-Description)",
-      "Kontakte und Anfrageformular",
-      "WhatsApp-Button (Ihre Nummer)",
+      "Fertige Landing Page (One-Page, mobil)",
+      "Vollständiges Website-Archiv (ZIP) — Sie sind Eigentümer der Dateien",
+      "Anleitung zur Selbst-Veröffentlichung",
+      "Impressum- und Datenschutz-Vorlagen (von Ihnen zu prüfen)",
+      "WhatsApp-Button, Kontaktformular, Basis-SEO",
     ],
   },
   {
@@ -36,12 +36,11 @@ const FALLBACK_PACKAGES: PackageCard[] = [
     name: "Landing Business",
     price_eur: 650,
     deliverables: [
-      "Alles aus Basic",
-      "Google-Maps-Einbettung (Standort aus Firmendaten)",
-      "Bewertungsblock (editierbare Textvorlagen)",
-      "Logo-Platzhalter (assets/logo.png — Ihre Datei)",
-      "Erweitertes SEO (Open Graph + Schema.org LocalBusiness)",
-      "1 Korrekturrunde (manuell)",
+      "Alles aus Basic (inkl. ZIP und Eigentum an den Dateien)",
+      "Google Maps, Bewertungsblock, Logo-Platzhalter, erweitertes SEO",
+      "Hilfe beim Upload auf Ihren Hosting-Zugang (manuell)",
+      "1 Korrekturrunde",
+      "Hinweis: Domain- und Hosting-Gebühren zahlt der Kunde",
     ],
   },
   {
@@ -50,12 +49,10 @@ const FALLBACK_PACKAGES: PackageCard[] = [
     price_eur: 1200,
     deliverables: [
       "Alles aus Business",
-      "Premium-Design (stärkere Typografie/Layout)",
-      "Kostenrechner auf der Seite",
-      "Google-Analytics-Platzhalter (Ihre Measurement-ID einsetzen)",
-      "Hilfe bei Domain-Auswahl, Kauf und Einrichtung (manuell)",
-      "14 Tage Support + 3 Korrekturrunden (manuell)",
-      "Prioritäts-Support (manuell)",
+      "Premium-Design, Kostenrechner, Analytics-Platzhalter",
+      "Vollständige Veröffentlichung: Domain-Anbindung, Hosting-Setup, SSL, Go-live (wenn Sie Zugang geben)",
+      "14 Tage Support + 3 Korrekturrunden",
+      "Hinweis: Domain/Hosting-Miete nicht im Preis — nur Einrichtungsservice",
     ],
   },
 ];
@@ -191,6 +188,10 @@ export function SitePage() {
               <dd className="mt-1 text-genesis-muted">
                 {t("pathA.faq3a", { email: CONTACT_EMAIL })}
               </dd>
+            </div>
+            <div>
+              <dt className="font-medium text-white/90">{t("pathA.faq4q")}</dt>
+              <dd className="mt-1 text-genesis-muted">{t("pathA.faq4a")}</dd>
             </div>
           </dl>
         </section>

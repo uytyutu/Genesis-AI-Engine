@@ -27,7 +27,7 @@ _SERVICE_CATALOG: list[dict[str, Any]] = [
         "price_eur": 350,
         "dogfood": True,
         "public": True,
-        "note": f"Factory · {BRAND_NAME} + Mission 1",
+        "note": "Fertige Seite + ZIP + Selbst-Publish-Anleitung",
     },
     {
         "id": "landing_business",
@@ -37,7 +37,7 @@ _SERVICE_CATALOG: list[dict[str, Any]] = [
         "price_eur": 650,
         "dogfood": True,
         "public": True,
-        "note": "Основной пакет Mission 1",
+        "note": "Fertige Seite + Hilfe beim Upload (Domain/Hosting zahlt Kunde)",
     },
     {
         "id": "landing_premium",
@@ -47,7 +47,7 @@ _SERVICE_CATALOG: list[dict[str, Any]] = [
         "price_eur": 1200,
         "dogfood": True,
         "public": True,
-        "note": "Расширенный пакет",
+        "note": "Fertige Seite + Voll-Veröffentlichung (Setup, kein Hosting-Abo)",
     },
     {
         "id": "site_audit",

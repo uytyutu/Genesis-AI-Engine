@@ -62,9 +62,10 @@ HOLD = отсутствует одно (или более) из **необход
 | Kostenrechner | — | — | ✅ |
 | Analytics-Platzhalter `G-XXXXXXXXXX` | — | — | ✅ |
 | Korrekturen / Support / Domain-Hilfe | Prozess (CEO) | Prozess | Prozess |
+| **Go-live-Stufe (kommerziell)** | ZIP + Anleitung (Selbst-Publish) | + Hilfe Upload (Zugang Kunde) | + Voll-Publish Domain/SSL/Go-live (Zugang Kunde) |
+| Domain/Hosting-**Miete** | ❌ zahlt Kunde | ❌ zahlt Kunde | ❌ zahlt Kunde |
 
-Код: `app/factory/package_features.py` → `build_landing` / `start_production`.  
-Контрольная закупка (без UI): `dashboard/backend/scripts/control_buy_business.py`.
+**Оффер (канон):** продаём **готовый работающий результат** и услугу публикации по пакету; ZIP = владение файлами, не «главный продукт». Gate 1 критерии HTML **не меняются**.
 
 ### Двигатели денег
 
