@@ -450,29 +450,53 @@ export function FarmDashboard() {
     try {
       const liteRes = await fetchApi(`${API}/api/farm/dashboard/lite`, { timeoutMs: 8_000 });
       if (liteRes.ok) {
-        const lite = await liteRes.json();
-        setDash((prev) => ({ ...(prev ?? {}), ...lite } as FarmDash));
+        const lite = (await liteRes.json()) as FarmDash;
+        setDash((prev) => ({ ...(prev ?? {}), ...lite }));
         setLoadError("");
         liteOk = true;
       }
       const fullRes = await fetchApi(`${API}/api/farm/dashboard`, { timeoutMs: 20_000 });
       if (fullRes.ok) {
-        setDash(await fullRes.json());
+        const full = (await fullRes.json()) as FarmDash;
+        setDash(full);
         setLoadError("");
         return;
       }
       if (!liteOk) throw new Error("dashboard");
     } catch {
       if (!liteOk) {
-        setLoadError("Backend не отвечает. Genesis.exe → Остановить → Запустить → «✔ Готов».");
+        setLoadError(
+          "Связь с backend потеряна — переподключаюсь автоматически. Страницу обновлять не нужно.",
+        );
       }
     }
   }, []);
 
   useEffect(() => {
-    refresh();
-    const poll = window.setInterval(refresh, 15_000);
+    void refresh();
+    // While disconnected, poll faster so CEO path recovers without F5.
+    const intervalMs = loadError ? 3_000 : 15_000;
+    const poll = window.setInterval(() => {
+      void refresh();
+    }, intervalMs);
     return () => window.clearInterval(poll);
+  }, [refresh, loadError]);
+
+  useEffect(() => {
+    const kick = () => {
+      void refresh();
+    };
+    const onVis = () => {
+      if (document.visibilityState === "visible") kick();
+    };
+    window.addEventListener("online", kick);
+    window.addEventListener("focus", kick);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      window.removeEventListener("online", kick);
+      window.removeEventListener("focus", kick);
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, [refresh]);
 
   useEffect(() => {
@@ -740,14 +764,17 @@ export function FarmDashboard() {
         </header>
 
         {loadError ? (
-          <div className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4 text-sm text-rose-200 space-y-2">
+          <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 text-sm text-amber-100 space-y-2">
             <p>{loadError}</p>
+            <p className="text-[11px] text-amber-200/70">
+              Проверка связи каждые 3 с. Если минута без ответа — Genesis.exe → Остановить → Запустить.
+            </p>
             <button
               type="button"
               onClick={() => void refresh()}
-              className="rounded-lg border border-rose-400/40 px-3 py-1.5 text-xs text-rose-100 hover:bg-rose-950/40"
+              className="rounded-lg border border-amber-400/40 px-3 py-1.5 text-xs text-amber-100 hover:bg-amber-950/40"
             >
-              Повторить
+              Проверить сейчас
             </button>
           </div>
         ) : null}
