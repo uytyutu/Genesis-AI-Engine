@@ -1426,6 +1426,7 @@ class AcquisitionStudioStatus(BaseModel):
     outreach_daily_cap: int | None = None
     outreach_quota: OutreachQuotaHealth | dict | None = None
     markets_dashboard: dict | None = None
+    adaptive_outreach: dict | None = None
     pilot_catalog: dict | None = None
 
 

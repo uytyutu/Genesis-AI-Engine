@@ -179,6 +179,9 @@ class AcquisitionStudioService:
         self._outreach_lang = OutreachLanguageService()
         self._exclusion = GlobalExclusionService(opportunity_service)
         self._send_quota = OutreachSendQuota(mem)
+        from app.integration.outreach_adaptive_service import OutreachAdaptiveService
+
+        self._adaptive = OutreachAdaptiveService(mem)
 
     def _hunt(self) -> dict[str, Any]:
         from app.integration.global_spider_service import GlobalSpiderService
@@ -251,7 +254,12 @@ class AcquisitionStudioService:
                     "name_ru": m.get("name_ru") or code,
                     "enabled": bool(m.get("enabled")),
                     "phase": int(m.get("phase") or 0),
-                    "daily_cap": int(m.get("daily_cap") or 0),
+                    "daily_cap": int(
+                        snap.get("daily_cap")
+                        or self._adaptive.effective_daily_cap(code)
+                        or m.get("daily_cap")
+                        or 0
+                    ),
                     "sent_today": int(snap.get("used_today") or 0),
                     "replies": int(replies.get(code, 0)),
                     "orders": int(orders.get(code, 0)),
@@ -304,7 +312,18 @@ class AcquisitionStudioService:
             "outreach_daily_cap": outreach_daily_cap(),
             "outreach_quota": self._send_quota.health(),
             "markets_dashboard": self.markets_dashboard(),
+            "adaptive_outreach": self.adaptive_dashboard(auto_review=True),
         }
+
+    def adaptive_dashboard(self, *, auto_review: bool = False) -> dict[str, Any]:
+        rows = self._opportunity._load_rows()
+        if auto_review and self._adaptive.review_due():
+            self._adaptive.run_weekly_review(rows, force=False, apply=True)
+        return self._adaptive.dashboard(rows)
+
+    def run_adaptive_review(self, *, force: bool = True, apply: bool = True) -> dict[str, Any]:
+        rows = self._opportunity._load_rows()
+        return self._adaptive.run_weekly_review(rows, force=force, apply=apply)
 
     def catalog(self, *, public_only: bool = False) -> dict:
         items = _SERVICE_CATALOG

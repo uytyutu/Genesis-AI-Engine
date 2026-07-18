@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "enabled": true,
+  "auto_apply": true,
+  "review": {
+    "weekday_utc": 0,
+    "hour_utc": 7,
+    "min_days_between": 7,
+    "min_sent_for_scale_up": 15
+  },
+  "scaling": {
+    "step_up": 20,
+    "step_down": 20,
+    "max_daily_cap": 100,
+    "min_daily_cap": 5
+  },
+  "interval": {
+    "min_sec": 60,
+    "max_sec": 600,
+    "jitter_pct": 20,
+    "formula_note": "interval ≈ (work_seconds_per_day / global_cap) with jitter"
+  },
+  "thresholds": {
+    "bounce_rate_max_pct": 3.0,
+    "spam_complaint_max_pct": 0.1,
+    "reply_rate_min_pct_for_scale": 2.0,
+    "reply_rate_drop_alert_pct": 40.0,
+    "revenue_stagnant_weeks": 3,
+    "excellent_min_score": 75,
+    "warning_min_score": 45
+  },
+  "weights": {
+    "reply_rate": 35,
+    "orders": 25,
+    "revenue": 15,
+    "bounce_penalty": 20,
+    "spam_penalty": 25,
+    "volume_stability": 10
+  },
+  "note_ru": "Adaptive Outreach меняет только daily_cap и интервалы. Отправка писем — только через CEO Approve (снайпер)."
+}

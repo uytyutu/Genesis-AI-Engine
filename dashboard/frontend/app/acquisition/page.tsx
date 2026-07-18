@@ -53,6 +53,45 @@ type OutreachQuotaHealth = {
   sniper_note_ru?: string;
 };
 
+type AdaptiveOutreach = {
+  enabled?: boolean;
+  note_ru?: string;
+  current_health?: number;
+  current_health_label?: string;
+  scaling_status?: string;
+  next_review_at?: string | null;
+  last_review_at?: string | null;
+  interval_sec?: number;
+  countries?: {
+    code: string;
+    flag?: string;
+    name_ru: string;
+    current_cap: number;
+    recommended_cap: number;
+    scaling_status: string;
+    health: { score: number; label: string; reasons?: string[] };
+  }[];
+  last_decisions?: {
+    code: string;
+    decision: string;
+    from_cap: number;
+    to_cap: number;
+    reason: string;
+    applied?: boolean;
+  }[];
+  history?: { at: string; decisions?: { code: string; decision: string; from_cap: number; to_cap: number }[] }[];
+  graphs?: {
+    days?: string[];
+    daily_emails?: number[];
+    reply_rate?: (number | null)[];
+    bounce_rate?: (number | null)[];
+    orders?: number[];
+    revenue?: number[];
+    health_score?: (number | null)[];
+    note_ru?: string;
+  };
+};
+
 type MarketsDashboard = {
   note_ru?: string;
   global_daily_cap?: number;
@@ -93,6 +132,7 @@ type StudioStatus = {
   outreach_daily_cap?: number;
   outreach_quota?: OutreachQuotaHealth | null;
   markets_dashboard?: MarketsDashboard | null;
+  adaptive_outreach?: AdaptiveOutreach | null;
   pilot_catalog?: {
     checkout_online: string[];
     pilot_quote: string[];
@@ -498,6 +538,60 @@ export default function AcquisitionPage() {
             </div>
           )}
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <button
+              type="button"
+              disabled={busy === "refresh"}
+              onClick={() => {
+                void (async () => {
+                  setBusy("refresh");
+                  setMessage("");
+                  try {
+                    const res = await fetch(`${API}/api/acquisition/refresh-leads`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ limit: 8, auto_confirm: true }),
+                    });
+                    const body = await res.json();
+                    setMessage(body.message_ru || body.message || (res.ok ? "Лиды обновлены" : "Ошибка"));
+                    refresh();
+                  } finally {
+                    setBusy("");
+                  }
+                })();
+              }}
+              className="rounded-lg border border-emerald-500/50 bg-emerald-950/40 px-3 py-1.5 font-medium text-emerald-100 hover:bg-emerald-900/40 disabled:opacity-50"
+            >
+              {busy === "refresh" ? "Генерация…" : "▶ Пуск · генерация лидов"}
+            </button>
+            <button
+              type="button"
+              disabled={busy === "adaptive"}
+              onClick={() => {
+                void (async () => {
+                  setBusy("adaptive");
+                  setMessage("");
+                  try {
+                    const res = await fetch(`${API}/api/acquisition/adaptive/review`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ force: true, apply: true }),
+                    });
+                    const body = await res.json();
+                    setMessage(
+                      body.skipped
+                        ? "Adaptive: review ещё не due"
+                        : `Adaptive review: ${ (body.decisions || []).length } стран`
+                    );
+                    refresh();
+                  } finally {
+                    setBusy("");
+                  }
+                })();
+              }}
+              className="rounded-lg border border-sky-500/40 px-3 py-1.5 text-sky-100 hover:bg-sky-950/30 disabled:opacity-50"
+            >
+              {busy === "adaptive" ? "Review…" : "Adaptive Weekly Review"}
+            </button>
             <Link
               href="/#lost-archive"
               className="rounded-lg border border-rose-500/40 px-3 py-1.5 text-rose-100 hover:bg-rose-950/30"
@@ -693,6 +787,121 @@ export default function AcquisitionPage() {
                 </tbody>
               </table>
             </div>
+          </section>
+        ) : null}
+
+        {status?.adaptive_outreach ? (
+          <section className="genesis-card space-y-3 p-5">
+            <h2 className="text-sm font-semibold">Adaptive Outreach</h2>
+            <p className="text-xs text-genesis-muted">
+              {status.adaptive_outreach.note_ru ||
+                "Меняет только лимиты и интервалы. Письма — только через Approve."}
+            </p>
+            <div className="grid gap-2 text-sm sm:grid-cols-4">
+              <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
+                <span className="text-genesis-muted">Current Health</span>
+                <span className="mt-1 block font-medium text-white">
+                  {status.adaptive_outreach.current_health ?? "—"} ·{" "}
+                  {status.adaptive_outreach.current_health_label || "—"}
+                </span>
+              </p>
+              <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
+                <span className="text-genesis-muted">Scaling Status</span>
+                <span className="mt-1 block font-medium text-white">
+                  {status.adaptive_outreach.scaling_status || "—"}
+                </span>
+              </p>
+              <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
+                <span className="text-genesis-muted">Next Review</span>
+                <span className="mt-1 block font-medium text-white text-[11px]">
+                  {status.adaptive_outreach.next_review_at
+                    ? String(status.adaptive_outreach.next_review_at).slice(0, 16)
+                    : "due soon"}
+                </span>
+              </p>
+              <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
+                <span className="text-genesis-muted">Interval</span>
+                <span className="mt-1 block font-medium text-white">
+                  ≥ {status.adaptive_outreach.interval_sec ?? "—"}с
+                </span>
+              </p>
+            </div>
+            {status.adaptive_outreach.countries?.length ? (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[40rem] text-left text-xs">
+                  <thead className="text-genesis-muted">
+                    <tr className="border-b border-genesis-border-subtle">
+                      <th className="py-2 pr-2">Страна</th>
+                      <th className="py-2 pr-2">Health</th>
+                      <th className="py-2 pr-2">Cap</th>
+                      <th className="py-2 pr-2">Recommended</th>
+                      <th className="py-2">Auto Decision</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {status.adaptive_outreach.countries.map((c) => (
+                      <tr key={c.code} className="border-b border-white/5 text-white/90">
+                        <td className="py-2 pr-2">
+                          {c.flag} {c.name_ru}
+                        </td>
+                        <td className="py-2 pr-2">
+                          {c.health?.score} · {c.health?.label}
+                        </td>
+                        <td className="py-2 pr-2 tabular-nums">{c.current_cap}</td>
+                        <td className="py-2 pr-2 tabular-nums">{c.recommended_cap}</td>
+                        <td className="py-2">{c.scaling_status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+            {status.adaptive_outreach.last_decisions?.length ? (
+              <div className="space-y-1 text-[11px] text-genesis-muted">
+                <p className="font-medium text-white/80">History (last review)</p>
+                {status.adaptive_outreach.last_decisions.map((d) => (
+                  <p key={`${d.code}-${d.from_cap}-${d.to_cap}`}>
+                    {d.code}: {d.from_cap} → {d.to_cap} · {d.decision}
+                    {d.reason ? ` · ${d.reason}` : ""}
+                    {d.applied ? " · applied" : ""}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+            {status.adaptive_outreach.graphs?.note_ru ? (
+              <p className="text-[11px] text-genesis-muted">{status.adaptive_outreach.graphs.note_ru}</p>
+            ) : null}
+            {status.adaptive_outreach.graphs?.days?.length ? (
+              <div className="grid gap-2 text-[11px] text-genesis-muted sm:grid-cols-2">
+                <p>
+                  Daily Emails:{" "}
+                  {(status.adaptive_outreach.graphs.daily_emails || []).slice(-7).join(", ") || "—"}
+                </p>
+                <p>
+                  Reply Rate:{" "}
+                  {(status.adaptive_outreach.graphs.reply_rate || []).slice(-7).join(", ") || "—"}
+                </p>
+                <p>
+                  Bounce Rate:{" "}
+                  {(status.adaptive_outreach.graphs.bounce_rate || []).slice(-7).join(", ") || "—"}
+                </p>
+                <p>
+                  Health Score:{" "}
+                  {(status.adaptive_outreach.graphs.health_score || []).slice(-7).join(", ") || "—"}
+                </p>
+                <p>
+                  Orders: {(status.adaptive_outreach.graphs.orders || []).slice(-7).join(", ") || "—"}
+                </p>
+                <p>
+                  Revenue:{" "}
+                  {(status.adaptive_outreach.graphs.revenue || []).slice(-7).join(", ") || "—"}
+                </p>
+              </div>
+            ) : (
+              <p className="text-[11px] text-genesis-muted">
+                Graphs появятся после первых weekly review снимков.
+              </p>
+            )}
           </section>
         ) : null}
 

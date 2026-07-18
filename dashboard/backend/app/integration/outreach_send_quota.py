@@ -227,8 +227,29 @@ class OutreachSendQuota:
         data = self._load()
         return int((data.get("regions") or {}).get(_normalize_region(region), 0) or 0)
 
+    def _market_cap(self, code: str) -> int:
+        try:
+            from app.integration.outreach_adaptive_service import OutreachAdaptiveService
+
+            return OutreachAdaptiveService(self._memory).effective_daily_cap(code)
+        except Exception:
+            from app.integration.outreach_market_config import market_daily_cap
+
+            return market_daily_cap(code)
+
+    def _adaptive_interval(self) -> int:
+        # Explicit env wins (CEO kill-switch / test pacing off).
+        if os.getenv("GENESIS_OUTREACH_MIN_INTERVAL_SEC", "").strip() != "":
+            return outreach_min_interval_sec()
+        try:
+            from app.integration.outreach_adaptive_service import OutreachAdaptiveService
+
+            return OutreachAdaptiveService(self._memory).effective_interval_sec()
+        except Exception:
+            return outreach_min_interval_sec()
+
     def _pacing_ok(self, data: dict[str, Any]) -> tuple[bool, str]:
-        interval = outreach_min_interval_sec()
+        interval = self._adaptive_interval()
         if interval <= 0:
             return True, ""
         last = data.get("last_send_at")
@@ -253,7 +274,7 @@ class OutreachSendQuota:
     def can_send(
         self, from_addr: str, *, region: str | None = None, market: str | None = None
     ) -> tuple[bool, str]:
-        from app.integration.outreach_market_config import market_daily_cap, market_send_pool
+        from app.integration.outreach_market_config import market_send_pool
 
         domain = _domain_of(from_addr)
         if not domain:
@@ -271,7 +292,7 @@ class OutreachSendQuota:
         if market:
             mcode = str(market).upper()
             mused = int((data.get("markets") or {}).get(mcode, 0) or 0)
-            mcap = market_daily_cap(mcode)
+            mcap = self._market_cap(mcode)
             if mused >= mcap:
                 return False, f"market_cap:{mcode}:{mused}/{mcap}"
             reg = market_send_pool(mcode)
@@ -316,7 +337,7 @@ class OutreachSendQuota:
         self, *, region: str | None = None, market: str | None = None
     ) -> tuple[str | None, dict[str, Any]]:
         """Least-used From under market + pool + global + pacing."""
-        from app.integration.outreach_market_config import market_daily_cap, market_send_pool
+        from app.integration.outreach_market_config import market_send_pool
 
         pool = configured_from_pool()
         cap = outreach_daily_cap()
@@ -343,7 +364,7 @@ class OutreachSendQuota:
         mcode = str(market).upper() if market else None
         if mcode:
             mused = int(markets.get(mcode, 0) or 0)
-            mcap = market_daily_cap(mcode)
+            mcap = self._market_cap(mcode)
             if mused >= mcap:
                 return None, {
                     "ok": False,
@@ -388,11 +409,11 @@ class OutreachSendQuota:
             "used_today": domain_used,
             "region_used_today": region_used,
             "market_used_today": int(markets.get(mcode, 0) or 0) if mcode else None,
-            "market_daily_cap": market_daily_cap(mcode) if mcode else None,
+            "market_daily_cap": self._market_cap(mcode) if mcode else None,
             "daily_cap": cap,
             "global_daily_cap": gcap,
             "sent_today_total": total,
-            "min_interval_sec": outreach_min_interval_sec(),
+            "min_interval_sec": self._adaptive_interval(),
             "pool_size": len(pool),
         }
 
@@ -459,10 +480,7 @@ class OutreachSendQuota:
         region_count = len(region_rows)
         gcap = outreach_global_daily_cap()
         markets_cnt = dict(data.get("markets") or {})
-        from app.integration.outreach_market_config import (
-            enabled_markets_sum_caps,
-            list_markets,
-        )
+        from app.integration.outreach_market_config import list_markets
 
         market_rows: list[dict[str, Any]] = []
         for m in list_markets():
@@ -470,7 +488,7 @@ class OutreachSendQuota:
             if not code:
                 continue
             used = int(markets_cnt.get(code, 0) or 0)
-            mcap = int(m.get("daily_cap") or 20)
+            mcap = self._market_cap(code)
             market_rows.append(
                 {
                     "code": code,
@@ -494,7 +512,10 @@ class OutreachSendQuota:
         sent_today_total = sum(int(r["used_today"]) for r in market_rows if r["enabled"])
         if not sent_today_total:
             sent_today_total = sum(int(r["used_today"]) for r in region_rows)
-        pool_cap_total = min(enabled_markets_sum_caps() or gcap, gcap)
+        pool_cap_total = min(
+            sum(int(r["daily_cap"]) for r in market_rows if r["enabled"]) or gcap,
+            gcap,
+        )
         remaining_today_total = max(0, gcap - sent_today_total)
 
         primary = next((r for r in market_rows if r["enabled"]), None) or (
@@ -504,7 +525,7 @@ class OutreachSendQuota:
             "daily_cap": cap,
             "hard_max": _HARD_MAX_DAILY_CAP,
             "global_daily_cap": gcap,
-            "min_interval_sec": outreach_min_interval_sec(),
+            "min_interval_sec": self._adaptive_interval(),
             "day": data.get("day"),
             "domain_count": len(pool),
             "region_count": region_count,
@@ -517,12 +538,11 @@ class OutreachSendQuota:
             "markets": market_rows,
             "domains": per_domains,
             "phase_note_ru": (
-                f"Конфиг outreach_markets.json · глобальный потолок {gcap}/день · "
-                f"интервал ≥{outreach_min_interval_sec()}с. "
-                "Новая страна = новая запись в JSON. Approve — предохранитель."
+                f"Конфиг outreach_markets.json + Adaptive · потолок {gcap}/день · "
+                f"интервал ≥{self._adaptive_interval()}с. Approve — предохранитель отправки."
             ),
             "sniper_note_ru": (
-                "Лимиты по странам — ops из конфига (не имитация закона). "
+                "Adaptive меняет только лимиты/интервалы по Health Score. "
                 "KPI: ответы → разговоры → заказы."
             ),
         }

@@ -1433,6 +1433,20 @@ def acquisition_markets_dashboard() -> dict:
     return _ctx().acquisition.markets_dashboard()
 
 
+@app.get("/api/acquisition/adaptive")
+def acquisition_adaptive_dashboard() -> dict:
+    """Adaptive Outreach Intelligence — health, scaling, history, graphs."""
+    return _ctx().acquisition.adaptive_dashboard(auto_review=True)
+
+
+@app.post("/api/acquisition/adaptive/review")
+def acquisition_adaptive_review(body: dict | None = None) -> dict:
+    payload = body or {}
+    force = bool(payload.get("force", True))
+    apply = bool(payload.get("apply", True))
+    return _ctx().acquisition.run_adaptive_review(force=force, apply=apply)
+
+
 @app.get("/api/acquisition/outreach-templates")
 def acquisition_outreach_templates() -> dict:
     """CEO review: Path A sniper drafts by market (DE / US / RU / UA)."""
