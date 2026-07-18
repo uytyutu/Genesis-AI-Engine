@@ -30,7 +30,7 @@
     "faq2q": "What does it cost?",
     "faq2a": "Basic €350 · Business €650 · Premium €1,200 — one-time. Domain and hosting stay your ongoing costs.",
     "faq3q": "How do I reach support?",
-    "faq3a": "Order, payment, ZIP and publish questions (Path A): email {{email}} — we reply in German for DE. The Vector chat on this page is for trying the assistant, not order helpdesk.",
+    "faq3a": "Order, payment, ZIP and publish questions: email {{email}} — we reply in German for DE. The chat on this page is for trying the assistant, not order helpdesk.",
     "faq4q": "Is hosting included in the price?",
     "faq4a": "No. We help you choose; common options in Germany include Hetzner, IONOS, All-Inkl and Netcup. Contract and payment are directly with the provider. Business/Premium: we set up the site with your access.",
     "faq5q": "Is Vector support for my order?",
@@ -38,7 +38,7 @@
     "afterPay": "After payment, production starts. Track status and download your files on the order page.",
     "cta": "Get a proposal",
     "ctaSecondary": "Order Landing",
-    "foot": "{{brand}} · Path A · digital restart for local businesses"
+    "foot": "{{brand}} · digital restart for local businesses"
   },
   "order": {
     "badge": "Virtus Core",
@@ -47,7 +47,7 @@
     "subtitle": "A new fast landing page in about 5–7 business days (HTML, mobile, clear booking path). Not WordPress patchwork — an honest restart.",
     "subtitleLaunch": "Your site is prepared with Vector — finish launch and publish",
     "bulletPkg": "Basic €350 · Business €650 · Premium €1,200",
-    "bulletFactory": "After payment — we produce your landing and deliver the files",
+    "bulletAfterPay": "After payment — we produce your landing and deliver the files",
     "bulletSorglos": "Optional: upload to your domain (hands-off) — domain/hosting paid by customer",
     "businessName": "Business name",
     "businessNamePh": "e.g. Autowerkstatt Müller",

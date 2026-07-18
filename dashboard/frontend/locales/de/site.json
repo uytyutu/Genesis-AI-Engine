@@ -30,7 +30,7 @@
     "faq2q": "Was kostet es?",
     "faq2a": "Basic 350 € · Business 650 € · Premium 1 200 € — einmalig. Domain und Hosting bleiben Ihre laufenden Kosten.",
     "faq3q": "Wie kontaktiere ich den Support?",
-    "faq3a": "Fragen zu Bestellung, Zahlung, ZIP und Veröffentlichung (Path A): bitte an {{email}} — Antworten auf Deutsch. Der Vector-Chat auf dieser Seite ist der Assistent zum Ausprobieren, kein Bestell-Helpdesk.",
+    "faq3a": "Fragen zu Bestellung, Zahlung, ZIP und Veröffentlichung: bitte an {{email}} — Antworten auf Deutsch. Der Chat auf dieser Seite ist der Assistent zum Ausprobieren, kein Bestell-Helpdesk.",
     "faq4q": "Gehört Hosting zum Preis?",
     "faq4a": "Nein. Wir helfen bei der Wahl; unter den gängigen Optionen in DE sind Hetzner, IONOS, All-Inkl und Netcup. Vertrag und Zahlung laufen direkt mit dem Anbieter. Business/Premium: wir richten die Seite mit Ihrem Zugang ein.",
     "faq5q": "Ist Vector der Support für meine Bestellung?",
@@ -38,7 +38,7 @@
     "afterPay": "Nach der Zahlung startet die Produktion. Status und Download Ihrer Dateien sehen Sie auf der Bestellseite.",
     "cta": "Angebot erhalten",
     "ctaSecondary": "Landing bestellen",
-    "foot": "{{brand}} · Path A · digitaler Neustart für lokale Betriebe in DE"
+    "foot": "{{brand}} · digitaler Neustart für lokale Betriebe in DE"
   },
   "order": {
     "badge": "Virtus Core",
@@ -47,7 +47,7 @@
     "subtitle": "Neue, schnelle Landing Page in ca. 5–7 Werktagen (HTML, mobil, klarer Terminweg). Kein WordPress-Flickwerk — ehrlicher Online-Neustart.",
     "subtitleLaunch": "Die Seite ist mit Vector vorbereitet — jetzt Launch und Veröffentlichung abschließen",
     "bulletPkg": "Basic 350 € · Business 650 € · Premium 1 200 €",
-    "bulletFactory": "Nach Zahlung — fertige Landing Page und Ihre Dateien",
+    "bulletAfterPay": "Nach Zahlung — fertige Landing Page und Ihre Dateien",
     "bulletSorglos": "Business/Premium: Hilfe oder Voll-Veröffentlichung — Domain/Hosting zahlt der Kunde",
     "businessName": "Firmenname",
     "businessNamePh": "z. B. Autowerkstatt Müller",

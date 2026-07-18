@@ -357,7 +357,7 @@ export default function OrderSitePage() {
           {!launch ? (
             <ul className="mx-auto mt-4 max-w-lg space-y-1 text-left text-sm text-white/75">
               <li>• {t("order.bulletPkg")}</li>
-              <li>• {t("order.bulletFactory")}</li>
+              <li>• {t("order.bulletAfterPay")}</li>
               <li>• {t("order.bulletSorglos")}</li>
             </ul>
           ) : null}
