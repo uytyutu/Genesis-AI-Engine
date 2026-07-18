@@ -405,6 +405,35 @@ type FarmDash = {
   };
 };
 
+/** Keep previously ready sections when a poll returns {_pending} stubs (hard-cap warm). */
+function mergeFarmDash(prev: FarmDash | null, next: FarmDash): FarmDash {
+  if (!prev) return next;
+  const out: FarmDash = { ...next };
+  const keys: (keyof FarmDash)[] = [
+    "farm_program",
+    "first_euro_gate",
+    "production_platform",
+    "opportunity_discovery",
+    "commercial_evidence",
+    "finance_guard",
+    "revenue_forecast",
+    "payment_monitor",
+    "prepare_live",
+    "priority_manager",
+    "toloka_submit",
+    "platforms",
+    "ceo_checklist",
+  ];
+  for (const key of keys) {
+    const incoming = next[key];
+    const prior = prev[key];
+    if (!isFarmSectionReady(incoming) && isFarmSectionReady(prior)) {
+      (out as Record<string, unknown>)[key as string] = prior;
+    }
+  }
+  return out;
+}
+
 type CommercialEvidence = {
   title_ru: string;
   verdict_ru: string;
@@ -458,7 +487,7 @@ export function FarmDashboard() {
       const fullRes = await fetchApi(`${API}/api/farm/dashboard`, { timeoutMs: 20_000 });
       if (fullRes.ok) {
         const full = (await fullRes.json()) as FarmDash;
-        setDash(full);
+        setDash((prev) => mergeFarmDash(prev, full));
         setLoadError("");
         return;
       }
@@ -474,13 +503,14 @@ export function FarmDashboard() {
 
   useEffect(() => {
     void refresh();
-    // While disconnected, poll faster so CEO path recovers without F5.
-    const intervalMs = loadError ? 3_000 : 15_000;
+    // Disconnected OR VRE banner still warming — poll fast so CEO does not need F5.
+    const warming = !loadError && dash != null && !isFarmSectionReady(dash.farm_program);
+    const intervalMs = loadError || warming ? 3_000 : 15_000;
     const poll = window.setInterval(() => {
       void refresh();
     }, intervalMs);
     return () => window.clearInterval(poll);
-  }, [refresh, loadError]);
+  }, [refresh, loadError, dash?.farm_program]);
 
   useEffect(() => {
     const kick = () => {
@@ -684,6 +714,9 @@ export function FarmDashboard() {
   const paymentMonitor = isFarmSectionReady(dash?.payment_monitor) ? dash?.payment_monitor : null;
   const revenueForecast = isFarmSectionReady(dash?.revenue_forecast) ? dash?.revenue_forecast : null;
   const financeGuard = isFarmSectionReady(dash?.finance_guard) ? dash?.finance_guard : null;
+  const vreReady = Boolean(farmProgram);
+  const vreVerified = farmProgram?.verified_revenue_status === "VERIFIED";
+  const vreLevel = firstEuroGate?.vre_level ?? farmProgram?.vre_level;
 
   return (
     <main className="min-h-screen pb-16">
@@ -691,24 +724,30 @@ export function FarmDashboard() {
         <header className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950/50 via-genesis-panel to-genesis-panel p-6">
           <div
             className={`mb-4 rounded-xl border px-4 py-3 text-center ${
-              farmProgram?.verified_revenue_status === "VERIFIED"
-                ? "border-emerald-400/60 bg-emerald-950/40"
-                : "border-rose-500/50 bg-rose-950/30"
+              !vreReady
+                ? "border-white/15 bg-black/20"
+                : vreVerified
+                  ? "border-emerald-400/60 bg-emerald-950/40"
+                  : "border-rose-500/50 bg-rose-950/30"
             }`}
           >
             <p className="text-[10px] uppercase tracking-[0.4em] text-white/60">Mission 1</p>
             <p
               className={`text-2xl font-black tracking-wide ${
-                farmProgram?.verified_revenue_status === "VERIFIED"
-                  ? "text-emerald-300"
-                  : "text-rose-300"
+                !vreReady ? "text-white/70" : vreVerified ? "text-emerald-300" : "text-rose-300"
               }`}
             >
-              Verified Revenue · {farmProgram?.verified_revenue_status ?? "NOT VERIFIED"}
+              Verified Revenue ·{" "}
+              {!vreReady ? "загрузка…" : farmProgram?.verified_revenue_status ?? "NOT VERIFIED"}
             </p>
             <p className="mt-1 text-[11px] text-white/70">
-              VRE LEVEL {firstEuroGate?.vre_level ?? farmProgram?.vre_level ?? 0} · до VERIFIED —
-              только полевой эксперимент
+              {!vreReady
+                ? "VRE LEVEL … · проверяю статус (без обновления страницы)"
+                : `VRE LEVEL ${vreLevel ?? 0}${
+                    vreVerified
+                      ? " · VERIFIED"
+                      : " · до VERIFIED — только полевой эксперимент"
+                  }`}
             </p>
           </div>
           <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/90">
