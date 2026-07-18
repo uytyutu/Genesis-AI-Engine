@@ -26,6 +26,9 @@ class BuildStyle:
 _STYLES = {
     "dental": BuildStyle("#0ea5e9", "#0369a1", "#22d3ee", "linear-gradient(135deg,#0c4a6e,#0ea5e9)"),
     "auto": BuildStyle("#f97316", "#c2410c", "#fbbf24", "linear-gradient(135deg,#1c1917,#ea580c)"),
+    "computer": BuildStyle("#0ea5e9", "#0369a1", "#38bdf8", "linear-gradient(135deg,#0f172a,#0284c7)"),
+    "appliance": BuildStyle("#64748b", "#334155", "#94a3b8", "linear-gradient(135deg,#1e293b,#475569)"),
+    "handwerk": BuildStyle("#ca8a04", "#a16207", "#facc15", "linear-gradient(135deg,#422006,#ca8a04)"),
     "law": BuildStyle("#1e3a5f", "#0f172a", "#c9a227", "linear-gradient(135deg,#0f172a,#1e40af)"),
     "beauty": BuildStyle("#a855f7", "#7e22ce", "#f472b6", "linear-gradient(135deg,#581c87,#c026d3)"),
     "energy": BuildStyle("#16a34a", "#15803d", "#facc15", "linear-gradient(135deg,#14532d,#16a34a)"),

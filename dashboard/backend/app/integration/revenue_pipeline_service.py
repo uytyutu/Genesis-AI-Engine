@@ -109,12 +109,14 @@ class RevenuePipelineService:
         session_id: str,
         payment_intent: str = "",
         sender: str | None = None,
+        currency: str | None = None,
     ) -> dict:
         """Confirm order after verified checkout.session.completed webhook."""
         external_id = session_id or payment_intent
         result = self._apply_payment(
             order_id=order_id,
             amount_eur=amount_eur,
+            currency=currency,
             provider="stripe",
             sender=sender,
             external_id=external_id,
@@ -153,6 +155,7 @@ class RevenuePipelineService:
         return self._apply_payment(
             order_id=order_id,
             amount_eur=parsed["amount_eur"],
+            currency=parsed.get("currency"),
             provider="stripe",
             sender=parsed.get("sender"),
             external_id=str(parsed.get("session_id", "")),
@@ -166,6 +169,7 @@ class RevenuePipelineService:
         provider: str,
         sender: str | None,
         external_id: str,
+        currency: str | None = None,
     ) -> dict:
         order = self._sales.get_order(order_id)
         if not order:
@@ -185,6 +189,12 @@ class RevenuePipelineService:
         paid = expected if amount_eur is None else round(float(amount_eur), 2)
         if abs(paid - expected) > 0.01:
             raise ValueError("amount_mismatch")
+
+        if currency is not None:
+            expected_cur = str(order.get("currency") or "EUR").strip().lower()
+            paid_cur = str(currency).strip().lower()
+            if paid_cur != expected_cur:
+                raise ValueError("currency_mismatch")
 
         label = f"Bestellung {order_id}: {order['business_name']}"
         self._finance.credit_order_payment(

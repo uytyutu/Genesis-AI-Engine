@@ -33,5 +33,7 @@ async def stripe_webhook(request: Request) -> StripeWebhookResponse:
             raise HTTPException(status_code=404, detail="Bestellung nicht gefunden") from exc
         if code == "amount_mismatch":
             raise HTTPException(status_code=400, detail="Betrag stimmt nicht überein") from exc
+        if code == "currency_mismatch":
+            raise HTTPException(status_code=400, detail="Währung stimmt nicht überein") from exc
         raise HTTPException(status_code=400, detail="Zahlung fehlgeschlagen") from exc
     return StripeWebhookResponse(**result)

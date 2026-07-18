@@ -141,6 +141,7 @@ class PaymentCheckoutService:
         return {
             "order_id": order_id,
             "amount_eur": amount,
+            "currency": str(session.get("currency") or "eur").strip().lower() or "eur",
             "provider": "stripe",
             "session_id": session.get("id"),
             "sender": str(session.get("customer_details", {}).get("email") or ""),
@@ -187,6 +188,7 @@ class PaymentCheckoutService:
         return {
             "order_id": order_id,
             "amount_eur": amount,
+            "currency": str(session.get("currency") or "eur").strip().lower() or "eur",
             "provider": "stripe",
             "session_id": session.get("id"),
             "payment_intent": session.get("payment_intent"),

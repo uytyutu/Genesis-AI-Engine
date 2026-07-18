@@ -26,6 +26,53 @@ class AnalysisResult:
 
 _NICHE_KEYWORDS = {
     "dental": ("стоматолог", "dental", "зуб", "клиник", "имплант", "ортодонт", "zahnarzt", "zahn"),
+    "computer": (
+        "pc-reparatur",
+        "pc reparatur",
+        "computerreparatur",
+        "computer reparatur",
+        "laptop",
+        "notebook",
+        "it-service",
+        "it service",
+        "handy reparatur",
+        "smartphone reparatur",
+        "datenrettung",
+        "компьютер",
+        "ноутбук",
+    ),
+    "appliance": (
+        "hausgeräte",
+        "hausgeraete",
+        "weißware",
+        "weissware",
+        "waschmaschine",
+        "kühlschrank",
+        "kuehlschrank",
+        "geschirrspüler",
+        "geschirrspueler",
+        "elektrogerät",
+        "elektrogeraet",
+        "бытовой техник",
+        "холодильник",
+        "стиральн",
+    ),
+    "handwerk": (
+        "handwerker",
+        "hausmeister",
+        "allrounder",
+        "alles aus einer hand",
+        "meister auf alle",
+        "renovierung",
+        "montage service",
+        "kleinreparatur",
+        "fliesenleger",
+        "maler und",
+        "sanitär",
+        "sanitaer",
+        "мастер на все",
+        "муж на час",
+    ),
     "auto": (
         "автосервис",
         "авто",
@@ -74,6 +121,9 @@ def analyze(description: str) -> AnalysisResult:
 
     presets = {
         "dental": _preset_dental(business_name, template_id, cta_label, text),
+        "computer": _preset_computer(business_name, template_id, cta_label, text),
+        "appliance": _preset_appliance(business_name, template_id, cta_label, text),
+        "handwerk": _preset_handwerk(business_name, template_id, cta_label, text),
         "auto": _preset_auto(business_name, template_id, cta_label, text),
         "law": _preset_law(business_name, template_id, cta_label, text),
         "beauty": _preset_beauty(business_name, template_id, cta_label, text),
@@ -121,6 +171,123 @@ def _preset_auto(
             "Digitale Servicehistorie für Ihr Fahrzeug",
         ),
         hours="Mo–Fr 8:00–18:00 · Sa 9:00–14:00",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_computer(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "pcservice")
+    return AnalysisResult(
+        niche="computer",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — PC- & Laptop-Reparatur vor Ort",
+        subtitle="Schnelle Diagnose, transparente Preise und Datenrettung — für Privat und Gewerbe.",
+        services=[
+            "PC- & Laptop-Reparatur",
+            "Virus- und Performance-Check",
+            "Datenrettung",
+            "Netzwerk & Setup",
+        ],
+        service_descriptions=(
+            "Hardware- und Softwarefehler finden und beheben — oft noch am selben Tag.",
+            "Aufräumen, Updates und Schutz ohne unnötige Zusatzverkäufe.",
+            "Wiederherstellung von Fotos und Dokumenten, wenn möglich.",
+            "WLAN, Drucker und Arbeitsplatz-PCs zuverlässig einrichten.",
+        ),
+        cta_label="Termin anfragen" if cta_label == "Kontakt aufnehmen" else cta_label,
+        trust_points=("Festpreis-Diagnose", "Datenschutz", "Vor-Ort möglich"),
+        about_text=(
+            f"{business_name} repariert Computer, Laptops und Smartphones mit klaren "
+            "Kostenvoranschlägen. Ihre Daten bleiben bei uns vertraulich."
+        ),
+        benefits=(
+            "Kostenvoranschlag vor dem Start",
+            "Ersatzgerät nach Absprache",
+            "Abholung und Rückgabe möglich",
+        ),
+        hours="Mo–Fr 9:00–18:00 · Sa nach Vereinbarung",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_appliance(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "hausgeraete")
+    return AnalysisResult(
+        niche="appliance",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Hausgeräte-Reparatur mit Festpreis",
+        subtitle="Waschmaschine, Kühlschrank, Spülmaschine — Diagnose vor Ort und ehrliche Empfehlung.",
+        services=[
+            "Waschmaschinen-Service",
+            "Kühl- und Gefriergeräte",
+            "Geschirrspüler & Herde",
+            "Ersatzteile & Wartung",
+        ],
+        service_descriptions=(
+            "Fehler finden und beheben — oft noch beim ersten Termin.",
+            "Kühlkette sichern und Lecks rechtzeitig stoppen.",
+            "Pumpen, Heizungen und Elektronik fachgerecht tauschen.",
+            "Original- und Qualitätsersatzteile mit Garantie auf die Arbeit.",
+        ),
+        cta_label="Reparatur anfragen" if cta_label == "Kontakt aufnehmen" else cta_label,
+        trust_points=("Vor-Ort-Service", "Festpreis nach Diagnose", "Garantie"),
+        about_text=(
+            f"{business_name} repariert Weißware und Elektrogeräte für Haushalte und "
+            "kleine Betriebe — klar, erreichbar und ohne Überraschungen."
+        ),
+        benefits=(
+            "Anfahrt und Diagnose transparent kalkuliert",
+            "Reparatur statt Neukauf, wenn sinnvoll",
+            "Termine auch außerhalb der Kernzeit nach Absprache",
+        ),
+        hours="Mo–Fr 8:00–17:30 · Notfall nach Vereinbarung",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_handwerk(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "handwerk")
+    return AnalysisResult(
+        niche="handwerk",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Handwerk aus einer Hand",
+        subtitle="Montage, Kleinreparaturen und Renovierung — zuverlässig, pünktlich und fair kalkuliert.",
+        services=[
+            "Montage & Aufbau",
+            "Kleinreparaturen",
+            "Renovierung & Ausbessern",
+            "Hausmeister-Service",
+        ],
+        service_descriptions=(
+            "Möbel, Regale, Lampen und Geräte fachgerecht montieren.",
+            "Tür, Fenster, Wasserhahn und Alltagsdefekte schnell beheben.",
+            "Streichen, Fliesen ausbessern und kleine Umbauten.",
+            "Regelmäßige Checks und Einsätze für Haus und Wohnung.",
+        ),
+        cta_label="Auftrag anfragen" if cta_label == "Kontakt aufnehmen" else cta_label,
+        trust_points=("Pünktlich", "Festpreis-Angebot", "Versichert"),
+        about_text=(
+            f"{business_name} ist Ihr Allround-Handwerker vor Ort — von der kleinen "
+            "Reparatur bis zur geplanten Renovierung, mit klarer Absprache."
+        ),
+        benefits=(
+            "Ein Ansprechpartner für viele Gewerke",
+            "Schriftliches Angebot vor dem Start",
+            "Saubere Baustelle und termintreue Übergabe",
+        ),
+        hours="Mo–Fr 7:30–17:00 · Sa nach Vereinbarung",
         phone=phone,
         email=email,
     )
@@ -435,6 +602,9 @@ def _extract_business_name(text: str, niche: str) -> str:
         defaults = {
             "dental": "Zahnarztpraxis Weber",
             "auto": "Auto Müller",
+            "computer": "PC Service Schmidt",
+            "appliance": "Hausgeräte Schneider",
+            "handwerk": "Handwerk Fischer",
             "law": "Kanzlei Schmidt",
             "beauty": "Salon Belle",
             "energy": "Solar Nord",
@@ -448,6 +618,9 @@ def business_name_fallback(niche: str) -> str:
     return {
         "dental": "Zahnarztpraxis Weber",
         "auto": "Auto Müller",
+        "computer": "PC Service Schmidt",
+        "appliance": "Hausgeräte Schneider",
+        "handwerk": "Handwerk Fischer",
         "law": "Kanzlei Schmidt",
     }.get(niche, "Ihr Unternehmen")
 

@@ -71,9 +71,13 @@ HOLD = отсутствует одно (или более) из **необход
 
 | Двигатель | Роль | Статус логики |
 |-----------|------|---------------|
-| **Stripe** (Path A) | Оплата Landing → webhook → settlement → Factory | ✅ подпись обязательна; idempotent replay; sandbox + redirect fallback; DE settlement 3 WD |
+| **Stripe** (Path A) | Оплата Landing → webhook → settlement → Factory | ✅ сумма из заказа на checkout; webhook: order exists · amount · **currency** · idempotent replay |
 | **Toloka / Farm** | Параллельный labeling € | ✅ dry_run по умолчанию; auto-submit только `FARM_LIVE_MODE=live`; **не** подмешивает B2B в Outbox без `FARM_AUTO_PREPARE_OUTREACH=1` |
 | **Country Desk** | Поиск DE SMB → письмо → `/order` | Отдельный путь; не зависит от Farm tick |
+
+**PaymentCenter (Stripe / PayPal / Mollie):** Horizon — не внедрять на Gate 1 HOLD. Сейчас Factory видит только `paid` после `RevenuePipelineService`; мультивендор — после пилота.
+
+**Ниши Factory (DE Path A):** dental · auto · **handwerk** · **computer** · **appliance** · law · beauty · energy · green · generic.
 
 ---
 

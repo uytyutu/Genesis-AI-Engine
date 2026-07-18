@@ -68,18 +68,21 @@ def handle_stripe_webhook_event(
         )
         raise StripeWebhookCriticalError("invalid_amount")
 
+    currency = str(session.get("currency") or "eur").strip().lower() or "eur"
     sender = str(session.get("customer_details", {}).get("email") or "")
     logger.info(
-        "stripe webhook checkout.session.completed — session=%s payment_intent=%s order=%s amount=%.2f",
+        "stripe webhook checkout.session.completed — session=%s payment_intent=%s order=%s amount=%.2f currency=%s",
         session_id,
         payment_intent,
         order_id,
         amount,
+        currency,
     )
 
     payment_result = revenue.apply_stripe_checkout_payment(
         order_id=order_id,
         amount_eur=amount,
+        currency=currency,
         session_id=session_id,
         payment_intent=payment_intent,
         sender=sender,
