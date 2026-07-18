@@ -13,14 +13,25 @@ type OutreachQuotaHealth = {
   hard_max: number;
   day?: string | null;
   domain_count: number;
+  region_count?: number;
   pool_cap_total: number;
   sent_today_total: number;
   remaining_today_total: number;
   primary_used_today: number;
   primary_remaining: number;
+  regions?: {
+    region: string;
+    label_ru: string;
+    used_today: number;
+    remaining: number;
+    at_cap: boolean;
+    daily_cap: number;
+    domains?: { from?: string; domain: string; used_today: number }[];
+  }[];
   domains: {
     from?: string;
     domain: string;
+    region?: string;
     used_today: number;
     remaining: number;
     at_cap: boolean;
@@ -501,61 +512,76 @@ export default function AcquisitionPage() {
 
         {(status?.outreach_quota || worklist?.outreach_quota) && (
           <section className="genesis-card space-y-3 p-5">
-            <h2 className="text-sm font-semibold">Квота отправки · сегодня</h2>
+            <h2 className="text-sm font-semibold">Квота отправки · рынки сегодня</h2>
             {(() => {
               const q = status?.outreach_quota || worklist?.outreach_quota;
               if (!q) return null;
               const cap = q.daily_cap;
-              const multi = (q.domain_count || 0) > 1;
+              const regions = q.regions?.length
+                ? q.regions
+                : [
+                    {
+                      region: "de",
+                      label_ru: "Германия",
+                      used_today: q.primary_used_today,
+                      remaining: q.primary_remaining,
+                      at_cap: q.primary_remaining <= 0,
+                      daily_cap: cap,
+                    },
+                  ];
               return (
                 <>
                   <div className="grid gap-2 text-sm sm:grid-cols-3">
-                    <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
-                      <span className="text-genesis-muted">Отправлено сегодня</span>
-                      <span className="mt-1 block font-medium text-white">
-                        {q.primary_used_today} / {cap}
-                        {multi ? (
-                          <span className="ml-1 text-xs font-normal text-genesis-muted">
-                            (1-й домен)
-                          </span>
-                        ) : null}
-                      </span>
-                    </p>
-                    <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
-                      <span className="text-genesis-muted">Осталось сегодня</span>
-                      <span className="mt-1 block font-medium text-white">
-                        {q.primary_remaining}
-                      </span>
-                    </p>
-                    <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
-                      <span className="text-genesis-muted">Всего по всем доменам</span>
-                      <span className="mt-1 block font-medium text-white">
-                        {q.sent_today_total} / {q.pool_cap_total}
-                      </span>
-                    </p>
+                    {regions.map((r) => (
+                      <p
+                        key={r.region}
+                        className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2"
+                      >
+                        <span className="text-genesis-muted">{r.label_ru}</span>
+                        <span className="mt-1 block font-medium text-white">
+                          {r.used_today} / {r.daily_cap ?? cap}
+                          {r.at_cap ? (
+                            <span className="ml-1 text-xs font-normal text-amber-300">
+                              лимит
+                            </span>
+                          ) : null}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] text-genesis-muted">
+                          осталось {r.remaining}
+                        </span>
+                      </p>
+                    ))}
                   </div>
+                  <p className="rounded-lg border border-emerald-500/20 bg-emerald-950/20 px-3 py-2 text-sm">
+                    <span className="text-genesis-muted">Всего по рынкам</span>
+                    <span className="mt-1 block font-medium text-white">
+                      {q.sent_today_total} / {q.pool_cap_total}
+                    </span>
+                  </p>
                   {q.domains?.length ? (
                     <ul className="space-y-1 text-xs text-genesis-muted">
                       {q.domains.map((d) => (
-                        <li key={d.domain || d.from || "domain"}>
-                          {d.domain || "—"}: {d.used_today}/{cap}
-                          {d.at_cap ? " · лимит" : ""}
+                        <li key={`${d.region || "de"}-${d.domain || d.from || "x"}`}>
+                          {(d.region || "de").toUpperCase()} · {d.domain || "—"}:{" "}
+                          {d.used_today} (регион {d.at_cap ? "лимит" : "ok"})
                         </li>
                       ))}
                     </ul>
                   ) : (
                     <p className="text-xs text-genesis-muted">
-                      From-домены не настроены — задайте GENESIS_EMAIL_FROM или
-                      GENESIS_OUTREACH_FROM_DOMAINS.
+                      From не настроены. Пример:{" "}
+                      <code className="text-white/70">
+                        de:…@de.de, cis:…@cis.com, us:…@us.com
+                      </code>
                     </p>
                   )}
                   {q.sniper_note_ru ? (
                     <p className="text-[11px] leading-relaxed text-genesis-muted">{q.sniper_note_ru}</p>
                   ) : null}
                   <p className="text-[11px] text-genesis-muted">
-                    Лимит/день на домен:{" "}
+                    Лимит/день на рынок:{" "}
                     <code className="text-white/80">GENESIS_OUTREACH_DAILY_CAP</code> = {cap}{" "}
-                    (макс. {q.hard_max}). Без правки кода.
+                    (макс. {q.hard_max}). Германия · СНГ · Америка — отдельные пулы.
                   </p>
                 </>
               );

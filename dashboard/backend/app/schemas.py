@@ -1389,17 +1389,19 @@ class EngineFinancialExportSummary(BaseModel):
 
 
 class OutreachQuotaHealth(BaseModel):
-    """CEO send-capacity snapshot (per domain + pool totals)."""
+    """CEO send-capacity snapshot (per market region + domain detail)."""
 
     daily_cap: int
     hard_max: int = 100
     day: str | None = None
     domain_count: int = 0
+    region_count: int = 0
     pool_cap_total: int = 0
     sent_today_total: int = 0
     remaining_today_total: int = 0
     primary_used_today: int = 0
     primary_remaining: int = 0
+    regions: list[dict] = []
     domains: list[dict] = []
     sniper_note_ru: str = ""
 

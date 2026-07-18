@@ -1017,7 +1017,9 @@ class AcquisitionStudioService:
                         from_addr=picked,
                     )
                     if send_result.get("ok"):
-                        self._send_quota.record_send(picked)
+                        self._send_quota.record_send(
+                            picked, region=pick_meta.get("region")
+                        )
                         row["outreach_status"] = "sent"
                         row["status"] = "contacted"
                         row["status_label"] = "Связались"

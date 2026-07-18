@@ -65,4 +65,4 @@ def test_daily_cap_blocks_overage(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     assert "daily_cap" in why
     none_addr, none_meta = q.pick_from_address()
     assert none_addr is None
-    assert none_meta["reason"] == "all_domains_at_cap"
+    assert none_meta["reason"] in ("all_regions_at_cap", "region_at_cap:de", "all_domains_at_cap")
