@@ -15,6 +15,8 @@ from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.site_analysis_service import SiteAnalysisService
 from app.integration.google_places_service import GooglePlacesService
 from app.integration.outreach_language_service import OutreachLanguageService
+from app.integration.global_exclusion import GlobalExclusionService
+from app.integration.outreach_send_quota import OutreachSendQuota, outreach_daily_cap
 from app.integration.pilot_service_catalog import (
     ceo_catalog_snapshot,
     suggest_services_for_signals,
@@ -175,6 +177,8 @@ class AcquisitionStudioService:
         self._email = ReceiptEmailService(memory_dir=mem)
         self._places = GooglePlacesService()
         self._outreach_lang = OutreachLanguageService()
+        self._exclusion = GlobalExclusionService(opportunity_service)
+        self._send_quota = OutreachSendQuota(mem)
 
     def _hunt(self) -> dict[str, Any]:
         from app.integration.global_spider_service import GlobalSpiderService
@@ -261,7 +265,10 @@ class AcquisitionStudioService:
             "target_city": hunt["target_city"],
             "search_radius": hunt["search_radius"],
             "profitable_niches": hunt["profitable_niches"],
-            "target_per_day": 5,
+            "target_per_day": 8,
+            "target_per_day_note_ru": "Снайпер: 5–10 писем/день на старт (не массовая рассылка)",
+            "outreach_daily_cap": outreach_daily_cap(),
+            "outreach_quota": self._send_quota.health(),
             "segments": self._daily_segments(),
             "sources_disabled": [
                 s["id"]
@@ -315,6 +322,7 @@ class AcquisitionStudioService:
         drafted = 0
         skipped_has_site = 0
         skipped_already_queued = 0
+        skipped_excluded = 0
         duplicates = 0
         blocked = 0
 
@@ -347,6 +355,15 @@ class AcquisitionStudioService:
                 created += 1
             row = result.get("row")
             if not row:
+                continue
+
+            excluded, _reason = self._exclusion.check(
+                email=str(row.get("contact") or ""),
+                website_url=str(row.get("website_url") or lead.website or ""),
+                exclude_id=str(row.get("id") or ""),
+            )
+            if excluded:
+                skipped_excluded += 1
                 continue
 
             has_site = bool(str(row.get("website_url") or "").strip())
@@ -385,6 +402,7 @@ class AcquisitionStudioService:
             "blocked": blocked,
             "skipped_has_site": skipped_has_site,
             "skipped_already_queued": skipped_already_queued,
+            "skipped_excluded": skipped_excluded,
             "force_skip_check": force_skip_check,
             "city": city,
             "search_radius": hunt["search_radius"],
@@ -554,6 +572,13 @@ class AcquisitionStudioService:
             url = str(row.get("website_url") or "").strip()
             if not url or self._domain_blocked(url):
                 continue
+            excluded, _reason = self._exclusion.check(
+                email=str(row.get("contact") or ""),
+                website_url=url,
+                exclude_id=str(row.get("id") or ""),
+            )
+            if excluded:
+                continue
             score = int(row.get("score") or 0)
             if score < min_score:
                 self._archive_quality(
@@ -689,8 +714,8 @@ class AcquisitionStudioService:
                 "Feedback",
             ],
             "week_targets_ru": {
-                "week1": "20 лидов · 10 писем · 5 ответов",
-                "week2": "3 созвона · 2 КП · 1 оплата",
+                "week1": "20–30 лидов · 5–10 писем/день · 150–300/мес · 3–5 ответов/нед",
+                "week2": "3 созвона · 2 КП · 1 оплата (снайпер, не спам)",
             },
             "money_path_ru": (
                 "Реальный € = клиент платит за аудит/отчёт (50–500 €), не Toloka ledger. "
@@ -944,21 +969,63 @@ class AcquisitionStudioService:
         to_email = self._extract_email(row.get("contact", ""))
         send_result: dict | None = None
 
+        excluded, excl_reason = self._exclusion.check(
+            email=to_email,
+            website_url=str(row.get("website_url") or ""),
+            exclude_id=str(row.get("id") or ""),
+        )
+        if excluded:
+            raise ValueError(f"excluded:{excl_reason}")
+
         if outreach_enabled and to_email:
-            send_result = self._email.send_outreach(
-                to=to_email,
-                subject=row.get("email_subject") or f"{BRAND_NAME} — {row.get('company_name')}",
-                text=row.get("proposed_message") or "",
-            )
-            if send_result.get("ok"):
-                row["outreach_status"] = "sent"
-                row["status"] = "contacted"
-                row["status_label"] = "Связались"
-                self._log_interaction(row, "sent", f"Отправлено на {to_email}")
-            else:
+            # Daily sniper cap before Resend call
+            picked, pick_meta = self._send_quota.pick_from_address()
+            if not picked:
+                send_result = {
+                    "ok": False,
+                    "skipped": True,
+                    "reason": pick_meta.get("reason") or "daily_cap",
+                    "quota": pick_meta,
+                }
                 row["outreach_status"] = "approved"
-                reason = send_result.get("reason", "send_failed")
-                self._log_interaction(row, "approved", f"Approve OK, отправка: {reason}")
+                self._log_interaction(
+                    row,
+                    "approved",
+                    f"Approve OK, отправка заблокирована квотой: {send_result['reason']}",
+                )
+            else:
+                can, why = self._send_quota.can_send(picked)
+                if not can:
+                    send_result = {
+                        "ok": False,
+                        "skipped": True,
+                        "reason": why,
+                        "quota": pick_meta,
+                    }
+                    row["outreach_status"] = "approved"
+                    self._log_interaction(
+                        row, "approved", f"Approve OK, квота: {why}"
+                    )
+                else:
+                    send_result = self._email.send_outreach(
+                        to=to_email,
+                        subject=row.get("email_subject")
+                        or f"{BRAND_NAME} — {row.get('company_name')}",
+                        text=row.get("proposed_message") or "",
+                        from_addr=picked,
+                    )
+                    if send_result.get("ok"):
+                        self._send_quota.record_send(picked)
+                        row["outreach_status"] = "sent"
+                        row["status"] = "contacted"
+                        row["status_label"] = "Связались"
+                        self._log_interaction(row, "sent", f"Отправлено на {to_email}")
+                    else:
+                        row["outreach_status"] = "approved"
+                        reason = send_result.get("reason", "send_failed")
+                        self._log_interaction(
+                            row, "approved", f"Approve OK, отправка: {reason}"
+                        )
         else:
             row["outreach_status"] = "approved"
             note = "CEO Approve — скопируйте письмо и отправьте вручную"

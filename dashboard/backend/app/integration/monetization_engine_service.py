@@ -46,7 +46,7 @@ _PENDING_STATUSES = frozenset({"new", "reviewed"})
 
 _NETWORK_MRR_PER_ASSET_EUR = 20.0
 _NETWORK_TARGET_MRR_EUR = 10_000.0
-_NETWORK_BATCH_MAX = 1000
+_NETWORK_BATCH_MAX = 50  # sniper scan — not spam-scale 1000
 
 _NICHE_SCAN_QUERIES: dict[str, str] = {
     "local_service": "local service business",
@@ -867,10 +867,10 @@ class MonetizationEngineService:
         self,
         *,
         niche: str = "local_service",
-        batch_limit: int = 1000,
+        batch_limit: int = 20,
         region: str = "WORLD",
     ) -> dict[str, Any]:
-        """Scalable worldwide scan — up to 1000 public URLs per run."""
+        """Sniper worldwide scan — capped (not mass cold blast)."""
         niche_key = niche if niche in _NICHE_SCAN_QUERIES else "local_service"
         batch_limit = max(1, min(_NETWORK_BATCH_MAX, int(batch_limit)))
         world_regions = world_scan_regions()
@@ -955,7 +955,7 @@ class MonetizationEngineService:
         self,
         *,
         niche: str = "local_service",
-        batch_limit: int = 500,
+        batch_limit: int = 20,
         tech_pattern_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         """Global Spider — technology-pattern targets worldwide (public URLs only)."""

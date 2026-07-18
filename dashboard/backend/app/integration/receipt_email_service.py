@@ -192,7 +192,14 @@ class ReceiptEmailService:
             html=html_body,
         )
 
-    def send_outreach(self, *, to: str, subject: str, text: str) -> dict:
+    def send_outreach(
+        self,
+        *,
+        to: str,
+        subject: str,
+        text: str,
+        from_addr: str | None = None,
+    ) -> dict:
         """CEO-approved cold outreach — Impressum + UWG opt-out footer required."""
         legal = LegalFoundationService(self._memory)
         footer = legal.email_footer_de(include_opt_out=True, for_outreach=True)
@@ -223,6 +230,7 @@ class ReceiptEmailService:
             text=body_text,
             html=html_body,
             list_unsubscribe=str(footer.get("list_unsubscribe") or ""),
+            from_addr=from_addr,
         )
 
     def _send(
@@ -234,16 +242,17 @@ class ReceiptEmailService:
         html: str,
         list_unsubscribe: str = "",
         bcc: str = "",
+        from_addr: str | None = None,
     ) -> dict:
         if not to:
             return {"ok": False, "skipped": True, "reason": "no_email"}
         api_key = os.getenv("RESEND_API_KEY", "").strip()
-        from_addr = os.getenv("GENESIS_EMAIL_FROM", "").strip()
-        if not api_key or not from_addr:
+        resolved_from = (from_addr or "").strip() or os.getenv("GENESIS_EMAIL_FROM", "").strip()
+        if not api_key or not resolved_from:
             return {"ok": False, "skipped": True, "reason": "not_configured"}
 
         payload: dict = {
-            "from": from_addr,
+            "from": resolved_from,
             "to": [to],
             "subject": subject,
             "text": text,
@@ -267,5 +276,9 @@ class ReceiptEmailService:
                 "reason": f"resend_error:{res.status_code}",
                 "detail": res.text[:200],
             }
-        data = res.json()
-        return {"ok": True, "email_id": data.get("id"), "to": to}
+        return {
+            "ok": True,
+            "provider": "resend",
+            "from": resolved_from,
+            "id": (res.json() or {}).get("id"),
+        }
