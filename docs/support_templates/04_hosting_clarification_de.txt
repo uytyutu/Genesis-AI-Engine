@@ -1,0 +1,22 @@
+Betreff: Kurz zur Hosting-Frage · Bestellung {{order_id}}
+
+Guten Tag {{name}},
+
+kurze Klarstellung — das ist eine der häufigsten Fragen:
+
+Was Sie bei Virtus Core bezahlt haben:
+- die fertige Website (Dateien gehören Ihnen)
+- je nach Paket: Hilfe beim Upload oder die vollständige Einrichtung (Domain-Anbindung, SSL, Go-live)
+
+Was Sie beim Hosting-Anbieter bezahlen:
+- Domain und Hosting-Miete (meist jährlich)
+- Vertrag schließen Sie direkt mit dem Anbieter
+
+Wir helfen bei der Wahl. Unter den gängigen Optionen in Deutschland sind z. B. Hetzner, IONOS, All-Inkl und Netcup.
+Virtus Core ist kein Reseller: wir verkaufen kein Hosting und stellen dafür keine eigenen Rechnungen.
+
+Wenn Sie möchten, schicken wir Ihnen gerne die nächsten Schritte inkl. Zugangsliste für Business/Premium.
+
+Mit freundlichen Grüßen
+Virtus Core
+{{support_email}}

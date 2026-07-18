@@ -30,9 +30,11 @@
     "faq2q": "Was kostet es?",
     "faq2a": "Basic 350 € · Business 650 € · Premium 1 200 € — einmalig. Domain und Hosting bleiben Ihre laufenden Kosten.",
     "faq3q": "Wie kontaktiere ich den Support?",
-    "faq3a": "Schreiben Sie an {{email}} — Antworten auf Deutsch (Support).",
+    "faq3a": "Fragen zu Bestellung, Zahlung, ZIP und Veröffentlichung (Path A): bitte an {{email}} — Antworten auf Deutsch. Der Vector-Chat auf dieser Seite ist der Assistent zum Ausprobieren, kein Bestell-Helpdesk.",
     "faq4q": "Gehört Hosting zum Preis?",
     "faq4a": "Nein. Wir helfen bei der Wahl; unter den gängigen Optionen in DE sind Hetzner, IONOS, All-Inkl und Netcup. Vertrag und Zahlung laufen direkt mit dem Anbieter. Business/Premium: wir richten die Seite mit Ihrem Zugang ein.",
+    "faq5q": "Ist Vector der Support für meine Bestellung?",
+    "faq5a": "Nein. Vector hier auf /site hilft beim Kennenlernen. Alles zu laufenden Aufträgen (Status, Download, Korrekturen, Hosting-Zugänge) — bitte {{email}}.",
     "afterPay": "Nach der Zahlung startet die Produktion. Status und Download Ihrer Dateien sehen Sie auf der Bestellseite.",
     "cta": "Angebot erhalten",
     "ctaSecondary": "Landing bestellen",
@@ -140,7 +142,7 @@
   },
   "kontakt": {
     "title": "Kontakt",
-    "description": "Fragen zu Bestellung, Status oder Zusammenarbeit — schreiben Sie uns. Support antwortet auf Deutsch.",
+    "description": "Fragen zu Bestellung, Status oder Veröffentlichung — E-Mail an uns (Deutsch). Vector-Chat auf /site ist kein Bestell-Support.",
     "ready": "Bereit für Ihren Neustart?",
     "cta": "Zur Bestellung →"
   },

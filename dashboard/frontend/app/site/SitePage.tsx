@@ -193,6 +193,12 @@ export function SitePage() {
               <dt className="font-medium text-white/90">{t("pathA.faq4q")}</dt>
               <dd className="mt-1 text-genesis-muted">{t("pathA.faq4a")}</dd>
             </div>
+            <div>
+              <dt className="font-medium text-white/90">{t("pathA.faq5q")}</dt>
+              <dd className="mt-1 text-genesis-muted">
+                {t("pathA.faq5a", { email: CONTACT_EMAIL })}
+              </dd>
+            </div>
           </dl>
         </section>
 

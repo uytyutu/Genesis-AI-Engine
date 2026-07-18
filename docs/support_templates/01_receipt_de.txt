@@ -1,0 +1,20 @@
+Betreff: Zahlung erhalten — Ihre Bestellung {{order_id}} · Virtus Core
+
+Guten Tag {{name}},
+
+vielen Dank — wir haben Ihre Zahlung für das Paket {{package}} erhalten.
+
+Bestellnummer: {{order_id}}
+Betrag: {{amount}} €
+
+Was als Nächstes passiert:
+1. Wir starten die Produktion Ihrer Landing Page.
+2. Den aktuellen Status sehen Sie unter:
+   {{status_url}}
+3. Sobald die Dateien bereit sind, können Sie das ZIP dort herunterladen (oder wir senden es Ihnen zu).
+
+Fragen zu dieser Bestellung bitte an diese E-Mail-Adresse — nicht über den Vector-Chat auf der Website.
+
+Mit freundlichen Grüßen
+Virtus Core
+{{support_email}}

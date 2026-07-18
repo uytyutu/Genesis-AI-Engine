@@ -1,0 +1,31 @@
+Betreff: Nächste Schritte — Zugänge für Veröffentlichung · {{order_id}}
+
+Guten Tag {{name}},
+
+Ihr Paket {{package}} umfasst Hilfe beim Upload bzw. die vollständige Veröffentlichung.
+
+Damit wir die Seite live schalten können, brauchen wir von Ihnen:
+
+1. Hosting-Zugang
+   - Anbieter (z. B. Hetzner, IONOS, All-Inkl, Netcup) und Tarif, falls bekannt
+   - FTP / SFTP / Dateimanager-Zugang ODER temporärer Zugang zum Kundenkonto
+   - Passwörter bitte nur über sicheren Kanal; nach Go-live ändern
+
+2. Domain (falls schon vorhanden)
+   - Domainname
+   - Zugang zum Registrar ODER Bestätigung, dass Sie DNS-Einträge nach unserer Anleitung setzen
+
+3. Optional
+   - Logo-Datei (PNG)
+   - Google-Maps-Link
+   - Analytics-ID (nur Premium)
+
+Wir verkaufen kein Hosting und stellen keine Rechnungen für Domain/Hosting.
+Vertrag und Zahlung laufen direkt zwischen Ihnen und dem Anbieter.
+Wir richten die Website mit Ihren Zugangsdaten ein.
+
+Sobald die Zugänge da sind, melden wir den voraussichtlichen Go-live-Termin.
+
+Mit freundlichen Grüßen
+Virtus Core
+{{support_email}}

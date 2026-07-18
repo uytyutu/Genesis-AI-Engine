@@ -1,0 +1,26 @@
+Betreff: Ihre Website ist bereit — ZIP · Bestellung {{order_id}}
+
+Guten Tag {{name}},
+
+Ihre Landing Page für «{{business_name}}» ist fertig.
+
+So gehen Sie vor:
+1. ZIP herunterladen (Link / Download auf der Bestellseite):
+   {{status_url}}
+   oder Anhang dieser E-Mail.
+2. Archiv entpacken.
+3. index.html im Browser öffnen und prüfen.
+4. impressum.html und datenschutz.html nur freigeben, wenn alle Angaben stimmen.
+5. Dateien auf Ihr Hosting laden — oder uns bei Business/Premium den Zugang schicken (Vorlage «Zugänge»).
+
+Im ZIP liegt auch README_PUBLISH.txt mit den Schritten im Detail.
+
+Korrekturen im Rahmen Ihres Pakets:
+- Business: 1 Korrekturrunde
+- Premium: bis zu 3 Korrekturrunden + Support gemäß Paket
+
+Antworten Sie einfach auf diese E-Mail, wenn etwas angepasst werden soll.
+
+Mit freundlichen Grüßen
+Virtus Core
+{{support_email}}
