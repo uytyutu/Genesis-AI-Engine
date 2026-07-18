@@ -37,6 +37,7 @@ _PACKAGES = {
             "Anleitung zur Selbst-Veröffentlichung",
             "Impressum- und Datenschutz-Vorlagen (von Ihnen zu prüfen)",
             "WhatsApp-Button, Kontaktformular, Basis-SEO",
+            "Lieferzeit: ca. 5–14 Werktage (je nach Paket und Rückmeldungen).",
         ],
     },
     "business": {
@@ -49,6 +50,7 @@ _PACKAGES = {
             "Hilfe beim Upload auf Ihren Hosting-Zugang (manuell)",
             "1 Korrekturrunde",
             "Hilfe bei der Wahl des Hostings; Vertrag Domain/Hosting direkt mit dem Anbieter",
+            "Lieferzeit: ca. 5–14 Werktage (je nach Paket und Rückmeldungen).",
         ],
     },
     "premium": {
@@ -61,6 +63,7 @@ _PACKAGES = {
             "Vollständige Veröffentlichung: Domain-Anbindung, Hosting-Setup, SSL, Go-live (wenn Sie Zugang geben)",
             "14 Tage Support + 3 Korrekturrunden",
             "Domain/Hosting-Vertrag schließen Sie direkt mit dem Anbieter (kein Reseller-Modell)",
+            "Lieferzeit: ca. 5–14 Werktage (je nach Paket und Rückmeldungen).",
         ],
     },
 }
