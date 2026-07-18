@@ -227,3 +227,9 @@ Gate 1 проверяет **механику** (продажа → оплата 
 - **Storefront scrub:** buyer order bullets — remove Factory jargon (i18n `site.json` en/ru); see commit `fix(i18n): remove Factory jargon from buyer order bullets`
 - **TRUTH_VERSION:** `mission1-truth-13` (unchanged — no category bump)
 
+
+### Follow-up (storefront scrub)
+
+- public chrome: Storefront / Working with Vector removed from buyer header
+- services `pickCategories` falls back to website while API on truth-12
+- CEO must restart Genesis (backend + frontend) for truth-13 + new locales

@@ -101,7 +101,8 @@ function pickCategories(data: PricingDisplay | null): ServiceCategory[] {
         ]
       : [];
 
-  const preferred = ["path_a_packages", "path_a_pilot"];
+  // Prefer Path A catalog; fall back to legacy "website" while backend still serves truth-12.
+  const preferred = ["path_a_packages", "path_a_pilot", "website"];
   const ordered = [
     ...preferred.map((id) => raw.find((c) => c.id === id)).filter(Boolean),
     ...raw.filter((c) => preferred.includes(c.id) === false && c.id !== "horizon_agency"),
@@ -112,7 +113,9 @@ function pickCategories(data: PricingDisplay | null): ServiceCategory[] {
       ...cat,
       items: cat.items.filter((item) => {
         if (cat.id === "path_a_packages" || cat.id === "path_a_pilot") return true;
-        return false;
+        if (cat.id === "website") return Boolean(item.available);
+        // Quote/mailto pilots only; hide horizon / Bald vision rows from buyers.
+        return Boolean(item.cta_href?.startsWith("mailto:"));
       }),
     }))
     .filter((cat) => cat.items.length > 0);

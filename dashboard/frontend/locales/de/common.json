@@ -25,10 +25,10 @@
   },
   "skipToContent": "Zum Inhalt springen",
   "surface": {
-    "public": "Schaufenster",
+    "public": "Angebot",
     "client": "Mein Unternehmen",
     "ceo": "Inhaber-Bereich",
-    "workingWith": "Ich arbeite mit {{name}}"
+    "workingWith": "{{name}} hilft Ihnen gerne"
   },
   "footer": {
     "tagline": "{{name}} — Ihr digitaler Mitarbeiter",

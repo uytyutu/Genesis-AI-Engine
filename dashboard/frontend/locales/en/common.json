@@ -25,10 +25,10 @@
   },
   "skipToContent": "Skip to content",
   "surface": {
-    "public": "Storefront",
+    "public": "Offer",
     "client": "My company",
     "ceo": "Owner workspace",
-    "workingWith": "Working with {{name}}"
+    "workingWith": "{{name}} is ready to help"
   },
   "footer": {
     "tagline": "{{name}} — your digital teammate",

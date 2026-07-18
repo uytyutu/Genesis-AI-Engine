@@ -23,14 +23,16 @@ export function VirtusSurfaceIdentity({ surface, homeHref = "/" }: Props) {
         <div className="min-w-0">
           <p className="virtus-surface-identity__name">{BRAND_NAME}</p>
           <p className="virtus-surface-identity__tag">
-            {ASSISTANT_NAME} · {t(roleKey)}
+            {surface === "public" ? t(roleKey) : `${ASSISTANT_NAME} · ${t(roleKey)}`}
           </p>
         </div>
       </Link>
-      <p className="virtus-surface-identity__vector">
-        <span className="virtus-surface-identity__dot" aria-hidden />
-        {t("surface.workingWith", { name: ASSISTANT_NAME })}
-      </p>
+      {surface !== "public" ? (
+        <p className="virtus-surface-identity__vector">
+          <span className="virtus-surface-identity__dot" aria-hidden />
+          {t("surface.workingWith", { name: ASSISTANT_NAME })}
+        </p>
+      ) : null}
     </div>
   );
 }

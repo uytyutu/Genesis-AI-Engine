@@ -25,10 +25,10 @@
   },
   "skipToContent": "Перейти к содержимому",
   "surface": {
-    "public": "Витрина",
+    "public": "Предложение",
     "client": "Моя компания",
     "ceo": "Кабинет владельца",
-    "workingWith": "Работаю с {{name}}"
+    "workingWith": "{{name}} готов помочь"
   },
   "footer": {
     "tagline": "{{name}} — ваш цифровой сотрудник",
