@@ -7,7 +7,7 @@ import { PublicPageShell } from "../components/PublicPageShell";
 import { PackageSkeleton } from "../components/Skeleton";
 import { formatLocalizedMoney } from "../lib/formatEur";
 import { formatApiDetail } from "../lib/formatApiError";
-import { startOrderCheckout } from "../lib/orderCheckout";
+import { startOrderCheckout, fetchPaymentReady } from "../lib/orderCheckout";
 import { parseOrderPurchaseType } from "../lib/orderTrustCard";
 import { OrderTrustCard } from "../components/OrderTrustCard";
 import { OrderProjectSummary } from "../components/OrderProjectSummary";
@@ -153,10 +153,13 @@ export default function OrderSitePage() {
   }, [visitorId]);
 
   useEffect(() => {
-    fetch(`${API}/api/sales/payment-status`)
-      .then((r) => r.json())
-      .then((body) => setPaymentReady(Boolean(body.configured)))
-      .catch(() => setPaymentReady(false));
+    let cancelled = false;
+    void fetchPaymentReady().then((ready) => {
+      if (!cancelled) setPaymentReady(ready);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -166,18 +169,33 @@ export default function OrderSitePage() {
       if (city.trim()) params.set("city", city.trim());
       if (description.trim()) params.set("text", description.trim());
       const qs = params.toString();
-      fetch(`${API}/api/sales/packages${qs ? `?${qs}` : ""}`)
-        .then((r) => r.json())
-        .then((body) => {
-          setPackages(body.packages ?? []);
-          setCommerce({
-            currency: body.currency ?? "EUR",
-            symbol: body.symbol ?? "€",
-            market_code: body.market_code ?? "DE",
-          });
-        })
-        .catch(() => setPackages([]))
-        .finally(() => setPackagesLoading(false));
+      const load = async () => {
+        let lastFail = false;
+        for (let i = 0; i < 4; i++) {
+          try {
+            const res = await fetch(`${API}/api/sales/packages${qs ? `?${qs}` : ""}`);
+            if (res.status >= 500 && i < 3) {
+              await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+              continue;
+            }
+            const body = await res.json();
+            setPackages(body.packages ?? []);
+            setCommerce({
+              currency: body.currency ?? "EUR",
+              symbol: body.symbol ?? "€",
+              market_code: body.market_code ?? "DE",
+            });
+            lastFail = false;
+            break;
+          } catch {
+            lastFail = true;
+            if (i < 3) await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+          }
+        }
+        if (lastFail) setPackages([]);
+        setPackagesLoading(false);
+      };
+      void load();
     }, 300);
     return () => window.clearTimeout(timer);
   }, [visitorId, city, description]);
