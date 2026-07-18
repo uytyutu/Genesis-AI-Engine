@@ -74,6 +74,9 @@ from app.schemas import (
     SalesOrderCreateRequest,
     SalesOrderCreatedResponse,
     SalesOrdersListResponse,
+    OrderMaterialUploadResponse,
+    OrderInsightsPreviewRequest,
+    OrderInsightsPreviewResponse,
     SalesPackage,
     SalesPackagesResponse,
     CompanyOverview,
@@ -2089,6 +2092,65 @@ def create_sales_order(request: SalesOrderCreateRequest) -> SalesOrderCreatedRes
     if order and order.get("email"):
         ReceiptEmailService().send_order_received(order=order)
     return SalesOrderCreatedResponse(**result)
+
+
+@app.post("/api/sales/order-materials", response_model=OrderMaterialUploadResponse)
+async def upload_sales_order_material(
+    file: UploadFile = File(...),
+    session_id: str = "anon",
+) -> OrderMaterialUploadResponse:
+    from app.integration.order_materials_service import OrderMaterialsService
+    from app.schemas import OrderMaterialUploadResponse as _Resp
+
+    svc = OrderMaterialsService(_memory_dir())
+    try:
+        row = svc.save(file, session_id=(session_id or "anon")[:64])
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return _Resp(**row)
+
+
+@app.post("/api/sales/order-insights-preview", response_model=OrderInsightsPreviewResponse)
+def preview_sales_order_insights(body: OrderInsightsPreviewRequest) -> OrderInsightsPreviewResponse:
+    from app.integration.order_materials_service import OrderMaterialsService
+    from app.schemas import OrderInsightsPreviewResponse as _Resp
+
+    website = (body.company_website or "").strip() or None
+    site_analysis = None
+    if website:
+        try:
+            site_analysis = _ctx().sales._analyze_company_website(  # noqa: SLF001
+                _ctx().sales._normalize_company_website(website)  # noqa: SLF001
+            )
+        except Exception:
+            site_analysis = None
+
+    social = {
+        "google_business": (body.google_business or "").strip(),
+        "instagram": (body.instagram or "").strip(),
+        "facebook": (body.facebook or "").strip(),
+        "tiktok": (body.tiktok or "").strip(),
+        "linkedin": (body.linkedin or "").strip(),
+        "youtube": (body.youtube or "").strip(),
+        "telegram": (body.telegram or "").strip(),
+        "whatsapp": (body.whatsapp or "").strip(),
+    }
+    social = {k: v for k, v in social.items() if v}
+    mats = OrderMaterialsService(_memory_dir())
+    insights = mats.build_buyer_insights(
+        company_website=_ctx().sales._normalize_company_website(website) if website else None,  # noqa: SLF001
+        domain=(body.existing_domain or "").strip() or None,
+        domain_status=(body.domain_status or "").strip() or None,
+        social=social,
+        material_ids=list(body.material_ids or []),
+        site_analysis=site_analysis,
+    )
+    return _Resp(
+        ok=True,
+        checks=list(insights.get("checks") or []),
+        note_de=str(insights.get("note_de") or ""),
+        site_analysis=insights.get("site_analysis") if isinstance(insights.get("site_analysis"), dict) else None,
+    )
 
 
 @app.get("/api/sales/orders", response_model=SalesOrdersListResponse)

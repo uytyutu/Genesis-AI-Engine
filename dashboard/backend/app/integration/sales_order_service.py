@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import uuid
 from datetime import datetime, timezone
@@ -25,6 +26,8 @@ from app.integration.product_line import (
     service_label_ru,
 )
 from app.schemas import FactoryIntentRequest
+
+logger = logging.getLogger(__name__)
 
 _PACKAGES = {
     "basic": {
@@ -160,6 +163,62 @@ class SalesOrderService:
         client_message = project_awaiting_payment_message(launch_mode=launch_mode)
         company_website = self._normalize_company_website(payload.get("company_website"))
         site_analysis = self._analyze_company_website(company_website) if company_website else None
+
+        existing_domain = (payload.get("existing_domain") or "").strip() or None
+        domain_status = (payload.get("domain_status") or "").strip().lower()
+        if domain_status not in ("none", "have_domain", "need_help"):
+            if existing_domain or company_website:
+                domain_status = "have_domain"
+            elif payload.get("needs_domain"):
+                domain_status = "need_help"
+            else:
+                domain_status = "none"
+        domain_help_message = None
+        if domain_status in ("none", "need_help"):
+            domain_help_message = (
+                "Wir können bei der Auswahl und Anbindung einer Domain helfen — "
+                "ohne sofortigen Kaufzwang."
+            )
+        effective_needs_domain = domain_status in ("none", "need_help") and not existing_domain
+
+        social_links = {
+            "google_business": (payload.get("google_business") or "").strip() or None,
+            "instagram": (payload.get("instagram") or "").strip() or None,
+            "facebook": (payload.get("facebook") or "").strip() or None,
+            "tiktok": (payload.get("tiktok") or "").strip() or None,
+            "linkedin": (payload.get("linkedin") or "").strip() or None,
+            "youtube": (payload.get("youtube") or "").strip() or None,
+            "telegram": (payload.get("telegram") or "").strip() or None,
+            "whatsapp": (payload.get("whatsapp") or "").strip() or None,
+            "website": company_website,
+            "domain": existing_domain,
+        }
+        social_links = {k: v for k, v in social_links.items() if v}
+
+        material_ids = [
+            str(x).strip()
+            for x in (payload.get("material_ids") or [])
+            if str(x).strip()
+        ][:40]
+        materials_bundle: dict = {"files": [], "count": 0}
+        buyer_insights: dict | None = None
+        try:
+            from app.integration.order_materials_service import OrderMaterialsService
+
+            mats = OrderMaterialsService(self._memory)
+            if material_ids:
+                materials_bundle = mats.attach_to_order(order_id, material_ids)
+            buyer_insights = mats.build_buyer_insights(
+                company_website=company_website,
+                domain=existing_domain,
+                domain_status=domain_status,
+                social=social_links,
+                material_ids=material_ids,
+                site_analysis=site_analysis,
+            )
+        except Exception as exc:
+            logger.warning("order materials/insights skipped: %s", exc)
+
         order = {
             "order_id": order_id,
             "status": "awaiting_payment",
@@ -183,10 +242,23 @@ class SalesOrderService:
             "whatsapp": (payload.get("whatsapp") or "").strip(),
             "email": (payload.get("email") or "").strip(),
             "needs_logo": bool(payload.get("needs_logo")),
-            "needs_domain": bool(payload.get("needs_domain")),
+            "needs_domain": bool(effective_needs_domain),
+            "domain_status": domain_status,
+            "existing_domain": existing_domain,
+            "domain_help_message": domain_help_message,
             "extra_wishes": (payload.get("extra_wishes") or "").strip(),
             "company_website": company_website,
+            "social_links": social_links,
+            "materials": materials_bundle,
+            "buyer_insights": buyer_insights,
             "site_analysis": site_analysis,
+            "project_workspace": {
+                "materials": materials_bundle.get("files") or [],
+                "analysis": buyer_insights,
+                "documents": [],
+                "invoices": [],
+                "status": "awaiting_payment",
+            },
             "client_legal": self._client_legal_payload(payload),
             "visitor_id": (payload.get("visitor_id") or "").strip()[:64] or None,
             "service_id": service_id,
@@ -218,6 +290,7 @@ class SalesOrderService:
             "market_code": package.get("market_code", "DE"),
             "price_label": package.get("price_label"),
             "deliverables": order["deliverables"],
+            "buyer_insights": buyer_insights,
         }
 
     def list_orders(self, limit: int = 20) -> list[dict]:

@@ -263,6 +263,19 @@ class SalesOrderCreateRequest(BaseModel):
         max_length=400,
         description="Optional existing company site for Path A analysis → Factory brief",
     )
+    domain_status: str | None = Field(
+        default=None,
+        description="none | have_domain | need_help",
+    )
+    existing_domain: str | None = Field(default=None, max_length=200)
+    google_business: str | None = Field(default=None, max_length=400)
+    instagram: str | None = Field(default=None, max_length=400)
+    facebook: str | None = Field(default=None, max_length=400)
+    tiktok: str | None = Field(default=None, max_length=400)
+    linkedin: str | None = Field(default=None, max_length=400)
+    youtube: str | None = Field(default=None, max_length=400)
+    telegram: str | None = Field(default=None, max_length=400)
+    material_ids: list[str] = Field(default_factory=list, max_length=40)
     client_legal: ClientLegalFields | None = None
     package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
     product_id: str | None = Field(default=None, max_length=80)
@@ -276,6 +289,42 @@ class SalesOrderCreatedResponse(BaseModel):
     package_name: str
     price_eur: float
     deliverables: list[str]
+    buyer_insights: dict | None = None
+    currency: str | None = None
+    price_label: str | None = None
+    symbol: str | None = None
+    market_code: str | None = None
+
+
+class OrderMaterialUploadResponse(BaseModel):
+    id: str
+    filename: str
+    content_type: str
+    size: int
+    findings: list[dict] = Field(default_factory=list)
+    status_de: str
+
+
+class OrderInsightsPreviewRequest(BaseModel):
+    company_website: str | None = Field(default=None, max_length=400)
+    domain_status: str | None = Field(default=None, max_length=40)
+    existing_domain: str | None = Field(default=None, max_length=200)
+    google_business: str | None = Field(default=None, max_length=400)
+    instagram: str | None = Field(default=None, max_length=400)
+    facebook: str | None = Field(default=None, max_length=400)
+    tiktok: str | None = Field(default=None, max_length=400)
+    linkedin: str | None = Field(default=None, max_length=400)
+    youtube: str | None = Field(default=None, max_length=400)
+    telegram: str | None = Field(default=None, max_length=400)
+    whatsapp: str | None = Field(default=None, max_length=40)
+    material_ids: list[str] = Field(default_factory=list, max_length=40)
+
+
+class OrderInsightsPreviewResponse(BaseModel):
+    ok: bool = True
+    checks: list[dict] = Field(default_factory=list)
+    note_de: str = ""
+    site_analysis: dict | None = None
 
 
 class SalesOrderSummary(BaseModel):

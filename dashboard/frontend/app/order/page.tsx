@@ -65,6 +65,25 @@ export default function OrderSitePage() {
   const [email, setEmail] = useState("");
   const [needsLogo, setNeedsLogo] = useState(false);
   const [needsDomain, setNeedsDomain] = useState(false);
+  const [domainStatus, setDomainStatus] = useState<"none" | "have_domain" | "need_help">("none");
+  const [existingDomain, setExistingDomain] = useState("");
+  const [googleBusiness, setGoogleBusiness] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [facebook, setFacebook] = useState("");
+  const [tiktok, setTiktok] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [youtube, setYoutube] = useState("");
+  const [telegram, setTelegram] = useState("");
+  const [materials, setMaterials] = useState<
+    { id: string; filename: string; size: number; status_de: string; findings: { label_de?: string }[] }[]
+  >([]);
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [formStep, setFormStep] = useState(1);
+  const [insights, setInsights] = useState<{ checks: { id: string; label_de: string; detail?: string }[]; note_de?: string } | null>(
+    null,
+  );
+  const [insightsBusy, setInsightsBusy] = useState(false);
   const [extraWishes, setExtraWishes] = useState("");
   const [legalOwner, setLegalOwner] = useState("");
   const [legalForm, setLegalForm] = useState("");
@@ -87,6 +106,7 @@ export default function OrderSitePage() {
     deliverables: string[];
     currency?: string;
     price_label?: string;
+    buyer_insights?: { checks?: { id: string; label_de: string; detail?: string }[]; note_de?: string } | null;
   } | null>(null);
   const [payBusy, setPayBusy] = useState(false);
   const [payError, setPayError] = useState("");
@@ -163,13 +183,26 @@ export default function OrderSitePage() {
   }, [visitorId, city, description]);
 
   const suggestedId = useMemo(
-    () => suggestPackage(needsLogo, needsDomain, extraWishes),
-    [needsLogo, needsDomain, extraWishes]
+    () =>
+      suggestPackage(
+        needsLogo,
+        needsDomain || domainStatus === "need_help",
+        extraWishes,
+      ),
+    [needsLogo, needsDomain, domainStatus, extraWishes],
   );
 
   useEffect(() => {
     if (!manualPackage) setPackageId(suggestedId);
   }, [suggestedId, manualPackage]);
+
+  useEffect(() => {
+    if (domainStatus === "need_help" || domainStatus === "none") {
+      setNeedsDomain(domainStatus === "need_help");
+    } else {
+      setNeedsDomain(false);
+    }
+  }, [domainStatus]);
 
   const formatPrice = (
     amount: number,
@@ -180,10 +213,99 @@ export default function OrderSitePage() {
 
   const selected = packages.find((p) => p.id === packageId) ?? packages[0];
 
+  async function uploadMaterials(files: FileList | null) {
+    if (!files?.length) return;
+    setUploadBusy(true);
+    setUploadError("");
+    try {
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch(
+          `${API}/api/sales/order-materials?session_id=${encodeURIComponent(visitorId || "anon")}`,
+          { method: "POST", body: fd },
+        );
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setUploadError(formatApiDetail(body.detail) || t("order.uploadFail"));
+          continue;
+        }
+        setMaterials((prev) => [
+          ...prev,
+          {
+            id: body.id,
+            filename: body.filename,
+            size: body.size,
+            status_de: body.status_de,
+            findings: body.findings || [],
+          },
+        ]);
+      }
+    } catch {
+      setUploadError(t("order.serverDown"));
+    } finally {
+      setUploadBusy(false);
+    }
+  }
+
+  async function loadInsightsPreview() {
+    setInsightsBusy(true);
+    try {
+      const res = await fetch(`${API}/api/sales/order-insights-preview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_website: companyWebsite.trim() || null,
+          domain_status: domainStatus,
+          existing_domain: existingDomain.trim() || null,
+          google_business: googleBusiness.trim() || null,
+          instagram: instagram.trim() || null,
+          facebook: facebook.trim() || null,
+          tiktok: tiktok.trim() || null,
+          linkedin: linkedin.trim() || null,
+          youtube: youtube.trim() || null,
+          telegram: telegram.trim() || null,
+          whatsapp: whatsapp.trim() || null,
+          material_ids: materials.map((m) => m.id),
+        }),
+      });
+      const body = await res.json();
+      if (res.ok) {
+        setInsights({ checks: body.checks || [], note_de: body.note_de });
+      }
+    } catch {
+      /* preview optional — order still works */
+    } finally {
+      setInsightsBusy(false);
+    }
+  }
+
+  function canAdvance(step: number): boolean {
+    if (step === 1) {
+      if (!businessName.trim() || !description.trim() || !email.trim()) {
+        setError(t("order.step1Required"));
+        return false;
+      }
+    }
+    setError("");
+    return true;
+  }
+
+  async function goNext() {
+    if (!canAdvance(formStep)) return;
+    const next = Math.min(4, formStep + 1);
+    setFormStep(next);
+    if (next === 4) await loadInsightsPreview();
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) {
       setError(t("order.emailRequired"));
+      return;
+    }
+    if (!launch && formStep < 4) {
+      await goNext();
       return;
     }
     setBusy(true);
@@ -193,14 +315,24 @@ export default function OrderSitePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          business_name: businessName.trim(),
-          description: description.trim(),
+          business_name: businessName.trim() || launch?.company || "Projekt",
+          description: description.trim() || launch?.projectLabel || "Landing Launch",
           city: city.trim() || null,
           phone: phone.trim() || null,
           whatsapp: whatsapp.trim() || null,
           email: email.trim() || null,
           needs_logo: needsLogo,
-          needs_domain: needsDomain,
+          needs_domain: needsDomain || domainStatus === "need_help",
+          domain_status: domainStatus,
+          existing_domain: existingDomain.trim() || null,
+          google_business: googleBusiness.trim() || null,
+          instagram: instagram.trim() || null,
+          facebook: facebook.trim() || null,
+          tiktok: tiktok.trim() || null,
+          linkedin: linkedin.trim() || null,
+          youtube: youtube.trim() || null,
+          telegram: telegram.trim() || null,
+          material_ids: materials.map((m) => m.id),
           extra_wishes: extraWishes.trim() || null,
           company_website: companyWebsite.trim() || null,
           client_legal: {
@@ -234,6 +366,7 @@ export default function OrderSitePage() {
         deliverables: body.deliverables ?? [],
         currency: body.currency ?? commerce.currency,
         price_label: body.price_label,
+        buyer_insights: body.buyer_insights ?? insights,
       });
     } catch {
       setError(t("order.serverDown"));
@@ -306,6 +439,19 @@ export default function OrderSitePage() {
                       </li>
                     ))}
                   </ul>
+                  {done.buyer_insights?.checks && done.buyer_insights.checks.length > 0 ? (
+                    <>
+                      <p className="genesis-label mt-4">{t("order.insightsTitle")}</p>
+                      <ul className="mt-2 space-y-1.5 text-sm">
+                        {done.buyer_insights.checks.map((c) => (
+                          <li key={c.id} className="flex gap-2">
+                            <span className="text-emerald-400">✓</span>
+                            <span>{c.label_de}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null}
                 </>
               )}
             </Card>
@@ -386,145 +532,307 @@ export default function OrderSitePage() {
           <div className="space-y-4 lg:col-span-3">
             {!launch ? (
               <>
-            <Field label={t("order.businessName")} required>
-              <Input
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                placeholder={t("order.businessNamePh")}
-                required
-              />
-            </Field>
-            <Field label={t("order.description")} required>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder={t("order.descriptionPh")}
-                required
-              />
-            </Field>
-            <Field label={t("order.companyWebsite")} hint={t("order.companyWebsiteHint")}>
-              <Input
-                type="text"
-                inputMode="url"
-                value={companyWebsite}
-                onChange={(e) => setCompanyWebsite(e.target.value)}
-                placeholder={t("order.companyWebsitePh")}
-                autoComplete="url"
-              />
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={t("order.city")}>
-                <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("order.cityPh")} />
-              </Field>
-              <Field label={t("order.phone")}>
-                <Input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+49 …"
-                />
-              </Field>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={t("order.whatsapp")}>
-                <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+49 …" />
-              </Field>
-              <Field label={t("order.email")} required error={error && !email.trim() ? error : undefined}>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="hello@…"
-                  required
-                  error={Boolean(error && !email.trim())}
-                />
-              </Field>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              <label className="flex cursor-pointer items-center gap-2 text-sm transition-smooth hover:text-white">
-                <input
-                  type="checkbox"
-                  checked={needsLogo}
-                  onChange={(e) => setNeedsLogo(e.target.checked)}
-                  className="rounded border-genesis-border accent-genesis-accent"
-                />
-                {t("order.needsLogo")}
-              </label>
-              <label className="flex cursor-pointer items-center gap-2 text-sm transition-smooth hover:text-white">
-                <input
-                  type="checkbox"
-                  checked={needsDomain}
-                  onChange={(e) => setNeedsDomain(e.target.checked)}
-                  className="rounded border-genesis-border accent-genesis-accent"
-                />
-                {t("order.needsDomain")}
-              </label>
-            </div>
-            <p className="text-xs leading-relaxed text-genesis-muted">{t("order.logoNote")}</p>
-            <p className="text-xs leading-relaxed text-genesis-muted">{t("order.domainHostingNote")}</p>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
-              <p className="text-sm font-medium text-white">{t("order.legalTitle")}</p>
-              <p className="text-xs text-genesis-muted">{t("order.legalHint")}</p>
-              <Field label={t("order.legalOwner")}>
-                <Input
-                  value={legalOwner}
-                  onChange={(e) => setLegalOwner(e.target.value)}
-                  placeholder={t("order.businessNamePh")}
-                />
-              </Field>
-              <Field label={t("order.legalForm")}>
-                <Input
-                  value={legalForm}
-                  onChange={(e) => setLegalForm(e.target.value)}
-                  placeholder={t("order.legalFormPh")}
-                />
-              </Field>
-              <Field label={t("order.legalStreet")}>
-                <Input value={legalStreet} onChange={(e) => setLegalStreet(e.target.value)} />
-              </Field>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={t("order.legalZip")}>
-                  <Input value={legalZip} onChange={(e) => setLegalZip(e.target.value)} placeholder="50667" />
-                </Field>
-                <Field label={t("order.legalCity")}>
-                  <Input value={legalCity} onChange={(e) => setLegalCity(e.target.value)} placeholder={t("order.cityPh")} />
-                </Field>
-              </div>
-              <Field label={t("order.legalDirector")}>
-                <Input value={legalDirector} onChange={(e) => setLegalDirector(e.target.value)} />
-              </Field>
-              <Field label={t("order.legalVat")}>
-                <Input value={legalVat} onChange={(e) => setLegalVat(e.target.value)} placeholder="DE…" />
-              </Field>
-              <div className="flex flex-wrap gap-4">
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-genesis-muted">
-                  <input
-                    type="checkbox"
-                    checked={legalMaps}
-                    onChange={(e) => setLegalMaps(e.target.checked)}
-                    className="rounded border-genesis-border accent-genesis-accent"
-                  />
-                  {t("order.legalMaps")}
-                </label>
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-genesis-muted">
-                  <input
-                    type="checkbox"
-                    checked={legalAnalytics}
-                    onChange={(e) => setLegalAnalytics(e.target.checked)}
-                    className="rounded border-genesis-border accent-genesis-accent"
-                  />
-                  {t("order.legalAnalytics")}
-                </label>
-              </div>
-            </div>
-            <Field label={t("order.extraWishes")}>
-              <Textarea
-                className="min-h-[72px]"
-                value={extraWishes}
-                onChange={(e) => setExtraWishes(e.target.value)}
-                placeholder={t("order.extraWishesPh")}
-              />
-            </Field>
+                <FormStepBar current={formStep} />
+                {formStep === 1 && (
+                  <>
+                    <Field label={t("order.businessName")} required>
+                      <Input
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        placeholder={t("order.businessNamePh")}
+                        required
+                      />
+                    </Field>
+                    <Field label={t("order.email")} required error={error && !email.trim() ? error : undefined}>
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="hello@…"
+                        required
+                        error={Boolean(error && !email.trim())}
+                      />
+                    </Field>
+                    <Field label={t("order.description")} required>
+                      <Textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder={t("order.descriptionPh")}
+                        required
+                      />
+                    </Field>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field label={t("order.city")}>
+                        <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("order.cityPh")} />
+                      </Field>
+                      <Field label={t("order.phone")}>
+                        <Input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="+49 …"
+                        />
+                      </Field>
+                    </div>
+                  </>
+                )}
+
+                {formStep === 2 && (
+                  <>
+                    <Field label={t("order.companyWebsite")} hint={t("order.companyWebsiteHint")}>
+                      <Input
+                        type="text"
+                        inputMode="url"
+                        value={companyWebsite}
+                        onChange={(e) => setCompanyWebsite(e.target.value)}
+                        placeholder={t("order.companyWebsitePh")}
+                        autoComplete="url"
+                      />
+                    </Field>
+                    <fieldset className="space-y-2">
+                      <legend className="text-sm font-medium text-white">{t("order.domainStatusTitle")}</legend>
+                      {(
+                        [
+                          ["none", t("order.domainNone")],
+                          ["have_domain", t("order.domainHave")],
+                          ["need_help", t("order.domainNeedHelp")],
+                        ] as const
+                      ).map(([value, label]) => (
+                        <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">
+                          <input
+                            type="radio"
+                            name="domainStatus"
+                            checked={domainStatus === value}
+                            onChange={() => setDomainStatus(value)}
+                            className="accent-genesis-accent"
+                          />
+                          {label}
+                        </label>
+                      ))}
+                    </fieldset>
+                    {(domainStatus === "none" || domainStatus === "need_help") && (
+                      <p className="rounded-lg border border-amber-500/20 bg-amber-950/20 px-3 py-2 text-xs text-amber-100/90">
+                        {t("order.domainHelpNote")}
+                      </p>
+                    )}
+                    {domainStatus === "have_domain" && (
+                      <Field label={t("order.existingDomain")}>
+                        <Input
+                          value={existingDomain}
+                          onChange={(e) => setExistingDomain(e.target.value)}
+                          placeholder="meine-firma.de"
+                        />
+                      </Field>
+                    )}
+                    <p className="text-sm font-medium text-white">{t("order.socialTitle")}</p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Field label="WhatsApp">
+                        <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+49 …" />
+                      </Field>
+                      <Field label="Google Business">
+                        <Input value={googleBusiness} onChange={(e) => setGoogleBusiness(e.target.value)} placeholder="https://…" />
+                      </Field>
+                      <Field label="Instagram">
+                        <Input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="@… / https://…" />
+                      </Field>
+                      <Field label="Facebook">
+                        <Input value={facebook} onChange={(e) => setFacebook(e.target.value)} placeholder="https://…" />
+                      </Field>
+                      <Field label="TikTok">
+                        <Input value={tiktok} onChange={(e) => setTiktok(e.target.value)} placeholder="https://…" />
+                      </Field>
+                      <Field label="LinkedIn">
+                        <Input value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="https://…" />
+                      </Field>
+                      <Field label="YouTube">
+                        <Input value={youtube} onChange={(e) => setYoutube(e.target.value)} placeholder="https://…" />
+                      </Field>
+                      <Field label="Telegram">
+                        <Input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@… / https://…" />
+                      </Field>
+                    </div>
+                  </>
+                )}
+
+                {formStep === 3 && (
+                  <>
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
+                      <p className="text-sm font-medium text-white">{t("order.materialsTitle")}</p>
+                      <p className="text-xs text-genesis-muted">{t("order.materialsHint")}</p>
+                      <input
+                        type="file"
+                        multiple
+                        accept=".png,.jpg,.jpeg,.svg,.webp,.pdf,.docx,.xlsx,.pptx,.txt,.zip,.mp4"
+                        onChange={(e) => {
+                          void uploadMaterials(e.target.files);
+                          e.target.value = "";
+                        }}
+                        className="block w-full text-sm text-genesis-muted file:mr-3 file:rounded-lg file:border-0 file:bg-genesis-accent/20 file:px-3 file:py-1.5 file:text-sm file:text-white"
+                      />
+                      {uploadBusy && <p className="text-xs text-genesis-muted">{t("order.uploadBusy")}</p>}
+                      {uploadError && (
+                        <p className="text-xs text-rose-300" role="alert">
+                          {uploadError}
+                        </p>
+                      )}
+                      {materials.length > 0 && (
+                        <ul className="space-y-2 text-sm">
+                          {materials.map((m) => (
+                            <li
+                              key={m.id}
+                              className="flex items-start justify-between gap-2 rounded-lg border border-white/10 px-3 py-2"
+                            >
+                              <span>
+                                <span className="font-medium text-white">{m.filename}</span>
+                                <span className="mt-0.5 block text-xs text-genesis-muted">{m.status_de}</span>
+                              </span>
+                              <button
+                                type="button"
+                                className="text-xs text-rose-300 hover:underline"
+                                onClick={() => setMaterials((prev) => prev.filter((x) => x.id !== m.id))}
+                              >
+                                {t("order.removeFile")}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    <label className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={needsLogo}
+                        onChange={(e) => setNeedsLogo(e.target.checked)}
+                        className="rounded border-genesis-border accent-genesis-accent"
+                      />
+                      {t("order.needsLogo")}
+                    </label>
+                    <p className="text-xs leading-relaxed text-genesis-muted">{t("order.logoNote")}</p>
+                  </>
+                )}
+
+                {formStep === 4 && (
+                  <>
+                    {(insightsBusy || (insights && insights.checks.length > 0)) && (
+                      <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-4 space-y-2">
+                        <p className="text-sm font-medium text-white">{t("order.insightsTitle")}</p>
+                        {insightsBusy ? (
+                          <p className="text-xs text-genesis-muted">{t("order.insightsBusy")}</p>
+                        ) : (
+                          <>
+                            <ul className="space-y-1.5 text-sm">
+                              {insights?.checks.map((c) => (
+                                <li key={c.id} className="flex gap-2">
+                                  <span className="text-emerald-400">✓</span>
+                                  <span>
+                                    {c.label_de}
+                                    {c.detail ? (
+                                      <span className="block text-xs text-genesis-muted">{c.detail}</span>
+                                    ) : null}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                            {insights?.note_de ? (
+                              <p className="text-[11px] text-genesis-muted">{insights.note_de}</p>
+                            ) : null}
+                          </>
+                        )}
+                      </div>
+                    )}
+                    <details className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                      <summary className="cursor-pointer text-sm font-medium text-white">
+                        {t("order.legalTitle")}
+                      </summary>
+                      <div className="mt-3 space-y-3">
+                        <p className="text-xs text-genesis-muted">{t("order.legalHint")}</p>
+                        <Field label={t("order.legalOwner")}>
+                          <Input
+                            value={legalOwner}
+                            onChange={(e) => setLegalOwner(e.target.value)}
+                            placeholder={t("order.businessNamePh")}
+                          />
+                        </Field>
+                        <Field label={t("order.legalForm")}>
+                          <Input
+                            value={legalForm}
+                            onChange={(e) => setLegalForm(e.target.value)}
+                            placeholder={t("order.legalFormPh")}
+                          />
+                        </Field>
+                        <Field label={t("order.legalStreet")}>
+                          <Input value={legalStreet} onChange={(e) => setLegalStreet(e.target.value)} />
+                        </Field>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <Field label={t("order.legalZip")}>
+                            <Input value={legalZip} onChange={(e) => setLegalZip(e.target.value)} placeholder="50667" />
+                          </Field>
+                          <Field label={t("order.legalCity")}>
+                            <Input value={legalCity} onChange={(e) => setLegalCity(e.target.value)} placeholder={t("order.cityPh")} />
+                          </Field>
+                        </div>
+                        <Field label={t("order.legalDirector")}>
+                          <Input value={legalDirector} onChange={(e) => setLegalDirector(e.target.value)} />
+                        </Field>
+                        <Field label={t("order.legalVat")}>
+                          <Input value={legalVat} onChange={(e) => setLegalVat(e.target.value)} placeholder="DE…" />
+                        </Field>
+                        <div className="flex flex-wrap gap-4">
+                          <label className="flex cursor-pointer items-center gap-2 text-sm text-genesis-muted">
+                            <input
+                              type="checkbox"
+                              checked={legalMaps}
+                              onChange={(e) => setLegalMaps(e.target.checked)}
+                              className="rounded border-genesis-border accent-genesis-accent"
+                            />
+                            {t("order.legalMaps")}
+                          </label>
+                          <label className="flex cursor-pointer items-center gap-2 text-sm text-genesis-muted">
+                            <input
+                              type="checkbox"
+                              checked={legalAnalytics}
+                              onChange={(e) => setLegalAnalytics(e.target.checked)}
+                              className="rounded border-genesis-border accent-genesis-accent"
+                            />
+                            {t("order.legalAnalytics")}
+                          </label>
+                        </div>
+                      </div>
+                    </details>
+                    <Field label={t("order.extraWishes")}>
+                      <Textarea
+                        className="min-h-[72px]"
+                        value={extraWishes}
+                        onChange={(e) => setExtraWishes(e.target.value)}
+                        placeholder={t("order.extraWishesPh")}
+                      />
+                    </Field>
+                    <p className="text-xs leading-relaxed text-genesis-muted">{t("order.domainHostingNote")}</p>
+                  </>
+                )}
+
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {formStep > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="md"
+                      onClick={() => setFormStep((s) => Math.max(1, s - 1))}
+                    >
+                      {t("order.back")}
+                    </Button>
+                  )}
+                  {formStep < 4 && (
+                    <Button type="button" variant="primary" size="md" onClick={() => void goNext()}>
+                      {t("order.next")}
+                    </Button>
+                  )}
+                </div>
+                {error && formStep < 4 && (
+                  <p className="text-xs text-rose-300" role="alert">
+                    {error}
+                  </p>
+                )}
               </>
             ) : (
               <>
@@ -638,7 +946,9 @@ export default function OrderSitePage() {
                     ? t("order.submitLaunch", {
                         price: selected ? formatPrice(selected.price_eur, selected) : "…",
                       })
-                    : t("order.submit")}
+                    : formStep < 4
+                      ? t("order.next")
+                      : t("order.submit")}
               </Button>
               {error && email.trim() && (
                 <p className="mt-2 text-xs text-rose-300" role="alert">
@@ -663,6 +973,38 @@ export default function OrderSitePage() {
         </p>
       </main>
     </PublicPageShell>
+  );
+}
+
+function FormStepBar({ current }: { current: number }) {
+  const { t } = useTranslation("site");
+  const steps = [
+    t("order.formStep1"),
+    t("order.formStep2"),
+    t("order.formStep3"),
+    t("order.formStep4"),
+  ];
+  return (
+    <ol className="mb-2 flex flex-wrap gap-2" aria-label={t("order.formStepsAria")}>
+      {steps.map((label, idx) => {
+        const n = idx + 1;
+        return (
+          <li
+            key={label}
+            className={`rounded-full px-2.5 py-1 text-[11px] ${
+              n === current
+                ? "bg-genesis-accent/20 text-white"
+                : n < current
+                  ? "text-emerald-400"
+                  : "text-genesis-muted"
+            }`}
+            aria-current={n === current ? "step" : undefined}
+          >
+            {n}. {label}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
