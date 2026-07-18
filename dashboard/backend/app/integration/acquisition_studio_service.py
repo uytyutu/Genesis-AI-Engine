@@ -479,8 +479,13 @@ class AcquisitionStudioService:
             fit_reason=row.get("fit_reason", ""),
             row=row,
         )
+        from app.integration.outreach_language_service import resolve_market_from_row
+
+        market = resolve_market_from_row(row) or "DE"
         meta = dict(row.get("meta") or {})
         meta["outreach_language"] = lang
+        meta["market"] = market
+        row["market"] = market
         meta["qualification"] = qualify_lead(row, analysis, evaluation=evaluation)
         meta["audit_report_md"] = audit_md
         meta["product_type"] = "site_audit_report"
@@ -980,8 +985,35 @@ class AcquisitionStudioService:
             raise ValueError(f"excluded:{excl_reason}")
 
         if outreach_enabled and to_email:
-            # Daily sniper cap before Resend call
-            picked, pick_meta = self._send_quota.pick_from_address()
+            # Daily sniper cap before Resend call — prefer From matching lead market
+            from app.integration.outreach_language_service import resolve_market_from_row
+
+            lead_market = str(
+                resolve_market_from_row(row)
+                or (row.get("meta") or {}).get("market")
+                or row.get("market")
+                or "DE"
+            ).upper()
+            region_map = {
+                "DE": "de",
+                "AT": "de",
+                "CH": "de",
+                "US": "us",
+                "CA": "us",
+                "GB": "us",
+                "UK": "us",
+                "AU": "us",
+                "UA": "cis",
+                "RU": "cis",
+                "BY": "cis",
+                "KZ": "cis",
+                "CIS": "cis",
+            }
+            want_region = region_map.get(lead_market, "de")
+            picked, pick_meta = self._send_quota.pick_from_address(region=want_region)
+            if not picked:
+                # Fallback: any region still under global/phase budget
+                picked, pick_meta = self._send_quota.pick_from_address()
             if not picked:
                 send_result = {
                     "ok": False,
@@ -1015,6 +1047,16 @@ class AcquisitionStudioService:
                         or f"{BRAND_NAME} — {row.get('company_name')}",
                         text=row.get("proposed_message") or "",
                         from_addr=picked,
+                        market=str(
+                            (row.get("meta") or {}).get("market")
+                            or row.get("market")
+                            or pick_meta.get("region")
+                            or "DE"
+                        ),
+                        language=str(
+                            (row.get("meta") or {}).get("outreach_language") or ""
+                        )
+                        or None,
                     )
                     if send_result.get("ok"):
                         self._send_quota.record_send(

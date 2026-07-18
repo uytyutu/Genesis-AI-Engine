@@ -13,6 +13,12 @@ from app.integration.outreach_send_quota import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _phase1_pacing_off(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("GENESIS_OUTREACH_MIN_INTERVAL_SEC", "0")
+    monkeypatch.setenv("GENESIS_OUTREACH_GLOBAL_DAILY_CAP", "500")
+
+
 def test_parse_region_tags():
     assert parse_from_entry("de:A <a@one.de>") == ("de", "A <a@one.de>")
     assert parse_from_entry("cis:B <b@two.com>") == ("cis", "B <b@two.com>")
@@ -108,8 +114,9 @@ def test_quota_health_ceo_three_markets(tmp_path: Path, monkeypatch: pytest.Monk
     h = q.health()
     assert h["daily_cap"] == 100
     assert h["region_count"] == 3
-    assert h["pool_cap_total"] == 300
+    assert h["global_daily_cap"] == 500
+    assert h["pool_cap_total"] == 300  # min(3*100, global 500)
     assert h["sent_today_total"] == 3
-    assert h["remaining_today_total"] == 297
+    assert h["remaining_today_total"] == 497
     labels = {r["label_ru"] for r in h["regions"]}
     assert labels == {"Германия", "СНГ", "Америка"}

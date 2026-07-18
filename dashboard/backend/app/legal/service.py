@@ -82,60 +82,145 @@ class LegalFoundationService:
         include_opt_out: bool = True,
         for_outreach: bool = False,
     ) -> dict[str, Any]:
-        """Compact § 5 DDG footer + UWG opt-out for CEO Outbox / transactional mail."""
+        """Compact § 5 DDG footer + UWG opt-out for DE outreach / transactional mail."""
+        return self.email_footer_for_market(
+            "DE",
+            include_opt_out=include_opt_out,
+            for_outreach=for_outreach,
+            language="de",
+        )
+
+    def email_footer_for_market(
+        self,
+        market: str | None,
+        *,
+        include_opt_out: bool = True,
+        for_outreach: bool = False,
+        language: str | None = None,
+    ) -> dict[str, Any]:
+        """Market-aware sender footer — Impressum only for DE/AT/CH, not for US/CIS."""
+        from app.integration.outreach_language_service import normalize_market_code
+
         cfg = self._store.load()
         op = cfg.operator
         email = op.email.strip() or _PUBLIC_CONTACT_EMAIL
         site = _public_site_base(op.website)
         impressum_url = f"{site}/impressum"
         datenschutz_url = f"{site}/datenschutz"
+        privacy_url = f"{site}/privacy"
         publishable = cfg.is_impressum_publishable()
-
-        lines: list[str] = ["—", "Impressum (§ 5 DDG)"]
-        if publishable:
-            trade = op.trade_name.strip() or BRAND_NAME
-            lines.append(op.full_name.strip())
-            if trade and trade != op.full_name.strip():
-                lines.append(trade)
-            if op.legal_form.strip():
-                lines.append(op.legal_form.strip())
-            addr = cfg.formatted_address().replace("\n", ", ")
-            if addr:
-                lines.append(addr)
-            lines.append(f"E-Mail: {email}")
-            if op.phone.strip():
-                lines.append(f"Telefon: {op.phone.strip()}")
-            if op.managing_director.strip():
-                lines.append(f"Vertretungsberechtigt: {op.managing_director.strip()}")
-            if op.vat_id.strip():
-                lines.append(f"USt-IdNr.: {op.vat_id.strip()}")
-            if op.handelsregister.strip():
-                hr = op.handelsregister.strip()
-                if op.register_court.strip():
-                    hr += f", Registergericht: {op.register_court.strip()}"
-                lines.append(f"Handelsregister: {hr}")
+        m = (normalize_market_code(market) or "DE").upper()
+        lang = (language or "de").lower()
+        if m in ("US", "CA", "GB", "UK", "AU"):
+            profile = "us"
+        elif m in ("UA", "RU", "BY", "KZ", "CIS"):
+            profile = "cis"
         else:
-            missing = ", ".join(cfg.missing_impressum_fields())
-            lines.append(
-                "Anbieterkennzeichnung unvollständig — Gewerbedaten in Legal Foundation ergänzen "
-                f"(fehlend: {missing})."
-            )
-            lines.append(f"Kontakt: {email}")
+            profile = "de"
 
-        lines.append(f"Impressum online: {impressum_url}")
-        lines.append(f"Datenschutz: {datenschutz_url}")
+        trade = op.trade_name.strip() or BRAND_NAME
+        opt_out_mailto = f"mailto:{email}?subject=Unsubscribe"
 
-        opt_out_mailto = f"mailto:{email}?subject=Abmelden%20Werbung"
-        if include_opt_out:
-            lines.extend(
-                [
-                    "",
-                    "Widerspruch gegen Werbe-E-Mails (UWG § 7 Abs. 3):",
-                    "Antworten Sie mit «Abmelden» oder nutzen Sie den Abmelde-Link — "
-                    "wir senden keine weiteren Werbenachrichten.",
-                    f"Abmelden: {opt_out_mailto}",
-                ]
-            )
+        if profile == "de":
+            lines: list[str] = ["—", "Impressum (§ 5 DDG)"]
+            if publishable:
+                lines.append(op.full_name.strip())
+                if trade and trade != op.full_name.strip():
+                    lines.append(trade)
+                if op.legal_form.strip():
+                    lines.append(op.legal_form.strip())
+                addr = cfg.formatted_address().replace("\n", ", ")
+                if addr:
+                    lines.append(addr)
+                lines.append(f"E-Mail: {email}")
+                if op.phone.strip():
+                    lines.append(f"Telefon: {op.phone.strip()}")
+                if op.managing_director.strip():
+                    lines.append(f"Vertretungsberechtigt: {op.managing_director.strip()}")
+                if op.vat_id.strip():
+                    lines.append(f"USt-IdNr.: {op.vat_id.strip()}")
+                if op.handelsregister.strip():
+                    hr = op.handelsregister.strip()
+                    if op.register_court.strip():
+                        hr += f", Registergericht: {op.register_court.strip()}"
+                    lines.append(f"Handelsregister: {hr}")
+            else:
+                missing = ", ".join(cfg.missing_impressum_fields())
+                lines.append(
+                    "Anbieterkennzeichnung unvollständig — Gewerbedaten in Legal Foundation ergänzen "
+                    f"(fehlend: {missing})."
+                )
+                lines.append(f"Kontakt: {email}")
+            lines.append(f"Impressum online: {impressum_url}")
+            lines.append(f"Datenschutz: {datenschutz_url}")
+            opt_out_mailto = f"mailto:{email}?subject=Abmelden%20Werbung"
+            if include_opt_out:
+                lines.extend(
+                    [
+                        "",
+                        "Widerspruch gegen Werbe-E-Mails (UWG § 7 Abs. 3):",
+                        "Antworten Sie mit «Abmelden» oder nutzen Sie den Abmelde-Link — "
+                        "wir senden keine weiteren Werbenachrichten.",
+                        f"Abmelden: {opt_out_mailto}",
+                    ]
+                )
+            ready = publishable and include_opt_out
+        elif profile == "us":
+            lines = ["—", "Sender information"]
+            if publishable:
+                lines.append(op.full_name.strip() or trade)
+                if trade and trade != op.full_name.strip():
+                    lines.append(trade)
+                addr = cfg.formatted_address().replace("\n", ", ")
+                if addr:
+                    lines.append(addr)
+                lines.append(f"Email: {email}")
+            else:
+                lines.append(BRAND_NAME)
+                lines.append(f"Email: {email}")
+            lines.append(f"Privacy: {privacy_url}")
+            opt_out_mailto = f"mailto:{email}?subject=Unsubscribe"
+            if include_opt_out:
+                lines.extend(
+                    [
+                        "",
+                        "Unsubscribe: reply «Unsubscribe» or use this link — we will stop marketing emails.",
+                        f"Unsubscribe: {opt_out_mailto}",
+                    ]
+                )
+            ready = include_opt_out and bool(email)
+        elif lang == "uk":
+            lines = ["—", "Дані відправника"]
+            lines.append(op.full_name.strip() or trade if publishable else BRAND_NAME)
+            lines.append(f"Email: {email}")
+            lines.append(f"Конфіденційність: {privacy_url}")
+            opt_out_mailto = f"mailto:{email}?subject=Vidmova%20rozsylky"
+            if include_opt_out:
+                lines.extend(
+                    [
+                        "",
+                        "Відписка: відповідайте «Відписатись» або перейдіть за посиланням — "
+                        "маркетингові листи більше не надсилатимемо.",
+                        f"Відписатись: {opt_out_mailto}",
+                    ]
+                )
+            ready = include_opt_out and bool(email)
+        else:
+            lines = ["—", "Данные отправителя"]
+            lines.append(op.full_name.strip() or trade if publishable else BRAND_NAME)
+            lines.append(f"Email: {email}")
+            lines.append(f"Конфиденциальность: {privacy_url}")
+            opt_out_mailto = f"mailto:{email}?subject=Otpisatsya"
+            if include_opt_out:
+                lines.extend(
+                    [
+                        "",
+                        "Отписка: ответьте «Отписаться» или перейдите по ссылке — "
+                        "маркетинговые письма больше не отправим.",
+                        f"Отписаться: {opt_out_mailto}",
+                    ]
+                )
+            ready = include_opt_out and bool(email)
 
         text = "\n".join(lines)
         html_lines = [f"<strong>{html.escape(lines[0])}</strong>"] if lines else []
@@ -151,15 +236,16 @@ class LegalFoundationService:
             + "</p>"
         )
 
-        ready_for_outreach = publishable and include_opt_out
-
         return {
             "text": text,
             "html": html_block,
+            "market": m,
+            "profile": profile,
             "impressum_publishable": publishable,
-            "ready_for_outreach": ready_for_outreach,
+            "ready_for_outreach": bool(ready),
             "opt_out_mailto": opt_out_mailto,
             "list_unsubscribe": f"<{opt_out_mailto}>",
             "impressum_url": impressum_url,
             "datenschutz_url": datenschutz_url,
+            "privacy_url": privacy_url,
         }

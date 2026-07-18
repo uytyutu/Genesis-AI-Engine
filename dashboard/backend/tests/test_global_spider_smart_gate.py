@@ -114,8 +114,8 @@ def test_outreach_language_detects_english():
         fit_reason="weak website",
         row=row,
     )
-    assert lang == "en"
-    assert "Hello" in body
+    assert lang in ("en", "en-us")
+    assert "Hi" in body or "Hello" in body
     assert "Acme Plumbing" in subject
 
 

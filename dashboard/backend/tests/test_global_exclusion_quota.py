@@ -51,6 +51,8 @@ def test_exclusion_blocks_same_email(tmp_path: Path):
 
 def test_daily_cap_blocks_overage(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("GENESIS_OUTREACH_DAILY_CAP", "2")
+    monkeypatch.setenv("GENESIS_OUTREACH_MIN_INTERVAL_SEC", "0")
+    monkeypatch.setenv("GENESIS_OUTREACH_GLOBAL_DAILY_CAP", "500")
     monkeypatch.setenv("GENESIS_EMAIL_FROM", "Virtus <hello@ram98.de>")
     monkeypatch.delenv("GENESIS_OUTREACH_FROM_DOMAINS", raising=False)
     assert outreach_daily_cap() == 2

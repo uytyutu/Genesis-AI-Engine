@@ -199,20 +199,35 @@ class ReceiptEmailService:
         subject: str,
         text: str,
         from_addr: str | None = None,
+        market: str | None = None,
+        language: str | None = None,
     ) -> dict:
-        """CEO-approved cold outreach — Impressum + UWG opt-out footer required."""
+        """CEO-approved cold outreach — market-aware legal footer (Impressum only for DE)."""
         legal = LegalFoundationService(self._memory)
-        footer = legal.email_footer_de(include_opt_out=True, for_outreach=True)
+        footer = legal.email_footer_for_market(
+            market,
+            include_opt_out=True,
+            for_outreach=True,
+            language=language,
+        )
         if not footer.get("ready_for_outreach"):
+            profile = str(footer.get("profile") or "de")
+            if profile == "de":
+                return {
+                    "ok": False,
+                    "skipped": True,
+                    "reason": "impressum_not_ready",
+                    "detail": (
+                        "Legal Foundation unvollständig — Gewerbedaten ergänzen "
+                        "(py scripts/bootstrap_legal_from_env.py)"
+                    ),
+                    "missing_impressum": not footer.get("impressum_publishable"),
+                }
             return {
                 "ok": False,
                 "skipped": True,
-                "reason": "impressum_not_ready",
-                "detail": (
-                    "Legal Foundation unvollständig — Gewerbedaten ergänzen "
-                    "(py scripts/bootstrap_legal_from_env.py)"
-                ),
-                "missing_impressum": not footer.get("impressum_publishable"),
+                "reason": "sender_footer_not_ready",
+                "detail": "Sender contact / opt-out not ready for this market.",
             }
 
         body_text = text.rstrip() + "\n\n" + footer["text"]

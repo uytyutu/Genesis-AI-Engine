@@ -1427,6 +1427,20 @@ def acquisition_daily_worklist() -> AcquisitionDailyWorklist:
     return AcquisitionDailyWorklist(**_ctx().acquisition.daily_worklist())
 
 
+@app.get("/api/acquisition/outreach-templates")
+def acquisition_outreach_templates() -> dict:
+    """CEO review: Path A sniper drafts by market (DE / US / RU / UA)."""
+    from app.integration.outreach_language_service import preview_market_templates
+
+    samples = preview_market_templates()
+    return {
+        "ok": True,
+        "kpi_ru": "Ответы → разговоры → оплаченные заказы (не число писем).",
+        "phase1_ru": "Глобальный потолок ~120/день · интервал ≥90с · Approve вручную.",
+        "samples": samples,
+    }
+
+
 @app.get("/api/acquisition/approval-queue", response_model=AcquisitionApprovalQueueResponse)
 def acquisition_approval_queue() -> AcquisitionApprovalQueueResponse:
     items = _ctx().acquisition.approval_queue()

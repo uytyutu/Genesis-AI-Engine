@@ -1401,8 +1401,11 @@ class OutreachQuotaHealth(BaseModel):
     remaining_today_total: int = 0
     primary_used_today: int = 0
     primary_remaining: int = 0
+    global_daily_cap: int | None = None
+    min_interval_sec: int | None = None
     regions: list[dict] = []
     domains: list[dict] = []
+    phase_note_ru: str = ""
     sniper_note_ru: str = ""
 
 

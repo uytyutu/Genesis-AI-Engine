@@ -22,8 +22,11 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-_DEFAULT_DAILY_CAP = 10
+_DEFAULT_DAILY_CAP = 40
 _HARD_MAX_DAILY_CAP = 100
+_DEFAULT_GLOBAL_DAILY_CAP = 120
+_HARD_MAX_GLOBAL_DAILY_CAP = 500
+_DEFAULT_MIN_INTERVAL_SEC = 90
 _DEFAULT_REGION = "de"
 
 # Known market regions for CEO panel (order fixed).
@@ -43,6 +46,26 @@ def outreach_daily_cap() -> int:
     except ValueError:
         n = _DEFAULT_DAILY_CAP
     return max(1, min(_HARD_MAX_DAILY_CAP, n))
+
+
+def outreach_global_daily_cap() -> int:
+    """Phase-1 world ceiling across all regions (default 120)."""
+    raw = os.getenv("GENESIS_OUTREACH_GLOBAL_DAILY_CAP", "").strip()
+    try:
+        n = int(raw) if raw else _DEFAULT_GLOBAL_DAILY_CAP
+    except ValueError:
+        n = _DEFAULT_GLOBAL_DAILY_CAP
+    return max(1, min(_HARD_MAX_GLOBAL_DAILY_CAP, n))
+
+
+def outreach_min_interval_sec() -> int:
+    """Minimum seconds between successful sends (sniper pacing)."""
+    raw = os.getenv("GENESIS_OUTREACH_MIN_INTERVAL_SEC", "").strip()
+    try:
+        n = int(raw) if raw else _DEFAULT_MIN_INTERVAL_SEC
+    except ValueError:
+        n = _DEFAULT_MIN_INTERVAL_SEC
+    return max(0, min(3600, n))
 
 
 def _today() -> str:
@@ -139,7 +162,7 @@ class OutreachSendQuota:
 
     def _load(self) -> dict[str, Any]:
         path = self._path()
-        empty = {"day": _today(), "regions": {}, "domains": {}}
+        empty = {"day": _today(), "regions": {}, "domains": {}, "last_send_at": None}
         if not path or not path.is_file():
             return empty
         try:
@@ -159,7 +182,12 @@ class OutreachSendQuota:
         # Legacy files: only domains — fold into default region for today.
         if not regions and domains:
             regions = {_DEFAULT_REGION: sum(int(v or 0) for v in domains.values())}
-        return {"day": _today(), "regions": regions, "domains": domains}
+        return {
+            "day": _today(),
+            "regions": regions,
+            "domains": domains,
+            "last_send_at": data.get("last_send_at"),
+        }
 
     def _save(self, data: dict[str, Any]) -> None:
         path = self._path()
@@ -186,12 +214,39 @@ class OutreachSendQuota:
         data = self._load()
         return int((data.get("regions") or {}).get(_normalize_region(region), 0) or 0)
 
+    def _pacing_ok(self, data: dict[str, Any]) -> tuple[bool, str]:
+        interval = outreach_min_interval_sec()
+        if interval <= 0:
+            return True, ""
+        last = data.get("last_send_at")
+        if not last:
+            return True, ""
+        try:
+            last_dt = datetime.fromisoformat(str(last).replace("Z", "+00:00"))
+            if last_dt.tzinfo is None:
+                last_dt = last_dt.replace(tzinfo=timezone.utc)
+        except ValueError:
+            return True, ""
+        elapsed = (datetime.now(timezone.utc) - last_dt).total_seconds()
+        if elapsed < interval:
+            wait = int(interval - elapsed)
+            return False, f"min_interval:{wait}s"
+        return True, ""
+
     def can_send(self, from_addr: str, *, region: str | None = None) -> tuple[bool, str]:
         domain = _domain_of(from_addr)
         if not domain:
             return False, "bad_from"
+        data = self._load()
+        total = sum(int(v or 0) for v in (data.get("regions") or {}).values())
+        gcap = outreach_global_daily_cap()
+        if total >= gcap:
+            return False, f"global_cap:{total}/{gcap}"
+        ok_pace, pace_why = self._pacing_ok(data)
+        if not ok_pace:
+            return False, pace_why
         reg = _normalize_region(region) if region else self._region_for_addr(from_addr)
-        used = self.sent_today_region(reg)
+        used = int((data.get("regions") or {}).get(reg, 0) or 0)
         cap = outreach_daily_cap()
         if used >= cap:
             return False, f"daily_cap:{reg}:{used}/{cap}"
@@ -210,17 +265,38 @@ class OutreachSendQuota:
         data["domains"] = domains
         data["regions"] = regions
         data["day"] = _today()
+        data["last_send_at"] = datetime.now(timezone.utc).isoformat()
         self._save(data)
 
     def pick_from_address(
         self, *, region: str | None = None
     ) -> tuple[str | None, dict[str, Any]]:
-        """Least-used From under its region cap. Optional region filter (de|cis|us)."""
+        """Least-used From under its region cap + global phase budget + pacing."""
         pool = configured_from_pool()
         cap = outreach_daily_cap()
+        gcap = outreach_global_daily_cap()
         data = self._load()
         domains = dict(data.get("domains") or {})
         regions = dict(data.get("regions") or {})
+        total = sum(int(v or 0) for v in regions.values())
+        if total >= gcap:
+            return None, {
+                "ok": False,
+                "reason": f"global_cap:{total}/{gcap}",
+                "daily_cap": cap,
+                "global_daily_cap": gcap,
+                "regions": regions,
+                "pool_size": len(pool),
+            }
+        ok_pace, pace_why = self._pacing_ok(data)
+        if not ok_pace:
+            return None, {
+                "ok": False,
+                "reason": pace_why,
+                "daily_cap": cap,
+                "global_daily_cap": gcap,
+                "pool_size": len(pool),
+            }
         want = _normalize_region(region) if region else None
 
         available: list[tuple[int, int, str, str, str]] = []
@@ -240,12 +316,12 @@ class OutreachSendQuota:
                 "ok": False,
                 "reason": "all_regions_at_cap" if not want else f"region_at_cap:{want}",
                 "daily_cap": cap,
+                "global_daily_cap": gcap,
                 "regions": regions,
                 "pool_size": len(pool),
                 "filter_region": want,
             }
 
-        # Prefer colder regions, then colder domains (fair share across markets).
         available.sort(key=lambda t: (t[0], t[1], t[2], t[3]))
         region_used, domain_used, reg, domain, addr = available[0]
         return addr, {
@@ -256,6 +332,9 @@ class OutreachSendQuota:
             "used_today": domain_used,
             "region_used_today": region_used,
             "daily_cap": cap,
+            "global_daily_cap": gcap,
+            "sent_today_total": total,
+            "min_interval_sec": outreach_min_interval_sec(),
             "pool_size": len(pool),
         }
 
@@ -320,14 +399,18 @@ class OutreachSendQuota:
             )
 
         region_count = len(region_rows)
-        pool_cap_total = cap * max(region_count, 1) if region_rows else cap
+        gcap = outreach_global_daily_cap()
         sent_today_total = sum(int(r["used_today"]) for r in region_rows)
-        remaining_today_total = sum(int(r["remaining"]) for r in region_rows) if region_rows else cap
+        # Effective ceiling for CEO: min(sum of region caps, global phase budget)
+        pool_cap_total = min(cap * max(region_count, 1) if region_rows else cap, gcap)
+        remaining_today_total = max(0, gcap - sent_today_total)
 
         primary = region_rows[0] if region_rows else None
         return {
             "daily_cap": cap,
             "hard_max": _HARD_MAX_DAILY_CAP,
+            "global_daily_cap": gcap,
+            "min_interval_sec": outreach_min_interval_sec(),
             "day": data.get("day"),
             "domain_count": len(pool),
             "region_count": region_count,
@@ -338,9 +421,13 @@ class OutreachSendQuota:
             "primary_remaining": int(primary["remaining"]) if primary else cap,
             "regions": region_rows,
             "domains": per_domains,
+            "phase_note_ru": (
+                "Фаза 1: глобальный потолок "
+                f"{gcap}/день, интервал ≥{outreach_min_interval_sec()}с между письмами. "
+                "DE — formal; US — short; RU/UA — contextual. Approve остаётся предохранителем."
+            ),
             "sniper_note_ru": (
-                "По 100 писем/день на рынок после прогрева: Германия · СНГ · Америка "
-                "(отдельные From-домены с тегом de:/cis:/us:). "
-                "Это не спам — три независимых пула. Warm-up каждого домена обязателен."
+                "Квоты — инструмент CEO, не «закон страны». "
+                "KPI: ответы → разговоры → заказы. Масштаб только при хороших метриках."
             ),
         }

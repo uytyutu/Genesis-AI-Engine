@@ -36,6 +36,9 @@ type OutreachQuotaHealth = {
     remaining: number;
     at_cap: boolean;
   }[];
+  global_daily_cap?: number;
+  min_interval_sec?: number;
+  phase_note_ru?: string;
   sniper_note_ru?: string;
 };
 
@@ -553,10 +556,15 @@ export default function AcquisitionPage() {
                     ))}
                   </div>
                   <p className="rounded-lg border border-emerald-500/20 bg-emerald-950/20 px-3 py-2 text-sm">
-                    <span className="text-genesis-muted">Всего по рынкам</span>
+                    <span className="text-genesis-muted">Всего по рынкам (фаза)</span>
                     <span className="mt-1 block font-medium text-white">
-                      {q.sent_today_total} / {q.pool_cap_total}
+                      {q.sent_today_total} / {q.global_daily_cap ?? q.pool_cap_total}
                     </span>
+                    {q.min_interval_sec != null ? (
+                      <span className="mt-0.5 block text-[11px] text-genesis-muted">
+                        интервал ≥ {q.min_interval_sec}с между письмами
+                      </span>
+                    ) : null}
                   </p>
                   {q.domains?.length ? (
                     <ul className="space-y-1 text-xs text-genesis-muted">
@@ -575,13 +583,18 @@ export default function AcquisitionPage() {
                       </code>
                     </p>
                   )}
+                  {q.phase_note_ru ? (
+                    <p className="text-[11px] leading-relaxed text-emerald-200/80">{q.phase_note_ru}</p>
+                  ) : null}
                   {q.sniper_note_ru ? (
                     <p className="text-[11px] leading-relaxed text-genesis-muted">{q.sniper_note_ru}</p>
                   ) : null}
                   <p className="text-[11px] text-genesis-muted">
                     Лимит/день на рынок:{" "}
-                    <code className="text-white/80">GENESIS_OUTREACH_DAILY_CAP</code> = {cap}{" "}
-                    (макс. {q.hard_max}). Германия · СНГ · Америка — отдельные пулы.
+                    <code className="text-white/80">GENESIS_OUTREACH_DAILY_CAP</code> = {cap} · мир:{" "}
+                    <code className="text-white/80">GENESIS_OUTREACH_GLOBAL_DAILY_CAP</code> ={" "}
+                    {q.global_daily_cap ?? "—"}. Шаблоны:{" "}
+                    <code className="text-white/80">GET /api/acquisition/outreach-templates</code>
                   </p>
                 </>
               );
