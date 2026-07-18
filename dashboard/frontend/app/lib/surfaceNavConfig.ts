@@ -101,7 +101,7 @@ export const CEO_STUDIO_LINKS = [
   { href: "/cursor", label: "Development", hint: "Cursor · код" },
   { href: "/acquisition", label: "Country Desk", hint: "Германия · sniper · Outbox" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Как видит покупатель" },
-  { href: "/tiktok-horizon", label: "TikTok Horizon", hint: "Kill switch OFF · полка" },
+  { href: "/tiktok-horizon", label: "Video Factory", hint: "Horizon · TikTok first · kill switch" },
   { href: "/#lost-archive", label: "Архив отказов", hint: "lost_reasons · не удалять" },
   { href: "/create", label: "Factory", hint: "Сборка Landing" },
   { href: "/ai", label: "AI Hub", hint: "Помощник CEO" },

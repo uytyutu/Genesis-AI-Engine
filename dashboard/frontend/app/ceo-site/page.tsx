@@ -71,7 +71,7 @@ export default function CeoSitePreviewPage() {
             href="/tiktok-horizon"
             className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-white/5"
           >
-            TikTok Horizon (OFF)
+            Video Factory (Horizon)
           </Link>
         </div>
       </div>

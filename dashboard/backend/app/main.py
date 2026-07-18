@@ -575,6 +575,113 @@ def owner_tiktok_deactivate() -> dict:
     return deactivate_tiktok()
 
 
+def _video_factory():
+    from app.integration.video_factory_service import VideoFactoryService
+
+    return VideoFactoryService(_memory_dir())
+
+
+@app.get("/api/owner/video-factory")
+def owner_video_factory_dashboard() -> dict:
+    return _video_factory().dashboard()
+
+
+@app.get("/api/owner/video-factory/library")
+def owner_video_factory_library() -> dict:
+    return {"items": _video_factory().list_library()}
+
+
+@app.post("/api/owner/video-factory/library")
+def owner_video_factory_add_library(body: dict) -> dict:
+    try:
+        row = _video_factory().add_library_item(body or {})
+    except ValueError as exc:
+        code = str(exc)
+        if code == "tiktok_disabled":
+            raise HTTPException(status_code=403, detail="TikTok Horizon выключен (kill switch).") from exc
+        raise HTTPException(status_code=400, detail=code) from exc
+    return {"ok": True, "item": row}
+
+
+@app.get("/api/owner/video-factory/drafts")
+def owner_video_factory_drafts() -> dict:
+    return {"items": _video_factory().list_drafts()}
+
+
+@app.post("/api/owner/video-factory/drafts")
+def owner_video_factory_create_draft(body: dict) -> dict:
+    issues = body.get("pattern_issues") or []
+    if isinstance(issues, str):
+        issues = [x.strip() for x in issues.replace(";", "\n").splitlines() if x.strip()]
+    try:
+        row = _video_factory().create_draft_from_pattern(
+            niche=str(body.get("niche") or "Handwerk"),
+            city=str(body.get("city") or "Deutschland"),
+            pattern_issues=list(issues),
+            frequency_note=str(body.get("frequency_note") or ""),
+            source=str(body.get("source") or "manual"),
+        )
+    except ValueError as exc:
+        code = str(exc)
+        if code == "tiktok_disabled":
+            raise HTTPException(status_code=403, detail="TikTok Horizon выключен (kill switch).") from exc
+        raise HTTPException(status_code=400, detail=code) from exc
+    return {"ok": True, "draft": row}
+
+
+@app.post("/api/owner/video-factory/drafts/{draft_id}/approve")
+def owner_video_factory_approve_draft(draft_id: str) -> dict:
+    try:
+        row = _video_factory().approve_draft(draft_id)
+    except ValueError as exc:
+        code = str(exc)
+        if code == "tiktok_disabled":
+            raise HTTPException(status_code=403, detail="TikTok Horizon выключен (kill switch).") from exc
+        if code == "draft_not_found":
+            raise HTTPException(status_code=404, detail="Черновик не найден") from exc
+        raise HTTPException(status_code=400, detail=code) from exc
+    return {"ok": True, "draft": row}
+
+
+@app.get("/api/owner/video-factory/queue")
+def owner_video_factory_queue() -> dict:
+    return {"items": _video_factory().list_queue()}
+
+
+@app.post("/api/owner/video-factory/queue")
+def owner_video_factory_enqueue(body: dict) -> dict:
+    try:
+        item = _video_factory().queue_for_channel(
+            str(body.get("draft_id") or ""),
+            str(body.get("channel") or "tiktok"),
+        )
+    except ValueError as exc:
+        code = str(exc)
+        if code == "tiktok_disabled":
+            raise HTTPException(status_code=403, detail="TikTok Horizon выключен (kill switch).") from exc
+        if code == "draft_not_found":
+            raise HTTPException(status_code=404, detail="Черновик не найден") from exc
+        raise HTTPException(status_code=400, detail=code) from exc
+    return {"ok": True, "item": item}
+
+
+@app.post("/api/owner/video-factory/channels/{channel}/stage")
+def owner_video_factory_channel_stage(channel: str, body: dict) -> dict:
+    try:
+        snap = _video_factory().set_channel_stage(channel, str(body.get("stage") or ""))
+    except ValueError as exc:
+        code = str(exc)
+        if code == "tiktok_disabled":
+            raise HTTPException(status_code=403, detail="TikTok Horizon выключен (kill switch).") from exc
+        raise HTTPException(status_code=400, detail=code) from exc
+    return snap
+
+
+@app.get("/api/owner/video-factory/earnings")
+def owner_video_factory_earnings() -> dict:
+    return _video_factory().earnings_snapshot()
+
+
 @app.get("/api/owner/growth", response_model=GrowthCenter)
 def get_growth_center() -> GrowthCenter:
     data = _ctx().growth.center()

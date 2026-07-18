@@ -21,23 +21,49 @@ def features_file() -> Path:
     return _FEATURES
 
 
+def _default_video_factory() -> dict[str, Any]:
+    return {
+        "channels": {
+            "tiktok": {"stage": "dormant"},
+            "youtube_shorts": {"stage": "dormant"},
+            "instagram_reels": {"stage": "dormant"},
+        },
+        "capcut_connected": False,
+        "payout_mode": "owner_platform_only",
+    }
+
+
 def load_features() -> dict[str, Any]:
     if not _FEATURES.is_file():
         return {
             "tiktok_enabled": False,
             "media_engine_enabled": False,
             "path_a_independent": True,
+            "video_factory": _default_video_factory(),
         }
     try:
         data = json.loads(_FEATURES.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return {"tiktok_enabled": False, "media_engine_enabled": False}
-    return data if isinstance(data, dict) else {"tiktok_enabled": False}
+        return {
+            "tiktok_enabled": False,
+            "media_engine_enabled": False,
+            "video_factory": _default_video_factory(),
+        }
+    if not isinstance(data, dict):
+        return {"tiktok_enabled": False, "video_factory": _default_video_factory()}
+    if "video_factory" not in data or not isinstance(data.get("video_factory"), dict):
+        data = {**data, "video_factory": _default_video_factory()}
+    return data
 
 
 def snapshot() -> dict[str, Any]:
     data = load_features()
     enabled = data.get("tiktok_enabled") is True
+    vf = (
+        data.get("video_factory")
+        if isinstance(data.get("video_factory"), dict)
+        else _default_video_factory()
+    )
     return {
         "tiktok_enabled": enabled,
         "media_engine_enabled": data.get("media_engine_enabled") is True,
@@ -49,6 +75,7 @@ def snapshot() -> dict[str, Any]:
         ),
         "module": "modules/tiktok_factory",
         "config_path": str(_FEATURES.as_posix()),
+        "video_factory": vf,
     }
 
 
@@ -58,6 +85,7 @@ def activate_tiktok(*, ceo_confirmed: bool) -> dict[str, Any]:
     data = load_features()
     data["tiktok_enabled"] = True
     data.setdefault("media_engine_enabled", False)
+    data.setdefault("video_factory", _default_video_factory())
     _FEATURES.parent.mkdir(parents=True, exist_ok=True)
     _FEATURES.write_text(
         json.dumps(data, ensure_ascii=False, indent=2) + "\n",
@@ -69,6 +97,30 @@ def activate_tiktok(*, ceo_confirmed: bool) -> dict[str, Any]:
 def deactivate_tiktok() -> dict[str, Any]:
     data = load_features()
     data["tiktok_enabled"] = False
+    data.setdefault("video_factory", _default_video_factory())
+    _FEATURES.parent.mkdir(parents=True, exist_ok=True)
+    _FEATURES.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return snapshot()
+
+
+def update_video_factory_channel(*, channel: str, stage: str) -> dict[str, Any]:
+    data = load_features()
+    vf = (
+        data.get("video_factory")
+        if isinstance(data.get("video_factory"), dict)
+        else _default_video_factory()
+    )
+    channels = vf.get("channels") if isinstance(vf.get("channels"), dict) else {}
+    channels = {**_default_video_factory()["channels"], **channels}
+    channels[channel] = {"stage": stage}
+    data["video_factory"] = {
+        **_default_video_factory(),
+        **vf,
+        "channels": channels,
+    }
     _FEATURES.parent.mkdir(parents=True, exist_ok=True)
     _FEATURES.write_text(
         json.dumps(data, ensure_ascii=False, indent=2) + "\n",
@@ -84,5 +136,10 @@ def try_build_scenario(**kwargs: Any) -> dict[str, Any]:
     _ensure_repo_on_path()
     from modules.tiktok_factory.scenario_pipeline import build_educational_scenario
 
-    draft = build_educational_scenario(**kwargs)
+    try:
+        draft = build_educational_scenario(**kwargs)
+    except RuntimeError as exc:
+        return {"ok": False, "reason": str(exc) or "tiktok_disabled", "draft": None}
+    except ValueError as exc:
+        return {"ok": False, "reason": str(exc), "draft": None}
     return {"ok": True, "draft": draft.to_dict()}

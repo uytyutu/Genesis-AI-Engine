@@ -136,6 +136,8 @@ def _check_farm_vault() -> dict[str, Any]:
 
 
 def run_startup_validation(*, memory_dir: Path, repo_root: Path) -> dict[str, Any]:
+    from app.integration.video_factory_service import audit_video_factory_background
+
     checks = [
         _check_memory(memory_dir),
         _check_workspace(repo_root),
@@ -144,6 +146,7 @@ def run_startup_validation(*, memory_dir: Path, repo_root: Path) -> dict[str, An
         _check_secrets(),
         _check_configuration(),
         _check_farm_vault(),
+        audit_video_factory_background(),
     ]
     failed = [c["name"] for c in checks if not c.get("ok")]
     report: dict[str, Any] = {
