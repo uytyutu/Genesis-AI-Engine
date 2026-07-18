@@ -22,6 +22,8 @@ _OPERATOR_ENV_KEYS: tuple[tuple[str, ...], str] = (
     (("GENESIS_PUBLIC_URL", "NEXT_PUBLIC_SITE_URL"), "website"),
     (("GENESIS_LEGAL_VAT_ID", "NEXT_PUBLIC_LEGAL_VAT_ID"), "vat_id"),
     (("GENESIS_LEGAL_MANAGING_DIRECTOR",), "managing_director"),
+    (("GENESIS_LEGAL_HANDELSREGISTER",), "handelsregister"),
+    (("GENESIS_LEGAL_REGISTER_COURT",), "register_court"),
 )
 
 

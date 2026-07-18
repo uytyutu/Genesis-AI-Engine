@@ -167,6 +167,20 @@ def test_env_overlay_makes_impressum_publishable(monkeypatch: pytest.MonkeyPatch
     assert cfg.interview_completed is True
 
 
+def test_env_overlay_handelsregister_optional(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("GENESIS_LEGAL_OPERATOR_NAME", "Ramish Oltiiev")
+    monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_STREET", "Musterstraße 1")
+    monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_ZIP", "01067")
+    monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_CITY", "Dresden")
+    monkeypatch.setenv("GENESIS_LEGAL_EMAIL", "hello@genesis-ai-engine.com")
+    monkeypatch.setenv("GENESIS_LEGAL_HANDELSREGISTER", "HRB 12345")
+    monkeypatch.setenv("GENESIS_LEGAL_REGISTER_COURT", "Amtsgericht Dresden")
+    cfg = apply_env_overlay(LegalEntityConfig())
+    assert cfg.operator.handelsregister == "HRB 12345"
+    assert cfg.operator.register_court == "Amtsgericht Dresden"
+    assert cfg.is_impressum_publishable() is True
+
+
 def test_operator_preview_shape(tmp_path: Path):
     store = LegalEntityStore(tmp_path)
     store.save(_complete_entity())
