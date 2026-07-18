@@ -10,6 +10,7 @@ import { Sparkline } from "../components/Sparkline";
 import { WithdrawModal } from "../components/WithdrawModal";
 import { PendingPaymentsPanel } from "../components/PendingPaymentsPanel";
 import { SettlementsPanel, type SettlementRow } from "../components/SettlementsPanel";
+import { FinanceOpsCenter } from "../components/FinanceOpsCenter";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -159,6 +160,8 @@ export default function FinancePage() {
         </header>
 
         <StripeSetupPanel />
+
+        <FinanceOpsCenter />
 
         {view ? (
           <section className="genesis-card overflow-hidden border-emerald-500/25 p-0">

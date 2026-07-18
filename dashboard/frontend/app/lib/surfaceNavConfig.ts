@@ -94,7 +94,7 @@ export const CEO_PRIMARY_LINKS = [
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
   { href: "/", label: "Ферма", hint: "Labeling · Toloka (не Desk)" },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
-  { href: "/finance", label: "Финансы", hint: "Деньги" },
+  { href: "/finance", label: "Finanzen & Steuer", hint: "Einnahmen · Belege · Export" },
 ] as const;
 
 export const CEO_STUDIO_LINKS = [

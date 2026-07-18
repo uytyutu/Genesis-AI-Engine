@@ -388,6 +388,38 @@ def get_global_revenue_report() -> dict:
     return ctx.finance.global_revenue_report(opps)
 
 
+@app.get("/api/owner/finance/ops")
+def get_finance_ops_center() -> dict:
+    """Finance & Tax Center — income, billing monitor, pay links, tax export meta."""
+    from app.integration.finance_ops_service import FinanceOpsService
+
+    ctx = _ctx()
+    return FinanceOpsService(ctx.finance._memory).dashboard()  # noqa: SLF001
+
+
+@app.post("/api/owner/finance/ops/documents")
+def add_finance_ops_document(payload: dict) -> dict:
+    from app.integration.finance_ops_service import FinanceOpsService
+
+    ctx = _ctx()
+    return FinanceOpsService(ctx.finance._memory).add_document(payload)  # noqa: SLF001
+
+
+@app.get("/api/owner/finance/tax-export")
+def download_tax_export(year: int | None = None):
+    from fastapi.responses import Response
+
+    from app.integration.finance_ops_service import FinanceOpsService
+
+    ctx = _ctx()
+    raw, filename = FinanceOpsService(ctx.finance._memory).build_tax_export_zip(year=year)  # noqa: SLF001
+    return Response(
+        content=raw,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
 @app.get("/api/owner/company", response_model=CompanyOverview)
 def get_company_overview() -> CompanyOverview:
     data = _ctx().company.overview()

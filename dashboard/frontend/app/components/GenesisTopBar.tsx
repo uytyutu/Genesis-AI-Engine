@@ -10,7 +10,7 @@ const TITLES: Record<string, string> = {
   "/": "Labeling Farm",
   "/journal": "Журнал",
   "/company": "Компания",
-  "/finance": "Финансы",
+  "/finance": "Finanzen & Steuer",
   "/projects": "Проекты",
   "/cursor": "Development Studio",
   "/acquisition": "Country Desk · DE",
