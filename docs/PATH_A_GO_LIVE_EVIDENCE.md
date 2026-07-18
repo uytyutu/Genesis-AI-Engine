@@ -218,3 +218,12 @@ Gate 1 проверяет **механику** (продажа → оплата 
 | Коммерческое доказательство | ⏳ первый немецкий клиент + postmortem |
 
 **Вердикт:** Gate 1 = **HOLD**. Следующее доказательство — зелёный стек и живой путь Business, не новый коммит фич.
+
+## Live path probe 2026-07-18
+
+- **STACK_UP:** yes
+- **Orders:** basic / business / premium — order + checkout reached Stripe **LIVE** Checkout Session created (**NOT paid**)
+- **Warning:** this probe created real `cs_live_…` sessions in Stripe Live; cancel/expire unused sessions in Dashboard if needed
+- **Storefront scrub:** buyer order bullets — remove Factory jargon (i18n `site.json` en/ru); see commit `fix(i18n): remove Factory jargon from buyer order bullets`
+- **TRUTH_VERSION:** `mission1-truth-13` (unchanged — no category bump)
+
