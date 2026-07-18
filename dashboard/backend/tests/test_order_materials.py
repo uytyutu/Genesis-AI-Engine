@@ -75,3 +75,35 @@ def test_create_order_attaches_materials_and_social(tmp_path: Path):
     labels = " ".join(str(c.get("label_de") or "") for c in checks)
     assert "Instagram" in labels
     assert "Domain später" in labels or "Datei" in labels
+
+
+def test_insights_dedupe_same_facts_across_reuploads(tmp_path: Path):
+    """PASS: each fact once even if same materials uploaded / listed twice."""
+    mats = OrderMaterialsService(tmp_path)
+    blob = b"Praxis\nE-Mail: hello@demo.de\nTel +49 221 111\nMo-Fr 9-18"
+    a = mats.save(_Upload("logo.png", b"\x89PNG\r\n\x1a\nfake", "image/png"))
+    b = mats.save(_Upload("logo.png", b"\x89PNG\r\n\x1a\nfake", "image/png"))
+    c = mats.save(_Upload("flyer.txt", blob, "text/plain"))
+    d = mats.save(_Upload("flyer.txt", blob, "text/plain"))
+    assert a["id"] != b["id"]
+    assert c["id"] != d["id"]
+
+    preview = mats.build_buyer_insights(
+        domain_status="have_domain",
+        domain="praxis-demo.de",
+        social={"instagram": "https://instagram.com/demo"},
+        material_ids=[a["id"], b["id"], c["id"], d["id"], a["id"]],
+    )
+    checks = preview["checks"]
+    ids = [c["id"] for c in checks]
+    assert len(ids) == len(set(ids)), ids
+
+    labels = [str(c.get("label_de") or "") for c in checks]
+    assert labels.count("Bild / Logo-Datei erkannt") == 1
+    assert labels.count("Dateiname deutet auf Logo") == 1
+    assert labels.count("Textdatei gelesen") == 1
+    assert labels.count("E-Mail in Datei gefunden") == 1
+    assert labels.count("Telefonnummer in Datei gefunden") == 1
+    assert labels.count("Öffnungszeiten erwähnt") == 1
+    assert labels.count("Domain vorhanden") == 1
+    assert labels.count("Instagram angegeben") == 1

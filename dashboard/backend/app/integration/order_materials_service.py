@@ -255,24 +255,38 @@ class OrderMaterialsService:
                     }
                 )
 
-        for mat in self.get_many(list(material_ids or [])):
+        seen_check_ids: set[str] = set()
+        for mat in self.get_many(list(dict.fromkeys(material_ids or []))):
             for finding in mat.get("findings") or []:
-                if finding.get("found"):
-                    checks.append(
-                        {
-                            "id": f"{mat.get('id')}_{finding.get('id')}",
-                            "label_de": finding.get("label_de"),
-                            "found": True,
-                            "detail": finding.get("detail") or mat.get("filename"),
-                        }
-                    )
-            if not any(f.get("found") for f in (mat.get("findings") or [])):
+                if not finding.get("found"):
+                    continue
+                fact_id = str(finding.get("id") or "").strip() or "stored"
+                # Aggregate by fact type (image/email/phone…), not per material row —
+                # re-uploads of the same file must not duplicate Insights.
+                check_id = f"mat_{fact_id}"
+                if check_id in seen_check_ids:
+                    continue
+                seen_check_ids.add(check_id)
                 checks.append(
                     {
-                        "id": f"stored_{mat.get('id')}",
+                        "id": check_id,
+                        "label_de": finding.get("label_de"),
+                        "found": True,
+                        "detail": finding.get("detail") or mat.get("filename"),
+                    }
+                )
+            if not any(f.get("found") for f in (mat.get("findings") or [])):
+                fname = str(mat.get("filename") or "file")
+                check_id = f"stored_{fname.lower()}"
+                if check_id in seen_check_ids:
+                    continue
+                seen_check_ids.add(check_id)
+                checks.append(
+                    {
+                        "id": check_id,
                         "label_de": "Datei gespeichert",
                         "found": True,
-                        "detail": f"{mat.get('filename')} — wird im Projekt verwendet",
+                        "detail": f"{fname} — wird im Projekt verwendet",
                     }
                 )
 

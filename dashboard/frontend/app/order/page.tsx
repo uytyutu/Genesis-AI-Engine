@@ -236,7 +236,15 @@ export default function OrderSitePage() {
     setUploadBusy(true);
     setUploadError("");
     try {
+      const seenKeys = new Set(
+        materials.map((m) => `${m.filename.toLowerCase()}:${m.size}`),
+      );
       for (const file of Array.from(files)) {
+        const dedupeKey = `${file.name.toLowerCase()}:${file.size}`;
+        // Same name+size already in the list — skip re-upload (double change / re-select).
+        if (seenKeys.has(dedupeKey)) continue;
+        seenKeys.add(dedupeKey);
+
         const fd = new FormData();
         fd.append("file", file);
         const res = await fetch(
@@ -248,16 +256,22 @@ export default function OrderSitePage() {
           setUploadError(formatApiDetail(body.detail) || t("order.uploadFail"));
           continue;
         }
-        setMaterials((prev) => [
-          ...prev,
-          {
-            id: body.id,
-            filename: body.filename,
-            size: body.size,
-            status_de: body.status_de,
-            findings: body.findings || [],
-          },
-        ]);
+        setMaterials((prev) => {
+          if (prev.some((m) => m.id === body.id)) return prev;
+          if (prev.some((m) => m.filename.toLowerCase() === String(body.filename || "").toLowerCase() && m.size === body.size)) {
+            return prev;
+          }
+          return [
+            ...prev,
+            {
+              id: body.id,
+              filename: body.filename,
+              size: body.size,
+              status_de: body.status_de,
+              findings: body.findings || [],
+            },
+          ];
+        });
       }
     } catch {
       setUploadError(t("order.serverDown"));
