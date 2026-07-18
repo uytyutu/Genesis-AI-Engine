@@ -12,6 +12,7 @@ from app.integration.factory_intent_service import FactoryIntentService
 from app.integration.payment_checkout_service import PaymentCheckoutService
 from app.integration.owner_notification_service import OwnerNotificationService
 from app.integration.sales_order_service import SalesOrderService
+from app.integration.client_review_service import ClientReviewService
 from app.integration.revenue_pipeline_service import RevenuePipelineService
 from app.integration.finance_service import FinanceService
 from app.integration.growth_service import GrowthService
@@ -67,6 +68,7 @@ class IntegrationContext:
     factory_intent: FactoryIntentService
     factory: FactoryService
     sales: SalesOrderService
+    reviews: ClientReviewService
     revenue: RevenuePipelineService
     notifications: OwnerNotificationService
     owner: OwnerDashboardService
@@ -111,6 +113,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
         factory = FactoryService(path)
         factory_intent = FactoryIntentService(path, factory)
         sales = SalesOrderService(path, factory_intent)
+        reviews = ClientReviewService(path, sales)
         checkout = PaymentCheckoutService(path)
         notifications = OwnerNotificationService(path)
         revenue = RevenuePipelineService(sales, finance, checkout, notifications)
@@ -149,6 +152,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             factory_intent=factory_intent,
             factory=factory,
             sales=sales,
+            reviews=reviews,
             revenue=revenue,
             notifications=notifications,
             owner=owner,

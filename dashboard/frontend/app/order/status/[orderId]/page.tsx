@@ -32,6 +32,9 @@ type OrderStatus = {
   download_ready?: boolean;
   download_url?: string | null;
   product_id?: string | null;
+  review_eligible?: boolean;
+  review_submitted?: boolean;
+  review_url?: string | null;
 };
 
 function OrderStatusContent() {
@@ -221,6 +224,20 @@ function OrderStatusContent() {
             >
               {t("order.status.downloadZip")}
             </a>
+          )}
+
+          {data.review_eligible && data.review_url && (
+            <Link
+              href={data.review_url}
+              className="mt-3 flex w-full items-center justify-center rounded-xl border border-amber-400/40 bg-amber-950/30 px-4 py-3 text-sm font-semibold text-amber-100 hover:bg-amber-950/50"
+            >
+              ★ {t("order.status.leaveReview")}
+            </Link>
+          )}
+          {data.review_submitted && (
+            <p className="mt-3 text-center text-xs text-genesis-muted">
+              {t("order.status.reviewSubmitted")}
+            </p>
           )}
 
           {data.paid && data.client_receipt_text && (

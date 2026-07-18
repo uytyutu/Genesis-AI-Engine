@@ -186,6 +186,11 @@ export default function ProductPage() {
           <p className="genesis-label">R1.5 · Первый завершённый заказ</p>
           <h1 className="mt-2 text-2xl font-bold">{product.business_name}</h1>
           <p className="mt-1 text-genesis-muted">{product.product_type}</p>
+          <p className="mt-3 text-xs">
+            <a href="/reviews" className="text-amber-300/90 hover:underline">
+              Модерация отзывов →
+            </a>
+          </p>
         </header>
 
         <GenesisCard title="Путь заказа">

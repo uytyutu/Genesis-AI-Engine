@@ -159,8 +159,34 @@
       "copied": "Copied",
       "bookmark": "Bookmark this page — order status stays up to date here.",
       "payFail": "Could not start payment",
-      "downloadZip": "Download website (ZIP)"
+      "downloadZip": "Download website (ZIP)",
+      "leaveReview": "Leave a review",
+      "reviewSubmitted": "Review submitted — pending moderation"
+    },
+    "review": {
+      "title": "Your review",
+      "subtitle": "Only after delivery — helps the next clients.",
+      "stars": "Stars",
+      "text": "Short text (20–1000 characters)",
+      "textPh": "e.g. In six days we had the new website…",
+      "showCompany": "Show company name publicly",
+      "showLogo": "Show logo (if available)",
+      "companyName": "Company display name",
+      "submit": "Submit review",
+      "busy": "Sending…",
+      "success": "Thanks — your review will be checked before publishing.",
+      "fail": "Could not submit",
+      "missingToken": "Invalid or expired link",
+      "backStatus": "Back to order status"
     }
+  },
+  "reviews": {
+    "title": "Client reviews",
+    "empty": "Reviews will appear after the first completed orders.",
+    "avg": "{{avg}} / 5",
+    "count": "{{count}} verified reviews",
+    "recommend": "{{pct}}% recommend us",
+    "verifiedPurchase": "Verified order"
   },
   "kontakt": {
     "title": "Contact",

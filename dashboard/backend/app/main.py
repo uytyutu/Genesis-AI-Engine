@@ -66,6 +66,12 @@ from app.schemas import (
     SalesCheckoutRequest,
     SalesCheckoutResponse,
     SalesOrderPublicStatus,
+    ClientReviewSubmitRequest,
+    ClientReviewSubmitResponse,
+    ClientReviewsPublicResponse,
+    ClientReviewModerateRequest,
+    ClientReviewModerationItem,
+    ClientReviewsPendingResponse,
     PaymentStatusResponse,
     PricingEventRequest,
     PricingEventResponse,
@@ -2342,6 +2348,83 @@ def sales_order_public_status(order_id: str) -> SalesOrderPublicStatus:
     return SalesOrderPublicStatus(**data)
 
 
+@app.post(
+    "/api/sales/orders/{order_id}/reviews",
+    response_model=ClientReviewSubmitResponse,
+)
+def sales_order_submit_review(
+    order_id: str, request: ClientReviewSubmitRequest
+) -> ClientReviewSubmitResponse:
+    try:
+        result = _ctx().reviews.submit(
+            order_id=order_id,
+            token=request.token,
+            stars=request.stars,
+            text=request.text,
+            show_company_name=request.show_company_name,
+            show_logo=request.show_logo,
+            company_display_name=request.company_display_name,
+        )
+    except ValueError as exc:
+        code = str(exc)
+        mapping = {
+            "order_not_found": (404, "Bestellung nicht gefunden"),
+            "not_eligible": (403, "Bewertung erst nach Übergabe möglich"),
+            "bad_token": (403, "Ungültiger Bewertungstoken"),
+            "already_submitted": (409, "Bewertung bereits gesendet"),
+            "bad_stars": (400, "Sterne: 1–5"),
+            "too_short": (400, "Text zu kurz (min. 20 Zeichen)"),
+            "too_long": (400, "Text zu lang (max. 1000 Zeichen)"),
+        }
+        status, detail = mapping.get(code, (400, "Bewertung abgelehnt"))
+        raise HTTPException(status_code=status, detail=detail) from None
+    return ClientReviewSubmitResponse(**result)
+
+
+@app.get("/api/public/reviews", response_model=ClientReviewsPublicResponse)
+def public_client_reviews(lang: str = "de") -> ClientReviewsPublicResponse:
+    data = _ctx().reviews.public_feed(lang=lang)
+    return ClientReviewsPublicResponse(**data)
+
+
+@app.get("/api/owner/reviews/pending", response_model=ClientReviewsPendingResponse)
+def owner_reviews_pending() -> ClientReviewsPendingResponse:
+    pending = _ctx().reviews.list_pending()
+    items = [
+        ClientReviewModerationItem(
+            review_id=str(r.get("review_id") or ""),
+            order_id=str(r.get("order_id") or ""),
+            stars=int(r.get("stars") or 0),
+            text=str(r.get("text") or ""),
+            status=str(r.get("status") or ""),
+            flags=list(r.get("flags") or []),
+            company_display_name=r.get("company_display_name"),
+            created_at=r.get("created_at"),
+            show_company_name=bool(r.get("show_company_name")),
+            show_logo=bool(r.get("show_logo")),
+            verified_purchase=bool(r.get("verified_purchase", True)),
+        )
+        for r in pending
+    ]
+    return ClientReviewsPendingResponse(pending=items, count=len(items))
+
+
+@app.post("/api/owner/reviews/{review_id}/moderate")
+def owner_review_moderate(
+    review_id: str, request: ClientReviewModerateRequest
+) -> dict:
+    try:
+        row = _ctx().reviews.moderate(
+            review_id, action=request.action, note=request.note
+        )
+    except ValueError as exc:
+        code = str(exc)
+        if code == "not_found":
+            raise HTTPException(status_code=404, detail="Отзыв не найден") from None
+        raise HTTPException(status_code=400, detail=code) from None
+    return {"ok": True, "review": row}
+
+
 @app.get("/api/sales/orders/{order_id}/download")
 def sales_order_client_download(order_id: str) -> StreamingResponse:
     """Path A — client downloads landing ZIP after payment/production."""
@@ -2491,6 +2574,12 @@ def deliver_factory_product(product_id: str) -> FactoryProduct:
                 detail="Сначала опубликуйте продукт — подготовка к передаче.",
             ) from None
         raise HTTPException(status_code=404, detail="Продукт не найден") from None
+    try:
+        _ctx().sales.mark_delivered_by_product(product_id)
+    except Exception:
+        logging.getLogger("genesis.factory").exception(
+            "sales mark_delivered_by_product failed for %s", product_id
+        )
     return FactoryProduct(**product)
 
 

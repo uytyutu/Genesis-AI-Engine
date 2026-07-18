@@ -159,8 +159,34 @@
       "copied": "Text kopiert",
       "bookmark": "Speichern Sie diese Seite — hier sehen Sie immer den aktuellen Status.",
       "payFail": "Zahlung konnte nicht gestartet werden",
-      "downloadZip": "Website-Dateien herunterladen (Ihr Archiv)"
+      "downloadZip": "Website-Dateien herunterladen (Ihr Archiv)",
+      "leaveReview": "Bewertung abgeben",
+      "reviewSubmitted": "Bewertung gesendet — Prüfung vor Veröffentlichung"
+    },
+    "review": {
+      "title": "Ihre Bewertung",
+      "subtitle": "Nur nach abgeschlossener Lieferung — hilft anderen Unternehmen.",
+      "stars": "Sterne",
+      "text": "Kurzer Text (20–1000 Zeichen)",
+      "textPh": "z. B. In sechs Tagen hatten wir die neue Website…",
+      "showCompany": "Firmenname öffentlich zeigen",
+      "showLogo": "Logo zeigen (falls vorhanden)",
+      "companyName": "Anzeigename der Firma",
+      "submit": "Bewertung senden",
+      "busy": "Wird gesendet…",
+      "success": "Danke — die Bewertung wird vor der Veröffentlichung geprüft.",
+      "fail": "Senden fehlgeschlagen",
+      "missingToken": "Link ungültig oder abgelaufen",
+      "backStatus": "Zurück zum Status"
     }
+  },
+  "reviews": {
+    "title": "Kundenstimmen",
+    "empty": "Bewertungen erscheinen nach den ersten abgeschlossenen Aufträgen.",
+    "avg": "{{avg}} / 5",
+    "count": "{{count}} geprüfte Bewertungen",
+    "recommend": "{{pct}}% empfehlen uns",
+    "verifiedPurchase": "Verifizierte Bestellung"
   },
   "kontakt": {
     "title": "Kontakt",

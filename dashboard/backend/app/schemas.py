@@ -371,9 +371,71 @@ class SalesOrderPublicStatus(BaseModel):
     download_url: str | None = None
     service_id: str | None = None
     launch_mode: bool = False
+    review_eligible: bool = False
+    review_submitted: bool = False
+    review_url: str | None = None
 
 
-class SalesCheckoutRequest(BaseModel):
+class ClientReviewSubmitRequest(BaseModel):
+    token: str = Field(min_length=8, max_length=128)
+    stars: int = Field(ge=1, le=5)
+    text: str = Field(min_length=20, max_length=1000)
+    show_company_name: bool = True
+    show_logo: bool = False
+    company_display_name: str | None = Field(default=None, max_length=200)
+
+
+class ClientReviewSubmitResponse(BaseModel):
+    ok: bool = True
+    review_id: str
+    status: str
+    flags: list[str] = []
+    message_ru: str = ""
+    message_de: str = ""
+
+
+class ClientReviewPublicCard(BaseModel):
+    review_id: str | None = None
+    stars: int
+    text: str
+    company_display_name: str | None = None
+    show_logo: bool = False
+    logo_url: str | None = None
+    verified_purchase: bool = True
+    published_at: str | None = None
+
+
+class ClientReviewsPublicResponse(BaseModel):
+    has_reviews: bool
+    count: int = 0
+    average_stars: float | None = None
+    recommend_pct: int | None = None
+    empty_message: str | None = None
+    reviews: list[ClientReviewPublicCard] = []
+
+
+class ClientReviewModerateRequest(BaseModel):
+    action: str = Field(pattern="^(publish|reject)$")
+    note: str = Field(default="", max_length=500)
+
+
+class ClientReviewModerationItem(BaseModel):
+    review_id: str
+    order_id: str
+    stars: int
+    text: str
+    status: str
+    flags: list[str] = []
+    company_display_name: str | None = None
+    created_at: str | None = None
+    show_company_name: bool = True
+    show_logo: bool = False
+    verified_purchase: bool = True
+
+
+class ClientReviewsPendingResponse(BaseModel):
+    pending: list[ClientReviewModerationItem] = []
+    count: int = 0
     success_url: str = Field(min_length=8, max_length=500)
     cancel_url: str = Field(min_length=8, max_length=500)
 

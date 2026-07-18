@@ -18,6 +18,21 @@ type PackageCard = {
   price_label?: string;
 };
 
+type PublicReviews = {
+  has_reviews: boolean;
+  count: number;
+  average_stars: number | null;
+  recommend_pct: number | null;
+  empty_message: string | null;
+  reviews: {
+    review_id?: string;
+    stars: number;
+    text: string;
+    company_display_name?: string | null;
+    verified_purchase?: boolean;
+  }[];
+};
+
 const FALLBACK_PACKAGES: PackageCard[] = [
   {
     id: "basic",
@@ -61,8 +76,9 @@ const FALLBACK_PACKAGES: PackageCard[] = [
  * Public Path A storefront — DE-first via i18n (browser locale + LanguageSwitcher).
  */
 export function SitePage() {
-  const { t } = useTranslation("site");
+  const { t, i18n } = useTranslation("site");
   const [packages, setPackages] = useState<PackageCard[]>(FALLBACK_PACKAGES);
+  const [reviews, setReviews] = useState<PublicReviews | null>(null);
 
   useEffect(() => {
     const api = publicApiBase();
@@ -86,7 +102,17 @@ export function SitePage() {
       .catch(() => {
         /* keep fallback — storefront must still render */
       });
-  }, []);
+
+    const lang = (i18n.language || "de").slice(0, 2);
+    fetch(`${api}/api/public/reviews?lang=${lang}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body) => {
+        if (body && typeof body === "object") setReviews(body as PublicReviews);
+      })
+      .catch(() => {
+        /* honest empty via i18n if API down */
+      });
+  }, [i18n.language]);
 
   return (
     <PublicPageShell>
@@ -170,6 +196,52 @@ export function SitePage() {
               {t("pathA.ctaSecondary")}
             </Link>
           </div>
+        </section>
+
+        <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
+          <h2 className="text-lg font-semibold text-white">{t("reviews.title")}</h2>
+          {!reviews?.has_reviews ? (
+            <p className="mt-3 text-sm text-genesis-muted">
+              {reviews?.empty_message || t("reviews.empty")}
+            </p>
+          ) : (
+            <>
+              <div className="mt-3 flex flex-wrap gap-3 text-xs text-emerald-100/90">
+                {reviews.average_stars != null && (
+                  <span className="rounded-lg border border-emerald-500/30 px-3 py-1.5">
+                    ★ {t("reviews.avg", { avg: reviews.average_stars })}
+                  </span>
+                )}
+                <span className="rounded-lg border border-emerald-500/30 px-3 py-1.5">
+                  {t("reviews.count", { count: reviews.count })}
+                </span>
+                {reviews.recommend_pct != null && (
+                  <span className="rounded-lg border border-emerald-500/30 px-3 py-1.5">
+                    {t("reviews.recommend", { pct: reviews.recommend_pct })}
+                  </span>
+                )}
+              </div>
+              <ul className="mt-4 space-y-3">
+                {reviews.reviews.map((r) => (
+                  <li
+                    key={r.review_id || r.text.slice(0, 24)}
+                    className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm"
+                  >
+                    <p className="text-amber-300">{"★".repeat(Math.max(1, Math.min(5, r.stars)))}</p>
+                    {(r.verified_purchase !== false) && (
+                      <p className="mt-1 text-xs font-medium text-emerald-300/90">
+                        ✔ {t("reviews.verifiedPurchase")}
+                      </p>
+                    )}
+                    <p className="mt-2 text-white/85">«{r.text}»</p>
+                    {r.company_display_name && (
+                      <p className="mt-2 text-xs font-medium text-white/60">{r.company_display_name}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-black/20 p-6">

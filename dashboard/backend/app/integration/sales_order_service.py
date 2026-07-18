@@ -25,6 +25,7 @@ from app.integration.product_line import (
     project_order_created_message,
     service_label_ru,
 )
+from app.integration.client_review_service import new_review_token
 from app.schemas import FactoryIntentRequest
 
 logger = logging.getLogger(__name__)
@@ -590,6 +591,36 @@ class SalesOrderService:
             "launch_mode": launch_mode,
         }
 
+    def mark_delivered_by_product(self, product_id: str) -> dict | None:
+        """Factory handoff → sales order delivered + review token (Path A trust)."""
+        pid = (product_id or "").strip()
+        if not pid:
+            return None
+        order = next(
+            (o for o in self._load_all() if str(o.get("product_id") or "").strip() == pid),
+            None,
+        )
+        if not order:
+            return None
+        return self.mark_order_delivered(str(order["order_id"]))
+
+    def mark_order_delivered(self, order_id: str) -> dict:
+        order = self.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if order.get("status") not in ("paid", "in_production", "ready", "delivered"):
+            raise ValueError("not_paid")
+        now = datetime.now(timezone.utc).isoformat()
+        order["status"] = "delivered"
+        order["status_label"] = "An den Kunden übergeben"
+        order["delivered_at"] = order.get("delivered_at") or now
+        order["review_eligible"] = True
+        if not order.get("review_token"):
+            order["review_token"] = new_review_token()
+        order["updated_at"] = now
+        self._save_order(order)
+        return order
+
     def public_status(self, order_id: str) -> dict:
         order = self.get_order(order_id)
         if not order:
@@ -598,6 +629,13 @@ class SalesOrderService:
         service_id = str(order.get("service_id") or SERVICE_WEBSITE)
         launch_mode = bool(order.get("launch_mode"))
         download_ready = self._client_download_ready(order)
+        submitted = bool(order.get("review_submitted"))
+        eligible = (
+            bool(order.get("review_eligible"))
+            and str(order.get("status") or "") == "delivered"
+            and not submitted
+        )
+        token = str(order.get("review_token") or "") if eligible else ""
         return {
             "order_id": order["order_id"],
             "business_name": order["business_name"],
@@ -619,6 +657,9 @@ class SalesOrderService:
             "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
             "service_id": service_id,
             "launch_mode": launch_mode,
+            "review_eligible": eligible,
+            "review_submitted": submitted,
+            "review_url": f"/order/review/{order_id}?token={token}" if token else None,
         }
 
     def build_client_download(self, order_id: str) -> tuple[bytes, str]:
