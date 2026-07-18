@@ -1388,6 +1388,22 @@ class EngineFinancialExportSummary(BaseModel):
     note: str
 
 
+class OutreachQuotaHealth(BaseModel):
+    """CEO send-capacity snapshot (per domain + pool totals)."""
+
+    daily_cap: int
+    hard_max: int = 100
+    day: str | None = None
+    domain_count: int = 0
+    pool_cap_total: int = 0
+    sent_today_total: int = 0
+    remaining_today_total: int = 0
+    primary_used_today: int = 0
+    primary_remaining: int = 0
+    domains: list[dict] = []
+    sniper_note_ru: str = ""
+
+
 class AcquisitionStudioStatus(BaseModel):
     version: str
     name: str
@@ -1402,6 +1418,9 @@ class AcquisitionStudioStatus(BaseModel):
     channels: list[dict] = []
     manual_review_count: int = 0
     auto_draft_max_eur: float = 50.0
+    outreach_daily_cap: int | None = None
+    outreach_quota: OutreachQuotaHealth | dict | None = None
+    pilot_catalog: dict | None = None
 
 
 class AcquisitionApprovalItem(BaseModel):
@@ -1495,6 +1514,9 @@ class AcquisitionDailyWorklist(BaseModel):
     target_city: str | None = None
     search_radius: int | None = None
     profitable_niches: list[str] = []
+    target_per_day_note_ru: str | None = None
+    outreach_daily_cap: int | None = None
+    outreach_quota: OutreachQuotaHealth | dict | None = None
 
 
 class AcquisitionCatalogResponse(BaseModel):

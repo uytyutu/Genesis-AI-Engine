@@ -231,6 +231,8 @@ class AcquisitionStudioService:
             ),
             "channels": _ACQUISITION_CHANNELS,
             "pilot_catalog": ceo_catalog_snapshot(),
+            "outreach_daily_cap": outreach_daily_cap(),
+            "outreach_quota": self._send_quota.health(),
         }
 
     def catalog(self, *, public_only: bool = False) -> dict:

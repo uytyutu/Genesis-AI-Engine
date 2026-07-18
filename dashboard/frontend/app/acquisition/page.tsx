@@ -8,6 +8,26 @@ import { BRAND_NAME } from "../lib/publicBrand";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+type OutreachQuotaHealth = {
+  daily_cap: number;
+  hard_max: number;
+  day?: string | null;
+  domain_count: number;
+  pool_cap_total: number;
+  sent_today_total: number;
+  remaining_today_total: number;
+  primary_used_today: number;
+  primary_remaining: number;
+  domains: {
+    from?: string;
+    domain: string;
+    used_today: number;
+    remaining: number;
+    at_cap: boolean;
+  }[];
+  sniper_note_ru?: string;
+};
+
 type StudioStatus = {
   version: string;
   name: string;
@@ -21,6 +41,8 @@ type StudioStatus = {
   pipeline_count: number;
   manual_review_count?: number;
   auto_draft_max_eur?: number;
+  outreach_daily_cap?: number;
+  outreach_quota?: OutreachQuotaHealth | null;
   pilot_catalog?: {
     checkout_online: string[];
     pilot_quote: string[];
@@ -90,6 +112,8 @@ type Worklist = {
   target_city?: string;
   search_radius?: number;
   profitable_niches?: string[];
+  outreach_daily_cap?: number;
+  outreach_quota?: OutreachQuotaHealth | null;
 };
 
 type InboundLead = {
@@ -473,6 +497,70 @@ export default function AcquisitionPage() {
           <p className="rounded-xl border border-amber-500/30 bg-amber-950/20 px-4 py-3 text-xs text-amber-100/90">
             {status.outreach_send_note}
           </p>
+        )}
+
+        {(status?.outreach_quota || worklist?.outreach_quota) && (
+          <section className="genesis-card space-y-3 p-5">
+            <h2 className="text-sm font-semibold">Квота отправки · сегодня</h2>
+            {(() => {
+              const q = status?.outreach_quota || worklist?.outreach_quota;
+              if (!q) return null;
+              const cap = q.daily_cap;
+              const multi = (q.domain_count || 0) > 1;
+              return (
+                <>
+                  <div className="grid gap-2 text-sm sm:grid-cols-3">
+                    <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
+                      <span className="text-genesis-muted">Отправлено сегодня</span>
+                      <span className="mt-1 block font-medium text-white">
+                        {q.primary_used_today} / {cap}
+                        {multi ? (
+                          <span className="ml-1 text-xs font-normal text-genesis-muted">
+                            (1-й домен)
+                          </span>
+                        ) : null}
+                      </span>
+                    </p>
+                    <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
+                      <span className="text-genesis-muted">Осталось сегодня</span>
+                      <span className="mt-1 block font-medium text-white">
+                        {q.primary_remaining}
+                      </span>
+                    </p>
+                    <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
+                      <span className="text-genesis-muted">Всего по всем доменам</span>
+                      <span className="mt-1 block font-medium text-white">
+                        {q.sent_today_total} / {q.pool_cap_total}
+                      </span>
+                    </p>
+                  </div>
+                  {q.domains?.length ? (
+                    <ul className="space-y-1 text-xs text-genesis-muted">
+                      {q.domains.map((d) => (
+                        <li key={d.domain || d.from || "domain"}>
+                          {d.domain || "—"}: {d.used_today}/{cap}
+                          {d.at_cap ? " · лимит" : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-genesis-muted">
+                      From-домены не настроены — задайте GENESIS_EMAIL_FROM или
+                      GENESIS_OUTREACH_FROM_DOMAINS.
+                    </p>
+                  )}
+                  {q.sniper_note_ru ? (
+                    <p className="text-[11px] leading-relaxed text-genesis-muted">{q.sniper_note_ru}</p>
+                  ) : null}
+                  <p className="text-[11px] text-genesis-muted">
+                    Лимит/день на домен:{" "}
+                    <code className="text-white/80">GENESIS_OUTREACH_DAILY_CAP</code> = {cap}{" "}
+                    (макс. {q.hard_max}). Без правки кода.
+                  </p>
+                </>
+              );
+            })()}
+          </section>
         )}
 
         {worklist && (

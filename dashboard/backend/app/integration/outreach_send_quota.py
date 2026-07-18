@@ -10,9 +10,10 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-# Safe sniper defaults (DE B2B). Hard ceiling avoids spam-scale misconfig.
+# Safe sniper defaults (new domain warm-up). Hard ceiling = planning max
+# for one well-warmed domain (ops still ramps via GENESIS_OUTREACH_DAILY_CAP).
 _DEFAULT_DAILY_CAP = 10
-_HARD_MAX_DAILY_CAP = 70
+_HARD_MAX_DAILY_CAP = 100
 _DEFAULT_FROM_NAME = "Virtus Core"
 
 
@@ -174,13 +175,41 @@ class OutreachSendQuota:
                     "at_cap": used >= cap,
                 }
             )
+        # If pool empty, still report counter file totals under synthetic "unconfigured".
+        if not per and domains:
+            for domain, used_raw in domains.items():
+                used = int(used_raw or 0)
+                per.append(
+                    {
+                        "from": "",
+                        "domain": str(domain),
+                        "used_today": used,
+                        "remaining": max(0, cap - used),
+                        "at_cap": used >= cap,
+                    }
+                )
+        domain_count = len(pool) if pool else len(per)
+        pool_cap_total = cap * max(domain_count, 1) if (pool or per) else cap
+        sent_today_total = sum(int(d["used_today"]) for d in per)
+        remaining_today_total = sum(int(d["remaining"]) for d in per) if per else cap
+        # Single-domain CEO line: first configured domain (or aggregate if none).
+        primary = per[0] if per else None
+        primary_used = int(primary["used_today"]) if primary else 0
+        primary_remaining = int(primary["remaining"]) if primary else cap
         return {
             "daily_cap": cap,
             "hard_max": _HARD_MAX_DAILY_CAP,
             "day": data.get("day"),
+            "domain_count": domain_count,
+            "pool_cap_total": pool_cap_total,
+            "sent_today_total": sent_today_total,
+            "remaining_today_total": remaining_today_total,
+            "primary_used_today": primary_used,
+            "primary_remaining": primary_remaining,
             "domains": per,
             "sniper_note_ru": (
-                "Снайпер: 5–10 писем/день на старт, макс. 50–70 на домен. "
-                "Масштаб — через дополнительные домены (GENESIS_OUTREACH_FROM_DOMAINS), не через спам."
+                "Плановый потолок после прогрева: до 100 писем/день на домен "
+                "(GENESIS_OUTREACH_DAILY_CAP). Старт warm-up: 5–10. "
+                "Масштаб — через дополнительные домены, не через спам."
             ),
         }
