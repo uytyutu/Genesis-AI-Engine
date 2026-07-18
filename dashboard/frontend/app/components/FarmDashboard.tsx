@@ -15,6 +15,31 @@ import {
 } from "../lib/farmLifecycleUi";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const VRE_STICKY_KEY = "genesis.mc.vre_verified_sticky";
+
+type VreSticky = { status: "VERIFIED"; level: number };
+
+function readVreSticky(): VreSticky | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(VRE_STICKY_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<VreSticky>;
+    if (parsed?.status !== "VERIFIED") return null;
+    const level = Number(parsed.level);
+    return { status: "VERIFIED", level: Number.isFinite(level) && level > 0 ? level : 4 };
+  } catch {
+    return null;
+  }
+}
+
+function writeVreSticky(sticky: VreSticky): void {
+  try {
+    sessionStorage.setItem(VRE_STICKY_KEY, JSON.stringify(sticky));
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
 
 function farmList<T>(value: T[] | null | undefined): T[] {
   return Array.isArray(value) ? value : [];
@@ -474,13 +499,27 @@ export function FarmDashboard() {
   const [lostReasonCode, setLostReasonCode] = useState("expensive");
   const [lostTargetId, setLostTargetId] = useState<string | null>(null);
 
+  // Once VRE reached VERIFIED, keep the banner on across warm/reconnect/F5 —
+  // cold polls must not flash rose NOT VERIFIED / LEVEL 0 (looks like disconnect).
+  const [vreSticky, setVreSticky] = useState<VreSticky | null>(null);
+  const [vreColdGraceDone, setVreColdGraceDone] = useState(false);
+
+  useEffect(() => {
+    setVreSticky(readVreSticky());
+  }, []);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setVreColdGraceDone(true), 12_000);
+    return () => window.clearTimeout(t);
+  }, []);
+
   const refresh = useCallback(async () => {
     let liteOk = false;
     try {
       const liteRes = await fetchApi(`${API}/api/farm/dashboard/lite`, { timeoutMs: 8_000 });
       if (liteRes.ok) {
         const lite = (await liteRes.json()) as FarmDash;
-        setDash((prev) => ({ ...(prev ?? {}), ...lite }));
+        setDash((prev) => mergeFarmDash(prev, lite));
         setLoadError("");
         liteOk = true;
       }
@@ -714,9 +753,42 @@ export function FarmDashboard() {
   const paymentMonitor = isFarmSectionReady(dash?.payment_monitor) ? dash?.payment_monitor : null;
   const revenueForecast = isFarmSectionReady(dash?.revenue_forecast) ? dash?.revenue_forecast : null;
   const financeGuard = isFarmSectionReady(dash?.finance_guard) ? dash?.finance_guard : null;
-  const vreReady = Boolean(farmProgram);
-  const vreVerified = farmProgram?.verified_revenue_status === "VERIFIED";
-  const vreLevel = firstEuroGate?.vre_level ?? farmProgram?.vre_level;
+
+  const liveLevel =
+    typeof farmProgram?.vre_level === "number"
+      ? farmProgram.vre_level
+      : typeof firstEuroGate?.vre_level === "number"
+        ? firstEuroGate.vre_level
+        : null;
+
+  useEffect(() => {
+    if (farmProgram?.verified_revenue_status !== "VERIFIED") return;
+    const level = Math.max(liveLevel ?? 0, vreSticky?.level ?? 0, 4);
+    const next: VreSticky = { status: "VERIFIED", level };
+    setVreSticky((prev) =>
+      prev?.status === "VERIFIED" && prev.level === next.level ? prev : next,
+    );
+    writeVreSticky(next);
+  }, [farmProgram?.verified_revenue_status, liveLevel, vreSticky?.level]);
+
+  const sticky = vreSticky;
+  // Prefer sticky VERIFIED over transient NOT VERIFIED / LEVEL 0 during warm/reconnect.
+  const vreVerified = sticky != null || farmProgram?.verified_revenue_status === "VERIFIED";
+  // LEVEL 0 + NOT VERIFIED on a cold ready payload is often "not computed yet" — don't
+  // paint rose disconnect; keep neutral loading until sticky or a real level arrives.
+  const coldZero =
+    Boolean(farmProgram) &&
+    farmProgram?.verified_revenue_status !== "VERIFIED" &&
+    (liveLevel == null || liveLevel <= 0) &&
+    sticky == null &&
+    !vreColdGraceDone;
+  const vreReady = (Boolean(farmProgram) && !coldZero) || sticky != null;
+  const vreLevel = sticky?.level ?? (coldZero ? null : liveLevel);
+  const vreStatusLabel = vreVerified
+    ? "VERIFIED"
+    : vreReady
+      ? (farmProgram?.verified_revenue_status ?? "NOT VERIFIED")
+      : null;
 
   return (
     <main className="min-h-screen pb-16">
@@ -738,12 +810,12 @@ export function FarmDashboard() {
               }`}
             >
               Verified Revenue ·{" "}
-              {!vreReady ? "загрузка…" : farmProgram?.verified_revenue_status ?? "NOT VERIFIED"}
+              {vreStatusLabel ?? "загрузка…"}
             </p>
             <p className="mt-1 text-[11px] text-white/70">
               {!vreReady
                 ? "VRE LEVEL … · проверяю статус (без обновления страницы)"
-                : `VRE LEVEL ${vreLevel ?? 0}${
+                : `VRE LEVEL ${vreLevel ?? "…"}${
                     vreVerified
                       ? " · VERIFIED"
                       : " · до VERIFIED — только полевой эксперимент"
