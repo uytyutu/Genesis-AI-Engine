@@ -57,6 +57,12 @@ _ENV_GATES: tuple[dict[str, str], ...] = (
         "label": "Debug / Thinking Brief on non-localhost",
         "source": "security.dev_mode_allowed",
     },
+    {
+        "id": "hive_api",
+        "env": "HIVE_API_KEY",
+        "label": "Hive AI media provider (not Path A)",
+        "source": "providers.hive",
+    },
 )
 
 REGISTRY_VERSION = "foundation-f1-1"
