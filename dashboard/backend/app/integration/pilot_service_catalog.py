@@ -348,4 +348,17 @@ def public_go_to_market() -> dict[str, Any]:
             "auto": "Landing — online Checkout",
             "expert": "Pilot — Anfrage an hello@",
         },
+        # After pilot proof only — do not promise on storefront as product.
+        "horizon_after_pilot": {
+            "id": "event_signals",
+            "title": "Ereignisse statt nur Technik-Lücken",
+            "examples": [
+                "Neu eröffnet",
+                "Umgezogen",
+                "Leistungen erweitert",
+                "Viele neue Bewertungen",
+                "Rebrand / neuer Name",
+            ],
+            "note": "Erst nach Gate 1 + ersten zahlenden Kunden — sonst Feature-Creep.",
+        },
     }

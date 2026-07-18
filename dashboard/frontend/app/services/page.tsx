@@ -262,6 +262,10 @@ export default function ServicesPage() {
           Nächstes Auto-Produkt = was Kunden nach dem Landing wirklich nachfragen (oft Site Boost) —
           nicht die längste Wunschliste.
         </p>
+        <p className="mt-3 text-xs text-genesis-muted/80">
+          Später (nach Pilot): nicht nur Technik-Lücken, sondern Ereignisse — neu eröffnet, Umzug,
+          neue Leistungen, viele Reviews, Rebrand. Heute bewusst nicht verkauft.
+        </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <ButtonLink href="/order" variant="success" size="sm">
             Landing →
