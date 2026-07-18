@@ -106,11 +106,11 @@ function RealMoneyHero({
   compact?: boolean;
 }) {
   const withdrawable =
-    actual?.withdrawable_label_ru ?? rm.available?.amount_label_ru ?? rm.received.amount_label_ru;
+    actual?.withdrawable_label_ru ?? rm.available?.amount_label_ru ?? rm.received?.amount_label_ru ?? "0,00 €";
   const paid =
     actual?.paid_by_client_label_ru ?? rm.paid_by_client?.amount_label_ru ?? "0,00 €";
   const settling =
-    actual?.pending_settlement_label_ru ?? rm.pending.amount_label_ru;
+    actual?.pending_settlement_label_ru ?? rm.pending?.amount_label_ru ?? "0,00 €";
 
   return (
     <div className="mt-4 space-y-4">
@@ -137,8 +137,8 @@ function RealMoneyHero({
               <p className="font-semibold tabular-nums text-amber-100">{settling}</p>
             </div>
             <div>
-              <p className="text-genesis-muted">{rm.forecast.icon} {rm.forecast.label_ru}</p>
-              <p className="font-semibold tabular-nums text-sky-200/80">{rm.forecast.amount_label_ru}</p>
+              <p className="text-genesis-muted">{rm.forecast?.icon} {rm.forecast?.label_ru}</p>
+              <p className="font-semibold tabular-nums text-sky-200/80">{rm.forecast?.amount_label_ru}</p>
             </div>
           </div>
         ) : (
@@ -155,13 +155,13 @@ function RealMoneyHero({
 
       <div className="rounded-xl border border-white/10 bg-genesis-bg/40 p-4">
         <p className="text-xs uppercase tracking-wide text-genesis-muted">
-          {farm?.label_ru ?? rm.training.label_ru} · не Stripe
+          {farm?.label_ru ?? rm.training?.label_ru} · не Stripe
         </p>
         <p className="mt-1 text-xl font-semibold tabular-nums text-white/70">
-          {farm?.amount_label_ru ?? rm.training.amount_label_ru}
+          {farm?.amount_label_ru ?? rm.training?.amount_label_ru}
         </p>
         <p className="mt-2 text-[11px] leading-relaxed text-genesis-muted">
-          {farm?.detail_ru ?? rm.training.detail_ru}
+          {farm?.detail_ru ?? rm.training?.detail_ru}
         </p>
       </div>
     </div>
@@ -172,6 +172,10 @@ export function MoneyMonitorPanel({ data, compact }: Props) {
   if (!data) return null;
 
   const alert = data.withdraw_alert;
+  const lanes = Array.isArray(data.lanes) ? data.lanes : [];
+  // Incomplete payload during boot must not trip Next error.tsx (500).
+  if (!alert || typeof alert !== "object") return null;
+
   const alertBorder =
     alert.level === "green"
       ? "border-emerald-400/50 bg-emerald-950/30"
@@ -222,7 +226,7 @@ export function MoneyMonitorPanel({ data, compact }: Props) {
       ) : null}
 
       <div className={`mt-4 grid gap-3 ${compact ? "sm:grid-cols-1" : "sm:grid-cols-3"}`}>
-        {data.lanes.map((lane) => (
+        {lanes.map((lane) => (
           <div
             key={lane.id}
             className={`rounded-xl border p-4 ${

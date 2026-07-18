@@ -21,7 +21,7 @@ export function SalesFunnelPanel({ data, compact }: Props) {
       </div>
 
       <div className={`mt-4 grid gap-2 ${compact ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4 lg:grid-cols-7"}`}>
-        {data.steps.map((step) => {
+        {(data.steps ?? []).map((step) => {
           const isReceived = step.id === "received";
           const value = isReceived ? step.amount_label_ru : String(step.count ?? 0);
           return (
