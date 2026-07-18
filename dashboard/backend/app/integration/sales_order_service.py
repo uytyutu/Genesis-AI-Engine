@@ -48,7 +48,7 @@ _PACKAGES = {
             "Google Maps, Bewertungsblock, Logo-Platzhalter, erweitertes SEO",
             "Hilfe beim Upload auf Ihren Hosting-Zugang (manuell)",
             "1 Korrekturrunde",
-            "Hinweis: Domain- und Hosting-Gebühren zahlt der Kunde",
+            "Hilfe bei der Wahl des Hostings; Vertrag Domain/Hosting direkt mit dem Anbieter",
         ],
     },
     "premium": {
@@ -60,7 +60,7 @@ _PACKAGES = {
             "Premium-Design, Kostenrechner, Analytics-Platzhalter",
             "Vollständige Veröffentlichung: Domain-Anbindung, Hosting-Setup, SSL, Go-live (wenn Sie Zugang geben)",
             "14 Tage Support + 3 Korrekturrunden",
-            "Hinweis: Domain/Hosting-Miete nicht im Preis — nur Einrichtungsservice",
+            "Domain/Hosting-Vertrag schließen Sie direkt mit dem Anbieter (kein Reseller-Modell)",
         ],
     },
 }

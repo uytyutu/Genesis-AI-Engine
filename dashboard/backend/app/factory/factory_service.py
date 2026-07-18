@@ -23,15 +23,31 @@ _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
 _DEPLOY_README = """# Website veröffentlichen (Path A)
 
+## Modell (Pilot)
+Wir helfen bei der Wahl eines passenden Hosting-Anbieters. Unter den beliebten Optionen
+in Deutschland sind Hetzner, IONOS, All-Inkl und Netcup. Der Vertrag für Domain und Hosting
+wird direkt zwischen Ihnen und dem gewählten Anbieter geschlossen.
+Virtus Core verkauft die Website und den Einrichtungs-Service — nicht Domain/Hosting als Reseller.
+Bei Business/Premium richten wir die Seite mit Ihren Zugangsdaten ein.
+
+## Beispiele gängiger Anbieter (DE — Vertrag/Zahlung bei Ihnen)
+- Hetzner — https://www.hetzner.com/
+- IONOS — https://www.ionos.de/
+- All-Inkl — https://all-inkl.com/
+- Netcup — https://www.netcup.de/
+
+Partner-/Reseller-Programme und „alles aus einer Hand“ über Virtus Core: später (Horizon).
+
+## Schritte
 1. Archiv entpacken.
 2. index.html, impressum.html und datenschutz.html im Browser prüfen.
 3. Impressum und Datenschutz nur freigeben, wenn alle Angaben stimmen (Kunde muss prüfen).
 4. Business/Premium: Ordner assets/ anlegen und echte logo.png als assets/logo.png legen.
 5. Premium: in index.html G-XXXXXXXXXX durch Ihre Google-Analytics Measurement-ID ersetzen.
 6. Bewertungsblock: Beispieltexte durch echte Kundenstimmen ersetzen.
-7. Alle Dateien auf Hosting laden (FTP / Netlify Drop / Dateimanager).
+7. Dateien auf Ihr Hosting laden (FTP / Dateimanager) — oder Zugang an Virtus Core geben (Business/Premium).
 
-Nicht im ZIP (manuelle Leistung): Domain-Kauf, DNS/Hosting-Anbindung, Korrekturrunden, Support.
+Nicht im ZIP-Preis: Domain-Kauf, Hosting-Miete, laufende Anbieter-Gebühren.
 
 Hinweis: Die Rechtsseiten sind aus Kundendaten befüllte Vorlagen — keine Rechtsberatung.
 Ohne vollständiges Impressum gilt die Seite nicht als publish-ready für Deutschland.

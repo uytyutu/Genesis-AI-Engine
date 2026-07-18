@@ -64,8 +64,25 @@ HOLD = отсутствует одно (или более) из **необход
 | Korrekturen / Support / Domain-Hilfe | Prozess (CEO) | Prozess | Prozess |
 | **Go-live-Stufe (kommerziell)** | ZIP + Anleitung (Selbst-Publish) | + Hilfe Upload (Zugang Kunde) | + Voll-Publish Domain/SSL/Go-live (Zugang Kunde) |
 | Domain/Hosting-**Miete** | ❌ zahlt Kunde | ❌ zahlt Kunde | ❌ zahlt Kunde |
+| Hosting-Modell (Pilot) | Hilfe bei Wahl + Self-Publish | Hilfe bei Wahl + Upload | Hilfe bei Wahl + Voll-Publish |
 
 **Оффер (канон):** продаём **готовый работающий результат** и услугу публикации по пакету; ZIP = владение файлами, не «главный продукт». Gate 1 критерии HTML **не меняются**.
+
+### Hosting / Domain — граница ответственности (Pilot = Вариант 1)
+
+```
+Клиент → пакет → оплата Virtus → сайт (ZIP)
+Business/Premium: Virtus публикует на хостинге клиента
+  (существующий или новый по рекомендации)
+```
+
+| Вариант | Суть | Статус |
+|---------|------|--------|
+| **1 — Hilfe bei Wahl** | Помогаем выбрать; среди популярных в DE — Hetzner · IONOS · All-Inkl · Netcup; договор клиент↔провайдер; Premium/Business = Setup | **✅ пилот** (копия + README_PUBLISH) |
+| 2 — Partner/Affiliate | редирект на оплату провайдера + комиссия | Horizon |
+| 3 — Полный Reseller | Virtus продаёт домен/DNS/SSL/хостинг и счета | Horizon (другой бизнес) |
+
+**Не делаем на Gate 1:** реселлер API, собственные счета за хостинг, PaymentCenter multi-vendor.
 
 ### Двигатели денег
 
@@ -86,6 +103,17 @@ HOLD = отсутствует одно (или более) из **необход
 | Gate 1 завязан на один шаблон? | **Нет.** Уже есть `analysis.niche` + `resolve_niche_profile(niche_id)` + разные copy/palette. |
 | Можно завтра добавить `niche_id`? | **Да.** Точка расширения: `app/factory/niche_profiles.py` → `resolve_niche_profile()`. `build_landing` уже берёт стиль по niche. |
 | Полный `themes/{niche}/config.json` + бренд со старого сайта? | **Horizon после пилота** (15–20 отраслевых ключей, не 1000 шаблонов). |
+
+### Дорожная карта тем (после Gate 1 + первого клиента)
+
+```
+Сейчас:   niche_profiles.py (палитра по niche) — Factory ядро стабильно
+Потом:    themes/{niche}/ + Variant (dental/implant vs family) — без смены build_landing контракта
+Позже:    Brand Transfer (цвет/лого/шрифт со старого сайта)
+```
+
+**Приоритет канон:** Gate 1 live → первый платящий → feedback → themes/variants → Brand Transfer.  
+Не строить `themes/` и Brand Transfer под HOLD.
 
 Gate 1 проверяет **механику** (продажа → оплата → ZIP-структура). Визуальные niche profiles уже не «случайный цвет», но file-based theme pack — не блокер Gate 1.
 
