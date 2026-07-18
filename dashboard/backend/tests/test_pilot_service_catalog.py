@@ -27,11 +27,14 @@ def test_ceo_snapshot_checkout_packages():
     assert snap["spider_signal_map"]["no_site"]
 
 
-def test_public_categories_include_pilot():
-    cats = public_pilot_categories()
-    ids = {c["id"] for c in cats}
-    assert "path_a_pilot" in ids
-    assert "horizon_agency" in ids
+def test_go_to_market_has_three_levels():
+    from app.integration.pilot_service_catalog import public_go_to_market
+
+    gtm = public_go_to_market()
+    assert len(gtm["levels"]) == 3
+    assert gtm["niches"]
+    assert gtm["signals"]
+    assert gtm["modes"]["auto"]
 
 
 def test_truth_display_has_checkout_cta():

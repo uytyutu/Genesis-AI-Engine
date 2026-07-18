@@ -282,6 +282,28 @@ def public_pilot_categories() -> list[dict[str, Any]]:
     ]
 
 
+FOCUS_NICHES_DE: tuple[dict[str, str], ...] = (
+    {"id": "handwerk", "label": "Handwerk", "examples": "Elektriker, Sanitär, Heizung, Dach, Fliesen"},
+    {"id": "repair", "label": "Reparatur", "examples": "Haushaltsgeräte, PC, Smartphone"},
+    {"id": "auto", "label": "Auto", "examples": "Werkstatt, Reifen, Detailing"},
+    {"id": "gesundheit", "label": "Gesundheit", "examples": "Zahnarzt, Physio, Praxis"},
+    {"id": "beauty", "label": "Beauty", "examples": "Friseur, Barber, Kosmetik"},
+    {"id": "dienstleistungen", "label": "Dienstleistungen", "examples": "Reinigung, Umzug, Garten, Möbel"},
+    {"id": "professional", "label": "Professional Services", "examples": "Steuerberater, Anwalt, Buchhaltung"},
+)
+
+SIGNAL_OFFER_ROWS_DE: tuple[dict[str, str], ...] = (
+    {"signal": "Kein Website", "offer": "Landing Basic / Business / Premium"},
+    {"signal": "Veraltete Website", "offer": "Migration oder Neustart"},
+    {"signal": "Kein HTTPS", "offer": "Website / Security Audit"},
+    {"signal": "Kein WhatsApp", "offer": "Site Boost"},
+    {"signal": "Kein Google Maps", "offer": "Site Boost"},
+    {"signal": "Kein Google Business", "offer": "Google Business Setup"},
+    {"signal": "Schwaches SEO", "offer": "SEO Audit"},
+    {"signal": "Sehr langsam", "offer": "Website Audit"},
+)
+
+
 def ceo_catalog_snapshot() -> dict[str, Any]:
     return {
         "checkout_online": ["basic", "business", "premium"],
@@ -289,4 +311,41 @@ def ceo_catalog_snapshot() -> dict[str, Any]:
         "horizon": [r["id"] for r in HORIZON_CATALOG_ITEMS],
         "spider_signal_map": {k: list(v) for k, v in SPIDER_SIGNAL_TO_SERVICES.items()},
         "note": "Only /order Landing packages are Stripe checkout. Quotes via email until productized.",
+        "sales_modes": {
+            "auto": "Landing Path A — /order → pay → Factory → ZIP",
+            "expert": "Pilot Anfrage — CEO quote + human delivery",
+        },
+        "focus_niches_de": list(FOCUS_NICHES_DE),
+        "offer_formula_de": (
+            "Wir haben Ihre Website geprüft, konkrete Lücken gefunden "
+            "und schlagen die passende Leistung vor."
+        ),
+    }
+
+
+def public_go_to_market() -> dict[str, Any]:
+    return {
+        "levels": [
+            {
+                "id": "1",
+                "title": "Produkt — digitaler Neustart",
+                "body": "Landing mit Nische, SEO-Basics, Kontakten, Karten, Publish-Hilfe je Paket.",
+            },
+            {
+                "id": "2",
+                "title": "Zielgruppen",
+                "body": "DE-SMB, wo die Website Anrufe und Anfragen bringt.",
+            },
+            {
+                "id": "3",
+                "title": "Leads = Firma + Problem",
+                "body": "Nicht nur Namen — konkrete Lücken und passende Leistung.",
+            },
+        ],
+        "niches": [{"id": n["id"], "label": n["label"], "examples": n["examples"]} for n in FOCUS_NICHES_DE],
+        "signals": list(SIGNAL_OFFER_ROWS_DE),
+        "modes": {
+            "auto": "Landing — online Checkout",
+            "expert": "Pilot — Anfrage an hello@",
+        },
     }

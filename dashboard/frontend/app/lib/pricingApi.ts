@@ -89,6 +89,12 @@ export type PricingDisplay = {
     example_one_site: string;
   };
   service_categories?: ServiceCategory[];
+  go_to_market?: {
+    levels?: { id: string; title: string; body: string }[];
+    niches?: { id: string; label: string; examples: string }[];
+    signals?: { signal: string; offer: string }[];
+    modes?: { auto?: string; expert?: string };
+  };
   comparison?: { columns: ComparisonColumn[]; rows: ComparisonRow[] };
   subscriptions: PricingTier[];
   services: PricingService[];

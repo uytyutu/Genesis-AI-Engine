@@ -185,6 +185,8 @@ def build_mission1_vector_commerce_rules(packages: list[dict[str, Any]] | None =
 
 
 def build_truth_pricing_display() -> dict:
+    from app.integration.pilot_service_catalog import public_go_to_market
+
     packages = _landing_packages()
     min_price = min((p["price_eur"] for p in packages), default=350)
 
@@ -214,6 +216,7 @@ def build_truth_pricing_display() -> dict:
         "anti_cannibalization": None,
         "comparison": None,
         "service_categories": _build_service_categories(packages),
+        "go_to_market": public_go_to_market(),
         "subscriptions": [
             {
                 "id": t["id"],

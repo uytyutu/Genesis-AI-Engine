@@ -26,6 +26,9 @@ type StudioStatus = {
     pilot_quote: string[];
     horizon: string[];
     note?: string;
+    sales_modes?: { auto?: string; expert?: string };
+    focus_niches_de?: { id: string; label: string; examples: string }[];
+    offer_formula_de?: string;
   };
 };
 
@@ -382,16 +385,41 @@ export default function AcquisitionPage() {
             </div>
           )}
           {status?.pilot_catalog && (
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-genesis-muted">
-              <p className="font-medium text-white/90">Каталог услуг (пилот)</p>
-              <p className="mt-1">
-                Checkout: {(status.pilot_catalog.checkout_online || []).join(", ")} · Anfrage:{" "}
-                {(status.pilot_catalog.pilot_quote || []).slice(0, 6).join(", ")}
-                {(status.pilot_catalog.pilot_quote || []).length > 6 ? "…" : ""}
-              </p>
-              <p className="mt-1">{status.pilot_catalog.note}</p>
-              <Link href="/services" className="mt-2 inline-block text-emerald-300 hover:underline">
-                Открыть /services →
+            <div className="mt-4 space-y-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-genesis-muted">
+              <div>
+                <p className="font-medium text-white/90">Zwei Verkaufsmodelle</p>
+                <p className="mt-1">
+                  <span className="text-emerald-300">Auto:</span>{" "}
+                  {status.pilot_catalog.sales_modes?.auto ?? "Landing /order"}
+                </p>
+                <p className="mt-0.5">
+                  <span className="text-sky-300">Expert:</span>{" "}
+                  {status.pilot_catalog.sales_modes?.expert ?? "Pilot Anfrage"}
+                </p>
+              </div>
+              {status.pilot_catalog.offer_formula_de && (
+                <p className="rounded-lg border border-emerald-500/20 bg-emerald-950/20 p-2 text-emerald-100/90">
+                  {status.pilot_catalog.offer_formula_de}
+                </p>
+              )}
+              <div>
+                <p className="font-medium text-white/90">Katalog</p>
+                <p className="mt-1">
+                  Checkout: {(status.pilot_catalog.checkout_online || []).join(", ")} · Anfrage:{" "}
+                  {(status.pilot_catalog.pilot_quote || []).slice(0, 5).join(", ")}
+                  {(status.pilot_catalog.pilot_quote || []).length > 5 ? "…" : ""}
+                </p>
+              </div>
+              {status.pilot_catalog.focus_niches_de && status.pilot_catalog.focus_niches_de.length > 0 && (
+                <div>
+                  <p className="font-medium text-white/90">Fokus-Nischen</p>
+                  <p className="mt-1">
+                    {status.pilot_catalog.focus_niches_de.map((n) => n.label).join(" · ")}
+                  </p>
+                </div>
+              )}
+              <Link href="/services" className="inline-block text-emerald-300 hover:underline">
+                Öffentliche Leistungen /services →
               </Link>
             </div>
           )}

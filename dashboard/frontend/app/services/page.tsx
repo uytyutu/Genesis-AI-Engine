@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { PublicFunnelFooter } from "../components/navigation/PublicFunnelFooter";
 import { PublicPageHero } from "../components/PublicPageHero";
@@ -8,12 +8,18 @@ import { Badge, ButtonLink, Card } from "../components/ui";
 import {
   fetchPricingDisplay,
   logPricingEvent,
-  type BusinessUnit,
   type PricingDisplay,
   type ServiceCatalogItem,
   type ServiceCategory,
 } from "../lib/pricingApi";
 import { BRAND_NAME } from "../lib/publicBrand";
+
+type GoToMarket = {
+  levels?: { id: string; title: string; body: string }[];
+  niches?: { id: string; label: string; examples: string }[];
+  signals?: { signal: string; offer: string }[];
+  modes?: { auto?: string; expert?: string };
+};
 
 function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
   const href = item.cta_href;
@@ -26,9 +32,9 @@ function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
     : "border border-genesis-border-subtle text-genesis-muted hover:text-white";
 
   const badge = available ? (
-    <Badge variant="success">Checkout</Badge>
+    <Badge variant="success">Auto · Checkout</Badge>
   ) : isQuote ? (
-    <Badge variant="outline">Pilot · Anfrage</Badge>
+    <Badge variant="outline">Expert · Anfrage</Badge>
   ) : (
     <Badge variant="outline">Horizon</Badge>
   );
@@ -42,10 +48,10 @@ function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
       padding="lg"
     >
       <div className="absolute right-4 top-4">{badge}</div>
-      <h3 className="pr-28 text-lg font-semibold">{item.name}</h3>
+      <h3 className="pr-32 text-lg font-semibold">{item.name}</h3>
       <p className="mt-2 text-2xl font-bold text-genesis-accent">{item.price_label}</p>
       {item.timeline && (
-        <p className="mt-1 text-xs text-genesis-muted">Срок: {item.timeline}</p>
+        <p className="mt-1 text-xs text-genesis-muted">Frist: {item.timeline}</p>
       )}
       <p className="mt-3 flex-1 text-sm text-genesis-muted">{item.description}</p>
       {item.includes && item.includes.length > 0 && (
@@ -78,30 +84,42 @@ function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
   );
 }
 
-function UnitCard({ unit }: { unit: BusinessUnit }) {
-  return (
-    <Card className="border-indigo-500/20 bg-gradient-to-br from-indigo-950/20 to-genesis-panel/80" padding="lg">
-      <Badge variant="outline" className="border-indigo-400/30 text-indigo-200">
-        Concept Preview
-      </Badge>
-      <p className="mt-3 text-lg font-bold">{unit.name}</p>
-      <p className="mt-1 text-sm text-genesis-muted">{unit.tagline}</p>
-      <ul className="mt-4 space-y-1.5 text-sm text-genesis-muted">
-        {unit.includes.map((x) => (
-          <li key={x}>· {x}</li>
-        ))}
-      </ul>
-      <ButtonLink
-        href={unit.cta_href}
-        variant="secondary"
-        size="sm"
-        className="mt-4"
-        onClick={() => logPricingEvent("unit_cta", unit.id, "services")}
-      >
-        Узнать о планах
-      </ButtonLink>
-    </Card>
-  );
+function pickCategories(data: PricingDisplay | null): ServiceCategory[] {
+  const raw = data?.service_categories?.length
+    ? data.service_categories
+    : data?.services?.length
+      ? [
+          {
+            id: "legacy",
+            name: "Services",
+            description: "",
+            items: data.services.map((s) => ({
+              ...s,
+              timeline: undefined,
+              includes: undefined,
+            })),
+          },
+        ]
+      : [];
+
+  const preferred = ["path_a_packages", "path_a_pilot", "horizon_agency"];
+  const ordered = [
+    ...preferred.map((id) => raw.find((c) => c.id === id)).filter(Boolean),
+    ...raw.filter((c) => !preferred.includes(c.id)),
+  ] as ServiceCategory[];
+
+  return ordered
+    .map((cat) => ({
+      ...cat,
+      items: cat.items.filter((item) => {
+        if (cat.id === "path_a_packages" || cat.id === "path_a_pilot" || cat.id === "horizon_agency") {
+          return true;
+        }
+        // Hide noisy legacy one-time rows — catalog is Path A + Pilot + Horizon
+        return false;
+      }),
+    }))
+    .filter((cat) => cat.items.length > 0);
 }
 
 export default function ServicesPage() {
@@ -116,43 +134,16 @@ export default function ServicesPage() {
     logPricingEvent("page_view", null, "services");
   }, []);
 
-  const categories: ServiceCategory[] = (
-    data?.service_categories?.length
-      ? data.service_categories
-      : data?.services?.length
-        ? [
-            {
-              id: "legacy",
-              name: "Услуги",
-              description: "",
-              items: data.services.map((s) => ({
-                ...s,
-                timeline: undefined,
-                includes: undefined,
-              })),
-            },
-          ]
-        : []
-  )
-    .map((cat) => ({
-      ...cat,
-      // Show checkout + pilot quotes; hide pure horizon rows inside legacy categories
-      items: cat.items.filter((item) => {
-        const tier = item.tier || (item.available ? "checkout" : "");
-        if (cat.id === "horizon_agency") return true;
-        if (tier === "horizon" && !item.available && cat.id !== "path_a_pilot") return false;
-        return true;
-      }),
-    }))
-    .filter((cat) => cat.items.length > 0);
+  const categories = useMemo(() => pickCategories(data), [data]);
+  const gtm = (data as PricingDisplay & { go_to_market?: GoToMarket })?.go_to_market;
 
   return (
     <PublicPageShell>
       <PublicPageHero
-        badge="Path A + Pilot"
+        badge="Digitale Präsenz für DE-SMB"
         badgeVariant="success"
-        title={`Услуги ${BRAND_NAME}`}
-        description="Checkout online: Landing 350 / 650 / 1200 €. Site Boost, Audits und weitere Leistungen — per Anfrage (erweitert den Weg zum ersten Euro)."
+        title={`Leistungen · ${BRAND_NAME}`}
+        description="Wir prüfen die digitale Lücke und schlagen die passende Leistung vor — nicht „kaufen Sie irgendeine Website“."
       >
         <ButtonLink href="/order" variant="success" size="lg">
           Landing bestellen →
@@ -162,23 +153,58 @@ export default function ServicesPage() {
         </ButtonLink>
       </PublicPageHero>
 
-      {loading && categories.length === 0 && (
-        <p className="mt-8 text-sm text-genesis-muted">Загрузка каталога…</p>
-      )}
+      <section className="mt-10 grid gap-3 sm:grid-cols-3">
+        {(gtm?.levels ?? [
+          {
+            id: "1",
+            title: "1 · Produkt",
+            body: "Landing Neustart — Checkout online.",
+          },
+          {
+            id: "2",
+            title: "2 · Zielgruppen",
+            body: "Handwerk, Reparatur, Auto, Gesundheit, Beauty…",
+          },
+          {
+            id: "3",
+            title: "3 · Lead = Firma + Problem",
+            body: "Signal → passende Leistung (Auto oder Anfrage).",
+          },
+        ]).map((level) => (
+          <Card key={level.id} padding="md" className="border-white/10 bg-black/20">
+            <p className="text-xs uppercase tracking-wide text-emerald-300/80">{level.title}</p>
+            <p className="mt-2 text-sm text-genesis-muted">{level.body}</p>
+          </Card>
+        ))}
+      </section>
 
-      {categories.length === 0 && !loading && (
-        <Card className="mt-8" padding="md">
-          <p className="text-sm text-genesis-muted">
-            Каталог временно недоступен.{" "}
-            <ButtonLink href="/order" variant="primary" size="sm" className="inline-flex">
-              Заказать landing →
-            </ButtonLink>
+      <section className="mt-8 grid gap-3 sm:grid-cols-2">
+        <Card padding="md" className="border-emerald-500/25 bg-emerald-950/20">
+          <Badge variant="success">Auto</Badge>
+          <p className="mt-2 text-sm font-medium text-white">
+            {gtm?.modes?.auto ?? "Landing — online Checkout"}
+          </p>
+          <p className="mt-1 text-xs text-genesis-muted">
+            /order → Zahlung → Factory → ZIP. Anker-Umsatz.
           </p>
         </Card>
+        <Card padding="md" className="border-sky-500/25 bg-sky-950/20">
+          <Badge variant="outline">Expert</Badge>
+          <p className="mt-2 text-sm font-medium text-white">
+            {gtm?.modes?.expert ?? "Pilot — Anfrage"}
+          </p>
+          <p className="mt-1 text-xs text-genesis-muted">
+            Site Boost, Audits, Migration… — Nachfrage-Radar für das nächste Auto-Produkt.
+          </p>
+        </Card>
+      </section>
+
+      {loading && categories.length === 0 && (
+        <p className="mt-8 text-sm text-genesis-muted">Katalog wird geladen…</p>
       )}
 
       {categories.map((cat) => (
-        <section key={cat.id} className="mt-12 first:mt-0">
+        <section key={cat.id} className="mt-12">
           <h2 className="text-xl font-bold">{cat.name}</h2>
           {cat.description && (
             <p className="mt-2 max-w-2xl text-sm text-genesis-muted">{cat.description}</p>
@@ -192,27 +218,56 @@ export default function ServicesPage() {
       ))}
 
       <section className="mt-16">
-        <h2 className="text-xl font-bold">Куда развивается {BRAND_NAME}</h2>
+        <h2 className="text-xl font-bold">Zielgruppen (Pilot-Fokus)</h2>
         <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
-          Цифровые отделы — vision, не готовый продукт в один клик.
+          Branchen, in denen die Website Anrufe und Anfragen bringt.
         </p>
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          {(data?.business_units ?? []).map((u) => (
-            <UnitCard key={u.id} unit={u} />
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {(gtm?.niches ?? []).map((n) => (
+            <Card key={n.id} padding="md" className="border-white/10">
+              <p className="font-semibold text-white">{n.label}</p>
+              <p className="mt-1 text-xs text-genesis-muted">{n.examples}</p>
+            </Card>
           ))}
+        </div>
+      </section>
+
+      <section className="mt-16">
+        <h2 className="text-xl font-bold">Signal → Angebot</h2>
+        <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
+          Lead ist Firma + Problem. So bleibt der Dialog adressgenau.
+        </p>
+        <div className="mt-6 overflow-x-auto rounded-xl border border-white/10">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-white/5 text-xs uppercase tracking-wide text-genesis-muted">
+              <tr>
+                <th className="px-4 py-3">Signal</th>
+                <th className="px-4 py-3">Leistung</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(gtm?.signals ?? []).map((row) => (
+                <tr key={row.signal} className="border-t border-white/5">
+                  <td className="px-4 py-3 text-white/90">{row.signal}</td>
+                  <td className="px-4 py-3 text-genesis-muted">{row.offer}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
       <Card className="mt-12 text-center" padding="md">
         <p className="text-sm text-genesis-muted">
-          Готовы создать свою компанию? Сначала поговорите с Vector — затем установите Virtus Core.
+          Nächstes Auto-Produkt = was Kunden nach dem Landing wirklich nachfragen (oft Site Boost) —
+          nicht die längste Wunschliste.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
-          <ButtonLink href="/site" variant="primary" size="sm">
-            Vector →
+          <ButtonLink href="/order" variant="success" size="sm">
+            Landing →
           </ButtonLink>
-          <ButtonLink href="/site" variant="secondary" size="sm">
-            Получить сайт →
+          <ButtonLink href="/kontakt" variant="secondary" size="sm">
+            Anfrage →
           </ButtonLink>
         </div>
       </Card>
