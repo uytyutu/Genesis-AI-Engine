@@ -28,6 +28,17 @@ type OutreachQuotaHealth = {
     daily_cap: number;
     domains?: { from?: string; domain: string; used_today: number }[];
   }[];
+  markets?: {
+    code: string;
+    flag?: string;
+    name_ru: string;
+    enabled: boolean;
+    phase: number;
+    daily_cap: number;
+    used_today: number;
+    remaining: number;
+    at_cap: boolean;
+  }[];
   domains: {
     from?: string;
     domain: string;
@@ -40,6 +51,30 @@ type OutreachQuotaHealth = {
   min_interval_sec?: number;
   phase_note_ru?: string;
   sniper_note_ru?: string;
+};
+
+type MarketsDashboard = {
+  note_ru?: string;
+  global_daily_cap?: number;
+  min_interval_sec?: number;
+  sent_today_total?: number;
+  remaining_today_total?: number;
+  enabled_count?: number;
+  planned_count?: number;
+  table: {
+    code: string;
+    flag?: string;
+    name_ru: string;
+    enabled: boolean;
+    phase: number;
+    daily_cap: number;
+    sent_today: number;
+    replies: number;
+    orders: number;
+    hubs?: string[];
+    language?: string;
+    legal_profile?: string;
+  }[];
 };
 
 type StudioStatus = {
@@ -57,6 +92,7 @@ type StudioStatus = {
   auto_draft_max_eur?: number;
   outreach_daily_cap?: number;
   outreach_quota?: OutreachQuotaHealth | null;
+  markets_dashboard?: MarketsDashboard | null;
   pilot_catalog?: {
     checkout_online: string[];
     pilot_quote: string[];
@@ -520,18 +556,28 @@ export default function AcquisitionPage() {
               const q = status?.outreach_quota || worklist?.outreach_quota;
               if (!q) return null;
               const cap = q.daily_cap;
-              const regions = q.regions?.length
-                ? q.regions
-                : [
-                    {
-                      region: "de",
-                      label_ru: "Германия",
-                      used_today: q.primary_used_today,
-                      remaining: q.primary_remaining,
-                      at_cap: q.primary_remaining <= 0,
-                      daily_cap: cap,
-                    },
-                  ];
+              const marketCards = (q.markets || []).filter((m) => m.enabled);
+              const regions = marketCards.length
+                ? marketCards.map((m) => ({
+                    region: m.code,
+                    label_ru: `${m.flag || ""} ${m.name_ru}`.trim(),
+                    used_today: m.used_today,
+                    remaining: m.remaining,
+                    at_cap: m.at_cap,
+                    daily_cap: m.daily_cap,
+                  }))
+                : q.regions?.length
+                  ? q.regions
+                  : [
+                      {
+                        region: "de",
+                        label_ru: "Германия",
+                        used_today: q.primary_used_today,
+                        remaining: q.primary_remaining,
+                        at_cap: q.primary_remaining <= 0,
+                        daily_cap: cap,
+                      },
+                    ];
               return (
                 <>
                   <div className="grid gap-2 text-sm sm:grid-cols-3">
@@ -601,6 +647,54 @@ export default function AcquisitionPage() {
             })()}
           </section>
         )}
+
+        {status?.markets_dashboard?.table?.length ? (
+          <section className="genesis-card space-y-3 p-5">
+            <h2 className="text-sm font-semibold">Рынки · лимит / отправлено / ответы / заказы</h2>
+            <p className="text-xs text-genesis-muted">
+              {status.markets_dashboard.note_ru ||
+                "Конфиг outreach_markets.json — новая страна без правки кода."}{" "}
+              Вкл: {status.markets_dashboard.enabled_count ?? 0} · план:{" "}
+              {status.markets_dashboard.planned_count ?? 0}
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[36rem] text-left text-xs">
+                <thead className="text-genesis-muted">
+                  <tr className="border-b border-genesis-border-subtle">
+                    <th className="py-2 pr-2 font-medium">Страна</th>
+                    <th className="py-2 pr-2 font-medium">Лимит</th>
+                    <th className="py-2 pr-2 font-medium">Отправлено</th>
+                    <th className="py-2 pr-2 font-medium">Ответы</th>
+                    <th className="py-2 pr-2 font-medium">Заказы</th>
+                    <th className="py-2 font-medium">Фаза</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {status.markets_dashboard.table.map((row) => (
+                    <tr
+                      key={row.code}
+                      className={`border-b border-white/5 ${
+                        row.enabled ? "text-white/90" : "text-genesis-muted/70"
+                      }`}
+                    >
+                      <td className="py-2 pr-2">
+                        {row.flag} {row.name_ru}
+                        {!row.enabled ? (
+                          <span className="ml-1 text-[10px] uppercase">off</span>
+                        ) : null}
+                      </td>
+                      <td className="py-2 pr-2 tabular-nums">{row.daily_cap}</td>
+                      <td className="py-2 pr-2 tabular-nums">{row.sent_today}</td>
+                      <td className="py-2 pr-2 tabular-nums">{row.replies}</td>
+                      <td className="py-2 pr-2 tabular-nums">{row.orders}</td>
+                      <td className="py-2 tabular-nums">{row.phase}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        ) : null}
 
         {worklist && (
           <section className="genesis-card p-5">

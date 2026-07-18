@@ -1425,6 +1425,7 @@ class AcquisitionStudioStatus(BaseModel):
     auto_draft_max_eur: float = 50.0
     outreach_daily_cap: int | None = None
     outreach_quota: OutreachQuotaHealth | dict | None = None
+    markets_dashboard: dict | None = None
     pilot_catalog: dict | None = None
 
 

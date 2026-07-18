@@ -1,4 +1,4 @@
-"""Multi-domain / multi-region outreach From rotation."""
+﻿"""Multi-domain / multi-region outreach From rotation."""
 
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ def test_untagged_domains_share_de_region_cap(tmp_path: Path, monkeypatch: pytes
     assert none_meta["reason"] in ("all_regions_at_cap", "region_at_cap:de")
     h = q.health()
     assert h["region_count"] == 1
-    assert h["pool_cap_total"] == 2
+    assert h["pool_cap_total"] == 120  # sum enabled markets (DE+US+UA+RU), min(global)
     assert h["sent_today_total"] == 2
 
 
@@ -69,7 +69,7 @@ def test_multi_region_independent_caps(tmp_path: Path, monkeypatch: pytest.Monke
     q.record_send(addr_cis, region="cis")
     h = q.health()
     assert h["region_count"] == 3
-    assert h["pool_cap_total"] == 6  # 3 × 2
+    assert h["pool_cap_total"] == 120  # config markets sum, not regions * env cap
     assert h["sent_today_total"] == 3
     by = {r["region"]: r for r in h["regions"]}
     assert by["de"]["used_today"] == 2 and by["de"]["at_cap"]
@@ -115,7 +115,7 @@ def test_quota_health_ceo_three_markets(tmp_path: Path, monkeypatch: pytest.Monk
     assert h["daily_cap"] == 100
     assert h["region_count"] == 3
     assert h["global_daily_cap"] == 500
-    assert h["pool_cap_total"] == 300  # min(3*100, global 500)
+    assert h["pool_cap_total"] == 120  # min(enabled market caps sum, global)
     assert h["sent_today_total"] == 3
     assert h["remaining_today_total"] == 497
     labels = {r["label_ru"] for r in h["regions"]}

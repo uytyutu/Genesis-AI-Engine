@@ -134,6 +134,14 @@ def resolve_market_from_row(row: dict[str, Any] | None) -> str | None:
 def language_for_market(market: str | None) -> str | None:
     if not market:
         return None
+    try:
+        from app.integration.outreach_market_config import market_template_lang
+
+        hit = market_template_lang(market)
+        if hit:
+            return hit
+    except Exception:
+        pass
     m = normalize_market_code(market) or market.upper()
     return _MARKET_TO_LANG.get(m)
 

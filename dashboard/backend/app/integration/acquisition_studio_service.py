@@ -204,6 +204,76 @@ class AcquisitionStudioService:
 
         return gate_funnel_metrics(self._opportunity, memory_dir=self._memory_dir)
 
+    def markets_dashboard(self) -> dict[str, Any]:
+        """CEO table: country · limit · sent · replies · orders (config-driven)."""
+        from app.integration.outreach_market_config import list_markets, outreach_markets_config
+
+        health = self._send_quota.health()
+        by_sent = {
+            str(r.get("code") or "").upper(): r
+            for r in (health.get("markets") or [])
+            if isinstance(r, dict)
+        }
+        rows = self._opportunity._load_rows()
+        replies: dict[str, int] = {}
+        orders: dict[str, int] = {}
+        for row in rows:
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            code = str(
+                meta.get("market") or row.get("market") or meta.get("country_code") or ""
+            ).upper()
+            if not code:
+                continue
+            status = str(row.get("status") or "")
+            outreach = str(row.get("outreach_status") or "")
+            if status in ("replied", "qualified", "negotiation") or outreach == "replied":
+                replies[code] = replies.get(code, 0) + 1
+            # interaction log may mark reply
+            for ev in row.get("interactions") or []:
+                if isinstance(ev, dict) and str(ev.get("event") or "") in (
+                    "replied",
+                    "reply",
+                    "positive_reply",
+                ):
+                    replies[code] = replies.get(code, 0) + 1
+                    break
+            if status == "won" or float(row.get("revenue_eur") or 0) > 0:
+                orders[code] = orders.get(code, 0) + 1
+
+        table = []
+        for m in list_markets():
+            code = str(m.get("code") or "").upper()
+            snap = by_sent.get(code) or {}
+            table.append(
+                {
+                    "code": code,
+                    "flag": m.get("flag") or "",
+                    "name_ru": m.get("name_ru") or code,
+                    "enabled": bool(m.get("enabled")),
+                    "phase": int(m.get("phase") or 0),
+                    "daily_cap": int(m.get("daily_cap") or 0),
+                    "sent_today": int(snap.get("used_today") or 0),
+                    "replies": int(replies.get(code, 0)),
+                    "orders": int(orders.get(code, 0)),
+                    "hubs": m.get("hubs") or [],
+                    "timezone": m.get("timezone"),
+                    "language": m.get("language"),
+                    "legal_profile": m.get("legal_profile"),
+                }
+            )
+        cfg = outreach_markets_config()
+        return {
+            "ok": True,
+            "note_ru": cfg.get("note_ru") or "",
+            "global_daily_cap": health.get("global_daily_cap"),
+            "min_interval_sec": health.get("min_interval_sec"),
+            "sent_today_total": health.get("sent_today_total"),
+            "remaining_today_total": health.get("remaining_today_total"),
+            "table": table,
+            "enabled_count": sum(1 for t in table if t["enabled"]),
+            "planned_count": sum(1 for t in table if not t["enabled"]),
+        }
+
     def studio_status(self) -> dict:
         rows = self._opportunity._load_rows()
         pending = sum(1 for r in rows if r.get("outreach_status") == "pending_approval")
@@ -233,6 +303,7 @@ class AcquisitionStudioService:
             "pilot_catalog": ceo_catalog_snapshot(),
             "outreach_daily_cap": outreach_daily_cap(),
             "outreach_quota": self._send_quota.health(),
+            "markets_dashboard": self.markets_dashboard(),
         }
 
     def catalog(self, *, public_only: bool = False) -> dict:
@@ -1010,7 +1081,9 @@ class AcquisitionStudioService:
                 "CIS": "cis",
             }
             want_region = region_map.get(lead_market, "de")
-            picked, pick_meta = self._send_quota.pick_from_address(region=want_region)
+            picked, pick_meta = self._send_quota.pick_from_address(
+                market=lead_market, region=want_region
+            )
             if not picked:
                 # Fallback: any region still under global/phase budget
                 picked, pick_meta = self._send_quota.pick_from_address()
@@ -1028,7 +1101,7 @@ class AcquisitionStudioService:
                     f"Approve OK, отправка заблокирована квотой: {send_result['reason']}",
                 )
             else:
-                can, why = self._send_quota.can_send(picked)
+                can, why = self._send_quota.can_send(picked, market=lead_market)
                 if not can:
                     send_result = {
                         "ok": False,
@@ -1060,7 +1133,9 @@ class AcquisitionStudioService:
                     )
                     if send_result.get("ok"):
                         self._send_quota.record_send(
-                            picked, region=pick_meta.get("region")
+                            picked,
+                            region=pick_meta.get("region"),
+                            market=lead_market,
                         )
                         row["outreach_status"] = "sent"
                         row["status"] = "contacted"

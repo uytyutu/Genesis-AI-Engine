@@ -1427,6 +1427,12 @@ def acquisition_daily_worklist() -> AcquisitionDailyWorklist:
     return AcquisitionDailyWorklist(**_ctx().acquisition.daily_worklist())
 
 
+@app.get("/api/acquisition/markets")
+def acquisition_markets_dashboard() -> dict:
+    """CEO: per-country caps / sent / replies / orders (config-driven)."""
+    return _ctx().acquisition.markets_dashboard()
+
+
 @app.get("/api/acquisition/outreach-templates")
 def acquisition_outreach_templates() -> dict:
     """CEO review: Path A sniper drafts by market (DE / US / RU / UA)."""

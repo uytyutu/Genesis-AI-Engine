@@ -111,10 +111,23 @@ class LegalFoundationService:
         publishable = cfg.is_impressum_publishable()
         m = (normalize_market_code(market) or "DE").upper()
         lang = (language or "de").lower()
-        if m in ("US", "CA", "GB", "UK", "AU"):
+        try:
+            from app.integration.outreach_market_config import market_legal_profile
+
+            legal_profile = market_legal_profile(m)
+        except Exception:
+            legal_profile = ""
+        if legal_profile in ("us_can_spam",) or m in ("US", "CA", "GB", "UK", "AU", "NZ"):
             profile = "us"
-        elif m in ("UA", "RU", "BY", "KZ", "CIS"):
+        elif legal_profile in ("cis_sender",) or m in ("UA", "RU", "BY", "KZ", "CIS"):
             profile = "cis"
+        elif legal_profile in ("de_impressum",) or m in ("DE", "AT", "CH"):
+            profile = "de"
+        elif legal_profile in ("eu_gdpr", "uk_pecr"):
+            # EU/UK: privacy + unsubscribe, no German Impressum label
+            profile = "us"
+            if lang.startswith("de"):
+                profile = "de"
         else:
             profile = "de"
 

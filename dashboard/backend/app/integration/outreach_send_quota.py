@@ -49,22 +49,26 @@ def outreach_daily_cap() -> int:
 
 
 def outreach_global_daily_cap() -> int:
-    """Phase-1 world ceiling across all regions (default 120)."""
+    """Phase world ceiling across all markets (config default or env)."""
+    from app.integration.outreach_market_config import default_global_daily_cap
+
     raw = os.getenv("GENESIS_OUTREACH_GLOBAL_DAILY_CAP", "").strip()
     try:
-        n = int(raw) if raw else _DEFAULT_GLOBAL_DAILY_CAP
+        n = int(raw) if raw else default_global_daily_cap()
     except ValueError:
-        n = _DEFAULT_GLOBAL_DAILY_CAP
+        n = default_global_daily_cap()
     return max(1, min(_HARD_MAX_GLOBAL_DAILY_CAP, n))
 
 
 def outreach_min_interval_sec() -> int:
     """Minimum seconds between successful sends (sniper pacing)."""
+    from app.integration.outreach_market_config import default_min_interval_sec
+
     raw = os.getenv("GENESIS_OUTREACH_MIN_INTERVAL_SEC", "").strip()
     try:
-        n = int(raw) if raw else _DEFAULT_MIN_INTERVAL_SEC
+        n = int(raw) if raw else default_min_interval_sec()
     except ValueError:
-        n = _DEFAULT_MIN_INTERVAL_SEC
+        n = default_min_interval_sec()
     return max(0, min(3600, n))
 
 
@@ -162,7 +166,13 @@ class OutreachSendQuota:
 
     def _load(self) -> dict[str, Any]:
         path = self._path()
-        empty = {"day": _today(), "regions": {}, "domains": {}, "last_send_at": None}
+        empty = {
+            "day": _today(),
+            "regions": {},
+            "domains": {},
+            "markets": {},
+            "last_send_at": None,
+        }
         if not path or not path.is_file():
             return empty
         try:
@@ -175,17 +185,20 @@ class OutreachSendQuota:
             return empty
         regions = data.get("regions")
         domains = data.get("domains")
+        markets = data.get("markets")
         if not isinstance(regions, dict):
             regions = {}
         if not isinstance(domains, dict):
             domains = {}
-        # Legacy files: only domains — fold into default region for today.
+        if not isinstance(markets, dict):
+            markets = {}
         if not regions and domains:
             regions = {_DEFAULT_REGION: sum(int(v or 0) for v in domains.values())}
         return {
             "day": _today(),
             "regions": regions,
             "domains": domains,
+            "markets": markets,
             "last_send_at": data.get("last_send_at"),
         }
 
@@ -233,71 +246,114 @@ class OutreachSendQuota:
             return False, f"min_interval:{wait}s"
         return True, ""
 
-    def can_send(self, from_addr: str, *, region: str | None = None) -> tuple[bool, str]:
+    def sent_today_market(self, market: str) -> int:
+        data = self._load()
+        return int((data.get("markets") or {}).get(str(market).upper(), 0) or 0)
+
+    def can_send(
+        self, from_addr: str, *, region: str | None = None, market: str | None = None
+    ) -> tuple[bool, str]:
+        from app.integration.outreach_market_config import market_daily_cap, market_send_pool
+
         domain = _domain_of(from_addr)
         if not domain:
             return False, "bad_from"
         data = self._load()
-        total = sum(int(v or 0) for v in (data.get("regions") or {}).values())
+        total = sum(int(v or 0) for v in (data.get("markets") or {}).values())
+        if not total:
+            total = sum(int(v or 0) for v in (data.get("regions") or {}).values())
         gcap = outreach_global_daily_cap()
         if total >= gcap:
             return False, f"global_cap:{total}/{gcap}"
         ok_pace, pace_why = self._pacing_ok(data)
         if not ok_pace:
             return False, pace_why
-        reg = _normalize_region(region) if region else self._region_for_addr(from_addr)
+        if market:
+            mcode = str(market).upper()
+            mused = int((data.get("markets") or {}).get(mcode, 0) or 0)
+            mcap = market_daily_cap(mcode)
+            if mused >= mcap:
+                return False, f"market_cap:{mcode}:{mused}/{mcap}"
+            reg = market_send_pool(mcode)
+        else:
+            reg = _normalize_region(region) if region else self._region_for_addr(from_addr)
         used = int((data.get("regions") or {}).get(reg, 0) or 0)
         cap = outreach_daily_cap()
         if used >= cap:
             return False, f"daily_cap:{reg}:{used}/{cap}"
         return True, ""
 
-    def record_send(self, from_addr: str, *, region: str | None = None) -> None:
+    def record_send(
+        self, from_addr: str, *, region: str | None = None, market: str | None = None
+    ) -> None:
+        from app.integration.outreach_market_config import market_send_pool
+
         domain = _domain_of(from_addr)
         if not domain:
             return
-        reg = _normalize_region(region) if region else self._region_for_addr(from_addr)
+        if market:
+            mcode = str(market).upper()
+            reg = market_send_pool(mcode)
+        else:
+            mcode = None
+            reg = _normalize_region(region) if region else self._region_for_addr(from_addr)
         data = self._load()
         domains = dict(data.get("domains") or {})
         regions = dict(data.get("regions") or {})
+        markets = dict(data.get("markets") or {})
         domains[domain] = int(domains.get(domain, 0) or 0) + 1
         regions[reg] = int(regions.get(reg, 0) or 0) + 1
+        if mcode:
+            markets[mcode] = int(markets.get(mcode, 0) or 0) + 1
         data["domains"] = domains
         data["regions"] = regions
+        data["markets"] = markets
         data["day"] = _today()
         data["last_send_at"] = datetime.now(timezone.utc).isoformat()
         self._save(data)
 
     def pick_from_address(
-        self, *, region: str | None = None
+        self, *, region: str | None = None, market: str | None = None
     ) -> tuple[str | None, dict[str, Any]]:
-        """Least-used From under its region cap + global phase budget + pacing."""
+        """Least-used From under market + pool + global + pacing."""
+        from app.integration.outreach_market_config import market_daily_cap, market_send_pool
+
         pool = configured_from_pool()
         cap = outreach_daily_cap()
         gcap = outreach_global_daily_cap()
         data = self._load()
         domains = dict(data.get("domains") or {})
         regions = dict(data.get("regions") or {})
-        total = sum(int(v or 0) for v in regions.values())
+        markets = dict(data.get("markets") or {})
+        total = sum(int(v or 0) for v in markets.values()) or sum(
+            int(v or 0) for v in regions.values()
+        )
         if total >= gcap:
             return None, {
                 "ok": False,
                 "reason": f"global_cap:{total}/{gcap}",
-                "daily_cap": cap,
                 "global_daily_cap": gcap,
-                "regions": regions,
+                "markets": markets,
                 "pool_size": len(pool),
             }
         ok_pace, pace_why = self._pacing_ok(data)
         if not ok_pace:
-            return None, {
-                "ok": False,
-                "reason": pace_why,
-                "daily_cap": cap,
-                "global_daily_cap": gcap,
-                "pool_size": len(pool),
-            }
-        want = _normalize_region(region) if region else None
+            return None, {"ok": False, "reason": pace_why, "global_daily_cap": gcap}
+
+        mcode = str(market).upper() if market else None
+        if mcode:
+            mused = int(markets.get(mcode, 0) or 0)
+            mcap = market_daily_cap(mcode)
+            if mused >= mcap:
+                return None, {
+                    "ok": False,
+                    "reason": f"market_cap:{mcode}:{mused}/{mcap}",
+                    "market": mcode,
+                    "daily_cap": mcap,
+                }
+            want = market_send_pool(mcode)
+        else:
+            want = _normalize_region(region) if region else None
 
         available: list[tuple[int, int, str, str, str]] = []
         for item in pool:
@@ -317,9 +373,8 @@ class OutreachSendQuota:
                 "reason": "all_regions_at_cap" if not want else f"region_at_cap:{want}",
                 "daily_cap": cap,
                 "global_daily_cap": gcap,
-                "regions": regions,
-                "pool_size": len(pool),
                 "filter_region": want,
+                "market": mcode,
             }
 
         available.sort(key=lambda t: (t[0], t[1], t[2], t[3]))
@@ -329,8 +384,11 @@ class OutreachSendQuota:
             "from": addr,
             "domain": domain,
             "region": reg,
+            "market": mcode,
             "used_today": domain_used,
             "region_used_today": region_used,
+            "market_used_today": int(markets.get(mcode, 0) or 0) if mcode else None,
+            "market_daily_cap": market_daily_cap(mcode) if mcode else None,
             "daily_cap": cap,
             "global_daily_cap": gcap,
             "sent_today_total": total,
@@ -400,12 +458,48 @@ class OutreachSendQuota:
 
         region_count = len(region_rows)
         gcap = outreach_global_daily_cap()
-        sent_today_total = sum(int(r["used_today"]) for r in region_rows)
-        # Effective ceiling for CEO: min(sum of region caps, global phase budget)
-        pool_cap_total = min(cap * max(region_count, 1) if region_rows else cap, gcap)
+        markets_cnt = dict(data.get("markets") or {})
+        from app.integration.outreach_market_config import (
+            enabled_markets_sum_caps,
+            list_markets,
+        )
+
+        market_rows: list[dict[str, Any]] = []
+        for m in list_markets():
+            code = str(m.get("code") or "").upper()
+            if not code:
+                continue
+            used = int(markets_cnt.get(code, 0) or 0)
+            mcap = int(m.get("daily_cap") or 20)
+            market_rows.append(
+                {
+                    "code": code,
+                    "flag": m.get("flag") or "",
+                    "name_ru": m.get("name_ru") or code,
+                    "enabled": bool(m.get("enabled")),
+                    "phase": int(m.get("phase") or 0),
+                    "daily_cap": mcap,
+                    "used_today": used if m.get("enabled") else 0,
+                    "remaining": max(0, mcap - used) if m.get("enabled") else mcap,
+                    "at_cap": bool(m.get("enabled")) and used >= mcap,
+                    "language": m.get("language"),
+                    "timezone": m.get("timezone"),
+                    "legal_profile": m.get("legal_profile"),
+                    "hubs": m.get("hubs") or [],
+                    "send_pool": m.get("send_pool"),
+                    "cap_rationale": m.get("cap_rationale") or "",
+                }
+            )
+
+        sent_today_total = sum(int(r["used_today"]) for r in market_rows if r["enabled"])
+        if not sent_today_total:
+            sent_today_total = sum(int(r["used_today"]) for r in region_rows)
+        pool_cap_total = min(enabled_markets_sum_caps() or gcap, gcap)
         remaining_today_total = max(0, gcap - sent_today_total)
 
-        primary = region_rows[0] if region_rows else None
+        primary = next((r for r in market_rows if r["enabled"]), None) or (
+            region_rows[0] if region_rows else None
+        )
         return {
             "daily_cap": cap,
             "hard_max": _HARD_MAX_DAILY_CAP,
@@ -418,16 +512,17 @@ class OutreachSendQuota:
             "sent_today_total": sent_today_total,
             "remaining_today_total": remaining_today_total,
             "primary_used_today": int(primary["used_today"]) if primary else 0,
-            "primary_remaining": int(primary["remaining"]) if primary else cap,
+            "primary_remaining": int(primary.get("remaining") or 0) if primary else cap,
             "regions": region_rows,
+            "markets": market_rows,
             "domains": per_domains,
             "phase_note_ru": (
-                "Фаза 1: глобальный потолок "
-                f"{gcap}/день, интервал ≥{outreach_min_interval_sec()}с между письмами. "
-                "DE — formal; US — short; RU/UA — contextual. Approve остаётся предохранителем."
+                f"Конфиг outreach_markets.json · глобальный потолок {gcap}/день · "
+                f"интервал ≥{outreach_min_interval_sec()}с. "
+                "Новая страна = новая запись в JSON. Approve — предохранитель."
             ),
             "sniper_note_ru": (
-                "Квоты — инструмент CEO, не «закон страны». "
-                "KPI: ответы → разговоры → заказы. Масштаб только при хороших метриках."
+                "Лимиты по странам — ops из конфига (не имитация закона). "
+                "KPI: ответы → разговоры → заказы."
             ),
         }
