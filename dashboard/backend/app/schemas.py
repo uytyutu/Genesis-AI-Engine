@@ -345,6 +345,7 @@ class OrderInsightsPreviewRequest(BaseModel):
     niche: str | None = Field(default=None, max_length=64)
     specialization: str | None = Field(default=None, max_length=120)
     package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
+    city: str | None = Field(default=None, max_length=120)
 
 
 class OrderInsightsPreviewResponse(BaseModel):

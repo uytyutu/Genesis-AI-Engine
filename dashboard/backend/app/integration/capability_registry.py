@@ -28,6 +28,7 @@ CapabilityDomain = Literal[
     "opportunity_source",
     "factory_product",
     "env_gate",
+    "external_api",
 ]
 
 # Canonical factory intents — keep in sync with dashboard/frontend/app/create/page.tsx TYPES.
@@ -106,6 +107,7 @@ class CapabilityRegistry:
         rows.extend(self._opportunity_sources())
         rows.extend(self._factory_products())
         rows.extend(self._env_gates())
+        rows.extend(self._external_apis())
         return rows
 
     def snapshot(self) -> dict[str, Any]:
@@ -307,6 +309,32 @@ class CapabilityRegistry:
                     tier="ceo",
                     source=gate["source"],
                     notes=f"env={env_name}",
+                )
+            )
+        return out
+
+    def _external_apis(self) -> list[CapabilityEntry]:
+        from app.integration.external_capabilities.registry import list_external_defs, status_row
+
+        out: list[CapabilityEntry] = []
+        for row in list_external_defs():
+            st = status_row(row)
+            out.append(
+                CapabilityEntry(
+                    id=f"ext:{row.id}",
+                    domain="external_api",
+                    label=row.label,
+                    exists=True,
+                    stable=bool(st.get("ready")),
+                    ready=bool(st.get("ready")),
+                    enabled=bool(st.get("enabled")),
+                    tier="ceo",
+                    source="external_capabilities.registry",
+                    notes=(
+                        f"mission={row.mission_required}; "
+                        f"value={row.commercial_value[:80]}; "
+                        f"env={row.env_enable}; fallback={row.fallback_mode}"
+                    ),
                 )
             )
         return out

@@ -229,6 +229,8 @@ class SalesOrderService:
                 social=social_links,
                 material_ids=material_ids,
                 site_analysis=site_analysis,
+                niche=(payload.get("niche") or "").strip() or None,
+                city=(payload.get("city") or "").strip() or None,
             )
         except Exception as exc:
             logger.warning("order materials/insights skipped: %s", exc)

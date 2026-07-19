@@ -1726,6 +1726,22 @@ def owner_execution_capabilities() -> dict:
     return snap
 
 
+@app.get("/api/owner/external-capabilities")
+def owner_external_capabilities() -> dict:
+    """Free-tier ExternalCapability catalog — disabled by default; Mission1 Freeze metadata."""
+    from app.integration.external_capabilities import snapshot
+
+    return snapshot(mission1_freeze=True)
+
+
+@app.get("/api/owner/foundation-capabilities")
+def owner_foundation_capabilities() -> dict:
+    """Foundation F1 capability registry (includes external_api domain)."""
+    from app.integration.capability_registry import CapabilityRegistry
+
+    return CapabilityRegistry(memory_dir=_memory_dir()).snapshot()
+
+
 @app.post("/api/owner/execution/plan-preview")
 def owner_execution_plan_preview(body: dict) -> dict:
     from app.execution.service import ExecutionLayerService
@@ -2433,6 +2449,8 @@ def preview_sales_order_insights(body: OrderInsightsPreviewRequest) -> OrderInsi
         social=social,
         material_ids=list(body.material_ids or []),
         site_analysis=site_analysis,
+        niche=(body.niche or "").strip() or None,
+        city=(body.city or "").strip() or None,
     )
     visual_experience = None
     try:

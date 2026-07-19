@@ -372,6 +372,7 @@ export default function OrderSitePage() {
           niche: niche || null,
           specialization: specialization.trim() || null,
           package_id: packageId,
+          city: city.trim() || null,
         }),
       });
       const body = await res.json();

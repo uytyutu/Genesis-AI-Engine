@@ -140,9 +140,12 @@ class OrderMaterialsService:
         social: dict[str, str] | None = None,
         material_ids: list[str] | None = None,
         site_analysis: dict[str, Any] | None = None,
+        niche: str | None = None,
+        city: str | None = None,
     ) -> dict[str, Any]:
         """Return only findings that were actually detected."""
         checks: list[dict[str, Any]] = []
+        knowledge: dict[str, Any] | None = None
 
         if (domain_status or "") == "have_domain" and (domain or "").strip():
             checks.append(
@@ -290,12 +293,44 @@ class OrderMaterialsService:
                     }
                 )
 
+        # Optional encyclopedia enrichment (env-gated; never treated as verified fact)
+        try:
+            from app.integration.external_capabilities import enrich_brief
+
+            topic = (niche or "").strip() or None
+            enrich = enrich_brief(niche_label=topic, city=(city or "").strip() or None, query=topic)
+            snippets = list((enrich.data or {}).get("snippets") or [])
+            if snippets:
+                knowledge = {
+                    "verified": False,
+                    "snippets": snippets,
+                    "used_fallback": enrich.used_fallback,
+                }
+                for sn in snippets[:2]:
+                    checks.append(
+                        {
+                            "id": f"knowledge_{sn.get('kind', 'wiki')}",
+                            "label_de": f"Öffentlicher Hinweis: {sn.get('title', '')}"[:80],
+                            "found": True,
+                            "detail": (
+                                f"{str(sn.get('extract') or '')[:160]} "
+                                f"(Quelle: {sn.get('source_url', '')} — nicht geprüft)"
+                            ),
+                            "source_url": sn.get("source_url"),
+                            "verified": False,
+                        }
+                    )
+        except Exception:
+            knowledge = None
+
         return {
             "checks": [c for c in checks if c.get("found")],
             "site_analysis": analysis,
+            "knowledge_enrichment": knowledge,
             "note_de": (
                 "Nur tatsächlich erkannte Punkte. Nicht erkannte Dateien bleiben "
-                "im Projekt gespeichert und werden bei der Erstellung genutzt."
+                "im Projekt gespeichert und werden bei der Erstellung genutzt. "
+                "Enzyklopädie-Hinweise (falls aktiv) sind keine geprüfte Firmenwahrheit."
             ),
         }
 
