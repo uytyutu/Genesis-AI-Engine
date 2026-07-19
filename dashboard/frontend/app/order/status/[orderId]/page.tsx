@@ -6,9 +6,12 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../../../components/PublicPageShell";
 import { Button, ButtonLink, Loader } from "../../../components/ui";
-import { formatEur } from "../../../lib/formatEur";
+import { formatLocalizedMoney } from "../../../lib/formatEur";
 import { fetchPaymentReady, startOrderCheckout } from "../../../lib/orderCheckout";
 import { publicApiBase } from "../../../lib/publicApiBase";
+import { dateLocaleForUi } from "../../../lib/locale/dateLocale";
+import { isUiLocale } from "../../../lib/locale/types";
+import { useLocale } from "../../../context/LocaleContext";
 
 const API = publicApiBase();
 
@@ -19,6 +22,11 @@ type OrderStatus = {
   business_name: string;
   package_name: string;
   price_eur: number;
+  price_label?: string | null;
+  currency?: string | null;
+  symbol?: string | null;
+  market_code?: string | null;
+  ui_lang?: string | null;
   status: string;
   status_label: string;
   current_step: string;
@@ -39,6 +47,7 @@ type OrderStatus = {
 
 function OrderStatusContent() {
   const { t, i18n } = useTranslation("site");
+  const { applyUiLocale } = useLocale();
   const routeParams = useParams();
   const search = useSearchParams();
   const orderId = String(routeParams.orderId ?? "");
@@ -79,6 +88,13 @@ function OrderStatusContent() {
       clearInterval(tmr);
     };
   }, [orderId, justPaid]);
+
+  useEffect(() => {
+    const lang = data?.ui_lang;
+    if (lang && isUiLocale(lang) && i18n.language !== lang) {
+      applyUiLocale(lang);
+    }
+  }, [data?.ui_lang, applyUiLocale, i18n.language]);
 
   async function payNow() {
     setPayBusy(true);
@@ -131,7 +147,10 @@ function OrderStatusContent() {
 
   const showThankYou = justPaid || data.paid;
   const awaitingPayment = data.status === "awaiting_payment" && !data.paid;
-  const dateLocale = i18n.language?.startsWith("ru") ? "ru-RU" : "de-DE";
+  const dateLocale = dateLocaleForUi(i18n.language);
+  const priceDisplay =
+    (data.price_label && data.price_label.trim()) ||
+    formatLocalizedMoney(data.price_eur, data.currency || "EUR");
 
   return (
     <PublicPageShell>
@@ -153,7 +172,7 @@ function OrderStatusContent() {
           </p>
           <p className="mt-1 text-center font-medium">{data.business_name}</p>
           <p className="text-center text-xs text-genesis-muted">
-            {data.package_name} · {formatEur(data.price_eur)}
+            {data.package_name} · {priceDisplay}
           </p>
 
           {awaitingPayment && paymentReady && (
@@ -161,7 +180,7 @@ function OrderStatusContent() {
               <Button variant="success" size="lg" fullWidth loading={payBusy} onClick={payNow}>
                 {payBusy
                   ? t("order.payBusy")
-                  : t("order.payNow", { price: formatEur(data.price_eur) })}
+                  : t("order.payNow", { price: priceDisplay })}
               </Button>
               {payError && <p className="mt-2 text-center text-xs text-rose-300">{payError}</p>}
             </div>

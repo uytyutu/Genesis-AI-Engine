@@ -190,7 +190,9 @@
   },
   "kontakt": {
     "title": "Contact",
-    "description": "Questions about orders, status or partnership — email us. Support replies in German for the DE market.",
+    "description": "Questions about orders, status or partnership — email us.",
+    "mailSubject": "Support · Virtus Core Landing",
+    "replyTip": "We reply in the language of your market when we can.",
     "ready": "Ready for your restart?",
     "cta": "Go to order form →"
   },

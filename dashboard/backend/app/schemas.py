@@ -364,6 +364,11 @@ class SalesOrderPublicStatus(BaseModel):
     business_name: str
     package_name: str
     price_eur: float
+    price_label: str | None = None
+    currency: str | None = None
+    symbol: str | None = None
+    market_code: str | None = None
+    ui_lang: str | None = None
     status: str
     status_label: str
     current_step: str

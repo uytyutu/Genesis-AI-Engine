@@ -21,40 +21,6 @@ _BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
 _DEFAULT_SANDBOX = _BACKEND_ROOT / "sandbox"
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
-_DEPLOY_README = """# Website veröffentlichen (Path A)
-
-## Modell (Pilot)
-Wir helfen bei der Wahl eines passenden Hosting-Anbieters. Unter den beliebten Optionen
-in Deutschland sind Hetzner, IONOS, All-Inkl und Netcup. Der Vertrag für Domain und Hosting
-wird direkt zwischen Ihnen und dem gewählten Anbieter geschlossen.
-Virtus Core verkauft die Website und den Einrichtungs-Service — nicht Domain/Hosting als Reseller.
-Bei Business/Premium richten wir die Seite mit Ihren Zugangsdaten ein.
-
-## Beispiele gängiger Anbieter (DE — Vertrag/Zahlung bei Ihnen)
-- Hetzner — https://www.hetzner.com/
-- IONOS — https://www.ionos.de/
-- All-Inkl — https://all-inkl.com/
-- Netcup — https://www.netcup.de/
-
-Partner-/Reseller-Programme und „alles aus einer Hand“ über Virtus Core: später (Horizon).
-
-## Schritte
-1. Archiv entpacken.
-2. index.html, impressum.html und datenschutz.html im Browser prüfen.
-3. Impressum und Datenschutz nur freigeben, wenn alle Angaben stimmen (Kunde muss prüfen).
-4. Business/Premium: Ordner assets/ anlegen und echte logo.png als assets/logo.png legen.
-5. Premium: in index.html G-XXXXXXXXXX durch Ihre Google-Analytics Measurement-ID ersetzen.
-6. Bewertungsblock: Beispieltexte durch echte Kundenstimmen ersetzen.
-7. Dateien auf Ihr Hosting laden (FTP / Dateimanager) — oder Zugang an Virtus Core geben (Business/Premium).
-
-Nicht im ZIP-Preis: Domain-Kauf, Hosting-Miete, laufende Anbieter-Gebühren.
-
-Hinweis: Die Rechtsseiten sind aus Kundendaten befüllte Vorlagen — keine Rechtsberatung.
-Ohne vollständiges Impressum gilt die Seite nicht als publish-ready für Deutschland.
-
-Erstellt von Factory · Virtus Core.
-"""
-
 
 class FactoryService:
     def __init__(self, memory_dir: Path | None = None, sandbox_dir: Path | None = None) -> None:
@@ -76,16 +42,24 @@ class FactoryService:
         client_legal: dict | None = None,
         package_id: str | None = None,
         contacts: dict | None = None,
+        market_code: str | None = None,
     ) -> dict:
         from app.factory.package_features import (
             apply_order_contacts,
             delivery_meta,
             resolve_package_features,
         )
+        from app.factory.market_delivery import normalize_market
 
         product_id = intent_id or str(uuid.uuid4())
         analysis = analyze(description)
         contacts = contacts if isinstance(contacts, dict) else {}
+        market = normalize_market(
+            market_code
+            or contacts.get("market_code")
+            or (client_legal or {}).get("country")
+            or "DE"
+        )
         analysis = apply_order_contacts(
             analysis,
             business_name=str(contacts.get("business_name") or "") or None,
@@ -118,16 +92,19 @@ class FactoryService:
             {
                 "business_name": analysis.business_name,
                 "client_legal": legal_payload,
+                "city": city,
             }
         )
-        # Prefer contacts from analysis when order legal email/phone empty
+        legal_info.country = market
         if not legal_info.email and analysis.email:
             legal_info.email = analysis.email
         if not legal_info.phone and analysis.phone:
             legal_info.phone = analysis.phone
         if not legal_info.business_name:
             legal_info.business_name = analysis.business_name
-        legal_meta = write_client_legal_pages(product_dir, legal_info)
+        legal_meta = write_client_legal_pages(
+            product_dir, legal_info, market_code=market
+        )
 
         meta = {
             "product_id": product_id,
@@ -137,6 +114,7 @@ class FactoryService:
             "niche": analysis.niche,
             "template_id": analysis.template_id,
             "business_name": analysis.business_name,
+            "market_code": market,
             "status": "completed",
             "quality_percent": validation.quality_percent,
             "validation_passed": validation.passed,
@@ -155,7 +133,9 @@ class FactoryService:
             "package_delivery": delivery_meta(features),
             "client_legal": legal_info.to_dict(),
             "legal_pages": legal_meta,
-            "publish_ready_de": bool(legal_meta.get("impressum_ready")),
+            "publish_ready_de": bool(legal_meta.get("impressum_ready"))
+            if legal_meta.get("pack") == "de_impressum"
+            else False,
         }
         (product_dir / "meta.json").write_text(
             json.dumps(meta, ensure_ascii=False, indent=2),
@@ -311,19 +291,37 @@ class FactoryService:
         *,
         mark_download: bool,
     ) -> tuple[bytes, str]:
+        from app.factory.market_delivery import deploy_readme, normalize_market
+        from app.factory.client_legal_pages import ClientLegalInfo, write_client_legal_pages
+
         product_dir = self._sandbox / product_id
         html_path = product_dir / "index.html"
         if not html_path.is_file():
             raise ValueError("product_not_found")
 
+        market = normalize_market(str(meta.get("market_code") or "DE"))
+        # Regenerate legal pages for this market on every pack (fixes legacy DE-only products).
+        legal_info = ClientLegalInfo.from_order(
+            {
+                "business_name": meta.get("business_name"),
+                "client_legal": meta.get("client_legal")
+                if isinstance(meta.get("client_legal"), dict)
+                else {},
+            }
+        )
+        legal_info.country = market
+        legal_meta = write_client_legal_pages(product_dir, legal_info, market_code=market)
+        meta["market_code"] = market
+        meta["legal_pages"] = legal_meta
+
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as archive:
             archive.writestr("index.html", html_path.read_text(encoding="utf-8"))
-            for legal_name in ("impressum.html", "datenschutz.html"):
-                legal_path = product_dir / legal_name
+            for legal_name in legal_meta.get("files") or []:
+                legal_path = product_dir / str(legal_name)
                 if legal_path.is_file():
-                    archive.writestr(legal_name, legal_path.read_text(encoding="utf-8"))
-            archive.writestr("README_PUBLISH.txt", _DEPLOY_README)
+                    archive.writestr(str(legal_name), legal_path.read_text(encoding="utf-8"))
+            archive.writestr("README_PUBLISH.txt", deploy_readme(market))
 
         if mark_download:
             meta["export_downloaded_at"] = datetime.now(timezone.utc).isoformat()

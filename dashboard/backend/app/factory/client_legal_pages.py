@@ -231,18 +231,124 @@ def write_client_legal_pages(
     info: ClientLegalInfo,
     *,
     accent: str = "#0ea5e9",
+    market_code: str | None = None,
 ) -> dict[str, Any]:
-    """Write impressum.html + datenschutz.html next to index.html."""
+    """Write market-appropriate legal pages (never DE Impressum for US/UK/etc.)."""
     from pathlib import Path
+
+    from app.factory.market_delivery import (
+        legal_notice_placeholder,
+        market_legal_pack,
+        normalize_market,
+    )
 
     root = Path(product_dir)
     root.mkdir(parents=True, exist_ok=True)
-    impressum = build_impressum_html(info, accent=accent)
-    datenschutz = build_datenschutz_html(info, accent=accent)
-    (root / "impressum.html").write_text(impressum, encoding="utf-8")
-    (root / "datenschutz.html").write_text(datenschutz, encoding="utf-8")
+    code = normalize_market(market_code or info.country or "DE")
+    pack = market_legal_pack(code)
+    files: list[str] = []
+
+    # Remove stale DE files when regenerating for another market
+    for stale in ("impressum.html", "datenschutz.html", "privacy.html", "terms.html", "LEGAL_NOTICE.txt"):
+        p = root / stale
+        if p.is_file():
+            p.unlink()
+
+    if pack == "de_impressum":
+        (root / "impressum.html").write_text(build_impressum_html(info, accent=accent), encoding="utf-8")
+        (root / "datenschutz.html").write_text(build_datenschutz_html(info, accent=accent), encoding="utf-8")
+        files = ["impressum.html", "datenschutz.html"]
+        return {
+            "pack": pack,
+            "market_code": code,
+            "impressum_ready": info.is_impressum_ready(),
+            "missing_impressum": info.missing_impressum_fields(),
+            "files": files,
+        }
+
+    if pack in ("us_privacy", "uk_privacy"):
+        (root / "privacy.html").write_text(build_privacy_html_en(info, accent=accent, market=code), encoding="utf-8")
+        (root / "terms.html").write_text(build_terms_html_en(info, accent=accent, market=code), encoding="utf-8")
+        files = ["privacy.html", "terms.html"]
+        return {
+            "pack": pack,
+            "market_code": code,
+            "impressum_ready": False,
+            "missing_impressum": [],
+            "files": files,
+        }
+
+    (root / "LEGAL_NOTICE.txt").write_text(legal_notice_placeholder(code), encoding="utf-8")
     return {
-        "impressum_ready": info.is_impressum_ready(),
-        "missing_impressum": info.missing_impressum_fields(),
-        "files": ["impressum.html", "datenschutz.html"],
+        "pack": "placeholder",
+        "market_code": code,
+        "impressum_ready": False,
+        "missing_impressum": [],
+        "files": ["LEGAL_NOTICE.txt"],
+        "note": "Legal documents for this market are not yet included.",
     }
+
+
+def _shell_page_en(*, title: str, body_html: str, accent: str = "#0ea5e9") -> str:
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{_esc(title)}</title>
+  <style>
+    body {{ font-family: 'Segoe UI', system-ui, sans-serif; color: #0f172a; line-height: 1.65;
+      max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }}
+    a {{ color: {accent}; }}
+    h1 {{ font-size: 1.75rem; margin-bottom: 0.5rem; }}
+    h2 {{ font-size: 1.15rem; margin-top: 1.75rem; color: #0369a1; }}
+    .muted {{ color: #64748b; font-size: 0.9rem; }}
+    .box {{ background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem 1.15rem; margin: 1rem 0; white-space: pre-wrap; }}
+    .warn {{ background: #fff7ed; border-color: #fed7aa; color: #9a3412; font-size: 0.9rem; }}
+    nav {{ margin-bottom: 1.5rem; font-size: 0.9rem; }}
+  </style>
+</head>
+<body>
+  <nav><a href="index.html">← Website</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></nav>
+  <h1>{_esc(title)}</h1>
+  {body_html}
+</body>
+</html>
+"""
+
+
+def build_privacy_html_en(info: ClientLegalInfo, *, accent: str = "#0ea5e9", market: str = "US") -> str:
+    controller = info.owner_name or info.business_name or "[Business name]"
+    contact = info.email or "[email]"
+    body = f"""
+  <p class="muted">Privacy Policy template for market { _esc(market) } — filled from order data. Not legal advice.</p>
+  <p class="box warn">Review with your counsel before go-live. Virtus Core does not provide legal advice.</p>
+  <h2>1. Who we are</h2>
+  <div class="box">{_esc(controller)}
+Email: {_esc(contact)}
+{_esc(info.street)}
+{_esc(f"{info.zip} {info.city}".strip())}
+{_esc(info.country or market)}</div>
+  <h2>2. What we collect</h2>
+  <p>Contact details you submit via forms or email, and basic technical data needed to operate the site.</p>
+  <h2>3. Why we use data</h2>
+  <p>To respond to enquiries and run the website. We do not sell personal data.</p>
+  <h2>4. Your rights</h2>
+  <p>Depending on your location you may have rights to access, correct, or delete personal data. Contact: {_esc(contact)}.</p>
+"""
+    return _shell_page_en(title="Privacy Policy", body_html=body, accent=accent)
+
+
+def build_terms_html_en(info: ClientLegalInfo, *, accent: str = "#0ea5e9", market: str = "US") -> str:
+    name = info.business_name or info.owner_name or "[Business name]"
+    body = f"""
+  <p class="muted">Terms of Service template for market {_esc(market)}. Not legal advice.</p>
+  <p class="box warn">Replace placeholders and have a lawyer review before publishing.</p>
+  <h2>1. Service</h2>
+  <p>{_esc(name)} provides the information and contact options on this website.</p>
+  <h2>2. No professional advice</h2>
+  <p>Content is for general information unless stated otherwise.</p>
+  <h2>3. Contact</h2>
+  <p>{_esc(info.email or "[email]")}</p>
+"""
+    return _shell_page_en(title="Terms of Service", body_html=body, accent=accent)

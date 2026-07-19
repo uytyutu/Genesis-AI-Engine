@@ -5,17 +5,10 @@ import { PublicPageHero } from "../components/PublicPageHero";
 import { ButtonLink, Card } from "../components/ui";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
 import { useTranslation } from "react-i18next";
-import { useLocale } from "../context/LocaleContext";
 
 export function KontaktClient() {
   const { t } = useTranslation("site");
-  const { uiLocale } = useLocale();
-  const subject =
-    uiLocale === "de"
-      ? "Support · Virtus Core Landing Page"
-      : uiLocale === "ru"
-        ? "Поддержка · Virtus Core Landing"
-        : "Support · Virtus Core Landing";
+  const subject = t("kontakt.mailSubject");
 
   return (
     <PublicPageShell>
@@ -27,13 +20,7 @@ export function KontaktClient() {
         >
           {CONTACT_EMAIL}
         </a>
-        <p className="mt-3 text-xs text-genesis-muted">
-          {uiLocale === "de"
-            ? "Wir antworten auf Deutsch."
-            : uiLocale === "ru"
-              ? "Для рынка DE поддержка отвечает на немецком; UI можно переключить."
-              : "For the DE market we reply in German."}
-        </p>
+        <p className="mt-3 text-xs text-genesis-muted">{t("kontakt.replyTip")}</p>
         <p className="mt-8 text-sm text-genesis-muted">{t("kontakt.ready")}</p>
         <ButtonLink href="/order" variant="primary" size="md" className="mt-4">
           {t("kontakt.cta")}

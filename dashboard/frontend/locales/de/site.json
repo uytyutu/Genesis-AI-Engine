@@ -190,7 +190,9 @@
   },
   "kontakt": {
     "title": "Kontakt",
-    "description": "Fragen zu Bestellung, Status oder Veröffentlichung — E-Mail an uns (Deutsch). Vector-Chat auf /site ist kein Bestell-Support.",
+    "description": "Fragen zu Bestellung, Status oder Veröffentlichung — E-Mail an uns. Vector-Chat auf /site ist kein Bestell-Support.",
+    "mailSubject": "Support · Virtus Core Landing Page",
+    "replyTip": "Wir antworten auf Deutsch.",
     "ready": "Bereit für Ihren Neustart?",
     "cta": "Zur Bestellung →"
   },

@@ -147,6 +147,8 @@ class SalesOrderService:
         return package, offer.as_dict()
 
     def create_order(self, payload: dict) -> dict:
+        from app.factory.market_delivery import client_status_label
+
         package_id = payload.get("package_id") or self._suggest_package(payload)
         package, _offer = self._package_offer(
             package_id,
@@ -223,7 +225,9 @@ class SalesOrderService:
         order = {
             "order_id": order_id,
             "status": "awaiting_payment",
-            "status_label": "Wartet auf Zahlung",
+            "status_label": client_status_label(
+                "awaiting_payment", package.get("market_code", "DE")
+            ),
             "package_id": package_id,
             "package_name": package["name"],
             "price_eur": package["price_eur"],
@@ -332,8 +336,11 @@ class SalesOrderService:
             product = self._factory_intent._factory.get_product(existing_product_id)
             if not product:
                 raise ValueError("product_not_found")
+            from app.factory.market_delivery import client_status_label
+
+            market = str(order.get("market_code") or "DE")
             order["status"] = "in_production"
-            order["status_label"] = "In Arbeit"
+            order["status_label"] = client_status_label("in_production", market)
             order["product_id"] = existing_product_id
             order["updated_at"] = datetime.now(timezone.utc).isoformat()
             self._save_order(order)
@@ -349,6 +356,7 @@ class SalesOrderService:
         legal = dict(legal)
         package_id = str(order.get("package_id") or "basic")
         street = str(legal.get("street") or "").strip()
+        market = str(order.get("market_code") or legal.get("country") or "DE")
         contacts = {
             "business_name": order.get("business_name"),
             "phone": order.get("phone"),
@@ -358,7 +366,10 @@ class SalesOrderService:
             "street": street,
             "package_id": package_id,
             "needs_logo": bool(order.get("needs_logo")),
+            "market_code": market,
         }
+        if not legal.get("country"):
+            legal["country"] = market
         intent = FactoryIntentRequest(
             product_type="landing-page",
             description=brief,
@@ -371,8 +382,10 @@ class SalesOrderService:
             contacts=contacts,
         )
         result = self._factory_intent.submit(intent)
+        from app.factory.market_delivery import client_status_label
+
         order["status"] = "in_production"
-        order["status_label"] = "In Arbeit"
+        order["status_label"] = client_status_label("in_production", market)
         order["product_id"] = result.get("product_id")
         order["updated_at"] = datetime.now(timezone.utc).isoformat()
         self._save_order(order)
@@ -622,10 +635,26 @@ class SalesOrderService:
         return order
 
     def public_status(self, order_id: str) -> dict:
+        from app.factory.market_delivery import (
+            client_current_step,
+            client_next_step,
+            client_status_label,
+            client_timeline,
+            market_ui_lang,
+            normalize_market,
+        )
+        from app.integration.market_registry import format_amount, get_market
+
         order = self.get_order(order_id)
         if not order:
             raise ValueError("order_not_found")
-        timeline = self._client_timeline(order)
+        market = normalize_market(str(order.get("market_code") or "DE"))
+        currency = str(order.get("currency") or get_market(market).currency or "EUR")
+        symbol = str(order.get("symbol") or get_market(market).symbol or "€")
+        amount = float(order.get("price_eur") or 0)
+        price_label = str(order.get("price_label") or "").strip() or format_amount(
+            int(round(amount)), symbol
+        )
         service_id = str(order.get("service_id") or SERVICE_WEBSITE)
         launch_mode = bool(order.get("launch_mode"))
         download_ready = self._client_download_ready(order)
@@ -636,23 +665,29 @@ class SalesOrderService:
             and not submitted
         )
         token = str(order.get("review_token") or "") if eligible else ""
+        status = str(order.get("status") or "")
         return {
             "order_id": order["order_id"],
             "business_name": order["business_name"],
             "package_name": order["package_name"],
-            "price_eur": order["price_eur"],
-            "status": order["status"],
-            "status_label": self._client_status_label(order),
-            "current_step": self._client_current_step(order),
-            "next_step": self._client_next_step(order),
-            "timeline": timeline,
+            "price_eur": amount,
+            "price_label": price_label,
+            "currency": currency,
+            "symbol": symbol,
+            "market_code": market,
+            "ui_lang": market_ui_lang(market),
+            "status": status,
+            "status_label": client_status_label(status, market),
+            "current_step": client_current_step(status, market),
+            "next_step": client_next_step(status, market),
+            "timeline": client_timeline(status, market),
             "estimated_delivery_at": order.get("estimated_delivery_at"),
             "estimated_hours": order.get("estimated_hours"),
             "client_message": order.get("client_status_message")
             or self._default_client_message(order),
             "client_receipt_text": order.get("client_receipt_text", ""),
             "product_id": order.get("product_id"),
-            "paid": order.get("status") in ("paid", "in_production", "ready", "delivered"),
+            "paid": status in ("paid", "in_production", "ready", "delivered"),
             "download_ready": download_ready,
             "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
             "service_id": service_id,
@@ -664,6 +699,8 @@ class SalesOrderService:
 
     def build_client_download(self, order_id: str) -> tuple[bytes, str]:
         """Paid Path A order → ZIP with landing + legal pages (no CEO gate)."""
+        from app.factory.market_delivery import client_status_label, normalize_market
+
         order = self.get_order(order_id)
         if not order:
             raise ValueError("order_not_found")
@@ -673,11 +710,24 @@ class SalesOrderService:
         factory = getattr(self._factory_intent, "_factory", None)
         if factory is None or not hasattr(factory, "build_client_delivery_zip"):
             raise ValueError("factory_unavailable")
+        market = normalize_market(str(order.get("market_code") or "DE"))
+        # Ensure product meta carries market before ZIP pack regenerates legal pages.
+        try:
+            meta = factory._load_meta(product_id)  # type: ignore[attr-defined]
+            if isinstance(meta, dict) and meta.get("market_code") != market:
+                meta["market_code"] = market
+                product_dir = factory._sandbox / product_id  # type: ignore[attr-defined]
+                (product_dir / "meta.json").write_text(
+                    __import__("json").dumps(meta, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+        except Exception:
+            pass
         data, filename = factory.build_client_delivery_zip(product_id)
         order["client_downloaded_at"] = datetime.now(timezone.utc).isoformat()
         if order.get("status") == "in_production":
             order["status"] = "ready"
-            order["status_label"] = "Fertig"
+            order["status_label"] = client_status_label("ready", market)
         order["updated_at"] = datetime.now(timezone.utc).isoformat()
         self._save_order(order)
         return data, filename
@@ -694,25 +744,19 @@ class SalesOrderService:
         return bool(factory.get_product(product_id))
 
     def _client_timeline(self, order: dict) -> list[dict]:
-        return project_client_timeline(str(order.get("status", "")))
+        from app.factory.market_delivery import client_timeline
+
+        return client_timeline(str(order.get("status", "")), order.get("market_code"))
 
     def _client_next_step(self, order: dict) -> str:
-        return project_client_next_step(
-            str(order.get("service_id") or SERVICE_WEBSITE),
-            str(order.get("status", "")),
-        )
+        from app.factory.market_delivery import client_next_step
+
+        return client_next_step(str(order.get("status", "")), order.get("market_code"))
 
     def _client_status_label(self, order: dict) -> str:
-        mapping = {
-            "awaiting_payment": "Wartet auf Zahlung",
-            "pending_confirmation": "Wartet auf Bestätigung",
-            "confirmed": "Bestätigt",
-            "paid": "Bezahlt",
-            "in_production": "In Arbeit",
-            "ready": "Fertig",
-            "delivered": "An den Kunden übergeben",
-        }
-        return mapping.get(order.get("status", ""), order.get("status_label", ""))
+        from app.factory.market_delivery import client_status_label
+
+        return client_status_label(str(order.get("status", "")), order.get("market_code"))
 
     def _client_current_step(self, order: dict) -> str:
         return project_client_current_step(
