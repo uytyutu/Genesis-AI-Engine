@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,10 +7,10 @@
   <style>
     :root {
       --bg: #070b12;
-      --panel: rgba(12, 18, 28, 0.82);
+      --panel: rgba(12, 18, 28, 0.88);
       --text: #e8eef7;
       --muted: #8fa3b8;
-      --accent: #5b8def;
+      --warn: #fbbf24;
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -19,6 +19,26 @@
       font-family: "Segoe UI", system-ui, sans-serif;
       color: var(--text);
       background: radial-gradient(1200px 600px at 50% -10%, #152238 0%, var(--bg) 55%);
+    }
+    #boot-error {
+      display: none;
+      max-width: 40rem;
+      margin: 2rem auto;
+      padding: 1.25rem 1.5rem;
+      background: #1a1208;
+      border: 1px solid var(--warn);
+      border-radius: 12px;
+      color: #ffe8a3;
+      line-height: 1.5;
+    }
+    #boot-error code {
+      display: block;
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: #0d0a05;
+      border-radius: 8px;
+      color: #fff;
+      white-space: pre-wrap;
     }
     #viewport {
       position: sticky;
@@ -83,33 +103,35 @@
     .fallback-note {
       display: none;
       margin-top: 0.75rem;
-      color: #fbbf24;
+      color: var(--warn);
       font-size: 0.85rem;
     }
   </style>
+  <!-- Local Three.js (no CDN) — works after: py scripts/open_research_3d.ps1 -->
   <script type="importmap">
   {
     "imports": {
-      "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/addons/"
     }
   }
   </script>
 </head>
 <body>
+  <div id="boot-error"></div>
   <div id="viewport">
     <div class="hud">
       <div class="card">
         <h1 id="headline">Dental · Ceramic tooth</h1>
-        <p id="subcopy">Studio light + slow orbit. Scroll the page — the object reacts.</p>
-        <span class="badge">research_3d only · not Path A</span>
-        <div id="status">Loading…</div>
+        <p id="subcopy">Студийный свет + орбита. Листайте страницу — объект реагирует.</p>
+        <span class="badge">research_3d · не Path A</span>
+        <div id="status">Загрузка…</div>
         <div id="fallback" class="fallback-note"></div>
       </div>
       <div class="card" style="min-width:14rem">
-        <label for="niche">Niche</label>
+        <label for="niche">Ниша</label>
         <select id="niche"></select>
-        <label for="example">Example (5 per niche)</label>
+        <label for="example">Пример (5 на нишу)</label>
         <select id="example"></select>
       </div>
     </div>
@@ -117,15 +139,33 @@
 
   <section class="story">
     <h2>Это уже не CAD-вьюер</h2>
-    <p>Выше — живая сцена: environment lighting, авто-вращение и parallax от скролла. Ниже листайте, чтобы увидеть связь объекта со страницей.</p>
-    <h2>Почему это важно для клиента</h2>
-    <p>На лендинге объект — часть истории бренда: заголовок рядом, скролл ведёт камеру, hover может подсветить mesh. Сырой GLB в viewer этого не показывает.</p>
-    <h2>Virtus research gate</h2>
-    <p>Каждый пример &lt; ~5&nbsp;KB, CC0, PBR-материал. Path A checkout по-прежнему не включает 3d_premium — это полигон качества.</p>
+    <p>Выше — живая сцена: environment lighting, авто-вращение и parallax от скролла.</p>
+    <h2>Почему это важно</h2>
+    <p>На лендинге объект — часть истории бренда. Сырой GLB в viewer этого не показывает.</p>
     <h2>Прокрутите ещё</h2>
-    <p>Скорость орбиты растёт со скроллом, затем снова успокаивается. На телефоне откройте этот же файл по локальной сети или через простой static server.</p>
+    <p>Скорость орбиты растёт со скроллом. На телефоне откройте тот же URL в локальной сети.</p>
   </section>
 
-  <script type="module" src="./scene_engine.js"></script>
+  <script>
+    (function () {
+      var box = document.getElementById("boot-error");
+      if (location.protocol === "file:") {
+        box.style.display = "block";
+        box.innerHTML =
+          "<strong>Страница открыта как file:// — модули не загрузятся.</strong>" +
+          "<p>Запустите из корня репозитория:</p>" +
+          "<code>py -3.12 scripts/open_research_3d.py</code>" +
+          "<p>Затем откройте URL, который скрипт напечатает (обычно http://127.0.0.1:8765/runtime/scene_engine.html).</p>";
+        return;
+      }
+      import("./scene_engine.js").catch(function (err) {
+        box.style.display = "block";
+        box.innerHTML =
+          "<strong>Не удалось загрузить scene_engine.js</strong>" +
+          "<code>" + String(err && err.message ? err.message : err) + "</code>" +
+          "<p>Проверьте, что сервер запущен из папки <code>_research_3d</code> и есть <code>runtime/vendor/three.module.js</code>.</p>";
+      });
+    })();
+  </script>
 </body>
 </html>
