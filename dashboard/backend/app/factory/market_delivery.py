@@ -335,9 +335,10 @@ _README_PLACEHOLDER = """# Publish your website (Path A)
 
 Virtus Core delivers finished HTML (index.html).
 
-Legal documents for this market are not yet included in this ZIP.
-Do not use German Impressum/Datenschutz templates for this market.
-Add Privacy / Terms appropriate to your country before go-live (your counsel).
+Legal documents for this market are not yet included as ready-made pages.
+See LEGAL_NOTICE.txt in this ZIP for a market-specific checklist.
+Do not use German Impressum/Datenschutz for this market.
+Add the listed documents with your counsel before go-live.
 
 Hosting: upload index.html via your provider (Cloudflare Pages, Vercel, Netlify, or local host).
 
@@ -348,8 +349,9 @@ _README_UA = """# Публікація сайту (Path A)
 
 Virtus Core передає готові HTML-файли. Домен і хостинг — ваш договір з провайдером.
 
-Юридичні документи для цього ринку ще не включені в ZIP.
-Не використовуйте німецький Impressum для України — додайте Privacy/Terms за порадою юриста.
+Юридичні сторінки для цього ринку ще не включені як готові шаблони.
+Див. LEGAL_NOTICE.txt у цьому ZIP — чеклист документів.
+Не використовуйте німецький Impressum для України.
 
 Хостинг: Cloudflare Pages, Vercel, Netlify або ваш провайдер.
 
@@ -360,13 +362,99 @@ _README_RU = """# Публикация сайта (Path A)
 
 Virtus Core передаёт готовые HTML-файлы. Домен и хостинг — ваш договор с провайдером.
 
-Юридические документы для этого рынка пока не включены в ZIP.
-Не используйте немецкий Impressum — добавьте Privacy/Terms по совету юриста.
+Юридические страницы для этого рынка пока не включены как готовые шаблоны.
+См. LEGAL_NOTICE.txt в этом ZIP — чеклист документов.
+Не используйте немецкий Impressum.
 
 Хостинг: Cloudflare Pages, Vercel, Netlify или ваш провайдер.
 
 Factory · Virtus Core.
 """
+
+
+# Honest per-market document checklist (not legal advice; no fake counsel HTML).
+_LEGAL_CHECKLISTS: dict[str, list[str]] = {
+    "FR": [
+        "Mentions légales (publisher / host / contact)",
+        "Politique de confidentialité (RGPD)",
+        "Cookie notice / consent if you use analytics or trackers",
+        "CGU / conditions d'utilisation if you collect leads or sell online",
+    ],
+    "IT": [
+        "Informativa privacy (GDPR)",
+        "Cookie policy / banner if trackers are used",
+        "Terms of use if you collect leads or sell online",
+        "Company identification (ragione sociale, P.IVA where required)",
+    ],
+    "ES": [
+        "Aviso legal / identificación del titular",
+        "Política de privacidad (RGPD)",
+        "Política de cookies if you use analytics or ads",
+        "Condiciones de uso if you collect leads or sell online",
+    ],
+    "NL": [
+        "Privacyverklaring (AVG/GDPR)",
+        "Cookie notice if you use non-essential cookies",
+        "Bedrijfsgegevens / contact on the site",
+        "Algemene voorwaarden if you sell or take bookings online",
+    ],
+    "BE": [
+        "Privacy policy (GDPR)",
+        "Cookie notice if trackers are used",
+        "Company identification / contact details",
+        "Terms of use if you collect leads or sell online",
+        "Language: match the language of your customers (FR/NL/DE as applicable)",
+    ],
+    "PT": [
+        "Política de privacidade (RGPD)",
+        "Aviso de cookies if trackers are used",
+        "Identificação do responsável / contactos",
+        "Termos de utilização if you collect leads or sell online",
+    ],
+    "PL": [
+        "Polityka prywatności (RODO/GDPR)",
+        "Informacja o plikach cookie if you use analytics",
+        "Regulamin if you sell or take bookings online",
+        "Dane firmowe / kontakt na stronie",
+    ],
+    "CZ": [
+        "Zásady ochrany osobních údajů (GDPR)",
+        "Cookie informace if trackers are used",
+        "Obchodní podmínky if you sell or take bookings online",
+        "Identifikace provozovatele / kontakt",
+    ],
+    "SK": [
+        "Zásady ochrany osobných údajov (GDPR)",
+        "Informácie o cookies if trackers are used",
+        "Obchodné podmienky if you sell or take bookings online",
+        "Identifikácia prevádzkovateľa / kontakt",
+    ],
+    "RO": [
+        "Politică de confidențialitate (GDPR)",
+        "Notă cookie if trackers are used",
+        "Termeni și condiții if you sell or take bookings online",
+        "Date de identificare / contact pe site",
+    ],
+    "UA": [
+        "Політика конфіденційності",
+        "Умови використання / оферта (якщо приймаєте заявки чи оплату онлайн)",
+        "Повідомлення про cookies (якщо є аналітика)",
+        "Реквізити / контакти власника сайту",
+    ],
+    "RU": [
+        "Политика конфиденциальности",
+        "Пользовательское соглашение / оферта (если принимаете заявки или оплату онлайн)",
+        "Уведомление о cookies (если есть аналитика)",
+        "Реквизиты / контакты владельца сайта",
+    ],
+}
+
+_DEFAULT_LEGAL_CHECKLIST = [
+    "Privacy Policy appropriate to your jurisdiction",
+    "Terms of use / service if you collect leads or sell online",
+    "Cookie / tracking notice if you use analytics or ads",
+    "Clear business identity and contact details on the site",
+]
 
 
 def deploy_readme(market_code: str | None) -> str:
@@ -385,11 +473,31 @@ def deploy_readme(market_code: str | None) -> str:
     return _README_PLACEHOLDER
 
 
+def market_legal_checklist(market_code: str | None) -> list[str]:
+    code = normalize_market(market_code)
+    return list(_LEGAL_CHECKLISTS.get(code) or _DEFAULT_LEGAL_CHECKLIST)
+
+
 def legal_notice_placeholder(market_code: str | None) -> str:
     code = normalize_market(market_code)
-    return (
-        f"Legal documents for market {code} are not yet included.\n"
-        "German Impressum / Datenschutz were intentionally NOT generated for this order.\n"
-        "Add Privacy Policy and Terms appropriate to your jurisdiction before go-live.\n"
-        "This notice is not legal advice.\n"
+    items = market_legal_checklist(code)
+    lines = [
+        f"LEGAL NOTICE — market {code}",
+        "",
+        "Virtus Core Path A delivery for this market does NOT include ready-made legal HTML pages.",
+        "German Impressum / Datenschutz were intentionally NOT generated for this order.",
+        "This file is a checklist only — not legal advice and not a substitute for counsel.",
+        "",
+        "Before go-live, add (with your lawyer / local requirements):",
+    ]
+    for i, item in enumerate(items, start=1):
+        lines.append(f"  {i}. {item}")
+    lines.extend(
+        [
+            "",
+            "Until those pages exist, do not present this site as fully compliant for publishing.",
+            "Keep ownership of your domain/hosting contracts with your provider.",
+            "",
+        ]
     )
+    return "\n".join(lines) + "\n"

@@ -166,7 +166,40 @@ def test_fr_gets_legal_notice_not_de(tmp_path: Path):
     assert (tmp_path / "LEGAL_NOTICE.txt").is_file()
     assert not (tmp_path / "impressum.html").exists()
     text = (tmp_path / "LEGAL_NOTICE.txt").read_text(encoding="utf-8")
-    assert "FR" in text or "not yet" in text.lower() or "not included" in text.lower()
+    assert "FR" in text
+    assert "Mentions légales" in text
+    assert "not legal advice" in text.lower()
+    assert "Impressum" in text and "NOT generated" in text
+
+
+def test_pl_ua_checklists_are_market_specific(tmp_path: Path):
+    from app.factory.market_delivery import market_legal_checklist
+
+    pl_items = market_legal_checklist("PL")
+    ua_items = market_legal_checklist("UA")
+    assert any("RODO" in x or "prywatności" in x.lower() for x in pl_items)
+    assert any("конфіденційності" in x.lower() or "Privacy" in x for x in ua_items)
+
+    write_client_legal_pages(
+        tmp_path / "pl",
+        ClientLegalInfo(business_name="Salon PL", email="a@pl.example"),
+        market_code="PL",
+    )
+    pl_text = (tmp_path / "pl" / "LEGAL_NOTICE.txt").read_text(encoding="utf-8")
+    assert "RODO" in pl_text or "prywatności" in pl_text.lower()
+    assert "impressum.html" not in pl_text.lower() or "NOT generated" in pl_text
+
+    write_client_legal_pages(
+        tmp_path / "ua",
+        ClientLegalInfo(business_name="Salon UA", email="a@ua.example"),
+        market_code="UA",
+    )
+    ua_text = (tmp_path / "ua" / "LEGAL_NOTICE.txt").read_text(encoding="utf-8")
+    assert "UA" in ua_text
+    assert "конфіденційності" in ua_text.lower() or "Privacy" in ua_text
+    assert "LEGAL_NOTICE.txt" in deploy_readme("FR") or "LEGAL_NOTICE" in deploy_readme("FR")
+    assert "LEGAL_NOTICE" in deploy_readme("UA")
+
 
 
 def test_factory_us_build_writes_en_legal(tmp_path: Path):
