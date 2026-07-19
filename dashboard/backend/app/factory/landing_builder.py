@@ -70,7 +70,16 @@ def build_landing_html(
     include_testimonials: bool = False,
     large_headline: bool = False,
     motion_level: str = "none",
+    market_code: str | None = None,
 ) -> str:
+    from app.factory.landing_i18n import (
+        apply_legal_footer_hrefs,
+        landing_lang_for_market,
+        localize_analysis,
+        maps_country_label,
+        ui_strings,
+    )
+
     feat = features or resolve_package_features("basic")
     if feat.premium_design:
         modern = True
@@ -79,6 +88,11 @@ def build_landing_html(
         calculator = True
     if feat.testimonials:
         include_testimonials = True
+
+    lang = landing_lang_for_market(market_code)
+    ui = apply_legal_footer_hrefs(ui_strings(lang), market_code)
+    analysis = localize_analysis(analysis, lang)
+    maps_country = maps_country_label(market_code)
 
     style = _style_from_niche(analysis.niche, modern=modern, blue_boost=blue_boost)
 
@@ -133,44 +147,50 @@ def build_landing_html(
     )
     maps_block = ""
     if feat.maps:
-        src = maps_embed_src(business_name=analysis.business_name, city=city, street=street)
+        src = maps_embed_src(
+            business_name=analysis.business_name,
+            city=city,
+            street=street,
+            country=maps_country,
+        )
         maps_block = f"""
   <section class="{sec} maps" id="maps">
-    <h2>Standort</h2>
-    <p class="muted">So finden Sie uns — Karte anhand Ihrer Firmendaten.</p>
+    <h2>{esc(ui['maps'])}</h2>
+    <p class="muted">{esc(ui['maps_muted'])}</p>
     <div class="maps-frame">
-      <iframe title="Google Maps" src="{esc(src)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      <iframe title="{esc(ui['maps_iframe_title'])}" src="{esc(src)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
     </div>
   </section>
 """
-    calc_block = _calculator_block(section_class=sec) if calculator else ""
-    form_block = _contact_form_block(analysis.email) if feat.contact_form else ""
+    calc_block = _calculator_block(ui, section_class=sec) if calculator else ""
+    form_block = _contact_form_block(analysis.email, ui) if feat.contact_form else ""
     wa_contact = ""
     if feat.whatsapp:
         wa_contact = (
-            f'<p><strong>WhatsApp:</strong> <a class="wa-btn" href="{esc(wa_url)}" '
-            f'target="_blank" rel="noopener">Nachricht senden</a></p>'
+            f'<p><strong>{esc(ui["whatsapp"])}:</strong> <a class="wa-btn" href="{esc(wa_url)}" '
+            f'target="_blank" rel="noopener">{esc(ui["whatsapp_send"])}</a></p>'
         )
     hero_cta_extra = ""
     if feat.whatsapp and wa_url != "#contact":
         wa_btn = f"{btn_class} btn-wa" if css_motion else "btn btn-wa"
         hero_cta_extra = (
-            f' <a class="{wa_btn}" href="{esc(wa_url)}" target="_blank" rel="noopener">WhatsApp</a>'
+            f' <a class="{wa_btn}" href="{esc(wa_url)}" target="_blank" rel="noopener">'
+            f'{esc(ui["whatsapp"])}</a>'
         )
-    # Reviews CTA for all packages that include testimonials
     if include_testimonials:
         rev_btn = f"{btn_class} btn-reviews" if css_motion else "btn btn-reviews"
         hero_cta_extra += (
-            f' <a class="{rev_btn}" href="#testimonials">Kundenstimmen</a>'
+            f' <a class="{rev_btn}" href="#testimonials">{esc(ui["reviews"])}</a>'
         )
-    # Topbar reviews link for all
     reviews_nav = (
-        ' <a href="#testimonials">Kundenstimmen</a>' if include_testimonials else ""
+        f' <a href="#testimonials">{esc(ui["reviews"])}</a>' if include_testimonials else ""
     )
 
     seo_extra = ""
     if feat.extended_seo:
         import json as _json
+
+        from app.factory.market_delivery import normalize_market
 
         ld = _json.dumps(
             {
@@ -183,7 +203,7 @@ def build_landing_html(
                 "address": {
                     "@type": "PostalAddress",
                     "addressLocality": city or "",
-                    "addressCountry": "DE",
+                    "addressCountry": normalize_market(market_code or "DE"),
                 },
             },
             ensure_ascii=False,
@@ -198,19 +218,20 @@ def build_landing_html(
 
     analytics_block = ""
     if feat.analytics:
-        analytics_block = """
-  <!-- Google Analytics: Measurement-ID nach Go-live ersetzen (G-XXXXXXXXXX) -->
+        analytics_block = f"""
+  <!-- {esc(ui['analytics_comment'])} -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag(){{dataLayer.push(arguments);}}
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX');
   </script>
 """
 
+    why_title = esc(ui["why"].format(business=analysis.business_name))
     html = f"""<!DOCTYPE html>
-<html lang="de">
+<html lang="{esc(lang)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -328,35 +349,35 @@ def build_landing_html(
     </div>
   </header>
   <section class="{sec}" id="services">
-    <h2>Leistungen</h2>
+    <h2>{esc(ui['services'])}</h2>
     <ul class="services">{services_html}</ul>
   </section>
   <section class="{sec} benefits">
-    <h2>Warum {business}</h2>
+    <h2>{why_title}</h2>
     <ul>{benefits_html}</ul>
   </section>
   <section class="{sec} about">
-    <h2>Über uns</h2>
+    <h2>{esc(ui['about'])}</h2>
     <p>{about}</p>
   </section>
   {calc_block}
-  {_testimonials_section(include_testimonials, section_class=sec)}
+  {_testimonials_section(include_testimonials, ui, section_class=sec)}
   {maps_block}
   <section class="{sec}" id="contact">
-    <h2>Kontakt</h2>
-    <p class="muted">Schreiben oder rufen Sie an — wir melden uns schnellstmöglich.</p>
+    <h2>{esc(ui['contact'])}</h2>
+    <p class="muted">{esc(ui['contact_muted'])}</p>
     <div class="contact-grid">
-      <p><strong>Telefon:</strong> <a href="tel:{_tel_href(analysis.phone)}">{phone}</a></p>
+      <p><strong>{esc(ui['phone'])}:</strong> <a href="tel:{_tel_href(analysis.phone)}">{phone}</a></p>
       {wa_contact}
-      <p><strong>E-Mail:</strong> <a href="mailto:{email}">{email}</a></p>
-      <p><strong>Öffnungszeiten:</strong> {hours}</p>
+      <p><strong>{esc(ui['email'])}:</strong> <a href="mailto:{email}">{email}</a></p>
+      <p><strong>{esc(ui['hours'])}:</strong> {hours}</p>
     </div>
     {form_block}
   </section>
   <footer>
     {business} · © {business}<br>
-    <a href="impressum.html" style="color:#94a3b8;margin-right:0.75rem">Impressum</a>
-    <a href="datenschutz.html" style="color:#94a3b8">Datenschutz</a>
+    <a href="{esc(ui['legal_a_href'])}" style="color:#94a3b8;margin-right:0.75rem">{esc(ui['legal_a'])}</a>
+    <a href="{esc(ui['legal_b_href'])}" style="color:#94a3b8">{esc(ui['legal_b'])}</a>
   </footer>
 {motion_script}</body>
 </html>
@@ -383,24 +404,27 @@ def _tel_href(phone: str) -> str:
     return re.sub(r"[^\d+]", "", phone)
 
 
-def _calculator_block(*, section_class: str = "section") -> str:
+def _calculator_block(ui: dict[str, str], *, section_class: str = "section") -> str:
+    esc = html_lib.escape
+    from_lbl = esc(ui["calc_from"])
     return f"""
     <section class="{section_class} calculator" id="calculator">
-      <h2>Kostenrechner</h2>
-      <p class="muted">Unverbindliche Schätzung — Details klären wir im Gespräch.</p>
+      <h2>{esc(ui['calculator'])}</h2>
+      <p class="muted">{esc(ui['calculator_muted'])}</p>
       <div class="calc-grid">
-        <label>Leistung<select id="svc"><option>Basis</option><option>Standard</option><option>Premium</option></select></label>
-        <label>Anzahl<input type="number" id="qty" value="1" min="1" max="10"></label>
-        <p class="calc-result">Summe: <strong id="total">ab 49 €</strong></p>
+        <label>{esc(ui['calc_service'])}<select id="svc"><option>{esc(ui['calc_opt0'])}</option><option>{esc(ui['calc_opt1'])}</option><option>{esc(ui['calc_opt2'])}</option></select></label>
+        <label>{esc(ui['calc_qty'])}<input type="number" id="qty" value="1" min="1" max="10"></label>
+        <p class="calc-result">{esc(ui['calc_sum'])}: <strong id="total">{from_lbl} 49 €</strong></p>
       </div>
     </section>
     <script>
       (function(){{
         const prices = {{0:49,1:99,2:199}};
+        const fromLbl = {esc(ui['calc_from'])!r};
         function upd(){{
           const s = document.getElementById('svc').selectedIndex;
           const q = Math.max(1, parseInt(document.getElementById('qty').value||'1',10));
-          document.getElementById('total').textContent = 'ab ' + (prices[s]*q) + ' €';
+          document.getElementById('total').textContent = fromLbl + ' ' + (prices[s]*q) + ' €';
         }}
         document.getElementById('svc').onchange = upd;
         document.getElementById('qty').oninput = upd;
@@ -409,29 +433,36 @@ def _calculator_block(*, section_class: str = "section") -> str:
 """
 
 
-def _contact_form_block(email: str) -> str:
-    action = f"mailto:{html_lib.escape(email)}?subject=Anfrage%20Website"
+def _contact_form_block(email: str, ui: dict[str, str]) -> str:
+    from urllib.parse import quote
+
+    esc = html_lib.escape
+    subject = quote(ui["form_subject"])
+    action = f"mailto:{esc(email)}?subject={subject}"
     return f"""
     <form class="contact-form" action="{action}" method="get">
-      <label>Name<input name="name" required placeholder="Ihr Name"></label>
-      <label>Telefon<input name="phone" type="tel" placeholder="+49 …"></label>
-      <label>Nachricht<textarea name="body" rows="4" required placeholder="Kurz Ihr Anliegen"></textarea></label>
-      <button type="submit">Anfrage senden</button>
+      <label>{esc(ui['form_name'])}<input name="name" required placeholder="{esc(ui['form_name_ph'])}"></label>
+      <label>{esc(ui['form_phone'])}<input name="phone" type="tel" placeholder="{esc(ui['form_phone_ph'])}"></label>
+      <label>{esc(ui['form_message'])}<textarea name="body" rows="4" required placeholder="{esc(ui['form_message_ph'])}"></textarea></label>
+      <button type="submit">{esc(ui['form_submit'])}</button>
     </form>
 """
 
 
-def _testimonials_section(enabled: bool, *, section_class: str = "section") -> str:
+def _testimonials_section(
+    enabled: bool, ui: dict[str, str], *, section_class: str = "section"
+) -> str:
     if not enabled:
         return ""
+    esc = html_lib.escape
     return f"""
   <section class="{section_class} testimonials" id="testimonials">
-    <h2>Kundenstimmen</h2>
-    <p class="muted">Beispieltexte — bitte durch echte Kundenstimmen ersetzen.</p>
+    <h2>{esc(ui['reviews'])}</h2>
+    <p class="muted">{esc(ui['reviews_muted'])}</p>
     <div class="testimonial-grid">
-      <blockquote class="testimonial-card"><p>«Professionell und zuverlässig — klare Empfehlung.»</p><cite>— Anna K.</cite></blockquote>
-      <blockquote class="testimonial-card"><p>«Transparente Preise und gutes Ergebnis.»</p><cite>— Michael W.</cite></blockquote>
-      <blockquote class="testimonial-card"><p>«Schnelle Terminvergabe und freundlicher Service.»</p><cite>— Familie S.</cite></blockquote>
+      <blockquote class="testimonial-card"><p>{esc(ui['t1'])}</p><cite>{esc(ui['t1_cite'])}</cite></blockquote>
+      <blockquote class="testimonial-card"><p>{esc(ui['t2'])}</p><cite>{esc(ui['t2_cite'])}</cite></blockquote>
+      <blockquote class="testimonial-card"><p>{esc(ui['t3'])}</p><cite>{esc(ui['t3_cite'])}</cite></blockquote>
     </div>
   </section>
 """

@@ -84,7 +84,13 @@ def whatsapp_href(whatsapp: str, phone_fallback: str = "") -> str:
     return f"https://wa.me/{digits}"
 
 
-def maps_embed_src(*, business_name: str, city: str, street: str = "") -> str:
+def maps_embed_src(
+    *,
+    business_name: str,
+    city: str,
+    street: str = "",
+    country: str = "Germany",
+) -> str:
     """Map iframe src — Nominatim/OSM when GENESIS_CAP_NOMINATIM=1, else Google embed."""
     try:
         from app.integration.external_capabilities import resolve_maps_embed
@@ -93,13 +99,14 @@ def maps_embed_src(*, business_name: str, city: str, street: str = "") -> str:
             business_name=business_name,
             city=city,
             street=street,
+            country=country,
         )
         url = (result.data or {}).get("embed_url")
         if url:
             return str(url)
     except Exception:
         pass
-    query = " ".join(p for p in (business_name, street, city, "Deutschland") if p).strip()
+    query = " ".join(p for p in (business_name, street, city, country) if p).strip()
     return f"https://maps.google.com/maps?q={quote_plus(query)}&z=14&output=embed"
 
 

@@ -85,6 +85,7 @@ class FactoryService:
             city=city,
             street=street,
             motion_level=motion,
+            market_code=market,
         )
         validation = validate_landing(html)
 
@@ -204,11 +205,13 @@ class FactoryService:
                 flags["large_headline"] = True
 
             analysis = analyze(meta["description"])
+            from app.factory.market_delivery import normalize_market
             from app.factory.package_features import resolve_package_features
 
             delivery = meta.get("package_delivery") if isinstance(meta.get("package_delivery"), dict) else {}
             features = resolve_package_features(str(delivery.get("package_id") or "basic"))
             contacts = meta.get("client_legal") if isinstance(meta.get("client_legal"), dict) else {}
+            market = normalize_market(str(meta.get("market_code") or contacts.get("country") or "DE"))
             html = build_landing_html(
                 analysis,
                 features=features,
@@ -220,6 +223,7 @@ class FactoryService:
                 calculator=flags.get("calculator", False) or features.calculator,
                 include_testimonials=flags.get("testimonials", False) or features.testimonials,
                 large_headline=flags.get("large_headline", False) or features.premium_design,
+                market_code=market,
             )
 
         validation = validate_landing(html)

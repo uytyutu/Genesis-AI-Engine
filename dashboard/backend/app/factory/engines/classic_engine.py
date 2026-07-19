@@ -38,6 +38,7 @@ def generate(request: EngineRequest) -> EngineResult:
         city=request.city,
         street="",
         motion_level=motion,
+        market_code=request.market_code,
     )
     return EngineResult(
         engine_id=ENGINE_ID,
