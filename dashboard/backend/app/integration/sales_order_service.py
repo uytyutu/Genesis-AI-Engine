@@ -148,6 +148,7 @@ class SalesOrderService:
 
     def create_order(self, payload: dict) -> dict:
         from app.factory.market_delivery import client_status_label
+        from app.factory.motion_brief import gate_motion_level, normalize_motion_level
 
         package_id = payload.get("package_id") or self._suggest_package(payload)
         package, _offer = self._package_offer(
@@ -157,6 +158,10 @@ class SalesOrderService:
             city=payload.get("city"),
             extra_text=payload.get("description"),
         )
+        motion = normalize_motion_level(str(payload.get("motion_level") or "none"))
+        gate = gate_motion_level(motion)
+        if not gate["ok"]:
+            raise ValueError("WAITLIST_REQUIRED")
         project_ctx = self._resolve_project_context(payload.get("visitor_id"))
         service_id = project_ctx["service_id"]
         launch_mode = bool(project_ctx["launch_mode"])
@@ -235,6 +240,7 @@ class SalesOrderService:
             "symbol": package.get("symbol", "€"),
             "market_code": package.get("market_code", "DE"),
             "price_label": package.get("price_label", f"{package['price_eur']} €"),
+            "motion_level": motion,
             "deliverables": (
                 project_launch_deliverables(service_id)
                 if launch_mode
@@ -294,6 +300,7 @@ class SalesOrderService:
             "symbol": package.get("symbol", "€"),
             "market_code": package.get("market_code", "DE"),
             "price_label": package.get("price_label"),
+            "motion_level": motion,
             "deliverables": order["deliverables"],
             "buyer_insights": buyer_insights,
         }
@@ -357,6 +364,12 @@ class SalesOrderService:
         package_id = str(order.get("package_id") or "basic")
         street = str(legal.get("street") or "").strip()
         market = str(order.get("market_code") or legal.get("country") or "DE")
+        from app.factory.motion_brief import gate_motion_level, normalize_motion_level
+
+        motion = normalize_motion_level(str(order.get("motion_level") or "none"))
+        gate = gate_motion_level(motion)
+        if not gate["ok"]:
+            raise ValueError("WAITLIST_REQUIRED")
         contacts = {
             "business_name": order.get("business_name"),
             "phone": order.get("phone"),
@@ -367,6 +380,7 @@ class SalesOrderService:
             "package_id": package_id,
             "needs_logo": bool(order.get("needs_logo")),
             "market_code": market,
+            "motion_level": motion,
         }
         if not legal.get("country"):
             legal["country"] = market
@@ -380,6 +394,7 @@ class SalesOrderService:
             client_legal=legal or None,
             package_id=package_id if package_id in ("basic", "business", "premium") else "basic",
             contacts=contacts,
+            motion_level=motion,
         )
         result = self._factory_intent.submit(intent)
         from app.factory.market_delivery import client_status_label
@@ -676,6 +691,7 @@ class SalesOrderService:
             "symbol": symbol,
             "market_code": market,
             "ui_lang": market_ui_lang(market),
+            "motion_level": str(order.get("motion_level") or "none"),
             "status": status,
             "status_label": client_status_label(status, market),
             "current_step": client_current_step(status, market),
@@ -785,6 +801,8 @@ class SalesOrderService:
             "created_at": order["created_at"],
             "product_id": order.get("product_id"),
             "proposal_text": order.get("proposal_text", ""),
+            "motion_level": str(order.get("motion_level") or "none"),
+            "market_code": order.get("market_code"),
             "paid": order.get("status") in ("paid", "in_production", "ready", "delivered"),
             "paid_at": order.get("paid_at"),
             "estimated_delivery_at": order.get("estimated_delivery_at"),

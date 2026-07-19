@@ -1354,6 +1354,13 @@ def _try_site_from_project_brief(
     )
     if gated:
         return gated
+    motion_block = _maybe_motion_level_gate(
+        text,
+        visitor_id=visitor_id,
+        memory_dir=memory_dir,
+    )
+    if motion_block:
+        return motion_block
     from app.factory.analyzer import business_brief_for_site
 
     cleaned = business_brief_for_site(combined)
@@ -1365,7 +1372,72 @@ def _try_site_from_project_brief(
         ProjectPlatformService(memory_dir).bootstrap_from_message(visitor_id, text)
     except Exception:
         pass
-    return _run_generate_site(combined, visitor_id=visitor_id, memory_dir=memory_dir)
+    motion_level = _project_motion_level(memory_dir, visitor_id)
+    return _run_generate_site(
+        combined,
+        visitor_id=visitor_id,
+        memory_dir=memory_dir,
+        motion_level=motion_level,
+    )
+
+
+def _project_motion_level(memory_dir: Path, visitor_id: str) -> str:
+    try:
+        from app.integration.project_platform.service import ProjectPlatformService
+        from app.factory.motion_brief import normalize_motion_level
+
+        payload = ProjectPlatformService(memory_dir).get_for_visitor(visitor_id)
+        project = (payload or {}).get("project") or {}
+        brief = project.get("brief") if isinstance(project.get("brief"), dict) else {}
+        return normalize_motion_level(str(brief.get("motion_level") or "none"))
+    except Exception:
+        return "none"
+
+
+def _maybe_motion_level_gate(
+    text: str,
+    *,
+    visitor_id: str,
+    memory_dir: Path,
+) -> dict[str, Any] | None:
+    """3d_premium → waitlist; do not start Classic build as fake 3D."""
+    from app.factory.motion_brief import (
+        apply_text_to_project_brief,
+        empty_vector_brief,
+        vector_3d_waitlist_message,
+    )
+
+    try:
+        from app.integration.project_platform.service import ProjectPlatformService
+
+        svc = ProjectPlatformService(memory_dir)
+        state = svc.get_for_visitor(visitor_id)
+        project = (state or {}).get("project") or {}
+        brief = dict(project.get("brief") or empty_vector_brief())
+    except Exception:
+        brief = empty_vector_brief()
+    brief = apply_text_to_project_brief(brief, text)
+    try:
+        from app.integration.project_platform.service import ProjectPlatformService
+
+        ProjectPlatformService(memory_dir).bootstrap_from_message(visitor_id, text)
+    except Exception:
+        pass
+    if brief.get("status") == "WAITLIST_REQUIRED" or brief.get("motion_level") == "3d_premium":
+        return {
+            "answer": vector_3d_waitlist_message("ru"),
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "motion_gate",
+            "cta_href": None,
+            "cta_label": None,
+            "context": {
+                "motion_level": "3d_premium",
+                "status": "WAITLIST_REQUIRED",
+                "engine_route": "reject_3d",
+            },
+        }
+    return None
 
 
 def _format_capability_discovery_answer(
@@ -1788,8 +1860,25 @@ def _run_generate_site(
     visitor_id: str,
     memory_dir: Path,
     revision_note: str = "",
+    motion_level: str = "none",
 ) -> dict[str, Any]:
     from app.factory.analyzer import business_brief_for_site
+    from app.factory.motion_brief import gate_motion_level, normalize_motion_level
+
+    gate = gate_motion_level(motion_level)
+    if not gate["ok"]:
+        from app.factory.motion_brief import vector_3d_waitlist_message
+
+        return {
+            "answer": vector_3d_waitlist_message("ru"),
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "motion_gate",
+            "cta_href": None,
+            "cta_label": None,
+            "context": {"motion_level": "3d_premium", "status": "WAITLIST_REQUIRED"},
+        }
+    motion = normalize_motion_level(gate["motion_level"])
 
     brief = business_brief_for_site(goal) or goal.strip()
     workspace_id = _workspace_for_visitor(memory_dir, visitor_id, title="Site project")
@@ -1807,7 +1896,11 @@ def _run_generate_site(
                 id="step-generate-site",
                 capability_id="generate_site",
                 title="Generate site from brief",
-                inputs={"brief": brief.strip(), "workspace_id": workspace_id},
+                inputs={
+                    "brief": brief.strip(),
+                    "workspace_id": workspace_id,
+                    "motion_level": motion,
+                },
                 verification=VerificationRule(
                     id="vr-site",
                     description="Site artifact produced",

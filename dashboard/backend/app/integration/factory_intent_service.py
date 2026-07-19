@@ -46,6 +46,7 @@ class FactoryIntentService:
             "price_eur": request.price_eur,
             "deadline": request.deadline,
             "package_id": request.package_id,
+            "motion_level": request.motion_level or "none",
             "brief": brief,
             "at": datetime.now(timezone.utc).isoformat(),
             "status": "building",
@@ -61,12 +62,16 @@ class FactoryIntentService:
                 "message": "Заявка принята. Отдел создания продуктов готовится к сборке.",
             }
 
+        contacts = dict(request.contacts) if isinstance(request.contacts, dict) else {}
+        motion = str(request.motion_level or contacts.get("motion_level") or "none")
+        contacts.setdefault("motion_level", motion)
         product = self._factory.build_landing(
             brief,
             intent_id=intent_id,
             client_legal=request.client_legal if isinstance(request.client_legal, dict) else None,
             package_id=request.package_id,
-            contacts=request.contacts if isinstance(request.contacts, dict) else None,
+            contacts=contacts,
+            motion_level=motion,
         )
         record["status"] = "completed"
         record["product_id"] = product["product_id"]

@@ -122,6 +122,7 @@ class ProjectRecord:
     next_step_hint: str = ""
     description: str = ""
     market: str = ""
+    brief: dict[str, Any] = field(default_factory=dict)
     timeline: list[TimelineEvent] = field(default_factory=list)
     versions: list[ProjectVersion] = field(default_factory=list)
 
@@ -140,6 +141,7 @@ class ProjectRecord:
             "next_step_hint": self.next_step_hint,
             "description": self.description,
             "market": self.market,
+            "brief": dict(self.brief or {}),
             "sections": section_summary(self),
             "timeline": [e.to_dict() for e in self.timeline],
             "versions": [v.to_dict() for v in self.versions],

@@ -391,6 +391,18 @@ def _apply_goal_context(record: ProjectRecord, goal: str) -> None:
         "Test",
     ):
         record.title = title
+    try:
+        from app.factory.motion_brief import (
+            apply_text_to_project_brief,
+            empty_vector_brief,
+        )
+
+        base = record.brief or empty_vector_brief(market=record.market or "DE")
+        if record.market:
+            base["market"] = record.market
+        record.brief = apply_text_to_project_brief(base, g)
+    except Exception:
+        pass
 
 
 def _section_for_service(service_id: str | None) -> str:

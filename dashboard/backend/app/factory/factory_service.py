@@ -43,6 +43,7 @@ class FactoryService:
         package_id: str | None = None,
         contacts: dict | None = None,
         market_code: str | None = None,
+        motion_level: str | None = None,
     ) -> dict:
         from app.factory.package_features import (
             apply_order_contacts,
@@ -50,6 +51,8 @@ class FactoryService:
             resolve_package_features,
         )
         from app.factory.market_delivery import normalize_market
+        from app.factory.motion_brief import gate_motion_level, normalize_motion_level
+        from app.factory.css_motion import write_motion_assets
 
         product_id = intent_id or str(uuid.uuid4())
         analysis = analyze(description)
@@ -60,6 +63,11 @@ class FactoryService:
             or (client_legal or {}).get("country")
             or "DE"
         )
+        motion_raw = motion_level or contacts.get("motion_level") or "none"
+        gate = gate_motion_level(str(motion_raw))
+        if not gate["ok"]:
+            raise ValueError("WAITLIST_REQUIRED")
+        motion = normalize_motion_level(gate["motion_level"])
         analysis = apply_order_contacts(
             analysis,
             business_name=str(contacts.get("business_name") or "") or None,
@@ -76,12 +84,15 @@ class FactoryService:
             whatsapp=whatsapp,
             city=city,
             street=street,
+            motion_level=motion,
         )
         validation = validate_landing(html)
 
         product_dir = self._sandbox / product_id
         product_dir.mkdir(parents=True, exist_ok=True)
         (product_dir / "index.html").write_text(html, encoding="utf-8")
+        if motion == "css":
+            write_motion_assets(product_dir)
 
         legal_payload = dict(client_legal or {})
         if features.maps:
@@ -115,6 +126,7 @@ class FactoryService:
             "template_id": analysis.template_id,
             "business_name": analysis.business_name,
             "market_code": market,
+            "motion_level": motion,
             "status": "completed",
             "quality_percent": validation.quality_percent,
             "validation_passed": validation.passed,
@@ -321,6 +333,11 @@ class FactoryService:
                 legal_path = product_dir / str(legal_name)
                 if legal_path.is_file():
                     archive.writestr(str(legal_name), legal_path.read_text(encoding="utf-8"))
+            assets_dir = product_dir / "assets"
+            if assets_dir.is_dir():
+                for asset in assets_dir.iterdir():
+                    if asset.is_file() and asset.name != ".gitkeep":
+                        archive.writestr(f"assets/{asset.name}", asset.read_bytes())
             archive.writestr("README_PUBLISH.txt", deploy_readme(market))
 
         if mark_download:

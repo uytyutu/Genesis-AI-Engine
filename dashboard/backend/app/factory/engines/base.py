@@ -41,6 +41,7 @@ class EngineRequest:
     email: str = ""
     whatsapp: str = ""
     niche_hint: str = ""
+    motion_level: str = "none"
 
 
 @dataclass

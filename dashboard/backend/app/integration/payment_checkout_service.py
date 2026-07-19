@@ -55,7 +55,13 @@ class PaymentCheckoutService:
         success_url: str,
         cancel_url: str,
         currency: str = "eur",
+        motion_level: str = "none",
+        market_code: str = "DE",
     ) -> dict:
+        from app.factory.motion_brief import normalize_motion_level
+
+        motion = normalize_motion_level(motion_level)
+        market = (market_code or "DE").strip().upper()[:8] or "DE"
         provider = self.provider()
         if provider == "stripe":
             return self._stripe_checkout(
@@ -65,6 +71,8 @@ class PaymentCheckoutService:
                 label=label,
                 success_url=success_url,
                 cancel_url=cancel_url,
+                motion_level=motion,
+                market_code=market,
             )
         if provider == "sandbox":
             token = uuid.uuid4().hex[:16]
@@ -75,6 +83,8 @@ class PaymentCheckoutService:
                 "checkout_url": f"{base}/order/pay?{params}",
                 "session_id": f"sandbox-{token}",
                 "sandbox": True,
+                "motion_level": motion,
+                "market_code": market,
             }
         raise ValueError("payment_not_configured")
 
@@ -87,6 +97,8 @@ class PaymentCheckoutService:
         label: str,
         success_url: str,
         cancel_url: str,
+        motion_level: str = "none",
+        market_code: str = "DE",
     ) -> dict:
         secret = os.getenv("STRIPE_SECRET_KEY", "").strip()
         if not secret:
@@ -102,6 +114,8 @@ class PaymentCheckoutService:
             "line_items[0][price_data][product_data][name]": label[:120],
             "line_items[0][quantity]": "1",
             "metadata[order_id]": order_id,
+            "metadata[motion_level]": motion_level or "none",
+            "metadata[market_code]": market_code or "DE",
         }
         with httpx.Client(timeout=30.0) as client:
             res = client.post(
@@ -117,6 +131,8 @@ class PaymentCheckoutService:
             "checkout_url": body["url"],
             "session_id": body["id"],
             "sandbox": False,
+            "motion_level": motion_level or "none",
+            "market_code": market_code or "DE",
         }
 
     def retrieve_paid_session(self, session_id: str) -> dict | None:

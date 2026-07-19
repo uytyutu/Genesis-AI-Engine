@@ -129,6 +129,11 @@ class FactoryIntentRequest(BaseModel):
         default=None,
         description="Order contacts for Path A package delivery (phone, whatsapp, city, …)",
     )
+    motion_level: str | None = Field(
+        default="none",
+        description="Path A motion: none | css | 3d_premium (3d rejected at Factory gate)",
+        max_length=32,
+    )
 
 
 class ClientLegalFields(BaseModel):

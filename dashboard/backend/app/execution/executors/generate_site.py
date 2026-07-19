@@ -44,7 +44,15 @@ class GenerateSiteExecutor:
 
         blocks = load_workspace_building_blocks(self._workspaces, workspace_id)
         analysis, reuse = analysis_for_site(brief_text, blocks)
-        html_full = build_landing_html(analysis)
+        from app.factory.motion_brief import gate_motion_level, normalize_motion_level
+        from app.factory.css_motion import write_motion_assets
+
+        motion_raw = str(inputs.get("motion_level") or context.get("motion_level") or "none")
+        gate = gate_motion_level(motion_raw)
+        if not gate["ok"]:
+            raise ValueError("WAITLIST_REQUIRED:3d_premium")
+        motion = normalize_motion_level(gate["motion_level"])
+        html_full = build_landing_html(analysis, motion_level=motion)
         css, index_html = _split_html_css(html_full)
         if not css:
             css = "/* Vector site */\nbody { font-family: system-ui, sans-serif; }"
@@ -64,6 +72,8 @@ class GenerateSiteExecutor:
                 "Создаю preview",
             ]
         )
+        if motion == "css":
+            logs.append("Подключаю CSS-motion (motion_kit)")
 
         files_root = self._workspaces.path_for(workspace_id, "files")
         written: list[str] = []
@@ -82,6 +92,9 @@ class GenerateSiteExecutor:
         assets_dir.mkdir(parents=True, exist_ok=True)
         (assets_dir / ".gitkeep").write_text("", encoding="utf-8")
         written.append("assets/")
+        if motion == "css":
+            for rel in write_motion_assets(files_root):
+                written.append(rel)
 
         preview_dir = self._workspaces.path_for(workspace_id, "artifacts", "preview")
         if preview_dir.exists():
@@ -98,6 +111,7 @@ class GenerateSiteExecutor:
             "files": list(written),
             "business_name": analysis.business_name,
             "niche": analysis.niche,
+            "motion_level": motion,
             "reuse": reuse.to_dict(),
         }
         (files_root / "site_manifest.json").write_text(

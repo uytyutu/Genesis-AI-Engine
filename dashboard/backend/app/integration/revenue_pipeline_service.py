@@ -112,6 +112,8 @@ class RevenuePipelineService:
             success_url=success_url,
             cancel_url=cancel_url,
             currency=currency,
+            motion_level=str(order.get("motion_level") or "none"),
+            market_code=str(order.get("market_code") or "DE"),
         )
         order["status"] = "awaiting_payment"
         order["status_label"] = "Wartet auf Zahlung"

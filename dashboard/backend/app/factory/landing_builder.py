@@ -69,6 +69,7 @@ def build_landing_html(
     calculator: bool = False,
     include_testimonials: bool = False,
     large_headline: bool = False,
+    motion_level: str = "none",
 ) -> str:
     feat = features or resolve_package_features("basic")
     if feat.premium_design:
@@ -101,9 +102,30 @@ def build_landing_html(
     )
     trust_html = "".join(f'<span class="trust-pill">{esc(t)}</span>' for t in analysis.trust_points)
     benefits_html = "".join(f"<li>{esc(b)}</li>" for b in analysis.benefits)
-    h1_class = ' class="large"' if large_headline else ""
+    from app.factory.motion_brief import normalize_motion_level
+
+    motion = normalize_motion_level(motion_level)
+    css_motion = motion == "css"
+    if css_motion:
+        h1_class = ' class="hero-text large"' if large_headline else ' class="hero-text"'
+        hero_p_class = ' class="hero-text hero-text-delay"'
+        trust_class = ' class="trust-row hero-text hero-text-delay-2"'
+        btn_class = "btn cta-button"
+        sec = "section reveal"
+    else:
+        h1_class = ' class="large"' if large_headline else ""
+        hero_p_class = ""
+        trust_class = ' class="trust-row"'
+        btn_class = "btn"
+        sec = "section"
     page_title = f"{analysis.business_name} — {analysis.subtitle[:60]}"
     meta_desc = esc(analysis.subtitle[:160])
+    motion_head = (
+        '  <link rel="stylesheet" href="assets/motion_kit.css">\n' if css_motion else ""
+    )
+    motion_script = (
+        '  <script src="assets/reveal.js" defer></script>\n' if css_motion else ""
+    )
 
     wa_url = whatsapp_href(whatsapp, analysis.phone) if feat.whatsapp else ""
     logo_block = (
@@ -113,7 +135,7 @@ def build_landing_html(
     if feat.maps:
         src = maps_embed_src(business_name=analysis.business_name, city=city, street=street)
         maps_block = f"""
-  <section class="section maps" id="maps">
+  <section class="{sec} maps" id="maps">
     <h2>Standort</h2>
     <p class="muted">So finden Sie uns — Karte anhand Ihrer Firmendaten.</p>
     <div class="maps-frame">
@@ -121,7 +143,7 @@ def build_landing_html(
     </div>
   </section>
 """
-    calc_block = _calculator_block() if calculator else ""
+    calc_block = _calculator_block(section_class=sec) if calculator else ""
     form_block = _contact_form_block(analysis.email) if feat.contact_form else ""
     wa_contact = ""
     if feat.whatsapp:
@@ -131,8 +153,9 @@ def build_landing_html(
         )
     hero_cta_extra = ""
     if feat.whatsapp and wa_url != "#contact":
+        wa_btn = f"{btn_class} btn-wa" if css_motion else "btn btn-wa"
         hero_cta_extra = (
-            f' <a class="btn btn-wa" href="{esc(wa_url)}" target="_blank" rel="noopener">WhatsApp</a>'
+            f' <a class="{wa_btn}" href="{esc(wa_url)}" target="_blank" rel="noopener">WhatsApp</a>'
         )
 
     seo_extra = ""
@@ -185,6 +208,7 @@ def build_landing_html(
   <meta name="description" content="{meta_desc}">
   {seo_extra}
   {analytics_block}
+  {motion_head}
   <style>
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{ font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #0f172a; line-height: 1.65; }}
@@ -279,28 +303,28 @@ def build_landing_html(
   </nav>
   <header class="hero">
     <h1{h1_class}>{headline}</h1>
-    <p>{subtitle}</p>
-    <div class="trust-row">{trust_html}</div>
+    <p{hero_p_class}>{subtitle}</p>
+    <div{trust_class}>{trust_html}</div>
     <div class="hero-ctas">
-      <a class="btn" href="#contact">{cta}</a>{hero_cta_extra}
+      <a class="{btn_class}" href="#contact">{cta}</a>{hero_cta_extra}
     </div>
   </header>
-  <section class="section" id="services">
+  <section class="{sec}" id="services">
     <h2>Leistungen</h2>
     <ul class="services">{services_html}</ul>
   </section>
-  <section class="section benefits">
+  <section class="{sec} benefits">
     <h2>Warum {business}</h2>
     <ul>{benefits_html}</ul>
   </section>
-  <section class="section about">
+  <section class="{sec} about">
     <h2>Über uns</h2>
     <p>{about}</p>
   </section>
   {calc_block}
-  {_testimonials_section(include_testimonials)}
+  {_testimonials_section(include_testimonials, section_class=sec)}
   {maps_block}
-  <section class="section" id="contact">
+  <section class="{sec}" id="contact">
     <h2>Kontakt</h2>
     <p class="muted">Schreiben oder rufen Sie an — wir melden uns schnellstmöglich.</p>
     <div class="contact-grid">
@@ -316,7 +340,7 @@ def build_landing_html(
     <a href="impressum.html" style="color:#94a3b8;margin-right:0.75rem">Impressum</a>
     <a href="datenschutz.html" style="color:#94a3b8">Datenschutz</a>
   </footer>
-</body>
+{motion_script}</body>
 </html>
 """
     lower = html.lower()
@@ -341,9 +365,9 @@ def _tel_href(phone: str) -> str:
     return re.sub(r"[^\d+]", "", phone)
 
 
-def _calculator_block() -> str:
-    return """
-    <section class="section calculator" id="calculator">
+def _calculator_block(*, section_class: str = "section") -> str:
+    return f"""
+    <section class="{section_class} calculator" id="calculator">
       <h2>Kostenrechner</h2>
       <p class="muted">Unverbindliche Schätzung — Details klären wir im Gespräch.</p>
       <div class="calc-grid">
@@ -353,16 +377,16 @@ def _calculator_block() -> str:
       </div>
     </section>
     <script>
-      (function(){
-        const prices = {0:49,1:99,2:199};
-        function upd(){
+      (function(){{
+        const prices = {{0:49,1:99,2:199}};
+        function upd(){{
           const s = document.getElementById('svc').selectedIndex;
           const q = Math.max(1, parseInt(document.getElementById('qty').value||'1',10));
           document.getElementById('total').textContent = 'ab ' + (prices[s]*q) + ' €';
-        }
+        }}
         document.getElementById('svc').onchange = upd;
         document.getElementById('qty').oninput = upd;
-      })();
+      }})();
     </script>
 """
 
@@ -379,11 +403,11 @@ def _contact_form_block(email: str) -> str:
 """
 
 
-def _testimonials_section(enabled: bool) -> str:
+def _testimonials_section(enabled: bool, *, section_class: str = "section") -> str:
     if not enabled:
         return ""
-    return """
-  <section class="section testimonials" id="testimonials">
+    return f"""
+  <section class="{section_class} testimonials" id="testimonials">
     <h2>Kundenstimmen</h2>
     <p class="muted">Beispieltexte — bitte durch echte Kundenstimmen ersetzen.</p>
     <div class="testimonial-grid">

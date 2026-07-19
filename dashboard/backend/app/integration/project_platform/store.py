@@ -128,6 +128,7 @@ def _record_from_dict(data: dict) -> ProjectRecord:
         next_step_hint=str(data.get("next_step_hint") or ""),
         description=str(data.get("description") or ""),
         market=str(data.get("market") or ""),
+        brief=dict(data.get("brief") or {}) if isinstance(data.get("brief"), dict) else {},
         timeline=timeline,
         versions=versions,
     )
