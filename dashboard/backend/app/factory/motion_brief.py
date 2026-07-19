@@ -199,6 +199,19 @@ def vector_3d_waitlist_message(lang: str | None = "ru") -> str:
     return _WAITLIST_MSG.get(code) or _WAITLIST_MSG["en"]
 
 
+def receipt_motion_line(motion_level: str | None) -> str:
+    """One DE receipt line for Path A motion (empty for classic none)."""
+    ml = normalize_motion_level(motion_level)
+    if ml == "css":
+        return "Inklusive: Agency CSS-Motion-Paket aktiviert"
+    if ml == "3d_premium":
+        return (
+            "Hinweis: Echtes 3D (WebGL) ist Waitlist — noch nicht im Lieferumfang. "
+            "Bitte wählen Sie CSS-Motion oder Classic."
+        )
+    return ""
+
+
 def apply_text_to_project_brief(brief: dict[str, Any] | None, text: str) -> dict[str, Any]:
     """Merge user reply into brief (yes to CSS / insist on 3D)."""
     t = (text or "").casefold().strip()

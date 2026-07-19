@@ -153,6 +153,35 @@ def test_stripe_checkout_metadata_includes_motion(monkeypatch: pytest.MonkeyPatc
     assert captured["data"]["metadata[market_code]"] == "US"
 
 
+def test_css_receipt_includes_agency_motion_line(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.delenv("STRIPE_SECRET_KEY", raising=False)
+    monkeypatch.setenv("GENESIS_PAYMENT_SANDBOX", "1")
+    sales, revenue = _real_pipeline(tmp_path)
+    created = sales.create_order(
+        {
+            "business_name": "Motion Buyer",
+            "description": "Zahnarzt Koeln",
+            "email": "m@test.de",
+            "package_id": "basic",
+            "motion_level": "css",
+            "client_legal": {
+                "owner_name": "Dr X",
+                "street": "S 1",
+                "zip": "50667",
+                "city": "Koeln",
+                "email": "m@test.de",
+            },
+        }
+    )
+    oid = created["order_id"]
+    revenue.begin_checkout(oid, success_url="http://x/ok", cancel_url="http://x/c")
+    revenue.complete_sandbox_payment(oid)
+    order = sales.get_order(oid)
+    receipt = str(order.get("client_receipt_text") or "")
+    assert "Inklusive: Agency CSS-Motion-Paket aktiviert" in receipt
+    assert order.get("motion_level") == "css"
+
+
 def test_classic_path_a_zip_has_no_motion_assets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.delenv("STRIPE_SECRET_KEY", raising=False)
     monkeypatch.setenv("GENESIS_PAYMENT_SANDBOX", "1")

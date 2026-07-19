@@ -28,28 +28,38 @@ def _support_email() -> str:
 
 def _render_client_receipt(*, order: dict, status_path: str, paid: float) -> str:
     """DE receipt for the buyer — prefer docs/support_templates/01_receipt_de.txt."""
+    from app.factory.motion_brief import receipt_motion_line
+
     name = str(order.get("business_name") or "").strip() or "Kunde"
     order_id = str(order.get("order_id") or "")
     package = str(order.get("package_name") or order.get("package_id") or "")
     amount = str(order.get("price_label") or f"{paid:.0f}")
     support = _support_email()
+    motion_line = receipt_motion_line(str(order.get("motion_level") or "none"))
     tpl_path = _RECEIPT_TEMPLATE
     if tpl_path.is_file():
         text = tpl_path.read_text(encoding="utf-8")
-        return (
+        rendered = (
             text.replace("{{name}}", name)
             .replace("{{order_id}}", order_id)
             .replace("{{package}}", package)
             .replace("{{amount}}", amount.replace(" €", "").replace("€", "").strip())
             .replace("{{status_url}}", status_path)
             .replace("{{support_email}}", support)
+            .replace("{{motion_line}}", motion_line)
         )
+        # Drop blank placeholder line when motion_level is classic none
+        if not motion_line:
+            rendered = rendered.replace("\n\nWas als Nächstes", "\nWas als Nächstes")
+        return rendered
     price_display = str(order.get("price_label") or f"{paid:.0f} €")
+    motion_extra = f"{motion_line}\n" if motion_line else ""
     return (
         f"Guten Tag,\n\n"
         f"vielen Dank für Ihre Bestellung «{name}».\n\n"
         f"Bestellnr. {order_id}\n"
         f"Paket: {package} — {price_display}\n"
+        f"{motion_extra}"
         f"Status: Bezahlt\n\n"
         f"Status verfolgen: {status_path}\n\n"
         f"Mit freundlichen Grüßen\n{BRAND_NAME}\n{support}"
@@ -267,9 +277,15 @@ class RevenuePipelineService:
         price_display = str(order.get("price_label") or f"{paid:.0f} €")
         order["estimated_delivery_at"] = eta.isoformat()
         order["estimated_hours"] = eta_hours
+        from app.factory.motion_brief import normalize_motion_level, receipt_motion_line
+
+        motion = normalize_motion_level(str(order.get("motion_level") or "none"))
+        motion_note = receipt_motion_line(motion)
+        status_extra = f" {motion_note}" if motion_note else ""
         order["client_status_message"] = (
             "Danke für Ihre Zahlung! Wir haben mit Ihrer Landing Page begonnen. "
             "Den Fortschritt sehen Sie auf der Bestellstatus-Seite."
+            f"{status_extra}"
         )
         order["client_receipt_text"] = _render_client_receipt(
             order=order, status_path=status_path, paid=paid
