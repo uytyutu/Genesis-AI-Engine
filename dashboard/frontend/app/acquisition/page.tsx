@@ -269,6 +269,8 @@ type PipelineLead = QueueItem & {
   source_id?: string;
   win_probability_pct?: number | null;
   niche?: string | null;
+  market?: string | null;
+  hunt_city?: string | null;
   quality_archive?: boolean;
 };
 
@@ -543,35 +545,35 @@ export default function AcquisitionPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <header className="rounded-2xl border border-emerald-500/25 bg-gradient-to-br from-emerald-950/30 to-genesis-panel p-6">
           <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/80">Mission 1.5</p>
-          <h1 className="mt-2 text-2xl font-semibold">Country Desk · Германия</h1>
+          <h1 className="mt-2 text-2xl font-semibold">Country Desk · все рынки</h1>
           <p className="mt-2 text-sm text-genesis-muted">
-            Поиск и подготовка лидов (KFZ, Zahnarzt…). Labeling Farm отдельно на «Ферма».{" "}
-            {status?.law}
+            Пуск крутит hunt/draft round-robin по странам до их лимитов (adaptive паузы
+            пропускаются). Ферма разметки отдельно на «Ферма». {status?.law}
           </p>
           {status && (
             <div className="mt-4 flex flex-wrap gap-2 text-xs">
               <Badge ok={!status.auto_send}>Без автоотправки</Badge>
-              <Badge ok>Auto-draft ≤{status.auto_draft_max_eur ?? 50}€</Badge>
+              <Badge ok>Авто-черновик ≤{status.auto_draft_max_eur ?? 50}€</Badge>
               <Badge ok={(status.manual_review_count ?? 0) === 0}>
-                Manual-review: {status.manual_review_count ?? 0}
+                Ручная проверка: {status.manual_review_count ?? 0}
               </Badge>
-              <Badge ok={status.outreach_send_enabled}>Resend при Approve</Badge>
+              <Badge ok={status.outreach_send_enabled}>Resend при одобрении</Badge>
               <span className="text-genesis-muted self-center">
-                Approve: {status.pending_approval_count} · Отправлено: {status.sent_count}
+                Одобрение: {status.pending_approval_count} · Отправлено: {status.sent_count}
               </span>
             </div>
           )}
           {status?.pilot_catalog && (
             <div className="mt-4 space-y-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-genesis-muted">
               <div>
-                <p className="font-medium text-white/90">Zwei Verkaufsmodelle</p>
+                <p className="font-medium text-white/90">Две модели продаж</p>
                 <p className="mt-1">
                   <span className="text-emerald-300">Auto:</span>{" "}
-                  {status.pilot_catalog.sales_modes?.auto ?? "Landing /order"}
+                  {status.pilot_catalog.sales_modes?.auto ?? "Лендинг /order"}
                 </p>
                 <p className="mt-0.5">
                   <span className="text-sky-300">Expert:</span>{" "}
-                  {status.pilot_catalog.sales_modes?.expert ?? "Pilot Anfrage"}
+                  {status.pilot_catalog.sales_modes?.expert ?? "Пилот · запрос"}
                 </p>
               </div>
               {status.pilot_catalog.offer_formula_de && (
@@ -580,23 +582,23 @@ export default function AcquisitionPage() {
                 </p>
               )}
               <div>
-                <p className="font-medium text-white/90">Katalog</p>
+                <p className="font-medium text-white/90">Каталог</p>
                 <p className="mt-1">
-                  Checkout: {(status.pilot_catalog.checkout_online || []).join(", ")} · Anfrage:{" "}
+                  Оплата: {(status.pilot_catalog.checkout_online || []).join(", ")} · Запрос:{" "}
                   {(status.pilot_catalog.pilot_quote || []).slice(0, 5).join(", ")}
                   {(status.pilot_catalog.pilot_quote || []).length > 5 ? "…" : ""}
                 </p>
               </div>
               {status.pilot_catalog.focus_niches_de && status.pilot_catalog.focus_niches_de.length > 0 && (
                 <div>
-                  <p className="font-medium text-white/90">Fokus-Nischen</p>
+                  <p className="font-medium text-white/90">Фокус-ниши</p>
                   <p className="mt-1">
                     {status.pilot_catalog.focus_niches_de.map((n) => n.label).join(" · ")}
                   </p>
                 </div>
               )}
               <Link href="/services" className="inline-block text-emerald-300 hover:underline">
-                Öffentliche Leistungen /services →
+                Публичные услуги /services →
               </Link>
             </div>
           )}
@@ -688,7 +690,7 @@ export default function AcquisitionPage() {
                     const body = await res.json();
                     setMessage(
                       body.skipped
-                        ? "Adaptive: review ещё не due"
+                        ? "Adaptive: обзор ещё не пора"
                         : `Adaptive review: ${ (body.decisions || []).length } стран`
                     );
                     refresh();
@@ -699,7 +701,7 @@ export default function AcquisitionPage() {
               }}
               className="rounded-lg border border-sky-500/40 px-3 py-1.5 text-sky-100 hover:bg-sky-950/30 disabled:opacity-50"
             >
-              {busy === "adaptive" ? "Review…" : "Adaptive Weekly Review"}
+              {busy === "adaptive" ? "Обзор…" : "Недельный Adaptive-обзор"}
             </button>
             <Link
               href="/#lost-archive"
@@ -711,7 +713,7 @@ export default function AcquisitionPage() {
               href="/"
               className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40"
             >
-              Labeling Farm
+              Ферма разметки
             </Link>
             <Link
               href="/journal"
@@ -729,9 +731,9 @@ export default function AcquisitionPage() {
               }`}
             >
               <p className="font-medium text-white/90">
-                {runnerRunning ? "● Работает" : "○ Остановлен"} · тиков {runner.ticks ?? 0} · leads{" "}
-                {runner.session_leads ?? 0} · drafts {runner.session_drafts ?? 0} · sends{" "}
-                {runner.session_sends ?? 0} · skip {runner.session_skipped ?? 0} · интервал ~
+                {runnerRunning ? "● Работает" : "○ Остановлен"} · тиков {runner.ticks ?? 0} · лиды{" "}
+                {runner.session_leads ?? 0} · черновики {runner.session_drafts ?? 0} · отправки{" "}
+                {runner.session_sends ?? 0} · пропуски {runner.session_skipped ?? 0} · интервал ~
                 {runner.interval_sec ?? "—"}с
               </p>
               <p className="mt-1">{runner.last_message_ru || runner.note_ru}</p>
@@ -929,35 +931,35 @@ export default function AcquisitionPage() {
 
         {status?.adaptive_outreach ? (
           <section className="genesis-card space-y-3 p-5">
-            <h2 className="text-sm font-semibold">Adaptive Outreach</h2>
+            <h2 className="text-sm font-semibold">Adaptive · outreach</h2>
             <p className="text-xs text-genesis-muted">
               {status.adaptive_outreach.note_ru ||
-                "Меняет только лимиты и интервалы. Письма — только через Approve."}
+                "Меняет только лимиты и интервалы. Письма — только после одобрения."}
             </p>
             <div className="grid gap-2 text-sm sm:grid-cols-4">
               <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
-                <span className="text-genesis-muted">Current Health</span>
+                <span className="text-genesis-muted">Здоровье</span>
                 <span className="mt-1 block font-medium text-white">
                   {status.adaptive_outreach.current_health ?? "—"} ·{" "}
                   {status.adaptive_outreach.current_health_label || "—"}
                 </span>
               </p>
               <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
-                <span className="text-genesis-muted">Scaling Status</span>
+                <span className="text-genesis-muted">Масштаб</span>
                 <span className="mt-1 block font-medium text-white">
                   {status.adaptive_outreach.scaling_status || "—"}
                 </span>
               </p>
               <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
-                <span className="text-genesis-muted">Next Review</span>
+                <span className="text-genesis-muted">След. обзор</span>
                 <span className="mt-1 block font-medium text-white text-[11px]">
                   {status.adaptive_outreach.next_review_at
                     ? String(status.adaptive_outreach.next_review_at).slice(0, 16)
-                    : "due soon"}
+                    : "скоро"}
                 </span>
               </p>
               <p className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2">
-                <span className="text-genesis-muted">Interval</span>
+                <span className="text-genesis-muted">Интервал</span>
                 <span className="mt-1 block font-medium text-white">
                   ≥ {status.adaptive_outreach.interval_sec ?? "—"}с
                 </span>
@@ -969,10 +971,10 @@ export default function AcquisitionPage() {
                   <thead className="text-genesis-muted">
                     <tr className="border-b border-genesis-border-subtle">
                       <th className="py-2 pr-2">Страна</th>
-                      <th className="py-2 pr-2">Health</th>
-                      <th className="py-2 pr-2">Soft share</th>
-                      <th className="py-2 pr-2">Recommended</th>
-                      <th className="py-2">Auto Decision</th>
+                      <th className="py-2 pr-2">Здоровье</th>
+                      <th className="py-2 pr-2">Мягкая доля</th>
+                      <th className="py-2 pr-2">Рекоменд.</th>
+                      <th className="py-2">Авто-решение</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -981,7 +983,7 @@ export default function AcquisitionPage() {
                         <td className="py-2 pr-2">
                           {c.flag} {c.name_ru}
                           {c.paused ? (
-                            <span className="ml-1 text-[10px] text-rose-300">PAUSE</span>
+                            <span className="ml-1 text-[10px] text-rose-300">ПАУЗА</span>
                           ) : null}
                         </td>
                         <td className="py-2 pr-2">
@@ -999,7 +1001,7 @@ export default function AcquisitionPage() {
             {status.adaptive_outreach.roi_table?.length ? (
               <div className="overflow-x-auto">
                 <p className="mb-1 text-[11px] font-medium text-white/80">
-                  ROI Dashboard · {status.adaptive_outreach.roi_note_ru || "spent = sent × cost proxy"}
+                  ROI-панель · {status.adaptive_outreach.roi_note_ru || "расход = письма × cost proxy"}
                 </p>
                 <table className="w-full min-w-[32rem] text-left text-xs">
                   <thead className="text-genesis-muted">
@@ -1031,7 +1033,7 @@ export default function AcquisitionPage() {
             ) : null}
             {status.adaptive_outreach.last_decisions?.length ? (
               <div className="space-y-1 text-[11px] text-genesis-muted">
-                <p className="font-medium text-white/80">History (last review)</p>
+                <p className="font-medium text-white/80">История (последний обзор)</p>
                 {status.adaptive_outreach.last_decisions.map((d) => (
                   <p key={`${d.code}-${d.from_cap}-${d.to_cap}`}>
                     {d.code}: {d.from_cap} → {d.to_cap} · {d.decision}
@@ -1047,26 +1049,26 @@ export default function AcquisitionPage() {
             {status.adaptive_outreach.graphs?.days?.length ? (
               <div className="grid gap-2 text-[11px] text-genesis-muted sm:grid-cols-2">
                 <p>
-                  Daily Emails:{" "}
+                  Письма/день:{" "}
                   {(status.adaptive_outreach.graphs.daily_emails || []).slice(-7).join(", ") || "—"}
                 </p>
                 <p>
-                  Reply Rate:{" "}
+                  Ответы %:{" "}
                   {(status.adaptive_outreach.graphs.reply_rate || []).slice(-7).join(", ") || "—"}
                 </p>
                 <p>
-                  Bounce Rate:{" "}
+                  Bounce %:{" "}
                   {(status.adaptive_outreach.graphs.bounce_rate || []).slice(-7).join(", ") || "—"}
                 </p>
                 <p>
-                  Health Score:{" "}
+                  Здоровье:{" "}
                   {(status.adaptive_outreach.graphs.health_score || []).slice(-7).join(", ") || "—"}
                 </p>
                 <p>
-                  Orders: {(status.adaptive_outreach.graphs.orders || []).slice(-7).join(", ") || "—"}
+                  Заказы: {(status.adaptive_outreach.graphs.orders || []).slice(-7).join(", ") || "—"}
                 </p>
                 <p>
-                  Revenue:{" "}
+                  Выручка:{" "}
                   {(status.adaptive_outreach.graphs.revenue || []).slice(-7).join(", ") || "—"}
                 </p>
               </div>
@@ -1132,8 +1134,8 @@ export default function AcquisitionPage() {
             <div>
               <h2 className="text-sm font-semibold">Лиды Country Desk</h2>
               <p className="mt-1 text-xs text-genesis-muted">
-                Старые лиды не удаляются (архив/история). Новые добавляются через Places → ingest.
-                В Approve попадают только подготовленные черновики.
+                При Пуске старые черновики скрываются в архив. Новые лиды появляются по тикам
+                (страна → город → ниша → draft → auto-confirm).
               </p>
             </div>
             <button
@@ -1147,7 +1149,7 @@ export default function AcquisitionPage() {
           </div>
           {pipeline.length === 0 ? (
             <p className="mt-4 text-sm text-genesis-muted">
-              Список пуст. Нажмите «Обновить лиды» (Köln · Kfz) — Places работает.
+              Список пуст. Нажмите ▶ Пуск или «Обновить лиды» — страны по очереди (US→DE→GB…).
             </p>
           ) : (
             <ul className="mt-4 space-y-2">
@@ -1166,11 +1168,13 @@ export default function AcquisitionPage() {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="font-medium text-white">{lead.company_name}</p>
                       <span className="text-[11px] text-emerald-300">
+                        {lead.market ? `${lead.market} · ` : ""}
                         {lead.outreach_status || "none"}
                         {lead.win_probability_pct != null
                           ? ` · win ${lead.win_probability_pct}%`
                           : ""}
                         {lead.niche ? ` · ${lead.niche}` : ""}
+                        {lead.hunt_city ? ` · ${lead.hunt_city}` : ""}
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-genesis-muted">
@@ -1265,7 +1269,7 @@ export default function AcquisitionPage() {
         </section>
 
         <section className="genesis-card p-5">
-          <h2 className="text-sm font-semibold">Generate drafts (Google Places → очередь)</h2>
+          <h2 className="text-sm font-semibold">Сгенерировать черновики (Places → очередь)</h2>
           <p className="mt-2 text-xs text-genesis-muted">
             Автопоиск в фоне запрещён. Это ручной запуск CEO: найти лидов и подготовить черновики.
           </p>
@@ -1314,13 +1318,13 @@ export default function AcquisitionPage() {
               disabled={busy === "generate"}
               className="rounded-lg bg-genesis-accent px-4 py-2 text-sm font-medium text-white shadow-glow hover:brightness-110 disabled:opacity-60"
             >
-              {busy === "generate" ? "Генерируем…" : "Generate drafts"}
+              {busy === "generate" ? "Генерируем…" : "Сгенерировать"}
             </button>
           </div>
         </section>
 
         <section className="genesis-card p-5">
-          <h2 className="text-sm font-semibold">Очередь Approve CEO</h2>
+          <h2 className="text-sm font-semibold">Очередь одобрения CEO</h2>
           {queue.length === 0 ? (
             <p className="mt-3 text-sm text-genesis-muted">
               Пусто. Добавьте лида в{" "}
@@ -1402,7 +1406,7 @@ export default function AcquisitionPage() {
                   </pre>
                   <div className="flex flex-wrap gap-2">
                     <div className="w-full space-y-2 rounded-xl border border-genesis-border-subtle bg-white/[0.02] p-3 text-xs text-genesis-muted">
-                      <p className="font-medium text-white/90">CEO-чеклист · Sniper Approve</p>
+                      <p className="font-medium text-white/90">CEO-чеклист · снайпер-одобрение</p>
                       <p className="opacity-80">
                         Path A = Neustart (новая Landing), не починка. CTA в письме ведёт на /order.
                         KPI партии: сигнал рынка (ответ или клик), не число писем. Авто-ZIP — после
@@ -1471,7 +1475,7 @@ export default function AcquisitionPage() {
                       }
                       className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
                     >
-                      Approve
+                      Одобрить
                     </button>
                     <button
                       type="button"
@@ -1504,7 +1508,7 @@ export default function AcquisitionPage() {
 
         {evidence && (
           <section className="genesis-card p-5">
-            <h2 className="text-sm font-semibold">Evidence</h2>
+            <h2 className="text-sm font-semibold">Доказательства</h2>
             <p className="mt-1 text-xs text-genesis-muted">
               {evidence.milestone_ru ||
                 "KPI: качественные персонализированные контакты → ≥1 осмысленный ответ (не объём писем)."}
@@ -1513,7 +1517,7 @@ export default function AcquisitionPage() {
               <Stat label="Контакты" value={String(evidence.contacted)} />
               <Stat label="Ответы ← цель" value={String(evidence.replied)} />
               <Stat label="Продажи" value={String(evidence.won)} />
-              <Stat label="Reply %" value={`${evidence.reply_rate_pct}%`} />
+              <Stat label="Ответы %" value={`${evidence.reply_rate_pct}%`} />
             </div>
             {evidence.learning ? (
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 text-center text-sm">
@@ -1527,7 +1531,7 @@ export default function AcquisitionPage() {
                   value={String(evidence.learning.pending_lessons)}
                 />
                 <Stat
-                  label="Learning Score"
+                  label="Обучение"
                   value={`${evidence.learning.completeness_pct}%`}
                 />
               </div>

@@ -73,7 +73,7 @@ const FALLBACK_PACKAGES: PackageCard[] = [
 ];
 
 /**
- * Public Path A storefront — DE-first via i18n (browser locale + LanguageSwitcher).
+ * Public Path A storefront — language follows ?market= (plus LanguageSwitcher).
  */
 type MarketOption = {
   code: string;
@@ -98,6 +98,23 @@ export function SitePage() {
       setMarket("DE");
     }
   }, []);
+
+  // ?market= drives storefront language (DE/AT/CH→de, UA→uk, RU→ru, else en)
+  useEffect(() => {
+    const code = market.toUpperCase();
+    const lang =
+      code === "DE" || code === "AT" || code === "CH"
+        ? "de"
+        : code === "UA"
+          ? "uk"
+          : code === "RU"
+            ? "ru"
+            : "en";
+    const current = (i18n.language || "").slice(0, 2).toLowerCase();
+    if (current !== lang) {
+      void i18n.changeLanguage(lang);
+    }
+  }, [market, i18n]);
 
   useEffect(() => {
     const api = publicApiBase();

@@ -115,7 +115,7 @@ class OutreachRunnerService:
         self._log(
             state,
             "start",
-            f"Пуск Country Desk · тик каждые ~{interval}с · письмо только после Approve/квоты",
+            f"Пуск Country Desk · все страны round-robin · тик ~{interval}с · письмо только Approve/квота",
         )
         self._save(state)
         return self.status()
@@ -150,8 +150,9 @@ class OutreachRunnerService:
             "outreach_send_enabled": outreach_on,
             "log": list(state.get("log") or [])[-15:],
             "note_ru": (
-                "Пуск = hunt/draft по интервалу. Повторные компании исключены (exclusion). "
-                "Автоотправка писем только при GENESIS_OUTREACH_ENABLED + Approve/high-win."
+                "Пуск = hunt/draft round-robin по всем enabled странам до их лимитов. "
+                "Паузы adaptive пропускаются. Повторные компании — exclusion. "
+                "Автоотправка только при GENESIS_OUTREACH_ENABLED + Approve/high-win."
             ),
         }
 

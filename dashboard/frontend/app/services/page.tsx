@@ -21,6 +21,50 @@ type GoToMarket = {
   modes?: { auto?: string; expert?: string };
 };
 
+function storefrontCopy(market: string): {
+  title: string;
+  desc: string;
+  order: string;
+  ask: string;
+  marketLabel: string;
+} {
+  const code = market.toUpperCase();
+  if (code === "DE" || code === "AT" || code === "CH") {
+    return {
+      title: `Leistungen · ${BRAND_NAME}`,
+      desc: "Preise und Währung folgen dem gewählten Markt. Website bestellen → Checkout in derselben Währung.",
+      order: "Website bestellen →",
+      ask: "Frage stellen →",
+      marketLabel: "Markt / Preise",
+    };
+  }
+  if (code === "RU") {
+    return {
+      title: `Услуги · ${BRAND_NAME}`,
+      desc: "Цены и валюта соответствуют выбранному рынку. Заказ сайта → оплата в той же валюте.",
+      order: "Заказать сайт →",
+      ask: "Задать вопрос →",
+      marketLabel: "Рынок / цены",
+    };
+  }
+  if (code === "UA") {
+    return {
+      title: `Послуги · ${BRAND_NAME}`,
+      desc: "Ціни та валюта відповідають обраному ринку. Замовлення сайту → оплата в тій самій валюті.",
+      order: "Замовити сайт →",
+      ask: "Поставити запитання →",
+      marketLabel: "Ринок / ціни",
+    };
+  }
+  return {
+    title: `Services · ${BRAND_NAME}`,
+    desc: "Prices and currency follow the selected market. Order a website → checkout in the same currency.",
+    order: "Order website →",
+    ask: "Ask a question →",
+    marketLabel: "Market / prices",
+  };
+}
+
 function CatalogItemCard({ item }: { item: ServiceCatalogItem }) {
   const href = item.cta_href;
   const available = item.available;
@@ -148,27 +192,28 @@ export default function ServicesPage() {
   const categories = useMemo(() => pickCategories(data), [data]);
   const gtm = (data as PricingDisplay & { go_to_market?: GoToMarket })?.go_to_market;
   const markets = data?.markets || [];
+  const copy = storefrontCopy(market);
 
   return (
     <PublicPageShell>
       <PublicPageHero
         badge={`${data?.market_code || market} · ${data?.currency || "EUR"}`}
         badgeVariant="success"
-        title={`Leistungen · ${BRAND_NAME}`}
-        description="Preise und Währung folgen dem gewählten Markt. Website bestellen → Checkout in derselben Währung."
+        title={copy.title}
+        description={copy.desc}
       >
         <ButtonLink href={`/order?market=${market}`} variant="success" size="lg">
-          Website bestellen →
+          {copy.order}
         </ButtonLink>
         <ButtonLink href="/kontakt" variant="primary" size="lg" className="ml-2">
-          Frage stellen →
+          {copy.ask}
         </ButtonLink>
       </PublicPageHero>
 
       {markets.length > 0 ? (
         <section className="mt-6">
           <label className="text-xs text-genesis-muted" htmlFor="market-select">
-            Markt / Preise
+            {copy.marketLabel}
           </label>
           <select
             id="market-select"

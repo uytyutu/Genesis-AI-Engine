@@ -161,7 +161,7 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         ),
         "issues": "Beobachtungen zum Ist-Zustand:",
         "offer": (
-            "Angebot «{package}» · {price:.0f} € (einmalig) — fertige Landing Page "
+            "Angebot «{package}» · {price_label} (einmalig) — fertige Landing Page "
             "in ca. 5–7 Werktagen als HTML-Dateien für Ihren Hosting-Anbieter. "
             "Optional: Einrichtung auf Ihrer Domain durch uns."
         ),
@@ -182,7 +182,7 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         ),
         "issues": "What stood out:",
         "offer": (
-            "«{package}» · €{price:.0f} one-time — live HTML in about 5–7 business days. "
+            "«{package}» · {price_label} one-time — live HTML in about 5–7 business days. "
             "Optional: we put it on your domain."
         ),
         "cta": "Packages (no obligation):\n{order_url}",
@@ -199,7 +199,7 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         ),
         "issues": "What stood out:",
         "offer": (
-            "«{package}» · €{price:.0f} one-time — live HTML in about 5–7 business days. "
+            "«{package}» · {price_label} one-time — live HTML in about 5–7 business days. "
             "Optional: we put it on your domain."
         ),
         "cta": "Packages (no obligation):\n{order_url}",
@@ -217,7 +217,7 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         ),
         "issues": "Что заметили по текущему состоянию:",
         "offer": (
-            "Пакет «{package}» · {price:.0f} € разово — готовая страница за ~5–7 рабочих дней "
+            "Пакет «{package}» · {price_label} разово — готовая страница за ~5–7 рабочих дней "
             "(HTML под ваш хостинг). По желанию поможем выложить на ваш домен."
         ),
         "cta": "Пакеты и оформление (без обязательств):\n{order_url}",
@@ -235,7 +235,7 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         ),
         "issues": "Що помітили зараз:",
         "offer": (
-            "Пакет «{package}» · {price:.0f} € разово — готова сторінка за ~5–7 робочих днів "
+            "Пакет «{package}» · {price_label} разово — готова сторінка за ~5–7 робочих днів "
             "(HTML під ваш хостинг). За бажанням допоможемо викласти на ваш домен."
         ),
         "cta": "Пакети та оформлення (без зобов’язань):\n{order_url}",
@@ -255,7 +255,7 @@ _NICHE_TEMPLATES_DE: dict[str, dict[str, str]] = {
             "schlanke Werkstatt-Landing Page."
         ),
         "offer": (
-            "Angebot «{package}» · {price:.0f} € — Fokus: Termin-/Kontaktweg, Leistungen, "
+            "Angebot «{package}» · {price_label} — Fokus: Termin-/Kontaktweg, Leistungen, "
             "Vertrauen. Fertige Landing Page in ca. 5–7 Werktagen "
             "(HTML, bereit für Ihren Host). Optional: Upload durch uns."
         ),
@@ -270,7 +270,7 @@ _NICHE_TEMPLATES_DE: dict[str, dict[str, str]] = {
             "eine neue, klare Praxis-Landing Page."
         ),
         "offer": (
-            "Angebot «{package}» · {price:.0f} € — Fokus: Patientenanfragen, Terminweg, "
+            "Angebot «{package}» · {price_label} — Fokus: Patientenanfragen, Terminweg, "
             "Praxis-Vertrauen. Fertige Landing Page in ca. 5–7 Werktagen "
             "(HTML, bereit für Ihren Host). Optional: Upload durch uns."
         ),
@@ -283,7 +283,7 @@ _NICHE_TEMPLATES_DE: dict[str, dict[str, str]] = {
             "vor dem Anruf. Statt Flickwerk am alten Auftritt: eine neue, schlanke Landing Page."
         ),
         "offer": (
-            "Angebot «{package}» · {price:.0f} € — Fokus: Anfragen, Leistungen, Vertrauen. "
+            "Angebot «{package}» · {price_label} — Fokus: Anfragen, Leistungen, Vertrauen. "
             "Fertige Landing Page in ca. 5–7 Werktagen (HTML). Optional: Upload durch uns."
         ),
     },
@@ -297,16 +297,20 @@ _LANG_MARKERS: dict[str, tuple[str, ...]] = {
 }
 
 
-def preview_market_templates(*, company: str = "Muster GmbH", price: float = 350.0) -> list[dict[str, str]]:
-    """CEO review samples — one draft per Path A market language."""
+def preview_market_templates(*, company: str = "Muster GmbH", price: float | None = None) -> list[dict[str, str]]:
+    """CEO review samples — one draft per Path A market language (market-local price)."""
+    from app.integration.commerce_engine import resolve_final_offer
+
     svc = OutreachLanguageService()
     out: list[dict[str, str]] = []
     for market, lang in (("DE", "de"), ("US", "en-us"), ("RU", "ru"), ("UA", "uk")):
+        offer = resolve_final_offer("basic", market)
+        sample_price = float(price) if price is not None else float(offer.amount)
         subject, body, used = svc.draft_outreach(
             company=company,
             analysis={"issues": ["Mobile weak", "No clear contact path"]},
-            package={"name": "Landing Basic"},
-            price=price,
+            package={"name": "Landing Basic", "price_label": offer.price_label},
+            price=sample_price,
             fit_reason="Path A preview",
             language=lang,
             row={"market": market, "meta": {"market": market}},
@@ -319,6 +323,7 @@ def preview_market_templates(*, company: str = "Muster GmbH", price: float = 350
                 "style": str(_TEMPLATES.get(used, {}).get("style") or ""),
                 "subject": subject,
                 "body": body,
+                "price_label": offer.price_label,
             }
         )
     return out
@@ -438,11 +443,20 @@ class OutreachLanguageService:
 
         subject = tpl["subject"].format(company=company)
         order_url = public_order_url(market=market)
+        price_label = str(package.get("price_label") or "").strip()
+        if not price_label:
+            try:
+                from app.integration.market_registry import format_amount, get_market
+
+                m = get_market(market or "DE")
+                price_label = format_amount(int(round(float(price))), m.symbol)
+            except Exception:
+                price_label = f"{float(price):.0f} €"
         body = (
             f"{tpl['greeting']}\n\n"
             f"{tpl['intro'].format(company=company)}\n\n"
             f"{tpl['issues']}\n{issues_block}\n\n"
-            f"{tpl['offer'].format(package=package.get('name', 'Web'), price=price)}\n\n"
+            f"{tpl['offer'].format(package=package.get('name', 'Web'), price_label=price_label)}\n\n"
             f"{tpl['cta'].format(order_url=order_url)}\n\n"
             f"{tpl['close'].format(brand=BRAND_NAME)}\n"
         )

@@ -196,8 +196,49 @@ class AcquisitionStudioService:
             )
         return self._runner
 
+    def archive_stale_pipeline_for_fresh_run(self) -> dict[str, Any]:
+        """Hide old visible leads so Start shows a clean multi-market queue.
+
+        Does not delete history — quality_archive only. Sent/won/lost stay visible
+        for analytics; pending/none/manual_review/approved draft noise is parked.
+        """
+        archived = 0
+        kept_sent = 0
+        for row in self._opportunity._load_rows():
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
+            status = str(row.get("status") or "")
+            outreach = str(row.get("outreach_status") or "")
+            if status in ("won", "lost") or outreach == "sent":
+                kept_sent += 1
+                continue
+            self._archive_quality(
+                row,
+                reason="fresh_multi_market_start",
+                detail="Скрыто при Пуске · старый список; страны крутятся заново",
+            )
+            archived += 1
+        return {
+            "ok": True,
+            "archived": archived,
+            "kept_sent_or_closed": kept_sent,
+            "message_ru": (
+                f"Список очищен для нового пуска: скрыто {archived}, "
+                f"оставлено отправленных/закрытых {kept_sent}"
+            ),
+        }
+
     def runner_start(self) -> dict[str, Any]:
-        return self._get_runner().start()
+        cleared = self.archive_stale_pipeline_for_fresh_run()
+        status = self._get_runner().start()
+        status["pipeline_cleared"] = cleared
+        status["last_message_ru"] = (
+            f"{status.get('last_message_ru') or 'Пуск'} · "
+            f"старые лиды скрыты ({cleared.get('archived', 0)}) · "
+            "hunt round-robin по всем странам до лимитов"
+        )
+        return status
 
     def runner_stop(self) -> dict[str, Any]:
         return self._get_runner().stop()
@@ -482,6 +523,8 @@ class AcquisitionStudioService:
         language: str = "de",
         throttle_ms: int = 250,
         force_skip_check: bool = False,
+        market_code: str | None = None,
+        search_region: str | None = None,
     ) -> dict:
         """CEO-triggered vertical slice:
         Places search → upsert opportunities (place_id) → draft outreach.
@@ -495,6 +538,8 @@ class AcquisitionStudioService:
         hunt = self._hunt()
         city = (city or "").strip() or hunt["target_city"]
         query = query.strip()
+        market = (market_code or "").strip().upper() or None
+        region = (search_region or hunt.get("search_region") or "de").strip().lower()
         if not city or not query:
             raise ValueError("invalid_query")
         from app.integration.global_spider_service import _city_coords
@@ -504,7 +549,7 @@ class AcquisitionStudioService:
             leads = self._places.search_text(
                 query=f"{query} {city}",
                 language=language,
-                region=hunt["search_region"],
+                region=region,
                 limit=limit,
                 throttle_ms=throttle_ms,
                 lat=coords[0] if coords else None,
@@ -539,6 +584,9 @@ class AcquisitionStudioService:
                         "place_id": lead.place_id,
                         "address": lead.address,
                         "types": lead.types,
+                        "market": market,
+                        "hunt_city": city,
+                        "hunt_query": query,
                     },
                 },
             )
@@ -552,6 +600,16 @@ class AcquisitionStudioService:
             row = result.get("row")
             if not row:
                 continue
+
+            if market:
+                meta = dict(row.get("meta") or {})
+                if meta.get("market") != market or meta.get("hunt_city") != city:
+                    meta["market"] = market
+                    meta["hunt_city"] = city
+                    meta["hunt_query"] = query
+                    row["meta"] = meta
+                    row["market"] = market
+                    self._opportunity._save_rows(self._replace_row(str(row["id"]), row))
 
             excluded, _reason = self._exclusion.check(
                 email=str(row.get("contact") or ""),
@@ -601,6 +659,8 @@ class AcquisitionStudioService:
             "skipped_excluded": skipped_excluded,
             "force_skip_check": force_skip_check,
             "city": city,
+            "market_code": market,
+            "search_region": region,
             "search_radius": hunt["search_radius"],
             "results": [l.__dict__ for l in leads],
         }
@@ -654,8 +714,32 @@ class AcquisitionStudioService:
                 row["contact"] = channels["primary_email"]
 
         package_id, price, rationale = self._recommend_pricing(row, analysis)
-        packages = {p["id"]: p for p in self._sales.packages()}
-        package = packages.get(package_id, packages["basic"])
+        from app.integration.outreach_language_service import resolve_market_from_row
+
+        market = resolve_market_from_row(row) or "DE"
+        try:
+            from app.integration.commerce_engine import resolve_final_offer
+
+            offer = resolve_final_offer(package_id, market)
+            _names = {
+                "basic": "Landing Basic",
+                "business": "Landing Business",
+                "premium": "Landing Premium",
+            }
+            package = {
+                "id": package_id,
+                "name": _names.get(package_id, str(package_id)),
+                "price_eur": float(offer.amount),
+                "price_label": offer.price_label,
+                "currency": offer.currency,
+                "symbol": offer.symbol,
+                "market_code": offer.market_code,
+            }
+            price = float(offer.amount)
+        except Exception:
+            packages = {p["id"]: p for p in self._sales.packages()}
+            package = dict(packages.get(package_id, packages["basic"]))
+            package.setdefault("price_label", f"{price:.0f} €")
 
         audit_md = build_audit_report_md(
             row,
@@ -673,9 +757,7 @@ class AcquisitionStudioService:
             fit_reason=row.get("fit_reason", ""),
             row=row,
         )
-        from app.integration.outreach_language_service import resolve_market_from_row
 
-        market = resolve_market_from_row(row) or "DE"
         meta = dict(row.get("meta") or {})
         meta["outreach_language"] = lang
         meta["market"] = market
@@ -933,13 +1015,27 @@ class AcquisitionStudioService:
 
     def approval_queue(self, limit: int = 20) -> list[dict]:
         rows = self._opportunity._load_rows()
-        pending = [r for r in rows if r.get("outreach_status") == "pending_approval"]
+        pending = []
+        for r in rows:
+            if r.get("outreach_status") != "pending_approval":
+                continue
+            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
+            pending.append(r)
         pending.sort(key=lambda r: int(r.get("score") or 0), reverse=True)
         return [self._queue_item(r) for r in pending[:limit]]
 
     def manual_review_queue(self, limit: int = 20) -> list[dict]:
         rows = self._opportunity._load_rows()
-        pending = [r for r in rows if r.get("outreach_status") == "manual_review"]
+        pending = []
+        for r in rows:
+            if r.get("outreach_status") != "manual_review":
+                continue
+            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
+            pending.append(r)
         pending.sort(key=lambda r: float(r.get("recommended_price_eur") or 0), reverse=True)
         return [self._queue_item(r) for r in pending[:limit]]
 
@@ -966,6 +1062,8 @@ class AcquisitionStudioService:
             "price_tier": meta.get("price_tier"),
             "last_market_lesson": meta.get("last_market_lesson"),
             "crm_status": r.get("status"),
+            "market": meta.get("market") or r.get("market"),
+            "hunt_city": meta.get("hunt_city"),
         }
 
     def pipeline_leads(self, *, limit: int = 50) -> list[dict]:
@@ -984,6 +1082,8 @@ class AcquisitionStudioService:
             item["source_id"] = r.get("source_id")
             item["win_probability_pct"] = meta.get("win_probability_pct")
             item["niche"] = meta.get("niche")
+            item["market"] = meta.get("market") or r.get("market")
+            item["hunt_city"] = meta.get("hunt_city")
             item["quality_archive"] = bool(meta.get("quality_archive"))
             out.append(item)
         out.sort(
@@ -1057,36 +1157,69 @@ class AcquisitionStudioService:
         query: str | None = None,
         city: str | None = None,
         auto_confirm: bool = True,
+        market: str | None = None,
     ) -> dict[str, Any]:
-        """Одна кнопка «Обновить лиды»: Places → ingest → prepare → high-win confirm."""
-        hunt = self._hunt()
-        city = (city or hunt["target_city"]).strip()
-        niches = hunt.get("profitable_niches") or ["Kfz-Werkstatt"]
-        query = (query or niches[0]).strip()
-        drafts = self.generate_drafts_from_places(
-            city=city,
-            query=query,
-            limit=limit,
-            force_skip_check=True,
+        """Одна кнопка / тик runner: Places → ingest → prepare → high-win confirm.
+
+        Без явного market/city — round-robin по всем enabled странам (до лимитов,
+        паузы adaptive пропускаются), чтобы не долбить только DE / один IP-таргет.
+        """
+        from app.integration.outreach_hunt_rotation import HuntRotationCursor
+
+        paused = (self._adaptive._load_state().get("paused_markets") or {})
+        cursor = HuntRotationCursor(self._memory_dir)
+        slot = cursor.next_slot(
+            paused_markets=paused,
+            effective_cap_fn=self._adaptive.effective_daily_cap,
+            market_override=market,
+            city_override=city,
+            query_override=query,
         )
-        # Also run auto_prepare on existing raw leads (status none)
+        if not slot:
+            return {
+                "ok": False,
+                "message_ru": "Нет активных рынков для hunt (все на паузе или cap=0)",
+                "drafts": {"created": 0, "drafted": 0},
+                "pipeline": self.pipeline_leads(limit=40),
+                "gate_funnel": self.gate_funnel(),
+            }
+
+        city_s = str(slot["city"])
+        query_s = str(slot["query"])
+        market_s = str(slot["market"])
+        language = str(slot.get("language") or "en")
+        region = str(slot.get("region") or market_s.lower())
+
+        drafts = self.generate_drafts_from_places(
+            city=city_s,
+            query=query_s,
+            limit=limit,
+            language=language,
+            force_skip_check=True,
+            market_code=market_s,
+            search_region=region,
+        )
         prep = self.auto_prepare_discovery_leads(limit=limit, min_score=40, min_win_pct=40)
         confirm = (
             self.auto_confirm_high_probability(min_win_pct=HIGH_WIN_AUTO_CONFIRM_PCT)
             if auto_confirm
             else {"confirmed": 0, "message_ru": "auto_confirm выкл."}
         )
+        flag = slot.get("flag") or ""
         return {
             "ok": True,
-            "city": city,
-            "query": query,
+            "city": city_s,
+            "query": query_s,
+            "market_code": market_s,
+            "slot_index": slot.get("slot_index"),
+            "slots_total": slot.get("slots_total"),
             "drafts": drafts,
             "auto_prepare": prep,
             "auto_confirm": confirm,
             "pipeline": self.pipeline_leads(limit=40),
             "gate_funnel": self.gate_funnel(),
             "message_ru": (
-                f"Обновлено · {city} · «{query}»: "
+                f"Обновлено · {flag}{market_s} · {city_s} · «{query_s}»: "
                 f"Places created={drafts.get('created', 0)} drafted={drafts.get('drafted', 0)} · "
                 f"prepare={prep.get('prepared', 0)}+manual={prep.get('manual_review', 0)} · "
                 f"auto-confirm={confirm.get('confirmed', 0)}"

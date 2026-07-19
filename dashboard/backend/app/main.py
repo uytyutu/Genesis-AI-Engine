@@ -1406,6 +1406,7 @@ def acquisition_refresh_leads(body: dict | None = None) -> dict:
         limit=max(1, min(20, int(body.get("limit") or 8))),
         query=str(body.get("query") or "").strip() or None,
         city=str(body.get("city") or "").strip() or None,
+        market=str(body.get("market") or "").strip().upper() or None,
         auto_confirm=bool(body.get("auto_confirm", True)),
     )
 

@@ -132,8 +132,8 @@ def switch(target: str) -> None:
 
     ENV_PATH.parent.mkdir(parents=True, exist_ok=True)
     ENV_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"OK switched .env.local → {target}")
-    print("Restart Genesis.exe (Stop → Start) so backend reloads keys.")
+    print(f"OK switched .env.local -> {target}")
+    print("Restart Genesis.exe (Stop -> Start) so backend reloads keys.")
     status()
 
 

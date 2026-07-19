@@ -90,20 +90,20 @@ export const CLIENT_NAV_LINKS = [
 
 export const CEO_PRIMARY_LINKS = [
   { href: "/business", label: "Бизнес", hint: "Mission 2 · KPI" },
-  { href: "/acquisition", label: "Поиск лидов", hint: "Country Desk · DE · Path A" },
+  { href: "/acquisition", label: "Поиск лидов", hint: "Country Desk · все рынки · Path A" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
-  { href: "/", label: "Ферма", hint: "Labeling · Toloka (не Desk)" },
+  { href: "/", label: "Ферма", hint: "Разметка · Toloka (не Desk)" },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
-  { href: "/finance", label: "Finanzen & Steuer", hint: "Einnahmen · Belege · Export" },
+  { href: "/finance", label: "Финансы и налоги", hint: "Доходы · чеки · экспорт" },
 ] as const;
 
 export const CEO_STUDIO_LINKS = [
-  { href: "/cursor", label: "Development", hint: "Cursor · код" },
-  { href: "/acquisition", label: "Country Desk", hint: "Германия · sniper · Outbox" },
+  { href: "/cursor", label: "Разработка", hint: "Cursor · код" },
+  { href: "/acquisition", label: "Country Desk", hint: "Все рынки · снайпер · Outbox" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Как видит покупатель" },
-  { href: "/tiktok-horizon", label: "Video Factory", hint: "Horizon · TikTok first · kill switch" },
+  { href: "/tiktok-horizon", label: "Видео-фабрика", hint: "Horizon · TikTok · kill switch" },
   { href: "/#lost-archive", label: "Архив отказов", hint: "lost_reasons · не удалять" },
-  { href: "/create", label: "Factory", hint: "Сборка Landing" },
+  { href: "/create", label: "Фабрика", hint: "Сборка Landing" },
   { href: "/ai", label: "AI Hub", hint: "Помощник CEO" },
   { href: "/growth", label: "Аналитика", hint: "Mission 2 · Конверсия" },
 ] as const;
