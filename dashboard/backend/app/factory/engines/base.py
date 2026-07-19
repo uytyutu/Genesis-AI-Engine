@@ -15,6 +15,20 @@ class EngineError(Exception):
         super().__init__(f"{code}: {message}")
 
 
+class ClaudeEngineAuthError(EngineError):
+    """Missing Anthropic/OpenRouter credentials for claude research engine."""
+
+    def __init__(self, message: str | None = None) -> None:
+        super().__init__(
+            "claude_no_key",
+            message
+            or (
+                "GENESIS_ANTHROPIC_API_KEY (or OpenRouter key) required for claude engine. "
+                "No silent Classic fallback."
+            ),
+        )
+
+
 @dataclass
 class EngineRequest:
     description: str

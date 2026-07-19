@@ -5,10 +5,11 @@ Path A commerce always uses classic. Claude is research-only via router/CLI.
 
 from __future__ import annotations
 
-from app.factory.engines.base import EngineError, EngineRequest, EngineResult
+from app.factory.engines.base import ClaudeEngineAuthError, EngineError, EngineRequest, EngineResult
 from app.factory.engines.router import generate_with_engine, resolve_research_engine
 
 __all__ = [
+    "ClaudeEngineAuthError",
     "EngineError",
     "EngineRequest",
     "EngineResult",

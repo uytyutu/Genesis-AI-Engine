@@ -25,8 +25,11 @@ ROOT = Path(__file__).resolve().parents[1]
 BACKEND = ROOT / "dashboard" / "backend"
 sys.path.insert(0, str(BACKEND))
 
-from app.factory.engines.base import EngineError, EngineRequest  # noqa: E402
+from app.factory.engines.base import ClaudeEngineAuthError, EngineError, EngineRequest  # noqa: E402
 from app.factory.engines.router import generate_with_engine  # noqa: E402
+from app.factory.engines.animated_research_pricing import (  # noqa: E402
+    list_animated_research_prices,
+)
 
 OUT_DIR = BACKEND / "_research_claude_engine"
 
@@ -130,6 +133,15 @@ def _zip_bytes(html: str, name: str = "index.html") -> bytes:
     return buf.getvalue()
 
 
+def _artifact_names(engine: str) -> tuple[str, str, str]:
+    """Return (html_name, zip_name, meta_name) with research prefixes."""
+    if engine == "claude":
+        prefix = "claude_research_"
+    else:
+        prefix = "classic_research_"
+    return f"{prefix}index.html", f"{prefix}site.zip", f"{prefix}meta.json"
+
+
 def _run_one(engine: str, brief: dict, run_dir: Path) -> dict:
     req = EngineRequest(
         description=brief["description"],
@@ -143,6 +155,7 @@ def _run_one(engine: str, brief: dict, run_dir: Path) -> dict:
     )
     niche_dir = run_dir / brief["id"] / engine
     niche_dir.mkdir(parents=True, exist_ok=True)
+    html_name, zip_name, meta_name = _artifact_names(engine)
     started = time.perf_counter()
     row: dict = {
         "brief_id": brief["id"],
@@ -154,14 +167,16 @@ def _run_one(engine: str, brief: dict, run_dir: Path) -> dict:
         "file_count": 2,
         "error": None,
         "preview": None,
+        "html_file": html_name,
+        "zip_file": zip_name,
     }
     try:
         result = generate_with_engine(engine, req)
         elapsed = time.perf_counter() - started
-        html_path = niche_dir / "index.html"
+        html_path = niche_dir / html_name
         html_path.write_text(result.html, encoding="utf-8")
         zdata = _zip_bytes(result.html)
-        (niche_dir / "site.zip").write_bytes(zdata)
+        (niche_dir / zip_name).write_bytes(zdata)
         meta = {
             **row,
             "ok": True,
@@ -171,15 +186,23 @@ def _run_one(engine: str, brief: dict, run_dir: Path) -> dict:
             "preview": str(html_path.relative_to(run_dir)),
             "engine_meta": result.meta,
         }
-        (niche_dir / "meta.json").write_text(
+        (niche_dir / meta_name).write_text(
             json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         return meta
+    except ClaudeEngineAuthError as exc:
+        elapsed = time.perf_counter() - started
+        row["elapsed_sec"] = round(elapsed, 3)
+        row["error"] = {"code": exc.code, "message": exc.message, "type": "ClaudeEngineAuthError"}
+        (niche_dir / meta_name).write_text(
+            json.dumps(row, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        return row
     except EngineError as exc:
         elapsed = time.perf_counter() - started
         row["elapsed_sec"] = round(elapsed, 3)
         row["error"] = {"code": exc.code, "message": exc.message}
-        (niche_dir / "meta.json").write_text(
+        (niche_dir / meta_name).write_text(
             json.dumps(row, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         return row
@@ -187,10 +210,29 @@ def _run_one(engine: str, brief: dict, run_dir: Path) -> dict:
         elapsed = time.perf_counter() - started
         row["elapsed_sec"] = round(elapsed, 3)
         row["error"] = {"code": "unexpected", "message": str(exc)}
-        (niche_dir / "meta.json").write_text(
+        (niche_dir / meta_name).write_text(
             json.dumps(row, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         return row
+
+
+def _print_prices() -> int:
+    rows = list_animated_research_prices()
+    print("Animated Landing — RESEARCH prices only (NOT in Path A checkout)")
+    print(f"{'Market':<6} {'Cur':<5} {'Basic':<14} {'Business':<14} {'Premium':<14}")
+    for row in rows:
+        pkgs = row["packages"]
+        print(
+            f"{row['market_code']:<6} {row['currency']:<5} "
+            f"{pkgs['basic']['animated_label']:<14} "
+            f"{pkgs['business']['animated_label']:<14} "
+            f"{pkgs['premium']['animated_label']:<14}"
+        )
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    out = OUT_DIR / "animated_research_prices.json"
+    out.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"\nWrote {out} (gitignored folder)")
+    return 0
 
 
 def main() -> int:
@@ -201,7 +243,15 @@ def main() -> int:
         help="Comma list: classic,claude",
     )
     parser.add_argument("--limit", type=int, default=0, help="Limit briefs (0 = all 10)")
+    parser.add_argument(
+        "--prices-only",
+        action="store_true",
+        help="Print research Animated prices per market and exit (no generation)",
+    )
     args = parser.parse_args()
+    if args.prices_only:
+        return _print_prices()
+
     engines = [e.strip().lower() for e in args.engines.split(",") if e.strip()]
     briefs = BRIEFS[: args.limit] if args.limit and args.limit > 0 else BRIEFS
 
@@ -236,7 +286,10 @@ def main() -> int:
     classic_ok = sum(1 for r in results if r["engine"] == "classic" and r.get("ok"))
     claude_ok = sum(1 for r in results if r["engine"] == "claude" and r.get("ok"))
     print(f"Classic OK: {classic_ok}  Claude OK: {claude_ok}", flush=True)
-    return 0 if classic_ok == len(briefs) else 1
+    if "claude" in engines and claude_ok == 0:
+        # Auth/hard fail is expected without key — do not imply Path A broke.
+        return 2 if classic_ok == len(briefs) or "classic" not in engines else 1
+    return 0 if ("classic" not in engines or classic_ok == len(briefs)) else 1
 
 
 if __name__ == "__main__":

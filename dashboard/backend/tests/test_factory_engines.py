@@ -6,10 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from app.factory.engines.base import EngineError, EngineRequest
+from app.factory.engines.base import ClaudeEngineAuthError, EngineError, EngineRequest
 from app.factory.engines.classic_engine import generate as classic_generate
 from app.factory.engines.claude_engine import generate as claude_generate
 from app.factory.engines.router import generate_with_engine, resolve_research_engine
+from app.factory.engines.animated_research_pricing import list_animated_research_prices
 from app.factory.factory_service import FactoryService
 
 
@@ -42,7 +43,7 @@ def test_claude_engine_hard_fails_without_key(monkeypatch):
     monkeypatch.delenv("GENESIS_ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("GENESIS_OPENROUTER_API_KEY", raising=False)
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
-    with pytest.raises(EngineError) as ei:
+    with pytest.raises(ClaudeEngineAuthError) as ei:
         claude_generate(
             EngineRequest(
                 description="Dental clinic Austin",
@@ -52,13 +53,14 @@ def test_claude_engine_hard_fails_without_key(monkeypatch):
             )
         )
     assert ei.value.code == "claude_no_key"
+    assert isinstance(ei.value, EngineError)
 
 
 def test_router_claude_does_not_fallback_to_classic(monkeypatch):
     monkeypatch.delenv("GENESIS_ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("GENESIS_OPENROUTER_API_KEY", raising=False)
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
-    with pytest.raises(EngineError) as ei:
+    with pytest.raises(ClaudeEngineAuthError) as ei:
         generate_with_engine(
             "claude",
             EngineRequest(description="SaaS landing", business_name="Acme", market_code="US"),
@@ -87,3 +89,15 @@ def test_path_a_factory_still_classic_only(tmp_path: Path):
     assert (product_dir / "impressum.html").is_file()
     html = (product_dir / "index.html").read_text(encoding="utf-8")
     assert "<html" in html.lower()
+
+
+def test_animated_research_prices_not_checkout():
+    rows = list_animated_research_prices()
+    by_code = {r["market_code"]: r for r in rows}
+    assert "DE" in by_code and "US" in by_code and "FR" in by_code
+    de = by_code["DE"]["packages"]
+    assert de["basic"]["classic_amount"] == 350
+    assert de["basic"]["animated_amount"] > de["basic"]["classic_amount"]
+    assert de["premium"]["animated_amount"] > de["business"]["animated_amount"]
+    us = by_code["US"]["packages"]
+    assert us["basic"]["animated_amount"] > 0

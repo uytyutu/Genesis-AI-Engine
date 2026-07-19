@@ -12,7 +12,7 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-from app.factory.engines.base import EngineError, EngineRequest, EngineResult
+from app.factory.engines.base import ClaudeEngineAuthError, EngineError, EngineRequest, EngineResult
 
 ENGINE_ID = "claude"
 
@@ -20,15 +20,11 @@ _HTML_FENCE = re.compile(r"```(?:html)?\s*([\s\S]*?)```", re.I)
 
 
 def _resolve_llm() -> tuple[str, str, str]:
-    """Return (api_key, base_url, model). Raises EngineError if no key."""
+    """Return (api_key, base_url, model). Raises ClaudeEngineAuthError if no key."""
     openrouter = (os.getenv("GENESIS_OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_KEY") or "").strip()
     key = (os.getenv("GENESIS_ANTHROPIC_API_KEY") or openrouter or "").strip()
     if not key:
-        raise EngineError(
-            "claude_no_key",
-            "GENESIS_ANTHROPIC_API_KEY (or OpenRouter key) required for claude engine. "
-            "No silent Classic fallback.",
-        )
+        raise ClaudeEngineAuthError()
     base = (
         os.getenv("GENESIS_ANTHROPIC_BASE_URL")
         or os.getenv("GENESIS_OPENROUTER_BASE_URL")
