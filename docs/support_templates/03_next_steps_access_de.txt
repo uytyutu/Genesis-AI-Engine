@@ -1,30 +1,52 @@
-Betreff: Nächste Schritte — Zugänge für Veröffentlichung · {{order_id}}
+Betreff: Nächste Schritte — Veröffentlichung · {{order_id}}
 
 Guten Tag {{name}},
 
-Ihr Paket {{package}} umfasst Hilfe beim Upload bzw. die vollständige Veröffentlichung.
+Ihr Paket {{package}} — die Website-Dateien sind bereit.
 
-Damit wir die Seite live schalten können, brauchen wir von Ihnen:
+Sie haben das Paket {{package}} gewählt. Inklusive: {{included}}.
 
-1. Hosting-Zugang
-   - Anbieter (z. B. Hetzner, IONOS, All-Inkl, Netcup) und Tarif, falls bekannt
-   - FTP / SFTP / Dateimanager-Zugang ODER temporärer Zugang zum Kundenkonto
-   - Passwörter bitte nur über sicheren Kanal; nach Go-live ändern
+Sie haben zwei Wege:
 
-2. Domain (falls schon vorhanden)
-   - Domainname
-   - Zugang zum Registrar ODER Bestätigung, dass Sie DNS-Einträge nach unserer Anleitung setzen
+────────────────────────────────
+Option 1 — ZIP Only
+────────────────────────────────
+Laden Sie das ZIP von Ihrer Status-Seite herunter und veröffentlichen Sie selbst
+(siehe README_PUBLISH.txt im Archiv).
 
-3. Optional
-   - Logo-Datei (PNG)
-   - Google-Maps-Link
-   - Analytics-ID (nur Premium)
+────────────────────────────────
+Option 2 — Assisted Deployment
+────────────────────────────────
+Wir helfen bei der Veröffentlichung. Auf der Status-Seite wählen Sie
+„Veröffentlichung starten“ und Ihren Hosting-Anbieter
+(z. B. IONOS, Hetzner, Cloudflare Pages, Vercel).
+
+Wichtig — Eigentum bleibt bei Ihnen:
+✔ Website läuft
+✔ Domain gehört Ihnen
+✔ Hosting-Konto gehört Ihnen
+✔ SSL und DNS gehören Ihnen
+✔ Alle Rechnungen gehen an Sie
+
+Virtus Core speichert NICHT:
+✗ Hosting-Passwort
+✗ Domain-Passwort
+✗ Bankkarten
+✗ Dauerhaften Zugang
+
+Variante A (bevorzugt):
+Sie legen einen temporären Benutzer an oder laden uns als Helfer ein
+(wenn Ihr Hoster das unterstützt). Nach Go-live entfernen Sie den Zugang —
+Sie bleiben alleiniger Eigentümer.
+
+Variante B:
+Falls kein temporärer Zugang möglich ist, bleiben Sie eingeloggt und folgen
+der Anleitung; Hilfe per Chat oder Anruf.
 
 Wir verkaufen kein Hosting und stellen keine Rechnungen für Domain/Hosting.
 Vertrag und Zahlung laufen direkt zwischen Ihnen und dem Anbieter.
-Wir richten die Website mit Ihren Zugangsdaten ein.
 
-Sobald die Zugänge da sind, melden wir den voraussichtlichen Go-live-Termin.
+Status: {{status_url}}
 
 Mit freundlichen Grüßen
 Virtus Core

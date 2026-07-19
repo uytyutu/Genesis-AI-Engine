@@ -289,6 +289,12 @@ Virtus Core verkauft die Website und den Einrichtungs-Service — nicht Domain/H
 3. Impressum und Datenschutz nur freigeben, wenn alle Angaben stimmen.
 4. Dateien auf Ihr Hosting laden (FTP / Dateimanager).
 
+## Assisted Deployment (optional)
+Auf der Bestellstatus-Seite können Sie „ZIP Only“ (selbst veröffentlichen) oder
+„Assisted Deployment“ (Hilfe bei der Veröffentlichung) wählen.
+Virtus Core speichert keine Hosting-Passwörter — Sie bleiben Eigentümer von Domain,
+Hosting, SSL und DNS. Details: Variante A (temporärer Zugang) oder B (Anleitung + Chat).
+
 Nicht im ZIP-Preis: Domain-Kauf, Hosting-Miete, laufende Anbieter-Gebühren.
 Hinweis: Rechtsseiten sind Vorlagen — keine Rechtsberatung.
 
@@ -312,6 +318,12 @@ Domain and hosting contracts are between you and your provider — we are not a 
 2. Open index.html in your browser.
 3. Review privacy.html and terms.html (templates — not legal advice). Replace placeholders before go-live.
 4. Upload files to your host (drag-and-drop / FTP / CLI).
+
+## Assisted Deployment (optional)
+On your order status page you can choose “ZIP Only” (self-publish) or
+“Assisted Deployment” (we help you go live). Virtus Core never stores hosting
+passwords — you keep domain, hosting, SSL, and DNS. Prefer a temporary helper
+account (Variant A) or stay logged in with guided steps (Variant B).
 
 Not included in the package price: domain purchase, hosting fees, ongoing provider charges.
 
@@ -342,6 +354,8 @@ Add the listed documents with your counsel before go-live.
 
 Hosting: upload index.html via your provider (Cloudflare Pages, Vercel, Netlify, or local host).
 
+On the order status page you may choose ZIP Only or Assisted Deployment (no hosting passwords stored in Virtus).
+
 Built by Factory · Virtus Core.
 """
 
@@ -355,6 +369,9 @@ Virtus Core передає готові HTML-файли. Домен і хост�
 
 Хостинг: Cloudflare Pages, Vercel, Netlify або ваш провайдер.
 
+На сторінці статусу замовлення можна обрати ZIP Only або Assisted Deployment
+(паролі хостингу у Virtus не зберігаються).
+
 Factory · Virtus Core.
 """
 
@@ -367,6 +384,9 @@ Virtus Core передаёт готовые HTML-файлы. Домен и хо�
 Не используйте немецкий Impressum.
 
 Хостинг: Cloudflare Pages, Vercel, Netlify или ваш провайдер.
+
+На странице статуса заказа можно выбрать ZIP Only или Assisted Deployment
+(пароли хостинга в Virtus не хранятся).
 
 Factory · Virtus Core.
 """
@@ -457,20 +477,49 @@ _DEFAULT_LEGAL_CHECKLIST = [
 ]
 
 
-def deploy_readme(market_code: str | None) -> str:
+def deploy_readme(market_code: str | None, package_id: str | None = None) -> str:
     code = normalize_market(market_code)
     pack = market_legal_pack(code)
     if pack == "de_impressum":
-        return _README_DE
-    if pack == "us_privacy":
-        return _README_US
-    if pack == "uk_privacy":
-        return _README_UK
-    if code == "UA":
-        return _README_UA
-    if code == "RU":
-        return _README_RU
-    return _README_PLACEHOLDER
+        body = _README_DE
+    elif pack == "us_privacy":
+        body = _README_US
+    elif pack == "uk_privacy":
+        body = _README_UK
+    elif code == "UA":
+        body = _README_UA
+    elif code == "RU":
+        body = _README_RU
+    else:
+        body = _README_PLACEHOLDER
+    return _with_package_confirmation(body, package_id)
+
+
+def _with_package_confirmation(body: str, package_id: str | None) -> str:
+    """Prefix README with Layer A 'you paid for X' confirmation."""
+    try:
+        from app.integration.sales_order_service import (
+            package_display_name,
+            package_included_summary,
+        )
+    except Exception:
+        return body
+    name = package_display_name(package_id)
+    included = package_included_summary(package_id)
+    if not included:
+        return body
+    head = body.lstrip()[:120].lower()
+    if body.lstrip().startswith("# Website veröffentlichen"):
+        line = f"Sie haben das Paket {name} gewählt. Inklusive: {included}.\n\n"
+    elif body.lstrip().startswith("# Publish"):
+        line = f"You chose package {name}. Included: {included}.\n\n"
+    elif "опублік" in head:
+        line = f"Ви обрали пакет {name}. Включено: {included}.\n\n"
+    elif "опублик" in head:
+        line = f"Вы выбрали пакет {name}. Включено: {included}.\n\n"
+    else:
+        line = f"Package: {name}. Included: {included}.\n\n"
+    return line + body
 
 
 def market_legal_checklist(market_code: str | None) -> list[str]:

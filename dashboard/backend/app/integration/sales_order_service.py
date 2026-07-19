@@ -41,42 +41,78 @@ _PACKAGES = {
         "id": "basic",
         "name": "Landing Basic",
         "price_eur": 350,
+        "tagline": "Schöner moderner Auftritt — bereit zur Veröffentlichung",
+        "included_summary": (
+            "moderne Landing Page, Design nach Branche, WhatsApp, Kontaktformular, "
+            "Bewertungsblock, ZIP und Publish-Anleitung, Rechtsvorlagen (falls Markt bereit)"
+        ),
         "deliverables": [
-            "Fertige Landing Page (One-Page, mobil)",
+            "Fertige moderne Landing Page (mobil) — Design automatisch nach Branche",
+            "Hero mit Branchen-Atmosphäre, Leistungen, Vorteile, Kontakt",
+            "WhatsApp-Button und Kontaktformular",
+            "Bewertungsblock (Beispieltexte — durch echte Stimmen ersetzbar)",
             "Vollständiges Website-Archiv (ZIP) — Sie sind Eigentümer der Dateien",
             "Anleitung zur Selbst-Veröffentlichung",
-            "Impressum- und Datenschutz-Vorlagen (von Ihnen zu prüfen)",
-            "WhatsApp-Button, Kontaktformular, Basis-SEO",
-            "Lieferzeit: ca. 5–14 Werktage (je nach Paket und Rückmeldungen).",
+            "Rechtsvorlagen für Ihren Markt (von Ihnen zu prüfen)",
+            "Lieferzeit: ca. 5–14 Werktage (je nach Rückmeldungen)",
         ],
     },
     "business": {
         "id": "business",
         "name": "Landing Business",
         "price_eur": 650,
+        "tagline": "Website, die Kunden anzieht — Vertrauen, Ort, klare nächsten Schritte",
+        "included_summary": (
+            "alles aus Basic plus Business-Design, Google Maps mit Route, FAQ, Ablauf, "
+            "Trust-Leiste, Logo-Platz, erweitertes SEO; Hilfe beim Upload; 1 Korrekturrunde"
+        ),
         "deliverables": [
             "Alles aus Basic (inkl. ZIP und Eigentum an den Dateien)",
-            "Google Maps, Bewertungsblock, Logo-Platzhalter, erweitertes SEO",
+            "Reicheres Business-Design (klarer Vertrauensaufbau)",
+            "Google Maps / OSM mit Button „Route planen“, Öffnungszeiten, Parkhinweis",
+            "FAQ, Ablauf („So läuft’s“), Zwischen-CTA und Trust-Leiste",
+            "Logo-Platzhalter und erweitertes SEO (Schema.org / Meta)",
             "Hilfe beim Upload auf Ihren Hosting-Zugang (manuell)",
             "1 Korrekturrunde",
-            "Hilfe bei der Wahl des Hostings; Vertrag Domain/Hosting direkt mit dem Anbieter",
-            "Lieferzeit: ca. 5–14 Werktage (je nach Paket und Rückmeldungen).",
+            "Domain-/Hosting-Vertrag schließen Sie direkt mit dem Anbieter",
+            "Lieferzeit: ca. 5–14 Werktage (je nach Rückmeldungen)",
         ],
     },
     "premium": {
         "id": "premium",
         "name": "Landing Premium",
         "price_eur": 1200,
+        "tagline": "Premium-Klasse — exklusives Design und interaktive Blöcke",
+        "included_summary": (
+            "alles aus Business plus Premium-Design, Showcase, Kennzahlen, Kostenrechner, "
+            "Analytics-Platzhalter; Assisted Go-live bei Zugang; 14 Tage Support und 3 Korrekturen"
+        ),
         "deliverables": [
             "Alles aus Business",
-            "Premium-Design, Kostenrechner, Analytics-Platzhalter",
-            "Vollständige Veröffentlichung: Domain-Anbindung, Hosting-Setup, SSL, Go-live (wenn Sie Zugang geben)",
-            "14 Tage Support + 3 Korrekturrunden",
-            "Domain/Hosting-Vertrag schließen Sie direkt mit dem Anbieter (kein Reseller-Modell)",
-            "Lieferzeit: ca. 5–14 Werktage (je nach Paket und Rückmeldungen).",
+            "Exklusives Premium-Design (stärkerer visueller Auftritt)",
+            "Showcase-Galerie und Kennzahlen-Leiste",
+            "Kostenrechner und Analytics-Platzhalter (G-ID nach Go-live)",
+            "Assisted Veröffentlichung: Domain/Hosting/SSL mit Ihrem Zugang",
+            "14 Tage prioritäre Unterstützung + 3 Korrekturrunden",
+            "Domain/Hosting-Miete nicht im Preis — nur Einrichtungsservice",
+            "Lieferzeit: ca. 5–14 Werktage (je nach Rückmeldungen)",
         ],
     },
 }
+
+
+def package_included_summary(package_id: str | None) -> str:
+    """One-line Layer A canon for ZIP / next-steps emails."""
+    pid = (package_id or "basic").strip().lower()
+    row = _PACKAGES.get(pid) or _PACKAGES["basic"]
+    return str(row.get("included_summary") or "")
+
+
+def package_display_name(package_id: str | None) -> str:
+    pid = (package_id or "basic").strip().lower()
+    row = _PACKAGES.get(pid) or _PACKAGES["basic"]
+    return str(row.get("name") or "Landing Basic")
+
 
 
 class SalesOrderService:
