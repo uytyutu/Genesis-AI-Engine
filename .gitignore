@@ -15,6 +15,8 @@ dashboard/frontend/node_modules/
 dashboard/frontend/.next/
 dashboard/frontend/out/
 dashboard/backend/sandbox/
+dashboard/backend/_research_claude_engine/
+
 
 .vercel
 .env*
