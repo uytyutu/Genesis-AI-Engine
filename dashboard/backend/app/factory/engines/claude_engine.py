@@ -65,18 +65,18 @@ def _resolve_llm() -> tuple[str, str, str, str]:
                     or os.getenv("GENESIS_OPENROUTER_BASE_URL")
                     or "https://openrouter.ai/api/v1"
                 ).rstrip("/"),
-                os.getenv("GENESIS_ANTHROPIC_MODEL")
-                or os.getenv("GENESIS_CLAUDE_ENGINE_MODEL")
-                or "anthropic/claude-3.5-haiku",
+                    os.getenv("GENESIS_ANTHROPIC_MODEL")
+                    or os.getenv("GENESIS_CLAUDE_ENGINE_MODEL")
+                    or "anthropic/claude-sonnet-4",
+                )
             )
-        )
     if preferred == "openrouter" and openrouter:
         candidates.append(
             (
                 "openrouter",
                 openrouter,
                 (os.getenv("GENESIS_OPENROUTER_BASE_URL") or "https://openrouter.ai/api/v1").rstrip("/"),
-                os.getenv("GENESIS_OPENROUTER_MODEL") or "anthropic/claude-3.5-sonnet",
+                os.getenv("GENESIS_OPENROUTER_MODEL") or "anthropic/claude-sonnet-4",
             )
         )
 
@@ -95,7 +95,7 @@ def _resolve_llm() -> tuple[str, str, str, str]:
                     ).rstrip("/"),
                     os.getenv("GENESIS_ANTHROPIC_MODEL")
                     or os.getenv("GENESIS_CLAUDE_ENGINE_MODEL")
-                    or "anthropic/claude-3.5-haiku",
+                    or "anthropic/claude-sonnet-4",
                 )
             )
         elif kimi:
