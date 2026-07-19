@@ -98,3 +98,15 @@ def test_kimi_is_connectable_workforce_employee():
     assert "kimi" in CONNECTABLE
     assert any(e["id"] == "kimi" for e in SETUP_EMPLOYEES)
     assert "kimi" in build_provider_registry([])
+
+
+def test_animated_research_prices_not_checkout():
+    rows = list_animated_research_prices()
+    by_code = {r["market_code"]: r for r in rows}
+    assert "DE" in by_code and "US" in by_code and "FR" in by_code
+    de = by_code["DE"]["packages"]
+    assert de["basic"]["classic_amount"] == 350
+    assert de["basic"]["animated_amount"] > de["basic"]["classic_amount"]
+    assert de["premium"]["animated_amount"] > de["business"]["animated_amount"]
+    us = by_code["US"]["packages"]
+    assert us["basic"]["animated_amount"] > 0
