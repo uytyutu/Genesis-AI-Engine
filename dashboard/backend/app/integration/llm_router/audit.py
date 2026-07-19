@@ -23,6 +23,7 @@ _PROVIDER_LABELS = {
     "ollama": "Ollama",
     "anthropic": "Anthropic",
     "deepseek": "DeepSeek",
+    "kimi": "Kimi (Moonshot)",
     "genesis-local": "genesis-local (emergency)",
 }
 
@@ -84,6 +85,7 @@ def audit_infrastructure(
         "ollama",
         "anthropic",
         "deepseek",
+        "kimi",
         "genesis-local",
     )
     viable = [eid for eid in order if eid in CLOUD_EMPLOYEES and by_id.get(eid, {}).get("responds")]

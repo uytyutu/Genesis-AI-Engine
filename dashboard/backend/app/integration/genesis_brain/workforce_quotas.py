@@ -17,6 +17,7 @@ DEFAULT_LIMITS: dict[str, int] = {
     "anthropic": 100,
     "openai": 50,
     "deepseek": 500,
+    "kimi": 200,
     "ollama": 100_000,
     "genesis-local": 100_000,
 }

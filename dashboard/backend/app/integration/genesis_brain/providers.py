@@ -236,6 +236,12 @@ def build_provider_registry(
             "base": os.getenv("GENESIS_DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1"),
             "model": os.getenv("GENESIS_DEEPSEEK_MODEL", "deepseek-chat"),
         },
+        {
+            "id": "kimi",
+            "key": os.getenv("GENESIS_KIMI_API_KEY") or os.getenv("MOONSHOT_API_KEY"),
+            "base": os.getenv("GENESIS_KIMI_BASE_URL", "https://api.moonshot.ai/v1"),
+            "model": os.getenv("GENESIS_KIMI_MODEL", "moonshot-v1-128k"),
+        },
     ]
 
     registry: dict[str, Provider] = {}

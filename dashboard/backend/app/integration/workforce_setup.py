@@ -34,15 +34,17 @@ SETUP_EMPLOYEES: tuple[dict[str, Any], ...] = (
     {"id": "openrouter", "label": "OpenRouter", "premium": False, "tier": "free"},
     {"id": "ollama", "label": "Ollama", "premium": False, "tier": "local"},
     {"id": "openai", "label": "OpenAI Premium", "premium": True, "tier": "optional"},
+    {"id": "kimi", "label": "Kimi (Moonshot)", "premium": True, "tier": "optional"},
 )
 
-CONNECTABLE = frozenset({"groq", "gemini", "openrouter", "ollama", "openai"})
+CONNECTABLE = frozenset({"groq", "gemini", "openrouter", "ollama", "openai", "kimi"})
 
 _ENV_KEYS: dict[str, list[tuple[str, str | None]]] = {
     "groq": [("GENESIS_GROQ_API_KEY", None), ("GENESIS_LLM_API_KEY", None)],
     "gemini": [("GENESIS_GEMINI_API_KEY", None)],
     "openrouter": [("GENESIS_OPENROUTER_API_KEY", None)],
     "openai": [("GENESIS_LLM_API_KEY", None)],
+    "kimi": [("GENESIS_KIMI_API_KEY", None), ("MOONSHOT_API_KEY", None)],
 }
 
 _DEFAULT_MODELS: dict[str, str] = {
@@ -50,6 +52,7 @@ _DEFAULT_MODELS: dict[str, str] = {
     "gemini": "gemini-2.0-flash",
     "openrouter": "google/gemini-2.0-flash-001",
     "openai": "gpt-4o-mini",
+    "kimi": "moonshot-v1-128k",
 }
 
 _MODEL_ENV: dict[str, str] = {
@@ -57,6 +60,7 @@ _MODEL_ENV: dict[str, str] = {
     "gemini": "GENESIS_GEMINI_MODEL",
     "openrouter": "GENESIS_OPENROUTER_MODEL",
     "openai": "GENESIS_LLM_MODEL",
+    "kimi": "GENESIS_KIMI_MODEL",
 }
 
 _OPENAI_MODELS = frozenset(

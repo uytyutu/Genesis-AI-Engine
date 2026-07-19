@@ -29,7 +29,7 @@ _FAILOVER_CHAIN: tuple[str, ...] = (
     "genesis-local",
 )
 
-_PREMIUM = frozenset({"openai", "anthropic", "deepseek"})
+_PREMIUM = frozenset({"openai", "anthropic", "deepseek", "kimi"})
 
 _ALL = (
     "groq",
@@ -39,6 +39,7 @@ _ALL = (
     "openai",
     "anthropic",
     "deepseek",
+    "kimi",
     "genesis-local",
 )
 

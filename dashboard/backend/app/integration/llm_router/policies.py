@@ -37,12 +37,13 @@ CLOUD_EMPLOYEES = frozenset(
         "ollama",
         "anthropic",
         "deepseek",
+        "kimi",
     }
 )
 
 FREE_TIER_EMPLOYEES = frozenset({"groq", "gemini", "openrouter", "ollama"})
 
-PREMIUM_EMPLOYEES = frozenset({"openai", "anthropic", "deepseek"})
+PREMIUM_EMPLOYEES = frozenset({"openai", "anthropic", "deepseek", "kimi"})
 
 EMERGENCY_ONLY = "genesis-local"
 

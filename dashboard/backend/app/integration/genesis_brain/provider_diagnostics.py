@@ -16,6 +16,7 @@ _ENV_KEYS: dict[str, tuple[str, ...]] = {
     "openai": ("GENESIS_LLM_API_KEY", "OPENAI_API_KEY"),
     "anthropic": ("GENESIS_ANTHROPIC_API_KEY",),
     "deepseek": ("GENESIS_DEEPSEEK_API_KEY",),
+    "kimi": ("GENESIS_KIMI_API_KEY", "MOONSHOT_API_KEY"),
 }
 
 _CLOUD_ORDER = (
@@ -26,6 +27,7 @@ _CLOUD_ORDER = (
     "openai",
     "anthropic",
     "deepseek",
+    "kimi",
 )
 
 

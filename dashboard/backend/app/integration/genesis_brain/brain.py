@@ -67,7 +67,7 @@ from dataclasses import replace
 logger = logging.getLogger(__name__)
 BRAIN_VERSION = "genesis-mind-v3.0"
 _CLOUD_EMPLOYEES = frozenset(
-    {"groq", "gemini", "openrouter", "ollama", "openai", "anthropic", "deepseek"}
+    {"groq", "gemini", "openrouter", "ollama", "openai", "anthropic", "deepseek", "kimi"}
 )
 
 

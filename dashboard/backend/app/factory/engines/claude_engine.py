@@ -1,4 +1,4 @@
-"""Claude research engine — animated single-page HTML via Anthropic/OpenRouter.
+"""Claude research engine — animated single-page HTML via Claude / OpenRouter / Kimi.
 
 Hard fail if key missing or model returns unusable HTML. Never falls back to Classic.
 """
@@ -18,62 +18,140 @@ ENGINE_ID = "claude"
 
 _HTML_FENCE = re.compile(r"```(?:html)?\s*([\s\S]*?)```", re.I)
 
+_SYSTEM_PROMPT = """You are Virtus Core Factory — Animated Landing research generator.
+Output ONE complete production-ready HTML5 document only (no markdown prose outside HTML).
+Prefer a ```html fenced block if you must fence.
 
-def _resolve_llm() -> tuple[str, str, str]:
-    """Return (api_key, base_url, model). Raises ClaudeEngineAuthError if no key."""
-    openrouter = (os.getenv("GENESIS_OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_KEY") or "").strip()
-    key = (os.getenv("GENESIS_ANTHROPIC_API_KEY") or openrouter or "").strip()
-    if not key:
-        raise ClaudeEngineAuthError()
-    base = (
-        os.getenv("GENESIS_ANTHROPIC_BASE_URL")
-        or os.getenv("GENESIS_OPENROUTER_BASE_URL")
-        or "https://openrouter.ai/api/v1"
-    ).rstrip("/")
-    model = (
-        os.getenv("GENESIS_ANTHROPIC_MODEL")
-        or os.getenv("GENESIS_CLAUDE_ENGINE_MODEL")
-        or "anthropic/claude-3.5-haiku"
-    )
-    return key, base, model
+Quality bar (matches Animated tier pricing — do not under-deliver):
+1) Architecture: semantic sections (header, hero, services, proof, CTA, footer); clear class names; readable CSS variables.
+2) Motion: purposeful hero entrance + scroll reveal; CSS @keyframes and/or IntersectionObserver; honor prefers-reduced-motion.
+3) Performance: no heavy Three.js / WebGL / video backgrounds unless the brief explicitly asks for 3D; keep DOM lean; inline CSS/JS only.
+4) Design: distinctive niche palette — not purple-on-white AI cliché; real visual hierarchy; mobile-first.
+5) SEO: <title>, meta description, one h1, sensible heading order.
+6) Content: no lorem ipsum; plausible niche copy in the requested language; clear CTA (call / WhatsApp / form).
+7) Legal: do NOT invent Impressum/Privacy HTML unless market is DE/AT/CH; footer may say legal pages to be added.
+8) Editability: clean structure a human can tweak in under 30 minutes — no minified soup, no opaque generated IDs.
 
-
-def _build_prompt(request: EngineRequest) -> str:
-    lang = (request.language or "en").strip().lower()
-    name = request.business_name.strip() or "the business"
-    return f"""You are a senior web designer. Output ONE complete production-ready HTML5 document only.
-No markdown explanation outside the HTML. Prefer a ```html fenced block if you must fence.
-
-Requirements:
-- Modern, distinctive landing page for: {name}
-- Market: {request.market_code}; UI language: {lang} (all visible copy in this language)
-- Package tier: {request.package_id}
-- City: {request.city or "n/a"}; phone: {request.phone or "n/a"}; email: {request.email or "n/a"}
-- Brief: {request.description.strip()[:1200]}
-- Mobile-first, SEO: title, meta description, semantic headings
-- Clear CTA (call / WhatsApp / form)
-- Visible motion: CSS animations and/or light JS for hero entrance + scroll reveal
-- Respect prefers-reduced-motion (disable or simplify animations)
-- Self-contained single file (inline CSS/JS); no external build step
-- Do NOT include German Impressum unless market is DE/AT/CH
-- Do NOT invent fake legal pages; footer may say "Legal pages to be added"
-- No lorem ipsum; use plausible niche copy
-- Avoid purple-gradient AI cliché; pick a cohesive brand palette for the niche
+If you cannot meet this bar, still return the best complete HTML you can — never return an empty or partial page.
 """
 
 
-def _chat_completion(api_key: str, base_url: str, model: str, prompt: str) -> str:
+def _resolve_llm() -> tuple[str, str, str, str]:
+    """Return (provider_id, api_key, base_url, model). Raises ClaudeEngineAuthError if no key."""
+    preferred = (os.getenv("FACTORY_RESEARCH_LLM") or "claude").strip().lower()
+
+    openrouter = (os.getenv("GENESIS_OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_KEY") or "").strip()
+    anthropic = (os.getenv("GENESIS_ANTHROPIC_API_KEY") or "").strip()
+    kimi = (os.getenv("GENESIS_KIMI_API_KEY") or os.getenv("MOONSHOT_API_KEY") or "").strip()
+
+    candidates: list[tuple[str, str, str, str]] = []
+    if preferred == "kimi" and kimi:
+        candidates.append(
+            (
+                "kimi",
+                kimi,
+                (os.getenv("GENESIS_KIMI_BASE_URL") or "https://api.moonshot.ai/v1").rstrip("/"),
+                os.getenv("GENESIS_KIMI_MODEL") or "moonshot-v1-128k",
+            )
+        )
+    if preferred in ("claude", "anthropic") and (anthropic or openrouter):
+        key = anthropic or openrouter
+        candidates.append(
+            (
+                "claude",
+                key,
+                (
+                    os.getenv("GENESIS_ANTHROPIC_BASE_URL")
+                    or os.getenv("GENESIS_OPENROUTER_BASE_URL")
+                    or "https://openrouter.ai/api/v1"
+                ).rstrip("/"),
+                os.getenv("GENESIS_ANTHROPIC_MODEL")
+                or os.getenv("GENESIS_CLAUDE_ENGINE_MODEL")
+                or "anthropic/claude-3.5-haiku",
+            )
+        )
+    if preferred == "openrouter" and openrouter:
+        candidates.append(
+            (
+                "openrouter",
+                openrouter,
+                (os.getenv("GENESIS_OPENROUTER_BASE_URL") or "https://openrouter.ai/api/v1").rstrip("/"),
+                os.getenv("GENESIS_OPENROUTER_MODEL") or "anthropic/claude-3.5-sonnet",
+            )
+        )
+
+    # Fallbacks if preferred missing but another research key exists
+    if not candidates:
+        if anthropic or openrouter:
+            key = anthropic or openrouter
+            candidates.append(
+                (
+                    "claude",
+                    key,
+                    (
+                        os.getenv("GENESIS_ANTHROPIC_BASE_URL")
+                        or os.getenv("GENESIS_OPENROUTER_BASE_URL")
+                        or "https://openrouter.ai/api/v1"
+                    ).rstrip("/"),
+                    os.getenv("GENESIS_ANTHROPIC_MODEL")
+                    or os.getenv("GENESIS_CLAUDE_ENGINE_MODEL")
+                    or "anthropic/claude-3.5-haiku",
+                )
+            )
+        elif kimi:
+            candidates.append(
+                (
+                    "kimi",
+                    kimi,
+                    (os.getenv("GENESIS_KIMI_BASE_URL") or "https://api.moonshot.ai/v1").rstrip("/"),
+                    os.getenv("GENESIS_KIMI_MODEL") or "moonshot-v1-128k",
+                )
+            )
+
+    if not candidates:
+        raise ClaudeEngineAuthError(
+            "Set GENESIS_ANTHROPIC_API_KEY, GENESIS_OPENROUTER_API_KEY, or GENESIS_KIMI_API_KEY "
+            "in .env (gitignored). No silent Classic fallback."
+        )
+    return candidates[0]
+
+
+def _build_user_prompt(request: EngineRequest) -> str:
+    lang = (request.language or "en").strip().lower()
+    name = request.business_name.strip() or "the business"
+    tier = (request.package_id or "basic").strip().lower()
+    motion_bar = {
+        "basic": "tasteful CSS motion (hero fade/slide + 2–3 scroll reveals)",
+        "business": "richer motion system (staggered reveals, CTA pulse, section transitions) still CSS/JS-light",
+        "premium": "premium motion polish (layered hero, scroll storytelling) WITHOUT Three.js unless brief demands 3D",
+    }.get(tier, "tasteful CSS motion")
+    return f"""Build the Animated Landing for:
+
+Business: {name}
+Market: {request.market_code}
+UI language: {lang} (ALL visible copy in this language)
+Package tier: {tier} — motion bar: {motion_bar}
+City: {request.city or "n/a"}
+Phone: {request.phone or "n/a"}
+Email: {request.email or "n/a"}
+WhatsApp: {request.whatsapp or request.phone or "n/a"}
+
+Client brief:
+{request.description.strip()[:1400]}
+
+Return only the HTML document.
+"""
+
+
+def _chat_completion(api_key: str, base_url: str, model: str, user_prompt: str) -> str:
     url = f"{base_url}/chat/completions"
     payload: dict[str, Any] = {
         "model": model,
-        "temperature": 0.4,
-        "max_tokens": 8000,
+        "temperature": 0.35,
+        "max_tokens": 12_000,
         "messages": [
-            {
-                "role": "system",
-                "content": "You generate complete HTML landing pages. Output HTML only.",
-            },
-            {"role": "user", "content": prompt},
+            {"role": "system", "content": _SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt},
         ],
     }
     body = json.dumps(payload).encode("utf-8")
@@ -89,7 +167,7 @@ def _chat_completion(api_key: str, base_url: str, model: str, prompt: str) -> st
         },
     )
     try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
+        with urllib.request.urlopen(req, timeout=180) as resp:
             raw = resp.read().decode("utf-8")
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")[:500]
@@ -113,7 +191,6 @@ def _extract_html(text: str) -> str:
         candidate = fenced.group(1).strip()
     else:
         candidate = text.strip()
-    # Trim leading chatter before <!DOCTYPE / <html
     lower = candidate.lower()
     for marker in ("<!doctype html", "<html"):
         idx = lower.find(marker)
@@ -129,7 +206,6 @@ def _validate_html(html: str) -> None:
         raise EngineError("claude_invalid_html", "Response is not a complete HTML document")
     if len(html) < 800:
         raise EngineError("claude_too_short", "HTML artifact too short to be a real landing page")
-    # Soft animation signal — require CSS animation/transition or JS observer
     has_motion = (
         "animation" in low
         or "@keyframes" in low
@@ -145,8 +221,8 @@ def _validate_html(html: str) -> None:
 
 
 def generate(request: EngineRequest) -> EngineResult:
-    api_key, base_url, model = _resolve_llm()
-    prompt = _build_prompt(request)
+    provider_id, api_key, base_url, model = _resolve_llm()
+    prompt = _build_user_prompt(request)
     raw = _chat_completion(api_key, base_url, model, prompt)
     html = _extract_html(raw)
     _validate_html(html)
@@ -154,6 +230,7 @@ def generate(request: EngineRequest) -> EngineResult:
         engine_id=ENGINE_ID,
         html=html,
         meta={
+            "research_provider": provider_id,
             "model": model,
             "base_url": base_url,
             "market_code": request.market_code,

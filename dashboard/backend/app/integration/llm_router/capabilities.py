@@ -68,7 +68,7 @@ CAPABILITY_PRIORITY: dict[str, tuple[str, ...]] = {
     ),
 }
 
-PREMIUM_EMPLOYEES = frozenset({"openai", "anthropic", "deepseek"})
+PREMIUM_EMPLOYEES = frozenset({"openai", "anthropic", "deepseek", "kimi"})
 
 _TASK_TO_CAPABILITY: dict[str, LLMCapability] = {
     "conversation": "conversation",
