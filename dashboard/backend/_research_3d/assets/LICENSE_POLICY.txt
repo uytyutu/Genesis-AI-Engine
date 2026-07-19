@@ -1,0 +1,13 @@
+Research 3D asset license policy (Virtus Core)
+
+Runtime (Three.js / R3F): MIT — OK for commercial.
+Models / textures / HDRI: MUST be CC0, CC-BY (with CREDITS), MIT, or public domain.
+Blocked: NC, personal-use-only, Sketchfab Standard/Editorial without commercial rights.
+
+Each scenes/<niche>/ folder MUST contain before research "ship":
+  - hero.glb (or hero.gltf)
+  - LICENSE.txt  (first line / SPDX: CC0 | CC-BY-4.0 | MIT | …)
+  - CREDITS.txt  (author, source URL, license id, date)
+
+Gate command:
+  py -3.12 scripts/research_3d_gate.py --scene scenes/dental

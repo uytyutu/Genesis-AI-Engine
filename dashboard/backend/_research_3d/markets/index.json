@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "policy": "3D premium will reuse niche scenes; market packs (impressum/privacy) stay Classic Path A.",
+  "markets": [
+    "DE", "AT", "CH", "US", "GB", "IE", "CA", "AU", "NZ",
+    "FR", "IT", "ES", "NL", "BE", "PT", "PL", "CZ", "SK", "RO", "UA", "RU"
+  ],
+  "note": "Per-market 3D is localization + legal, not a new mesh per country."
+}

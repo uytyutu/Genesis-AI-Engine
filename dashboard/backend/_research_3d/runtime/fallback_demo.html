@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research 3D — WebGL fallback demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 40rem; line-height: 1.5; }
+    .ok { color: #047857; }
+    .fallback { color: #b45309; }
+    code { background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Research 3D fallback</h1>
+  <p id="status">Detecting WebGL…</p>
+  <p>If WebGL fails, production premium contour must deliver <code>css_motion</code>, never a broken canvas.</p>
+  <script>
+    (function () {
+      var el = document.getElementById('status');
+      var canvas = document.createElement('canvas');
+      var gl = null;
+      try {
+        gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+      } catch (e) { gl = null; }
+      if (gl) {
+        el.className = 'ok';
+        el.textContent = 'WebGL OK — research may attempt webgl_3d (still gated by license + GLB budget).';
+      } else {
+        el.className = 'fallback';
+        el.textContent = 'WebGL unavailable — delivery mode = css_motion (soft fallback).';
+      }
+    })();
+  </script>
+</body>
+</html>

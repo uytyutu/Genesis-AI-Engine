@@ -16,6 +16,11 @@ dashboard/frontend/.next/
 dashboard/frontend/out/
 dashboard/backend/sandbox/
 dashboard/backend/_research_claude_engine/
+dashboard/backend/_research_3d/artifacts/
+dashboard/backend/_research_3d/scenes/**/*.glb
+dashboard/backend/_research_3d/scenes/**/*.gltf
+dashboard/backend/_research_3d/scenes/**/*.bin
+!dashboard/backend/_research_3d/scenes/_fixture/
 
 
 .vercel

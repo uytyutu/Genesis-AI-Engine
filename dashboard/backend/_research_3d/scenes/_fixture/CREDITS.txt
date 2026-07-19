@@ -1,0 +1,5 @@
+Fixture asset for research_3d_gate --fixture
+Author: Virtus Core research
+Source: internal
+License: CC0-1.0
+Date: 2026-07-19
