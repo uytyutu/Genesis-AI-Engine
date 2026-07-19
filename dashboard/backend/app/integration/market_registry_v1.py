@@ -1,4 +1,4 @@
-"""Global Market Database v1 — Stage 1 markets (29 countries).
+"""Global Market Database v1 — Stage 1 markets (30 countries).
 
 Stage 2: unlisted countries map to regional_fallback models.
 """
@@ -43,6 +43,8 @@ MARKET_SK = "SK"
 MARKET_HU = "HU"
 MARKET_RO = "RO"
 MARKET_UA = "UA"
+MARKET_PT = "PT"
+MARKET_RU = "RU"
 MARKET_AU = "AU"
 MARKET_NZ = "NZ"
 MARKET_JP = "JP"
@@ -59,8 +61,9 @@ MARKET_DEFAULT = "DEFAULT"
 STAGE1_MARKET_CODES: tuple[str, ...] = (
     MARKET_DE, MARKET_US, MARKET_CA, MARKET_GB, MARKET_FR, MARKET_IT, MARKET_ES,
     MARKET_NL, MARKET_BE, MARKET_AT, MARKET_CH, MARKET_PL, MARKET_CZ, MARKET_SK,
-    MARKET_HU, MARKET_RO, MARKET_UA, MARKET_AU, MARKET_NZ, MARKET_JP, MARKET_KR,
-    MARKET_SG, MARKET_AE, MARKET_SA, MARKET_ZA, MARKET_BR, MARKET_MX, MARKET_IN,
+    MARKET_HU, MARKET_RO, MARKET_UA, MARKET_PT, MARKET_RU, MARKET_AU, MARKET_NZ,
+    MARKET_JP, MARKET_KR, MARKET_SG, MARKET_AE, MARKET_SA, MARKET_ZA, MARKET_BR,
+    MARKET_MX, MARKET_IN,
 )
 
 
@@ -183,6 +186,7 @@ def _build_market_v1() -> dict[str, MarketProfile]:
         (MARKET_SK, {"ru": "Словакия", "en": "Slovakia"}, "sk", ("GDPR",), ("gdpr",), 0.62, "medium"),
         (MARKET_RO, {"ru": "Румыния", "en": "Romania"}, "ro", ("GDPR",), ("gdpr",), 0.58, "medium"),
         (MARKET_HU, {"ru": "Венгрия", "en": "Hungary"}, "hu", ("GDPR",), ("gdpr",), 0.60, "medium"),
+        (MARKET_PT, {"ru": "Португалия", "en": "Portugal"}, "pt", ("Política de privacidade",), ("privacy", "gdpr"), 0.78, "medium"),
     ]:
         markets[code] = _build_eur_market(code, names, loc, legal, req, factor, comp)
 
@@ -259,6 +263,22 @@ def _build_market_v1() -> dict[str, MarketProfile]:
             law_firm_website=_rng(17000, 27000, 22000), portfolio_website=_rng(9000, 15000, 12000),
         ),
         services={k: ServicePricing(_scale_rng(v.standard, 0.55, round_to=500)) for k, v in _de_services().items()},
+    )
+
+    # RU: EUR for Stripe/Mission 1 (same checkout currency as outreach CIS B2B).
+    markets[MARKET_RU] = MarketProfile(
+        code=MARKET_RU,
+        names={"ru": "Россия", "en": "Russia"},
+        currency="EUR",
+        symbol="€",
+        locale_default="ru",
+        legal_requirements=("Политика конфиденциальности",),
+        requires=("privacy",),
+        intelligence=_meta("medium", 0.52, confidence="medium"),
+        website_projects=_scale_rng_projects(_de_website_projects(), 0.52),
+        services={
+            k: ServicePricing(_scale_rng(v.standard, 0.52)) for k, v in _de_services().items()
+        },
     )
 
     markets[MARKET_AU] = MarketProfile(

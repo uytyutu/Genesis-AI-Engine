@@ -380,8 +380,8 @@
       "timezone": "Europe/Bucharest",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
-      "currency": "RON",
-      "symbol": "lei",
+      "currency": "EUR",
+      "symbol": "€",
       "website": {
         "locale": "en",
         "hreflang": "ro-RO",
@@ -389,7 +389,7 @@
         "footer_profile": "eu_gdpr"
       },
       "hubs": ["București", "Cluj-Napoca", "Timișoara"],
-      "cap_rationale": "Start 10/day"
+      "cap_rationale": "Start 10/day · checkout EUR (synced with market_registry)"
     },
     {
       "code": "SK",
@@ -428,8 +428,8 @@
       "timezone": "Europe/Kyiv",
       "legal_profile": "cis_sender",
       "send_pool": "cis",
-      "currency": "EUR",
-      "symbol": "€",
+      "currency": "UAH",
+      "symbol": "₴",
       "website": {
         "locale": "uk",
         "hreflang": "uk-UA",
@@ -437,7 +437,7 @@
         "footer_profile": "cis_sender"
       },
       "hubs": ["Kyiv", "Kharkiv", "Odesa", "Lviv", "Dnipro"],
-      "cap_rationale": "Start 10/day · quality-first"
+      "cap_rationale": "Start 10/day · checkout UAH (synced with market_registry)"
     },
     {
       "code": "RU",
@@ -461,7 +461,7 @@
         "footer_profile": "cis_sender"
       },
       "hubs": ["Moscow", "Saint Petersburg", "Kazan", "Novosibirsk", "Yekaterinburg"],
-      "cap_rationale": "Start 10/day · quality-first"
+      "cap_rationale": "Start 10/day · checkout EUR (synced with market_registry)"
     },
     {
       "code": "NZ",

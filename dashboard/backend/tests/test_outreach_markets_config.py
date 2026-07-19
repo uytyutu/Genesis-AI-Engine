@@ -61,6 +61,11 @@ def test_start_quotas_per_country():
     site = market_website_profile("DE")
     assert site["currency"] == "EUR"
     assert "impressum" in site["legal_pages"]
+    # Checkout registry is source of truth for website currency.
+    assert market_website_profile("UA")["currency"] == "UAH"
+    assert market_website_profile("RO")["currency"] == "EUR"
+    assert market_website_profile("PT")["currency"] == "EUR"
+    assert market_website_profile("RU")["currency"] == "EUR"
 
 
 def test_per_market_cap_blocks_and_single_mailbox_fallback(

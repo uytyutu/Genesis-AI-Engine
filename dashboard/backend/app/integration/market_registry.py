@@ -1,6 +1,6 @@
 """Global Market Database — public API.
 
-Stage 1: 29 markets in market_registry_v1.py
+Stage 1: 30 markets in market_registry_v1.py
 Stage 2: regional fallbacks for unlisted countries
 
 Extend markets in market_registry_v1 only — logic reads registry here.
@@ -42,7 +42,9 @@ from app.integration.market_registry_v1 import (
     MARKET_NL,
     MARKET_NZ,
     MARKET_PL,
+    MARKET_PT,
     MARKET_RO,
+    MARKET_RU,
     MARKET_SA,
     MARKET_SG,
     MARKET_SK,

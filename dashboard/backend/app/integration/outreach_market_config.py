@@ -132,12 +132,24 @@ def market_website_profile(code: str | None) -> dict[str, Any]:
     if not m:
         return {}
     site = m.get("website") if isinstance(m.get("website"), dict) else {}
+    currency = str(m.get("currency") or "EUR")
+    symbol = str(m.get("symbol") or "€")
+    # Commerce registry is source of truth for checkout currency/symbol.
+    try:
+        from app.integration.market_registry import MARKET_DEFAULT, get_market as get_commerce
+
+        cm = get_commerce(str(m.get("code") or ""))
+        if cm.code != MARKET_DEFAULT:
+            currency = cm.currency
+            symbol = cm.symbol
+    except Exception:
+        pass
     return {
         "code": str(m.get("code") or "").upper(),
         "language": m.get("language"),
         "template": m.get("template"),
-        "currency": m.get("currency") or "EUR",
-        "symbol": m.get("symbol") or "€",
+        "currency": currency,
+        "symbol": symbol,
         "legal_profile": m.get("legal_profile"),
         "locale": site.get("locale") or m.get("language") or "en",
         "hreflang": site.get("hreflang") or "",
