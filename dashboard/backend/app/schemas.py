@@ -242,10 +242,17 @@ class SalesPackage(BaseModel):
     name: str
     price_eur: float
     deliverables: list[str]
+    currency: str | None = None
+    symbol: str | None = None
+    market_code: str | None = None
+    price_label: str | None = None
 
 
 class SalesPackagesResponse(BaseModel):
     packages: list[SalesPackage]
+    currency: str | None = None
+    symbol: str | None = None
+    market_code: str | None = None
 
 
 class SalesOrderCreateRequest(BaseModel):
@@ -280,6 +287,7 @@ class SalesOrderCreateRequest(BaseModel):
     package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
     product_id: str | None = Field(default=None, max_length=80)
     visitor_id: str | None = Field(default=None, max_length=64)
+    market_code: str | None = Field(default=None, max_length=8)
 
 
 class SalesOrderCreatedResponse(BaseModel):
@@ -1427,6 +1435,7 @@ class AcquisitionStudioStatus(BaseModel):
     outreach_quota: OutreachQuotaHealth | dict | None = None
     markets_dashboard: dict | None = None
     adaptive_outreach: dict | None = None
+    outreach_runner: dict | None = None
     pilot_catalog: dict | None = None
 
 

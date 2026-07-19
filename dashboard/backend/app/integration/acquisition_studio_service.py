@@ -182,6 +182,106 @@ class AcquisitionStudioService:
         from app.integration.outreach_adaptive_service import OutreachAdaptiveService
 
         self._adaptive = OutreachAdaptiveService(mem)
+        self._runner = None
+
+    def _get_runner(self):
+        if self._runner is None:
+            from app.integration.outreach_runner_service import OutreachRunnerService
+
+            self._runner = OutreachRunnerService(
+                self._memory_dir,
+                refresh_fn=self.refresh_country_desk_leads,
+                send_next_fn=self.send_next_quality_lead,
+                interval_fn=self._adaptive.effective_interval_sec,
+            )
+        return self._runner
+
+    def runner_start(self) -> dict[str, Any]:
+        return self._get_runner().start()
+
+    def runner_stop(self) -> dict[str, Any]:
+        return self._get_runner().stop()
+
+    def runner_status(self) -> dict[str, Any]:
+        return self._get_runner().status()
+
+    def runner_tick(self) -> dict[str, Any]:
+        return self._get_runner().tick()
+
+    def send_next_quality_lead(self) -> dict[str, Any]:
+        """Send one quality lead if outreach enabled — any market, never force-fill."""
+        outreach_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        if not outreach_enabled:
+            return {
+                "sent": False,
+                "skipped": True,
+                "reason": "outreach_disabled",
+                "message_ru": "Отправка выкл. (GENESIS_OUTREACH_ENABLED) — только hunt/draft",
+            }
+        rows = self._opportunity._load_rows()
+        candidates: list[tuple[int, int, dict]] = []
+        for row in rows:
+            status = str(row.get("outreach_status") or "")
+            if status not in ("approved", "pending_approval"):
+                continue
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
+            if not self._extract_email(row.get("contact", "")):
+                continue
+            if not row.get("proposed_message"):
+                continue
+            win = int(meta.get("win_probability_pct") or 0)
+            score = int(row.get("score") or 0)
+            if status == "pending_approval" and win < HIGH_WIN_AUTO_CONFIRM_PCT:
+                continue
+            tier = 2 if status == "approved" else 1
+            candidates.append((tier, win * 1000 + score, row))
+        if not candidates:
+            return {
+                "sent": False,
+                "skipped": True,
+                "reason": "no_quality_leads",
+                "message_ru": "Нет качественных лидов к отправке — квоту не заполняем",
+            }
+        candidates.sort(key=lambda t: (-t[0], -t[1]))
+        row = candidates[0][2]
+        oid = str(row.get("id") or "")
+        if str(row.get("outreach_status")) == "approved":
+            row["outreach_status"] = "pending_approval"
+            self._opportunity._save_rows(self._replace_row(oid, row))
+        try:
+            result = self.approve_outreach(oid)
+        except ValueError as exc:
+            return {
+                "sent": False,
+                "skipped": True,
+                "reason": str(exc),
+                "message_ru": f"Пропуск: {exc}",
+                "company": row.get("company_name"),
+            }
+        sent = bool(
+            result.get("sent")
+            or result.get("outreach_status") == "sent"
+            or (isinstance(result.get("send"), dict) and result["send"].get("ok"))
+        )
+        return {
+            "sent": sent,
+            "skipped": not sent,
+            "company": row.get("company_name"),
+            "to": self._extract_email(row.get("contact", "")),
+            "result": result,
+            "message_ru": (
+                f"Отправлено: {row.get('company_name')}"
+                if sent
+                else str(
+                    (result.get("send") or {}).get("reason")
+                    or result.get("message")
+                    or result.get("reason")
+                    or "не отправлено (квота/ошибка)"
+                )
+            ),
+        }
 
     def _hunt(self) -> dict[str, Any]:
         from app.integration.global_spider_service import GlobalSpiderService
@@ -273,6 +373,9 @@ class AcquisitionStudioService:
         return {
             "ok": True,
             "note_ru": cfg.get("note_ru") or "",
+            "allocation_mode": cfg.get("allocation_mode") or "shared_global",
+            "quality_first": bool(cfg.get("quality_first", True)),
+            "force_fill_quotas": bool(cfg.get("force_fill_quotas", False)),
             "global_daily_cap": health.get("global_daily_cap"),
             "min_interval_sec": health.get("min_interval_sec"),
             "sent_today_total": health.get("sent_today_total"),
@@ -313,6 +416,7 @@ class AcquisitionStudioService:
             "outreach_quota": self._send_quota.health(),
             "markets_dashboard": self.markets_dashboard(),
             "adaptive_outreach": self.adaptive_dashboard(auto_review=True),
+            "outreach_runner": self.runner_status(),
         }
 
     def adaptive_dashboard(self, *, auto_review: bool = False) -> dict[str, Any]:

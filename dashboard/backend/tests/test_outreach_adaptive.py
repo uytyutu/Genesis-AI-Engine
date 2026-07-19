@@ -97,10 +97,26 @@ def test_countries_independent(tmp_path: Path):
     assert by["US"]["decision"] == "scale_down"
 
 
-def test_dashboard_shape(tmp_path: Path):
+def test_profit_hold_without_revenue(tmp_path: Path):
     svc = OutreachAdaptiveService(tmp_path)
-    dash = svc.dashboard([])
+    # Excellent replies but €0 → HOLD (no scale_up)
+    rows = _rows_for("DE", sent=20, replies=5, orders=0)
+    health = svc.health_score(svc.collect_market_metrics(rows)["DE"])
+    assert health["can_scale_up"] is False
+    assert "replies_without_revenue" in health["reasons"] or "no_revenue_hold" in health["reasons"]
+    result = svc.run_weekly_review(rows, force=True, apply=True)
+    de = next(d for d in result["decisions"] if d["code"] == "DE")
+    assert de["decision"] in ("hold", "pause", "scale_down")
+    assert de["decision"] != "scale_up"
+
+
+def test_dashboard_roi_and_shared(tmp_path: Path):
+    svc = OutreachAdaptiveService(tmp_path)
+    rows = _rows_for("DE", sent=10, replies=2, orders=1)
+    dash = svc.dashboard(rows)
     assert dash["ok"]
-    assert "countries" in dash
-    assert "graphs" in dash
-    assert dash["interval_sec"] >= 60
+    assert dash.get("shared_global") is False
+    assert "roi_table" in dash
+    de_roi = next(r for r in dash["roi_table"] if r["code"] == "DE")
+    assert de_roi["orders"] == 1
+    assert de_roi["spent_eur"] > 0

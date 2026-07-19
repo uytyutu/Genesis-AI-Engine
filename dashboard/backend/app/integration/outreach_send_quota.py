@@ -274,7 +274,7 @@ class OutreachSendQuota:
     def can_send(
         self, from_addr: str, *, region: str | None = None, market: str | None = None
     ) -> tuple[bool, str]:
-        from app.integration.outreach_market_config import market_send_pool
+        from app.integration.outreach_market_config import market_send_pool, shared_global_mode
 
         domain = _domain_of(from_addr)
         if not domain:
@@ -289,6 +289,10 @@ class OutreachSendQuota:
         ok_pace, pace_why = self._pacing_ok(data)
         if not ok_pace:
             return False, pace_why
+        # Shared mailbox legacy mode: only global + pacing.
+        if shared_global_mode():
+            return True, ""
+        # Per-market start quotas: hard country caps; quality-first = don't force-fill.
         if market:
             mcode = str(market).upper()
             mused = int((data.get("markets") or {}).get(mcode, 0) or 0)
@@ -298,6 +302,10 @@ class OutreachSendQuota:
             reg = market_send_pool(mcode)
         else:
             reg = _normalize_region(region) if region else self._region_for_addr(from_addr)
+        # One mailbox: do not apply separate regional 100-caps on top of country quotas.
+        pool = configured_from_pool()
+        if len(pool) <= 1:
+            return True, ""
         used = int((data.get("regions") or {}).get(reg, 0) or 0)
         cap = outreach_daily_cap()
         if used >= cap:
@@ -337,11 +345,12 @@ class OutreachSendQuota:
         self, *, region: str | None = None, market: str | None = None
     ) -> tuple[str | None, dict[str, Any]]:
         """Least-used From under market + pool + global + pacing."""
-        from app.integration.outreach_market_config import market_send_pool
+        from app.integration.outreach_market_config import market_send_pool, shared_global_mode
 
         pool = configured_from_pool()
         cap = outreach_daily_cap()
         gcap = outreach_global_daily_cap()
+        shared = shared_global_mode()
         data = self._load()
         domains = dict(data.get("domains") or {})
         regions = dict(data.get("regions") or {})
@@ -362,7 +371,8 @@ class OutreachSendQuota:
             return None, {"ok": False, "reason": pace_why, "global_daily_cap": gcap}
 
         mcode = str(market).upper() if market else None
-        if mcode:
+        single_mailbox = len(pool) <= 1
+        if mcode and not shared:
             mused = int(markets.get(mcode, 0) or 0)
             mcap = self._market_cap(mcode)
             if mused >= mcap:
@@ -373,20 +383,29 @@ class OutreachSendQuota:
                     "daily_cap": mcap,
                 }
             want = market_send_pool(mcode)
+        elif mcode and shared:
+            want = market_send_pool(mcode)
         else:
             want = _normalize_region(region) if region else None
 
-        available: list[tuple[int, int, str, str, str]] = []
-        for item in pool:
-            reg = item["region"]
-            if want and reg != want:
-                continue
-            domain = item["domain"]
-            region_used = int(regions.get(reg, 0) or 0)
-            if region_used >= cap:
-                continue
-            domain_used = int(domains.get(domain, 0) or 0)
-            available.append((region_used, domain_used, reg, domain, item["from"]))
+        def _collect(filter_region: str | None) -> list[tuple[int, int, str, str, str]]:
+            out: list[tuple[int, int, str, str, str]] = []
+            for item in pool:
+                reg = item["region"]
+                if filter_region and reg != filter_region:
+                    continue
+                domain = item["domain"]
+                region_used = int(regions.get(reg, 0) or 0)
+                if not shared and not single_mailbox and region_used >= cap:
+                    continue
+                domain_used = int(domains.get(domain, 0) or 0)
+                out.append((region_used, domain_used, reg, domain, item["from"]))
+            return out
+
+        available = _collect(want)
+        # One mailbox or shared: fall back to any From tagged for another pool.
+        if not available and (shared or single_mailbox) and want:
+            available = _collect(None)
 
         if not available:
             return None, {
@@ -396,6 +415,7 @@ class OutreachSendQuota:
                 "global_daily_cap": gcap,
                 "filter_region": want,
                 "market": mcode,
+                "shared_global": shared,
             }
 
         available.sort(key=lambda t: (t[0], t[1], t[2], t[3]))
@@ -410,11 +430,14 @@ class OutreachSendQuota:
             "region_used_today": region_used,
             "market_used_today": int(markets.get(mcode, 0) or 0) if mcode else None,
             "market_daily_cap": self._market_cap(mcode) if mcode else None,
+            "market_cap_soft": shared,
             "daily_cap": cap,
             "global_daily_cap": gcap,
             "sent_today_total": total,
             "min_interval_sec": self._adaptive_interval(),
             "pool_size": len(pool),
+            "shared_global": shared,
+            "single_mailbox": single_mailbox,
         }
 
     def health(self) -> dict[str, Any]:
@@ -509,13 +532,28 @@ class OutreachSendQuota:
                 }
             )
 
+        from app.integration.outreach_market_config import shared_global_mode, quality_first
+
+        shared = shared_global_mode()
         sent_today_total = sum(int(r["used_today"]) for r in market_rows if r["enabled"])
         if not sent_today_total:
             sent_today_total = sum(int(r["used_today"]) for r in region_rows)
-        pool_cap_total = min(
-            sum(int(r["daily_cap"]) for r in market_rows if r["enabled"]) or gcap,
-            gcap,
-        )
+        if shared:
+            for row in market_rows:
+                if not row["enabled"]:
+                    continue
+                row["cap_mode"] = "soft"
+                row["at_cap"] = False
+                row["remaining"] = max(0, gcap - sent_today_total)
+            pool_cap_total = gcap
+        else:
+            for row in market_rows:
+                if row["enabled"]:
+                    row["cap_mode"] = "start_quota"
+            pool_cap_total = min(
+                sum(int(r["daily_cap"]) for r in market_rows if r["enabled"]) or gcap,
+                gcap,
+            )
         remaining_today_total = max(0, gcap - sent_today_total)
 
         primary = next((r for r in market_rows if r["enabled"]), None) or (
@@ -525,6 +563,8 @@ class OutreachSendQuota:
             "daily_cap": cap,
             "hard_max": _HARD_MAX_DAILY_CAP,
             "global_daily_cap": gcap,
+            "allocation_mode": "shared_global" if shared else "per_market",
+            "quality_first": quality_first(),
             "min_interval_sec": self._adaptive_interval(),
             "day": data.get("day"),
             "domain_count": len(pool),
@@ -533,16 +573,30 @@ class OutreachSendQuota:
             "sent_today_total": sent_today_total,
             "remaining_today_total": remaining_today_total,
             "primary_used_today": int(primary["used_today"]) if primary else 0,
-            "primary_remaining": int(primary.get("remaining") or 0) if primary else cap,
+            "primary_remaining": (
+                remaining_today_total if shared else int(primary.get("remaining") or 0) if primary else cap
+            ),
             "regions": region_rows,
             "markets": market_rows,
             "domains": per_domains,
             "phase_note_ru": (
-                f"Конфиг outreach_markets.json + Adaptive · потолок {gcap}/день · "
-                f"интервал ≥{self._adaptive_interval()}с. Approve — предохранитель отправки."
+                f"Общий потолок {gcap}/день на адрес · страны soft · "
+                f"только качественные лиды · интервал ≥{self._adaptive_interval()}с. "
+                "Approve — предохранитель отправки."
+                if shared
+                else (
+                    f"Стартовые квоты по странам · потолок {gcap}/день · "
+                    f"quality-first (не заполняем любой ценой) · интервал ≥{self._adaptive_interval()}с. "
+                    "Approve — предохранитель."
+                )
             ),
             "sniper_note_ru": (
-                "Adaptive меняет только лимиты/интервалы по Health Score. "
-                "KPI: ответы → разговоры → заказы."
+                "Не заполняем квоты любой ценой: 18 качественных DE → 18 писем. "
+                "Adaptive поднимает долю прибыльных рынков."
+                if shared
+                else (
+                    "Старт: US100 DE50 GB50 … · только лучшие лиды · боль в письме. "
+                    "Adaptive позже поднимает по прибыли. KPI: ответы → заказы."
+                )
             ),
         }

@@ -1447,6 +1447,41 @@ def acquisition_adaptive_review(body: dict | None = None) -> dict:
     return _ctx().acquisition.run_adaptive_review(force=force, apply=apply)
 
 
+@app.get("/api/acquisition/runner")
+def acquisition_runner_status() -> dict:
+    """Country Desk Start/Stop status (ticks, log)."""
+    return _ctx().acquisition.runner_status()
+
+
+@app.post("/api/acquisition/runner/start")
+def acquisition_runner_start() -> dict:
+    return _ctx().acquisition.runner_start()
+
+
+@app.post("/api/acquisition/runner/stop")
+def acquisition_runner_stop() -> dict:
+    return _ctx().acquisition.runner_stop()
+
+
+@app.post("/api/acquisition/runner/tick")
+def acquisition_runner_tick() -> dict:
+    """One hunt/draft (+ optional send) tick — used by CEO UI poll while running."""
+    return _ctx().acquisition.runner_tick()
+
+
+@app.get("/api/acquisition/website-markets")
+def acquisition_website_markets() -> dict:
+    """Country Website Localization profiles from outreach_markets.json."""
+    from app.integration.outreach_market_config import list_website_markets, outreach_markets_config
+
+    cfg = outreach_markets_config()
+    return {
+        "ok": True,
+        "allocation_mode": cfg.get("allocation_mode"),
+        "markets": list_website_markets(enabled_only=True),
+    }
+
+
 @app.get("/api/acquisition/outreach-templates")
 def acquisition_outreach_templates() -> dict:
     """CEO review: Path A sniper drafts by market (DE / US / RU / UA)."""
@@ -2058,9 +2093,24 @@ def submit_factory_intent(request: FactoryIntentRequest) -> FactoryIntentRespons
 
 
 @app.get("/api/sales/packages", response_model=SalesPackagesResponse)
-def list_sales_packages() -> SalesPackagesResponse:
-    items = _ctx().sales.packages()
-    return SalesPackagesResponse(packages=[SalesPackage(**p) for p in items])
+def list_sales_packages(
+    market: str | None = None,
+    visitor_id: str | None = None,
+    city: str | None = None,
+    text: str | None = None,
+) -> SalesPackagesResponse:
+    checkout = _ctx().sales.checkout_packages(
+        market_code=market,
+        visitor_id=visitor_id,
+        city=city,
+        extra_text=text,
+    )
+    return SalesPackagesResponse(
+        packages=[SalesPackage(**p) for p in checkout["packages"]],
+        currency=checkout.get("currency"),
+        symbol=checkout.get("symbol"),
+        market_code=checkout.get("market_code"),
+    )
 
 
 @app.get("/api/public/pricing")

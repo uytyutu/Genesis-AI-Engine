@@ -46,6 +46,8 @@ class OutreachAdaptiveService:
         path = self._state_path()
         empty = {
             "cap_overrides": {},
+            "paused_markets": {},
+            "zero_order_weeks": {},
             "interval_sec": None,
             "last_review_at": None,
             "next_review_at": None,
@@ -78,6 +80,9 @@ class OutreachAdaptiveService:
         lo = int(scaling.get("min_daily_cap") or 5)
         hi = int(scaling.get("max_daily_cap") or 100)
         state = self._load_state()
+        paused = state.get("paused_markets") or {}
+        if paused.get(str(code).upper()):
+            return 0
         overrides = state.get("cap_overrides") or {}
         if str(code).upper() in overrides:
             try:
@@ -97,13 +102,11 @@ class OutreachAdaptiveService:
                 return max(lo, min(hi, int(state["interval_sec"])))
             except (TypeError, ValueError):
                 pass
-        # Derive from sum of enabled effective caps (≈ workday pacing).
-        total_cap = sum(
-            self.effective_daily_cap(str(m["code"]))
-            for m in list_markets(enabled_only=True)
-        )
+        from app.integration.outreach_send_quota import outreach_global_daily_cap
+
+        # Pace against the shared mailbox ceiling, not sum of soft country shares.
+        total_cap = outreach_global_daily_cap()
         total_cap = max(1, total_cap)
-        # Assume ~10h send window (36000s)
         base = int(36000 / total_cap)
         return max(lo, min(hi, base))
 
@@ -266,13 +269,26 @@ class OutreachAdaptiveService:
             label = "Poor"
 
         min_sent = int((cfg.get("review") or {}).get("min_sent_for_scale_up") or 15)
-        can_scale_up = (
-            label == "Excellent"
-            and sent >= min_sent
-            and "bounce_above_threshold" not in reasons
-            and "spam_above_threshold" not in reasons
-            and "reply_rate_low" not in reasons
-        )
+        scaling = cfg.get("scaling") or {}
+        require_rev = bool(scaling.get("require_revenue_for_scale_up", True))
+        min_replies_hold = int(scaling.get("min_replies_without_revenue_hold") or 3)
+        replies = int(metrics.get("replies") or 0)
+
+        if require_rev and replies >= min_replies_hold and revenue <= 0 and orders <= 0 and sent >= min_sent:
+            reasons.append("replies_without_revenue")
+            can_scale_up = False
+        else:
+            can_scale_up = (
+                label == "Excellent"
+                and sent >= min_sent
+                and "bounce_above_threshold" not in reasons
+                and "spam_above_threshold" not in reasons
+                and "reply_rate_low" not in reasons
+            )
+            if require_rev and can_scale_up and revenue <= 0 and orders <= 0:
+                can_scale_up = False
+                reasons.append("no_revenue_hold")
+
         can_scale_down = label == "Poor" or "bounce_above_threshold" in reasons or "spam_above_threshold" in reasons
         return {
             "score": score,
@@ -325,11 +341,21 @@ class OutreachAdaptiveService:
         step_down = int(scaling.get("step_down") or 20)
         lo = int(scaling.get("min_daily_cap") or 5)
         hi = int(scaling.get("max_daily_cap") or 100)
+        pause_weeks = int(scaling.get("auto_pause_weeks_without_orders") or 3)
+        redistribute = bool(scaling.get("redistribute_on_pause", True))
+        from app.integration.outreach_send_quota import outreach_global_daily_cap
+        from app.integration.outreach_market_config import shared_global_mode
+
+        gcap = outreach_global_daily_cap()
+        shared = shared_global_mode()
 
         metrics_by = self.collect_market_metrics(rows)
         state = self._load_state()
         overrides = dict(state.get("cap_overrides") or {})
+        paused = dict(state.get("paused_markets") or {})
+        zero_weeks = dict(state.get("zero_order_weeks") or {})
         decisions: list[dict[str, Any]] = []
+        paused_now: list[str] = []
 
         for m in list_markets(enabled_only=True):
             code = str(m["code"]).upper()
@@ -339,20 +365,50 @@ class OutreachAdaptiveService:
             decision = "hold"
             new_cap = current
             reason = "stable"
+            orders = int(metrics.get("orders") or 0)
+            revenue = float(metrics.get("revenue_eur") or 0)
+            sent = int(metrics.get("sent") or 0)
 
-            if health.get("can_scale_up"):
-                new_cap = min(hi, current + step_up)
-                if new_cap > current:
-                    decision = "scale_up"
-                    reason = f"health={health['label']} score={health['score']}"
-            elif health.get("can_scale_down"):
-                new_cap = max(lo, current - step_down)
-                if new_cap < current:
-                    decision = "scale_down"
-                    reason = ",".join(health.get("reasons") or ["poor_health"])
+            # Auto-pause: N weeks of activity with 0 deals → pause market
+            if sent > 0 and orders <= 0 and revenue <= 0:
+                zero_weeks[code] = int(zero_weeks.get(code) or 0) + 1
+            else:
+                zero_weeks[code] = 0
+            if pause_weeks > 0 and int(zero_weeks.get(code) or 0) >= pause_weeks:
+                paused[code] = {
+                    "at": _utc_now().isoformat(),
+                    "weeks": zero_weeks[code],
+                    "reason": "zero_orders",
+                }
+                decision = "pause"
+                new_cap = 0
+                reason = f"auto_pause:{zero_weeks[code]}w_zero_orders"
+                paused_now.append(code)
+            elif paused.get(code) and (orders > 0 or revenue > 0):
+                paused.pop(code, None)
+                reason = "resume_after_revenue"
 
-            if auto_apply and decision != "hold":
+            if decision != "pause":
+                if health.get("can_scale_up"):
+                    new_cap = min(hi, current + step_up)
+                    if new_cap > current:
+                        decision = "scale_up"
+                        reason = f"health={health['label']} score={health['score']} revenue={revenue}"
+                elif health.get("can_scale_down"):
+                    new_cap = max(lo, current - step_down)
+                    if new_cap < current:
+                        decision = "scale_down"
+                        reason = ",".join(health.get("reasons") or ["poor_health"])
+                elif "replies_without_revenue" in (health.get("reasons") or []) or "no_revenue_hold" in (
+                    health.get("reasons") or []
+                ):
+                    decision = "hold"
+                    reason = "profit_hold:replies_without_revenue"
+
+            if auto_apply and decision in ("scale_up", "scale_down", "pause"):
                 overrides[code] = new_cap
+            elif auto_apply and decision == "hold" and code not in overrides:
+                overrides[code] = current
 
             decisions.append(
                 {
@@ -367,8 +423,52 @@ class OutreachAdaptiveService:
                     "recommended_cap": new_cap,
                     "reason": reason,
                     "applied": bool(auto_apply and decision != "hold"),
+                    "paused": bool(paused.get(code)),
                 }
             )
+
+        # Shared mailbox: renormalize soft budgets so they sum ≈ global_cap
+        # and shift freed pause budget toward profitable markets.
+        if auto_apply and shared:
+            active = [d for d in decisions if not paused.get(d["code"])]
+            if redistribute and paused_now:
+                freed = sum(int(overrides.get(c, 0) or 0) for c in paused_now)
+                for c in paused_now:
+                    overrides[c] = 0
+                profit_ranked = sorted(
+                    active,
+                    key=lambda d: (
+                        float((d["metrics"] or {}).get("revenue_eur") or 0),
+                        int((d["metrics"] or {}).get("orders") or 0),
+                        int((d["health"] or {}).get("score") or 0),
+                    ),
+                    reverse=True,
+                )
+                i = 0
+                while freed > 0 and profit_ranked:
+                    code = profit_ranked[i % len(profit_ranked)]["code"]
+                    cur = int(overrides.get(code, self.effective_daily_cap(code)) or 0)
+                    overrides[code] = min(hi, cur + 1)
+                    freed -= 1
+                    i += 1
+            # Cap sum of soft shares to global ceiling (weights, not hard fills)
+            active_codes = [d["code"] for d in decisions if not paused.get(d["code"])]
+            soft_sum = sum(int(overrides.get(c, lo) or 0) for c in active_codes) or 1
+            if soft_sum > gcap and active_codes:
+                scaled = {}
+                acc = 0
+                for idx, c in enumerate(active_codes):
+                    if idx == len(active_codes) - 1:
+                        scaled[c] = max(lo, gcap - acc)
+                    else:
+                        v = max(lo, int(round(int(overrides.get(c, lo) or 0) * gcap / soft_sum)))
+                        scaled[c] = v
+                        acc += v
+                overrides.update(scaled)
+            for d in decisions:
+                if d["code"] in overrides:
+                    d["to_cap"] = overrides[d["code"]]
+                    d["recommended_cap"] = overrides[d["code"]]
 
         total_after = sum(
             int(overrides.get(str(m["code"]).upper(), self.effective_daily_cap(str(m["code"]))))
@@ -376,16 +476,13 @@ class OutreachAdaptiveService:
             else self.effective_daily_cap(str(m["code"]))
             for m in list_markets(enabled_only=True)
         )
-        # Recompute with tentative overrides for interval
         if auto_apply:
             state["cap_overrides"] = overrides
-        new_interval = self.compute_interval_for_cap_total(
-            sum(int(overrides.get(str(m["code"]).upper(), base_market_daily_cap(str(m["code"])))) for m in list_markets(enabled_only=True))
-            if auto_apply
-            else total_after
-        )
+            state["paused_markets"] = paused
+            state["zero_order_weeks"] = zero_weeks
+        # Interval always paced to shared global mailbox ceiling
+        new_interval = self.compute_interval_for_cap_total(gcap if shared else max(1, min(gcap, total_after)))
         if auto_apply:
-            # If any scale_down, prefer longer interval (protect)
             if any(d["decision"] == "scale_down" for d in decisions):
                 new_interval = min(
                     int((cfg.get("interval") or {}).get("max_sec") or 600),
@@ -404,6 +501,8 @@ class OutreachAdaptiveService:
                 "at": now.isoformat(),
                 "auto_apply": auto_apply,
                 "interval_sec": state.get("interval_sec"),
+                "shared_global": shared,
+                "global_cap": gcap,
                 "decisions": [
                     {
                         "code": d["code"],
@@ -418,14 +517,11 @@ class OutreachAdaptiveService:
                 ],
             }
         )
-        state["history"] = history[-52:]  # ~1 year weekly
-        # Snapshot for graphs
+        state["history"] = history[-52:]
         snap = {
             "day": now.strftime("%Y-%m-%d"),
             "at": now.isoformat(),
-            "global_cap": sum(self.effective_daily_cap(str(m["code"])) for m in list_markets(enabled_only=True))
-            if not auto_apply
-            else sum(int(overrides.get(str(m["code"]).upper(), base_market_daily_cap(str(m["code"])))) for m in list_markets(enabled_only=True)),
+            "global_cap": gcap,
             "interval_sec": state.get("interval_sec"),
             "markets": {
                 d["code"]: {
@@ -436,6 +532,7 @@ class OutreachAdaptiveService:
                     "orders": d["metrics"].get("orders"),
                     "revenue_eur": d["metrics"].get("revenue_eur"),
                     "health_score": d["health"].get("score"),
+                    "paused": d.get("paused"),
                 }
                 for d in decisions
             },
@@ -449,10 +546,13 @@ class OutreachAdaptiveService:
             "ok": True,
             "skipped": False,
             "auto_apply": auto_apply,
+            "shared_global": shared,
+            "global_cap": gcap,
             "reviewed_at": state["last_review_at"],
             "next_review_at": state["next_review_at"],
             "interval_sec": state.get("interval_sec"),
             "decisions": decisions,
+            "paused_markets": list(paused.keys()),
             "note_ru": cfg.get("note_ru") or "",
         }
 
@@ -460,11 +560,26 @@ class OutreachAdaptiveService:
         cfg = _load_config()
         state = self._load_state()
         metrics_by = self.collect_market_metrics(rows)
+        roi_cfg = cfg.get("roi") or {}
+        cost_per = float(roi_cfg.get("cost_per_email_eur") or 0.05)
+        from app.integration.outreach_send_quota import outreach_global_daily_cap
+        from app.integration.outreach_market_config import shared_global_mode
+
+        paused = state.get("paused_markets") or {}
         countries = []
+        roi_table = []
         for m in list_markets(enabled_only=True):
             code = str(m["code"]).upper()
             metrics = metrics_by.get(code) or {}
             health = self.health_score(metrics, cfg)
+            sent = int(metrics.get("sent") or 0)
+            revenue = float(metrics.get("revenue_eur") or 0)
+            orders = int(metrics.get("orders") or 0)
+            spent = round(sent * cost_per, 2)
+            roi = None
+            if spent > 0:
+                roi = round((revenue - spent) / spent, 2)
+            is_paused = bool(paused.get(code))
             countries.append(
                 {
                     "code": code,
@@ -474,15 +589,22 @@ class OutreachAdaptiveService:
                     "base_cap": base_market_daily_cap(code),
                     "health": health,
                     "metrics": metrics,
+                    "paused": is_paused,
+                    "spent_eur": spent,
+                    "roi": roi,
                     "scaling_status": (
-                        "ready_up"
+                        "paused"
+                        if is_paused
+                        else "ready_up"
                         if health.get("can_scale_up")
                         else "protect"
                         if health.get("can_scale_down")
                         else "hold"
                     ),
                     "recommended_cap": (
-                        min(
+                        0
+                        if is_paused
+                        else min(
                             int((cfg.get("scaling") or {}).get("max_daily_cap") or 100),
                             self.effective_daily_cap(code)
                             + int((cfg.get("scaling") or {}).get("step_up") or 20),
@@ -498,6 +620,18 @@ class OutreachAdaptiveService:
                     ),
                 }
             )
+            roi_table.append(
+                {
+                    "code": code,
+                    "flag": m.get("flag") or "",
+                    "name_ru": m.get("name_ru") or code,
+                    "spent_eur": spent,
+                    "orders": orders,
+                    "revenue_eur": revenue,
+                    "roi": roi,
+                    "paused": is_paused,
+                }
+            )
 
         overall = 0
         if countries:
@@ -507,6 +641,8 @@ class OutreachAdaptiveService:
             "ok": True,
             "enabled": bool(cfg.get("enabled", True)),
             "auto_apply": bool(cfg.get("auto_apply", True)),
+            "shared_global": shared_global_mode(),
+            "global_daily_cap": outreach_global_daily_cap(),
             "note_ru": cfg.get("note_ru") or "",
             "current_health": overall,
             "current_health_label": (
@@ -517,6 +653,9 @@ class OutreachAdaptiveService:
             "last_review_at": state.get("last_review_at"),
             "interval_sec": self.effective_interval_sec(),
             "countries": countries,
+            "roi_table": roi_table,
+            "roi_note_ru": roi_cfg.get("note_ru") or "",
+            "paused_markets": list(paused.keys()),
             "last_decisions": state.get("last_decisions") or [],
             "history": state.get("history") or [],
             "graphs": self._graphs_from_snapshots(state.get("snapshots") or []),
@@ -524,6 +663,12 @@ class OutreachAdaptiveService:
                 "step_up": (cfg.get("scaling") or {}).get("step_up"),
                 "step_down": (cfg.get("scaling") or {}).get("step_down"),
                 "max_daily_cap": (cfg.get("scaling") or {}).get("max_daily_cap"),
+                "require_revenue_for_scale_up": (cfg.get("scaling") or {}).get(
+                    "require_revenue_for_scale_up"
+                ),
+                "auto_pause_weeks_without_orders": (cfg.get("scaling") or {}).get(
+                    "auto_pause_weeks_without_orders"
+                ),
                 "min_interval_sec": (cfg.get("interval") or {}).get("min_sec"),
                 "max_interval_sec": (cfg.get("interval") or {}).get("max_sec"),
                 "thresholds": cfg.get("thresholds") or {},

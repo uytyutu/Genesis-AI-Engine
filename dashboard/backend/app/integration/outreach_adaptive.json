@@ -11,8 +11,12 @@
   "scaling": {
     "step_up": 20,
     "step_down": 20,
-    "max_daily_cap": 100,
-    "min_daily_cap": 5
+    "max_daily_cap": 150,
+    "min_daily_cap": 5,
+    "require_revenue_for_scale_up": true,
+    "min_replies_without_revenue_hold": 3,
+    "auto_pause_weeks_without_orders": 3,
+    "redistribute_on_pause": true
   },
   "interval": {
     "min_sec": 60,
@@ -37,5 +41,15 @@
     "spam_penalty": 25,
     "volume_stability": 10
   },
-  "note_ru": "Adaptive Outreach меняет только daily_cap и интервалы. Отправка писем — только через CEO Approve (снайпер)."
+  "roi": {
+    "cost_per_email_eur": 0.05,
+    "note_ru": "Потрачено = sent × cost_per_email_eur (прокси). ROI = (revenue - spent) / spent."
+  },
+  "runner": {
+    "default_tick_sec": 90,
+    "leads_per_tick": 3,
+    "send_one_per_tick_if_enabled": true,
+    "note_ru": "Пуск крутит hunt/draft по тикам. Отправка письма — только если GENESIS_OUTREACH_ENABLED и есть Approve/high-win."
+  },
+  "note_ru": "Стартовые квоты по странам из markets.json. Profit HOLD: replies без выручки → не scale up. Письма — Approve/снайпер · quality-first."
 }

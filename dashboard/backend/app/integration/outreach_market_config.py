@@ -56,7 +56,7 @@ def market_daily_cap(code: str) -> int:
     if not m:
         return 20
     try:
-        return max(1, min(100, int(m.get("daily_cap") or 20)))
+        return max(1, min(200, int(m.get("daily_cap") or 20)))
     except (TypeError, ValueError):
         return 20
 
@@ -107,3 +107,51 @@ def default_min_interval_sec() -> int:
 
 def enabled_markets_sum_caps() -> int:
     return sum(market_daily_cap(str(m["code"])) for m in list_markets(enabled_only=True))
+
+
+def allocation_mode() -> str:
+    mode = str(_load_raw().get("allocation_mode") or "shared_global").strip().lower()
+    return mode if mode in ("shared_global", "per_market") else "shared_global"
+
+
+def quality_first() -> bool:
+    return bool(_load_raw().get("quality_first", True))
+
+
+def force_fill_quotas() -> bool:
+    return bool(_load_raw().get("force_fill_quotas", False))
+
+
+def shared_global_mode() -> bool:
+    """One mailbox / one daily ceiling; soft per-country budgets only."""
+    return allocation_mode() == "shared_global"
+
+
+def market_website_profile(code: str | None) -> dict[str, Any]:
+    m = get_market(code)
+    if not m:
+        return {}
+    site = m.get("website") if isinstance(m.get("website"), dict) else {}
+    return {
+        "code": str(m.get("code") or "").upper(),
+        "language": m.get("language"),
+        "template": m.get("template"),
+        "currency": m.get("currency") or "EUR",
+        "symbol": m.get("symbol") or "€",
+        "legal_profile": m.get("legal_profile"),
+        "locale": site.get("locale") or m.get("language") or "en",
+        "hreflang": site.get("hreflang") or "",
+        "legal_pages": list(site.get("legal_pages") or []),
+        "footer_profile": site.get("footer_profile") or m.get("legal_profile"),
+        "flag": m.get("flag") or "",
+        "name_en": m.get("name_en") or m.get("code"),
+        "name_ru": m.get("name_ru") or m.get("code"),
+        "enabled": bool(m.get("enabled")),
+    }
+
+
+def list_website_markets(*, enabled_only: bool = True) -> list[dict[str, Any]]:
+    return [
+        market_website_profile(str(m["code"]))
+        for m in list_markets(enabled_only=enabled_only)
+    ]

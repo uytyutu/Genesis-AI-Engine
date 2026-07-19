@@ -45,6 +45,15 @@ function suggestPackage(needsLogo: boolean, needsDomain: boolean, extra: string)
 
 export default function OrderSitePage() {
   const { t } = useTranslation("site");
+  const [marketParam, setMarketParam] = useState("");
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      setMarketParam((p.get("market") || p.get("country") || "").toUpperCase());
+    } catch {
+      setMarketParam("");
+    }
+  }, []);
   const launchDeliverables = useMemo(
     () => [t("order.launchD1"), t("order.launchD2"), t("order.launchD3"), t("order.launchD4")],
     [t],
@@ -168,6 +177,7 @@ export default function OrderSitePage() {
       if (visitorId) params.set("visitor_id", visitorId);
       if (city.trim()) params.set("city", city.trim());
       if (description.trim()) params.set("text", description.trim());
+      if (marketParam) params.set("market", marketParam);
       const qs = params.toString();
       const load = async () => {
         let lastFail = false;
@@ -198,7 +208,7 @@ export default function OrderSitePage() {
       void load();
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [visitorId, city, description]);
+  }, [visitorId, city, description, marketParam]);
 
   const suggestedId = useMemo(
     () =>
@@ -382,6 +392,7 @@ export default function OrderSitePage() {
             uses_analytics: legalAnalytics,
           },
           package_id: packageId,
+          market_code: commerce.market_code || marketParam || undefined,
           visitor_id: visitorId,
         }),
       });

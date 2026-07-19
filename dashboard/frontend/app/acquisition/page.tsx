@@ -56,12 +56,26 @@ type OutreachQuotaHealth = {
 type AdaptiveOutreach = {
   enabled?: boolean;
   note_ru?: string;
+  shared_global?: boolean;
+  global_daily_cap?: number;
   current_health?: number;
   current_health_label?: string;
   scaling_status?: string;
   next_review_at?: string | null;
   last_review_at?: string | null;
   interval_sec?: number;
+  paused_markets?: string[];
+  roi_note_ru?: string;
+  roi_table?: {
+    code: string;
+    flag?: string;
+    name_ru: string;
+    spent_eur: number;
+    orders: number;
+    revenue_eur: number;
+    roi: number | null;
+    paused?: boolean;
+  }[];
   countries?: {
     code: string;
     flag?: string;
@@ -69,6 +83,9 @@ type AdaptiveOutreach = {
     current_cap: number;
     recommended_cap: number;
     scaling_status: string;
+    paused?: boolean;
+    spent_eur?: number;
+    roi?: number | null;
     health: { score: number; label: string; reasons?: string[] };
   }[];
   last_decisions?: {
@@ -92,8 +109,27 @@ type AdaptiveOutreach = {
   };
 };
 
+type OutreachRunner = {
+  running?: boolean;
+  ticks?: number;
+  session_leads?: number;
+  session_drafts?: number;
+  session_sends?: number;
+  session_skipped?: number;
+  last_message_ru?: string | null;
+  last_tick_at?: string | null;
+  next_tick_at?: string | null;
+  interval_sec?: number;
+  outreach_send_enabled?: boolean;
+  note_ru?: string;
+  log?: { at: string; action: string; message_ru: string }[];
+};
+
 type MarketsDashboard = {
   note_ru?: string;
+  allocation_mode?: string;
+  quality_first?: boolean;
+  force_fill_quotas?: boolean;
   global_daily_cap?: number;
   min_interval_sec?: number;
   sent_today_total?: number;
@@ -133,6 +169,7 @@ type StudioStatus = {
   outreach_quota?: OutreachQuotaHealth | null;
   markets_dashboard?: MarketsDashboard | null;
   adaptive_outreach?: AdaptiveOutreach | null;
+  outreach_runner?: OutreachRunner | null;
   pilot_catalog?: {
     checkout_online: string[];
     pilot_quote: string[];
@@ -304,6 +341,32 @@ export default function AcquisitionPage() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  const runner = status?.outreach_runner;
+  const runnerRunning = Boolean(runner?.running);
+
+  useEffect(() => {
+    if (!runnerRunning) return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const res = await fetch(`${API}/api/acquisition/runner/tick`, { method: "POST" });
+        const body = await res.json();
+        if (cancelled) return;
+        if (body.last_message_ru) setMessage(String(body.last_message_ru));
+        await refresh();
+      } catch {
+        /* keep polling */
+      }
+    };
+    void tick();
+    const intervalMs = Math.max(15, Number(runner?.interval_sec || 90)) * 1000;
+    const id = window.setInterval(() => void tick(), intervalMs);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [runnerRunning, runner?.interval_sec, refresh]);
 
   async function approve(id: string) {
     setBusy(id);
@@ -540,6 +603,52 @@ export default function AcquisitionPage() {
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
             <button
               type="button"
+              disabled={busy === "runner-start" || runnerRunning}
+              onClick={() => {
+                void (async () => {
+                  setBusy("runner-start");
+                  setMessage("");
+                  try {
+                    const res = await fetch(`${API}/api/acquisition/runner/start`, {
+                      method: "POST",
+                    });
+                    const body = await res.json();
+                    setMessage(body.last_message_ru || "Country Desk запущен");
+                    await refresh();
+                  } finally {
+                    setBusy("");
+                  }
+                })();
+              }}
+              className="rounded-lg border border-emerald-500/50 bg-emerald-950/40 px-3 py-1.5 font-medium text-emerald-100 hover:bg-emerald-900/40 disabled:opacity-50"
+            >
+              {busy === "runner-start" ? "Пуск…" : "▶ Пуск"}
+            </button>
+            <button
+              type="button"
+              disabled={busy === "runner-stop" || !runnerRunning}
+              onClick={() => {
+                void (async () => {
+                  setBusy("runner-stop");
+                  setMessage("");
+                  try {
+                    const res = await fetch(`${API}/api/acquisition/runner/stop`, {
+                      method: "POST",
+                    });
+                    const body = await res.json();
+                    setMessage(body.last_message_ru || "Остановлено");
+                    await refresh();
+                  } finally {
+                    setBusy("");
+                  }
+                })();
+              }}
+              className="rounded-lg border border-rose-500/50 bg-rose-950/30 px-3 py-1.5 font-medium text-rose-100 hover:bg-rose-900/40 disabled:opacity-50"
+            >
+              {busy === "runner-stop" ? "Стоп…" : "⏹ Стоп"}
+            </button>
+            <button
+              type="button"
               disabled={busy === "refresh"}
               onClick={() => {
                 void (async () => {
@@ -559,9 +668,9 @@ export default function AcquisitionPage() {
                   }
                 })();
               }}
-              className="rounded-lg border border-emerald-500/50 bg-emerald-950/40 px-3 py-1.5 font-medium text-emerald-100 hover:bg-emerald-900/40 disabled:opacity-50"
+              className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40 disabled:opacity-50"
             >
-              {busy === "refresh" ? "Генерация…" : "▶ Пуск · генерация лидов"}
+              {busy === "refresh" ? "Генерация…" : "Один цикл · hunt"}
             </button>
             <button
               type="button"
@@ -611,6 +720,32 @@ export default function AcquisitionPage() {
               Журнал
             </Link>
           </div>
+          {runner ? (
+            <div
+              className={`mt-3 rounded-lg border px-3 py-2 text-xs ${
+                runnerRunning
+                  ? "border-emerald-500/40 bg-emerald-950/20 text-emerald-100"
+                  : "border-genesis-border bg-genesis-elevated/20 text-genesis-muted"
+              }`}
+            >
+              <p className="font-medium text-white/90">
+                {runnerRunning ? "● Работает" : "○ Остановлен"} · тиков {runner.ticks ?? 0} · leads{" "}
+                {runner.session_leads ?? 0} · drafts {runner.session_drafts ?? 0} · sends{" "}
+                {runner.session_sends ?? 0} · skip {runner.session_skipped ?? 0} · интервал ~
+                {runner.interval_sec ?? "—"}с
+              </p>
+              <p className="mt-1">{runner.last_message_ru || runner.note_ru}</p>
+              {runner.log && runner.log.length > 0 ? (
+                <ul className="mt-2 max-h-28 space-y-0.5 overflow-y-auto text-[11px] text-white/70">
+                  {[...runner.log].reverse().slice(0, 8).map((e) => (
+                    <li key={`${e.at}-${e.action}`}>
+                      {String(e.at).slice(11, 19)} · {e.action}: {e.message_ru}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
         </header>
 
         {funnel?.stages ? (
@@ -744,11 +879,13 @@ export default function AcquisitionPage() {
 
         {status?.markets_dashboard?.table?.length ? (
           <section className="genesis-card space-y-3 p-5">
-            <h2 className="text-sm font-semibold">Рынки · лимит / отправлено / ответы / заказы</h2>
+            <h2 className="text-sm font-semibold">Рынки · старт-квота / отправлено / ответы / заказы</h2>
             <p className="text-xs text-genesis-muted">
               {status.markets_dashboard.note_ru ||
-                "Конфиг outreach_markets.json — новая страна без правки кода."}{" "}
-              Вкл: {status.markets_dashboard.enabled_count ?? 0} · план:{" "}
+                "Стартовые квоты по странам · только качественные лиды · не заполняем любой ценой."}{" "}
+              mode={status.markets_dashboard.allocation_mode || "per_market"} · quality_first=
+              {String(status.markets_dashboard.quality_first ?? true)} · Вкл:{" "}
+              {status.markets_dashboard.enabled_count ?? 0} · план:{" "}
               {status.markets_dashboard.planned_count ?? 0}
             </p>
             <div className="overflow-x-auto">
@@ -833,7 +970,7 @@ export default function AcquisitionPage() {
                     <tr className="border-b border-genesis-border-subtle">
                       <th className="py-2 pr-2">Страна</th>
                       <th className="py-2 pr-2">Health</th>
-                      <th className="py-2 pr-2">Cap</th>
+                      <th className="py-2 pr-2">Soft share</th>
                       <th className="py-2 pr-2">Recommended</th>
                       <th className="py-2">Auto Decision</th>
                     </tr>
@@ -843,6 +980,9 @@ export default function AcquisitionPage() {
                       <tr key={c.code} className="border-b border-white/5 text-white/90">
                         <td className="py-2 pr-2">
                           {c.flag} {c.name_ru}
+                          {c.paused ? (
+                            <span className="ml-1 text-[10px] text-rose-300">PAUSE</span>
+                          ) : null}
                         </td>
                         <td className="py-2 pr-2">
                           {c.health?.score} · {c.health?.label}
@@ -850,6 +990,39 @@ export default function AcquisitionPage() {
                         <td className="py-2 pr-2 tabular-nums">{c.current_cap}</td>
                         <td className="py-2 pr-2 tabular-nums">{c.recommended_cap}</td>
                         <td className="py-2">{c.scaling_status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+            {status.adaptive_outreach.roi_table?.length ? (
+              <div className="overflow-x-auto">
+                <p className="mb-1 text-[11px] font-medium text-white/80">
+                  ROI Dashboard · {status.adaptive_outreach.roi_note_ru || "spent = sent × cost proxy"}
+                </p>
+                <table className="w-full min-w-[32rem] text-left text-xs">
+                  <thead className="text-genesis-muted">
+                    <tr className="border-b border-genesis-border-subtle">
+                      <th className="py-2 pr-2">Страна</th>
+                      <th className="py-2 pr-2">Потрачено</th>
+                      <th className="py-2 pr-2">Сделок</th>
+                      <th className="py-2 pr-2">Выручка</th>
+                      <th className="py-2">ROI</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {status.adaptive_outreach.roi_table.map((r) => (
+                      <tr key={`roi-${r.code}`} className="border-b border-white/5 text-white/90">
+                        <td className="py-2 pr-2">
+                          {r.flag} {r.name_ru}
+                        </td>
+                        <td className="py-2 pr-2 tabular-nums">{r.spent_eur} €</td>
+                        <td className="py-2 pr-2 tabular-nums">{r.orders}</td>
+                        <td className="py-2 pr-2 tabular-nums">{r.revenue_eur} €</td>
+                        <td className="py-2 tabular-nums">
+                          {r.roi == null ? "—" : `${r.roi}x`}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
