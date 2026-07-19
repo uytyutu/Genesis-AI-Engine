@@ -16,7 +16,7 @@ export const LOCALE_REGISTRY: readonly LocaleDefinition[] = [
   { code: "en", nativeName: "English", englishName: "English", translated: true },
   { code: "ru", nativeName: "Русский", englishName: "Russian", translated: true },
   { code: "de", nativeName: "Deutsch", englishName: "German", translated: true },
-  { code: "uk", nativeName: "Українська", englishName: "Ukrainian" },
+  { code: "uk", nativeName: "Українська", englishName: "Ukrainian", translated: true },
   { code: "fr", nativeName: "Français", englishName: "French" },
   { code: "es", nativeName: "Español", englishName: "Spanish" },
   { code: "it", nativeName: "Italiano", englishName: "Italian" },
@@ -58,6 +58,7 @@ const TAG_ALIASES: Record<string, UiLocale> = {
   "zh-mo": "zh-Hant",
   "pt-br": "pt",
   "pt-pt": "pt",
+  "uk-ua": "uk",
   iw: "he",
 };
 

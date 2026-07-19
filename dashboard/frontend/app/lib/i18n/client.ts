@@ -3,7 +3,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-import { DEFAULT_UI_LOCALE, type UiLocale } from "../locale/types";
+import { type UiLocale } from "../locale/types";
 import { localeResources } from "./resources";
 
 let initialized = false;
@@ -13,7 +13,9 @@ export function ensureI18n(uiLocale: UiLocale): typeof i18n {
     void i18n.use(initReactI18next).init({
       resources: localeResources,
       lng: uiLocale,
-      fallbackLng: DEFAULT_UI_LOCALE,
+      fallbackLng: "en",
+      supportedLngs: Object.keys(localeResources),
+      nonExplicitSupportedLngs: true,
       defaultNS: "common",
       ns: ["common", "chat", "site", "errors"],
       interpolation: { escapeValue: false },

@@ -19,9 +19,11 @@
     "more": "Weitere Sprachen…",
     "less": "Weniger",
     "fallbackNote": "Sprachen ohne vollständiges Paket nutzen Englisch für die Oberfläche.",
+    "fullPackNote": "Nur Sprachen mit vollständigem Oberflächenpaket (DE, UK, RU, EN).",
     "ru": "Русский",
     "en": "English",
-    "de": "Deutsch"
+    "de": "Deutsch",
+    "uk": "Українська"
   },
   "skipToContent": "Zum Inhalt springen",
   "surface": {

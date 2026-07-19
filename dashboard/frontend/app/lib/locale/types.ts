@@ -19,4 +19,4 @@ export {
 } from "./registry";
 
 /** @deprecated use LOCALE_REGISTRY — kept for legacy imports */
-export const SUPPORTED_LOCALES = ["ru", "en", "de"] as const;
+export const SUPPORTED_LOCALES = ["ru", "en", "de", "uk"] as const;

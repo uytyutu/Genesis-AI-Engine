@@ -19,9 +19,11 @@
     "more": "More languages…",
     "less": "Less",
     "fallbackNote": "Languages without a full UI pack use English interface strings.",
+    "fullPackNote": "Only languages with a full interface pack (DE, UK, RU, EN).",
     "ru": "Русский",
     "en": "English",
-    "de": "Deutsch"
+    "de": "Deutsch",
+    "uk": "Українська"
   },
   "skipToContent": "Skip to content",
   "surface": {

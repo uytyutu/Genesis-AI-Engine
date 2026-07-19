@@ -10,6 +10,10 @@ import ruChat from "../../../locales/ru/chat.json";
 import ruCommon from "../../../locales/ru/common.json";
 import ruErrors from "../../../locales/ru/errors.json";
 import ruSite from "../../../locales/ru/site.json";
+import ukChat from "../../../locales/uk/chat.json";
+import ukCommon from "../../../locales/uk/common.json";
+import ukErrors from "../../../locales/uk/errors.json";
+import ukSite from "../../../locales/uk/site.json";
 import { LOCALE_REGISTRY } from "../locale/registry";
 
 type LocaleBundle = Record<string, object>;
@@ -18,6 +22,7 @@ const translatedBundles: Record<string, LocaleBundle> = {
   ru: { common: ruCommon, chat: ruChat, site: ruSite, errors: ruErrors },
   en: { common: enCommon, chat: enChat, site: enSite, errors: enErrors },
   de: { common: deCommon, chat: deChat, site: deSite, errors: deErrors },
+  uk: { common: ukCommon, chat: ukChat, site: ukSite, errors: ukErrors },
 };
 
 const englishFallback = translatedBundles.en;

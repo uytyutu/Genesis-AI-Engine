@@ -12,27 +12,30 @@ import {
   type UiLocale,
 } from "../lib/locale/types";
 
-/** Primary market languages — always first on public mobile. */
-const PUBLIC_QUICK: readonly UiLocale[] = ["de", "ru", "en"];
+/** Full UI packs — always first on public Path A. */
+const PUBLIC_QUICK: readonly UiLocale[] = ["de", "uk", "ru", "en"];
 
 function LocaleSearchList({
   label,
   value,
-  disabled,
   onPick,
+  translatedOnly = false,
 }: {
   label: string;
   value: UiLocale;
-  disabled?: boolean;
   onPick: (code: UiLocale) => void;
+  /** Public site: only languages with a real pack (no silent EN fallback). */
+  translatedOnly?: boolean;
 }) {
   const { t } = useTranslation("common");
   const [query, setQuery] = useState("");
 
-  const filtered = useMemo(
-    () => LOCALE_REGISTRY.filter((def) => localeMatchesQuery(def, query)),
-    [query],
-  );
+  const filtered = useMemo(() => {
+    const base = translatedOnly
+      ? LOCALE_REGISTRY.filter((def) => def.translated)
+      : [...LOCALE_REGISTRY].sort((a, b) => Number(b.translated) - Number(a.translated));
+    return base.filter((def) => localeMatchesQuery(def, query));
+  }, [query, translatedOnly]);
 
   return (
     <div className="mb-4 last:mb-0">
@@ -40,10 +43,9 @@ function LocaleSearchList({
       <input
         type="search"
         value={query}
-        disabled={disabled}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("language.search")}
-        className="mb-2 w-full rounded-lg border border-genesis-border-subtle bg-genesis-bg px-3 py-2 text-sm text-white placeholder:text-genesis-muted/60 disabled:opacity-50"
+        className="mb-2 w-full rounded-lg border border-genesis-border-subtle bg-genesis-bg px-3 py-2 text-sm text-white placeholder:text-genesis-muted/60"
         dir="auto"
         autoComplete="off"
         spellCheck={false}
@@ -64,9 +66,8 @@ function LocaleSearchList({
                   type="button"
                   role="option"
                   aria-selected={active}
-                  disabled={disabled}
                   onClick={() => onPick(def.code)}
-                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition hover:bg-white/5 disabled:opacity-50 ${
+                  className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition hover:bg-white/5 ${
                     active ? "bg-genesis-accent/15 text-white" : "text-genesis-text"
                   }`}
                   dir={def.rtl ? "rtl" : "ltr"}
@@ -88,11 +89,11 @@ function LocaleSearchList({
 export function LanguageSwitcher({
   compact = false,
 }: {
-  /** Public Path A: quick DE/RU/EN, mobile-safe panel (no empty chrome clash). */
+  /** Public Path A: quick DE/UK/RU/EN, mobile-safe panel. */
   compact?: boolean;
 }) {
-  const { t } = useTranslation("common");
-  const { autoDetect, uiLocale, assistantLocale, setAutoDetect, setUiLocale, setAssistantLocale, applyUiLocale } =
+  const { t, i18n } = useTranslation("common");
+  const { autoDetect, uiLocale, assistantLocale, setAutoDetect, setAssistantLocale, applyUiLocale } =
     useLocale();
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -124,8 +125,10 @@ export function LanguageSwitcher({
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  function pickPublic(code: UiLocale) {
+  /** One path for every UI pick — turns off auto, syncs assistant, changes i18n. */
+  function pickLanguage(code: UiLocale) {
     applyUiLocale(code);
+    void i18n.changeLanguage(code);
     setOpen(false);
     setMoreOpen(false);
   }
@@ -168,7 +171,7 @@ export function LanguageSwitcher({
                 />
                 <span>{t("language.auto")}</span>
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {PUBLIC_QUICK.map((code) => {
                   const def = getLocaleDefinition(code);
                   const active = !autoDetect && uiLocale === code;
@@ -176,7 +179,7 @@ export function LanguageSwitcher({
                     <button
                       key={code}
                       type="button"
-                      onClick={() => pickPublic(code)}
+                      onClick={() => pickLanguage(code)}
                       className={`rounded-lg border px-2 py-2.5 text-center text-sm transition ${
                         active
                           ? "border-genesis-accent/50 bg-genesis-accent/15 text-white"
@@ -204,9 +207,12 @@ export function LanguageSwitcher({
                   <LocaleSearchList
                     label={t("language.ui")}
                     value={uiLocale}
-                    disabled={false}
-                    onPick={(code) => applyUiLocale(code)}
+                    translatedOnly
+                    onPick={pickLanguage}
                   />
+                  <p className="mt-2 text-[10px] leading-relaxed text-genesis-muted">
+                    {t("language.fullPackNote")}
+                  </p>
                 </div>
               ) : null}
             </>
@@ -224,13 +230,15 @@ export function LanguageSwitcher({
               <LocaleSearchList
                 label={t("language.ui")}
                 value={uiLocale}
-                disabled={autoDetect}
-                onPick={(code) => setUiLocale(code)}
+                onPick={pickLanguage}
               />
               <LocaleSearchList
                 label={t("language.assistant")}
                 value={assistantLocale}
-                onPick={(code: AssistantLocale) => setAssistantLocale(code)}
+                onPick={(code: AssistantLocale) => {
+                  setAssistantLocale(code);
+                  setOpen(false);
+                }}
               />
               <p className="mt-1 text-[10px] leading-relaxed text-genesis-muted">
                 {t("language.fallbackNote")}

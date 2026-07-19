@@ -38,6 +38,7 @@ _PROFANITY = frozenset(
 _EMPTY_PUBLIC_MESSAGE_RU = "Отзывы появятся после выполнения первых заказов."
 _EMPTY_PUBLIC_MESSAGE_DE = "Bewertungen erscheinen nach den ersten abgeschlossenen Aufträgen."
 _EMPTY_PUBLIC_MESSAGE_EN = "Reviews will appear after the first completed orders."
+_EMPTY_PUBLIC_MESSAGE_UK = "Відгуки з’являться після виконання перших замовлень."
 
 
 def new_review_token() -> str:
@@ -262,6 +263,7 @@ class ClientReviewService:
                 "ru": _EMPTY_PUBLIC_MESSAGE_RU,
                 "de": _EMPTY_PUBLIC_MESSAGE_DE,
                 "en": _EMPTY_PUBLIC_MESSAGE_EN,
+                "uk": _EMPTY_PUBLIC_MESSAGE_UK,
             }.get((lang or "de")[:2], _EMPTY_PUBLIC_MESSAGE_DE)
             return {
                 "has_reviews": False,

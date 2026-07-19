@@ -27,7 +27,7 @@ SUPPORTED = frozenset(
     }
 )
 
-CEO_PACK_LOCALES = frozenset({"ru", "en", "de"})
+CEO_PACK_LOCALES = frozenset({"ru", "en", "de", "uk"})
 DEFAULT_LOCALE = "ru"
 FALLBACK_LOCALE = "en"
 
@@ -82,7 +82,7 @@ def effective_chat_locale(ui_locale: str | None, user_message: str) -> str:
 
 
 def assistant_response_locale(requested: str | None, question: str) -> str:
-    """Rule-based assistant: full templates for ru/en/de; others → en until LLM stage."""
+    """Rule-based assistant: full templates for ru/en/de/uk; others → en until LLM stage."""
     locale = effective_chat_locale(requested, question)
     if locale in CEO_PACK_LOCALES:
         return locale
@@ -122,6 +122,10 @@ def assistant_llm_language_hint(locale: str, assistant_name: str, brand_name: st
             f"Schreiben Sie Ihre Antwort auf Deutsch als {assistant_name}: lebendig, "
             "ohne Vorlagen, ohne Zitat des Briefs."
         ),
+        "uk": (
+            f"Пишіть відповідь українською як {assistant_name}: живо, без шаблонів, "
+            "без цитування brief."
+        ),
     }
     return hints[loc]
 
@@ -140,11 +144,15 @@ _SERVICE_COPY: dict[str, dict[str, str]] = {
             "Entschuldigung, gerade konnte ich keine Antwort formulieren. "
             "Formulieren Sie es anders — ich bin für Sie da."
         ),
+        "uk": 'Вибачте, зараз не вдалося сформувати відповідь. Спробуйте переформулювати — я тут, щоб допомогти.',
+
     },
     "attachment_ack": {
         "ru": "Спасибо, я вижу ваши файлы.\n\n",
         "en": "Thanks, I see your files.\n\n",
         "de": "Danke, ich sehe Ihre Dateien.\n\n",
+        "uk": 'Дякую, я бачу ваші файли.\n\n',
+
     },
     "attachment_ack_stored_only": {
         "ru": (
@@ -162,16 +170,22 @@ _SERVICE_COPY: dict[str, dict[str, str]] = {
             "Der Inhalt wird **noch nicht analysiert** — ich sehe nur den Dateinamen. "
             "Beschreiben Sie bitte das Wichtige in Ihrer Nachricht.\n\n"
         ),
+        "uk": 'Файл(и) отримано: {{files}}.\nВміст поки **не аналізується** — я бачу лише ім’я файлу. Опишіть, що важливо, текстом у повідомленні.\n\n',
+
     },
     "attachment_ack_parsed": {
         "ru": "Прочитал: {{files}}.\n\n",
         "en": "Read: {{files}}.\n\n",
         "de": "Gelesen: {{files}}.\n\n",
+        "uk": 'Прочитав: {{files}}.\n\n',
+
     },
     "attachment_brain_legacy": {
         "ru": "Клиент прикрепил файлы:",
         "en": "Client attached files:",
         "de": "Kunde hat Dateien angehängt:",
+        "uk": 'Клієнт прикріпив файли:',
+
     },
     "attachment_brain_stored_header": {
         "ru": (
@@ -186,21 +200,29 @@ _SERVICE_COPY: dict[str, dict[str, str]] = {
             "Anhänge (nur Dateinamen — Inhalt NICHT verfügbar). "
             "Behaupte nicht, das Dokument gelesen zu haben."
         ),
+        "uk": 'Вкладення (лише імена файлів — вміст НЕ доступний). Не стверджуй, що читав документ. Попроси описати суть словами.',
+
     },
     "attachment_brain_parsed_header": {
         "ru": "Вложения (часть содержимого доступна ниже):",
         "en": "Attachments (some content available below):",
         "de": "Anhänge (ein Teil des Inhalts unten):",
+        "uk": 'Вкладення (частина вмісту доступна нижче):',
+
     },
     "attachment_brain_stored_only": {
         "ru": "сохранено, содержимое не прочитано",
         "en": "stored only, content not read",
         "de": "nur gespeichert, Inhalt nicht gelesen",
+        "uk": 'збережено, вміст не прочитано',
+
     },
     "attachment_brain_parsed": {
         "ru": "содержимое извлечено",
         "en": "content extracted",
         "de": "Inhalt extrahiert",
+        "uk": 'вміст витягнуто',
+
     },
     "files_only_prompt_transparency": {
         "ru": (
@@ -215,6 +237,8 @@ _SERVICE_COPY: dict[str, dict[str, str]] = {
             "Kunde hat Dateien ohne Text angehängt. Inhalt nicht verfügbar — "
             "nur Namen. Bitte um eine kurze Beschreibung."
         ),
+        "uk": 'Клієнт прикріпив файли без тексту. Вміст файлів недоступний — лише імена. Попроси коротко описати задачу словами.',
+
     },
     "intake_pdf_brain_rules": {
         "ru": (
@@ -235,6 +259,8 @@ _SERVICE_COPY: dict[str, dict[str, str]] = {
             "Sicherheit: direktes Zitat → «Im Dokument steht…»; Schlussfolgerung → «Es scheint, dass…»; "
             "unsicher → «Das lässt sich aus dem PDF nicht eindeutig bestimmen.»"
         ),
+        "uk": 'РЕЖИМ ДОКУМЕНТА (PDF). Відповідай ТІЛЬКИ за текстом PDF нижче — не з загальних знань.\nЯкщо відповіді немає в документі — скажи: «Я не знайшов цього в документі.»\nВпевненість: пряме цитування → «У документі зазначено…»; висновок → «Схоже, що…»; сумнів → «Не можу однозначно визначити за цим PDF.»',
+
     },
     "attachment_ack_pdf_read": {
         "ru": (
@@ -249,6 +275,8 @@ _SERVICE_COPY: dict[str, dict[str, str]] = {
             "PDF gelesen: {{files}} (erste {{pages}} von {{total}} Seiten).\n"
             "Antwort basiert auf dem Dokument.\n\n"
         ),
+        "uk": 'Прочитав PDF: {{files}} (перші {{pages}} з {{total}} стор.).\nВідповідаю за вмістом документа.\n\n',
+
     },
 }
 

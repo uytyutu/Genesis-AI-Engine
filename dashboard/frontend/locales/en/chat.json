@@ -31,6 +31,12 @@
   "micStop": "Stop recording",
   "voiceSettings": "Voice settings",
   "generationStopped": "— generation stopped —",
+  "projectPreparing": "Still assembling the project…",
+  "projectWait": {
+    "working": "Continuing work on the project…",
+    "structure": "Building the project structure…",
+    "details": "Clarifying project details…"
+  },
   "newChat": "New task",
   "back": "← Back",
   "backHome": "← Home",

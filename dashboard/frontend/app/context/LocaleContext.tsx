@@ -86,7 +86,10 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
         const next: LocaleState = {
           autoDetect: false,
           uiLocale,
-          assistantLocale: prev.assistantLocale === prev.uiLocale ? uiLocale : prev.assistantLocale,
+          // Public chips use applyUiLocale (UI+assistant together). Full panel may
+          // keep assistant separate until the user changes it too.
+          assistantLocale:
+            prev.assistantLocale === prev.uiLocale ? uiLocale : prev.assistantLocale,
         };
         persistLocaleState(next);
         void i18n.changeLanguage(next.uiLocale);
