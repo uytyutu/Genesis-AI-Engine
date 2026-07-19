@@ -1,0 +1,5 @@
+CC0-1.0
+
+Original low-poly stylized tooth mesh created for Virtus Core research_3d dental preset.
+Released into the public domain under CC0 1.0 Universal.
+No third-party model was downloaded for this file.

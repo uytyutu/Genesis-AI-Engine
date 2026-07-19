@@ -1,0 +1,33 @@
+FPS checklist — research 3D dental reference (CEO phone)
+
+Goal: confirm the dental hero feels smooth before any 3d_premium checkout talk.
+Path A Classic/CSS is unchanged; this is research-only.
+
+1) Prepare
+   - Copy scenes/dental/ (hero.glb + LICENSE + CREDITS) to a laptop/desktop with a simple
+     glTF viewer (Windows 3D Viewer, https://gltf-viewer.donmccurdy.com, or Blender).
+   - Optional: open _research_3d/runtime/fallback_demo.html on the phone — confirms WebGL detect.
+
+2) Gate (already automated)
+   py -3.12 scripts/research_3d_gate.py --scene dashboard/backend/_research_3d/scenes/dental
+   Expect: license ok, budget ok, delivery_mode webgl_3d (or css_motion with --no-webgl).
+
+3) Visual / FPS on YOUR phone (strict judge)
+   - Open the model in a mobile browser glTF viewer (same Wi‑Fi as PC, or upload glb temporarily).
+   - Rotate / pinch for 20–30 seconds.
+   - Pass if: no hitching when rotating, no overheating after ~30s, page stays responsive.
+   - Fail if: drops feel like slideshow, canvas freezes, or browser tab crashes.
+
+4) Soft fallback
+   - On a device/browser without WebGL (or with WebGL disabled), fallback_demo.html must show
+     the CSS-motion message — never a black broken canvas.
+
+5) Decision
+   - PASS phone FPS + PASS gate → keep dental status ready; still WAITLIST in checkout.
+   - Only after you personally PASS on phone do we discuss flipping 3d_premium out of waitlist.
+
+Record (fill by hand):
+   Device: _______________
+   Browser: _______________
+   Result: PASS / FAIL
+   Notes: _______________

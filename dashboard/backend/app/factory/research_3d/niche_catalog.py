@@ -1,60 +1,77 @@
-"""Niche × market scene slots for future 3D library (stubs only — no Path A wiring)."""
+"""Sync research 3D niche slots 1:1 with Factory known_niche_ids()."""
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
-# One scene slot per niche — fill with optimized GLB + CREDITS when researching.
-NICHE_SCENE_SLOTS: tuple[dict[str, Any], ...] = (
-    {"niche_id": "dental", "scene": "clinic_hero", "status": "empty"},
-    {"niche_id": "law", "scene": "office_hero", "status": "empty"},
-    {"niche_id": "auto", "scene": "workshop_hero", "status": "empty"},
-    {"niche_id": "cafe", "scene": "interior_hero", "status": "empty"},
-    {"niche_id": "salon", "scene": "studio_hero", "status": "empty"},
-    {"niche_id": "clinic", "scene": "medical_hero", "status": "empty"},
-    {"niche_id": "it", "scene": "product_hero", "status": "empty"},
-    {"niche_id": "local_service", "scene": "generic_hero", "status": "empty"},
-)
+# Default hero scene name per Path A niche (one preset each).
+_SCENE_FOR_NICHE: dict[str, str] = {
+    "auto": "workshop_hero",
+    "appliance": "appliance_hero",
+    "beauty": "salon_hero",
+    "computer": "device_hero",
+    "dental": "clinic_hero",
+    "energy": "solar_hero",
+    "generic": "storefront_hero",
+    "green": "garden_hero",
+    "handwerk": "craft_hero",
+    "law": "office_hero",
+}
 
-# Markets reuse the same scene mesh; locale/legal stay Path A Classic/CSS.
-MARKET_SLOTS: tuple[str, ...] = (
-    "DE",
-    "AT",
-    "CH",
-    "US",
-    "GB",
-    "IE",
-    "CA",
-    "AU",
-    "NZ",
-    "FR",
-    "IT",
-    "ES",
-    "NL",
-    "BE",
-    "PT",
-    "PL",
-    "CZ",
-    "SK",
-    "RO",
-    "UA",
-    "RU",
-)
+_RESEARCH_SCENES = Path(__file__).resolve().parents[3] / "_research_3d" / "scenes"
+
+
+def _scene_status(niche_id: str) -> str:
+    root = _RESEARCH_SCENES / niche_id
+    has_model = (root / "hero.glb").is_file() or (root / "hero.gltf").is_file()
+    has_lic = any(
+        (root / n).is_file()
+        for n in ("LICENSE.txt", "LICENSE", "license.txt", "MODEL_LICENSE.txt")
+    )
+    has_credits = (root / "CREDITS.txt").is_file()
+    if has_model and has_lic and has_credits:
+        return "ready"
+    if has_model or has_lic or has_credits:
+        return "partial"
+    return "empty"
 
 
 def list_niche_slots() -> list[dict[str, Any]]:
-    return [dict(x) for x in NICHE_SCENE_SLOTS]
+    from app.factory.niche_profiles import known_niche_ids
+
+    out: list[dict[str, Any]] = []
+    for niche_id in known_niche_ids():
+        scene = _SCENE_FOR_NICHE.get(niche_id, f"{niche_id}_hero")
+        out.append(
+            {
+                "niche_id": niche_id,
+                "scene": scene,
+                "status": _scene_status(niche_id),
+                "asset_dir": f"scenes/{niche_id}",
+            }
+        )
+    return out
 
 
 def list_market_slots() -> list[str]:
-    return list(MARKET_SLOTS)
+    from app.factory.market_delivery import PATH_A_DELIVERY_MARKETS
+
+    return list(PATH_A_DELIVERY_MARKETS)
 
 
 def niche_coverage() -> dict[str, Any]:
-    filled = sum(1 for n in NICHE_SCENE_SLOTS if n.get("status") == "ready")
+    slots = list_niche_slots()
+    filled = sum(1 for n in slots if n.get("status") == "ready")
+    markets = list_market_slots()
     return {
-        "niches_total": len(NICHE_SCENE_SLOTS),
+        "niches_total": len(slots),
         "niches_ready": filled,
-        "markets_total": len(MARKET_SLOTS),
-        "note": "Scene mesh is niche-scoped; market only changes copy/legal via Path A packs.",
+        "markets_total": len(markets),
+        "note": (
+            "Scene mesh is niche-scoped and aligned with Factory known_niche_ids(); "
+            "market only changes copy/legal via Path A packs."
+        ),
+        "reference_niche": "dental",
+        "slots": slots,
     }

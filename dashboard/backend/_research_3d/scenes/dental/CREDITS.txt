@@ -1,0 +1,6 @@
+Asset: hero.glb (stylized dental tooth, low-poly)
+Author: Virtus Core (original mesh)
+Source: scripts/generate_dental_research_glb.py
+License: CC0-1.0 Universal
+Date: 2026-07-19
+Notes: Research reference preset for niche=dental. Not Path A production.

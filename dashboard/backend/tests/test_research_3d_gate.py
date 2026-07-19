@@ -50,10 +50,17 @@ def test_fallback_matrix():
 def test_niche_and_market_slots():
     niches = list_niche_slots()
     markets = list_market_slots()
-    assert len(niches) >= 8
+    from app.factory.niche_profiles import known_niche_ids
+
+    ids = {n["niche_id"] for n in niches}
+    assert ids == set(known_niche_ids())
     assert "DE" in markets and "US" in markets and "UA" in markets
     cov = niche_coverage()
-    assert cov["niches_ready"] == 0  # skeleton: empty until assets added
+    assert cov["reference_niche"] == "dental"
+    # dental reference preset is ready after hero.glb + LICENSE + CREDITS
+    dental = next(n for n in niches if n["niche_id"] == "dental")
+    assert dental["status"] == "ready"
+    assert cov["niches_ready"] >= 1
 
 
 def test_path_a_factory_does_not_import_research_3d():

@@ -1,14 +1,18 @@
 {
-  "version": 1,
-  "policy": "Scene mesh is niche-scoped. Markets do not get unique meshes — only copy/legal via Path A.",
+  "version": 2,
+  "policy": "Slots must match Factory known_niche_ids() 1:1. One niche = one approved 3D preset.",
+  "synced_from": "app.factory.niche_profiles.known_niche_ids",
+  "reference_niche": "dental",
   "niches": [
-    {"niche_id": "dental", "scene": "clinic_hero", "status": "empty", "asset_dir": "scenes/dental"},
-    {"niche_id": "law", "scene": "office_hero", "status": "empty", "asset_dir": "scenes/law"},
-    {"niche_id": "auto", "scene": "workshop_hero", "status": "empty", "asset_dir": "scenes/auto"},
-    {"niche_id": "cafe", "scene": "interior_hero", "status": "empty", "asset_dir": "scenes/cafe"},
-    {"niche_id": "salon", "scene": "studio_hero", "status": "empty", "asset_dir": "scenes/salon"},
-    {"niche_id": "clinic", "scene": "medical_hero", "status": "empty", "asset_dir": "scenes/clinic"},
-    {"niche_id": "it", "scene": "product_hero", "status": "empty", "asset_dir": "scenes/it"},
-    {"niche_id": "local_service", "scene": "generic_hero", "status": "empty", "asset_dir": "scenes/local_service"}
+    {"niche_id": "appliance", "scene": "appliance_hero", "asset_dir": "scenes/appliance"},
+    {"niche_id": "auto", "scene": "workshop_hero", "asset_dir": "scenes/auto"},
+    {"niche_id": "beauty", "scene": "salon_hero", "asset_dir": "scenes/beauty"},
+    {"niche_id": "computer", "scene": "device_hero", "asset_dir": "scenes/computer"},
+    {"niche_id": "dental", "scene": "clinic_hero", "asset_dir": "scenes/dental", "status_hint": "reference"},
+    {"niche_id": "energy", "scene": "solar_hero", "asset_dir": "scenes/energy"},
+    {"niche_id": "generic", "scene": "storefront_hero", "asset_dir": "scenes/generic"},
+    {"niche_id": "green", "scene": "garden_hero", "asset_dir": "scenes/green"},
+    {"niche_id": "handwerk", "scene": "craft_hero", "asset_dir": "scenes/handwerk"},
+    {"niche_id": "law", "scene": "office_hero", "asset_dir": "scenes/law"}
   ]
 }
