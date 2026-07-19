@@ -17,16 +17,10 @@ class PricingDisplayService:
         self._config_path = self._memory / "pricing_display.json"
         self._analytics_path = self._memory / "pricing_analytics.jsonl"
 
-    def get_display(self) -> dict:
-        if not self._config_path.is_file():
-            return build_truth_pricing_display()
-        try:
-            data = json.loads(self._config_path.read_text(encoding="utf-8"))
-            if not self._is_mission1_public_truth(data):
-                return build_truth_pricing_display()
-            return data
-        except (json.JSONDecodeError, OSError):
-            return build_truth_pricing_display()
+    def get_display(self, market_code: str | None = None) -> dict:
+        # Always resolve from market_registry / commerce so /services matches /order.
+        code = (market_code or "DE").strip() or "DE"
+        return build_truth_pricing_display(market_code=code)
 
     @staticmethod
     def _is_mission1_public_truth(data: dict) -> bool:

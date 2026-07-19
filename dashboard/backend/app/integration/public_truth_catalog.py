@@ -74,25 +74,33 @@ def unavailable_online_message(product_label: str) -> str:
     )
 
 
-def _build_service_categories(packages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _build_service_categories(
+    packages: list[dict[str, Any]],
+    *,
+    market_code: str = "DE",
+) -> list[dict[str, Any]]:
     """Path A packages + pilot quote catalog + legacy one-time horizon rows."""
     from app.integration.pilot_service_catalog import public_pilot_categories
 
     categories: list[dict[str, Any]] = list(public_pilot_categories())
+    order_href = f"/order?market={market_code}"
 
-    # Keep priced Path A packages as explicit checkout cards (DE labels via package names).
+    # Keep priced Path A packages as explicit checkout cards (localized currency).
     website_items = [
         {
             "id": p["id"],
             "name": WEBSITE_PACKAGE_LABELS.get(p["id"], p["name"]),
-            "price_label": f"{p['price_eur']} €",
+            "price_label": p.get("price_label")
+            or f"{p.get('price_eur')} {p.get('symbol') or '€'}",
             "timeline": MISSION1_LANDING_TIMELINE,
             "includes": p.get("deliverables", [])[:4],
             "description": "Einmalige Leistung — kein Abo",
             "cta": "Jetzt bestellen",
-            "cta_href": "/order",
+            "cta_href": order_href,
             "available": True,
             "tier": "checkout",
+            "currency": p.get("currency"),
+            "market_code": p.get("market_code") or market_code,
         }
         for p in packages
     ]
@@ -184,19 +192,64 @@ def build_mission1_vector_commerce_rules(packages: list[dict[str, Any]] | None =
 **Не путать:** услуга = готовый результат. Professional = подписка (этап роста, не скидка)."""
 
 
-def build_truth_pricing_display() -> dict:
+def build_truth_pricing_display(market_code: str | None = None) -> dict:
+    from app.integration.commerce_engine import resolve_checkout_packages
     from app.integration.pilot_service_catalog import public_go_to_market
+    from app.integration.outreach_market_config import list_markets
 
-    packages = _landing_packages()
-    min_price = min((p["price_eur"] for p in packages), default=350)
+    code = (market_code or "DE").strip().upper() or "DE"
+    deliverables = {k: v["deliverables"] for k, v in SALES_PACKAGES.items()}
+    names = {k: v["name"] for k, v in SALES_PACKAGES.items()}
+    checkout = resolve_checkout_packages(
+        code,
+        deliverables_by_id=deliverables,
+        names_by_id=names,
+    )
+    packages = checkout["packages"]
+    currency = str(checkout.get("currency") or "EUR")
+    symbol = str(checkout.get("symbol") or "€")
+    resolved = str(checkout.get("market_code") or code)
+    min_label = packages[0].get("price_label") if packages else f"350 {symbol}"
+    for p in packages:
+        if p.get("id") == "basic":
+            min_label = p.get("price_label") or min_label
+            break
+
+    market_rows = []
+    for m in list_markets(enabled_only=True):
+        mcode = str(m.get("code") or "").upper()
+        try:
+            snap = resolve_checkout_packages(
+                mcode,
+                deliverables_by_id=deliverables,
+                names_by_id=names,
+            )
+            basic = next((x for x in snap["packages"] if x["id"] == "basic"), None)
+            market_rows.append(
+                {
+                    "code": mcode,
+                    "flag": m.get("flag") or "",
+                    "name_en": m.get("name_en") or mcode,
+                    "name_ru": m.get("name_ru") or mcode,
+                    "currency": snap.get("currency"),
+                    "symbol": snap.get("symbol"),
+                    "basic_price_label": (basic or {}).get("price_label"),
+                }
+            )
+        except Exception:
+            continue
 
     return {
         "version": TRUTH_VERSION,
+        "market_code": resolved,
+        "currency": currency,
+        "symbol": symbol,
+        "markets": market_rows,
         "disclaimer": {
             "ru": (
                 f"**Любая услуга** Virtus Core: диалог → концепция → согласование → разовая покупка или подписка. "
-                f"Цена адаптируется под **целевой рынок** (валюта + ориентировочный диапазон сразу). "
-                f"Сайт на /order от {min_price} €; подписка ({STUDIO_NAME}) — в разработке."
+                f"Цены для рынка **{resolved}** в {currency} ({symbol}). "
+                f"Сайт на /order?market={resolved} от {min_label}; подписка ({STUDIO_NAME}) — в разработке."
             ),
         },
         "platform_status": {
@@ -215,14 +268,14 @@ def build_truth_pricing_display() -> dict:
         "capabilities": None,
         "anti_cannibalization": None,
         "comparison": None,
-        "service_categories": _build_service_categories(packages),
+        "service_categories": _build_service_categories(packages, market_code=resolved),
         "go_to_market": public_go_to_market(),
         "subscriptions": [
             {
                 "id": t["id"],
                 "name": t["name"],
                 "price_eur_month": 0 if t["id"] == "free" else None,
-                "price_label": "0 €" if t["id"] == "free" else "скоро",
+                "price_label": f"0 {symbol}" if t["id"] == "free" else "скоро",
                 "period": "/мес",
                 "audience": t["growth_stage_ru"],
                 "tagline": t["tagline_ru"],

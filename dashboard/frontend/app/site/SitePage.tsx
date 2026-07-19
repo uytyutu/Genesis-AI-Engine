@@ -75,14 +75,34 @@ const FALLBACK_PACKAGES: PackageCard[] = [
 /**
  * Public Path A storefront — DE-first via i18n (browser locale + LanguageSwitcher).
  */
+type MarketOption = {
+  code: string;
+  flag?: string;
+  name_en?: string;
+  basic_price_label?: string;
+};
+
 export function SitePage() {
   const { t, i18n } = useTranslation("site");
   const [packages, setPackages] = useState<PackageCard[]>(FALLBACK_PACKAGES);
   const [reviews, setReviews] = useState<PublicReviews | null>(null);
+  const [market, setMarket] = useState("DE");
+  const [markets, setMarkets] = useState<MarketOption[]>([]);
+
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const m = (p.get("market") || p.get("country") || "DE").toUpperCase();
+      setMarket(m);
+    } catch {
+      setMarket("DE");
+    }
+  }, []);
 
   useEffect(() => {
     const api = publicApiBase();
-    fetch(`${api}/api/sales/packages`)
+    const qs = `?market=${encodeURIComponent(market)}`;
+    fetch(`${api}/api/sales/packages${qs}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((body) => {
         const list = body?.packages;
@@ -103,6 +123,26 @@ export function SitePage() {
         /* keep fallback — storefront must still render */
       });
 
+    fetch(`${api}/api/public/pricing${qs}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body) => {
+        const rows = body?.markets;
+        if (Array.isArray(rows) && rows.length > 0) {
+          setMarkets(
+            rows.map((m: MarketOption) => ({
+              code: String(m.code || "").toUpperCase(),
+              flag: m.flag,
+              name_en: m.name_en,
+              basic_price_label: m.basic_price_label,
+            })),
+          );
+        }
+      })
+      .catch(() => undefined);
+  }, [market]);
+
+  useEffect(() => {
+    const api = publicApiBase();
     const lang = (i18n.language || "de").slice(0, 2);
     fetch(`${api}/api/public/reviews?lang=${lang}`)
       .then((res) => (res.ok ? res.json() : null))
@@ -113,6 +153,20 @@ export function SitePage() {
         /* honest empty via i18n if API down */
       });
   }, [i18n.language]);
+
+  const orderHref = `/order?market=${market}`;
+
+  function selectMarket(next: string) {
+    const code = next.toUpperCase();
+    setMarket(code);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("market", code);
+      window.history.replaceState({}, "", url.toString());
+    } catch {
+      /* ignore */
+    }
+  }
 
   return (
     <PublicPageShell>
@@ -127,6 +181,27 @@ export function SitePage() {
           <p className="mx-auto max-w-2xl text-base text-genesis-muted sm:text-lg">
             {t("pathA.subtitle")}
           </p>
+          {markets.length > 0 ? (
+            <div className="mx-auto max-w-md text-left">
+              <label className="text-xs text-genesis-muted" htmlFor="site-market-select">
+                Markt / Preise
+              </label>
+              <select
+                id="site-market-select"
+                className="mt-1 w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white"
+                value={market}
+                onChange={(e) => selectMarket(e.target.value)}
+              >
+                {markets.map((m) => (
+                  <option key={m.code} value={m.code}>
+                    {(m.flag ? `${m.flag} ` : "") +
+                      (m.name_en || m.code) +
+                      (m.basic_price_label ? ` · ab ${m.basic_price_label}` : "")}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
           <ul className="mx-auto flex max-w-xl flex-wrap justify-center gap-2 text-xs sm:text-sm">
             {[t("pathA.benefitMobile"), t("pathA.benefitSeo"), t("pathA.benefitSpeed")].map(
               (label) => (
@@ -184,13 +259,13 @@ export function SitePage() {
           <p className="mt-4 text-sm text-genesis-muted">{t("pathA.afterPay")}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href="/order"
+              href={orderHref}
               className="inline-flex rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:brightness-110"
             >
               {t("pathA.cta")} →
             </Link>
             <Link
-              href="/order"
+              href={orderHref}
               className="inline-flex rounded-xl border border-emerald-500/40 px-5 py-3 text-sm font-medium text-emerald-100 hover:bg-emerald-950/40"
             >
               {t("pathA.ctaSecondary")}

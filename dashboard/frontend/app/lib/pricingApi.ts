@@ -68,6 +68,18 @@ export type BusinessUnit = {
 
 export type PricingDisplay = {
   version: string;
+  market_code?: string;
+  currency?: string;
+  symbol?: string;
+  markets?: {
+    code: string;
+    flag?: string;
+    name_en?: string;
+    name_ru?: string;
+    currency?: string;
+    symbol?: string;
+    basic_price_label?: string;
+  }[];
   disclaimer?: { ru?: string; de?: string };
   platform_status?: Record<string, string>;
   capabilities?: {
@@ -101,9 +113,10 @@ export type PricingDisplay = {
   business_units: BusinessUnit[];
 };
 
-export async function fetchPricingDisplay(): Promise<PricingDisplay> {
+export async function fetchPricingDisplay(market?: string): Promise<PricingDisplay> {
   try {
-    const res = await fetch(`${API}/api/public/pricing`, { cache: "no-store" });
+    const qs = market ? `?market=${encodeURIComponent(market)}` : "";
+    const res = await fetch(`${API}/api/public/pricing${qs}`, { cache: "no-store" });
     if (!res.ok) return PRICING_FALLBACK;
     return (await res.json()) as PricingDisplay;
   } catch {

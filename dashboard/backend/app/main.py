@@ -2114,8 +2114,8 @@ def list_sales_packages(
 
 
 @app.get("/api/public/pricing")
-def public_pricing() -> dict:
-    return _ctx().pricing_display.get_display()
+def public_pricing(market: str | None = None) -> dict:
+    return _ctx().pricing_display.get_display(market_code=market)
 
 
 def _legal():

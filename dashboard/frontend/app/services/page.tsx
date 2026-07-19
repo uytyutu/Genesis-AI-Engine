@@ -124,33 +124,82 @@ function pickCategories(data: PricingDisplay | null): ServiceCategory[] {
 export default function ServicesPage() {
   const [data, setData] = useState<PricingDisplay | null>(null);
   const [loading, setLoading] = useState(true);
+  const [market, setMarket] = useState("DE");
 
   useEffect(() => {
-    fetchPricingDisplay().then((d) => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const m = (p.get("market") || p.get("country") || "DE").toUpperCase();
+      setMarket(m);
+    } catch {
+      setMarket("DE");
+    }
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchPricingDisplay(market).then((d) => {
       setData(d);
       setLoading(false);
     });
-    logPricingEvent("page_view", null, "services");
-  }, []);
+    logPricingEvent("page_view", null, `services:${market}`);
+  }, [market]);
 
   const categories = useMemo(() => pickCategories(data), [data]);
   const gtm = (data as PricingDisplay & { go_to_market?: GoToMarket })?.go_to_market;
+  const markets = data?.markets || [];
 
   return (
     <PublicPageShell>
       <PublicPageHero
-        badge="Für lokale Betriebe in Deutschland"
+        badge={`${data?.market_code || market} · ${data?.currency || "EUR"}`}
         badgeVariant="success"
         title={`Leistungen · ${BRAND_NAME}`}
-        description="Wir helfen Ihnen zu einem klaren digitalen Auftritt — moderne Website, Kontakte und Weg zur Anfrage. Weitere Verbesserungen auf Anfrage."
+        description="Preise und Währung folgen dem gewählten Markt. Website bestellen → Checkout in derselben Währung."
       >
-        <ButtonLink href="/order" variant="success" size="lg">
+        <ButtonLink href={`/order?market=${market}`} variant="success" size="lg">
           Website bestellen →
         </ButtonLink>
         <ButtonLink href="/kontakt" variant="primary" size="lg" className="ml-2">
           Frage stellen →
         </ButtonLink>
       </PublicPageHero>
+
+      {markets.length > 0 ? (
+        <section className="mt-6">
+          <label className="text-xs text-genesis-muted" htmlFor="market-select">
+            Markt / Preise
+          </label>
+          <select
+            id="market-select"
+            className="mt-1 w-full max-w-md rounded-lg border border-genesis-border bg-genesis-panel px-3 py-2 text-sm"
+            value={market}
+            onChange={(e) => {
+              const next = e.target.value.toUpperCase();
+              setMarket(next);
+              const url = new URL(window.location.href);
+              url.searchParams.set("market", next);
+              window.history.replaceState({}, "", url.toString());
+            }}
+          >
+            {markets.map((m) => (
+              <option key={m.code} value={m.code}>
+                {(m.flag ? `${m.flag} ` : "") +
+                  (m.name_en || m.code) +
+                  (m.basic_price_label ? ` · ab ${m.basic_price_label}` : "")}
+              </option>
+            ))}
+          </select>
+          {loading ? (
+            <p className="mt-2 text-xs text-genesis-muted">Preise werden geladen…</p>
+          ) : (
+            <p className="mt-2 text-xs text-genesis-muted">
+              {data?.disclaimer?.ru ||
+                `Aktive Preise: ${data?.market_code} · ${data?.currency}`}
+            </p>
+          )}
+        </section>
+      ) : null}
 
       <section className="mt-10 grid gap-3 sm:grid-cols-3">
         {(gtm?.levels ?? [
