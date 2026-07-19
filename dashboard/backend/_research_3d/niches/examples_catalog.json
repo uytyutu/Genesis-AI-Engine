@@ -1,0 +1,377 @@
+{
+  "version": 4,
+  "examples_per_niche": 5,
+  "niches": {
+    "dental": [
+      {
+        "id": "01_tooth",
+        "title": "Ceramic tooth",
+        "material": "CeramicGloss",
+        "bytes": 3052,
+        "path": "scenes/dental/examples/01_tooth.glb"
+      },
+      {
+        "id": "02_mirror",
+        "title": "Dental mirror",
+        "material": "ClinicSteel",
+        "bytes": 2708,
+        "path": "scenes/dental/examples/02_mirror.glb"
+      },
+      {
+        "id": "03_chair",
+        "title": "Clinic chair",
+        "material": "ClinicSoft",
+        "bytes": 2908,
+        "path": "scenes/dental/examples/03_chair.glb"
+      },
+      {
+        "id": "04_implant",
+        "title": "Implant screw",
+        "material": "Titanium",
+        "bytes": 2124,
+        "path": "scenes/dental/examples/04_implant.glb"
+      },
+      {
+        "id": "05_floss",
+        "title": "Floss pack",
+        "material": "ClinicPlastic",
+        "bytes": 2256,
+        "path": "scenes/dental/examples/05_floss.glb"
+      }
+    ],
+    "auto": [
+      {
+        "id": "01_wheel",
+        "title": "Workshop wheel",
+        "material": "TireRubberMetal",
+        "bytes": 3648,
+        "path": "scenes/auto/examples/01_wheel.glb"
+      },
+      {
+        "id": "02_wrench",
+        "title": "Wrench",
+        "material": "ToolSteel",
+        "bytes": 2248,
+        "path": "scenes/auto/examples/02_wrench.glb"
+      },
+      {
+        "id": "03_oil",
+        "title": "Oil can",
+        "material": "OilCan",
+        "bytes": 2720,
+        "path": "scenes/auto/examples/03_oil.glb"
+      },
+      {
+        "id": "04_jack",
+        "title": "Car jack",
+        "material": "JackRed",
+        "bytes": 2240,
+        "path": "scenes/auto/examples/04_jack.glb"
+      },
+      {
+        "id": "05_key",
+        "title": "Car key",
+        "material": "KeyBlack",
+        "bytes": 2256,
+        "path": "scenes/auto/examples/05_key.glb"
+      }
+    ],
+    "law": [
+      {
+        "id": "01_scales",
+        "title": "Scales of justice",
+        "material": "BrushedGold",
+        "bytes": 4584,
+        "path": "scenes/law/examples/01_scales.glb"
+      },
+      {
+        "id": "02_gavel",
+        "title": "Gavel",
+        "material": "Oak",
+        "bytes": 2240,
+        "path": "scenes/law/examples/02_gavel.glb"
+      },
+      {
+        "id": "03_book",
+        "title": "Law book",
+        "material": "Leather",
+        "bytes": 2240,
+        "path": "scenes/law/examples/03_book.glb"
+      },
+      {
+        "id": "04_column",
+        "title": "Column",
+        "material": "Marble",
+        "bytes": 2724,
+        "path": "scenes/law/examples/04_column.glb"
+      },
+      {
+        "id": "05_badge",
+        "title": "Badge",
+        "material": "Brass",
+        "bytes": 1856,
+        "path": "scenes/law/examples/05_badge.glb"
+      }
+    ],
+    "beauty": [
+      {
+        "id": "01_bottle",
+        "title": "Cosmetic bottle",
+        "material": "GlossBottle",
+        "bytes": 3396,
+        "path": "scenes/beauty/examples/01_bottle.glb"
+      },
+      {
+        "id": "02_scissors",
+        "title": "Scissors",
+        "material": "Chrome",
+        "bytes": 2904,
+        "path": "scenes/beauty/examples/02_scissors.glb"
+      },
+      {
+        "id": "03_brush",
+        "title": "Brush",
+        "material": "BrushWood",
+        "bytes": 2260,
+        "path": "scenes/beauty/examples/03_brush.glb"
+      },
+      {
+        "id": "04_mirror",
+        "title": "Hand mirror",
+        "material": "Chrome",
+        "bytes": 2684,
+        "path": "scenes/beauty/examples/04_mirror.glb"
+      },
+      {
+        "id": "05_cream",
+        "title": "Cream jar",
+        "material": "CreamJar",
+        "bytes": 2732,
+        "path": "scenes/beauty/examples/05_cream.glb"
+      }
+    ],
+    "energy": [
+      {
+        "id": "01_panel",
+        "title": "Solar panel",
+        "material": "SolarGlass",
+        "bytes": 2304,
+        "path": "scenes/energy/examples/01_panel.glb"
+      },
+      {
+        "id": "02_bulb",
+        "title": "LED bulb",
+        "material": "BulbGlass",
+        "bytes": 3408,
+        "path": "scenes/energy/examples/02_bulb.glb"
+      },
+      {
+        "id": "03_battery",
+        "title": "Battery",
+        "material": "Battery",
+        "bytes": 2248,
+        "path": "scenes/energy/examples/03_battery.glb"
+      },
+      {
+        "id": "04_plug",
+        "title": "Plug",
+        "material": "PlugWhite",
+        "bytes": 2892,
+        "path": "scenes/energy/examples/04_plug.glb"
+      },
+      {
+        "id": "05_inverter",
+        "title": "Inverter",
+        "material": "InverterGray",
+        "bytes": 2260,
+        "path": "scenes/energy/examples/05_inverter.glb"
+      }
+    ],
+    "green": [
+      {
+        "id": "01_leaf",
+        "title": "Leaf",
+        "material": "LeafSatin",
+        "bytes": 2468,
+        "path": "scenes/green/examples/01_leaf.glb"
+      },
+      {
+        "id": "02_pot",
+        "title": "Plant pot",
+        "material": "Terracotta",
+        "bytes": 3208,
+        "path": "scenes/green/examples/02_pot.glb"
+      },
+      {
+        "id": "03_tree",
+        "title": "Tree",
+        "material": "Bark",
+        "bytes": 2752,
+        "path": "scenes/green/examples/03_tree.glb"
+      },
+      {
+        "id": "04_seed",
+        "title": "Seed",
+        "material": "SeedBrown",
+        "bytes": 2108,
+        "path": "scenes/green/examples/04_seed.glb"
+      },
+      {
+        "id": "05_hose",
+        "title": "Hose reel",
+        "material": "HoseGreen",
+        "bytes": 2944,
+        "path": "scenes/green/examples/05_hose.glb"
+      }
+    ],
+    "computer": [
+      {
+        "id": "01_laptop",
+        "title": "Laptop",
+        "material": "DeviceAnodized",
+        "bytes": 2264,
+        "path": "scenes/computer/examples/01_laptop.glb"
+      },
+      {
+        "id": "02_chip",
+        "title": "Chip",
+        "material": "ChipGreen",
+        "bytes": 2248,
+        "path": "scenes/computer/examples/02_chip.glb"
+      },
+      {
+        "id": "03_mouse",
+        "title": "Mouse",
+        "material": "MouseGray",
+        "bytes": 2304,
+        "path": "scenes/computer/examples/03_mouse.glb"
+      },
+      {
+        "id": "04_drive",
+        "title": "Drive",
+        "material": "DriveSilver",
+        "bytes": 1600,
+        "path": "scenes/computer/examples/04_drive.glb"
+      },
+      {
+        "id": "05_router",
+        "title": "Router",
+        "material": "RouterBlack",
+        "bytes": 2908,
+        "path": "scenes/computer/examples/05_router.glb"
+      }
+    ],
+    "appliance": [
+      {
+        "id": "01_washer",
+        "title": "Washer",
+        "material": "ApplianceSteel",
+        "bytes": 2384,
+        "path": "scenes/appliance/examples/01_washer.glb"
+      },
+      {
+        "id": "02_fridge",
+        "title": "Fridge",
+        "material": "FridgeWhite",
+        "bytes": 2260,
+        "path": "scenes/appliance/examples/02_fridge.glb"
+      },
+      {
+        "id": "03_kettle",
+        "title": "Kettle",
+        "material": "KettleSteel",
+        "bytes": 2960,
+        "path": "scenes/appliance/examples/03_kettle.glb"
+      },
+      {
+        "id": "04_oven",
+        "title": "Oven",
+        "material": "OvenBlack",
+        "bytes": 2248,
+        "path": "scenes/appliance/examples/04_oven.glb"
+      },
+      {
+        "id": "05_vacuum",
+        "title": "Vacuum",
+        "material": "VacBlue",
+        "bytes": 2952,
+        "path": "scenes/appliance/examples/05_vacuum.glb"
+      }
+    ],
+    "handwerk": [
+      {
+        "id": "01_hammer",
+        "title": "Hammer",
+        "material": "ToolSteelWood",
+        "bytes": 2272,
+        "path": "scenes/handwerk/examples/01_hammer.glb"
+      },
+      {
+        "id": "02_saw",
+        "title": "Saw",
+        "material": "SawSteel",
+        "bytes": 2244,
+        "path": "scenes/handwerk/examples/02_saw.glb"
+      },
+      {
+        "id": "03_drill",
+        "title": "Drill",
+        "material": "DrillOrange",
+        "bytes": 2892,
+        "path": "scenes/handwerk/examples/03_drill.glb"
+      },
+      {
+        "id": "04_level",
+        "title": "Spirit level",
+        "material": "LevelYellow",
+        "bytes": 2256,
+        "path": "scenes/handwerk/examples/04_level.glb"
+      },
+      {
+        "id": "05_screw",
+        "title": "Screw",
+        "material": "ScrewSteel",
+        "bytes": 2768,
+        "path": "scenes/handwerk/examples/05_screw.glb"
+      }
+    ],
+    "generic": [
+      {
+        "id": "01_sign",
+        "title": "Store sign",
+        "material": "StorefrontMatte",
+        "bytes": 2284,
+        "path": "scenes/generic/examples/01_sign.glb"
+      },
+      {
+        "id": "02_bag",
+        "title": "Shopping bag",
+        "material": "PaperBag",
+        "bytes": 2892,
+        "path": "scenes/generic/examples/02_bag.glb"
+      },
+      {
+        "id": "03_card",
+        "title": "Business card",
+        "material": "CardWhite",
+        "bytes": 1600,
+        "path": "scenes/generic/examples/03_card.glb"
+      },
+      {
+        "id": "04_pin",
+        "title": "Map pin",
+        "material": "PinRed",
+        "bytes": 2124,
+        "path": "scenes/generic/examples/04_pin.glb"
+      },
+      {
+        "id": "05_parcel",
+        "title": "Parcel",
+        "material": "ParcelBrown",
+        "bytes": 1608,
+        "path": "scenes/generic/examples/05_parcel.glb"
+      }
+    ]
+  },
+  "runtime": "runtime/scene_engine.html"
+}

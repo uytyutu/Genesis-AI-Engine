@@ -51,14 +51,20 @@ def test_niche_and_market_slots():
     niches = list_niche_slots()
     markets = list_market_slots()
     from app.factory.niche_profiles import known_niche_ids
+    from pathlib import Path
 
     ids = {n["niche_id"] for n in niches}
     assert ids == set(known_niche_ids())
     assert "DE" in markets and "US" in markets and "UA" in markets
     cov = niche_coverage()
     assert cov["reference_niche"] == "dental"
+    assert cov.get("examples_per_niche") == 5
     assert all(n["status"] == "ready" for n in niches)
     assert cov["niches_ready"] == cov["niches_total"]
+    scenes = Path(__file__).resolve().parents[1] / "_research_3d" / "scenes"
+    for niche in known_niche_ids():
+        examples = list((scenes / niche / "examples").glob("*.glb"))
+        assert len(examples) == 5, niche
 
 
 def test_path_a_factory_does_not_import_research_3d():

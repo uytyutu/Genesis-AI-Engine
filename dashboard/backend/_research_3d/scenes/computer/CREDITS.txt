@@ -1,7 +1,11 @@
-Asset: hero.glb (Stylized laptop — PC-service hero)
-Author: Virtus Core (original mesh + PBR material 'DeviceAnodized')
+Niche: computer
+Author: Virtus Core (original meshes + PBR)
 Source: scripts/generate_research_3d_presets.py
 License: CC0-1.0 Universal
-Material: metallic=0.55, roughness=0.32
-Date: 2026-07-19
-Notes: Research preset for niche=computer. Not Path A production.
+Examples:
+  - 01_laptop.glb — Laptop (DeviceAnodized)
+  - 02_chip.glb — Chip (ChipGreen)
+  - 03_mouse.glb — Mouse (MouseGray)
+  - 04_drive.glb — Drive (DriveSilver)
+  - 05_router.glb — Router (RouterBlack)
+Notes: Research only. Not Path A production.

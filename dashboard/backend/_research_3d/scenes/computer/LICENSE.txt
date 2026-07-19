@@ -1,5 +1,4 @@
 CC0-1.0
 
-Original low-poly hero mesh for Virtus Core niche 'computer'.
-Released into the public domain under CC0 1.0 Universal.
-No third-party model was downloaded for this file.
+Original low-poly hero examples for Virtus Core niche 'computer'.
+Released under CC0 1.0 Universal. No third-party models downloaded.

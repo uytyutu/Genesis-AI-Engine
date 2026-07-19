@@ -1,7 +1,11 @@
-Asset: hero.glb (Stylized storefront sign — generic hero)
-Author: Virtus Core (original mesh + PBR material 'StorefrontMatte')
+Niche: generic
+Author: Virtus Core (original meshes + PBR)
 Source: scripts/generate_research_3d_presets.py
 License: CC0-1.0 Universal
-Material: metallic=0.15, roughness=0.55
-Date: 2026-07-19
-Notes: Research preset for niche=generic. Not Path A production.
+Examples:
+  - 01_sign.glb — Store sign (StorefrontMatte)
+  - 02_bag.glb — Shopping bag (PaperBag)
+  - 03_card.glb — Business card (CardWhite)
+  - 04_pin.glb — Map pin (PinRed)
+  - 05_parcel.glb — Parcel (ParcelBrown)
+Notes: Research only. Not Path A production.

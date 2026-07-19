@@ -1,7 +1,11 @@
-Asset: hero.glb (Stylized cosmetic bottle — beauty hero)
-Author: Virtus Core (original mesh + PBR material 'GlossBottle')
+Niche: beauty
+Author: Virtus Core (original meshes + PBR)
 Source: scripts/generate_research_3d_presets.py
 License: CC0-1.0 Universal
-Material: metallic=0.1, roughness=0.18
-Date: 2026-07-19
-Notes: Research preset for niche=beauty. Not Path A production.
+Examples:
+  - 01_bottle.glb — Cosmetic bottle (GlossBottle)
+  - 02_scissors.glb — Scissors (Chrome)
+  - 03_brush.glb — Brush (BrushWood)
+  - 04_mirror.glb — Hand mirror (Chrome)
+  - 05_cream.glb — Cream jar (CreamJar)
+Notes: Research only. Not Path A production.

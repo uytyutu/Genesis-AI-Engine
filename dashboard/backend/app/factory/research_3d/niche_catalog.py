@@ -24,15 +24,17 @@ _RESEARCH_SCENES = Path(__file__).resolve().parents[3] / "_research_3d" / "scene
 
 def _scene_status(niche_id: str) -> str:
     root = _RESEARCH_SCENES / niche_id
-    has_model = (root / "hero.glb").is_file() or (root / "hero.gltf").is_file()
+    examples = root / "examples"
+    glbs = sorted(examples.glob("*.glb")) if examples.is_dir() else []
+    has_hero = (root / "hero.glb").is_file() or (root / "hero.gltf").is_file()
     has_lic = any(
         (root / n).is_file()
         for n in ("LICENSE.txt", "LICENSE", "license.txt", "MODEL_LICENSE.txt")
     )
     has_credits = (root / "CREDITS.txt").is_file()
-    if has_model and has_lic and has_credits:
+    if len(glbs) >= 5 and has_hero and has_lic and has_credits:
         return "ready"
-    if has_model or has_lic or has_credits:
+    if glbs or has_hero or has_lic or has_credits:
         return "partial"
     return "empty"
 
@@ -73,5 +75,7 @@ def niche_coverage() -> dict[str, Any]:
             "market only changes copy/legal via Path A packs."
         ),
         "reference_niche": "dental",
+        "examples_per_niche": 5,
+        "runtime": "runtime/scene_engine.html",
         "slots": slots,
     }

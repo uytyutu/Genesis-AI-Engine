@@ -1,7 +1,11 @@
-Asset: hero.glb (Stylized workshop wheel — auto hero)
-Author: Virtus Core (original mesh + PBR material 'TireRubberMetal')
+Niche: auto
+Author: Virtus Core (original meshes + PBR)
 Source: scripts/generate_research_3d_presets.py
 License: CC0-1.0 Universal
-Material: metallic=0.35, roughness=0.55
-Date: 2026-07-19
-Notes: Research preset for niche=auto. Not Path A production.
+Examples:
+  - 01_wheel.glb — Workshop wheel (TireRubberMetal)
+  - 02_wrench.glb — Wrench (ToolSteel)
+  - 03_oil.glb — Oil can (OilCan)
+  - 04_jack.glb — Car jack (JackRed)
+  - 05_key.glb — Car key (KeyBlack)
+Notes: Research only. Not Path A production.

@@ -1,7 +1,11 @@
-Asset: hero.glb (Stylized hammer — Handwerk hero)
-Author: Virtus Core (original mesh + PBR material 'ToolSteelWood')
+Niche: handwerk
+Author: Virtus Core (original meshes + PBR)
 Source: scripts/generate_research_3d_presets.py
 License: CC0-1.0 Universal
-Material: metallic=0.4, roughness=0.4
-Date: 2026-07-19
-Notes: Research preset for niche=handwerk. Not Path A production.
+Examples:
+  - 01_hammer.glb — Hammer (ToolSteelWood)
+  - 02_saw.glb — Saw (SawSteel)
+  - 03_drill.glb — Drill (DrillOrange)
+  - 04_level.glb — Spirit level (LevelYellow)
+  - 05_screw.glb — Screw (ScrewSteel)
+Notes: Research only. Not Path A production.

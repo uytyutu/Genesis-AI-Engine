@@ -1,7 +1,11 @@
-Asset: hero.glb (Stylized scales of justice — law hero)
-Author: Virtus Core (original mesh + PBR material 'BrushedGold')
+Niche: law
+Author: Virtus Core (original meshes + PBR)
 Source: scripts/generate_research_3d_presets.py
 License: CC0-1.0 Universal
-Material: metallic=0.85, roughness=0.28
-Date: 2026-07-19
-Notes: Research preset for niche=law. Not Path A production.
+Examples:
+  - 01_scales.glb — Scales of justice (BrushedGold)
+  - 02_gavel.glb — Gavel (Oak)
+  - 03_book.glb — Law book (Leather)
+  - 04_column.glb — Column (Marble)
+  - 05_badge.glb — Badge (Brass)
+Notes: Research only. Not Path A production.
