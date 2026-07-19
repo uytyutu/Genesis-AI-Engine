@@ -7,10 +7,12 @@ import re
 from dataclasses import dataclass
 
 from app.factory.analyzer import AnalysisResult
+from app.factory.landing_tier_css import tier_stylesheet
 from app.factory.niche_profiles import resolve_niche_profile
 from app.factory.package_features import (
     PackageFeatures,
     maps_embed_src,
+    maps_route_url,
     resolve_package_features,
     whatsapp_href,
 )
@@ -40,7 +42,6 @@ def _style_from_niche(niche_id: str, *, modern: bool = False, blue_boost: bool =
             f"linear-gradient(160deg,#0f172a,{style.primary})",
         )
     if blue_boost and niche_id == "dental":
-        # Keep dental clean; do not recolor other niches to dental blue.
         style = BuildStyle(
             profile.style.primary,
             profile.style.primary_dark,
@@ -48,6 +49,7 @@ def _style_from_niche(niche_id: str, *, modern: bool = False, blue_boost: bool =
             profile.style.hero_gradient,
         )
     return style
+
 
 _FORBIDDEN_SNIPPETS = (
     "уточним после",
@@ -71,6 +73,7 @@ def build_landing_html(
     large_headline: bool = False,
     motion_level: str = "none",
     market_code: str | None = None,
+    hero_photo: bool = True,
 ) -> str:
     from app.factory.landing_i18n import (
         apply_legal_footer_hrefs,
@@ -81,6 +84,7 @@ def build_landing_html(
     )
 
     feat = features or resolve_package_features("basic")
+    tier = feat.package_id
     if feat.premium_design:
         modern = True
         large_headline = True
@@ -109,6 +113,7 @@ def build_landing_html(
     phone = esc(analysis.phone)
     email = esc(analysis.email)
     hours = esc(analysis.hours)
+    city_esc = esc(city) if city else ""
 
     services_html = "".join(
         f'<li class="service-card"><h3>{esc(title)}</h3><p class="service-desc">{esc(desc)}</p></li>'
@@ -116,22 +121,25 @@ def build_landing_html(
     )
     trust_html = "".join(f'<span class="trust-pill">{esc(t)}</span>' for t in analysis.trust_points)
     benefits_html = "".join(f"<li>{esc(b)}</li>" for b in analysis.benefits)
+    cert_html = "".join(f'<span class="cert-badge">{esc(t)}</span>' for t in analysis.trust_points)
+
     from app.factory.motion_brief import normalize_motion_level
 
     motion = normalize_motion_level(motion_level)
     css_motion = motion == "css"
     if css_motion:
-        h1_class = ' class="hero-text large"' if large_headline else ' class="hero-text"'
-        hero_p_class = ' class="hero-text hero-text-delay"'
-        trust_class = ' class="trust-row hero-text hero-text-delay-2"'
+        h1_class = ' class="hero-text large hero-anim"' if large_headline else ' class="hero-text hero-anim"'
+        hero_p_class = ' class="lead hero-text hero-text-delay hero-anim hero-anim-d1"'
+        trust_class = ' class="trust-row hero-text hero-text-delay-2 hero-anim hero-anim-d2"'
         btn_class = "btn cta-button"
         sec = "section reveal"
     else:
-        h1_class = ' class="large"' if large_headline else ""
-        hero_p_class = ""
-        trust_class = ' class="trust-row"'
+        h1_class = ' class="large hero-anim"' if large_headline else ' class="hero-anim"'
+        hero_p_class = ' class="lead hero-anim hero-anim-d1"'
+        trust_class = ' class="trust-row hero-anim hero-anim-d2"'
         btn_class = "btn"
         sec = "section"
+
     page_title = f"{analysis.business_name} — {analysis.subtitle[:60]}"
     meta_desc = esc(analysis.subtitle[:160])
     motion_head = (
@@ -144,6 +152,13 @@ def build_landing_html(
     wa_url = whatsapp_href(whatsapp, analysis.phone) if feat.whatsapp else ""
     logo_block = (
         _logo_block(analysis.business_name) if feat.logo_slot else f"<strong>{business}</strong>"
+    )
+
+    route_url = maps_route_url(
+        business_name=analysis.business_name,
+        city=city,
+        street=street,
+        country=maps_country,
     )
     maps_block = ""
     if feat.maps:
@@ -160,8 +175,14 @@ def build_landing_html(
     <div class="maps-frame">
       <iframe title="{esc(ui['maps_iframe_title'])}" src="{esc(src)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
     </div>
+    <div class="maps-actions">
+      <a class="btn-route" href="{esc(route_url)}" target="_blank" rel="noopener">{esc(ui['route_btn'])}</a>
+      <span class="chip">{esc(ui['parking'])}</span>
+      <span class="chip"><strong>{esc(ui['hours'])}:</strong> {hours}</span>
+    </div>
   </section>
 """
+
     calc_block = _calculator_block(ui, section_class=sec) if calculator else ""
     form_block = _contact_form_block(analysis.email, ui) if feat.contact_form else ""
     wa_contact = ""
@@ -185,6 +206,7 @@ def build_landing_html(
     reviews_nav = (
         f' <a href="#testimonials">{esc(ui["reviews"])}</a>' if include_testimonials else ""
     )
+    maps_nav = f' <a href="#maps">{esc(ui["maps"])}</a>' if feat.maps else ""
 
     seo_extra = ""
     if feat.extended_seo:
@@ -230,6 +252,85 @@ def build_landing_html(
 """
 
     why_title = esc(ui["why"].format(business=analysis.business_name))
+    css = tier_stylesheet(tier, style)
+    hero_photo_class = " has-photo" if hero_photo else ""
+
+    trust_strip = ""
+    if feat.trust_bar:
+        trust_strip = f'<div class="trust-strip"><span>{esc(ui["trust_bar"])}</span></div>'
+
+    info_bar = ""
+    if feat.trust_bar:
+        bits = []
+        if phone:
+            bits.append(f'<span><strong>{esc(ui["phone"])}</strong> {phone}</span>')
+        if hours:
+            bits.append(f'<span><strong>{esc(ui["hours"])}</strong> {hours}</span>')
+        if city_esc:
+            bits.append(f"<span>{city_esc}</span>")
+        if bits:
+            info_bar = f'<div class="info-bar">{"".join(bits)}</div>'
+
+    mid_cta = ""
+    if feat.mid_cta:
+        mid_cta = f"""
+  <section class="mid-cta" id="mid-cta">
+    <h2>{esc(ui['mid_cta_title'])}</h2>
+    <a class="{btn_class}" href="#contact">{esc(ui['mid_cta_btn'])}</a>
+  </section>
+"""
+
+    process_block = ""
+    if feat.process:
+        process_block = f"""
+  <section class="{sec}" id="process">
+    <h2>{esc(ui['process_title'])}</h2>
+    <div class="process-grid">
+      <article class="process-card"><div class="n">1</div><h3>{esc(ui['process_s1_title'])}</h3><p class="muted">{esc(ui['process_s1_desc'])}</p></article>
+      <article class="process-card"><div class="n">2</div><h3>{esc(ui['process_s2_title'])}</h3><p class="muted">{esc(ui['process_s2_desc'])}</p></article>
+      <article class="process-card"><div class="n">3</div><h3>{esc(ui['process_s3_title'])}</h3><p class="muted">{esc(ui['process_s3_desc'])}</p></article>
+    </div>
+    <div class="cert-row">{cert_html}</div>
+  </section>
+"""
+
+    faq_block = ""
+    if feat.faq:
+        faq_block = f"""
+  <section class="{sec}" id="faq">
+    <h2>{esc(ui['faq_title'])}</h2>
+    <div class="faq-list">
+      <article class="faq-item"><h3>{esc(ui['faq_q1'])}</h3><p>{esc(ui['faq_a1'])}</p></article>
+      <article class="faq-item"><h3>{esc(ui['faq_q2'])}</h3><p>{esc(ui['faq_a2'])}</p></article>
+      <article class="faq-item"><h3>{esc(ui['faq_q3'])}</h3><p>{esc(ui['faq_a3'])}</p></article>
+    </div>
+  </section>
+"""
+
+    stats_block = ""
+    if feat.stats_strip:
+        stats_block = f"""
+  <section class="stats" id="stats" aria-label="stats">
+    <div class="stat"><strong>{esc(ui['stats_v1'])}</strong><span>{esc(ui['stats_n1'])}</span></div>
+    <div class="stat"><strong>{esc(ui['stats_v2'])}</strong><span>{esc(ui['stats_n2'])}</span></div>
+    <div class="stat"><strong>{esc(ui['stats_v3'])}</strong><span>{esc(ui['stats_n3'])}</span></div>
+  </section>
+"""
+
+    showcase_block = ""
+    if feat.showcase:
+        showcase_block = f"""
+  <section class="{sec} showcase" id="showcase">
+    <h2>{esc(ui['showcase_title'])}</h2>
+    <p class="muted">{esc(ui['showcase_lead'])}</p>
+    <div class="showcase-grid">
+      <div class="showcase-panel main"><span class="cap">{business}</span></div>
+      <div class="showcase-panel tone-a"><span class="cap">{esc(ui['services'])}</span></div>
+      <div class="showcase-panel tone-b"><span class="cap">{esc(ui['reviews'])}</span></div>
+    </div>
+  </section>
+"""
+
     html = f"""<!DOCTYPE html>
 <html lang="{esc(lang)}">
 <head>
@@ -241,125 +342,45 @@ def build_landing_html(
   {analytics_block}
   {motion_head}
   <style>
-    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    body {{ font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #0f172a; line-height: 1.65; }}
-    .topbar {{
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.75rem 1.5rem; background: rgba(15,23,42,0.92); color: #fff;
-      position: sticky; top: 0; z-index: 10; gap: 1rem;
-    }}
-    .brand {{ display: flex; align-items: center; gap: 0.75rem; }}
-    .brand img {{ height: 40px; width: auto; max-width: 140px; object-fit: contain; background: #fff; border-radius: 6px; padding: 2px 6px; }}
-    .brand .logo-fallback {{
-      width: 40px; height: 40px; border-radius: 8px; background: {style.accent}; color: #0f172a;
-      display: grid; place-items: center; font-weight: 800; font-size: 0.85rem;
-    }}
-    .topbar strong {{ font-size: 1rem; letter-spacing: -0.01em; }}
-    .topbar a {{ color: {style.accent}; text-decoration: none; font-weight: 600; font-size: 0.9rem; }}
-    .hero {{
-      background: {style.hero_gradient};
-      color: #fff;
-      padding: 4rem 1.5rem 5rem;
-      text-align: center;
-    }}
-    .hero h1 {{ font-size: clamp(1.85rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem; max-width: 44rem; margin-inline: auto; }}
-    .hero h1.large {{ font-size: clamp(2.25rem, 5vw, 3.5rem); }}
-    .hero p {{ font-size: 1.15rem; opacity: 0.95; max-width: 38rem; margin: 0 auto 1.5rem; }}
-    .trust-row {{ display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; }}
-    .trust-pill {{ background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem; }}
-    .hero-ctas {{ display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }}
-    .btn {{
-      display: inline-block;
-      background: {style.accent};
-      color: #0f172a;
-      font-weight: 700;
-      padding: 0.875rem 2rem;
-      border-radius: 999px;
-      text-decoration: none;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    }}
-    .btn-wa {{ background: #25d366; color: #052e16; }}
-    .btn-reviews {{
-      background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.85);
-    }}
-    .btn-reviews:hover {{ background: rgba(255,255,255,0.14); }}
-    .topbar-links {{ display: flex; gap: 0.85rem; align-items: center; flex-wrap: wrap; }}
-    .topbar-links a {{ color: inherit; text-decoration: none; font-weight: 600; font-size: 0.9rem; }}
-    .wa-btn {{ color: #15803d; font-weight: 700; }}
-    .section {{ padding: 3.5rem 1.5rem; max-width: 960px; margin: 0 auto; }}
-    .section h2 {{ font-size: 1.75rem; margin-bottom: 1.25rem; color: {style.primary_dark}; }}
-    .services {{ display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); list-style: none; }}
-    .service-card {{
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 1.25rem;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }}
-    .service-card h3 {{ font-size: 1.05rem; margin-bottom: 0.5rem; color: {style.primary_dark}; }}
-    .service-desc {{ font-size: 0.92rem; color: #475569; line-height: 1.5; }}
-    .service-card:hover {{ transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }}
-    .about {{ background: #f1f5f9; }}
-    .benefits {{ background: #fff; }}
-    .benefits ul {{ list-style: none; display: grid; gap: 0.75rem; }}
-    .benefits li {{ padding-left: 1.5rem; position: relative; }}
-    .benefits li::before {{ content: "✓"; position: absolute; left: 0; color: {style.primary}; font-weight: 700; }}
-    .muted {{ color: #64748b; margin-bottom: 1rem; }}
-    .contact-grid {{ display: grid; gap: 0.5rem; font-size: 1rem; }}
-    .contact-form {{ display: grid; gap: 0.75rem; max-width: 480px; margin-top: 1.25rem; }}
-    .contact-form label {{ display: grid; gap: 0.35rem; font-weight: 600; font-size: 0.9rem; }}
-    .contact-form input, .contact-form textarea {{
-      padding: 0.65rem 0.75rem; border-radius: 8px; border: 1px solid #cbd5e1; font: inherit;
-    }}
-    .contact-form button {{
-      justify-self: start; background: {style.primary}; color: #fff; border: 0;
-      padding: 0.75rem 1.5rem; border-radius: 999px; font-weight: 700; cursor: pointer;
-    }}
-    .calculator {{ background: #fff; border-top: 1px solid #e2e8f0; }}
-    .calc-grid {{ display: grid; gap: 1rem; max-width: 400px; }}
-    .calc-grid label {{ display: flex; flex-direction: column; gap: 0.5rem; font-weight: 600; }}
-    .calc-grid select, .calc-grid input {{ padding: 0.5rem; border-radius: 8px; border: 1px solid #cbd5e1; }}
-    .calc-result {{ font-size: 1.25rem; margin-top: 0.5rem; }}
-    .testimonials {{ background: #f8fafc; }}
-    .testimonial-grid {{ display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }}
-    .testimonial-card {{ background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; }}
-    .testimonial-card cite {{ display: block; margin-top: 0.75rem; font-size: 0.875rem; color: #64748b; }}
-    .maps-frame {{ border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; aspect-ratio: 16/9; }}
-    .maps-frame iframe {{ width: 100%; height: 100%; border: 0; }}
-    footer {{ text-align: center; padding: 2rem; font-size: 0.875rem; background: #0f172a; color: #cbd5e1; }}
-    @media (max-width: 640px) {{
-      .hero {{ padding: 3rem 1rem 4rem; }}
-      .section {{ padding: 2.5rem 1rem; }}
-    }}
+{css}
   </style>
 </head>
-<body>
+<body data-tier="{esc(tier)}">
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
-      {reviews_nav}<a href="#contact">{cta}</a>
+      {maps_nav}{reviews_nav}<a href="#contact">{cta}</a>
     </div>
   </nav>
-  <header class="hero">
-    <h1{h1_class}>{headline}</h1>
-    <p{hero_p_class}>{subtitle}</p>
-    <div{trust_class}>{trust_html}</div>
-    <div class="hero-ctas">
-      <a class="{btn_class}" href="#contact">{cta}</a>{hero_cta_extra}
+  {trust_strip}
+  <header class="hero{hero_photo_class}">
+    <div class="hero-inner">
+      <h1{h1_class}>{headline}</h1>
+      <p{hero_p_class}>{subtitle}</p>
+      <div{trust_class}>{trust_html}</div>
+      <div class="hero-ctas">
+        <a class="{btn_class}" href="#contact">{cta}</a>{hero_cta_extra}
+      </div>
     </div>
   </header>
+  {info_bar}
+  {stats_block}
   <section class="{sec}" id="services">
     <h2>{esc(ui['services'])}</h2>
     <ul class="services">{services_html}</ul>
   </section>
+  {mid_cta}
   <section class="{sec} benefits">
     <h2>{why_title}</h2>
     <ul>{benefits_html}</ul>
   </section>
+  {process_block}
+  {showcase_block}
   <section class="{sec} about">
     <h2>{esc(ui['about'])}</h2>
     <p>{about}</p>
   </section>
+  {faq_block}
   {calc_block}
   {_testimonials_section(include_testimonials, ui, section_class=sec)}
   {maps_block}

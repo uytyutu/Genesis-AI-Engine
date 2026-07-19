@@ -94,6 +94,9 @@ class FactoryService:
         (product_dir / "index.html").write_text(html, encoding="utf-8")
         if motion == "css":
             write_motion_assets(product_dir)
+        from app.factory.hero_still import write_hero_asset
+
+        write_hero_asset(product_dir, analysis.niche)
 
         legal_payload = dict(client_legal or {})
         if features.maps:
@@ -229,6 +232,9 @@ class FactoryService:
         validation = validate_landing(html)
 
         (product_dir / "index.html").write_text(html, encoding="utf-8")
+        from app.factory.hero_still import write_hero_asset
+
+        write_hero_asset(product_dir, str(meta.get("niche") or ""))
 
         meta["revision"] = int(meta.get("revision", 0)) + 1
         meta["quality_percent"] = validation.quality_percent
@@ -342,7 +348,17 @@ class FactoryService:
                 for asset in assets_dir.iterdir():
                     if asset.is_file() and asset.name != ".gitkeep":
                         archive.writestr(f"assets/{asset.name}", asset.read_bytes())
-            archive.writestr("README_PUBLISH.txt", deploy_readme(market))
+            archive.writestr(
+                "README_PUBLISH.txt",
+                deploy_readme(
+                    market,
+                    package_id=str(
+                        (meta.get("package_delivery") or {}).get("package_id")
+                        or meta.get("package_id")
+                        or "basic"
+                    ),
+                ),
+            )
 
         if mark_download:
             meta["export_downloaded_at"] = datetime.now(timezone.utc).isoformat()

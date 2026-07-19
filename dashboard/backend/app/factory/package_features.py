@@ -23,6 +23,14 @@ class PackageFeatures:
     calculator: bool = False
     premium_design: bool = False
     contact_form: bool = True
+    # Tier design-system blocks (Business+)
+    faq: bool = False
+    process: bool = False
+    mid_cta: bool = False
+    trust_bar: bool = False
+    # Premium-only impression blocks
+    stats_strip: bool = False
+    showcase: bool = False
 
 
 def resolve_package_features(package_id: str | None) -> PackageFeatures:
@@ -41,6 +49,10 @@ def resolve_package_features(package_id: str | None) -> PackageFeatures:
             testimonials=True,
             logo_slot=True,
             extended_seo=True,
+            faq=True,
+            process=True,
+            mid_cta=True,
+            trust_bar=True,
         )
     return PackageFeatures(
         package_id="premium",
@@ -51,6 +63,12 @@ def resolve_package_features(package_id: str | None) -> PackageFeatures:
         analytics=True,
         calculator=True,
         premium_design=True,
+        faq=True,
+        process=True,
+        mid_cta=True,
+        trust_bar=True,
+        stats_strip=True,
+        showcase=True,
     )
 
 
@@ -110,6 +128,20 @@ def maps_embed_src(
     return f"https://maps.google.com/maps?q={quote_plus(query)}&z=14&output=embed"
 
 
+def maps_route_url(
+    *,
+    business_name: str,
+    city: str,
+    street: str = "",
+    country: str = "Germany",
+) -> str:
+    """Google Maps directions deep-link for Business+ route CTA."""
+    dest = " ".join(p for p in (street, city, country, business_name) if p).strip()
+    if not dest:
+        return "#maps"
+    return f"https://www.google.com/maps/dir/?api=1&destination={quote_plus(dest)}"
+
+
 def delivery_meta(features: PackageFeatures) -> dict:
     return {
         "package_id": features.package_id,
@@ -122,4 +154,10 @@ def delivery_meta(features: PackageFeatures) -> dict:
         "calculator": features.calculator,
         "premium_design": features.premium_design,
         "contact_form": features.contact_form,
+        "faq": features.faq,
+        "process": features.process,
+        "mid_cta": features.mid_cta,
+        "trust_bar": features.trust_bar,
+        "stats_strip": features.stats_strip,
+        "showcase": features.showcase,
     }
