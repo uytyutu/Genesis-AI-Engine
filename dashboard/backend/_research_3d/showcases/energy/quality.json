@@ -1,0 +1,10 @@
+{
+  "niche": "energy",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "panel",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "Solarmodul",
+  "label_en": "Solar panel"
+}

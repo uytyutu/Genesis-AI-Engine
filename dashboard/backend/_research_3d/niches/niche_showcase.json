@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "lazy_load": true,
+  "loading_copy": {
+    "de": "Interaktive 3D-Modell wird geladen…",
+    "en": "Interactive 3D model is loading…",
+    "ru": "Интерактивная 3D-модель загружается…",
+    "uk": "Інтерактивна 3D-модель завантажується…"
+  },
+  "tiers": {
+    "basic": {
+      "hero": "photo",
+      "showcase": "none",
+      "note": "Photos only"
+    },
+    "business": {
+      "hero": "photo_css",
+      "showcase": "still_or_none",
+      "note": "Photos + light CSS motion; optional static product still"
+    },
+    "premium": {
+      "hero": "photo_or_light",
+      "showcase": "interactive_3d_lazy",
+      "note": "Niche thematic interactive model — approved quality only"
+    }
+  },
+  "niches": {
+    "dental": {
+      "label_de": "Moderne Zahnmedizin — zum Anfassen",
+      "label_en": "Modern dentistry — hands-on",
+      "intent": "tech_demo_with_hotspots",
+      "preferred_assets": ["scanner", "tooth", "implant", "crown", "braces"],
+      "showcase_still": "runtime/demos/dental_sold/assets/showcase_implant.jpg",
+      "glb_candidates": [
+        "scenes/dental/examples/04_implant.glb",
+        "scenes/dental/examples/01_tooth.glb"
+      ]
+    },
+    "auto": {
+      "label_de": "Motor / Turbine",
+      "label_en": "Engine / turbo",
+      "intent": "engine_or_brake_disc",
+      "preferred_assets": ["engine", "turbo", "brake", "gearbox"],
+      "glb_candidates": [
+        "scenes/auto/examples/01_wheel.glb",
+        "scenes/auto/examples/02_wrench.glb"
+      ]
+    },
+    "energy": {
+      "label_de": "Solarmodul",
+      "label_en": "Solar panel",
+      "intent": "panel_energy_flow",
+      "preferred_assets": ["panel", "inverter"],
+      "glb_candidates": [
+        "scenes/energy/examples/01_panel.glb",
+        "scenes/energy/examples/05_inverter.glb"
+      ]
+    },
+    "appliance": {
+      "label_de": "Gerät / Klimagerät",
+      "label_en": "Appliance / AC unit",
+      "intent": "indoor_outdoor_airflow",
+      "preferred_assets": ["ac", "washer", "fridge"],
+      "glb_candidates": [
+        "scenes/appliance/examples/01_washer.glb",
+        "scenes/appliance/examples/02_fridge.glb"
+      ]
+    },
+    "handwerk": {
+      "label_de": "Fensterprofil / Werkzeug",
+      "label_en": "Window profile / tool",
+      "intent": "window_cutaway_or_tool",
+      "preferred_assets": ["window", "hammer", "saw"],
+      "glb_candidates": [
+        "scenes/handwerk/examples/01_hammer.glb",
+        "scenes/handwerk/examples/02_saw.glb"
+      ]
+    },
+    "generic": {
+      "label_de": "Produkt-Demo",
+      "label_en": "Product demo",
+      "intent": "product_turntable",
+      "preferred_assets": ["product"],
+      "glb_candidates": [
+        "scenes/generic/examples/01_sign.glb"
+      ]
+    }
+  }
+}

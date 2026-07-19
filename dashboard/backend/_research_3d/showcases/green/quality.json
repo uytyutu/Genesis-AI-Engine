@@ -1,0 +1,10 @@
+{
+  "niche": "green",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "leaf",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "Garten / Grün",
+  "label_en": "Garden / green"
+}

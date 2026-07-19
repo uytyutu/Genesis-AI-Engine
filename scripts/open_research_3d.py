@@ -18,8 +18,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SERVE = ROOT / "dashboard" / "backend" / "_research_3d"
 PORT = 8765
-# CEO review: sold-site dental (CSS-Motion + premium 3D + Classic fallback)
-URL = f"http://127.0.0.1:{PORT}/runtime/demos/dental_sold/index.html"
+# Universal Showcase Library player (any niche via ?niche=)
+URL = f"http://127.0.0.1:{PORT}/runtime/showcase/index.html?niche=dental&tier=premium"
+DENTAL_SOLD_URL = f"http://127.0.0.1:{PORT}/runtime/demos/dental_sold/index.html?tier=premium"
 LAB_URL = f"http://127.0.0.1:{PORT}/runtime/index.html"
 
 
@@ -32,12 +33,16 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 
 
 def main() -> int:
-    engine = SERVE / "runtime" / "demos" / "dental_sold" / "index.html"
+    engine = SERVE / "runtime" / "showcase" / "index.html"
+    dental_sold = SERVE / "runtime" / "demos" / "dental_sold" / "index.html"
     lab = SERVE / "runtime" / "index.html"
     vendor = SERVE / "runtime" / "vendor" / "three.module.js"
     hdr = SERVE / "runtime" / "hdr" / "studio_small.hdr"
     if not engine.is_file():
-        print("MISSING sold demo:", engine)
+        print("MISSING universal showcase player:", engine)
+        return 1
+    if not dental_sold.is_file():
+        print("MISSING dental sold demo:", dental_sold)
         return 1
     if not lab.is_file():
         print("MISSING lab player:", lab)
@@ -55,14 +60,16 @@ def main() -> int:
     except OSError as exc:
         print(f"Port {PORT} busy ({exc}). Trying to open existing server…")
         webbrowser.open(URL)
-        print("Sold demo:", URL)
+        print("Showcase Library:", URL)
+        print("Dental sold demo:", DENTAL_SOLD_URL)
         print("Lab player:", LAB_URL)
         return 0
 
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
     print("Serving", SERVE)
-    print("Sold demo:", URL)
+    print("Showcase Library:", URL)
+    print("Dental sold demo:", DENTAL_SOLD_URL)
     print("Lab player:", LAB_URL)
     time.sleep(0.4)
     webbrowser.open(URL)

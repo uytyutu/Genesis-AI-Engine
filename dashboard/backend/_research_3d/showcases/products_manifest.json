@@ -1,0 +1,252 @@
+{
+  "version": 1,
+  "engine": "visual_experience",
+  "products": [
+    {
+      "niche_id": "appliance",
+      "product_id": "default",
+      "score": 80,
+      "premium": true,
+      "specializations": [
+        "appliance"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/appliance/products/default"
+    },
+    {
+      "niche_id": "auto",
+      "product_id": "brakes",
+      "score": 91,
+      "premium": true,
+      "specializations": [
+        "brakes",
+        "safety",
+        "service"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/auto/products/brakes"
+    },
+    {
+      "niche_id": "auto",
+      "product_id": "engine",
+      "score": 97,
+      "premium": true,
+      "specializations": [
+        "engine",
+        "motor",
+        "powertrain"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/auto/products/engine"
+    },
+    {
+      "niche_id": "auto",
+      "product_id": "suspension",
+      "score": 88,
+      "premium": true,
+      "specializations": [
+        "suspension",
+        "chassis",
+        "service"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/auto/products/suspension"
+    },
+    {
+      "niche_id": "auto",
+      "product_id": "turbo",
+      "score": 94,
+      "premium": true,
+      "specializations": [
+        "turbo",
+        "tuning",
+        "performance"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/auto/products/turbo"
+    },
+    {
+      "niche_id": "beauty",
+      "product_id": "chair",
+      "score": 85,
+      "premium": true,
+      "specializations": [
+        "salon",
+        "comfort"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/beauty/products/chair"
+    },
+    {
+      "niche_id": "beauty",
+      "product_id": "device",
+      "score": 94,
+      "premium": true,
+      "specializations": [
+        "device",
+        "treatment",
+        "clinic"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/beauty/products/device"
+    },
+    {
+      "niche_id": "beauty",
+      "product_id": "laser",
+      "score": 92,
+      "premium": true,
+      "specializations": [
+        "laser",
+        "aesthetic"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/beauty/products/laser"
+    },
+    {
+      "niche_id": "computer",
+      "product_id": "default",
+      "score": 80,
+      "premium": true,
+      "specializations": [
+        "computer"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/computer/products/default"
+    },
+    {
+      "niche_id": "dental",
+      "product_id": "aligners",
+      "score": 90,
+      "premium": true,
+      "specializations": [
+        "orthodontics",
+        "aligners",
+        "ortho"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/dental/products/aligners"
+    },
+    {
+      "niche_id": "dental",
+      "product_id": "implant",
+      "score": 98,
+      "premium": true,
+      "specializations": [
+        "implantology",
+        "oral_surgery",
+        "implant"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/dental/products/implant"
+    },
+    {
+      "niche_id": "dental",
+      "product_id": "scanner",
+      "score": 96,
+      "premium": true,
+      "specializations": [
+        "diagnostics",
+        "general_dentistry",
+        "digital"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/dental/products/scanner"
+    },
+    {
+      "niche_id": "dental",
+      "product_id": "tooth",
+      "score": 92,
+      "premium": true,
+      "specializations": [
+        "general_dentistry",
+        "prophylaxis",
+        "aesthetic"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/dental/products/tooth"
+    },
+    {
+      "niche_id": "energy",
+      "product_id": "battery",
+      "score": 93,
+      "premium": true,
+      "specializations": [
+        "storage",
+        "battery",
+        "energy"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/energy/products/battery"
+    },
+    {
+      "niche_id": "energy",
+      "product_id": "inverter",
+      "score": 90,
+      "premium": true,
+      "specializations": [
+        "inverter",
+        "solar",
+        "installation"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/energy/products/inverter"
+    },
+    {
+      "niche_id": "energy",
+      "product_id": "solar_panel",
+      "score": 97,
+      "premium": true,
+      "specializations": [
+        "solar",
+        "pv",
+        "energy"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/energy/products/solar_panel"
+    },
+    {
+      "niche_id": "generic",
+      "product_id": "default",
+      "score": 80,
+      "premium": true,
+      "specializations": [
+        "generic"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/generic/products/default"
+    },
+    {
+      "niche_id": "green",
+      "product_id": "default",
+      "score": 80,
+      "premium": true,
+      "specializations": [
+        "green"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/green/products/default"
+    },
+    {
+      "niche_id": "handwerk",
+      "product_id": "default",
+      "score": 80,
+      "premium": true,
+      "specializations": [
+        "handwerk"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/handwerk/products/default"
+    },
+    {
+      "niche_id": "law",
+      "product_id": "default",
+      "score": 80,
+      "premium": true,
+      "specializations": [
+        "law"
+      ],
+      "quality": "placeholder",
+      "path": "showcases/law/products/default"
+    }
+  ]
+}

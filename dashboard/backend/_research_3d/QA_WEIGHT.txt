@@ -26,3 +26,9 @@ Notes:
 
 ## Sold demo URL
 http://127.0.0.1:8765/runtime/demos/dental_sold/index.html
+
+## Quality rule (2026-07-19)
+Placeholder procedural GLBs look like crystal/plastic — blocked for client-facing.
+Business sold demo = photo (`assets/hero_clinic.jpg`) + CSS-Motion.
+Premium 3D = only when catalog `quality` is approved|premium.
+Code: app/factory/research_3d/quality_gate.py

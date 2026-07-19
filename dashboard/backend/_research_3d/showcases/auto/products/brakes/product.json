@@ -1,0 +1,19 @@
+{
+  "id": "brakes",
+  "score": 91,
+  "premium": true,
+  "specializations": [
+    "brakes",
+    "safety",
+    "service"
+  ],
+  "tags": [
+    "brakes",
+    "workshop"
+  ],
+  "label_de": "Sicherheit, die man sieht",
+  "label_en": "Safety you can see",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

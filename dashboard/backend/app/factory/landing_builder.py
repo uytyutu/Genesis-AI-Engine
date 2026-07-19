@@ -157,6 +157,16 @@ def build_landing_html(
         hero_cta_extra = (
             f' <a class="{wa_btn}" href="{esc(wa_url)}" target="_blank" rel="noopener">WhatsApp</a>'
         )
+    # Reviews CTA for all packages that include testimonials
+    if include_testimonials:
+        rev_btn = f"{btn_class} btn-reviews" if css_motion else "btn btn-reviews"
+        hero_cta_extra += (
+            f' <a class="{rev_btn}" href="#testimonials">Kundenstimmen</a>'
+        )
+    # Topbar reviews link for all
+    reviews_nav = (
+        ' <a href="#testimonials">Kundenstimmen</a>' if include_testimonials else ""
+    )
 
     seo_extra = ""
     if feat.extended_seo:
@@ -248,6 +258,12 @@ def build_landing_html(
       box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }}
     .btn-wa {{ background: #25d366; color: #052e16; }}
+    .btn-reviews {{
+      background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.85);
+    }}
+    .btn-reviews:hover {{ background: rgba(255,255,255,0.14); }}
+    .topbar-links {{ display: flex; gap: 0.85rem; align-items: center; flex-wrap: wrap; }}
+    .topbar-links a {{ color: inherit; text-decoration: none; font-weight: 600; font-size: 0.9rem; }}
     .wa-btn {{ color: #15803d; font-weight: 700; }}
     .section {{ padding: 3.5rem 1.5rem; max-width: 960px; margin: 0 auto; }}
     .section h2 {{ font-size: 1.75rem; margin-bottom: 1.25rem; color: {style.primary_dark}; }}
@@ -299,7 +315,9 @@ def build_landing_html(
 <body>
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
-    <a href="#contact">{cta}</a>
+    <div class="topbar-links">
+      {reviews_nav}<a href="#contact">{cta}</a>
+    </div>
   </nav>
   <header class="hero">
     <h1{h1_class}>{headline}</h1>

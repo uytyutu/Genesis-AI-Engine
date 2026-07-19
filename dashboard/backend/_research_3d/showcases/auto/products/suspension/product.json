@@ -1,0 +1,19 @@
+{
+  "id": "suspension",
+  "score": 88,
+  "premium": true,
+  "specializations": [
+    "suspension",
+    "chassis",
+    "service"
+  ],
+  "tags": [
+    "suspension",
+    "workshop"
+  ],
+  "label_de": "Fahrwerk & Haltung",
+  "label_en": "Chassis & ride",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

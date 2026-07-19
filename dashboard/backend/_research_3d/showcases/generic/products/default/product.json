@@ -1,0 +1,17 @@
+{
+  "id": "default",
+  "score": 80,
+  "premium": true,
+  "specializations": [
+    "generic"
+  ],
+  "tags": [
+    "generic",
+    "tech"
+  ],
+  "label_de": "generic",
+  "label_en": "generic",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

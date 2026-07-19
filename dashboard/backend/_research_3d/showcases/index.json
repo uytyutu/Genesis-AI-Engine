@@ -1,0 +1,126 @@
+{
+  "version": 3,
+  "engine": "visual_experience",
+  "niches": {
+    "appliance": {
+      "niche": "appliance",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/appliance",
+      "products": [
+        "default"
+      ],
+      "label_de": "Gerät / Klimagerät",
+      "label_en": "Appliance / AC unit"
+    },
+    "auto": {
+      "niche": "auto",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/auto",
+      "products": [
+        "brakes",
+        "engine",
+        "suspension",
+        "turbo"
+      ],
+      "label_de": "Motor / Turbine",
+      "label_en": "Engine / turbo"
+    },
+    "beauty": {
+      "niche": "beauty",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/beauty",
+      "products": [
+        "chair",
+        "device",
+        "laser"
+      ],
+      "label_de": "Kosmetik / Pflege",
+      "label_en": "Beauty / care"
+    },
+    "computer": {
+      "niche": "computer",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/computer",
+      "products": [
+        "default"
+      ],
+      "label_de": "IT / Hardware",
+      "label_en": "IT / hardware"
+    },
+    "dental": {
+      "niche": "dental",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/dental",
+      "products": [
+        "aligners",
+        "implant",
+        "scanner",
+        "tooth"
+      ],
+      "label_de": "Moderne Zahnmedizin — zum Anfassen",
+      "label_en": "Modern dentistry — hands-on"
+    },
+    "energy": {
+      "niche": "energy",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/energy",
+      "products": [
+        "battery",
+        "inverter",
+        "solar_panel"
+      ],
+      "label_de": "Solarmodul",
+      "label_en": "Solar panel"
+    },
+    "generic": {
+      "niche": "generic",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/generic",
+      "products": [
+        "default"
+      ],
+      "label_de": "Produkt-Demo",
+      "label_en": "Product demo"
+    },
+    "green": {
+      "niche": "green",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/green",
+      "products": [
+        "default"
+      ],
+      "label_de": "Garten / Grün",
+      "label_en": "Garden / green"
+    },
+    "handwerk": {
+      "niche": "handwerk",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/handwerk",
+      "products": [
+        "default"
+      ],
+      "label_de": "Fensterprofil / Werkzeug",
+      "label_en": "Window profile / tool"
+    },
+    "law": {
+      "niche": "law",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "path": "showcases/law",
+      "products": [
+        "default"
+      ],
+      "label_de": "Recht / Kanzlei",
+      "label_en": "Law / office"
+    }
+  }
+}

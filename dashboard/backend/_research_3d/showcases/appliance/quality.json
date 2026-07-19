@@ -1,0 +1,10 @@
+{
+  "niche": "appliance",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "ac",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "Gerät / Klimagerät",
+  "label_en": "Appliance / AC unit"
+}

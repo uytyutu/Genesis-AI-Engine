@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Virtus Visual Experience Engine</title>
+  <link rel="stylesheet" href="showcase.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "../vendor/three.module.js",
+      "three/addons/": "../vendor/addons/"
+    }
+  }
+  </script>
+</head>
+<body data-niche="dental" data-tier="premium">
+  <header class="bar">
+    <div>
+      <strong>Visual Experience Engine</strong>
+      <span class="muted" id="alias-hint">Product Registry · niche/product folders</span>
+    </div>
+    <div class="controls">
+      <label class="sr">Niche
+        <select id="niche-select" aria-label="Niche"></select>
+      </label>
+      <div id="tier-switch" class="tier-switch" role="group" aria-label="Tier">
+        <button type="button" data-tier="basic">Basic</button>
+        <button type="button" data-tier="business">Business</button>
+        <button type="button" data-tier="premium" class="active">Premium</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="copy">
+      <p class="kicker" id="showcase-kicker">Showcase Registry</p>
+      <h1 id="showcase-title">Premium Showcase</h1>
+      <p class="lead" id="showcase-sub">Universelle Branchen-Präsentation.</p>
+      <p class="hint" id="showcase-hint"></p>
+      <p class="badge" id="mode-badge">…</p>
+      <div class="vxp-actions" id="vxp-actions">
+        <button type="button" id="upgrade-premium" class="upsell-btn" hidden>
+          Upgrade to Premium — Objekt lebendig machen
+        </button>
+        <a class="reviews-btn" href="#vxp-reviews">Kundenstimmen</a>
+      </div>
+      <div class="hotspots" id="vxp-hotspots" hidden></div>
+    </section>
+
+    <section class="showcase-stage" id="showcase-stage" data-showcase-root>
+      <div class="showcase-glow" aria-hidden="true"></div>
+      <div class="showcase-still" id="showcase-still"></div>
+      <div class="showcase-loading" id="showcase-loading" hidden>
+        <div class="showcase-spinner" aria-hidden="true"></div>
+        <p id="showcase-loading-text">3D wird geladen…</p>
+      </div>
+      <div class="showcase-canvas-wrap" id="showcase-canvas-wrap" hidden></div>
+    </section>
+
+    <section class="reviews" id="vxp-reviews">
+      <h2>Kundenstimmen</h2>
+      <p class="muted">Kurze Stimmen — für jede Branche sichtbar.</p>
+      <div class="review-grid">
+        <blockquote><p>«Endlich sieht man den Unterschied zum Standard-Website-Baukasten.»</p><cite>— Business-Kunde</cite></blockquote>
+        <blockquote><p>«Das Preview allein wirkte schon teuer — Premium überzeugt noch mehr.»</p><cite>— Praxis-Inhaberin</cite></blockquote>
+        <blockquote><p>«Klar, modern, ohne leere Blöcke.»</p><cite>— Werkstatt</cite></blockquote>
+      </div>
+      <a class="reviews-btn" href="#vxp-reviews">Alle Stimmen</a>
+    </section>
+  </main>
+
+  <footer class="foot">
+    Add product = add <code>showcases/&lt;niche&gt;/products/&lt;id&gt;/</code> ·
+    <code>?niche=dental&amp;specialization=implantology</code> ·
+    Lab 3D: <code>&amp;lab3d=1</code>
+  </footer>
+
+  <script type="module" src="showcase_client.js"></script>
+</body>
+</html>

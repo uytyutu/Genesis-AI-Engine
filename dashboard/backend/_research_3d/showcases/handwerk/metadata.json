@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "niche_id": "handwerk",
+  "sub_de": "Digitale Präsentation moderner Technologien.",
+  "sub_en": "A digital presentation of modern technology.",
+  "scenes": [
+    {
+      "id": "default",
+      "label_de": "Fensterprofil / Werkzeug",
+      "label_en": "Window profile / tool",
+      "tags": [
+        "window",
+        "handwerk",
+        "tech"
+      ],
+      "preview": "preview.jpg",
+      "model": "model.glb",
+      "primary": true
+    }
+  ],
+  "specialization_hints": {},
+  "extensible": true,
+  "note": "Add scenes here without changing platform code"
+}

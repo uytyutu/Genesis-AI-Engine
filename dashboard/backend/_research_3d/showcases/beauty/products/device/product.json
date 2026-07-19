@@ -1,0 +1,19 @@
+{
+  "id": "device",
+  "score": 94,
+  "premium": true,
+  "specializations": [
+    "device",
+    "treatment",
+    "clinic"
+  ],
+  "tags": [
+    "device",
+    "beauty"
+  ],
+  "label_de": "Geräte & Methoden",
+  "label_en": "Devices & methods",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

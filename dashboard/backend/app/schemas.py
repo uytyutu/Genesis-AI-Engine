@@ -276,6 +276,8 @@ class SalesOrderCreateRequest(BaseModel):
     phone: str | None = Field(default=None, max_length=40)
     whatsapp: str | None = Field(default=None, max_length=40)
     email: str | None = Field(default=None, max_length=120)
+    niche: str | None = Field(default=None, max_length=64)
+    specialization: str | None = Field(default=None, max_length=120)
     needs_logo: bool = False
     needs_domain: bool = False
     extra_wishes: str | None = Field(default=None, max_length=2000)
@@ -340,6 +342,9 @@ class OrderInsightsPreviewRequest(BaseModel):
     telegram: str | None = Field(default=None, max_length=400)
     whatsapp: str | None = Field(default=None, max_length=40)
     material_ids: list[str] = Field(default_factory=list, max_length=40)
+    niche: str | None = Field(default=None, max_length=64)
+    specialization: str | None = Field(default=None, max_length=120)
+    package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
 
 
 class OrderInsightsPreviewResponse(BaseModel):
@@ -347,6 +352,24 @@ class OrderInsightsPreviewResponse(BaseModel):
     checks: list[dict] = Field(default_factory=list)
     note_de: str = ""
     site_analysis: dict | None = None
+    visual_experience: dict | None = None
+
+
+class VisualExperiencePreviewResponse(BaseModel):
+    ok: bool = True
+    engine: str = "visual_experience"
+    mode: str = "none"
+    tier: str = "basic"
+    niche_id: str | None = None
+    product_id: str | None = None
+    specialization_id: str | None = None
+    label: str | None = None
+    preview: str | None = None
+    preview_url: str | None = None
+    reason: str | None = None
+    cta: dict | None = None
+    hotspots: list[dict] = Field(default_factory=list)
+    never_empty: bool = True
 
 
 class SalesOrderSummary(BaseModel):
@@ -401,6 +424,22 @@ class SalesOrderPublicStatus(BaseModel):
     review_eligible: bool = False
     review_submitted: bool = False
     review_url: str | None = None
+    deployment_preference: str = "unset"
+    hosting_provider: str | None = None
+    assisted_guide: dict | None = None
+
+
+class DeploymentPreferenceRequest(BaseModel):
+    preference: str = Field(
+        ...,
+        description="zip_only | assisted",
+        pattern="^(zip_only|assisted)$",
+    )
+    hosting_provider: str | None = Field(
+        default=None,
+        description="ionos | hetzner | cloudflare_pages | vercel | other",
+        pattern="^(ionos|hetzner|cloudflare_pages|vercel|other)$",
+    )
 
 
 class ClientReviewSubmitRequest(BaseModel):
@@ -2110,6 +2149,25 @@ class SalesFunnelDashboard(BaseModel):
     next_action_href: str = "/business"
 
 
+class PathAFunnelTopItem(BaseModel):
+    id: str
+    count: int = 0
+
+
+class PathAFunnelDashboard(BaseModel):
+    title_ru: str
+    headline_ru: str
+    subtitle_ru: str
+    steps: list[SalesFunnelStep]
+    conversion_view_to_paid_pct: float = 0.0
+    top_niches: list[PathAFunnelTopItem] = Field(default_factory=list)
+    top_products: list[PathAFunnelTopItem] = Field(default_factory=list)
+    top_specializations: list[PathAFunnelTopItem] = Field(default_factory=list)
+    tier_mix: list[PathAFunnelTopItem] = Field(default_factory=list)
+    event_totals: dict[str, int] = Field(default_factory=dict)
+    next_action_href: str = "/site"
+
+
 class Mission2KpiMetric(BaseModel):
     id: str
     label_ru: str
@@ -2238,6 +2296,7 @@ class MoneyMonitorDashboard(BaseModel):
     subtitle_ru: str
     real_money: RealMoneyDashboard | None = None
     sales_funnel: SalesFunnelDashboard | None = None
+    path_a_funnel: PathAFunnelDashboard | None = None
     mission2_kpi: Mission2KpiDashboard | None = None
     lanes: list[MoneyMonitorLane]
     withdraw_alert: MoneyMonitorWithdrawAlert

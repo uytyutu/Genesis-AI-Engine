@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "rule": "If 3D quality is below site quality, use photography or CSS-Motion instead of a weak model.",
+  "commerce": {
+    "basic": "Photos only",
+    "business": "Photos + CSS-Motion + optional niche still (lazy)",
+    "premium": "Niche thematic interactive 3D — approved models only, lazy-loaded on scroll"
+  },
+  "showcase": {
+    "never_empty_block": true,
+    "loading_copy_required": true,
+    "lazy_load_on_scroll": true,
+    "map": "../niches/niche_showcase.json"
+  },
+  "client_facing_requires": ["approved", "premium"],
+  "lab_placeholders_ok": true,
+  "professional_niches_block_placeholders": true
+}

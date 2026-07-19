@@ -1,0 +1,17 @@
+{
+  "id": "default",
+  "score": 80,
+  "premium": true,
+  "specializations": [
+    "appliance"
+  ],
+  "tags": [
+    "appliance",
+    "tech"
+  ],
+  "label_de": "appliance",
+  "label_en": "appliance",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

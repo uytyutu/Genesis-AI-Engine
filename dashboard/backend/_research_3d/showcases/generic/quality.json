@@ -1,0 +1,10 @@
+{
+  "niche": "generic",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "product",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "Produkt-Demo",
+  "label_en": "Product demo"
+}

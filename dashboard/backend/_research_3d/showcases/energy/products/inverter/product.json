@@ -1,0 +1,19 @@
+{
+  "id": "inverter",
+  "score": 90,
+  "premium": true,
+  "specializations": [
+    "inverter",
+    "solar",
+    "installation"
+  ],
+  "tags": [
+    "inverter",
+    "energy"
+  ],
+  "label_de": "Wechselrichter & Systemtechnik",
+  "label_en": "Inverter & system tech",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

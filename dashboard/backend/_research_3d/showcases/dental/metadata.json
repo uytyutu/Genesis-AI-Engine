@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "niche_id": "dental",
+  "sub_de": "Digitale Präsentation moderner zahnmedizinischer Technologien — kein Versprechen einer einzelnen Leistung.",
+  "sub_en": "A digital look at modern dental technology — not a promise of one specific treatment.",
+  "scenes": [
+    {
+      "id": "tech_tooth",
+      "label_de": "Moderne Zahnmedizin — zum Anfassen",
+      "label_en": "Modern dentistry — hands-on",
+      "tags": [
+        "tooth",
+        "implant",
+        "tech",
+        "digital",
+        "crown"
+      ],
+      "preview": "preview.jpg",
+      "model": "model.glb",
+      "primary": true
+    }
+  ],
+  "specialization_hints": {
+    "implant": [
+      "implant",
+      "tooth",
+      "crown"
+    ],
+    "scanner": [
+      "digital",
+      "tech"
+    ],
+    "ortho": [
+      "tooth"
+    ]
+  },
+  "extensible": true,
+  "note": "Add scenes here without changing platform code"
+}

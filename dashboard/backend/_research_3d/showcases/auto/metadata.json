@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "niche_id": "auto",
+  "sub_de": "Digitale Präsentation moderner Technologien.",
+  "sub_en": "A digital presentation of modern technology.",
+  "scenes": [
+    {
+      "id": "powertrain",
+      "label_de": "Technik, die man begreifen kann",
+      "label_en": "Technology you can grasp",
+      "tags": [
+        "engine",
+        "turbo",
+        "motor",
+        "workshop"
+      ],
+      "preview": "preview.jpg",
+      "model": "model.glb",
+      "primary": true
+    }
+  ],
+  "specialization_hints": {
+    "engine": [
+      "engine",
+      "motor"
+    ],
+    "turbo": [
+      "turbo",
+      "engine"
+    ],
+    "suspension": [
+      "workshop"
+    ]
+  },
+  "extensible": true,
+  "note": "Add scenes here without changing platform code"
+}

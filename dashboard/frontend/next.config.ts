@@ -45,6 +45,10 @@ const nextConfig: NextConfig = {
         destination: `${apiBase}/api/factory/:path*`,
       },
       {
+        source: "/research-3d/:path*",
+        destination: `${apiBase}/research-3d/:path*`,
+      },
+      {
         source: "/api/webhooks/stripe",
         destination: `${apiBase}/api/webhooks/stripe`,
       },

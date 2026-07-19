@@ -1,0 +1,15 @@
+{
+  "niche": "dental",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "tech_demo",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "Moderne Zahnmedizin — zum Anfassen",
+  "label_en": "Modern dentistry — hands-on",
+  "sub_de": "Digitale Präsentation moderner zahnmedizinischer Technologien — kein Versprechen einer einzelnen Leistung.",
+  "sub_en": "A digital look at modern dental technology — not a promise of one specific treatment.",
+  "research_demo_approved": false,
+  "premium_mode": "photoreal_still",
+  "note": "Premium uses photoreal still (preview.jpg). Procedural GLB is lab-only until licensed studio asset sets quality=approved."
+}

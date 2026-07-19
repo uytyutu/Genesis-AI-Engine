@@ -1,0 +1,4 @@
+Dental tech showcase
+GLB: scripts/generate_dental_showcase_glb.py (lab / future)
+Premium still: showcases/dental/preview.jpg (commercial presentation)
+License mesh: CC0-1.0 · Still: Virtus-generated product visual

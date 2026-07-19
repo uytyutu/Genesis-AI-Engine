@@ -30,7 +30,10 @@ def resolve_package_features(package_id: str | None) -> PackageFeatures:
     if pid not in ("basic", "business", "premium"):
         pid = "basic"
     if pid == "basic":
-        return PackageFeatures(package_id="basic")
+        return PackageFeatures(
+            package_id="basic",
+            testimonials=True,  # reviews CTA for all packages
+        )
     if pid == "business":
         return PackageFeatures(
             package_id="business",

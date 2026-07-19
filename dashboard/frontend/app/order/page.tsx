@@ -15,6 +15,12 @@ import { fetchProjectPlatform } from "../lib/projectApi";
 import { buildOrderLaunchContext, type OrderLaunchContext } from "../lib/orderProjectLaunch";
 import { Badge, Button, ButtonLink, Card, Field, Input, Textarea } from "../components/ui";
 import { publicApiBase } from "../lib/publicApiBase";
+import { logCommerceEvent } from "../lib/commerceFunnel";
+import {
+  fetchVisualExperiencePreview,
+  VisualExperienceCard,
+  type VxpPreview,
+} from "../lib/visualExperiencePreview";
 
 const API = publicApiBase();
 
@@ -103,6 +109,14 @@ export default function OrderSitePage() {
   const [legalVat, setLegalVat] = useState("");
   const [legalMaps, setLegalMaps] = useState(false);
   const [legalAnalytics, setLegalAnalytics] = useState(false);
+  const [niche, setNiche] = useState("generic");
+  const [specialization, setSpecialization] = useState("");
+  const [nicheOptions, setNicheOptions] = useState<{ id: string; label_de: string }[]>([]);
+  const [specOptions, setSpecOptions] = useState<{ id: string; niche?: string; label: string }[]>(
+    [],
+  );
+  const [vxpPreview, setVxpPreview] = useState<VxpPreview | null>(null);
+  const [vxpBusy, setVxpBusy] = useState(false);
   const [packageId, setPackageId] = useState("basic");
   const [manualPackage, setManualPackage] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -133,10 +147,56 @@ export default function OrderSitePage() {
       setPackageId(pkg);
       setManualPackage(true);
     }
+    const n = params.get("niche")?.trim();
+    if (n) setNiche(n);
     setPurchaseType(parseOrderPurchaseType(params.get("purchase_type")));
     const vid = params.get("visitor_id")?.trim();
     if (vid) setVisitorId(vid);
+    logCommerceEvent("tier_page_view", pkg, "order");
   }, []);
+
+  useEffect(() => {
+    fetch(`${API}/api/public/niches`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body) => {
+        if (Array.isArray(body?.niches)) setNicheOptions(body.niches);
+        if (Array.isArray(body?.specializations)) setSpecOptions(body.specializations);
+      })
+      .catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setVxpBusy(true);
+    fetchVisualExperiencePreview({
+      niche,
+      specialization: specialization || undefined,
+      tier: packageId,
+    })
+      .then((row) => {
+        if (cancelled || !row) return;
+        setVxpPreview(row);
+        if (row.mode !== "none") {
+          logCommerceEvent(
+            packageId === "premium" ? "premium_preview_view" : "vxp_product_shown",
+            packageId,
+            "order",
+            {
+              niche: row.niche_id || niche,
+              product_id: row.product_id,
+              specialization_id: row.specialization_id || specialization || null,
+              mode: row.mode,
+            },
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setVxpBusy(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [niche, specialization, packageId]);
 
   useEffect(() => {
     if (!visitorId) return;
@@ -309,11 +369,17 @@ export default function OrderSitePage() {
           telegram: telegram.trim() || null,
           whatsapp: whatsapp.trim() || null,
           material_ids: materials.map((m) => m.id),
+          niche: niche || null,
+          specialization: specialization.trim() || null,
+          package_id: packageId,
         }),
       });
       const body = await res.json();
       if (res.ok) {
         setInsights({ checks: body.checks || [], note_de: body.note_de });
+        if (body.visual_experience) {
+          setVxpPreview(body.visual_experience as VxpPreview);
+        }
       }
     } catch {
       /* preview optional — order still works */
@@ -337,7 +403,7 @@ export default function OrderSitePage() {
     if (!canAdvance(formStep)) return;
     const next = Math.min(4, formStep + 1);
     setFormStep(next);
-    if (next === 4) await loadInsightsPreview();
+    if (next === 2) await loadInsightsPreview();
   }
 
   async function submit(e: React.FormEvent) {
@@ -392,6 +458,8 @@ export default function OrderSitePage() {
             uses_analytics: legalAnalytics,
           },
           package_id: packageId,
+          niche: niche || null,
+          specialization: specialization.trim() || null,
           market_code: commerce.market_code || marketParam || undefined,
           visitor_id: visitorId,
         }),
@@ -411,6 +479,11 @@ export default function OrderSitePage() {
         price_label: body.price_label,
         buyer_insights: body.buyer_insights ?? insights,
       });
+      logCommerceEvent("tier_select", packageId, "order", {
+        niche,
+        specialization: specialization || null,
+        order_id: body.order_id,
+      });
     } catch {
       setError(t("order.serverDown"));
     } finally {
@@ -423,6 +496,10 @@ export default function OrderSitePage() {
     setPayBusy(true);
     setPayError("");
     try {
+      logCommerceEvent("checkout_start", packageId, "order", {
+        order_id: done.order_id,
+        niche,
+      });
       const url = await startOrderCheckout(done.order_id);
       window.location.href = url;
     } catch (e) {
@@ -617,10 +694,97 @@ export default function OrderSitePage() {
                         />
                       </Field>
                     </div>
+                    <Field label={t("order.companyWebsite")} hint={t("order.companyWebsiteHint")}>
+                      <Input
+                        type="text"
+                        inputMode="url"
+                        value={companyWebsite}
+                        onChange={(e) => setCompanyWebsite(e.target.value)}
+                        placeholder={t("order.companyWebsitePh")}
+                        autoComplete="url"
+                      />
+                    </Field>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Field label={t("order.niche")}>
+                        <select
+                          className="w-full rounded-xl border border-genesis-border-subtle bg-genesis-bg/60 px-3 py-2 text-sm text-white"
+                          value={niche}
+                          onChange={(e) => {
+                            const next = e.target.value;
+                            setNiche(next);
+                            setSpecialization("");
+                            logCommerceEvent("specialization_selected", packageId, "order", {
+                              niche: next,
+                            });
+                          }}
+                        >
+                          {(nicheOptions.length
+                            ? nicheOptions
+                            : [{ id: "generic", label_de: "Lokalgeschäft" }]
+                          ).map((n) => (
+                            <option key={n.id} value={n.id}>
+                              {n.label_de}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                      <Field label={t("order.specialization")}>
+                        <select
+                          className="w-full rounded-xl border border-genesis-border-subtle bg-genesis-bg/60 px-3 py-2 text-sm text-white"
+                          value={specialization}
+                          onChange={(e) => {
+                            const next = e.target.value;
+                            setSpecialization(next);
+                            logCommerceEvent("specialization_selected", packageId, "order", {
+                              niche,
+                              specialization_id: next || null,
+                            });
+                          }}
+                        >
+                          <option value="">{t("order.specializationNone")}</option>
+                          {specOptions
+                            .filter((s) => !s.niche || s.niche === niche)
+                            .map((s) => (
+                              <option key={s.id} value={s.id}>
+                                {s.label}
+                              </option>
+                            ))}
+                        </select>
+                      </Field>
+                    </div>
                   </>
                 )}
 
                 {formStep === 2 && (
+                  <>
+                    <div className="rounded-xl border border-sky-500/25 bg-sky-950/20 p-4">
+                      <p className="text-sm font-medium text-white">{t("order.analysisTitle")}</p>
+                      <p className="mt-1 text-xs text-genesis-muted">{t("order.analysisHint")}</p>
+                      {insightsBusy ? (
+                        <p className="mt-3 text-sm text-sky-100/90">{t("order.analysisBusy")}</p>
+                      ) : insights && insights.checks.length > 0 ? (
+                        <ul className="mt-3 space-y-2 text-sm">
+                          {insights.checks.map((c) => (
+                            <li key={c.id} className="rounded-lg border border-white/10 px-3 py-2">
+                              <span className="font-medium text-white">{c.label_de}</span>
+                              {c.detail ? (
+                                <span className="mt-0.5 block text-xs text-genesis-muted">{c.detail}</span>
+                              ) : null}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mt-3 text-sm text-genesis-muted">{t("order.analysisEmpty")}</p>
+                      )}
+                      {insights?.note_de ? (
+                        <p className="mt-2 text-xs text-genesis-muted">{insights.note_de}</p>
+                      ) : null}
+                    </div>
+                    <p className="text-xs text-genesis-muted">{t("order.packageHint")}</p>
+                  </>
+                )}
+
+                {formStep === 3 && (
                   <>
                     <Field label={t("order.companyWebsite")} hint={t("order.companyWebsiteHint")}>
                       <Input
@@ -681,24 +845,7 @@ export default function OrderSitePage() {
                       <Field label="Facebook">
                         <Input value={facebook} onChange={(e) => setFacebook(e.target.value)} placeholder="https://…" />
                       </Field>
-                      <Field label="TikTok">
-                        <Input value={tiktok} onChange={(e) => setTiktok(e.target.value)} placeholder="https://…" />
-                      </Field>
-                      <Field label="LinkedIn">
-                        <Input value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="https://…" />
-                      </Field>
-                      <Field label="YouTube">
-                        <Input value={youtube} onChange={(e) => setYoutube(e.target.value)} placeholder="https://…" />
-                      </Field>
-                      <Field label="Telegram">
-                        <Input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@… / https://…" />
-                      </Field>
                     </div>
-                  </>
-                )}
-
-                {formStep === 3 && (
-                  <>
                     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
                       <p className="text-sm font-medium text-white">{t("order.materialsTitle")}</p>
                       <p className="text-xs text-genesis-muted">{t("order.materialsHint")}</p>
@@ -750,107 +897,74 @@ export default function OrderSitePage() {
                       />
                       {t("order.needsLogo")}
                     </label>
-                    <p className="text-xs leading-relaxed text-genesis-muted">{t("order.logoNote")}</p>
                   </>
                 )}
 
                 {formStep === 4 && (
                   <>
                     {(insightsBusy || (insights && insights.checks.length > 0)) && (
-                      <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-4 space-y-2">
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                         <p className="text-sm font-medium text-white">{t("order.insightsTitle")}</p>
                         {insightsBusy ? (
-                          <p className="text-xs text-genesis-muted">{t("order.insightsBusy")}</p>
+                          <p className="mt-2 text-xs text-genesis-muted">…</p>
                         ) : (
-                          <>
-                            <ul className="space-y-1.5 text-sm">
-                              {insights?.checks.map((c) => (
-                                <li key={c.id} className="flex gap-2">
-                                  <span className="text-emerald-400">✓</span>
-                                  <span>
-                                    {c.label_de}
-                                    {c.detail ? (
-                                      <span className="block text-xs text-genesis-muted">{c.detail}</span>
-                                    ) : null}
-                                  </span>
-                                </li>
-                              ))}
-                            </ul>
-                            {insights?.note_de ? (
-                              <p className="text-[11px] text-genesis-muted">{insights.note_de}</p>
-                            ) : null}
-                          </>
+                          <ul className="mt-2 space-y-1.5 text-xs text-genesis-muted">
+                            {(insights?.checks || []).map((c) => (
+                              <li key={c.id}>• {c.label_de}</li>
+                            ))}
+                          </ul>
                         )}
                       </div>
                     )}
-                    <details className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                      <summary className="cursor-pointer text-sm font-medium text-white">
-                        {t("order.legalTitle")}
-                      </summary>
-                      <div className="mt-3 space-y-3">
-                        <p className="text-xs text-genesis-muted">{t("order.legalHint")}</p>
-                        <Field label={t("order.legalOwner")}>
-                          <Input
-                            value={legalOwner}
-                            onChange={(e) => setLegalOwner(e.target.value)}
-                            placeholder={t("order.businessNamePh")}
-                          />
-                        </Field>
-                        <Field label={t("order.legalForm")}>
-                          <Input
-                            value={legalForm}
-                            onChange={(e) => setLegalForm(e.target.value)}
-                            placeholder={t("order.legalFormPh")}
-                          />
-                        </Field>
-                        <Field label={t("order.legalStreet")}>
-                          <Input value={legalStreet} onChange={(e) => setLegalStreet(e.target.value)} />
-                        </Field>
-                        <div className="grid gap-4 sm:grid-cols-2">
-                          <Field label={t("order.legalZip")}>
-                            <Input value={legalZip} onChange={(e) => setLegalZip(e.target.value)} placeholder="50667" />
-                          </Field>
-                          <Field label={t("order.legalCity")}>
-                            <Input value={legalCity} onChange={(e) => setLegalCity(e.target.value)} placeholder={t("order.cityPh")} />
-                          </Field>
-                        </div>
-                        <Field label={t("order.legalDirector")}>
-                          <Input value={legalDirector} onChange={(e) => setLegalDirector(e.target.value)} />
-                        </Field>
-                        <Field label={t("order.legalVat")}>
-                          <Input value={legalVat} onChange={(e) => setLegalVat(e.target.value)} placeholder="DE…" />
-                        </Field>
-                        <div className="flex flex-wrap gap-4">
-                          <label className="flex cursor-pointer items-center gap-2 text-sm text-genesis-muted">
-                            <input
-                              type="checkbox"
-                              checked={legalMaps}
-                              onChange={(e) => setLegalMaps(e.target.checked)}
-                              className="rounded border-genesis-border accent-genesis-accent"
-                            />
-                            {t("order.legalMaps")}
-                          </label>
-                          <label className="flex cursor-pointer items-center gap-2 text-sm text-genesis-muted">
-                            <input
-                              type="checkbox"
-                              checked={legalAnalytics}
-                              onChange={(e) => setLegalAnalytics(e.target.checked)}
-                              className="rounded border-genesis-border accent-genesis-accent"
-                            />
-                            {t("order.legalAnalytics")}
-                          </label>
-                        </div>
-                      </div>
-                    </details>
                     <Field label={t("order.extraWishes")}>
                       <Textarea
-                        className="min-h-[72px]"
                         value={extraWishes}
                         onChange={(e) => setExtraWishes(e.target.value)}
                         placeholder={t("order.extraWishesPh")}
                       />
                     </Field>
-                    <p className="text-xs leading-relaxed text-genesis-muted">{t("order.domainHostingNote")}</p>
+                    <p className="text-sm font-medium text-white">{t("order.legalTitle")}</p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Field label={t("order.legalOwner")}>
+                        <Input value={legalOwner} onChange={(e) => setLegalOwner(e.target.value)} />
+                      </Field>
+                      <Field label={t("order.legalForm")}>
+                        <Input value={legalForm} onChange={(e) => setLegalForm(e.target.value)} />
+                      </Field>
+                      <Field label={t("order.legalStreet")}>
+                        <Input value={legalStreet} onChange={(e) => setLegalStreet(e.target.value)} />
+                      </Field>
+                      <Field label={t("order.legalZip")}>
+                        <Input value={legalZip} onChange={(e) => setLegalZip(e.target.value)} />
+                      </Field>
+                      <Field label={t("order.legalCity")}>
+                        <Input value={legalCity} onChange={(e) => setLegalCity(e.target.value)} />
+                      </Field>
+                      <Field label={t("order.legalDirector")}>
+                        <Input value={legalDirector} onChange={(e) => setLegalDirector(e.target.value)} />
+                      </Field>
+                      <Field label={t("order.legalVat")}>
+                        <Input value={legalVat} onChange={(e) => setLegalVat(e.target.value)} />
+                      </Field>
+                    </div>
+                    <label className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={legalMaps}
+                        onChange={(e) => setLegalMaps(e.target.checked)}
+                        className="accent-genesis-accent"
+                      />
+                      {t("order.legalMaps")}
+                    </label>
+                    <label className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={legalAnalytics}
+                        onChange={(e) => setLegalAnalytics(e.target.checked)}
+                        className="accent-genesis-accent"
+                      />
+                      {t("order.legalAnalytics")}
+                    </label>
                   </>
                 )}
 
@@ -954,6 +1068,7 @@ export default function OrderSitePage() {
                           onChange={() => {
                             setManualPackage(true);
                             setPackageId(p.id);
+                            logCommerceEvent("tier_select", p.id, "order", { niche });
                           }}
                           className="accent-genesis-accent"
                         />
@@ -963,6 +1078,25 @@ export default function OrderSitePage() {
                     </label>
                   ))}
                 </div>
+              )}
+              {!launch && (
+                <VisualExperienceCard
+                  preview={vxpPreview}
+                  loading={vxpBusy}
+                  upgradeLabel={t("order.upgradePremium")}
+                  onUpgrade={
+                    packageId !== "premium"
+                      ? () => {
+                          setManualPackage(true);
+                          setPackageId("premium");
+                          logCommerceEvent("upgrade_click", "premium", "order", {
+                            niche,
+                            product_id: vxpPreview?.product_id,
+                          });
+                        }
+                      : undefined
+                  }
+                />
               )}
               {!launch && !manualPackage && selected && (
                 <p className="mt-2 text-xs text-genesis-muted">
@@ -1027,27 +1161,58 @@ function FormStepBar({ current }: { current: number }) {
     t("order.formStep3"),
     t("order.formStep4"),
   ];
+  const journey = [
+    t("order.journeyWelcome"),
+    t("order.journeyBusiness"),
+    t("order.journeyAnalysis"),
+    t("order.journeyPackage"),
+    t("order.journeyPersonal"),
+    t("order.journeyCheckout"),
+  ];
   return (
-    <ol className="mb-2 flex flex-wrap gap-2" aria-label={t("order.formStepsAria")}>
-      {steps.map((label, idx) => {
-        const n = idx + 1;
-        return (
-          <li
-            key={label}
-            className={`rounded-full px-2.5 py-1 text-[11px] ${
-              n === current
-                ? "bg-genesis-accent/20 text-white"
-                : n < current
-                  ? "text-emerald-400"
-                  : "text-genesis-muted"
-            }`}
-            aria-current={n === current ? "step" : undefined}
-          >
-            {n}. {label}
-          </li>
-        );
-      })}
-    </ol>
+    <div className="mb-4 space-y-3">
+      <ol className="flex flex-wrap gap-1.5" aria-label={t("order.journeyAria")}>
+        {journey.map((label, i) => {
+          const active =
+            (current === 1 && i <= 1) ||
+            (current === 2 && i <= 2) ||
+            (current === 3 && i <= 4) ||
+            (current === 4 && i <= 4);
+          return (
+            <li
+              key={label}
+              className={`rounded-full px-2 py-0.5 text-[10px] ${
+                active
+                  ? "bg-emerald-500/20 text-emerald-100"
+                  : "bg-white/5 text-genesis-muted"
+              }`}
+            >
+              {label}
+            </li>
+          );
+        })}
+      </ol>
+      <ol className="mb-2 flex flex-wrap gap-2" aria-label={t("order.formStepsAria")}>
+        {steps.map((label, idx) => {
+          const n = idx + 1;
+          return (
+            <li
+              key={label}
+              className={`rounded-full px-2.5 py-1 text-[11px] ${
+                n === current
+                  ? "bg-genesis-accent/20 text-white"
+                  : n < current
+                    ? "text-emerald-400"
+                    : "text-genesis-muted"
+              }`}
+              aria-current={n === current ? "step" : undefined}
+            >
+              {n}. {label}
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 

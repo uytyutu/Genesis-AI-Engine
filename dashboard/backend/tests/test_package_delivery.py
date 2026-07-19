@@ -16,6 +16,7 @@ def test_package_feature_matrix():
     business = resolve_package_features("business")
     premium = resolve_package_features("premium")
     assert basic.whatsapp and basic.contact_form and not basic.maps
+    assert basic.testimonials  # reviews for all packages
     assert business.maps and business.testimonials and business.logo_slot
     assert premium.analytics and premium.calculator and premium.premium_design
 
@@ -44,6 +45,8 @@ def test_factory_basic_includes_whatsapp_and_form(tmp_path: Path):
     assert "Autowerkstatt Müller" in html
     assert "+49 221 555 0101" in html
     assert 'id="maps"' not in html
+    assert 'id="testimonials"' in html
+    assert "Kundenstimmen" in html
     assert "G-XXXXXXXXXX" not in html
 
 

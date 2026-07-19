@@ -182,6 +182,14 @@ def build_money_monitor(
         outbox_pending=outbox_pending or pending_proposals,
     )
 
+    path_a_funnel = None
+    try:
+        from app.integration.pricing_display_service import PricingDisplayService
+
+        path_a_funnel = PricingDisplayService().path_a_funnel_summary()
+    except Exception:
+        path_a_funnel = None
+
     return {
         "title_ru": "Приборная панель — деньги",
         "subtitle_ru": "Hero = только Stripe/B2B · ферма и биржа — отдельно",
@@ -189,6 +197,7 @@ def build_money_monitor(
         "farm_potential": farm_potential,
         "real_money": real_money,
         "sales_funnel": sales_funnel,
+        "path_a_funnel": path_a_funnel,
         "mission2_kpi": mission2_kpi,
         "lanes": lanes,
         "withdraw_alert": withdraw_alert,

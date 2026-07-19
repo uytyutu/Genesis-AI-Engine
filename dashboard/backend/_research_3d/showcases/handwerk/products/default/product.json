@@ -1,0 +1,17 @@
+{
+  "id": "default",
+  "score": 80,
+  "premium": true,
+  "specializations": [
+    "handwerk"
+  ],
+  "tags": [
+    "handwerk",
+    "tech"
+  ],
+  "label_de": "handwerk",
+  "label_en": "handwerk",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

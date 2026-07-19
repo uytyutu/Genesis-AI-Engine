@@ -1,0 +1,17 @@
+{
+  "id": "default",
+  "score": 80,
+  "premium": true,
+  "specializations": [
+    "law"
+  ],
+  "tags": [
+    "law",
+    "tech"
+  ],
+  "label_de": "law",
+  "label_en": "law",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

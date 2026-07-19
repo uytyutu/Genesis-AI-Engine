@@ -15,7 +15,25 @@ import { useLocale } from "../../../context/LocaleContext";
 
 const API = publicApiBase();
 
+const PROVIDERS: { id: string; label: string }[] = [
+  { id: "ionos", label: "IONOS" },
+  { id: "hetzner", label: "Hetzner" },
+  { id: "cloudflare_pages", label: "Cloudflare Pages" },
+  { id: "vercel", label: "Vercel" },
+  { id: "other", label: "Other" },
+];
+
 type TimelineStep = { id: string; label: string; done: boolean };
+
+type AssistedGuide = {
+  headline: string;
+  trust: string[];
+  never_stores: string[];
+  variant_a: string;
+  variant_b: string;
+  providers: string[];
+  hosting_provider: string | null;
+};
 
 type OrderStatus = {
   order_id: string;
@@ -43,6 +61,9 @@ type OrderStatus = {
   review_eligible?: boolean;
   review_submitted?: boolean;
   review_url?: string | null;
+  deployment_preference?: string;
+  hosting_provider?: string | null;
+  assisted_guide?: AssistedGuide | null;
 };
 
 function OrderStatusContent() {
@@ -58,6 +79,10 @@ function OrderStatusContent() {
   const [payBusy, setPayBusy] = useState(false);
   const [payError, setPayError] = useState("");
   const [paymentReady, setPaymentReady] = useState(false);
+  const [deployBusy, setDeployBusy] = useState(false);
+  const [deployError, setDeployError] = useState("");
+  const [assistedOpen, setAssistedOpen] = useState(false);
+  const [provider, setProvider] = useState("hetzner");
 
   useEffect(() => {
     fetchPaymentReady().then(setPaymentReady);
@@ -71,11 +96,23 @@ function OrderStatusContent() {
           await fetch(`${API}/api/sales/orders/${orderId}/confirm-payment`, {
             method: "POST",
           });
+          try {
+            const { logCommerceEvent } = await import("../../../lib/commerceFunnel");
+            logCommerceEvent("checkout_paid", null, "order_status", {
+              order_id: orderId,
+            });
+          } catch {
+            /* analytics optional */
+          }
         }
         const res = await fetch(`${API}/api/sales/orders/${orderId}/status`);
         if (res.ok) {
           const body = await res.json();
-          if (!cancelled) setData(body);
+          if (!cancelled) {
+            setData(body);
+            if (body.hosting_provider) setProvider(body.hosting_provider);
+            if (body.deployment_preference === "assisted") setAssistedOpen(true);
+          }
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -105,6 +142,33 @@ function OrderStatusContent() {
     } catch (e) {
       setPayError(e instanceof Error ? e.message : t("order.status.payFail"));
       setPayBusy(false);
+    }
+  }
+
+  async function saveDeployment(preference: "zip_only" | "assisted", withProvider?: string) {
+    setDeployBusy(true);
+    setDeployError("");
+    try {
+      const body: { preference: string; hosting_provider?: string } = { preference };
+      if (preference === "assisted" && withProvider) {
+        body.hosting_provider = withProvider;
+      }
+      const res = await fetch(`${API}/api/sales/orders/${orderId}/deployment-preference`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || t("order.status.deployFail"));
+      }
+      const next = await res.json();
+      setData(next);
+      if (preference === "assisted") setAssistedOpen(true);
+    } catch (e) {
+      setDeployError(e instanceof Error ? e.message : t("order.status.deployFail"));
+    } finally {
+      setDeployBusy(false);
     }
   }
 
@@ -151,6 +215,8 @@ function OrderStatusContent() {
   const priceDisplay =
     (data.price_label && data.price_label.trim()) ||
     formatLocalizedMoney(data.price_eur, data.currency || "EUR");
+  const pref = data.deployment_preference || "unset";
+  const guide = data.assisted_guide;
 
   return (
     <PublicPageShell>
@@ -237,12 +303,119 @@ function OrderStatusContent() {
           )}
 
           {data.paid && data.download_ready && (
-            <a
-              href={`${API}${data.download_url || `/api/sales/orders/${orderId}/download`}`}
-              className="mt-5 flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:brightness-110"
-            >
-              {t("order.status.downloadZip")}
-            </a>
+            <>
+              <a
+                href={`${API}${data.download_url || `/api/sales/orders/${orderId}/download`}`}
+                className="mt-5 flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:brightness-110"
+              >
+                {t("order.status.downloadZip")}
+              </a>
+
+              <div className="mt-5 rounded-2xl border border-sky-500/30 bg-sky-950/20 p-5">
+                <p className="genesis-label">{t("order.status.deployTitle")}</p>
+
+                {pref === "unset" && !assistedOpen && (
+                  <div className="mt-3 grid gap-2">
+                    <button
+                      type="button"
+                      disabled={deployBusy}
+                      onClick={() => saveDeployment("zip_only")}
+                      className="w-full rounded-xl border border-genesis-border-subtle bg-genesis-bg/60 px-4 py-3 text-sm font-semibold hover:bg-genesis-elevated disabled:opacity-50"
+                    >
+                      {t("order.status.deployZipOnly")}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={deployBusy}
+                      onClick={() => setAssistedOpen(true)}
+                      className="w-full rounded-xl border border-sky-400/40 bg-sky-900/40 px-4 py-3 text-sm font-semibold text-sky-100 hover:bg-sky-900/60 disabled:opacity-50"
+                    >
+                      {t("order.status.deployAssisted")}
+                    </button>
+                  </div>
+                )}
+
+                {(assistedOpen || pref === "assisted") && pref !== "zip_only" && (
+                  <div className="mt-3 space-y-3 text-sm">
+                    <p className="font-medium text-sky-100">
+                      {guide?.headline || t("order.status.deployAssisted")}
+                    </p>
+                    <label className="block">
+                      <span className="text-xs text-genesis-muted">{t("order.status.deployProvider")}</span>
+                      <select
+                        className="mt-1 w-full rounded-lg border border-genesis-border-subtle bg-genesis-bg px-3 py-2"
+                        value={provider}
+                        onChange={(e) => setProvider(e.target.value)}
+                      >
+                        {PROVIDERS.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <Button
+                      variant="success"
+                      size="md"
+                      fullWidth
+                      loading={deployBusy}
+                      onClick={() => saveDeployment("assisted", provider)}
+                    >
+                      {deployBusy ? t("order.status.deployBusy") : t("order.status.deployStart")}
+                    </Button>
+
+                    {guide && (
+                      <>
+                        <div>
+                          <p className="genesis-label">{t("order.status.deployTrustTitle")}</p>
+                          <ul className="mt-1 space-y-1 text-xs text-emerald-200/90">
+                            {guide.trust.map((line) => (
+                              <li key={line}>✔ {line}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="genesis-label">{t("order.status.deployNeverTitle")}</p>
+                          <ul className="mt-1 space-y-1 text-xs text-rose-200/80">
+                            {guide.never_stores.map((line) => (
+                              <li key={line}>✗ {line}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="rounded-xl border border-genesis-border-subtle bg-genesis-bg/40 p-3">
+                          <p className="text-xs font-semibold text-emerald-300">
+                            {t("order.status.deployVariantA")}
+                          </p>
+                          <p className="mt-1 text-xs text-genesis-muted">{guide.variant_a}</p>
+                          <p className="mt-3 text-xs font-semibold text-sky-300">
+                            {t("order.status.deployVariantB")}
+                          </p>
+                          <p className="mt-1 text-xs text-genesis-muted">{guide.variant_b}</p>
+                        </div>
+                      </>
+                    )}
+
+                    {pref === "unset" && (
+                      <button
+                        type="button"
+                        className="text-xs text-genesis-muted underline"
+                        onClick={() => setAssistedOpen(false)}
+                      >
+                        ← {t("order.status.deployZipOnly")}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {pref === "zip_only" && (
+                  <p className="mt-3 text-sm text-emerald-200/90">{t("order.status.deployZipChosen")}</p>
+                )}
+                {pref === "assisted" && (
+                  <p className="mt-3 text-sm text-sky-100">{t("order.status.deployAssistedChosen")}</p>
+                )}
+                {deployError && <p className="mt-2 text-xs text-rose-300">{deployError}</p>}
+              </div>
+            </>
           )}
 
           {data.review_eligible && data.review_url && (

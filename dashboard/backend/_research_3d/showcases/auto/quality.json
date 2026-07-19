@@ -1,0 +1,10 @@
+{
+  "niche": "auto",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "engine",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "Motor / Turbine",
+  "label_en": "Engine / turbo"
+}

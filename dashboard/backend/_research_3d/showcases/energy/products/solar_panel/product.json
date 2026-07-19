@@ -1,0 +1,20 @@
+{
+  "id": "solar_panel",
+  "score": 97,
+  "premium": true,
+  "specializations": [
+    "solar",
+    "pv",
+    "energy"
+  ],
+  "tags": [
+    "solar",
+    "panel",
+    "energy"
+  ],
+  "label_de": "Energie, die sichtbar wird",
+  "label_en": "Energy made visible",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

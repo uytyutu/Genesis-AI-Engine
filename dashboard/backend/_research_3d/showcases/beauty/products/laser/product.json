@@ -1,0 +1,18 @@
+{
+  "id": "laser",
+  "score": 92,
+  "premium": true,
+  "specializations": [
+    "laser",
+    "aesthetic"
+  ],
+  "tags": [
+    "laser",
+    "beauty"
+  ],
+  "label_de": "Präzision in der Praxis",
+  "label_en": "Precision in the studio",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

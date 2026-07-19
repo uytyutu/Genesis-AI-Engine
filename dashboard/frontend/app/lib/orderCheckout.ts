@@ -32,6 +32,12 @@ async function fetchJsonWithRetry(
 
 export async function startOrderCheckout(orderId: string): Promise<string> {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
+  try {
+    const { logCommerceEvent } = await import("./commerceFunnel");
+    logCommerceEvent("checkout_start", null, "checkout", { order_id: orderId });
+  } catch {
+    /* optional */
+  }
   const res = await fetch(`${API}/api/sales/orders/${orderId}/checkout`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

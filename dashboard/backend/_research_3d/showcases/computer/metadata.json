@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "niche_id": "computer",
+  "sub_de": "Digitale Präsentation moderner Technologien.",
+  "sub_en": "A digital presentation of modern technology.",
+  "scenes": [
+    {
+      "id": "default",
+      "label_de": "IT / Hardware",
+      "label_en": "IT / hardware",
+      "tags": [
+        "laptop",
+        "computer",
+        "tech"
+      ],
+      "preview": "preview.jpg",
+      "model": "model.glb",
+      "primary": true
+    }
+  ],
+  "specialization_hints": {},
+  "extensible": true,
+  "note": "Add scenes here without changing platform code"
+}

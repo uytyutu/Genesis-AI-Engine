@@ -1,0 +1,217 @@
+{
+  "version": 2,
+  "engine": "visual_experience",
+  "engine_label": "Visual Experience Engine",
+  "aliases": {
+    "solar": "energy",
+    "pv": "energy",
+    "hvac": "appliance",
+    "climate": "appliance",
+    "kitchen": "appliance",
+    "windows": "handwerk",
+    "window": "handwerk",
+    "roof": "handwerk",
+    "furniture": "handwerk",
+    "construction": "handwerk",
+    "fitness": "beauty",
+    "spa": "beauty",
+    "real_estate": "generic",
+    "immobilien": "generic",
+    "restaurant": "generic",
+    "hotel": "generic",
+    "hospitality": "generic",
+    "car": "auto",
+    "garage": "auto",
+    "workshop": "auto",
+    "it": "computer",
+    "legal": "law",
+    "garden": "green",
+    "dentist": "dental",
+    "dentistry": "dental",
+    "default": "generic"
+  },
+  "niches": [
+    {
+      "niche_id": "appliance",
+      "label_de": "Gerät / Klimagerät",
+      "label_en": "Appliance / AC unit",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 1,
+      "scene_count": 1,
+      "products": [
+        "default"
+      ],
+      "path": "showcases/appliance",
+      "preview": "showcases/appliance/preview.jpg",
+      "model": "showcases/appliance/model.glb"
+    },
+    {
+      "niche_id": "auto",
+      "label_de": "Motor / Turbine",
+      "label_en": "Engine / turbo",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 4,
+      "scene_count": 4,
+      "products": [
+        "brakes",
+        "engine",
+        "suspension",
+        "turbo"
+      ],
+      "path": "showcases/auto",
+      "preview": "showcases/auto/preview.jpg",
+      "model": "showcases/auto/model.glb"
+    },
+    {
+      "niche_id": "beauty",
+      "label_de": "Kosmetik / Pflege",
+      "label_en": "Beauty / care",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 3,
+      "scene_count": 3,
+      "products": [
+        "chair",
+        "device",
+        "laser"
+      ],
+      "path": "showcases/beauty",
+      "preview": "showcases/beauty/preview.jpg",
+      "model": "showcases/beauty/model.glb"
+    },
+    {
+      "niche_id": "computer",
+      "label_de": "IT / Hardware",
+      "label_en": "IT / hardware",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 1,
+      "scene_count": 1,
+      "products": [
+        "default"
+      ],
+      "path": "showcases/computer",
+      "preview": "showcases/computer/preview.jpg",
+      "model": "showcases/computer/model.glb"
+    },
+    {
+      "niche_id": "dental",
+      "label_de": "Moderne Zahnmedizin — zum Anfassen",
+      "label_en": "Modern dentistry — hands-on",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 4,
+      "scene_count": 4,
+      "products": [
+        "aligners",
+        "implant",
+        "scanner",
+        "tooth"
+      ],
+      "path": "showcases/dental",
+      "preview": "showcases/dental/preview.jpg",
+      "model": "showcases/dental/model.glb"
+    },
+    {
+      "niche_id": "energy",
+      "label_de": "Solarmodul",
+      "label_en": "Solar panel",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 3,
+      "scene_count": 3,
+      "products": [
+        "battery",
+        "inverter",
+        "solar_panel"
+      ],
+      "path": "showcases/energy",
+      "preview": "showcases/energy/preview.jpg",
+      "model": "showcases/energy/model.glb"
+    },
+    {
+      "niche_id": "generic",
+      "label_de": "Produkt-Demo",
+      "label_en": "Product demo",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 1,
+      "scene_count": 1,
+      "products": [
+        "default"
+      ],
+      "path": "showcases/generic",
+      "preview": "showcases/generic/preview.jpg",
+      "model": "showcases/generic/model.glb"
+    },
+    {
+      "niche_id": "green",
+      "label_de": "Garten / Grün",
+      "label_en": "Garden / green",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 1,
+      "scene_count": 1,
+      "products": [
+        "default"
+      ],
+      "path": "showcases/green",
+      "preview": "showcases/green/preview.jpg",
+      "model": "showcases/green/model.glb"
+    },
+    {
+      "niche_id": "handwerk",
+      "label_de": "Fensterprofil / Werkzeug",
+      "label_en": "Window profile / tool",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 1,
+      "scene_count": 1,
+      "products": [
+        "default"
+      ],
+      "path": "showcases/handwerk",
+      "preview": "showcases/handwerk/preview.jpg",
+      "model": "showcases/handwerk/model.glb"
+    },
+    {
+      "niche_id": "law",
+      "label_de": "Recht / Kanzlei",
+      "label_en": "Law / office",
+      "quality": "placeholder",
+      "client_facing_3d": false,
+      "has_preview": true,
+      "has_model": true,
+      "product_count": 1,
+      "scene_count": 1,
+      "products": [
+        "default"
+      ],
+      "path": "showcases/law",
+      "preview": "showcases/law/preview.jpg",
+      "model": "showcases/law/model.glb"
+    }
+  ],
+  "rule": "Add showcases/<niche>/products/<product>/ with product.json — no platform code change",
+  "player": "runtime/showcase/index.html?niche=<id>&tier=premium"
+}

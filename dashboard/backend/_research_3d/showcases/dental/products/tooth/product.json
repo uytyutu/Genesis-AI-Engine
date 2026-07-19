@@ -1,0 +1,20 @@
+{
+  "id": "tooth",
+  "score": 92,
+  "premium": true,
+  "specializations": [
+    "general_dentistry",
+    "prophylaxis",
+    "aesthetic"
+  ],
+  "tags": [
+    "tooth",
+    "enamel",
+    "crown"
+  ],
+  "label_de": "Zahntechnik verständlich erklärt",
+  "label_en": "Dental tech made clear",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

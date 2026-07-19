@@ -1,0 +1,19 @@
+{
+  "id": "battery",
+  "score": 93,
+  "premium": true,
+  "specializations": [
+    "storage",
+    "battery",
+    "energy"
+  ],
+  "tags": [
+    "battery",
+    "storage"
+  ],
+  "label_de": "Speicher & Unabhängigkeit",
+  "label_en": "Storage & independence",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

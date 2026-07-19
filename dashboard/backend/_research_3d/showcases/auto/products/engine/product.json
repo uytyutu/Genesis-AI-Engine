@@ -1,0 +1,20 @@
+{
+  "id": "engine",
+  "score": 97,
+  "premium": true,
+  "specializations": [
+    "engine",
+    "motor",
+    "powertrain"
+  ],
+  "tags": [
+    "engine",
+    "motor",
+    "workshop"
+  ],
+  "label_de": "Antriebstechnik zum Greifen nah",
+  "label_en": "Powertrain you can grasp",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

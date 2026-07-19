@@ -1,0 +1,10 @@
+{
+  "niche": "handwerk",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "window",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "Fensterprofil / Werkzeug",
+  "label_en": "Window profile / tool"
+}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SalesFunnelPanel } from "./SalesFunnelPanel";
+import { PathAFunnelPanel } from "./PathAFunnelPanel";
 
 export type RealMoneyTier = {
   id: string;
@@ -75,6 +76,7 @@ export type MoneyMonitorData = {
   } | null;
   real_money?: RealMoneyData | null;
   sales_funnel?: SalesFunnelData | null;
+  path_a_funnel?: import("./PathAFunnelPanel").PathAFunnelData | null;
   lanes: MoneyMonitorLane[];
   withdraw_alert: {
     active: boolean;
@@ -200,8 +202,13 @@ export function MoneyMonitorPanel({ data, compact }: Props) {
       ) : null}
 
       {!compact && data.sales_funnel ? <SalesFunnelPanel data={data.sales_funnel} compact={compact} /> : null}
+      {!compact && data.path_a_funnel ? (
+        <div className="mt-4">
+          <PathAFunnelPanel data={data.path_a_funnel} compact={compact} />
+        </div>
+      ) : null}
 
-      <div className={`${data.sales_funnel && !compact ? "mt-4" : compact && data.sales_funnel ? "mt-4" : ""} flex flex-wrap items-start justify-between gap-3`}>
+      <div className={`${(data.sales_funnel || data.path_a_funnel) && !compact ? "mt-4" : compact && data.sales_funnel ? "mt-4" : ""} flex flex-wrap items-start justify-between gap-3`}>
         <div>
           <h2 className="text-lg font-semibold text-white">{data.title_ru}</h2>
           <p className="mt-1 text-sm text-genesis-muted">{data.subtitle_ru}</p>

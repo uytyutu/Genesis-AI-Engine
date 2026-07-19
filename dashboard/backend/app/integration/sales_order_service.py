@@ -30,6 +30,12 @@ from app.schemas import FactoryIntentRequest
 
 logger = logging.getLogger(__name__)
 
+# Post-ZIP handoff (Assisted Deployment) — never store host passwords.
+DEPLOYMENT_PREFERENCES = frozenset({"unset", "zip_only", "assisted"})
+HOSTING_PROVIDERS = frozenset(
+    {"ionos", "hetzner", "cloudflare_pages", "vercel", "other"}
+)
+
 _PACKAGES = {
     "basic": {
         "id": "basic",
@@ -259,6 +265,8 @@ class SalesOrderService:
             "domain_help_message": domain_help_message,
             "extra_wishes": (payload.get("extra_wishes") or "").strip(),
             "company_website": company_website,
+            "niche": (payload.get("niche") or "").strip() or None,
+            "specialization": (payload.get("specialization") or "").strip() or None,
             "social_links": social_links,
             "materials": materials_bundle,
             "buyer_insights": buyer_insights,
@@ -284,6 +292,9 @@ class SalesOrderService:
             "payment_external_id": None,
             "estimated_delivery_at": None,
             "client_status_message": client_message,
+            "deployment_preference": "unset",
+            "hosting_provider": None,
+            "deployment_preference_at": None,
         }
         self._save_order(order)
         return {
@@ -711,6 +722,102 @@ class SalesOrderService:
             "review_eligible": eligible,
             "review_submitted": submitted,
             "review_url": f"/order/review/{order_id}?token={token}" if token else None,
+            "deployment_preference": str(order.get("deployment_preference") or "unset"),
+            "hosting_provider": order.get("hosting_provider"),
+            "assisted_guide": self._assisted_guide_payload(order),
+        }
+
+    def set_deployment_preference(
+        self,
+        order_id: str,
+        preference: str,
+        hosting_provider: str | None = None,
+    ) -> dict:
+        """Client chooses ZIP Only vs Assisted after ZIP is ready. No credentials stored."""
+        order = self.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if not self._client_download_ready(order):
+            raise ValueError("download_not_ready")
+
+        pref = str(preference or "").strip().lower()
+        if pref not in ("zip_only", "assisted"):
+            raise ValueError("invalid_preference")
+
+        provider: str | None = None
+        raw_provider = (hosting_provider or "").strip().lower() or None
+        if raw_provider:
+            if raw_provider not in HOSTING_PROVIDERS:
+                raise ValueError("invalid_provider")
+            provider = raw_provider
+
+        now = datetime.now(timezone.utc).isoformat()
+        order["deployment_preference"] = pref
+        order["hosting_provider"] = provider
+        order["deployment_preference_at"] = now
+        for banned in (
+            "hosting_password",
+            "ftp_password",
+            "password",
+            "credentials",
+            "api_token",
+        ):
+            order.pop(banned, None)
+        order["updated_at"] = now
+        self._save_order(order)
+
+        if pref == "assisted":
+            try:
+                from app.integration.owner_notification_service import (
+                    OwnerNotificationService,
+                )
+
+                provider_label = provider or "not_selected"
+                OwnerNotificationService(self._memory).notify(
+                    title="Assisted Deployment angefragt",
+                    message=(
+                        f"{order.get('business_name')} · {order_id} · "
+                        f"Anbieter: {provider_label}. "
+                        "Keine Hosting-Passwörter in Virtus — Variante A/B mit dem Kunden."
+                    ),
+                    order_id=order_id,
+                )
+            except Exception as exc:
+                logger.warning("assisted deployment notify failed: %s", exc)
+
+        return self.public_status(order_id)
+
+    @staticmethod
+    def _assisted_guide_payload(order: dict) -> dict | None:
+        pref = str(order.get("deployment_preference") or "unset")
+        if pref != "assisted":
+            return None
+        return {
+            "headline": "Wir können helfen, die Website zu veröffentlichen.",
+            "trust": [
+                "Website läuft auf Ihrem Hosting",
+                "Domain gehört Ihnen",
+                "Hosting-Konto gehört Ihnen",
+                "SSL und DNS gehören Ihnen",
+                "Alle Anbieter-Rechnungen gehen an Sie",
+            ],
+            "never_stores": [
+                "Hosting-Passwort",
+                "Domain-Passwort",
+                "Bankkarten",
+                "Dauerhaften Zugang",
+            ],
+            "variant_a": (
+                "Bevorzugt: Sie legen einen temporären Benutzer an oder laden uns "
+                "als Helfer ein. Nach Go-live entfernen Sie den Zugang — Sie bleiben "
+                "alleiniger Eigentümer."
+            ),
+            "variant_b": (
+                "Falls kein temporärer Zugang möglich ist: Sie bleiben eingeloggt und "
+                "folgen der Anleitung; Hilfe per Chat oder Anruf."
+            ),
+            "providers": sorted(HOSTING_PROVIDERS),
+            "hosting_provider": order.get("hosting_provider"),
         }
 
     def build_client_download(self, order_id: str) -> tuple[bytes, str]:

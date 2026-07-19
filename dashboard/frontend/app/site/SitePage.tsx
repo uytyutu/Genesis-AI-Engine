@@ -8,6 +8,7 @@ import { BRAND_NAME } from "../lib/publicBrand";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
 import { publicApiBase } from "../lib/publicApiBase";
 import { formatLocalizedMoney } from "../lib/formatEur";
+import { logCommerceEvent } from "../lib/commerceFunnel";
 
 type PackageCard = {
   id: string;
@@ -171,7 +172,15 @@ export function SitePage() {
       });
   }, [i18n.language]);
 
+  useEffect(() => {
+    logCommerceEvent("tier_page_view", null, "site", { niche: null });
+  }, [market]);
+
   const orderHref = `/order?market=${market}`;
+
+  function orderHrefFor(pkg: string) {
+    return `/order?market=${market}&package=${pkg}`;
+  }
 
   function selectMarket(next: string) {
     const code = next.toUpperCase();
@@ -250,6 +259,13 @@ export function SitePage() {
                     <li key={d}>• {d}</li>
                   ))}
                 </ul>
+                <Link
+                  href={orderHrefFor(p.id)}
+                  onClick={() => logCommerceEvent("tier_select", p.id, "site")}
+                  className="mt-4 inline-flex text-sm font-medium text-emerald-300 hover:underline"
+                >
+                  {t("pathA.cta")} →
+                </Link>
               </div>
             );
           })}
@@ -277,12 +293,14 @@ export function SitePage() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href={orderHref}
+              onClick={() => logCommerceEvent("tier_select", null, "site")}
               className="inline-flex rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:brightness-110"
             >
               {t("pathA.cta")} →
             </Link>
             <Link
               href={orderHref}
+              onClick={() => logCommerceEvent("tier_select", null, "site")}
               className="inline-flex rounded-xl border border-emerald-500/40 px-5 py-3 text-sm font-medium text-emerald-100 hover:bg-emerald-950/40"
             >
               {t("pathA.ctaSecondary")}

@@ -1,0 +1,10 @@
+{
+  "niche": "law",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "scales",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "Recht / Kanzlei",
+  "label_en": "Law / office"
+}

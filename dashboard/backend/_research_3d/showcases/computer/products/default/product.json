@@ -1,0 +1,17 @@
+{
+  "id": "default",
+  "score": 80,
+  "premium": true,
+  "specializations": [
+    "computer"
+  ],
+  "tags": [
+    "computer",
+    "tech"
+  ],
+  "label_de": "computer",
+  "label_en": "computer",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

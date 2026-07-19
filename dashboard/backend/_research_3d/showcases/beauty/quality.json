@@ -1,0 +1,10 @@
+{
+  "niche": "beauty",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "bottle",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "Kosmetik / Pflege",
+  "label_en": "Beauty / care"
+}

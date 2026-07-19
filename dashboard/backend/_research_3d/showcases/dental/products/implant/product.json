@@ -1,0 +1,21 @@
+{
+  "id": "implant",
+  "score": 98,
+  "premium": true,
+  "specializations": [
+    "implantology",
+    "oral_surgery",
+    "implant"
+  ],
+  "tags": [
+    "implant",
+    "tooth",
+    "crown",
+    "titanium"
+  ],
+  "label_de": "Moderne Zahnmedizin — zum Anfassen",
+  "label_en": "Modern dentistry — hands-on",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

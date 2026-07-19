@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "niche_id": "appliance",
+  "hotspots": [],
+  "note": "Optional: [{id, label_de, label_en, position:[x,y,z], body_de, body_en}]"
+}

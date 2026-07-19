@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Praxis Mueller — Premium 3D Demo (research)</title>
+  <title>Praxis Mueller — Premium Showcase</title>
   <meta name="description" content="Sanfte Behandlung, klare Therapiepläne und moderne Technik für Ihr Lächeln.">
   <link rel="stylesheet" href="assets/motion_kit.css">
   <link rel="stylesheet" href="sold.css">
+  <link rel="preload" as="image" href="../../../showcases/dental/preview.jpg">
   <script type="importmap">
   {
     "imports": {
@@ -16,17 +17,19 @@
   }
   </script>
 </head>
-<body>
+<body data-niche="dental" data-tier="premium">
   <div id="boot-error" hidden></div>
 
-  <!-- Fixed premium WebGL layer (hidden on fallback) -->
-  <div id="webgl-container" aria-hidden="true"></div>
-  <div id="classic-fallback" hidden>
-    <div class="classic-hero-bg" aria-hidden="true"></div>
-  </div>
+  <div id="photo-hero" class="photo-hero" aria-hidden="true"></div>
 
   <nav class="topbar">
     <div class="brand"><strong>Praxis Mueller</strong></div>
+    <div class="tier-switch" id="tier-switch" aria-label="Demo-Tarif">
+      <button type="button" data-tier="basic">Basic</button>
+      <button type="button" data-tier="business">Business</button>
+      <button type="button" data-tier="premium" class="active">Premium</button>
+    </div>
+    <a href="#testimonials">Kundenstimmen</a>
     <a href="#contact">Termin buchen</a>
   </nav>
 
@@ -38,17 +41,52 @@
       <div class="trust-row hero-text hero-text-delay-2">
         <span class="trust-pill">Erfahrene Ärzte</span>
         <span class="trust-pill">Digitales Röntgen</span>
-        <span class="trust-pill">Premium 3D-Präsentation</span>
+        <span class="trust-pill" id="tier-pill">Premium Showcase</span>
       </div>
       <div class="hero-ctas">
         <a class="btn cta-button" href="#contact">Termin buchen</a>
         <a class="btn cta-button btn-wa" href="https://wa.me/492215550123" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="btn cta-button btn-reviews" href="#testimonials">Kundenstimmen</a>
       </div>
-      <p class="mode-badge" id="mode-badge">Lade 3D…</p>
+      <p class="mode-badge" id="mode-badge">Lade Präsentation…</p>
     </div>
   </header>
 
-  <section class="section reveal spacer-3d" aria-hidden="true"></section>
+  <!-- Premium niche showcase: glass stage, preview first, 3D if approved -->
+  <section class="showcase-float reveal" id="showcase" data-showcase-root>
+    <div class="showcase-copy">
+      <p class="showcase-kicker" id="showcase-kicker">Premium Showcase · dental</p>
+      <h2 id="showcase-title">Moderne Zahnmedizin — zum Anfassen</h2>
+      <p class="showcase-lead" id="showcase-sub">
+        Digitale Präsentation moderner zahnmedizinischer Technologien — kein Versprechen einer einzelnen Leistung.
+      </p>
+      <p class="showcase-hint" id="showcase-hint"></p>
+      <button type="button" id="upgrade-premium" class="upsell-btn" hidden>
+        Upgrade to Premium — Objekt lebendig machen
+      </button>
+    </div>
+    <div class="showcase-stage" id="showcase-stage">
+      <div class="showcase-glow" aria-hidden="true"></div>
+      <!-- Preview always present underneath (never empty) -->
+      <div class="showcase-still is-visible" id="showcase-still"></div>
+      <div class="showcase-loading" id="showcase-loading" hidden>
+        <div class="showcase-spinner" aria-hidden="true"></div>
+        <p id="showcase-loading-text">Interaktive 3D-Modell wird geladen…</p>
+      </div>
+      <div class="showcase-canvas-wrap" id="showcase-canvas-wrap" hidden></div>
+    </div>
+  </section>
+
+  <section class="section reveal testimonials" id="testimonials">
+    <h2>Kundenstimmen</h2>
+    <p class="muted">Echte Stimmen — sichtbar für Basic, Business und Premium.</p>
+    <div class="testimonial-grid">
+      <blockquote class="testimonial-card"><p>«Ruhige Atmosphäre und klare Erklärungen — genau das gesucht.»</p><cite>— Anna K.</cite></blockquote>
+      <blockquote class="testimonial-card"><p>«Transparente Preise und modernes Gefühl auf der Website.»</p><cite>— Michael W.</cite></blockquote>
+      <blockquote class="testimonial-card"><p>«Termin online in zwei Minuten — ohne Warteschleife.»</p><cite>— Familie S.</cite></blockquote>
+    </div>
+    <a class="btn cta-button btn-reviews" href="#testimonials">Kundenstimmen</a>
+  </section>
 
   <section class="section reveal" id="services">
     <h2>Leistungen</h2>
@@ -83,7 +121,7 @@
 
   <section class="section reveal about">
     <h2>Über uns</h2>
-    <p>In der Praxis Mueller verbinden wir moderne Zahnmedizin mit Zeit für Ihre Fragen. Jeder Behandlungsplan wird vorab besprochen — ohne Druck.</p>
+    <p>In der Praxis Mueller verbinden wir moderne Zahnmedizin mit Zeit für Ihre Fragen.</p>
   </section>
 
   <section class="section reveal" id="contact">
@@ -93,7 +131,6 @@
       <p><strong>Telefon:</strong> <a href="tel:+492215550123">+49 221 5550123</a></p>
       <p><strong>WhatsApp:</strong> <a class="wa-btn" href="https://wa.me/492215550123" target="_blank" rel="noopener">Nachricht senden</a></p>
       <p><strong>E-Mail:</strong> <a href="mailto:kontakt@praxis-mueller.example">kontakt@praxis-mueller.example</a></p>
-      <p><strong>Öffnungszeiten:</strong> Mo–Do 8:00–19:00 · Fr 8:00–15:00</p>
     </div>
     <form class="contact-form" action="mailto:kontakt@praxis-mueller.example?subject=Anfrage%20Website" method="get">
       <label>Name<input name="name" required placeholder="Ihr Name"></label>
@@ -104,8 +141,7 @@
   </section>
 
   <footer>
-    Praxis Mueller · research demo (nicht Live-Checkout)<br>
-    3d_premium bleibt WAITLIST · Fallback = Classic CSS-Motion
+    Showcase Registry · 3D optional · Preview immer · Path A 3d_premium = WAITLIST
   </footer>
 
   <script src="assets/reveal.js" defer></script>
@@ -114,18 +150,12 @@
       var box = document.getElementById("boot-error");
       if (location.protocol === "file:") {
         box.hidden = false;
-        box.innerHTML =
-          "<strong>file:// nicht möglich.</strong> " +
-          "Aus Repo-Root: <code>py -3.12 scripts/open_research_3d.py</code>";
-        document.body.classList.add("webgl-fallback");
-        document.getElementById("mode-badge").textContent = "Classic CSS-Motion (file://)";
+        box.innerHTML = "<strong>file:// nicht möglich.</strong> <code>py -3.12 scripts/open_research_3d.py</code>";
         return;
       }
       import("./sold_client.js").catch(function (err) {
-        document.body.classList.add("webgl-fallback");
-        document.getElementById("classic-fallback").hidden = false;
-        document.getElementById("mode-badge").textContent = "Classic CSS-Motion (3D load failed)";
         console.error(err);
+        document.getElementById("mode-badge").textContent = "Boot failed — Preview bleibt sichtbar";
       });
     })();
   </script>

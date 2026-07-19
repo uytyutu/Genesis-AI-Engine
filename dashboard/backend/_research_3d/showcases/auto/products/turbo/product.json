@@ -1,0 +1,19 @@
+{
+  "id": "turbo",
+  "score": 94,
+  "premium": true,
+  "specializations": [
+    "turbo",
+    "tuning",
+    "performance"
+  ],
+  "tags": [
+    "turbo",
+    "engine"
+  ],
+  "label_de": "Leistung & Aufladung",
+  "label_en": "Boost & performance",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

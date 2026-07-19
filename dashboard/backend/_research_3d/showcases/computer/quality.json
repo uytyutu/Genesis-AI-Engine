@@ -1,0 +1,10 @@
+{
+  "niche": "computer",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "primary": "laptop",
+  "model": "model.glb",
+  "preview": "preview.jpg",
+  "label_de": "IT / Hardware",
+  "label_en": "IT / hardware"
+}

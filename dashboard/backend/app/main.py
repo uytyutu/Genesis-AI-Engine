@@ -66,6 +66,7 @@ from app.schemas import (
     SalesCheckoutRequest,
     SalesCheckoutResponse,
     SalesOrderPublicStatus,
+    DeploymentPreferenceRequest,
     ClientReviewSubmitRequest,
     ClientReviewSubmitResponse,
     ClientReviewsPublicResponse,
@@ -75,6 +76,8 @@ from app.schemas import (
     PaymentStatusResponse,
     PricingEventRequest,
     PricingEventResponse,
+    PathAFunnelDashboard,
+    VisualExperiencePreviewResponse,
     EmailStatusResponse,
     SalesOrderActionResponse,
     SalesOrderCreateRequest,
@@ -248,6 +251,19 @@ app.add_middleware(
 from app.api.webhooks.stripe import router as stripe_webhook_router
 
 app.include_router(stripe_webhook_router)
+
+# Research Visual Experience stills / demos (Path A preview — read-only assets)
+from pathlib import Path as _Path
+
+from fastapi.staticfiles import StaticFiles as _StaticFiles
+
+_research_3d_root = _Path(__file__).resolve().parents[1] / "_research_3d"
+if _research_3d_root.is_dir():
+    app.mount(
+        "/research-3d",
+        _StaticFiles(directory=str(_research_3d_root)),
+        name="research_3d",
+    )
 
 
 @app.middleware("http")
@@ -2221,6 +2237,71 @@ def public_pricing_event(body: PricingEventRequest) -> PricingEventResponse:
     return PricingEventResponse()
 
 
+@app.get("/api/public/path-a-funnel", response_model=PathAFunnelDashboard)
+def public_path_a_funnel() -> PathAFunnelDashboard:
+    """CEO / diagnostics: Path A storefront conversion funnel aggregates."""
+    return PathAFunnelDashboard(**_ctx().pricing_display.path_a_funnel_summary())
+
+
+@app.get("/api/public/visual-experience", response_model=VisualExperiencePreviewResponse)
+def public_visual_experience(
+    niche: str | None = None,
+    specialization: str | None = None,
+    tier: str = "business",
+    locale: str = "de",
+) -> VisualExperiencePreviewResponse:
+    """Adaptive VXP preview for Path A order wizard (still / motion — never empty)."""
+    from app.integration.path_a_visual_preview import resolve_path_a_visual_preview
+
+    exp = resolve_path_a_visual_preview(
+        niche_id=niche,
+        tier=tier,
+        specialization=specialization,
+        locale=locale,
+    )
+    return VisualExperiencePreviewResponse(
+        ok=bool(exp.get("ok", True)),
+        engine=str(exp.get("engine") or "visual_experience"),
+        mode=str(exp.get("mode") or "none"),
+        tier=str(exp.get("tier") or tier),
+        niche_id=exp.get("niche_id"),
+        product_id=exp.get("product_id"),
+        specialization_id=exp.get("specialization_id"),
+        label=exp.get("label"),
+        preview=exp.get("preview"),
+        preview_url=exp.get("preview_url"),
+        reason=exp.get("reason"),
+        cta=exp.get("cta") if isinstance(exp.get("cta"), dict) else None,
+        hotspots=list(exp.get("hotspots") or []) if isinstance(exp.get("hotspots"), list) else [],
+        never_empty=bool(exp.get("never_empty", True)),
+    )
+
+
+@app.get("/api/public/niches")
+def public_niches() -> dict:
+    """Known Path A niches + specialization ids for the order wizard."""
+    from app.factory.niche_profiles import known_niche_ids, resolve_niche_profile
+    from app.factory.research_3d.visual_experience_registry import load_specialization_map
+
+    niches = []
+    for nid in known_niche_ids():
+        profile = resolve_niche_profile(nid)
+        niches.append({"id": nid, "label_de": profile.label_de})
+    specs = []
+    data = load_specialization_map()
+    for sid, row in (data.get("specializations") or {}).items():
+        if not isinstance(row, dict):
+            continue
+        specs.append(
+            {
+                "id": sid,
+                "niche": row.get("niche"),
+                "label": sid.replace("_", " "),
+            }
+        )
+    return {"niches": niches, "specializations": specs}
+
+
 # --- M2 Universal Identity (client API — human-facing responses, plain language) ---
 
 
@@ -2353,11 +2434,24 @@ def preview_sales_order_insights(body: OrderInsightsPreviewRequest) -> OrderInsi
         material_ids=list(body.material_ids or []),
         site_analysis=site_analysis,
     )
+    visual_experience = None
+    try:
+        from app.integration.path_a_visual_preview import resolve_path_a_visual_preview
+
+        visual_experience = resolve_path_a_visual_preview(
+            niche_id=body.niche,
+            tier=body.package_id or "business",
+            specialization=body.specialization,
+            locale="de",
+        )
+    except Exception:
+        visual_experience = None
     return _Resp(
         ok=True,
         checks=list(insights.get("checks") or []),
         note_de=str(insights.get("note_de") or ""),
         site_analysis=insights.get("site_analysis") if isinstance(insights.get("site_analysis"), dict) else None,
+        visual_experience=visual_experience,
     )
 
 
@@ -2440,6 +2534,36 @@ def sales_order_public_status(order_id: str) -> SalesOrderPublicStatus:
         data = _ctx().sales.public_status(order_id)
     except ValueError:
         raise HTTPException(status_code=404, detail="Bestellung nicht gefunden")
+    return SalesOrderPublicStatus(**data)
+
+
+@app.post(
+    "/api/sales/orders/{order_id}/deployment-preference",
+    response_model=SalesOrderPublicStatus,
+)
+def sales_order_deployment_preference(
+    order_id: str, request: DeploymentPreferenceRequest
+) -> SalesOrderPublicStatus:
+    """Path A — ZIP Only vs Assisted Deployment (no host passwords stored)."""
+    try:
+        data = _ctx().sales.set_deployment_preference(
+            order_id,
+            preference=request.preference,
+            hosting_provider=request.hosting_provider,
+        )
+    except ValueError as exc:
+        code = str(exc)
+        mapping = {
+            "order_not_found": (404, "Bestellung nicht gefunden"),
+            "download_not_ready": (
+                400,
+                "ZIP noch nicht bereit — Veröffentlichungswahl später",
+            ),
+            "invalid_preference": (400, "Ungültige Auswahl"),
+            "invalid_provider": (400, "Ungültiger Hosting-Anbieter"),
+        }
+        status, detail = mapping.get(code, (400, "Auswahl fehlgeschlagen"))
+        raise HTTPException(status_code=status, detail=detail)
     return SalesOrderPublicStatus(**data)
 
 

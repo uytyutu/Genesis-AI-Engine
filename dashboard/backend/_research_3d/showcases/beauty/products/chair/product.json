@@ -1,0 +1,18 @@
+{
+  "id": "chair",
+  "score": 85,
+  "premium": true,
+  "specializations": [
+    "salon",
+    "comfort"
+  ],
+  "tags": [
+    "chair",
+    "beauty"
+  ],
+  "label_de": "Ambiente & Komfort",
+  "label_en": "Ambience & comfort",
+  "quality": "placeholder",
+  "client_facing_3d": false,
+  "inherit_model": true
+}

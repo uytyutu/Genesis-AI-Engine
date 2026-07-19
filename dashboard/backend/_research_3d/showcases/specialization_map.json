@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "engine": "visual_experience",
+  "note": "Maps specialization → products + UI messages + CTA. Grow only from real client demand.",
+  "specializations": {
+    "implantology": {
+      "niche": "dental",
+      "products": ["implant", "scanner"],
+      "messages": ["precision", "digital_workflow"],
+      "cta": "appointment",
+      "hotspots": [
+        {"id": "quality", "label_de": "Qualität", "label_en": "Quality"},
+        {"id": "tech", "label_de": "Technologie", "label_en": "Technology"},
+        {"id": "cta", "label_de": "Termin", "label_en": "Book", "action": "appointment"}
+      ]
+    },
+    "oral_surgery": {
+      "niche": "dental",
+      "products": ["implant"],
+      "messages": ["precision", "care"],
+      "cta": "appointment",
+      "hotspots": [
+        {"id": "care", "label_de": "Sicherheit", "label_en": "Safety"},
+        {"id": "cta", "label_de": "Termin", "label_en": "Book", "action": "appointment"}
+      ]
+    },
+    "diagnostics": {
+      "niche": "dental",
+      "products": ["scanner", "tooth"],
+      "messages": ["digital_workflow", "clarity"],
+      "cta": "appointment",
+      "hotspots": [
+        {"id": "tech", "label_de": "Diagnostik", "label_en": "Diagnostics"},
+        {"id": "cta", "label_de": "Termin", "label_en": "Book", "action": "appointment"}
+      ]
+    },
+    "orthodontics": {
+      "niche": "dental",
+      "products": ["aligners", "tooth"],
+      "messages": ["comfort", "clarity"],
+      "cta": "appointment",
+      "hotspots": [
+        {"id": "benefit", "label_de": "Komfort", "label_en": "Comfort"},
+        {"id": "cta", "label_de": "Beratung", "label_en": "Consult", "action": "appointment"}
+      ]
+    },
+    "engine": {
+      "niche": "auto",
+      "products": ["engine", "turbo"],
+      "messages": ["reliability", "diagnostics"],
+      "cta": "inspection",
+      "hotspots": [
+        {"id": "quality", "label_de": "Zuverlässigkeit", "label_en": "Reliability"},
+        {"id": "cta", "label_de": "Diagnose", "label_en": "Inspect", "action": "inspection"}
+      ]
+    },
+    "turbo": {
+      "niche": "auto",
+      "products": ["turbo", "engine"],
+      "messages": ["performance", "diagnostics"],
+      "cta": "inspection",
+      "hotspots": [
+        {"id": "tech", "label_de": "Leistung", "label_en": "Performance"},
+        {"id": "cta", "label_de": "Check", "label_en": "Check", "action": "inspection"}
+      ]
+    },
+    "hybrid_battery_repair": {
+      "niche": "auto",
+      "products": ["engine"],
+      "messages": ["diagnostics", "efficiency"],
+      "cta": "inspection",
+      "hotspots": [
+        {"id": "tech", "label_de": "Diagnose", "label_en": "Diagnostics"},
+        {"id": "cta", "label_de": "Prüfung", "label_en": "Inspect", "action": "inspection"}
+      ]
+    },
+    "solar": {
+      "niche": "energy",
+      "products": ["solar_panel", "inverter", "battery"],
+      "messages": ["efficiency", "independence"],
+      "cta": "quote",
+      "hotspots": [
+        {"id": "benefit", "label_de": "Ertrag", "label_en": "Yield"},
+        {"id": "quality", "label_de": "Qualität", "label_en": "Quality"},
+        {"id": "cta", "label_de": "Angebot", "label_en": "Quote", "action": "quote"}
+      ]
+    },
+    "general": {
+      "niche": "generic",
+      "products": ["default"],
+      "messages": ["clarity", "trust"],
+      "cta": "contact",
+      "hotspots": [
+        {"id": "quality", "label_de": "Qualität", "label_en": "Quality"},
+        {"id": "cta", "label_de": "Kontakt", "label_en": "Contact", "action": "contact"}
+      ]
+    }
+  },
+  "message_copy": {
+    "precision": {
+      "de": "Präzision, die man sehen kann",
+      "en": "Precision you can see"
+    },
+    "digital_workflow": {
+      "de": "Digitaler Workflow — klar und modern",
+      "en": "Digital workflow — clear and modern"
+    },
+    "reliability": {
+      "de": "Zuverlässige Technik für den Alltag",
+      "en": "Reliable tech for everyday use"
+    },
+    "diagnostics": {
+      "de": "Diagnose statt Rätselraten",
+      "en": "Diagnostics instead of guesswork"
+    },
+    "efficiency": {
+      "de": "Effizienz, die sich lohnt",
+      "en": "Efficiency that pays off"
+    },
+    "independence": {
+      "de": "Mehr Unabhängigkeit für Ihr Objekt",
+      "en": "More independence for your site"
+    },
+    "comfort": {
+      "de": "Komfort ohne Kompromisse",
+      "en": "Comfort without compromise"
+    },
+    "clarity": {
+      "de": "Klarheit statt Fachchinesisch",
+      "en": "Clarity instead of jargon"
+    },
+    "trust": {
+      "de": "Vertrauen durch sichtbare Qualität",
+      "en": "Trust through visible quality"
+    },
+    "care": {
+      "de": "Sorgfalt in jedem Schritt",
+      "en": "Care in every step"
+    },
+    "performance": {
+      "de": "Leistung mit System",
+      "en": "Performance with a system"
+    }
+  },
+  "cta_copy": {
+    "appointment": { "de": "Termin anfragen", "en": "Book appointment" },
+    "inspection": { "de": "Diagnose anfragen", "en": "Request inspection" },
+    "quote": { "de": "Angebot anfragen", "en": "Request quote" },
+    "contact": { "de": "Kontakt aufnehmen", "en": "Get in touch" }
+  }
+}
