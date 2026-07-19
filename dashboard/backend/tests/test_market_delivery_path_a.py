@@ -6,6 +6,8 @@ import io
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from app.factory.client_legal_pages import ClientLegalInfo, write_client_legal_pages
 from app.factory.factory_service import FactoryService
 from app.factory.market_delivery import (
@@ -34,6 +36,117 @@ def test_market_ui_lang_and_legal_packs():
     assert "Cloudflare" in deploy_readme("US")
     assert client_status_label("paid", "US") == "Paid"
     assert client_status_label("paid", "DE") == "Bezahlt"
+
+
+def test_delivery_maturity_matrix_levels():
+    from app.factory.market_delivery import list_path_a_delivery_matrix, market_delivery_support
+
+    de = market_delivery_support("DE")
+    us = market_delivery_support("US")
+    fr = market_delivery_support("FR")
+    pl = market_delivery_support("PL")
+    ua = market_delivery_support("UA")
+    ru = market_delivery_support("RU")
+    gb = market_delivery_support("GB")
+    at = market_delivery_support("AT")
+
+    assert de["level"] == 1 and de["status"] == "production" and de["legal_ready"] is True
+    assert us["level"] == 1 and us["status"] == "production"
+    assert gb["level"] == 1 and at["level"] == 1
+    assert fr["level"] == 2 and fr["status"] == "beta" and fr["ui_lang"] == "en"
+    assert pl["level"] == 2 and pl["legal_label"] == "Placeholder"
+    assert ua["level"] == 3 and ua["ui_lang"] == "uk"
+    assert ru["level"] == 3 and ru["ui_lang"] == "ru"
+
+    matrix = list_path_a_delivery_matrix()
+    codes = {row["market_code"] for row in matrix}
+    assert {"DE", "US", "FR", "PL", "UA", "RU", "GB", "AT"} <= codes
+    # No Production row without a real legal pack
+    for row in matrix:
+        if row["status"] == "production":
+            assert row["legal_ready"] is True
+        if row["legal_ready"] is False:
+            assert row["status"] == "beta"
+
+
+@pytest.mark.parametrize(
+    "market,ui,currency,zip_has,zip_missing,readme_forbidden",
+    [
+        ("DE", "de", "EUR", ("impressum.html", "datenschutz.html"), ("privacy.html", "LEGAL_NOTICE.txt"), ()),
+        ("AT", "de", "EUR", ("impressum.html", "datenschutz.html"), ("LEGAL_NOTICE.txt",), ()),
+        ("US", "en", "USD", ("privacy.html", "terms.html"), ("impressum.html",), ("Hetzner",)),
+        ("GB", "en", "GBP", ("privacy.html", "terms.html"), ("impressum.html",), ("Hetzner",)),
+        ("FR", "en", "EUR", ("LEGAL_NOTICE.txt",), ("impressum.html", "datenschutz.html"), ("Hetzner",)),
+        ("PL", "en", "PLN", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",)),
+        ("UA", "uk", "UAH", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",)),
+        ("RU", "ru", "EUR", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",)),
+    ],
+)
+def test_path_a_markets_status_and_zip(
+    tmp_path: Path,
+    monkeypatch,
+    market,
+    ui,
+    currency,
+    zip_has,
+    zip_missing,
+    readme_forbidden,
+):
+    monkeypatch.delenv("STRIPE_SECRET_KEY", raising=False)
+    monkeypatch.setenv("GENESIS_PAYMENT_SANDBOX", "1")
+
+    factory = FactoryService(memory_dir=tmp_path, sandbox_dir=tmp_path / "sandbox")
+    intent = FactoryIntentService(memory_dir=tmp_path, factory=factory)
+    sales = SalesOrderService(tmp_path, intent)
+    revenue = RevenuePipelineService(
+        sales,
+        FinanceService(tmp_path),
+        PaymentCheckoutService(tmp_path),
+        OwnerNotificationService(tmp_path),
+    )
+
+    created = sales.create_order(
+        {
+            "business_name": f"Biz {market}",
+            "description": f"Landing for market {market}",
+            "email": f"a@{market.lower()}.example",
+            "package_id": "basic",
+            "city": "City",
+            "market_code": market,
+            "client_legal": {
+                "owner_name": "Owner",
+                "street": "1 Main",
+                "zip": "10000",
+                "city": "City",
+                "email": f"a@{market.lower()}.example",
+                "country": market,
+            },
+        }
+    )
+    order_id = created["order_id"]
+    status = sales.public_status(order_id)
+    assert status["market_code"] == market
+    assert status["ui_lang"] == ui
+    assert status["currency"] == currency
+    assert status["status_label"] == client_status_label("awaiting_payment", market)
+
+    revenue.begin_checkout(
+        order_id,
+        success_url="http://localhost:3000/ok",
+        cancel_url="http://localhost:3000/cancel",
+    )
+    revenue.complete_sandbox_payment(order_id)
+    data, _ = sales.build_client_download(order_id)
+    with zipfile.ZipFile(io.BytesIO(data)) as zf:
+        names = set(zf.namelist())
+        readme = zf.read("README_PUBLISH.txt").decode("utf-8")
+    for name in zip_has:
+        assert name in names, f"{market}: missing {name}"
+    for name in zip_missing:
+        assert name not in names, f"{market}: unexpected {name}"
+    for bad in readme_forbidden:
+        assert bad not in readme, f"{market}: README must not mention {bad}"
+
 
 
 def test_us_legal_pages_no_de_impressum(tmp_path: Path):

@@ -162,7 +162,14 @@ def resolve_checkout_packages(
         "market_code": market.code,
         "currency": market.currency,
         "symbol": market.symbol,
+        "delivery_support": _delivery_support_row(market.code),
     }
+
+
+def _delivery_support_row(market_code: str) -> dict[str, Any]:
+    from app.factory.market_delivery import market_delivery_support
+
+    return market_delivery_support(market_code)
 
 
 def _default_name(tier: str) -> str:

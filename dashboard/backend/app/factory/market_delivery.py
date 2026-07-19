@@ -2,11 +2,16 @@
 
 Honest rule: never ship DE Impressum to a non-DE market. If no legal pack exists,
 write LEGAL_NOTICE.txt instead of wrong-jurisdiction documents.
+
+Delivery maturity (Path A support matrix):
+  Level 1 — Production: currency + native UI + real legal pack (DACH, EN markets).
+  Level 2 — Beta: currency + EN status UI + LEGAL_NOTICE (no fake local counsel).
+  Level 3 — Beta: currency + localized status (uk/ru) + LEGAL_NOTICE (legal TBD).
 """
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 # UI / receipt language for client-facing order status (not CEO console).
 _MARKET_LANG: dict[str, str] = {
@@ -58,6 +63,14 @@ _MARKET_LEGAL: dict[str, str] = {
     "UA": "placeholder",
     "RU": "placeholder",
 }
+
+# Markets covered by Path A delivery matrix (explicit support, not silent DE).
+PATH_A_DELIVERY_MARKETS: tuple[str, ...] = tuple(
+    sorted(set(_MARKET_LANG) | set(_MARKET_LEGAL))
+)
+
+DeliveryStatus = Literal["production", "beta"]
+DeliveryLevel = Literal[1, 2, 3]
 
 _STATUS_LABELS: dict[str, dict[str, str]] = {
     "de": {
@@ -181,6 +194,41 @@ def market_ui_lang(market_code: str | None) -> str:
 
 def market_legal_pack(market_code: str | None) -> str:
     return _MARKET_LEGAL.get(normalize_market(market_code), "placeholder")
+
+
+def market_delivery_support(market_code: str | None) -> dict[str, Any]:
+    """Single-market Path A support row (currency / UI / legal / maturity)."""
+    code = normalize_market(market_code)
+    ui = market_ui_lang(code)
+    pack = market_legal_pack(code)
+    legal_ready = pack != "placeholder"
+    # Level 3: localized status language without a real legal pack (UA/RU).
+    if not legal_ready and ui in ("uk", "ru"):
+        level: DeliveryLevel = 3
+        status: DeliveryStatus = "beta"
+    elif not legal_ready:
+        level = 2
+        status = "beta"
+    else:
+        level = 1
+        status = "production"
+    return {
+        "market_code": code,
+        "currency": True,
+        "ui_lang": ui,
+        "ui_label": ui.upper(),
+        "legal_pack": pack,
+        "legal_ready": legal_ready,
+        "legal_label": "Ready" if legal_ready else "Placeholder",
+        "level": level,
+        "status": status,
+        "status_label": "Production" if status == "production" else "Beta",
+    }
+
+
+def list_path_a_delivery_matrix() -> list[dict[str, Any]]:
+    """CEO/support matrix: every Path A market with delivery maturity."""
+    return [market_delivery_support(code) for code in PATH_A_DELIVERY_MARKETS]
 
 
 def client_status_label(status: str, market_code: str | None) -> str:

@@ -85,6 +85,7 @@ from app.schemas import (
     OrderInsightsPreviewResponse,
     SalesPackage,
     SalesPackagesResponse,
+    PathADeliveryMatrixResponse,
     CompanyOverview,
     BusinessHealthDashboard,
     BusinessHealthManualBumpRequest,
@@ -2111,7 +2112,16 @@ def list_sales_packages(
         currency=checkout.get("currency"),
         symbol=checkout.get("symbol"),
         market_code=checkout.get("market_code"),
+        delivery_support=checkout.get("delivery_support"),
     )
+
+
+@app.get("/api/sales/delivery-matrix", response_model=PathADeliveryMatrixResponse)
+def path_a_delivery_matrix() -> PathADeliveryMatrixResponse:
+    """Path A market support matrix: currency / UI / legal / Production|Beta."""
+    from app.factory.market_delivery import list_path_a_delivery_matrix
+
+    return PathADeliveryMatrixResponse(markets=list_path_a_delivery_matrix())
 
 
 @app.get("/api/public/pricing")

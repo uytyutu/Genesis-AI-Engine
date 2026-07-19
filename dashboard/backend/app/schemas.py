@@ -253,6 +253,15 @@ class SalesPackagesResponse(BaseModel):
     currency: str | None = None
     symbol: str | None = None
     market_code: str | None = None
+    delivery_support: dict | None = None
+
+
+class PathADeliveryMatrixResponse(BaseModel):
+    markets: list[dict]
+    note: str = (
+        "Level 1 Production = currency + UI + real legal pack. "
+        "Level 2/3 Beta = currency OK, legal is honest Placeholder (never fake DE Impressum)."
+    )
 
 
 class SalesOrderCreateRequest(BaseModel):
