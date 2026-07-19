@@ -1,0 +1,7 @@
+Asset: hero.glb (Stylized leaf — garden hero)
+Author: Virtus Core (original mesh + PBR material 'LeafSatin')
+Source: scripts/generate_research_3d_presets.py
+License: CC0-1.0 Universal
+Material: metallic=0.0, roughness=0.45
+Date: 2026-07-19
+Notes: Research preset for niche=green. Not Path A production.

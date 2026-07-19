@@ -1,6 +1,7 @@
-Asset: hero.glb (stylized dental tooth, low-poly)
-Author: Virtus Core (original mesh)
-Source: scripts/generate_dental_research_glb.py
+Asset: hero.glb (Stylized ceramic tooth — clinic hero)
+Author: Virtus Core (original mesh + PBR material 'CeramicGloss')
+Source: scripts/generate_research_3d_presets.py
 License: CC0-1.0 Universal
+Material: metallic=0.05, roughness=0.12
 Date: 2026-07-19
-Notes: Research reference preset for niche=dental. Not Path A production.
+Notes: Research preset for niche=dental. Not Path A production.

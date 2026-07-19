@@ -57,10 +57,8 @@ def test_niche_and_market_slots():
     assert "DE" in markets and "US" in markets and "UA" in markets
     cov = niche_coverage()
     assert cov["reference_niche"] == "dental"
-    # dental reference preset is ready after hero.glb + LICENSE + CREDITS
-    dental = next(n for n in niches if n["niche_id"] == "dental")
-    assert dental["status"] == "ready"
-    assert cov["niches_ready"] >= 1
+    assert all(n["status"] == "ready" for n in niches)
+    assert cov["niches_ready"] == cov["niches_total"]
 
 
 def test_path_a_factory_does_not_import_research_3d():

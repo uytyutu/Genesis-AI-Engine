@@ -1,18 +1,19 @@
 {
-  "version": 2,
-  "policy": "Slots must match Factory known_niche_ids() 1:1. One niche = one approved 3D preset.",
+  "version": 3,
+  "policy": "Slots match Factory known_niche_ids() 1:1. One niche = one approved 3D preset with PBR material.",
   "synced_from": "app.factory.niche_profiles.known_niche_ids",
   "reference_niche": "dental",
+  "generator": "scripts/generate_research_3d_presets.py",
   "niches": [
-    {"niche_id": "appliance", "scene": "appliance_hero", "asset_dir": "scenes/appliance"},
-    {"niche_id": "auto", "scene": "workshop_hero", "asset_dir": "scenes/auto"},
-    {"niche_id": "beauty", "scene": "salon_hero", "asset_dir": "scenes/beauty"},
-    {"niche_id": "computer", "scene": "device_hero", "asset_dir": "scenes/computer"},
-    {"niche_id": "dental", "scene": "clinic_hero", "asset_dir": "scenes/dental", "status_hint": "reference"},
-    {"niche_id": "energy", "scene": "solar_hero", "asset_dir": "scenes/energy"},
-    {"niche_id": "generic", "scene": "storefront_hero", "asset_dir": "scenes/generic"},
-    {"niche_id": "green", "scene": "garden_hero", "asset_dir": "scenes/green"},
-    {"niche_id": "handwerk", "scene": "craft_hero", "asset_dir": "scenes/handwerk"},
-    {"niche_id": "law", "scene": "office_hero", "asset_dir": "scenes/law"}
+    {"niche_id": "appliance", "scene": "appliance_hero", "material": "ApplianceSteel", "asset_dir": "scenes/appliance"},
+    {"niche_id": "auto", "scene": "workshop_hero", "material": "TireRubberMetal", "asset_dir": "scenes/auto"},
+    {"niche_id": "beauty", "scene": "salon_hero", "material": "GlossBottle", "asset_dir": "scenes/beauty"},
+    {"niche_id": "computer", "scene": "device_hero", "material": "DeviceAnodized", "asset_dir": "scenes/computer"},
+    {"niche_id": "dental", "scene": "clinic_hero", "material": "CeramicGloss", "asset_dir": "scenes/dental"},
+    {"niche_id": "energy", "scene": "solar_hero", "material": "SolarGlass", "asset_dir": "scenes/energy"},
+    {"niche_id": "generic", "scene": "storefront_hero", "material": "StorefrontMatte", "asset_dir": "scenes/generic"},
+    {"niche_id": "green", "scene": "garden_hero", "material": "LeafSatin", "asset_dir": "scenes/green"},
+    {"niche_id": "handwerk", "scene": "craft_hero", "material": "ToolSteelWood", "asset_dir": "scenes/handwerk"},
+    {"niche_id": "law", "scene": "office_hero", "material": "BrushedGold", "asset_dir": "scenes/law"}
   ]
 }

@@ -1,0 +1,7 @@
+Asset: hero.glb (Stylized appliance body — Hausgeraete hero)
+Author: Virtus Core (original mesh + PBR material 'ApplianceSteel')
+Source: scripts/generate_research_3d_presets.py
+License: CC0-1.0 Universal
+Material: metallic=0.7, roughness=0.35
+Date: 2026-07-19
+Notes: Research preset for niche=appliance. Not Path A production.

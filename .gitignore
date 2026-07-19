@@ -21,9 +21,9 @@ dashboard/backend/_research_3d/scenes/**/*.glb
 dashboard/backend/_research_3d/scenes/**/*.gltf
 dashboard/backend/_research_3d/scenes/**/*.bin
 !dashboard/backend/_research_3d/scenes/_fixture/
-!dashboard/backend/_research_3d/scenes/dental/hero.glb
-!dashboard/backend/_research_3d/scenes/dental/LICENSE.txt
-!dashboard/backend/_research_3d/scenes/dental/CREDITS.txt
+!dashboard/backend/_research_3d/scenes/*/hero.glb
+!dashboard/backend/_research_3d/scenes/*/LICENSE.txt
+!dashboard/backend/_research_3d/scenes/*/CREDITS.txt
 
 
 .vercel

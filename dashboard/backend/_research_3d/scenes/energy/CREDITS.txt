@@ -1,0 +1,7 @@
+Asset: hero.glb (Stylized solar panel — energy hero)
+Author: Virtus Core (original mesh + PBR material 'SolarGlass')
+Source: scripts/generate_research_3d_presets.py
+License: CC0-1.0 Universal
+Material: metallic=0.6, roughness=0.2
+Date: 2026-07-19
+Notes: Research preset for niche=energy. Not Path A production.
