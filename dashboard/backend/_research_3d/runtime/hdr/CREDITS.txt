@@ -1,0 +1,5 @@
+HDRI: studio_small_08_1k.hdr (saved as studio_small.hdr)
+Source: https://polyhaven.com/a/studio_small_08
+License: CC0 1.0 Universal (public domain dedication)
+Author: Poly Haven
+Used for: Virtus Core research_3d premium demo environment lighting only

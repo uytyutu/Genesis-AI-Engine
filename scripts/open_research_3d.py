@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Open research_3d scene engine in the browser (local HTTP — required for ES modules).
+"""Open research_3d sold demo in the browser (local HTTP — required for ES modules).
 
 Usage (repo root):
   py -3.12 scripts/open_research_3d.py
@@ -18,7 +18,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SERVE = ROOT / "dashboard" / "backend" / "_research_3d"
 PORT = 8765
-URL = f"http://127.0.0.1:{PORT}/runtime/scene_engine.html"
+# CEO review: sold-site dental (CSS-Motion + premium 3D + Classic fallback)
+URL = f"http://127.0.0.1:{PORT}/runtime/demos/dental_sold/index.html"
+LAB_URL = f"http://127.0.0.1:{PORT}/runtime/index.html"
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
@@ -30,14 +32,21 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
 
 
 def main() -> int:
-    engine = SERVE / "runtime" / "scene_engine.html"
+    engine = SERVE / "runtime" / "demos" / "dental_sold" / "index.html"
+    lab = SERVE / "runtime" / "index.html"
     vendor = SERVE / "runtime" / "vendor" / "three.module.js"
+    hdr = SERVE / "runtime" / "hdr" / "studio_small.hdr"
     if not engine.is_file():
-        print("MISSING:", engine)
+        print("MISSING sold demo:", engine)
+        return 1
+    if not lab.is_file():
+        print("MISSING lab player:", lab)
         return 1
     if not vendor.is_file():
         print("MISSING vendor three.js:", vendor)
-        print("Re-run vendor download or restore runtime/vendor/")
+        return 1
+    if not hdr.is_file():
+        print("MISSING HDR:", hdr)
         return 1
 
     handler = functools.partial(QuietHandler)
@@ -46,13 +55,15 @@ def main() -> int:
     except OSError as exc:
         print(f"Port {PORT} busy ({exc}). Trying to open existing server…")
         webbrowser.open(URL)
-        print(URL)
+        print("Sold demo:", URL)
+        print("Lab player:", LAB_URL)
         return 0
 
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
     print("Serving", SERVE)
-    print("Open:", URL)
+    print("Sold demo:", URL)
+    print("Lab player:", LAB_URL)
     time.sleep(0.4)
     webbrowser.open(URL)
     print("Press Ctrl+C to stop.")

@@ -1,0 +1,28 @@
+# Research 3D — QA weight & fallback (2026-07-19)
+
+## First-load budget (dental sold demo)
+
+| Asset | Bytes | ~MB |
+|-------|------:|----:|
+| HDR studio_small.hdr | 1508872 | 1.44 |
+| Three.js three.module.js | 1314681 | 1.25 |
+| GLB 01_tooth.glb | 3052 | 0.003 |
+| Worst-case sum | 2826605 | ~2.7 |
+
+Notes:
+- Addons (GLTF/RGBE/Orbit) are small vs Three core.
+- GLB presets are intentionally tiny (CC0 research placeholders).
+- Real premium workshop assets will be larger — gate before WAITLIST→Live.
+
+## Crash / iOS Safari
+- Research only: must be re-tested on a real iPhone Safari.
+- Soft rule: no WebGL → Classic CSS-Motion UI (no empty canvas).
+- Demo: runtime/demos/dental_sold/ activates webgl-fallback if WebGL/HDR/GLB fails.
+
+## Fallback path
+1. Detect WebGL2/WebGL
+2. Else show Classic CSS hero / panel
+3. Path A production: keep 3d_premium WAITLIST; never ship broken canvas ZIP
+
+## Sold demo URL
+http://127.0.0.1:8765/runtime/demos/dental_sold/index.html

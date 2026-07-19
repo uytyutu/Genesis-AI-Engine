@@ -1,17 +1,20 @@
-# Research 3D — как открыть Scene Engine
+# Research 3D Premium Demo
 
-НЕ открывайте scene_engine.html двойным кликом (file://) — браузер блокирует модули.
-
-Из корня репозитория:
+## CEO review (sold-site look)
 
   py -3.12 scripts/open_research_3d.py
 
-Скрипт поднимет http://127.0.0.1:8765 и откроет браузер.
-Страница: http://127.0.0.1:8765/runtime/scene_engine.html
+URL: http://127.0.0.1:8765/runtime/demos/dental_sold/index.html
 
-Если порт занят — просто откройте этот URL вручную.
+Praxis Mueller (DE dental): Path-A-style landing + CSS-Motion + HDR tooth.
+If WebGL fails → Classic CSS gradient (no empty canvas).
 
-Перегенерация 50 примеров:
-  py -3.12 scripts/generate_research_3d_presets.py
+## Lab (all niches × markets)
 
-3d_premium в checkout = WAITLIST (Path A не тронут).
+http://127.0.0.1:8765/runtime/index.html
+
+## Weight / QA
+
+See QA_WEIGHT.md (~2.7 MB first load: HDR + Three + tiny GLB).
+
+Path A / Stripe 3d_premium = WAITLIST (unchanged).

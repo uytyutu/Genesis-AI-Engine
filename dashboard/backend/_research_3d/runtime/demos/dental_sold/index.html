@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Praxis Mueller — Premium 3D Demo (research)</title>
+  <meta name="description" content="Sanfte Behandlung, klare Therapiepläne und moderne Technik für Ihr Lächeln.">
+  <link rel="stylesheet" href="assets/motion_kit.css">
+  <link rel="stylesheet" href="sold.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "../../vendor/three.module.js",
+      "three/addons/": "../../vendor/addons/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="boot-error" hidden></div>
+
+  <!-- Fixed premium WebGL layer (hidden on fallback) -->
+  <div id="webgl-container" aria-hidden="true"></div>
+  <div id="classic-fallback" hidden>
+    <div class="classic-hero-bg" aria-hidden="true"></div>
+  </div>
+
+  <nav class="topbar">
+    <div class="brand"><strong>Praxis Mueller</strong></div>
+    <a href="#contact">Termin buchen</a>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow hero-text">Virtus · research demo · DE · dental</p>
+      <h1 class="hero-text">Zahnmedizin ohne versteckte Kosten</h1>
+      <p class="hero-text hero-text-delay">Sanfte Behandlung, klare Therapiepläne und moderne Technik für Ihr Lächeln.</p>
+      <div class="trust-row hero-text hero-text-delay-2">
+        <span class="trust-pill">Erfahrene Ärzte</span>
+        <span class="trust-pill">Digitales Röntgen</span>
+        <span class="trust-pill">Premium 3D-Präsentation</span>
+      </div>
+      <div class="hero-ctas">
+        <a class="btn cta-button" href="#contact">Termin buchen</a>
+        <a class="btn cta-button btn-wa" href="https://wa.me/492215550123" target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+      <p class="mode-badge" id="mode-badge">Lade 3D…</p>
+    </div>
+  </header>
+
+  <section class="section reveal spacer-3d" aria-hidden="true"></section>
+
+  <section class="section reveal" id="services">
+    <h2>Leistungen</h2>
+    <ul class="services">
+      <li class="service-card">
+        <h3>Prophylaxe &amp; Kontrolle</h3>
+        <p class="service-desc">Professionelle Reinigung und Früherkennung — entspannt und schmerzarm.</p>
+      </li>
+      <li class="service-card">
+        <h3>Ästhetische Zahnheilkunde</h3>
+        <p class="service-desc">Veneers, Bleaching und Formkorrektur mit natürlichem Ergebnis.</p>
+      </li>
+      <li class="service-card">
+        <h3>Implantate &amp; Prothetik</h3>
+        <p class="service-desc">Feste Zähne mit Plan und transparenter Kostenübersicht.</p>
+      </li>
+      <li class="service-card">
+        <h3>Online-Termin</h3>
+        <p class="service-desc">Termin in zwei Minuten — ohne Warteschleife am Telefon.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="section reveal benefits">
+    <h2>Warum Praxis Mueller</h2>
+    <ul>
+      <li>Angstfreie Behandlung mit erklärenden Abläufen</li>
+      <li>Festpreis-Optionen für größere Maßnahmen</li>
+      <li>Familienfreundliche Termine am Nachmittag</li>
+    </ul>
+  </section>
+
+  <section class="section reveal about">
+    <h2>Über uns</h2>
+    <p>In der Praxis Mueller verbinden wir moderne Zahnmedizin mit Zeit für Ihre Fragen. Jeder Behandlungsplan wird vorab besprochen — ohne Druck.</p>
+  </section>
+
+  <section class="section reveal" id="contact">
+    <h2>Kontakt</h2>
+    <p class="muted">Schreiben oder rufen Sie an — wir melden uns schnellstmöglich.</p>
+    <div class="contact-grid">
+      <p><strong>Telefon:</strong> <a href="tel:+492215550123">+49 221 5550123</a></p>
+      <p><strong>WhatsApp:</strong> <a class="wa-btn" href="https://wa.me/492215550123" target="_blank" rel="noopener">Nachricht senden</a></p>
+      <p><strong>E-Mail:</strong> <a href="mailto:kontakt@praxis-mueller.example">kontakt@praxis-mueller.example</a></p>
+      <p><strong>Öffnungszeiten:</strong> Mo–Do 8:00–19:00 · Fr 8:00–15:00</p>
+    </div>
+    <form class="contact-form" action="mailto:kontakt@praxis-mueller.example?subject=Anfrage%20Website" method="get">
+      <label>Name<input name="name" required placeholder="Ihr Name"></label>
+      <label>Telefon<input name="phone" type="tel" placeholder="+49 …"></label>
+      <label>Nachricht<textarea name="body" rows="4" required placeholder="Kurz Ihr Anliegen"></textarea></label>
+      <button type="submit">Anfrage senden</button>
+    </form>
+  </section>
+
+  <footer>
+    Praxis Mueller · research demo (nicht Live-Checkout)<br>
+    3d_premium bleibt WAITLIST · Fallback = Classic CSS-Motion
+  </footer>
+
+  <script src="assets/reveal.js" defer></script>
+  <script>
+    (function () {
+      var box = document.getElementById("boot-error");
+      if (location.protocol === "file:") {
+        box.hidden = false;
+        box.innerHTML =
+          "<strong>file:// nicht möglich.</strong> " +
+          "Aus Repo-Root: <code>py -3.12 scripts/open_research_3d.py</code>";
+        document.body.classList.add("webgl-fallback");
+        document.getElementById("mode-badge").textContent = "Classic CSS-Motion (file://)";
+        return;
+      }
+      import("./sold_client.js").catch(function (err) {
+        document.body.classList.add("webgl-fallback");
+        document.getElementById("classic-fallback").hidden = false;
+        document.getElementById("mode-badge").textContent = "Classic CSS-Motion (3D load failed)";
+        console.error(err);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Virtus Core — Premium 3D Demo</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/addons/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="boot-error"></div>
+
+  <div id="webgl-container" aria-hidden="true"></div>
+  <div id="classic-fallback" hidden>
+    <div class="classic-fallback-panel">
+      <h2>Classic CSS-Motion</h2>
+      <p>WebGL ist nicht verfügbar. Premium-3D wird nicht geladen — kein leerer Canvas.</p>
+      <p class="hint">Produktion: soft fallback auf <code>motion_level=css</code> (nie broken WebGL ZIP).</p>
+    </div>
+  </div>
+
+  <aside id="picker">
+    <label for="niche">Niche (Virtus)</label>
+    <select id="niche"></select>
+    <label for="example">Example (5 / niche)</label>
+    <select id="example"></select>
+    <label for="market">Market (copy only)</label>
+    <select id="market"></select>
+    <div class="meta" id="picker-meta">research_3d · HDR studio</div>
+  </aside>
+
+  <div id="content">
+    <section class="hero">
+      <h1 id="hero-title">Zahnarztpraxis Müller</h1>
+      <p id="hero-sub">Wir bieten modernste Implantologie.</p>
+      <button type="button" class="cta" id="hero-cta">Termin vereinbaren</button>
+    </section>
+
+    <section class="spacer" aria-hidden="true"></section>
+
+    <section class="details">
+      <h2 id="detail-title">Unsere Technologie</h2>
+      <p id="detail-body">Hochwertige Materialien und Präzision — Premium 3D-Präsentation.</p>
+    </section>
+  </div>
+
+  <div id="status-line">Loading…</div>
+
+  <script>
+    (function () {
+      var box = document.getElementById("boot-error");
+      if (location.protocol === "file:") {
+        box.style.display = "block";
+        box.innerHTML =
+          "<strong>file:// не работает.</strong>" +
+          "<p>Из корня репо:</p><code>py -3.12 scripts/open_research_3d.py</code>" +
+          "<p>URL: http://127.0.0.1:8765/runtime/index.html</p>";
+        return;
+      }
+      import("./client.js").catch(function (err) {
+        box.style.display = "block";
+        box.innerHTML = "<strong>client.js failed</strong><code>" + String(err) + "</code>";
+      });
+    })();
+  </script>
+</body>
+</html>

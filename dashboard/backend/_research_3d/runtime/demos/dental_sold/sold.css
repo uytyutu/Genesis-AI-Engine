@@ -1,0 +1,288 @@
+/* Praxis Mueller — sold-site look + fixed 3D / Classic fallback */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: #0f172a;
+  line-height: 1.65;
+  background: #0b1220;
+}
+
+#boot-error {
+  position: relative;
+  z-index: 50;
+  margin: 1rem;
+  padding: 1rem 1.25rem;
+  background: #1a1208;
+  border: 1px solid #fbbf24;
+  border-radius: 12px;
+  color: #ffe8a3;
+}
+
+#webgl-container {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+#webgl-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#classic-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.classic-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0369a1, #38bdf8 55%, #0ea5e9);
+}
+
+body.webgl-fallback #webgl-container {
+  display: none;
+}
+
+body.webgl-fallback #classic-fallback {
+  display: block;
+}
+
+body:not(.webgl-fallback) #classic-fallback {
+  display: none;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: rgba(15, 23, 42, 0.88);
+  color: #fff;
+  backdrop-filter: blur(10px);
+  pointer-events: auto;
+}
+
+.topbar a {
+  color: #e0f2fe;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.hero {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 4rem 1.5rem 5rem;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.hero-copy {
+  max-width: 36rem;
+}
+
+.eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9fd0ff;
+  margin-bottom: 0.75rem;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+
+.hero p {
+  font-size: 1.12rem;
+  opacity: 0.95;
+  max-width: 32rem;
+  margin-bottom: 1.25rem;
+}
+
+.trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.trust-pill {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  pointer-events: auto;
+}
+
+.btn {
+  display: inline-block;
+  background: #e0f2fe;
+  color: #0f172a;
+  font-weight: 700;
+  padding: 0.875rem 1.75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.btn-wa {
+  background: #25d366;
+  color: #052e16;
+}
+
+.mode-badge {
+  margin-top: 1.25rem;
+  font-size: 0.78rem;
+  color: #9fd0ff;
+  opacity: 0.95;
+}
+
+.spacer-3d {
+  min-height: 55vh;
+  background: transparent;
+  pointer-events: none;
+}
+
+.section {
+  position: relative;
+  z-index: 10;
+  padding: 3.5rem 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+  background: rgba(248, 250, 252, 0.94);
+  color: #0f172a;
+  text-shadow: none;
+  border-radius: 18px;
+  margin-bottom: 1.25rem;
+  pointer-events: auto;
+}
+
+.section h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.25rem;
+  color: #0369a1;
+}
+
+.services {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  list-style: none;
+}
+
+.service-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.service-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+  color: #0369a1;
+}
+
+.service-desc {
+  font-size: 0.92rem;
+  color: #475569;
+}
+
+.benefits ul {
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.benefits li {
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.benefits li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #0284c7;
+  font-weight: 700;
+}
+
+.muted { color: #64748b; margin-bottom: 1rem; }
+
+.contact-grid { display: grid; gap: 0.5rem; }
+
+.wa-btn { color: #15803d; font-weight: 700; }
+
+.contact-form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 480px;
+  margin-top: 1.25rem;
+}
+
+.contact-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font: inherit;
+}
+
+.contact-form button {
+  justify-self: start;
+  background: #0284c7;
+  color: #fff;
+  border: 0;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+footer {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.875rem;
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+@media (max-width: 640px) {
+  .hero { padding: 3rem 1rem 4rem; }
+  .section { padding: 2.5rem 1rem; margin-inline: 0.75rem; }
+}
