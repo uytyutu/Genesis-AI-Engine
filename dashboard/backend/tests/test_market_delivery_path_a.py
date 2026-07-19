@@ -70,16 +70,16 @@ def test_delivery_maturity_matrix_levels():
 
 
 @pytest.mark.parametrize(
-    "market,ui,currency,zip_has,zip_missing,readme_forbidden",
+    "market,ui,currency,zip_has,zip_missing,readme_forbidden,html_marker",
     [
-        ("DE", "de", "EUR", ("impressum.html", "datenschutz.html"), ("privacy.html", "LEGAL_NOTICE.txt"), ()),
-        ("AT", "de", "EUR", ("impressum.html", "datenschutz.html"), ("LEGAL_NOTICE.txt",), ()),
-        ("US", "en", "USD", ("privacy.html", "terms.html"), ("impressum.html",), ("Hetzner",)),
-        ("GB", "en", "GBP", ("privacy.html", "terms.html"), ("impressum.html",), ("Hetzner",)),
-        ("FR", "en", "EUR", ("LEGAL_NOTICE.txt",), ("impressum.html", "datenschutz.html"), ("Hetzner",)),
-        ("PL", "en", "PLN", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",)),
-        ("UA", "uk", "UAH", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",)),
-        ("RU", "ru", "EUR", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",)),
+        ("DE", "de", "EUR", ("impressum.html", "datenschutz.html"), ("privacy.html", "LEGAL_NOTICE.txt"), (), "Anfrage senden"),
+        ("AT", "de", "EUR", ("impressum.html", "datenschutz.html"), ("LEGAL_NOTICE.txt",), (), "Leistungen"),
+        ("US", "en", "USD", ("privacy.html", "terms.html"), ("impressum.html",), ("Hetzner",), "Send request"),
+        ("GB", "en", "GBP", ("privacy.html", "terms.html"), ("impressum.html",), ("Hetzner",), "Send request"),
+        ("FR", "en", "EUR", ("LEGAL_NOTICE.txt",), ("impressum.html", "datenschutz.html"), ("Hetzner",), "Services"),
+        ("PL", "en", "PLN", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",), "Services"),
+        ("UA", "uk", "UAH", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",), "Надіслати"),
+        ("RU", "ru", "EUR", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",), "Отправить"),
     ],
 )
 def test_path_a_markets_status_and_zip(
@@ -91,6 +91,7 @@ def test_path_a_markets_status_and_zip(
     zip_has,
     zip_missing,
     readme_forbidden,
+    html_marker,
 ):
     monkeypatch.delenv("STRIPE_SECRET_KEY", raising=False)
     monkeypatch.setenv("GENESIS_PAYMENT_SANDBOX", "1")
@@ -140,12 +141,15 @@ def test_path_a_markets_status_and_zip(
     with zipfile.ZipFile(io.BytesIO(data)) as zf:
         names = set(zf.namelist())
         readme = zf.read("README_PUBLISH.txt").decode("utf-8")
+        html = zf.read("index.html").decode("utf-8")
     for name in zip_has:
         assert name in names, f"{market}: missing {name}"
     for name in zip_missing:
         assert name not in names, f"{market}: unexpected {name}"
     for bad in readme_forbidden:
         assert bad not in readme, f"{market}: README must not mention {bad}"
+    assert f'lang="{ui}"' in html, f"{market}: expected lang={ui}"
+    assert html_marker in html, f"{market}: expected chrome {html_marker!r}"
 
 
 
