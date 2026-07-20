@@ -213,7 +213,7 @@ function loadModel(relPath) {
     model.position.sub(center.multiplyScalar(scale));
     scene.add(model);
     document.body.classList.add("loaded");
-    setStatus("Ready — scroll & move mouse");
+    setStatus("Lab ready — PLACEHOLDER mesh (not client Premium 3D)");
   });
 }
 

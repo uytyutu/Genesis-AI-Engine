@@ -728,6 +728,7 @@ def generate_niche(niche: str) -> list[dict]:
                 "material": material.name,
                 "bytes": size,
                 "path": f"scenes/{niche}/examples/{ex_id}.glb",
+                "quality": "placeholder",
             }
         )
         if i == 0:
@@ -747,13 +748,20 @@ def write_catalog(all_rows: list[dict]) -> None:
                 "material": r["material"],
                 "bytes": r["bytes"],
                 "path": r["path"],
+                "quality": r.get("quality") or "placeholder",
             }
         )
     payload = {
-        "version": 4,
+        "version": 5,
         "examples_per_niche": 5,
+        "default_quality": "placeholder",
+        "client_facing_3d": False,
+        "quality_rule": (
+            "If 3D quality is below site quality, use photo or CSS-Motion. "
+            "Placeholder meshes are lab-only."
+        ),
         "niches": by_niche,
-        "runtime": "runtime/scene_engine.html",
+        "runtime": "runtime/demos/dental_sold/index.html",
     }
     CATALOG_OUT.parent.mkdir(parents=True, exist_ok=True)
     CATALOG_OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

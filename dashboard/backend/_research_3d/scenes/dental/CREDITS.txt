@@ -9,3 +9,5 @@ Examples:
   - 04_implant.glb — Implant screw (Titanium)
   - 05_floss.glb — Floss pack (ClinicPlastic)
 Notes: Research only. Not Path A production.
+Quality: placeholder — lab geometry only. Do NOT use as client-facing Premium 3D.
+Client demos use photo + CSS-Motion until an approved thematic model is licensed.

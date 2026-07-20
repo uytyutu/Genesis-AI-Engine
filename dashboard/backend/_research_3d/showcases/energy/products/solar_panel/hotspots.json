@@ -1,5 +1,32 @@
 {
   "version": 1,
   "product_id": "solar_panel",
-  "hotspots": []
+  "hotspots": [
+    {
+      "id": "hs_watt",
+      "label": "400W",
+      "position": [
+        0.12,
+        0.4,
+        0.05
+      ],
+      "binds": {
+        "field": "attrs.watt",
+        "sku": "solar_panel"
+      }
+    },
+    {
+      "id": "hs_price",
+      "label": "Preis",
+      "position": [
+        0.2,
+        0.15,
+        0.0
+      ],
+      "binds": {
+        "field": "price",
+        "sku": "solar_panel"
+      }
+    }
+  ]
 }

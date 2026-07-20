@@ -17,8 +17,9 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV GENESIS_ENV=production
 # Public Launch defaults (override in Railway Variables if domain changes)
-ENV GENESIS_PUBLIC_URL=https://genesis-ai-engine.vercel.app
-ENV GENESIS_CORS_ORIGINS=https://genesis-ai-engine.vercel.app
+# Never ship retired Vercel preview as the commercial storefront.
+ENV GENESIS_PUBLIC_URL=https://beta.genesis-ai-engine.com
+ENV GENESIS_CORS_ORIGINS=https://beta.genesis-ai-engine.com
 
 EXPOSE 8000
 

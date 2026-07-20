@@ -236,7 +236,7 @@ def audit_cors_headers(audit: AuditResult) -> None:
 def audit_public_pages(audit: AuditResult) -> None:
     import httpx
 
-    base = os.getenv("GENESIS_PUBLIC_URL", "https://genesis-ai-engine.vercel.app").rstrip("/")
+    base = os.getenv("GENESIS_PUBLIC_URL", "https://beta.genesis-ai-engine.com").rstrip("/")
     try:
         with httpx.Client(timeout=15.0, follow_redirects=True) as client:
             for page in FRONTEND_PAGES:
