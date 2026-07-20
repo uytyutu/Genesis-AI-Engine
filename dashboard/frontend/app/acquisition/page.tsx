@@ -630,12 +630,9 @@ export default function AcquisitionPage() {
                     const body = await res.json();
                     setMessage(
                       next
-                        ? "Автообновление включено · runner охотится по странам"
+                        ? "Автообновление включено · после Пуска runner будет охотиться по странам"
                         : "Автообновление выключено",
                     );
-                    if (next && !runnerRunning) {
-                      await fetch(`${API}/api/acquisition/runner/start`, { method: "POST" });
-                    }
                     await refresh();
                     void body;
                   } finally {

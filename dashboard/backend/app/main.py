@@ -67,6 +67,8 @@ from app.schemas import (
     SalesCheckoutResponse,
     SalesOrderPublicStatus,
     DeploymentPreferenceRequest,
+    PublishStatusRequest,
+    NextOfferInterestRequest,
     ClientReviewSubmitRequest,
     ClientReviewSubmitResponse,
     ClientReviewsPublicResponse,
@@ -220,6 +222,21 @@ async def lifespan(app: FastAPI):
     import threading
 
     threading.Thread(target=_warm_integration, daemon=True, name="genesis-warm").start()
+
+    # Country Desk / market runner: always STOPPED on process start (launcher).
+    # CEO starts the market only via Пуск in Mission Control — never resume from disk.
+    try:
+        from app.integration.outreach_ceo_prefs import save_prefs
+        from app.integration.outreach_runner_service import OutreachRunnerService
+
+        save_prefs(memory_dir, auto_refresh=False)
+        OutreachRunnerService(memory_dir).stop()
+        logging.getLogger("genesis").info(
+            "Country Desk market forced STOP on startup (Пуск only)"
+        )
+    except Exception:
+        logging.getLogger("genesis").exception("market force-stop on startup failed")
+
     yield
 
 
@@ -2607,6 +2624,60 @@ def sales_order_deployment_preference(
             "invalid_provider": (400, "Ungültiger Hosting-Anbieter"),
         }
         status, detail = mapping.get(code, (400, "Auswahl fehlgeschlagen"))
+        raise HTTPException(status_code=status, detail=detail)
+    return SalesOrderPublicStatus(**data)
+
+
+@app.post(
+    "/api/sales/orders/{order_id}/publish-status",
+    response_model=SalesOrderPublicStatus,
+)
+def sales_order_publish_status(
+    order_id: str, request: PublishStatusRequest
+) -> SalesOrderPublicStatus:
+    """Mark ZIP downloaded or website online (client go-live completion)."""
+    try:
+        data = _ctx().sales.set_publish_status(
+            order_id,
+            state=request.state,
+            published_url=request.published_url,
+        )
+    except ValueError as exc:
+        code = str(exc)
+        mapping = {
+            "order_not_found": (404, "Bestellung nicht gefunden"),
+            "download_not_ready": (400, "ZIP noch nicht bereit"),
+            "url_required": (400, "Website-URL erforderlich"),
+            "invalid_url": (400, "Ungültige URL"),
+            "invalid_state": (400, "Ungültiger Status"),
+        }
+        status, detail = mapping.get(code, (400, "Status fehlgeschlagen"))
+        raise HTTPException(status_code=status, detail=detail)
+    return SalesOrderPublicStatus(**data)
+
+
+@app.post(
+    "/api/sales/orders/{order_id}/next-offer-interest",
+    response_model=SalesOrderPublicStatus,
+)
+def sales_order_next_offer_interest(
+    order_id: str, request: NextOfferInterestRequest
+) -> SalesOrderPublicStatus:
+    """Soft LTV interest (AI Business Assistant etc.) — no checkout yet."""
+    try:
+        data = _ctx().sales.log_next_offer_interest(
+            order_id,
+            offer_id=request.offer_id,
+            note=request.note,
+        )
+    except ValueError as exc:
+        code = str(exc)
+        mapping = {
+            "order_not_found": (404, "Bestellung nicht gefunden"),
+            "not_paid": (400, "Bestellung nicht bezahlt"),
+            "invalid_offer": (400, "Ungültiges Angebot"),
+        }
+        status, detail = mapping.get(code, (400, "Anfrage fehlgeschlagen"))
         raise HTTPException(status_code=status, detail=detail)
     return SalesOrderPublicStatus(**data)
 

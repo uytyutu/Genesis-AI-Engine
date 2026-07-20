@@ -502,10 +502,21 @@ class SalesOrderService:
         result = self._factory_intent.submit(intent)
         from app.factory.market_delivery import client_status_label
 
-        order["status"] = "in_production"
-        order["status_label"] = client_status_label("in_production", market)
-        order["product_id"] = result.get("product_id")
+        product_id = result.get("product_id")
+        order["product_id"] = product_id
+        # Factory submit is sync — promote to ready when product exists.
+        ready = bool(product_id) and self._client_download_ready(
+            {**order, "status": "in_production", "product_id": product_id}
+        )
+        order["status"] = "ready" if ready else "in_production"
+        order["status_label"] = client_status_label(order["status"], market)
         order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        if ready:
+            from app.factory.market_delivery import client_post_pay_message
+
+            order["client_status_message"] = client_post_pay_message(
+                "ready", market, download_ready=True
+            )
         self._save_order(order)
         return {
             "ok": True,
@@ -754,12 +765,18 @@ class SalesOrderService:
 
     def public_status(self, order_id: str) -> dict:
         from app.factory.market_delivery import (
+            PATH_A_ETA_MINUTES,
             client_current_step,
             client_next_step,
+            client_post_pay_message,
             client_status_label,
             client_timeline,
+            delivery_ready_headline,
+            delivery_value_items,
             market_ui_lang,
+            next_product_offers,
             normalize_market,
+            publish_status_payload,
         )
         from app.integration.market_registry import format_amount, get_market
 
@@ -776,17 +793,33 @@ class SalesOrderService:
         service_id = str(order.get("service_id") or SERVICE_WEBSITE)
         launch_mode = bool(order.get("launch_mode"))
         download_ready = self._client_download_ready(order)
+        status = str(order.get("status") or "")
+        # Promote to ready as soon as ZIP can be served (honest cabinet UX).
+        if download_ready and status in ("paid", "in_production"):
+            status = "ready"
+            order["status"] = "ready"
+            order["status_label"] = client_status_label("ready", market)
+            order["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_order(order)
         submitted = bool(order.get("review_submitted"))
         eligible = (
             bool(order.get("review_eligible"))
-            and str(order.get("status") or "") == "delivered"
+            and status == "delivered"
             and not submitted
         )
         token = str(order.get("review_token") or "") if eligible else ""
-        status = str(order.get("status") or "")
+        eta_minutes = order.get("estimated_minutes")
+        if eta_minutes is None:
+            eta_minutes = PATH_A_ETA_MINUTES if status != "awaiting_payment" else None
+        client_message = (
+            order.get("client_status_message")
+            or client_post_pay_message(status, market, download_ready=download_ready)
+            or self._default_client_message(order)
+        )
         return {
             "order_id": order["order_id"],
             "business_name": order["business_name"],
+            "package_id": order.get("package_id"),
             "package_name": order["package_name"],
             "price_eur": amount,
             "price_label": price_label,
@@ -799,14 +832,20 @@ class SalesOrderService:
             "status_label": client_status_label(status, market),
             "current_step": client_current_step(status, market),
             "next_step": client_next_step(status, market),
-            "timeline": client_timeline(status, market),
+            "timeline": client_timeline(
+                status,
+                market,
+                download_ready=download_ready,
+                paid_at=str(order.get("paid_at") or "") or None,
+            ),
             "estimated_delivery_at": order.get("estimated_delivery_at"),
             "estimated_hours": order.get("estimated_hours"),
-            "client_message": order.get("client_status_message")
-            or self._default_client_message(order),
+            "estimated_minutes": eta_minutes,
+            "client_message": client_message,
             "client_receipt_text": order.get("client_receipt_text", ""),
             "product_id": order.get("product_id"),
             "paid": status in ("paid", "in_production", "ready", "delivered"),
+            "paid_at": order.get("paid_at"),
             "download_ready": download_ready,
             "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
             "service_id": service_id,
@@ -817,6 +856,47 @@ class SalesOrderService:
             "deployment_preference": str(order.get("deployment_preference") or "unset"),
             "hosting_provider": order.get("hosting_provider"),
             "assisted_guide": self._assisted_guide_payload(order),
+            "receipt": {
+                "brand": "Virtus Core",
+                "order_id": order["order_id"],
+                "customer": order["business_name"],
+                "package": order["package_name"],
+                "package_id": order.get("package_id"),
+                "amount": price_label,
+                "currency": currency,
+                "status": client_status_label(
+                    "paid" if status != "awaiting_payment" else status, market
+                ),
+                "date": order.get("paid_at") or order.get("created_at"),
+                "download_available": download_ready,
+                "market_code": market,
+            },
+            "delivery_headline": (
+                delivery_ready_headline(market) if download_ready else None
+            ),
+            "delivery_items": (
+                delivery_value_items(order.get("package_id"), market)
+                if download_ready
+                else []
+            ),
+            "publish": publish_status_payload(
+                market_code=market,
+                downloaded=bool(order.get("client_downloaded_at")),
+                online=bool(order.get("published_url")),
+                published_url=str(order.get("published_url") or "") or None,
+                downloaded_at=str(order.get("client_downloaded_at") or "") or None,
+                online_at=str(order.get("published_at") or "") or None,
+            ),
+            "next_offers": (
+                next_product_offers(
+                    market,
+                    interest=order.get("next_offer_interest")
+                    if isinstance(order.get("next_offer_interest"), dict)
+                    else {},
+                )
+                if download_ready
+                else []
+            ),
         }
 
     def set_deployment_preference(
@@ -876,6 +956,91 @@ class SalesOrderService:
                 )
             except Exception as exc:
                 logger.warning("assisted deployment notify failed: %s", exc)
+
+        return self.public_status(order_id)
+
+    def set_publish_status(
+        self,
+        order_id: str,
+        *,
+        state: str,
+        published_url: str | None = None,
+    ) -> dict:
+        """Client marks ZIP downloaded or site live (psychological completion)."""
+        order = self.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if not self._client_download_ready(order):
+            raise ValueError("download_not_ready")
+
+        now = datetime.now(timezone.utc).isoformat()
+        st = str(state or "").strip().lower()
+        if st == "downloaded":
+            if not order.get("client_downloaded_at"):
+                order["client_downloaded_at"] = now
+        elif st == "online":
+            url = (published_url or "").strip()
+            if not url:
+                raise ValueError("url_required")
+            if not re.match(r"^https?://", url, re.I):
+                url = "https://" + url
+            if len(url) > 500 or " " in url:
+                raise ValueError("invalid_url")
+            order["published_url"] = url
+            order["published_at"] = now
+            if not order.get("client_downloaded_at"):
+                order["client_downloaded_at"] = now
+        else:
+            raise ValueError("invalid_state")
+
+        order["updated_at"] = now
+        self._save_order(order)
+        return self.public_status(order_id)
+
+    def log_next_offer_interest(
+        self,
+        order_id: str,
+        *,
+        offer_id: str,
+        note: str | None = None,
+    ) -> dict:
+        """Soft interest for LTV ladder (AI Assistant etc.) — notifies owner."""
+        order = self.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if order.get("status") not in ("paid", "in_production", "ready", "delivered"):
+            raise ValueError("not_paid")
+
+        oid = str(offer_id or "").strip().lower()
+        allowed = {"ai_business_assistant", "whatsapp_business", "seo_growth"}
+        if oid not in allowed:
+            raise ValueError("invalid_offer")
+
+        now = datetime.now(timezone.utc).isoformat()
+        bag = order.get("next_offer_interest")
+        if not isinstance(bag, dict):
+            bag = {}
+        bag[oid] = {
+            "at": now,
+            "note": (note or "").strip()[:500] or None,
+        }
+        order["next_offer_interest"] = bag
+        order["updated_at"] = now
+        self._save_order(order)
+
+        try:
+            from app.integration.owner_notification_service import OwnerNotificationService
+
+            OwnerNotificationService(self._memory).notify(
+                title="Next offer interest",
+                message=(
+                    f"{order.get('business_name')} · {order_id} · {oid}"
+                    + (f" · {(note or '')[:120]}" if note else "")
+                ),
+                order_id=order_id,
+            )
+        except Exception as exc:
+            logger.warning("next offer notify failed: %s", exc)
 
         return self.public_status(order_id)
 

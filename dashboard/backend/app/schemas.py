@@ -300,7 +300,7 @@ class SalesOrderCreateRequest(BaseModel):
     telegram: str | None = Field(default=None, max_length=400)
     material_ids: list[str] = Field(default_factory=list, max_length=40)
     client_legal: ClientLegalFields | None = None
-    package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
+    package_id: str | None = Field(default=None, pattern="^(basic|business|premium|smoke)$")
     product_id: str | None = Field(default=None, max_length=80)
     visitor_id: str | None = Field(default=None, max_length=64)
     market_code: str | None = Field(default=None, max_length=8)
@@ -395,18 +395,57 @@ class OrderTimelineStep(BaseModel):
     id: str
     label: str
     done: bool
+    active: bool = False
+
+
+class DeliveryValueItem(BaseModel):
+    id: str
+    label: str
+
+
+class PublishStatusPayload(BaseModel):
+    state: str  # not_downloaded | downloaded | online
+    label: str
+    published_url: str | None = None
+    downloaded_at: str | None = None
+    online_at: str | None = None
+
+
+class NextOfferPayload(BaseModel):
+    id: str
+    title: str
+    subtitle: str
+    bullets: list[str] = []
+    cta: str
+    interest_logged: bool = False
+
+
+class OrderReceiptPayload(BaseModel):
+    brand: str
+    order_id: str
+    customer: str
+    package: str
+    package_id: str | None = None
+    amount: str
+    currency: str | None = None
+    status: str
+    date: str | None = None
+    download_available: bool = False
+    market_code: str | None = None
 
 
 class SalesOrderPublicStatus(BaseModel):
     order_id: str
     business_name: str
     package_name: str
+    package_id: str | None = None
     price_eur: float
     price_label: str | None = None
     currency: str | None = None
     symbol: str | None = None
     market_code: str | None = None
     ui_lang: str | None = None
+    motion_level: str | None = None
     status: str
     status_label: str
     current_step: str
@@ -414,10 +453,12 @@ class SalesOrderPublicStatus(BaseModel):
     timeline: list[OrderTimelineStep] = []
     estimated_delivery_at: str | None = None
     estimated_hours: int | None = None
+    estimated_minutes: int | None = None
     client_message: str = ""
     client_receipt_text: str = ""
     product_id: str | None = None
     paid: bool = False
+    paid_at: str | None = None
     download_ready: bool = False
     download_url: str | None = None
     service_id: str | None = None
@@ -428,6 +469,11 @@ class SalesOrderPublicStatus(BaseModel):
     deployment_preference: str = "unset"
     hosting_provider: str | None = None
     assisted_guide: dict | None = None
+    receipt: OrderReceiptPayload | None = None
+    delivery_headline: str | None = None
+    delivery_items: list[DeliveryValueItem] = []
+    publish: PublishStatusPayload | None = None
+    next_offers: list[NextOfferPayload] = []
 
 
 class DeploymentPreferenceRequest(BaseModel):
@@ -441,6 +487,16 @@ class DeploymentPreferenceRequest(BaseModel):
         description="ionos | hetzner | cloudflare_pages | vercel | other",
         pattern="^(ionos|hetzner|cloudflare_pages|vercel|other)$",
     )
+
+
+class PublishStatusRequest(BaseModel):
+    state: str = Field(..., pattern="^(downloaded|online)$")
+    published_url: str | None = Field(default=None, max_length=500)
+
+
+class NextOfferInterestRequest(BaseModel):
+    offer_id: str = Field(..., pattern="^(ai_business_assistant|whatsapp_business|seo_growth)$")
+    note: str | None = Field(default=None, max_length=500)
 
 
 class ClientReviewSubmitRequest(BaseModel):

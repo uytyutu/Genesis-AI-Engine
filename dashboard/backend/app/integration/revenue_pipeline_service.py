@@ -33,9 +33,19 @@ def _render_client_receipt(*, order: dict, status_path: str, paid: float) -> str
     name = str(order.get("business_name") or "").strip() or "Kunde"
     order_id = str(order.get("order_id") or "")
     package = str(order.get("package_name") or order.get("package_id") or "")
-    amount = str(order.get("price_label") or f"{paid:.0f}")
+    amount = str(order.get("price_label") or f"{paid:.0f} {order.get('symbol') or '€'}".strip())
     support = _support_email()
     motion_line = receipt_motion_line(str(order.get("motion_level") or "none"))
+    pref = str(order.get("deployment_preference") or "unset")
+    if pref == "zip_only":
+        delivery_line = "Lieferung: ZIP Only — Selbst-Veröffentlichung."
+    elif pref == "assisted":
+        delivery_line = (
+            "Lieferung: Assisted Deployment — Hilfe bei der Veröffentlichung "
+            "(keine Hosting-Passwörter in Virtus)."
+        )
+    else:
+        delivery_line = ""
     tpl_path = _RECEIPT_TEMPLATE
     if tpl_path.is_file():
         text = tpl_path.read_text(encoding="utf-8")
@@ -43,23 +53,32 @@ def _render_client_receipt(*, order: dict, status_path: str, paid: float) -> str
             text.replace("{{name}}", name)
             .replace("{{order_id}}", order_id)
             .replace("{{package}}", package)
-            .replace("{{amount}}", amount.replace(" €", "").replace("€", "").strip())
+            .replace("{{amount}}", amount)
             .replace("{{status_url}}", status_path)
             .replace("{{support_email}}", support)
             .replace("{{motion_line}}", motion_line)
+            .replace("{{delivery_line}}", delivery_line)
         )
-        # Drop blank placeholder line when motion_level is classic none
-        if not motion_line:
+        # Drop blank placeholder lines when classic none / unset preference
+        if not motion_line and not delivery_line:
             rendered = rendered.replace("\n\nWas als Nächstes", "\nWas als Nächstes")
+        elif not motion_line:
+            rendered = rendered.replace("\n\n" + delivery_line, "\n" + delivery_line)
+        elif not delivery_line:
+            rendered = rendered.replace(motion_line + "\n\nWas", motion_line + "\nWas")
+        while "\n\n\n" in rendered:
+            rendered = rendered.replace("\n\n\n", "\n\n")
         return rendered
     price_display = str(order.get("price_label") or f"{paid:.0f} €")
     motion_extra = f"{motion_line}\n" if motion_line else ""
+    delivery_extra = f"{delivery_line}\n" if delivery_line else ""
     return (
         f"Guten Tag,\n\n"
         f"vielen Dank für Ihre Bestellung «{name}».\n\n"
         f"Bestellnr. {order_id}\n"
         f"Paket: {package} — {price_display}\n"
         f"{motion_extra}"
+        f"{delivery_extra}"
         f"Status: Bezahlt\n\n"
         f"Status verfolgen: {status_path}\n\n"
         f"Mit freundlichen Grüßen\n{BRAND_NAME}\n{support}"
@@ -82,10 +101,17 @@ class RevenuePipelineService:
         self._receipt_email = receipt_email or ReceiptEmailService()
 
     def payment_status(self) -> dict:
+        from app.integration.public_site_url import configured_public_base
+
+        from app.integration.payment_checkout_service import _resolve_stripe_secret
+
         provider = self._checkout.provider()
         stripe_live = provider == "stripe" and self._checkout.is_live_mode()
-        sk = os.getenv("STRIPE_SECRET_KEY", "").strip()
-        pk = os.getenv("STRIPE_PUBLISHABLE_KEY", "").strip()
+        sk = _resolve_stripe_secret()
+        pk = (
+            os.getenv("STRIPE_PUBLISHABLE_KEY", "").strip()
+            or os.getenv("STRIPE_PUBLISHABLE_KEY_LIVE", "").strip()
+        )
         return {
             "configured": self._checkout.is_configured(),
             "provider": provider,
@@ -94,11 +120,13 @@ class RevenuePipelineService:
                 "sandbox": "Sandbox (только тест)",
             }.get(str(provider), "Не подключено"),
             "sandbox": provider == "sandbox",
+            "stripe_ready": provider == "stripe",
             "live_mode": stripe_live,
             "webhook_configured": self._checkout.has_webhook_secret(),
             "stripe_test_mode": sk.startswith("sk_test_"),
             "publishable_key_configured": bool(pk),
             "secret_key_configured": bool(sk),
+            "public_url": configured_public_base(),
         }
 
     def email_status(self) -> dict:
@@ -269,25 +297,32 @@ class RevenuePipelineService:
         order["payment_provider"] = provider
         order["payment_external_id"] = external_id
         order["updated_at"] = now.isoformat()
-        eta_hours = {"basic": 48, "business": 72, "premium": 120}.get(
-            str(order.get("package_id", "basic")), 48
+        # Path A Factory builds in minutes — not multi-day handoff.
+        from app.factory.market_delivery import (
+            PATH_A_ETA_MINUTES,
+            client_post_pay_message,
+            client_status_label,
+            render_client_receipt_text,
         )
-        eta = now + timedelta(hours=eta_hours)
+
+        eta_minutes = PATH_A_ETA_MINUTES
+        eta = now + timedelta(minutes=eta_minutes)
         status_path = f"/order/status/{order_id}"
         price_display = str(order.get("price_label") or f"{paid:.0f} €")
         order["estimated_delivery_at"] = eta.isoformat()
-        order["estimated_hours"] = eta_hours
+        order["estimated_hours"] = max(1, int(round(eta_minutes / 60)))  # legacy field
+        order["estimated_minutes"] = eta_minutes
+        market = str(order.get("market_code") or "DE")
+        order["status_label"] = client_status_label("paid", market)
         from app.factory.motion_brief import normalize_motion_level, receipt_motion_line
 
         motion = normalize_motion_level(str(order.get("motion_level") or "none"))
         motion_note = receipt_motion_line(motion)
         status_extra = f" {motion_note}" if motion_note else ""
         order["client_status_message"] = (
-            "Danke für Ihre Zahlung! Wir haben mit Ihrer Landing Page begonnen. "
-            "Den Fortschritt sehen Sie auf der Bestellstatus-Seite."
-            f"{status_extra}"
+            client_post_pay_message("paid", market, download_ready=False) + status_extra
         )
-        order["client_receipt_text"] = _render_client_receipt(
+        order["client_receipt_text"] = render_client_receipt_text(
             order=order, status_path=status_path, paid=paid
         )
         self._sales._save_order(order)

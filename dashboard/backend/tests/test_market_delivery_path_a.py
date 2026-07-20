@@ -53,8 +53,8 @@ def test_delivery_maturity_matrix_levels():
     assert de["level"] == 1 and de["status"] == "production" and de["legal_ready"] is True
     assert us["level"] == 1 and us["status"] == "production"
     assert gb["level"] == 1 and at["level"] == 1
-    assert fr["level"] == 2 and fr["status"] == "beta" and fr["ui_lang"] == "en"
-    assert pl["level"] == 2 and pl["legal_label"] == "Placeholder"
+    assert fr["level"] == 2 and fr["status"] == "beta" and fr["ui_lang"] == "fr"
+    assert pl["level"] == 2 and pl["legal_label"] == "Placeholder" and pl["ui_lang"] == "pl"
     assert ua["level"] == 3 and ua["ui_lang"] == "uk"
     assert ru["level"] == 3 and ru["ui_lang"] == "ru"
 
@@ -76,8 +76,8 @@ def test_delivery_maturity_matrix_levels():
         ("AT", "de", "EUR", ("impressum.html", "datenschutz.html"), ("LEGAL_NOTICE.txt",), (), "Leistungen"),
         ("US", "en", "USD", ("privacy.html", "terms.html"), ("impressum.html",), ("Hetzner",), "Send request"),
         ("GB", "en", "GBP", ("privacy.html", "terms.html"), ("impressum.html",), ("Hetzner",), "Send request"),
-        ("FR", "en", "EUR", ("LEGAL_NOTICE.txt",), ("impressum.html", "datenschutz.html"), ("Hetzner",), "Services"),
-        ("PL", "en", "PLN", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",), "Services"),
+        ("FR", "fr", "EUR", ("LEGAL_NOTICE.txt",), ("impressum.html", "datenschutz.html"), ("Hetzner",), "Services"),
+        ("PL", "pl", "PLN", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",), "Services"),
         ("UA", "uk", "UAH", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",), "Надіслати"),
         ("RU", "ru", "EUR", ("LEGAL_NOTICE.txt",), ("impressum.html",), ("Hetzner",), "Отправить"),
     ],

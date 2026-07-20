@@ -16,6 +16,7 @@ import { buildOrderLaunchContext, type OrderLaunchContext } from "../lib/orderPr
 import { Badge, Button, ButtonLink, Card, Field, Input, Textarea } from "../components/ui";
 import { publicApiBase } from "../lib/publicApiBase";
 import { logCommerceEvent } from "../lib/commerceFunnel";
+import { uiLangForMarket } from "../lib/marketLang";
 import {
   fetchVisualExperiencePreview,
   VisualExperienceCard,
@@ -50,7 +51,7 @@ function suggestPackage(needsLogo: boolean, needsDomain: boolean, extra: string)
 }
 
 export default function OrderSitePage() {
-  const { t } = useTranslation("site");
+  const { t, i18n } = useTranslation("site");
   const [marketParam, setMarketParam] = useState("");
   useEffect(() => {
     try {
@@ -60,6 +61,15 @@ export default function OrderSitePage() {
       setMarketParam("");
     }
   }, []);
+  // Country Desk market → order UI language (packages already currency-synced via API)
+  useEffect(() => {
+    if (!marketParam) return;
+    const lang = uiLangForMarket(marketParam);
+    const current = (i18n.language || "").slice(0, 2).toLowerCase();
+    if (current !== lang) {
+      void i18n.changeLanguage(lang);
+    }
+  }, [marketParam, i18n]);
   const launchDeliverables = useMemo(
     () => [t("order.launchD1"), t("order.launchD2"), t("order.launchD3"), t("order.launchD4")],
     [t],
@@ -143,7 +153,7 @@ export default function OrderSitePage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const pkg = params.get("package");
-    if (pkg && ["basic", "business", "premium"].includes(pkg)) {
+    if (pkg && ["basic", "business", "premium", "smoke"].includes(pkg)) {
       setPackageId(pkg);
       setManualPackage(true);
     }
@@ -171,7 +181,7 @@ export default function OrderSitePage() {
     fetchVisualExperiencePreview({
       niche,
       specialization: specialization || undefined,
-      tier: packageId,
+      tier: packageId === "smoke" ? "basic" : packageId,
     })
       .then((row) => {
         if (cancelled || !row) return;

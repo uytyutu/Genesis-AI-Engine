@@ -9,6 +9,7 @@ import { CONTACT_EMAIL } from "../lib/siteConfig";
 import { publicApiBase } from "../lib/publicApiBase";
 import { formatLocalizedMoney } from "../lib/formatEur";
 import { logCommerceEvent } from "../lib/commerceFunnel";
+import { uiLangForMarket } from "../lib/marketLang";
 
 type PackageCard = {
   id: string;
@@ -41,6 +42,7 @@ const FALLBACK_PACKAGES: PackageCard[] = [
     price_eur: 350,
     deliverables: [
       "Fertige moderne Landing Page (mobil) — Design nach Branche",
+      "Ablauf, Zwischen-CTA und Trust-Leiste",
       "WhatsApp, Kontaktformular, Bewertungsblock",
       "Vollständiges Website-Archiv (ZIP) — Sie sind Eigentümer",
       "Anleitung zur Selbst-Veröffentlichung",
@@ -68,6 +70,7 @@ const FALLBACK_PACKAGES: PackageCard[] = [
       "Exklusives Premium-Design, Showcase, Kennzahlen",
       "Kostenrechner und Analytics-Platzhalter",
       "Assisted Go-live bei Zugang + 14 Tage Support + 3 Korrekturen",
+      "Kein Inhaber-Login / Online-Zahlung pro Warenkorb in diesem Paket",
       "Hinweis: Domain/Hosting-Miete nicht im Preis — nur Einrichtung",
     ],
   },
@@ -100,17 +103,9 @@ export function SitePage() {
     }
   }, []);
 
-  // ?market= drives storefront language (DE/AT/CH→de, UA→uk, RU→ru, else en)
+  // ?market= drives storefront language (country ↔ currency ↔ package language)
   useEffect(() => {
-    const code = market.toUpperCase();
-    const lang =
-      code === "DE" || code === "AT" || code === "CH"
-        ? "de"
-        : code === "UA"
-          ? "uk"
-          : code === "RU"
-            ? "ru"
-            : "en";
+    const lang = uiLangForMarket(market);
     const current = (i18n.language || "").slice(0, 2).toLowerCase();
     if (current !== lang) {
       void i18n.changeLanguage(lang);

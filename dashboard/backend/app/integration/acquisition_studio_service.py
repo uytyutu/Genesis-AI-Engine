@@ -473,15 +473,16 @@ class AcquisitionStudioService:
         prefs = save_prefs(
             self._memory_dir, auto_refresh=auto_refresh, auto_send=auto_send
         )
-        # Auto-refresh on → ensure runner is running so ticks keep hunting.
-        if prefs.get("auto_refresh") and not self.runner_status().get("running"):
-            self.runner_start()
-        if prefs.get("auto_refresh") is False and self.runner_status().get("running"):
-            # Only stop if user turned refresh off (keep running if they started Пуск manually)
-            pass
-        return {**prefs, "outreach_send_enabled": bool(prefs.get("auto_send")) or (
-            __import__("os").getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
-        )}
+        # Never auto-start the market here — only CEO «Пуск» starts the runner.
+        return {
+            **prefs,
+            "outreach_send_enabled": bool(prefs.get("auto_send"))
+            or (
+                __import__("os").getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower()
+                == "true"
+            ),
+            "note_ru": "Рынок стартует только кнопкой Пуск. Автообновление действует после Пуска.",
+        }
 
     def adaptive_dashboard(self, *, auto_review: bool = False) -> dict[str, Any]:
         rows = self._opportunity._load_rows()

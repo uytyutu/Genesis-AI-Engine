@@ -85,6 +85,7 @@ def build_landing_html(
         maps_country_label,
         ui_strings,
     )
+    from app.factory.market_delivery import market_ui_lang
 
     feat = features or resolve_package_features("basic")
     tier = feat.package_id
@@ -97,6 +98,7 @@ def build_landing_html(
         include_testimonials = True
 
     lang = landing_lang_for_market(market_code)
+    html_lang = market_ui_lang(market_code) or lang
     ui = apply_legal_footer_hrefs(ui_strings(lang), market_code)
     analysis = localize_analysis(analysis, lang)
     maps_country = maps_country_label(market_code)
@@ -356,7 +358,7 @@ def build_landing_html(
 """
 
     html = f"""<!DOCTYPE html>
-<html lang="{esc(lang)}">
+<html lang="{esc(html_lang)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">

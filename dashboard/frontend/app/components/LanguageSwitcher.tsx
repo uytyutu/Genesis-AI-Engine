@@ -11,9 +11,10 @@ import {
   type AssistantLocale,
   type UiLocale,
 } from "../lib/locale/types";
+import { MARKET_PUBLIC_LANGS } from "../lib/marketLang";
 
-/** Full UI packs — always first on public Path A. */
-const PUBLIC_QUICK: readonly UiLocale[] = ["de", "uk", "ru", "en"];
+/** Market languages first on public Path A (country ↔ currency ↔ language). */
+const PUBLIC_QUICK: readonly UiLocale[] = MARKET_PUBLIC_LANGS as readonly UiLocale[];
 
 function LocaleSearchList({
   label,
@@ -89,7 +90,7 @@ function LocaleSearchList({
 export function LanguageSwitcher({
   compact = false,
 }: {
-  /** Public Path A: quick DE/UK/RU/EN, mobile-safe panel. */
+  /** Public Path A: market languages first (country desk sync). */
   compact?: boolean;
 }) {
   const { t, i18n } = useTranslation("common");

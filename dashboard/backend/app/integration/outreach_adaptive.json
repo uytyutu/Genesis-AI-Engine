@@ -51,5 +51,5 @@
     "send_one_per_tick_if_enabled": true,
     "note_ru": "Пуск крутит hunt/draft по тикам. Отправка письма — только если GENESIS_OUTREACH_ENABLED и есть Approve/high-win."
   },
-  "note_ru": "Стартовые квоты по странам из markets.json. Profit HOLD: replies без выручки → не scale up. Письма — Approve/снайпер · quality-first."
+  "note_ru": "Стартовые квоты из markets.json. Scale-up только при покупках/выручке (require_revenue_for_scale_up). Replies без заказов → HOLD. Слабые рынки step_down / pause. Письма — Approve/снайпер."
 }

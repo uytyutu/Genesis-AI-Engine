@@ -11,6 +11,7 @@ Delivery maturity (Path A support matrix):
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any, Literal
 
 # UI / receipt language for client-facing order status (not CEO console).
@@ -24,16 +25,16 @@ _MARKET_LANG: dict[str, str] = {
     "AU": "en",
     "NZ": "en",
     "IE": "en",
-    "FR": "en",
-    "IT": "en",
-    "ES": "en",
-    "NL": "en",
-    "BE": "en",
-    "PT": "en",
-    "PL": "en",
-    "CZ": "en",
-    "SK": "en",
-    "RO": "en",
+    "FR": "fr",
+    "IT": "it",
+    "ES": "es",
+    "NL": "nl",
+    "BE": "nl",
+    "PT": "pt",
+    "PL": "pl",
+    "CZ": "cs",
+    "SK": "sk",
+    "RO": "ro",
     "UA": "uk",
     "RU": "ru",
 }
@@ -111,39 +112,148 @@ _STATUS_LABELS: dict[str, dict[str, str]] = {
     },
 }
 
+# Live Factory progress after payment (Path A — minutes, not days).
 _TIMELINE: dict[str, dict[str, str]] = {
-    "de": {"payment": "Zahlung eingegangen", "handoff": "Vorbereitung der Übergabe"},
-    "en": {"payment": "Payment received", "handoff": "Preparing delivery"},
-    "uk": {"payment": "Оплату отримано", "handoff": "Підготовка передачі"},
-    "ru": {"payment": "Оплата получена", "handoff": "Подготовка передачи"},
+    "de": {
+        "payment": "Zahlung eingegangen",
+        "analysis": "KI analysiert Ihr Unternehmen",
+        "template": "Vorlage wird gewählt",
+        "pages": "Seiten werden erzeugt",
+        "seo": "SEO & Meta werden gesetzt",
+        "packaging": "ZIP-Archiv wird gebaut",
+        "ready": "Fertig — Download verfügbar",
+    },
+    "en": {
+        "payment": "Payment received",
+        "analysis": "AI analysing your business",
+        "template": "Selecting template",
+        "pages": "Generating pages",
+        "seo": "Creating SEO & meta",
+        "packaging": "Packaging ZIP",
+        "ready": "Ready — download available",
+    },
+    "uk": {
+        "payment": "Оплату отримано",
+        "analysis": "ШІ аналізує ваш бізнес",
+        "template": "Обираємо шаблон",
+        "pages": "Генеруємо сторінки",
+        "seo": "Готуємо SEO і meta",
+        "packaging": "Збираємо ZIP-архів",
+        "ready": "Готово — можна завантажити",
+    },
+    "ru": {
+        "payment": "Оплата получена",
+        "analysis": "ИИ анализирует ваш бизнес",
+        "template": "Выбираем шаблон",
+        "pages": "Генерируем страницы",
+        "seo": "Готовим SEO и meta",
+        "packaging": "Собираем ZIP-архив",
+        "ready": "Готово — можно скачать",
+    },
+    "fr": {
+        "payment": "Paiement reçu",
+        "analysis": "IA analyse votre entreprise",
+        "template": "Sélection du modèle",
+        "pages": "Génération des pages",
+        "seo": "SEO et meta",
+        "packaging": "Création du ZIP",
+        "ready": "Prêt — téléchargement disponible",
+    },
+    "es": {
+        "payment": "Pago recibido",
+        "analysis": "IA analiza su negocio",
+        "template": "Selección de plantilla",
+        "pages": "Generación de páginas",
+        "seo": "SEO y meta",
+        "packaging": "Empaquetando ZIP",
+        "ready": "Listo — descarga disponible",
+    },
+    "it": {
+        "payment": "Pagamento ricevuto",
+        "analysis": "IA analizza la tua attività",
+        "template": "Selezione del modello",
+        "pages": "Generazione delle pagine",
+        "seo": "SEO e meta",
+        "packaging": "Creazione ZIP",
+        "ready": "Pronto — download disponibile",
+    },
+    "nl": {
+        "payment": "Betaling ontvangen",
+        "analysis": "AI analyseert uw bedrijf",
+        "template": "Sjabloon kiezen",
+        "pages": "Pagina's genereren",
+        "seo": "SEO & meta",
+        "packaging": "ZIP maken",
+        "ready": "Klaar — download beschikbaar",
+    },
+    "pt": {
+        "payment": "Pagamento recebido",
+        "analysis": "IA analisa o seu negócio",
+        "template": "A escolher modelo",
+        "pages": "A gerar páginas",
+        "seo": "SEO e meta",
+        "packaging": "A criar ZIP",
+        "ready": "Pronto — download disponível",
+    },
+    "pl": {
+        "payment": "Płatność otrzymana",
+        "analysis": "AI analizuje firmę",
+        "template": "Wybór szablonu",
+        "pages": "Generowanie stron",
+        "seo": "SEO i meta",
+        "packaging": "Pakowanie ZIP",
+        "ready": "Gotowe — można pobrać",
+    },
+    "cs": {
+        "payment": "Platba přijata",
+        "analysis": "AI analyzuje firmu",
+        "template": "Výběr šablony",
+        "pages": "Generování stránek",
+        "seo": "SEO a meta",
+        "packaging": "Sestavování ZIP",
+        "ready": "Hotovo — ke stažení",
+    },
 }
+
+_FACTORY_STEP_ORDER = (
+    "payment",
+    "analysis",
+    "template",
+    "pages",
+    "seo",
+    "packaging",
+    "ready",
+)
+
+# Path A delivery promise — Factory builds in minutes, not business days.
+PATH_A_ETA_MINUTES = 15
 
 _NEXT_STEP: dict[str, dict[str, str]] = {
     "de": {
         "awaiting_payment": "Zahlung abschließen",
-        "paid": "Übergabe der abgestimmten Version",
-        "in_production": "Übergabe der abgestimmten Version",
+        "paid": "Factory erstellt Ihre Website",
+        "in_production": "Factory erstellt Ihre Website",
         "ready": "Website-Archiv herunterladen",
         "delivered": "Projekt abgeschlossen",
     },
     "en": {
         "awaiting_payment": "Complete payment",
-        "paid": "Delivery of the agreed version",
-        "in_production": "Delivery of the agreed version",
+        "paid": "Factory is building your website",
+        "in_production": "Factory is building your website",
         "ready": "Download your website archive",
         "delivered": "Project complete",
     },
     "uk": {
         "awaiting_payment": "Завершіть оплату",
-        "paid": "Передача узгодженої версії",
-        "in_production": "Передача узгодженої версії",
+        "paid": "Factory збирає ваш сайт",
+        "in_production": "Factory збирає ваш сайт",
         "ready": "Завантажте архів сайту",
         "delivered": "Проєкт завершено",
     },
     "ru": {
         "awaiting_payment": "Завершите оплату",
-        "paid": "Передача согласованной версии",
-        "in_production": "Передача согласованной версии",
+        "paid": "Factory собирает ваш сайт",
+        "in_production": "Factory собирает ваш сайт",
         "ready": "Скачайте архив сайта",
         "delivered": "Проект завершён",
     },
@@ -152,30 +262,30 @@ _NEXT_STEP: dict[str, dict[str, str]] = {
 _CURRENT_STEP: dict[str, dict[str, str]] = {
     "de": {
         "awaiting_payment": "Wir warten auf die Zahlung zur Projektfixierung",
-        "paid": "Wir bereiten die abgestimmte Version zur Übergabe vor",
-        "in_production": "Wir bereiten die abgestimmte Version zur Übergabe vor",
-        "ready": "Projekt fertig — Übergabe wird vorbereitet",
+        "paid": "Automatische Erstellung läuft — meist ca. 15 Minuten",
+        "in_production": "Automatische Erstellung läuft — meist ca. 15 Minuten",
+        "ready": "Fertig — ZIP und Veröffentlichungs-Assistent bereit",
         "delivered": "Projekt übergeben — danke für Ihr Vertrauen!",
     },
     "en": {
         "awaiting_payment": "Waiting for payment to confirm the project",
-        "paid": "Preparing the agreed version for delivery",
-        "in_production": "Preparing the agreed version for delivery",
-        "ready": "Project ready — preparing handoff",
+        "paid": "Automatic build in progress — usually about 15 minutes",
+        "in_production": "Automatic build in progress — usually about 15 minutes",
+        "ready": "Ready — ZIP and go-live wizard available",
         "delivered": "Project delivered — thank you for your trust!",
     },
     "uk": {
         "awaiting_payment": "Очікуємо оплату для фіксації проєкту",
-        "paid": "Готуємо узгоджену версію до передачі",
-        "in_production": "Готуємо узгоджену версію до передачі",
-        "ready": "Проєкт готовий — готуємо передачу",
+        "paid": "Автоматична збірка — зазвичай близько 15 хвилин",
+        "in_production": "Автоматична збірка — зазвичай близько 15 хвилин",
+        "ready": "Готово — ZIP і майстер публікації доступні",
         "delivered": "Проєкт передано — дякуємо за довіру!",
     },
     "ru": {
         "awaiting_payment": "Ждём оплату для фиксации проекта",
-        "paid": "Готовим согласованную версию к передаче",
-        "in_production": "Готовим согласованную версию к передаче",
-        "ready": "Проект готов — готовим передачу",
+        "paid": "Автоматическая сборка — обычно около 15 минут",
+        "in_production": "Автоматическая сборка — обычно около 15 минут",
+        "ready": "Готово — ZIP и мастер публикации доступны",
         "delivered": "Проект передан — спасибо за доверие!",
     },
 }
@@ -231,27 +341,70 @@ def list_path_a_delivery_matrix() -> list[dict[str, Any]]:
     return [market_delivery_support(code) for code in PATH_A_DELIVERY_MARKETS]
 
 
+def _ui_table(table: dict[str, dict[str, str]], market_code: str | None) -> dict[str, str]:
+    lang = market_ui_lang(market_code)
+    return table.get(lang) or table.get("en") or {}
+
+
 def client_status_label(status: str, market_code: str | None) -> str:
-    lang = market_ui_lang(market_code)
-    return (_STATUS_LABELS.get(lang) or _STATUS_LABELS["en"]).get(
-        status, (_STATUS_LABELS["en"]).get(status, status)
-    )
+    labels = _ui_table(_STATUS_LABELS, market_code)
+    return labels.get(status, (_STATUS_LABELS["en"]).get(status, status))
 
 
-def client_timeline(status: str, market_code: str | None) -> list[dict[str, Any]]:
-    lang = market_ui_lang(market_code)
-    labels = _TIMELINE.get(lang) or _TIMELINE["en"]
+def client_timeline(
+    status: str,
+    market_code: str | None,
+    *,
+    download_ready: bool = False,
+    paid_at: str | None = None,
+) -> list[dict[str, Any]]:
+    """Live Factory progress for the order cabinet (trust UX after payment)."""
+    labels = _ui_table(_TIMELINE, market_code) or _TIMELINE["en"]
     paid = status in ("paid", "in_production", "ready", "delivered")
-    handoff = status in ("in_production", "ready", "delivered")
-    return [
-        {"id": "payment", "label": labels["payment"], "done": paid},
-        {"id": "handoff", "label": labels["handoff"], "done": handoff},
-    ]
+    fully_ready = download_ready or status in ("ready", "delivered")
+
+    done_count = 0
+    if fully_ready:
+        done_count = len(_FACTORY_STEP_ORDER)
+    elif paid:
+        # Progressive reveal while Factory runs (or until ZIP appears).
+        elapsed = 0.0
+        if paid_at:
+            try:
+                raw = paid_at.replace("Z", "+00:00")
+                start = datetime.fromisoformat(raw)
+                if start.tzinfo is None:
+                    start = start.replace(tzinfo=timezone.utc)
+                elapsed = max(0.0, (datetime.now(timezone.utc) - start).total_seconds())
+            except ValueError:
+                elapsed = 12.0
+        # ~15s cadence across analysis→packaging; payment always first.
+        thresholds = (0, 3, 8, 15, 25, 40, 55)
+        done_count = 1
+        for i, sec in enumerate(thresholds[1:], start=1):
+            if elapsed >= sec:
+                done_count = i + 1
+            else:
+                break
+        done_count = min(done_count, len(_FACTORY_STEP_ORDER) - 1)
+
+    out: list[dict[str, Any]] = []
+    for i, step_id in enumerate(_FACTORY_STEP_ORDER):
+        done = i < done_count
+        active = paid and not fully_ready and i == done_count
+        out.append(
+            {
+                "id": step_id,
+                "label": labels.get(step_id, step_id),
+                "done": done,
+                "active": active,
+            }
+        )
+    return out
 
 
 def client_next_step(status: str, market_code: str | None) -> str:
-    lang = market_ui_lang(market_code)
-    table = _NEXT_STEP.get(lang) or _NEXT_STEP["en"]
+    table = _ui_table(_NEXT_STEP, market_code) or _NEXT_STEP["en"]
     if status in table:
         return table[status]
     if status in ("paid", "in_production"):
@@ -260,13 +413,503 @@ def client_next_step(status: str, market_code: str | None) -> str:
 
 
 def client_current_step(status: str, market_code: str | None) -> str:
-    lang = market_ui_lang(market_code)
-    table = _CURRENT_STEP.get(lang) or _CURRENT_STEP["en"]
+    table = _ui_table(_CURRENT_STEP, market_code) or _CURRENT_STEP["en"]
     if status in table:
         return table[status]
     if status in ("paid", "in_production"):
         return table["in_production"]
     return table.get("ready", table.get("awaiting_payment", ""))
+
+
+def client_post_pay_message(
+    status: str,
+    market_code: str | None,
+    *,
+    download_ready: bool = False,
+) -> str:
+    """Short trust message under the order cabinet timeline."""
+    lang = market_ui_lang(market_code)
+    ready = download_ready or status in ("ready", "delivered")
+    copy = {
+        "de": {
+            "building": "Wir bereiten Ihre Website vor — meist in etwa 15 Minuten.",
+            "ready": "Ihre Website-Dateien sind bereit. Laden Sie das ZIP herunter und folgen Sie dem Veröffentlichungs-Assistenten.",
+            "awaiting": "Bitte schließen Sie die Zahlung ab — danach starten wir die automatische Erstellung.",
+        },
+        "en": {
+            "building": "We’re building your website — usually ready in about 15 minutes.",
+            "ready": "Your website files are ready. Download the ZIP and follow the go-live wizard.",
+            "awaiting": "Please complete payment — then we start automatic generation.",
+        },
+        "uk": {
+            "building": "Готуємо ваш сайт — зазвичай близько 15 хвилин.",
+            "ready": "Файли сайту готові. Завантажте ZIP і пройдіть майстер публікації.",
+            "awaiting": "Завершіть оплату — після цього стартує автоматична збірка.",
+        },
+        "ru": {
+            "building": "Готовим ваш сайт — обычно около 15 минут.",
+            "ready": "Файлы сайта готовы. Скачайте ZIP и пройдите мастер публикации.",
+            "awaiting": "Завершите оплату — после этого стартует автоматическая сборка.",
+        },
+        "fr": {
+            "building": "Nous préparons votre site — généralement en environ 15 minutes.",
+            "ready": "Vos fichiers sont prêts. Téléchargez le ZIP et suivez l’assistant de mise en ligne.",
+            "awaiting": "Veuillez finaliser le paiement — ensuite la génération démarre.",
+        },
+        "es": {
+            "building": "Estamos preparando su sitio — normalmente en unos 15 minutos.",
+            "ready": "Sus archivos están listos. Descargue el ZIP y siga el asistente de publicación.",
+            "awaiting": "Complete el pago — después iniciaremos la generación automática.",
+        },
+        "it": {
+            "building": "Stiamo preparando il sito — di solito in circa 15 minuti.",
+            "ready": "I file sono pronti. Scarica lo ZIP e segui la procedura di pubblicazione.",
+            "awaiting": "Completa il pagamento — poi avviamo la generazione automatica.",
+        },
+        "nl": {
+            "building": "We bouwen uw website — meestal binnen ongeveer 15 minuten.",
+            "ready": "Uw bestanden zijn klaar. Download de ZIP en volg de publicatie-assistent.",
+            "awaiting": "Rond de betaling af — daarna start de automatische opbouw.",
+        },
+        "pt": {
+            "building": "Estamos a preparar o seu site — normalmente em cerca de 15 minutos.",
+            "ready": "Os ficheiros estão prontos. Descarregue o ZIP e siga o assistente de publicação.",
+            "awaiting": "Conclua o pagamento — depois iniciamos a geração automática.",
+        },
+        "pl": {
+            "building": "Budujemy stronę — zwykle w około 15 minut.",
+            "ready": "Pliki są gotowe. Pobierz ZIP i przejdź kreator publikacji.",
+            "awaiting": "Dokończ płatność — potem startuje automatyczna budowa.",
+        },
+        "cs": {
+            "building": "Připravujeme váš web — obvykle do 15 minut.",
+            "ready": "Soubory jsou připravené. Stáhněte ZIP a projděte průvodcem zveřejnění.",
+            "awaiting": "Dokončete platbu — poté spustíme automatickou tvorbu.",
+        },
+    }
+    pack = copy.get(lang) or copy["en"]
+    if status == "awaiting_payment":
+        return pack["awaiting"]
+    if ready:
+        return pack["ready"]
+    return pack["building"]
+
+
+def render_client_receipt_text(*, order: dict, status_path: str, paid: float) -> str:
+    """Localized plain-text receipt for copy/email (market language)."""
+    lang = market_ui_lang(order.get("market_code"))
+    name = str(order.get("business_name") or "").strip() or "—"
+    order_id = str(order.get("order_id") or "")
+    package = str(order.get("package_name") or order.get("package_id") or "")
+    amount = str(order.get("price_label") or f"{paid:.0f} {order.get('symbol') or '€'}".strip())
+    paid_label = client_status_label("paid", order.get("market_code"))
+    templates = {
+        "de": (
+            f"Virtus Core — Quittung\n\n"
+            f"Bestellnummer: {order_id}\n"
+            f"Kunde: {name}\n"
+            f"Paket: {package}\n"
+            f"Betrag: {amount}\n"
+            f"Status: {paid_label}\n\n"
+            f"Statusseite: {status_path}\n"
+        ),
+        "en": (
+            f"Virtus Core — Receipt\n\n"
+            f"Order: {order_id}\n"
+            f"Customer: {name}\n"
+            f"Package: {package}\n"
+            f"Amount: {amount}\n"
+            f"Status: {paid_label}\n\n"
+            f"Order status: {status_path}\n"
+        ),
+        "uk": (
+            f"Virtus Core — Чек\n\n"
+            f"Замовлення: {order_id}\n"
+            f"Клієнт: {name}\n"
+            f"Пакет: {package}\n"
+            f"Сума: {amount}\n"
+            f"Статус: {paid_label}\n\n"
+            f"Сторінка статусу: {status_path}\n"
+        ),
+        "ru": (
+            f"Virtus Core — Чек\n\n"
+            f"Заказ: {order_id}\n"
+            f"Клиент: {name}\n"
+            f"Пакет: {package}\n"
+            f"Сумма: {amount}\n"
+            f"Статус: {paid_label}\n\n"
+            f"Страница статуса: {status_path}\n"
+        ),
+        "fr": (
+            f"Virtus Core — Reçu\n\n"
+            f"Commande: {order_id}\n"
+            f"Client: {name}\n"
+            f"Forfait: {package}\n"
+            f"Montant: {amount}\n"
+            f"Statut: {paid_label}\n\n"
+            f"Suivi: {status_path}\n"
+        ),
+        "es": (
+            f"Virtus Core — Recibo\n\n"
+            f"Pedido: {order_id}\n"
+            f"Cliente: {name}\n"
+            f"Paquete: {package}\n"
+            f"Importe: {amount}\n"
+            f"Estado: {paid_label}\n\n"
+            f"Estado del pedido: {status_path}\n"
+        ),
+        "it": (
+            f"Virtus Core — Ricevuta\n\n"
+            f"Ordine: {order_id}\n"
+            f"Cliente: {name}\n"
+            f"Pacchetto: {package}\n"
+            f"Importo: {amount}\n"
+            f"Stato: {paid_label}\n\n"
+            f"Stato ordine: {status_path}\n"
+        ),
+        "nl": (
+            f"Virtus Core — Bon\n\n"
+            f"Bestelling: {order_id}\n"
+            f"Klant: {name}\n"
+            f"Pakket: {package}\n"
+            f"Bedrag: {amount}\n"
+            f"Status: {paid_label}\n\n"
+            f"Statuspagina: {status_path}\n"
+        ),
+        "pt": (
+            f"Virtus Core — Recibo\n\n"
+            f"Encomenda: {order_id}\n"
+            f"Cliente: {name}\n"
+            f"Pacote: {package}\n"
+            f"Valor: {amount}\n"
+            f"Estado: {paid_label}\n\n"
+            f"Estado da encomenda: {status_path}\n"
+        ),
+        "pl": (
+            f"Virtus Core — Paragon\n\n"
+            f"Zamówienie: {order_id}\n"
+            f"Klient: {name}\n"
+            f"Pakiet: {package}\n"
+            f"Kwota: {amount}\n"
+            f"Status: {paid_label}\n\n"
+            f"Status zamówienia: {status_path}\n"
+        ),
+        "cs": (
+            f"Virtus Core — Účtenka\n\n"
+            f"Objednávka: {order_id}\n"
+            f"Zákazník: {name}\n"
+            f"Balíček: {package}\n"
+            f"Částka: {amount}\n"
+            f"Stav: {paid_label}\n\n"
+            f"Stav objednávky: {status_path}\n"
+        ),
+    }
+    return templates.get(lang) or templates["en"]
+
+
+def delivery_ready_headline(market_code: str | None) -> str:
+    lang = market_ui_lang(market_code)
+    copy = {
+        "de": "Ihr Website-Paket ist fertig",
+        "en": "Your website package is ready",
+        "uk": "Ваш пакет сайту готовий",
+        "ru": "Ваш пакет сайта готов",
+        "fr": "Votre pack site est prêt",
+        "es": "Su paquete web está listo",
+        "it": "Il tuo pacchetto sito è pronto",
+        "nl": "Uw websitepakket is klaar",
+        "pt": "O seu pacote de site está pronto",
+        "pl": "Twój pakiet strony jest gotowy",
+        "cs": "Váš balíček webu je připraven",
+    }
+    return copy.get(lang) or copy["en"]
+
+
+def delivery_value_items(
+    package_id: str | None,
+    market_code: str | None,
+) -> list[dict[str, str]]:
+    """Honest list of what Path A ZIP contains for this package."""
+    from app.factory.package_features import resolve_package_features
+
+    lang = market_ui_lang(market_code)
+    feat = resolve_package_features(package_id)
+    labels = {
+        "de": {
+            "landing": "Landing Page",
+            "seo": "SEO & Meta",
+            "form": "Kontaktformular",
+            "whatsapp": "WhatsApp-Button",
+            "legal": "Rechtliche Seiten",
+            "readme": "Veröffentlichungs-Anleitung",
+            "zip": "ZIP-Archiv",
+            "maps": "Google Maps",
+            "faq": "FAQ",
+            "logo": "Logo-Platz",
+            "analytics": "Analytics-Platzhalter",
+            "calculator": "Anfrage-Rechner",
+            "premium": "Premium-Design",
+        },
+        "en": {
+            "landing": "Landing Page",
+            "seo": "SEO & Meta",
+            "form": "Contact form",
+            "whatsapp": "WhatsApp button",
+            "legal": "Legal pages",
+            "readme": "Publish guide (README)",
+            "zip": "ZIP archive",
+            "maps": "Google Maps",
+            "faq": "FAQ",
+            "logo": "Logo slot",
+            "analytics": "Analytics placeholder",
+            "calculator": "Quote calculator",
+            "premium": "Premium design",
+        },
+        "uk": {
+            "landing": "Landing Page",
+            "seo": "SEO і Meta",
+            "form": "Контактна форма",
+            "whatsapp": "Кнопка WhatsApp",
+            "legal": "Юридичні сторінки",
+            "readme": "Інструкція з публікації",
+            "zip": "ZIP-архів",
+            "maps": "Google Maps",
+            "faq": "FAQ",
+            "logo": "Місце для логотипу",
+            "analytics": "Analytics (заготовка)",
+            "calculator": "Калькулятор запиту",
+            "premium": "Premium-дизайн",
+        },
+        "ru": {
+            "landing": "Landing Page",
+            "seo": "SEO и Meta",
+            "form": "Контактная форма",
+            "whatsapp": "Кнопка WhatsApp",
+            "legal": "Юридические страницы",
+            "readme": "Инструкция по публикации",
+            "zip": "ZIP-архив",
+            "maps": "Google Maps",
+            "faq": "FAQ",
+            "logo": "Место под логотип",
+            "analytics": "Analytics (заготовка)",
+            "calculator": "Калькулятор заявки",
+            "premium": "Premium-дизайн",
+        },
+    }
+    L = labels.get(lang) or labels["en"]
+    items: list[dict[str, str]] = [
+        {"id": "landing", "label": L["landing"]},
+        {"id": "seo", "label": L["seo"]},
+        {"id": "form", "label": L["form"]},
+    ]
+    if feat.whatsapp:
+        items.append({"id": "whatsapp", "label": L["whatsapp"]})
+    if feat.maps:
+        items.append({"id": "maps", "label": L["maps"]})
+    if feat.faq:
+        items.append({"id": "faq", "label": L["faq"]})
+    if feat.logo_slot:
+        items.append({"id": "logo", "label": L["logo"]})
+    if feat.analytics:
+        items.append({"id": "analytics", "label": L["analytics"]})
+    if feat.calculator:
+        items.append({"id": "calculator", "label": L["calculator"]})
+    if feat.premium_design:
+        items.append({"id": "premium", "label": L["premium"]})
+    items.extend(
+        [
+            {"id": "legal", "label": L["legal"]},
+            {"id": "readme", "label": L["readme"]},
+            {"id": "zip", "label": L["zip"]},
+        ]
+    )
+    return items
+
+
+def publish_status_payload(
+    *,
+    market_code: str | None,
+    downloaded: bool,
+    online: bool,
+    published_url: str | None,
+    downloaded_at: str | None,
+    online_at: str | None,
+) -> dict[str, Any]:
+    lang = market_ui_lang(market_code)
+    labels = {
+        "de": {
+            "not_downloaded": "Noch nicht heruntergeladen",
+            "downloaded": "Website heruntergeladen — noch nicht online",
+            "online": "Website online",
+        },
+        "en": {
+            "not_downloaded": "Not downloaded yet",
+            "downloaded": "Website downloaded — not published yet",
+            "online": "Website online",
+        },
+        "uk": {
+            "not_downloaded": "Ще не завантажено",
+            "downloaded": "Сайт завантажено — ще не опубліковано",
+            "online": "Сайт online",
+        },
+        "ru": {
+            "not_downloaded": "Ещё не скачан",
+            "downloaded": "Сайт скачан — ещё не опубликован",
+            "online": "Сайт online",
+        },
+    }
+    L = labels.get(lang) or labels["en"]
+    if online:
+        state = "online"
+    elif downloaded:
+        state = "downloaded"
+    else:
+        state = "not_downloaded"
+    return {
+        "state": state,
+        "label": L[state],
+        "published_url": published_url,
+        "downloaded_at": downloaded_at,
+        "online_at": online_at,
+    }
+
+
+def next_product_offers(
+    market_code: str | None,
+    *,
+    interest: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    """Soft LTV ladder after Path A site — interest only, not checkout yet."""
+    lang = market_ui_lang(market_code)
+    interest = interest or {}
+    packs = {
+        "de": {
+            "ai_business_assistant": {
+                "title": "AI Business Assistant",
+                "subtitle": "Kein Chatbot — ein digitaler Mitarbeiter für Ihre Website.",
+                "bullets": [
+                    "Antwortet Besuchern 24/7",
+                    "Nimmt Anfragen und Termine entgegen",
+                    "Beantwortet häufige Fragen",
+                    "Übergibt bei Bedarf an einen Menschen",
+                ],
+                "cta": "Interesse merken",
+            },
+            "whatsapp_business": {
+                "title": "WhatsApp Business Anbindung",
+                "subtitle": "Nachrichten von der Website direkt in WhatsApp.",
+                "bullets": [
+                    "Schneller Kontaktweg für Kunden",
+                    "Weniger verlorene Anfragen",
+                ],
+                "cta": "Interesse merken",
+            },
+            "seo_growth": {
+                "title": "SEO & Sichtbarkeit",
+                "subtitle": "Nächster Schritt nach der fertigen Landing Page.",
+                "bullets": [
+                    "Lokale Auffindbarkeit",
+                    "Seitenstruktur & Keywords",
+                ],
+                "cta": "Interesse merken",
+            },
+        },
+        "en": {
+            "ai_business_assistant": {
+                "title": "AI Business Assistant",
+                "subtitle": "Not a chatbot — a digital teammate for your site.",
+                "bullets": [
+                    "Answers visitors 24/7",
+                    "Captures leads and bookings",
+                    "Handles common questions",
+                    "Hands off to a human when needed",
+                ],
+                "cta": "Register interest",
+            },
+            "whatsapp_business": {
+                "title": "WhatsApp Business connection",
+                "subtitle": "Site messages go straight to WhatsApp.",
+                "bullets": [
+                    "Faster customer contact",
+                    "Fewer lost enquiries",
+                ],
+                "cta": "Register interest",
+            },
+            "seo_growth": {
+                "title": "SEO & visibility",
+                "subtitle": "Natural next step after your landing page.",
+                "bullets": [
+                    "Local discoverability",
+                    "Structure & keywords",
+                ],
+                "cta": "Register interest",
+            },
+        },
+        "uk": {
+            "ai_business_assistant": {
+                "title": "AI Business Assistant",
+                "subtitle": "Не чат-бот — цифровий співробітник для сайту.",
+                "bullets": [
+                    "Відповідає відвідувачам 24/7",
+                    "Збирає заявки та записи",
+                    "Відповідає на часті питання",
+                    "За потреби передає людині",
+                ],
+                "cta": "Залишити інтерес",
+            },
+            "whatsapp_business": {
+                "title": "WhatsApp Business",
+                "subtitle": "Повідомлення з сайту одразу у WhatsApp.",
+                "bullets": ["Швидший контакт", "Менше втрачених заявок"],
+                "cta": "Залишити інтерес",
+            },
+            "seo_growth": {
+                "title": "SEO і видимість",
+                "subtitle": "Наступний крок після готового лендингу.",
+                "bullets": ["Локальна видимість", "Структура і ключові слова"],
+                "cta": "Залишити інтерес",
+            },
+        },
+        "ru": {
+            "ai_business_assistant": {
+                "title": "AI Business Assistant",
+                "subtitle": "Не чат-бот — цифровой сотрудник для сайта.",
+                "bullets": [
+                    "Отвечает посетителям 24/7",
+                    "Собирает заявки и записи",
+                    "Отвечает на частые вопросы",
+                    "При необходимости передаёт человеку",
+                ],
+                "cta": "Оставить интерес",
+            },
+            "whatsapp_business": {
+                "title": "WhatsApp Business",
+                "subtitle": "Сообщения с сайта сразу в WhatsApp.",
+                "bullets": ["Быстрее контакт", "Меньше потерянных заявок"],
+                "cta": "Оставить интерес",
+            },
+            "seo_growth": {
+                "title": "SEO и видимость",
+                "subtitle": "Следующий шаг после готового лендинга.",
+                "bullets": ["Локальная видимость", "Структура и ключевые слова"],
+                "cta": "Оставить интерес",
+            },
+        },
+    }
+    pack = packs.get(lang) or packs["en"]
+    out: list[dict[str, Any]] = []
+    for oid, meta in pack.items():
+        out.append(
+            {
+                "id": oid,
+                "title": meta["title"],
+                "subtitle": meta["subtitle"],
+                "bullets": list(meta["bullets"]),
+                "cta": meta["cta"],
+                "interest_logged": bool(interest.get(oid)),
+            }
+        )
+    return out
 
 
 _README_DE = """# Website veröffentlichen (Path A)
