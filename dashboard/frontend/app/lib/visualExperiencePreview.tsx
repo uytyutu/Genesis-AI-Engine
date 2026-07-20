@@ -45,7 +45,7 @@ type Props = {
 const MODE_LABEL: Record<string, string> = {
   none: "Basic · Standard-Website",
   preview: "Business · Premium Preview",
-  css_motion: "Motion · ohne 3D",
+  css_motion: "Motion",
   interactive_3d: "Premium · Visual Experience",
 };
 
@@ -77,12 +77,17 @@ export function VisualExperienceCard({
           className="aspect-[16/10] w-full object-cover"
         />
       ) : (
-        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 px-4 text-center text-xs text-genesis-muted">
-          {mode === "none"
-            ? "Basic — ohne Visual Experience"
-            : mode === "css_motion"
-              ? "Stilvolle Motion — passend zur Branche"
-              : "Vorschau folgt"}
+        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950/50 px-4 text-center">
+          <div>
+            <p className="text-sm font-medium text-white/90">
+              {mode === "css_motion"
+                ? "Stilvolle Motion — passend zur Branche"
+                : "Website-Vorschau"}
+            </p>
+            <p className="mt-1 text-[11px] text-genesis-muted">
+              Beispiele erscheinen in der Paket-Galerie
+            </p>
+          </div>
         </div>
       )}
       <div className="space-y-1.5 p-3">

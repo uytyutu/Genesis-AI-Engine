@@ -98,8 +98,14 @@
     "analysisHint": "Wir prüfen Angaben und wählen das passende Visual Experience.",
     "analysisBusy": "Analyse läuft…",
     "analysisEmpty": "Keine öffentlichen Signale — wir starten mit Ihren Angaben.",
-    "packageHint": "Paket rechts wählen — Vorschau wechselt sofort (Basic / Business / Premium).",
+    "packageHint": "Paket rechts wählen — Galerie wechselt sofort (Basic / Business / Premium).",
     "upgradePremium": "Upgrade to Premium",
+    "previewGalleryLabel": "So kann Ihre Website aussehen",
+    "previewExamplesTitle": "Mögliches Ergebnis",
+    "previewExamplesHint": "Beispiele für das Qualitätsniveau dieses Pakets — nicht Ihre fertige Website.",
+    "previewPremiumBadge": "Jedes Premium-Projekt wird individuell gestaltet",
+    "previewPlaceholderTitle": "Beispiele folgen",
+    "previewPlaceholderHint": "Für dieses Paket werden Vorschauen vorbereitet.",
     "next": "Weiter",
     "back": "Zurück",
     "step1Required": "Bitte Firmenname, E-Mail und Tätigkeit ausfüllen",
@@ -236,6 +242,38 @@
       "fail": "Senden fehlgeschlagen",
       "missingToken": "Link ungültig oder abgelaufen",
       "backStatus": "Zurück zum Status"
+    },
+    "brandStyleTitle": "Markenstil (optional)",
+    "brandStyleHint": "Ergänzt die Branchenvorlage — ändert Farben, Typo und Radien. Auto = wie bisher.",
+    "brandStyles": {
+      "auto": {
+        "label": "Auto (Branche)",
+        "hint": "Farbwelt der Branche behalten — Standard."
+      },
+      "modern": {
+        "label": "Modern",
+        "hint": "Klare Blautöne, zeitgemäßes UI."
+      },
+      "premium": {
+        "label": "Premium",
+        "hint": "Dunkel + Gold, serife Überschriften."
+      },
+      "elegant": {
+        "label": "Elegant",
+        "hint": "Violett, fein und ruhig."
+      },
+      "minimal": {
+        "label": "Minimal",
+        "hint": "Fast monochrom, ruhig und klar."
+      },
+      "corporate": {
+        "label": "Corporate",
+        "hint": "Petrol/Teal — vertrauenswürdig."
+      },
+      "friendly": {
+        "label": "Friendly",
+        "hint": "Warmes Orange, einladende Karten."
+      }
     }
   },
   "reviews": {

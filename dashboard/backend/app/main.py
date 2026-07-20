@@ -2177,6 +2177,15 @@ def list_sales_packages(
     )
 
 
+@app.get("/api/sales/brand-styles")
+def list_brand_styles(lang: str | None = None) -> dict:
+    """Path A Brand Style brief — additive to niche defaults (auto = keep niche)."""
+    from app.factory.brand_style import list_brand_styles as _list
+
+    code = (lang or "en").strip().lower()[:2] or "en"
+    return {"ok": True, "styles": _list(lang=code)}
+
+
 @app.get("/api/sales/delivery-matrix", response_model=PathADeliveryMatrixResponse)
 def path_a_delivery_matrix() -> PathADeliveryMatrixResponse:
     """Path A market support matrix: currency / UI / legal / Production|Beta."""

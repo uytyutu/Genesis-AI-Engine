@@ -100,6 +100,12 @@
     "analysisEmpty": "Нет публичных сигналов — стартуем с ваших данных.",
     "packageHint": "Выберите пакет справа — превью меняется сразу.",
     "upgradePremium": "Upgrade to Premium",
+    "previewGalleryLabel": "Так может выглядеть ваш сайт",
+    "previewExamplesTitle": "Возможный результат",
+    "previewExamplesHint": "Примеры уровня качества этого пакета — не готовый сайт один в один.",
+    "previewPremiumBadge": "Каждый Premium-проект создаётся индивидуально",
+    "previewPlaceholderTitle": "Примеры скоро",
+    "previewPlaceholderHint": "Превью для этого пакета готовятся.",
     "next": "Далее",
     "back": "Назад",
     "step1Required": "Укажите компанию, email и вид деятельности",
@@ -236,6 +242,38 @@
       "fail": "Не удалось отправить",
       "missingToken": "Ссылка недействительна",
       "backStatus": "К статусу заказа"
+    },
+    "brandStyleTitle": "Стиль бренда (опционально)",
+    "brandStyleHint": "Дополнение к нише — цвета, типографика, радиусы. Авто = как сейчас.",
+    "brandStyles": {
+      "auto": {
+        "label": "Авто (ниша)",
+        "hint": "Оставить палитру ниши — по умолчанию."
+      },
+      "modern": {
+        "label": "Modern",
+        "hint": "Чистый синий, современный UI."
+      },
+      "premium": {
+        "label": "Premium",
+        "hint": "Тёмный камень + золото, serif."
+      },
+      "elegant": {
+        "label": "Elegant",
+        "hint": "Фиолетовые тона, спокойный ритм."
+      },
+      "minimal": {
+        "label": "Minimal",
+        "hint": "Почти монохром, строгие углы."
+      },
+      "corporate": {
+        "label": "Corporate",
+        "hint": "Бирюза доверия, деловой вид."
+      },
+      "friendly": {
+        "label": "Friendly",
+        "hint": "Тёплый оранжевый, мягкие карточки."
+      }
     }
   },
   "reviews": {

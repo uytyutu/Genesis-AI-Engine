@@ -100,6 +100,12 @@
     "analysisEmpty": "No public signals — we start from your details.",
     "packageHint": "Choose a package on the right — preview updates instantly.",
     "upgradePremium": "Upgrade to Premium",
+    "previewGalleryLabel": "How your website can look",
+    "previewExamplesTitle": "Possible result",
+    "previewExamplesHint": "Examples of the quality level in this package — not the exact website you will receive.",
+    "previewPremiumBadge": "Every Premium project is customized",
+    "previewPlaceholderTitle": "Examples coming soon",
+    "previewPlaceholderHint": "Previews for this package are being prepared.",
     "next": "Next",
     "back": "Back",
     "step1Required": "Please fill company name, email and activity",
@@ -236,6 +242,38 @@
       "fail": "Could not submit",
       "missingToken": "Invalid or expired link",
       "backStatus": "Back to order status"
+    },
+    "brandStyleTitle": "Brand style (optional)",
+    "brandStyleHint": "Adds to the niche template — changes colors, type, and radii. Auto = current default.",
+    "brandStyles": {
+      "auto": {
+        "label": "Auto (niche default)",
+        "hint": "Keep the niche palette — safest default."
+      },
+      "modern": {
+        "label": "Modern",
+        "hint": "Clean blues, contemporary UI."
+      },
+      "premium": {
+        "label": "Premium",
+        "hint": "Dark stone + gold, serif headlines."
+      },
+      "elegant": {
+        "label": "Elegant",
+        "hint": "Violet tones, refined spacing."
+      },
+      "minimal": {
+        "label": "Minimal",
+        "hint": "Near-monochrome, quiet and clear."
+      },
+      "corporate": {
+        "label": "Corporate",
+        "hint": "Teal trust palette, business-ready."
+      },
+      "friendly": {
+        "label": "Friendly",
+        "hint": "Warm orange, soft approachable cards."
+      }
     }
   },
   "reviews": {

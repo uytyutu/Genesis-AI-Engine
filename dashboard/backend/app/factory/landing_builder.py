@@ -77,6 +77,10 @@ def build_landing_html(
     hero_photo: bool = True,
     catalog: CatalogView | None = None,
     hero_pack_manifest: dict | None = None,
+    client_logo: bool = False,
+    client_logo_src: str = "assets/logo.png",
+    client_gallery: list[str] | None = None,
+    brand_style: str | None = None,
 ) -> str:
     from app.factory.landing_i18n import (
         apply_legal_footer_hrefs,
@@ -104,6 +108,17 @@ def build_landing_html(
     maps_country = maps_country_label(market_code)
 
     style = _style_from_niche(analysis.niche, modern=modern, blue_boost=blue_boost)
+    from app.factory.brand_style import (
+        apply_brand_to_build_style,
+        brand_style_extra_css,
+        get_brand_style_pack,
+        normalize_brand_style,
+    )
+
+    brand_id = normalize_brand_style(brand_style)
+    brand_pack = get_brand_style_pack(brand_id)
+    if brand_pack is not None:
+        style = apply_brand_to_build_style(style, brand_pack)
 
     descriptions = analysis.service_descriptions
     if len(descriptions) < len(analysis.services):
@@ -152,8 +167,12 @@ def build_landing_html(
     )
 
     wa_url = whatsapp_href(whatsapp, analysis.phone) if feat.whatsapp else ""
+    show_logo = bool(feat.logo_slot or client_logo)
+    logo_src = (client_logo_src or "assets/logo.png").strip() or "assets/logo.png"
     logo_block = (
-        _logo_block(analysis.business_name) if feat.logo_slot else f"<strong>{business}</strong>"
+        _logo_block(analysis.business_name, src=logo_src)
+        if show_logo
+        else f"<strong>{business}</strong>"
     )
 
     route_url = maps_route_url(
@@ -279,7 +298,10 @@ def build_landing_html(
         extra = pack_section_css(hero_pack_manifest, tier)
         if extra:
             css = css + "\n" + extra
+    if brand_pack is not None:
+        css = css + "\n" + brand_style_extra_css(brand_pack)
     hero_photo_class = " has-photo" if hero_photo else ""
+    brand_attr = esc(brand_pack.id if brand_pack else "auto")
 
     trust_strip = ""
     if feat.trust_bar:
@@ -357,6 +379,28 @@ def build_landing_html(
   </section>
 """
 
+    gallery_block = ""
+    gallery_paths = [p for p in (client_gallery or []) if p]
+    if gallery_paths:
+        figs = "\n".join(
+            f'      <figure class="client-photo"><img src="{esc(p)}" alt="{business}" loading="lazy"></figure>'
+            for p in gallery_paths
+        )
+        gallery_block = f"""
+  <section class="{sec} client-gallery" id="gallery">
+    <h2>{esc(ui.get('gallery_title') or 'Galerie')}</h2>
+    <p class="muted">{esc(ui.get('gallery_muted') or '')}</p>
+    <div class="client-gallery-grid">
+{figs}
+    </div>
+  </section>
+"""
+    gallery_nav = (
+        f' <a href="#gallery">{esc(ui.get("gallery_title") or "Galerie")}</a>'
+        if gallery_paths
+        else ""
+    )
+
     html = f"""<!DOCTYPE html>
 <html lang="{esc(html_lang)}">
 <head>
@@ -371,11 +415,11 @@ def build_landing_html(
 {css}
   </style>
 </head>
-<body data-tier="{esc(tier)}">
+<body data-tier="{esc(tier)}" data-brand="{brand_attr}">
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
-      {catalog_nav}{maps_nav}{reviews_nav}<a href="#contact">{cta}</a>
+      {catalog_nav}{maps_nav}{gallery_nav}{reviews_nav}<a href="#contact">{cta}</a>
     </div>
   </nav>
   {trust_strip}
@@ -400,6 +444,7 @@ def build_landing_html(
   </section>
   {process_block}
   {showcase_block}
+  {gallery_block}
   <section class="{sec} about">
     <h2>{esc(ui['about'])}</h2>
     <p>{about}</p>
@@ -434,11 +479,12 @@ def build_landing_html(
     return html
 
 
-def _logo_block(business_name: str) -> str:
+def _logo_block(business_name: str, *, src: str = "assets/logo.png") -> str:
     safe = html_lib.escape(business_name)
+    logo = html_lib.escape(src or "assets/logo.png")
     initials = "".join(w[0] for w in re.findall(r"[A-Za-zÄÖÜäöüß0-9]+", business_name)[:2]) or "VC"
     return (
-        f'<img src="assets/logo.png" alt="{safe}" '
+        f'<img src="{logo}" alt="{safe}" '
         f'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'">'
         f'<span class="logo-fallback" style="display:none">{html_lib.escape(initials[:2].upper())}</span>'
         f"<strong>{safe}</strong>"

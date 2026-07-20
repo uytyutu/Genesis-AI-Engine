@@ -189,6 +189,17 @@ def tier_stylesheet(tier: str, style: _Style) -> str:
     .showcase-panel .cap {{
       position: absolute; left: 1rem; bottom: 1rem; color: #fff; font-weight: 700; font-size: 0.95rem;
     }}
+    .client-gallery-grid {{
+      display: grid; gap: 0.85rem;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }}
+    .client-photo {{
+      margin: 0; border-radius: 12px; overflow: hidden;
+      background: #e2e8f0; aspect-ratio: 4 / 3;
+    }}
+    .client-photo img {{
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }}
     footer {{ text-align: center; padding: 2rem; font-size: 0.875rem; background: #0f172a; color: #cbd5e1; }}
     @keyframes heroIn {{ from {{ opacity: 0; transform: translateY(12px); }} to {{ opacity: 1; transform: none; }} }}
     .hero-anim {{ animation: heroIn .7s ease both; }}

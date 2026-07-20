@@ -10,6 +10,8 @@ import { publicApiBase } from "../lib/publicApiBase";
 import { formatLocalizedMoney } from "../lib/formatEur";
 import { logCommerceEvent } from "../lib/commerceFunnel";
 import { uiLangForMarket } from "../lib/marketLang";
+import { filterPublicPackages } from "../lib/showSmokePackage";
+import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
 
 type PackageCard = {
   id: string;
@@ -121,14 +123,16 @@ export function SitePage() {
         const list = body?.packages;
         if (Array.isArray(list) && list.length > 0) {
           setPackages(
-            list.map((p: PackageCard) => ({
-              id: p.id,
-              name: p.name,
-              price_eur: p.price_eur,
-              deliverables: Array.isArray(p.deliverables) ? p.deliverables : [],
-              currency: p.currency,
-              price_label: p.price_label,
-            })),
+            filterPublicPackages(
+              list.map((p: PackageCard) => ({
+                id: p.id,
+                name: p.name,
+                price_eur: p.price_eur,
+                deliverables: Array.isArray(p.deliverables) ? p.deliverables : [],
+                currency: p.currency,
+                price_label: p.price_label,
+              })),
+            ),
           );
         }
       })
@@ -249,6 +253,7 @@ export function SitePage() {
               >
                 <p className="text-sm text-genesis-muted">{p.name}</p>
                 <p className="mt-1 text-2xl font-semibold text-white">{price}</p>
+                <PackagePreviewCarousel packageId={p.id} className="mt-3" />
                 <ul className="mt-3 space-y-1.5 text-xs text-white/70">
                   {p.deliverables.slice(0, 6).map((d) => (
                     <li key={d}>• {d}</li>

@@ -100,6 +100,12 @@
     "analysisEmpty": "Немає публічних сигналів — стартуємо з ваших даних.",
     "packageHint": "Оберіть пакет справа — прев’ю змінюється одразу.",
     "upgradePremium": "Upgrade to Premium",
+    "previewGalleryLabel": "Так може виглядати ваш сайт",
+    "previewExamplesTitle": "Можливий результат",
+    "previewExamplesHint": "Приклади рівня якості цього пакета — не готовий сайт один в один.",
+    "previewPremiumBadge": "Кожен Premium-проєкт створюється індивідуально",
+    "previewPlaceholderTitle": "Приклади незабаром",
+    "previewPlaceholderHint": "Прев’ю для цього пакета готуються.",
     "next": "Далі",
     "back": "Назад",
     "step1Required": "Вкажіть компанію, email і вид діяльності",
@@ -236,6 +242,38 @@
       "fail": "Не вдалося надіслати",
       "missingToken": "Посилання недійсне",
       "backStatus": "До статусу замовлення"
+    },
+    "brandStyleTitle": "Стиль бренду (опційно)",
+    "brandStyleHint": "Доповнення до ніші — кольори, типографія, радіуси. Авто = як зараз.",
+    "brandStyles": {
+      "auto": {
+        "label": "Авто (ніша)",
+        "hint": "Залишити палітру ніші — за замовчуванням."
+      },
+      "modern": {
+        "label": "Modern",
+        "hint": "Чистий синій, сучасний UI."
+      },
+      "premium": {
+        "label": "Premium",
+        "hint": "Темний камінь + золото, serif."
+      },
+      "elegant": {
+        "label": "Elegant",
+        "hint": "Фіолетові тони, спокійний ритм."
+      },
+      "minimal": {
+        "label": "Minimal",
+        "hint": "Майже монохром, строгі кути."
+      },
+      "corporate": {
+        "label": "Corporate",
+        "hint": "Бірюза довіри, діловий вигляд."
+      },
+      "friendly": {
+        "label": "Friendly",
+        "hint": "Теплий помаранчевий, м’які картки."
+      }
     }
   },
   "reviews": {

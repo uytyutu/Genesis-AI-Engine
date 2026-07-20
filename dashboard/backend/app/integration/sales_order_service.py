@@ -30,6 +30,13 @@ from app.schemas import FactoryIntentRequest
 
 logger = logging.getLogger(__name__)
 
+
+def _normalize_order_brand_style(raw: object) -> str:
+    from app.factory.brand_style import normalize_brand_style
+
+    return normalize_brand_style(str(raw or ""))
+
+
 # Post-ZIP handoff (Assisted Deployment) — never store host passwords.
 DEPLOYMENT_PREFERENCES = frozenset({"unset", "zip_only", "assisted"})
 HOSTING_PROVIDERS = frozenset(
@@ -148,8 +155,12 @@ class SalesOrderService:
             deliverables_by_id=deliverables,
             names_by_id=names,
         )
-        # CEO Path A smoke — €1 live package, only when ENV enabled.
-        if os.getenv("GENESIS_STRIPE_SMOKE", "").strip() == "1":
+        # Stripe Smoke €1 — checkout via API when GENESIS_STRIPE_SMOKE=1.
+        # Listed in UI only when GENESIS_SHOW_SMOKE_PACKAGE=1 (dev/debug). Never for normal buyers.
+        if (
+            os.getenv("GENESIS_STRIPE_SMOKE", "").strip() == "1"
+            and os.getenv("GENESIS_SHOW_SMOKE_PACKAGE", "").strip() == "1"
+        ):
             smoke_pkg, _ = self._package_offer("smoke")
             result = {
                 **result,
@@ -339,6 +350,7 @@ class SalesOrderService:
             "market_code": package.get("market_code", "DE"),
             "price_label": package.get("price_label", f"{package['price_eur']} €"),
             "motion_level": motion,
+            "brand_style": _normalize_order_brand_style(payload.get("brand_style")),
             "deliverables": (
                 project_launch_deliverables(service_id)
                 if launch_mode
@@ -484,7 +496,13 @@ class SalesOrderService:
             "needs_logo": bool(order.get("needs_logo")),
             "market_code": market,
             "motion_level": motion,
+            "brand_style": order.get("brand_style") or "auto",
         }
+        mats = order.get("materials")
+        if isinstance(mats, dict) and isinstance(mats.get("files"), list):
+            contacts["materials"] = mats["files"]
+        elif isinstance(mats, list):
+            contacts["materials"] = mats
         if not legal.get("country"):
             legal["country"] = market
         intent = FactoryIntentRequest(
@@ -543,6 +561,7 @@ class SalesOrderService:
             f"WhatsApp: {order.get('whatsapp') or '—'}",
             f"E-Mail: {order.get('email') or '—'}",
             f"Paket: {order['package_name']} ({order.get('price_label') or order['price_eur']})",
+            f"Brand Style: {order.get('brand_style') or 'auto'}",
         ]
         website = (order.get("company_website") or "").strip()
         if website:

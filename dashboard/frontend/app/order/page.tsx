@@ -17,11 +17,8 @@ import { Badge, Button, ButtonLink, Card, Field, Input, Textarea } from "../comp
 import { publicApiBase } from "../lib/publicApiBase";
 import { logCommerceEvent } from "../lib/commerceFunnel";
 import { uiLangForMarket } from "../lib/marketLang";
-import {
-  fetchVisualExperiencePreview,
-  VisualExperienceCard,
-  type VxpPreview,
-} from "../lib/visualExperiencePreview";
+import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
+import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePackage";
 
 const API = publicApiBase();
 
@@ -125,9 +122,8 @@ export default function OrderSitePage() {
   const [specOptions, setSpecOptions] = useState<{ id: string; niche?: string; label: string }[]>(
     [],
   );
-  const [vxpPreview, setVxpPreview] = useState<VxpPreview | null>(null);
-  const [vxpBusy, setVxpBusy] = useState(false);
   const [packageId, setPackageId] = useState("basic");
+  const [brandStyle, setBrandStyle] = useState("auto");
   const [manualPackage, setManualPackage] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -153,8 +149,11 @@ export default function OrderSitePage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const pkg = params.get("package");
-    if (pkg && ["basic", "business", "premium", "smoke"].includes(pkg)) {
+    if (pkg && ["basic", "business", "premium"].includes(pkg)) {
       setPackageId(pkg);
+      setManualPackage(true);
+    } else if (pkg === "smoke" && showSmokePackageInUi()) {
+      setPackageId("smoke");
       setManualPackage(true);
     }
     const n = params.get("niche")?.trim();
@@ -174,39 +173,6 @@ export default function OrderSitePage() {
       })
       .catch(() => undefined);
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    setVxpBusy(true);
-    fetchVisualExperiencePreview({
-      niche,
-      specialization: specialization || undefined,
-      tier: packageId === "smoke" ? "basic" : packageId,
-    })
-      .then((row) => {
-        if (cancelled || !row) return;
-        setVxpPreview(row);
-        if (row.mode !== "none") {
-          logCommerceEvent(
-            packageId === "premium" ? "premium_preview_view" : "vxp_product_shown",
-            packageId,
-            "order",
-            {
-              niche: row.niche_id || niche,
-              product_id: row.product_id,
-              specialization_id: row.specialization_id || specialization || null,
-              mode: row.mode,
-            },
-          );
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setVxpBusy(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [niche, specialization, packageId]);
 
   useEffect(() => {
     if (!visitorId) return;
@@ -259,7 +225,7 @@ export default function OrderSitePage() {
               continue;
             }
             const body = await res.json();
-            setPackages(body.packages ?? []);
+            setPackages(filterPublicPackages(body.packages ?? []));
             setCommerce({
               currency: body.currency ?? "EUR",
               symbol: body.symbol ?? "€",
@@ -293,6 +259,13 @@ export default function OrderSitePage() {
   useEffect(() => {
     if (!manualPackage) setPackageId(suggestedId);
   }, [suggestedId, manualPackage]);
+
+  useEffect(() => {
+    if (!packages.length) return;
+    if (!packages.some((p) => p.id === packageId)) {
+      setPackageId(packages[0]!.id);
+    }
+  }, [packages, packageId]);
 
   useEffect(() => {
     if (domainStatus === "need_help" || domainStatus === "none") {
@@ -469,6 +442,7 @@ export default function OrderSitePage() {
             uses_analytics: legalAnalytics,
           },
           package_id: packageId,
+          brand_style: brandStyle || "auto",
           niche: niche || null,
           specialization: specialization.trim() || null,
           market_code: commerce.market_code || marketParam || undefined,
@@ -934,6 +908,48 @@ export default function OrderSitePage() {
                         placeholder={t("order.extraWishesPh")}
                       />
                     </Field>
+                    <fieldset>
+                      <legend className="text-sm font-medium text-white">
+                        {t("order.brandStyleTitle")}
+                      </legend>
+                      <p className="mt-1 text-xs text-genesis-muted">{t("order.brandStyleHint")}</p>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        {(
+                          [
+                            "auto",
+                            "modern",
+                            "premium",
+                            "elegant",
+                            "minimal",
+                            "corporate",
+                            "friendly",
+                          ] as const
+                        ).map((id) => (
+                          <label
+                            key={id}
+                            className={`cursor-pointer rounded-xl border px-3 py-2.5 text-sm transition ${
+                              brandStyle === id
+                                ? "border-emerald-400/50 bg-emerald-950/30"
+                                : "border-genesis-border-subtle bg-genesis-bg/40 hover:bg-genesis-elevated"
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              className="sr-only"
+                              name="brandStyle"
+                              checked={brandStyle === id}
+                              onChange={() => setBrandStyle(id)}
+                            />
+                            <span className="font-medium text-white">
+                              {t(`order.brandStyles.${id}.label`)}
+                            </span>
+                            <span className="mt-0.5 block text-[11px] text-genesis-muted">
+                              {t(`order.brandStyles.${id}.hint`)}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
                     <p className="text-sm font-medium text-white">{t("order.legalTitle")}</p>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <Field label={t("order.legalOwner")}>
@@ -1091,23 +1107,22 @@ export default function OrderSitePage() {
                 </div>
               )}
               {!launch && (
-                <VisualExperienceCard
-                  preview={vxpPreview}
-                  loading={vxpBusy}
-                  upgradeLabel={t("order.upgradePremium")}
-                  onUpgrade={
-                    packageId !== "premium"
-                      ? () => {
-                          setManualPackage(true);
-                          setPackageId("premium");
-                          logCommerceEvent("upgrade_click", "premium", "order", {
-                            niche,
-                            product_id: vxpPreview?.product_id,
-                          });
-                        }
-                      : undefined
-                  }
-                />
+                <>
+                  <PackagePreviewCarousel packageId={packageId} niche={niche} />
+                  {packageId !== "premium" ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setManualPackage(true);
+                        setPackageId("premium");
+                        logCommerceEvent("upgrade_click", "premium", "order", { niche });
+                      }}
+                      className="mt-2 w-full rounded-lg border border-emerald-500/40 bg-emerald-950/40 px-2 py-1.5 text-xs font-medium text-emerald-100 hover:bg-emerald-900/50"
+                    >
+                      {t("order.upgradePremium")}
+                    </button>
+                  ) : null}
+                </>
               )}
               {!launch && !manualPackage && selected && (
                 <p className="mt-2 text-xs text-genesis-muted">

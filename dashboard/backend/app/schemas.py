@@ -281,6 +281,11 @@ class SalesOrderCreateRequest(BaseModel):
     needs_logo: bool = False
     needs_domain: bool = False
     extra_wishes: str | None = Field(default=None, max_length=2000)
+    brand_style: str | None = Field(
+        default=None,
+        max_length=32,
+        description="auto|modern|premium|elegant|minimal|corporate|friendly",
+    )
     company_website: str | None = Field(
         default=None,
         max_length=400,

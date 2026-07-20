@@ -99,6 +99,15 @@ class FactoryService:
         if catalog_view is not None:
             write_catalog_assets(product_dir, catalog_view)
 
+        from app.factory.client_assets import apply_client_assets
+        from app.factory.brand_style import normalize_brand_style
+
+        materials = contacts.get("materials")
+        if not isinstance(materials, list):
+            materials = []
+        client_assets = apply_client_assets(product_dir, materials)
+        brand_style_id = normalize_brand_style(str(contacts.get("brand_style") or ""))
+
         pack_manifest: dict = {}
         pack_manifest_path = product_dir / "assets" / "hero_pack" / "manifest.json"
         if pack_manifest_path.is_file():
@@ -116,6 +125,11 @@ class FactoryService:
             market_code=market,
             catalog=catalog_view,
             hero_pack_manifest=pack_manifest,
+            client_logo=client_assets.logo,
+            client_logo_src=client_assets.logo_src,
+            client_gallery=client_assets.gallery,
+            hero_photo=True,
+            brand_style=brand_style_id,
         )
         validation = validate_landing(html)
         (product_dir / "index.html").write_text(html, encoding="utf-8")
@@ -170,6 +184,8 @@ class FactoryService:
             },
             "package_delivery": delivery_meta(features),
             "catalog_enabled": catalog_view is not None,
+            "client_assets": client_assets.as_dict(),
+            "brand_style": brand_style_id,
             "client_legal": legal_info.to_dict(),
             "legal_pages": legal_meta,
             "publish_ready_de": bool(legal_meta.get("impressum_ready"))
