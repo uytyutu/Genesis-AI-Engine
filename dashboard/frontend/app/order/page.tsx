@@ -361,9 +361,6 @@ export default function OrderSitePage() {
       const body = await res.json();
       if (res.ok) {
         setInsights({ checks: body.checks || [], note_de: body.note_de });
-        if (body.visual_experience) {
-          setVxpPreview(body.visual_experience as VxpPreview);
-        }
       }
     } catch {
       /* preview optional — order still works */
