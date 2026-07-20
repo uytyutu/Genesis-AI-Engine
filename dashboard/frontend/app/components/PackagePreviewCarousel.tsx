@@ -4,20 +4,26 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   resolvePackagePreviewSlides,
+  resolvePremiumServices,
   type PackagePreviewSlide,
 } from "../lib/packagePreviewGallery";
 
 const AUTO_MS = 4500;
+/** Bust phone/CDN cache of previous 404 responses for gallery.jpg */
+const GALLERY_CACHE = "g5";
 
 type Props = {
   packageId: string;
   niche?: string | null;
+  /** Client-entered service lines (Premium block) */
+  services?: string[] | null;
   className?: string;
 };
 
 function slideUrl(slide: PackagePreviewSlide): string {
   const path = slide.src.replace(/^\/+/, "");
-  return `/package-previews/${path}`;
+  // Always a site-root public URL — never a filesystem path.
+  return `/package-previews/${path}?v=${GALLERY_CACHE}`;
 }
 
 function siteDemoUrl(slide: PackagePreviewSlide): string | null {
@@ -26,7 +32,12 @@ function siteDemoUrl(slide: PackagePreviewSlide): string | null {
   return `/package-previews/${path}`;
 }
 
-export function PackagePreviewCarousel({ packageId, niche, className = "" }: Props) {
+export function PackagePreviewCarousel({
+  packageId,
+  niche,
+  services,
+  className = "",
+}: Props) {
   const { t } = useTranslation("site");
   const isPremium = (packageId || "").toLowerCase() === "premium";
   const slides = useMemo(
@@ -34,6 +45,14 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
     [packageId, niche],
   );
   const [index, setIndex] = useState(0);
+  const premiumServices = useMemo(
+    () =>
+      isPremium
+        ? resolvePremiumServices(niche || slides[0]?.niche, services)
+        : [],
+    [isPremium, niche, services, slides],
+  );
+  const clientFilled = Boolean(services && services.length > 0);
   const touchX = useRef<number | null>(null);
   const paused = useRef(false);
 
@@ -120,7 +139,7 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
             src={slideUrl(current)}
             alt={current.alt}
             className="h-full w-full object-cover object-top"
-            loading="lazy"
+            loading="eager"
             decoding="async"
           />
           {isPremium ? (
@@ -128,6 +147,20 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
               <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
                 {t("order.previewPremiumBadge")}
               </p>
+              {premiumServices.length > 0 ? (
+                <ul className="mt-1 space-y-0.5">
+                  {premiumServices.slice(0, 4).map((s) => (
+                    <li key={s} className="text-[10px] leading-snug text-white/90">
+                      · {s}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {clientFilled ? null : (
+                <p className="mt-1 text-[9px] text-amber-100/80">
+                  {t("order.premiumServicesHint")}
+                </p>
+              )}
             </div>
           ) : null}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 to-transparent px-3 pb-3 pt-8">
