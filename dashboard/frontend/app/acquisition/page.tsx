@@ -49,6 +49,7 @@ type OutreachQuotaHealth = {
   }[];
   global_daily_cap?: number;
   min_interval_sec?: number;
+  delivery_eta_minutes?: number;
   phase_note_ru?: string;
   sniper_note_ru?: string;
 };
@@ -127,6 +128,7 @@ type OutreachRunner = {
 
 type MarketsDashboard = {
   note_ru?: string;
+  delivery_eta_minutes?: number;
   allocation_mode?: string;
   quality_first?: boolean;
   force_fill_quotas?: boolean;
@@ -151,6 +153,7 @@ type MarketsDashboard = {
     basic_price_label?: string;
     business_price_label?: string;
     premium_price_label?: string;
+    delivery_eta_minutes?: number;
     hubs?: string[];
     language?: string;
     legal_profile?: string;
@@ -909,6 +912,10 @@ export default function AcquisitionPage() {
                         ? ` · интервал ≥ ${q.min_interval_sec}с`
                         : ""}
                     </p>
+                    <p className="mt-2 text-xs font-medium text-emerald-100/90">
+                      Срок поставки сайта после оплаты: ≈{q.delivery_eta_minutes ?? 15} минут — для
+                      всех стран
+                    </p>
                   </div>
                   <div className="max-h-48 overflow-y-auto">
                     <div className="grid gap-2 text-sm sm:grid-cols-3">
@@ -975,18 +982,21 @@ export default function AcquisitionPage() {
             <p className="text-xs text-genesis-muted">
               {status.markets_dashboard.note_ru ||
                 "Стартовые квоты по странам · только качественные лиды · не заполняем любой ценой."}{" "}
-              mode={status.markets_dashboard.allocation_mode || "per_market"} · quality_first=
+              Срок сайта после оплаты: ≈
+              {status.markets_dashboard.delivery_eta_minutes ?? 15} мин (все страны). mode=
+              {status.markets_dashboard.allocation_mode || "per_market"} · quality_first=
               {String(status.markets_dashboard.quality_first ?? true)} · Вкл:{" "}
               {status.markets_dashboard.enabled_count ?? 0} · план:{" "}
               {status.markets_dashboard.planned_count ?? 0}
             </p>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[42rem] text-left text-xs">
+              <table className="w-full min-w-[46rem] text-left text-xs">
                 <thead className="text-genesis-muted">
                   <tr className="border-b border-genesis-border-subtle">
                     <th className="py-2 pr-2 font-medium">Страна</th>
                     <th className="py-2 pr-2 font-medium">Валюта</th>
                     <th className="py-2 pr-2 font-medium">Basic</th>
+                    <th className="py-2 pr-2 font-medium">Срок</th>
                     <th className="py-2 pr-2 font-medium">Лимит</th>
                     <th className="py-2 pr-2 font-medium">Отправлено</th>
                     <th className="py-2 pr-2 font-medium">Ответы</th>
@@ -1014,6 +1024,10 @@ export default function AcquisitionPage() {
                       </td>
                       <td className="py-2 pr-2 tabular-nums whitespace-nowrap">
                         {row.basic_price_label || "—"}
+                      </td>
+                      <td className="py-2 pr-2 tabular-nums whitespace-nowrap">
+                        ≈{row.delivery_eta_minutes ?? status.markets_dashboard?.delivery_eta_minutes ?? 15}{" "}
+                        мин
                       </td>
                       <td className="py-2 pr-2 tabular-nums">{row.daily_cap}</td>
                       <td className="py-2 pr-2 tabular-nums">{row.sent_today}</td>

@@ -460,6 +460,7 @@ class AcquisitionStudioService:
                     "basic_price_label": basic_label,
                     "business_price_label": business_label,
                     "premium_price_label": premium_label,
+                    "delivery_eta_minutes": 15,
                     "hubs": m.get("hubs") or [],
                     "timezone": m.get("timezone"),
                     "language": m.get("language"),
@@ -467,9 +468,11 @@ class AcquisitionStudioService:
                 }
             )
         cfg = outreach_markets_config()
+        eta = int(cfg.get("delivery_eta_minutes") or 15)
         return {
             "ok": True,
             "note_ru": cfg.get("note_ru") or "",
+            "delivery_eta_minutes": eta,
             "allocation_mode": cfg.get("allocation_mode") or "shared_global",
             "quality_first": bool(cfg.get("quality_first", True)),
             "force_fill_quotas": bool(cfg.get("force_fill_quotas", False)),
