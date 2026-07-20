@@ -203,10 +203,10 @@ class ConciergeService:
 
         if re.search(r"\b1\b|одн|одна|лендинг|landing", pages):
             chosen = basic or chosen
-            timeline = "5–7 дней"
+            timeline = "около 15 минут"
         elif re.search(r"10|больше|много|15", pages):
             chosen = premium or chosen
-            timeline = "14–21 день"
+            timeline = "около 15 минут"
 
         if payment and chosen and chosen.get("price_eur", 0) < 650:
             chosen = business or chosen

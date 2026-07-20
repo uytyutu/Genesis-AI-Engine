@@ -27,7 +27,7 @@ from app.integration.product_line import (
 from app.integration.sales_order_service import _PACKAGES as SALES_PACKAGES
 
 TRUTH_VERSION = "mission1-truth-14"
-MISSION1_LANDING_TIMELINE = "ca. 5–14 Werktage"
+MISSION1_LANDING_TIMELINE = "oft ca. 15 Minuten"
 MISSION1_PACKAGE_PRICES_EUR = (350, 650, 1200)
 
 

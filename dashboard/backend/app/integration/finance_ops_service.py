@@ -45,6 +45,16 @@ _DEFAULT_VENDORS: tuple[dict[str, Any], ...] = (
         "note": "Optional · wenn kostenpflichtig",
     },
     {
+        "id": "kimi",
+        "name": "Kimi (Moonshot)",
+        "category": "apis",
+        "pay_url": "https://platform.moonshot.ai/console/account",
+        "account_url": "https://platform.moonshot.ai",
+        "integration": "manual_link",
+        "health": "green",
+        "note": "GENESIS_KIMI_API_KEY / MOONSHOT_API_KEY — Billing Moonshot",
+    },
+    {
         "id": "hive",
         "name": "Hive",
         "category": "apis",
@@ -370,6 +380,8 @@ class FinanceOpsService:
                 continue
             status = str(order.get("status") or "")
             if status not in ("paid", "in_production", "ready", "delivered"):
+                continue
+            if order.get("finance_cleared_at"):
                 continue
             paid_at = str(order.get("paid_at") or order.get("updated_at") or "")[:10]
             rows.append(

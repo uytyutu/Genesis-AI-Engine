@@ -15,6 +15,27 @@ from app.integration.genesis_brain.public_brand import BRAND_NAME
 
 _AI = EngineAIService()
 
+CEO_NAME = "Ramish Oltiiev"
+
+# Localized sign-off — full name + title + Virtus Core for the recipient.
+_OUTREACH_CLOSE: dict[str, str] = {
+    "de": f"Mit freundlichen Grüßen\n{CEO_NAME}\nGeschäftsführer · Virtus Core für Sie",
+    "en-us": f"Thanks,\n{CEO_NAME}\nManaging Director · Virtus Core for you",
+    "en": f"Thanks,\n{CEO_NAME}\nManaging Director · Virtus Core for you",
+    "ru": f"С уважением,\n{CEO_NAME}\nГенеральный директор · Virtus Core для вас",
+    "uk": f"З повагою,\n{CEO_NAME}\nГенеральний директор · Virtus Core для вас",
+    "cs": f"S pozdravem\n{CEO_NAME}\nGenerální ředitel · Virtus Core pro vás",
+}
+
+
+def outreach_signoff(lang: str) -> str:
+    key = (lang or "en-us").lower().strip()
+    if key in ("en", "en-gb"):
+        key = "en-us"
+    elif "-" in key and key not in _OUTREACH_CLOSE:
+        key = key.split("-")[0]
+    return _OUTREACH_CLOSE.get(key) or _OUTREACH_CLOSE["en-us"]
+
 # Path A markets we actively template for Mission 1 sniper.
 MARKET_DE = "DE"
 MARKET_US = "US"
@@ -196,22 +217,23 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: unser Angebot für Ihren digitalen Neustart",
         "greeting": "Guten Tag,",
         "intro": (
-            "hier schreibt Ramish von {brand}. Wir haben den Online-Auftritt von {company} "
-            "geprüft — und möchten Ihnen als Team ein klares Angebot machen: "
+            "hier schreibt Ramish Oltiiev, Geschäftsführer von {brand}. "
+            "Wir haben den Online-Auftritt von {company} geprüft — "
+            "und möchten Ihnen als Team ein klares Angebot machen: "
             "statt Flickwerk am alten System eine neue, schnelle Landing Page, "
             "die mobil überzeugt und Anrufe/Termine leichter macht."
         ),
         "issues": "Was uns am Ist-Zustand aufgefallen ist:",
         "offer": (
             "Unser Angebot «{package}» · {price_label} einmalig — fertige Landing Page "
-            "in ca. 5–7 Werktagen als HTML für Ihren Host. "
+            "oft in ca. 15 Minuten als HTML für Ihren Host. "
             "Optional richten wir die Seite auf Ihrer Domain für Sie ein."
         ),
         "cta": (
             "Wenn das zu {company} passt, sehen Sie Pakete und Preis hier "
             "(ohne Verpflichtung):\n{order_url}"
         ),
-        "close": "Mit freundlichen Grüßen\nRamish · {brand}",
+        "close": _OUTREACH_CLOSE["de"],
         "style": "formal_de",
     },
     # EN-US — short company pitch
@@ -219,34 +241,34 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: a concrete offer from {brand}",
         "greeting": "Hi,",
         "intro": (
-            "This is Ramish from {brand}. We reviewed {company}'s online presence "
-            "and want to put a clear offer on the table: a fresh, fast landing page — "
+            "This is Ramish Oltiiev, Managing Director at {brand}. We reviewed {company}'s "
+            "online presence and want to put a clear offer on the table: a fresh, fast landing page — "
             "mobile-first, with a clean path to call or book — instead of patching an old stack."
         ),
         "issues": "What stood out on the current site:",
         "offer": (
-            "Our package «{package}» · {price_label} one-time — finished HTML in about "
-            "5–7 business days. Optional: we place it on your domain."
+            "Our package «{package}» · {price_label} one-time — finished HTML often in about "
+            "15 minutes. Optional: we place it on your domain."
         ),
         "cta": "See packages and pricing (no obligation):\n{order_url}",
-        "close": "Thanks,\nRamish · {brand}",
+        "close": _OUTREACH_CLOSE["en-us"],
         "style": "short_us",
     },
     "en": {
         "subject": "{company}: a concrete offer from {brand}",
         "greeting": "Hi,",
         "intro": (
-            "This is Ramish from {brand}. We reviewed {company}'s online presence "
-            "and want to put a clear offer on the table: a fresh, fast landing page — "
+            "This is Ramish Oltiiev, Managing Director at {brand}. We reviewed {company}'s "
+            "online presence and want to put a clear offer on the table: a fresh, fast landing page — "
             "mobile-first, with a clean path to call or book — instead of patching an old stack."
         ),
         "issues": "What stood out on the current site:",
         "offer": (
-            "Our package «{package}» · {price_label} one-time — finished HTML in about "
-            "5–7 business days. Optional: we place it on your domain."
+            "Our package «{package}» · {price_label} one-time — finished HTML often in about "
+            "15 minutes. Optional: we place it on your domain."
         ),
         "cta": "See packages and pricing (no obligation):\n{order_url}",
-        "close": "Thanks,\nRamish · {brand}",
+        "close": _OUTREACH_CLOSE["en"],
         "style": "short_us",
     },
     # RU
@@ -254,18 +276,19 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: предложение от {brand} по перезапуску сайта",
         "greeting": "Здравствуйте,",
         "intro": (
-            "пишет Ramish, {brand}. Мы посмотрели онлайн-присутствие {company} "
+            "пишет Ramish Oltiiev, генеральный директор {brand}. "
+            "Мы посмотрели онлайн-присутствие {company} "
             "и хотим дать живое предложение от нашей команды: не «чинить старый CMS», "
             "а сделать понятный перезапуск — современную быструю Landing Page "
             "с ясным путём к звонку или заявке."
         ),
         "issues": "Что заметили по текущему состоянию:",
         "offer": (
-            "Наш пакет «{package}» · {price_label} разово — готовая страница за ~5–7 рабочих дней "
+            "Наш пакет «{package}» · {price_label} разово — готовая страница часто за ~15 минут "
             "(HTML под ваш хостинг). По желанию поможем выложить на ваш домен."
         ),
         "cta": "Пакеты и оформление (без обязательств):\n{order_url}",
-        "close": "С уважением,\nRamish · {brand}",
+        "close": _OUTREACH_CLOSE["ru"],
         "style": "contextual_ru",
     },
     # UA — hryvnia in price_label
@@ -273,18 +296,19 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: пропозиція від {brand} щодо перезапуску сайту",
         "greeting": "Доброго дня,",
         "intro": (
-            "пише Ramish, {brand}. Ми переглянули онлайн-присутність {company} "
+            "пише Ramish Oltiiev, генеральний директор {brand}. "
+            "Ми переглянули онлайн-присутність {company} "
             "і хочемо дати живу пропозицію від нашої команди: не «лагодити старий CMS», "
             "а зробити зрозумілий перезапуск — сучасну швидку Landing Page "
             "з ясним шляхом до дзвінка чи заявки."
         ),
         "issues": "Що помітили зараз:",
         "offer": (
-            "Наш пакет «{package}» · {price_label} разово — готова сторінка за ~5–7 робочих днів "
+            "Наш пакет «{package}» · {price_label} разово — готова сторінка часто за ~15 хвилин "
             "(HTML під ваш хостинг). За бажанням допоможемо викласти на ваш домен."
         ),
         "cta": "Пакети та оформлення (без зобов’язань):\n{order_url}",
-        "close": "З повагою,\nRamish · {brand}",
+        "close": _OUTREACH_CLOSE["uk"],
         "style": "contextual_ua",
     },
     # CS — Czech crowns via price_label
@@ -292,18 +316,19 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: nabídka od {brand} na nový web",
         "greeting": "Dobrý den,",
         "intro": (
-            "píše Ramish z {brand}. Prohlédli jsme online prezentaci firmy {company} "
+            "píše Ramish Oltiiev, generální ředitel {brand}. "
+            "Prohlédli jsme online prezentaci firmy {company} "
             "a chceme vám jako tým dát konkrétní nabídku: místo oprav starého CMS "
             "novou rychlou landing page — přehlednou v mobilu, s jasnou cestou k hovoru nebo poptávce."
         ),
         "issues": "Co nás na současném stavu zaujalo:",
         "offer": (
             "Naše nabídka «{package}» · {price_label} jednorázově — hotová landing page "
-            "za cca 5–7 pracovních dnů (HTML pro váš hosting). "
+            "často do cca 15 minut (HTML pro váš hosting). "
             "Volitelně stránku nasadíme na vaši doménu."
         ),
         "cta": "Balíčky a ceny (bez závazku):\n{order_url}",
-        "close": "S pozdravem\nRamish · {brand}",
+        "close": _OUTREACH_CLOSE["cs"],
         "style": "formal_cs",
     },
 }
@@ -320,7 +345,7 @@ _NICHE_TEMPLATES_DE: dict[str, dict[str, str]] = {
         ),
         "offer": (
             "Angebot «{package}» · {price_label} — Fokus: Termin-/Kontaktweg, Leistungen, "
-            "Vertrauen. Fertige Landing Page in ca. 5–7 Werktagen "
+            "Vertrauen. Fertige Landing Page oft in ca. 15 Minuten "
             "(HTML, bereit für Ihren Host). Optional: Upload durch uns."
         ),
     },
@@ -335,7 +360,7 @@ _NICHE_TEMPLATES_DE: dict[str, dict[str, str]] = {
         ),
         "offer": (
             "Angebot «{package}» · {price_label} — Fokus: Patientenanfragen, Terminweg, "
-            "Praxis-Vertrauen. Fertige Landing Page in ca. 5–7 Werktagen "
+            "Praxis-Vertrauen. Fertige Landing Page oft in ca. 15 Minuten "
             "(HTML, bereit für Ihren Host). Optional: Upload durch uns."
         ),
     },
@@ -348,7 +373,7 @@ _NICHE_TEMPLATES_DE: dict[str, dict[str, str]] = {
         ),
         "offer": (
             "Angebot «{package}» · {price_label} — Fokus: Anfragen, Leistungen, Vertrauen. "
-            "Fertige Landing Page in ca. 5–7 Werktagen (HTML). Optional: Upload durch uns."
+            "Fertige Landing Page oft in ca. 15 Minuten (HTML). Optional: Upload durch uns."
         ),
     },
 }
@@ -536,6 +561,6 @@ class OutreachLanguageService:
             f"{tpl['issues']}\n{issues_block}\n\n"
             f"{tpl['offer'].format(package=package.get('name', 'Web'), price_label=price_label)}\n\n"
             f"{tpl['cta'].format(order_url=order_url, company=company)}\n\n"
-            f"{tpl['close'].format(brand=BRAND_NAME)}\n"
+            f"{outreach_signoff(lang)}\n"
         )
         return subject, body, lang

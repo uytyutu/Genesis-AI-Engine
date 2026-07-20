@@ -520,12 +520,11 @@ class FinanceService:
         path.write_text(json.dumps(snap, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def reset_ledger_and_wallet(self) -> dict:
-        """CEO: zero finance display cache and leave demo wallets empty."""
+        """CEO: zero finance display — snapshot, settlements, transactions, ops income flags."""
         snap = dict(_ZERO_SNAPSHOT)
         self._save_snapshot(snap)
         config = self._load_config()
         config["demo_mode"] = False
-        # Drop fake wallet balance labels
         wallets = dict(config.get("wallets") or {})
         for wid, entry in list(wallets.items()):
             if isinstance(entry, dict):
@@ -536,6 +535,27 @@ class FinanceService:
         path = self._memory / "finance_config.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        cleared: list[str] = []
+        for name in (
+            "finance_transactions.jsonl",
+            "finance_settlements.jsonl",
+            "finance_pending_payments.jsonl",
+            "finance_payouts.jsonl",
+            "finance_ops_documents.jsonl",
+        ):
+            p = self._memory / name
+            try:
+                if p.is_file():
+                    # Keep a one-shot backup next to the file, then empty.
+                    bak = self._memory / f"{name}.ceo_reset_backup"
+                    if not bak.is_file():
+                        bak.write_bytes(p.read_bytes())
+                    p.write_text("", encoding="utf-8")
+                    cleared.append(name)
+            except OSError:
+                pass
+
         harvest = self._memory / "engine_harvest.json"
         if harvest.is_file():
             try:
@@ -547,14 +567,71 @@ class FinanceService:
                     ),
                     encoding="utf-8",
                 )
+                cleared.append("engine_harvest.json")
             except OSError:
                 pass
+
+        # Hide existing paid test/demo orders from Finance Ops «Einnahmen» until new payments.
+        orders_cleared = 0
+        orders_path = self._memory / "sales_orders.json"
+        if orders_path.is_file():
+            try:
+                data = json.loads(orders_path.read_text(encoding="utf-8"))
+                changed = False
+                if isinstance(data, list):
+                    for order in data:
+                        if isinstance(order, dict) and str(order.get("status") or "") in (
+                            "paid",
+                            "in_production",
+                            "ready",
+                            "delivered",
+                        ):
+                            order["finance_cleared_at"] = datetime.now(timezone.utc).isoformat()
+                            orders_cleared += 1
+                            changed = True
+                elif isinstance(data, dict):
+                    orders = data.get("orders")
+                    if isinstance(orders, list):
+                        for order in orders:
+                            if isinstance(order, dict) and str(order.get("status") or "") in (
+                                "paid",
+                                "in_production",
+                                "ready",
+                                "delivered",
+                            ):
+                                order["finance_cleared_at"] = datetime.now(timezone.utc).isoformat()
+                                orders_cleared += 1
+                                changed = True
+                    else:
+                        for order in data.values():
+                            if isinstance(order, dict) and str(order.get("status") or "") in (
+                                "paid",
+                                "in_production",
+                                "ready",
+                                "delivered",
+                            ):
+                                order["finance_cleared_at"] = datetime.now(timezone.utc).isoformat()
+                                orders_cleared += 1
+                                changed = True
+                if changed:
+                    orders_path.write_text(
+                        json.dumps(data, ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
+            except (OSError, json.JSONDecodeError):
+                pass
+
         return {
             "ok": True,
             "paid_by_client_eur": 0.0,
             "available_for_withdrawal_eur": 0.0,
             "demo_mode": False,
-            "message_ru": "Кошелёк и ledger обнулены",
+            "cleared_files": cleared,
+            "orders_finance_cleared": orders_cleared,
+            "message_ru": (
+                "Кошелёк/ledger/settlements обнулены · "
+                f"Belege-файлы: {len(cleared)} · заказы скрыты из Einnahmen: {orders_cleared}"
+            ),
         }
 
     def _append_transaction(self, row: dict) -> None:

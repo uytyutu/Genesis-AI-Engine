@@ -63,7 +63,7 @@ _PACKAGES = {
             "Vollständiges Website-Archiv (ZIP) — Sie sind Eigentümer der Dateien",
             "Anleitung zur Selbst-Veröffentlichung",
             "Rechtsvorlagen für Ihren Markt (von Ihnen zu prüfen)",
-            "Lieferzeit: ca. 5–14 Werktage (je nach Rückmeldungen)",
+            "Lieferzeit: oft ca. 15 Minuten nach Zahlung",
         ],
     },
     "business": {
@@ -84,7 +84,7 @@ _PACKAGES = {
             "Hilfe beim Upload auf Ihren Hosting-Zugang (manuell)",
             "1 Korrekturrunde",
             "Domain-/Hosting-Vertrag schließen Sie direkt mit dem Anbieter",
-            "Lieferzeit: ca. 5–14 Werktage (je nach Rückmeldungen)",
+            "Lieferzeit: oft ca. 15 Minuten nach Zahlung",
         ],
     },
     "premium": {
@@ -105,7 +105,7 @@ _PACKAGES = {
             "14 Tage prioritäre Unterstützung + 3 Korrekturrunden",
             "Domain/Hosting-Miete nicht im Preis — nur Einrichtungsservice",
             "Kein Inhaber-Login und keine Online-Zahlung pro Warenkorb in diesem Paket",
-            "Lieferzeit: ca. 5–14 Werktage (je nach Rückmeldungen)",
+            "Lieferzeit: oft ca. 15 Minuten nach Zahlung",
         ],
     },
 }
@@ -700,7 +700,7 @@ class SalesOrderService:
             f"vielen Dank für Ihre Anfrage zu {label} «{name}».\n\n"
             f"Startpreis: {price_line}\n\n"
             f"Nach der Zahlung:\n{deliverables}\n\n"
-            f"Lieferzeit: 5–7 Werktage nach Bestätigung und Zahlung.\n\n"
+            f"Lieferzeit: oft ca. 15 Minuten nach Bestätigung und Zahlung.\n\n"
             f"Wenn Sie starten möchten, schreiben Sie uns — wir senden Rechnung / Zahlungslink.\n\n"
             f"Mit freundlichen Grüßen\n{BRAND_NAME}"
         )

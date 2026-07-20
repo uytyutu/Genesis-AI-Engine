@@ -249,7 +249,8 @@ class EngineAIService:
 
         system = (
             f"You write ONE commercial proposal email in {lang_label} as Virtus Core / {BRAND_NAME} "
-            f"(sender: Ramish speaking for the company). "
+            f"(sender: Ramish Oltiiev, Managing Director — sign off with full name, title, "
+            f"and «Virtus Core for you» localized). "
             "Tone: living offer from a digital company — concrete, respectful, not spam. "
             "Write as WE/OUR team addressing THEIR company by name. "
             "Mention SPECIFIC website issues as DIAGNOSIS only. "
@@ -258,7 +259,7 @@ class EngineAIService:
             "(fast, mobile-first, clear contact/booking). "
             f"State the price EXACTLY as: {money} "
             "(local currency for their market — never invent another currency). "
-            "Deliverable: finished HTML landing in ~5–7 business days, ready for their host; "
+            "Deliverable: finished HTML landing often in about 15 minutes, ready for their host; "
             "optional: we upload to their domain. "
             "Primary CTA: invite them to open the order page URL from user JSON — "
             "do NOT make 'reply to this email' the main call to action. "

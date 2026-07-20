@@ -652,9 +652,11 @@ class AcquisitionStudioService:
         blocked = 0
 
         from app.integration.lead_pipeline_service import ingest_lead
+        from app.integration.opportunity_discovery_engine import evaluate_opportunity
 
         all_rows = self._opportunity.list_opportunities(limit=500)
         busy_emails, busy_hosts = self._pipeline_busy_keys(all_rows)
+        draft_queue: list[tuple[dict, Any]] = []
 
         for lead in leads:
             result = ingest_lead(
@@ -729,6 +731,28 @@ class AcquisitionStudioService:
                     {"fit_reason": "CEO force: сайт есть — предложим улучшение онлайн-присутствия"},
                 )
 
+            website = str(row.get("website_url") or "").strip() or None
+            if website and not row.get("site_analysis"):
+                try:
+                    row["site_analysis"] = self._site.analyze(website)
+                    row["website_url"] = website
+                except Exception:
+                    pass
+            draft_queue.append((row, lead))
+
+        ranked: list[tuple[int, int, dict, Any]] = []
+        for row, lead in draft_queue:
+            all_rows = self._opportunity.list_opportunities(limit=500)
+            evaluation = evaluate_opportunity(row, all_rows=all_rows)
+            win = int(evaluation.get("win_probability_pct") or 0)
+            score = int(evaluation.get("opportunity_score_pct") or row.get("score") or 0)
+            meta = dict(row.get("meta") or {})
+            meta["win_probability_pct"] = win
+            row["meta"] = meta
+            ranked.append((win, score, row, lead))
+        ranked.sort(key=lambda t: (-t[0], -t[1]))
+
+        for _win, _score, row, lead in ranked:
             website = str(row.get("website_url") or "").strip() or None
             try:
                 self.prepare_opportunity(
@@ -2185,13 +2209,14 @@ class AcquisitionStudioService:
             f"{f' ({fit_reason.strip()[:80]})' if fit_reason else ''}.\n\n"
             f"Warum ein Neustart sinnvoll ist (Ist-Zustand):\n{issues_block}\n\n"
             f"Paket «{package['name']}» für {package.get('price_label') or f'{price:.0f} €'} — "
-            f"fertige Landing Page in ca. 5–7 Werktagen "
+            f"fertige Landing Page oft in ca. 15 Minuten "
             f"(HTML-Dateien, bereit für Ihren Hosting-Anbieter). "
             f"Optional: Upload auf Ihre Domain durch uns (Sorglos-Paket).\n\n"
             f"Wenn das für Sie interessant klingt — hier die Pakete und Bestellung "
             f"(ohne Verpflichtung):\n{order_url}\n\n"
             f"Beste Grüße\n"
-            f"Ramish · {BRAND_NAME}\n"
+            f"Ramish Oltiiev\n"
+            f"Geschäftsführer · Virtus Core für Sie\n"
         )
         return subject, body
 
