@@ -251,13 +251,15 @@ class AcquisitionStudioService:
 
     def send_next_quality_lead(self) -> dict[str, Any]:
         """Send one quality lead if outreach enabled — any market, never force-fill."""
-        outreach_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        from app.integration.outreach_ceo_prefs import outreach_send_allowed
+
+        outreach_enabled = outreach_send_allowed(self._memory_dir)
         if not outreach_enabled:
             return {
                 "sent": False,
                 "skipped": True,
                 "reason": "outreach_disabled",
-                "message_ru": "Отправка выкл. (GENESIS_OUTREACH_ENABLED) — только hunt/draft",
+                "message_ru": "Отправка выкл. (тумблер Автоотправка / GENESIS_OUTREACH_ENABLED) — только hunt/draft",
             }
         rows = self._opportunity._load_rows()
         candidates: list[tuple[int, int, dict]] = []
@@ -427,21 +429,24 @@ class AcquisitionStudioService:
         }
 
     def studio_status(self) -> dict:
+        from app.integration.outreach_ceo_prefs import load_prefs, outreach_send_allowed
+
         rows = self._opportunity._load_rows()
         pending = sum(1 for r in rows if r.get("outreach_status") == "pending_approval")
         manual = sum(1 for r in rows if r.get("outreach_status") == "manual_review")
         sent = sum(1 for r in rows if r.get("outreach_status") == "sent")
-        outreach_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        prefs = load_prefs(self._memory_dir)
+        outreach_enabled = outreach_send_allowed(self._memory_dir)
         return {
             "version": "1.5-foundation",
             "name": "Country Desk · DE",
             "auto_search": False,
-            "auto_send": False,
+            "auto_refresh": bool(prefs.get("auto_refresh")),
+            "auto_send": bool(prefs.get("auto_send")),
             "outreach_send_enabled": outreach_enabled,
             "outreach_send_note": (
-                "API-send nur mit GENESIS_OUTREACH_ENABLED=true, CEO Approve "
-                "und Impressum-Footer + Abmelde-Link. "
-                "Mechanismen ≠ Rechtsgarantie — Verantwortung beim Absender."
+                "Автоотправка: тумблер CEO или GENESIS_OUTREACH_ENABLED=true + Resend + "
+                "Impressum/Abmelde. Ответственность за рассылку — у отправителя."
             ),
             "law": "Plan → Approve → Act",
             "pending_approval_count": pending,
@@ -459,6 +464,24 @@ class AcquisitionStudioService:
             "adaptive_outreach": self.adaptive_dashboard(auto_review=True),
             "outreach_runner": self.runner_status(),
         }
+
+    def set_ceo_prefs(
+        self, *, auto_refresh: bool | None = None, auto_send: bool | None = None
+    ) -> dict:
+        from app.integration.outreach_ceo_prefs import save_prefs
+
+        prefs = save_prefs(
+            self._memory_dir, auto_refresh=auto_refresh, auto_send=auto_send
+        )
+        # Auto-refresh on → ensure runner is running so ticks keep hunting.
+        if prefs.get("auto_refresh") and not self.runner_status().get("running"):
+            self.runner_start()
+        if prefs.get("auto_refresh") is False and self.runner_status().get("running"):
+            # Only stop if user turned refresh off (keep running if they started Пуск manually)
+            pass
+        return {**prefs, "outreach_send_enabled": bool(prefs.get("auto_send")) or (
+            __import__("os").getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        )}
 
     def adaptive_dashboard(self, *, auto_review: bool = False) -> dict[str, Any]:
         rows = self._opportunity._load_rows()
@@ -717,6 +740,9 @@ class AcquisitionStudioService:
         from app.integration.outreach_language_service import resolve_market_from_row
 
         market = resolve_market_from_row(row) or "DE"
+        currency = "EUR"
+        symbol = "€"
+        price_label = f"{price:.0f} €"
         try:
             from app.integration.commerce_engine import resolve_final_offer
 
@@ -736,16 +762,32 @@ class AcquisitionStudioService:
                 "market_code": offer.market_code,
             }
             price = float(offer.amount)
+            currency = str(offer.currency or "EUR")
+            symbol = str(offer.symbol or "€")
+            price_label = str(offer.price_label or price_label)
         except Exception:
-            packages = {p["id"]: p for p in self._sales.packages()}
+            packages = {
+                p["id"]: p for p in self._sales.packages(market_code=market)
+            }
             package = dict(packages.get(package_id, packages["basic"]))
-            package.setdefault("price_label", f"{price:.0f} €")
+            currency = str(package.get("currency") or "EUR")
+            symbol = str(package.get("symbol") or "€")
+            price_label = str(
+                package.get("price_label") or f"{price:.0f} {symbol}"
+            ).strip()
+            package.setdefault("price_label", price_label)
+            package.setdefault("currency", currency)
+            package.setdefault("symbol", symbol)
+            package.setdefault("market_code", market)
+            if package.get("price_eur") is not None:
+                price = float(package["price_eur"])
 
         audit_md = build_audit_report_md(
             row,
             analysis,
             service_label=str(evaluation.get("service_label_ru") or package.get("name") or "Аудит"),
             price_eur=float(price),
+            price_label=price_label,
             win_pct=int(evaluation.get("win_probability_pct") or 0),
         )
 
@@ -765,11 +807,18 @@ class AcquisitionStudioService:
         meta["qualification"] = qualify_lead(row, analysis, evaluation=evaluation)
         meta["audit_report_md"] = audit_md
         meta["product_type"] = "site_audit_report"
+        meta["recommended_currency"] = currency
+        meta["recommended_symbol"] = symbol
+        meta["recommended_price_label"] = price_label
         row["meta"] = meta
 
         now = datetime.now(timezone.utc).isoformat()
         row["recommended_package_id"] = package_id
+        # Local-market amount (field name historical; not always EUR).
         row["recommended_price_eur"] = price
+        row["recommended_currency"] = currency
+        row["recommended_symbol"] = symbol
+        row["recommended_price_label"] = price_label
         row["pricing_rationale"] = rationale
         row["potential_value_eur"] = price
         row["email_subject"] = subject
@@ -797,7 +846,7 @@ class AcquisitionStudioService:
         row["meta"] = meta
         row["status"] = "proposed"
         row["status_label"] = (
-            "Ручная проверка (цена > 50 €)"
+            f"Ручная проверка (цена > {AUTO_DRAFT_MAX_EUR:.0f} {symbol})"
             if row["outreach_status"] == "manual_review"
             else (
                 f"Высокий win {win_pct}% · в Approve"
@@ -810,7 +859,7 @@ class AcquisitionStudioService:
         self._log_interaction(
             row,
             "prepared",
-            f"КП и письмо · lane={lane} · {price_f:.0f} € · win={win_pct}%",
+            f"КП и письмо · lane={lane} · {price_label} · win={win_pct}%",
         )
         self._opportunity._save_rows(self._replace_row(opportunity_id, row))
         return row
@@ -1040,15 +1089,94 @@ class AcquisitionStudioService:
         return [self._queue_item(r) for r in pending[:limit]]
 
     @staticmethod
+    def _resolve_queue_pricing(r: dict, meta: dict) -> dict:
+        """Local-market price for owner lead lists (field name ``*_price_eur`` is historical)."""
+        from app.integration.commerce_engine import resolve_final_offer
+        from app.integration.market_registry import format_amount, get_market
+        from app.integration.outreach_language_service import resolve_market_from_row
+
+        market = (
+            resolve_market_from_row(r)
+            or meta.get("market")
+            or r.get("market")
+            or "DE"
+        )
+        package_id = (
+            r.get("recommended_package_id")
+            or meta.get("recommended_package_id")
+            or "basic"
+        )
+        if package_id not in ("basic", "business", "premium"):
+            package_id = "basic"
+
+        market_profile = get_market(market)
+        expected_currency = str(market_profile.currency or "EUR").upper()
+        expected_symbol = str(market_profile.symbol or "€")
+
+        currency = str(
+            r.get("recommended_currency") or meta.get("recommended_currency") or ""
+        ).upper()
+        price_label = str(
+            r.get("recommended_price_label") or meta.get("recommended_price_label") or ""
+        ).strip()
+        symbol = str(
+            r.get("recommended_symbol") or meta.get("recommended_symbol") or ""
+        )
+        amount_raw = r.get("recommended_price_eur") or r.get("potential_value_eur")
+        amount = float(amount_raw) if amount_raw not in (None, "") else None
+
+        stale = (
+            not price_label
+            or not currency
+            or currency != expected_currency
+            or (
+                expected_currency != "EUR"
+                and "€" in price_label
+                and expected_symbol not in price_label
+            )
+        )
+        if stale:
+            try:
+                offer = resolve_final_offer(package_id, market)
+                return {
+                    "recommended_price_eur": float(offer.amount),
+                    "recommended_currency": offer.currency,
+                    "recommended_symbol": offer.symbol,
+                    "recommended_price_label": offer.price_label,
+                }
+            except Exception:
+                pass
+
+        if not currency:
+            currency = expected_currency
+        if not symbol:
+            symbol = expected_symbol
+        if not price_label and amount is not None:
+            price_label = format_amount(int(round(amount)), symbol)
+
+        return {
+            "recommended_price_eur": amount,
+            "recommended_currency": currency,
+            "recommended_symbol": symbol,
+            "recommended_price_label": price_label,
+        }
+
+    @staticmethod
     def _queue_item(r: dict) -> dict:
         meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
         issues = list((r.get("site_analysis") or {}).get("issues") or [])[:5]
+        pricing = AcquisitionStudioService._resolve_queue_pricing(r, meta)
+        currency = pricing["recommended_currency"]
+        price_label = pricing["recommended_price_label"]
         return {
             "id": r["id"],
             "company_name": r.get("company_name"),
             "contact": r.get("contact"),
             "website_url": r.get("website_url"),
-            "recommended_price_eur": r.get("recommended_price_eur"),
+            "recommended_price_eur": pricing["recommended_price_eur"],
+            "recommended_currency": currency,
+            "recommended_symbol": pricing["recommended_symbol"],
+            "recommended_price_label": price_label,
             "recommended_package_id": r.get("recommended_package_id"),
             "email_subject": r.get("email_subject"),
             "proposed_message": r.get("proposed_message"),
@@ -1743,7 +1871,8 @@ class AcquisitionStudioService:
             f"eine moderne, schnelle Landing Page — mobil optimiert, mit klarem Kontakt-/Terminweg"
             f"{f' ({fit_reason.strip()[:80]})' if fit_reason else ''}.\n\n"
             f"Warum ein Neustart sinnvoll ist (Ist-Zustand):\n{issues_block}\n\n"
-            f"Paket «{package['name']}» für {price:.0f} € — fertige Landing Page in ca. 5–7 Werktagen "
+            f"Paket «{package['name']}» für {package.get('price_label') or f'{price:.0f} €'} — "
+            f"fertige Landing Page in ca. 5–7 Werktagen "
             f"(HTML-Dateien, bereit für Ihren Hosting-Anbieter). "
             f"Optional: Upload auf Ihre Domain durch uns (Sorglos-Paket).\n\n"
             f"Wenn das für Sie interessant klingt — hier die Pakete und Bestellung "

@@ -1476,6 +1476,18 @@ def acquisition_runner_start() -> dict:
     return _ctx().acquisition.runner_start()
 
 
+@app.post("/api/acquisition/ceo-prefs")
+def acquisition_ceo_prefs(body: dict | None = None) -> dict:
+    """Toggle auto-refresh / auto-send for Country Desk."""
+    body = body or {}
+    auto_refresh = body.get("auto_refresh")
+    auto_send = body.get("auto_send")
+    return _ctx().acquisition.set_ceo_prefs(
+        auto_refresh=None if auto_refresh is None else bool(auto_refresh),
+        auto_send=None if auto_send is None else bool(auto_send),
+    )
+
+
 @app.post("/api/acquisition/runner/stop")
 def acquisition_runner_stop() -> dict:
     return _ctx().acquisition.runner_stop()
@@ -2172,6 +2184,12 @@ def public_legal_status() -> dict:
     return _legal().status()
 
 
+@app.get("/api/public/legal/operator")
+def public_legal_operator() -> dict:
+    """Seller identity for checkout trust (Impressum preview) — no secrets."""
+    return _legal().operator_preview()
+
+
 @app.get("/api/public/legal/documents")
 def public_legal_documents() -> dict:
     return {"documents": _legal().documents_catalog()}
@@ -2542,6 +2560,14 @@ def sales_order_checkout(order_id: str, request: SalesCheckoutRequest) -> SalesC
             raise HTTPException(status_code=404, detail="Заказ не найден")
         if code == "payment_not_configured":
             raise HTTPException(status_code=400, detail="Платёжная система не настроена")
+        if code == "invalid_status":
+            raise HTTPException(status_code=400, detail="Заказ нельзя оплатить в текущем статусе")
+        if code.startswith("stripe_error:"):
+            stripe_detail = code.split(":", 1)[1].strip() or "Stripe отклонил оплату"
+            raise HTTPException(
+                status_code=400,
+                detail=f"Stripe: {stripe_detail}",
+            )
         raise HTTPException(status_code=400, detail="Нельзя оплатить этот заказ")
     return SalesCheckoutResponse(**result)
 

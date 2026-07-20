@@ -56,7 +56,8 @@ def market_daily_cap(code: str) -> int:
     if not m:
         return 20
     try:
-        return max(1, min(200, int(m.get("daily_cap") or 20)))
+        # Allow 3× start quotas (US 300 …) without silent clamp to 200.
+        return max(1, min(1000, int(m.get("daily_cap") or 20)))
     except (TypeError, ValueError):
         return 20
 

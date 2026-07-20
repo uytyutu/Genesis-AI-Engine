@@ -41,21 +41,23 @@ def test_start_quotas_per_country():
     assert get_market("NZ")["enabled"] is False
     assert shared_global_mode() is False
     assert quality_first() is True
-    assert market_daily_cap("US") == 100
-    assert market_daily_cap("DE") == 50
-    assert market_daily_cap("GB") == 50
-    assert market_daily_cap("FR") == 40
-    assert market_daily_cap("IT") == 35
-    assert market_daily_cap("ES") == 30
-    assert market_daily_cap("CA") == 25
-    assert market_daily_cap("AU") == 20
-    assert market_daily_cap("NL") == 20
-    assert market_daily_cap("PL") == 20
-    assert market_daily_cap("CH") == 15
-    assert market_daily_cap("UA") == 10
-    assert market_daily_cap("RU") == 10
-    assert enabled_markets_sum_caps() == 485
+    assert market_daily_cap("US") == 300
+    assert market_daily_cap("DE") == 150
+    assert market_daily_cap("GB") == 150
+    assert market_daily_cap("FR") == 120
+    assert market_daily_cap("IT") == 105
+    assert market_daily_cap("ES") == 90
+    assert market_daily_cap("CA") == 75
+    assert market_daily_cap("AU") == 60
+    assert market_daily_cap("NL") == 60
+    assert market_daily_cap("PL") == 60
+    assert market_daily_cap("CH") == 45
+    assert market_daily_cap("UA") == 30
+    assert market_daily_cap("RU") == 30
+    assert market_daily_cap("CZ") == 30
+    assert enabled_markets_sum_caps() == 1455
     assert market_template_lang("UA") == "uk"
+    assert market_template_lang("CZ") == "cs"
     assert market_send_pool("RU") == "cis"
     assert market_legal_profile("US") == "us_can_spam"
     site = market_website_profile("DE")
@@ -72,10 +74,10 @@ def test_per_market_cap_blocks_and_single_mailbox_fallback(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     monkeypatch.setenv("GENESIS_OUTREACH_FROM_DOMAINS", "de:A <a@one.de>")
-    monkeypatch.setenv("GENESIS_OUTREACH_GLOBAL_DAILY_CAP", "485")
+    monkeypatch.setenv("GENESIS_OUTREACH_GLOBAL_DAILY_CAP", "1455")
     q = OutreachSendQuota(tmp_path)
-    # AT start quota = 10
-    for _ in range(10):
+    # AT start quota = 30 (3× prior)
+    for _ in range(30):
         addr, meta = q.pick_from_address(market="AT")
         assert addr and meta["ok"], meta
         q.record_send(addr, market="AT")
@@ -88,9 +90,9 @@ def test_per_market_cap_blocks_and_single_mailbox_fallback(
     h = q.health()
     assert h["allocation_mode"] == "per_market"
     assert h["quality_first"] is True
-    assert h["global_daily_cap"] == 485
+    assert h["global_daily_cap"] == 1455
     by = {r["code"]: r for r in h["markets"]}
-    assert by["AT"]["used_today"] == 10 and by["AT"]["at_cap"]
+    assert by["AT"]["used_today"] == 30 and by["AT"]["at_cap"]
     assert by["FR"]["enabled"] and by["FR"]["used_today"] == 0
 
 

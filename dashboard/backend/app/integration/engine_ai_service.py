@@ -223,8 +223,11 @@ class EngineAIService:
         package_name: str,
         price_eur: float,
         fit_reason: str = "",
+        price_label: str = "",
+        currency: str = "",
+        market: str = "",
     ) -> dict[str, Any] | None:
-        """LLM outreach draft — professional cold contact, not spam."""
+        """LLM outreach draft — company-voice commercial proposal, not spam."""
         provider = self._pick_provider()
         if not provider:
             return None
@@ -232,38 +235,53 @@ class EngineAIService:
         issues = [str(i) for i in (analysis.get("issues") or [])[:7]]
         strengths = [str(s) for s in (analysis.get("strengths") or [])[:3]]
         lang = (language or "de").split("-")[0]
-        lang_names = {"de": "German", "en": "English", "fr": "French", "es": "Spanish"}
+        lang_names = {
+            "de": "German",
+            "en": "English",
+            "fr": "French",
+            "es": "Spanish",
+            "uk": "Ukrainian",
+            "ru": "Russian",
+            "cs": "Czech",
+        }
         lang_label = lang_names.get(lang, "German")
+        money = (price_label or "").strip() or f"{price_eur:.0f} EUR"
 
         system = (
-            f"You write ONE professional cold-outreach email in {lang_label} for Virtus Core / {BRAND_NAME}. "
-            "Tone: helpful expert, not spam. Mention SPECIFIC website issues as DIAGNOSIS only. "
+            f"You write ONE commercial proposal email in {lang_label} as Virtus Core / {BRAND_NAME} "
+            f"(sender: Ramish speaking for the company). "
+            "Tone: living offer from a digital company — concrete, respectful, not spam. "
+            "Write as WE/OUR team addressing THEIR company by name. "
+            "Mention SPECIFIC website issues as DIAGNOSIS only. "
             "Do NOT promise to repair, patch, or connect to their existing WordPress/Wix/CMS. "
-            "Sell Path A: a NEW modern Landing Page = digital restart of their online presence "
+            "Sell Path A: a NEW modern Landing Page = digital restart "
             "(fast, mobile-first, clear contact/booking). "
+            f"State the price EXACTLY as: {money} "
+            "(local currency for their market — never invent another currency). "
             "Deliverable: finished HTML landing in ~5–7 business days, ready for their host; "
-            "optional: we upload to their domain (hands-off / Sorglos). "
-            "Primary CTA: invite them to open the order page URL (included in user JSON) — "
+            "optional: we upload to their domain. "
+            "Primary CTA: invite them to open the order page URL from user JSON — "
             "do NOT make 'reply to this email' the main call to action. "
-            "Explain business impact (lost customers, no HTTPS, weak mobile). "
             "No hype, no ALL CAPS, no mass-mail tone. "
             "Reply JSON only: {\"subject\": \"...\", \"body\": \"...\"}"
         )
-        order_base = (
-            os.getenv("GENESIS_PUBLIC_URL", "").strip()
-            or os.getenv("NEXT_PUBLIC_SITE_URL", "").strip()
-            or "https://genesis-ai-engine.vercel.app"
-        ).rstrip("/")
+        from app.integration.public_site_url import configured_public_base
+
+        order_base = configured_public_base()
+        mcode = (market or "").strip().upper()
+        order_url = f"{order_base}/order" + (f"?market={mcode}" if mcode else "")
         user = json.dumps(
             {
                 "company": company,
                 "issues": issues,
                 "strengths": strengths,
                 "package": package_name,
-                "price_eur": price_eur,
+                "price_label": money,
+                "currency": currency or "",
+                "market": mcode,
                 "fit_reason": fit_reason[:200],
                 "site_url": analysis.get("final_url") or analysis.get("url"),
-                "order_url": f"{order_base}/order",
+                "order_url": order_url,
             },
             ensure_ascii=False,
         )

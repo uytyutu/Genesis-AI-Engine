@@ -32,6 +32,17 @@ _MARKET_TO_LANG: dict[str, str] = {
     "GB": "en-us",
     "UK": "en-us",
     "AU": "en-us",
+    "NZ": "en-us",
+    "FR": "en-us",
+    "IT": "en-us",
+    "ES": "en-us",
+    "NL": "en-us",
+    "BE": "en-us",
+    "PT": "en-us",
+    "PL": "en-us",
+    "RO": "en-us",
+    "SK": "en-us",
+    "CZ": "cs",
     "RU": "ru",
     "UA": "uk",
     "BY": "ru",
@@ -41,16 +52,14 @@ _MARKET_TO_LANG: dict[str, str] = {
 
 
 def public_order_url(*, market: str | None = None) -> str:
-    """Public Path A checkout — optional ?market= for future localization (no multisite yet)."""
-    base = (
-        os.getenv("GENESIS_PUBLIC_URL", "").strip()
-        or os.getenv("NEXT_PUBLIC_SITE_URL", "").strip()
-        or "https://genesis-ai-engine.vercel.app"
-    ).rstrip("/")
+    """Public Path A checkout — ?market= so checkout shows local currency."""
+    from app.integration.public_site_url import configured_public_base
+
+    base = configured_public_base()
     url = f"{base}/order"
     m = (market or "").strip().upper()
-    if m in ("DE", "US", "UA", "RU", "CIS"):
-        return f"{url}?market={m.lower()}"
+    if m:
+        return f"{url}?market={m}"
     return url
 
 
@@ -149,98 +158,120 @@ def language_for_market(market: str | None) -> str | None:
 # --- Path A templates (CEO review) -------------------------------------------------
 
 _TEMPLATES: dict[str, dict[str, str]] = {
-    # DE — formal, Sie, no hype
+    # DE — company voice, concrete offer
     "de": {
-        "subject": "{company} — Vorschlag für einen digitalen Neustart (Landing Page)",
+        "subject": "{company}: unser Angebot für Ihren digitalen Neustart",
         "greeting": "Guten Tag,",
         "intro": (
-            "wir haben uns den Online-Auftritt von {company} angesehen. "
-            "Anstelle einer aufwendigen Sanierung eines bestehenden Systems "
-            "schlagen wir einen klaren Neustart vor: eine moderne, schnelle Landing Page — "
-            "mobil optimiert, mit nachvollziehbarem Weg zu Anruf oder Termin."
+            "hier schreibt Ramish von {brand}. Wir haben den Online-Auftritt von {company} "
+            "geprüft — und möchten Ihnen als Team ein klares Angebot machen: "
+            "statt Flickwerk am alten System eine neue, schnelle Landing Page, "
+            "die mobil überzeugt und Anrufe/Termine leichter macht."
         ),
-        "issues": "Beobachtungen zum Ist-Zustand:",
+        "issues": "Was uns am Ist-Zustand aufgefallen ist:",
         "offer": (
-            "Angebot «{package}» · {price_label} (einmalig) — fertige Landing Page "
-            "in ca. 5–7 Werktagen als HTML-Dateien für Ihren Hosting-Anbieter. "
-            "Optional: Einrichtung auf Ihrer Domain durch uns."
+            "Unser Angebot «{package}» · {price_label} einmalig — fertige Landing Page "
+            "in ca. 5–7 Werktagen als HTML für Ihren Host. "
+            "Optional richten wir die Seite auf Ihrer Domain für Sie ein."
         ),
         "cta": (
-            "Wenn das für Sie infrage kommt, finden Sie die Pakete hier "
+            "Wenn das zu {company} passt, sehen Sie Pakete und Preis hier "
             "(ohne Verpflichtung):\n{order_url}"
         ),
         "close": "Mit freundlichen Grüßen\nRamish · {brand}",
         "style": "formal_de",
     },
-    # EN-US — short / direct
+    # EN-US — short company pitch
     "en-us": {
-        "subject": "{company} — quick idea for a cleaner landing page",
+        "subject": "{company}: a concrete offer from {brand}",
         "greeting": "Hi,",
         "intro": (
-            "Took a look at {company}'s site. Instead of patching an old setup, "
-            "we ship a fresh, fast landing page — mobile-first, clear path to call or book."
+            "This is Ramish from {brand}. We reviewed {company}'s online presence "
+            "and want to put a clear offer on the table: a fresh, fast landing page — "
+            "mobile-first, with a clean path to call or book — instead of patching an old stack."
         ),
-        "issues": "What stood out:",
+        "issues": "What stood out on the current site:",
         "offer": (
-            "«{package}» · {price_label} one-time — live HTML in about 5–7 business days. "
-            "Optional: we put it on your domain."
+            "Our package «{package}» · {price_label} one-time — finished HTML in about "
+            "5–7 business days. Optional: we place it on your domain."
         ),
-        "cta": "Packages (no obligation):\n{order_url}",
+        "cta": "See packages and pricing (no obligation):\n{order_url}",
         "close": "Thanks,\nRamish · {brand}",
         "style": "short_us",
     },
-    # keep "en" as alias of en-us for older callers
     "en": {
-        "subject": "{company} — quick idea for a cleaner landing page",
+        "subject": "{company}: a concrete offer from {brand}",
         "greeting": "Hi,",
         "intro": (
-            "Took a look at {company}'s site. Instead of patching an old setup, "
-            "we ship a fresh, fast landing page — mobile-first, clear path to call or book."
+            "This is Ramish from {brand}. We reviewed {company}'s online presence "
+            "and want to put a clear offer on the table: a fresh, fast landing page — "
+            "mobile-first, with a clean path to call or book — instead of patching an old stack."
         ),
-        "issues": "What stood out:",
+        "issues": "What stood out on the current site:",
         "offer": (
-            "«{package}» · {price_label} one-time — live HTML in about 5–7 business days. "
-            "Optional: we put it on your domain."
+            "Our package «{package}» · {price_label} one-time — finished HTML in about "
+            "5–7 business days. Optional: we place it on your domain."
         ),
-        "cta": "Packages (no obligation):\n{order_url}",
+        "cta": "See packages and pricing (no obligation):\n{order_url}",
         "close": "Thanks,\nRamish · {brand}",
         "style": "short_us",
     },
-    # RU — contextual / trust
+    # RU
     "ru": {
-        "subject": "{company} — аккуратный цифровой перезапуск сайта",
+        "subject": "{company}: предложение от {brand} по перезапуску сайта",
         "greeting": "Здравствуйте,",
         "intro": (
-            "посмотрели онлайн-присутствие {company}. "
-            "Мы не предлагаем «починить старый CMS», а сделать понятный перезапуск: "
-            "современную быструю Landing Page — удобно с телефона, с ясным путём к звонку или заявке."
+            "пишет Ramish, {brand}. Мы посмотрели онлайн-присутствие {company} "
+            "и хотим дать живое предложение от нашей команды: не «чинить старый CMS», "
+            "а сделать понятный перезапуск — современную быструю Landing Page "
+            "с ясным путём к звонку или заявке."
         ),
         "issues": "Что заметили по текущему состоянию:",
         "offer": (
-            "Пакет «{package}» · {price_label} разово — готовая страница за ~5–7 рабочих дней "
+            "Наш пакет «{package}» · {price_label} разово — готовая страница за ~5–7 рабочих дней "
             "(HTML под ваш хостинг). По желанию поможем выложить на ваш домен."
         ),
         "cta": "Пакеты и оформление (без обязательств):\n{order_url}",
         "close": "С уважением,\nRamish · {brand}",
         "style": "contextual_ru",
     },
-    # UA — contextual / trust
+    # UA — hryvnia in price_label
     "uk": {
-        "subject": "{company} — акуратний цифровий перезапуск сайту",
+        "subject": "{company}: пропозиція від {brand} щодо перезапуску сайту",
         "greeting": "Доброго дня,",
         "intro": (
-            "переглянули онлайн-присутність {company}. "
-            "Ми не пропонуємо «лагодити старий CMS», а зробити зрозумілий перезапуск: "
-            "сучасну швидку Landing Page — зручно з телефону, з ясним шляхом до дзвінка чи заявки."
+            "пише Ramish, {brand}. Ми переглянули онлайн-присутність {company} "
+            "і хочемо дати живу пропозицію від нашої команди: не «лагодити старий CMS», "
+            "а зробити зрозумілий перезапуск — сучасну швидку Landing Page "
+            "з ясним шляхом до дзвінка чи заявки."
         ),
         "issues": "Що помітили зараз:",
         "offer": (
-            "Пакет «{package}» · {price_label} разово — готова сторінка за ~5–7 робочих днів "
+            "Наш пакет «{package}» · {price_label} разово — готова сторінка за ~5–7 робочих днів "
             "(HTML під ваш хостинг). За бажанням допоможемо викласти на ваш домен."
         ),
         "cta": "Пакети та оформлення (без зобов’язань):\n{order_url}",
         "close": "З повагою,\nRamish · {brand}",
         "style": "contextual_ua",
+    },
+    # CS — Czech crowns via price_label
+    "cs": {
+        "subject": "{company}: nabídka od {brand} na nový web",
+        "greeting": "Dobrý den,",
+        "intro": (
+            "píše Ramish z {brand}. Prohlédli jsme online prezentaci firmy {company} "
+            "a chceme vám jako tým dát konkrétní nabídku: místo oprav starého CMS "
+            "novou rychlou landing page — přehlednou v mobilu, s jasnou cestou k hovoru nebo poptávce."
+        ),
+        "issues": "Co nás na současném stavu zaujalo:",
+        "offer": (
+            "Naše nabídka «{package}» · {price_label} jednorázově — hotová landing page "
+            "za cca 5–7 pracovních dnů (HTML pro váš hosting). "
+            "Volitelně stránku nasadíme na vaši doménu."
+        ),
+        "cta": "Balíčky a ceny (bez závazku):\n{order_url}",
+        "close": "S pozdravem\nRamish · {brand}",
+        "style": "formal_cs",
     },
 }
 
@@ -404,12 +435,24 @@ class OutreachLanguageService:
 
         if allow_llm:
             llm_lang = "en" if lang == "en-us" else lang
+            price_label_llm = str(package.get("price_label") or "").strip()
+            if not price_label_llm:
+                try:
+                    from app.integration.market_registry import format_amount, get_market
+
+                    mkt = get_market(market or "DE")
+                    price_label_llm = format_amount(int(round(float(price))), mkt.symbol)
+                except Exception:
+                    price_label_llm = f"{float(price):.0f} €"
             llm_draft = _AI.generate_personalized_offer(
                 company=company,
                 analysis=analysis or {},
                 language=llm_lang,
                 package_name=str(package.get("name", "Web")),
                 price_eur=price,
+                price_label=price_label_llm,
+                currency=str(package.get("currency") or ""),
+                market=market or "",
                 fit_reason=fit_reason,
             )
             if llm_draft:
@@ -435,13 +478,15 @@ class OutreachLanguageService:
             empty_issue = "• Есть запас по ясности и мобильной версии"
         elif lang == "uk":
             empty_issue = "• Є запас за ясністю та мобільною версією"
+        elif lang == "cs":
+            empty_issue = "• Je prostor zlepšit mobil a cestu ke kontaktu"
         else:
             empty_issue = "• Room to tighten mobile + contact path"
         issues_block = (
             "\n".join(f"• {i}" for i in issues[:7]) if issues else empty_issue
         )
 
-        subject = tpl["subject"].format(company=company)
+        subject = tpl["subject"].format(company=company, brand=BRAND_NAME)
         order_url = public_order_url(market=market)
         price_label = str(package.get("price_label") or "").strip()
         if not price_label:
@@ -454,10 +499,10 @@ class OutreachLanguageService:
                 price_label = f"{float(price):.0f} €"
         body = (
             f"{tpl['greeting']}\n\n"
-            f"{tpl['intro'].format(company=company)}\n\n"
+            f"{tpl['intro'].format(company=company, brand=BRAND_NAME)}\n\n"
             f"{tpl['issues']}\n{issues_block}\n\n"
             f"{tpl['offer'].format(package=package.get('name', 'Web'), price_label=price_label)}\n\n"
-            f"{tpl['cta'].format(order_url=order_url)}\n\n"
+            f"{tpl['cta'].format(order_url=order_url, company=company)}\n\n"
             f"{tpl['close'].format(brand=BRAND_NAME)}\n"
         )
         return subject, body, lang

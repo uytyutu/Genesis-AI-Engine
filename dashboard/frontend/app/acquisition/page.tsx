@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { formatEur } from "../lib/formatEur";
+import { formatEur, formatLocalizedMoney } from "../lib/formatEur";
 
 import { BRAND_NAME } from "../lib/publicBrand";
 
@@ -156,6 +156,7 @@ type StudioStatus = {
   version: string;
   name: string;
   auto_search: boolean;
+  auto_refresh?: boolean;
   auto_send: boolean;
   outreach_send_enabled: boolean;
   outreach_send_note: string;
@@ -187,6 +188,8 @@ type QueueItem = {
   contact: string;
   website_url: string;
   recommended_price_eur: number;
+  recommended_currency?: string;
+  recommended_price_label?: string;
   recommended_package_id: string;
   email_subject: string;
   proposed_message: string;
@@ -552,12 +555,19 @@ export default function AcquisitionPage() {
           </p>
           {status && (
             <div className="mt-4 flex flex-wrap gap-2 text-xs">
-              <Badge ok={!status.auto_send}>Без автоотправки</Badge>
-              <Badge ok>Авто-черновик ≤{status.auto_draft_max_eur ?? 50}€</Badge>
+              <Badge ok={Boolean(status.auto_refresh) || runnerRunning}>
+                {status.auto_refresh || runnerRunning ? "Автообновление вкл" : "Автообновление выкл"}
+              </Badge>
+              <Badge ok={status.auto_send || status.outreach_send_enabled}>
+                {status.auto_send || status.outreach_send_enabled
+                  ? "Автоотправка вкл"
+                  : "Без автоотправки"}
+              </Badge>
+              <Badge ok>Локальные цены (CZK / UAH / USD / EUR…)</Badge>
               <Badge ok={(status.manual_review_count ?? 0) === 0}>
                 Ручная проверка: {status.manual_review_count ?? 0}
               </Badge>
-              <Badge ok={status.outreach_send_enabled}>Resend при одобрении</Badge>
+              <Badge ok={status.outreach_send_enabled}>Resend / send path</Badge>
               <span className="text-genesis-muted self-center">
                 Одобрение: {status.pending_approval_count} · Отправлено: {status.sent_count}
               </span>
@@ -603,6 +613,71 @@ export default function AcquisitionPage() {
             </div>
           )}
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <button
+              type="button"
+              disabled={busy === "prefs-refresh"}
+              onClick={() => {
+                void (async () => {
+                  setBusy("prefs-refresh");
+                  setMessage("");
+                  try {
+                    const next = !(status?.auto_refresh || runnerRunning);
+                    const res = await fetch(`${API}/api/acquisition/ceo-prefs`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ auto_refresh: next }),
+                    });
+                    const body = await res.json();
+                    setMessage(
+                      next
+                        ? "Автообновление включено · runner охотится по странам"
+                        : "Автообновление выключено",
+                    );
+                    if (next && !runnerRunning) {
+                      await fetch(`${API}/api/acquisition/runner/start`, { method: "POST" });
+                    }
+                    await refresh();
+                    void body;
+                  } finally {
+                    setBusy("");
+                  }
+                })();
+              }}
+              className="rounded-lg border border-sky-500/40 bg-sky-950/30 px-3 py-1.5 font-medium text-sky-100 hover:bg-sky-900/40 disabled:opacity-50"
+            >
+              {status?.auto_refresh || runnerRunning ? "⏸ Автообновление" : "🔄 Автообновление"}
+            </button>
+            <button
+              type="button"
+              disabled={busy === "prefs-send"}
+              onClick={() => {
+                void (async () => {
+                  setBusy("prefs-send");
+                  setMessage("");
+                  try {
+                    const next = !Boolean(status?.auto_send);
+                    const res = await fetch(`${API}/api/acquisition/ceo-prefs`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ auto_send: next }),
+                    });
+                    const body = await res.json();
+                    setMessage(
+                      next
+                        ? "Автоотправка включена · тики будут слать Approve/high-win (нужен Resend)"
+                        : "Автоотправка выключена",
+                    );
+                    await refresh();
+                    void body;
+                  } finally {
+                    setBusy("");
+                  }
+                })();
+              }}
+              className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-1.5 font-medium text-amber-100 hover:bg-amber-900/40 disabled:opacity-50"
+            >
+              {status?.auto_send ? "⏹ Автоотправка" : "▶ Автоотправка"}
+            </button>
             <button
               type="button"
               disabled={busy === "runner-start" || runnerRunning}
@@ -1180,7 +1255,13 @@ export default function AcquisitionPage() {
                     <p className="mt-1 text-xs text-genesis-muted">
                       {(lead.website_url || "без сайта").slice(0, 60)} · score {lead.score}
                       {lead.recommended_price_eur
-                        ? ` · ${formatEur(lead.recommended_price_eur)}`
+                        ? ` · ${
+                            lead.recommended_price_label ||
+                            formatLocalizedMoney(
+                              lead.recommended_price_eur,
+                              lead.recommended_currency || "EUR",
+                            )
+                          }`
                         : ""}
                     </p>
                     {lead.last_market_lesson ? (
@@ -1355,8 +1436,12 @@ export default function AcquisitionPage() {
                     >
                       <p className="font-medium">{item.company_name}</p>
                       <p className="text-xs text-genesis-muted">
-                        {formatEur(item.recommended_price_eur)} · {item.issue_count} issues · score{" "}
-                        {item.score}
+                        {item.recommended_price_label ||
+                          formatLocalizedMoney(
+                            item.recommended_price_eur,
+                            item.recommended_currency || "EUR",
+                          )}{" "}
+                        · {item.issue_count} issues · score {item.score}
                       </p>
                     </button>
                   </li>
@@ -1372,7 +1457,12 @@ export default function AcquisitionPage() {
                   <div>
                     <p className="text-xs text-genesis-muted">Цена (рекомендация)</p>
                     <p className="text-sm font-medium">
-                      {formatEur(selected.recommended_price_eur)} · {selected.pricing_rationale}
+                      {selected.recommended_price_label ||
+                        formatLocalizedMoney(
+                          selected.recommended_price_eur,
+                          selected.recommended_currency || "EUR",
+                        )}{" "}
+                      · {selected.pricing_rationale}
                     </p>
                   </div>
                   <div>

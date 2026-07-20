@@ -9,6 +9,18 @@ const LOCALE_BY_CURRENCY: Record<string, string> = {
   CZK: "cs-CZ",
   USD: "en-US",
   GBP: "en-GB",
+  CHF: "de-CH",
+  AUD: "en-AU",
+  BRL: "pt-BR",
+  MXN: "es-MX",
+  JPY: "ja-JP",
+  KRW: "ko-KR",
+  INR: "en-IN",
+  AED: "ar-AE",
+  SAR: "ar-SA",
+  ZAR: "en-ZA",
+  SGD: "en-SG",
+  NZD: "en-NZ",
 };
 
 export function formatLocalizedMoney(

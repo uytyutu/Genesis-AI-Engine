@@ -1,11 +1,11 @@
 {
-  "version": 3,
-  "global_daily_cap_default": 485,
+  "version": 4,
+  "global_daily_cap_default": 1455,
   "min_interval_sec_default": 90,
   "allocation_mode": "per_market",
   "quality_first": true,
   "force_fill_quotas": false,
-  "note_ru": "Стартовые дневные квоты по странам (не общий пул 120). Ищем только лучшие лиды · письма на боль · квоту не заполняем любой ценой. Adaptive позже поднимает прибыльные рынки.",
+  "note_ru": "Стартовые дневные квоты по странам ×3. Ищем только лучшие лиды · письма на боль · квоту не заполняем любой ценой. Adaptive позже поднимает прибыльные рынки.",
   "markets": [
     {
       "code": "US",
@@ -16,7 +16,7 @@
       "name_en": "United States",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 100,
+      "daily_cap": 300,
       "timezone": "America/New_York",
       "legal_profile": "us_can_spam",
       "send_pool": "us",
@@ -25,11 +25,23 @@
       "website": {
         "locale": "en",
         "hreflang": "en-US",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "us_can_spam"
       },
-      "hubs": ["New York", "Los Angeles", "Chicago", "Houston", "Dallas", "Miami", "Austin", "Seattle"],
-      "cap_rationale": "Start 100/day · quality-first · CAN-SPAM"
+      "hubs": [
+        "New York",
+        "Los Angeles",
+        "Chicago",
+        "Houston",
+        "Dallas",
+        "Miami",
+        "Austin",
+        "Seattle"
+      ],
+      "cap_rationale": "Start 300/day · quality-first · CAN-SPAM"
     },
     {
       "code": "DE",
@@ -40,7 +52,7 @@
       "name_en": "Germany",
       "language": "de",
       "template": "de",
-      "daily_cap": 50,
+      "daily_cap": 150,
       "timezone": "Europe/Berlin",
       "legal_profile": "de_impressum",
       "send_pool": "de",
@@ -49,11 +61,23 @@
       "website": {
         "locale": "de",
         "hreflang": "de-DE",
-        "legal_pages": ["impressum", "datenschutz", "agb"],
+        "legal_pages": [
+          "impressum",
+          "datenschutz",
+          "agb"
+        ],
         "footer_profile": "de_impressum"
       },
-      "hubs": ["Berlin", "Hamburg", "München", "Köln", "Frankfurt", "Stuttgart", "Düsseldorf"],
-      "cap_rationale": "Start 50/day · quality-first · DE B2B"
+      "hubs": [
+        "Berlin",
+        "Hamburg",
+        "München",
+        "Köln",
+        "Frankfurt",
+        "Stuttgart",
+        "Düsseldorf"
+      ],
+      "cap_rationale": "Start 150/day · quality-first · DE B2B"
     },
     {
       "code": "GB",
@@ -64,7 +88,7 @@
       "name_en": "United Kingdom",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 50,
+      "daily_cap": 150,
       "timezone": "Europe/London",
       "legal_profile": "uk_pecr",
       "send_pool": "us",
@@ -73,11 +97,20 @@
       "website": {
         "locale": "en",
         "hreflang": "en-GB",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "uk_pecr"
       },
-      "hubs": ["London", "Manchester", "Birmingham", "Leeds", "Edinburgh"],
-      "cap_rationale": "Start 50/day · PECR"
+      "hubs": [
+        "London",
+        "Manchester",
+        "Birmingham",
+        "Leeds",
+        "Edinburgh"
+      ],
+      "cap_rationale": "Start 150/day · PECR"
     },
     {
       "code": "FR",
@@ -88,7 +121,7 @@
       "name_en": "France",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 40,
+      "daily_cap": 120,
       "timezone": "Europe/Paris",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -97,11 +130,20 @@
       "website": {
         "locale": "en",
         "hreflang": "fr-FR",
-        "legal_pages": ["privacy", "terms", "mentions-legales"],
+        "legal_pages": [
+          "privacy",
+          "terms",
+          "mentions-legales"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["Paris", "Lyon", "Marseille", "Toulouse"],
-      "cap_rationale": "Start 40/day · FR copy later"
+      "hubs": [
+        "Paris",
+        "Lyon",
+        "Marseille",
+        "Toulouse"
+      ],
+      "cap_rationale": "Start 120/day · FR copy later"
     },
     {
       "code": "IT",
@@ -112,7 +154,7 @@
       "name_en": "Italy",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 35,
+      "daily_cap": 105,
       "timezone": "Europe/Rome",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -121,11 +163,19 @@
       "website": {
         "locale": "en",
         "hreflang": "it-IT",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["Roma", "Milano", "Napoli", "Torino"],
-      "cap_rationale": "Start 35/day"
+      "hubs": [
+        "Roma",
+        "Milano",
+        "Napoli",
+        "Torino"
+      ],
+      "cap_rationale": "Start 105/day"
     },
     {
       "code": "ES",
@@ -136,7 +186,7 @@
       "name_en": "Spain",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 30,
+      "daily_cap": 90,
       "timezone": "Europe/Madrid",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -145,11 +195,19 @@
       "website": {
         "locale": "en",
         "hreflang": "es-ES",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["Madrid", "Barcelona", "Valencia", "Sevilla"],
-      "cap_rationale": "Start 30/day"
+      "hubs": [
+        "Madrid",
+        "Barcelona",
+        "Valencia",
+        "Sevilla"
+      ],
+      "cap_rationale": "Start 90/day"
     },
     {
       "code": "CA",
@@ -160,7 +218,7 @@
       "name_en": "Canada",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 25,
+      "daily_cap": 75,
       "timezone": "America/Toronto",
       "legal_profile": "us_can_spam",
       "send_pool": "us",
@@ -169,11 +227,20 @@
       "website": {
         "locale": "en",
         "hreflang": "en-CA",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "us_can_spam"
       },
-      "hubs": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa"],
-      "cap_rationale": "Start 25/day · CASL awareness"
+      "hubs": [
+        "Toronto",
+        "Vancouver",
+        "Montreal",
+        "Calgary",
+        "Ottawa"
+      ],
+      "cap_rationale": "Start 75/day · CASL awareness"
     },
     {
       "code": "AU",
@@ -184,7 +251,7 @@
       "name_en": "Australia",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 20,
+      "daily_cap": 60,
       "timezone": "Australia/Sydney",
       "legal_profile": "us_can_spam",
       "send_pool": "us",
@@ -193,11 +260,19 @@
       "website": {
         "locale": "en",
         "hreflang": "en-AU",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "us_can_spam"
       },
-      "hubs": ["Sydney", "Melbourne", "Brisbane", "Perth"],
-      "cap_rationale": "Start 20/day"
+      "hubs": [
+        "Sydney",
+        "Melbourne",
+        "Brisbane",
+        "Perth"
+      ],
+      "cap_rationale": "Start 60/day"
     },
     {
       "code": "NL",
@@ -208,7 +283,7 @@
       "name_en": "Netherlands",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 20,
+      "daily_cap": 60,
       "timezone": "Europe/Amsterdam",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -217,11 +292,19 @@
       "website": {
         "locale": "en",
         "hreflang": "nl-NL",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["Amsterdam", "Rotterdam", "Utrecht", "Den Haag"],
-      "cap_rationale": "Start 20/day · EN B2B"
+      "hubs": [
+        "Amsterdam",
+        "Rotterdam",
+        "Utrecht",
+        "Den Haag"
+      ],
+      "cap_rationale": "Start 60/day · EN B2B"
     },
     {
       "code": "PL",
@@ -232,7 +315,7 @@
       "name_en": "Poland",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 20,
+      "daily_cap": 60,
       "timezone": "Europe/Warsaw",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -241,11 +324,19 @@
       "website": {
         "locale": "en",
         "hreflang": "pl-PL",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["Warszawa", "Kraków", "Wrocław", "Gdańsk"],
-      "cap_rationale": "Start 20/day"
+      "hubs": [
+        "Warszawa",
+        "Kraków",
+        "Wrocław",
+        "Gdańsk"
+      ],
+      "cap_rationale": "Start 60/day"
     },
     {
       "code": "CH",
@@ -256,7 +347,7 @@
       "name_en": "Switzerland",
       "language": "de",
       "template": "de",
-      "daily_cap": 15,
+      "daily_cap": 45,
       "timezone": "Europe/Zurich",
       "legal_profile": "de_impressum",
       "send_pool": "de",
@@ -265,11 +356,20 @@
       "website": {
         "locale": "de",
         "hreflang": "de-CH",
-        "legal_pages": ["impressum", "datenschutz", "agb"],
+        "legal_pages": [
+          "impressum",
+          "datenschutz",
+          "agb"
+        ],
         "footer_profile": "de_impressum"
       },
-      "hubs": ["Zürich", "Genève", "Basel", "Bern"],
-      "cap_rationale": "Start 15/day · high value"
+      "hubs": [
+        "Zürich",
+        "Genève",
+        "Basel",
+        "Bern"
+      ],
+      "cap_rationale": "Start 45/day · high value"
     },
     {
       "code": "AT",
@@ -280,7 +380,7 @@
       "name_en": "Austria",
       "language": "de",
       "template": "de",
-      "daily_cap": 10,
+      "daily_cap": 30,
       "timezone": "Europe/Vienna",
       "legal_profile": "de_impressum",
       "send_pool": "de",
@@ -289,11 +389,20 @@
       "website": {
         "locale": "de",
         "hreflang": "de-AT",
-        "legal_pages": ["impressum", "datenschutz", "agb"],
+        "legal_pages": [
+          "impressum",
+          "datenschutz",
+          "agb"
+        ],
         "footer_profile": "de_impressum"
       },
-      "hubs": ["Wien", "Graz", "Linz", "Salzburg"],
-      "cap_rationale": "Start 10/day · DE template"
+      "hubs": [
+        "Wien",
+        "Graz",
+        "Linz",
+        "Salzburg"
+      ],
+      "cap_rationale": "Start 30/day · DE template"
     },
     {
       "code": "BE",
@@ -304,7 +413,7 @@
       "name_en": "Belgium",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 10,
+      "daily_cap": 30,
       "timezone": "Europe/Brussels",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -313,11 +422,18 @@
       "website": {
         "locale": "en",
         "hreflang": "en-BE",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["Bruxelles", "Antwerpen", "Gent"],
-      "cap_rationale": "Start 10/day"
+      "hubs": [
+        "Bruxelles",
+        "Antwerpen",
+        "Gent"
+      ],
+      "cap_rationale": "Start 30/day"
     },
     {
       "code": "PT",
@@ -328,7 +444,7 @@
       "name_en": "Portugal",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 10,
+      "daily_cap": 30,
       "timezone": "Europe/Lisbon",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -337,11 +453,17 @@
       "website": {
         "locale": "en",
         "hreflang": "pt-PT",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["Lisboa", "Porto"],
-      "cap_rationale": "Start 10/day"
+      "hubs": [
+        "Lisboa",
+        "Porto"
+      ],
+      "cap_rationale": "Start 30/day"
     },
     {
       "code": "CZ",
@@ -350,9 +472,9 @@
       "flag": "🇨🇿",
       "name_ru": "Чехия",
       "name_en": "Czechia",
-      "language": "en-us",
-      "template": "en-us",
-      "daily_cap": 10,
+      "language": "cs",
+      "template": "cs",
+      "daily_cap": 30,
       "timezone": "Europe/Prague",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -361,11 +483,17 @@
       "website": {
         "locale": "en",
         "hreflang": "cs-CZ",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["Praha", "Brno"],
-      "cap_rationale": "Start 10/day"
+      "hubs": [
+        "Praha",
+        "Brno"
+      ],
+      "cap_rationale": "Start 30/day"
     },
     {
       "code": "RO",
@@ -376,7 +504,7 @@
       "name_en": "Romania",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 10,
+      "daily_cap": 30,
       "timezone": "Europe/Bucharest",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -385,11 +513,18 @@
       "website": {
         "locale": "en",
         "hreflang": "ro-RO",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["București", "Cluj-Napoca", "Timișoara"],
-      "cap_rationale": "Start 10/day · checkout EUR (synced with market_registry)"
+      "hubs": [
+        "București",
+        "Cluj-Napoca",
+        "Timișoara"
+      ],
+      "cap_rationale": "Start 30/day · checkout EUR (synced with market_registry)"
     },
     {
       "code": "SK",
@@ -400,7 +535,7 @@
       "name_en": "Slovakia",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 10,
+      "daily_cap": 30,
       "timezone": "Europe/Bratislava",
       "legal_profile": "eu_gdpr",
       "send_pool": "us",
@@ -409,11 +544,17 @@
       "website": {
         "locale": "en",
         "hreflang": "sk-SK",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "eu_gdpr"
       },
-      "hubs": ["Bratislava", "Košice"],
-      "cap_rationale": "Start 10/day"
+      "hubs": [
+        "Bratislava",
+        "Košice"
+      ],
+      "cap_rationale": "Start 30/day"
     },
     {
       "code": "UA",
@@ -424,7 +565,7 @@
       "name_en": "Ukraine",
       "language": "uk",
       "template": "uk",
-      "daily_cap": 10,
+      "daily_cap": 30,
       "timezone": "Europe/Kyiv",
       "legal_profile": "cis_sender",
       "send_pool": "cis",
@@ -433,11 +574,20 @@
       "website": {
         "locale": "uk",
         "hreflang": "uk-UA",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "cis_sender"
       },
-      "hubs": ["Kyiv", "Kharkiv", "Odesa", "Lviv", "Dnipro"],
-      "cap_rationale": "Start 10/day · checkout UAH (synced with market_registry)"
+      "hubs": [
+        "Kyiv",
+        "Kharkiv",
+        "Odesa",
+        "Lviv",
+        "Dnipro"
+      ],
+      "cap_rationale": "Start 30/day · checkout UAH (synced with market_registry)"
     },
     {
       "code": "RU",
@@ -448,7 +598,7 @@
       "name_en": "Russia",
       "language": "ru",
       "template": "ru",
-      "daily_cap": 10,
+      "daily_cap": 30,
       "timezone": "Europe/Moscow",
       "legal_profile": "cis_sender",
       "send_pool": "cis",
@@ -457,11 +607,20 @@
       "website": {
         "locale": "ru",
         "hreflang": "ru-RU",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "cis_sender"
       },
-      "hubs": ["Moscow", "Saint Petersburg", "Kazan", "Novosibirsk", "Yekaterinburg"],
-      "cap_rationale": "Start 10/day · checkout EUR (synced with market_registry)"
+      "hubs": [
+        "Moscow",
+        "Saint Petersburg",
+        "Kazan",
+        "Novosibirsk",
+        "Yekaterinburg"
+      ],
+      "cap_rationale": "Start 30/day · checkout EUR (synced with market_registry)"
     },
     {
       "code": "NZ",
@@ -472,7 +631,7 @@
       "name_en": "New Zealand",
       "language": "en-us",
       "template": "en-us",
-      "daily_cap": 10,
+      "daily_cap": 30,
       "timezone": "Pacific/Auckland",
       "legal_profile": "us_can_spam",
       "send_pool": "us",
@@ -481,10 +640,17 @@
       "website": {
         "locale": "en",
         "hreflang": "en-NZ",
-        "legal_pages": ["privacy", "terms"],
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
         "footer_profile": "us_can_spam"
       },
-      "hubs": ["Auckland", "Wellington", "Christchurch"],
+      "hubs": [
+        "Auckland",
+        "Wellington",
+        "Christchurch"
+      ],
       "cap_rationale": "Off until CEO enables · not in start table"
     }
   ]

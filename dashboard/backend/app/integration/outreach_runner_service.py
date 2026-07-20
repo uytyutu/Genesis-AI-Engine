@@ -131,7 +131,12 @@ class OutreachRunnerService:
 
     def status(self) -> dict[str, Any]:
         state = self._load()
-        outreach_on = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        try:
+            from app.integration.outreach_ceo_prefs import outreach_send_allowed
+
+            outreach_on = outreach_send_allowed(self._memory)
+        except Exception:
+            outreach_on = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
         return {
             "ok": True,
             "running": bool(state.get("running")),
@@ -150,9 +155,8 @@ class OutreachRunnerService:
             "outreach_send_enabled": outreach_on,
             "log": list(state.get("log") or [])[-15:],
             "note_ru": (
-                "Пуск = hunt/draft round-robin по всем enabled странам до их лимитов. "
-                "Паузы adaptive пропускаются. Повторные компании — exclusion. "
-                "Автоотправка только при GENESIS_OUTREACH_ENABLED + Approve/high-win."
+                "Пуск / автообновление = hunt/draft round-robin по странам до лимитов ×3. "
+                "Автоотправка: тумблер CEO или GENESIS_OUTREACH_ENABLED + Approve/high-win."
             ),
         }
 
@@ -167,7 +171,13 @@ class OutreachRunnerService:
         detail: dict[str, Any] = {}
 
         # Prefer one send attempt if enabled (approved queue) — still respects quota/exclusion.
-        send_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        send_enabled = False
+        try:
+            from app.integration.outreach_ceo_prefs import outreach_send_allowed
+
+            send_enabled = outreach_send_allowed(self._memory)
+        except Exception:
+            send_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
         if send_enabled and self._send_next_fn:
             try:
                 send_res = self._send_next_fn()
