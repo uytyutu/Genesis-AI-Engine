@@ -6,7 +6,8 @@ import { formatEur, formatLocalizedMoney } from "../lib/formatEur";
 
 import { BRAND_NAME } from "../lib/publicBrand";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+/** CEO desk is local-only (backend guard). Always hit the API host, not Next rewrite. */
+const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
 
 type OutreachQuotaHealth = {
   daily_cap: number;
@@ -501,8 +502,8 @@ export default function AcquisitionPage() {
       const aborted = err instanceof DOMException && err.name === "AbortError";
       setMessage(
         aborted
-          ? "Обновление прервано по таймауту (90с). Цены могли уже пересчитаться — обновите страницу."
-          : "Сеть/API недоступны при обновлении лидов",
+          ? "Обновление прервано по таймауту (90с)."
+          : "Backend не отвечает. Запустите Genesis.exe → Запустить, затем снова «Обновить лиды».",
       );
       try {
         await refresh();
@@ -518,11 +519,14 @@ export default function AcquisitionPage() {
   async function rebuildAllQuotes() {
     setBusy("rebuild");
     setMessage("");
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 120_000);
     try {
       const res = await fetch(`${API}/api/acquisition/rebuild-quotes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ limit: 120 }),
+        signal: controller.signal,
+        body: JSON.stringify({ limit: 80 }),
       });
       const body = await res.json().catch(() => ({}));
       setMessage(
@@ -530,13 +534,21 @@ export default function AcquisitionPage() {
           ? body.message_ru || "Квоты пересобраны"
           : typeof body.detail === "string"
             ? body.detail
-            : "Ошибка пересборки квот",
+            : res.status === 404
+              ? "API не найден — перезапустите backend (Genesis.exe)"
+              : "Ошибка пересборки квот",
       );
       if (body.pipeline) setPipeline(body.pipeline);
       await refresh();
-    } catch {
-      setMessage("Сеть/API недоступны при пересборке квот");
+    } catch (err) {
+      const aborted = err instanceof DOMException && err.name === "AbortError";
+      setMessage(
+        aborted
+          ? "Пересборка прервана по таймауту. Перезапустите backend и попробуйте снова."
+          : "Backend не отвечает. Запустите Genesis.exe → Запустить, затем снова «Пересобрать все квоты».",
+      );
     } finally {
+      window.clearTimeout(timeoutId);
       setBusy("");
     }
   }
@@ -551,10 +563,13 @@ export default function AcquisitionPage() {
     }
     setBusy("reset-desk");
     setMessage("");
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 30_000);
     try {
       const res = await fetch(`${API}/api/acquisition/reset-desk`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({}),
       });
       const body = await res.json().catch(() => ({}));
@@ -563,13 +578,21 @@ export default function AcquisitionPage() {
           ? body.message_ru || "Счётчики и кошелёк обнулены"
           : typeof body.detail === "string"
             ? body.detail
-            : "Ошибка обнуления",
+            : res.status === 404
+              ? "API не найден — перезапустите backend (Genesis.exe)"
+              : "Ошибка обнуления",
       );
       if (body.pipeline) setPipeline(body.pipeline);
       await refresh();
-    } catch {
-      setMessage("Сеть/API недоступны при обнулении");
+    } catch (err) {
+      const aborted = err instanceof DOMException && err.name === "AbortError";
+      setMessage(
+        aborted
+          ? "Обнуление прервано по таймауту."
+          : "Backend не отвечает. Запустите Genesis.exe → Запустить.",
+      );
     } finally {
+      window.clearTimeout(timeoutId);
       setBusy("");
     }
   }

@@ -1,10 +1,27 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PREFIXES = ["/owner-gate", "/api/", "/_next/", "/icon", "/favicon", "/manifest"];
+const PUBLIC_PREFIXES = [
+  "/owner-gate",
+  "/api/",
+  "/_next/",
+  "/icon",
+  "/favicon",
+  "/manifest",
+  "/package-previews/",
+];
 
 function isLocalHost(host: string): boolean {
-  return host.includes("localhost") || host.includes("127.0.0.1");
+  const h = (host || "").split(":")[0]?.toLowerCase() ?? "";
+  if (!h) return false;
+  if (h.includes("localhost") || h === "127.0.0.1" || h === "[::1]" || h === "::1") {
+    return true;
+  }
+  // CEO phone on same Wi‑Fi (Genesis.exe LAN URL) — same trust as localhost.
+  if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
+  if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
+  if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
+  return false;
 }
 
 function isPublicPath(path: string): boolean {
@@ -59,5 +76,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|package-previews/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|js|css|html)$).*)",
+  ],
 };

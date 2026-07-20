@@ -19,6 +19,7 @@ import { logCommerceEvent } from "../lib/commerceFunnel";
 import { uiLangForMarket } from "../lib/marketLang";
 import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
 import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePackage";
+import { parseClientServices } from "../lib/packagePreviewGallery";
 
 const API = publicApiBase();
 
@@ -123,6 +124,7 @@ export default function OrderSitePage() {
     [],
   );
   const [packageId, setPackageId] = useState("basic");
+  const [serviceList, setServiceList] = useState("");
   const [brandStyle, setBrandStyle] = useState("auto");
   const [manualPackage, setManualPackage] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -355,6 +357,7 @@ export default function OrderSitePage() {
           niche: niche || null,
           specialization: specialization.trim() || null,
           package_id: packageId,
+          services_list: parseClientServices(serviceList),
           city: city.trim() || null,
         }),
       });
@@ -422,7 +425,14 @@ export default function OrderSitePage() {
           youtube: youtube.trim() || null,
           telegram: telegram.trim() || null,
           material_ids: materials.map((m) => m.id),
-          extra_wishes: extraWishes.trim() || null,
+          extra_wishes: [
+            extraWishes.trim(),
+            packageId === "premium" && parseClientServices(serviceList).length
+              ? `Services: ${parseClientServices(serviceList).join(", ")}`
+              : "",
+          ]
+            .filter(Boolean)
+            .join("\n") || null,
           company_website: companyWebsite.trim() || null,
           client_legal: {
             owner_name: legalOwner.trim() || businessName.trim() || null,
@@ -442,6 +452,7 @@ export default function OrderSitePage() {
           brand_style: brandStyle || "auto",
           niche: niche || null,
           specialization: specialization.trim() || null,
+          services_list: parseClientServices(serviceList),
           market_code: commerce.market_code || marketParam || undefined,
           visitor_id: visitorId,
         }),
@@ -1105,7 +1116,28 @@ export default function OrderSitePage() {
               )}
               {!launch && (
                 <>
-                  <PackagePreviewCarousel packageId={packageId} niche={niche} />
+                  {packageId === "premium" ? (
+                    <div className="mt-3">
+                      <Field label={t("order.premiumServicesLabel")}>
+                        <Textarea
+                          value={serviceList}
+                          onChange={(e) => setServiceList(e.target.value)}
+                          placeholder={t("order.premiumServicesPh")}
+                          rows={3}
+                        />
+                      </Field>
+                      <p className="mt-1 text-[11px] text-genesis-muted">
+                        {t("order.premiumServicesHint")}
+                      </p>
+                    </div>
+                  ) : null}
+                  <PackagePreviewCarousel
+                    packageId={packageId}
+                    niche={niche}
+                    services={
+                      packageId === "premium" ? parseClientServices(serviceList) : undefined
+                    }
+                  />
                   {packageId !== "premium" ? (
                     <button
                       type="button"

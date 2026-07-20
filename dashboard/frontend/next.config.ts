@@ -33,7 +33,10 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/package-previews/:path*",
-        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+        ],
       },
     ];
   },
@@ -50,6 +53,14 @@ const nextConfig: NextConfig = {
       {
         source: "/api/factory/:path*",
         destination: `${apiBase}/api/factory/:path*`,
+      },
+      {
+        source: "/api/acquisition/:path*",
+        destination: `${apiBase}/api/acquisition/:path*`,
+      },
+      {
+        source: "/api/leads/:path*",
+        destination: `${apiBase}/api/leads/:path*`,
       },
       {
         source: "/research-3d/:path*",
