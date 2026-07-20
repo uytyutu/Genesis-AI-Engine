@@ -472,23 +472,45 @@ export default function AcquisitionPage() {
   async function refreshLeads() {
     setBusy("refresh");
     setMessage("");
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 90_000);
     try {
       const res = await fetch(`${API}/api/acquisition/refresh-leads`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           city: genCity,
           query: genQuery,
-          limit: genLimit,
+          limit: Math.min(genLimit, 6),
           auto_confirm: true,
         }),
       });
-      const body = await res.json();
-      setMessage(res.ok ? body.message_ru || "Лиды обновлены" : body.detail || "Ошибка обновления");
+      const body = await res.json().catch(() => ({}));
+      setMessage(
+        res.ok
+          ? body.message_ru || "Лиды обновлены"
+          : typeof body.detail === "string"
+            ? body.detail
+            : "Ошибка обновления",
+      );
       if (body.pipeline) setPipeline(body.pipeline);
       if (body.gate_funnel) setFunnel(body.gate_funnel);
       await refresh();
+    } catch (err) {
+      const aborted = err instanceof DOMException && err.name === "AbortError";
+      setMessage(
+        aborted
+          ? "Обновление прервано по таймауту (90с). Цены могли уже пересчитаться — обновите страницу."
+          : "Сеть/API недоступны при обновлении лидов",
+      );
+      try {
+        await refresh();
+      } catch {
+        /* ignore */
+      }
     } finally {
+      window.clearTimeout(timeoutId);
       setBusy("");
     }
   }
@@ -732,24 +754,7 @@ export default function AcquisitionPage() {
             <button
               type="button"
               disabled={busy === "refresh"}
-              onClick={() => {
-                void (async () => {
-                  setBusy("refresh");
-                  setMessage("");
-                  try {
-                    const res = await fetch(`${API}/api/acquisition/refresh-leads`, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ limit: 8, auto_confirm: true }),
-                    });
-                    const body = await res.json();
-                    setMessage(body.message_ru || body.message || (res.ok ? "Лиды обновлены" : "Ошибка"));
-                    refresh();
-                  } finally {
-                    setBusy("");
-                  }
-                })();
-              }}
+              onClick={() => void refreshLeads()}
               className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40 disabled:opacity-50"
             >
               {busy === "refresh" ? "Генерация…" : "Один цикл · hunt"}

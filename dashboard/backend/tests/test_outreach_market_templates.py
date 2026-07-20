@@ -27,6 +27,32 @@ def test_market_drives_language():
     assert language_for_market("RU") == "ru"
     assert resolve_market_from_row({"meta": {"market": "US"}}) == "US"
     assert resolve_market_from_row({"meta": {"city": "Kyiv"}}) == "UA"
+    assert resolve_market_from_row({"meta": {"hunt_city": "Praha"}}) == "CZ"
+    assert resolve_market_from_row(
+        {
+            "recommended_currency": "EUR",
+            "proposed_message": "Landing Basic - 15 000 Kč one-time",
+            "website_url": "https://example.cz",
+        }
+    ) == "CZ"
+
+
+def test_queue_pricing_uses_local_currency_for_cz():
+    from app.integration.acquisition_studio_service import AcquisitionStudioService
+
+    pricing = AcquisitionStudioService._resolve_queue_pricing(
+        {
+            "market": "CZ",
+            "recommended_package_id": "basic",
+            "recommended_price_eur": 15000,
+            "recommended_currency": "EUR",
+            "recommended_price_label": "15.000,00 €",
+            "meta": {"market": "CZ", "hunt_city": "Praha"},
+        },
+        {"market": "CZ", "hunt_city": "Praha"},
+    )
+    assert pricing["recommended_currency"] == "CZK"
+    assert "Kč" in pricing["recommended_price_label"]
 
 
 def test_templates_tone_by_market(monkeypatch: pytest.MonkeyPatch):

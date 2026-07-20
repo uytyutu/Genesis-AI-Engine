@@ -114,8 +114,11 @@ def resolve_market_from_row(row: dict[str, Any] | None) -> str | None:
     city = " ".join(
         [
             str(meta.get("city") or ""),
+            str(meta.get("hunt_city") or ""),
             str(row.get("city") or ""),
+            str(row.get("hunt_city") or ""),
             str(meta.get("query") or ""),
+            str(row.get("company_name") or ""),
         ]
     ).lower()
     de_hubs = (
@@ -129,6 +132,10 @@ def resolve_market_from_row(row: dict[str, Any] | None) -> str | None:
     )
     ua_hubs = ("kyiv", "kiev", "київ", "kharkiv", "харків", "odesa", "одеса", "lviv", "львів", "dnipro")
     ru_hubs = ("москва", "moscow", "санкт-петербург", "spb", "казань", "новосибирск")
+    cz_hubs = ("praha", "prague", "brno", "ostrava", "plzeň", "plzen", "liberec", "olomouc")
+    pl_hubs = ("warsaw", "warszawa", "krakow", "kraków", "wrocław", "wroclaw", "gdańsk", "gdansk", "poznań", "poznan")
+    ro_hubs = ("bucharest", "bucurești", "bucuresti", "cluj", "timisoara", "iași", "iasi")
+    pt_hubs = ("lisboa", "lisbon", "porto", "faro", "braga")
     if any(h in city for h in de_hubs):
         return "DE"
     if any(h in city for h in us_hubs):
@@ -137,6 +144,32 @@ def resolve_market_from_row(row: dict[str, Any] | None) -> str | None:
         return "UA"
     if any(h in city for h in ru_hubs):
         return "RU"
+    if any(h in city for h in cz_hubs):
+        return "CZ"
+    if any(h in city for h in pl_hubs):
+        return "PL"
+    if any(h in city for h in ro_hubs):
+        return "RO"
+    if any(h in city for h in pt_hubs):
+        return "PT"
+    # Price-label / website TLD soft signals (when market field was lost)
+    blob = " ".join(
+        [
+            str(row.get("recommended_price_label") or ""),
+            str(meta.get("recommended_price_label") or ""),
+            str(row.get("proposed_message") or "")[:400],
+            str(row.get("website_url") or ""),
+        ]
+    )
+    low = blob.lower()
+    if "kč" in blob or ".cz" in low:
+        return "CZ"
+    if "zł" in blob or ".pl" in low:
+        return "PL"
+    if "₴" in blob or ".ua" in low:
+        return "UA"
+    if (".ro" in low) and ("lei" in low or "bucure" in city or "romania" in low):
+        return "RO"
     return None
 
 

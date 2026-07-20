@@ -23,10 +23,17 @@ const nextConfig: NextConfig = {
     proxyTimeout: 120_000,
   },
   async headers() {
+    // Package demo HTML is embedded in <iframe> on /site and /order.
+    // Global X-Frame-Options: DENY would blank those previews (PC + mobile).
+    // Later matching sources override earlier ones for the same header key.
     return [
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      {
+        source: "/package-previews/:path*",
+        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
       },
     ];
   },

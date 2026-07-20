@@ -1230,15 +1230,18 @@ class AcquisitionStudioService:
 
     @staticmethod
     def _resolve_queue_pricing(r: dict, meta: dict) -> dict:
-        """Local-market price for owner lead lists (field name ``*_price_eur`` is historical)."""
+        """Local-market price for owner lead lists (field name ``*_price_eur`` is historical).
+
+        Always recompute from commerce market so list currency matches the letter
+        (e.g. Praha → Kč, not 15.000 € from a stale EUR label).
+        """
         from app.integration.commerce_engine import resolve_final_offer
-        from app.integration.market_registry import format_amount, get_market
         from app.integration.outreach_language_service import resolve_market_from_row
 
         market = (
             resolve_market_from_row(r)
-            or meta.get("market")
-            or r.get("market")
+            or (str(meta.get("market") or "").strip().upper() or None)
+            or (str(r.get("market") or "").strip().upper() or None)
             or "DE"
         )
         package_id = (
@@ -1249,57 +1252,95 @@ class AcquisitionStudioService:
         if package_id not in ("basic", "business", "premium"):
             package_id = "basic"
 
-        market_profile = get_market(market)
-        expected_currency = str(market_profile.currency or "EUR").upper()
-        expected_symbol = str(market_profile.symbol or "€")
+        try:
+            offer = resolve_final_offer(package_id, market)
+            return {
+                "recommended_price_eur": float(offer.amount),
+                "recommended_currency": offer.currency,
+                "recommended_symbol": offer.symbol,
+                "recommended_price_label": offer.price_label,
+            }
+        except Exception:
+            from app.integration.market_registry import format_amount, get_market
 
-        currency = str(
-            r.get("recommended_currency") or meta.get("recommended_currency") or ""
-        ).upper()
-        price_label = str(
-            r.get("recommended_price_label") or meta.get("recommended_price_label") or ""
-        ).strip()
-        symbol = str(
-            r.get("recommended_symbol") or meta.get("recommended_symbol") or ""
-        )
-        amount_raw = r.get("recommended_price_eur") or r.get("potential_value_eur")
-        amount = float(amount_raw) if amount_raw not in (None, "") else None
-
-        stale = (
-            not price_label
-            or not currency
-            or currency != expected_currency
-            or (
-                expected_currency != "EUR"
-                and "€" in price_label
-                and expected_symbol not in price_label
+            profile = get_market(market)
+            amount_raw = r.get("recommended_price_eur") or r.get("potential_value_eur")
+            amount = float(amount_raw) if amount_raw not in (None, "") else 0.0
+            currency = str(
+                r.get("recommended_currency")
+                or meta.get("recommended_currency")
+                or profile.currency
+                or "EUR"
+            ).upper()
+            symbol = str(
+                r.get("recommended_symbol")
+                or meta.get("recommended_symbol")
+                or profile.symbol
+                or "€"
             )
-        )
-        if stale:
-            try:
-                offer = resolve_final_offer(package_id, market)
-                return {
-                    "recommended_price_eur": float(offer.amount),
-                    "recommended_currency": offer.currency,
-                    "recommended_symbol": offer.symbol,
-                    "recommended_price_label": offer.price_label,
-                }
-            except Exception:
-                pass
+            label = str(
+                r.get("recommended_price_label")
+                or meta.get("recommended_price_label")
+                or ""
+            ).strip() or format_amount(int(round(amount)), symbol)
+            return {
+                "recommended_price_eur": amount,
+                "recommended_currency": currency,
+                "recommended_symbol": symbol,
+                "recommended_price_label": label,
+            }
 
-        if not currency:
-            currency = expected_currency
-        if not symbol:
-            symbol = expected_symbol
-        if not price_label and amount is not None:
-            price_label = format_amount(int(round(amount)), symbol)
+    def reprice_pipeline_leads(self, *, limit: int = 200) -> dict[str, Any]:
+        """Persist local-market prices on stored leads so list and letter stay aligned."""
+        rows = self._opportunity._load_rows()
+        changed = 0
+        for i, r in enumerate(rows):
+            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
+            if r.get("status") in ("won", "lost"):
+                continue
+            if not (r.get("recommended_package_id") or meta.get("recommended_package_id")):
+                # Still price discovery leads as basic when market is known
+                if not (meta.get("market") or r.get("market") or meta.get("hunt_city")):
+                    continue
+            pricing = self._resolve_queue_pricing(r, meta)
+            before = (
+                r.get("recommended_price_eur"),
+                r.get("recommended_currency"),
+                r.get("recommended_price_label"),
+            )
+            after = (
+                pricing["recommended_price_eur"],
+                pricing["recommended_currency"],
+                pricing["recommended_price_label"],
+            )
+            if before == after:
+                continue
+            r["recommended_price_eur"] = pricing["recommended_price_eur"]
+            r["recommended_currency"] = pricing["recommended_currency"]
+            r["recommended_symbol"] = pricing["recommended_symbol"]
+            r["recommended_price_label"] = pricing["recommended_price_label"]
+            meta = dict(meta)
+            meta["recommended_currency"] = pricing["recommended_currency"]
+            meta["recommended_symbol"] = pricing["recommended_symbol"]
+            meta["recommended_price_label"] = pricing["recommended_price_label"]
+            # Keep market on row when we could resolve it
+            from app.integration.outreach_language_service import resolve_market_from_row
 
-        return {
-            "recommended_price_eur": amount,
-            "recommended_currency": currency,
-            "recommended_symbol": symbol,
-            "recommended_price_label": price_label,
-        }
+            mkt = resolve_market_from_row(r) or meta.get("market") or r.get("market")
+            if mkt:
+                meta["market"] = str(mkt).upper()
+                r["market"] = str(mkt).upper()
+            r["meta"] = meta
+            r["updated_at"] = datetime.now(timezone.utc).isoformat()
+            rows[i] = r
+            changed += 1
+            if changed >= limit:
+                break
+        if changed:
+            self._opportunity._save_rows(rows)
+        return {"ok": True, "repriced": changed}
 
     @staticmethod
     def _queue_item(r: dict) -> dict:
@@ -1431,9 +1472,13 @@ class AcquisitionStudioService:
 
         Без явного market/city — round-robin по всем enabled странам (до лимитов,
         паузы adaptive пропускаются), чтобы не долбить только DE / один IP-таргет.
+
+        Always reprice existing pipeline first so CEO sees correct Kč/zł/₴ immediately
+        even when Places hunt is slow or fails.
         """
         from app.integration.outreach_hunt_rotation import HuntRotationCursor
 
+        reprice = self.reprice_pipeline_leads()
         paused = (self._adaptive._load_state().get("paused_markets") or {})
         cursor = HuntRotationCursor(self._memory_dir)
         slot = cursor.next_slot(
@@ -1445,8 +1490,12 @@ class AcquisitionStudioService:
         )
         if not slot:
             return {
-                "ok": False,
-                "message_ru": "Нет активных рынков для hunt (все на паузе или cap=0)",
+                "ok": True,
+                "repriced": reprice.get("repriced", 0),
+                "message_ru": (
+                    f"Цены пересчитаны: {reprice.get('repriced', 0)}. "
+                    "Нет активных рынков для hunt (все на паузе или cap=0)"
+                ),
                 "drafts": {"created": 0, "drafted": 0},
                 "pipeline": self.pipeline_leads(limit=40),
                 "gate_funnel": self.gate_funnel(),
@@ -1457,23 +1506,45 @@ class AcquisitionStudioService:
         market_s = str(slot["market"])
         language = str(slot.get("language") or "en")
         region = str(slot.get("region") or market_s.lower())
-
-        drafts = self.generate_drafts_from_places(
-            city=city_s,
-            query=query_s,
-            limit=limit,
-            language=language,
-            force_skip_check=True,
-            market_code=market_s,
-            search_region=region,
-        )
-        prep = self.auto_prepare_discovery_leads(limit=limit, min_score=40, min_win_pct=40)
-        confirm = (
-            self.auto_confirm_high_probability(min_win_pct=HIGH_WIN_AUTO_CONFIRM_PCT)
-            if auto_confirm
-            else {"confirmed": 0, "message_ru": "auto_confirm выкл."}
-        )
         flag = slot.get("flag") or ""
+
+        try:
+            drafts = self.generate_drafts_from_places(
+                city=city_s,
+                query=query_s,
+                limit=limit,
+                language=language,
+                force_skip_check=True,
+                market_code=market_s,
+                search_region=region,
+            )
+            prep = self.auto_prepare_discovery_leads(limit=limit, min_score=40, min_win_pct=40)
+            confirm = (
+                self.auto_confirm_high_probability(min_win_pct=HIGH_WIN_AUTO_CONFIRM_PCT)
+                if auto_confirm
+                else {"confirmed": 0, "message_ru": "auto_confirm выкл."}
+            )
+        except Exception as exc:
+            # Reprice already applied — never leave CEO on a spinning button with no change.
+            return {
+                "ok": True,
+                "partial": True,
+                "city": city_s,
+                "query": query_s,
+                "market_code": market_s,
+                "repriced": reprice.get("repriced", 0),
+                "drafts": {"created": 0, "drafted": 0, "error": str(exc)[:200]},
+                "pipeline": self.pipeline_leads(limit=40),
+                "gate_funnel": self.gate_funnel(),
+                "message_ru": (
+                    f"Цены обновлены: {reprice.get('repriced', 0)}. "
+                    f"Hunt {flag}{market_s}/{city_s} не завершён: {str(exc)[:120]}"
+                ),
+            }
+
+        # Hunt may have added leads with wrong currency fields — fix again.
+        reprice2 = self.reprice_pipeline_leads()
+        total_repriced = int(reprice.get("repriced", 0)) + int(reprice2.get("repriced", 0))
         return {
             "ok": True,
             "city": city_s,
@@ -1481,6 +1552,7 @@ class AcquisitionStudioService:
             "market_code": market_s,
             "slot_index": slot.get("slot_index"),
             "slots_total": slot.get("slots_total"),
+            "repriced": total_repriced,
             "drafts": drafts,
             "auto_prepare": prep,
             "auto_confirm": confirm,
@@ -1490,7 +1562,8 @@ class AcquisitionStudioService:
                 f"Обновлено · {flag}{market_s} · {city_s} · «{query_s}»: "
                 f"Places created={drafts.get('created', 0)} drafted={drafts.get('drafted', 0)} · "
                 f"prepare={prep.get('prepared', 0)}+manual={prep.get('manual_review', 0)} · "
-                f"auto-confirm={confirm.get('confirmed', 0)}"
+                f"auto-confirm={confirm.get('confirmed', 0)} · "
+                f"цены={total_repriced}"
             ),
         }
 
