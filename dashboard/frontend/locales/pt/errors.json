@@ -1,0 +1,4 @@
+{
+  "offline": "I can't reply right now — {{brand}} seems offline.\n\nRefresh in a minute or try again.",
+  "emptyAnswer": "I couldn't form a reply. Try rephrasing — I'm here."
+}

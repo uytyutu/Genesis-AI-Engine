@@ -16,6 +16,23 @@ import httpx
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
 
+def _resolve_stripe_secret() -> str:
+    """Stripe secret from ENV.
+
+    Prefer an explicit live alias when the primary key is missing or test-only.
+    Otherwise use STRIPE_SECRET_KEY (Railway / production primary).
+    """
+    primary = os.getenv("STRIPE_SECRET_KEY", "").strip()
+    live_alias = os.getenv("STRIPE_SECRET_KEY_LIVE", "").strip()
+    if live_alias.startswith("sk_live_") and (
+        not primary or primary.startswith("sk_test_")
+    ):
+        return live_alias
+    if primary:
+        return primary
+    return live_alias
+
+
 class PaymentCheckoutService:
     def __init__(self, memory_dir: Path | None = None) -> None:
         self._memory = memory_dir or _DEFAULT_MEMORY
@@ -30,18 +47,37 @@ class PaymentCheckoutService:
             return {}
 
     def provider(self) -> str | None:
-        cfg = self._load_config()
-        if os.getenv("STRIPE_SECRET_KEY"):
+        """Active checkout provider.
+
+        Commercial Path A: Stripe when a secret key is set.
+        Sandbox only when GENESIS_PAYMENT_SANDBOX=1 (never from stale finance_config alone —
+        that redirected buyers to /order/pay on the storefront instead of Stripe).
+        """
+        if _resolve_stripe_secret():
             return "stripe"
-        if cfg.get("payment_provider") == "sandbox" or os.getenv("GENESIS_PAYMENT_SANDBOX") == "1":
+        sandbox_explicit = os.getenv("GENESIS_PAYMENT_SANDBOX", "").strip() == "1"
+        if sandbox_explicit:
             return "sandbox"
-        return cfg.get("payment_provider")
+        cfg = self._load_config()
+        configured = str(cfg.get("payment_provider") or "").strip().lower()
+        if configured == "stripe":
+            # Config remembers Stripe, but runtime has no secret → not ready.
+            return None
+        # Ignore finance_config sandbox without ENV — avoids "old site" pay page in commerce.
+        return None
 
     def is_configured(self) -> bool:
         return self.provider() in ("stripe", "sandbox")
 
+    def is_stripe_ready(self) -> bool:
+        return self.provider() == "stripe"
+
+    def is_public_checkout_ready(self) -> bool:
+        """Path A storefront: Stripe, or explicit sandbox for local QA only."""
+        return self.provider() in ("stripe", "sandbox")
+
     def is_live_mode(self) -> bool:
-        return os.getenv("STRIPE_SECRET_KEY", "").strip().startswith("sk_live_")
+        return _resolve_stripe_secret().startswith("sk_live_")
 
     def has_webhook_secret(self) -> bool:
         return bool(os.getenv("STRIPE_WEBHOOK_SECRET", "").strip())
@@ -62,6 +98,14 @@ class PaymentCheckoutService:
 
         motion = normalize_motion_level(motion_level)
         market = (market_code or "DE").strip().upper()[:8] or "DE"
+        from app.integration.public_site_url import canonicalize_storefront_url
+
+        success_url = canonicalize_storefront_url(
+            success_url, fallback_path=f"/order/status/{order_id}?paid=1"
+        )
+        cancel_url = canonicalize_storefront_url(
+            cancel_url, fallback_path=f"/order/status/{order_id}"
+        )
         provider = self.provider()
         if provider == "stripe":
             return self._stripe_checkout(
@@ -75,6 +119,9 @@ class PaymentCheckoutService:
                 market_code=market,
             )
         if provider == "sandbox":
+            # Production must never send buyers to a legacy host via sandbox pay page.
+            if os.getenv("GENESIS_ENV", "").strip().lower() == "production":
+                raise ValueError("payment_not_configured")
             token = uuid.uuid4().hex[:16]
             params = urlencode({"order_id": order_id, "token": token})
             base = success_url.split("/order/")[0] if "/order/" in success_url else success_url.rstrip("/")
@@ -100,15 +147,25 @@ class PaymentCheckoutService:
         motion_level: str = "none",
         market_code: str = "DE",
     ) -> dict:
-        secret = os.getenv("STRIPE_SECRET_KEY", "").strip()
+        secret = _resolve_stripe_secret()
         if not secret:
             raise ValueError("stripe_not_configured")
         cur = (currency or "eur").lower()
         amount_cents = int(round(float(amount) * 100))
+        # Frontend already sends .../order/status/{id}?paid=1 — do not append a second "?".
+        success = success_url.strip()
+        if "order_id=" not in success:
+            joiner = "&" if "?" in success else "?"
+            success = f"{success}{joiner}order_id={order_id}"
+        if "paid=" not in success:
+            joiner = "&" if "?" in success else "?"
+            success = f"{success}{joiner}paid=1"
         data = {
             "mode": "payment",
-            "success_url": f"{success_url}?order_id={order_id}&paid=1",
+            "success_url": success,
             "cancel_url": cancel_url,
+            # Card checkout — Apple Pay / Google Pay wallets appear when domain is verified in Stripe.
+            "payment_method_types[0]": "card",
             "line_items[0][price_data][currency]": cur,
             "line_items[0][price_data][unit_amount]": str(amount_cents),
             "line_items[0][price_data][product_data][name]": label[:120],
@@ -124,7 +181,14 @@ class PaymentCheckoutService:
                 auth=(secret, ""),
             )
         if res.status_code >= 400:
-            raise ValueError(f"stripe_error:{res.text[:200]}")
+            # Keep message short and safe for API clients / CEO path.
+            detail = res.text[:200]
+            try:
+                err = res.json().get("error") or {}
+                detail = str(err.get("message") or err.get("code") or detail)[:200]
+            except Exception:
+                pass
+            raise ValueError(f"stripe_error:{detail}")
         body = res.json()
         return {
             "provider": "stripe",
@@ -137,7 +201,7 @@ class PaymentCheckoutService:
 
     def retrieve_paid_session(self, session_id: str) -> dict | None:
         """Fetch Checkout Session from Stripe — fallback when webhook is delayed."""
-        secret = os.getenv("STRIPE_SECRET_KEY", "").strip()
+        secret = _resolve_stripe_secret()
         if not secret or not session_id:
             return None
         with httpx.Client(timeout=30.0) as client:

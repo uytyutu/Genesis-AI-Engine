@@ -5,8 +5,9 @@ Guten Tag {{name}},
 vielen Dank — wir haben Ihre Zahlung für das Paket {{package}} erhalten.
 
 Bestellnummer: {{order_id}}
-Betrag: {{amount}} €
+Betrag: {{amount}}
 {{motion_line}}
+{{delivery_line}}
 Was als Nächstes passiert:
 1. Wir starten die Produktion Ihrer Landing Page.
 2. Den aktuellen Status sehen Sie unter:

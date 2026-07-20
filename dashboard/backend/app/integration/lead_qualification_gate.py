@@ -73,12 +73,14 @@ def build_audit_report_md(
     service_label: str,
     price_eur: float,
     win_pct: int,
+    price_label: str | None = None,
 ) -> str:
     company = str(row.get("company_name") or "Компания")
     url = str(row.get("website_url") or analysis.get("final_url") if analysis else "")
     issues = list((analysis or {}).get("issues") or [])[:8]
     title = str((analysis or {}).get("title") or "")
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    price_txt = (price_label or "").strip() or f"{price_eur:.0f} €"
 
     lines = [
         f"# Аудит сайта — {company}",
@@ -96,7 +98,7 @@ def build_audit_report_md(
     lines.append("")
     lines.append("## Рекомендация")
     lines.append(f"- **Услуга:** {service_label}")
-    lines.append(f"- **Ориентир цены:** {price_eur:.0f} €")
+    lines.append(f"- **Ориентир цены:** {price_txt}")
     lines.append(f"- **Вероятность интереса (оценка):** {win_pct}%")
     lines.append("")
     lines.append(

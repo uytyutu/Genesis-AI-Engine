@@ -146,6 +146,11 @@ type MarketsDashboard = {
     sent_today: number;
     replies: number;
     orders: number;
+    currency?: string;
+    symbol?: string;
+    basic_price_label?: string;
+    business_price_label?: string;
+    premium_price_label?: string;
     hubs?: string[];
     language?: string;
     legal_profile?: string;
@@ -883,38 +888,51 @@ export default function AcquisitionPage() {
                     ];
               return (
                 <>
-                  <div className="grid gap-2 text-sm sm:grid-cols-3">
-                    {regions.map((r) => (
-                      <p
-                        key={r.region}
-                        className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2"
-                      >
-                        <span className="text-genesis-muted">{r.label_ru}</span>
-                        <span className="mt-1 block font-medium text-white">
-                          {r.used_today} / {r.daily_cap ?? cap}
-                          {r.at_cap ? (
-                            <span className="ml-1 text-xs font-normal text-amber-300">
-                              лимит
-                            </span>
-                          ) : null}
-                        </span>
-                        <span className="mt-0.5 block text-[11px] text-genesis-muted">
-                          осталось {r.remaining}
-                        </span>
-                      </p>
-                    ))}
+                  <div className="rounded-xl border border-emerald-500/35 bg-emerald-950/30 px-4 py-4">
+                    <p className="text-[11px] uppercase tracking-wide text-emerald-200/80">
+                      Дневной потолок Virtus · все рынки
+                    </p>
+                    <p className="mt-1 text-3xl font-semibold tabular-nums text-white">
+                      {q.sent_today_total ?? 0}{" "}
+                      <span className="text-lg font-normal text-white/50">/</span>{" "}
+                      {q.global_daily_cap ?? q.pool_cap_total ?? cap}
+                    </p>
+                    <p className="mt-1 text-xs text-genesis-muted">
+                      осталось{" "}
+                      {q.remaining_today_total ??
+                        Math.max(
+                          0,
+                          Number(q.global_daily_cap ?? q.pool_cap_total ?? cap) -
+                            Number(q.sent_today_total || 0),
+                        )}
+                      {q.min_interval_sec != null
+                        ? ` · интервал ≥ ${q.min_interval_sec}с`
+                        : ""}
+                    </p>
                   </div>
-                  <p className="rounded-lg border border-emerald-500/20 bg-emerald-950/20 px-3 py-2 text-sm">
-                    <span className="text-genesis-muted">Всего по рынкам (фаза)</span>
-                    <span className="mt-1 block font-medium text-white">
-                      {q.sent_today_total} / {q.global_daily_cap ?? q.pool_cap_total}
-                    </span>
-                    {q.min_interval_sec != null ? (
-                      <span className="mt-0.5 block text-[11px] text-genesis-muted">
-                        интервал ≥ {q.min_interval_sec}с между письмами
-                      </span>
-                    ) : null}
-                  </p>
+                  <div className="max-h-48 overflow-y-auto">
+                    <div className="grid gap-2 text-sm sm:grid-cols-3">
+                      {regions.map((r) => (
+                        <p
+                          key={r.region}
+                          className="rounded-lg border border-genesis-border-subtle bg-black/20 px-3 py-2"
+                        >
+                          <span className="text-genesis-muted">{r.label_ru}</span>
+                          <span className="mt-1 block font-medium text-white">
+                            {r.used_today} / {r.daily_cap ?? cap}
+                            {r.at_cap ? (
+                              <span className="ml-1 text-xs font-normal text-amber-300">
+                                лимит
+                              </span>
+                            ) : null}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-genesis-muted">
+                            осталось {r.remaining}
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
                   {q.domains?.length ? (
                     <ul className="space-y-1 text-xs text-genesis-muted">
                       {q.domains.map((d) => (
@@ -963,10 +981,12 @@ export default function AcquisitionPage() {
               {status.markets_dashboard.planned_count ?? 0}
             </p>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[36rem] text-left text-xs">
+              <table className="w-full min-w-[42rem] text-left text-xs">
                 <thead className="text-genesis-muted">
                   <tr className="border-b border-genesis-border-subtle">
                     <th className="py-2 pr-2 font-medium">Страна</th>
+                    <th className="py-2 pr-2 font-medium">Валюта</th>
+                    <th className="py-2 pr-2 font-medium">Basic</th>
                     <th className="py-2 pr-2 font-medium">Лимит</th>
                     <th className="py-2 pr-2 font-medium">Отправлено</th>
                     <th className="py-2 pr-2 font-medium">Ответы</th>
@@ -987,6 +1007,13 @@ export default function AcquisitionPage() {
                         {!row.enabled ? (
                           <span className="ml-1 text-[10px] uppercase">off</span>
                         ) : null}
+                      </td>
+                      <td className="py-2 pr-2 tabular-nums">
+                        {row.currency || "—"}
+                        {row.symbol ? ` ${row.symbol}` : ""}
+                      </td>
+                      <td className="py-2 pr-2 tabular-nums whitespace-nowrap">
+                        {row.basic_price_label || "—"}
                       </td>
                       <td className="py-2 pr-2 tabular-nums">{row.daily_cap}</td>
                       <td className="py-2 pr-2 tabular-nums">{row.sent_today}</td>

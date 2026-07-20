@@ -1,5 +1,5 @@
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://genesis-ai-engine.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://beta.genesis-ai-engine.com";
 
 export const SITE_NAME = "Virtus Core";
 export const SITE_TAGLINE = "Vector · Digital Company";

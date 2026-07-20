@@ -16,8 +16,11 @@ _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 
 
 def _public_url(path: str) -> str:
-    base = os.getenv("GENESIS_PUBLIC_URL", "").rstrip("/")
-    return f"{base}{path}" if base else path
+    from app.integration.public_site_url import configured_public_base
+
+    base = configured_public_base()
+    p = path if path.startswith("/") else f"/{path}"
+    return f"{base}{p}"
 
 
 def _html_email(
@@ -85,10 +88,14 @@ class ReceiptEmailService:
     def send_order_received(self, *, order: dict) -> dict:
         order_id = str(order.get("order_id", ""))
         status_path = f"/order/status/{order_id}"
+        price = str(
+            order.get("price_label")
+            or f"{order.get('price_eur', '')} {order.get('symbol') or '€'}".strip()
+        )
         rows = [
             ("Заказ", f"№ {order_id}"),
             ("Бизнес", str(order.get("business_name", ""))),
-            ("Пакет", f"{order.get('package_name', '')} — {order.get('price_eur', '')} €"),
+            ("Пакет", f"{order.get('package_name', '')} — {price}"),
             ("Статус", "Ожидает оплаты"),
         ]
         intro = str(
@@ -99,7 +106,7 @@ class ReceiptEmailService:
             f"Здравствуйте!\n\n"
             f"Мы получили ваш проект «{order['business_name']}».\n\n"
             f"Проект № {order_id}\n"
-            f"Сумма: {order['price_eur']} €\n\n"
+            f"Сумма: {price}\n\n"
             f"{intro}\n{_public_url(status_path)}\n\n"
             f"Статус проекта: {_public_url(status_path)}\n\n"
             f"С уважением,\n{BRAND_NAME}"
@@ -132,9 +139,13 @@ class ReceiptEmailService:
         )
 
         eta = order.get("estimated_hours")
+        price = str(
+            order.get("price_label")
+            or f"{order.get('price_eur', '')} {order.get('symbol') or '€'}".strip()
+        )
         rows = [
             ("Bestellung", f"Nr. {order_id}"),
-            ("Paket", f"{order.get('package_name', '')} — {order.get('price_eur', '')} €"),
+            ("Paket", f"{order.get('package_name', '')} — {price}"),
             ("Status", "Bezahlt"),
         ]
         if eta:

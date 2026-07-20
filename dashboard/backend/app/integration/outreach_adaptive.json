@@ -11,7 +11,7 @@
   "scaling": {
     "step_up": 20,
     "step_down": 20,
-    "max_daily_cap": 450,
+    "max_daily_cap": 1000,
     "min_daily_cap": 5,
     "require_revenue_for_scale_up": true,
     "min_replies_without_revenue_hold": 3,

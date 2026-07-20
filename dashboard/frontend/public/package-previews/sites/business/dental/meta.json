@@ -1,0 +1,104 @@
+{
+  "product_id": "189dd977-fb82-4df9-8672-73c033e0526e",
+  "intent_id": null,
+  "product_type": "Landing Page",
+  "description": "Arztpraxis Weber — Hausarztpraxis mit Prophylaxe und Impfungen in München",
+  "niche": "dental",
+  "template_id": "landing-dental-v1",
+  "business_name": "Arztpraxis Weber",
+  "market_code": "DE",
+  "motion_level": "none",
+  "status": "completed",
+  "quality_percent": 98,
+  "validation_passed": true,
+  "technical_checks": [
+    {
+      "id": "html",
+      "label": "HTML",
+      "ok": true
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile",
+      "ok": true
+    },
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "ok": true
+    }
+  ],
+  "owner_approved": false,
+  "owner_approved_at": null,
+  "revision": 0,
+  "created_at": "2026-07-20T11:46:38.044050+00:00",
+  "updated_at": "2026-07-20T11:46:38.044050+00:00",
+  "style_flags": {
+    "modern": false,
+    "blue_boost": false,
+    "calculator": false,
+    "testimonials": true
+  },
+  "package_delivery": {
+    "package_id": "business",
+    "whatsapp": true,
+    "maps": true,
+    "testimonials": true,
+    "logo_slot": true,
+    "extended_seo": true,
+    "analytics": false,
+    "calculator": false,
+    "premium_design": false,
+    "contact_form": true,
+    "faq": true,
+    "process": true,
+    "mid_cta": true,
+    "trust_bar": true,
+    "stats_strip": false,
+    "showcase": false,
+    "catalog_grid": false,
+    "catalog_categories": false,
+    "catalog_search_filter": false,
+    "catalog_request_cart": false,
+    "catalog_rich_cards": false
+  },
+  "catalog_enabled": false,
+  "client_legal": {
+    "business_name": "Arztpraxis Weber",
+    "owner_name": "",
+    "legal_form": "",
+    "street": "",
+    "zip": "",
+    "city": "München",
+    "country": "DE",
+    "email": "kontakt@praxis-weber.de",
+    "phone": "+49 89 555 0200",
+    "website": "",
+    "managing_director": "",
+    "vat_id": "",
+    "handelsregister": "",
+    "register_court": "",
+    "uses_maps": true,
+    "uses_analytics": false,
+    "uses_contact_form": true,
+    "missing_impressum": [
+      "street",
+      "zip"
+    ],
+    "impressum_ready": false
+  },
+  "legal_pages": {
+    "pack": "de_impressum",
+    "market_code": "DE",
+    "impressum_ready": false,
+    "missing_impressum": [
+      "street",
+      "zip"
+    ],
+    "files": [
+      "impressum.html",
+      "datenschutz.html"
+    ]
+  },
+  "publish_ready_de": false
+}

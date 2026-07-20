@@ -1,0 +1,44 @@
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "services": "Services",
+    "vector": "Vector",
+    "studio": "Studio",
+    "order": "Order",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "language": {
+    "title": "Language",
+    "auto": "Automatic (browser)",
+    "ui": "Interface",
+    "assistant": "Assistant replies",
+    "search": "Search language…",
+    "noResults": "No languages found",
+    "more": "More languages…",
+    "less": "Less",
+    "fallbackNote": "Languages without a full UI pack use English interface strings.",
+    "fullPackNote": "Only languages with a full interface pack (DE, UK, RU, EN).",
+    "ru": "Русский",
+    "en": "English",
+    "de": "Deutsch",
+    "uk": "Українська"
+  },
+  "skipToContent": "Skip to content",
+  "surface": {
+    "public": "Offer",
+    "client": "My company",
+    "ceo": "Owner workspace",
+    "workingWith": "{{name}} is ready to help"
+  },
+  "footer": {
+    "tagline": "{{name}} — your digital teammate",
+    "about": "About",
+    "privacy": "Privacy",
+    "support": "Support",
+    "contact": "Contact",
+    "legal": "Legal information",
+    "mainNav": "Main links"
+  }
+}

@@ -1,103 +1,83 @@
 /**
- * Package preview gallery config — Path A order / storefront.
- * Paths are relative to backend /research-3d/ mount (_research_3d/).
- * Add slides here without touching carousel UI.
+ * Package preview gallery — Path A order / storefront.
+ * Each tier has exclusive full-site HTML samples (no cross-tier reuse).
+ * Paths under /package-previews/sites/{tier}/{niche}/index.html
  */
 
 export type PackagePreviewTier = "basic" | "business" | "premium";
 
 export type PackagePreviewSlide = {
-  /** Path under /research-3d/ */
+  /** Relative path under /package-previews/ */
   src: string;
   alt: string;
-  /** Optional niche id for preferred ordering */
   niche?: string;
+  /** Full landing sample (iframe), not a background photo */
+  kind: "site";
 };
 
-/** basic_preview[] */
+/** basic_preview[] — Basic quality sites only */
 export const basic_preview: PackagePreviewSlide[] = [
   {
-    src: "showcases/auto/hero_pack/basic/hero_1.jpg",
-    alt: "Autowerkstatt · Basic",
+    src: "sites/basic/auto/index.html",
+    alt: "Autowerkstatt · Basic-Website",
     niche: "auto",
+    kind: "site",
   },
   {
-    src: "showcases/dental/hero_pack/basic/hero_1.jpg",
-    alt: "Zahnarzt · Basic",
+    src: "sites/basic/dental/index.html",
+    alt: "Zahnarztpraxis · Basic-Website",
     niche: "dental",
+    kind: "site",
   },
   {
-    src: "showcases/beauty/hero_pack/basic/hero_1.jpg",
-    alt: "Beauty · Basic",
+    src: "sites/basic/beauty/index.html",
+    alt: "Beauty · Basic-Website",
     niche: "beauty",
-  },
-  {
-    src: "showcases/handwerk/hero_pack/basic/hero_1.jpg",
-    alt: "Handwerk · Basic",
-    niche: "handwerk",
-  },
-  {
-    src: "showcases/generic/hero_pack/basic/hero_1.jpg",
-    alt: "Business · Basic",
-    niche: "generic",
+    kind: "site",
   },
 ];
 
-/** business_preview[] */
+/** business_preview[] — Business quality sites only */
 export const business_preview: PackagePreviewSlide[] = [
   {
-    src: "showcases/auto/hero_pack/business/services.jpg",
-    alt: "Autowerkstatt · Business",
+    src: "sites/business/auto/index.html",
+    alt: "Autowerkstatt · Business-Website",
     niche: "auto",
+    kind: "site",
   },
   {
-    src: "showcases/dental/hero_pack/business/services.jpg",
-    alt: "Zahnarzt · Business",
+    src: "sites/business/dental/index.html",
+    alt: "Zahnarztpraxis · Business-Website",
     niche: "dental",
+    kind: "site",
   },
   {
-    src: "showcases/beauty/hero_pack/business/cta.jpg",
-    alt: "Beauty · Business",
-    niche: "beauty",
-  },
-  {
-    src: "showcases/law/hero_pack/business/cta.jpg",
-    alt: "Kanzlei · Business",
-    niche: "law",
-  },
-  {
-    src: "showcases/energy/hero_pack/business/hero_1.jpg",
-    alt: "Energie · Business",
-    niche: "energy",
+    src: "sites/business/praxis/index.html",
+    alt: "Praxis · Business-Website",
+    niche: "praxis",
+    kind: "site",
   },
 ];
 
-/** premium_preview[] */
+/** premium_preview[] — Premium quality sites only */
 export const premium_preview: PackagePreviewSlide[] = [
   {
-    src: "showcases/dental/hero_pack/premium/showcase.jpg",
-    alt: "Zahnarzt · Premium",
-    niche: "dental",
-  },
-  {
-    src: "showcases/auto/hero_pack/premium/banner.jpg",
-    alt: "Autowerkstatt · Premium",
+    src: "sites/premium/auto/index.html",
+    alt: "Autowerkstatt · Premium-Website",
     niche: "auto",
+    kind: "site",
   },
   {
-    src: "showcases/beauty/hero_pack/premium/gallery.jpg",
-    alt: "Beauty · Premium",
-    niche: "beauty",
+    src: "sites/premium/dental/index.html",
+    alt: "Zahnarztpraxis · Premium-Website",
+    niche: "dental",
+    kind: "site",
   },
   {
-    src: "showcases/appliance/hero_pack/premium/showcase.jpg",
-    alt: "Geräte · Premium",
-    niche: "appliance",
-  },
-  {
-    src: "showcases/green/hero_pack/premium/banner.jpg",
-    alt: "Green · Premium",
-    niche: "green",
+    src: "sites/premium/path/index.html",
+    alt: "Premium-Website · Beispiel",
+    niche: "path",
+    kind: "site",
   },
 ];
 
@@ -113,7 +93,7 @@ export function normalizePreviewTier(packageId: string | null | undefined): Pack
   return "basic";
 }
 
-/** Prefer niche-matching slides, then fill up to max. */
+/** Prefer niche-matching slides, then fill — never mix tiers. */
 export function resolvePackagePreviewSlides(
   packageId: string | null | undefined,
   niche?: string | null,

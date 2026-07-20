@@ -1,7 +1,18 @@
 import { formatApiDetail } from "./formatApiError";
 import { publicApiBase } from "./publicApiBase";
+import { SITE_URL } from "./siteConfig";
 
 const API = publicApiBase();
+
+const LEGACY_HOST_RE = /genesis-ai-engine\.vercel\.app/i;
+
+function storefrontOrigin(): string {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    const origin = window.location.origin;
+    if (!LEGACY_HOST_RE.test(origin)) return origin;
+  }
+  return SITE_URL.replace(/\/$/, "");
+}
 
 async function fetchJsonWithRetry(
   path: string,
@@ -13,7 +24,6 @@ async function fetchJsonWithRetry(
   for (let i = 0; i < attempts; i++) {
     try {
       const res = await fetch(`${API}${path}`);
-      // Next rewrite returns 500 when backend is briefly down — retry.
       if (res.status >= 500 && i < attempts - 1) {
         await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
         continue;
@@ -31,7 +41,7 @@ async function fetchJsonWithRetry(
 }
 
 export async function startOrderCheckout(orderId: string): Promise<string> {
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const origin = storefrontOrigin();
   try {
     const { logCommerceEvent } = await import("./commerceFunnel");
     logCommerceEvent("checkout_start", null, "checkout", { order_id: orderId });
@@ -50,28 +60,49 @@ export async function startOrderCheckout(orderId: string): Promise<string> {
   if (!res.ok) {
     throw new Error(formatApiDetail(body.detail) || "Не удалось начать оплату");
   }
-  if (!body.checkout_url) {
+  const url = String(body.checkout_url || "");
+  if (!url) {
     throw new Error("Нет ссылки на оплату");
   }
-  return body.checkout_url as string;
+  if (LEGACY_HOST_RE.test(url) || /\.vercel\.app/i.test(url)) {
+    throw new Error(
+      "Оплата вернула устаревший адрес (Vercel). Обновите GENESIS_PUBLIC_URL на beta.genesis-ai-engine.com",
+    );
+  }
+  const sandbox = Boolean(body.sandbox);
+  const isStripe = /^https:\/\/checkout\.stripe\.com\//i.test(url);
+  if (!sandbox && !isStripe) {
+    throw new Error("Оплата настроена неверно: ожидается Stripe Checkout");
+  }
+  return url;
 }
 
 export async function fetchPaymentReady(): Promise<boolean> {
   try {
     const res = await fetchJsonWithRetry("/api/sales/payment-status");
     const body = await res.json();
-    return Boolean(body.configured);
+    if (body.stripe_ready) return true;
+    if (body.sandbox && body.configured) return true;
+    return Boolean(body.configured && body.provider === "stripe");
   } catch {
     return false;
   }
 }
 
-export async function fetchPaymentInfo(): Promise<{ configured: boolean; sandbox: boolean }> {
+export async function fetchPaymentInfo(): Promise<{
+  configured: boolean;
+  sandbox: boolean;
+  stripe_ready: boolean;
+}> {
   try {
     const res = await fetchJsonWithRetry("/api/sales/payment-status");
     const body = await res.json();
-    return { configured: Boolean(body.configured), sandbox: Boolean(body.sandbox) };
+    return {
+      configured: Boolean(body.configured),
+      sandbox: Boolean(body.sandbox),
+      stripe_ready: Boolean(body.stripe_ready),
+    };
   } catch {
-    return { configured: false, sandbox: false };
+    return { configured: false, sandbox: false, stripe_ready: false };
   }
 }

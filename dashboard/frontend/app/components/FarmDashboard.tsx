@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { MoneyMonitorPanel, type MoneyMonitorData } from "./MoneyMonitorPanel";
 import { formatEur } from "../lib/formatEur";
@@ -503,6 +503,12 @@ export function FarmDashboard() {
   // cold polls must not flash rose NOT VERIFIED / LEVEL 0 (looks like disconnect).
   const [vreSticky, setVreSticky] = useState<VreSticky | null>(null);
   const [vreColdGraceDone, setVreColdGraceDone] = useState(false);
+  const [pollBackoffMs, setPollBackoffMs] = useState(3_000);
+  const dashRef = useRef<FarmDash | null>(null);
+
+  useEffect(() => {
+    dashRef.current = dash;
+  }, [dash]);
 
   useEffect(() => {
     setVreSticky(readVreSticky());
@@ -521,6 +527,7 @@ export function FarmDashboard() {
         const lite = (await liteRes.json()) as FarmDash;
         setDash((prev) => mergeFarmDash(prev, lite));
         setLoadError("");
+        setPollBackoffMs(3_000);
         liteOk = true;
       }
       const fullRes = await fetchApi(`${API}/api/farm/dashboard`, { timeoutMs: 20_000 });
@@ -528,28 +535,35 @@ export function FarmDashboard() {
         const full = (await fullRes.json()) as FarmDash;
         setDash((prev) => mergeFarmDash(prev, full));
         setLoadError("");
+        setPollBackoffMs(3_000);
         return;
       }
       if (!liteOk) throw new Error("dashboard");
+      // Lite OK, full failed — keep data, soft note only if we never had dash.
     } catch {
       if (!liteOk) {
-        setLoadError(
-          "Связь с backend потеряна — переподключаюсь автоматически. Страницу обновлять не нужно.",
-        );
+        setPollBackoffMs((prev) => (prev >= 15_000 ? 15_000 : prev === 3_000 ? 8_000 : 15_000));
+        // Keep previous dash visible — only show hard reconnect if we have nothing yet.
+        if (!dashRef.current) {
+          setLoadError(
+            "Связь с backend потеряна — переподключаюсь автоматически. Страницу обновлять не нужно.",
+          );
+        } else {
+          setLoadError("Краткий сбой связи — данные сохранены, повторяю опрос…");
+        }
       }
     }
   }, []);
 
   useEffect(() => {
     void refresh();
-    // Disconnected OR VRE banner still warming — poll fast so CEO does not need F5.
     const warming = !loadError && dash != null && !isFarmSectionReady(dash.farm_program);
-    const intervalMs = loadError || warming ? 3_000 : 15_000;
+    const intervalMs = loadError ? pollBackoffMs : warming ? 3_000 : 15_000;
     const poll = window.setInterval(() => {
       void refresh();
     }, intervalMs);
     return () => window.clearInterval(poll);
-  }, [refresh, loadError, dash?.farm_program]);
+  }, [refresh, loadError, pollBackoffMs, dash?.farm_program]);
 
   useEffect(() => {
     const kick = () => {

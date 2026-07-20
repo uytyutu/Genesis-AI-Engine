@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { publicApiBase } from "../lib/publicApiBase";
 import {
   resolvePackagePreviewSlides,
   type PackagePreviewSlide,
 } from "../lib/packagePreviewGallery";
 
 const AUTO_MS = 4500;
+const IFRAME_W = 1280;
+const IFRAME_H = 900;
 
 type Props = {
   packageId: string;
@@ -17,9 +18,8 @@ type Props = {
 };
 
 function slideUrl(slide: PackagePreviewSlide): string {
-  const api = publicApiBase().replace(/\/$/, "");
   const path = slide.src.replace(/^\/+/, "");
-  return `${api}/research-3d/${path}`;
+  return `/package-previews/${path}`;
 }
 
 export function PackagePreviewCarousel({ packageId, niche, className = "" }: Props) {
@@ -32,10 +32,26 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
   const [index, setIndex] = useState(0);
   const touchX = useRef<number | null>(null);
   const paused = useRef(false);
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [scale, setScale] = useState(0.2);
 
   useEffect(() => {
     setIndex(0);
   }, [packageId, niche, slides.length]);
+
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.clientWidth || 320;
+      const h = el.clientHeight || 240;
+      setScale(Math.min(w / IFRAME_W, h / IFRAME_H));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [slides.length, index]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -86,7 +102,7 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
     <div className={`mt-4 ${className}`}>
       {caption}
       <div
-        className="overflow-hidden rounded-xl border border-white/10 bg-black/20"
+        className="overflow-hidden rounded-xl border border-white/10 bg-slate-950"
         onMouseEnter={() => {
           paused.current = true;
         }}
@@ -108,24 +124,41 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
           go(dx < 0 ? index + 1 : index - 1);
         }}
       >
-        <div className="relative h-[220px] w-full sm:h-[260px] lg:h-[240px]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            key={current.src}
-            src={slideUrl(current)}
-            alt={current.alt}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover"
-          />
+        <div
+          ref={frameRef}
+          className="relative h-[220px] w-full overflow-hidden bg-slate-900 sm:h-[280px] lg:h-[260px]"
+        >
+          <div className="pointer-events-none absolute inset-0 flex items-start justify-center pt-2">
+            <div
+              className="overflow-hidden rounded-md border border-white/15 bg-white shadow-lg"
+              style={{
+                width: IFRAME_W * scale,
+                height: IFRAME_H * scale,
+              }}
+            >
+              <iframe
+                key={current.src}
+                src={slideUrl(current)}
+                title={current.alt}
+                loading="lazy"
+                tabIndex={-1}
+                className="origin-top-left border-0 bg-white"
+                style={{
+                  width: IFRAME_W,
+                  height: IFRAME_H,
+                  transform: `scale(${scale})`,
+                }}
+              />
+            </div>
+          </div>
           {isPremium ? (
-            <div className="pointer-events-none absolute left-2 top-2 max-w-[85%] rounded-md border border-white/20 bg-black/55 px-2 py-1 backdrop-blur-sm">
+            <div className="pointer-events-none absolute left-2 top-2 z-10 max-w-[85%] rounded-md border border-white/20 bg-black/55 px-2 py-1 backdrop-blur-sm">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
                 {t("order.previewPremiumBadge")}
               </p>
             </div>
           ) : null}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-3 pt-8">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 to-transparent px-3 pb-3 pt-8">
             <p className="text-[11px] font-medium text-white/95">{current.alt}</p>
           </div>
           {slides.length > 1 && (
@@ -133,7 +166,7 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
               <button
                 type="button"
                 aria-label="Previous"
-                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/45 px-2 py-1 text-sm text-white hover:bg-black/65"
+                className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 px-2 py-1 text-sm text-white hover:bg-black/65"
                 onClick={() => go(index - 1)}
               >
                 ‹
@@ -141,7 +174,7 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
               <button
                 type="button"
                 aria-label="Next"
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/45 px-2 py-1 text-sm text-white hover:bg-black/65"
+                className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 px-2 py-1 text-sm text-white hover:bg-black/65"
                 onClick={() => go(index + 1)}
               >
                 ›

@@ -263,6 +263,129 @@ def test_payment_status_live_mode_fields(tmp_path: Path, monkeypatch: pytest.Mon
     assert status["live_mode"] is True
     assert status["stripe_test_mode"] is False
     assert status["provider_label"] == "Stripe (live)"
+    assert status["stripe_ready"] is True
+
+
+def test_stale_stripe_config_without_secret_is_not_ready(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.delenv("STRIPE_SECRET_KEY", raising=False)
+    monkeypatch.delenv("GENESIS_PAYMENT_SANDBOX", raising=False)
+    (tmp_path / "finance_config.json").write_text(
+        json.dumps({"payment_provider": "stripe", "payment_provider_label": "Stripe"}),
+        encoding="utf-8",
+    )
+    checkout = PaymentCheckoutService(tmp_path)
+    assert checkout.provider() is None
+    assert checkout.is_configured() is False
+
+
+def test_finance_config_sandbox_without_env_is_not_ready(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    """Stale sandbox in finance_config must not hijack Path A commerce."""
+    monkeypatch.delenv("STRIPE_SECRET_KEY", raising=False)
+    monkeypatch.delenv("GENESIS_PAYMENT_SANDBOX", raising=False)
+    (tmp_path / "finance_config.json").write_text(
+        json.dumps({"payment_provider": "sandbox"}),
+        encoding="utf-8",
+    )
+    checkout = PaymentCheckoutService(tmp_path)
+    assert checkout.provider() is None
+    assert checkout.is_configured() is False
+
+
+def test_stripe_success_url_keeps_existing_query(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake")
+    monkeypatch.delenv("GENESIS_PAYMENT_SANDBOX", raising=False)
+    captured: dict = {}
+
+    class _FakeResp:
+        status_code = 200
+
+        def json(self):
+            return {"id": "cs_test", "url": "https://checkout.stripe.com/c/pay/cs_test"}
+
+    class _FakeClient:
+        def __init__(self, *a, **k):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def post(self, url, data=None, auth=None):
+            captured["data"] = data
+            return _FakeResp()
+
+    import app.integration.payment_checkout_service as mod
+
+    monkeypatch.setattr(mod.httpx, "Client", _FakeClient)
+    checkout = PaymentCheckoutService(tmp_path)
+    out = checkout.create_checkout(
+        order_id="ord-1",
+        amount_eur=350,
+        label="Landing Basic",
+        success_url="http://localhost:3000/order/status/ord-1?paid=1",
+        cancel_url="http://localhost:3000/order/status/ord-1",
+        currency="eur",
+    )
+    assert out["provider"] == "stripe"
+    assert out["checkout_url"].startswith("https://checkout.stripe.com/")
+    success = captured["data"]["success_url"]
+    assert success.count("?") == 1
+    assert "paid=1" in success
+    assert "order_id=ord-1" in success
+    assert captured["data"]["payment_method_types[0]"] == "card"
+
+
+def test_stripe_checkout_multi_currency_and_card_wallets(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+):
+    """Checkout passes market currency; card enables Apple Pay / Google Pay on Checkout."""
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_fake")
+    monkeypatch.delenv("GENESIS_PAYMENT_SANDBOX", raising=False)
+    captured: dict = {}
+
+    class _FakeResp:
+        status_code = 200
+
+        def json(self):
+            return {"id": "cs_test", "url": "https://checkout.stripe.com/c/pay/cs_test"}
+
+    class _FakeClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def post(self, url, data=None, auth=None):
+            captured["data"] = data
+            return _FakeResp()
+
+    import app.integration.payment_checkout_service as mod
+
+    monkeypatch.setattr(mod.httpx, "Client", _FakeClient)
+    checkout = PaymentCheckoutService(tmp_path)
+
+    for cur, amount in (("pln", 2800), ("gbp", 550), ("usd", 700)):
+        checkout.create_checkout(
+            order_id=f"ord-{cur}",
+            amount_eur=amount,
+            label="Landing Basic",
+            success_url=f"http://localhost:3000/order/status/ord-{cur}?paid=1",
+            cancel_url=f"http://localhost:3000/order/status/ord-{cur}",
+            currency=cur,
+            market_code=cur.upper(),
+        )
+        assert captured["data"]["line_items[0][price_data][currency]"] == cur
+        assert captured["data"]["payment_method_types[0]"] == "card"
 
 
 def test_begin_checkout_passes_order_currency(tmp_path: Path, sandbox_env, monkeypatch: pytest.MonkeyPatch):

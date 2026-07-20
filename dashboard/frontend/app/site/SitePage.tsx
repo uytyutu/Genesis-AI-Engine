@@ -78,6 +78,18 @@ const FALLBACK_PACKAGES: PackageCard[] = [
   },
 ];
 
+const PACKAGE_NAME_KEY: Record<string, string> = {
+  basic: "pathA.pkgBasic",
+  business: "pathA.pkgBusiness",
+  premium: "pathA.pkgPremium",
+};
+
+const PACKAGE_DIFF_KEYS: Record<string, string[]> = {
+  basic: ["pathA.diffBasic1", "pathA.diffBasic2", "pathA.diffBasic3"],
+  business: ["pathA.diffBusiness1", "pathA.diffBusiness2", "pathA.diffBusiness3"],
+  premium: ["pathA.diffPremium1", "pathA.diffPremium2", "pathA.diffPremium3"],
+};
+
 /**
  * Public Path A storefront — language follows ?market= (plus LanguageSwitcher).
  */
@@ -94,6 +106,17 @@ export function SitePage() {
   const [reviews, setReviews] = useState<PublicReviews | null>(null);
   const [market, setMarket] = useState("DE");
   const [markets, setMarkets] = useState<MarketOption[]>([]);
+  const localeTag = (i18n.language || "de").replace("_", "-");
+
+  function packageDiffLines(packageId: string): string[] {
+    const keys = PACKAGE_DIFF_KEYS[packageId] || PACKAGE_DIFF_KEYS.basic!;
+    return keys.map((k) => t(k));
+  }
+
+  function packageTitle(packageId: string, fallback: string): string {
+    const key = PACKAGE_NAME_KEY[packageId];
+    return key ? t(key) : fallback;
+  }
 
   useEffect(() => {
     try {
@@ -245,17 +268,18 @@ export function SitePage() {
           {packages.map((p) => {
             const price =
               p.price_label ||
-              formatLocalizedMoney(p.price_eur, p.currency || "EUR", "de-DE");
+              formatLocalizedMoney(p.price_eur, p.currency || "EUR", localeTag);
+            const diffs = packageDiffLines(p.id);
             return (
               <div
                 key={p.id}
                 className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-left"
               >
-                <p className="text-sm text-genesis-muted">{p.name}</p>
+                <p className="text-sm text-genesis-muted">{packageTitle(p.id, p.name)}</p>
                 <p className="mt-1 text-2xl font-semibold text-white">{price}</p>
                 <PackagePreviewCarousel packageId={p.id} className="mt-3" />
                 <ul className="mt-3 space-y-1.5 text-xs text-white/70">
-                  {p.deliverables.slice(0, 6).map((d) => (
+                  {diffs.map((d) => (
                     <li key={d}>• {d}</li>
                   ))}
                 </ul>

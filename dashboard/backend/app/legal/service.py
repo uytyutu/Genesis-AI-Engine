@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import html
-import os
 from pathlib import Path
 from typing import Any
 
@@ -17,12 +16,12 @@ _PUBLIC_CONTACT_EMAIL = "hello@genesis-ai-engine.com"
 
 
 def _public_site_base(cfg_website: str) -> str:
-    return (
-        cfg_website.strip()
-        or os.getenv("GENESIS_PUBLIC_URL", "").strip()
-        or os.getenv("NEXT_PUBLIC_SITE_URL", "").strip()
-        or "https://genesis-ai-engine.vercel.app"
-    ).rstrip("/")
+    from app.integration.public_site_url import canonicalize_storefront_url, configured_public_base
+
+    raw = (cfg_website or "").strip()
+    if raw:
+        return canonicalize_storefront_url(raw).rstrip("/")
+    return configured_public_base()
 
 
 class LegalFoundationService:

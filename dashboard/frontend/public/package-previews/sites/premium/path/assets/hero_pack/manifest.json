@@ -1,0 +1,13 @@
+{
+  "package_id": "premium",
+  "niche_id": "auto",
+  "hero_1": "assets/hero_pack/hero_1.jpg",
+  "hero_2": "assets/hero_pack/hero_2.jpg",
+  "hero_3": "assets/hero_pack/hero_3.jpg",
+  "banner": "assets/hero_pack/banner.jpg",
+  "gallery": "assets/hero_pack/gallery.jpg",
+  "showcase": "assets/hero_pack/showcase.jpg",
+  "calculator": "assets/hero_pack/calculator.jpg",
+  "footer": "assets/hero_pack/footer.jpg",
+  "hero": "assets/hero.jpg"
+}

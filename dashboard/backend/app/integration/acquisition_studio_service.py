@@ -274,6 +274,25 @@ class AcquisitionStudioService:
                 continue
             if not row.get("proposed_message"):
                 continue
+            # Skip if another opportunity already used this email/host (sent/contacted).
+            oid = str(row.get("id") or "")
+            email = self._extract_email(str(row.get("contact") or "")).lower()
+            host = self._normalize_host(str(row.get("website_url") or ""))
+            peer_busy = False
+            for other in rows:
+                if str(other.get("id") or "") == oid:
+                    continue
+                o_status = str(other.get("status") or "")
+                o_out = str(other.get("outreach_status") or "")
+                if o_status not in ("contacted", "won") and o_out not in ("sent", "contacted"):
+                    continue
+                o_email = self._extract_email(str(other.get("contact") or "")).lower()
+                o_host = self._normalize_host(str(other.get("website_url") or ""))
+                if (email and o_email == email) or (host and o_host == host):
+                    peer_busy = True
+                    break
+            if peer_busy:
+                continue
             win = int(meta.get("win_probability_pct") or 0)
             score = int(row.get("score") or 0)
             if status == "pending_approval" and win < HIGH_WIN_AUTO_CONFIRM_PCT:
@@ -390,6 +409,36 @@ class AcquisitionStudioService:
         for m in list_markets():
             code = str(m.get("code") or "").upper()
             snap = by_sent.get(code) or {}
+            currency = str(m.get("currency") or "EUR")
+            symbol = str(m.get("symbol") or "€")
+            basic_label = ""
+            business_label = ""
+            premium_label = ""
+            try:
+                from app.integration.commerce_engine import resolve_final_offer
+                from app.integration.market_registry import get_market as get_commerce
+
+                cm = get_commerce(code)
+                if cm and cm.currency:
+                    currency = str(cm.currency)
+                    symbol = str(cm.symbol or symbol)
+                for pid, dest in (
+                    ("basic", "basic"),
+                    ("business", "business"),
+                    ("premium", "premium"),
+                ):
+                    offer = resolve_final_offer(pid, code)
+                    label = str(offer.price_label or f"{offer.amount:.0f} {offer.symbol}")
+                    if pid == "basic":
+                        basic_label = label
+                        currency = str(offer.currency or currency)
+                        symbol = str(offer.symbol or symbol)
+                    elif pid == "business":
+                        business_label = label
+                    else:
+                        premium_label = label
+            except Exception:
+                pass
             table.append(
                 {
                     "code": code,
@@ -406,6 +455,11 @@ class AcquisitionStudioService:
                     "sent_today": int(snap.get("used_today") or 0),
                     "replies": int(replies.get(code, 0)),
                     "orders": int(orders.get(code, 0)),
+                    "currency": currency,
+                    "symbol": symbol,
+                    "basic_price_label": basic_label,
+                    "business_price_label": business_label,
+                    "premium_price_label": premium_label,
                     "hubs": m.get("hubs") or [],
                     "timezone": m.get("timezone"),
                     "language": m.get("language"),
@@ -588,10 +642,14 @@ class AcquisitionStudioService:
         skipped_has_site = 0
         skipped_already_queued = 0
         skipped_excluded = 0
+        skipped_dup = 0
         duplicates = 0
         blocked = 0
 
         from app.integration.lead_pipeline_service import ingest_lead
+
+        all_rows = self._opportunity.list_opportunities(limit=500)
+        busy_emails, busy_hosts = self._pipeline_busy_keys(all_rows)
 
         for lead in leads:
             result = ingest_lead(
@@ -644,6 +702,13 @@ class AcquisitionStudioService:
                 skipped_excluded += 1
                 continue
 
+            if self._is_pipeline_duplicate(
+                row, busy_emails=busy_emails, busy_hosts=busy_hosts
+            ):
+                skipped_dup += 1
+                duplicates += 1
+                continue
+
             has_site = bool(str(row.get("website_url") or "").strip())
             if has_site and not force_skip_check:
                 skipped_has_site += 1
@@ -668,6 +733,12 @@ class AcquisitionStudioService:
                     skip_qualification=force_skip_check,
                 )
                 drafted += 1
+                email = self._extract_email(str(row.get("contact") or "")).lower()
+                if email:
+                    busy_emails.add(email)
+                host = self._normalize_host(str(row.get("website_url") or lead.website or ""))
+                if host:
+                    busy_hosts.add(host)
             except ValueError:
                 continue
 
@@ -677,6 +748,7 @@ class AcquisitionStudioService:
             "created": created,
             "drafted": drafted,
             "duplicates": duplicates,
+            "skipped_dup": skipped_dup,
             "blocked": blocked,
             "skipped_has_site": skipped_has_site,
             "skipped_already_queued": skipped_already_queued,
@@ -873,6 +945,53 @@ class AcquisitionStudioService:
             host = host[4:]
         return host in _SKIP_OUTREACH_DOMAINS or not host
 
+    def _normalize_host(self, url: str) -> str:
+        from urllib.parse import urlparse
+
+        host = urlparse(str(url or "").strip()).netloc.lower()
+        if host.startswith("www."):
+            host = host[4:]
+        return host
+
+    _PIPELINE_BUSY = frozenset(
+        {"sent", "contacted", "approved", "pending_approval"}
+    )
+
+    def _pipeline_busy_keys(self, rows: list[dict], *, exclude_id: str = "") -> tuple[set[str], set[str]]:
+        """Emails and hosts already in outreach pipeline — do not re-offer."""
+        emails: set[str] = set()
+        hosts: set[str] = set()
+        for row in rows:
+            oid = str(row.get("id") or "")
+            if exclude_id and oid == exclude_id:
+                continue
+            status = str(row.get("status") or "")
+            outreach = str(row.get("outreach_status") or "")
+            if status not in ("contacted", "won") and outreach not in self._PIPELINE_BUSY:
+                continue
+            email = self._extract_email(str(row.get("contact") or "")).lower()
+            if email:
+                emails.add(email)
+            host = self._normalize_host(str(row.get("website_url") or ""))
+            if host:
+                hosts.add(host)
+        return emails, hosts
+
+    def _is_pipeline_duplicate(
+        self,
+        row: dict,
+        *,
+        busy_emails: set[str],
+        busy_hosts: set[str],
+    ) -> bool:
+        email = self._extract_email(str(row.get("contact") or "")).lower()
+        if email and email in busy_emails:
+            return True
+        host = self._normalize_host(str(row.get("website_url") or ""))
+        if host and host in busy_hosts:
+            return True
+        return False
+
     def auto_prepare_discovery_leads(
         self,
         *,
@@ -886,6 +1005,8 @@ class AcquisitionStudioService:
         rows = self._opportunity.list_opportunities(limit=200)
         candidates: list[tuple[int, dict]] = []
         archived = 0
+        skipped_dup = 0
+        busy_emails, busy_hosts = self._pipeline_busy_keys(rows)
 
         for row in rows:
             meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
@@ -901,6 +1022,11 @@ class AcquisitionStudioService:
             ):
                 continue
             if row.get("proposed_message"):
+                continue
+            if self._is_pipeline_duplicate(
+                row, busy_emails=busy_emails, busy_hosts=busy_hosts
+            ):
+                skipped_dup += 1
                 continue
             url = str(row.get("website_url") or "").strip()
             if not url or self._domain_blocked(url):
@@ -961,6 +1087,12 @@ class AcquisitionStudioService:
                     manual_review.append(name)
                 else:
                     prepared.append(name)
+                email = self._extract_email(str(updated.get("contact") or "")).lower()
+                if email:
+                    busy_emails.add(email)
+                host = self._normalize_host(str(updated.get("website_url") or ""))
+                if host:
+                    busy_hosts.add(host)
             except ValueError as exc:
                 if str(exc) == "qualification_failed":
                     skipped_qual.append(str(row.get("company_name") or row["id"]))
@@ -980,12 +1112,16 @@ class AcquisitionStudioService:
             "archived_quality": archived,
             "skipped_qualification": len(skipped_qual),
             "skipped_names": skipped_qual,
+            "skipped_dup": skipped_dup,
+            "duplicates": skipped_dup,
             "errors": errors,
             "auto_draft_max_eur": AUTO_DRAFT_MAX_EUR,
             "message_ru": (
                 f"Auto-draft ≤{AUTO_DRAFT_MAX_EUR:.0f}€: {len(prepared)} · "
-                f"manual-review: {len(manual_review)} · архив качества: {archived}."
-                if (prepared or manual_review or archived)
+                f"manual-review: {len(manual_review)} · архив качества: {archived}"
+                + (f" · дубли: {skipped_dup}" if skipped_dup else "")
+                + "."
+                if (prepared or manual_review or archived or skipped_dup)
                 else (
                     f"Квалификация отсеяла {len(skipped_qual)} лидов — нужен email/живой сайт."
                     if skipped_qual

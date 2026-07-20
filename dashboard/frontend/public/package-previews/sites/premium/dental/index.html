@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arztpraxis Weber — Vorsorge, Impfungen und Beratung — verständlich und ohne Hek</title>
+  <meta name="description" content="Vorsorge, Impfungen und Beratung — verständlich und ohne Hektik.">
+  
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Arztpraxis Weber — Vorsorge, Impfungen und Beratung — verständlich und ohne Hek">
+  <meta property="og:description" content="Vorsorge, Impfungen und Beratung — verständlich und ohne Hektik.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LocalBusiness", "name": "Arztpraxis Weber", "description": "Vorsorge, Impfungen und Beratung — verständlich und ohne Hektik.", "telephone": "+49 89 555 0200", "email": "kontakt@praxis-weber.de", "address": {"@type": "PostalAddress", "addressLocality": "München", "addressCountry": "DE"}}</script>
+
+  
+  <!-- Google Analytics: Measurement-ID nach Go-live ersetzen (G-XXXXXXXXXX) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  
+  <style>
+
+    :root {
+      --p: #0284c7; --pd: #0369a1; --acc: #e0f2fe;
+      --ink: #0f172a; --muted: #64748b; --line: #e2e8f0; --surface: #f8fafc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { color: var(--ink); line-height: 1.65; }
+    a { color: inherit; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.75rem 1.5rem; gap: 1rem; position: sticky; top: 0; z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 0.75rem; }
+    .brand img { height: 40px; width: auto; max-width: 140px; object-fit: contain; background: #fff; border-radius: 6px; padding: 2px 6px; }
+    .brand .logo-fallback {
+      width: 40px; height: 40px; border-radius: 8px; background: var(--acc); color: #0f172a;
+      display: grid; place-items: center; font-weight: 800; font-size: 0.85rem;
+    }
+    .topbar-links { display: flex; gap: 0.85rem; align-items: center; flex-wrap: wrap; }
+    .topbar-links a { text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .hero {
+      position: relative; color: #fff; text-align: center; overflow: hidden;
+      background: linear-gradient(160deg,#0f172a,#0284c7);
+      background-size: cover; background-position: center;
+    }
+    .hero.has-photo {
+      background-image: linear-gradient(120deg, rgba(15,23,42,.72), rgba(15,23,42,.45)), url("assets/hero.jpg");
+      background-size: cover; background-position: center;
+    }
+    .hero-inner { position: relative; z-index: 1; max-width: 48rem; margin: 0 auto; }
+    .hero h1 { font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem; }
+    .hero p.lead { opacity: 0.95; margin: 0 auto 1.5rem; }
+    .trust-row { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; }
+    .trust-pill {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+      padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.8rem;
+    }
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+    .btn {
+      display: inline-block; background: var(--acc); color: #0f172a; font-weight: 700;
+      padding: 0.875rem 2rem; border-radius: 999px; text-decoration: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2); transition: transform .2s, box-shadow .2s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-wa { background: #25d366; color: #052e16; }
+    .btn-reviews { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.85); }
+    .wa-btn { color: #15803d; font-weight: 700; }
+    .section { padding: 3.5rem 1.5rem; max-width: 960px; margin: 0 auto; }
+    .section h2 { font-size: 1.75rem; margin-bottom: 1.25rem; color: var(--pd); }
+    .services { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); list-style: none; }
+    .service-card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .service-card h3 { font-size: 1.05rem; margin-bottom: 0.5rem; color: var(--pd); }
+    .service-desc { font-size: 0.92rem; color: #475569; }
+    .service-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
+    .catalog-tools {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0 1.5rem;
+    }
+    .catalog-tools input, .catalog-tools select {
+      padding: 0.65rem 0.85rem; border: 1px solid var(--line); border-radius: 8px;
+      font: inherit; min-width: 12rem;
+    }
+    .catalog-grid {
+      display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .product-card {
+      background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1rem;
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .product-card.rich { padding: 1.35rem; box-shadow: 0 12px 32px rgba(15,23,42,0.08); }
+    .product-card img, .product-ph {
+      width: 100%; height: 160px; object-fit: cover; border-radius: 8px; background: var(--surface);
+    }
+    .product-card h3 { font-size: 1.05rem; color: var(--pd); }
+    .product-card .price { font-weight: 700; color: var(--p); }
+    .product-card .summary { color: var(--muted); font-size: 0.92rem; flex: 1; }
+    .btn-catalog {
+      margin-top: 0.5rem; border: 0; cursor: pointer; background: var(--acc); color: #0f172a;
+      font-weight: 700; padding: 0.65rem 1rem; border-radius: 999px; font: inherit;
+    }
+    .catalog-cart {
+      margin-top: 1.5rem; padding: 1rem 1.25rem; border: 1px dashed var(--line);
+      border-radius: 12px; background: var(--surface);
+    }
+    .catalog-cart ul { margin: 0.5rem 0 1rem 1.25rem; }
+    .about { background: #f1f5f9; }
+    .benefits ul { list-style: none; display: grid; gap: 0.75rem; }
+    .benefits li { padding-left: 1.5rem; position: relative; }
+    .benefits li::before { content: "✓"; position: absolute; left: 0; color: var(--p); font-weight: 700; }
+    .muted { color: var(--muted); margin-bottom: 1rem; }
+    .contact-grid { display: grid; gap: 0.5rem; }
+    .contact-form { display: grid; gap: 0.75rem; max-width: 480px; margin-top: 1.25rem; }
+    .contact-form label { display: grid; gap: 0.35rem; font-weight: 600; font-size: 0.9rem; }
+    .contact-form input, .contact-form textarea {
+      padding: 0.65rem 0.75rem; border-radius: 8px; border: 1px solid #cbd5e1; font: inherit;
+    }
+    .contact-form button {
+      justify-self: start; background: var(--p); color: #fff; border: 0;
+      padding: 0.75rem 1.5rem; border-radius: 999px; font-weight: 700; cursor: pointer;
+    }
+    .calculator { background: #fff; border-top: 1px solid var(--line); }
+    .calc-grid { display: grid; gap: 1rem; max-width: 400px; }
+    .calc-grid label { display: flex; flex-direction: column; gap: 0.5rem; font-weight: 600; }
+    .calc-grid select, .calc-grid input { padding: 0.5rem; border-radius: 8px; border: 1px solid #cbd5e1; }
+    .calc-result { font-size: 1.25rem; margin-top: 0.5rem; }
+    .testimonials { background: var(--surface); }
+    .testimonial-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .testimonial-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; }
+    .testimonial-card cite { display: block; margin-top: 0.75rem; font-size: 0.875rem; color: var(--muted); }
+    .maps-frame { border-radius: 12px; overflow: hidden; border: 1px solid var(--line); aspect-ratio: 16/9; }
+    .maps-frame iframe { width: 100%; height: 100%; border: 0; }
+    .maps-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; align-items: center; }
+    .maps-actions .chip { font-size: 0.85rem; color: var(--muted); }
+    .btn-route {
+      display: inline-block; background: var(--p); color: #fff; font-weight: 700;
+      padding: 0.65rem 1.25rem; border-radius: 999px; text-decoration: none;
+    }
+    .trust-strip {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center;
+      padding: 0.85rem 1rem; background: #0f172a; color: #e2e8f0; font-size: 0.85rem; font-weight: 600;
+    }
+    .info-bar {
+      display: flex; flex-wrap: wrap; gap: 1.25rem; justify-content: center;
+      padding: 0.9rem 1.25rem; background: rgba(15,23,42,0.92); color: #fff; font-size: 0.9rem;
+    }
+    .info-bar strong { color: var(--acc); }
+    .mid-cta {
+      text-align: center; padding: 2.75rem 1.5rem; background: linear-gradient(135deg, var(--pd), var(--p)); color: #fff;
+    }
+    .mid-cta h2 { color: #fff; margin-bottom: 1rem; font-size: 1.6rem; }
+    .faq-list { display: grid; gap: 0.85rem; }
+    .faq-item { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.15rem; }
+    .faq-item h3 { font-size: 1rem; margin-bottom: 0.35rem; color: var(--pd); }
+    .faq-item p { color: #475569; font-size: 0.95rem; }
+    .process-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .process-card {
+      border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; background: #fff;
+    }
+    .process-card .n {
+      width: 2rem; height: 2rem; border-radius: 999px; background: var(--p); color: #fff;
+      display: grid; place-items: center; font-weight: 800; margin-bottom: 0.75rem; font-size: 0.9rem;
+    }
+    .cert-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+    .cert-badge {
+      border: 1px solid var(--line); background: #fff; border-radius: 999px;
+      padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 600; color: var(--pd);
+    }
+    .stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+      padding: 2.5rem 1.5rem; background: #0f172a; color: #fff; text-align: center;
+    }
+    .stat strong { display: block; font-size: clamp(1.75rem, 4vw, 2.5rem); letter-spacing: -0.03em; color: var(--acc); }
+    .stat span { font-size: 0.85rem; color: #94a3b8; }
+    .showcase { max-width: 1100px; }
+    .showcase-grid { display: grid; gap: 1rem; grid-template-columns: 1.6fr 1fr 1fr; }
+    .showcase-panel {
+      border-radius: 16px; min-height: 220px; background-size: cover; background-position: center;
+      position: relative; overflow: hidden; box-shadow: 0 16px 40px rgba(15,23,42,0.18);
+      transition: transform .25s ease;
+    }
+    .showcase-panel:hover { transform: scale(1.015); }
+    .showcase-panel.main {
+      background-image: linear-gradient(180deg, transparent 40%, rgba(15,23,42,.7)), url("assets/hero.jpg");
+      min-height: 320px;
+    }
+    .showcase-panel.tone-a { background: linear-gradient(145deg, var(--pd), var(--p)); }
+    .showcase-panel.tone-b { background: linear-gradient(145deg, #0f172a, var(--pd)); }
+    .showcase-panel .cap {
+      position: absolute; left: 1rem; bottom: 1rem; color: #fff; font-weight: 700; font-size: 0.95rem;
+    }
+    footer { text-align: center; padding: 2rem; font-size: 0.875rem; background: #0f172a; color: #cbd5e1; }
+    @keyframes heroIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .hero-anim { animation: heroIn .7s ease both; }
+    .hero-anim-d1 { animation-delay: .12s; }
+    .hero-anim-d2 { animation-delay: .24s; }
+    @media (max-width: 720px) {
+      .showcase-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+      .hero { padding: 3rem 1rem 4rem !important; }
+      .section { padding: 2.5rem 1rem; }
+      body[data-tier="business"] .hero-inner,
+      body[data-tier="premium"] .hero-inner { padding: 0 1rem; }
+    }
+
+    body[data-tier="premium"] { font-family: Georgia, "Times New Roman", serif; }
+    body[data-tier="premium"] .topbar {
+      background: rgba(15,23,42,0.55); color: #fff; backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    body[data-tier="premium"] .topbar a { color: #fff; }
+    body[data-tier="premium"] .topbar strong,
+    body[data-tier="premium"] .btn,
+    body[data-tier="premium"] .section h2,
+    body[data-tier="premium"] .service-card h3,
+    body[data-tier="premium"] .faq-item h3,
+    body[data-tier="premium"] .process-card,
+    body[data-tier="premium"] .contact-form,
+    body[data-tier="premium"] .info-bar,
+    body[data-tier="premium"] .trust-strip,
+    body[data-tier="premium"] .stat span,
+    body[data-tier="premium"] .topbar-links,
+    body[data-tier="premium"] .hero p.lead {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+    body[data-tier="premium"] .hero {
+      min-height: 88vh; display: grid; place-items: end center; padding: 0 1.5rem 4.5rem; text-align: left;
+    }
+    body[data-tier="premium"] .hero.has-photo {
+      background-image: linear-gradient(180deg, rgba(15,23,42,.25) 10%, rgba(15,23,42,.82) 75%), url("assets/hero.jpg");
+    }
+    body[data-tier="premium"] .hero-inner { max-width: 52rem; margin: 0; width: 100%; padding: 0 4vw; }
+    body[data-tier="premium"] .hero h1 {
+      font-size: clamp(2.6rem, 7vw, 4.4rem); line-height: 1.05; font-weight: 700; max-width: 16ch;
+    }
+    body[data-tier="premium"] .hero p.lead { font-size: 1.25rem; max-width: 36rem; margin-inline: 0; }
+    body[data-tier="premium"] .trust-row,
+    body[data-tier="premium"] .hero-ctas { justify-content: flex-start; }
+    body[data-tier="premium"] .section { max-width: 1100px; padding: 5rem 1.5rem; }
+    body[data-tier="premium"] .section h2 { font-size: 2.1rem; }
+    body[data-tier="premium"] .service-card {
+      border: 0; border-radius: 18px; padding: 1.6rem; background: #fff;
+      box-shadow: 0 18px 48px rgba(15,23,42,0.1);
+    }
+    body[data-tier="premium"] .service-card:hover {
+      transform: translateY(-6px); box-shadow: 0 24px 56px rgba(15,23,42,0.16);
+    }
+    body[data-tier="premium"] .btn { border-radius: 12px; padding: 1rem 1.75rem; }
+
+    body[data-tier="premium"] #showcase { background-image: linear-gradient(180deg,rgba(15,23,42,.55),rgba(15,23,42,.75)), url("assets/hero_pack/showcase.jpg"); background-size: cover; color: #fff; }
+    body[data-tier="premium"] #calculator { background-image: linear-gradient(180deg,rgba(248,250,252,.9),rgba(248,250,252,.95)), url("assets/hero_pack/calculator.jpg"); background-size: cover; }
+    body[data-tier="premium"] footer { background-image: linear-gradient(180deg,rgba(15,23,42,.88),rgba(15,23,42,.95)), url("assets/hero_pack/footer.jpg"); background-size: cover; background-position: center; }
+    body[data-tier="premium"] .trust-strip { background-image: linear-gradient(90deg,rgba(15,23,42,.7),rgba(15,23,42,.5)), url("assets/hero_pack/banner.jpg"); background-size: cover; }
+    body[data-tier="premium"] #testimonials { background-image: linear-gradient(180deg,rgba(248,250,252,.92),rgba(255,255,255,.97)), url("assets/hero_pack/gallery.jpg"); background-size: cover; }
+    body[data-tier="premium"] .about { background-image: linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.94)), url("assets/hero_pack/hero_2.jpg"); background-size: cover; }
+  </style>
+</head>
+<body data-tier="premium">
+  <nav class="topbar">
+    <div class="brand"><img src="assets/logo.png" alt="Arztpraxis Weber" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><span class="logo-fallback" style="display:none">AW</span><strong>Arztpraxis Weber</strong></div>
+    <div class="topbar-links">
+       <a href="#maps">Standort</a> <a href="#testimonials">Kundenstimmen</a><a href="#contact">Termin buchen</a>
+    </div>
+  </nav>
+  <div class="trust-strip"><span>Geprüft · Lokal · Zuverlässig</span></div>
+  <header class="hero has-photo">
+    <div class="hero-inner">
+      <h1 class="large hero-anim">Arztpraxis Weber — Hausarztpraxis mit klaren Terminen</h1>
+      <p class="lead hero-anim hero-anim-d1">Vorsorge, Impfungen und Beratung — verständlich und ohne Hektik.</p>
+      <div class="trust-row hero-anim hero-anim-d2"><span class="trust-pill">Kassen &amp; Privat</span><span class="trust-pill">Digitale Rezepte</span><span class="trust-pill">Nachbarschaftspraxis</span></div>
+      <div class="hero-ctas">
+        <a class="btn" href="#contact">Termin buchen</a> <a class="btn btn-wa" href="https://wa.me/491715550200" target="_blank" rel="noopener">WhatsApp</a> <a class="btn btn-reviews" href="#testimonials">Kundenstimmen</a>
+      </div>
+    </div>
+  </header>
+  <div class="info-bar"><span><strong>Telefon</strong> +49 89 555 0200</span><span><strong>Öffnungszeiten</strong> Mo–Fr 8:00–18:00 · Sa nach Vereinbarung</span><span>München</span></div>
+  
+  <section class="stats" id="stats" aria-label="stats">
+    <div class="stat"><strong>12+</strong><span>Jahre Erfahrung</span></div>
+    <div class="stat"><strong>800+</strong><span>Zufriedene Kunden</span></div>
+    <div class="stat"><strong>4.9</strong><span>Bewertung</span></div>
+  </section>
+
+  
+  
+  <section class="section" id="services">
+    <h2>Leistungen</h2>
+    <ul class="services"><li class="service-card"><h3>Vorsorge &amp; Check-up</h3><p class="service-desc">Regelmäßige Untersuchungen und individuelle Gesundheitspläne.</p></li><li class="service-card"><h3>Impfungen</h3><p class="service-desc">Schutzimpfungen nach aktuellen Empfehlungen.</p></li><li class="service-card"><h3>Akutsprechstunde</h3><p class="service-desc">Schnelle Hilfe bei akuten Beschwerden — nach Kapazität.</p></li><li class="service-card"><h3>Online-Termin</h3><p class="service-desc">Termin online oder telefonisch — ohne lange Warteschleife.</p></li></ul>
+  </section>
+
+  
+  <section class="mid-cta" id="mid-cta">
+    <h2>Bereit für den nächsten Schritt?</h2>
+    <a class="btn" href="#contact">Jetzt anfragen</a>
+  </section>
+
+  <section class="section benefits">
+    <h2>Warum Arztpraxis Weber</h2>
+    <ul><li>Kurze Wege und klare Erreichbarkeit</li><li>Transparente Abläufe vor jeder Maßnahme</li><li>Termine auch für Berufstätige</li></ul>
+  </section>
+  
+  <section class="section" id="process">
+    <h2>So läuft’s ab</h2>
+    <div class="process-grid">
+      <article class="process-card"><div class="n">1</div><h3>Anfrage</h3><p class="muted">Kurz Ihr Anliegen senden.</p></article>
+      <article class="process-card"><div class="n">2</div><h3>Abstimmung</h3><p class="muted">Wir klären Termin und Details.</p></article>
+      <article class="process-card"><div class="n">3</div><h3>Umsetzung</h3><p class="muted">Sie erhalten ein klares Ergebnis.</p></article>
+    </div>
+    <div class="cert-row"><span class="cert-badge">Kassen &amp; Privat</span><span class="cert-badge">Digitale Rezepte</span><span class="cert-badge">Nachbarschaftspraxis</span></div>
+  </section>
+
+  
+  <section class="section showcase" id="showcase">
+    <h2>Einblicke</h2>
+    <p class="muted">Qualität, die man sieht.</p>
+    <div class="showcase-grid">
+      <div class="showcase-panel main"><span class="cap">Arztpraxis Weber</span></div>
+      <div class="showcase-panel tone-a"><span class="cap">Leistungen</span></div>
+      <div class="showcase-panel tone-b"><span class="cap">Kundenstimmen</span></div>
+    </div>
+  </section>
+
+  <section class="section about">
+    <h2>Über uns</h2>
+    <p>In der Arztpraxis Weber nehmen wir uns Zeit für Ihre Fragen. Jeder Schritt wird erklärt — ruhig und verständlich.</p>
+  </section>
+  
+  <section class="section" id="faq">
+    <h2>Häufige Fragen</h2>
+    <div class="faq-list">
+      <article class="faq-item"><h3>Wie schnell bekomme ich einen Termin?</h3><p>Meist innerhalb weniger Werktage — rufen Sie an oder schreiben Sie uns.</p></article>
+      <article class="faq-item"><h3>Was kostet die Beratung?</h3><p>Erstgespräch unverbindlich; Preise klären wir transparent vorab.</p></article>
+      <article class="faq-item"><h3>Wo finde ich Sie?</h3><p>Adresse und Anfahrt stehen unten — gerne auch per Route-Button.</p></article>
+    </div>
+  </section>
+
+  
+    <section class="section calculator" id="calculator">
+      <h2>Kostenrechner</h2>
+      <p class="muted">Unverbindliche Schätzung — Details klären wir im Gespräch.</p>
+      <div class="calc-grid">
+        <label>Leistung<select id="svc"><option>Basis</option><option>Standard</option><option>Premium</option></select></label>
+        <label>Anzahl<input type="number" id="qty" value="1" min="1" max="10"></label>
+        <p class="calc-result">Summe: <strong id="total">ab 49 €</strong></p>
+      </div>
+    </section>
+    <script>
+      (function(){
+        const prices = {0:49,1:99,2:199};
+        const fromLbl = 'ab';
+        function upd(){
+          const s = document.getElementById('svc').selectedIndex;
+          const q = Math.max(1, parseInt(document.getElementById('qty').value||'1',10));
+          document.getElementById('total').textContent = fromLbl + ' ' + (prices[s]*q) + ' €';
+        }
+        document.getElementById('svc').onchange = upd;
+        document.getElementById('qty').oninput = upd;
+      })();
+    </script>
+
+  
+  <section class="section testimonials" id="testimonials">
+    <h2>Kundenstimmen</h2>
+    <p class="muted">Beispieltexte — bitte durch echte Kundenstimmen ersetzen.</p>
+    <div class="testimonial-grid">
+      <blockquote class="testimonial-card"><p>«Professionell und zuverlässig — klare Empfehlung.»</p><cite>— Anna K.</cite></blockquote>
+      <blockquote class="testimonial-card"><p>«Transparente Preise und gutes Ergebnis.»</p><cite>— Michael W.</cite></blockquote>
+      <blockquote class="testimonial-card"><p>«Schnelle Terminvergabe und freundlicher Service.»</p><cite>— Familie S.</cite></blockquote>
+    </div>
+  </section>
+
+  
+  <section class="section maps" id="maps">
+    <h2>Standort</h2>
+    <p class="muted">So finden Sie uns — Karte anhand Ihrer Firmendaten.</p>
+    <div class="maps-frame">
+      <iframe title="Karte" src="https://maps.google.com/maps?q=Arztpraxis+Weber+Leopoldstra%C3%9Fe+40+M%C3%BCnchen+Germany&amp;z=14&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+    </div>
+    <div class="maps-actions">
+      <a class="btn-route" href="https://www.google.com/maps/dir/?api=1&amp;destination=Leopoldstra%C3%9Fe+40+M%C3%BCnchen+Germany+Arztpraxis+Weber" target="_blank" rel="noopener">Route planen</a>
+      <span class="chip">Parkplätze vor Ort</span>
+      <span class="chip"><strong>Öffnungszeiten:</strong> Mo–Fr 8:00–18:00 · Sa nach Vereinbarung</span>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <h2>Kontakt</h2>
+    <p class="muted">Schreiben oder rufen Sie an — wir melden uns schnellstmöglich.</p>
+    <div class="contact-grid">
+      <p><strong>Telefon:</strong> <a href="tel:+49895550200">+49 89 555 0200</a></p>
+      <p><strong>WhatsApp:</strong> <a class="wa-btn" href="https://wa.me/491715550200" target="_blank" rel="noopener">Nachricht senden</a></p>
+      <p><strong>E-Mail:</strong> <a href="mailto:kontakt@praxis-weber.de">kontakt@praxis-weber.de</a></p>
+      <p><strong>Öffnungszeiten:</strong> Mo–Fr 8:00–18:00 · Sa nach Vereinbarung</p>
+    </div>
+    
+    <form class="contact-form" action="mailto:kontakt@praxis-weber.de?subject=Anfrage%20Website" method="get">
+      <label>Name<input name="name" required placeholder="Ihr Name"></label>
+      <label>Telefon<input name="phone" type="tel" placeholder="+49 …"></label>
+      
+      <label>Nachricht<textarea name="body" rows="4" required placeholder="Kurz Ihr Anliegen"></textarea></label>
+      <button type="submit">Anfrage senden</button>
+    </form>
+
+  </section>
+  <footer>
+    Arztpraxis Weber · © Arztpraxis Weber<br>
+    <a href="impressum.html" style="color:#94a3b8;margin-right:0.75rem">Impressum</a>
+    <a href="datenschutz.html" style="color:#94a3b8">Datenschutz</a>
+  </footer>
+</body>
+</html>

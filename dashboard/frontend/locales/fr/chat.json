@@ -1,0 +1,56 @@
+{
+  "voiceStatus": {
+    "ready": "⚪ Ready",
+    "listening": "🎤 Listening…",
+    "recognizing": "📝 Recognizing…",
+    "thinking": "🤖 Thinking…",
+    "responding": "💬 Responding…",
+    "speaking": "🗣️ Speaking…",
+    "stopped": "⏹️ Stopped"
+  },
+  "chatWait": {
+    "preparing": "🤖 Preparing answer…",
+    "almost": "🤖 Almost ready…"
+  },
+  "lifeSign": {
+    "received": "Message received",
+    "understanding": "Understanding your question",
+    "connecting": "Connecting AI…",
+    "answering": "Preparing answer…"
+  },
+  "stop": "Stop",
+  "stopAria": "Stop speech or generation",
+  "placeholder": "Task for {{assistant}}…",
+  "send": "Send",
+  "attach": "Attach file",
+  "attachHint": "PDF, Word, images accepted. PDF: Vector reads up to 5 pages (1 file/day on Free). Other types not analyzed yet.",
+  "attachHintLegacy": "PDF, Word, images accepted. Content not analyzed yet — Vector only sees the file name. Describe your task in text.",
+  "attachUploading": "Please wait — file is still uploading…",
+  "attachStoredOnly": "Saved. Content not analyzed — add a description in your message.",
+  "micStart": "Speak",
+  "micStop": "Stop recording",
+  "voiceSettings": "Voice settings",
+  "generationStopped": "— generation stopped —",
+  "projectPreparing": "Still assembling the project…",
+  "projectWait": {
+    "working": "Continuing work on the project…",
+    "structure": "Building the project structure…",
+    "details": "Clarifying project details…"
+  },
+  "newChat": "New task",
+  "back": "← Back",
+  "backHome": "← Home",
+  "workspaceTitle": "My projects",
+  "workspaceEmpty": "No projects yet.",
+  "workspaceEmptyHint": "Assign Vector a first task — website, business plan, or document.",
+  "workspaceEmptySidebar": "Assign Vector a first task.",
+  "jumpToLatest": "Latest message",
+  "filesOnlyPrompt": "The client attached files without text. Content unavailable — names only. Ask them to describe the task briefly.",
+  "micModalTitle": "Voice conversation with {{assistant}}",
+  "micModalBody": "Tap the button below — the browser will ask for permission once.",
+  "micAllow": "Allow microphone",
+  "micLater": "Later",
+  "retryMic": "Try again",
+  "dismiss": "Close",
+  "micDenied": "To use voice, allow microphone access.\n\nClick 🔒 near the address bar → Permissions → Microphone → Allow."
+}
