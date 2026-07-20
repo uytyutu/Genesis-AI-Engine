@@ -1427,7 +1427,9 @@ class AcquisitionStudioService:
         if row.get("outreach_status") not in ("pending_approval", "draft"):
             raise ValueError("not_pending")
 
-        outreach_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
+        from app.integration.outreach_ceo_prefs import outreach_send_allowed
+
+        outreach_enabled = outreach_send_allowed(self._memory_dir)
         to_email = self._extract_email(row.get("contact", ""))
         send_result: dict | None = None
 
