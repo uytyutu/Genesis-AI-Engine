@@ -43,12 +43,14 @@ _PACKAGES = {
         "price_eur": 350,
         "tagline": "Schöner moderner Auftritt — bereit zur Veröffentlichung",
         "included_summary": (
-            "moderne Landing Page, Design nach Branche, WhatsApp, Kontaktformular, "
-            "Bewertungsblock, ZIP und Publish-Anleitung, Rechtsvorlagen (falls Markt bereit)"
+            "moderne Landing Page, Design nach Branche, Prozess-Schritte, Zwischen-CTA, "
+            "Trust-Leiste, WhatsApp, Kontaktformular, Bewertungsblock; "
+            "ZIP und Publish-Anleitung, Rechtsvorlagen (falls Markt bereit)"
         ),
         "deliverables": [
             "Fertige moderne Landing Page (mobil) — Design automatisch nach Branche",
             "Hero mit Branchen-Atmosphäre, Leistungen, Vorteile, Kontakt",
+            "Ablauf («So läuft’s»), Zwischen-CTA und Trust-Leiste",
             "WhatsApp-Button und Kontaktformular",
             "Bewertungsblock (Beispieltexte — durch echte Stimmen ersetzbar)",
             "Vollständiges Website-Archiv (ZIP) — Sie sind Eigentümer der Dateien",
@@ -70,7 +72,7 @@ _PACKAGES = {
             "Alles aus Basic (inkl. ZIP und Eigentum an den Dateien)",
             "Reicheres Business-Design (klarer Vertrauensaufbau)",
             "Google Maps / OSM mit Button „Route planen“, Öffnungszeiten, Parkhinweis",
-            "FAQ, Ablauf („So läuft’s“), Zwischen-CTA und Trust-Leiste",
+            "FAQ, Ablauf («So läuft’s»), Zwischen-CTA und Trust-Leiste",
             "Logo-Platzhalter und erweitertes SEO (Schema.org / Meta)",
             "Hilfe beim Upload auf Ihren Hosting-Zugang (manuell)",
             "1 Korrekturrunde",
@@ -95,6 +97,7 @@ _PACKAGES = {
             "Assisted Veröffentlichung: Domain/Hosting/SSL mit Ihrem Zugang",
             "14 Tage prioritäre Unterstützung + 3 Korrekturrunden",
             "Domain/Hosting-Miete nicht im Preis — nur Einrichtungsservice",
+            "Kein Inhaber-Login und keine Online-Zahlung pro Warenkorb in diesem Paket",
             "Lieferzeit: ca. 5–14 Werktage (je nach Rückmeldungen)",
         ],
     },
@@ -129,6 +132,8 @@ class SalesOrderService:
         city: str | None = None,
         extra_text: str | None = None,
     ) -> dict:
+        import os
+
         resolved = resolve_checkout_market(
             market_code=market_code,
             city=city,
@@ -138,11 +143,31 @@ class SalesOrderService:
         )
         deliverables = {k: v["deliverables"] for k, v in _PACKAGES.items()}
         names = {k: v["name"] for k, v in _PACKAGES.items()}
-        return resolve_checkout_packages(
+        result = resolve_checkout_packages(
             resolved,
             deliverables_by_id=deliverables,
             names_by_id=names,
         )
+        # CEO Path A smoke — €1 live package, only when ENV enabled.
+        if os.getenv("GENESIS_STRIPE_SMOKE", "").strip() == "1":
+            smoke_pkg, _ = self._package_offer("smoke")
+            result = {
+                **result,
+                "packages": [
+                    *result["packages"],
+                    {
+                        "id": "smoke",
+                        "name": smoke_pkg["name"],
+                        "price_eur": float(smoke_pkg["price_eur"]),
+                        "currency": smoke_pkg["currency"],
+                        "symbol": smoke_pkg["symbol"],
+                        "market_code": smoke_pkg["market_code"],
+                        "price_label": smoke_pkg["price_label"],
+                        "deliverables": list(smoke_pkg.get("deliverables") or _PACKAGES["basic"]["deliverables"]),
+                    },
+                ],
+            }
+        return result
 
     def packages(
         self,
@@ -168,6 +193,35 @@ class SalesOrderService:
         city: str | None = None,
         extra_text: str | None = None,
     ) -> tuple[dict, dict]:
+        import os
+
+        from app.integration.market_registry import format_amount, get_market
+
+        pid = str(package_id or "basic").strip().lower()
+        # CEO Stripe smoke — €1 live charge. Not listed in public packages.
+        if pid == "smoke":
+            if os.getenv("GENESIS_STRIPE_SMOKE", "").strip() != "1":
+                raise ValueError("smoke_disabled")
+            market = get_market("DE")
+            package = {
+                **_PACKAGES["basic"],
+                "id": "smoke",
+                "name": "Stripe Smoke €1",
+                "price_eur": 1.0,
+                "currency": "EUR",
+                "symbol": market.symbol,
+                "market_code": "DE",
+                "price_label": format_amount(1, market.symbol),
+            }
+            return package, {
+                "package_id": "smoke",
+                "amount": 1,
+                "currency": "EUR",
+                "symbol": market.symbol,
+                "market_code": "DE",
+                "price_label": package["price_label"],
+            }
+
         resolved = resolve_checkout_market(
             market_code=market_code,
             city=city,
@@ -175,7 +229,7 @@ class SalesOrderService:
             memory_dir=self._memory,
             extra_text=extra_text,
         )
-        tier = package_id if package_id in _PACKAGES else "basic"
+        tier = pid if pid in _PACKAGES else "basic"
         base = _PACKAGES.get(tier, _PACKAGES["basic"])
         offer = resolve_final_offer(tier, resolved)
         package = {

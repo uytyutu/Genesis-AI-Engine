@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass
 
 from app.factory.analyzer import AnalysisResult
+from app.factory.catalog_manager import CatalogView
 from app.factory.landing_tier_css import tier_stylesheet
 from app.factory.niche_profiles import resolve_niche_profile
 from app.factory.package_features import (
@@ -74,6 +75,8 @@ def build_landing_html(
     motion_level: str = "none",
     market_code: str | None = None,
     hero_photo: bool = True,
+    catalog: CatalogView | None = None,
+    hero_pack_manifest: dict | None = None,
 ) -> str:
     from app.factory.landing_i18n import (
         apply_legal_footer_hrefs,
@@ -145,9 +148,6 @@ def build_landing_html(
     motion_head = (
         '  <link rel="stylesheet" href="assets/motion_kit.css">\n' if css_motion else ""
     )
-    motion_script = (
-        '  <script src="assets/reveal.js" defer></script>\n' if css_motion else ""
-    )
 
     wa_url = whatsapp_href(whatsapp, analysis.phone) if feat.whatsapp else ""
     logo_block = (
@@ -184,7 +184,11 @@ def build_landing_html(
 """
 
     calc_block = _calculator_block(ui, section_class=sec) if calculator else ""
-    form_block = _contact_form_block(analysis.email, ui) if feat.contact_form else ""
+    form_block = _contact_form_block(
+        analysis.email,
+        ui,
+        inquiry_skus=bool(catalog and catalog.request_cart),
+    ) if feat.contact_form else ""
     wa_contact = ""
     if feat.whatsapp:
         wa_contact = (
@@ -207,7 +211,21 @@ def build_landing_html(
         f' <a href="#testimonials">{esc(ui["reviews"])}</a>' if include_testimonials else ""
     )
     maps_nav = f' <a href="#maps">{esc(ui["maps"])}</a>' if feat.maps else ""
+    catalog_nav = (
+        f' <a href="#catalog">{esc(ui["catalog_nav"])}</a>' if catalog else ""
+    )
 
+    catalog_block = _catalog_section(catalog, ui, section_class=sec) if catalog else ""
+    services_block = f"""
+  <section class="{sec}" id="services">
+    <h2>{esc(ui['services'])}</h2>
+    <ul class="services">{services_html}</ul>
+  </section>
+"""
+    motion_script = (
+        ('  <script src="assets/reveal.js" defer></script>\n' if css_motion else "")
+        + ('  <script src="assets/catalog.js" defer></script>\n' if catalog else "")
+    )
     seo_extra = ""
     if feat.extended_seo:
         import json as _json
@@ -253,6 +271,12 @@ def build_landing_html(
 
     why_title = esc(ui["why"].format(business=analysis.business_name))
     css = tier_stylesheet(tier, style)
+    if hero_pack_manifest:
+        from app.factory.hero_pack import pack_section_css
+
+        extra = pack_section_css(hero_pack_manifest, tier)
+        if extra:
+            css = css + "\n" + extra
     hero_photo_class = " has-photo" if hero_photo else ""
 
     trust_strip = ""
@@ -349,7 +373,7 @@ def build_landing_html(
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
-      {maps_nav}{reviews_nav}<a href="#contact">{cta}</a>
+      {catalog_nav}{maps_nav}{reviews_nav}<a href="#contact">{cta}</a>
     </div>
   </nav>
   {trust_strip}
@@ -365,10 +389,8 @@ def build_landing_html(
   </header>
   {info_bar}
   {stats_block}
-  <section class="{sec}" id="services">
-    <h2>{esc(ui['services'])}</h2>
-    <ul class="services">{services_html}</ul>
-  </section>
+  {catalog_block}
+  {services_block}
   {mid_cta}
   <section class="{sec} benefits">
     <h2>{why_title}</h2>
@@ -454,19 +476,105 @@ def _calculator_block(ui: dict[str, str], *, section_class: str = "section") -> 
 """
 
 
-def _contact_form_block(email: str, ui: dict[str, str]) -> str:
+def _contact_form_block(
+    email: str, ui: dict[str, str], *, inquiry_skus: bool = False
+) -> str:
     from urllib.parse import quote
 
     esc = html_lib.escape
     subject = quote(ui["form_subject"])
     action = f"mailto:{esc(email)}?subject={subject}"
+    sku_field = ""
+    if inquiry_skus:
+        sku_field = (
+            f'<label>{esc(ui["catalog_inquiry_label"])}'
+            f'<input id="catalog-inquiry-skus" name="skus" '
+            f'placeholder="SKU…" readonly></label>'
+        )
     return f"""
     <form class="contact-form" action="{action}" method="get">
       <label>{esc(ui['form_name'])}<input name="name" required placeholder="{esc(ui['form_name_ph'])}"></label>
       <label>{esc(ui['form_phone'])}<input name="phone" type="tel" placeholder="{esc(ui['form_phone_ph'])}"></label>
+      {sku_field}
       <label>{esc(ui['form_message'])}<textarea name="body" rows="4" required placeholder="{esc(ui['form_message_ph'])}"></textarea></label>
       <button type="submit">{esc(ui['form_submit'])}</button>
     </form>
+"""
+
+
+def _catalog_section(
+    catalog: CatalogView,
+    ui: dict[str, str],
+    *,
+    section_class: str = "section",
+) -> str:
+    esc = html_lib.escape
+    rich = " rich" if catalog.rich_cards else ""
+    tools = ""
+    if catalog.search or catalog.filters:
+        search = ""
+        if catalog.search:
+            search = (
+                f'<input type="search" id="catalog-search" '
+                f'placeholder="{esc(ui["catalog_search_ph"])}" '
+                f'aria-label="{esc(ui["catalog_search_ph"])}">'
+            )
+        filt = ""
+        if catalog.filters and catalog.categories:
+            opts = "".join(
+                f'<option value="{esc(c["id"])}">{esc(c["label"])}</option>'
+                for c in catalog.categories
+            )
+            filt = (
+                f'<select id="catalog-filter" aria-label="{esc(ui["catalog_filter_all"])}">'
+                f'<option value="">{esc(ui["catalog_filter_all"])}</option>{opts}</select>'
+            )
+        tools = f'<div class="catalog-tools">{search}{filt}</div>'
+
+    cards = []
+    for p in catalog.products:
+        img = p.images[0] if p.images else ""
+        img_html = (
+            f'<img src="{esc(img)}" alt="{esc(p.name)}" loading="lazy">'
+            if img
+            else '<div class="product-ph" aria-hidden="true"></div>'
+        )
+        price = f"{p.price:g} {esc(p.currency)}"
+        cta_label = ui["catalog_request"] if p.cta != "contact" else ui["catalog_contact"]
+        cta = p.cta if p.cta in ("contact", "request") else "request"
+        d3 = "true" if p.three_d_model_enabled else "false"
+        vxp = esc(p.vxp_product_id or "")
+        cards.append(
+            f'<article class="product-card{rich}" data-sku="{esc(p.sku)}" '
+            f'data-type="{esc(p.content_type)}" data-category="{esc(p.category_id)}" '
+            f'data-name="{esc(p.name)}" '
+            f'data-summary="{esc(p.summary)}" data-vxp="{vxp}" data-3d="{d3}">'
+            f"{img_html}"
+            f"<h3>{esc(p.name)}</h3>"
+            f'<p class="price">{price}</p>'
+            f'<p class="summary">{esc(p.summary)}</p>'
+            f'<button type="button" class="btn-catalog" data-cta="{esc(cta)}">'
+            f"{esc(cta_label)}</button>"
+            f"</article>"
+        )
+    cart = ""
+    if catalog.request_cart:
+        cart = (
+            f'<div class="catalog-cart" id="catalog-cart" hidden>'
+            f"<h3>{esc(ui['catalog_cart_title'])}</h3>"
+            f'<ul id="catalog-cart-items"></ul>'
+            f'<a class="btn" href="#contact">{esc(ui["catalog_request"])}</a>'
+            f"</div>"
+        )
+    grid = "".join(cards)
+    return f"""
+  <section class="{section_class} catalog" id="catalog">
+    <h2>{esc(ui['catalog_title'])}</h2>
+    <p class="muted">{esc(ui['catalog_lead'])}</p>
+    {tools}
+    <div class="catalog-grid">{grid}</div>
+    {cart}
+  </section>
 """
 
 

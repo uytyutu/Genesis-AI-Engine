@@ -78,6 +78,34 @@ class FactoryService:
         city = str(contacts.get("city") or "").strip()
         street = str(contacts.get("street") or "").strip()
         whatsapp = str(contacts.get("whatsapp") or contacts.get("phone") or "").strip()
+
+        product_dir = self._sandbox / product_id
+        product_dir.mkdir(parents=True, exist_ok=True)
+        from app.factory.catalog_manager import CatalogManager, write_catalog_assets
+
+        # Catalog Engine off for Path A service landings (CEO: лишний на сайтах).
+        catalog_view = None
+        if features.catalog_grid:
+            catalog_view = CatalogManager(product_dir / "catalog").resolve_for_build(
+                analysis.niche,
+                features.package_id,
+                seed_if_missing=True,
+            )
+        if motion == "css":
+            write_motion_assets(product_dir)
+        from app.factory.hero_still import write_hero_asset
+
+        write_hero_asset(product_dir, analysis.niche, features.package_id)
+        if catalog_view is not None:
+            write_catalog_assets(product_dir, catalog_view)
+
+        pack_manifest: dict = {}
+        pack_manifest_path = product_dir / "assets" / "hero_pack" / "manifest.json"
+        if pack_manifest_path.is_file():
+            try:
+                pack_manifest = json.loads(pack_manifest_path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                pack_manifest = {}
         html = build_landing_html(
             analysis,
             features=features,
@@ -86,17 +114,11 @@ class FactoryService:
             street=street,
             motion_level=motion,
             market_code=market,
+            catalog=catalog_view,
+            hero_pack_manifest=pack_manifest,
         )
         validation = validate_landing(html)
-
-        product_dir = self._sandbox / product_id
-        product_dir.mkdir(parents=True, exist_ok=True)
         (product_dir / "index.html").write_text(html, encoding="utf-8")
-        if motion == "css":
-            write_motion_assets(product_dir)
-        from app.factory.hero_still import write_hero_asset
-
-        write_hero_asset(product_dir, analysis.niche)
 
         legal_payload = dict(client_legal or {})
         if features.maps:
@@ -147,6 +169,7 @@ class FactoryService:
                 "testimonials": features.testimonials,
             },
             "package_delivery": delivery_meta(features),
+            "catalog_enabled": catalog_view is not None,
             "client_legal": legal_info.to_dict(),
             "legal_pages": legal_meta,
             "publish_ready_de": bool(legal_meta.get("impressum_ready"))
@@ -190,6 +213,13 @@ class FactoryService:
         lower = feedback.lower()
         product_dir = self._sandbox / product_id
         existing_html = (product_dir / "index.html").read_text(encoding="utf-8")
+        catalog_view = None
+        package_id = str(
+            ((meta.get("package_delivery") or {}) if isinstance(meta.get("package_delivery"), dict) else {}).get(
+                "package_id"
+            )
+            or "basic"
+        )
 
         patched_html, patches = try_patch(existing_html, feedback)
         if patches:
@@ -213,8 +243,29 @@ class FactoryService:
 
             delivery = meta.get("package_delivery") if isinstance(meta.get("package_delivery"), dict) else {}
             features = resolve_package_features(str(delivery.get("package_id") or "basic"))
+            package_id = features.package_id
             contacts = meta.get("client_legal") if isinstance(meta.get("client_legal"), dict) else {}
             market = normalize_market(str(meta.get("market_code") or contacts.get("country") or "DE"))
+            from app.factory.catalog_manager import CatalogManager, write_catalog_assets
+
+            catalog_view = CatalogManager(product_dir / "catalog").resolve_for_build(
+                str(meta.get("niche") or analysis.niche),
+                features.package_id,
+                seed_if_missing=True,
+            )
+            write_hero_asset = __import__(
+                "app.factory.hero_still", fromlist=["write_hero_asset"]
+            ).write_hero_asset
+            write_hero_asset(product_dir, str(meta.get("niche") or analysis.niche), package_id)
+            if catalog_view is not None:
+                write_catalog_assets(product_dir, catalog_view)
+            pack_manifest: dict = {}
+            mp = product_dir / "assets" / "hero_pack" / "manifest.json"
+            if mp.is_file():
+                try:
+                    pack_manifest = json.loads(mp.read_text(encoding="utf-8"))
+                except (json.JSONDecodeError, OSError):
+                    pack_manifest = {}
             html = build_landing_html(
                 analysis,
                 features=features,
@@ -227,6 +278,8 @@ class FactoryService:
                 include_testimonials=flags.get("testimonials", False) or features.testimonials,
                 large_headline=flags.get("large_headline", False) or features.premium_design,
                 market_code=market,
+                catalog=catalog_view,
+                hero_pack_manifest=pack_manifest,
             )
 
         validation = validate_landing(html)
@@ -234,7 +287,11 @@ class FactoryService:
         (product_dir / "index.html").write_text(html, encoding="utf-8")
         from app.factory.hero_still import write_hero_asset
 
-        write_hero_asset(product_dir, str(meta.get("niche") or ""))
+        write_hero_asset(product_dir, str(meta.get("niche") or ""), package_id)
+        if catalog_view is not None:
+            from app.factory.catalog_manager import write_catalog_assets
+
+            write_catalog_assets(product_dir, catalog_view)
 
         meta["revision"] = int(meta.get("revision", 0)) + 1
         meta["quality_percent"] = validation.quality_percent
@@ -345,9 +402,11 @@ class FactoryService:
                     archive.writestr(str(legal_name), legal_path.read_text(encoding="utf-8"))
             assets_dir = product_dir / "assets"
             if assets_dir.is_dir():
-                for asset in assets_dir.iterdir():
-                    if asset.is_file() and asset.name != ".gitkeep":
-                        archive.writestr(f"assets/{asset.name}", asset.read_bytes())
+                for asset in assets_dir.rglob("*"):
+                    if not asset.is_file() or asset.name == ".gitkeep":
+                        continue
+                    rel = asset.relative_to(product_dir).as_posix()
+                    archive.writestr(rel, asset.read_bytes())
             archive.writestr(
                 "README_PUBLISH.txt",
                 deploy_readme(

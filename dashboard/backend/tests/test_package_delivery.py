@@ -16,8 +16,8 @@ def test_package_feature_matrix():
     business = resolve_package_features("business")
     premium = resolve_package_features("premium")
     assert basic.whatsapp and basic.contact_form and not basic.maps
-    assert basic.testimonials  # reviews for all packages
-    assert business.maps and business.testimonials and business.logo_slot
+    assert basic.testimonials and basic.process and basic.mid_cta and basic.trust_bar
+    assert business.maps and business.testimonials and business.logo_slot and business.faq
     assert premium.analytics and premium.calculator and premium.premium_design
 
 

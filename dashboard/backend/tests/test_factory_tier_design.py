@@ -15,6 +15,10 @@ def test_package_feature_tier_blocks() -> None:
     business = resolve_package_features("business")
     premium = resolve_package_features("premium")
     assert not basic.maps and not basic.faq and not basic.stats_strip
+    assert basic.catalog_grid is False
+    assert business.catalog_search_filter is False
+    assert premium.catalog_rich_cards is False
+    assert basic.process and basic.mid_cta and basic.trust_bar
     assert business.maps and business.faq and business.process and business.mid_cta
     assert not business.calculator and not business.stats_strip
     assert premium.calculator and premium.stats_strip and premium.showcase and premium.faq
@@ -37,6 +41,9 @@ def test_tier_html_markers_auto() -> None:
     assert 'id="faq"' not in basic
     assert 'id="stats"' not in basic
     assert 'id="showcase"' not in basic
+    assert 'id="process"' in basic
+    assert 'id="mid-cta"' in basic
+    assert "trust-strip" in basic
     assert "Anfrage senden" in basic
 
     business = build_landing_html(

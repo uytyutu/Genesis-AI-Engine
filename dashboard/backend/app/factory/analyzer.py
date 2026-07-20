@@ -25,7 +25,21 @@ class AnalysisResult:
 
 
 _NICHE_KEYWORDS = {
-    "dental": ("стоматолог", "dental", "зуб", "клиник", "имплант", "ортодонт", "zahnarzt", "zahn"),
+    "dental": (
+        "стоматолог",
+        "dental",
+        "зуб",
+        "клиник",
+        "имплант",
+        "ортодонт",
+        "zahnarzt",
+        "zahn",
+        "arztpraxis",
+        "hausarzt",
+        "praxis",
+        "врач",
+        "поликлин",
+    ),
     "computer": (
         "pc-reparatur",
         "pc reparatur",
@@ -99,7 +113,20 @@ _NICHE_KEYWORDS = {
         "family law",
         "business law",
     ),
-    "beauty": ("салон", "красот", "spa", "маникюр", "парикмахер"),
+    "beauty": (
+        "салон",
+        "красот",
+        "spa",
+        "маникюр",
+        "парикмахер",
+        "ресниц",
+        "wimper",
+        "lash",
+        "eyelash",
+        "beauty",
+        "nail",
+        "brow",
+    ),
     "energy": ("солнечн", "solar", "панел", "фотоэлект", "энерг", "photovolta"),
     "green": ("озеленен", "ландшафт", "садов", "газон", "озелен"),
 }
@@ -297,6 +324,44 @@ def _preset_dental(
     business_name: str, template_id: str, cta_label: str, raw: str
 ) -> AnalysisResult:
     phone, email = _contact_defaults(business_name, "praxis")
+    lower = raw.lower()
+    hausarzt = any(
+        k in lower for k in ("hausarzt", "allgemeinmed", "врач", "arztpraxis")
+    ) and "zahn" not in lower
+    if hausarzt:
+        return AnalysisResult(
+            niche="dental",
+            template_id=template_id,
+            business_name=business_name,
+            headline=f"{business_name} — Hausarztpraxis mit klaren Terminen",
+            subtitle="Vorsorge, Impfungen und Beratung — verständlich und ohne Hektik.",
+            services=[
+                "Vorsorge & Check-up",
+                "Impfungen",
+                "Akutsprechstunde",
+                "Online-Termin",
+            ],
+            service_descriptions=(
+                "Regelmäßige Untersuchungen und individuelle Gesundheitspläne.",
+                "Schutzimpfungen nach aktuellen Empfehlungen.",
+                "Schnelle Hilfe bei akuten Beschwerden — nach Kapazität.",
+                "Termin online oder telefonisch — ohne lange Warteschleife.",
+            ),
+            cta_label="Termin buchen" if cta_label == "Kontakt aufnehmen" else cta_label,
+            trust_points=("Kassen & Privat", "Digitale Rezepte", "Nachbarschaftspraxis"),
+            about_text=(
+                f"In der {business_name} nehmen wir uns Zeit für Ihre Fragen. "
+                "Jeder Schritt wird erklärt — ruhig und verständlich."
+            ),
+            benefits=(
+                "Kurze Wege und klare Erreichbarkeit",
+                "Transparente Abläufe vor jeder Maßnahme",
+                "Termine auch für Berufstätige",
+            ),
+            hours="Mo–Fr 8:00–18:00 · Sa nach Vereinbarung",
+            phone=phone,
+            email=email,
+        )
     return AnalysisResult(
         niche="dental",
         template_id=template_id,
@@ -316,7 +381,7 @@ def _preset_dental(
             "Termin in zwei Minuten — ohne Warteschleife am Telefon.",
         ),
         cta_label="Termin buchen" if cta_label == "Kontakt aufnehmen" else cta_label,
-        trust_points=("Erfahrene Ärzte", "Digitales Röntgen", "Garantie auf Arbeit"),
+        trust_points=("Angstfreie Behandlung", "Transparente Kosten", "Moderne Praxis"),
         about_text=(
             f"In der {business_name} verbinden wir moderne Zahnmedizin mit Zeit für Ihre Fragen. "
             "Jeder Behandlungsplan wird vorab besprochen — ohne Druck."
@@ -380,6 +445,38 @@ def _preset_beauty(
     business_name: str, template_id: str, cta_label: str, raw: str
 ) -> AnalysisResult:
     phone, email = _contact_defaults(business_name, "salon")
+    lower = raw.lower()
+    lashes = any(k in lower for k in ("ресниц", "wimper", "lash", "eyelash"))
+    if lashes:
+        return AnalysisResult(
+            niche="beauty",
+            template_id=template_id,
+            business_name=business_name,
+            headline=f"{business_name} — Wimpern & Brow Studio",
+            subtitle="Natürliche Volumen-Looks, saubere Hygiene und Termine ohne Wartechaos.",
+            services=[
+                "1:1 Wimpernverlängerung",
+                "Volumen & Mega Volume",
+                "Brow Lamination",
+                "Auffüllen / Remover",
+            ],
+            service_descriptions=(
+                "Einzelwimpern für einen weichen Alltagsblick.",
+                "Dichte Looks mit leichter Traegung — individuell abgestimmt.",
+                "Form und Farbe der Brauen fuer einen klaren Rahmen.",
+                "Auffrischen oder schonendes Entfernen alter Extensions.",
+            ),
+            cta_label=cta_label if cta_label != "Kontakt aufnehmen" else "Termin buchen",
+            trust_points=("Patch-Test möglich", "Hygienestandard", "Feste Slot-Zeiten"),
+            about_text=(
+                f"{business_name} ist Ihr Studio fuer Wimpern und Brauen — "
+                "klare Beratung, ruhige Atmosphaere, Ergebnis das im Alltag haelt."
+            ),
+            benefits=("Online-Buchung", "Vorher-Nachher Beratung", "Transparente Preise"),
+            hours="Di–Sa 10:00–19:00",
+            phone=phone,
+            email=email,
+        )
     return AnalysisResult(
         niche="beauty",
         template_id=template_id,
@@ -569,8 +666,16 @@ def _merge_trust_points(default: tuple[str, ...], raw: str) -> tuple[str, ...]:
 
 def _extract_business_name(text: str, niche: str) -> str:
     cleaned = re.sub(r"\s+", " ", text).strip()
+    # "Firma Name — Beschreibung" → Firma Name
+    lead = re.match(r"^([^—\n]{2,64}?)\s+[—–\-]\s+", cleaned)
+    if lead:
+        candidate = lead.group(1).strip()
+        if not _looks_like_user_intent(candidate):
+            return candidate
+    # Word-boundary: avoid matching "praxis" inside "Arztpraxis"
     company = re.search(
-        r"(?:компани[яи]|фирм[аы]|бренд|kanzlei|praxis|werkstatt)\s+([A-ZА-ЯЁ][\w\-]+(?:\s+[A-ZА-ЯЁ][\w\-]+)?)",
+        r"(?:компани[яи]|фирм[аы]|бренд|\bkanzlei|\bpraxis|\bwerkstatt)\s+"
+        r"([A-ZА-ЯЁ][\w\-]+(?:\s+[A-ZА-ЯЁ][\w\.\-]+)?)",
         cleaned,
         re.IGNORECASE,
     )
@@ -588,7 +693,7 @@ def _extract_business_name(text: str, niche: str) -> str:
             break
     # "Auto Müller car repair" → Auto Müller
     name_match = re.match(
-        r"^([A-ZА-ЯЁ][\w\-]+(?:\s+[A-ZА-ЯЁ][\w\-]+)?)",
+        r"^([A-ZА-ЯЁ][\w\-]+(?:\s+[A-ZА-ЯЁ][\w\.\-]+)?)",
         cleaned,
     )
     if name_match and not _looks_like_user_intent(name_match.group(1)):

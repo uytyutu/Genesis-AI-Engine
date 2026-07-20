@@ -74,6 +74,36 @@ def tier_stylesheet(tier: str, style: _Style) -> str:
     .service-card h3 {{ font-size: 1.05rem; margin-bottom: 0.5rem; color: var(--pd); }}
     .service-desc {{ font-size: 0.92rem; color: #475569; }}
     .service-card:hover {{ transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }}
+    .catalog-tools {{
+      display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0 1.5rem;
+    }}
+    .catalog-tools input, .catalog-tools select {{
+      padding: 0.65rem 0.85rem; border: 1px solid var(--line); border-radius: 8px;
+      font: inherit; min-width: 12rem;
+    }}
+    .catalog-grid {{
+      display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }}
+    .product-card {{
+      background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 1rem;
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }}
+    .product-card.rich {{ padding: 1.35rem; box-shadow: 0 12px 32px rgba(15,23,42,0.08); }}
+    .product-card img, .product-ph {{
+      width: 100%; height: 160px; object-fit: cover; border-radius: 8px; background: var(--surface);
+    }}
+    .product-card h3 {{ font-size: 1.05rem; color: var(--pd); }}
+    .product-card .price {{ font-weight: 700; color: var(--p); }}
+    .product-card .summary {{ color: var(--muted); font-size: 0.92rem; flex: 1; }}
+    .btn-catalog {{
+      margin-top: 0.5rem; border: 0; cursor: pointer; background: var(--acc); color: #0f172a;
+      font-weight: 700; padding: 0.65rem 1rem; border-radius: 999px; font: inherit;
+    }}
+    .catalog-cart {{
+      margin-top: 1.5rem; padding: 1rem 1.25rem; border: 1px dashed var(--line);
+      border-radius: 12px; background: var(--surface);
+    }}
+    .catalog-cart ul {{ margin: 0.5rem 0 1rem 1.25rem; }}
     .about {{ background: #f1f5f9; }}
     .benefits ul {{ list-style: none; display: grid; gap: 0.75rem; }}
     .benefits li {{ padding-left: 1.5rem; position: relative; }}
@@ -182,11 +212,18 @@ def tier_stylesheet(tier: str, style: _Style) -> str:
       border-bottom: 1px solid var(--line);
     }
     body[data-tier="basic"] .topbar a { color: var(--pd); }
-    body[data-tier="basic"] .hero { padding: 5.5rem 1.5rem 6rem; }
+    body[data-tier="basic"] .hero {
+      min-height: 62vh; display: grid; place-items: center; padding: 4.5rem 1.5rem 5rem;
+    }
     body[data-tier="basic"] .hero h1 { font-size: clamp(2rem, 5vw, 3.1rem); max-width: 42rem; margin-inline: auto; }
     body[data-tier="basic"] .hero p.lead { font-size: 1.15rem; max-width: 34rem; }
     body[data-tier="basic"] .section { padding-top: 4rem; padding-bottom: 4rem; }
-    body[data-tier="basic"] .service-card { box-shadow: none; background: #fff; }
+    body[data-tier="basic"] .service-card {
+      background: #fff; border-radius: 14px;
+      box-shadow: 0 10px 28px rgba(15,23,42,0.06);
+    }
+    body[data-tier="basic"] .process-card { border-radius: 14px; }
+    body[data-tier="basic"] .mid-cta { margin: 0 1rem; border-radius: 16px; }
 """
 
     if t == "business":

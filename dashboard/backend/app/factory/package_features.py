@@ -31,6 +31,12 @@ class PackageFeatures:
     # Premium-only impression blocks
     stats_strip: bool = False
     showcase: bool = False
+    # Catalog Engine (shop niches only — applied when CatalogView exists)
+    catalog_grid: bool = False
+    catalog_categories: bool = False
+    catalog_search_filter: bool = False
+    catalog_request_cart: bool = False
+    catalog_rich_cards: bool = False
 
 
 def resolve_package_features(package_id: str | None) -> PackageFeatures:
@@ -38,9 +44,14 @@ def resolve_package_features(package_id: str | None) -> PackageFeatures:
     if pid not in ("basic", "business", "premium"):
         pid = "basic"
     if pid == "basic":
+        # Lean product — still a finished landing (process / mid-CTA / trust),
+        # not a bare каркас. Maps / FAQ / logo stay Business+; Premium keeps stats/showcase.
         return PackageFeatures(
             package_id="basic",
-            testimonials=True,  # reviews CTA for all packages
+            testimonials=True,
+            process=True,
+            mid_cta=True,
+            trust_bar=True,
         )
     if pid == "business":
         return PackageFeatures(
@@ -83,7 +94,13 @@ def apply_order_contacts(
     name = (business_name or "").strip() or analysis.business_name
     ph = (phone or "").strip() or analysis.phone
     em = (email or "").strip() or analysis.email
-    return replace(analysis, business_name=name, phone=ph, email=em)
+    updates: dict = {"business_name": name, "phone": ph, "email": em}
+    if name and name != analysis.business_name and " — " in (analysis.headline or ""):
+        _, rest = analysis.headline.split(" — ", 1)
+        updates["headline"] = f"{name} — {rest}"
+    if name and name != analysis.business_name and analysis.about_text:
+        updates["about_text"] = analysis.about_text.replace(analysis.business_name, name, 1)
+    return replace(analysis, **updates)
 
 
 def normalize_whatsapp_digits(raw: str) -> str:
@@ -160,4 +177,9 @@ def delivery_meta(features: PackageFeatures) -> dict:
         "trust_bar": features.trust_bar,
         "stats_strip": features.stats_strip,
         "showcase": features.showcase,
+        "catalog_grid": features.catalog_grid,
+        "catalog_categories": features.catalog_categories,
+        "catalog_search_filter": features.catalog_search_filter,
+        "catalog_request_cart": features.catalog_request_cart,
+        "catalog_rich_cards": features.catalog_rich_cards,
     }
