@@ -1445,6 +1445,22 @@ def acquisition_refresh_leads(body: dict | None = None) -> dict:
     )
 
 
+@app.post("/api/acquisition/rebuild-quotes")
+def acquisition_rebuild_quotes(body: dict | None = None) -> dict:
+    """CEO: rewrite every active lead letter + local-currency price (no Places hunt)."""
+    body = body or {}
+    return _ctx().acquisition.rebuild_pipeline_quotes(
+        limit=max(1, min(200, int(body.get("limit") or 80))),
+    )
+
+
+@app.post("/api/acquisition/reset-desk")
+def acquisition_reset_desk(body: dict | None = None) -> dict:
+    """CEO: zero send counters + finance wallet/ledger display."""
+    _ = body or {}
+    return _ctx().acquisition.reset_desk_counters_and_wallet()
+
+
 @app.post("/api/acquisition/auto-confirm-high-win")
 def acquisition_auto_confirm_high_win(body: dict | None = None) -> dict:
     body = body or {}

@@ -515,6 +515,65 @@ export default function AcquisitionPage() {
     }
   }
 
+  async function rebuildAllQuotes() {
+    setBusy("rebuild");
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/acquisition/rebuild-quotes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: 120 }),
+      });
+      const body = await res.json().catch(() => ({}));
+      setMessage(
+        res.ok
+          ? body.message_ru || "Квоты пересобраны"
+          : typeof body.detail === "string"
+            ? body.detail
+            : "Ошибка пересборки квот",
+      );
+      if (body.pipeline) setPipeline(body.pipeline);
+      await refresh();
+    } catch {
+      setMessage("Сеть/API недоступны при пересборке квот");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function resetDeskAndWallet() {
+    if (
+      !window.confirm(
+        "Обнулить счётчики отправки за сегодня и кошелёк/ledger до 0? Лиды не удаляются.",
+      )
+    ) {
+      return;
+    }
+    setBusy("reset-desk");
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/acquisition/reset-desk`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const body = await res.json().catch(() => ({}));
+      setMessage(
+        res.ok
+          ? body.message_ru || "Счётчики и кошелёк обнулены"
+          : typeof body.detail === "string"
+            ? body.detail
+            : "Ошибка обнуления",
+      );
+      if (body.pipeline) setPipeline(body.pipeline);
+      await refresh();
+    } catch {
+      setMessage("Сеть/API недоступны при обнулении");
+    } finally {
+      setBusy("");
+    }
+  }
+
   async function generateDrafts() {
     setBusy("generate");
     setMessage("");
@@ -1256,14 +1315,32 @@ export default function AcquisitionPage() {
                 (страна → город → ниша → draft → auto-confirm).
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => void refreshLeads()}
-              disabled={busy === "refresh" || busy === "generate"}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-60"
-            >
-              {busy === "refresh" ? "Обновляем…" : "Обновить лиды"}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void rebuildAllQuotes()}
+                disabled={busy === "rebuild" || busy === "refresh" || busy === "reset-desk"}
+                className="rounded-lg border border-amber-500/50 bg-amber-950/40 px-3 py-2 text-sm font-medium text-amber-100 hover:bg-amber-900/40 disabled:opacity-60"
+              >
+                {busy === "rebuild" ? "Пересобираем…" : "Пересобрать все квоты"}
+              </button>
+              <button
+                type="button"
+                onClick={() => void resetDeskAndWallet()}
+                disabled={busy === "rebuild" || busy === "refresh" || busy === "reset-desk"}
+                className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-sm font-medium text-rose-100 hover:bg-rose-900/40 disabled:opacity-60"
+              >
+                {busy === "reset-desk" ? "Обнуляем…" : "Обнулить цифры + кошелёк"}
+              </button>
+              <button
+                type="button"
+                onClick={() => void refreshLeads()}
+                disabled={busy === "refresh" || busy === "generate" || busy === "rebuild"}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-60"
+              >
+                {busy === "refresh" ? "Обновляем…" : "Обновить лиды"}
+              </button>
+            </div>
           </div>
           {pipeline.length === 0 ? (
             <p className="mt-4 text-sm text-genesis-muted">

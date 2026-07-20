@@ -8,8 +8,6 @@ import {
 } from "../lib/packagePreviewGallery";
 
 const AUTO_MS = 4500;
-const IFRAME_W = 1280;
-const IFRAME_H = 900;
 
 type Props = {
   packageId: string;
@@ -19,6 +17,12 @@ type Props = {
 
 function slideUrl(slide: PackagePreviewSlide): string {
   const path = slide.src.replace(/^\/+/, "");
+  return `/package-previews/${path}`;
+}
+
+function siteDemoUrl(slide: PackagePreviewSlide): string | null {
+  if (!slide.siteSrc) return null;
+  const path = slide.siteSrc.replace(/^\/+/, "");
   return `/package-previews/${path}`;
 }
 
@@ -32,26 +36,10 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
   const [index, setIndex] = useState(0);
   const touchX = useRef<number | null>(null);
   const paused = useRef(false);
-  const frameRef = useRef<HTMLDivElement | null>(null);
-  const [scale, setScale] = useState(0.2);
 
   useEffect(() => {
     setIndex(0);
   }, [packageId, niche, slides.length]);
-
-  useEffect(() => {
-    const el = frameRef.current;
-    if (!el) return;
-    const measure = () => {
-      const w = el.clientWidth || 320;
-      const h = el.clientHeight || 240;
-      setScale(Math.min(w / IFRAME_W, h / IFRAME_H));
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [slides.length, index]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -97,6 +85,7 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
   }
 
   const current = slides[index]!;
+  const demoHref = siteDemoUrl(current);
 
   return (
     <div className={`mt-4 ${className}`}>
@@ -124,33 +113,16 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
           go(dx < 0 ? index + 1 : index - 1);
         }}
       >
-        <div
-          ref={frameRef}
-          className="relative h-[220px] w-full overflow-hidden bg-slate-900 sm:h-[280px] lg:h-[260px]"
-        >
-          <div className="pointer-events-none absolute inset-0 flex items-start justify-center pt-2">
-            <div
-              className="overflow-hidden rounded-md border border-white/15 bg-white shadow-lg"
-              style={{
-                width: IFRAME_W * scale,
-                height: IFRAME_H * scale,
-              }}
-            >
-              <iframe
-                key={current.src}
-                src={slideUrl(current)}
-                title={current.alt}
-                loading="lazy"
-                tabIndex={-1}
-                className="origin-top-left border-0 bg-white"
-                style={{
-                  width: IFRAME_W,
-                  height: IFRAME_H,
-                  transform: `scale(${scale})`,
-                }}
-              />
-            </div>
-          </div>
+        <div className="relative h-[220px] w-full overflow-hidden bg-slate-900 sm:h-[280px] lg:h-[260px]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            key={current.src}
+            src={slideUrl(current)}
+            alt={current.alt}
+            className="h-full w-full object-cover object-top"
+            loading="lazy"
+            decoding="async"
+          />
           {isPremium ? (
             <div className="pointer-events-none absolute left-2 top-2 z-10 max-w-[85%] rounded-md border border-white/20 bg-black/55 px-2 py-1 backdrop-blur-sm">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
@@ -182,21 +154,35 @@ export function PackagePreviewCarousel({ packageId, niche, className = "" }: Pro
             </>
           )}
         </div>
-        {slides.length > 1 && (
-          <div className="flex items-center justify-center gap-1.5 py-2">
-            {slides.map((s, i) => (
-              <button
-                key={s.src}
-                type="button"
-                aria-label={`Slide ${i + 1}`}
-                className={`h-1.5 rounded-full transition ${
-                  i === index ? "w-4 bg-emerald-400" : "w-1.5 bg-white/30 hover:bg-white/50"
-                }`}
-                onClick={() => go(i)}
-              />
-            ))}
-          </div>
-        )}
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
+          {slides.length > 1 ? (
+            <div className="flex items-center justify-center gap-1.5">
+              {slides.map((s, i) => (
+                <button
+                  key={s.src}
+                  type="button"
+                  aria-label={`Slide ${i + 1}`}
+                  className={`h-1.5 rounded-full transition ${
+                    i === index ? "w-4 bg-emerald-400" : "w-1.5 bg-white/30 hover:bg-white/50"
+                  }`}
+                  onClick={() => go(i)}
+                />
+              ))}
+            </div>
+          ) : (
+            <span />
+          )}
+          {demoHref ? (
+            <a
+              href={demoHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] font-medium text-emerald-300/90 underline-offset-2 hover:underline"
+            >
+              {t("order.previewOpenDemo", { defaultValue: "Open full demo" })}
+            </a>
+          ) : null}
+        </div>
       </div>
     </div>
   );

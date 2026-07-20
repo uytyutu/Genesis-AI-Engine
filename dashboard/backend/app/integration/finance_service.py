@@ -519,6 +519,44 @@ class FinanceService:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(snap, ensure_ascii=False, indent=2), encoding="utf-8")
 
+    def reset_ledger_and_wallet(self) -> dict:
+        """CEO: zero finance display cache and leave demo wallets empty."""
+        snap = dict(_ZERO_SNAPSHOT)
+        self._save_snapshot(snap)
+        config = self._load_config()
+        config["demo_mode"] = False
+        # Drop fake wallet balance labels
+        wallets = dict(config.get("wallets") or {})
+        for wid, entry in list(wallets.items()):
+            if isinstance(entry, dict):
+                cleaned = dict(entry)
+                cleaned.pop("balance_label", None)
+                wallets[wid] = cleaned
+        config["wallets"] = wallets
+        path = self._memory / "finance_config.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
+        harvest = self._memory / "engine_harvest.json"
+        if harvest.is_file():
+            try:
+                harvest.write_text(
+                    json.dumps(
+                        {"harvest_balance_eur": 0.0, "lifetime_harvest_eur": 0.0, "items": []},
+                        ensure_ascii=False,
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
+            except OSError:
+                pass
+        return {
+            "ok": True,
+            "paid_by_client_eur": 0.0,
+            "available_for_withdrawal_eur": 0.0,
+            "demo_mode": False,
+            "message_ru": "Кошелёк и ledger обнулены",
+        }
+
     def _append_transaction(self, row: dict) -> None:
         path = self._memory / "finance_transactions.jsonl"
         path.parent.mkdir(parents=True, exist_ok=True)

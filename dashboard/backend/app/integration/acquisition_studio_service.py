@@ -5,9 +5,11 @@ Plan → Approve → Act. Prepares sales cycle; never sends without CEO approval
 
 from __future__ import annotations
 
+import json
 import os
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from app.integration.receipt_email_service import ReceiptEmailService
@@ -771,6 +773,7 @@ class AcquisitionStudioService:
         website_url: str | None = None,
         skip_qualification: bool = False,
         auto_lane: bool = False,
+        skip_site_analysis: bool = False,
     ) -> dict:
         from app.integration.lead_qualification_gate import (
             build_audit_report_md,
@@ -784,7 +787,16 @@ class AcquisitionStudioService:
 
         url = (website_url or row.get("website_url") or "").strip()
         analysis: dict | None = None
-        if url:
+        if url and not skip_site_analysis:
+            analysis = self._site.analyze(url)
+            row["website_url"] = url
+            row["site_analysis"] = analysis
+        elif skip_site_analysis:
+            existing = row.get("site_analysis")
+            analysis = existing if isinstance(existing, dict) else None
+            if url:
+                row["website_url"] = url
+        elif url:
             analysis = self._site.analyze(url)
             row["website_url"] = url
             row["site_analysis"] = analysis
@@ -1341,6 +1353,92 @@ class AcquisitionStudioService:
         if changed:
             self._opportunity._save_rows(rows)
         return {"ok": True, "repriced": changed}
+
+    def rebuild_pipeline_quotes(self, *, limit: int = 80) -> dict[str, Any]:
+        """Full quote refresh: local price + letter body for every active desk lead.
+
+        Uses stored site_analysis (no Places re-hunt) so CEO can send correct Kč/zł/₴.
+        """
+        rebuilt: list[str] = []
+        failed: list[str] = []
+        rows = self._opportunity.list_opportunities(limit=400)
+        for row in rows:
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
+            if row.get("status") in ("won", "lost"):
+                continue
+            oid = str(row.get("id") or "")
+            if not oid:
+                continue
+            name = str(row.get("company_name") or oid)
+            try:
+                self.prepare_opportunity(
+                    oid,
+                    skip_qualification=True,
+                    auto_lane=False,
+                    skip_site_analysis=True,
+                )
+                rebuilt.append(name)
+            except Exception as exc:
+                failed.append(f"{name}: {str(exc)[:80]}")
+            if len(rebuilt) >= limit:
+                break
+        # Ensure list fields match letters even if prepare skipped pricing edge cases
+        reprice = self.reprice_pipeline_leads(limit=max(limit, 200))
+        return {
+            "ok": True,
+            "rebuilt": len(rebuilt),
+            "failed": len(failed),
+            "failed_sample": failed[:8],
+            "repriced": reprice.get("repriced", 0),
+            "pipeline": self.pipeline_leads(limit=40),
+            "message_ru": (
+                f"Квоты пересобраны: {len(rebuilt)} писем · "
+                f"цены={reprice.get('repriced', 0)} · ошибок={len(failed)}"
+            ),
+        }
+
+    def reset_desk_counters_and_wallet(self) -> dict[str, Any]:
+        """CEO: zero outreach send counters + finance ledger/wallet display."""
+        quota_reset = self._send_quota.reset_today()
+        from app.integration.finance_service import FinanceService
+
+        finance = FinanceService(self._memory_dir)
+        fin = finance.reset_ledger_and_wallet()
+        # Clear adaptive pause / day counters so markets look fresh
+        adaptive_cleared = False
+        try:
+            path = Path(self._memory_dir) / "outreach_adaptive_state.json"
+            if path.is_file():
+                path.write_text(
+                    json.dumps(
+                        {
+                            "paused_markets": {},
+                            "history": [],
+                            "last_review_at": None,
+                            "note": "ceo_reset",
+                        },
+                        ensure_ascii=False,
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
+                adaptive_cleared = True
+        except Exception:
+            adaptive_cleared = False
+        return {
+            "ok": True,
+            "quota": quota_reset,
+            "finance": fin,
+            "adaptive_cleared": adaptive_cleared,
+            "outreach_quota": self._send_quota.health(),
+            "pipeline": self.pipeline_leads(limit=40),
+            "message_ru": (
+                "Счётчики отправки обнулены · кошелёк/ledger = 0 · "
+                f"adaptive={'очищен' if adaptive_cleared else 'без файла'}"
+            ),
+        }
 
     @staticmethod
     def _queue_item(r: dict) -> dict:

@@ -312,6 +312,18 @@ class OutreachSendQuota:
             return False, f"daily_cap:{reg}:{used}/{cap}"
         return True, ""
 
+    def reset_today(self) -> dict[str, Any]:
+        """CEO: wipe today's send counters (regions / domains / markets)."""
+        empty = {
+            "day": _today(),
+            "regions": {},
+            "domains": {},
+            "markets": {},
+            "last_send_at": None,
+        }
+        self._save(empty)
+        return {"ok": True, "day": empty["day"], "sent_today_total": 0}
+
     def record_send(
         self, from_addr: str, *, region: str | None = None, market: str | None = None
     ) -> None:

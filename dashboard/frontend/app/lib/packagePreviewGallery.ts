@@ -1,83 +1,93 @@
 /**
  * Package preview gallery — Path A order / storefront.
- * Each tier has exclusive full-site HTML samples (no cross-tier reuse).
- * Paths under /package-previews/sites/{tier}/{niche}/index.html
+ * Each tier has exclusive hero screenshots (+ optional full HTML demo link).
+ * Paths under /package-previews/sites/{tier}/{niche}/…
  */
 
 export type PackagePreviewTier = "basic" | "business" | "premium";
 
 export type PackagePreviewSlide = {
-  /** Relative path under /package-previews/ */
+  /** Relative path under /package-previews/ — hero screenshot (always visible) */
   src: string;
   alt: string;
   niche?: string;
-  /** Full landing sample (iframe), not a background photo */
-  kind: "site";
+  /** Optional full HTML demo (opened in new tab, not iframe) */
+  siteSrc?: string;
+  kind: "image";
 };
 
 /** basic_preview[] — Basic quality sites only */
 export const basic_preview: PackagePreviewSlide[] = [
   {
-    src: "sites/basic/auto/index.html",
+    src: "sites/basic/auto/assets/hero.jpg",
+    siteSrc: "sites/basic/auto/index.html",
     alt: "Autowerkstatt · Basic-Website",
     niche: "auto",
-    kind: "site",
+    kind: "image",
   },
   {
-    src: "sites/basic/dental/index.html",
+    src: "sites/basic/dental/assets/hero.jpg",
+    siteSrc: "sites/basic/dental/index.html",
     alt: "Zahnarztpraxis · Basic-Website",
     niche: "dental",
-    kind: "site",
+    kind: "image",
   },
   {
-    src: "sites/basic/beauty/index.html",
+    src: "sites/basic/beauty/assets/hero.jpg",
+    siteSrc: "sites/basic/beauty/index.html",
     alt: "Beauty · Basic-Website",
     niche: "beauty",
-    kind: "site",
+    kind: "image",
   },
 ];
 
 /** business_preview[] — Business quality sites only */
 export const business_preview: PackagePreviewSlide[] = [
   {
-    src: "sites/business/auto/index.html",
+    src: "sites/business/auto/assets/hero.jpg",
+    siteSrc: "sites/business/auto/index.html",
     alt: "Autowerkstatt · Business-Website",
     niche: "auto",
-    kind: "site",
+    kind: "image",
   },
   {
-    src: "sites/business/dental/index.html",
+    src: "sites/business/dental/assets/hero.jpg",
+    siteSrc: "sites/business/dental/index.html",
     alt: "Zahnarztpraxis · Business-Website",
     niche: "dental",
-    kind: "site",
+    kind: "image",
   },
   {
-    src: "sites/business/praxis/index.html",
+    src: "sites/business/praxis/assets/hero.jpg",
+    siteSrc: "sites/business/praxis/index.html",
     alt: "Praxis · Business-Website",
     niche: "praxis",
-    kind: "site",
+    kind: "image",
   },
 ];
 
 /** premium_preview[] — Premium quality sites only */
 export const premium_preview: PackagePreviewSlide[] = [
   {
-    src: "sites/premium/auto/index.html",
+    src: "sites/premium/auto/assets/hero.jpg",
+    siteSrc: "sites/premium/auto/index.html",
     alt: "Autowerkstatt · Premium-Website",
     niche: "auto",
-    kind: "site",
+    kind: "image",
   },
   {
-    src: "sites/premium/dental/index.html",
+    src: "sites/premium/dental/assets/hero.jpg",
+    siteSrc: "sites/premium/dental/index.html",
     alt: "Zahnarztpraxis · Premium-Website",
     niche: "dental",
-    kind: "site",
+    kind: "image",
   },
   {
-    src: "sites/premium/path/index.html",
+    src: "sites/premium/path/assets/hero.jpg",
+    siteSrc: "sites/premium/path/index.html",
     alt: "Premium-Website · Beispiel",
     niche: "path",
-    kind: "site",
+    kind: "image",
   },
 ];
 
