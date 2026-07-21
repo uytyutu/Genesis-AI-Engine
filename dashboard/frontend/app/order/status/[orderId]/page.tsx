@@ -98,6 +98,7 @@ function OrderStatusContent() {
   const search = useSearchParams();
   const orderId = String(routeParams.orderId ?? "");
   const justPaid = search.get("paid") === "1";
+  const justCanceled = search.get("canceled") === "1";
   const [data, setData] = useState<OrderStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -122,6 +123,7 @@ function OrderStatusContent() {
   useEffect(() => {
     let cancelled = false;
     let confirmed = false;
+    let cancelLogged = false;
     async function load() {
       try {
         if (justPaid && !confirmed) {
@@ -133,6 +135,25 @@ function OrderStatusContent() {
             const { logCommerceEvent } = await import("../../../lib/commerceFunnel");
             logCommerceEvent("checkout_paid", null, "order_status", {
               order_id: orderId,
+            });
+            logCommerceEvent("stripe_return_success", null, "order_status", {
+              order_id: orderId,
+              mode: "order_experience_v2",
+            });
+            logCommerceEvent("order_completed", null, "order_status", {
+              order_id: orderId,
+              mode: "order_experience_v2",
+            });
+          } catch {
+            /* analytics optional */
+          }
+        } else if (justCanceled && !cancelLogged) {
+          cancelLogged = true;
+          try {
+            const { logCommerceEvent } = await import("../../../lib/commerceFunnel");
+            logCommerceEvent("stripe_return_cancel", null, "order_status", {
+              order_id: orderId,
+              mode: "order_experience_v2",
             });
           } catch {
             /* analytics optional */
@@ -169,7 +190,7 @@ function OrderStatusContent() {
       cancelled = true;
       clearInterval(tmr);
     };
-  }, [orderId, justPaid]);
+  }, [orderId, justPaid, justCanceled]);
 
   useEffect(() => {
     const lang = data?.ui_lang;

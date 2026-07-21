@@ -91,6 +91,19 @@ class PricingDisplayService:
             "checkout_paid": 0,
             "specialization_selected": 0,
             "vxp_product_shown": 0,
+            # A2.1 — Order Experience funnel
+            "order_started": 0,
+            "step_1_completed": 0,
+            "step_2_completed": 0,
+            "step_3_completed": 0,
+            "step_4_completed": 0,
+            "draft_restored": 0,
+            "checkout_summary_viewed": 0,
+            "checkout_confirmed": 0,
+            "stripe_redirect_started": 0,
+            "stripe_return_success": 0,
+            "stripe_return_cancel": 0,
+            "order_completed": 0,
         }
         niches: dict[str, int] = {}
         products: dict[str, int] = {}
@@ -112,6 +125,9 @@ class PricingDisplayService:
                 "vxp_product_shown",
                 "specialization_selected",
                 "premium_preview_view",
+                "order_started",
+                "step_1_completed",
+                "checkout_summary_viewed",
             ):
                 niches[niche] = niches.get(niche, 0) + 1
             product = str(meta.get("product_id") or "").strip()
@@ -169,6 +185,107 @@ class PricingDisplayService:
         ]
         views = max(counts["tier_page_view"], 1)
         paid = counts["checkout_paid"]
+
+        # Prefer dedicated OE events; fall back to Path A twins so older rows still count.
+        oe_redirect = counts["stripe_redirect_started"] or counts["checkout_start"]
+        oe_success = counts["stripe_return_success"] or counts["checkout_paid"]
+        oe_completed = counts["order_completed"] or oe_success
+        oe_started = max(counts["order_started"], 1)
+        order_experience_funnel = {
+            "title_ru": "Order Experience Funnel",
+            "headline_ru": (
+                f"Старт: {counts['order_started']} · оплат: {oe_success} · "
+                f"отмен Stripe: {counts['stripe_return_cancel']}"
+            ),
+            "subtitle_ru": (
+                "Где покупатель останавливается в оформлении /order — "
+                "шаги → summary → Stripe → оплата."
+            ),
+            "steps": [
+                {
+                    "id": "order_started",
+                    "label_ru": "Order Started",
+                    "count": counts["order_started"],
+                    "icon": "1",
+                },
+                {
+                    "id": "step_1_completed",
+                    "label_ru": "Step 1",
+                    "count": counts["step_1_completed"],
+                    "icon": "2",
+                },
+                {
+                    "id": "step_2_completed",
+                    "label_ru": "Step 2",
+                    "count": counts["step_2_completed"],
+                    "icon": "3",
+                },
+                {
+                    "id": "step_3_completed",
+                    "label_ru": "Step 3",
+                    "count": counts["step_3_completed"],
+                    "icon": "4",
+                },
+                {
+                    "id": "step_4_completed",
+                    "label_ru": "Step 4",
+                    "count": counts["step_4_completed"],
+                    "icon": "5",
+                },
+                {
+                    "id": "checkout_summary_viewed",
+                    "label_ru": "Checkout Summary",
+                    "count": counts["checkout_summary_viewed"],
+                    "icon": "📋",
+                },
+                {
+                    "id": "checkout_confirmed",
+                    "label_ru": "Confirmed",
+                    "count": counts["checkout_confirmed"],
+                    "icon": "☑",
+                },
+                {
+                    "id": "stripe_redirect_started",
+                    "label_ru": "Stripe Redirect",
+                    "count": oe_redirect,
+                    "icon": "→",
+                },
+                {
+                    "id": "stripe_return_success",
+                    "label_ru": "Payment Success",
+                    "count": oe_success,
+                    "icon": "€",
+                },
+                {
+                    "id": "order_completed",
+                    "label_ru": "Order Completed",
+                    "count": oe_completed,
+                    "icon": "✅",
+                },
+            ],
+            "conversion_view_to_paid_pct": round(
+                100.0 * oe_success / oe_started, 1
+            ),
+            "event_totals": {
+                k: counts[k]
+                for k in (
+                    "order_started",
+                    "step_1_completed",
+                    "step_2_completed",
+                    "step_3_completed",
+                    "step_4_completed",
+                    "draft_restored",
+                    "checkout_summary_viewed",
+                    "checkout_confirmed",
+                    "stripe_redirect_started",
+                    "stripe_return_success",
+                    "stripe_return_cancel",
+                    "order_completed",
+                )
+            },
+            "next_action_href": "/order",
+        }
+
         return {
             "title_ru": "Path A — воронка сайта",
             "headline_ru": (
@@ -185,4 +302,5 @@ class PricingDisplayService:
             "tier_mix": _top(tiers),
             "event_totals": counts,
             "next_action_href": "/site",
+            "order_experience_funnel": order_experience_funnel,
         }

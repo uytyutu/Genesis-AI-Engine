@@ -53,6 +53,55 @@ def test_path_a_funnel_summary(tmp_path: Path):
     assert any(p["id"] == "implant" for p in summary["top_products"])
 
 
+def test_order_experience_funnel_a21(tmp_path: Path):
+    """A2.1 — Order Experience funnel aggregates on existing Path A analytics."""
+    from app.integration.pricing_display_service import PricingDisplayService
+    from app.schemas import PathAFunnelDashboard
+
+    svc = PricingDisplayService(memory_dir=tmp_path)
+    for ev in (
+        "order_started",
+        "step_1_completed",
+        "step_2_completed",
+        "step_3_completed",
+        "step_4_completed",
+        "draft_restored",
+        "checkout_summary_viewed",
+        "checkout_confirmed",
+        "stripe_redirect_started",
+        "stripe_return_success",
+        "order_completed",
+    ):
+        svc.log_event(
+            event=ev,
+            tier_id="business",
+            page="order",
+            meta={"order_id": "ord-oe", "mode": "order_experience_v2"},
+        )
+    svc.log_event(
+        event="stripe_return_cancel",
+        tier_id="business",
+        page="order_status",
+        meta={"order_id": "ord-cancel"},
+    )
+
+    summary = svc.path_a_funnel_summary()
+    oe = summary["order_experience_funnel"]
+    assert oe["title_ru"] == "Order Experience Funnel"
+    assert oe["steps"][0]["id"] == "order_started"
+    assert oe["steps"][0]["count"] == 1
+    assert oe["steps"][-1]["id"] == "order_completed"
+    assert oe["steps"][-1]["count"] == 1
+    assert oe["event_totals"]["draft_restored"] == 1
+    assert oe["event_totals"]["stripe_return_cancel"] == 1
+    assert summary["event_totals"]["order_started"] == 1
+
+    # Nested block must validate for Money Monitor / public Path A API
+    dash = PathAFunnelDashboard(**summary)
+    assert dash.order_experience_funnel is not None
+    assert dash.order_experience_funnel.steps[0].count == 1
+
+
 def test_path_a_visual_preview_adaptive_law():
     from app.integration.path_a_visual_preview import resolve_path_a_visual_preview
 

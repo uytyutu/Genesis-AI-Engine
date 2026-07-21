@@ -166,6 +166,9 @@ export default function OrderSitePage() {
   const draftSaverRef = useRef(createDebouncedOrderDraftSaver(400));
   const urlPackageRef = useRef<string | null>(null);
   const urlNicheRef = useRef<string | null>(null);
+  const orderStartedRef = useRef(false);
+  const checkoutSummaryViewedRef = useRef(false);
+  const checkoutConfirmedLoggedRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -189,6 +192,13 @@ export default function OrderSitePage() {
     const vid = params.get("visitor_id")?.trim();
     setVisitorId(vid || getVisitorId("public"));
     logCommerceEvent("tier_page_view", pkg, "order");
+    if (!orderStartedRef.current) {
+      orderStartedRef.current = true;
+      logCommerceEvent("order_started", pkg, "order", {
+        niche: n || undefined,
+        mode: "order_experience_v2",
+      });
+    }
   }, []);
 
   // Restore Path A order draft once visitor + market URL are known (URL package/niche win).
@@ -204,6 +214,12 @@ export default function OrderSitePage() {
       }
       if (urlNicheRef.current) setNiche(urlNicheRef.current);
       setDraftBanner(true);
+      logCommerceEvent("draft_restored", draft.packageId || urlPackageRef.current, "order", {
+        form_step: draft.formStep,
+        niche: draft.niche || urlNicheRef.current || undefined,
+        market_code: market,
+        mode: "order_experience_v2",
+      });
     }
     setDraftReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate once per visitor/market
@@ -662,9 +678,25 @@ export default function OrderSitePage() {
 
   async function goNext() {
     if (!canAdvance(formStep)) return;
+    const completed = formStep;
     const next = Math.min(4, formStep + 1);
     setFormStep(next);
     setMaxReachedStep((m) => Math.max(m, next));
+    const stepEvent =
+      completed === 1
+        ? "step_1_completed"
+        : completed === 2
+          ? "step_2_completed"
+          : completed === 3
+            ? "step_3_completed"
+            : null;
+    if (stepEvent) {
+      logCommerceEvent(stepEvent, packageId, "order", {
+        form_step: completed,
+        niche: niche || undefined,
+        mode: "order_experience_v2",
+      });
+    }
     if (next === 2) await loadInsightsPreview();
   }
 
@@ -773,6 +805,12 @@ export default function OrderSitePage() {
         specialization: specialization || null,
         order_id: body.order_id,
       });
+      logCommerceEvent("step_4_completed", packageId, "order", {
+        niche: niche || undefined,
+        order_id: body.order_id,
+        form_step: 4,
+        mode: "order_experience_v2",
+      });
     } catch {
       setError(t("order.serverDown"));
     } finally {
@@ -780,15 +818,31 @@ export default function OrderSitePage() {
     }
   }
 
+  useEffect(() => {
+    if (!done?.order_id || checkoutSummaryViewedRef.current) return;
+    checkoutSummaryViewedRef.current = true;
+    logCommerceEvent("checkout_summary_viewed", packageId, "order", {
+      order_id: done.order_id,
+      niche: niche || undefined,
+      mode: "order_experience_v2",
+    });
+  }, [done, packageId, niche]);
+
+  useEffect(() => {
+    if (!done?.order_id || !checkoutConfirmed || checkoutConfirmedLoggedRef.current) return;
+    checkoutConfirmedLoggedRef.current = true;
+    logCommerceEvent("checkout_confirmed", packageId, "order", {
+      order_id: done.order_id,
+      niche: niche || undefined,
+      mode: "order_experience_v2",
+    });
+  }, [checkoutConfirmed, done, packageId, niche]);
+
   async function payNow() {
     if (!done || !checkoutConfirmed) return;
     setPayBusy(true);
     setPayError("");
     try {
-      logCommerceEvent("checkout_start", packageId, "order", {
-        order_id: done.order_id,
-        niche,
-      });
       const url = await startOrderCheckout(done.order_id);
       window.location.href = url;
     } catch (e) {

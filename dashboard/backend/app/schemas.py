@@ -2231,6 +2231,11 @@ class PathAFunnelDashboard(BaseModel):
     tier_mix: list[PathAFunnelTopItem] = Field(default_factory=list)
     event_totals: dict[str, int] = Field(default_factory=dict)
     next_action_href: str = "/site"
+    # A2.1 — nested Order Experience / Checkout funnel (same Money Monitor surface)
+    order_experience_funnel: "PathAFunnelDashboard | None" = None
+
+
+PathAFunnelDashboard.model_rebuild()
 
 
 class Mission2KpiMetric(BaseModel):

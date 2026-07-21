@@ -3,6 +3,7 @@ import { publicApiBase } from "./publicApiBase";
 
 const API = publicApiBase();
 
+/** Path A + Order Experience v2 funnel events (pricing_analytics.jsonl). */
 export type FunnelEvent =
   | "tier_page_view"
   | "tier_select"
@@ -11,7 +12,20 @@ export type FunnelEvent =
   | "checkout_start"
   | "checkout_paid"
   | "specialization_selected"
-  | "vxp_product_shown";
+  | "vxp_product_shown"
+  // A2.1 — Order Experience funnel
+  | "order_started"
+  | "step_1_completed"
+  | "step_2_completed"
+  | "step_3_completed"
+  | "step_4_completed"
+  | "draft_restored"
+  | "checkout_summary_viewed"
+  | "checkout_confirmed"
+  | "stripe_redirect_started"
+  | "stripe_return_success"
+  | "stripe_return_cancel"
+  | "order_completed";
 
 export type FunnelMeta = {
   niche?: string | null;
@@ -22,6 +36,8 @@ export type FunnelMeta = {
   order_id?: string | null;
   mode?: string | null;
   visitor_id?: string | null;
+  form_step?: number | null;
+  market_code?: string | null;
   [key: string]: unknown;
 };
 

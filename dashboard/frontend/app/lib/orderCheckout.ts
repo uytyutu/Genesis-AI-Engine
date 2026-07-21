@@ -44,7 +44,9 @@ export async function startOrderCheckout(orderId: string): Promise<string> {
   const origin = storefrontOrigin();
   try {
     const { logCommerceEvent } = await import("./commerceFunnel");
+    // Path A back-compat + Order Experience A2.1
     logCommerceEvent("checkout_start", null, "checkout", { order_id: orderId });
+    logCommerceEvent("stripe_redirect_started", null, "checkout", { order_id: orderId });
   } catch {
     /* optional */
   }
@@ -53,7 +55,7 @@ export async function startOrderCheckout(orderId: string): Promise<string> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       success_url: `${origin}/order/status/${orderId}?paid=1`,
-      cancel_url: `${origin}/order/status/${orderId}`,
+      cancel_url: `${origin}/order/status/${orderId}?canceled=1`,
     }),
   });
   const body = await res.json();

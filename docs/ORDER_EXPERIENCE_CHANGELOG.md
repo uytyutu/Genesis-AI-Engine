@@ -9,7 +9,8 @@ UX journal for Path A `/order` — not a technical log. Track what we ship for c
 | A1.1 | Autosave & Resume Draft | Done (`61eee9f`) |
 | A1.2 | Wizard Navigation | Done (`bb0fbdf`) |
 | A1.3 | Live Preview / AI Guidance | Done (`a5eb22e`) |
-| A1.4 | Premium Checkout Experience | Done (this slice) |
+| A1.4 | Premium Checkout Experience | Done (`a0593fe`) |
+| A2.1 | Commercial Funnel Instrumentation | Done (this slice) |
 | A1.5 | (reserved / deepen checkout) | Planned |
 | A1.6 | Payment Confirmation Experience | Planned |
 
@@ -84,9 +85,25 @@ UX journal for Path A `/order` — not a technical log. Track what we ship for c
 
 ---
 
+### A2.1 — Commercial Funnel Instrumentation (2026-07-21)
+
+**Why:** A1 path exists; next decisions must come from where buyers actually stop — not gut feel.
+
+**Shipped (measure only — no new UX/pages/features):**
+- Order Experience events into existing `pricing-event` / `pricing_analytics.jsonl`
+- Aggregates: Order Started → Steps 1–4 → Checkout Summary → Confirmed → Stripe → Paid → Completed
+- Card **Order Experience Funnel** on existing Money Monitor Path A analytics
+- Stripe cancel return via `?canceled=1` (instrumentation only)
+
+**Explicit non-goals:** new screens, new pages, new product features, duplicate analytics stack.
+
+**USER CAN VERIFY:** walk `/order` → events in analytics → funnel counts move → drop-off step visible.
+
+---
+
 ### Later (not started)
 
 - **A1.6** — richer payment confirmation / status experience  
-- Then **Mission A2** — first real sales + friction journal  
+- Then **Mission A2** sales work informed by A2.1 drop-off data  
 
 After first real sales, annotate which A1 rows moved conversion.
