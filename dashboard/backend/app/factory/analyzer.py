@@ -43,8 +43,11 @@ _NICHE_KEYWORDS = {
     "computer": (
         "pc-reparatur",
         "pc reparatur",
+        "pc-service",
+        "pc service",
         "computerreparatur",
         "computer reparatur",
+        "computer",
         "laptop",
         "notebook",
         "it-service",
@@ -115,6 +118,12 @@ _NICHE_KEYWORDS = {
     ),
     "beauty": (
         "салон",
+        "salon",
+        "friseur",
+        "frisör",
+        "frisoer",
+        "haarschnitt",
+        "haarfarbe",
         "красот",
         "spa",
         "маникюр",
@@ -126,9 +135,38 @@ _NICHE_KEYWORDS = {
         "beauty",
         "nail",
         "brow",
+        "kosmetik",
     ),
     "energy": ("солнечн", "solar", "панел", "фотоэлект", "энерг", "photovolta"),
-    "green": ("озеленен", "ландшафт", "садов", "газон", "озелен"),
+    "green": (
+        "озеленен",
+        "ландшафт",
+        "садов",
+        "газон",
+        "озелен",
+        "garten",
+        "gartenpflege",
+        "rasen",
+        "hecke",
+        "hecken",
+        "landschaft",
+        "gardening",
+        "landscape",
+    ),
+    "restaurant": (
+        "restaurant",
+        "resto",
+        "bistro",
+        "café",
+        "cafe",
+        "gastronomie",
+        "gaststätte",
+        "gaststaette",
+        "pizzeria",
+        "ресторан",
+        "кафе",
+        "кухн",
+    ),
 }
 
 
@@ -156,6 +194,7 @@ def analyze(description: str) -> AnalysisResult:
         "beauty": _preset_beauty(business_name, template_id, cta_label, text),
         "energy": _preset_energy(business_name, template_id, cta_label, text),
         "green": _preset_green(business_name, template_id, cta_label, text),
+        "restaurant": _preset_restaurant(business_name, template_id, cta_label, text),
     }
 
     if niche in presets:
@@ -559,6 +598,40 @@ def _preset_green(
         about_text=f"{business_name} gestaltet Außenbereiche, die langfristig gepflegt bleiben.",
         benefits=("Kostenlose Erstbegehung", "Festpreis-Angebote", "Saubere Baustellen"),
         hours="Mo–Fr 7:00–16:00",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_restaurant(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "tisch")
+    return AnalysisResult(
+        niche="restaurant",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Küche mit Charakter",
+        subtitle="Frische Gerichte, warme Atmosphäre und Reservierung ohne Umwege.",
+        services=["Mittagstisch", "Abendkarte", "Events", "Takeaway"],
+        service_descriptions=(
+            "Saisonale Gerichte — klar kalkuliert und gut erklärt.",
+            "Abendkarte mit Fokus auf Qualität statt Masse.",
+            "Private Feiern und Firmenevents nach Absprache.",
+            "Abholung und Lieferung in der Nachbarschaft.",
+        ),
+        cta_label=cta_label or "Tisch reservieren",
+        trust_points=("Frische Zutaten", "Lokale Gäste", "Klare Allergene"),
+        about_text=(
+            f"{business_name} kocht für Gäste, die Wert auf ehrliche Küche legen. "
+            "Reservieren Sie online oder telefonisch — wir bestätigen zeitnah."
+        ),
+        benefits=(
+            "Speisekarte ohne Überraschungen",
+            "Reservierung mit Bestätigung",
+            "Barrierefreie Informationen zu Allergenen",
+        ),
+        hours="Di–So 11:30–14:00 · 17:30–22:00",
         phone=phone,
         email=email,
     )

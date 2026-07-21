@@ -2,6 +2,7 @@
 
 Hero / Gallery / Background selection with client-photo priority, niche
 fallbacks, market-aware deterministic picks, and Image Quality Gate inputs.
+R3.2 — Section-Aware Media Gate filters candidates (no LLM).
 No Pillow required — dimensions from PNG/JPEG/WebP headers.
 """
 
@@ -62,6 +63,9 @@ class MediaPlan:
     css: str = ""
     gate_ok: bool = True
     gate_failures: list[str] = field(default_factory=list)
+    media_gate_ok: bool = True
+    media_gate_failures: list[str] = field(default_factory=list)
+    media_gate: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -73,6 +77,9 @@ class MediaPlan:
             "assessments": [asdict(a) for a in self.assessments],
             "gate_ok": self.gate_ok,
             "gate_failures": list(self.gate_failures),
+            "media_gate_ok": self.media_gate_ok,
+            "media_gate_failures": list(self.media_gate_failures),
+            "media_gate": self.media_gate,
         }
 
 
@@ -177,21 +184,37 @@ def pick_niche_hero(
     market_code: str,
     business_name: str,
 ) -> Path | None:
-    """Market-aware deterministic pick among hero_1/2/3 niche stills."""
+    """Market-aware deterministic pick among hero_1/2/3 niche stills.
+
+    R3.2: only candidates that pass Section-Aware Media Gate for Hero.
+    Never falls back to a denied (illogical) image — returns None instead.
+    """
+    from app.factory.media_gate import media_fits_section
+
     slots = ("hero_1", "hero_2", "hero_3")
     candidates: list[Path] = []
+    seen: set[Path] = set()
     for slot in slots:
         p = resolve_slot(niche_id, package_id, slot)
-        if p is not None and p.is_file():
+        if p is not None and p.is_file() and p not in seen:
+            seen.add(p)
             candidates.append(p)
     if not candidates:
-        return primary_hero_src(niche_id, package_id)
-    # Prefer assets that pass hero quality
-    good = [p for p in candidates if assess_image(p, role="hero", source="niche").ok]
-    pool = good or candidates
+        primary = primary_hero_src(niche_id, package_id)
+        if primary is not None and primary.is_file():
+            candidates.append(primary)
+    # Prefer assets that pass pixel quality AND section/niche meaning
+    good = [
+        p
+        for p in candidates
+        if assess_image(p, role="hero", source="niche").ok
+        and media_fits_section(p, niche_id=niche_id, section="hero", source="niche")
+    ]
+    if not good:
+        return None
     seed = f"{business_name}|{package_id}|{niche_id}|{(market_code or 'DE').upper()}|media-hero"
-    idx = int(hashlib.sha256(seed.encode("utf-8")).hexdigest()[:8], 16) % len(pool)
-    return pool[idx]
+    idx = int(hashlib.sha256(seed.encode("utf-8")).hexdigest()[:8], 16) % len(good)
+    return good[idx]
 
 
 def pick_niche_background(
@@ -201,19 +224,29 @@ def pick_niche_background(
     market_code: str,
     business_name: str,
 ) -> Path | None:
+    from app.factory.media_gate import media_fits_section
+
     slots = ("background_1", "background_2", "banner", "showcase", "hero_2")
     candidates: list[Path] = []
+    seen: set[Path] = set()
     for slot in slots:
         p = resolve_slot(niche_id, package_id, slot)
-        if p is not None and p.is_file():
+        if p is not None and p.is_file() and p not in seen:
+            seen.add(p)
             candidates.append(p)
     if not candidates:
         return None
-    good = [p for p in candidates if assess_image(p, role="background", source="pack").ok]
-    pool = good or candidates
+    good = [
+        p
+        for p in candidates
+        if assess_image(p, role="background", source="pack").ok
+        and media_fits_section(p, niche_id=niche_id, section="about", source="pack")
+    ]
+    if not good:
+        return None
     seed = f"{business_name}|{package_id}|{niche_id}|{(market_code or 'DE').upper()}|media-bg"
-    idx = int(hashlib.sha256(seed.encode("utf-8")).hexdigest()[8:16], 16) % len(pool)
-    return pool[idx]
+    idx = int(hashlib.sha256(seed.encode("utf-8")).hexdigest()[8:16], 16) % len(good)
+    return good[idx]
 
 
 def finalize_product_media(
@@ -241,6 +274,8 @@ def finalize_product_media(
         if not a.ok:
             failures.append(f"client_hero:{a.reason}")
 
+    niche_hero_src: Path | None = None
+    hero_ok_force_fail = False
     if not client_hero_ok:
         niche_hero = pick_niche_hero(
             niche_id=niche_id,
@@ -249,6 +284,7 @@ def finalize_product_media(
             business_name=business_name,
         )
         if niche_hero is not None:
+            niche_hero_src = niche_hero
             shutil.copy2(niche_hero, hero_path)
             a = assess_image(hero_path, role="hero", source="niche")
             assessments.append(a)
@@ -259,6 +295,15 @@ def finalize_product_media(
             failures.append("hero:missing")
             a = ImageAssessment(path="assets/hero.jpg", role="hero", ok=False, reason="missing")
             assessments.append(a)
+        else:
+            # Stale/wrong hero on disk and no Media Gate–passing candidate
+            failures.append("hero:no_media_gate_candidate")
+            try:
+                hero_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+            hero_from_client = False
+            hero_ok_force_fail = True
 
     hero_final = assess_image(hero_path, role="hero", source="client" if hero_from_client else "niche")
     if hero_path.is_file() and hero_final.ok:
@@ -330,15 +375,51 @@ def finalize_product_media(
         if lp.is_file():
             assessments.append(assess_image(lp, role="logo", source="client"))
 
-    hero_ok = hero_path.is_file() and assess_image(
-        hero_path, role="hero", source="client" if (hero_from_client and client_hero_ok) else "niche"
-    ).ok
+    hero_ok = (
+        hero_path.is_file()
+        and not hero_ok_force_fail
+        and assess_image(
+            hero_path,
+            role="hero",
+            source="client" if (hero_from_client and client_hero_ok) else "niche",
+        ).ok
+    )
     gate_failures: list[str] = []
     if not hero_path.is_file():
         gate_failures.append("hero:missing")
     elif not hero_ok:
         gate_failures.append("hero:not_ok")
     gate_ok = hero_ok
+
+    # R3.2 — Section-Aware Media Gate (tag from showcase source, not product copy)
+    from app.factory.media_gate import Section, run_media_gate
+
+    assignments: list[tuple[Section, Path, str]] = []
+    if hero_from_client and client_hero_ok and hero_path.is_file():
+        assignments.append(("hero", hero_path, "client"))
+    elif niche_hero_src is not None:
+        assignments.append(("hero", niche_hero_src, "niche"))
+    elif hero_path.is_file():
+        assignments.append(("hero", hero_path, "niche"))
+
+    if bg_src is not None and bg_rel:
+        assignments.append(("about", bg_src, "pack"))
+
+    for rel in kept_gallery:
+        p = product_dir / rel.replace("\\", "/")
+        if p.is_file():
+            assignments.append(("gallery", p, "client"))
+
+    mg = run_media_gate(niche_id=niche_id, assignments=assignments)
+    media_gate_ok = mg.passed and bool(hero_ok)
+    media_gate_failures = list(mg.failures)
+    if not hero_ok and "hero:missing" not in gate_failures and "hero:not_ok" not in media_gate_failures:
+        if "hero:no_media_gate_candidate" in failures:
+            media_gate_failures.append("hero:no_passing_candidate")
+            media_gate_ok = False
+    if not media_gate_ok:
+        gate_failures.extend(f"media_gate:{f}" for f in media_gate_failures[:6])
+        gate_ok = False
 
     css = _media_css(hero_ok=hero_ok, background=bg_rel, gallery=kept_gallery)
     plan = MediaPlan(
@@ -351,6 +432,9 @@ def finalize_product_media(
         css=css,
         gate_ok=gate_ok,
         gate_failures=gate_failures,
+        media_gate_ok=media_gate_ok,
+        media_gate_failures=media_gate_failures,
+        media_gate=mg.as_dict(),
     )
     (assets / "media_manifest.json").write_text(
         json.dumps(plan.as_dict(), ensure_ascii=False, indent=2) + "\n",

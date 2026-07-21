@@ -329,6 +329,13 @@ def run_quality_gate(
                 hero_pass,
                 str(manifest.get("gate_failures") or ""),
             )
+            mg_ok = bool(manifest.get("media_gate_ok", True))
+            add(
+                "media",
+                "section_aware",
+                mg_ok,
+                "; ".join(manifest.get("media_gate_failures") or []) or "media_gate",
+            )
             add(
                 "media",
                 "object_fit_css",
@@ -362,6 +369,7 @@ def run_quality_gate(
                 "cover",
             )
             add("media", "weight_ok", True, "legacy")
+            add("media", "section_aware", True, "legacy_skip")
         # CLS: hero/gallery imgs should declare width/height when present as <img>
         imgs_with_dims = True
         for img in re.findall(r"<img\b[^>]*>", html, flags=re.I):
@@ -380,6 +388,7 @@ def run_quality_gate(
     else:
         add("media", "manifest", True, "assets_not_checked")
         add("media", "hero_ok", True, "assets_not_checked")
+        add("media", "section_aware", True, "assets_not_checked")
         add("media", "object_fit_css", True, "assets_not_checked")
         add("media", "weight_ok", True, "assets_not_checked")
         add("media", "cls_safe", True, "assets_not_checked")

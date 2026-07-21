@@ -95,7 +95,10 @@ def write_hero_pack(
     """Copy pack assets into product_dir/assets and set hero.jpg.
 
     Returns manifest used by landing CSS (relative paths that exist).
+    R3.2: skip slots that fail Section-Aware Media Gate for their section role.
     """
+    from app.factory.media_gate import media_fits_section, section_for_slot
+
     tier = (package_id or "basic").strip().lower()
     if tier not in _TIER_SLOTS:
         tier = "basic"
@@ -109,13 +112,23 @@ def write_hero_pack(
         src = resolve_slot(niche_id, tier, slot)
         if src is None:
             continue
+        section = section_for_slot(slot)
+        if not media_fits_section(src, niche_id=niche_id, section=section, source="pack"):
+            continue
         dest_name = f"{slot}.jpg"
         dest = pack_out / dest_name
         shutil.copy2(src, dest)
         manifest[slot] = f"assets/hero_pack/{dest_name}"
 
-    # Canonical hero.jpg = primary hero for this tier
-    hero_src = primary_hero_src(niche_id, tier)
+    # Canonical hero.jpg = Media Gate–passing primary still
+    hero_src = None
+    for slot in ("hero_1", "hero_2", "hero_3"):
+        cand = resolve_slot(niche_id, tier, slot)
+        if cand is None or not cand.is_file():
+            continue
+        if media_fits_section(cand, niche_id=niche_id, section="hero", source="niche"):
+            hero_src = cand
+            break
     if hero_src is not None:
         shutil.copy2(hero_src, assets / "hero.jpg")
         manifest["hero"] = "assets/hero.jpg"
@@ -125,6 +138,21 @@ def write_hero_pack(
         encoding="utf-8",
     )
     return manifest
+
+
+def gallery_paths_from_manifest(manifest: dict | None, *, limit: int = 6) -> list[str]:
+    """Premium visual language: seed gallery from Hero Pack when client gallery is empty."""
+    if not isinstance(manifest, dict):
+        return []
+    keys = ("gallery", "hero_1", "hero_2", "hero_3", "banner", "showcase", "cta")
+    out: list[str] = []
+    for key in keys:
+        path = manifest.get(key)
+        if isinstance(path, str) and path and path not in out:
+            out.append(path)
+        if len(out) >= limit:
+            break
+    return out
 
 
 def pack_section_css(manifest: dict[str, str], tier: str) -> str:

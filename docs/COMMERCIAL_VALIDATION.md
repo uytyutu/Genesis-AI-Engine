@@ -13,10 +13,81 @@
 | Mission 0 | Foundation | ✅ |
 | Mission 1 | Public Launch | ✅ |
 | Mission 2 | Factory + Order Experience | ✅ |
-| **Commercial Validation** | Market proof | **← CURRENT** |
-| Mission 3 | Client Platform (Business Dashboard evolution) | Later |
+| **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
+| **Mission 3** | Perception → semantics → market → portal | **OPEN** |
 | Mission 4 | Premium Workspace | Later |
 | Mission 5 | Platform Expansion | Later |
+
+## Mission 3 — REORDERED (2026-07-21, CEO)
+
+**Why opened early:** Visual Product Audit + 3-second Premium Test = **FAIL** (then improved).  
+**Why reordered again:** Niche sweep (8 niches) proved Media Intelligence is size/aspect only —  
+Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-only.
+
+| Slice | Theme | Status |
+|-------|--------|--------|
+| **R3.1** | **Premium Visual System** | **≈ READY — CEO Premium Test** |
+| **R3.2** | **Section-Aware Media Gate** | **IN PROGRESS** |
+| **R3.3** | **Section-Aware Content Gate** | After R3.2 |
+| R3.4 | Global Market Experience | After R3.3 |
+| R3.5 | Client Portal Foundation | After R3.4 |
+
+**Not now:** full «Semantic Content Engine» · new LLM stack · CRM · Dashboard · particles.  
+**Horizon (Premium, later):** Visual Style at order (Classic White / Soft Gradient / AI bg / upload) — not R3.2.
+
+### Owner Visibility Rule (binding)
+
+> If the product owner opens the screen and does not see the claimed improvement **without hints**, the improvement is **not done** — regardless of lines of code or internal checkboxes.
+
+### Premium Test (R3.1 acceptance)
+
+Show **Basic / Business / Premium** with **no names and no prices**. Ask: *Which is the most expensive?*  
+PASS = ≥ **8 / 10** pick Premium immediately.
+
+**2026-07-21 before:** FAIL. **After Premium Visual:** agent + CEO feedback ≈ 8–8.5/10 — **CEO closes R3.1**.  
+Evidence: `_audit_visual_dental_r31/sandbox/compare-3sec.html` (:8767).
+
+### Section-Aware Media Gate (R3.2 — definition)
+
+**Goal:** not «generate better» — **do not publish illogical sites**.
+
+Small smart step — **not** a new generator / not a new neural net / **no LLM**.
+
+```
+niche + section → allowed categories → media tag → PASS / FAIL
+```
+
+On FAIL: swap image · or mark FAIL · never publish an obviously illogical result.
+
+**Publish path:** Quality Gate → **Media Gate** → Publish.
+
+| Block | Expectation (example) | Fail → |
+|-------|----------------------|--------|
+| Hero | Face / customer result / front-of-house matching niche | swap / reject |
+| Gallery | Interior / team / real work — not random tech dump | swap |
+| Services | Relates to services of **this** niche | swap |
+| About | Team / owner / office | swap |
+| Contact | Facade / map / entrance / reception | swap |
+
+Niche deny examples (Hero): Beauty ≠ restaurant/florist/industry · Computer ≠ flowers/café/dental · Green ≠ cosmetics/restaurant.
+
+Today (before): `niche → hash hero slot → pixel gate → insert`.  
+Target: `niche → page → **which block?** → what user expects → pick → **meaning check** → insert`.
+
+**Acceptance (R3.2):** multi-niche sweep — Auto · Beauty · Law · Restaurant · Green · Computer · Dental · Handwerk.  
+Off-topic hero in any niche = **FAIL**. Same Owner Visibility Rule.
+
+Evidence baseline: `_audit_niche_sweep/` + canvas `niche-semantic-sweep`.  
+Module: `dashboard/backend/app/factory/media_gate.py`.
+
+### Section-Aware Content Gate (R3.3 — definition)
+
+Same idea for **copy**: no generic «Beratung / Umsetzung / Support» when niche has real services.  
+Each section text must pass niche relevance — or FAIL quality gate.
+
+### Frozen until later slices
+
+Global Market · Client Portal · Premium Visual Style picker · full Semantic Content Engine.
 
 ## Mission 2 — CLOSED
 
@@ -93,5 +164,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 
 ## After validation
 
-When several real orders exist, open **Mission 3** (and later stages) from **evidence** —  
-not from a feature wishlist.
+Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
+Mission 3 opened on **owner-visibility evidence** (Premium Test FAIL → Premium Visual).  
+After R3.1 PASS → R3.2 Media Gate → R3.3 Content Gate → market → portal.  
+Later stages still wait on market proof where noted.
