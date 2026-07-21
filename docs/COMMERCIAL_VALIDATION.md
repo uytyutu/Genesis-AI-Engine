@@ -26,14 +26,21 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 
 | Slice | Theme | Status |
 |-------|--------|--------|
-| **R3.1** | **Premium Visual System** | **≈ READY — CEO Premium Test** |
-| **R3.2** | **Section-Aware Media Gate** | **AWAITING CEO LIVE SWEEP** |
-| **R3.3** | **Section-Aware Content Gate** | After R3.2 |
+| **R3.1** | **Premium Visual System** | **✅ PASS** (CEO 2026-07-22) |
+| **R3.2** | **Section-Aware Media Gate** | **✅ PASS** (CEO 2026-07-22) |
+| **R3.2.1** | **UX Polish** (back-to-top · overflow) | **✅ PASS** (CEO 2026-07-22) |
+| **R3.3** | **Section-Aware Content Gate** | **NEXT** |
 | R3.4 | Global Market Experience | After R3.3 |
 | R3.5 | Client Portal Foundation | After R3.4 |
 
-**Not now:** full «Semantic Content Engine» · new LLM stack · CRM · Dashboard · particles.  
-**Horizon (Premium, later):** Visual Style at order (Classic White / Soft Gradient / AI bg / upload) — not R3.2.
+**Not now:** full «Semantic Content Engine» · new LLM stack · CRM · Dashboard · particles.
+
+**Backlog (tech debt — not bugs, not R3.2 blockers):**
+- Restaurant Showcase Pack (dedicated stills; generic food-retail OK for now)
+- Gallery Pack Expansion (Business/Premium section media)
+- Contact Visual Pack (facade / entrance / reception)
+- Premium Background Styles (Classic White / Soft Gradient / AI bg / upload at order)
+- UX Polish → **R3.2.1 ✅ PASS**
 
 ### Owner Visibility Rule (binding)
 
@@ -44,7 +51,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 Show **Basic / Business / Premium** with **no names and no prices**. Ask: *Which is the most expensive?*  
 PASS = ≥ **8 / 10** pick Premium immediately.
 
-**2026-07-21 before:** FAIL. **After Premium Visual:** agent + CEO feedback ≈ 8–8.5/10 — **CEO closes R3.1**.  
+**2026-07-21 before:** FAIL. **After Premium Visual:** agent + CEO ≈ 8–8.5/10.  
+**2026-07-22 CEO:** **R3.1 = PASS ✅**  
 Evidence: `_audit_visual_dental_r31/sandbox/compare-3sec.html` (:8767).
 
 ### Section-Aware Media Gate (R3.2 — definition)
@@ -81,17 +89,53 @@ Evidence baseline: `_audit_niche_sweep/` + canvas `niche-semantic-sweep`.
 Module: `dashboard/backend/app/factory/media_gate.py`.
 
 **Live sweep 2026-07-21 (agent):** `_audit_media_gate_r32/` · `http://127.0.0.1:8769/`  
-8/8 niches correct ID · media_gate_ok · Hero visual check (agent): Auto/Beauty/Law/Green/Computer/Dental/Handwerk clear PASS; Restaurant uses generic food-retail pack (acceptable, not florist/wrong-niche). Gallery N/A on Business (no client photos).  
-**R3.2 PASS = CEO confirms after opening the sweep — not tests alone.**
+8/8 niches correct ID · media_gate_ok · Beauty/Computer/Green no longer wrong-niche heroes.  
+**Non-blockers (CEO):** Gallery/Contact N/A on Business = package expansion, not Media Gate. Restaurant generic food-retail OK until Showcase Pack.  
+**2026-07-22 CEO:** **R3.2 = PASS ✅**
 
-### Section-Aware Content Gate (R3.3 — definition)
+### Section-Aware Content Gate (R3.3 — NEXT)
 
-Same idea for **copy**: no generic «Beratung / Umsetzung / Support» when niche has real services.  
-Each section text must pass niche relevance — or FAIL quality gate.
+Same principle as Media Gate, applied to **copy** — no LLM mega-engine.
+
+**Question Media Gate answers:** «Подходит ли изображение этому разделу?»  
+**Question Content Gate answers:** «Подходит ли этот текст этому разделу и этой нише?»
+
+**Principles (binding):** no LLM · rule-based · predictable · check before publish · PASS/FAIL (not «guess»).
+
+**Publish path:**
+```
+Compose → Quality Gate → Media Gate → Content Gate → Compliance → Publish
+```
+
+**Goal:** do not publish illogical / generic text for a niche.
+
+| Check | Expectation | Fail → |
+|-------|-------------|--------|
+| Services | Real niche services — not «Beratung / Umsetzung / Support» when niche has specific work | rewrite / FAIL |
+| Hero | Speaks the language of the industry | rewrite / FAIL |
+| About / Benefits | Niche-appropriate claims | rewrite / FAIL |
+
+```
+niche + section → expected copy shape → text tags / rules → PASS / FAIL
+```
+
+**Acceptance:** same 8-niche sweep as R3.2 — off-topic or generic services copy = FAIL.
+
+### R3.2.1 — UX Polish (small, not a mission)
+
+**2026-07-22 CEO:** **R3.2.1 = PASS ✅**
+
+- Remove needless nested page-scroll shells (`overflow-x: clip`, prefer window scroll)
+- Back-to-top: **Basic** none · **Business** simple round · **Premium** dark + hover lift
+- Appear after ~480px · smooth scroll · `prefers-reduced-motion` · mobile safe-area
+- Module: `app/factory/ux_polish.py` + `assets/ux_polish.js`
+
+Does not change architecture.
 
 ### Frozen until later slices
 
-Global Market · Client Portal · Premium Visual Style picker · full Semantic Content Engine.
+Global Market · Client Portal · full Semantic Content Engine.  
+Premium Background Styles + Restaurant/Gallery/Contact packs = backlog above.
 
 ## Mission 2 — CLOSED
 
@@ -170,5 +214,5 @@ _(none yet — first real traffic / payment opens Entry 1)_
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
 Mission 3 opened on **owner-visibility evidence** (Premium Test FAIL → Premium Visual).  
-After R3.1 PASS → R3.2 Media Gate → R3.3 Content Gate → market → portal.  
+R3.1 ✅ · R3.2 ✅ · R3.2.1 ✅ · **NEXT = R3.3 Content Gate** → market → portal.  
 Later stages still wait on market proof where noted.

@@ -306,6 +306,11 @@ def build_landing_html(
         ('  <script src="assets/reveal.js" defer></script>\n' if css_motion else "")
         + ('  <script src="assets/catalog.js" defer></script>\n' if catalog else "")
     )
+    from app.factory.ux_polish import back_to_top_html, back_to_top_script_tag
+
+    btt_label = str(ui.get("back_to_top") or "Nach oben")
+    motion_script = motion_script + back_to_top_script_tag(tier)
+    back_to_top_block = back_to_top_html(tier, label=btt_label)
     seo_extra = build_seo_localization(
         profile=market_design,
         page_title=page_title,
@@ -362,6 +367,9 @@ def build_landing_html(
         hero_photo=hero_photo,
     )
     css = css + "\n" + hero_comp.css
+    from app.factory.ux_polish import ux_polish_css
+
+    css = css + "\n" + ux_polish_css(tier)
     hero_html = hero_comp.html
     if css_motion:
         hero_html = hero_html.replace('class="hero ', 'class="hero hero-parallax ', 1)
@@ -613,7 +621,7 @@ def build_landing_html(
 {css}
   </style>
 </head>
-<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-layout-profile="{layout_attr}" data-footer-variant="{footer_attr}" data-cta-strategy="{esc(layout_profile.cta_strategy)}" data-market="{market_attr}" data-density="{density_attr}" data-motion="{motion_attr}" data-trust-template="{trust_attr}" data-media-bg="{media_bg_attr}">
+<body id="top" data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-layout-profile="{layout_attr}" data-footer-variant="{footer_attr}" data-cta-strategy="{esc(layout_profile.cta_strategy)}" data-market="{market_attr}" data-density="{density_attr}" data-motion="{motion_attr}" data-trust-template="{trust_attr}" data-media-bg="{media_bg_attr}">
   <nav class="topbar" aria-label="Navigation">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
@@ -624,7 +632,7 @@ def build_landing_html(
 {hero_html}
 {body_html}
   {footer_html}
-{motion_script}</body>
+{back_to_top_block}{motion_script}</body>
 </html>
 """
     lower = html.lower()

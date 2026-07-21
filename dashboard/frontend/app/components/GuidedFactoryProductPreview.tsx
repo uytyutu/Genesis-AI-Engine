@@ -49,6 +49,8 @@ export function GuidedFactoryProductPreview({ state, loading, error }: Props) {
         src={previewUrl}
         className="min-h-[min(52dvh,28rem)] w-full flex-1 border-0 bg-white"
         sandbox="allow-same-origin allow-scripts"
+        // R3.2.1 — single scroll surface: iframe only (parent already overflow-hidden)
+        scrolling="yes"
       />
     </SpringIn>
   );

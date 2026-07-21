@@ -57,6 +57,7 @@ class FactoryService:
         from app.factory.market_delivery import normalize_market
         from app.factory.motion_brief import gate_motion_level, normalize_motion_level
         from app.factory.css_motion import write_motion_assets
+        from app.factory.ux_polish import write_ux_polish_assets
 
         product_id = intent_id or str(uuid.uuid4())
         analysis = analyze(description)
@@ -106,6 +107,7 @@ class FactoryService:
             )
         if motion == "css":
             write_motion_assets(product_dir)
+        write_ux_polish_assets(product_dir)
         from app.factory.hero_still import write_hero_asset
 
         write_hero_asset(product_dir, analysis.niche, features.package_id)
@@ -310,6 +312,9 @@ class FactoryService:
                 "app.factory.hero_still", fromlist=["write_hero_asset"]
             ).write_hero_asset
             write_hero_asset(product_dir, str(meta.get("niche") or analysis.niche), package_id)
+            from app.factory.ux_polish import write_ux_polish_assets
+
+            write_ux_polish_assets(product_dir)
             if catalog_view is not None:
                 write_catalog_assets(product_dir, catalog_view)
             pack_manifest: dict = {}
