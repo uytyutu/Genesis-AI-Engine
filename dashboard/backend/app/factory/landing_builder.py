@@ -8,6 +8,12 @@ from dataclasses import dataclass
 
 from app.factory.analyzer import AnalysisResult
 from app.factory.catalog_manager import CatalogView
+from app.factory.component_composer import (
+    button_class_for_profile,
+    compose_page_sections,
+    get_component_profile,
+    select_component_profile,
+)
 from app.factory.hero_composer import compose_hero, select_hero_layout
 from app.factory.landing_tier_css import tier_stylesheet
 from app.factory.niche_profiles import niche_style_extra_css, resolve_niche_profile
@@ -135,12 +141,6 @@ def build_landing_html(
     email = esc(analysis.email)
     hours = esc(analysis.hours)
     city_esc = esc(city) if city else ""
-
-    services_html = "".join(
-        f'<li class="service-card"><h3>{esc(title)}</h3><p class="service-desc">{esc(desc)}</p></li>'
-        for title, desc in zip(analysis.services, descriptions)
-    )
-    benefits_html = "".join(f"<li>{esc(b)}</li>" for b in analysis.benefits)
     cert_html = "".join(f'<span class="cert-badge">{esc(t)}</span>' for t in analysis.trust_points)
 
     from app.factory.motion_brief import normalize_motion_level
@@ -151,14 +151,27 @@ def build_landing_html(
         h1_class = ' class="hero-text large hero-anim"' if large_headline else ' class="hero-text hero-anim"'
         hero_p_class = ' class="lead hero-text hero-text-delay hero-anim hero-anim-d1"'
         trust_class = ' class="trust-row hero-text hero-text-delay-2 hero-anim hero-anim-d2"'
-        btn_class = "btn cta-button"
         sec = "section reveal"
     else:
         h1_class = ' class="large hero-anim"' if large_headline else ' class="hero-anim"'
         hero_p_class = ' class="lead hero-anim hero-anim-d1"'
         trust_class = ' class="trust-row hero-anim hero-anim-d2"'
-        btn_class = "btn"
         sec = "section"
+
+    niche_profile = resolve_niche_profile(analysis.niche)
+    hero_layout_id = select_hero_layout(
+        niche_id=niche_profile.niche_id,
+        business_name=analysis.business_name,
+        package_id=tier,
+    )
+    comp_profile_id = select_component_profile(
+        hero_layout=hero_layout_id,
+        business_name=analysis.business_name,
+        package_id=tier,
+        niche_id=niche_profile.niche_id,
+    )
+    comp_profile = get_component_profile(comp_profile_id)
+    btn_class = button_class_for_profile(comp_profile, css_motion=css_motion)
 
     page_title = f"{analysis.business_name} — {analysis.subtitle[:60]}"
     meta_desc = esc(analysis.subtitle[:160])
@@ -237,12 +250,6 @@ def build_landing_html(
     )
 
     catalog_block = _catalog_section(catalog, ui, section_class=sec) if catalog else ""
-    services_block = f"""
-  <section class="{sec}" id="services">
-    <h2>{esc(ui['services'])}</h2>
-    <ul class="services">{services_html}</ul>
-  </section>
-"""
     motion_script = (
         ('  <script src="assets/reveal.js" defer></script>\n' if css_motion else "")
         + ('  <script src="assets/catalog.js" defer></script>\n' if catalog else "")
@@ -292,7 +299,6 @@ def build_landing_html(
 
     why_title = esc(ui["why"].format(business=analysis.business_name))
     css = tier_stylesheet(tier, style)
-    niche_profile = resolve_niche_profile(analysis.niche)
     css = css + "\n" + niche_style_extra_css(niche_profile)
     if hero_pack_manifest:
         from app.factory.hero_pack import pack_section_css
@@ -303,11 +309,6 @@ def build_landing_html(
     if brand_pack is not None:
         css = css + "\n" + brand_style_extra_css(brand_pack)
 
-    hero_layout_id = select_hero_layout(
-        niche_id=niche_profile.niche_id,
-        business_name=analysis.business_name,
-        package_id=tier,
-    )
     hero_comp = compose_hero(
         layout_id=hero_layout_id,
         business_name=analysis.business_name,
@@ -326,9 +327,28 @@ def build_landing_html(
     )
     css = css + "\n" + hero_comp.css
 
+    gallery_paths = [p for p in (client_gallery or []) if p]
+    page_sections = compose_page_sections(
+        profile_id=comp_profile_id,
+        analysis_services=analysis.services,
+        service_descriptions=descriptions,
+        benefits=analysis.benefits,
+        ui=ui,
+        business_name=analysis.business_name,
+        why_title=why_title,
+        section_class=sec,
+        btn_class=btn_class,
+        include_faq=bool(feat.faq),
+        include_reviews=bool(include_testimonials),
+        include_mid_cta=bool(feat.mid_cta),
+        gallery_paths=gallery_paths,
+    )
+    css = css + "\n" + page_sections.css
+
     brand_attr = esc(brand_pack.id if brand_pack else "auto")
     niche_attr = esc(niche_profile.niche_id)
     hero_attr = esc(hero_comp.layout_id)
+    comp_attr = esc(page_sections.profile_id)
 
     trust_strip = ""
     if feat.trust_bar:
@@ -346,15 +366,6 @@ def build_landing_html(
         if bits:
             info_bar = f'<div class="info-bar">{"".join(bits)}</div>'
 
-    mid_cta = ""
-    if feat.mid_cta:
-        mid_cta = f"""
-  <section class="mid-cta" id="mid-cta">
-    <h2>{esc(ui['mid_cta_title'])}</h2>
-    <a class="{btn_class}" href="#contact">{esc(ui['mid_cta_btn'])}</a>
-  </section>
-"""
-
     process_block = ""
     if feat.process:
         process_block = f"""
@@ -366,19 +377,6 @@ def build_landing_html(
       <article class="process-card"><div class="n">3</div><h3>{esc(ui['process_s3_title'])}</h3><p class="muted">{esc(ui['process_s3_desc'])}</p></article>
     </div>
     <div class="cert-row">{cert_html}</div>
-  </section>
-"""
-
-    faq_block = ""
-    if feat.faq:
-        faq_block = f"""
-  <section class="{sec}" id="faq">
-    <h2>{esc(ui['faq_title'])}</h2>
-    <div class="faq-list">
-      <article class="faq-item"><h3>{esc(ui['faq_q1'])}</h3><p>{esc(ui['faq_a1'])}</p></article>
-      <article class="faq-item"><h3>{esc(ui['faq_q2'])}</h3><p>{esc(ui['faq_a2'])}</p></article>
-      <article class="faq-item"><h3>{esc(ui['faq_q3'])}</h3><p>{esc(ui['faq_a3'])}</p></article>
-    </div>
   </section>
 """
 
@@ -406,22 +404,6 @@ def build_landing_html(
   </section>
 """
 
-    gallery_block = ""
-    gallery_paths = [p for p in (client_gallery or []) if p]
-    if gallery_paths:
-        figs = "\n".join(
-            f'      <figure class="client-photo"><img src="{esc(p)}" alt="{business}" loading="lazy"></figure>'
-            for p in gallery_paths
-        )
-        gallery_block = f"""
-  <section class="{sec} client-gallery" id="gallery">
-    <h2>{esc(ui.get('gallery_title') or 'Galerie')}</h2>
-    <p class="muted">{esc(ui.get('gallery_muted') or '')}</p>
-    <div class="client-gallery-grid">
-{figs}
-    </div>
-  </section>
-"""
     gallery_nav = (
         f' <a href="#gallery">{esc(ui.get("gallery_title") or "Galerie")}</a>'
         if gallery_paths
@@ -442,7 +424,7 @@ def build_landing_html(
 {css}
   </style>
 </head>
-<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}">
+<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}">
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
@@ -454,22 +436,19 @@ def build_landing_html(
   {info_bar}
   {stats_block}
   {catalog_block}
-  {services_block}
-  {mid_cta}
-  <section class="{sec} benefits">
-    <h2>{why_title}</h2>
-    <ul>{benefits_html}</ul>
-  </section>
+{page_sections.services_html}
+{page_sections.mid_cta_html}
+{page_sections.benefits_html}
   {process_block}
   {showcase_block}
-  {gallery_block}
+{page_sections.gallery_html}
   <section class="{sec} about">
     <h2>{esc(ui['about'])}</h2>
     <p>{about}</p>
   </section>
-  {faq_block}
+{page_sections.faq_html}
   {calc_block}
-  {_testimonials_section(include_testimonials, ui, section_class=sec)}
+{page_sections.reviews_html}
   {maps_block}
   <section class="{sec}" id="contact">
     <h2>{esc(ui['contact'])}</h2>

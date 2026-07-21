@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.factory.analyzer import analyze
+from app.factory.component_composer import select_component_profile
 from app.factory.hero_composer import select_hero_layout
 from app.factory.landing_patcher import try_patch
 from app.factory.landing_builder import build_landing_html
@@ -167,6 +168,18 @@ class FactoryService:
             product_dir, legal_info, market_code=market
         )
 
+        hero_layout = select_hero_layout(
+            niche_id=analysis.niche,
+            business_name=analysis.business_name,
+            package_id=features.package_id,
+        )
+        component_profile = select_component_profile(
+            hero_layout=hero_layout,
+            business_name=analysis.business_name,
+            package_id=features.package_id,
+            niche_id=analysis.niche,
+        )
+
         meta = {
             "product_id": product_id,
             "intent_id": intent_id,
@@ -177,11 +190,8 @@ class FactoryService:
             "business_name": analysis.business_name,
             "market_code": market,
             "motion_level": motion,
-            "hero_layout": select_hero_layout(
-                niche_id=analysis.niche,
-                business_name=analysis.business_name,
-                package_id=features.package_id,
-            ),
+            "hero_layout": hero_layout,
+            "component_profile": component_profile,
             "status": "completed",
             "quality_percent": validation.quality_percent,
             "validation_passed": validation.passed,
@@ -623,6 +633,7 @@ class FactoryService:
             "template_id": meta.get("template_id", ""),
             "motion_level": meta.get("motion_level", "none"),
             "hero_layout": meta.get("hero_layout"),
+            "component_profile": meta.get("component_profile"),
             "created_at": meta.get("created_at", ""),
             "updated_at": meta.get("updated_at", ""),
             "preview_url": f"/api/factory/products/{pid}/preview",
