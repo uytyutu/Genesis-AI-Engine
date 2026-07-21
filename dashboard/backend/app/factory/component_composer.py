@@ -137,6 +137,7 @@ def compose_page_sections(
     include_reviews: bool,
     include_mid_cta: bool,
     gallery_paths: list[str],
+    client_reviews: tuple[tuple[str, str], ...] | list[tuple[str, str]] | None = None,
 ) -> ComposedSections:
     profile = get_component_profile(profile_id)
     esc = html_lib.escape
@@ -156,7 +157,9 @@ def compose_page_sections(
         else ""
     )
     reviews_html = (
-        _REVIEW_RENDERERS[profile.reviews](ui, sec) if include_reviews else ""
+        _REVIEW_RENDERERS[profile.reviews](ui, sec, client_reviews or ())
+        if include_reviews and client_reviews
+        else ""
     )
     mid_cta_html = (
         _CTA_RENDERERS[profile.cta](ui, btn_class, sec) if include_mid_cta else ""
@@ -351,47 +354,69 @@ _FAQ_RENDERERS: dict[str, Callable[..., str]] = {
 }
 
 
-def _reviews_float(ui: dict[str, str], sec: str) -> str:
+def _reviews_float(
+    ui: dict[str, str],
+    sec: str,
+    client_reviews: tuple[tuple[str, str], ...] | list[tuple[str, str]],
+) -> str:
     esc = html_lib.escape
+    floats = ("rev-float-a", "rev-float-b", "rev-float-c")
+    cards = "".join(
+        f'<blockquote class="rev-card {floats[i % 3]}">'
+        f"<p>{esc(quote)}</p><cite>{esc(cite)}</cite></blockquote>"
+        for i, (quote, cite) in enumerate(client_reviews)
+    )
     return f"""
   <section class="{sec} testimonials" id="testimonials" data-comp-family="reviews" data-comp-variant="float">
     <h2>{esc(ui['reviews'])}</h2>
-    <p class="muted">{esc(ui['reviews_muted'])}</p>
+    <p class="muted">{esc(ui.get('reviews_muted') or '')}</p>
     <div class="rev-float">
-      <blockquote class="rev-card rev-float-a"><p>{esc(ui['t1'])}</p><cite>{esc(ui['t1_cite'])}</cite></blockquote>
-      <blockquote class="rev-card rev-float-b"><p>{esc(ui['t2'])}</p><cite>{esc(ui['t2_cite'])}</cite></blockquote>
-      <blockquote class="rev-card rev-float-c"><p>{esc(ui['t3'])}</p><cite>{esc(ui['t3_cite'])}</cite></blockquote>
+{cards}
     </div>
   </section>
 """
 
 
-def _reviews_quote(ui: dict[str, str], sec: str) -> str:
+def _reviews_quote(
+    ui: dict[str, str],
+    sec: str,
+    client_reviews: tuple[tuple[str, str], ...] | list[tuple[str, str]],
+) -> str:
     esc = html_lib.escape
+    cards = "".join(
+        '<blockquote class="rev-quote"><span class="rev-mark" aria-hidden="true">"</span>'
+        f"<p>{esc(quote)}</p><cite>{esc(cite)}</cite></blockquote>"
+        for quote, cite in client_reviews
+    )
     return f"""
   <section class="{sec} testimonials" id="testimonials" data-comp-family="reviews" data-comp-variant="quote">
     <h2>{esc(ui['reviews'])}</h2>
-    <p class="muted">{esc(ui['reviews_muted'])}</p>
+    <p class="muted">{esc(ui.get('reviews_muted') or '')}</p>
     <div class="rev-quotes">
-      <blockquote class="rev-quote"><span class="rev-mark" aria-hidden="true">“</span><p>{esc(ui['t1'])}</p><cite>{esc(ui['t1_cite'])}</cite></blockquote>
-      <blockquote class="rev-quote"><span class="rev-mark" aria-hidden="true">“</span><p>{esc(ui['t2'])}</p><cite>{esc(ui['t2_cite'])}</cite></blockquote>
-      <blockquote class="rev-quote"><span class="rev-mark" aria-hidden="true">“</span><p>{esc(ui['t3'])}</p><cite>{esc(ui['t3_cite'])}</cite></blockquote>
+{cards}
     </div>
   </section>
 """
 
 
-def _reviews_rating(ui: dict[str, str], sec: str) -> str:
+def _reviews_rating(
+    ui: dict[str, str],
+    sec: str,
+    client_reviews: tuple[tuple[str, str], ...] | list[tuple[str, str]],
+) -> str:
     esc = html_lib.escape
-    stars = '<span class="rev-stars" aria-hidden="true">★★★★★</span>'
+    stars = '<span class="rev-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>'
+    cards = "".join(
+        f'<blockquote class="rev-rate">{stars}<p>{esc(quote)}</p>'
+        f"<cite>{esc(cite)}</cite></blockquote>"
+        for quote, cite in client_reviews
+    )
     return f"""
   <section class="{sec} testimonials" id="testimonials" data-comp-family="reviews" data-comp-variant="rating">
     <h2>{esc(ui['reviews'])}</h2>
-    <p class="muted">{esc(ui['reviews_muted'])}</p>
+    <p class="muted">{esc(ui.get('reviews_muted') or '')}</p>
     <div class="rev-rating-grid">
-      <blockquote class="rev-rate">{stars}<p>{esc(ui['t1'])}</p><cite>{esc(ui['t1_cite'])}</cite></blockquote>
-      <blockquote class="rev-rate">{stars}<p>{esc(ui['t2'])}</p><cite>{esc(ui['t2_cite'])}</cite></blockquote>
-      <blockquote class="rev-rate">{stars}<p>{esc(ui['t3'])}</p><cite>{esc(ui['t3_cite'])}</cite></blockquote>
+{cards}
     </div>
   </section>
 """

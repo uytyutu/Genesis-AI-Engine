@@ -1,5 +1,9 @@
 """Factory Quality Gate — commercial deliverable must PASS before client ZIP.
 
+## Factory Contract (binding)
+Factory must not emit a client ZIP if any mandatory contract fails:
+  Design · Localization · SEO · Accessibility · Performance · Brand
+
 Categories: design · localization · SEO · accessibility · performance · brand.
 Registry of checks — extend without rewriting pack/build flow.
 """

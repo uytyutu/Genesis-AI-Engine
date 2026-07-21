@@ -72,7 +72,7 @@ def compose_hero(
     trust_html = "".join(f'<span class="trust-pill">{esc(t)}</span>' for t in trust_points)
     adv = list(benefits)[:3]
     adv_html = "".join(f"<li>{esc(b)}</li>" for b in adv)
-    kpi = _kpi_html(ui)
+    kpi = _kpi_html(ui) if (ui.get("stats_v1") or "").strip() else ""
     photo = " has-photo" if hero_photo else ""
     img = (
         f'<img src="assets/hero.jpg" alt="{esc(business_name)}" '
@@ -161,12 +161,12 @@ def _layout_b(**kw: str) -> tuple[str, bool]:
           <a class="{kw['btn_class']} hero-B-cta" href="#contact">{kw['cta']}</a>{kw['hero_cta_extra']}
         </div>
       </div>
-      <aside class="hero-B-kpis" aria-label="stats">{kw['kpi']}</aside>
+      {('<aside class="hero-B-kpis" aria-label="stats">' + kw["kpi"] + "</aside>") if kw.get("kpi") else ""}
     </div>
     <div class="hero-B-band" aria-hidden="true"></div>
   </header>
 """
-    return html, True
+    return html, bool(kw.get("kpi"))
 
 
 def _layout_c(**kw: str) -> tuple[str, bool]:
@@ -202,10 +202,10 @@ def _layout_d(**kw: str) -> tuple[str, bool]:
         <a class="{kw['btn_class']}" href="#contact">{kw['cta']}</a>{kw['hero_cta_extra']}
       </div>
     </div>
-    <aside class="hero-D-float" aria-label="stats">{kw['kpi']}</aside>
+    {('<aside class="hero-D-float" aria-label="stats">' + kw["kpi"] + "</aside>") if kw.get("kpi") else ""}
   </header>
 """
-    return html, True
+    return html, bool(kw.get("kpi"))
 
 
 def _layout_e(**kw: str) -> tuple[str, bool]:
@@ -246,11 +246,11 @@ def _layout_f(**kw: str) -> tuple[str, bool]:
           <a class="{kw['btn_class']}" href="#contact">{kw['cta']}</a>{kw['hero_cta_extra']}
         </div>
       </div>
-      <div class="hero-F-rail" aria-label="stats">{kw['kpi']}</div>
+      {('<div class="hero-F-rail" aria-label="stats">' + kw["kpi"] + "</div>") if kw.get("kpi") else ""}
     </div>
   </header>
 """
-    return html, True
+    return html, bool(kw.get("kpi"))
 
 
 def _layout_css(layout_id: str) -> str:

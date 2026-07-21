@@ -30,6 +30,11 @@ from app.factory.package_features import (
     resolve_package_features,
     whatsapp_href,
 )
+from app.factory.trust_composer import (
+    collect_trust_evidence,
+    compose_trust_section,
+    select_trust_template,
+)
 
 
 @dataclass
@@ -94,6 +99,7 @@ def build_landing_html(
     client_logo_src: str = "assets/logo.png",
     client_gallery: list[str] | None = None,
     brand_style: str | None = None,
+    client_trust: dict | None = None,
 ) -> str:
     from app.factory.landing_i18n import (
         apply_legal_footer_hrefs,
@@ -122,6 +128,26 @@ def build_landing_html(
         html_lang = market_design.html_lang
     ui = apply_legal_footer_hrefs(ui_strings(lang), market_code)
     ui["form_phone_ph"] = market_design.phone_placeholder
+    # Real client stats only — never invent 12+/800+ for deliverables.
+    trust_payload = client_trust if isinstance(client_trust, dict) else {}
+    client_stats = trust_payload.get("stats")
+    if isinstance(client_stats, (list, tuple)) and client_stats:
+        for i, row in enumerate(client_stats[:3], start=1):
+            if isinstance(row, dict):
+                if row.get("value") is not None:
+                    ui[f"stats_v{i}"] = str(row.get("value"))
+                if row.get("label") is not None:
+                    ui[f"stats_n{i}"] = str(row.get("label"))
+    else:
+        ui = {
+            **ui,
+            "stats_v1": "",
+            "stats_v2": "",
+            "stats_v3": "",
+            "stats_n1": "",
+            "stats_n2": "",
+            "stats_n3": "",
+        }
     analysis = localize_analysis(analysis, lang)
     maps_country = maps_country_label(market_code)
 
@@ -248,13 +274,8 @@ def build_landing_html(
             f'{esc(ui["whatsapp"])}</a>'
         )
     if include_testimonials:
-        rev_btn = f"{btn_class} btn-reviews" if css_motion else "btn btn-reviews"
-        hero_cta_extra += (
-            f' <a class="{rev_btn}" href="#testimonials">{esc(ui["reviews"])}</a>'
-        )
-    reviews_nav = (
-        f' <a href="#testimonials">{esc(ui["reviews"])}</a>' if include_testimonials else ""
-    )
+        pass  # Real review CTAs added only after TrustEvidence confirms client reviews
+    reviews_nav = ""
     maps_nav = f' <a href="#maps">{esc(ui["maps"])}</a>' if feat.maps else ""
     catalog_nav = (
         f' <a href="#catalog">{esc(ui["catalog_nav"])}</a>' if catalog else ""
@@ -326,6 +347,49 @@ def build_landing_html(
         hero_html = hero_html.replace('class="hero ', 'class="hero hero-parallax ', 1)
 
     gallery_paths = [p for p in (client_gallery or []) if p]
+    trust_evidence = collect_trust_evidence(
+        client_trust=trust_payload,
+        commitments=analysis.trust_points,
+        portfolio_paths=gallery_paths,
+        has_maps=bool(feat.maps),
+        has_process=bool(feat.process),
+    )
+    trust_template_id = select_trust_template(
+        niche_id=niche_profile.niche_id,
+        market_code=market_design.market_id,
+        business_name=analysis.business_name,
+        package_id=tier,
+        evidence=trust_evidence,
+    )
+    # Fabricated testimonial quotes are forbidden — only client-supplied reviews.
+    real_reviews = bool(trust_evidence.reviews)
+    if real_reviews:
+        reviews_nav = f' <a href="#testimonials">{esc(ui["reviews"])}</a>'
+        rev_btn = f"{btn_class} btn-reviews" if css_motion else "btn btn-reviews"
+        hero_cta_extra += (
+            f' <a class="{rev_btn}" href="#testimonials">{esc(ui["reviews"])}</a>'
+        )
+        # Re-compose hero so CTA includes real review link
+        hero_comp = compose_hero(
+            layout_id=hero_layout_id,
+            business_name=analysis.business_name,
+            headline=headline,
+            subtitle=subtitle,
+            cta_label=cta,
+            trust_points=analysis.trust_points,
+            benefits=analysis.benefits,
+            hero_cta_extra=hero_cta_extra,
+            h1_class=h1_class,
+            hero_p_class=hero_p_class,
+            trust_class=trust_class,
+            btn_class=btn_class,
+            ui=ui,
+            hero_photo=hero_photo,
+        )
+        hero_html = hero_comp.html
+        if css_motion:
+            hero_html = hero_html.replace('class="hero ', 'class="hero hero-parallax ', 1)
+
     page_sections = compose_page_sections(
         profile_id=comp_profile_id,
         analysis_services=analysis.services,
@@ -337,11 +401,34 @@ def build_landing_html(
         section_class=sec,
         btn_class=btn_class,
         include_faq=bool(feat.faq),
-        include_reviews=bool(include_testimonials),
+        include_reviews=bool(include_testimonials and real_reviews),
         include_mid_cta=bool(feat.mid_cta),
         gallery_paths=gallery_paths,
+        client_reviews=trust_evidence.reviews if real_reviews else (),
     )
     css = css + "\n" + page_sections.css
+
+    process_inner = ""
+    if feat.process:
+        process_inner = f"""
+        <h3>{esc(ui['process_title'])}</h3>
+        <div class="process-grid">
+          <article class="process-card"><div class="n">1</div><h3>{esc(ui['process_s1_title'])}</h3><p class="muted">{esc(ui['process_s1_desc'])}</p></article>
+          <article class="process-card"><div class="n">2</div><h3>{esc(ui['process_s2_title'])}</h3><p class="muted">{esc(ui['process_s2_desc'])}</p></article>
+          <article class="process-card"><div class="n">3</div><h3>{esc(ui['process_s3_title'])}</h3><p class="muted">{esc(ui['process_s3_desc'])}</p></article>
+        </div>
+"""
+    trust_comp = compose_trust_section(
+        template_id=trust_template_id,
+        evidence=trust_evidence,
+        niche_id=niche_profile.niche_id,
+        market_code=market_design.market_id,
+        ui=ui,
+        business_name=analysis.business_name,
+        section_class=sec,
+        process_html=process_inner,
+    )
+    css = css + "\n" + trust_comp.css
 
     brand_attr = esc(brand_pack.id if brand_pack else "auto")
     niche_attr = esc(niche_profile.niche_id)
@@ -350,6 +437,7 @@ def build_landing_html(
     motion_attr = "css" if css_motion else "none"
     market_attr = esc(market_design.market_id)
     density_attr = esc(market_design.density)
+    trust_attr = esc(trust_comp.template_id)
 
     trust_strip = ""
     if feat.trust_bar:
@@ -368,7 +456,7 @@ def build_landing_html(
             info_bar = f'<div class="info-bar">{"".join(bits)}</div>'
 
     process_block = ""
-    if feat.process:
+    if feat.process and "process" not in trust_comp.blocks_used:
         process_block = f"""
   <section class="{sec}" id="process">
     <h2>{esc(ui['process_title'])}</h2>
@@ -377,12 +465,11 @@ def build_landing_html(
       <article class="process-card"><div class="n">2</div><h3>{esc(ui['process_s2_title'])}</h3><p class="muted">{esc(ui['process_s2_desc'])}</p></article>
       <article class="process-card"><div class="n">3</div><h3>{esc(ui['process_s3_title'])}</h3><p class="muted">{esc(ui['process_s3_desc'])}</p></article>
     </div>
-    <div class="cert-row">{cert_html}</div>
   </section>
 """
 
     stats_block = ""
-    if feat.stats_strip and not hero_comp.embeds_stats:
+    if feat.stats_strip and not hero_comp.embeds_stats and (ui.get("stats_v1") or "").strip():
         stats_cls = "stats reveal" if css_motion else "stats"
         stats_block = f"""
   <section class="{stats_cls}" id="stats" aria-label="stats">
@@ -411,6 +498,11 @@ def build_landing_html(
         if gallery_paths
         else ""
     )
+    trust_nav = (
+        f' <a href="#trust">{esc(ui.get("trust_section_title") or ui.get("trust_bar") or "Trust")}</a>'
+        if trust_comp.html
+        else ""
+    )
 
     html = f"""<!DOCTYPE html>
 <html lang="{esc(html_lang)}">
@@ -426,11 +518,11 @@ def build_landing_html(
 {css}
   </style>
 </head>
-<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-market="{market_attr}" data-density="{density_attr}" data-motion="{motion_attr}">
+<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-market="{market_attr}" data-density="{density_attr}" data-motion="{motion_attr}" data-trust-template="{trust_attr}">
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
-      {catalog_nav}{maps_nav}{gallery_nav}{reviews_nav}<a href="#contact">{cta}</a>
+      {catalog_nav}{maps_nav}{gallery_nav}{trust_nav}{reviews_nav}<a href="#contact">{cta}</a>
     </div>
   </nav>
   {trust_strip}
@@ -441,6 +533,7 @@ def build_landing_html(
 {page_sections.services_html}
 {page_sections.mid_cta_html}
 {page_sections.benefits_html}
+{trust_comp.html}
   {process_block}
   {showcase_block}
 {page_sections.gallery_html}

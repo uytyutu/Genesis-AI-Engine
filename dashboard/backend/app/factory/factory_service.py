@@ -18,6 +18,7 @@ from app.factory.landing_patcher import try_patch
 from app.factory.landing_builder import build_landing_html
 from app.factory.client_legal_pages import ClientLegalInfo, write_client_legal_pages
 from app.factory.market_design import resolve_market_design
+from app.factory.trust_composer import collect_trust_evidence, select_trust_template
 from app.factory.validator import owner_review_check, validate_landing
 
 _BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -142,6 +143,7 @@ class FactoryService:
             client_gallery=client_assets.gallery,
             hero_photo=True,
             brand_style=brand_style_id,
+            client_trust=contacts.get("trust") if isinstance(contacts.get("trust"), dict) else None,
         )
         hero_layout = select_hero_layout(
             niche_id=analysis.niche,
@@ -203,6 +205,21 @@ class FactoryService:
             "motion_level": motion,
             "hero_layout": hero_layout,
             "component_profile": component_profile,
+            "trust_template": select_trust_template(
+                niche_id=analysis.niche,
+                market_code=market,
+                business_name=analysis.business_name,
+                package_id=features.package_id,
+                evidence=collect_trust_evidence(
+                    client_trust=contacts.get("trust")
+                    if isinstance(contacts.get("trust"), dict)
+                    else None,
+                    commitments=analysis.trust_points,
+                    portfolio_paths=client_assets.gallery,
+                    has_maps=bool(features.maps),
+                    has_process=bool(features.process),
+                ),
+            ),
             "status": "completed",
             "quality_percent": validation.quality_percent,
             "validation_passed": validation.passed,

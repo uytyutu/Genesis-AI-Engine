@@ -90,13 +90,22 @@ def test_page_uses_single_profile_language():
     assert profile in HERO_PROFILE_COMPAT[hero]
     # All composed families share the same profile attribute on body; markers match profile.
     assert f'data-comp-profile="{profile}"' in html
+    # Cards + benefits always render. Review variants (float/quote/rating) only
+    # when client_trust supplies real reviews — never fabricate them.
     markers = {
-        "A": ("data-comp-variant=\"glass\"", "data-comp-variant=\"circles\"", "data-comp-variant=\"float\""),
-        "B": ("data-comp-variant=\"solid\"", "data-comp-variant=\"timeline\"", "data-comp-variant=\"quote\""),
-        "C": ("data-comp-variant=\"minimal\"", "data-comp-variant=\"editorial\"", "data-comp-variant=\"rating\""),
+        "A": ("data-comp-variant=\"glass\"", "data-comp-variant=\"circles\""),
+        "B": ("data-comp-variant=\"solid\"", "data-comp-variant=\"timeline\""),
+        "C": ("data-comp-variant=\"minimal\"", "data-comp-variant=\"editorial\""),
     }
     for needle in markers[profile]:
         assert needle in html
+    review_marker = {
+        "A": 'data-comp-variant="float"',
+        "B": 'data-comp-variant="quote"',
+        "C": 'data-comp-variant="rating"',
+    }[profile]
+    assert review_marker not in html
+    assert 'id="testimonials"' not in html
     # No foreign family markers from other profiles.
     foreign = {
         "A": ("data-comp-variant=\"solid\"", "data-comp-variant=\"timeline\""),
