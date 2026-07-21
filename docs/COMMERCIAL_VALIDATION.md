@@ -27,7 +27,7 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | Slice | Theme | Status |
 |-------|--------|--------|
 | **R3.1** | **Premium Visual System** | **≈ READY — CEO Premium Test** |
-| **R3.2** | **Section-Aware Media Gate** | **IN PROGRESS** |
+| **R3.2** | **Section-Aware Media Gate** | **AWAITING CEO LIVE SWEEP** |
 | **R3.3** | **Section-Aware Content Gate** | After R3.2 |
 | R3.4 | Global Market Experience | After R3.3 |
 | R3.5 | Client Portal Foundation | After R3.4 |
@@ -79,6 +79,10 @@ Off-topic hero in any niche = **FAIL**. Same Owner Visibility Rule.
 
 Evidence baseline: `_audit_niche_sweep/` + canvas `niche-semantic-sweep`.  
 Module: `dashboard/backend/app/factory/media_gate.py`.
+
+**Live sweep 2026-07-21 (agent):** `_audit_media_gate_r32/` · `http://127.0.0.1:8769/`  
+8/8 niches correct ID · media_gate_ok · Hero visual check (agent): Auto/Beauty/Law/Green/Computer/Dental/Handwerk clear PASS; Restaurant uses generic food-retail pack (acceptable, not florist/wrong-niche). Gallery N/A on Business (no client photos).  
+**R3.2 PASS = CEO confirms after opening the sweep — not tests alone.**
 
 ### Section-Aware Content Gate (R3.3 — definition)
 
