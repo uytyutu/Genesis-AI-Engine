@@ -1,5 +1,6 @@
 import { resetProjectClaim } from "./projectIdentity";
 import { resetGuidedCommerce } from "./guidedCommerce";
+import { clearAllOrderDrafts } from "./orderDraft";
 
 const VISITOR_KEY = "genesis_visitor_id";
 const OWNER_VISITOR_KEY = "genesis_owner_visitor_id";
@@ -35,6 +36,7 @@ export function beginFreshVisitorSession(scope: "public" | "owner" = "public"): 
     if (scope === "public") {
       resetProjectClaim();
       resetGuidedCommerce();
+      clearAllOrderDrafts();
     }
     window.dispatchEvent(new CustomEvent("genesis:project-state", { detail: null }));
     return id;

@@ -283,7 +283,10 @@
         "label": "Friendly",
         "hint": "Warm orange, soft approachable cards."
       }
-    }
+    },
+    "draftRestored": "Koncept objednávky byl obnoven. Můžete pokračovat tam, kde jste skončili.",
+    "draftStartOver": "Začít znovu",
+    "draftSavedHint": "Postup se na tomto zařízení ukládá automaticky."
   },
   "reviews": {
     "title": "Client reviews",

@@ -125,6 +125,21 @@
     "next": "Weiter",
     "back": "Zurück",
     "step1Required": "Bitte Firmenname, E-Mail und Tätigkeit ausfüllen",
+    "coachTitle": "Virtus Core Hinweis",
+    "coachNeedBusiness": "Firmennamen eintragen — sonst geht es nicht weiter.",
+    "coachNeedEmail": "Gültige E-Mail nötig — Bestätigung und Zahlungslink kommen dorthin.",
+    "coachNeedDescription": "Kurz beschreiben, was das Unternehmen macht (mindestens ein Satz).",
+    "coachTipCity": "Die Stadt hilft bei passenden Beispielen und Kontaktdaten auf der Seite.",
+    "coachTipNiche": "Branche wählen — Vorschau und Beispiele werden treffender.",
+    "coachTipContactOrSite": "Telefon oder bestehende Website beschleunigen die Analyse — eines reicht.",
+    "coachNeedPackage": "Rechts ein Paket wählen (Basic / Business / Premium), dann weiter.",
+    "coachTipPackageOk": "Paket gewählt. Vorschau prüfen und weiter zu Domain & Materialien.",
+    "coachNeedDomainName": "Sie haben „Domain vorhanden“ gewählt — bitte den Domainnamen eintragen.",
+    "coachTipDomain": "Noch keine Domain? So markieren — Hosting-Hinweise kommen nach der Zahlung.",
+    "coachTipMaterials": "Logo/Fotos jetzt oder später — blockiert die Bestellung nicht.",
+    "coachTipPremiumServices": "Bei Premium Leistungen auflisten — sie erscheinen im Leistungsblock.",
+    "coachTipReadyPay": "Paket und Preis rechts prüfen. Nach dem Absenden öffnet sich die Zahlung.",
+    "coachTipLegal": "Impressum-Felder für DE jetzt oder vor dem Go-live ausfüllen.",
     "domainHostingNote": "Wir helfen Ihnen, einen passenden Hosting-Anbieter zu wählen. Unter den beliebten Optionen in Deutschland sind Hetzner, IONOS, All-Inkl und Netcup. Der Vertrag für Domain und Hosting wird direkt zwischen Ihnen und dem gewählten Anbieter geschlossen. Business/Premium: Sie geben uns den Zugang — wir laden die Seite hoch bzw. binden Domain und SSL an.",
     "logoNote": "Bestehendes Firmenlogo und Farben werden eingebunden. Kein neues Logo-Design inklusive — außer separat vereinbart.",
     "legalTitle": "Impressum-Daten (für Go-live in DE)",
@@ -290,7 +305,10 @@
         "label": "Friendly",
         "hint": "Warmes Orange, einladende Karten."
       }
-    }
+    },
+    "draftRestored": "Ihr Bestellentwurf wurde wiederhergestellt. Sie können fortfahren.",
+    "draftStartOver": "Neu beginnen",
+    "draftSavedHint": "Der Fortschritt wird automatisch auf diesem Gerät gespeichert."
   },
   "reviews": {
     "title": "Kundenstimmen",

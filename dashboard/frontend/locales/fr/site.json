@@ -283,7 +283,10 @@
         "label": "Friendly",
         "hint": "Warm orange, soft approachable cards."
       }
-    }
+    },
+    "draftRestored": "Votre brouillon de commande a été restauré. Vous pouvez continuer.",
+    "draftStartOver": "Recommencer",
+    "draftSavedHint": "La progression est enregistrée automatiquement sur cet appareil."
   },
   "reviews": {
     "title": "Client reviews",

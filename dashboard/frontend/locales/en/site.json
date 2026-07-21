@@ -125,6 +125,21 @@
     "next": "Next",
     "back": "Back",
     "step1Required": "Please fill company name, email and activity",
+    "coachTitle": "Virtus Core tip",
+    "coachNeedBusiness": "Enter your company name — required to continue.",
+    "coachNeedEmail": "Add a working email — confirmation and payment link go there.",
+    "coachNeedDescription": "Briefly describe what the business does (at least one sentence).",
+    "coachTipCity": "City helps us tailor examples and contact details on the site.",
+    "coachTipNiche": "Pick a niche — package preview and examples get more relevant.",
+    "coachTipContactOrSite": "A phone number or current website speeds up analysis — either is fine.",
+    "coachNeedPackage": "Choose a package on the right (Basic / Business / Premium), then continue.",
+    "coachTipPackageOk": "Package selected. You can review the preview and continue to domain & materials.",
+    "coachNeedDomainName": "You marked that you already have a domain — enter its name (e.g. company.com).",
+    "coachTipDomain": "No domain yet? Mark that — we will suggest hosting options after payment.",
+    "coachTipMaterials": "Logo or photos can be uploaded now or later — it does not block the order.",
+    "coachTipPremiumServices": "For Premium, list your services — they appear in the site services block.",
+    "coachTipReadyPay": "Check package and price on the right. After submit, payment opens.",
+    "coachTipLegal": "Impressum fields for DE can be filled now or before go-live.",
     "domainHostingNote": "We help you choose a suitable hosting provider. Popular options in Germany include Hetzner, IONOS, All-Inkl and Netcup. The domain and hosting contract is between you and the provider you choose. Business/Premium: you share access — we upload the site and/or connect domain and SSL.",
     "logoNote": "Your existing logo and colors are integrated. New logo design is not included unless agreed separately.",
     "legalTitle": "Impressum details (for DE go-live)",
@@ -290,7 +305,10 @@
         "label": "Friendly",
         "hint": "Warm orange, soft approachable cards."
       }
-    }
+    },
+    "draftRestored": "Your order draft was restored. You can continue where you left off.",
+    "draftStartOver": "Start over",
+    "draftSavedHint": "Progress is saved automatically on this device."
   },
   "reviews": {
     "title": "Client reviews",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
@@ -20,6 +20,15 @@ import { uiLangForMarket } from "../lib/marketLang";
 import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
 import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePackage";
 import { parseClientServices } from "../lib/packagePreviewGallery";
+import { resolveOrderCoachHints } from "../lib/orderFormCoach";
+import { getVisitorId } from "../lib/visitorId";
+import {
+  clearOrderDraft,
+  createDebouncedOrderDraftSaver,
+  isMeaningfulOrderDraft,
+  loadOrderDraft,
+  type OrderDraftPayload,
+} from "../lib/orderDraft";
 
 const API = publicApiBase();
 
@@ -51,12 +60,15 @@ function suggestPackage(needsLogo: boolean, needsDomain: boolean, extra: string)
 export default function OrderSitePage() {
   const { t, i18n } = useTranslation("site");
   const [marketParam, setMarketParam] = useState("");
+  const [marketReady, setMarketReady] = useState(false);
   useEffect(() => {
     try {
       const p = new URLSearchParams(window.location.search);
       setMarketParam((p.get("market") || p.get("country") || "").toUpperCase());
     } catch {
       setMarketParam("");
+    } finally {
+      setMarketReady(true);
     }
   }, []);
   // Country Desk market → order UI language (packages already currency-synced via API)
@@ -146,6 +158,11 @@ export default function OrderSitePage() {
   const [visitorId, setVisitorId] = useState<string | null>(null);
   const [launch, setLaunch] = useState<OrderLaunchContext | null>(null);
   const [launchLoading, setLaunchLoading] = useState(false);
+  const [draftBanner, setDraftBanner] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
+  const draftSaverRef = useRef(createDebouncedOrderDraftSaver(400));
+  const urlPackageRef = useRef<string | null>(null);
+  const urlNicheRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -154,26 +171,221 @@ export default function OrderSitePage() {
     if (pkg && ["basic", "business", "premium"].includes(pkg)) {
       setPackageId(pkg);
       setManualPackage(true);
+      urlPackageRef.current = pkg;
     } else if (pkg === "smoke" && showSmokePackageInUi()) {
       setPackageId("smoke");
       setManualPackage(true);
+      urlPackageRef.current = "smoke";
     }
     const n = params.get("niche")?.trim();
-    if (n) setNiche(n);
+    if (n) {
+      setNiche(n);
+      urlNicheRef.current = n;
+    }
     setPurchaseType(parseOrderPurchaseType(params.get("purchase_type")));
     const vid = params.get("visitor_id")?.trim();
-    if (vid) setVisitorId(vid);
+    setVisitorId(vid || getVisitorId("public"));
     logCommerceEvent("tier_page_view", pkg, "order");
   }, []);
 
+  // Restore Path A order draft once visitor + market URL are known (URL package/niche win).
   useEffect(() => {
-    fetch(`${API}/api/public/niches`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((body) => {
-        if (Array.isArray(body?.niches)) setNicheOptions(body.niches);
-        if (Array.isArray(body?.specializations)) setSpecOptions(body.specializations);
-      })
-      .catch(() => undefined);
+    if (!visitorId || !marketReady || draftReady) return;
+    const market = (marketParam || commerce.market_code || "DE").toUpperCase();
+    const draft = loadOrderDraft(market, visitorId);
+    if (isMeaningfulOrderDraft(draft) && draft) {
+      applyOrderDraft(draft);
+      if (urlPackageRef.current) {
+        setPackageId(urlPackageRef.current);
+        setManualPackage(true);
+      }
+      if (urlNicheRef.current) setNiche(urlNicheRef.current);
+      setDraftBanner(true);
+    }
+    setDraftReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate once per visitor/market
+  }, [visitorId, marketReady, marketParam, commerce.market_code, draftReady]);
+
+  function applyOrderDraft(d: OrderDraftPayload) {
+    setFormStep(Math.min(4, Math.max(1, Math.floor(d.formStep) || 1)));
+    setPackageId(d.packageId || "basic");
+    setManualPackage(Boolean(d.manualPackage));
+    setBrandStyle(d.brandStyle || "auto");
+    setBusinessName(d.businessName || "");
+    setDescription(d.description || "");
+    setCompanyWebsite(d.companyWebsite || "");
+    setCity(d.city || "");
+    setPhone(d.phone || "");
+    setWhatsapp(d.whatsapp || "");
+    setEmail(d.email || "");
+    setNeedsLogo(Boolean(d.needsLogo));
+    setNeedsDomain(Boolean(d.needsDomain));
+    setDomainStatus(d.domainStatus || "none");
+    setExistingDomain(d.existingDomain || "");
+    setGoogleBusiness(d.googleBusiness || "");
+    setInstagram(d.instagram || "");
+    setFacebook(d.facebook || "");
+    setTiktok(d.tiktok || "");
+    setLinkedin(d.linkedin || "");
+    setYoutube(d.youtube || "");
+    setTelegram(d.telegram || "");
+    setExtraWishes(d.extraWishes || "");
+    setNiche(d.niche || "generic");
+    setSpecialization(d.specialization || "");
+    setServiceList(d.serviceList || "");
+    setLegalOwner(d.legalOwner || "");
+    setLegalForm(d.legalForm || "");
+    setLegalStreet(d.legalStreet || "");
+    setLegalZip(d.legalZip || "");
+    setLegalCity(d.legalCity || "");
+    setLegalDirector(d.legalDirector || "");
+    setLegalVat(d.legalVat || "");
+    setLegalMaps(Boolean(d.legalMaps));
+    setLegalAnalytics(Boolean(d.legalAnalytics));
+    setMaterials(Array.isArray(d.materials) ? d.materials : []);
+    if (d.purchaseType === "subscription" || d.purchaseType === "one_time") {
+      setPurchaseType(d.purchaseType);
+    }
+  }
+
+  function startOverDraft() {
+    const market = (marketParam || commerce.market_code || "DE").toUpperCase();
+    draftSaverRef.current.cancel();
+    clearOrderDraft(market, visitorId);
+    setDraftBanner(false);
+    setFormStep(1);
+    setBusinessName("");
+    setDescription("");
+    setCompanyWebsite("");
+    setCity("");
+    setPhone("");
+    setWhatsapp("");
+    setEmail("");
+    setNeedsLogo(false);
+    setNeedsDomain(false);
+    setDomainStatus("none");
+    setExistingDomain("");
+    setGoogleBusiness("");
+    setInstagram("");
+    setFacebook("");
+    setTiktok("");
+    setLinkedin("");
+    setYoutube("");
+    setTelegram("");
+    setExtraWishes("");
+    setNiche(urlNicheRef.current || "generic");
+    setSpecialization("");
+    setServiceList("");
+    setLegalOwner("");
+    setLegalForm("");
+    setLegalStreet("");
+    setLegalZip("");
+    setLegalCity("");
+    setLegalDirector("");
+    setLegalVat("");
+    setLegalMaps(false);
+    setLegalAnalytics(false);
+    setMaterials([]);
+    setBrandStyle("auto");
+    setManualPackage(Boolean(urlPackageRef.current));
+    setPackageId(urlPackageRef.current || "basic");
+    setInsights(null);
+    setError("");
+  }
+
+  useEffect(() => {
+    if (!draftReady || !visitorId || done) return;
+    const market = (marketParam || commerce.market_code || "DE").toUpperCase();
+    draftSaverRef.current.schedule(market, visitorId, {
+      formStep,
+      packageId,
+      manualPackage,
+      brandStyle,
+      businessName,
+      description,
+      companyWebsite,
+      city,
+      phone,
+      whatsapp,
+      email,
+      needsLogo,
+      needsDomain,
+      domainStatus,
+      existingDomain,
+      googleBusiness,
+      instagram,
+      facebook,
+      tiktok,
+      linkedin,
+      youtube,
+      telegram,
+      extraWishes,
+      niche,
+      specialization,
+      serviceList,
+      legalOwner,
+      legalForm,
+      legalStreet,
+      legalZip,
+      legalCity,
+      legalDirector,
+      legalVat,
+      legalMaps,
+      legalAnalytics,
+      materials,
+      purchaseType,
+    });
+  }, [
+    draftReady,
+    visitorId,
+    done,
+    marketParam,
+    commerce.market_code,
+    formStep,
+    packageId,
+    manualPackage,
+    brandStyle,
+    businessName,
+    description,
+    companyWebsite,
+    city,
+    phone,
+    whatsapp,
+    email,
+    needsLogo,
+    needsDomain,
+    domainStatus,
+    existingDomain,
+    googleBusiness,
+    instagram,
+    facebook,
+    tiktok,
+    linkedin,
+    youtube,
+    telegram,
+    extraWishes,
+    niche,
+    specialization,
+    serviceList,
+    legalOwner,
+    legalForm,
+    legalStreet,
+    legalZip,
+    legalCity,
+    legalDirector,
+    legalVat,
+    legalMaps,
+    legalAnalytics,
+    materials,
+    purchaseType,
+  ]);
+
+  useEffect(() => {
+    const saver = draftSaverRef.current;
+    return () => {
+      saver.flush();
+      saver.cancel();
+    };
   }, []);
 
   useEffect(() => {
@@ -198,6 +410,16 @@ export default function OrderSitePage() {
       cancelled = true;
     };
   }, [visitorId]);
+
+  useEffect(() => {
+    fetch(`${API}/api/public/niches`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body) => {
+        if (Array.isArray(body?.niches)) setNicheOptions(body.niches);
+        if (Array.isArray(body?.specializations)) setSpecOptions(body.specializations);
+      })
+      .catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -285,6 +507,37 @@ export default function OrderSitePage() {
     formatLocalizedMoney(amount, pkg?.currency ?? commerce.currency);
 
   const selected = packages.find((p) => p.id === packageId) ?? packages[0];
+  const coachHints = useMemo(
+    () =>
+      resolveOrderCoachHints({
+        formStep,
+        businessName,
+        email,
+        description,
+        city,
+        phone,
+        niche,
+        companyWebsite,
+        packageId,
+        serviceList,
+        domainStatus,
+        existingDomain,
+      }),
+    [
+      formStep,
+      businessName,
+      email,
+      description,
+      city,
+      phone,
+      niche,
+      companyWebsite,
+      packageId,
+      serviceList,
+      domainStatus,
+      existingDomain,
+    ],
+  );
 
   async function uploadMaterials(files: FileList | null) {
     if (!files?.length) return;
@@ -374,10 +627,22 @@ export default function OrderSitePage() {
 
   function canAdvance(step: number): boolean {
     if (step === 1) {
-      if (!businessName.trim() || !description.trim() || !email.trim()) {
-        setError(t("order.step1Required"));
+      if (!businessName.trim()) {
+        setError(t("order.coachNeedBusiness"));
         return false;
       }
+      if (!email.trim() || !email.includes("@")) {
+        setError(t("order.coachNeedEmail"));
+        return false;
+      }
+      if (!description.trim() || description.trim().length < 8) {
+        setError(t("order.coachNeedDescription"));
+        return false;
+      }
+    }
+    if (step === 3 && domainStatus === "have_domain" && !existingDomain.trim()) {
+      setError(t("order.coachNeedDomainName"));
+      return false;
     }
     setError("");
     return true;
@@ -472,6 +737,12 @@ export default function OrderSitePage() {
         price_label: body.price_label,
         buyer_insights: body.buyer_insights ?? insights,
       });
+      draftSaverRef.current.cancel();
+      clearOrderDraft(
+        (marketParam || commerce.market_code || "DE").toUpperCase(),
+        visitorId,
+      );
+      setDraftBanner(false);
       logCommerceEvent("tier_select", packageId, "order", {
         niche,
         specialization: specialization || null,
@@ -646,6 +917,28 @@ export default function OrderSitePage() {
             {!launch ? (
               <>
                 <FormStepBar current={formStep} />
+                {draftBanner ? (
+                  <div
+                    className="flex flex-col gap-2 rounded-xl border border-genesis-border/80 bg-genesis-surface/80 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+                    role="status"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm text-white">{t("order.draftRestored")}</p>
+                      <p className="mt-0.5 text-xs text-genesis-muted">{t("order.draftSavedHint")}</p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="shrink-0 self-start sm:self-auto"
+                      onClick={startOverDraft}
+                    >
+                      {t("order.draftStartOver")}
+                    </Button>
+                  </div>
+                ) : draftReady ? (
+                  <p className="text-xs text-genesis-muted">{t("order.draftSavedHint")}</p>
+                ) : null}
+                <OrderCoachPanel hints={coachHints} />
                 {formStep === 1 && (
                   <>
                     <Field label={t("order.businessName")} required>
@@ -1205,6 +1498,43 @@ export default function OrderSitePage() {
         </p>
       </main>
     </PublicPageShell>
+  );
+}
+
+function OrderCoachPanel({
+  hints,
+}: {
+  hints: { id: string; messageKey: string; severity: "block" | "tip" }[];
+}) {
+  const { t } = useTranslation("site");
+  if (hints.length === 0) return null;
+  const hasBlock = hints.some((h) => h.severity === "block");
+  return (
+    <div
+      className={`mb-4 rounded-xl border px-3 py-2.5 ${
+        hasBlock
+          ? "border-amber-500/35 bg-amber-950/25"
+          : "border-emerald-500/25 bg-emerald-950/20"
+      }`}
+      role="status"
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-200/90">
+        {t("order.coachTitle")}
+      </p>
+      <ul className="mt-1.5 space-y-1">
+        {hints.map((h) => (
+          <li
+            key={h.id}
+            className={`text-xs leading-snug ${
+              h.severity === "block" ? "text-amber-100" : "text-white/80"
+            }`}
+          >
+            {h.severity === "block" ? "→ " : "· "}
+            {t(`order.${h.messageKey}`)}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
