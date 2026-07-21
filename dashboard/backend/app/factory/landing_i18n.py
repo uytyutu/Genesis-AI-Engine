@@ -6,6 +6,7 @@ from dataclasses import replace
 from typing import Any
 
 from app.factory.analyzer import AnalysisResult
+from app.factory.landing_i18n_eu import EU_NICHE, EU_UI
 from app.factory.market_delivery import market_legal_pack, market_ui_lang, normalize_market
 
 # ISO country name fragment for maps query (not UI).
@@ -451,6 +452,9 @@ _UI: dict[str, dict[str, str]] = {
     },
 }
 
+# Merge FR / ES / NL chrome (R2.2b-intl) — no English stub fallback for these markets.
+_UI.update(EU_UI)
+
 # Niche body copy for non-DE markets (analyzer stays DE for lang=de).
 _NICHE: dict[str, dict[str, dict[str, Any]]] = {
     "dental": {
@@ -600,6 +604,10 @@ _NICHE: dict[str, dict[str, dict[str, Any]]] = {
     },
 }
 
+# Merge FR / ES / NL niche packs into existing niches.
+for _niche_key, _langs in EU_NICHE.items():
+    _NICHE.setdefault(_niche_key, {}).update(_langs)
+
 # Map other niches → generic pack (content) until dedicated packs exist.
 _NICHE_ALIAS = {
     "law": "generic",
@@ -618,10 +626,7 @@ def landing_lang_for_market(market_code: str | None) -> str:
         return lang
     # Partial UI langs until dedicated chrome packs exist.
     aliases = {
-        "fr": "en",
         "it": "en",
-        "es": "en",
-        "nl": "en",
         "pt": "en",
         "pl": "en",
         "sk": "cs" if "cs" in _UI else "en",
@@ -650,10 +655,9 @@ def apply_legal_footer_hrefs(ui: dict[str, str], market_code: str | None) -> dic
         out["legal_a_href"] = "privacy.html"
         out["legal_b_href"] = "terms.html"
     else:
-        out["legal_a"] = out.get("legal_a") or "Legal"
-        out["legal_b"] = out.get("legal_b") or "Privacy"
-        out["legal_a_href"] = "LEGAL_NOTICE.txt"
-        out["legal_b_href"] = "LEGAL_NOTICE.txt"
+        # Keep language-pack legal labels (FR/ES/NL…); only force file hrefs.
+        out["legal_a_href"] = out.get("legal_a_href") or "LEGAL_NOTICE.txt"
+        out["legal_b_href"] = out.get("legal_b_href") or "LEGAL_NOTICE.txt"
     return out
 
 
@@ -663,7 +667,7 @@ def maps_country_label(market_code: str | None) -> str:
 
 
 def localize_analysis(analysis: AnalysisResult, lang: str) -> AnalysisResult:
-    """For de keep analyzer copy; for en/uk/ru overlay niche packs."""
+    """For de keep analyzer copy; for other langs overlay niche packs."""
     if lang == "de":
         return analysis
     pack_key = _NICHE_ALIAS.get(analysis.niche, analysis.niche)
@@ -683,8 +687,8 @@ def localize_analysis(analysis: AnalysisResult, lang: str) -> AnalysisResult:
         subtitle=str(pack.get("subtitle") or analysis.subtitle),
         services=services,
         service_descriptions=tuple(descriptions[: len(services)]),
-        benefits=list(pack.get("benefits") or analysis.benefits),
-        trust_points=list(pack.get("trust") or analysis.trust_points),
+        benefits=tuple(pack.get("benefits") or analysis.benefits),
+        trust_points=tuple(pack.get("trust") or analysis.trust_points),
         about_text=str(pack.get("about") or analysis.about_text).format(name=name),
         cta_label=str(pack.get("cta") or analysis.cta_label),
         hours=str(pack.get("hours") or analysis.hours),

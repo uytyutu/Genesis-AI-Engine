@@ -17,6 +17,7 @@ from app.factory.hero_composer import select_hero_layout
 from app.factory.landing_patcher import try_patch
 from app.factory.landing_builder import build_landing_html
 from app.factory.client_legal_pages import ClientLegalInfo, write_client_legal_pages
+from app.factory.market_design import resolve_market_design
 from app.factory.validator import owner_review_check, validate_landing
 
 _BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -189,6 +190,7 @@ class FactoryService:
             "template_id": analysis.template_id,
             "business_name": analysis.business_name,
             "market_code": market,
+            "market_design": resolve_market_design(market).market_id,
             "motion_level": motion,
             "hero_layout": hero_layout,
             "component_profile": component_profile,

@@ -16,6 +16,12 @@ from app.factory.component_composer import (
 )
 from app.factory.hero_composer import compose_hero, select_hero_layout
 from app.factory.landing_tier_css import tier_stylesheet
+from app.factory.market_design import (
+    assert_localization_hygiene,
+    build_seo_localization,
+    market_design_extra_css,
+    resolve_market_design,
+)
 from app.factory.niche_profiles import niche_style_extra_css, resolve_niche_profile
 from app.factory.package_features import (
     PackageFeatures,
@@ -110,7 +116,12 @@ def build_landing_html(
 
     lang = landing_lang_for_market(market_code)
     html_lang = market_ui_lang(market_code) or lang
+    market_design = resolve_market_design(market_code)
+    # Prefer BCP47 from design profile when it matches the chrome language.
+    if market_design.html_lang == lang or lang == "de":
+        html_lang = market_design.html_lang
     ui = apply_legal_footer_hrefs(ui_strings(lang), market_code)
+    ui["form_phone_ph"] = market_design.phone_placeholder
     analysis = localize_analysis(analysis, lang)
     maps_country = maps_country_label(market_code)
 
@@ -254,35 +265,18 @@ def build_landing_html(
         ('  <script src="assets/reveal.js" defer></script>\n' if css_motion else "")
         + ('  <script src="assets/catalog.js" defer></script>\n' if catalog else "")
     )
-    seo_extra = ""
-    if feat.extended_seo:
-        import json as _json
-
-        from app.factory.market_delivery import normalize_market
-
-        ld = _json.dumps(
-            {
-                "@context": "https://schema.org",
-                "@type": "LocalBusiness",
-                "name": analysis.business_name,
-                "description": analysis.subtitle[:200],
-                "telephone": analysis.phone,
-                "email": analysis.email,
-                "address": {
-                    "@type": "PostalAddress",
-                    "addressLocality": city or "",
-                    "addressCountry": normalize_market(market_code or "DE"),
-                },
-            },
-            ensure_ascii=False,
-        )
-        seo_extra = f"""
-  <meta name="robots" content="index,follow">
-  <meta property="og:title" content="{esc(page_title)}">
-  <meta property="og:description" content="{meta_desc}">
-  <meta property="og:type" content="website">
-  <script type="application/ld+json">{ld}</script>
-"""
+    seo_extra = build_seo_localization(
+        profile=market_design,
+        page_title=page_title,
+        meta_description=analysis.subtitle[:160],
+        business_name=analysis.business_name,
+        subtitle=analysis.subtitle,
+        phone=analysis.phone,
+        email=analysis.email,
+        city=city,
+        market_code=market_code or market_design.market_id,
+        extended=bool(feat.extended_seo),
+    )
 
     analytics_block = ""
     if feat.analytics:
@@ -300,6 +294,7 @@ def build_landing_html(
     why_title = esc(ui["why"].format(business=analysis.business_name))
     css = tier_stylesheet(tier, style)
     css = css + "\n" + niche_style_extra_css(niche_profile)
+    css = css + "\n" + market_design_extra_css(market_design)
     if hero_pack_manifest:
         from app.factory.hero_pack import pack_section_css
 
@@ -349,6 +344,8 @@ def build_landing_html(
     niche_attr = esc(niche_profile.niche_id)
     hero_attr = esc(hero_comp.layout_id)
     comp_attr = esc(page_sections.profile_id)
+    market_attr = esc(market_design.market_id)
+    density_attr = esc(market_design.density)
 
     trust_strip = ""
     if feat.trust_bar:
@@ -424,7 +421,7 @@ def build_landing_html(
 {css}
   </style>
 </head>
-<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}">
+<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-market="{market_attr}" data-density="{density_attr}">
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
@@ -473,6 +470,7 @@ def build_landing_html(
     for snippet in _FORBIDDEN_SNIPPETS:
         if snippet.lower() in lower:
             raise ValueError(f"forbidden_copy_snippet:{snippet}")
+    assert_localization_hygiene(html)
     return html
 
 
