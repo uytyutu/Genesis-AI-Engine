@@ -290,7 +290,39 @@
     "stepProgress": "Passo {{current}} de {{total}}",
     "stepNavConfirmHint": "Reveja e envie à direita",
     "stepNavCurrent": "Passo atual: {{step}}",
-    "stepNavGoTo": "Ir para o passo: {{step}}"
+    "stepNavGoTo": "Ir para o passo: {{step}}",
+    "livePreviewTitle": "Your site preview",
+    "livePreviewHint": "Updates as you type — no full site build yet.",
+    "livePreviewCta": "Contact",
+    "liveAiTitle": "AI is preparing your project…",
+    "liveAiNiche": "Niche",
+    "liveAiStyle": "Style",
+    "liveAiHero": "Recommended hero",
+    "liveAiMarket": "Market",
+    "liveAiLang": "Language",
+    "liveProgressLabel": "Prepared {{filled}}/{{total}}",
+    "liveRemainingTitle": "Still needed",
+    "liveAlmostReady": "Ready for checkout when you are.",
+    "liveReady": {
+      "structure": "structure",
+      "style": "style",
+      "colors": "color scheme",
+      "package": "package",
+      "contacts": "contacts",
+      "details": "local details"
+    },
+    "liveNiche": {
+      "dental": "Dental Clinic",
+      "auto": "Auto Workshop",
+      "law": "Law Practice",
+      "energy": "Energy",
+      "beauty": "Beauty",
+      "green": "Green / Garden",
+      "computer": "IT / Computer",
+      "appliance": "Appliance Repair",
+      "handwerk": "Crafts",
+      "generic": "Local Business"
+    }
   },
   "reviews": {
     "title": "Client reviews",

@@ -312,7 +312,39 @@
     "stepProgress": "Шаг {{current}} из {{total}}",
     "stepNavConfirmHint": "Проверьте и отправьте справа",
     "stepNavCurrent": "Текущий шаг: {{step}}",
-    "stepNavGoTo": "Перейти к шагу: {{step}}"
+    "stepNavGoTo": "Перейти к шагу: {{step}}",
+    "livePreviewTitle": "Превью вашего сайта",
+    "livePreviewHint": "Обновляется по мере ввода — полный сайт ещё не собирается.",
+    "livePreviewCta": "Контакт",
+    "liveAiTitle": "ИИ готовит ваш проект…",
+    "liveAiNiche": "Ниша",
+    "liveAiStyle": "Стиль",
+    "liveAiHero": "Рекомендуемый Hero",
+    "liveAiMarket": "Рынок",
+    "liveAiLang": "Язык",
+    "liveProgressLabel": "Готово {{filled}}/{{total}}",
+    "liveRemainingTitle": "Ещё нужно",
+    "liveAlmostReady": "Можно переходить к оплате.",
+    "liveReady": {
+      "structure": "структура",
+      "style": "стиль",
+      "colors": "цвета",
+      "package": "пакет",
+      "contacts": "контакты",
+      "details": "локальные детали"
+    },
+    "liveNiche": {
+      "dental": "Стоматология",
+      "auto": "Автосервис",
+      "law": "Юридическая практика",
+      "energy": "Энергетика",
+      "beauty": "Бьюти",
+      "green": "Сад / экология",
+      "computer": "IT / компьютеры",
+      "appliance": "Ремонт техники",
+      "handwerk": "Ремесло",
+      "generic": "Локальный бизнес"
+    }
   },
   "reviews": {
     "title": "Отзывы клиентов",

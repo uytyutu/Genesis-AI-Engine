@@ -312,7 +312,39 @@
     "stepProgress": "Schritt {{current}} von {{total}}",
     "stepNavConfirmHint": "Prüfen und rechts absenden",
     "stepNavCurrent": "Aktueller Schritt: {{step}}",
-    "stepNavGoTo": "Zu Schritt wechseln: {{step}}"
+    "stepNavGoTo": "Zu Schritt wechseln: {{step}}",
+    "livePreviewTitle": "Vorschau Ihrer Website",
+    "livePreviewHint": "Aktualisiert sich beim Tippen — noch kein kompletter Bau.",
+    "livePreviewCta": "Kontakt",
+    "liveAiTitle": "KI bereitet Ihr Projekt vor…",
+    "liveAiNiche": "Branche",
+    "liveAiStyle": "Stil",
+    "liveAiHero": "Empfohlenes Hero",
+    "liveAiMarket": "Markt",
+    "liveAiLang": "Sprache",
+    "liveProgressLabel": "Vorbereitet {{filled}}/{{total}}",
+    "liveRemainingTitle": "Noch offen",
+    "liveAlmostReady": "Bereit zum Checkout, wenn Sie wollen.",
+    "liveReady": {
+      "structure": "Struktur",
+      "style": "Stil",
+      "colors": "Farbschema",
+      "package": "Paket",
+      "contacts": "Kontakte",
+      "details": "lokale Angaben"
+    },
+    "liveNiche": {
+      "dental": "Zahnarztpraxis",
+      "auto": "Autowerkstatt",
+      "law": "Kanzlei",
+      "energy": "Energie",
+      "beauty": "Beauty",
+      "green": "Garten / Grün",
+      "computer": "IT / Computer",
+      "appliance": "Geräte-Reparatur",
+      "handwerk": "Handwerk",
+      "generic": "Lokales Unternehmen"
+    }
   },
   "reviews": {
     "title": "Kundenstimmen",

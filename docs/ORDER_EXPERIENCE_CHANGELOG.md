@@ -7,9 +7,9 @@ UX journal for Path A `/order` — not a technical log. Track what we ship for c
 | ID | Theme | Status |
 |----|--------|--------|
 | A1.1 | Autosave & Resume Draft | Done (`61eee9f`) |
-| A1.2 | Wizard Navigation | Done (this slice) |
-| A1.3 | Live Preview / Premium feel | Planned |
-| A1.4 | AI Guidance | Planned |
+| A1.2 | Wizard Navigation | Done (`bb0fbdf`) |
+| A1.3 | Live Preview / AI Guidance | Done (this slice) |
+| A1.4 | AI Guidance (deeper) / Premium Checkout prep | Planned |
 | A1.5 | Premium Checkout | Planned |
 | A1.6 | Payment Confirmation Experience | Planned |
 
@@ -48,11 +48,27 @@ UX journal for Path A `/order` — not a technical log. Track what we ship for c
 
 ---
 
+### A1.3 — Live Preview & AI Guidance (2026-07-21)
+
+**Why:** Turn “filling a form” into “watching my site take shape” — without running Factory ZIP.
+
+**Shipped:**
+- Live mini-site chrome (name, niche, package, brand style / palette)
+- Guidance block from Composer rules (niche, style, hero hint, market, language) — no LLM
+- Progress strip (structure / style / colors / package / contacts / details)
+- Example carousel kept below as secondary proof
+
+**Explicit non-goal:** Factory generation / ZIP during order.
+
+**Expected effect:** Higher intent to pay — buyer feels the product is already working.
+
+**Measure later:** time on `/order` with package selected; conversion step 3→4→pay.
+
+---
+
 ### Later (not started)
 
-- **A1.3** — Stronger “my site” live preview while ordering  
-- **A1.4** — AI guidance that feels like a guide, not a form  
-- **A1.5** — Premium checkout polish  
+- **A1.4 / A1.5** — Premium Checkout polish  
 - **A1.6** — Payment confirmation experience  
 
 After first real sales (Mission A2), annotate which rows above moved conversion and which did not.

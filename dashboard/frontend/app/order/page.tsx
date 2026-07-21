@@ -18,6 +18,7 @@ import { publicApiBase } from "../lib/publicApiBase";
 import { logCommerceEvent } from "../lib/commerceFunnel";
 import { uiLangForMarket } from "../lib/marketLang";
 import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
+import { OrderLivePreviewPanel } from "../components/OrderLivePreviewPanel";
 import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePackage";
 import { parseClientServices } from "../lib/packagePreviewGallery";
 import { resolveOrderCoachHints } from "../lib/orderFormCoach";
@@ -1460,6 +1461,22 @@ export default function OrderSitePage() {
                       </p>
                     </div>
                   ) : null}
+                  <OrderLivePreviewPanel
+                    input={{
+                      businessName,
+                      description,
+                      niche,
+                      brandStyle,
+                      packageId,
+                      marketCode: marketParam || commerce.market_code || "DE",
+                      city,
+                      email,
+                      phone,
+                      needsLogo,
+                      hasMaterials: materials.length > 0,
+                      formStep,
+                    }}
+                  />
                   <PackagePreviewCarousel
                     packageId={packageId}
                     niche={niche}
