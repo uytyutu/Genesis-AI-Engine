@@ -8,8 +8,9 @@ from dataclasses import dataclass
 
 from app.factory.analyzer import AnalysisResult
 from app.factory.catalog_manager import CatalogView
+from app.factory.hero_composer import compose_hero, select_hero_layout
 from app.factory.landing_tier_css import tier_stylesheet
-from app.factory.niche_profiles import resolve_niche_profile
+from app.factory.niche_profiles import niche_style_extra_css, resolve_niche_profile
 from app.factory.package_features import (
     PackageFeatures,
     maps_embed_src,
@@ -139,7 +140,6 @@ def build_landing_html(
         f'<li class="service-card"><h3>{esc(title)}</h3><p class="service-desc">{esc(desc)}</p></li>'
         for title, desc in zip(analysis.services, descriptions)
     )
-    trust_html = "".join(f'<span class="trust-pill">{esc(t)}</span>' for t in analysis.trust_points)
     benefits_html = "".join(f"<li>{esc(b)}</li>" for b in analysis.benefits)
     cert_html = "".join(f'<span class="cert-badge">{esc(t)}</span>' for t in analysis.trust_points)
 
@@ -292,6 +292,8 @@ def build_landing_html(
 
     why_title = esc(ui["why"].format(business=analysis.business_name))
     css = tier_stylesheet(tier, style)
+    niche_profile = resolve_niche_profile(analysis.niche)
+    css = css + "\n" + niche_style_extra_css(niche_profile)
     if hero_pack_manifest:
         from app.factory.hero_pack import pack_section_css
 
@@ -300,8 +302,33 @@ def build_landing_html(
             css = css + "\n" + extra
     if brand_pack is not None:
         css = css + "\n" + brand_style_extra_css(brand_pack)
-    hero_photo_class = " has-photo" if hero_photo else ""
+
+    hero_layout_id = select_hero_layout(
+        niche_id=niche_profile.niche_id,
+        business_name=analysis.business_name,
+        package_id=tier,
+    )
+    hero_comp = compose_hero(
+        layout_id=hero_layout_id,
+        business_name=analysis.business_name,
+        headline=headline,
+        subtitle=subtitle,
+        cta_label=cta,
+        trust_points=analysis.trust_points,
+        benefits=analysis.benefits,
+        hero_cta_extra=hero_cta_extra,
+        h1_class=h1_class,
+        hero_p_class=hero_p_class,
+        trust_class=trust_class,
+        btn_class=btn_class,
+        ui=ui,
+        hero_photo=hero_photo,
+    )
+    css = css + "\n" + hero_comp.css
+
     brand_attr = esc(brand_pack.id if brand_pack else "auto")
+    niche_attr = esc(niche_profile.niche_id)
+    hero_attr = esc(hero_comp.layout_id)
 
     trust_strip = ""
     if feat.trust_bar:
@@ -356,7 +383,7 @@ def build_landing_html(
 """
 
     stats_block = ""
-    if feat.stats_strip:
+    if feat.stats_strip and not hero_comp.embeds_stats:
         stats_block = f"""
   <section class="stats" id="stats" aria-label="stats">
     <div class="stat"><strong>{esc(ui['stats_v1'])}</strong><span>{esc(ui['stats_n1'])}</span></div>
@@ -415,7 +442,7 @@ def build_landing_html(
 {css}
   </style>
 </head>
-<body data-tier="{esc(tier)}" data-brand="{brand_attr}">
+<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}">
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
@@ -423,16 +450,7 @@ def build_landing_html(
     </div>
   </nav>
   {trust_strip}
-  <header class="hero{hero_photo_class}">
-    <div class="hero-inner">
-      <h1{h1_class}>{headline}</h1>
-      <p{hero_p_class}>{subtitle}</p>
-      <div{trust_class}>{trust_html}</div>
-      <div class="hero-ctas">
-        <a class="{btn_class}" href="#contact">{cta}</a>{hero_cta_extra}
-      </div>
-    </div>
-  </header>
+{hero_comp.html}
   {info_bar}
   {stats_block}
   {catalog_block}

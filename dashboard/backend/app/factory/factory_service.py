@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.factory.analyzer import analyze
+from app.factory.hero_composer import select_hero_layout
 from app.factory.landing_patcher import try_patch
 from app.factory.landing_builder import build_landing_html
 from app.factory.client_legal_pages import ClientLegalInfo, write_client_legal_pages
@@ -63,7 +64,16 @@ class FactoryService:
             or (client_legal or {}).get("country")
             or "DE"
         )
-        motion_raw = motion_level or contacts.get("motion_level") or "none"
+        motion_raw = (
+            motion_level
+            or contacts.get("motion_level")
+            or (
+                "css"
+                if str(package_id or contacts.get("package_id") or "basic").strip().lower()
+                in ("business", "premium")
+                else "none"
+            )
+        )
         gate = gate_motion_level(str(motion_raw))
         if not gate["ok"]:
             raise ValueError("WAITLIST_REQUIRED")
@@ -167,6 +177,11 @@ class FactoryService:
             "business_name": analysis.business_name,
             "market_code": market,
             "motion_level": motion,
+            "hero_layout": select_hero_layout(
+                niche_id=analysis.niche,
+                business_name=analysis.business_name,
+                package_id=features.package_id,
+            ),
             "status": "completed",
             "quality_percent": validation.quality_percent,
             "validation_passed": validation.passed,
@@ -606,6 +621,8 @@ class FactoryService:
             "revision": int(meta.get("revision", 0)),
             "niche": meta.get("niche", "generic"),
             "template_id": meta.get("template_id", ""),
+            "motion_level": meta.get("motion_level", "none"),
+            "hero_layout": meta.get("hero_layout"),
             "created_at": meta.get("created_at", ""),
             "updated_at": meta.get("updated_at", ""),
             "preview_url": f"/api/factory/products/{pid}/preview",
