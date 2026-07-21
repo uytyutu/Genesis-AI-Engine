@@ -321,6 +321,9 @@ def build_landing_html(
         hero_photo=hero_photo,
     )
     css = css + "\n" + hero_comp.css
+    hero_html = hero_comp.html
+    if css_motion:
+        hero_html = hero_html.replace('class="hero ', 'class="hero hero-parallax ', 1)
 
     gallery_paths = [p for p in (client_gallery or []) if p]
     page_sections = compose_page_sections(
@@ -344,6 +347,7 @@ def build_landing_html(
     niche_attr = esc(niche_profile.niche_id)
     hero_attr = esc(hero_comp.layout_id)
     comp_attr = esc(page_sections.profile_id)
+    motion_attr = "css" if css_motion else "none"
     market_attr = esc(market_design.market_id)
     density_attr = esc(market_design.density)
 
@@ -379,8 +383,9 @@ def build_landing_html(
 
     stats_block = ""
     if feat.stats_strip and not hero_comp.embeds_stats:
+        stats_cls = "stats reveal" if css_motion else "stats"
         stats_block = f"""
-  <section class="stats" id="stats" aria-label="stats">
+  <section class="{stats_cls}" id="stats" aria-label="stats">
     <div class="stat"><strong>{esc(ui['stats_v1'])}</strong><span>{esc(ui['stats_n1'])}</span></div>
     <div class="stat"><strong>{esc(ui['stats_v2'])}</strong><span>{esc(ui['stats_n2'])}</span></div>
     <div class="stat"><strong>{esc(ui['stats_v3'])}</strong><span>{esc(ui['stats_n3'])}</span></div>
@@ -421,7 +426,7 @@ def build_landing_html(
 {css}
   </style>
 </head>
-<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-market="{market_attr}" data-density="{density_attr}">
+<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-market="{market_attr}" data-density="{density_attr}" data-motion="{motion_attr}">
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
@@ -429,7 +434,7 @@ def build_landing_html(
     </div>
   </nav>
   {trust_strip}
-{hero_comp.html}
+{hero_html}
   {info_bar}
   {stats_block}
   {catalog_block}

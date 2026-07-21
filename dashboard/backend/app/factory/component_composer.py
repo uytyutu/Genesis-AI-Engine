@@ -471,8 +471,9 @@ _GALLERY_RENDERERS: dict[str, Callable[..., str]] = {
 
 def _cta_glass(ui: dict[str, str], btn_class: str, sec: str) -> str:
     esc = html_lib.escape
+    reveal = " reveal" if "reveal" in sec else ""
     return f"""
-  <section class="mid-cta mid-cta-glass" id="mid-cta" data-comp-family="cta" data-comp-variant="glass">
+  <section class="mid-cta mid-cta-glass{reveal}" id="mid-cta" data-comp-family="cta" data-comp-variant="glass">
     <div class="mid-cta-inner">
       <h2>{esc(ui['mid_cta_title'])}</h2>
       <a class="{btn_class}" href="#contact">{esc(ui['mid_cta_btn'])}</a>
@@ -483,8 +484,9 @@ def _cta_glass(ui: dict[str, str], btn_class: str, sec: str) -> str:
 
 def _cta_solid_bar(ui: dict[str, str], btn_class: str, sec: str) -> str:
     esc = html_lib.escape
+    reveal = " reveal" if "reveal" in sec else ""
     return f"""
-  <section class="mid-cta mid-cta-solid" id="mid-cta" data-comp-family="cta" data-comp-variant="solid_bar">
+  <section class="mid-cta mid-cta-solid{reveal}" id="mid-cta" data-comp-family="cta" data-comp-variant="solid_bar">
     <h2>{esc(ui['mid_cta_title'])}</h2>
     <a class="{btn_class}" href="#contact">{esc(ui['mid_cta_btn'])}</a>
   </section>
@@ -493,8 +495,9 @@ def _cta_solid_bar(ui: dict[str, str], btn_class: str, sec: str) -> str:
 
 def _cta_editorial(ui: dict[str, str], btn_class: str, sec: str) -> str:
     esc = html_lib.escape
+    reveal = " reveal" if "reveal" in sec else ""
     return f"""
-  <section class="mid-cta mid-cta-editorial" id="mid-cta" data-comp-family="cta" data-comp-variant="editorial">
+  <section class="mid-cta mid-cta-editorial{reveal}" id="mid-cta" data-comp-family="cta" data-comp-variant="editorial">
     <div class="mid-cta-rule" aria-hidden="true"></div>
     <h2>{esc(ui['mid_cta_title'])}</h2>
     <a class="{btn_class}" href="#contact">{esc(ui['mid_cta_btn'])}</a>

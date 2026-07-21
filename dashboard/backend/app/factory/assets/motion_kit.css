@@ -1,4 +1,4 @@
-/* motion_kit.css — lightweight CSS-motion for Classic landings (no LLM, Lighthouse-friendly) */
+/* motion_kit.css — R2.2c Premium Interactions (CSS + vanilla JS; Lighthouse-friendly) */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -18,13 +18,32 @@
     opacity: 1 !important;
     transform: none !important;
   }
+  .hero-parallax,
+  .hero-parallax img,
+  .hero-parallax .hero-A-media img,
+  .hero-parallax .hero-E-orb img,
+  .hero-parallax .hero-F-banner img,
+  .hero-parallax .hero-C-portrait img {
+    transform: none !important;
+    background-position: center center !important;
+  }
+  .cta-button:hover,
+  .btn:hover,
+  .svc-card:hover,
+  .service-card:hover,
+  .gal-item:hover img,
+  .gal-cell:hover img,
+  .gal-hero:hover img {
+    transform: none !important;
+  }
 }
 
+/* --- Scroll reveal --- */
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(18px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal.active {
@@ -32,9 +51,15 @@
   transform: translateY(0);
 }
 
+.reveal-stagger.active > *:nth-child(1) { transition-delay: 0.02s; }
+.reveal-stagger.active > *:nth-child(2) { transition-delay: 0.08s; }
+.reveal-stagger.active > *:nth-child(3) { transition-delay: 0.14s; }
+.reveal-stagger.active > *:nth-child(4) { transition-delay: 0.2s; }
+
+/* --- Hero entrance --- */
 .hero-text {
   opacity: 0;
-  animation: vcSlideUp 0.8s ease-out forwards;
+  animation: vcSlideUp 0.75s ease-out forwards;
 }
 
 .hero-text.hero-text-delay {
@@ -48,7 +73,7 @@
 @keyframes vcSlideUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -56,10 +81,114 @@
   }
 }
 
-.cta-button {
-  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+/* --- Light Hero parallax (GPU-light: only background-position / small translate) --- */
+.hero-parallax {
+  --parallax-y: 0px;
 }
 
-.cta-button:hover {
+.hero-parallax.has-photo.hero-bleed,
+.hero-parallax.has-photo.hero-layout-B,
+.hero-parallax.has-photo.hero-layout-D {
+  background-position: center calc(50% + var(--parallax-y));
+}
+
+.hero-parallax .hero-A-media img,
+.hero-parallax .hero-E-orb img,
+.hero-parallax .hero-F-banner img,
+.hero-parallax .hero-C-portrait img {
+  transform: translate3d(0, calc(var(--parallax-y) * 0.35), 0);
+  will-change: transform;
+}
+
+/* --- CTA / button micro-interactions --- */
+.cta-button,
+.btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease,
+    border-color 0.2s ease, filter 0.2s ease;
+}
+
+.cta-button:hover,
+.btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.cta-button:active,
+.btn:active {
+  transform: translateY(0);
+}
+
+/* --- Card hover --- */
+.svc-card,
+.service-card,
+.product-card,
+.process-card,
+.rev-card,
+.rev-rate,
+.faq-bubble,
+.faq-panel {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.svc-card:hover,
+.service-card:hover,
+.product-card:hover,
+.process-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+}
+
+/* --- Gallery soft zoom --- */
+.gal-item img,
+.gal-cell img,
+.gal-hero img,
+.gal-side img,
+.client-photo img {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gal-item:hover img,
+.gal-cell:hover img,
+.gal-hero:hover img,
+.gal-side:hover img,
+.client-photo:hover img {
+  transform: scale(1.03);
+}
+
+/* --- FAQ accordion open --- */
+.faq-acc {
+  transition: background 0.2s ease;
+}
+
+.faq-acc summary {
+  transition: color 0.2s ease;
+}
+
+.faq-acc[open] summary {
+  color: var(--p, #0284c7);
+}
+
+.faq-acc[open] p {
+  animation: vcFaqIn 0.28s ease-out;
+}
+
+@keyframes vcFaqIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- KPI counters --- */
+.hero-kpi strong,
+.stat strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.vc-count-done {
+  /* marker class after count animation */
 }
