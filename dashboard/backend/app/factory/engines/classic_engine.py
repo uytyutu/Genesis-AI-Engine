@@ -16,7 +16,12 @@ ENGINE_ID = "classic"
 
 
 def generate(request: EngineRequest) -> EngineResult:
-    gate = gate_motion_level(request.motion_level)
+    raw_motion = request.motion_level
+    if (not raw_motion or str(raw_motion).strip().lower() in ("", "none", "auto")) and str(
+        request.package_id or "basic"
+    ).strip().lower() in ("business", "premium"):
+        raw_motion = "css"
+    gate = gate_motion_level(raw_motion)
     if not gate["ok"]:
         raise EngineError(
             gate["code"],
