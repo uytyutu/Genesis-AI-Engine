@@ -47,6 +47,7 @@ async function main() {
   }
   saveOrderDraft(market, vid, {
     formStep: 2,
+    maxReachedStep: 3,
     packageId: "business",
     manualPackage: true,
     brandStyle: "auto",
@@ -90,9 +91,10 @@ async function main() {
   if (loaded.businessName !== "Mueller Praxis" || loaded.formStep !== 2) {
     throw new Error("fields mismatch");
   }
+  if (loaded.maxReachedStep !== 3) throw new Error("maxReachedStep mismatch");
   clearOrderDraft(market, vid);
   if (loadOrderDraft(market, vid) !== null) throw new Error("clear failed");
-  console.log("orderDraft A1.1 smoke PASS");
+  console.log("orderDraft A1.1/A1.2 smoke PASS");
 }
 
 main().catch((e) => {

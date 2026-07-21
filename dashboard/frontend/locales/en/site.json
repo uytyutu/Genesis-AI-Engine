@@ -308,7 +308,11 @@
     },
     "draftRestored": "Your order draft was restored. You can continue where you left off.",
     "draftStartOver": "Start over",
-    "draftSavedHint": "Progress is saved automatically on this device."
+    "draftSavedHint": "Progress is saved automatically on this device.",
+    "stepProgress": "Step {{current}} of {{total}}",
+    "stepNavConfirmHint": "Review and submit on the right",
+    "stepNavCurrent": "Current step: {{step}}",
+    "stepNavGoTo": "Go to step: {{step}}"
   },
   "reviews": {
     "title": "Client reviews",

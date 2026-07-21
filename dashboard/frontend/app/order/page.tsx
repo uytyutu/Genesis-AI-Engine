@@ -115,6 +115,7 @@ export default function OrderSitePage() {
   const [uploadBusy, setUploadBusy] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [formStep, setFormStep] = useState(1);
+  const [maxReachedStep, setMaxReachedStep] = useState(1);
   const [insights, setInsights] = useState<{ checks: { id: string; label_de: string; detail?: string }[]; note_de?: string } | null>(
     null,
   );
@@ -207,7 +208,13 @@ export default function OrderSitePage() {
   }, [visitorId, marketReady, marketParam, commerce.market_code, draftReady]);
 
   function applyOrderDraft(d: OrderDraftPayload) {
-    setFormStep(Math.min(4, Math.max(1, Math.floor(d.formStep) || 1)));
+    const step = Math.min(4, Math.max(1, Math.floor(d.formStep) || 1));
+    const maxR = Math.min(
+      4,
+      Math.max(step, Math.floor(d.maxReachedStep || step) || step),
+    );
+    setFormStep(step);
+    setMaxReachedStep(maxR);
     setPackageId(d.packageId || "basic");
     setManualPackage(Boolean(d.manualPackage));
     setBrandStyle(d.brandStyle || "auto");
@@ -254,6 +261,7 @@ export default function OrderSitePage() {
     clearOrderDraft(market, visitorId);
     setDraftBanner(false);
     setFormStep(1);
+    setMaxReachedStep(1);
     setBusinessName("");
     setDescription("");
     setCompanyWebsite("");
@@ -298,6 +306,7 @@ export default function OrderSitePage() {
     const market = (marketParam || commerce.market_code || "DE").toUpperCase();
     draftSaverRef.current.schedule(market, visitorId, {
       formStep,
+      maxReachedStep,
       packageId,
       manualPackage,
       brandStyle,
@@ -342,6 +351,7 @@ export default function OrderSitePage() {
     marketParam,
     commerce.market_code,
     formStep,
+    maxReachedStep,
     packageId,
     manualPackage,
     brandStyle,
@@ -652,7 +662,20 @@ export default function OrderSitePage() {
     if (!canAdvance(formStep)) return;
     const next = Math.min(4, formStep + 1);
     setFormStep(next);
+    setMaxReachedStep((m) => Math.max(m, next));
     if (next === 2) await loadInsightsPreview();
+  }
+
+  function goBack() {
+    setError("");
+    setFormStep((s) => Math.max(1, s - 1));
+  }
+
+  function goToStep(step: number) {
+    const target = Math.min(4, Math.max(1, Math.floor(step)));
+    if (target > maxReachedStep) return;
+    setError("");
+    setFormStep(target);
   }
 
   async function submit(e: React.FormEvent) {
@@ -916,7 +939,11 @@ export default function OrderSitePage() {
           <div className="space-y-4 lg:col-span-3">
             {!launch ? (
               <>
-                <FormStepBar current={formStep} />
+                <FormStepBar
+                  current={formStep}
+                  maxReached={maxReachedStep}
+                  onSelectStep={goToStep}
+                />
                 {draftBanner ? (
                   <div
                     className="flex flex-col gap-2 rounded-xl border border-genesis-border/80 bg-genesis-surface/80 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
@@ -1296,22 +1323,31 @@ export default function OrderSitePage() {
                   </>
                 )}
 
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {formStep > 1 && (
+                <div className="sticky bottom-0 z-20 -mx-1 mt-3 border-t border-genesis-border/60 bg-[rgba(8,12,20,0.92)] px-1 py-3 backdrop-blur-md">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <Button
                       type="button"
                       variant="ghost"
                       size="md"
-                      onClick={() => setFormStep((s) => Math.max(1, s - 1))}
+                      disabled={formStep <= 1}
+                      onClick={goBack}
                     >
-                      {t("order.back")}
+                      ← {t("order.back")}
                     </Button>
-                  )}
-                  {formStep < 4 && (
-                    <Button type="button" variant="primary" size="md" onClick={() => void goNext()}>
-                      {t("order.next")}
-                    </Button>
-                  )}
+                    <p className="text-[11px] text-genesis-muted">
+                      {t("order.stepProgress", {
+                        current: formStep,
+                        total: 4,
+                      })}
+                    </p>
+                    {formStep < 4 ? (
+                      <Button type="button" variant="primary" size="md" onClick={() => void goNext()}>
+                        {t("order.next")} →
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-genesis-muted">{t("order.stepNavConfirmHint")}</span>
+                    )}
+                  </div>
                 </div>
                 {error && formStep < 4 && (
                   <p className="text-xs text-rose-300" role="alert">
@@ -1538,7 +1574,15 @@ function OrderCoachPanel({
   );
 }
 
-function FormStepBar({ current }: { current: number }) {
+function FormStepBar({
+  current,
+  maxReached,
+  onSelectStep,
+}: {
+  current: number;
+  maxReached: number;
+  onSelectStep: (step: number) => void;
+}) {
   const { t } = useTranslation("site");
   const steps = [
     t("order.formStep1"),
@@ -1577,22 +1621,55 @@ function FormStepBar({ current }: { current: number }) {
           );
         })}
       </ol>
-      <ol className="mb-2 flex flex-wrap gap-2" aria-label={t("order.formStepsAria")}>
+      <ol className="mb-2 flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:gap-2" aria-label={t("order.formStepsAria")}>
         {steps.map((label, idx) => {
           const n = idx + 1;
+          const isCurrent = n === current;
+          const isDone = n < current;
+          const isReachable = n <= maxReached;
+          const isLocked = n > maxReached;
+          const marker = isDone ? "✓" : isCurrent ? "➜" : "○";
+          const className = isCurrent
+            ? "border-genesis-accent/50 bg-genesis-accent/20 text-white"
+            : isDone
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
+              : isReachable
+                ? "border-white/15 bg-white/5 text-genesis-muted hover:border-white/30 hover:text-white"
+                : "border-transparent bg-transparent text-genesis-muted/60";
+          const inner = (
+            <>
+              <span className="font-medium" aria-hidden="true">
+                {marker}
+              </span>
+              <span>
+                {n}. {label}
+              </span>
+            </>
+          );
           return (
-            <li
-              key={label}
-              className={`rounded-full px-2.5 py-1 text-[11px] ${
-                n === current
-                  ? "bg-genesis-accent/20 text-white"
-                  : n < current
-                    ? "text-emerald-400"
-                    : "text-genesis-muted"
-              }`}
-              aria-current={n === current ? "step" : undefined}
-            >
-              {n}. {label}
+            <li key={label} className="min-w-0">
+              {isReachable && !isLocked ? (
+                <button
+                  type="button"
+                  onClick={() => onSelectStep(n)}
+                  className={`inline-flex w-full items-center gap-2 rounded-full border px-2.5 py-1 text-left text-[11px] transition-smooth sm:w-auto ${className}`}
+                  aria-current={isCurrent ? "step" : undefined}
+                  aria-label={
+                    isCurrent
+                      ? t("order.stepNavCurrent", { step: label })
+                      : t("order.stepNavGoTo", { step: label })
+                  }
+                >
+                  {inner}
+                </button>
+              ) : (
+                <span
+                  className={`inline-flex w-full items-center gap-2 rounded-full border px-2.5 py-1 text-[11px] sm:w-auto ${className}`}
+                  aria-disabled="true"
+                >
+                  {inner}
+                </span>
+              )}
             </li>
           );
         })}

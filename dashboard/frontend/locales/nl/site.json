@@ -286,7 +286,11 @@
     },
     "draftRestored": "Uw bestelconcept is hersteld. U kunt verdergaan waar u was gebleven.",
     "draftStartOver": "Opnieuw beginnen",
-    "draftSavedHint": "Voortgang wordt automatisch op dit apparaat opgeslagen."
+    "draftSavedHint": "Voortgang wordt automatisch op dit apparaat opgeslagen.",
+    "stepProgress": "Stap {{current}} van {{total}}",
+    "stepNavConfirmHint": "Controleer en verzend rechts",
+    "stepNavCurrent": "Huidige stap: {{step}}",
+    "stepNavGoTo": "Ga naar stap: {{step}}"
   },
   "reviews": {
     "title": "Client reviews",

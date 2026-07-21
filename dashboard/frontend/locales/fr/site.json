@@ -286,7 +286,11 @@
     },
     "draftRestored": "Votre brouillon de commande a été restauré. Vous pouvez continuer.",
     "draftStartOver": "Recommencer",
-    "draftSavedHint": "La progression est enregistrée automatiquement sur cet appareil."
+    "draftSavedHint": "La progression est enregistrée automatiquement sur cet appareil.",
+    "stepProgress": "Étape {{current}} sur {{total}}",
+    "stepNavConfirmHint": "Vérifiez et envoyez à droite",
+    "stepNavCurrent": "Étape actuelle : {{step}}",
+    "stepNavGoTo": "Aller à l’étape : {{step}}"
   },
   "reviews": {
     "title": "Client reviews",

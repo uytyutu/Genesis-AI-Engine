@@ -286,7 +286,11 @@
     },
     "draftRestored": "Koncept objednávky byl obnoven. Můžete pokračovat tam, kde jste skončili.",
     "draftStartOver": "Začít znovu",
-    "draftSavedHint": "Postup se na tomto zařízení ukládá automaticky."
+    "draftSavedHint": "Postup se na tomto zařízení ukládá automaticky.",
+    "stepProgress": "Krok {{current}} z {{total}}",
+    "stepNavConfirmHint": "Zkontrolujte a odešlete vpravo",
+    "stepNavCurrent": "Aktuální krok: {{step}}",
+    "stepNavGoTo": "Přejít na krok: {{step}}"
   },
   "reviews": {
     "title": "Client reviews",

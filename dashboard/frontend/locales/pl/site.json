@@ -286,7 +286,11 @@
     },
     "draftRestored": "Przywrócono szkic zamówienia. Możesz kontynuować od miejsca przerwania.",
     "draftStartOver": "Zacznij od nowa",
-    "draftSavedHint": "Postęp jest automatycznie zapisywany na tym urządzeniu."
+    "draftSavedHint": "Postęp jest automatycznie zapisywany na tym urządzeniu.",
+    "stepProgress": "Krok {{current}} z {{total}}",
+    "stepNavConfirmHint": "Sprawdź i wyślij po prawej",
+    "stepNavCurrent": "Bieżący krok: {{step}}",
+    "stepNavGoTo": "Przejdź do kroku: {{step}}"
   },
   "reviews": {
     "title": "Client reviews",

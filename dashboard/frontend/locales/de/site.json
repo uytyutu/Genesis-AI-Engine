@@ -308,7 +308,11 @@
     },
     "draftRestored": "Ihr Bestellentwurf wurde wiederhergestellt. Sie können fortfahren.",
     "draftStartOver": "Neu beginnen",
-    "draftSavedHint": "Der Fortschritt wird automatisch auf diesem Gerät gespeichert."
+    "draftSavedHint": "Der Fortschritt wird automatisch auf diesem Gerät gespeichert.",
+    "stepProgress": "Schritt {{current}} von {{total}}",
+    "stepNavConfirmHint": "Prüfen und rechts absenden",
+    "stepNavCurrent": "Aktueller Schritt: {{step}}",
+    "stepNavGoTo": "Zu Schritt wechseln: {{step}}"
   },
   "reviews": {
     "title": "Kundenstimmen",

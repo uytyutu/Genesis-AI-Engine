@@ -20,6 +20,8 @@ export type OrderDraftPayload = {
   v: typeof ORDER_DRAFT_VERSION;
   savedAt: number;
   formStep: number;
+  /** Highest step the buyer has opened (1–4). Enables A1.2 visited-only jumps. */
+  maxReachedStep: number;
   packageId: string;
   manualPackage: boolean;
   brandStyle: string;
@@ -85,7 +87,11 @@ export function loadOrderDraft(
     const data = JSON.parse(raw) as OrderDraftPayload;
     if (!data || data.v !== ORDER_DRAFT_VERSION) return null;
     if (typeof data.formStep !== "number") return null;
-    return data;
+    const step = Math.min(4, Math.max(1, Math.floor(data.formStep) || 1));
+    const maxRaw =
+      typeof data.maxReachedStep === "number" ? data.maxReachedStep : step;
+    const maxReachedStep = Math.min(4, Math.max(step, Math.floor(maxRaw) || step));
+    return { ...data, formStep: step, maxReachedStep };
   } catch {
     return null;
   }

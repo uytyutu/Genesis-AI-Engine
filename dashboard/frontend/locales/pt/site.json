@@ -286,7 +286,11 @@
     },
     "draftRestored": "O rascunho do pedido foi restaurado. Pode continuar de onde parou.",
     "draftStartOver": "Começar de novo",
-    "draftSavedHint": "O progresso é guardado automaticamente neste dispositivo."
+    "draftSavedHint": "O progresso é guardado automaticamente neste dispositivo.",
+    "stepProgress": "Passo {{current}} de {{total}}",
+    "stepNavConfirmHint": "Reveja e envie à direita",
+    "stepNavCurrent": "Passo atual: {{step}}",
+    "stepNavGoTo": "Ir para o passo: {{step}}"
   },
   "reviews": {
     "title": "Client reviews",
