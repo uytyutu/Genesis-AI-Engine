@@ -10,9 +10,12 @@ UX journal for Path A `/order` — not a technical log. Track what we ship for c
 | A1.2 | Wizard Navigation | Done (`bb0fbdf`) |
 | A1.3 | Live Preview / AI Guidance | Done (`a5eb22e`) |
 | A1.4 | Premium Checkout Experience | Done (`a0593fe`) |
-| A2.1 | Commercial Funnel Instrumentation | Done (this slice) |
-| A1.5 | (reserved / deepen checkout) | Planned |
-| A1.6 | Payment Confirmation Experience | Planned |
+| A2.1 | Commercial Funnel Instrumentation | Done (`5e60637`) |
+| A1.5 | (reserved / deepen checkout) | Deferred — Commercial Validation |
+| A1.6 | Payment Confirmation Experience | Deferred — Commercial Validation |
+
+**Mission 2 COMPLETE** (2026-07-21). Active mode: [`docs/COMMERCIAL_VALIDATION.md`](COMMERCIAL_VALIDATION.md) — market proof, not new features.
+
 
 ## Entries
 
@@ -103,7 +106,9 @@ UX journal for Path A `/order` — not a technical log. Track what we ship for c
 
 ### Later (not started)
 
-- **A1.6** — richer payment confirmation / status experience  
-- Then **Mission A2** sales work informed by A2.1 drop-off data  
+Deferred under **Commercial Validation** until real orders and funnel evidence:
 
-After first real sales, annotate which A1 rows moved conversion.
+- **A1.6** — richer payment confirmation / status experience  
+- Cabinet / CRM / gallery / SEO — only after market proof  
+
+Journal: [`docs/COMMERCIAL_VALIDATION.md`](COMMERCIAL_VALIDATION.md).
