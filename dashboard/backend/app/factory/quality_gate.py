@@ -138,6 +138,24 @@ def run_quality_gate(
     )
     add(
         "design",
+        "layout_profile",
+        bool(re.search(r'data-layout-profile="L[1-6]"', html)),
+        "data-layout-profile",
+    )
+    add(
+        "design",
+        "footer_variant",
+        bool(re.search(r'data-footer-variant="(compact|contact|split|legal)"', html)),
+        "data-footer-variant",
+    )
+    add(
+        "design",
+        "section_contact",
+        'id="contact"' in html,
+        "contact section present",
+    )
+    add(
+        "design",
         "market_profile",
         bool(re.search(r'data-market="[A-Z]{2}"', html)),
         "data-market",

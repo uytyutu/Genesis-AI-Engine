@@ -12,11 +12,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.factory.analyzer import analyze
-from app.factory.component_composer import select_component_profile
-from app.factory.hero_composer import select_hero_layout
-from app.factory.landing_patcher import try_patch
-from app.factory.landing_builder import build_landing_html
 from app.factory.client_legal_pages import ClientLegalInfo, write_client_legal_pages
+from app.factory.landing_builder import build_landing_html
+from app.factory.landing_patcher import try_patch
+from app.factory.layout_variants import (
+    profile_as_dict,
+    resolve_component_for_layout,
+    resolve_hero_for_layout,
+    resolve_layout_profile,
+)
 from app.factory.market_design import resolve_market_design
 from app.factory.trust_composer import collect_trust_evidence, select_trust_template
 from app.factory.validator import owner_review_check, validate_landing
@@ -162,12 +166,20 @@ class FactoryService:
             media_css=media_plan.css,
             media_background=bool(media_plan.background_src),
         )
-        hero_layout = select_hero_layout(
+        layout_profile = resolve_layout_profile(
+            business_name=analysis.business_name,
+            package_id=features.package_id,
+            market_code=market,
+            niche_id=analysis.niche,
+        )
+        hero_layout = resolve_hero_for_layout(
+            layout_profile,
             niche_id=analysis.niche,
             business_name=analysis.business_name,
             package_id=features.package_id,
         )
-        component_profile = select_component_profile(
+        component_profile = resolve_component_for_layout(
+            layout_profile,
             hero_layout=hero_layout,
             business_name=analysis.business_name,
             package_id=features.package_id,
@@ -177,6 +189,7 @@ class FactoryService:
             "market_code": market,
             "hero_layout": hero_layout,
             "component_profile": component_profile,
+            "layout_profile": layout_profile.id,
             "package_delivery": {"package_id": features.package_id},
         }
         validation = validate_landing(
@@ -222,6 +235,7 @@ class FactoryService:
             "motion_level": motion,
             "hero_layout": hero_layout,
             "component_profile": component_profile,
+            "layout_profile": profile_as_dict(layout_profile),
             "trust_template": select_trust_template(
                 niche_id=analysis.niche,
                 market_code=market,

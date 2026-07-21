@@ -12,9 +12,18 @@ from app.factory.component_composer import (
     button_class_for_profile,
     compose_page_sections,
     get_component_profile,
-    select_component_profile,
+    remapped_cta,
 )
-from app.factory.hero_composer import compose_hero, select_hero_layout
+from app.factory.hero_composer import compose_hero
+from app.factory.layout_variants import (
+    assemble_body,
+    compose_footer,
+    layout_profile_css,
+    resolve_component_for_layout,
+    resolve_hero_for_layout,
+    resolve_layout_profile,
+    style_overrides,
+)
 from app.factory.landing_tier_css import tier_stylesheet
 from app.factory.market_design import (
     assert_localization_hygiene,
@@ -198,12 +207,20 @@ def build_landing_html(
         sec = "section"
 
     niche_profile = resolve_niche_profile(analysis.niche)
-    hero_layout_id = select_hero_layout(
+    layout_profile = resolve_layout_profile(
+        business_name=analysis.business_name,
+        package_id=tier,
+        market_code=market_design.market_id,
+        niche_id=niche_profile.niche_id,
+    )
+    hero_layout_id = resolve_hero_for_layout(
+        layout_profile,
         niche_id=niche_profile.niche_id,
         business_name=analysis.business_name,
         package_id=tier,
     )
-    comp_profile_id = select_component_profile(
+    comp_profile_id = resolve_component_for_layout(
+        layout_profile,
         hero_layout=hero_layout_id,
         business_name=analysis.business_name,
         package_id=tier,
@@ -211,6 +228,7 @@ def build_landing_html(
     )
     comp_profile = get_component_profile(comp_profile_id)
     btn_class = button_class_for_profile(comp_profile, css_motion=css_motion)
+    layout_styles = style_overrides(layout_profile)
 
     page_title = f"{analysis.business_name} — {analysis.subtitle[:60]}"
     meta_desc = esc(analysis.subtitle[:160])
@@ -392,6 +410,13 @@ def build_landing_html(
         if css_motion:
             hero_html = hero_html.replace('class="hero ', 'class="hero hero-parallax ', 1)
 
+    # CTA strategy: early/mid → mid_cta slot; late → late_cta; dual → both
+    want_mid = bool(feat.mid_cta) and layout_profile.cta_strategy in (
+        "early",
+        "mid",
+        "dual",
+    )
+    want_late = bool(feat.mid_cta) and layout_profile.cta_strategy in ("late", "dual")
     page_sections = compose_page_sections(
         profile_id=comp_profile_id,
         analysis_services=analysis.services,
@@ -404,11 +429,26 @@ def build_landing_html(
         btn_class=btn_class,
         include_faq=bool(feat.faq),
         include_reviews=bool(include_testimonials and real_reviews),
-        include_mid_cta=bool(feat.mid_cta),
+        include_mid_cta=want_mid or want_late,
         gallery_paths=gallery_paths,
         client_reviews=trust_evidence.reviews if real_reviews else (),
+        cards_override=layout_styles.get("cards"),
+        gallery_override=layout_styles.get("gallery"),
+        faq_override=layout_styles.get("faq"),
     )
     css = css + "\n" + page_sections.css
+    css = css + "\n" + layout_profile_css(layout_profile)
+
+    mid_cta_html = page_sections.mid_cta_html if want_mid else ""
+    late_cta_html = (
+        remapped_cta(page_sections.mid_cta_html, section_id="late-cta")
+        if want_late
+        else ""
+    )
+    if want_late and not want_mid:
+        # Only late — remap the single CTA away from mid-cta id
+        mid_cta_html = ""
+        late_cta_html = remapped_cta(page_sections.mid_cta_html, section_id="late-cta")
 
     process_inner = ""
     if feat.process:
@@ -443,6 +483,8 @@ def build_landing_html(
     density_attr = esc(market_design.density)
     trust_attr = esc(trust_comp.template_id)
     media_bg_attr = "1" if media_background else "0"
+    layout_attr = esc(layout_profile.id)
+    footer_attr = esc(layout_profile.footer_variant)
 
     trust_strip = ""
     if feat.trust_bar:
@@ -498,6 +540,54 @@ def build_landing_html(
   </section>
 """
 
+    about_block = f"""
+  <section class="{sec} about">
+    <h2>{esc(ui['about'])}</h2>
+    <p>{about}</p>
+  </section>
+"""
+    contact_block = f"""
+  <section class="{sec}" id="contact">
+    <h2>{esc(ui['contact'])}</h2>
+    <p class="muted">{esc(ui['contact_muted'])}</p>
+    <div class="contact-grid">
+      <p><strong>{esc(ui['phone'])}:</strong> <a href="tel:{_tel_href(analysis.phone)}">{phone}</a></p>
+      {wa_contact}
+      <p><strong>{esc(ui['email'])}:</strong> <a href="mailto:{email}">{email}</a></p>
+      <p><strong>{esc(ui['hours'])}:</strong> {hours}</p>
+    </div>
+    {form_block}
+  </section>
+"""
+    body_sections = {
+        "info": info_bar,
+        "stats": stats_block,
+        "catalog": catalog_block,
+        "services": page_sections.services_html,
+        "mid_cta": mid_cta_html,
+        "benefits": page_sections.benefits_html,
+        "trust": trust_comp.html,
+        "process": process_block,
+        "showcase": showcase_block,
+        "gallery": page_sections.gallery_html,
+        "about": about_block,
+        "faq": page_sections.faq_html,
+        "calculator": calc_block,
+        "reviews": page_sections.reviews_html,
+        "maps": maps_block,
+        "late_cta": late_cta_html,
+        "contact": contact_block,
+    }
+    body_html = assemble_body(body_sections, layout_profile.section_order)
+    footer_html = compose_footer(
+        variant=layout_profile.footer_variant,
+        business_name=analysis.business_name,
+        ui=ui,
+        phone=analysis.phone,
+        email=analysis.email,
+        city=city,
+    )
+
     gallery_nav = (
         f' <a href="#gallery">{esc(ui.get("gallery_title") or "Galerie")}</a>'
         if gallery_paths
@@ -523,8 +613,8 @@ def build_landing_html(
 {css}
   </style>
 </head>
-<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-market="{market_attr}" data-density="{density_attr}" data-motion="{motion_attr}" data-trust-template="{trust_attr}" data-media-bg="{media_bg_attr}">
-  <nav class="topbar">
+<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-layout-profile="{layout_attr}" data-footer-variant="{footer_attr}" data-cta-strategy="{esc(layout_profile.cta_strategy)}" data-market="{market_attr}" data-density="{density_attr}" data-motion="{motion_attr}" data-trust-template="{trust_attr}" data-media-bg="{media_bg_attr}">
+  <nav class="topbar" aria-label="Navigation">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
       {catalog_nav}{maps_nav}{gallery_nav}{trust_nav}{reviews_nav}<a href="#contact">{cta}</a>
@@ -532,40 +622,8 @@ def build_landing_html(
   </nav>
   {trust_strip}
 {hero_html}
-  {info_bar}
-  {stats_block}
-  {catalog_block}
-{page_sections.services_html}
-{page_sections.mid_cta_html}
-{page_sections.benefits_html}
-{trust_comp.html}
-  {process_block}
-  {showcase_block}
-{page_sections.gallery_html}
-  <section class="{sec} about">
-    <h2>{esc(ui['about'])}</h2>
-    <p>{about}</p>
-  </section>
-{page_sections.faq_html}
-  {calc_block}
-{page_sections.reviews_html}
-  {maps_block}
-  <section class="{sec}" id="contact">
-    <h2>{esc(ui['contact'])}</h2>
-    <p class="muted">{esc(ui['contact_muted'])}</p>
-    <div class="contact-grid">
-      <p><strong>{esc(ui['phone'])}:</strong> <a href="tel:{_tel_href(analysis.phone)}">{phone}</a></p>
-      {wa_contact}
-      <p><strong>{esc(ui['email'])}:</strong> <a href="mailto:{email}">{email}</a></p>
-      <p><strong>{esc(ui['hours'])}:</strong> {hours}</p>
-    </div>
-    {form_block}
-  </section>
-  <footer>
-    {business} · © {business}<br>
-    <a href="{esc(ui['legal_a_href'])}" style="color:#94a3b8;margin-right:0.75rem">{esc(ui['legal_a'])}</a>
-    <a href="{esc(ui['legal_b_href'])}" style="color:#94a3b8">{esc(ui['legal_b'])}</a>
-  </footer>
+{body_html}
+  {footer_html}
 {motion_script}</body>
 </html>
 """

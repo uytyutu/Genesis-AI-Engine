@@ -138,21 +138,28 @@ def compose_page_sections(
     include_mid_cta: bool,
     gallery_paths: list[str],
     client_reviews: tuple[tuple[str, str], ...] | list[tuple[str, str]] | None = None,
+    cards_override: str | None = None,
+    gallery_override: str | None = None,
+    faq_override: str | None = None,
 ) -> ComposedSections:
     profile = get_component_profile(profile_id)
     esc = html_lib.escape
     sec = section_class
     business = esc(business_name)
 
-    services = _CARD_RENDERERS[profile.cards](
+    cards_key = cards_override if cards_override in _CARD_RENDERERS else profile.cards
+    faq_key = faq_override if faq_override in _FAQ_RENDERERS else profile.faq
+    gallery_key = (
+        gallery_override if gallery_override in _GALLERY_RENDERERS else profile.gallery
+    )
+
+    services = _CARD_RENDERERS[cards_key](
         analysis_services, service_descriptions, ui, sec
     )
     benefits_html = _BENEFIT_RENDERERS[profile.benefits](benefits, why_title, sec)
-    faq_html = (
-        _FAQ_RENDERERS[profile.faq](ui, sec) if include_faq else ""
-    )
+    faq_html = _FAQ_RENDERERS[faq_key](ui, sec) if include_faq else ""
     gallery_html = (
-        _GALLERY_RENDERERS[profile.gallery](gallery_paths, ui, business, sec)
+        _GALLERY_RENDERERS[gallery_key](gallery_paths, ui, business, sec)
         if gallery_paths
         else ""
     )
@@ -175,6 +182,16 @@ def compose_page_sections(
         reviews_html=reviews_html,
         mid_cta_html=mid_cta_html,
         css=_profile_css(profile),
+    )
+
+
+def remapped_cta(html: str, *, section_id: str) -> str:
+    """Clone a mid-cta block under a different id (dual CTA strategy)."""
+    if not html.strip():
+        return ""
+    return (
+        html.replace('id="mid-cta"', f'id="{section_id}"', 1)
+        .replace("mid-cta ", f"{section_id} mid-cta ", 1)
     )
 
 
@@ -243,10 +260,32 @@ def _cards_minimal(
 """
 
 
+def _cards_list(
+    services: list[str],
+    descriptions: tuple[str, ...] | list[str],
+    ui: dict[str, str],
+    sec: str,
+) -> str:
+    esc = html_lib.escape
+    descs = list(descriptions) + [""] * max(0, len(services) - len(descriptions))
+    rows = "".join(
+        f'<li class="svc-row"><h3>{esc(t)}</h3>'
+        f'<p class="service-desc">{esc(d)}</p></li>'
+        for t, d in zip(services, descs)
+    )
+    return f"""
+  <section class="{sec} services-block" id="services" data-comp-family="cards" data-comp-variant="list">
+    <h2>{esc(ui['services'])}</h2>
+    <ul class="services services-list">{rows}</ul>
+  </section>
+"""
+
+
 _CARD_RENDERERS: dict[str, Callable[..., str]] = {
     "glass": _cards_glass,
     "solid": _cards_solid,
     "minimal": _cards_minimal,
+    "list": _cards_list,
 }
 
 

@@ -104,7 +104,11 @@ def test_all_layouts_render_unique_markers(monkeypatch):
 
     base = analyze("Lokalgeschäft Test in Berlin. Service und Beratung.")
     for lid in LAYOUT_IDS:
-        monkeypatch.setattr(lb, "select_hero_layout", lambda lid=lid, **_kwargs: lid)
+        monkeypatch.setattr(
+            lb,
+            "resolve_hero_for_layout",
+            lambda _profile, lid=lid, **_kwargs: lid,
+        )
         html = build_landing_html(
             base,
             features=resolve_package_features("premium"),
