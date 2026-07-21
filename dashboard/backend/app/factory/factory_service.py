@@ -444,7 +444,7 @@ class FactoryService:
             )
 
         slug = self._zip_slug(meta.get("business_name") or "", product_id)
-        return buf.getvalue(), f"{slug}-virtus.zip"
+        return buf.getvalue(), f"{slug}.zip"
 
     def mark_delivered(self, product_id: str) -> dict:
         meta = self._load_meta(product_id)

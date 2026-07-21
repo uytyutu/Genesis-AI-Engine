@@ -2,6 +2,9 @@
 
 Factory Path A does not import this at checkout. Sold demos + future Premium
 pick a thematic showcase from niche_showcase.json — never a random mesh.
+
+Lab UI under dashboard/backend/_research_3d/ (tier switch, Virtus eyebrow, Demo)
+must stay research-only — never ship into client ZIP / Path A index.html.
 """
 
 from __future__ import annotations

@@ -14,8 +14,8 @@ from typing import Any
 _DISCLAIMER_DE = (
     "Dieser Text wurde aus Ihren Angaben automatisch vorbereitet. "
     "Er ersetzt keine Rechtsberatung. Bitte prüfen und freigeben Sie den Inhalt "
-    "vor der Veröffentlichung. Virtus Core übernimmt keine Haftung für die "
-    "Vollständigkeit oder rechtliche Richtigkeit."
+    "vor der Veröffentlichung. Für die Vollständigkeit oder rechtliche Richtigkeit "
+    "wird keine Haftung übernommen."
 )
 
 
@@ -322,7 +322,7 @@ def build_privacy_html_en(info: ClientLegalInfo, *, accent: str = "#0ea5e9", mar
     contact = info.email or "[email]"
     body = f"""
   <p class="muted">Privacy Policy template for market { _esc(market) } — filled from order data. Not legal advice.</p>
-  <p class="box warn">Review with your counsel before go-live. Virtus Core does not provide legal advice.</p>
+  <p class="box warn">Review with your counsel before go-live. This template is not legal advice.</p>
   <h2>1. Who we are</h2>
   <div class="box">{_esc(controller)}
 Email: {_esc(contact)}
