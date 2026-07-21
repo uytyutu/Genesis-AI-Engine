@@ -56,6 +56,7 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
     "/business",
     "/opportunities",
     "/acquisition",
+    "/support",
     "/scanner",
     "/growth",
     "/tasks",
@@ -91,6 +92,7 @@ export const CLIENT_NAV_LINKS = [
 export const CEO_PRIMARY_LINKS = [
   { href: "/business", label: "Бизнес", hint: "Mission 2 · KPI" },
   { href: "/acquisition", label: "Поиск лидов", hint: "Country Desk · все рынки · Path A" },
+  { href: "/support", label: "Поддержка", hint: "Inbox · автоответы · шаблоны" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
   { href: "/", label: "Ферма", hint: "Разметка · Toloka (не Desk)" },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
@@ -100,6 +102,7 @@ export const CEO_PRIMARY_LINKS = [
 export const CEO_STUDIO_LINKS = [
   { href: "/cursor", label: "Разработка", hint: "Cursor · код" },
   { href: "/acquisition", label: "Country Desk", hint: "Все рынки · снайпер · Outbox" },
+  { href: "/support", label: "Support", hint: "Inbox · Auto Rules · Templates" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Как видит покупатель" },
   { href: "/tiktok-horizon", label: "Видео-фабрика", hint: "Horizon · TikTok · kill switch" },
   { href: "/#lost-archive", label: "Архив отказов", hint: "lost_reasons · не удалять" },

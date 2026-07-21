@@ -268,6 +268,9 @@ app.add_middleware(
 from app.api.webhooks.stripe import router as stripe_webhook_router
 
 app.include_router(stripe_webhook_router)
+from app.api.webhooks.resend_inbound import router as resend_inbound_webhook_router
+
+app.include_router(resend_inbound_webhook_router)
 
 # Research Visual Experience stills / demos (Path A preview — read-only assets)
 from pathlib import Path as _Path
@@ -1415,6 +1418,109 @@ def asset_accept_target(opportunity_id: str) -> AssetActionResponse:
         target=OpportunityRecord(**row),
         message="Принято в работу — монетизация запущена.",
     )
+
+
+@app.get("/api/support/status")
+def support_status() -> dict:
+    return _ctx().support.configuration_status()
+
+
+@app.get("/api/support/threads")
+def support_list_threads(status: str | None = None, limit: int = 80) -> dict:
+    items = _ctx().support.list_threads(status=status, limit=max(1, min(200, limit)))
+    return {"items": items, "count": len(items)}
+
+
+@app.get("/api/support/threads/{thread_id}")
+def support_get_thread(thread_id: str) -> dict:
+    row = _ctx().support.get_thread(thread_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="not_found")
+    return row
+
+
+@app.post("/api/support/threads/{thread_id}/reply")
+def support_reply_thread(thread_id: str, body: dict | None = None) -> dict:
+    body = body or {}
+    try:
+        return _ctx().support.reply(
+            thread_id,
+            text=str(body.get("text") or ""),
+            save_as_template=bool(body.get("save_as_template")),
+            template_name=str(body.get("template_name") or ""),
+            create_auto_rule=bool(body.get("create_auto_rule")),
+        )
+    except ValueError as exc:
+        code = str(exc)
+        if code == "not_found":
+            raise HTTPException(status_code=404, detail=code) from exc
+        raise HTTPException(status_code=400, detail=code) from exc
+
+
+@app.post("/api/support/threads/{thread_id}/status")
+def support_set_thread_status(thread_id: str, body: dict | None = None) -> dict:
+    body = body or {}
+    try:
+        return _ctx().support.set_status(thread_id, str(body.get("status") or ""))
+    except ValueError as exc:
+        code = str(exc)
+        if code == "not_found":
+            raise HTTPException(status_code=404, detail=code) from exc
+        raise HTTPException(status_code=400, detail=code) from exc
+
+
+@app.get("/api/support/templates")
+def support_list_templates() -> dict:
+    items = _ctx().support.list_templates()
+    return {"items": items, "count": len(items)}
+
+
+@app.post("/api/support/templates")
+def support_create_template(body: dict | None = None) -> dict:
+    body = body or {}
+    return _ctx().support.create_template(
+        name=str(body.get("name") or "Template"),
+        subject=str(body.get("subject") or ""),
+        body=str(body.get("body") or ""),
+        source_fingerprint=str(body.get("source_fingerprint") or ""),
+    )
+
+
+@app.get("/api/support/auto-rules")
+def support_list_auto_rules() -> dict:
+    items = _ctx().support.list_auto_rules()
+    return {"items": items, "count": len(items)}
+
+
+@app.post("/api/support/auto-rules")
+def support_create_auto_rule(body: dict | None = None) -> dict:
+    body = body or {}
+    try:
+        return _ctx().support.create_auto_rule(
+            fingerprint=str(body.get("fingerprint") or ""),
+            template_id=str(body.get("template_id") or ""),
+            enabled=bool(body.get("enabled", True)),
+            label=str(body.get("label") or ""),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/support/auto-rules/{rule_id}/enabled")
+def support_set_auto_rule_enabled(rule_id: str, body: dict | None = None) -> dict:
+    body = body or {}
+    try:
+        return _ctx().support.set_auto_rule_enabled(rule_id, bool(body.get("enabled", True)))
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.delete("/api/support/auto-rules/{rule_id}")
+def support_delete_auto_rule(rule_id: str) -> dict:
+    ok = _ctx().support.delete_auto_rule(rule_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="not_found")
+    return {"ok": True}
 
 
 @app.get("/api/acquisition/status", response_model=AcquisitionStudioStatus)

@@ -138,8 +138,46 @@ RESEND_API_KEY=re_...    # уже должен быть
 
 ---
 
+## Шаг 7 — Resend Inbound (Support Inbox)
+
+Нужно для живого приёма писем в CEO `/support`. Исходящие (Шаги 1–5) уже работают отдельно.
+
+### Важно про MX
+
+Если на `genesis-ai-engine.com` **уже есть MX** (Gmail / Workspace / другое) — **не заменяйте** их на Resend на корне. Resend рекомендует subdomain, например `inbound.genesis-ai-engine.com`, и принимать `hello@inbound.…` **или** forward с `hello@genesis-ai-engine.com` на inbound-адрес.
+
+Если MX на корне ещё нет — можно поставить Receiving MX от Resend на `@`.
+
+### Порядок (production)
+
+1. **Railway Variables** (если ещё нет):
+   - `RESEND_API_KEY=re_…` — исходящие + чтение тела входящих
+   - `GENESIS_EMAIL_FROM=Genesis <hello@genesis-ai-engine.com>`
+   - `GENESIS_SUPPORT_EMAIL=hello@genesis-ai-engine.com` (опционально)
+   - `RESEND_INBOUND_WEBHOOK_SECRET=` — пока оставьте пустым; вставите `whsec_…` после шага 3
+2. **Redeploy Railway** — на production должен отвечать `GET /api/support/status` (не 404).
+3. **Resend → Webhooks → Add Webhook**:
+   - URL: `https://genesis-ai-engine-production.up.railway.app/api/webhooks/resend-inbound`
+   - Event: **`email.received`**
+   - После создания скопируйте **Signing secret** (`whsec_…`) → Railway Variable:
+     `RESEND_INBOUND_WEBHOOK_SECRET=whsec_…`
+   - Redeploy ещё раз (или «Restart» после Variable).
+   - Resend подписывает запросы заголовками `svix-id` / `svix-timestamp` / `svix-signature` — наш код это проверяет.  
+     Для локального smoke также принимаются `Authorization: Bearer <secret>` и `X-Webhook-Secret`.
+4. **Resend Receiving + Cloudflare DNS** — записи MX (и связанные), которые показывает Resend для Inbound/Receiving. Режим **DNS only** (серое облако).
+5. **Проверка:** письмо на support-адрес → Genesis.exe → `/support` → **Needs Reply**.  
+   Повтор идентичного письма при Auto Rule → **Waiting** + автоответ.
+6. **Опционально:** forward копии на Gmail только как уведомление — **не** источник истины для Inbox.
+
+**Почему не свой random-secret в Resend:** Resend не шлёт ваш Bearer — он шлёт Svix-подпись. В Railway кладите именно `whsec_…` из страницы Webhook.
+
+Без DNS/Inbound страница `/support` всё равно открывается и показывает статус «inbound не настроен»; локальный smoke — `POST` на webhook с `{from, subject, text}` + Bearer.
+
+---
+
 ## Horizon (не сейчас)
 
-- `support@`, `partners@` — aliases в Resend или Google Workspace
+- `partners@` — aliases в Resend или Google Workspace
 - `app.` / `api.` subdomains на Vercel
 - Домены клиентов — платит клиент
+- AI Draft Reply · SLA · мульти-агенты — после стабильного Inbox

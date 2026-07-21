@@ -36,6 +36,7 @@ from app.integration.cursor_handoff_service import CursorHandoffService
 from app.integration.public_launch_service import PublicLaunchService
 from app.integration.pricing_display_service import PricingDisplayService
 from app.integration.timeline_service import TimelineService
+from app.integration.support_inbox_service import SupportInboxService
 
 _MEMORY_DIR = Path(
     os.getenv("GENESIS_MEMORY_DIR", "")
@@ -90,6 +91,7 @@ class IntegrationContext:
     business_mode: BusinessModeService
     public_launch: PublicLaunchService
     pricing_display: PricingDisplayService
+    support: SupportInboxService
 
 
 _context: IntegrationContext | None = None
@@ -143,6 +145,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
         cursor_handoff = CursorHandoffService(path, system_check, factory, finance)
         public_launch = PublicLaunchService(path, checkout)
         pricing_display = PricingDisplayService(path)
+        support = SupportInboxService(path)
         _context = IntegrationContext(
             adapter=adapter,
             health=health,
@@ -176,6 +179,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             business_mode=business_mode,
             public_launch=public_launch,
             pricing_display=pricing_display,
+            support=support,
         )
     return _context
 

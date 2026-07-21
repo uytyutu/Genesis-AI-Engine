@@ -33,6 +33,7 @@ INTERNAL_PREFIXES = (
     "/api/demo/",
     "/api/assistant/",
     "/api/factory/",
+    "/api/support",
     *WORKSPACE_PREFIXES,
     *PROJECT_PREFIXES,
 )
