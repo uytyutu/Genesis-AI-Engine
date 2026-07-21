@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hmac
 import os
 import re
 
@@ -106,6 +107,29 @@ def is_public_api_path(path: str, method: str = "GET") -> bool:
 
 def production_api_allowed(path: str, method: str = "GET") -> bool:
     return is_public_api_path(path, method)
+
+
+def support_bridge_allowed(request: Request) -> bool:
+    """CEO desk (localhost) may call production /api/support with shared bridge secret."""
+    secret = (
+        os.getenv("SUPPORT_BRIDGE_SECRET", "").strip()
+        or os.getenv("RESEND_INBOUND_WEBHOOK_SECRET", "").strip()
+    )
+    if not secret:
+        return False
+    header = (
+        request.headers.get("x-support-bridge")
+        or request.headers.get("x-genesis-support-bridge")
+        or ""
+    ).strip()
+    if header and hmac.compare_digest(header, secret):
+        return True
+    auth = (request.headers.get("authorization") or "").strip()
+    if auth.lower().startswith("bearer "):
+        token = auth[7:].strip()
+        if token and hmac.compare_digest(token, secret):
+            return True
+    return False
 
 
 def local_owner_access_allowed(request: Request) -> bool:

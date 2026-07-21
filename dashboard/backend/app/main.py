@@ -29,8 +29,10 @@ from app.security import (
     is_owner_api_path,
     local_owner_access_allowed,
     production_api_allowed,
+    support_bridge_allowed,
 )
 from app.integration.owner_auth import owner_access_allowed
+from app.integration.support_remote import proxy_support, remote_enabled
 from app.schemas import (
     ActivityResponse,
     AssistantRequest,
@@ -315,6 +317,8 @@ async def guard_internal_routes(request: Request, call_next):
     path = request.url.path
     method = request.method
     if is_production():
+        if path.startswith("/api/support") and support_bridge_allowed(request):
+            return await call_next(request)
         if not production_api_allowed(path, method):
             return JSONResponse(status_code=403, content=api_access_denied_response(path, method))
     elif is_internal_api_path(path) and not (
@@ -323,6 +327,21 @@ async def guard_internal_routes(request: Request, call_next):
         else local_owner_access_allowed(request)
     ):
         return JSONResponse(status_code=403, content=api_access_denied_response(path, method))
+    return await call_next(request)
+
+
+@app.middleware("http")
+async def support_inbox_remote_proxy(request: Request, call_next):
+    """Local Genesis.exe desk → Railway Support Inbox (shared volume of truth)."""
+    path = request.url.path
+    if (
+        path.startswith("/api/support")
+        and not is_production()
+        and remote_enabled()
+    ):
+        proxied = await proxy_support(request, path)
+        if proxied is not None:
+            return proxied
     return await call_next(request)
 
 
