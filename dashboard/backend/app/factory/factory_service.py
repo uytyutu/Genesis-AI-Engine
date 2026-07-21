@@ -143,7 +143,28 @@ class FactoryService:
             hero_photo=True,
             brand_style=brand_style_id,
         )
-        validation = validate_landing(html)
+        hero_layout = select_hero_layout(
+            niche_id=analysis.niche,
+            business_name=analysis.business_name,
+            package_id=features.package_id,
+        )
+        component_profile = select_component_profile(
+            hero_layout=hero_layout,
+            business_name=analysis.business_name,
+            package_id=features.package_id,
+            niche_id=analysis.niche,
+        )
+        gate_meta = {
+            "market_code": market,
+            "hero_layout": hero_layout,
+            "component_profile": component_profile,
+            "package_delivery": {"package_id": features.package_id},
+        }
+        validation = validate_landing(
+            html,
+            meta=gate_meta,
+            assets_dir=product_dir / "assets",
+        )
         (product_dir / "index.html").write_text(html, encoding="utf-8")
 
         legal_payload = dict(client_legal or {})
@@ -169,18 +190,6 @@ class FactoryService:
             product_dir, legal_info, market_code=market
         )
 
-        hero_layout = select_hero_layout(
-            niche_id=analysis.niche,
-            business_name=analysis.business_name,
-            package_id=features.package_id,
-        )
-        component_profile = select_component_profile(
-            hero_layout=hero_layout,
-            business_name=analysis.business_name,
-            package_id=features.package_id,
-            niche_id=analysis.niche,
-        )
-
         meta = {
             "product_id": product_id,
             "intent_id": intent_id,
@@ -198,6 +207,7 @@ class FactoryService:
             "quality_percent": validation.quality_percent,
             "validation_passed": validation.passed,
             "technical_checks": validation.technical_checks,
+            "quality_gate": validation.quality_gate,
             "owner_approved": False,
             "owner_approved_at": None,
             "revision": 0,
@@ -325,7 +335,11 @@ class FactoryService:
                 hero_pack_manifest=pack_manifest,
             )
 
-        validation = validate_landing(html)
+        validation = validate_landing(
+            html,
+            meta=meta,
+            assets_dir=product_dir / "assets",
+        )
 
         (product_dir / "index.html").write_text(html, encoding="utf-8")
         from app.factory.hero_still import write_hero_asset
@@ -340,6 +354,7 @@ class FactoryService:
         meta["quality_percent"] = validation.quality_percent
         meta["validation_passed"] = validation.passed
         meta["technical_checks"] = validation.technical_checks
+        meta["quality_gate"] = validation.quality_gate
         meta["owner_approved"] = False
         meta["owner_approved_at"] = None
         meta["updated_at"] = datetime.now(timezone.utc).isoformat()
@@ -420,6 +435,15 @@ class FactoryService:
         html_path = product_dir / "index.html"
         if not html_path.is_file():
             raise ValueError("product_not_found")
+
+        html = html_path.read_text(encoding="utf-8")
+        from app.factory.quality_gate import assert_quality_gate
+
+        assert_quality_gate(
+            html,
+            meta=meta,
+            assets_dir=product_dir / "assets",
+        )
 
         market = normalize_market(str(meta.get("market_code") or "DE"))
         # Regenerate legal pages for this market on every pack (fixes legacy DE-only products).
@@ -636,6 +660,8 @@ class FactoryService:
             "motion_level": meta.get("motion_level", "none"),
             "hero_layout": meta.get("hero_layout"),
             "component_profile": meta.get("component_profile"),
+            "quality_gate": meta.get("quality_gate"),
+            "validation_passed": meta.get("validation_passed"),
             "created_at": meta.get("created_at", ""),
             "updated_at": meta.get("updated_at", ""),
             "preview_url": f"/api/factory/products/{pid}/preview",

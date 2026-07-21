@@ -307,6 +307,7 @@ def build_seo_localization(
     esc_title = _xml_esc(page_title)
     esc_desc = _xml_esc(meta_description)
     parts = [
+        f'  <link rel="canonical" href="./">',
         f'  <link rel="alternate" hreflang="{profile.hreflang}" href="./">',
         '  <link rel="alternate" hreflang="x-default" href="./">',
     ]
