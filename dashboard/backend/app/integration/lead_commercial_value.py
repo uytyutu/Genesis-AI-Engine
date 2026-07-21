@@ -9,6 +9,33 @@ Business Potential (softened) =
   Industry Prior + Review Quality + Business Signals + Website Signals
 
 Industry prior alone must NOT auto-qualify Premium (e.g. bare dental < 0.78).
+
+---------------------------------------------------------------------------
+Acquisition Scoring v1 — FEATURE FREEZE (commit 947350e)
+---------------------------------------------------------------------------
+Do NOT change Lead Priority, Business Potential weights, Premium gates, or EV
+math without an explicit CEO reopen of Scoring v2.
+
+Do NOT reopen because:
+  - CEO «feels» it was better before
+  - one niche temporarily spikes
+  - someone wants to «tweak a coefficient»
+
+Reopen Scoring v2 ONLY with objective evidence, e.g.:
+  - closed deals systematically beat/miss forecast by lead type
+  - EV stops correlating with actual revenue
+  - after several hunt cycles, new niches are systematically undervalued
+  - hundreds of new leads show a stable, reproducible skew
+
+Observation gate (after ~500–1000 new leads / 5–10 hunt cycles):
+  1) high-LTV niches present (law, solar, engineering, finance, …)
+  2) Basic / Business / Premium mix still reasonable
+  3) EV holds or rises vs freeze baseline
+  4) TOP 20 has no single-industry monopoly
+  5) new niches reach the top without artificial bonuses
+  6) KPI Forecast vs Reality — predicted EV vs actual sales (empty until deals exist)
+
+Until then: Hunt diversity, Outbox conversion, Support Inbox ops, Mission 1 sales.
 """
 
 from __future__ import annotations
