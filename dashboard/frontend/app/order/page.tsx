@@ -9,8 +9,8 @@ import { formatLocalizedMoney } from "../lib/formatEur";
 import { formatApiDetail } from "../lib/formatApiError";
 import { startOrderCheckout, fetchPaymentReady } from "../lib/orderCheckout";
 import { parseOrderPurchaseType } from "../lib/orderTrustCard";
-import { OrderTrustCard } from "../components/OrderTrustCard";
 import { OrderProjectSummary } from "../components/OrderProjectSummary";
+import { OrderCheckoutSummary } from "../components/OrderCheckoutSummary";
 import { fetchProjectPlatform } from "../lib/projectApi";
 import { buildOrderLaunchContext, type OrderLaunchContext } from "../lib/orderProjectLaunch";
 import { Badge, Button, ButtonLink, Card, Field, Input, Textarea } from "../components/ui";
@@ -155,6 +155,7 @@ export default function OrderSitePage() {
   } | null>(null);
   const [payBusy, setPayBusy] = useState(false);
   const [payError, setPayError] = useState("");
+  const [checkoutConfirmed, setCheckoutConfirmed] = useState(false);
   const [paymentReady, setPaymentReady] = useState(false);
   const [purchaseType, setPurchaseType] = useState<"one_time" | "subscription">("one_time");
   const [visitorId, setVisitorId] = useState<string | null>(null);
@@ -780,7 +781,7 @@ export default function OrderSitePage() {
   }
 
   async function payNow() {
-    if (!done) return;
+    if (!done || !checkoutConfirmed) return;
     setPayBusy(true);
     setPayError("");
     try {
@@ -801,94 +802,36 @@ export default function OrderSitePage() {
       <PublicPageShell>
         <main className="mx-auto max-w-2xl py-4">
           <OrderSteps current={paymentReady ? 3 : 2} launch={Boolean(launch)} />
-          <Card glow className="text-center" padding="lg">
-            <p className="text-4xl text-emerald-400" aria-hidden>
-              ✓
-            </p>
-            <h1 className="mt-4 text-2xl font-bold">
-              {launch ? t("order.projectLocked") : t("order.thanks")}
-            </h1>
-            <p className="mt-3 text-genesis-muted">{done.message}</p>
-            <Badge variant="muted" className="mt-3">
-              № {done.order_id}
-            </Badge>
-            <Card hover={false} className="mt-6 text-left" padding="md">
-              {launch ? (
-                <>
-                  <p className="text-sm text-genesis-muted">{t("order.toPay")}</p>
-                  <p className="mt-1 text-xl font-semibold">
-                    {launch.projectLabel} {launch.company} — {formatPrice(done.price_eur, done)}
-                  </p>
-                  <p className="genesis-label mt-4">{t("order.afterPay")}</p>
-                  <ul className="mt-2 space-y-1.5 text-sm">
-                    {(launch && done.deliverables.length > 0
-                      ? done.deliverables
-                      : launchDeliverables
-                    ).map((d) => (
-                      <li key={d} className="flex gap-2">
-                        <span className="text-emerald-400">✔</span>
-                        <span>{d}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm text-genesis-muted">{t("order.projectPriced")}</p>
-                  <p className="mt-1 text-xl font-semibold">
-                    {done.package_name} — {formatPrice(done.price_eur, done)}
-                  </p>
-                  <p className="genesis-label mt-4">{t("order.youReceive")}</p>
-                  <ul className="mt-2 space-y-1.5 text-sm">
-                    {done.deliverables.map((d) => (
-                      <li key={d} className="flex gap-2">
-                        <span className="text-emerald-400">✔</span>
-                        <span>{d}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {done.buyer_insights?.checks && done.buyer_insights.checks.length > 0 ? (
-                    <>
-                      <p className="genesis-label mt-4">{t("order.insightsTitle")}</p>
-                      <ul className="mt-2 space-y-1.5 text-sm">
-                        {done.buyer_insights.checks.map((c) => (
-                          <li key={c.id} className="flex gap-2">
-                            <span className="text-emerald-400">✓</span>
-                            <span>{c.label_de}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  ) : null}
-                </>
-              )}
-            </Card>
-            {paymentReady ? (
-              <div className="mt-6 space-y-3">
-                <OrderTrustCard purchaseType={purchaseType} />
-                <Button variant="success" size="lg" fullWidth loading={payBusy} onClick={payNow}>
-                  {payBusy
-                    ? t("order.payBusy")
-                    : t("order.payNow", { price: formatPrice(done.price_eur, done) })}
-                </Button>
-                {payError && (
-                  <p className="text-xs text-rose-300" role="alert">
-                    {payError}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <p className="mt-6 text-sm text-amber-200/90">{t("order.payUnavailable")}</p>
-            )}
+          <OrderCheckoutSummary
+            orderId={done.order_id}
+            message={done.message}
+            businessName={businessName.trim() || launch?.company || done.package_name}
+            niche={niche}
+            marketCode={marketParam || commerce.market_code || "DE"}
+            packageName={done.package_name}
+            packageId={packageId}
+            priceLabel={formatPrice(done.price_eur, done)}
+            deliverables={
+              launch && done.deliverables.length === 0 ? launchDeliverables : done.deliverables
+            }
+            purchaseType={purchaseType}
+            paymentReady={paymentReady}
+            confirmed={checkoutConfirmed}
+            onConfirmedChange={setCheckoutConfirmed}
+            payBusy={payBusy}
+            payError={payError}
+            onPay={() => void payNow()}
+            launch={Boolean(launch)}
+          />
+          <div className="mt-4 text-center">
             <ButtonLink
               href={`/order/status/${done.order_id}`}
               variant="ghost"
               size="sm"
-              className="mt-4"
             >
               {t("order.trackStatus")}
             </ButtonLink>
-          </Card>
+          </div>
         </main>
       </PublicPageShell>
     );

@@ -322,7 +322,20 @@
       "appliance": "Appliance Repair",
       "handwerk": "Crafts",
       "generic": "Local Business"
-    }
+    },
+    "checkoutReadyTitle": "Ready to pay",
+    "checkoutSummaryTitle": "Order summary",
+    "checkoutCompany": "Company",
+    "checkoutPackage": "Package",
+    "checkoutAfterTitle": "After payment",
+    "checkoutAfterRegistered": "Order registered",
+    "checkoutAfterFactory": "Factory prepares your site",
+    "checkoutAfterCompliance": "Compliance check",
+    "checkoutAfterZip": "ZIP deliverable is created",
+    "checkoutAfterEmail": "You receive an email with next steps",
+    "checkoutConfirmLabel": "I have checked the details above.",
+    "checkoutConfirmHint": "Confirm the summary to enable payment.",
+    "checkoutPayCta": "Pay {{price}}"
   },
   "reviews": {
     "title": "Client reviews",

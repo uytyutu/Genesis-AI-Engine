@@ -8,9 +8,9 @@ UX journal for Path A `/order` — not a technical log. Track what we ship for c
 |----|--------|--------|
 | A1.1 | Autosave & Resume Draft | Done (`61eee9f`) |
 | A1.2 | Wizard Navigation | Done (`bb0fbdf`) |
-| A1.3 | Live Preview / AI Guidance | Done (this slice) |
-| A1.4 | AI Guidance (deeper) / Premium Checkout prep | Planned |
-| A1.5 | Premium Checkout | Planned |
+| A1.3 | Live Preview / AI Guidance | Done (`a5eb22e`) |
+| A1.4 | Premium Checkout Experience | Done (this slice) |
+| A1.5 | (reserved / deepen checkout) | Planned |
 | A1.6 | Payment Confirmation Experience | Planned |
 
 ## Entries
@@ -66,9 +66,27 @@ UX journal for Path A `/order` — not a technical log. Track what we ship for c
 
 ---
 
+### A1.4 — Premium Checkout Experience (2026-07-21)
+
+**Why:** Reduce uncertainty at the money moment — clear summary, process after pay, single dominant CTA.
+
+**Shipped:**
+- Final order summary (company, niche, market, language, package, deliverables, price)
+- After-payment steps (register → Factory → Compliance → ZIP → email)
+- “I checked the details” confirmation before pay is enabled
+- Dominant pay block (package + price + Pay)
+
+**Explicit non-goals:** upsells, timers, scarcity, popups.
+
+**Expected effect:** Higher checkout start rate; fewer “what happens next?” support questions.
+
+**Measure later:** checkout_start / payment success vs confirm-checkbox abandon.
+
+---
+
 ### Later (not started)
 
-- **A1.4 / A1.5** — Premium Checkout polish  
-- **A1.6** — Payment confirmation experience  
+- **A1.6** — richer payment confirmation / status experience  
+- Then **Mission A2** — first real sales + friction journal  
 
-After first real sales (Mission A2), annotate which rows above moved conversion and which did not.
+After first real sales, annotate which A1 rows moved conversion.

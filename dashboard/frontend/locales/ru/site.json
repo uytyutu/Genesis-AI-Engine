@@ -344,7 +344,20 @@
       "appliance": "Ремонт техники",
       "handwerk": "Ремесло",
       "generic": "Локальный бизнес"
-    }
+    },
+    "checkoutReadyTitle": "Готово к оплате",
+    "checkoutSummaryTitle": "Сводка заказа",
+    "checkoutCompany": "Компания",
+    "checkoutPackage": "Пакет",
+    "checkoutAfterTitle": "После оплаты",
+    "checkoutAfterRegistered": "Заказ зарегистрирован",
+    "checkoutAfterFactory": "Factory подготовит сайт",
+    "checkoutAfterCompliance": "Проверка Compliance",
+    "checkoutAfterZip": "Будет сформирован ZIP",
+    "checkoutAfterEmail": "Вы получите письмо с дальнейшими шагами",
+    "checkoutConfirmLabel": "Я проверил введённые данные.",
+    "checkoutConfirmHint": "Подтвердите сводку, чтобы открыть оплату.",
+    "checkoutPayCta": "Оплатить {{price}}"
   },
   "reviews": {
     "title": "Отзывы клиентов",

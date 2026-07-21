@@ -344,7 +344,20 @@
       "appliance": "Geräte-Reparatur",
       "handwerk": "Handwerk",
       "generic": "Lokales Unternehmen"
-    }
+    },
+    "checkoutReadyTitle": "Bereit zur Zahlung",
+    "checkoutSummaryTitle": "Bestellübersicht",
+    "checkoutCompany": "Unternehmen",
+    "checkoutPackage": "Paket",
+    "checkoutAfterTitle": "Nach der Zahlung",
+    "checkoutAfterRegistered": "Bestellung registriert",
+    "checkoutAfterFactory": "Factory erstellt Ihre Website",
+    "checkoutAfterCompliance": "Compliance-Prüfung",
+    "checkoutAfterZip": "ZIP-Lieferung wird erstellt",
+    "checkoutAfterEmail": "Sie erhalten eine E-Mail mit den nächsten Schritten",
+    "checkoutConfirmLabel": "Ich habe die Angaben oben geprüft.",
+    "checkoutConfirmHint": "Bestätigen Sie die Übersicht, um zu zahlen.",
+    "checkoutPayCta": "{{price}} bezahlen"
   },
   "reviews": {
     "title": "Kundenstimmen",
