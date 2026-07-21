@@ -100,6 +100,8 @@ def build_landing_html(
     client_gallery: list[str] | None = None,
     brand_style: str | None = None,
     client_trust: dict | None = None,
+    media_css: str = "",
+    media_background: bool = False,
 ) -> str:
     from app.factory.landing_i18n import (
         apply_legal_footer_hrefs,
@@ -429,6 +431,8 @@ def build_landing_html(
         process_html=process_inner,
     )
     css = css + "\n" + trust_comp.css
+    if media_css:
+        css = css + "\n" + media_css
 
     brand_attr = esc(brand_pack.id if brand_pack else "auto")
     niche_attr = esc(niche_profile.niche_id)
@@ -438,6 +442,7 @@ def build_landing_html(
     market_attr = esc(market_design.market_id)
     density_attr = esc(market_design.density)
     trust_attr = esc(trust_comp.template_id)
+    media_bg_attr = "1" if media_background else "0"
 
     trust_strip = ""
     if feat.trust_bar:
@@ -518,7 +523,7 @@ def build_landing_html(
 {css}
   </style>
 </head>
-<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-market="{market_attr}" data-density="{density_attr}" data-motion="{motion_attr}" data-trust-template="{trust_attr}">
+<body data-tier="{esc(tier)}" data-brand="{brand_attr}" data-niche="{niche_attr}" data-hero-layout="{hero_attr}" data-comp-profile="{comp_attr}" data-market="{market_attr}" data-density="{density_attr}" data-motion="{motion_attr}" data-trust-template="{trust_attr}" data-media-bg="{media_bg_attr}">
   <nav class="topbar">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">

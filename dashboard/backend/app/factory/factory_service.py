@@ -121,6 +121,21 @@ class FactoryService:
         client_assets = apply_client_assets(product_dir, materials)
         brand_style_id = normalize_brand_style(str(contacts.get("brand_style") or ""))
 
+        from app.factory.media_intelligence import finalize_product_media
+
+        media_plan = finalize_product_media(
+            product_dir,
+            niche_id=analysis.niche,
+            market_code=market,
+            package_id=features.package_id,
+            business_name=analysis.business_name,
+            hero_from_client=client_assets.hero_from_client,
+            gallery_rels=list(client_assets.gallery),
+        )
+        # Honest gallery: only quality-passing client photos
+        client_assets.gallery = list(media_plan.gallery)
+        client_assets.hero_from_client = media_plan.hero_from_client
+
         pack_manifest: dict = {}
         pack_manifest_path = product_dir / "assets" / "hero_pack" / "manifest.json"
         if pack_manifest_path.is_file():
@@ -141,9 +156,11 @@ class FactoryService:
             client_logo=client_assets.logo,
             client_logo_src=client_assets.logo_src,
             client_gallery=client_assets.gallery,
-            hero_photo=True,
+            hero_photo=media_plan.hero_ok,
             brand_style=brand_style_id,
             client_trust=contacts.get("trust") if isinstance(contacts.get("trust"), dict) else None,
+            media_css=media_plan.css,
+            media_background=bool(media_plan.background_src),
         )
         hero_layout = select_hero_layout(
             niche_id=analysis.niche,
@@ -220,6 +237,7 @@ class FactoryService:
                     has_process=bool(features.process),
                 ),
             ),
+            "media_plan": media_plan.as_dict(),
             "status": "completed",
             "quality_percent": validation.quality_percent,
             "validation_passed": validation.passed,
@@ -336,6 +354,28 @@ class FactoryService:
                     pack_manifest = json.loads(mp.read_text(encoding="utf-8"))
                 except (json.JSONDecodeError, OSError):
                     pack_manifest = {}
+            from app.factory.media_intelligence import finalize_product_media
+
+            ca = meta.get("client_assets") if isinstance(meta.get("client_assets"), dict) else {}
+            media_plan = finalize_product_media(
+                product_dir,
+                niche_id=str(meta.get("niche") or analysis.niche),
+                market_code=market,
+                package_id=package_id,
+                business_name=str(meta.get("business_name") or analysis.business_name),
+                hero_from_client=bool(ca.get("hero_from_client")),
+                gallery_rels=list(ca.get("gallery") or []),
+            )
+            ca = dict(ca)
+            ca["gallery"] = list(media_plan.gallery)
+            ca["hero_from_client"] = media_plan.hero_from_client
+            meta["client_assets"] = ca
+            meta["media_plan"] = media_plan.as_dict()
+            trust_payload = None
+            if isinstance(meta.get("client_legal"), dict) and isinstance(
+                meta["client_legal"].get("trust"), dict
+            ):
+                trust_payload = meta["client_legal"].get("trust")
             html = build_landing_html(
                 analysis,
                 features=features,
@@ -350,6 +390,14 @@ class FactoryService:
                 market_code=market,
                 catalog=catalog_view,
                 hero_pack_manifest=pack_manifest,
+                client_logo=bool(ca.get("logo")),
+                client_logo_src=str(ca.get("logo_src") or "") or None,
+                client_gallery=list(media_plan.gallery),
+                hero_photo=media_plan.hero_ok,
+                brand_style=str(meta.get("brand_style") or "") or None,
+                client_trust=trust_payload,
+                media_css=media_plan.css,
+                media_background=bool(media_plan.background_src),
             )
 
         validation = validate_landing(
@@ -359,9 +407,6 @@ class FactoryService:
         )
 
         (product_dir / "index.html").write_text(html, encoding="utf-8")
-        from app.factory.hero_still import write_hero_asset
-
-        write_hero_asset(product_dir, str(meta.get("niche") or ""), package_id)
         if catalog_view is not None:
             from app.factory.catalog_manager import write_catalog_assets
 

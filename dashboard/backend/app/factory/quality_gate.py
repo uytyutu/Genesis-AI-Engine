@@ -2,9 +2,9 @@
 
 ## Factory Contract (binding)
 Factory must not emit a client ZIP if any mandatory contract fails:
-  Design · Localization · SEO · Accessibility · Performance · Brand
+  Design · Localization · SEO · Accessibility · Performance · Brand · Media
 
-Categories: design · localization · SEO · accessibility · performance · brand.
+Categories: design · localization · SEO · accessibility · performance · brand · media.
 Registry of checks — extend without rewriting pack/build flow.
 """
 
@@ -292,6 +292,76 @@ def run_quality_gate(
         add("performance", "motion_css_budget", True, "assets_not_checked")
         add("performance", "js_budget", True, "assets_not_checked")
         add("performance", "js_no_heavy", True, "assets_not_checked")
+
+    # --- Media (R2.2e Image Quality Gate) ---
+    if assets_dir is not None:
+        from app.factory.media_intelligence import assess_image, load_media_manifest
+
+        manifest = load_media_manifest(assets_dir)
+        hero_file = assets_dir / "hero.jpg"
+        if manifest is not None:
+            add("media", "manifest", True, "media_manifest.json")
+            hero_pass = bool(manifest.get("hero_ok")) and bool(manifest.get("gate_ok", True))
+            add(
+                "media",
+                "hero_ok",
+                hero_pass,
+                str(manifest.get("gate_failures") or ""),
+            )
+            add(
+                "media",
+                "object_fit_css",
+                "object-fit: cover" in html or "Media Intelligence" in html,
+                "no stretch",
+            )
+            # Reject oversized assets that hurt ZIP / LCP
+            too_heavy = [
+                a
+                for a in (manifest.get("assessments") or [])
+                if isinstance(a, dict) and a.get("reason") == "too_large_file"
+            ]
+            add("media", "weight_ok", not too_heavy, f"{len(too_heavy)}_oversized")
+        else:
+            # Legacy products without media plan — assess hero live; allow cover CSS
+            if hero_file.is_file():
+                live = assess_image(hero_file, role="hero", source="legacy")
+                add("media", "hero_ok", live.ok, live.reason)
+                add("media", "manifest", True, "legacy_hero_assessed")
+            else:
+                # Motion-only assets dirs (unit tests) — skip hard fail
+                has_media = any(hero_file.parent.glob("*.jpg")) or any(
+                    hero_file.parent.glob("*.png")
+                )
+                add("media", "hero_ok", not has_media, "missing_hero" if has_media else "no_photos")
+                add("media", "manifest", not has_media, "missing_manifest")
+            add(
+                "media",
+                "object_fit_css",
+                "object-fit" in lower or "background-size: cover" in lower or not hero_file.is_file(),
+                "cover",
+            )
+            add("media", "weight_ok", True, "legacy")
+        # CLS: hero/gallery imgs should declare width/height when present as <img>
+        imgs_with_dims = True
+        for img in re.findall(r"<img\b[^>]*>", html, flags=re.I):
+            src_m = re.search(r'src="([^"]+)"', img, re.I)
+            if not src_m:
+                continue
+            src = src_m.group(1).lower()
+            if "logo" in src or "favicon" in src:
+                continue
+            if "width=" not in img.lower() or "height=" not in img.lower():
+                # CSS-sized cover images still OK if object-fit present in page
+                if "object-fit" not in lower and "Media Intelligence" not in html:
+                    imgs_with_dims = False
+                    break
+        add("media", "cls_safe", imgs_with_dims, "dimensions_or_object_fit")
+    else:
+        add("media", "manifest", True, "assets_not_checked")
+        add("media", "hero_ok", True, "assets_not_checked")
+        add("media", "object_fit_css", True, "assets_not_checked")
+        add("media", "weight_ok", True, "assets_not_checked")
+        add("media", "cls_safe", True, "assets_not_checked")
 
     # --- Brand ---
     brand_hit = _BRAND_LEAK.search(html)
