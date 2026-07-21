@@ -1557,6 +1557,9 @@ class AcquisitionStudioStatus(BaseModel):
     adaptive_outreach: dict | None = None
     outreach_runner: dict | None = None
     pilot_catalog: dict | None = None
+    auto_refresh: bool = False
+    last_desk_action: dict | None = None
+    ranking_goal_ru: str = ""
 
 
 class AcquisitionApprovalItem(BaseModel):

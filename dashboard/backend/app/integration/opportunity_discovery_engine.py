@@ -317,16 +317,11 @@ def _win_probability(
         reasons.append("Контактная форма найдена — проще начать диалог")
 
     if quote and quote.get("ok"):
-        price = float(quote.get("sell_price_eur") or 0)
+        # Commercial goal: do NOT boost cheap / penalize Premium packages.
+        # Win reflects fit & delivery speed, not «≤300 € converts better».
         minutes = int(quote.get("duration_minutes") or 999)
-        if price <= 300:
-            pct += 10
-            reasons.append(f"Цена {price:.0f} € — в зоне «до 300 €», по статистике чаще покупают")
-        elif price > 500:
-            pct -= 8
-            reasons.append(f"Цена {price:.0f} € — выше типичного порога для холодного оффера")
         if minutes < 1440:
-            pct += 8
+            pct += 6
             reasons.append(f"Срок {quote.get('duration_label_ru')} — быстрее суток, проще согласовать")
         reasons.append("В предложение включён Truth Engine QA-отчёт бесплатно")
 

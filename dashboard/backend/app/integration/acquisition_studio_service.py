@@ -517,6 +517,11 @@ class AcquisitionStudioService:
             ),
             "channels": _ACQUISITION_CHANNELS,
             "pilot_catalog": ceo_catalog_snapshot(),
+            "last_desk_action": self.last_desk_action(),
+            "ranking_goal_ru": (
+                "Lead Priority = Business Potential × Website Need × Package Fit × Win% "
+                "(коммерческая ценность, не дешёвые лёгкие сделки)"
+            ),
             "outreach_daily_cap": outreach_daily_cap(),
             "outreach_quota": self._send_quota.health(),
             "markets_dashboard": self.markets_dashboard(),
@@ -827,6 +832,9 @@ class AcquisitionStudioService:
 
         all_rows = self._opportunity.list_opportunities(limit=500)
         evaluation = evaluate_opportunity(row, all_rows=all_rows)
+        meta_early = dict(row.get("meta") or {})
+        meta_early["win_probability_pct"] = int(evaluation.get("win_probability_pct") or 0)
+        row["meta"] = meta_early
 
         if not skip_qualification:
             qual = qualify_lead(row, analysis, evaluation=evaluation)
@@ -966,12 +974,13 @@ class AcquisitionStudioService:
                 else "Предложение готово"
             )
         )
-        row["score"] = self._refresh_score(row, analysis)
+        self._apply_lead_priority(row, analysis=analysis, win_pct=win_pct)
         row["updated_at"] = now
         self._log_interaction(
             row,
             "prepared",
-            f"КП и письмо · lane={lane} · {price_label} · win={win_pct}%",
+            f"КП и письмо · lane={lane} · {price_label} · win={win_pct}% · "
+            f"priority={row.get('lead_priority')} · pkg={package_id}",
         )
         self._opportunity._save_rows(self._replace_row(opportunity_id, row))
         return row
@@ -1410,16 +1419,31 @@ class AcquisitionStudioService:
                 break
         # Ensure list fields match letters even if prepare skipped pricing edge cases
         reprice = self.reprice_pipeline_leads(limit=max(limit, 200))
+        pipe = self.pipeline_leads(limit=40)
+        head = pipe[0] if pipe else {}
         return {
             "ok": True,
             "rebuilt": len(rebuilt),
             "failed": len(failed),
             "failed_sample": failed[:8],
             "repriced": reprice.get("repriced", 0),
-            "pipeline": self.pipeline_leads(limit=40),
+            "pipeline": pipe,
             "message_ru": (
                 f"Квоты пересобраны: {len(rebuilt)} писем · "
                 f"цены={reprice.get('repriced', 0)} · ошибок={len(failed)}"
+            ),
+            "desk_action": self._record_desk_action(
+                "rebuild-quotes",
+                f"Пересобрано писем: {len(rebuilt)} · цены={reprice.get('repriced', 0)}",
+                {
+                    "rebuilt": len(rebuilt),
+                    "repriced": int(reprice.get("repriced") or 0),
+                    "failed": len(failed),
+                    "pipeline_head_id": head.get("id"),
+                    "pipeline_head_name": head.get("company_name"),
+                    "pipeline_head_pkg": head.get("recommended_package_id"),
+                    "pipeline_head_priority": head.get("lead_priority"),
+                },
             ),
         }
 
@@ -1461,6 +1485,18 @@ class AcquisitionStudioService:
             "message_ru": (
                 "Счётчики отправки обнулены · кошелёк/ledger = 0 · "
                 f"adaptive={'очищен' if adaptive_cleared else 'без файла'}"
+            ),
+            "desk_action": self._record_desk_action(
+                "reset-desk",
+                "Счётчики и кошелёк обнулены",
+                {
+                    "sent_today_total": int(
+                        (self._send_quota.health() or {}).get("sent_today_total") or 0
+                    ),
+                    "wallet_available": float((fin or {}).get("available_eur") or 0),
+                    "adaptive_cleared": adaptive_cleared,
+                    "orders_finance_cleared": int((fin or {}).get("orders_finance_cleared") or 0),
+                },
             ),
         }
 
@@ -1516,11 +1552,18 @@ class AcquisitionStudioService:
             item["market"] = meta.get("market") or r.get("market")
             item["hunt_city"] = meta.get("hunt_city")
             item["quality_archive"] = bool(meta.get("quality_archive"))
+            item["lead_priority"] = meta.get("lead_priority") or r.get("lead_priority")
+            item["business_potential"] = meta.get("business_potential")
+            item["website_need"] = meta.get("website_need")
+            item["expected_value_eur"] = meta.get("expected_value_eur")
+            item["commercial_niche"] = meta.get("commercial_niche")
             out.append(item)
         out.sort(
             key=lambda x: (
                 0 if x.get("outreach_status") == "pending_approval" else 1,
                 0 if x.get("outreach_status") == "manual_review" else 1,
+                -float(x.get("lead_priority") or 0),
+                -float(x.get("expected_value_eur") or 0),
                 -int(x.get("win_probability_pct") or 0),
                 -int(x.get("score") or 0),
             )
@@ -1667,6 +1710,15 @@ class AcquisitionStudioService:
         # Hunt may have added leads with wrong currency fields — fix again.
         reprice2 = self.reprice_pipeline_leads()
         total_repriced = int(reprice.get("repriced", 0)) + int(reprice2.get("repriced", 0))
+        pipe = self.pipeline_leads(limit=40)
+        head = pipe[0] if pipe else {}
+        msg = (
+            f"Обновлено · {flag}{market_s} · {city_s} · «{query_s}»: "
+            f"Places created={drafts.get('created', 0)} drafted={drafts.get('drafted', 0)} · "
+            f"prepare={prep.get('prepared', 0)}+manual={prep.get('manual_review', 0)} · "
+            f"auto-confirm={confirm.get('confirmed', 0)} · "
+            f"цены={total_repriced}"
+        )
         return {
             "ok": True,
             "city": city_s,
@@ -1678,14 +1730,27 @@ class AcquisitionStudioService:
             "drafts": drafts,
             "auto_prepare": prep,
             "auto_confirm": confirm,
-            "pipeline": self.pipeline_leads(limit=40),
+            "pipeline": pipe,
             "gate_funnel": self.gate_funnel(),
-            "message_ru": (
-                f"Обновлено · {flag}{market_s} · {city_s} · «{query_s}»: "
-                f"Places created={drafts.get('created', 0)} drafted={drafts.get('drafted', 0)} · "
-                f"prepare={prep.get('prepared', 0)}+manual={prep.get('manual_review', 0)} · "
-                f"auto-confirm={confirm.get('confirmed', 0)} · "
-                f"цены={total_repriced}"
+            "message_ru": msg,
+            "desk_action": self._record_desk_action(
+                "refresh-leads",
+                msg,
+                {
+                    "market": market_s,
+                    "city": city_s,
+                    "query": query_s,
+                    "created": int(drafts.get("created") or 0),
+                    "drafted": int(drafts.get("drafted") or 0),
+                    "prepared": int(prep.get("prepared") or 0),
+                    "confirmed": int(confirm.get("confirmed") or 0),
+                    "repriced": total_repriced,
+                    "pipeline_count": len(pipe),
+                    "pipeline_head_id": head.get("id"),
+                    "pipeline_head_name": head.get("company_name"),
+                    "pipeline_head_priority": head.get("lead_priority"),
+                    "pipeline_head_pkg": head.get("recommended_package_id"),
+                },
             ),
         }
 
@@ -2159,26 +2224,88 @@ class AcquisitionStudioService:
     def _recommend_pricing(
         self, row: dict, analysis: dict | None
     ) -> tuple[str, float, str]:
+        """Package from business potential × website need (not issue-count alone)."""
+        from app.integration.lead_commercial_value import compute_lead_priority
+
         packages = {p["id"]: p for p in self._sales.packages()}
-        issue_count = (analysis or {}).get("issue_count", 0)
-        fit = (row.get("fit_reason") or "").lower()
-
-        if issue_count >= 5 or "нет сайта" in fit or "no website" in fit:
-            pkg_id = "business"
-            rationale = "Много улучшений / слабое присутствие → Business"
-        elif issue_count >= 3:
-            pkg_id = "basic"
-            rationale = "Умеренные улучшения → Basic"
-        else:
-            pkg_id = "basic"
-            rationale = "Базовое предложение → Basic"
-
-        if any(w in fit for w in ("premium", "домен", "логотип", "analytics")):
-            pkg_id = "premium"
-            rationale = "Запрос расширенного пакета → Premium"
-
+        meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+        win = meta.get("win_probability_pct")
+        try:
+            win_i = int(win) if win is not None else None
+        except (TypeError, ValueError):
+            win_i = None
+        cv = compute_lead_priority(row, analysis=analysis, win_probability_pct=win_i)
+        pkg_id = str(cv["recommended_package_id"])
         package = packages.get(pkg_id, packages["basic"])
-        return pkg_id, float(package["price_eur"]), rationale
+        return pkg_id, float(package["price_eur"]), str(cv["pricing_rationale"])
+
+    def _apply_lead_priority(
+        self,
+        row: dict,
+        *,
+        analysis: dict | None,
+        win_pct: int,
+    ) -> dict[str, Any]:
+        from app.integration.lead_commercial_value import compute_lead_priority
+
+        cv = compute_lead_priority(
+            row, analysis=analysis, win_probability_pct=win_pct
+        )
+        meta = dict(row.get("meta") or {})
+        meta["lead_priority"] = cv["lead_priority"]
+        meta["business_potential"] = cv["business_potential"]
+        meta["website_need"] = cv["website_need"]
+        meta["package_fit"] = cv["package_fit"]
+        meta["expected_value_eur"] = cv["expected_value_eur"]
+        meta["commercial_niche"] = cv["niche"]
+        meta["lead_priority_reasons"] = cv["reasons"]
+        row["meta"] = meta
+        row["lead_priority"] = cv["lead_priority"]
+        row["score"] = max(
+            int(row.get("score") or 0),
+            int(round(cv["lead_priority"] * 100)),
+        )
+        return cv
+
+    def _record_desk_action(self, action: str, summary_ru: str, metrics: dict[str, Any]) -> dict[str, Any]:
+        """Persist last CEO desk action so UI always shows a measurable stamp."""
+        path = Path(self._memory_dir) / "acquisition_desk_actions.json"
+        entry = {
+            "action": action,
+            "at": datetime.now(timezone.utc).isoformat(),
+            "summary_ru": summary_ru,
+            "metrics": metrics,
+        }
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            prev: list[dict[str, Any]] = []
+            if path.is_file():
+                raw = json.loads(path.read_text(encoding="utf-8"))
+                if isinstance(raw, dict) and isinstance(raw.get("history"), list):
+                    prev = list(raw["history"])
+            prev.append(entry)
+            path.write_text(
+                json.dumps(
+                    {"last": entry, "history": prev[-30:]},
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        except Exception:
+            pass
+        return entry
+
+    def last_desk_action(self) -> dict[str, Any] | None:
+        path = Path(self._memory_dir) / "acquisition_desk_actions.json"
+        if not path.is_file():
+            return None
+        try:
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            last = raw.get("last") if isinstance(raw, dict) else None
+            return last if isinstance(last, dict) else None
+        except Exception:
+            return None
 
     def _draft_outreach(
         self,

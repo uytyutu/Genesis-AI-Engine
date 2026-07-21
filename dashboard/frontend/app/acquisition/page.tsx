@@ -9,6 +9,62 @@ import { BRAND_NAME } from "../lib/publicBrand";
 /** CEO desk is local-only (backend guard). Always hit the API host, not Next rewrite. */
 const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
 
+function apiErrorText(body: unknown, status: number, fallback: string): string {
+  if (body && typeof body === "object") {
+    const d = (body as { detail?: unknown; message_ru?: unknown }).detail;
+    const mr = (body as { message_ru?: unknown }).message_ru;
+    if (typeof mr === "string" && mr.trim()) return mr;
+    if (typeof d === "string" && d.trim()) return d;
+    if (Array.isArray(d) && d[0] && typeof d[0] === "object" && "msg" in d[0]) {
+      return String((d[0] as { msg: unknown }).msg);
+    }
+  }
+  if (status === 404) return "API не найден — перезапустите backend (Genesis.exe → Запустить)";
+  if (status === 0 || status >= 500) return `${fallback} (HTTP ${status || "сеть"})`;
+  return `${fallback} (HTTP ${status})`;
+}
+
+function formatDeskDelta(body: {
+  message_ru?: string;
+  desk_action?: {
+    at?: string;
+    summary_ru?: string;
+    metrics?: Record<string, unknown>;
+  };
+}): string {
+  const base = String(body.message_ru || "").trim();
+  const da = body.desk_action;
+  if (!da) return base;
+  const m = da.metrics || {};
+  const bits: string[] = [];
+  if (m.created != null) bits.push(`новые=${m.created}`);
+  if (m.drafted != null) bits.push(`draft=${m.drafted}`);
+  if (m.prepared != null) bits.push(`prepare=${m.prepared}`);
+  if (m.rebuilt != null) bits.push(`писем=${m.rebuilt}`);
+  if (m.repriced != null) bits.push(`цены=${m.repriced}`);
+  if (m.sent_today_total != null) bits.push(`sent_today=${m.sent_today_total}`);
+  if (m.wallet_available != null) bits.push(`wallet=${m.wallet_available}`);
+  if (m.pipeline_count != null) bits.push(`pipeline=${m.pipeline_count}`);
+  if (m.pipeline_head_name) bits.push(`топ: ${m.pipeline_head_name}`);
+  if (m.pipeline_head_pkg) bits.push(`pkg=${m.pipeline_head_pkg}`);
+  if (m.pipeline_head_priority != null) bits.push(`priority=${m.pipeline_head_priority}`);
+  const stamp = da.at ? ` · ⌚️ ${String(da.at).slice(11, 19)} UTC` : "";
+  const delta = bits.length ? `Δ ${bits.join(" · ")}` : da.summary_ru || "";
+  return [base, delta].filter(Boolean).join(" · ") + stamp;
+}
+
+const BUSY_LABELS: Record<string, string> = {
+  refresh: "Обновляем лиды… запрос к API",
+  rebuild: "Пересобираем квоты… запрос к API",
+  "reset-desk": "Обнуляем счётчики… запрос к API",
+  generate: "Генерируем черновики…",
+  adaptive: "Недельный Adaptive-обзор…",
+  "runner-start": "Запуск Country Desk…",
+  "runner-stop": "Остановка…",
+  "prefs-refresh": "Сохраняем автообновление…",
+  "prefs-send": "Сохраняем автоотправку…",
+};
+
 type OutreachQuotaHealth = {
   daily_cap: number;
   hard_max: number;
@@ -180,6 +236,13 @@ type StudioStatus = {
   markets_dashboard?: MarketsDashboard | null;
   adaptive_outreach?: AdaptiveOutreach | null;
   outreach_runner?: OutreachRunner | null;
+  last_desk_action?: {
+    action?: string;
+    at?: string;
+    summary_ru?: string;
+    metrics?: Record<string, unknown>;
+  } | null;
+  ranking_goal_ru?: string;
   pilot_catalog?: {
     checkout_online: string[];
     pilot_quote: string[];
@@ -284,6 +347,11 @@ type PipelineLead = QueueItem & {
   market?: string | null;
   hunt_city?: string | null;
   quality_archive?: boolean;
+  lead_priority?: number | null;
+  business_potential?: number | null;
+  website_need?: number | null;
+  expected_value_eur?: number | null;
+  commercial_niche?: string | null;
 };
 
 export default function AcquisitionPage() {
@@ -297,6 +365,12 @@ export default function AcquisitionPage() {
   const [selected, setSelected] = useState<QueueItem | null>(null);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
+  const [actionOk, setActionOk] = useState<boolean | null>(null);
+
+  function flash(text: string, ok: boolean | null = null) {
+    setMessage(text);
+    setActionOk(ok);
+  }
   const [lawfulConfirmed, setLawfulConfirmed] = useState(false);
   const [siteProblemOk, setSiteProblemOk] = useState(false);
   const [benefitOk, setBenefitOk] = useState(false);
@@ -348,7 +422,10 @@ export default function AcquisitionPage() {
         setPipeline(body.items ?? []);
       }
     } catch {
-      setMessage("Не удалось загрузить Studio. Проверьте backend.");
+      flash(
+        `Не удалось загрузить Studio. Backend ${API} не отвечает — Genesis.exe → Запустить.`,
+        false,
+      );
     }
   }, []);
 
@@ -472,7 +549,7 @@ export default function AcquisitionPage() {
 
   async function refreshLeads() {
     setBusy("refresh");
-    setMessage("");
+    flash(`Запрос: POST ${API}/api/acquisition/refresh-leads …`, null);
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 90_000);
     try {
@@ -488,28 +565,22 @@ export default function AcquisitionPage() {
         }),
       });
       const body = await res.json().catch(() => ({}));
-      setMessage(
-        res.ok
-          ? body.message_ru || "Лиды обновлены"
-          : typeof body.detail === "string"
-            ? body.detail
-            : "Ошибка обновления",
-      );
-      if (body.pipeline) setPipeline(body.pipeline);
-      if (body.gate_funnel) setFunnel(body.gate_funnel);
-      await refresh();
+      if (res.ok) {
+        flash(formatDeskDelta(body), true);
+        if (body.pipeline) setPipeline(body.pipeline);
+        if (body.gate_funnel) setFunnel(body.gate_funnel);
+        await refresh();
+      } else {
+        flash(apiErrorText(body, res.status, "Ошибка обновления лидов"), false);
+      }
     } catch (err) {
       const aborted = err instanceof DOMException && err.name === "AbortError";
-      setMessage(
+      flash(
         aborted
           ? "Обновление прервано по таймауту (90с)."
-          : "Backend не отвечает. Запустите Genesis.exe → Запустить, затем снова «Обновить лиды».",
+          : `Backend не отвечает (${API}). Genesis.exe → Запустить, затем снова «Обновить лиды».`,
+        false,
       );
-      try {
-        await refresh();
-      } catch {
-        /* ignore */
-      }
     } finally {
       window.clearTimeout(timeoutId);
       setBusy("");
@@ -518,7 +589,7 @@ export default function AcquisitionPage() {
 
   async function rebuildAllQuotes() {
     setBusy("rebuild");
-    setMessage("");
+    flash(`Запрос: POST ${API}/api/acquisition/rebuild-quotes …`, null);
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 120_000);
     try {
@@ -529,23 +600,20 @@ export default function AcquisitionPage() {
         body: JSON.stringify({ limit: 80 }),
       });
       const body = await res.json().catch(() => ({}));
-      setMessage(
-        res.ok
-          ? body.message_ru || "Квоты пересобраны"
-          : typeof body.detail === "string"
-            ? body.detail
-            : res.status === 404
-              ? "API не найден — перезапустите backend (Genesis.exe)"
-              : "Ошибка пересборки квот",
-      );
-      if (body.pipeline) setPipeline(body.pipeline);
-      await refresh();
+      if (res.ok) {
+        flash(formatDeskDelta(body), true);
+        if (body.pipeline) setPipeline(body.pipeline);
+        await refresh();
+      } else {
+        flash(apiErrorText(body, res.status, "Ошибка пересборки квот"), false);
+      }
     } catch (err) {
       const aborted = err instanceof DOMException && err.name === "AbortError";
-      setMessage(
+      flash(
         aborted
           ? "Пересборка прервана по таймауту. Перезапустите backend и попробуйте снова."
-          : "Backend не отвечает. Запустите Genesis.exe → Запустить, затем снова «Пересобрать все квоты».",
+          : `Backend не отвечает (${API}). Genesis.exe → Запустить, затем снова «Пересобрать все квоты».`,
+        false,
       );
     } finally {
       window.clearTimeout(timeoutId);
@@ -562,7 +630,7 @@ export default function AcquisitionPage() {
       return;
     }
     setBusy("reset-desk");
-    setMessage("");
+    flash(`Запрос: POST ${API}/api/acquisition/reset-desk …`, null);
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 30_000);
     try {
@@ -573,23 +641,20 @@ export default function AcquisitionPage() {
         body: JSON.stringify({}),
       });
       const body = await res.json().catch(() => ({}));
-      setMessage(
-        res.ok
-          ? body.message_ru || "Счётчики и кошелёк обнулены"
-          : typeof body.detail === "string"
-            ? body.detail
-            : res.status === 404
-              ? "API не найден — перезапустите backend (Genesis.exe)"
-              : "Ошибка обнуления",
-      );
-      if (body.pipeline) setPipeline(body.pipeline);
-      await refresh();
+      if (res.ok) {
+        flash(formatDeskDelta(body), true);
+        if (body.pipeline) setPipeline(body.pipeline);
+        await refresh();
+      } else {
+        flash(apiErrorText(body, res.status, "Ошибка обнуления"), false);
+      }
     } catch (err) {
       const aborted = err instanceof DOMException && err.name === "AbortError";
-      setMessage(
+      flash(
         aborted
           ? "Обнуление прервано по таймауту."
-          : "Backend не отвечает. Запустите Genesis.exe → Запустить.",
+          : `Backend не отвечает (${API}). Genesis.exe → Запустить.`,
+        false,
       );
     } finally {
       window.clearTimeout(timeoutId);
@@ -658,6 +723,32 @@ export default function AcquisitionPage() {
   return (
     <main className="min-h-screen pb-12">
       <div className="mx-auto max-w-4xl space-y-6">
+        {(busy || message) && (
+          <div
+            role="status"
+            className={`sticky top-2 z-40 rounded-xl border px-4 py-3 text-sm shadow-lg ${
+              busy
+                ? "border-sky-500/40 bg-sky-950/90 text-sky-50"
+                : actionOk === false
+                  ? "border-rose-500/50 bg-rose-950/90 text-rose-50"
+                  : actionOk === true
+                    ? "border-emerald-500/40 bg-emerald-950/90 text-emerald-50"
+                    : "border-white/20 bg-black/85 text-white"
+            }`}
+          >
+            <p className="font-medium">
+              {busy ? BUSY_LABELS[busy] || `Выполняется: ${busy}…` : message}
+            </p>
+            {busy && message ? (
+              <p className="mt-1 text-xs opacity-80">{message}</p>
+            ) : null}
+            {!busy && actionOk === false ? (
+              <p className="mt-1 text-xs opacity-80">
+                Это не «нет новых лидов» — запрос к API не удался. Проверьте Genesis.exe и Network.
+              </p>
+            ) : null}
+          </div>
+        )}
         <header className="rounded-2xl border border-emerald-500/25 bg-gradient-to-br from-emerald-950/30 to-genesis-panel p-6">
           <p className="text-xs uppercase tracking-[0.35em] text-emerald-300/80">Mission 1.5</p>
           <h1 className="mt-2 text-2xl font-semibold">Country Desk · все рынки</h1>
@@ -685,6 +776,19 @@ export default function AcquisitionPage() {
               </span>
             </div>
           )}
+          {status?.ranking_goal_ru ? (
+            <p className="mt-3 text-xs text-emerald-200/80">{status.ranking_goal_ru}</p>
+          ) : null}
+          {status?.last_desk_action?.at ? (
+            <p className="mt-2 rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-xs text-white/80">
+              Последнее действие:{" "}
+              <span className="text-emerald-300">{status.last_desk_action.action}</span>
+              {" · "}
+              {status.last_desk_action.summary_ru || "—"}
+              {" · "}
+              {String(status.last_desk_action.at).replace("T", " ").slice(0, 19)} UTC
+            </p>
+          ) : null}
           {status?.pilot_catalog && (
             <div className="mt-4 space-y-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-genesis-muted">
               <div>
@@ -1342,7 +1446,7 @@ export default function AcquisitionPage() {
               <button
                 type="button"
                 onClick={() => void rebuildAllQuotes()}
-                disabled={busy === "rebuild" || busy === "refresh" || busy === "reset-desk"}
+                disabled={Boolean(busy)}
                 className="rounded-lg border border-amber-500/50 bg-amber-950/40 px-3 py-2 text-sm font-medium text-amber-100 hover:bg-amber-900/40 disabled:opacity-60"
               >
                 {busy === "rebuild" ? "Пересобираем…" : "Пересобрать все квоты"}
@@ -1350,7 +1454,7 @@ export default function AcquisitionPage() {
               <button
                 type="button"
                 onClick={() => void resetDeskAndWallet()}
-                disabled={busy === "rebuild" || busy === "refresh" || busy === "reset-desk"}
+                disabled={Boolean(busy)}
                 className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-sm font-medium text-rose-100 hover:bg-rose-900/40 disabled:opacity-60"
               >
                 {busy === "reset-desk" ? "Обнуляем…" : "Обнулить цифры + кошелёк"}
@@ -1358,13 +1462,26 @@ export default function AcquisitionPage() {
               <button
                 type="button"
                 onClick={() => void refreshLeads()}
-                disabled={busy === "refresh" || busy === "generate" || busy === "rebuild"}
+                disabled={Boolean(busy)}
                 className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-60"
               >
                 {busy === "refresh" ? "Обновляем…" : "Обновить лиды"}
               </button>
             </div>
           </div>
+          {message && !busy ? (
+            <p
+              className={`mt-3 rounded-lg border px-3 py-2 text-xs ${
+                actionOk === false
+                  ? "border-rose-500/40 bg-rose-950/30 text-rose-100"
+                  : actionOk === true
+                    ? "border-emerald-500/30 bg-emerald-950/20 text-emerald-100"
+                    : "border-white/10 bg-black/20 text-genesis-muted"
+              }`}
+            >
+              {message}
+            </p>
+          ) : null}
           {pipeline.length === 0 ? (
             <p className="mt-4 text-sm text-genesis-muted">
               Список пуст. Нажмите ▶ Пуск или «Обновить лиды» — страны по очереди (US→DE→GB…).
@@ -1397,6 +1514,11 @@ export default function AcquisitionPage() {
                     </div>
                     <p className="mt-1 text-xs text-genesis-muted">
                       {(lead.website_url || "без сайта").slice(0, 60)} · score {lead.score}
+                      {lead.lead_priority != null ? ` · priority ${lead.lead_priority}` : ""}
+                      {lead.recommended_package_id ? ` · ${lead.recommended_package_id}` : ""}
+                      {lead.expected_value_eur != null
+                        ? ` · EV ~${Math.round(Number(lead.expected_value_eur))}€`
+                        : ""}
                       {lead.recommended_price_eur
                         ? ` · ${
                             lead.recommended_price_label ||
@@ -1736,7 +1858,15 @@ export default function AcquisitionPage() {
               )}
             </div>
           )}
-          {message && <p className="mt-3 text-xs text-genesis-muted">{message}</p>}
+          {message && (
+            <p
+              className={`mt-3 text-xs ${
+                actionOk === false ? "text-rose-300" : actionOk === true ? "text-emerald-300" : "text-genesis-muted"
+              }`}
+            >
+              {message}
+            </p>
+          )}
         </section>
 
         {evidence && (
