@@ -13,16 +13,12 @@ from pathlib import Path
 
 from app.factory.analyzer import analyze
 from app.factory.client_legal_pages import ClientLegalInfo, write_client_legal_pages
-from app.factory.landing_builder import build_landing_html
+from app.factory.composer_engine import compose_landing
+from app.factory.compliance_engine import assert_compliance, ComplianceError
 from app.factory.landing_patcher import try_patch
-from app.factory.layout_variants import (
-    profile_as_dict,
-    resolve_component_for_layout,
-    resolve_hero_for_layout,
-    resolve_layout_profile,
-)
+from app.factory.layout_variants import profile_as_dict
 from app.factory.market_design import resolve_market_design
-from app.factory.trust_composer import collect_trust_evidence, select_trust_template
+from app.factory.quality_gate import QualityGateError
 from app.factory.validator import owner_review_check, validate_landing
 
 _BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -125,21 +121,6 @@ class FactoryService:
         client_assets = apply_client_assets(product_dir, materials)
         brand_style_id = normalize_brand_style(str(contacts.get("brand_style") or ""))
 
-        from app.factory.media_intelligence import finalize_product_media
-
-        media_plan = finalize_product_media(
-            product_dir,
-            niche_id=analysis.niche,
-            market_code=market,
-            package_id=features.package_id,
-            business_name=analysis.business_name,
-            hero_from_client=client_assets.hero_from_client,
-            gallery_rels=list(client_assets.gallery),
-        )
-        # Honest gallery: only quality-passing client photos
-        client_assets.gallery = list(media_plan.gallery)
-        client_assets.hero_from_client = media_plan.hero_from_client
-
         pack_manifest: dict = {}
         pack_manifest_path = product_dir / "assets" / "hero_pack" / "manifest.json"
         if pack_manifest_path.is_file():
@@ -147,7 +128,8 @@ class FactoryService:
                 pack_manifest = json.loads(pack_manifest_path.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):
                 pack_manifest = {}
-        html = build_landing_html(
+
+        composed = compose_landing(
             analysis,
             features=features,
             whatsapp=whatsapp,
@@ -159,39 +141,19 @@ class FactoryService:
             hero_pack_manifest=pack_manifest,
             client_logo=client_assets.logo,
             client_logo_src=client_assets.logo_src,
-            client_gallery=client_assets.gallery,
-            hero_photo=media_plan.hero_ok,
+            client_gallery=list(client_assets.gallery),
             brand_style=brand_style_id,
             client_trust=contacts.get("trust") if isinstance(contacts.get("trust"), dict) else None,
-            media_css=media_plan.css,
-            media_background=bool(media_plan.background_src),
+            product_dir=product_dir,
+            hero_from_client=client_assets.hero_from_client,
         )
-        layout_profile = resolve_layout_profile(
-            business_name=analysis.business_name,
-            package_id=features.package_id,
-            market_code=market,
-            niche_id=analysis.niche,
-        )
-        hero_layout = resolve_hero_for_layout(
-            layout_profile,
-            niche_id=analysis.niche,
-            business_name=analysis.business_name,
-            package_id=features.package_id,
-        )
-        component_profile = resolve_component_for_layout(
-            layout_profile,
-            hero_layout=hero_layout,
-            business_name=analysis.business_name,
-            package_id=features.package_id,
-            niche_id=analysis.niche,
-        )
-        gate_meta = {
-            "market_code": market,
-            "hero_layout": hero_layout,
-            "component_profile": component_profile,
-            "layout_profile": layout_profile.id,
-            "package_delivery": {"package_id": features.package_id},
-        }
+        html = composed.html
+        plan = composed.plan
+        client_assets.gallery = list(composed.gallery)
+        client_assets.hero_from_client = composed.hero_from_client
+        media_plan = composed.media_plan
+
+        gate_meta = plan.gate_meta()
         validation = validate_landing(
             html,
             meta=gate_meta,
@@ -233,30 +195,19 @@ class FactoryService:
             "market_code": market,
             "market_design": resolve_market_design(market).market_id,
             "motion_level": motion,
-            "hero_layout": hero_layout,
-            "component_profile": component_profile,
-            "layout_profile": profile_as_dict(layout_profile),
-            "trust_template": select_trust_template(
-                niche_id=analysis.niche,
-                market_code=market,
-                business_name=analysis.business_name,
-                package_id=features.package_id,
-                evidence=collect_trust_evidence(
-                    client_trust=contacts.get("trust")
-                    if isinstance(contacts.get("trust"), dict)
-                    else None,
-                    commitments=analysis.trust_points,
-                    portfolio_paths=client_assets.gallery,
-                    has_maps=bool(features.maps),
-                    has_process=bool(features.process),
-                ),
-            ),
-            "media_plan": media_plan.as_dict(),
+            "composer_engine": plan.engine_id,
+            "composition_plan": plan.as_dict(),
+            "hero_layout": plan.hero_layout,
+            "component_profile": plan.component_profile,
+            "layout_profile": profile_as_dict(plan.layout_profile),
+            "trust_template": plan.trust_template,
+            "media_plan": media_plan,
             "status": "completed",
             "quality_percent": validation.quality_percent,
             "validation_passed": validation.passed,
             "technical_checks": validation.technical_checks,
             "quality_gate": validation.quality_gate,
+            "compliance": validation.compliance,
             "owner_approved": False,
             "owner_approved_at": None,
             "revision": 0,
@@ -368,29 +319,13 @@ class FactoryService:
                     pack_manifest = json.loads(mp.read_text(encoding="utf-8"))
                 except (json.JSONDecodeError, OSError):
                     pack_manifest = {}
-            from app.factory.media_intelligence import finalize_product_media
-
             ca = meta.get("client_assets") if isinstance(meta.get("client_assets"), dict) else {}
-            media_plan = finalize_product_media(
-                product_dir,
-                niche_id=str(meta.get("niche") or analysis.niche),
-                market_code=market,
-                package_id=package_id,
-                business_name=str(meta.get("business_name") or analysis.business_name),
-                hero_from_client=bool(ca.get("hero_from_client")),
-                gallery_rels=list(ca.get("gallery") or []),
-            )
-            ca = dict(ca)
-            ca["gallery"] = list(media_plan.gallery)
-            ca["hero_from_client"] = media_plan.hero_from_client
-            meta["client_assets"] = ca
-            meta["media_plan"] = media_plan.as_dict()
             trust_payload = None
             if isinstance(meta.get("client_legal"), dict) and isinstance(
                 meta["client_legal"].get("trust"), dict
             ):
                 trust_payload = meta["client_legal"].get("trust")
-            html = build_landing_html(
+            composed = compose_landing(
                 analysis,
                 features=features,
                 whatsapp=str(contacts.get("phone") or ""),
@@ -405,14 +340,25 @@ class FactoryService:
                 catalog=catalog_view,
                 hero_pack_manifest=pack_manifest,
                 client_logo=bool(ca.get("logo")),
-                client_logo_src=str(ca.get("logo_src") or "") or None,
-                client_gallery=list(media_plan.gallery),
-                hero_photo=media_plan.hero_ok,
+                client_logo_src=str(ca.get("logo_src") or "assets/logo.png"),
+                client_gallery=list(ca.get("gallery") or []),
                 brand_style=str(meta.get("brand_style") or "") or None,
                 client_trust=trust_payload,
-                media_css=media_plan.css,
-                media_background=bool(media_plan.background_src),
+                product_dir=product_dir,
+                hero_from_client=bool(ca.get("hero_from_client")),
             )
+            html = composed.html
+            ca = dict(ca)
+            ca["gallery"] = list(composed.gallery)
+            ca["hero_from_client"] = composed.hero_from_client
+            meta["client_assets"] = ca
+            meta["media_plan"] = composed.media_plan
+            meta["composer_engine"] = composed.plan.engine_id
+            meta["composition_plan"] = composed.plan.as_dict()
+            meta["hero_layout"] = composed.plan.hero_layout
+            meta["component_profile"] = composed.plan.component_profile
+            meta["layout_profile"] = profile_as_dict(composed.plan.layout_profile)
+            meta["trust_template"] = composed.plan.trust_template
 
         validation = validate_landing(
             html,
@@ -431,6 +377,7 @@ class FactoryService:
         meta["validation_passed"] = validation.passed
         meta["technical_checks"] = validation.technical_checks
         meta["quality_gate"] = validation.quality_gate
+        meta["compliance"] = validation.compliance
         meta["owner_approved"] = False
         meta["owner_approved_at"] = None
         meta["updated_at"] = datetime.now(timezone.utc).isoformat()
@@ -513,13 +460,17 @@ class FactoryService:
             raise ValueError("product_not_found")
 
         html = html_path.read_text(encoding="utf-8")
-        from app.factory.quality_gate import assert_quality_gate
-
-        assert_quality_gate(
-            html,
-            meta=meta,
-            assets_dir=product_dir / "assets",
-        )
+        try:
+            compliance = assert_compliance(
+                html,
+                meta=meta,
+                assets_dir=product_dir / "assets",
+            )
+        except ComplianceError as err:
+            if err.result.quality_gate is not None:
+                raise QualityGateError(err.result.quality_gate) from err
+            raise
+        meta["compliance"] = compliance.as_dict()
 
         market = normalize_market(str(meta.get("market_code") or "DE"))
         # Regenerate legal pages for this market on every pack (fixes legacy DE-only products).

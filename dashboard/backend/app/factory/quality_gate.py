@@ -4,6 +4,9 @@
 Factory must not emit a client ZIP if any mandatory contract fails:
   Design · Localization · SEO · Accessibility · Performance · Brand · Media
 
+R3: Compliance Engine (`compliance_engine.py`) is the public checkpoint;
+this module remains the check registry implementation.
+
 Categories: design · localization · SEO · accessibility · performance · brand · media.
 Registry of checks — extend without rewriting pack/build flow.
 """
