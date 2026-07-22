@@ -16,7 +16,7 @@
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
-| **Mission 5** | Settings → Analytics → Domain → ChatBot → CRM | **OPEN** · NEXT = R5.3 Domain Management |
+| **Mission 5** | Settings → Analytics → Domain → ChatBot → CRM | **OPEN** · R5.3 PASS · NEXT = R5.4 ChatBot (not opened) |
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
 
@@ -294,8 +294,9 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Portal Platform v1 — Accepted for Expansion** (CEO 2026-07-22).  
 **R5.1 PASS ✅** · **Module Architecture** established (CEO 2026-07-22) · `7db23a0`.  
 **R5.2 PASS ✅** · Analytics Overview (Read-only) · `ba39b43` · Write+Read blueprints confirmed.  
-**Next:** **R5.3 Domain Management** (not opened yet).  
-**Review lenses:** Architecture · Security · Product · **Repeatability**.  
+**R5.3 PASS ✅** · `f1c15fc` · Module Standard formed (Write+Read+Resource State).  
+**Next:** **R5.4 ChatBot** (Marketplace/External · not opened).  
+**Review lenses:** Architecture · Security · Product · Repeatability · **Evolutionary contract**.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -859,12 +860,13 @@ Module
 
 1. **Website Settings** (R5.1) — write module ✅  
 2. **Analytics** (R5.2) — read-only module · **PASS ✅** · `ba39b43`  
-3. **Domain Management** (R5.3) — state module  
+3. **Website Domain Management** (R5.3) — resource-state module · **PASS ✅** · `f1c15fc`  
 4. **ChatBot** (R5.4) — connectable Marketplace module  
 5. **CRM** (R5.5) — complex business module  
 
 **Why not CRM first:** large domain; must not dictate platform architecture.  
-**Why Analytics before Domain:** prove Blueprint for GET-only modules after GET/PUT Settings.
+**Why Analytics before Domain:** prove Blueprint for GET-only modules after GET/PUT Settings.  
+**Why Domain before ChatBot:** resource state without external integrations first.
 
 ### Mission 5 — OPEN · R5.1 Scope Lock (CEO 2026-07-22)
 
@@ -977,6 +979,7 @@ Registration
 
 **Write reference:** Website Settings (R5.1).  
 **Read reference:** Analytics Overview (R5.2).  
+**Resource-state reference:** Website Domain Management (R5.3).  
 **Rule:** next modules copy this skeleton — change only the domain.
 
 ### R5.2 — Analytics Overview (Read-only) — PASS ✅ · `ba39b43` (CEO 2026-07-22)
@@ -985,7 +988,7 @@ Registration
 **Endpoint:** `GET /portal/websites/{website_id}/analytics`  
 **Lenses:** Architecture · Security · Product · Repeatability — all PASS.  
 **Not in R5.2:** charts · GA4 · Matomo · external APIs · events · writes.  
-**Next:** R5.3 Domain Management (not opened yet).
+**Next:** R5.3 Website Domain Management.
 
 **Purpose:** prove Module Blueprint for a **read-only** module (GET only).  
 **Endpoint:** `GET /portal/websites/{website_id}/analytics`  
@@ -1022,4 +1025,57 @@ GET /portal/websites/{website_id}/analytics
 - Charts · GA4 · Matomo · external APIs · events
 - PUT/POST · Domain Management · Settings changes
 - CRM · ChatBot · Billing · own AuthN/AuthZ/Session/Ownership
+```
+
+### R5.3 — Website Domain Management · PASS ✅ · `f1c15fc` (CEO 2026-07-22)
+
+**Purpose:** prove Module Blueprint for a **resource-state** module (site↔domain link).  
+**Not** DNS infrastructure — only Website domain state.  
+**Endpoints:** `GET|PUT /portal/websites/{website_id}/domain`  
+**Fields:** primary_domain · custom_domain · domain_status · verification_status  
+
+**Commit:** `f1c15fc` · Module Standard formed (Write+Read+Resource State).  
+**Lenses:** Architecture · Security · Product · Repeatability · **Evolutionary contract** — all PASS.  
+**Next:** R5.4 ChatBot (Marketplace/External · not opened).
+
+**Extra lens:** Evolutionary contract — same API must stay valid when Store later gains DNS/SSL/provider backends.
+
+**Forbidden in R5.3:** DNS record management · SSL · ACME · registrar APIs · Cloudflare · background jobs · auto-verify · domain purchase · multi-domain.
+
+#### Scope Lock
+
+```text
+Работай только внутри:
+dashboard/backend/app/portal/
+(+ minimal wiring in main.py)
+
+Mission: R5.3 — Website Domain Management
+
+Flow:
+Authentication
+    ↓
+Authorization
+    ↓
+WebsiteDomainFacade
+    ↓
+WebsiteDomain Domain + Store
+    ↓
+GET /portal/websites/{website_id}/domain
+PUT /portal/websites/{website_id}/domain
+
+Разрешено:
+- WebsiteDomain Domain · Store · View · Facade · Router · Registration
+- primary_domain · custom_domain · domain_status · verification_status
+- InMemory Store (temporary)
+
+Запрещено:
+- DNS · SSL · ACME · Registrar · Cloudflare · jobs · auto-verify
+- Domain purchase · multi-domain
+- own AuthN/AuthZ/Session/Ownership
+```
+
+### Module Standard — formed ✅ (CEO 2026-07-22)
+
+```text
+Write ✓  Read ✓  Resource State ✓  →  Next ChatBot (Marketplace/External)
 ```
