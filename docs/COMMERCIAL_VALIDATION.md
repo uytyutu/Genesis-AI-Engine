@@ -21,7 +21,7 @@
 | **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **ACCEPTED** (CEO 2026-07-22) |
 | **Brand Architecture v1.0** | Virtus Core (platform) · Vector (AI Business Employee) | **ACCEPTED** (CEO 2026-07-22) · `docs/VIRTUS_BRAND_ARCHITECTURE_v1.md` |
 | **Commercial Platform** | Purchases · Billing · Licenses · Redeem → Activation → Ownership | **CORE CLOSED** ✅ (CEO 2026-07-22) · Marketplace deferred |
-| **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **OPEN** · BP1.3 PASS · NEXT = BP1.4 Conversation Engine stub (not opened) |
+| **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ · NEXT = AI Platform 1.0 Provider Layer (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -314,12 +314,13 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Commercial Platform 6.5 PASS** · `e75d778` · License central (entitlement · redeem → Activation).  
 **Commercial Platform 6.6 PASS** · `0104b44` · Billing financial ledger.  
 **Commercial Platform Core — CLOSED ✅** (CEO 2026-07-22) · Purchases · Billing · Licenses · Redeem → Activation → Ownership.  
-**Not opened:** Marketplace · BP1.4 Conversation Engine · AI providers · real channel SDKs.  
+**Not opened:** Marketplace · **AI Platform 1.0 — Provider Layer** · real channel SDKs.  
 **Business Product BP1.1 — PASS ✅** · ChatBot Business Profile & Industry Template (no AI · no channel SDKs).  
 **Business Product BP1.2 — PASS ✅** · Business Knowledge (facts only · fixed categories).  
 **Business Product BP1.3 — PASS ✅** · `422d1a7` · Channel Connections stub (registry · config · status).  
-**ChatBot Product Foundation — CLOSED ✅** (CEO 2026-07-22) · Profile · Template · Knowledge · Channels.  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel Invariants · Brand Architecture v1.0.  
+**Business Product BP1.4 — PASS ✅** · `d003ef2` · Conversation Engine stub (context builder · no AI).  
+**Vector Product Foundation — CLOSED ✅** (CEO 2026-07-22) · Profile · Template · Knowledge · Channels · Conversation Engine.  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1911,3 +1912,58 @@ Business Profile
 ```
 
 **Next (not opened):** **BP1.4 Conversation Engine (Stub)** — accept message · select knowledge sources · prepare context · form request for future AI Provider. No OpenAI/Anthropic · no Telegram/Meta SDK.
+
+### Business Product BP1.4 — Conversation Engine (Stub) · OPEN → implemented (awaiting CEO PASS)
+
+**Purpose:** how Vector accepts a request and prepares it for processing — dialog lifecycle only.  
+**Endpoints:**
+- `POST /portal/chatbot/conversations`
+- `GET /portal/chatbot/conversations`
+- `GET /portal/chatbot/conversations/{conversation_id}`
+- `POST /portal/chatbot/conversations/{conversation_id}/messages`
+
+#### Conversation Invariant
+
+```text
+Conversation Engine prepares context.
+Conversation Engine never generates AI responses.
+Conversation Engine never communicates with external providers.
+Conversation Engine never depends on external SDKs.
+```
+
+#### Flow
+
+```text
+Incoming Message → Conversation → Context Builder → Knowledge Selection → Stub Response
+```
+
+Default knowledge categories: `company` · `services` · `faq` · `contacts` (or `all` / explicit list).
+
+Stub reply: `Conversation prepared successfully. AI provider is not connected.`
+
+#### Scope Lock
+
+```text
+Business Product BP1.4 — Conversation Engine
+
+Conversation · Message · ConversationContext
+Context Builder uses: Business Profile · Industry Template · Business Knowledge · History
+
+Разрешено:
+- Conversation/Message Domain · Stores · Facade · Context Builder
+- Stub assistant message (no LLM)
+
+Запрещено:
+- OpenAI · Anthropic · Ollama · RAG · Embeddings · Vector DB · Semantic Search
+- Telegram/Meta SDK · Website Widget · Streaming · Function Calling
+```
+
+#### Acceptance
+
+- Conversation + Message ✅
+- Context Builder ✅
+- Uses Business Profile + Knowledge ✅
+- ConversationContext formed ✅
+- No AI / external SDK ✅
+
+**Next (not opened):** BP1.5 AI Provider — swappable module consuming ConversationContext.
