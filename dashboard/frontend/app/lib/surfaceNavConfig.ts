@@ -98,6 +98,11 @@ export const CLIENT_NAV_LINKS = [
     hint: "Что произошло сегодня",
   },
   {
+    href: "/projects/chatbot/inbox",
+    label: "Inbox",
+    hint: "Диалоги с клиентами",
+  },
+  {
     href: "/projects/chatbot/knowledge",
     label: "Knowledge",
     hint: "Факты о бизнесе",

@@ -362,6 +362,7 @@ export function VectorDashboardPanel() {
               <ActionLink href="/projects/chatbot/activity">
                 Today&apos;s Activity
               </ActionLink>
+              <ActionLink href="/projects/chatbot/inbox">Inbox</ActionLink>
               <ActionLink href="/projects/chatbot/setup">Configure AI</ActionLink>
             </div>
           </section>

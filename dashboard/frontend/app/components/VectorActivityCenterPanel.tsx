@@ -370,6 +370,12 @@ export function VectorActivityCenterPanel() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Link
+            href="/projects/chatbot/inbox"
+            className="inline-flex items-center rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5"
+          >
+            Inbox
+          </Link>
+          <Link
             href="/projects/chatbot"
             className="inline-flex items-center rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5"
           >
