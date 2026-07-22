@@ -92,8 +92,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 
 | Slice | Theme | Status |
 |-------|--------|--------|
-| → **R4.1** | **HTTP Login Endpoint** | **NEXT** — transport → Authentication Domain only |
-| → **R4.2** | **Session Domain / Store** | planned |
+| → ✅ **R4.1** | **HTTP Login Endpoint** | **PASS** — await commit hash |
+| → **R4.2** | **Session Domain / Store** | **NEXT** |
 | → **R4.3** | **Authentication Middleware** | planned |
 | → **R4.4** | **Protected Dashboard** | planned |
 | → **R4.5** | **Logout** | planned |
@@ -289,8 +289,8 @@ _(none yet — first real traffic / payment opens Entry 1)_
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
 Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain foundation for Portal / Identity.  
-**NEXT = R4.1 HTTP Login Endpoint** (Phase A — transport only; no Session/JWT/Cookie/Middleware).  
-**R4 policy:** server session + HTTP-only cookie later (Phase B); JWT deferred.  
+**R4.1 PASS ✅** · **NEXT = R4.2 Session Infrastructure** (server session + HTTP-only cookie; no JWT).  
+**R4 policy:** server session + HTTP-only cookie (Phase B); JWT deferred.  
 **Infra review lenses:** Architecture · Security · Product (CEO).  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -752,3 +752,13 @@ Further work is **infrastructure + UX**, not domain invention.
 **Phase B (R4.2–R4.5):** Session store · cookie · middleware · protected Dashboard · logout.  
 **R4.6:** full activation path (publish → email → activate → password → login → Dashboard).  
 **JWT:** deferred until multi-client need.
+
+### R4.1 — HTTP Login Endpoint — PASS ✅ (CEO 2026-07-22)
+
+**Modules:** `authentication_facade.py` · `login_api_contract.py` · `portal_login_router.py` · `portal_login_registration.py`  
+**Endpoint:** `POST /portal/login` → `{authenticated: true|false}`  
+**Rules:** never exposes domain `failure_reason` · no Set-Cookie / JWT / session · 400 for bad body · 200 for processed auth.  
+**Note:** AuthenticationFacade = sole app entry for future login channels (SSO etc.).  
+**Not in R4.1:** Session · Cookie · Middleware · Protected Dashboard · password hashing algo · rate limit.
+
+**Next:** R4.2 Session Infrastructure (create session + HTTP-only cookie after login).

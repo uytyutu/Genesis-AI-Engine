@@ -290,6 +290,11 @@ from app.portal.portal_dashboard_registration import register_portal_dashboard
 
 register_portal_dashboard(app)
 
+# R4.1 — HTTP Login (transport → Authentication Domain; no Session/JWT)
+from app.portal.portal_login_registration import register_portal_login
+
+register_portal_login(app)
+
 # Research Visual Experience stills / demos (Path A preview — read-only assets)
 from pathlib import Path as _Path
 

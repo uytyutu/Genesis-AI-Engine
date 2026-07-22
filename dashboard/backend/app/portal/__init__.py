@@ -28,6 +28,11 @@ from app.portal.authentication import (
     AuthenticationResult,
     authenticate,
 )
+from app.portal.authentication_facade import (
+    AuthenticationFacade,
+    InMemoryAuthenticationDirectory,
+    empty_authentication_directory,
+)
 from app.portal.authorization import (
     AUTHORIZATION_FUTURE_ROLES,
     DEFAULT_ALLOWED_ROLES,
@@ -41,6 +46,7 @@ from app.portal.client import Client, new_client, website_for_client
 from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.edit_session import EditSession, close_edit_session, new_edit_session
 from app.portal.invitation import WebsiteInvitation, new_website_invitation
+from app.portal.login_api_contract import LoginRequest, LoginResponse
 from app.portal.ownership import (
     FUTURE_ROLES,
     WebsiteOwnership,
@@ -77,6 +83,8 @@ from app.portal.views import (
 )
 from app.portal.portal_dashboard_registration import register_portal_dashboard
 from app.portal.portal_dashboard_router import portal_dashboard_router
+from app.portal.portal_login_registration import register_portal_login
+from app.portal.portal_login_router import portal_login_router
 from app.portal.website_catalog import load_portal_catalog_from_factory_sandbox
 from app.portal.website_dashboard_facade import WebsiteDashboardFacade
 from app.portal.website_dashboard_query import WebsiteDashboardQuery
@@ -96,6 +104,7 @@ __all__ = [
     "AssetQuery",
     "AssetView",
     "AuthenticationAttempt",
+    "AuthenticationFacade",
     "AuthenticationResult",
     "AUTHORIZATION_FUTURE_ROLES",
     "AuthorizationRequest",
@@ -109,6 +118,9 @@ __all__ = [
     "EditSession",
     "EditSessionView",
     "FUTURE_ROLES",
+    "InMemoryAuthenticationDirectory",
+    "LoginRequest",
+    "LoginResponse",
     "OWNERSHIP_FUTURE_ROLES",
     "OrderWebsiteRef",
     "PORTAL_PROFILE",
@@ -144,6 +156,7 @@ __all__ = [
     "compose_portal_read",
     "consume_token",
     "create_primary_password",
+    "empty_authentication_directory",
     "expire_token",
     "grant_website_ownership",
     "is_portal_feature_enabled",
@@ -162,10 +175,12 @@ __all__ = [
     "ownership_for_account_website",
     "portal_dashboard_router",
     "portal_lifecycle_snapshot",
+    "portal_login_router",
     "portal_read_router",
     "portal_registration_snapshot",
     "refresh_expiry_status",
     "register_portal_dashboard",
+    "register_portal_login",
     "register_portal_read",
     "resolve_portal_lifecycle_state",
     "revoke_token",
