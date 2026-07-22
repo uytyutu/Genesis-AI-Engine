@@ -24,7 +24,7 @@
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
-| **Product Track** | First Run → Knowledge UI → Channels UX → Dashboard → Website | **PT1.1 PASS** ✅ (CEO 2026-07-22) · NEXT = PT1.2 Knowledge Management UI (not opened) |
+| **Product Track** | First Run → Knowledge UI → Channels UX → Dashboard → Website | **PT1.1–1.2 PASS** ✅ · NEXT = PT1.3 Channel Setup UX (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -329,7 +329,8 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **AI Platform AP2.1 — PASS ✅** (CEO 2026-07-22) · Prompt & Policy Layer (PromptPackage · vendor-neutral behavior).  
 **AI Interaction Pipeline — CLOSED ✅** (CEO 2026-07-22) · ConversationContext → Prompt & Policy → PromptPackage → Provider Layer → AIResponse.  
 **Product Track PT1.1 — PASS ✅** (CEO 2026-07-22) · Vector First Run Experience (orchestrator only · no new domain models).  
-**Not opened:** PT1.2 Knowledge Management UI · AP2.2 Streaming · Marketplace · real channel SDKs.  
+**Product Track PT1.2 — PASS ✅** (CEO 2026-07-22) · Knowledge Management UI · Knowledge Workspace opened for owners.  
+**Not opened:** PT1.3 Channel Setup UX · AP2.2 Streaming · Marketplace · real channel SDKs.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
@@ -2176,7 +2177,7 @@ Unified AIResponse
 
 **Horizon (not opened):** AP2.2 Streaming → AP2.3 Tool Calling → AP2.4 Business Actions → AP2.5 Memory & RAG.
 
-### Product Track PT1.1 — Vector First Run Experience · OPEN (CEO 2026-07-22)
+### Product Track PT1.1 — Vector First Run Experience · PASS ✅ (CEO 2026-07-22)
 
 ```text
 Purchase → Activation → Portal → Vector First Run
@@ -2191,5 +2192,26 @@ First Run never contains business logic.
 First Run orchestrates existing platform components.
 ```
 
-**Surface:** `/projects/chatbot/setup` · wizard steps Welcome → Profile → Bootstrap → Knowledge → Channels → Provider → Finish.  
+**Surface:** `/projects/chatbot/setup` · wizard Welcome → Profile → Bootstrap → Knowledge → Channels → Provider → Finish.  
+**Demo:** `client@virtus.local` / `demo-vector` · activation `DEMO-CHATBOT`.  
 **Forbidden:** new domain models · RAG · channel SDKs · AI Track (AP2.2+).
+
+**Horizon (not opened):** PT1.2 Knowledge Management UI → PT1.3 Channel Setup UX → PT1.4 Vector Dashboard → PT1.5 Virtus Core Premium Website.
+
+### Product Track PT1.2 — Knowledge Management UI · OPEN (CEO 2026-07-22)
+
+```text
+Business Knowledge → Knowledge Repository → Knowledge Management UI
+  → Company · Services · Products · Pricing · Hours · FAQ · Policies · Contacts
+```
+
+**Invariant:**
+```text
+Knowledge Management UI edits Business Knowledge.
+Knowledge Management UI never generates AI responses.
+Knowledge Management UI never modifies Prompt & Policy.
+Knowledge Management UI never communicates with providers.
+```
+
+**Surface:** `/projects/chatbot/knowledge` · overview + editor via existing `/portal/chatbot/knowledge` APIs.  
+**Forbidden:** new domain models · AI generation · Prompt & Policy edits · provider calls.
