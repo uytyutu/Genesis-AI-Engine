@@ -37,8 +37,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → R3.4.2.2 | Factory Consumers | PASS · `a675c60` |
 | → R3.4.2.3 | Market Expansion Validation | PASS · `9756c84` |
 | **R3.5** | **Client Portal** | **OPEN** |
-| → ✅ **R3.5.1** | **Client Portal Architecture** | **PASS** (CEO 2026-07-22) |
-| → **R3.5.2** | **Website Domain Model** | **IN PROGRESS** |
+| → ✅ **R3.5.1** | **Client Portal Architecture** | **PASS** · `4a5a3f8` |
+| → **R3.5.2** | **Website Domain Model** | **DONE (code)** — await CEO review |
 | → R3.5.3+ | Portal slices (after Website model) | pending |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
@@ -338,8 +338,20 @@ flowchart LR
 
 **Not in R3.5.1:** implementation · auth · Gallery · CRM · Domain UI.
 
-### R3.5.2 — Website Domain Model (NEXT)
+### R3.5.2 — Website Domain Model — DONE (code)
 
-**Scope:** `Website` entity only — no Portal UI/API/auth.  
-**Fields:** website_id · client_id · product_id · market_code · deployment_id · status · created_at · updated_at.  
-**Links:** Order → website_id (creates); Deployment → website_id (publish record).
+**Module:** `dashboard/backend/app/portal/website.py`  
+**Tests:** `tests/test_website_domain_r352.py` (5 passed).
+
+```
+Client (client_id)
+      │
+      ▼
+Website (website_id, product_id, market_code, status, …)
+      │
+      ▼
+Deployment (deployment_id, website_id)   ← publish record
+Order ──website_id──▶ Website            ← creates, does not own
+```
+
+**Not in R3.5.2:** Portal UI · auth · API routes · persistence · Gallery.
