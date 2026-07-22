@@ -38,11 +38,11 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → R3.4.1.4 | Landing Builder Migration | PASS |
 | → R3.4.1.5 | Cleanup & SSOT Validation | PASS |
 | → R3.4.1 FINAL | End-to-End Validation + Commit | **PASS** · `fb99cbe` |
-| → R3.4.1.R | Regression Cleanup (landing_i18n / nav) | **DONE (code)** |
+| → R3.4.1.R | Regression Cleanup (landing_i18n / nav) | **PASS** · `e3aa8d7` |
 | → **R3.4.2** | **Global Market Integration** | **OPEN** |
-| → **R3.4.2.1** | **Market Registry** | **DONE (code)** — await CEO review |
-| → R3.4.2.2 | Factory Consumers | After 2.1 PASS |
-| → R3.4.2.3 | Market Expansion Validation | After 2.2 |
+| → **R3.4.2.1** | **Market Registry** | **PASS** · `abb300d` |
+| → **R3.4.2.2** | **Factory Consumers** | **DONE (code)** — await CEO review |
+| → R3.4.2.3 | Market Expansion Validation | After 2.2 PASS |
 | → **R3.4.3** | **Market Validation** | After R3.4.2 |
 | **R3.5** | **Client Portal** | After R3.4 |
 

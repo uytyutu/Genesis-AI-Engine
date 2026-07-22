@@ -299,6 +299,12 @@ def normalize_market(code: str | None) -> str:
 
 
 def market_ui_lang(market_code: str | None) -> str:
+    """UI language for market — Market Registry profile first, then delivery map."""
+    from app.factory.market_profile import resolve_or_none
+
+    profile = resolve_or_none(market_code)
+    if profile is not None and profile.language:
+        return profile.language
     return _MARKET_LANG.get(normalize_market(market_code), "en")
 
 

@@ -193,8 +193,6 @@ _UI: dict[str, dict[str, str]] = {
         "gallery_muted": "Your photos — studio, team, and work.",
         "back_to_top": "Back to top",
         "showcase_lead": "Quality you can see.",
-        "premium_signature_eyebrow": "Atelier",
-        "premium_signature_lead": "Calm spaces. Clear plans. A presence that earns trust.",
         "parking": "Parking on site",
         "trust_bar": "Verified · Local · Reliable",
         "analytics_comment": "Google Analytics: replace Measurement ID after go-live (G-XXXXXXXXXX)",
@@ -630,11 +628,17 @@ _NICHE_ALIAS = {
 
 
 def landing_lang_for_market(market_code: str | None) -> str:
-    """Buyer market → landing chrome language. Keep country/currency/lang/product in sync."""
+    """Buyer market → landing chrome language via Market Registry when registered."""
+    from app.factory.market_profile import resolve_or_none
+
+    profile = resolve_or_none(market_code)
+    if profile is not None and profile.language in _UI:
+        return profile.language
+
     lang = market_ui_lang(market_code)
     if lang in _UI:
         return lang
-    # Partial UI langs until dedicated chrome packs exist.
+    # Partial UI langs until dedicated chrome packs exist (unregistered markets).
     aliases = {
         "it": "en",
         "pt": "en",
@@ -651,8 +655,24 @@ def ui_strings(lang: str) -> dict[str, str]:
 
 
 def apply_legal_footer_hrefs(ui: dict[str, str], market_code: str | None) -> dict[str, str]:
-    """Adjust footer labels/hrefs to match shipped legal pack."""
+    """Footer legal labels/hrefs — MarketProfile when registered, else delivery pack."""
     out = dict(ui)
+    from app.factory.market_profile import legal_link_pairs, resolve_or_none
+
+    profile = resolve_or_none(market_code)
+    if profile is not None:
+        pairs = legal_link_pairs(profile)
+        if pairs:
+            out["legal_a"] = pairs[0][0]
+            out["legal_a_href"] = pairs[0][1]
+            if len(pairs) >= 2:
+                out["legal_b"] = pairs[1][0]
+                out["legal_b_href"] = pairs[1][1]
+            else:
+                out["legal_b"] = pairs[0][0]
+                out["legal_b_href"] = pairs[0][1]
+        return out
+
     pack = market_legal_pack(market_code)
     if pack == "de_impressum":
         out["legal_a"] = _UI["de"]["legal_a"]
@@ -672,6 +692,11 @@ def apply_legal_footer_hrefs(ui: dict[str, str], market_code: str | None) -> dic
 
 
 def maps_country_label(market_code: str | None) -> str:
+    from app.factory.market_profile import resolve_or_none
+
+    profile = resolve_or_none(market_code)
+    if profile is not None and (profile.label or "").strip():
+        return profile.label.strip()
     code = normalize_market(market_code)
     return _MAPS_COUNTRY.get(code, "Germany")
 

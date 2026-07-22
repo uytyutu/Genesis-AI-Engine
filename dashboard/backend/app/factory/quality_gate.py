@@ -185,10 +185,22 @@ def run_quality_gate(
     add("localization", "no_mustache", not bool(re.search(r"\{\{[^{}]+\}\}", html)), "{{…}}")
     add("localization", "no_ui_keys", not bool(re.search(r"\bui\.[a-z0-9_]+\b", html, re.I)), "ui.* keys")
     en_hit = next((s for s in _ENGLISH_UI_STUBS if s in lower), None)
-    # Only enforce English-stub ban for non-EN markets
+    # Only enforce English-stub ban for non-EN markets (Market Registry language)
     market = str(meta.get("market_code") or _attr(html, "data-market") or "DE").upper()
     lang = _attr(html, "lang") or ""
-    if market in ("DE", "AT", "FR", "ES", "NL") or lang in ("de", "fr", "es", "nl"):
+    from app.factory.market_profile import resolve_or_none
+
+    profile = resolve_or_none(market)
+    non_english = (profile is not None and profile.language not in ("en", "")) or lang in (
+        "de",
+        "fr",
+        "es",
+        "nl",
+        "uk",
+        "ru",
+        "cs",
+    )
+    if non_english:
         add("localization", "no_english_stubs", en_hit is None, en_hit or "")
     else:
         add("localization", "no_english_stubs", True, "skipped_en_market")
