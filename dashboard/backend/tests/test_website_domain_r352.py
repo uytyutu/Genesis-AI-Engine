@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
+from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.website import (
     ENGINE_ID,
-    Deployment,
     OrderWebsiteRef,
     Website,
     link_order_to_website,
-    new_deployment,
     new_website,
 )
 
@@ -55,19 +54,13 @@ def test_order_references_website():
 
 def test_deployment_references_website():
     w = new_website(client_id="c1", product_id="p1", market_code="FR")
-    dep = new_deployment(website=w, mode="zip_only")
+    dep = new_deployment(website=w, artifact_id=w.product_id)
     assert isinstance(dep, Deployment)
     assert dep.website_id == w.website_id
-    assert dep.mode == "zip_only"
+    assert dep.artifact_id == w.product_id
     assert dep.deployment_id
 
-    w2 = new_website(
-        client_id="c1",
-        product_id="p1",
-        market_code="FR",
-        deployment_id=dep.deployment_id,
-        status="published",
-    )
+    w2 = attach_deployment(w, dep)
     assert w2.deployment_id == dep.deployment_id
 
 
@@ -76,5 +69,5 @@ def test_client_website_deployment_chain():
     client_id = "client-el3"
     w = new_website(client_id=client_id, product_id="sandbox-1", market_code="NL")
     assert w.client_id == client_id
-    dep = new_deployment(website=w)
+    dep = new_deployment(website=w, artifact_id="sandbox-1")
     assert dep.website_id == w.website_id

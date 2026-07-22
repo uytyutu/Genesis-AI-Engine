@@ -39,8 +39,9 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.5** | **Client Portal** | **OPEN** |
 | → ✅ **R3.5.1** | **Client Portal Architecture** | **PASS** · `4a5a3f8` |
 | → ✅ **R3.5.2** | **Website Domain Model** | **PASS** · `fad5382` |
-| → **R3.5.3** | **Client Domain Model** | **DONE (code)** — await CEO review |
-| → R3.5.4+ | Deployment / Portal slices | pending |
+| → ✅ **R3.5.3** | **Client Domain Model** | **PASS** · `871c993` |
+| → **R3.5.4** | **Deployment Domain Model** | **DONE (code)** — await CEO review |
+| → R3.5.5+ | Portal / persistence slices | pending |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -229,7 +230,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5.1–R3.5.2 PASS ✅** · **NEXT = R3.5.3 Client Domain Model**.
+Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5.1–R3.5.3 PASS ✅** · **NEXT = R3.5.4 Deployment Domain Model**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -359,9 +360,18 @@ Order ──website_id──▶ Website            ← creates, does not own
 
 **Not in R3.5.2:** Portal UI · auth · API routes · persistence · Gallery.
 
-### R3.5.3 — Client Domain Model — DONE (code)
+### R3.5.3 — Client Domain Model — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/client.py`  
+**Module:** `dashboard/backend/app/portal/client.py` · commit `871c993`.  
 **Fields:** client_id · display_name · primary_email · preferred_language · created_at · updated_at.  
 **Link:** `website_for_client(client, …)` → `Website.client_id == Client.client_id`.  
 **Not in R3.5.3:** Auth · roles · teams · permissions · Portal UI/API.
+
+**Backlog notes:** `primary_email` = contact, not login id · `preferred_language` = Portal UI preference (Website language stays MarketProfile).
+
+### R3.5.4 — Deployment Domain Model — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/deployment.py`  
+**Fields:** deployment_id · website_id · artifact_id · version · status · created_at.  
+**Link:** `Website.deployment_id` ↔ `Deployment.website_id` via `attach_deployment`.  
+**Not in R3.5.4:** publish process · hosting · domains · ZIP storage · API/UI.
