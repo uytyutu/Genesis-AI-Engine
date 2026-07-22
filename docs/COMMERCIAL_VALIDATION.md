@@ -76,12 +76,12 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | ✅ **R3.11** | **Portal Dashboard API** | **CLOSED** (CEO 2026-07-22) |
 | → ✅ **R3.11.1** | **Dashboard Read Endpoint** | **PASS** · `51bbfb9` |
 | → ✅ **R3.11.2** | **Dashboard Endpoint Integration** | **PASS** · `121d8f9` |
-| **R3.12** | **Account & Activation** | **OPEN** (CEO roadmap 2026-07-22) |
+| **R3.12** | **Account & Activation** | **CLOSED** (CEO 2026-07-22) |
 | → ✅ **R3.12.1** | **Account Ownership Architecture** | **PASS** · `83c8c56` · **CLOSED** |
 | → ✅ **R3.12.2** | **Activation Token Domain** | **PASS** · `80b641e` |
 | → ✅ **R3.12.3** | **Password Creation** | **PASS** · `458be7d` |
 | → ✅ **R3.12.4** | **Authentication Domain** | **PASS** · `b7a9763` |
-| → **R3.12.5** | **Authorization / Dashboard Access** | **NEXT** |
+| → ✅ **R3.12.5** | **Authorization Domain** | **PASS** — await commit hash |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -270,7 +270,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **R3.12.1–R3.12.4 PASS ✅** · **NEXT = R3.12.5 Authorization / Dashboard Access**.  
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.12 CLOSED ✅** · **NEXT = HTTP / session infra** (login endpoint · middleware · protected routes) atop R3.12 domain.  
 **R3.12 report rule:** each slice includes **Security Impact** + **Upgrade Path** + **Future Roles** (where relevant).
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
@@ -702,3 +702,20 @@ Each R3.12 report: **Security Impact** · **Upgrade Path** · **Future Roles** (
 **Not in R3.12.4:** HTTP · FastAPI · MFA · OAuth · rate limit · password reset.
 
 **Next:** R3.12.5 Authorization Domain — “may this Account open this Website?” (before HTTP/JWT).
+
+### R3.12.5 — Authorization Domain — PASS ✅ (CEO 2026-07-22)
+
+**Module:** `dashboard/backend/app/portal/authorization.py`  
+**Entities:** `AuthorizationRequest` · `AuthorizationResult`  
+**API:** `authorize` / `authorize_account_for_website` — gate via ``WebsiteOwnership`` only  
+**Roles:** `allowed_roles` set (default `{"owner"}`) — extensible without redesign  
+**Rules:** does not authenticate · does not create session · module-agnostic (Dashboard/CRM/… are callers only)  
+**Not in R3.12.5:** HTTP · JWT · permissions engine · ACL editor.
+
+### R3.12 — Account & Activation — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+Ownership → Activation → Password Creation → Authentication → Authorization
+```
+
+Domain foundation complete. **Next (infra):** HTTP login · session/JWT · middleware · protected Portal endpoints — without changing R3.12 domain models.

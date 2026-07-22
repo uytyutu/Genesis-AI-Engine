@@ -28,6 +28,15 @@ from app.portal.authentication import (
     AuthenticationResult,
     authenticate,
 )
+from app.portal.authorization import (
+    AUTHORIZATION_FUTURE_ROLES,
+    DEFAULT_ALLOWED_ROLES,
+    AuthorizationRequest,
+    AuthorizationResult,
+    authorize,
+    authorize_account_for_website,
+    new_authorization_request,
+)
 from app.portal.client import Client, new_client, website_for_client
 from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.edit_session import EditSession, close_edit_session, new_edit_session
@@ -88,9 +97,13 @@ __all__ = [
     "AssetView",
     "AuthenticationAttempt",
     "AuthenticationResult",
+    "AUTHORIZATION_FUTURE_ROLES",
+    "AuthorizationRequest",
+    "AuthorizationResult",
     "Client",
     "ClientQuery",
     "ClientView",
+    "DEFAULT_ALLOWED_ROLES",
     "Deployment",
     "DeploymentView",
     "EditSession",
@@ -123,6 +136,8 @@ __all__ = [
     "activate_token",
     "attach_deployment",
     "authenticate",
+    "authorize",
+    "authorize_account_for_website",
     "build_website_dashboard_view",
     "close_edit_session",
     "complete_account_activation",
@@ -138,6 +153,7 @@ __all__ = [
     "new_account",
     "new_activation_token",
     "new_asset",
+    "new_authorization_request",
     "new_client",
     "new_deployment",
     "new_edit_session",
