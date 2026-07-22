@@ -24,7 +24,7 @@
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
-| **Product Track** | First Run → Knowledge UI → Channels UX → Dashboard → Website | **PT1.1–1.2 PASS** ✅ · NEXT = PT1.3 Channel Setup UX (not opened) |
+| **Product Track** | First Run → Knowledge UI → Channels UX → Dashboard → Website | **PT1.1–1.3 PASS** ✅ · NEXT = PT1.4 Vector Dashboard (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -330,7 +330,8 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **AI Interaction Pipeline — CLOSED ✅** (CEO 2026-07-22) · ConversationContext → Prompt & Policy → PromptPackage → Provider Layer → AIResponse.  
 **Product Track PT1.1 — PASS ✅** (CEO 2026-07-22) · Vector First Run Experience (orchestrator only · no new domain models).  
 **Product Track PT1.2 — PASS ✅** (CEO 2026-07-22) · Knowledge Management UI · Knowledge Workspace opened for owners.  
-**Not opened:** PT1.3 Channel Setup UX · AP2.2 Streaming · Marketplace · real channel SDKs.  
+**Product Track PT1.3 — PASS ✅** (CEO 2026-07-22) · Channel Setup UX · Vector Workspace path prepared (First Run → Knowledge → Channels).  
+**Not opened:** PT1.4 Vector Dashboard · AP2.2 Streaming · Marketplace · real channel SDKs.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
@@ -2196,9 +2197,9 @@ First Run orchestrates existing platform components.
 **Demo:** `client@virtus.local` / `demo-vector` · activation `DEMO-CHATBOT`.  
 **Forbidden:** new domain models · RAG · channel SDKs · AI Track (AP2.2+).
 
-**Horizon (not opened):** PT1.2 Knowledge Management UI → PT1.3 Channel Setup UX → PT1.4 Vector Dashboard → PT1.5 Virtus Core Premium Website.
+**Horizon (not opened):** PT1.3 Channel Setup UX → PT1.4 Vector Dashboard → PT1.5 Virtus Core Premium Website.
 
-### Product Track PT1.2 — Knowledge Management UI · OPEN (CEO 2026-07-22)
+### Product Track PT1.2 — Knowledge Management UI · PASS ✅ (CEO 2026-07-22)
 
 ```text
 Business Knowledge → Knowledge Repository → Knowledge Management UI
@@ -2214,4 +2215,30 @@ Knowledge Management UI never communicates with providers.
 ```
 
 **Surface:** `/projects/chatbot/knowledge` · overview + editor via existing `/portal/chatbot/knowledge` APIs.  
+**Knowledge Workspace:** owner can maintain facts daily without developer help; readiness % guides fill completeness.  
 **Forbidden:** new domain models · AI generation · Prompt & Policy edits · provider calls.
+
+**Horizon (not opened):** PT1.4 Vector Dashboard → PT1.5 Virtus Core Premium Website.
+
+**Horizon (not opened):** PT1.4 Vector Dashboard → PT1.5 Virtus Core Premium Website.
+
+### Product Track PT1.3 — Channel Setup UX · PASS ✅ (CEO 2026-07-22)
+
+```text
+Channel Connections → Channel Setup UI
+  → Website · Telegram · Instagram · Facebook · WhatsApp · Email · Other
+```
+
+**Invariant:**
+```text
+Channel Setup UI edits Channel Connections.
+Channel Setup UI never communicates with external services.
+Channel Setup UI never sends messages.
+Channel Setup UI never modifies Conversation Engine.
+```
+
+**Surface:** `/projects/chatbot/channels` · overview + details via existing `/portal/chatbot/channels` APIs.  
+**Vector Workspace (prepared):** Activate → First Run → Knowledge → Channels — ready for PT1.4 Dashboard aggregation.  
+**Forbidden:** Telegram/WhatsApp/Meta SDKs · message send/receive · Conversation Engine changes · new domain models.
+
+**Horizon (not opened):** PT1.4 Vector Dashboard → PT1.5 Virtus Core Premium Website.
