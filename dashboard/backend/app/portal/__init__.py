@@ -85,10 +85,14 @@ from app.portal.views import (
     DeploymentView,
     EditSessionView,
 )
+from app.portal.portal_authentication_middleware import (
+    register_portal_authentication_middleware,
+)
 from app.portal.portal_dashboard_registration import register_portal_dashboard
 from app.portal.portal_dashboard_router import portal_dashboard_router
 from app.portal.portal_login_registration import register_portal_login
 from app.portal.portal_login_router import portal_login_router
+from app.portal.request_principal import ANONYMOUS, RequestPrincipal
 from app.portal.website_catalog import load_portal_catalog_from_factory_sandbox
 from app.portal.website_dashboard_facade import WebsiteDashboardFacade
 from app.portal.website_dashboard_query import WebsiteDashboardQuery
@@ -137,6 +141,9 @@ __all__ = [
     "PortalReadRoute",
     "PortalReadService",
     "PortalReadStack",
+    "ANONYMOUS",
+    "RequestPrincipal",
+    "register_portal_authentication_middleware",
     "Session",
     "SessionCookieFactory",
     "SessionFacade",

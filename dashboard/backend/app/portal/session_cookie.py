@@ -66,6 +66,10 @@ class SessionCookieFactory:
         self._path = path
         self._ttl = ttl
 
+    @property
+    def cookie_name(self) -> str:
+        return self._cookie_name
+
     def build(self, session_id: str) -> SessionCookieSpec:
         return SessionCookieSpec(
             key=self._cookie_name,

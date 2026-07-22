@@ -26,9 +26,11 @@ ENGINE_ID = "authentication_facade_v1"
 
 
 class AuthenticationDirectory(Protocol):
-    """Read-only lookup for login — not a session store."""
+    """Read-only lookup for login / session resolution — not a session store."""
 
     def find_account_by_email(self, email: str) -> Account | None: ...
+
+    def find_account_by_id(self, account_id: str) -> Account | None: ...
 
     def find_credential(self, account_id: str) -> PasswordCredential | None: ...
 
@@ -42,6 +44,12 @@ class InMemoryAuthenticationDirectory:
 
     def find_account_by_email(self, email: str) -> Account | None:
         return self.accounts_by_email.get(email.strip().lower())
+
+    def find_account_by_id(self, account_id: str) -> Account | None:
+        for account in self.accounts_by_email.values():
+            if account.account_id == account_id:
+                return account
+        return None
 
     def find_credential(self, account_id: str) -> PasswordCredential | None:
         return self.credentials_by_account.get(account_id)

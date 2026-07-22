@@ -15,7 +15,7 @@
 | Mission 2 | Factory + Order Experience | ✅ |
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
-| **R4** | Portal HTTP Integration (session-first, no JWT) | **OPEN** · NEXT = R4.3 |
+| **R4** | Portal HTTP Integration (session-first, no JWT) | **OPEN** · NEXT = R4.4 |
 | Mission 4 | Premium Workspace | Later |
 | Mission 5 | Platform Expansion | Later |
 
@@ -94,8 +94,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 |-------|--------|--------|
 | → ✅ **R4.1** | **HTTP Login Endpoint** | **PASS** · `c60bca0` |
 | → ✅ **R4.2** | **Session Domain / Store** | **PASS** · `78eb847` |
-| → **R4.3** | **Authentication Middleware** | **NEXT** |
-| → **R4.4** | **Protected Dashboard** | planned |
+| → ✅ **R4.3** | **Authentication Middleware** | **PASS** — await commit hash |
+| → **R4.4** | **Protected Dashboard** | **NEXT** |
 | → **R4.5** | **Logout** | planned |
 | → **R4.6** | **Activation Flow Integration** | planned |
 
@@ -289,7 +289,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
 Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain foundation for Portal / Identity.  
-**R4.1 PASS ✅** · **R4.2 PASS ✅** · **NEXT = R4.3 Authentication Middleware**.  
+**R4.1–R4.3 PASS ✅** · **NEXT = R4.4 Protected Dashboard** (AuthN + Authorization + Dashboard).  
 **R4 policy:** server session + HTTP-only cookie (Phase B); JWT deferred.  
 **Infra review lenses:** Architecture · Security · Product (CEO).  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
@@ -772,3 +772,13 @@ Further work is **infrastructure + UX**, not domain invention.
 **Not in R4.2:** Middleware · cookie reading · Protected Dashboard · Logout endpoint · JWT · CSRF.
 
 **Next:** R4.3 Authentication Middleware — read cookie → active Session → Account (no Authorization).
+
+### R4.3 — Authentication Middleware — PASS ✅ (CEO 2026-07-22)
+
+**Modules:** `request_principal.py` · `portal_authentication_middleware.py`  
+**Behavior:** cookie → SessionFacade → Account | Anonymous on `request.state` · never 401/403  
+**Invariant:** Middleware identifies; it does not authorize.  
+**Note:** `RequestPrincipal` stays identity-only (no permissions / business payload).  
+**Not in R4.3:** Authorization · Dashboard protection · redirect · logout · JWT.
+
+**Next:** R4.4 Protected Dashboard — RequestPrincipal → Authorization → Dashboard.
