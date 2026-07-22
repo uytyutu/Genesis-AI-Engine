@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import io
 import os
 
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response, StreamingResponse
 from contextlib import asynccontextmanager
 import logging
 
@@ -252,16 +252,22 @@ app = FastAPI(
     openapi_url=None if is_production() else "/openapi.json",
 )
 
+# Always keep local Mission Control origins — empty/override GENESIS_CORS_ORIGINS
+# must not break Genesis.exe desk (browser → :8000).
+_LOCAL_CORS_ORIGINS = (
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+)
+_cors_extra = [
+    o.strip()
+    for o in os.getenv("GENESIS_CORS_ORIGINS", "").split(",")
+    if o.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        o.strip()
-        for o in os.getenv(
-            "GENESIS_CORS_ORIGINS",
-            "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001",
-        ).split(",")
-        if o.strip()
-    ],
+    allow_origins=list(dict.fromkeys([*_LOCAL_CORS_ORIGINS, *_cors_extra])),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -273,6 +279,11 @@ app.include_router(stripe_webhook_router)
 from app.api.webhooks.resend_inbound import router as resend_inbound_webhook_router
 
 app.include_router(resend_inbound_webhook_router)
+
+# R3.8.2 — controlled Portal registration (no-op while feature_enabled=False)
+from app.portal.portal_registration import register_portal_read
+
+register_portal_read(app)
 
 # Research Visual Experience stills / demos (Path A preview — read-only assets)
 from pathlib import Path as _Path
@@ -334,14 +345,36 @@ async def guard_internal_routes(request: Request, call_next):
 async def support_inbox_remote_proxy(request: Request, call_next):
     """Local Genesis.exe desk → Railway Support Inbox (shared volume of truth)."""
     path = request.url.path
-    if (
-        path.startswith("/api/support")
-        and not is_production()
-        and remote_enabled()
-    ):
+    if not (path.startswith("/api/support") and not is_production()):
+        return await call_next(request)
+
+    load_local_env()
+    origin = (request.headers.get("origin") or "").strip()
+    allowed = {
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        *[o.strip() for o in os.getenv("GENESIS_CORS_ORIGINS", "").split(",") if o.strip()],
+    }
+
+    def with_cors(response: JSONResponse | Response) -> Response:
+        if origin in allowed:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "*, Authorization, Content-Type, X-Support-Bridge"
+            response.headers["Vary"] = "Origin"
+        return response
+
+    # Early proxy return bypasses CORSMiddleware — answer preflight here.
+    if request.method == "OPTIONS":
+        return with_cors(Response(status_code=204))
+
+    if remote_enabled():
         proxied = await proxy_support(request, path)
         if proxied is not None:
-            return proxied
+            return with_cors(proxied)
     return await call_next(request)
 
 
@@ -1486,6 +1519,14 @@ def support_set_thread_status(thread_id: str, body: dict | None = None) -> dict:
         if code == "not_found":
             raise HTTPException(status_code=404, detail=code) from exc
         raise HTTPException(status_code=400, detail=code) from exc
+
+
+@app.delete("/api/support/threads/{thread_id}")
+def support_delete_thread(thread_id: str) -> dict:
+    ok = _ctx().support.delete_thread(thread_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="not_found")
+    return {"ok": True, "deleted": thread_id}
 
 
 @app.get("/api/support/templates")

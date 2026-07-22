@@ -44,12 +44,12 @@ def test_profile_snapshot_inactive():
 
 
 def test_main_unchanged_and_portal_inactive():
+    """R3.8.1: profile not mounted. R3.8.2 may call register_* (still no-op)."""
     main = Path(__file__).resolve().parents[1] / "app" / "main.py"
     text = main.read_text(encoding="utf-8")
-    assert "portal_profile" not in text
     assert "PORTAL_PROFILE" not in text
-    assert "compose_portal_read" not in text
-    assert "portal_read_router" not in text
+    assert "include_router(portal_read_router)" not in text
+    assert is_portal_feature_enabled() is False
 
 
 def test_profile_has_no_mount_or_auth_logic():

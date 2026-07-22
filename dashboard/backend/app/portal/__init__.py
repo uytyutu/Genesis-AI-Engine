@@ -12,6 +12,7 @@ from app.portal.edit_session import EditSession, close_edit_session, new_edit_se
 from app.portal.portal_bootstrap import PortalReadStack, compose_portal_read, teardown_portal_read
 from app.portal.portal_profile import PORTAL_PROFILE, is_portal_feature_enabled
 from app.portal.portal_read_router import portal_read_router
+from app.portal.portal_registration import register_portal_read
 from app.portal.queries import AssetQuery, ClientQuery, WebsiteQuery
 from app.portal.read_api_contract import PORTAL_READ_ROUTES, PortalReadRoute
 from app.portal.read_api_handlers import PortalReadHandlers
@@ -58,6 +59,7 @@ __all__ = [
     "new_edit_session",
     "new_website",
     "portal_read_router",
+    "register_portal_read",
     "teardown_portal_read",
     "website_for_client",
 ]
