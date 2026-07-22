@@ -15,6 +15,7 @@
 | Mission 2 | Factory + Order Experience | ✅ |
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
+| **R4** | Portal HTTP Integration (session-first, no JWT) | **OPEN** · NEXT = R4.1 |
 | Mission 4 | Premium Workspace | Later |
 | Mission 5 | Platform Expansion | Later |
 
@@ -82,6 +83,23 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.12.3** | **Password Creation** | **PASS** · `458be7d` |
 | → ✅ **R3.12.4** | **Authentication Domain** | **PASS** · `b7a9763` |
 | → ✅ **R3.12.5** | **Authorization Domain** | **PASS** · `4db26bd` |
+
+### R4 — Portal HTTP Integration (CEO 2026-07-22)
+
+**Policy:** Session + HTTP-only cookie for Virtus Core web Portal. **No JWT** until separate clients (mobile/API) need it.  
+**Phase A:** transport only · **Phase B:** session / middleware / protected routes.  
+**Review lenses:** Architecture · Security · Product.
+
+| Slice | Theme | Status |
+|-------|--------|--------|
+| → **R4.1** | **HTTP Login Endpoint** | **NEXT** — transport → Authentication Domain only |
+| → **R4.2** | **Session Domain / Store** | planned |
+| → **R4.3** | **Authentication Middleware** | planned |
+| → **R4.4** | **Protected Dashboard** | planned |
+| → **R4.5** | **Logout** | planned |
+| → **R4.6** | **Activation Flow Integration** | planned |
+
+**R4.1 out of scope:** Session · Cookie · JWT · Middleware · Protected routes.
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -271,7 +289,8 @@ _(none yet — first real traffic / payment opens Entry 1)_
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
 Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain foundation for Portal / Identity.  
-**NEXT phase = Infrastructure:** HTTP login · session/JWT · middleware · protected routes — atop R3.12 (domain unchanged).  
+**NEXT = R4.1 HTTP Login Endpoint** (Phase A — transport only; no Session/JWT/Cookie/Middleware).  
+**R4 policy:** server session + HTTP-only cookie later (Phase B); JWT deferred.  
 **Infra review lenses:** Architecture · Security · Product (CEO).  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -657,10 +676,10 @@ Facade · Query · View (+ WebsiteView / DeploymentView). Ready for first HTTP r
 First live HTTP read · Factory → Portal path · real data.  
 **CEO APPROVED** Mission 3 through R3.11 (2026-07-22).
 
-### R3.12 — Account & Activation — OPEN
+### R3.12 — Account & Activation — (see CLOSED below)
 
-Target path: `Email → Account → Owned Websites → Dashboard` (not open-by-`website_id` alone).  
-Each R3.12 report: **Security Impact** · **Upgrade Path** · **Future Roles** (where relevant).
+Target path: `Email → Account → Owned Websites → Dashboard`.  
+Series **CLOSED** — full write-up under «R3.12 — Account & Activation — CLOSED».
 
 ### R3.12.1 — Account Ownership Architecture — PASS ✅ (CEO 2026-07-22)
 
@@ -726,3 +745,10 @@ Domain foundation complete. **Next (infra):** HTTP login · session/JWT · middl
 
 Factory (product) · Portal (client work) · Identity (R3.12 lifecycle) — foundation for Virtus Core client platform.  
 Further work is **infrastructure + UX**, not domain invention.
+
+### R4 — Portal HTTP Integration — OPEN
+
+**Phase A (R4.1):** HTTP → AuthenticationFacade → Domain → `{authenticated: true|false}` — no session/JWT.  
+**Phase B (R4.2–R4.5):** Session store · cookie · middleware · protected Dashboard · logout.  
+**R4.6:** full activation path (publish → email → activate → password → login → Dashboard).  
+**JWT:** deferred until multi-client need.
