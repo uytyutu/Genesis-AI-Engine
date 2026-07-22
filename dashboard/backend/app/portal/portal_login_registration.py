@@ -12,11 +12,11 @@ from fastapi import FastAPI
 from app.portal.authentication_facade import (
     AuthenticationDirectory,
     AuthenticationFacade,
-    empty_authentication_directory,
 )
 from app.portal.portal_authentication_middleware import (
     configure_portal_authentication_middleware,
 )
+from app.portal.portal_demo_directory import build_demo_authentication_directory
 from app.portal.portal_login_router import (
     portal_login_router,
     set_authentication_facade,
@@ -49,8 +49,10 @@ def register_portal_login(
 ) -> bool:
     """Wire auth + session facades, configure middleware deps, mount login."""
     global _shared_session_facade, _shared_directory
+    # Default: demo directory so Product Track First Run can authenticate locally.
+    # Explicit empty_authentication_directory() still allowed for tests.
     resolved_dir = (
-        directory if directory is not None else empty_authentication_directory()
+        directory if directory is not None else build_demo_authentication_directory()
     )
     store = session_store if session_store is not None else InMemorySessionStore()
     cookies = cookie_factory if cookie_factory is not None else SessionCookieFactory()

@@ -87,6 +87,11 @@ export const PUBLIC_NAV_LINKS: readonly PublicNavLink[] = [];
 
 export const CLIENT_NAV_LINKS = [
   { href: "/projects", label: "Проекты", hint: "Мои результаты" },
+  {
+    href: "/projects/chatbot/setup",
+    label: "Vector",
+    hint: "First Run · настройка",
+  },
 ] as const;
 
 export const CEO_PRIMARY_LINKS = [

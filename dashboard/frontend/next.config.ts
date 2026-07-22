@@ -59,6 +59,10 @@ const nextConfig: NextConfig = {
         destination: `${apiBase}/api/acquisition/:path*`,
       },
       {
+        source: "/api/support/:path*",
+        destination: `${apiBase}/api/support/:path*`,
+      },
+      {
         source: "/api/leads/:path*",
         destination: `${apiBase}/api/leads/:path*`,
       },
@@ -73,6 +77,10 @@ const nextConfig: NextConfig = {
       {
         source: "/webhooks/stripe",
         destination: `${apiBase}/webhooks/stripe`,
+      },
+      {
+        source: "/portal/:path*",
+        destination: `${apiBase}/portal/:path*`,
       },
     ];
   },
