@@ -38,8 +38,9 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → R3.4.2.3 | Market Expansion Validation | PASS · `9756c84` |
 | **R3.5** | **Client Portal** | **OPEN** |
 | → ✅ **R3.5.1** | **Client Portal Architecture** | **PASS** · `4a5a3f8` |
-| → **R3.5.2** | **Website Domain Model** | **DONE (code)** — await CEO review |
-| → R3.5.3+ | Portal slices (after Website model) | pending |
+| → ✅ **R3.5.2** | **Website Domain Model** | **PASS** · `fad5382` |
+| → **R3.5.3** | **Client Domain Model** | **DONE (code)** — await CEO review |
+| → R3.5.4+ | Deployment / Portal slices | pending |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -228,7 +229,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.3 ✅ · **R3.4 Global Market CLOSED ✅** · **R3.5.1 Architecture PASS ✅** · **NEXT = R3.5.2 Website Domain Model**.
+Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5.1–R3.5.2 PASS ✅** · **NEXT = R3.5.3 Client Domain Model**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -338,9 +339,9 @@ flowchart LR
 
 **Not in R3.5.1:** implementation · auth · Gallery · CRM · Domain UI.
 
-### R3.5.2 — Website Domain Model — DONE (code)
+### R3.5.2 — Website Domain Model — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/website.py`  
+**Module:** `dashboard/backend/app/portal/website.py` · commit `fad5382`.  
 **Tests:** `tests/test_website_domain_r352.py` (5 passed).
 
 ```
@@ -354,4 +355,13 @@ Deployment (deployment_id, website_id)   ← publish record
 Order ──website_id──▶ Website            ← creates, does not own
 ```
 
+**Backlog notes (not this slice):** status as formal Enum · Website → Deployments[] with current marker.
+
 **Not in R3.5.2:** Portal UI · auth · API routes · persistence · Gallery.
+
+### R3.5.3 — Client Domain Model — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/client.py`  
+**Fields:** client_id · display_name · primary_email · preferred_language · created_at · updated_at.  
+**Link:** `website_for_client(client, …)` → `Website.client_id == Client.client_id`.  
+**Not in R3.5.3:** Auth · roles · teams · permissions · Portal UI/API.
