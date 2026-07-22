@@ -21,7 +21,8 @@
 | **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **ACCEPTED** (CEO 2026-07-22) |
 | **Brand Architecture v1.0** | Virtus Core (platform) · Vector (AI Business Employee) | **ACCEPTED** (CEO 2026-07-22) · `docs/VIRTUS_BRAND_ARCHITECTURE_v1.md` |
 | **Commercial Platform** | Purchases · Billing · Licenses · Redeem → Activation → Ownership | **CORE CLOSED** ✅ (CEO 2026-07-22) · Marketplace deferred |
-| **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ · NEXT = AI Platform 1.0 Provider Layer (not opened) |
+| **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
+| **AI Platform 1.0** | Provider Layer · (future real LLM adapters) | **AP1.1 PASS** · Vector AI Foundation CLOSED ✅ · NEXT = AP1.2 Provider Adapters (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -314,13 +315,15 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Commercial Platform 6.5 PASS** · `e75d778` · License central (entitlement · redeem → Activation).  
 **Commercial Platform 6.6 PASS** · `0104b44` · Billing financial ledger.  
 **Commercial Platform Core — CLOSED ✅** (CEO 2026-07-22) · Purchases · Billing · Licenses · Redeem → Activation → Ownership.  
-**Not opened:** Marketplace · **AI Platform 1.0 — Provider Layer** · real channel SDKs.  
+**Not opened:** Marketplace · AP1.2 Provider Adapters (real SDKs inside adapters only) · real channel SDKs.  
 **Business Product BP1.1 — PASS ✅** · ChatBot Business Profile & Industry Template (no AI · no channel SDKs).  
 **Business Product BP1.2 — PASS ✅** · Business Knowledge (facts only · fixed categories).  
 **Business Product BP1.3 — PASS ✅** · `422d1a7` · Channel Connections stub (registry · config · status).  
 **Business Product BP1.4 — PASS ✅** · `d003ef2` · Conversation Engine stub (context builder · no AI).  
 **Vector Product Foundation — CLOSED ✅** (CEO 2026-07-22) · Profile · Template · Knowledge · Channels · Conversation Engine.  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0.  
+**AI Platform AP1.1 — PASS ✅** · `8e758ac` · Provider Layer (Protocol · Registry · Manager · stubs).  
+**Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider Invariant.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1980,4 +1983,76 @@ Business Profile
 ```
 
 **Boundary:** Business Product complete without binding to any LLM.  
-**Next layer (not opened):** **AI Platform 1.0 — Provider Layer** — AI Provider Interface consuming `ConversationContext`; stubs for OpenAI / Anthropic / Ollama; Conversation Engine never knows the concrete provider.
+**Next layer:** **AI Platform 1.0 — Provider Layer** — see AP1.1.
+
+### AI Platform AP1.1 — Provider Layer · PASS ✅ · `8e758ac` (CEO 2026-07-22)
+
+**Purpose:** how Vector talks to any LLM without knowing its implementation.  
+**Endpoints:**
+- `GET /portal/chatbot/providers`
+- `POST /portal/chatbot/providers`
+- `PUT /portal/chatbot/providers/{provider_id}`
+- `DELETE /portal/chatbot/providers/{provider_id}`
+- `POST /portal/chatbot/providers/{provider_id}/health`
+
+#### Provider Invariant
+
+```text
+Provider Layer abstracts LLM implementations.
+Provider Layer never prepares business context.
+Provider Layer never manages conversations.
+Provider Layer never communicates directly with channels.
+```
+
+#### Contract
+
+```text
+AIProviderProtocol
+  prepare(context) · generate(context) · health() · provider_info()
+
+Stubs: OpenAIProviderStub · AnthropicProviderStub · OllamaProviderStub
+```
+
+Conversation Engine calls Provider Manager via Protocol only — never SDKs.
+
+#### Scope Lock
+
+```text
+AI Platform AP1.1 — Provider Layer
+
+ConversationContext → AIProviderProtocol → Stub Providers
+
+Разрешено:
+- AIProvider Domain · Store · Registry · Manager · Facade
+- Stub providers · CRUD/health HTTP
+- Wire Conversation → Manager.generate(context)
+
+Запрещено:
+- OpenAI/Anthropic/Ollama SDK · HTTP API calls · Streaming · Tools
+- Embeddings · RAG · Vector DB · Prompt Engineering · Channel Integration
+```
+
+#### Acceptance
+
+- AIProviderProtocol ✅
+- Registry + Manager ✅
+- OpenAI / Anthropic / Ollama stubs ✅
+- ConversationContext through Protocol ✅
+- No external API / SDK ✅
+
+**Permanent Provider invariant:** Provider Layer abstracts LLM implementations only — never prepares business context, never manages conversations, never talks to channels.
+
+### Vector AI Foundation — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+Conversation Engine
+        │
+        ▼
+ConversationContext
+        │
+        ▼
+AI Provider Layer
+```
+
+**Boundary:** Vector product + AI abstraction complete without binding to a concrete LLM SDK.  
+**Next (not opened):** **AP1.2 — Provider Adapters** — real OpenAI/Anthropic/Ollama SDKs only inside adapters; Protocol · Context · Engine · Registry · Manager unchanged.
