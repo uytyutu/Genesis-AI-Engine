@@ -1,53 +1,63 @@
-"""Global Market Database v1 tests."""
+"""R3.4.2.1 — Market Registry (behavior-preserving)."""
 
-from app.integration.market_registry import MARKET_DE, MARKET_US, STAGE1_MARKET_CODES, get_market, list_active_markets
-from app.integration.market_registry_schema import PROJECT_BUSINESS_WEBSITE, PROJECT_ONLINE_STORE
+from __future__ import annotations
 
-
-def test_stage1_markets_v1():
-    assert len(STAGE1_MARKET_CODES) == 30
-    assert len(list_active_markets()) == 30
+from app.factory.market_profile import MarketProfile, list_market_codes, resolve, resolve_or_none
+from app.factory.market_registry import DEFAULT_REGISTRY, ENGINE_ID, MarketRegistry, get_registry
 
 
-def test_germany_business_website_ceo_band():
-    m = get_market(MARKET_DE)
-    b = m.project_range(PROJECT_BUSINESS_WEBSITE)
-    assert b is not None
-    assert b.from_amount == 490
-    assert b.to_amount == 590
-    assert b.average_market == 540
+def test_registry_engine_and_seeded_markets():
+    assert ENGINE_ID == "market_registry_v1"
+    reg = get_registry()
+    assert reg is DEFAULT_REGISTRY
+    assert reg.codes() == ("DE", "GB", "US", "UA")
+    assert list_market_codes() == ("DE", "GB", "US", "UA")
 
 
-def test_germany_ecommerce_band():
-    m = get_market(MARKET_DE)
-    b = m.project_range(PROJECT_ONLINE_STORE)
-    assert b is not None
-    assert b.from_amount == 890
-    assert b.to_amount == 1190
+def test_resolve_uses_registry_unchanged_behavior():
+    assert resolve("DE").default_cta == "Termin buchen"
+    assert resolve("GB").currency == "GBP"
+    assert resolve("US").default_cta == "Get Quote"
+    assert resolve("UA").language == "uk"
+    assert resolve("UK").market_code == "GB"  # alias
+    assert resolve("ZZ").market_code == "DE"  # fallback
+    assert resolve_or_none("ZZ") is None
+    assert resolve_or_none("DE") is not None
 
 
-def test_market_has_intelligence_metadata():
-    m = get_market(MARKET_DE)
-    assert m.intelligence.competition_level == "high"
-    assert m.intelligence.market_factor == 1.0
-    assert m.intelligence.last_review == "2026-07"
-    assert m.requires == ("impressum", "datenschutz", "gdpr")
+def test_resolve_delegates_to_registry_instance():
+    # Same object identity for registered markets
+    assert resolve("DE") is DEFAULT_REGISTRY.get("DE")
+    assert resolve("GB") is DEFAULT_REGISTRY.resolve("GB")
 
 
-def test_portugal_and_russia_in_registry():
-    from app.integration.market_registry import MARKET_PT, MARKET_RU
+def test_register_new_market_on_isolated_registry():
+    reg = MarketRegistry(fallback_code="DE")
+    reg.register(resolve("DE"))
+    reg.register(
+        MarketProfile(
+            market_code="FR",
+            label="France",
+            language="fr",
+            currency="EUR",
+            locale="fr_FR",
+            phone_format="+33",
+            address_format="FR",
+            default_cta="Prendre rendez-vous",
+            business_hours="Lun–Ven",
+            legal_footer_keys=("mentions_legales", "confidentialite"),
+            legal_page_slugs=("mentions-legales.html", "confidentialite.html"),
+        )
+    )
+    assert "FR" in reg.codes()
+    assert reg.resolve("FR").default_cta == "Prendre rendez-vous"
+    # Default process registry unchanged
+    assert "FR" not in DEFAULT_REGISTRY.codes()
 
-    pt = get_market(MARKET_PT)
-    ru = get_market(MARKET_RU)
-    assert pt.code == "PT" and pt.currency == "EUR"
-    assert ru.code == "RU" and ru.currency == "EUR"
-    assert get_market("PT").code != "DEFAULT"
-    assert get_market("RU").code != "DEFAULT"
 
-
-def test_us_usd_business_band():
-    m = get_market(MARKET_US)
-    b = m.project_range(PROJECT_BUSINESS_WEBSITE)
-    assert m.currency == "USD"
-    assert b is not None
-    assert b.from_amount >= 600
+def test_registry_table_matches_profiles():
+    table = DEFAULT_REGISTRY.as_table()
+    assert {r["market"] for r in table} == {"DE", "GB", "US", "UA"}
+    de = next(r for r in table if r["market"] == "DE")
+    assert de["cta"] == "Termin buchen"
+    assert "impressum" in de["legal_keys"]

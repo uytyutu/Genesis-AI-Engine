@@ -1,10 +1,10 @@
 """R3.4.1 — Market Profile Layer (SSOT).
 
 Single Source of Truth for market parameters.
-Factory migration to this module is R3.4.1.2+ / R3.4.2 — not this slice.
+R3.4.2.1: profiles are registered in MarketRegistry; resolve() reads the registry.
 
 resolve(market_code) → MarketProfile
-New country = new profile row here — not if/else across Factory.
+New country = register a profile — not if/else across Factory.
 """
 
 from __future__ import annotations
@@ -37,10 +37,10 @@ class MarketProfile:
         return asdict(self)
 
 
-# --- Canonical profiles (R3.4.1.1 minimum set) ---
+# --- Seed profiles (registered into MarketRegistry below) ---
 
-_PROFILES: dict[str, MarketProfile] = {
-    "DE": MarketProfile(
+_SEED_PROFILES: tuple[MarketProfile, ...] = (
+    MarketProfile(
         market_code="DE",
         label="Germany",
         language="de",
@@ -53,7 +53,7 @@ _PROFILES: dict[str, MarketProfile] = {
         legal_footer_keys=("impressum", "datenschutz"),
         legal_page_slugs=("impressum.html", "datenschutz.html"),
     ),
-    "GB": MarketProfile(
+    MarketProfile(
         market_code="GB",
         label="United Kingdom",
         language="en",
@@ -66,7 +66,7 @@ _PROFILES: dict[str, MarketProfile] = {
         legal_footer_keys=("privacy", "contact"),
         legal_page_slugs=("privacy.html", "#contact"),
     ),
-    "US": MarketProfile(
+    MarketProfile(
         market_code="US",
         label="United States",
         language="en",
@@ -79,7 +79,7 @@ _PROFILES: dict[str, MarketProfile] = {
         legal_footer_keys=("privacy", "terms"),
         legal_page_slugs=("privacy.html", "terms.html"),
     ),
-    "UA": MarketProfile(
+    MarketProfile(
         market_code="UA",
         label="Ukraine",
         language="uk",
@@ -92,30 +92,45 @@ _PROFILES: dict[str, MarketProfile] = {
         legal_footer_keys=("privacy", "contact"),
         legal_page_slugs=("privacy.html", "#contact"),
     ),
-}
+)
+
+
+def _ensure_registry_seeded() -> None:
+    """Idempotent seed into DEFAULT_REGISTRY (no behavior change for callers)."""
+    from app.factory.market_registry import DEFAULT_REGISTRY
+
+    if DEFAULT_REGISTRY.codes():
+        return
+    for profile in _SEED_PROFILES:
+        DEFAULT_REGISTRY.register(profile)
 
 
 def list_market_codes() -> tuple[str, ...]:
     """Ordered codes with explicit profiles (SSOT table)."""
-    return tuple(_PROFILES.keys())
+    _ensure_registry_seeded()
+    from app.factory.market_registry import DEFAULT_REGISTRY
+
+    return DEFAULT_REGISTRY.codes()
 
 
 def resolve(market_code: str | None) -> MarketProfile:
-    """Return full MarketProfile for market_code.
+    """Return full MarketProfile for market_code via Market Registry.
 
     Unknown codes fall back to DE (same soft default as Path A today).
     Aliases: UK → GB via normalize_market.
     """
-    code = normalize_market(market_code)
-    if code in _PROFILES:
-        return _PROFILES[code]
-    return _PROFILES["DE"]
+    _ensure_registry_seeded()
+    from app.factory.market_registry import DEFAULT_REGISTRY
+
+    return DEFAULT_REGISTRY.resolve(market_code)
 
 
 def resolve_or_none(market_code: str | None) -> MarketProfile | None:
     """Strict lookup — None when no dedicated profile exists yet."""
-    code = normalize_market(market_code)
-    return _PROFILES.get(code)
+    _ensure_registry_seeded()
+    from app.factory.market_registry import DEFAULT_REGISTRY
+
+    return DEFAULT_REGISTRY.get(market_code)
 
 
 def coerce_market_profile(raw: MarketProfile | dict[str, Any] | None) -> MarketProfile | None:
@@ -148,19 +163,10 @@ def html_lang_for_profile(profile: MarketProfile) -> str:
 
 def profile_table() -> list[dict[str, str]]:
     """USER CAN VERIFY rows: Market · Language · Currency · CTA · Legal Keys."""
-    rows: list[dict[str, str]] = []
-    for code in list_market_codes():
-        p = _PROFILES[code]
-        rows.append(
-            {
-                "market": code,
-                "language": p.language,
-                "currency": p.currency,
-                "cta": p.default_cta,
-                "legal_keys": ", ".join(p.legal_footer_keys),
-            }
-        )
-    return rows
+    _ensure_registry_seeded()
+    from app.factory.market_registry import DEFAULT_REGISTRY
+
+    return DEFAULT_REGISTRY.as_table()
 
 
 def format_profile_table() -> str:
@@ -218,3 +224,7 @@ def legal_link_pairs(
         label = labels.get(key) or key.replace("_", " ").title()
         pairs.append((label, href))
     return tuple(pairs)
+
+
+# Seed on import so resolve() works without an explicit bootstrap call.
+_ensure_registry_seeded()
