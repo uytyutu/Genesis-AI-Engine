@@ -411,6 +411,16 @@ register_portal_chatbot_knowledge(
     profiles=_portal_chatbot_profile_store,
 )
 
+# Business Product BP1.3 — Channel Connections (stub registry)
+from app.portal.portal_chatbot_channels_registration import (
+    register_portal_chatbot_channels,
+)
+
+register_portal_chatbot_channels(
+    app,
+    profiles=_portal_chatbot_profile_store,
+)
+
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
 
