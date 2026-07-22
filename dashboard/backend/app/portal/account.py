@@ -6,7 +6,12 @@ Client  = commercial party (buyer / company) — see ``client.py``.
 Account is **not** Client. Access to sites is via WebsiteOwnership, not via
 Website.client_id.
 
-No password · no JWT · no HTTP · no email in this slice.
+Lifecycle (R3.12.3):
+``pending_activation`` → ``activated`` → ``ready`` (ready for Authentication).
+``ready`` means credentials exist — **not** that the user is logged in.
+Sole path into ``ready``: ``create_primary_password`` (see password_credential.py).
+
+No JWT · no HTTP · no email · no login session in this module.
 """
 
 from __future__ import annotations
@@ -18,7 +23,12 @@ from uuid import uuid4
 
 ENGINE_ID = "account_domain_v1"
 
-AccountStatus = Literal["pending_activation", "active", "suspended"]
+AccountStatus = Literal[
+    "pending_activation",
+    "activated",
+    "ready",
+    "suspended",
+]
 
 
 def _utc_now_iso() -> str:

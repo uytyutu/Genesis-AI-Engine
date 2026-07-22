@@ -35,6 +35,13 @@ from app.portal.ownership import (
     ownership_for_account_website,
     website_ids_for_account,
 )
+from app.portal.password_credential import (
+    PasswordCredential,
+    PasswordCredentialError,
+    complete_account_activation,
+    create_primary_password,
+    is_ready_for_authentication,
+)
 from app.portal.portal_bootstrap import PortalReadStack, compose_portal_read, teardown_portal_read
 from app.portal.portal_health import portal_registration_snapshot
 from app.portal.portal_lifecycle import (
@@ -86,6 +93,8 @@ __all__ = [
     "OrderWebsiteRef",
     "PORTAL_PROFILE",
     "PORTAL_READ_ROUTES",
+    "PasswordCredential",
+    "PasswordCredentialError",
     "PortalCatalog",
     "PortalCatalogView",
     "PortalReadHandlers",
@@ -108,11 +117,14 @@ __all__ = [
     "attach_deployment",
     "build_website_dashboard_view",
     "close_edit_session",
+    "complete_account_activation",
     "compose_portal_read",
     "consume_token",
+    "create_primary_password",
     "expire_token",
     "grant_website_ownership",
     "is_portal_feature_enabled",
+    "is_ready_for_authentication",
     "is_usable",
     "load_portal_catalog_from_factory_sandbox",
     "new_account",

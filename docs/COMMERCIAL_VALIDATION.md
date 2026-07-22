@@ -79,8 +79,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.12** | **Account & Activation** | **OPEN** (CEO roadmap 2026-07-22) |
 | → ✅ **R3.12.1** | **Account Ownership Architecture** | **PASS** · `83c8c56` · **CLOSED** |
 | → ✅ **R3.12.2** | **Activation Token Domain** | **PASS** · `80b641e` |
-| → **R3.12.3** | **Password Creation** | **NEXT** |
-| → **R3.12.4** | **Authentication** | planned |
+| → ✅ **R3.12.3** | **Password Creation** | **PASS** — await commit hash |
+| → **R3.12.4** | **Authentication Domain** | **NEXT** |
 | → **R3.12.5** | **Dashboard Access** (Account ↔ Website) | planned |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
@@ -270,7 +270,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **R3.12.1 CLOSED ✅** · **R3.12.2 PASS ✅** · **NEXT = R3.12.3 Password Creation (domain)**.  
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **R3.12.1–R3.12.3 PASS ✅** · **NEXT = R3.12.4 Authentication Domain**.  
 **R3.12 report rule:** each slice includes **Security Impact** + **Upgrade Path** + **Future Roles** (where relevant).
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
@@ -679,3 +679,14 @@ Each R3.12 report: **Security Impact** · **Upgrade Path** · **Future Roles** (
 **Not in R3.12.2:** email · SMTP · HTTP · links · password · JWT · UI.
 
 **Next:** R3.12.3 Password Creation (domain first — no HTTP/login/JWT).
+
+### R3.12.3 — Password Creation Domain — PASS ✅ (CEO 2026-07-22)
+
+**Module:** `dashboard/backend/app/portal/password_credential.py`  
+**Entity:** `PasswordCredential` (opaque `password_hash` only)  
+**Account lifecycle:** `pending_activation` → `activated` → `ready`  
+**Orchestration:** `complete_account_activation` · `create_primary_password`  
+**Rules:** Password Creation does **not** authenticate; sole path to `Account.ready` is successful primary password creation after activation.  
+**Not in R3.12.3:** login · JWT · cookies · reset/change · HTTP · UI · SMTP.
+
+**Next:** R3.12.4 Authentication Domain (domain first — no HTTP/JWT/cookies).
