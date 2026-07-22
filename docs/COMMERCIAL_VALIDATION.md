@@ -22,7 +22,8 @@
 | **Brand Architecture v1.0** | Virtus Core (platform) · Vector (AI Business Employee) | **ACCEPTED** (CEO 2026-07-22) · `docs/VIRTUS_BRAND_ARCHITECTURE_v1.md` |
 | **Commercial Platform** | Purchases · Billing · Licenses · Redeem → Activation → Ownership | **CORE CLOSED** ✅ (CEO 2026-07-22) · Marketplace deferred |
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
-| **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) · NEXT = AP1.3 Prompt & Policy (not opened) |
+| **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
+| **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ (CEO 2026-07-22) · NEXT = AP2.2 Streaming (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -315,7 +316,7 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Commercial Platform 6.5 PASS** · `e75d778` · License central (entitlement · redeem → Activation).  
 **Commercial Platform 6.6 PASS** · `0104b44` · Billing financial ledger.  
 **Commercial Platform Core — CLOSED ✅** (CEO 2026-07-22) · Purchases · Billing · Licenses · Redeem → Activation → Ownership.  
-**Not opened:** Marketplace · AP1.3 Prompt & Policy Layer · KimiAdapter · per-profile Preferred AI Provider · real channel SDKs.  
+**Not opened:** Marketplace · AP2.2 Streaming · KimiAdapter · per-profile Preferred AI Provider · real channel SDKs.  
 **Business Product BP1.1 — PASS ✅** · ChatBot Business Profile & Industry Template (no AI · no channel SDKs).  
 **Business Product BP1.2 — PASS ✅** · Business Knowledge (facts only · fixed categories).  
 **Business Product BP1.3 — PASS ✅** · `422d1a7` · Channel Connections stub (registry · config · status).  
@@ -324,8 +325,10 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **AI Platform AP1.1 — PASS ✅** · `8e758ac` · Provider Layer (Protocol · Registry · Manager · stubs).  
 **AI Platform AP1.2 — PASS ✅** · `479184e` · Provider Adapters (OpenAI/Anthropic/Ollama · unified AIResponse).  
 **AI Platform 1.0 — CLOSED ✅** (CEO 2026-07-22) · Protocol → Registry → Manager → Adapters → AIResponse.  
+**AI Platform AP2.1 — PASS ✅** (CEO 2026-07-22) · Prompt & Policy Layer (PromptPackage · vendor-neutral behavior).  
+**AI Interaction Pipeline — CLOSED ✅** (CEO 2026-07-22) · ConversationContext → Prompt & Policy → PromptPackage → Provider Layer → AIResponse.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0.  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -2114,4 +2117,58 @@ Unified AIResponse
 ```
 
 **Boundary:** LLM integration layer complete. Further work improves interaction quality (prompts · policies · tools · knowledge), not rewiring vendor coupling.  
-**Horizon (not opened):** AP1.3 Prompt & Policy · KimiAdapter (same Protocol) · Preferred AI Provider on Business Profile · Streaming/Tools only behind adapters.
+**Superseded horizon note:** Prompt & Policy opened as **AP2.1** (not AP1.3).
+
+### AI Platform AP2.1 — Prompt & Policy Layer · PASS ✅ (CEO 2026-07-22)
+
+```text
+ConversationContext
+        │
+        ▼
+Prompt Builder
+        │
+        ▼
+Policy Layer
+        │
+        ▼
+PromptPackage
+        │
+        ▼
+Provider Adapter
+```
+
+**Goal:** How Vector decides what/how to say — independent of LLM vendor.
+
+**Permanent Prompt & Policy invariant:**
+```text
+Prompt & Policy Layer prepares AI instructions.
+Prompt & Policy Layer never calls providers.
+Prompt & Policy Layer never modifies Business Knowledge.
+Prompt & Policy Layer never communicates with channels.
+```
+
+**Contract `PromptPackage`:** System Prompt · Business Context · Conversation History · User Message · Generation Parameters — primary AI Platform input object.
+
+**Forbidden in AP2.1:** RAG · embeddings · function/tool calling · agents · streaming · vendor-specific prompts.
+
+### AI Interaction Pipeline — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+ConversationContext
+        │
+        ▼
+Prompt & Policy Layer
+        │
+        ▼
+PromptPackage
+        │
+        ▼
+Provider Layer
+        │
+        ▼
+Unified AIResponse
+```
+
+**Boundary:** Full path from business context to unified model reply is complete. Each stage has clear ownership. Further AI Platform 2.0 work (AP2.2+) adds capability on this pipeline — does not reopen ConversationContext ↔ Provider wiring.
+
+**Horizon (not opened):** AP2.2 Streaming → AP2.3 Tool Calling → AP2.4 Business Actions → AP2.5 Memory & RAG.
