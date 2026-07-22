@@ -394,31 +394,56 @@ register_portal_purchases(
 from app.portal.chatbot_business_profile_store import (
     InMemoryChatBotBusinessProfileStore,
 )
+from app.portal.industry_template import InMemoryIndustryTemplateStore
 from app.portal.portal_chatbot_product_registration import (
     register_portal_chatbot_product,
 )
 
 _portal_chatbot_profile_store = InMemoryChatBotBusinessProfileStore()
-register_portal_chatbot_product(app, profile_store=_portal_chatbot_profile_store)
+_portal_chatbot_template_store = InMemoryIndustryTemplateStore()
+register_portal_chatbot_product(
+    app,
+    profile_store=_portal_chatbot_profile_store,
+    template_store=_portal_chatbot_template_store,
+)
 
 # Business Product BP1.2 — Business Knowledge (facts only)
+from app.portal.business_knowledge_store import InMemoryBusinessKnowledgeStore
 from app.portal.portal_chatbot_knowledge_registration import (
     register_portal_chatbot_knowledge,
 )
 
+_portal_chatbot_knowledge_store = InMemoryBusinessKnowledgeStore()
 register_portal_chatbot_knowledge(
     app,
     profiles=_portal_chatbot_profile_store,
+    knowledge_store=_portal_chatbot_knowledge_store,
 )
 
 # Business Product BP1.3 — Channel Connections (stub registry)
+from app.portal.channel_connection_store import InMemoryChannelConnectionStore
 from app.portal.portal_chatbot_channels_registration import (
     register_portal_chatbot_channels,
 )
 
+_portal_chatbot_channel_store = InMemoryChannelConnectionStore()
 register_portal_chatbot_channels(
     app,
     profiles=_portal_chatbot_profile_store,
+    channel_store=_portal_chatbot_channel_store,
+)
+
+# Business Product BP1.4 — Conversation Engine (stub context builder)
+from app.portal.portal_chatbot_conversations_registration import (
+    register_portal_chatbot_conversations,
+)
+
+register_portal_chatbot_conversations(
+    app,
+    profiles=_portal_chatbot_profile_store,
+    knowledge=_portal_chatbot_knowledge_store,
+    channels=_portal_chatbot_channel_store,
+    templates=_portal_chatbot_template_store,
 )
 
 # R4.1 / R4.2 — HTTP Login + Session cookie
