@@ -46,7 +46,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | ✅ **R3.5** | **Domain Foundation** | **CLOSED** (CEO 2026-07-22) |
 | **R3.6** | **Portal Services** | **OPEN** |
 | → ✅ **R3.6.1** | **Portal Read Service** | **PASS** · `bbfd75f` |
-| → **R3.6.2** | **Portal Query Objects** | **DONE (code)** — await CEO review |
+| → ✅ **R3.6.2** | **Portal Query Objects** | **PASS** · `fe30d15` |
+| → **R3.6.3** | **Portal View Models** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -235,7 +236,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5 Domain Foundation CLOSED ✅** · **R3.6.1 PASS ✅** · **NEXT = R3.6.2 Portal Query Objects**.
+Mission 3: R3.1–R3.3 ✅ · **R3.4–R3.5 CLOSED ✅** · **R3.6.1–R3.6.2 PASS ✅** · **NEXT = R3.6.3 Portal View Models**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -418,9 +419,19 @@ No Portal UI/API/Auth/persistence in R3.5. Next layer = services (R3.6), then AP
 
 **Rules:** depends on catalog abstraction (`PortalCatalogView`) · missing → `None` / `()` · `get_current_deployment` uses `Website.deployment_id`.
 
-### R3.6.2 — Portal Query Objects — DONE (code)
+### R3.6.2 — Portal Query Objects — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/queries.py`  
+**Module:** `dashboard/backend/app/portal/queries.py` · commit `fe30d15`.  
 **Types:** `ClientQuery` · `WebsiteQuery` · `AssetQuery` (optional `asset_type` filter).  
 **ReadService** accepts Query objects only — no HTTP / FastAPI coupling.  
 **Not in R3.6.2:** API · Auth · persistence · mutations.
+
+**Rule:** Query Objects hold **parameters only** — no computation, business validation, catalog access, or load methods. Extend filters on the Query (e.g. `AssetQuery`), not on `get_assets()` signatures.
+
+### R3.6.3 — Portal View Models — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/views.py`  
+**Types:** `ClientView` · `WebsiteView` · `DeploymentView` · `AssetView` (+ pure `to_*_view` mappers).  
+**ReadService** returns View Models for those four; domain entities unchanged.  
+**Note:** `get_open_edit_session` still returns domain `EditSession` until a dedicated view slice.  
+**Not in R3.6.3:** FastAPI · HTTP · UI · Auth · persistence.
