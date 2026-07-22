@@ -75,7 +75,7 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | ✅ **R3.10** | **Portal Dashboard Stack** | **CLOSED** (CEO 2026-07-22) |
 | ✅ **R3.11** | **Portal Dashboard API** | **CLOSED** (CEO 2026-07-22) |
 | → ✅ **R3.11.1** | **Dashboard Read Endpoint** | **PASS** · `51bbfb9` |
-| → ✅ **R3.11.2** | **Dashboard Endpoint Integration** | **PASS** · `248e565` |
+| → ✅ **R3.11.2** | **Dashboard Endpoint Integration** | **PASS** · `121d8f9` |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
