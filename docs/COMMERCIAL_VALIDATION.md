@@ -1913,7 +1913,7 @@ Business Profile
 
 **Next (not opened):** **BP1.4 Conversation Engine (Stub)** — accept message · select knowledge sources · prepare context · form request for future AI Provider. No OpenAI/Anthropic · no Telegram/Meta SDK.
 
-### Business Product BP1.4 — Conversation Engine (Stub) · OPEN → implemented (awaiting CEO PASS)
+### Business Product BP1.4 — Conversation Engine (Stub) · PASS ✅ · `d003ef2` (CEO 2026-07-22)
 
 **Purpose:** how Vector accepts a request and prepares it for processing — dialog lifecycle only.  
 **Endpoints:**
@@ -1966,4 +1966,18 @@ Context Builder uses: Business Profile · Industry Template · Business Knowledg
 - ConversationContext formed ✅
 - No AI / external SDK ✅
 
-**Next (not opened):** BP1.5 AI Provider — swappable module consuming ConversationContext.
+**Permanent Conversation invariant:** Engine prepares context only — generation belongs to a future AI Provider behind an interface.
+
+### Vector Product Foundation — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+Vector
+Business Profile
+        ├── Industry Template
+        ├── Business Knowledge
+        ├── Channel Connections
+        └── Conversation Engine → ConversationContext
+```
+
+**Boundary:** Business Product complete without binding to any LLM.  
+**Next layer (not opened):** **AI Platform 1.0 — Provider Layer** — AI Provider Interface consuming `ConversationContext`; stubs for OpenAI / Anthropic / Ollama; Conversation Engine never knows the concrete provider.
