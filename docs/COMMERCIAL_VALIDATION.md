@@ -40,8 +40,9 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.5.1** | **Client Portal Architecture** | **PASS** · `4a5a3f8` |
 | → ✅ **R3.5.2** | **Website Domain Model** | **PASS** · `fad5382` |
 | → ✅ **R3.5.3** | **Client Domain Model** | **PASS** · `871c993` |
-| → **R3.5.4** | **Deployment Domain Model** | **DONE (code)** — await CEO review |
-| → R3.5.5+ | Portal / persistence slices | pending |
+| → ✅ **R3.5.4** | **Deployment Domain Model** | **PASS** · `861be5a` |
+| → **R3.5.5** | **Assets Domain Model** | **DONE (code)** — await CEO review |
+| → R3.5.6+ | EditSession / Portal slices | pending |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -230,7 +231,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5.1–R3.5.3 PASS ✅** · **NEXT = R3.5.4 Deployment Domain Model**.
+Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5.1–R3.5.4 PASS ✅** · **NEXT = R3.5.5 Assets Domain Model**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -369,9 +370,18 @@ Order ──website_id──▶ Website            ← creates, does not own
 
 **Backlog notes:** `primary_email` = contact, not login id · `preferred_language` = Portal UI preference (Website language stays MarketProfile).
 
-### R3.5.4 — Deployment Domain Model — DONE (code)
+### R3.5.4 — Deployment Domain Model — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/deployment.py`  
+**Module:** `dashboard/backend/app/portal/deployment.py` · commit `861be5a`.  
 **Fields:** deployment_id · website_id · artifact_id · version · status · created_at.  
 **Link:** `Website.deployment_id` ↔ `Deployment.website_id` via `attach_deployment`.  
 **Not in R3.5.4:** publish process · hosting · domains · ZIP storage · API/UI.
+
+**Backlog notes:** `version` is per-Website sequence (not Factory-global) · keep `Website.deployment_id` as current pointer when Deployments[] arrives.
+
+### R3.5.5 — Assets Domain Model — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/asset.py`  
+**Fields:** asset_id · website_id · asset_type · artifact_ref · created_at.  
+**Link:** `Asset.website_id` → Website (N assets per site).  
+**Not in R3.5.5:** Gallery · upload · storage · CDN · resize · binary data · API/UI.
