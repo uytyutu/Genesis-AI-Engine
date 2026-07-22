@@ -29,8 +29,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.1** | **Premium Visual System** | **✅ PASS** (CEO 2026-07-22) |
 | **R3.2** | **Section-Aware Media Gate** | **✅ PASS** (CEO 2026-07-22) |
 | **R3.2.1** | **UX Polish** (back-to-top · overflow) | **✅ PASS** (CEO 2026-07-22) |
-| **R3.3** | **Section-Aware Content Gate** | **NEXT** |
-| R3.4 | Global Market Experience | After R3.3 |
+| ✅ **R3.3** | **Section-Aware Content Gate** | **PASS** (CEO 2026-07-22) |
+| **R3.4** | **Global Market Experience** | **NEXT** |
 | R3.5 | Client Portal Foundation | After R3.4 |
 
 **Not now:** full «Semantic Content Engine» · new LLM stack · CRM · Dashboard · particles.
@@ -93,14 +93,14 @@ Module: `dashboard/backend/app/factory/media_gate.py`.
 **Non-blockers (CEO):** Gallery/Contact N/A on Business = package expansion, not Media Gate. Restaurant generic food-retail OK until Showcase Pack.  
 **2026-07-22 CEO:** **R3.2 = PASS ✅**
 
-### Section-Aware Content Gate (R3.3 — NEXT)
+### Section-Aware Content Gate (R3.3 — PASS ✅)
 
 Same principle as Media Gate, applied to **copy** — no LLM mega-engine.
 
 **Question Media Gate answers:** «Подходит ли изображение этому разделу?»  
 **Question Content Gate answers:** «Подходит ли этот текст этому разделу и этой нише?»
 
-**Principles (binding):** no LLM · rule-based · predictable · check before publish · PASS/FAIL (not «guess»).
+**Principles (binding):** no LLM · rule-based · predictable · check before publish · PASS/FAIL (not «guess») · repair = niche defaults swap, not rewrite.
 
 **Publish path:**
 ```
@@ -111,15 +111,21 @@ Compose → Quality Gate → Media Gate → Content Gate → Compliance → Publ
 
 | Check | Expectation | Fail → |
 |-------|-------------|--------|
-| Services | Real niche services — not «Beratung / Umsetzung / Support» when niche has specific work | rewrite / FAIL |
-| Hero | Speaks the language of the industry | rewrite / FAIL |
-| About / Benefits | Niche-appropriate claims | rewrite / FAIL |
+| Hero | Headline / subtitle / CTA speak the niche (not «Beratung · Umsetzung · Lösungen») | FAIL / niche defaults |
+| Services | Real niche services — not «Beratung / Umsetzung / Support» when niche has craft vocabulary | swap niche defaults / FAIL |
+| Benefits | Niche-appropriate claims (no cross-industry tokens) | swap niche defaults / FAIL |
+| Navigation | Header = section links + one CTA only — no Geprüft / Lokal / Zuverlässig / Premium-Marken | FAIL |
+| Legal (stub) | Hook only: market → legal profile → footer (R3.4) | not blocking in R3.3 |
 
 ```
-niche + section → expected copy shape → text tags / rules → PASS / FAIL
+niche + section → expected copy shape → text rules → PASS / FAIL
 ```
 
-**Acceptance:** same 8-niche sweep as R3.2 — off-topic or generic services copy = FAIL.
+**Module:** `app/factory/content_gate.py` · wired in `composer_engine` + `compliance_engine` · meta `content_gate`.  
+**Live sweep 2026-07-22 (agent):** `_audit_content_gate_r33/` · `_run_content_gate_sweep_r33.py`  
+**RESULT: 8/8 PASS** — Hero / Services / Benefits / Navigation for Auto · Beauty · Law · Restaurant · Green · Computer · Dental · Handwerk.  
+**2026-07-22 CEO:** **R3.3 = PASS ✅**  
+Legal Gate = stub only (R3.4). Security Review = separate pre-scale checklist (not R3.3).
 
 ### R3.2.1 — UX Polish (small, not a mission)
 
@@ -213,6 +219,6 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3 opened on **owner-visibility evidence** (Premium Test FAIL → Premium Visual).  
-R3.1 ✅ · R3.2 ✅ · R3.2.1 ✅ · **NEXT = R3.3 Content Gate** → market → portal.  
+Mission 3 opened on **owner-visibility evidence** (Premium Test FAIL → Premium Visual).
+R3.1 ✅ · R3.2 ✅ · R3.2.1 ✅ · R3.3 ✅ · **NEXT = R3.4 Global Market** → portal.
 Later stages still wait on market proof where noted.

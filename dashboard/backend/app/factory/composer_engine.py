@@ -86,6 +86,8 @@ class CompositionResult:
     gallery: list[str] = field(default_factory=list)
     hero_ok: bool = True
     hero_from_client: bool = False
+    content_gate: dict[str, Any] = field(default_factory=dict)
+    analysis: AnalysisResult | None = None
 
 
 def resolve_composition_plan(
@@ -196,7 +198,17 @@ def compose_landing(
     include_testimonials: bool = False,
     large_headline: bool = False,
 ) -> CompositionResult:
-    """Full Path A compose: Media (optional) → Page Composition via plan."""
+    """Full Path A compose: Content Gate → Media → Page Composition via plan."""
+    from app.factory.content_gate import run_content_gate
+
+    # R3.3 — sanitize niche copy before any HTML (swap defaults, no LLM)
+    _, analysis = run_content_gate(
+        analysis=analysis,
+        market_code=market_code,
+        auto_repair=True,
+    )
+    assert analysis is not None
+
     gallery = list(client_gallery or [])
     media_plan_obj = None
     media_css = ""
@@ -256,6 +268,14 @@ def compose_landing(
         media_css=media_css,
         media_background=media_background,
     )
+
+    cg_result, _ = run_content_gate(
+        analysis=analysis,
+        html=html,
+        market_code=plan.market_code,
+        auto_repair=False,
+    )
+
     return CompositionResult(
         html=html,
         plan=plan,
@@ -265,4 +285,6 @@ def compose_landing(
         gallery=gallery,
         hero_ok=hero_ok,
         hero_from_client=hero_client,
+        content_gate=cg_result.as_dict(),
+        analysis=analysis,
     )

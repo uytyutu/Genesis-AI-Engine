@@ -1,16 +1,16 @@
 """R3 — Compliance Engine: single checkpoint before client ZIP.
 
-Wraps Factory Quality Gate + Section-Aware Media Gate (R3.2).
+Wraps Quality Gate + Media Gate (R3.2) + Content Gate (R3.3).
 Does not add new site features.
 Public surface for Factory / ZIP Builder — bricks stay under Quality Gate.
 
 Domains (CEO map):
   Design · Brand · Performance · SEO · Accessibility · Authenticity · Market Rules
 
-Authenticity ← media honesty + Media Gate + no platform chrome / fabricated trust signals
+Authenticity ← media honesty + Media Gate + Content Gate + no fabricated trust
 Market Rules ← localization / market chrome
 
-Publish path: Quality Gate → Media Gate → Publish
+Publish path: Quality Gate → Media Gate → Content Gate → Publish
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from app.factory.content_gate import ContentGateResult, evaluate_navigation_html
 from app.factory.media_gate import MediaGateResult, run_media_gate_for_product
 from app.factory.quality_gate import (
     GateCheck,
@@ -66,6 +67,7 @@ class ComplianceResult:
     checks: list[ComplianceCheck] = field(default_factory=list)
     quality_gate: QualityGateResult | None = None
     media_gate: MediaGateResult | None = None
+    content_gate: ContentGateResult | None = None
 
     @property
     def failures(self) -> list[str]:
@@ -95,6 +97,7 @@ class ComplianceResult:
             ],
             "quality_gate": self.quality_gate.as_dict() if self.quality_gate else None,
             "media_gate": self.media_gate.as_dict() if self.media_gate else None,
+            "content_gate": self.content_gate.as_dict() if self.content_gate else None,
         }
 
 
@@ -117,13 +120,51 @@ def _map_check(gate_check: GateCheck) -> ComplianceCheck:
     )
 
 
+def _content_gate_from_meta(meta: dict, html: str) -> tuple[ComplianceCheck, ContentGateResult | None]:
+    """Prefer compose-time Content Gate; always re-check Navigation Gate on HTML."""
+    cg_raw = meta.get("content_gate") if isinstance(meta.get("content_gate"), dict) else {}
+    content_result: ContentGateResult | None = None
+    if cg_raw:
+        content_ok = bool(cg_raw.get("passed", True))
+        fail_bits = list(cg_raw.get("failures") or [])
+        content_result = ContentGateResult(
+            passed=content_ok,
+            checks=[],
+            engine_id=str(cg_raw.get("engine_id") or "content_gate_v1"),
+            repairs=list(cg_raw.get("repairs") or []),
+        )
+        detail = "; ".join(str(x) for x in fail_bits[:6]) or (
+            "ok" if content_ok else "content_gate_failed"
+        )
+    else:
+        content_ok = True
+        detail = "meta_missing_ok"
+
+    nav = evaluate_navigation_html(html)
+    if not nav.ok:
+        content_ok = False
+        detail = (detail + "; " if detail and detail != "ok" else "") + nav.detail
+        if content_result is not None:
+            content_result.passed = False
+
+    return (
+        ComplianceCheck(
+            id="section_aware_content",
+            domain="authenticity",
+            ok=content_ok,
+            detail=detail or "ok",
+        ),
+        content_result,
+    )
+
+
 def run_compliance(
     html: str,
     *,
     meta: dict | None = None,
     assets_dir: Path | None = None,
 ) -> ComplianceResult:
-    """Evaluate deliverable: Quality Gate then Section-Aware Media Gate."""
+    """Evaluate deliverable: Quality → Media → Content Gate."""
     meta = meta or {}
     gate = run_quality_gate(html, meta=meta, assets_dir=assets_dir)
     checks = [_map_check(c) for c in gate.checks]
@@ -183,12 +224,16 @@ def run_compliance(
             )
         )
 
+    content_check, content_result = _content_gate_from_meta(meta, html)
+    checks.append(content_check)
+
     passed = all(c.ok for c in checks)
     return ComplianceResult(
         passed=passed,
         checks=checks,
         quality_gate=gate,
         media_gate=media_result,
+        content_gate=content_result,
     )
 
 

@@ -495,8 +495,8 @@ def build_landing_html(
     footer_attr = esc(layout_profile.footer_variant)
 
     trust_strip = ""
-    if feat.trust_bar:
-        trust_strip = f'<div class="trust-strip"><span>{esc(ui["trust_bar"])}</span></div>'
+    # R3.3 Navigation Gate: marketing trust bar is NOT a header chrome strip.
+    # Claims live in Hero pills (trust_points) / Benefits — not under the menu.
 
     info_bar = ""
     if feat.trust_bar:
@@ -601,11 +601,14 @@ def build_landing_html(
         if gallery_paths
         else ""
     )
-    trust_nav = (
-        f' <a href="#trust">{esc(ui.get("trust_section_title") or ui.get("trust_bar") or "Trust")}</a>'
-        if trust_comp.html
+    # R3.3 Navigation Gate: header = section links + CTA only (no marketing claims).
+    services_nav = f' <a href="#services">{esc(ui.get("services") or "Leistungen")}</a>'
+    faq_nav = (
+        f' <a href="#faq">{esc(ui.get("faq_title") or "FAQ")}</a>'
+        if feat.faq
         else ""
     )
+    # Do not put maps/trust/reviews marketing into the topbar — body sections remain.
 
     html = f"""<!DOCTYPE html>
 <html lang="{esc(html_lang)}">
@@ -625,10 +628,9 @@ def build_landing_html(
   <nav class="topbar" aria-label="Navigation">
     <div class="brand">{logo_block}</div>
     <div class="topbar-links">
-      {catalog_nav}{maps_nav}{gallery_nav}{trust_nav}{reviews_nav}<a href="#contact">{cta}</a>
+      {services_nav}{faq_nav}{gallery_nav}{catalog_nav}<a class="btn topbar-cta" href="#contact">{cta}</a>
     </div>
   </nav>
-  {trust_strip}
 {hero_html}
 {body_html}
   {footer_html}

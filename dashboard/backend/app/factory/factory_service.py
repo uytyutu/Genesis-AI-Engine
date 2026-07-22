@@ -151,11 +151,16 @@ class FactoryService:
         )
         html = composed.html
         plan = composed.plan
+        if composed.analysis is not None:
+            analysis = composed.analysis
         client_assets.gallery = list(composed.gallery)
         client_assets.hero_from_client = composed.hero_from_client
         media_plan = composed.media_plan
+        content_gate = composed.content_gate
 
         gate_meta = plan.gate_meta()
+        gate_meta["niche"] = analysis.niche
+        gate_meta["content_gate"] = content_gate
         validation = validate_landing(
             html,
             meta=gate_meta,
@@ -204,6 +209,7 @@ class FactoryService:
             "layout_profile": profile_as_dict(plan.layout_profile),
             "trust_template": plan.trust_template,
             "media_plan": media_plan,
+            "content_gate": content_gate,
             "status": "completed",
             "quality_percent": validation.quality_percent,
             "validation_passed": validation.passed,
@@ -358,6 +364,7 @@ class FactoryService:
             ca["hero_from_client"] = composed.hero_from_client
             meta["client_assets"] = ca
             meta["media_plan"] = composed.media_plan
+            meta["content_gate"] = composed.content_gate
             meta["composer_engine"] = composed.plan.engine_id
             meta["composition_plan"] = composed.plan.as_dict()
             meta["hero_layout"] = composed.plan.hero_layout
