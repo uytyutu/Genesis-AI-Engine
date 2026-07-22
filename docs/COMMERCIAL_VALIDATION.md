@@ -24,7 +24,7 @@
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
-| **Product Track** | First Run → Knowledge → Channels → Dashboard | **Iteration 1 CLOSED** ✅ (CEO 2026-07-22) · PT1.1–1.4 PASS · NEXT = PT2 Daily Operations (not opened) |
+| **Product Track** | Iteration 1 CLOSED · Daily Ops | **PT2 OPEN** · **PT2.1 PASS** ✅ · **PT2.2 OPEN** (CEO 2026-07-22) · Conversation Inbox |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -333,7 +333,10 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Product Track PT1.3 — PASS ✅** (CEO 2026-07-22) · Channel Setup UX · Vector Workspace path prepared (First Run → Knowledge → Channels).  
 **Product Track PT1.4 — PASS ✅** (CEO 2026-07-22) · Vector Dashboard (aggregate only · no business logic).  
 **Product Track Iteration 1 — CLOSED ✅** (CEO 2026-07-22) · First Run · Knowledge Workspace · Channel Setup · Vector Dashboard.  
-**Not opened:** PT2 Daily Operations · PT1.5 Workspace Polish · AP2.2 Streaming · Marketplace · real channel SDKs.  
+**Product Track PT2 — OPEN** (CEO 2026-07-22) · Daily Operations.  
+**Product Track PT2.1 — PASS ✅** (CEO 2026-07-22) · Vector Activity Center (operational aggregate · no edits).  
+**Product Track PT2.2 — OPEN** (CEO 2026-07-22) · Conversation Inbox (list · filters · open · no AI generation).  
+**Not opened:** PT2.3 Conversation View · AP2.2 Streaming · Marketplace · real channel SDKs.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
@@ -2278,4 +2281,50 @@ PT1.4 Vector Dashboard
 
 **User path:** Purchase → Activate → First Run → Knowledge → Channels → Dashboard.  
 **Boundary:** First finished owner product loop for Vector. Further Product Track work = daily operations (PT2), not reopening setup foundations.  
-**Horizon (not opened):** PT2.1 Conversation Inbox → PT2.2 Customer Timeline → PT2.3 Knowledge Suggestions → PT2.4 Business Insights · AI Track AP2.2+.
+**Horizon:** PT2 Daily Operations (opened below).
+
+### Product Track PT2.1 — Vector Activity Center · PASS ✅ (CEO 2026-07-22)
+
+```text
+Vector Dashboard → Activity Center
+  ├── Conversations Today · Active Channels · New Leads · Response Rate
+  ├── Recent Events
+  ├── Health (Business · Knowledge · Channels · AI)
+  └── Attention Required
+```
+
+**Invariant:**
+```text
+Activity Center aggregates operational state.
+Activity Center never edits Business data.
+Activity Center never edits AI configuration.
+Activity Center never sends messages.
+Activity Center never communicates with providers.
+```
+
+**Surface:** `/projects/chatbot/activity` · reads profile · knowledge · channels · providers · conversations.  
+**Distinction:** Dashboard = what is configured · Activity Center = what is happening.  
+**Forbidden:** new domain models · Inbox editors · provider generate · message send · duplicate Dashboard editors.
+
+### Product Track PT2.2 — Conversation Inbox · OPEN (CEO 2026-07-22)
+
+```text
+Conversation Inbox
+  ├── Conversation List
+  ├── Filters (status · channel)
+  ├── Status · Channel · Last Message
+  └── Open Conversation
+```
+
+**Invariant:**
+```text
+Conversation Inbox aggregates conversations.
+Conversation Inbox never generates AI responses.
+Conversation Inbox never owns conversation logic.
+Conversation Inbox never communicates directly with channels.
+```
+
+**Surface:** `/projects/chatbot/inbox` · list/filter via existing `/portal/chatbot/conversations`.  
+**Forbidden:** reply composer · AI generate · channel SDKs · new domain models · full Conversation View (PT2.3).
+
+**Horizon (not opened):** PT2.3 Conversation View → PT2.4 Knowledge Suggestions → PT2.5 Business Insights.
