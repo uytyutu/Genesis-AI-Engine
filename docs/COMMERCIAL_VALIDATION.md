@@ -69,7 +69,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.9.4** | **Website Read Facade** | **PASS** · `b2c51f8` |
 | ✅ **R3.9** | **Website Read Pipeline** | **CLOSED** (CEO 2026-07-22) |
 | **R3.10** | **Portal Cabinet Views** | **OPEN** |
-| → **R3.10.1** | **Website Dashboard View** | **DONE (code)** — await CEO review |
+| → ✅ **R3.10.1** | **Website Dashboard View** | **PASS** · `10a175b` |
+| → **R3.10.2** | **Website Dashboard Query** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -258,7 +259,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.9 CLOSED ✅** · **NEXT = R3.10.1 Website Dashboard View**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.9 CLOSED ✅** · **R3.10.1 PASS ✅** · **NEXT = R3.10.2 Website Dashboard Query**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -588,9 +589,18 @@ No FastAPI · Auth · Domain · mutations.
 
 View · Context · Query · Facade. Portal can safely read Website without Domain coupling.
 
-### R3.10.1 — Website Dashboard View — DONE (code)
+### R3.10.1 — Website Dashboard View — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/website_dashboard_view.py`  
+**Module:** `dashboard/backend/app/portal/website_dashboard_view.py` · commit `10a175b`.  
 **Type:** frozen `WebsiteDashboardView` (website · status · current_deployment).  
 **Builder:** `build_website_dashboard_view(website, current_deployment=?)`.  
 Cabinet aggregate — does not bloat `WebsiteView`. No API · Auth · UI · writes.
+
+**Rule:** add CRM/Chat/Analytics into Dashboard only when those products exist — not empty placeholders.
+
+### R3.10.2 — Website Dashboard Query — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/website_dashboard_query.py`  
+**Type:** `WebsiteDashboardQuery` · `execute(website_id)` → `WebsiteDashboardView | None`.  
+Uses `WebsiteReadFacade` + current deployment via `PortalReadService` (views only).  
+No Domain Website · FastAPI · Auth · writes.
