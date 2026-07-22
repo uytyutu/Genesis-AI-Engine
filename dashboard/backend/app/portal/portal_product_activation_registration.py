@@ -35,7 +35,8 @@ def register_portal_product_activation(
     ownership_store: ProductOwnershipStore | None = None,
     catalog: ProductCatalogStore | None = None,
     activation_store: ProductActivationStore | None = None,
-) -> bool:
+    facade: ProductActivationFacade | None = None,
+) -> ProductActivationFacade:
     """Wire activation facade onto shared ownership store and mount router."""
     store = (
         ownership_store
@@ -50,12 +51,11 @@ def register_portal_product_activation(
         if activation_store is not None
         else InMemoryProductActivationStore()
     )
-    set_product_activation_facade(
-        ProductActivationFacade.from_parts(
-            catalog=catalog_store,
-            ownerships=store,
-            activations=activations,
-        )
+    resolved = facade or ProductActivationFacade.from_parts(
+        catalog=catalog_store,
+        ownerships=store,
+        activations=activations,
     )
+    set_product_activation_facade(resolved)
     app.include_router(portal_product_activation_router)
-    return True
+    return resolved

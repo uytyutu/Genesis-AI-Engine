@@ -68,6 +68,24 @@ class ProductActivationFacade:
             activation_code=activation_code,
             channel=channel,
         )
+        return self._complete(request)
+
+    def activate_from_purchase(
+        self,
+        *,
+        account_id: str,
+        catalog_product_id: str,
+    ) -> MyProductView:
+        """Commercial Platform entry — no activation code; still creates ownership here only."""
+        request = new_activation_request(
+            account_id=account_id,
+            catalog_product_id=catalog_product_id,
+            activation_code=None,
+            channel="purchase",
+        )
+        return self._complete(request)
+
+    def _complete(self, request) -> MyProductView:
         try:
             ownership = self._service.activate(request)
         except ProductActivationError:

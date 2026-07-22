@@ -121,6 +121,8 @@ from app.portal.portal_product_activation_registration import (
 from app.portal.portal_product_activation_router import (
     portal_product_activation_router,
 )
+from app.portal.portal_purchase_registration import register_portal_purchases
+from app.portal.portal_purchase_router import portal_purchase_router
 from app.portal.analytics import AnalyticsOverview, empty_analytics_overview
 from app.portal.analytics_facade import AnalyticsFacade
 from app.portal.analytics_store import InMemoryAnalyticsStore
@@ -145,6 +147,9 @@ from app.portal.product_ownership import ProductOwnership, new_product_ownership
 from app.portal.product_ownership_facade import ProductOwnershipFacade
 from app.portal.product_ownership_store import InMemoryProductOwnershipStore
 from app.portal.product_ownership_view import MyProductView
+from app.portal.purchase_facade import PurchaseFacade
+from app.portal.purchase_store import InMemoryPurchaseStore
+from app.portal.payment_provider import StubPaymentProvider
 from app.portal.website_ownership_bridge import WebsiteOwnershipBridge
 from app.portal.website_domain import (
     WebsiteDomain,
@@ -230,7 +235,9 @@ __all__ = [
     "ProductCatalogItemView",
     "ProductOwnership",
     "ProductOwnershipFacade",
+    "PurchaseFacade",
     "MyProductView",
+    "StubPaymentProvider",
     "RequestPrincipal",
     "register_portal_authentication_middleware",
     "InMemoryAnalyticsStore",
@@ -238,6 +245,7 @@ __all__ = [
     "InMemoryProductActivationStore",
     "InMemoryProductCatalogStore",
     "InMemoryProductOwnershipStore",
+    "InMemoryPurchaseStore",
     "InMemoryWebsiteDomainStore",
     "StubChatBotIntegrationAdapter",
     "WebsiteOwnershipBridge",
@@ -312,6 +320,7 @@ __all__ = [
     "portal_my_products_router",
     "portal_product_activation_router",
     "portal_product_catalog_router",
+    "portal_purchase_router",
     "portal_read_router",
     "portal_registration_snapshot",
     "portal_website_domain_router",
@@ -324,6 +333,7 @@ __all__ = [
     "register_portal_my_products",
     "register_portal_product_activation",
     "register_portal_product_catalog",
+    "register_portal_purchases",
     "register_portal_read",
     "register_portal_website_domain",
     "register_portal_website_settings",

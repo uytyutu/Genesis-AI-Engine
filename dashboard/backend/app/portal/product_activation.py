@@ -23,7 +23,7 @@ from uuid import uuid4
 
 ENGINE_ID = "product_activation_domain_v1"
 
-ActivationChannel = Literal["seed", "activation_code", "manual", "test"]
+ActivationChannel = Literal["seed", "activation_code", "manual", "test", "purchase"]
 
 
 class ProductActivationError(ValueError):

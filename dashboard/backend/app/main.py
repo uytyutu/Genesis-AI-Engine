@@ -318,18 +318,32 @@ register_portal_chatbot(app)
 from app.portal.portal_product_catalog_registration import (
     register_portal_product_catalog,
 )
+from app.portal.product_catalog_store import InMemoryProductCatalogStore
 
-register_portal_product_catalog(app)
+_portal_product_catalog_store = InMemoryProductCatalogStore()
+register_portal_product_catalog(app, store=_portal_product_catalog_store)
 
-# Mission 6.2 / 6.3 — shared native ProductOwnership store
+# Mission 6.2 / 6.3 — shared ProductOwnership + Activation stores
+from app.portal.product_activation_facade import ProductActivationFacade
+from app.portal.product_activation_store import InMemoryProductActivationStore
 from app.portal.product_ownership_store import InMemoryProductOwnershipStore
 
 _portal_product_ownership_store = InMemoryProductOwnershipStore()
+_portal_product_activation_store = InMemoryProductActivationStore()
+_portal_product_activation_facade = ProductActivationFacade.from_parts(
+    catalog=_portal_product_catalog_store,
+    ownerships=_portal_product_ownership_store,
+    activations=_portal_product_activation_store,
+)
 
 # Mission 6.2 — My Products (ProductOwnership + WebsiteOwnershipBridge)
 from app.portal.portal_my_products_registration import register_portal_my_products
 
-register_portal_my_products(app, ownership_store=_portal_product_ownership_store)
+register_portal_my_products(
+    app,
+    ownership_store=_portal_product_ownership_store,
+    catalog=_portal_product_catalog_store,
+)
 
 # Mission 6.3 — Product Activation → native ProductOwnership
 from app.portal.portal_product_activation_registration import (
@@ -337,7 +351,20 @@ from app.portal.portal_product_activation_registration import (
 )
 
 register_portal_product_activation(
-    app, ownership_store=_portal_product_ownership_store
+    app,
+    ownership_store=_portal_product_ownership_store,
+    catalog=_portal_product_catalog_store,
+    activation_store=_portal_product_activation_store,
+    facade=_portal_product_activation_facade,
+)
+
+# Commercial Platform 6.4 — Purchases → Activation (never owns products)
+from app.portal.portal_purchase_registration import register_portal_purchases
+
+register_portal_purchases(
+    app,
+    activation=_portal_product_activation_facade,
+    catalog=_portal_product_catalog_store,
 )
 
 # R4.1 / R4.2 — HTTP Login + Session cookie

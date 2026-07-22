@@ -39,7 +39,9 @@ class ProductActivationService:
         if product.availability != "available":
             raise ProductActivationError("product_not_activatable")
 
-        self._validate_code(request, product)
+        # Commerce / admin paths are trusted; codes only for direct activation API.
+        if request.channel in ("activation_code", "seed", "test"):
+            self._validate_code(request, product)
 
         existing = self._native_for_type(request.account_id, product.product_type)
         if existing is not None:
