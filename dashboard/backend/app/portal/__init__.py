@@ -1,14 +1,29 @@
-"""Client Portal domain package (R3.5+ / R3.6+).
+"""Client Portal domain package (R3.5+ / R3.6+ / R3.12+).
 
-Architecture: Client → Website → Deployment | Asset | EditSession.
+Commercial: Client → Website → Deployment | Asset | EditSession.
+Portal access (R3.12.1): Account → WebsiteOwnership → Website.
 Read layer: Query → PortalReadService → View Models.
 Factory builds artifacts; Portal manages Website — not Factory logic.
 """
 
+from app.portal.account import Account, new_account
+from app.portal.account_ownership_architecture import (
+    ENGINE_ID as ACCOUNT_OWNERSHIP_ARCHITECTURE_ENGINE_ID,
+    OWNERSHIP_FUTURE_ROLES,
+)
 from app.portal.asset import Asset, new_asset
 from app.portal.client import Client, new_client, website_for_client
 from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.edit_session import EditSession, close_edit_session, new_edit_session
+from app.portal.invitation import WebsiteInvitation, new_website_invitation
+from app.portal.ownership import (
+    FUTURE_ROLES,
+    WebsiteOwnership,
+    account_ids_for_website,
+    grant_website_ownership,
+    ownership_for_account_website,
+    website_ids_for_account,
+)
 from app.portal.portal_bootstrap import PortalReadStack, compose_portal_read, teardown_portal_read
 from app.portal.portal_health import portal_registration_snapshot
 from app.portal.portal_lifecycle import (
@@ -41,6 +56,8 @@ from app.portal.website_view import WebsiteView
 from app.portal.website import OrderWebsiteRef, Website, new_website
 
 __all__ = [
+    "ACCOUNT_OWNERSHIP_ARCHITECTURE_ENGINE_ID",
+    "Account",
     "Asset",
     "AssetQuery",
     "AssetView",
@@ -51,6 +68,8 @@ __all__ = [
     "DeploymentView",
     "EditSession",
     "EditSessionView",
+    "FUTURE_ROLES",
+    "OWNERSHIP_FUTURE_ROLES",
     "OrderWebsiteRef",
     "PORTAL_PROFILE",
     "PORTAL_READ_ROUTES",
@@ -64,22 +83,29 @@ __all__ = [
     "WebsiteDashboardFacade",
     "WebsiteDashboardQuery",
     "WebsiteDashboardView",
+    "WebsiteInvitation",
+    "WebsiteOwnership",
     "WebsiteQuery",
     "WebsiteReadContext",
     "WebsiteReadFacade",
     "WebsiteReadQuery",
     "WebsiteView",
+    "account_ids_for_website",
     "attach_deployment",
     "build_website_dashboard_view",
     "close_edit_session",
     "compose_portal_read",
+    "grant_website_ownership",
     "is_portal_feature_enabled",
     "load_portal_catalog_from_factory_sandbox",
+    "new_account",
     "new_asset",
     "new_client",
     "new_deployment",
     "new_edit_session",
     "new_website",
+    "new_website_invitation",
+    "ownership_for_account_website",
     "portal_dashboard_router",
     "portal_lifecycle_snapshot",
     "portal_read_router",
@@ -89,4 +115,5 @@ __all__ = [
     "resolve_portal_lifecycle_state",
     "teardown_portal_read",
     "website_for_client",
+    "website_ids_for_account",
 ]

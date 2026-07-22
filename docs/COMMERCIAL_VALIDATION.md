@@ -76,6 +76,12 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | ✅ **R3.11** | **Portal Dashboard API** | **CLOSED** (CEO 2026-07-22) |
 | → ✅ **R3.11.1** | **Dashboard Read Endpoint** | **PASS** · `51bbfb9` |
 | → ✅ **R3.11.2** | **Dashboard Endpoint Integration** | **PASS** · `121d8f9` |
+| **R3.12** | **Account & Activation** | **OPEN** (CEO roadmap 2026-07-22) |
+| → ✅ **R3.12.1** | **Account Ownership Architecture** | **PASS** — await commit hash |
+| → **R3.12.2** | **Activation Token Domain** | **NEXT** |
+| → **R3.12.3** | **Password Creation** | planned |
+| → **R3.12.4** | **Authentication** | planned |
+| → **R3.12.5** | **Dashboard Access** (Account ↔ Website) | planned |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -264,7 +270,8 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **NEXT = Account & Activation** (separate series).
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **R3.12.1 PASS ✅** · **NEXT = R3.12.2 Activation Token Domain**.  
+**R3.12 report rule:** each slice includes **Security Impact** + **Upgrade Path** + **Future Roles** (where relevant).
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -645,4 +652,19 @@ Facade · Query · View (+ WebsiteView / DeploymentView). Ready for first HTTP r
 
 ### R3.11 — Portal Dashboard API — CLOSED ✅
 
-First live HTTP read · Factory → Portal path · real data. Next series: **Account & Activation**.
+First live HTTP read · Factory → Portal path · real data.  
+**CEO APPROVED** Mission 3 through R3.11 (2026-07-22).
+
+### R3.12 — Account & Activation — OPEN
+
+Target path: `Email → Account → Owned Websites → Dashboard` (not open-by-`website_id` alone).  
+Each R3.12 report: **Security Impact** · **Upgrade Path** · **Future Roles** (where relevant).
+
+### R3.12.1 — Account Ownership Architecture — PASS ✅ (CEO 2026-07-22)
+
+**Modules:** `account.py` · `ownership.py` · `invitation.py` · `account_ownership_architecture.py`  
+**Entities:** Account ≠ Client · WebsiteOwnership · WebsiteInvitation (intent only).  
+**Rule:** Account never owns Client directly — only `Account → Ownership → Website → Client`.  
+**Not in R3.12.1:** Auth · password · JWT · HTTP · SMTP · Activation Token.
+
+**Next:** R3.12.2 Activation Token Domain (domain only — no email/HTTP).

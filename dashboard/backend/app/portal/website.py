@@ -1,7 +1,8 @@
 """R3.5.2 — Website domain model.
 
 Website is the primary managed object after Path A delivery.
-Client owns Website; Order may create it; Deployment is a publish record.
+``Website.client_id`` = commercial owner (Client).
+Portal human access = ``WebsiteOwnership`` (Account) — R3.12.1; not this field.
 
 No API · no storage · no Portal UI in this slice.
 """

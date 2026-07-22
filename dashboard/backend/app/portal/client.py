@@ -1,9 +1,12 @@
 """R3.5.3 — Client domain model.
 
-Client is owner identity only — not auth, roles, teams, or permissions.
-Website.client_id references Client.client_id.
+Client is the **commercial party** (buyer / company) — not a login Account.
+Website.client_id references Client.client_id (commercial ownership).
 
-No API · no storage · no Portal UI in this slice.
+Portal access for humans is ``Account`` + ``WebsiteOwnership`` (R3.12.1).
+Client ≠ Account.
+
+No API · no storage · no Portal UI · no auth in this module.
 """
 
 from __future__ import annotations
@@ -24,7 +27,7 @@ def _utc_now_iso() -> str:
 
 @dataclass(frozen=True)
 class Client:
-    """Owner identity for one or more Websites."""
+    """Commercial party for one or more Websites — not a platform Account."""
 
     client_id: str
     display_name: str
