@@ -203,9 +203,17 @@ export function VectorDashboardPanel() {
             and First Run.
           </p>
         </div>
-        <Button variant="secondary" onClick={() => void load()} disabled={busy}>
-          Refresh
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/projects/chatbot/activity"
+            className="inline-flex items-center rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5"
+          >
+            Activity
+          </Link>
+          <Button variant="secondary" onClick={() => void load()} disabled={busy}>
+            Refresh
+          </Button>
+        </div>
       </header>
 
       {error ? (
@@ -350,6 +358,9 @@ export function VectorDashboardPanel() {
               </ActionLink>
               <ActionLink href="/projects/chatbot/channels">
                 Setup Channels
+              </ActionLink>
+              <ActionLink href="/projects/chatbot/activity">
+                Today&apos;s Activity
               </ActionLink>
               <ActionLink href="/projects/chatbot/setup">Configure AI</ActionLink>
             </div>
