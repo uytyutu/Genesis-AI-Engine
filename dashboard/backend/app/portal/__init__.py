@@ -115,6 +115,12 @@ from app.portal.portal_product_catalog_registration import (
 from app.portal.portal_product_catalog_router import portal_product_catalog_router
 from app.portal.portal_my_products_registration import register_portal_my_products
 from app.portal.portal_my_products_router import portal_my_products_router
+from app.portal.portal_product_activation_registration import (
+    register_portal_product_activation,
+)
+from app.portal.portal_product_activation_router import (
+    portal_product_activation_router,
+)
 from app.portal.analytics import AnalyticsOverview, empty_analytics_overview
 from app.portal.analytics_facade import AnalyticsFacade
 from app.portal.analytics_store import InMemoryAnalyticsStore
@@ -130,6 +136,8 @@ from app.portal.chatbot_integration_adapter import StubChatBotIntegrationAdapter
 from app.portal.chatbot_store import InMemoryChatBotStore
 from app.portal.chatbot_view import ChatBotView
 from app.portal.product import Product, default_product_catalog
+from app.portal.product_activation_facade import ProductActivationFacade
+from app.portal.product_activation_store import InMemoryProductActivationStore
 from app.portal.product_catalog_facade import ProductCatalogFacade
 from app.portal.product_catalog_store import InMemoryProductCatalogStore
 from app.portal.product_catalog_view import ProductCatalogItemView
@@ -217,6 +225,7 @@ __all__ = [
     "ChatBotFacade",
     "ChatBotView",
     "Product",
+    "ProductActivationFacade",
     "ProductCatalogFacade",
     "ProductCatalogItemView",
     "ProductOwnership",
@@ -226,6 +235,7 @@ __all__ = [
     "register_portal_authentication_middleware",
     "InMemoryAnalyticsStore",
     "InMemoryChatBotStore",
+    "InMemoryProductActivationStore",
     "InMemoryProductCatalogStore",
     "InMemoryProductOwnershipStore",
     "InMemoryWebsiteDomainStore",
@@ -300,6 +310,7 @@ __all__ = [
     "portal_lifecycle_snapshot",
     "portal_login_router",
     "portal_my_products_router",
+    "portal_product_activation_router",
     "portal_product_catalog_router",
     "portal_read_router",
     "portal_registration_snapshot",
@@ -311,6 +322,7 @@ __all__ = [
     "register_portal_dashboard",
     "register_portal_login",
     "register_portal_my_products",
+    "register_portal_product_activation",
     "register_portal_product_catalog",
     "register_portal_read",
     "register_portal_website_domain",

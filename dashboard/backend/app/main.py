@@ -321,10 +321,24 @@ from app.portal.portal_product_catalog_registration import (
 
 register_portal_product_catalog(app)
 
+# Mission 6.2 / 6.3 — shared native ProductOwnership store
+from app.portal.product_ownership_store import InMemoryProductOwnershipStore
+
+_portal_product_ownership_store = InMemoryProductOwnershipStore()
+
 # Mission 6.2 — My Products (ProductOwnership + WebsiteOwnershipBridge)
 from app.portal.portal_my_products_registration import register_portal_my_products
 
-register_portal_my_products(app)
+register_portal_my_products(app, ownership_store=_portal_product_ownership_store)
+
+# Mission 6.3 — Product Activation → native ProductOwnership
+from app.portal.portal_product_activation_registration import (
+    register_portal_product_activation,
+)
+
+register_portal_product_activation(
+    app, ownership_store=_portal_product_ownership_store
+)
 
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
