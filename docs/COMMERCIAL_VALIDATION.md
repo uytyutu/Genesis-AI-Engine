@@ -19,7 +19,7 @@
 | **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
 | **Mission 6** | Product Platform Core (6.1–6.3) | **CLOSED** (CEO 2026-07-22) · core complete |
 | **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **ACCEPTED** (CEO 2026-07-22) |
-| **Commercial Platform** | Purchases → Licenses → Billing → Marketplace | **6.4 PASS** · NEXT = 6.5 Licenses (not opened) |
+| **Commercial Platform** | Purchases → Licenses → Billing → Marketplace | **OPEN** · 6.5 PASS · NEXT = 6.6 Billing (not opened) |
 | **Business Products** | ChatBot · CRM · Analytics · Automation · Website · … | **Later** · atop Core + Commerce |
 
 
@@ -310,7 +310,8 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Platform Core v2 — ACCEPTED ✅** (CEO 2026-07-22) · Identity + Portal + Product · foundation complete.  
 **Terminology shift:** further work = **Commercial Platform** + **Business Products** (not new “architecture missions”).  
 **Commercial Platform 6.4 PASS** · `0033110` · Purchase Invariant + Commercial Boundary.  
-**Next:** **Commercial Platform 6.5 Licenses** (planned · not opened).  
+**Commercial Platform 6.5 PASS** · `e75d778` · License central (entitlement · redeem → Activation).  
+**Next:** **Commercial Platform 6.6 Billing** (planned · not opened).  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
@@ -1577,11 +1578,16 @@ Purchase never creates ProductOwnership directly.
 #### Recommended License model (for 6.5)
 
 ```text
-License → (optional Purchase) → Activation → Ownership
-License never creates ProductOwnership.
+Purchase | Enterprise | Promo | Gift | Admin
+        ↓
+     License  (entitlement)
+        ↓
+     redeem → Activation → Ownership
 ```
 
-**Forbidden in 6.4:** Stripe · Paddle · PayPal · subscriptions · invoices · refunds · licenses · Marketplace UI · bypassing Activation.
+License never creates ProductOwnership. Purchase is one source of License — not a required predecessor.
+
+**Forbidden in 6.4:** Stripe · Paddle · PayPal · subscriptions · invoices · refunds · Marketplace UI · bypassing Activation.
 
 #### Scope Lock
 
@@ -1592,11 +1598,11 @@ Customer
     ↓
 PurchaseFacade
     ↓
-PurchaseService
-    ↓
 PaymentProvider (stub)
     ↓
-ProductActivationFacade
+License (source=purchase)
+    ↓
+redeem → ProductActivation
     ↓
 ProductOwnership (native)
 
@@ -1607,5 +1613,63 @@ ProductOwnership (native)
 
 Запрещено:
 - Direct ProductOwnershipStore writes
-- Real PSPs · subscriptions · invoices · licenses
+- Real PSPs · subscriptions · invoices
+```
+
+### Commercial Platform 6.5 — Licenses · PASS ✅ · `e75d778` (CEO 2026-07-22)
+
+**Purpose:** entitlement to activate/use a product — independent of Purchase.  
+**Endpoints:** `GET /portal/licenses` · `POST /portal/licenses/{license_id}/validate`  
+**Redeem (internal):** License → ProductActivation (marks license used).
+
+#### License Invariant
+
+```text
+License grants entitlement.
+License never creates ProductOwnership.
+```
+
+#### Commercial model
+
+```text
+Purchase ──┐
+Enterprise ┤
+Promo      ├→ License → Activation → Ownership
+Gift       ┤
+Admin ─────┘
+```
+
+
+#### Billing Invariant (recommendation for 6.6)
+
+```text
+Billing records financial events.
+Billing never creates ProductOwnership.
+Billing never activates products.
+Flow: Payment → Grant License → Redeem → Activation → Ownership
+```
+
+**Forbidden in 6.5:** Stripe · Paddle · subscriptions · renewals · cancellations · Marketplace · ProductOwnershipStore writes.
+
+#### Scope Lock
+
+```text
+Commercial Platform 6.5 — Licenses
+
+Account
+    ↓
+LicenseFacade
+    ├── grant / list / validate
+    └── redeem → ProductActivationFacade
+
+GET  /portal/licenses
+POST /portal/licenses/{license_id}/validate
+
+Разрешено:
+- License Domain · Store · View · Service · Facade
+- Sources: purchase · enterprise · promo · gift · admin
+
+Запрещено:
+- Direct ProductOwnershipStore writes
+- Real PSPs · subscriptions · Marketplace UI
 ```
