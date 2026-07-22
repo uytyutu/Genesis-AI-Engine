@@ -48,19 +48,19 @@ class InMemoryAuthenticationDirectory:
 
 
 class AuthenticationFacade:
-    """Thin use-case entry: email + secret → authenticated bool."""
+    """Thin use-case entry: email + secret → account_id or None."""
 
     def __init__(self, directory: AuthenticationDirectory) -> None:
         self._directory = directory
 
-    def login(self, *, email: str, password: str) -> bool:
-        """Return True only when domain outcome is authenticated.
+    def login(self, *, email: str, password: str) -> str | None:
+        """Return account_id when authenticated; else None.
 
-        Does not set cookies, mint tokens, or return failure reasons.
+        Does not create sessions, set cookies, mint tokens, or return failure reasons.
         """
         account = self._directory.find_account_by_email(email)
         if account is None:
-            return False
+            return None
         credential = self._directory.find_credential(account.account_id)
         # Identity pass-through until hash infra exists (R4.1 — no hashing).
         _attempt, result = authenticate(
@@ -68,7 +68,9 @@ class AuthenticationFacade:
             credential,
             presented_password_hash=password,
         )
-        return result.is_authenticated
+        if not result.is_authenticated:
+            return None
+        return account.account_id
 
 
 def empty_authentication_directory() -> InMemoryAuthenticationDirectory:

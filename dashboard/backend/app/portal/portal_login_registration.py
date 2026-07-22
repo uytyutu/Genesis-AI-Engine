@@ -1,7 +1,7 @@
-"""R4.1 — Register HTTP Login Endpoint.
+"""R4.1 / R4.2 — Register HTTP Login + Session wiring.
 
-Mounts POST /portal/login via AuthenticationFacade.
-No Session · Cookie · JWT.
+Mounts POST /portal/login with AuthenticationFacade + SessionFacade + cookie factory.
+No Middleware · JWT · Protected routes.
 """
 
 from __future__ import annotations
@@ -16,7 +16,11 @@ from app.portal.authentication_facade import (
 from app.portal.portal_login_router import (
     portal_login_router,
     set_authentication_facade,
+    set_session_login_deps,
 )
+from app.portal.session_cookie import SessionCookieFactory
+from app.portal.session_facade import SessionFacade
+from app.portal.session_store import InMemorySessionStore, SessionStore
 
 ENGINE_ID = "portal_login_registration_v1"
 
@@ -25,9 +29,16 @@ def register_portal_login(
     app: FastAPI,
     *,
     directory: AuthenticationDirectory | None = None,
+    session_store: SessionStore | None = None,
+    cookie_factory: SessionCookieFactory | None = None,
 ) -> bool:
-    """Wire facade + mount login router. Returns True when mounted."""
-    resolved = directory if directory is not None else empty_authentication_directory()
-    set_authentication_facade(AuthenticationFacade(resolved))
+    """Wire auth + session facades and mount login router."""
+    resolved_dir = (
+        directory if directory is not None else empty_authentication_directory()
+    )
+    store = session_store if session_store is not None else InMemorySessionStore()
+    cookies = cookie_factory if cookie_factory is not None else SessionCookieFactory()
+    set_authentication_facade(AuthenticationFacade(resolved_dir))
+    set_session_login_deps(SessionFacade(store), cookies)
     app.include_router(portal_login_router)
     return True

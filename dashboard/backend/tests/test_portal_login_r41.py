@@ -59,9 +59,11 @@ def test_login_success_200():
         r = http.post("/portal/login", json={"email": "owner@ex.de", "password": secret})
         assert r.status_code == 200
         assert r.json() == {"authenticated": True}
-        assert "Set-Cookie" not in r.headers
         assert "reason" not in r.json()
         assert "failure" not in r.json()
+        # R4.2: successful login sets HttpOnly session cookie
+        assert "set-cookie" in {k.lower() for k in r.headers.keys()}
+        assert "httponly" in r.headers.get("set-cookie", "").lower()
     finally:
         clear_authentication_facade()
 
@@ -107,7 +109,7 @@ def test_invalid_body_400():
         clear_authentication_facade()
 
 
-def test_no_session_artifacts_in_modules():
+def test_no_jwt_in_login_modules():
     import ast
 
     portal = Path(__file__).resolve().parents[1] / "app" / "portal"
@@ -118,7 +120,7 @@ def test_no_session_artifacts_in_modules():
         "login_api_contract.py",
     ):
         tree = ast.parse((portal / rel).read_text(encoding="utf-8"))
-        banned = {"jwt", "jose", "itsdangerous", "starlette_session"}
+        banned = {"jwt", "jose", "itsdangerous"}
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
                 names = [a.name.split(".")[0] for a in node.names]
@@ -128,10 +130,9 @@ def test_no_session_artifacts_in_modules():
                 continue
             for name in names:
                 assert name not in banned, f"{rel} imports {name}"
-        # No Set-Cookie assignment / response cookie APIs in source (excl. comments OK via AST Call)
-        src = (portal / rel).read_text(encoding="utf-8")
-        assert "set_cookie" not in src
-        assert "Set-Cookie" not in src
+    # Auth facade still must not set cookies itself
+    facade_src = (portal / "authentication_facade.py").read_text(encoding="utf-8")
+    assert "set_cookie" not in facade_src
 
 
 def test_main_registers_login():

@@ -75,6 +75,10 @@ from app.portal.queries import AssetQuery, ClientQuery, WebsiteQuery
 from app.portal.read_api_contract import PORTAL_READ_ROUTES, PortalReadRoute
 from app.portal.read_api_handlers import PortalReadHandlers
 from app.portal.read_service import PortalCatalog, PortalCatalogView, PortalReadService
+from app.portal.session import Session, create_session
+from app.portal.session_cookie import SessionCookieFactory
+from app.portal.session_facade import SessionFacade
+from app.portal.session_store import InMemorySessionStore
 from app.portal.views import (
     AssetView,
     ClientView,
@@ -133,6 +137,10 @@ __all__ = [
     "PortalReadRoute",
     "PortalReadService",
     "PortalReadStack",
+    "Session",
+    "SessionCookieFactory",
+    "SessionFacade",
+    "InMemorySessionStore",
     "Website",
     "WebsiteDashboardFacade",
     "WebsiteDashboardQuery",
@@ -156,6 +164,7 @@ __all__ = [
     "compose_portal_read",
     "consume_token",
     "create_primary_password",
+    "create_session",
     "empty_authentication_directory",
     "expire_token",
     "grant_website_ownership",
