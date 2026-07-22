@@ -101,6 +101,12 @@ from app.portal.portal_website_settings_registration import (
     register_portal_website_settings,
 )
 from app.portal.portal_website_settings_router import portal_website_settings_router
+from app.portal.portal_analytics_registration import register_portal_analytics
+from app.portal.portal_analytics_router import portal_analytics_router
+from app.portal.analytics import AnalyticsOverview, empty_analytics_overview
+from app.portal.analytics_facade import AnalyticsFacade
+from app.portal.analytics_store import InMemoryAnalyticsStore
+from app.portal.analytics_view import AnalyticsOverviewView
 from app.portal.website_settings import (
     WebsiteSettings,
     WebsiteSettingsUpdate,
@@ -163,8 +169,13 @@ __all__ = [
     "PortalOwnerJourneyState",
     "build_published_owner_journey",
     "ANONYMOUS",
+    "AnalyticsFacade",
+    "AnalyticsOverview",
+    "AnalyticsOverviewView",
     "RequestPrincipal",
     "register_portal_authentication_middleware",
+    "InMemoryAnalyticsStore",
+    "empty_analytics_overview",
     "Session",
     "SessionCookieFactory",
     "SessionFacade",
@@ -217,6 +228,7 @@ __all__ = [
     "new_website",
     "new_website_invitation",
     "ownership_for_account_website",
+    "portal_analytics_router",
     "portal_dashboard_router",
     "portal_lifecycle_snapshot",
     "portal_login_router",
@@ -224,6 +236,7 @@ __all__ = [
     "portal_registration_snapshot",
     "portal_website_settings_router",
     "refresh_expiry_status",
+    "register_portal_analytics",
     "register_portal_dashboard",
     "register_portal_login",
     "register_portal_read",

@@ -297,6 +297,11 @@ from app.portal.portal_website_settings_registration import (
 
 register_portal_website_settings(app)
 
+# R5.2 — Analytics Overview (read-only ModuleFacade)
+from app.portal.portal_analytics_registration import register_portal_analytics
+
+register_portal_analytics(app)
+
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
 
