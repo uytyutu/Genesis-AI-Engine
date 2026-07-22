@@ -42,8 +42,10 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.5.3** | **Client Domain Model** | **PASS** · `871c993` |
 | → ✅ **R3.5.4** | **Deployment Domain Model** | **PASS** · `861be5a` |
 | → ✅ **R3.5.5** | **Assets Domain Model** | **PASS** · `72b6c72` |
-| → **R3.5.6** | **EditSession Domain Model** | **DONE (code)** — await CEO review |
-| → R3.5.7+ | First Portal read scenarios | pending |
+| → ✅ **R3.5.6** | **EditSession Domain Model** | **PASS** · `361f77e` |
+| ✅ **R3.5** | **Domain Foundation** | **CLOSED** (CEO 2026-07-22) |
+| **R3.6** | **Portal Services** | **OPEN** |
+| → **R3.6.1** | **Portal Read Service** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -232,7 +234,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5.1–R3.5.5 PASS ✅** · **NEXT = R3.5.6 EditSession Domain Model**.
+Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5 Domain Foundation CLOSED ✅** · **NEXT = R3.6.1 Portal Read Service**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -389,9 +391,26 @@ Order ──website_id──▶ Website            ← creates, does not own
 
 **Backlog notes:** keep `asset_type` as constrained set · `artifact_ref` is an **opaque reference** (Portal must not assume URL/path/UUID format).
 
-### R3.5.6 — EditSession Domain Model — DONE (code)
+### R3.5.6 — EditSession Domain Model — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/edit_session.py`  
+**Module:** `dashboard/backend/app/portal/edit_session.py` · commit `361f77e`.  
 **Fields:** session_id · website_id · status · started_at · ended_at (optional).  
 **Link:** `EditSession.website_id` → Website.  
 **Not in R3.5.6:** editor · autosave · realtime · version history · API/UI.
+
+**Backlog notes:** closed/cancelled sessions are immutable · at most one `open` EditSession per Website (revisit if collaboration arrives).
+
+### R3.5 — Domain Foundation — CLOSED ✅
+
+```
+Client → Website → Deployment | Asset | EditSession
+```
+
+No Portal UI/API/Auth/persistence in R3.5. Next layer = services (R3.6), then API/UI.
+
+### R3.6.1 — Portal Read Service — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/read_service.py`  
+**Types:** `PortalCatalog` (in-memory snapshot) · `PortalReadService`  
+**Methods:** `get_client` · `get_website` · `get_current_deployment` · `get_assets` · `get_open_edit_session`  
+**Not in R3.6.1:** mutations · persistence · API endpoints · Auth · UI · editing.
