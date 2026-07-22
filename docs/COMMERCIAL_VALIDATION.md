@@ -24,7 +24,7 @@
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
-| **Product Track** | Iteration 1 CLOSED · Daily Ops | **PT2 OPEN** · **PT2.1–2.2 PASS** ✅ · **Customer Operations Workspace OPEN** (CEO 2026-07-22) |
+| **Product Track** | Iteration 1 CLOSED · Ops Gen1 CLOSED | **PT2 CLOSED** ✅ · **PT3 OPEN** (CEO 2026-07-22) · AI Assisted Operations |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -333,11 +333,10 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Product Track PT1.3 — PASS ✅** (CEO 2026-07-22) · Channel Setup UX · Vector Workspace path prepared (First Run → Knowledge → Channels).  
 **Product Track PT1.4 — PASS ✅** (CEO 2026-07-22) · Vector Dashboard (aggregate only · no business logic).  
 **Product Track Iteration 1 — CLOSED ✅** (CEO 2026-07-22) · First Run · Knowledge Workspace · Channel Setup · Vector Dashboard.  
-**Product Track PT2 — OPEN** (CEO 2026-07-22) · Daily Operations.  
-**Product Track PT2.1 — PASS ✅** (CEO 2026-07-22) · Vector Activity Center (operational aggregate · no edits).  
-**Product Track PT2.2 — PASS ✅** (CEO 2026-07-22) · Conversation Inbox · Conversation Workspace prepared.  
-**Product Track PT2 — Customer Operations Workspace — OPEN** (CEO 2026-07-22) · Conversation View · Queue · Customer card · Feed.  
-**Not opened:** PT3 AI Assisted Operations · AP2.2 Streaming · Marketplace · real channel SDKs.  
+**Product Track PT2 — CLOSED ✅** (CEO 2026-07-22) · Customer Operations Workspace complete.  
+**Operations Workspace Generation 1 — CLOSED ✅** (CEO 2026-07-22) · Dashboard · Activity · Queue · Inbox · Conversation · Customers.  
+**Product Track PT3 — OPEN** (CEO 2026-07-22) · AI Assisted Operations (draft · summary · suggestions · never auto-send).  
+**Not opened:** AP2.2 Streaming · Marketplace · real channel SDKs · CRM Automation.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
@@ -2328,11 +2327,10 @@ Conversation Inbox never communicates directly with channels.
 **Surface:** `/projects/chatbot/inbox` · list/filter via existing `/portal/chatbot/conversations`.  
 **Forbidden:** reply composer · AI generate · channel SDKs · new domain models.
 
-### Product Track PT2 — Customer Operations Workspace · OPEN (CEO 2026-07-22)
+### Product Track PT2 — Customer Operations Workspace · PASS ✅ · CLOSED (CEO 2026-07-22)
 
 ```text
-Activity ✓ · Inbox ✓
-  → Conversation Workspace · Daily Queue · Customer Workspace · Activity Feed
+Activity ✓ · Inbox ✓ · Conversation Workspace ✓ · Daily Queue ✓ · Customer Workspace ✓
 ```
 
 **Invariant:**
@@ -2345,4 +2343,37 @@ Workspace never communicates with providers.
 Workspace never communicates with external channels.
 ```
 
-**Horizon (not opened):** PT3 AI Assisted Operations · AI Track AP2.2+.
+**Surfaces:** `/projects/chatbot/inbox` · `/inbox/[id]` · `/queue` · `/customers` · lifecycle `PUT .../status`.  
+**Customer:** projection from Channel + Conversations — no Customer domain.
+
+### Operations Workspace Generation 1 — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+Dashboard · Activity Center · Daily Queue
+Conversation Inbox · Conversation Workspace · Customer Workspace
+```
+
+**Boundary:** First finished operator workspace for Vector. Further Product Track work makes these screens smarter (PT3), not more shell screens.
+
+### Product Track PT3 — AI Assisted Operations · OPEN (CEO 2026-07-22)
+
+```text
+AI Assisted Operations
+  ├── AI Draft Reply
+  ├── Conversation Summary
+  ├── Suggested Knowledge Updates
+  ├── Suggested Tags
+  ├── Conversation Priority
+  ├── Business Insights
+  └── AI Review Panel
+```
+
+**Invariant:**
+```text
+AI Assistance augments human operators.
+AI Assistance never bypasses business policies.
+AI Assistance never sends customer messages automatically.
+AI Assistance always operates through Prompt & Policy Layer.
+```
+
+**Forbidden until later:** auto-send · Tool Calling as default · Streaming UI requirement · RAG · Agent Logic · Channel SDKs.
