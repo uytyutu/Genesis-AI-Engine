@@ -19,7 +19,7 @@
 | **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
 | **Mission 6** | Product Platform Core (6.1–6.3) | **CLOSED** (CEO 2026-07-22) · core complete |
 | **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **ACCEPTED** (CEO 2026-07-22) |
-| **Commercial Platform** | Purchases → Licenses → Billing → Marketplace | **Later** · not opened |
+| **Commercial Platform** | Purchases → Licenses → Billing → Marketplace | **6.4 PASS** · NEXT = 6.5 Licenses (not opened) |
 | **Business Products** | ChatBot · CRM · Analytics · Automation · Website · … | **Later** · atop Core + Commerce |
 
 
@@ -309,7 +309,8 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Mission 6 — CLOSED ✅** (CEO 2026-07-22) · Product Platform Core complete.  
 **Platform Core v2 — ACCEPTED ✅** (CEO 2026-07-22) · Identity + Portal + Product · foundation complete.  
 **Terminology shift:** further work = **Commercial Platform** + **Business Products** (not new “architecture missions”).  
-**Next:** Commercial Platform (Purchases / Licenses / Billing / Marketplace) — only after CEO opens a scoped slice.  
+**Commercial Platform 6.4 PASS** · `0033110` · Purchase Invariant + Commercial Boundary.  
+**Next:** **Commercial Platform 6.5 Licenses** (planned · not opened).  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
@@ -1558,3 +1559,53 @@ Products own functionality.
 
 After a successful commercial process, commerce **only** calls **Product Activation**.  
 Ownership stays in Product Platform; domain behavior stays in Business Products.
+
+### Commercial Platform 6.4 — Purchases · PASS ✅ · 0033110 (CEO 2026-07-22)
+
+**Purpose:** initiate product acquisition only — not ownership, not invoices.  
+**Endpoint:** `POST /portal/products/{product_id}/purchase`  
+**Flow:** Purchase → Stub PaymentProvider → `ProductActivationFacade.activate_from_purchase`
+
+#### Purchase Invariant
+
+```text
+Purchase creates commercial intent.
+Purchase never creates ProductOwnership directly.
+```
+
+
+#### Recommended License model (for 6.5)
+
+```text
+License → (optional Purchase) → Activation → Ownership
+License never creates ProductOwnership.
+```
+
+**Forbidden in 6.4:** Stripe · Paddle · PayPal · subscriptions · invoices · refunds · licenses · Marketplace UI · bypassing Activation.
+
+#### Scope Lock
+
+```text
+Commercial Platform 6.4 — Purchases
+
+Customer
+    ↓
+PurchaseFacade
+    ↓
+PurchaseService
+    ↓
+PaymentProvider (stub)
+    ↓
+ProductActivationFacade
+    ↓
+ProductOwnership (native)
+
+Разрешено:
+- Purchase Domain · Store · View · Service · Facade
+- StubPaymentProvider
+- POST /portal/products/{product_id}/purchase
+
+Запрещено:
+- Direct ProductOwnershipStore writes
+- Real PSPs · subscriptions · invoices · licenses
+```
