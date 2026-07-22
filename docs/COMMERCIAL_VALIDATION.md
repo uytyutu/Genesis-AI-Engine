@@ -53,7 +53,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.7** | **Portal API** | **OPEN** |
 | → ✅ **R3.7.1** | **Read API Contract** | **PASS** · `8477df9` |
 | → ✅ **R3.7.2** | **Read API Handlers** | **PASS** · `2cbd0e1` |
-| → **R3.7.3** | **FastAPI Read Router** | **DONE (code)** — await CEO review |
+| → ✅ **R3.7.3** | **FastAPI Read Router** | **PASS** · `61dee70` |
+| → **R3.7.4** | **Portal Composition Root** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -242,7 +243,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6 CLOSED ✅** · **R3.7.1–R3.7.2 PASS ✅** · **NEXT = R3.7.3 FastAPI Read Router**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6 CLOSED ✅** · **R3.7.1–R3.7.3 PASS ✅** · **NEXT = R3.7.4 Portal Composition Root**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -476,9 +477,18 @@ Independent of HTTP / FastAPI / UI. Next = R3.7 Portal API.
 
 **Rule:** Handlers do **not** interpret missing data (`None` / `()`). HTTP status mapping (e.g. 404) belongs only at the framework/router layer.
 
-### R3.7.3 — FastAPI Read Router — DONE (code)
+### R3.7.3 — FastAPI Read Router — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/portal_read_router.py`  
+**Module:** `dashboard/backend/app/portal/portal_read_router.py` · commit `61dee70`.  
 **Router:** `portal_read_router` — GET only · calls handlers only · `None` → 404 at HTTP layer.  
 **Not mounted** in `main.py`. No Auth · middleware · write API.  
 **Domain / ReadService / Views / Queries:** unchanged.
+
+**Rules / backlog:** only Router maps domain results → HTTP · replace `set_portal_read_handlers` global with FastAPI DI when mounting.
+
+### R3.7.4 — Portal Composition Root — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/portal_bootstrap.py`  
+**API:** `compose_portal_read(catalog?)` → `PortalReadStack` (catalog · service · handlers · router).  
+**Wiring only** — no Auth · no Persistence · not in `main.py` · router still unmounted.  
+**Domain / ReadService / Handlers / Router source:** unchanged.
