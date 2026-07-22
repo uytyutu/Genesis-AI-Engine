@@ -96,7 +96,7 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R4.2** | **Session Domain / Store** | **PASS** · `78eb847` |
 | → ✅ **R4.3** | **Authentication Middleware** | **PASS** · `b5e5790` |
 | → ✅ **R4.4** | **Protected Dashboard** | **PASS** · `aef6ce0` |
-| → ✅ **R4.5** | **Logout** | **PASS** — await commit hash |
+| → ✅ **R4.5** | **Logout** | **PASS** · `ee2650f` |
 | → **R4.6** | **End-to-End User Flow** | **NEXT** |
 
 **R4.1 out of scope:** Session · Cookie · JWT · Middleware · Protected routes.
