@@ -71,7 +71,10 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.10** | **Portal Cabinet Views** | **OPEN** |
 | → ✅ **R3.10.1** | **Website Dashboard View** | **PASS** · `10a175b` |
 | → ✅ **R3.10.2** | **Website Dashboard Query** | **PASS** · `412638b` |
-| → **R3.10.3** | **Website Dashboard Facade** | **DONE (code)** — await CEO review |
+| → ✅ **R3.10.3** | **Website Dashboard Facade** | **PASS** · `9bff27e` |
+| ✅ **R3.10** | **Portal Dashboard Stack** | **CLOSED** (CEO 2026-07-22) |
+| **R3.11** | **Portal Dashboard API** | **OPEN** |
+| → **R3.11.1** | **Dashboard Read Endpoint** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -260,7 +263,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.9 CLOSED ✅** · **R3.10.1–R3.10.2 PASS ✅** · **NEXT = R3.10.3 Website Dashboard Facade**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.10 CLOSED ✅** · **NEXT = R3.11.1 Dashboard Read Endpoint**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -608,9 +611,22 @@ No Domain Website · FastAPI · Auth · writes.
 
 **Rule:** stop adding deeper read mediators — next layers are API/UI use cases.
 
-### R3.10.3 — Website Dashboard Facade — DONE (code)
+### R3.10.3 — Website Dashboard Facade — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/website_dashboard_facade.py`  
+**Module:** `dashboard/backend/app/portal/website_dashboard_facade.py` · commit `9bff27e`.  
 **Type:** `WebsiteDashboardFacade` · `get_dashboard(website_id)` → `WebsiteDashboardView | None`.  
 Uses only `WebsiteDashboardQuery` — sole entry for future Dashboard API.  
 No FastAPI · Auth · UI · writes.
+
+**Rule:** Facade = entry for **this** use case only — not one giant PortalFacade. Stop deeper read infrastructure.
+
+### R3.10 — Portal Dashboard Stack — CLOSED ✅
+
+Facade · Query · View (+ WebsiteView / DeploymentView). Ready for first HTTP read.
+
+### R3.11.1 — Dashboard Read Endpoint — DONE (code)
+
+**Modules:** `portal_dashboard_router.py` · `portal_dashboard_registration.py`  
+**Endpoint:** `GET /portal/websites/{website_id}/dashboard` → `WebsiteDashboardView`  
+**Uses:** only `WebsiteDashboardFacade` · Auth stub (always allows) · mounted via `register_portal_dashboard(app)` in `main.py`.  
+**Not in R3.11.1:** write APIs · real Auth · UI.

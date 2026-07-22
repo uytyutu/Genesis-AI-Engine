@@ -27,8 +27,9 @@ from app.portal.views import (
     ClientView,
     DeploymentView,
     EditSessionView,
-    WebsiteView,
 )
+from app.portal.portal_dashboard_registration import register_portal_dashboard
+from app.portal.portal_dashboard_router import portal_dashboard_router
 from app.portal.website_dashboard_facade import WebsiteDashboardFacade
 from app.portal.website_dashboard_query import WebsiteDashboardQuery
 from app.portal.website_dashboard_view import WebsiteDashboardView, build_website_dashboard_view
@@ -59,10 +60,10 @@ __all__ = [
     "PortalReadService",
     "PortalReadStack",
     "Website",
-    "WebsiteQuery",
     "WebsiteDashboardFacade",
     "WebsiteDashboardQuery",
     "WebsiteDashboardView",
+    "WebsiteQuery",
     "WebsiteReadContext",
     "WebsiteReadFacade",
     "WebsiteReadQuery",
@@ -77,9 +78,11 @@ __all__ = [
     "new_deployment",
     "new_edit_session",
     "new_website",
+    "portal_dashboard_router",
     "portal_lifecycle_snapshot",
     "portal_read_router",
     "portal_registration_snapshot",
+    "register_portal_dashboard",
     "register_portal_read",
     "resolve_portal_lifecycle_state",
     "teardown_portal_read",

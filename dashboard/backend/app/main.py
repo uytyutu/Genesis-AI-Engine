@@ -285,6 +285,11 @@ from app.portal.portal_registration import register_portal_read
 
 register_portal_read(app)
 
+# R3.11.1 — Dashboard read endpoint (Facade → WebsiteDashboardView; Auth stub)
+from app.portal.portal_dashboard_registration import register_portal_dashboard
+
+register_portal_dashboard(app)
+
 # Research Visual Experience stills / demos (Path A preview — read-only assets)
 from pathlib import Path as _Path
 
