@@ -65,7 +65,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.9** | **Portal Business Features** | **OPEN** |
 | → ✅ **R3.9.1** | **Website Read Context** | **PASS** · `22f5a0b` |
 | → ✅ **R3.9.2** | **Website View Contract** | **PASS** · `27a963d` |
-| → **R3.9.3** | **Website Read Query** | **DONE (code)** — await CEO review |
+| → ✅ **R3.9.3** | **Website Read Query** | **PASS** · `0185749` |
+| → **R3.9.4** | **Website Read Facade** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -254,7 +255,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.8 CLOSED ✅** · **R3.9.1–R3.9.2 PASS ✅** · **NEXT = R3.9.3 Website Read Query**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.8 CLOSED ✅** · **R3.9.1–R3.9.3 PASS ✅** · **NEXT = R3.9.4 Website Read Facade**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -563,8 +564,17 @@ Profile · Registration · Health · Lifecycle. Portal still inactive (`feature_
 **Context** returns `WebsiteView` only — never the Website domain model.  
 **Rule:** Portal never consumes internal domain objects directly · grow View fields only when Portal needs them.
 
-### R3.9.3 — Website Read Query — DONE (code)
+### R3.9.3 — Website Read Query — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/website_read_query.py`  
+**Module:** `dashboard/backend/app/portal/website_read_query.py` · commit `0185749`.  
 **Type:** `WebsiteReadQuery` · `execute(website_id)` → `WebsiteView | None`.  
 Uses `WebsiteReadContext` only — no Domain Website · no FastAPI · no business logic.
+
+**Rule:** one Query = one use case (not a grab-bag query service).
+
+### R3.9.4 — Website Read Facade — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/website_read_facade.py`  
+**Type:** `WebsiteReadFacade` · `get_website(website_id)` → `WebsiteView | None`.  
+Uses only `WebsiteReadQuery` — future Portal UI entry for Website reads.  
+No FastAPI · Auth · Domain · mutations.
