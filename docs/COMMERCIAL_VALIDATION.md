@@ -17,7 +17,7 @@
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
 | **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
-| **Mission 6** | Product Platform | **OPEN** · 6.2 PASS · NEXT = 6.3 Product Activation (not opened) — not Billing |
+| **Mission 6** | Product Platform | **OPEN** · 6.3 PASS · Product Platform core complete · NEXT = Platform Core v2 Architecture Stamp (planned) — not Purchases yet |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -302,8 +302,9 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Mission 6 — Product Platform Architecture Stamp ✅** (CEO 2026-07-22) · no mass refactor.  
 **Mission 6.1 PASS ✅** · 6f9e52f · Product Catalog platform endpoint.  
 **Mission 6.2 PASS ✅** · e7f86c6 · foundation Product Catalog + Product Ownership.  
-**Next:** **Mission 6.3 Product Activation** (planned).  
-**Review lenses:** Architecture · Backward Compatibility · Bridge Strategy · Product Invariant.  
+**Mission 6.3 PASS ✅** · 546b5bc · Product Platform core (Catalog+Ownership+Activation) complete.  
+**Next:** Platform Core v2 Architecture Stamp (planned, not opened).  
+**Review lenses:** Architecture · Activation≠Provisioning · Bridge intact · No billing.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1340,4 +1341,46 @@ GET /portal/my-products
 - AuthN/AuthZ rule changes
 ```
 
-**Recommended chain:** 6.3 Activation → 6.4 Purchases → 6.5 Licenses → 6.6 Billing/Marketplace.
+**Recommended chain (after Platform Core v2 stamp):** Purchases → Licenses → Billing/Marketplace (commercial expansions — not opened until stamp).
+
+### Mission 6.3 — Product Activation · PASS ✅ · 546b5bc (CEO 2026-07-22)
+
+**Purpose:** how a catalog product becomes owned — **Activation**, not Provisioning.  
+**Endpoint:** `POST /portal/products/{product_id}/activate`  
+**Result:** native `ProductOwnership` · Bridge unchanged · `GET /portal/my-products` merges both.
+
+**PASS notes:** Activation ≠ Provisioning · Bridge intact · native ProductOwnership via activation_code (no payments).
+
+**Note:** purchases / licenses / billing are commercial expansions **after** Platform Core v2 Architecture Stamp — not opened here.
+
+**Temporary activators:** DEMO-CHATBOT · DEMO-ANALYTICS · INTERNAL-SEED (not payments).
+
+**Forbidden in 6.3:** Stripe · Paddle · cart · subscriptions · licenses · Marketplace · WebsiteOwnershipBridge edits · AuthN/AuthZ changes.
+
+#### Scope Lock
+
+```text
+Mission: 6.3 — Product Activation
+
+Account
+    ↓
+ProductActivationFacade
+    ↓
+ProductActivationService
+    ↓
+ProductOwnership (native)
+
+POST /portal/products/{product_id}/activate
+body: { "activation_code": "..." }
+
+Разрешено:
+- ProductActivation Domain · Store · Service · Facade
+- Router · Registration
+- Shared ProductOwnershipStore with My Products
+- Seed / activation_code channels
+
+Запрещено:
+- Payments · Billing · Licenses · Marketplace
+- Provisioning product runtime
+- WebsiteOwnershipBridge changes
+```
