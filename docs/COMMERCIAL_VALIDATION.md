@@ -60,7 +60,10 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.8.1** | **Portal Integration Profile** | **PASS** · `e88e3e9` |
 | → ✅ **R3.8.2** | **Controlled Portal Registration** | **PASS** · `b1717ad` |
 | → ✅ **R3.8.3** | **Portal Health Verification** | **PASS** · `61a0948` |
-| → **R3.8.4** | **Portal Lifecycle Contract** | **DONE (code)** — await CEO review |
+| → ✅ **R3.8.4** | **Portal Lifecycle Contract** | **PASS** · `ba48f18` |
+| ✅ **R3.8** | **Portal Infrastructure** | **CLOSED** (CEO 2026-07-22) |
+| **R3.9** | **Portal Business Features** | **OPEN** |
+| → **R3.9.1** | **Website Read Context** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -249,7 +252,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.7 CLOSED ✅** · **R3.8.1–R3.8.3 PASS ✅** · **NEXT = R3.8.4 Portal Lifecycle Contract**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.8 CLOSED ✅** · **NEXT = R3.9.1 Website Read Context**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -530,9 +533,21 @@ Contract · Handlers · unmounted Router · Composition Root. Ready for controll
 
 **Semantics:** `registration_attempted` = register ran (any result); success = `registration_active` only.
 
-### R3.8.4 — Portal Lifecycle Contract — DONE (code)
+### R3.8.4 — Portal Lifecycle Contract — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/portal_lifecycle.py`  
+**Module:** `dashboard/backend/app/portal/portal_lifecycle.py` · commit `ba48f18`.  
 **States:** `disabled` → `registered` → `active` → `teardown`  
 **API:** `resolve_portal_lifecycle_state()` · `portal_lifecycle_snapshot()` · transitions table.  
 Uses Profile · RegistrationOutcome · health. No endpoints · Auth · UI · behaviour change.
+
+**Rule:** resist extra states (loading/failed/…) — keep the four-state machine.
+
+### R3.8 — Portal Infrastructure — CLOSED ✅
+
+Profile · Registration · Health · Lifecycle. Portal still inactive (`feature_enabled=False`). Next = business read features (R3.9).
+
+### R3.9.1 — Website Read Context — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/website_read_context.py`  
+**Type:** `WebsiteReadContext` · `get_website(website_id)` → `WebsiteView | None`.  
+**Read-only** — no endpoints · Auth · permissions · mutations.
