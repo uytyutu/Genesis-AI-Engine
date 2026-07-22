@@ -19,6 +19,7 @@ from app.portal.conversation import (
     mark_conversation_prepared,
     new_conversation,
     new_message,
+    set_conversation_status,
 )
 from app.portal.conversation_context_builder import (
     build_conversation_context,
@@ -117,6 +118,22 @@ class ConversationService:
             raise ConversationError("conversation_not_found")
         messages = self._messages.list_for_conversation(conversation_id)
         return build_conversation_view(row, messages=messages)
+
+    def set_status(
+        self,
+        *,
+        account_id: str,
+        conversation_id: str,
+        status: str,
+    ) -> ConversationView:
+        profile = self._require_profile(account_id)
+        row = self._conversations.get(conversation_id)
+        if row is None or row.profile_id != profile.profile_id:
+            raise ConversationError("conversation_not_found")
+        updated = set_conversation_status(row, status=status)
+        self._conversations.save(updated)
+        messages = self._messages.list_for_conversation(conversation_id)
+        return build_conversation_view(updated, messages=messages)
 
     def post_message(
         self,

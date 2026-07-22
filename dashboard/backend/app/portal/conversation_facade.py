@@ -96,6 +96,22 @@ class ConversationFacade:
         except ConversationError:
             raise
 
+    def set_conversation_status(
+        self,
+        *,
+        account_id: str,
+        conversation_id: str,
+        status: str,
+    ) -> ConversationView:
+        try:
+            return self._service.set_status(
+                account_id=account_id,
+                conversation_id=conversation_id,
+                status=status,
+            )
+        except ConversationError:
+            raise
+
     def post_message(
         self,
         *,

@@ -36,6 +36,10 @@ class MessageCreateBody(BaseModel):
     categories: list[str] | None = None
 
 
+class ConversationStatusBody(BaseModel):
+    status: str = Field(min_length=1, max_length=32)
+
+
 def set_conversation_facade(facade: ConversationFacade) -> None:
     global _conversation_facade
     _conversation_facade = facade
@@ -108,6 +112,28 @@ def http_get_conversation(
     try:
         return facade.get_conversation(
             account_id=account_id, conversation_id=conversation_id
+        )
+    except ConversationError as exc:
+        raise _map_error(exc) from exc
+
+
+@portal_chatbot_conversations_router.put(
+    "/conversations/{conversation_id}/status",
+    response_model=None,
+)
+def http_set_conversation_status(
+    conversation_id: str,
+    body: ConversationStatusBody,
+    request: Request,
+    facade: Annotated[ConversationFacade, Depends(get_conversation_facade)],
+) -> ConversationView:
+    """Lifecycle only (open/prepared/closed) — no AI · no channel IO."""
+    account_id = _require_account(request)
+    try:
+        return facade.set_conversation_status(
+            account_id=account_id,
+            conversation_id=conversation_id,
+            status=body.status,
         )
     except ConversationError as exc:
         raise _map_error(exc) from exc

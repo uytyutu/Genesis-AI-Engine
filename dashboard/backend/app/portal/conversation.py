@@ -125,6 +125,15 @@ def mark_conversation_prepared(row: Conversation) -> Conversation:
     return replace(row, status="prepared", updated_at=_utc_now_iso())
 
 
+def set_conversation_status(row: Conversation, *, status: str) -> Conversation:
+    """Lifecycle transition for Operations Workspace — not AI / not channels."""
+    if status not in ALLOWED_CONVERSATION_STATUSES:
+        raise ConversationError("unknown_status")
+    if status == row.status:
+        return row
+    return replace(row, status=status, updated_at=_utc_now_iso())  # type: ignore[arg-type]
+
+
 def new_message(
     *,
     conversation_id: str,

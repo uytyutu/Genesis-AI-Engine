@@ -45,6 +45,7 @@ export function ConversationInboxPanel() {
   const [detail, setDetail] = useState<ConversationRow | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [channelFilter, setChannelFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsAuth, setNeedsAuth] = useState(false);
@@ -106,14 +107,44 @@ export function ConversationInboxPanel() {
     void load();
   }, [load]);
 
+  const channelLabel = useCallback(
+    (row: ConversationRow) => {
+      if (!row.channel_connection_id) return "Unassigned";
+      const ch = channelById.get(row.channel_connection_id);
+      return ch?.display_name || ch?.channel || "Channel";
+    },
+    [channelById],
+  );
+
   const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
     return conversations.filter((row) => {
       if (statusFilter !== "all" && row.status !== statusFilter) return false;
-      if (channelFilter === "all") return true;
-      if (channelFilter === "none") return !row.channel_connection_id;
-      return row.channel_connection_id === channelFilter;
+      if (channelFilter === "none" && row.channel_connection_id) return false;
+      if (
+        channelFilter !== "all" &&
+        channelFilter !== "none" &&
+        row.channel_connection_id !== channelFilter
+      ) {
+        return false;
+      }
+      if (!q) return true;
+      const channelText = channelLabel(row).toLowerCase();
+      const preview = previewText(row.messages).toLowerCase();
+      return (
+        channelText.includes(q) ||
+        preview.includes(q) ||
+        row.conversation_id.toLowerCase().includes(q) ||
+        row.status.toLowerCase().includes(q)
+      );
     });
-  }, [conversations, statusFilter, channelFilter]);
+  }, [
+    conversations,
+    statusFilter,
+    channelFilter,
+    search,
+    channelLabel,
+  ]);
 
   const openConversation = (conversationId: string) =>
     void (async () => {
@@ -167,12 +198,6 @@ export function ConversationInboxPanel() {
       }
     })();
 
-  const channelLabel = (row: ConversationRow) => {
-    if (!row.channel_connection_id) return "Unassigned";
-    const ch = channelById.get(row.channel_connection_id);
-    return ch?.display_name || ch?.channel || "Channel";
-  };
-
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-1 py-2">
       <header className="flex flex-wrap items-start justify-between gap-3">
@@ -220,6 +245,15 @@ export function ConversationInboxPanel() {
         className="flex flex-wrap gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
         aria-label="Inbox filters"
       >
+        <label className="flex min-w-[12rem] flex-1 flex-col gap-1 text-xs text-zinc-500">
+          Search
+          <input
+            className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Channel, status, message…"
+          />
+        </label>
         <label className="flex flex-col gap-1 text-xs text-zinc-500">
           Status
           <select
@@ -342,9 +376,14 @@ export function ConversationInboxPanel() {
                 )}
               </ul>
               <p className="text-xs text-zinc-500">
-                Read-only preview · Conversation Engine owns logic · PT2.3 adds
-                interaction.
+                Read-only preview · full workspace opens below.
               </p>
+              <Link
+                href={`/projects/chatbot/inbox/${detail.conversation_id}`}
+                className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-medium text-black"
+              >
+                Open Conversation Workspace
+              </Link>
             </div>
           )}
         </section>
