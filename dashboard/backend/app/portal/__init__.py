@@ -97,6 +97,19 @@ from app.portal.portal_user_journey import (
     PortalOwnerJourneyState,
     build_published_owner_journey,
 )
+from app.portal.portal_website_settings_registration import (
+    register_portal_website_settings,
+)
+from app.portal.portal_website_settings_router import portal_website_settings_router
+from app.portal.website_settings import (
+    WebsiteSettings,
+    WebsiteSettingsUpdate,
+    apply_website_settings_update,
+    empty_website_settings,
+)
+from app.portal.website_settings_facade import WebsiteSettingsFacade
+from app.portal.website_settings_store import InMemoryWebsiteSettingsStore
+from app.portal.website_settings_view import WebsiteSettingsView
 from app.portal.request_principal import ANONYMOUS, RequestPrincipal
 from app.portal.website_catalog import load_portal_catalog_from_factory_sandbox
 from app.portal.website_dashboard_facade import WebsiteDashboardFacade
@@ -166,8 +179,15 @@ __all__ = [
     "WebsiteReadContext",
     "WebsiteReadFacade",
     "WebsiteReadQuery",
+    "WebsiteSettings",
+    "WebsiteSettingsFacade",
+    "WebsiteSettingsUpdate",
+    "WebsiteSettingsView",
     "WebsiteView",
+    "InMemoryWebsiteSettingsStore",
     "account_ids_for_website",
+    "apply_website_settings_update",
+    "empty_website_settings",
     "activate_token",
     "attach_deployment",
     "authenticate",
@@ -202,10 +222,12 @@ __all__ = [
     "portal_login_router",
     "portal_read_router",
     "portal_registration_snapshot",
+    "portal_website_settings_router",
     "refresh_expiry_status",
     "register_portal_dashboard",
     "register_portal_login",
     "register_portal_read",
+    "register_portal_website_settings",
     "resolve_portal_lifecycle_state",
     "revoke_token",
     "teardown_portal_read",

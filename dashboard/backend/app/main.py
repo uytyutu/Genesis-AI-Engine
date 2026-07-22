@@ -290,6 +290,13 @@ from app.portal.portal_dashboard_registration import register_portal_dashboard
 
 register_portal_dashboard(app)
 
+# R5.1 — Website Settings Basic Profile (reference ModuleFacade)
+from app.portal.portal_website_settings_registration import (
+    register_portal_website_settings,
+)
+
+register_portal_website_settings(app)
+
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
 
