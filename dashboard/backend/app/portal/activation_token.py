@@ -4,6 +4,12 @@ One-time activation material bound to an Account.
 Lifecycle only — no email, HTTP, links, passwords, or JWT.
 
 States: created → active → used | expired | revoked
+
+Binding rule — not authentication:
+``ActivationToken`` exists only for **primary account activation**.
+It is never a temporary login, session, or general-purpose auth factor.
+After a successful activation path the token reaches a terminal state;
+ongoing access uses the future Authentication system (R3.12.4+).
 """
 
 from __future__ import annotations

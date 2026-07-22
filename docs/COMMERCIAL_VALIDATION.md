@@ -78,8 +78,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.11.2** | **Dashboard Endpoint Integration** | **PASS** · `121d8f9` |
 | **R3.12** | **Account & Activation** | **OPEN** (CEO roadmap 2026-07-22) |
 | → ✅ **R3.12.1** | **Account Ownership Architecture** | **PASS** · `83c8c56` · **CLOSED** |
-| → **R3.12.2** | **Activation Token Domain** | **DONE (code)** · `80b641e` — await CEO review |
-| → **R3.12.3** | **Password Creation** | planned |
+| → ✅ **R3.12.2** | **Activation Token Domain** | **PASS** · `80b641e` |
+| → **R3.12.3** | **Password Creation** | **NEXT** |
 | → **R3.12.4** | **Authentication** | planned |
 | → **R3.12.5** | **Dashboard Access** (Account ↔ Website) | planned |
 
@@ -270,7 +270,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **R3.12.1 CLOSED ✅** · **R3.12.2 DONE (code)** — await CEO review · **THEN = R3.12.3 Password Creation**.  
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **R3.12.1 CLOSED ✅** · **R3.12.2 PASS ✅** · **NEXT = R3.12.3 Password Creation (domain)**.  
 **R3.12 report rule:** each slice includes **Security Impact** + **Upgrade Path** + **Future Roles** (where relevant).
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
@@ -669,10 +669,13 @@ Each R3.12 report: **Security Impact** · **Upgrade Path** · **Future Roles** (
 
 **Next:** R3.12.2 Activation Token Domain (domain only — no email/HTTP).
 
-### R3.12.2 — Activation Token Domain — DONE (code)
+### R3.12.2 — Activation Token Domain — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/activation_token.py`  
+**Module:** `dashboard/backend/app/portal/activation_token.py` · commit `80b641e`  
 **Entity:** `ActivationToken` bound to `Account.account_id`  
 **Lifecycle:** `created` → `active` → `used` | `expired` | `revoked`  
 **Invariants:** one-shot consume · future `expires_at` · terminal states immutable  
+**Rule:** ActivationToken is **not** authentication — primary activation only; after use, Auth (R3.12.4+) owns ongoing access.  
 **Not in R3.12.2:** email · SMTP · HTTP · links · password · JWT · UI.
+
+**Next:** R3.12.3 Password Creation (domain first — no HTTP/login/JWT).
