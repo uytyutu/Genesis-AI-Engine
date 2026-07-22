@@ -358,12 +358,24 @@ register_portal_product_activation(
     facade=_portal_product_activation_facade,
 )
 
-# Commercial Platform 6.4 — Purchases → Activation (never owns products)
+# Commercial Platform 6.5 — Licenses (entitlement → redeem → Activation)
+from app.portal.license_store import InMemoryLicenseStore
+from app.portal.portal_license_registration import register_portal_licenses
+
+_portal_license_store = InMemoryLicenseStore()
+_portal_license_facade = register_portal_licenses(
+    app,
+    activation=_portal_product_activation_facade,
+    catalog=_portal_product_catalog_store,
+    license_store=_portal_license_store,
+)
+
+# Commercial Platform 6.4 — Purchases → License → Activation
 from app.portal.portal_purchase_registration import register_portal_purchases
 
 register_portal_purchases(
     app,
-    activation=_portal_product_activation_facade,
+    licenses=_portal_license_facade,
     catalog=_portal_product_catalog_store,
 )
 

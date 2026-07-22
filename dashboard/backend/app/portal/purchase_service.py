@@ -1,17 +1,18 @@
 """Commercial Platform 6.4 — PurchaseService.
 
 ```text
-Purchase → Stub PaymentProvider → ProductActivationFacade
+Purchase → Stub PaymentProvider → License (entitlement) → redeem → Activation
 ```
 
 Never writes ProductOwnershipStore directly.
+Purchase is one source of License — not a required step before License.
 """
 
 from __future__ import annotations
 
+from app.portal.license import LicenseError
+from app.portal.license_facade import LicenseFacade
 from app.portal.payment_provider import PaymentProvider
-from app.portal.product_activation import ProductActivationError
-from app.portal.product_activation_facade import ProductActivationFacade
 from app.portal.product_catalog_store import ProductCatalogStore
 from app.portal.purchase import (
     PurchaseError,
@@ -32,12 +33,12 @@ class PurchaseService:
         catalog: ProductCatalogStore,
         purchases: PurchaseStore,
         payments: PaymentProvider,
-        activation: ProductActivationFacade,
+        licenses: LicenseFacade,
     ) -> None:
         self._catalog = catalog
         self._purchases = purchases
         self._payments = payments
-        self._activation = activation
+        self._licenses = licenses
 
     def purchase(
         self,
@@ -78,11 +79,16 @@ class PurchaseService:
         self._purchases.save(paid)
 
         try:
-            activated = self._activation.activate_from_purchase(
+            granted = self._licenses.grant(
                 account_id=account_id,
                 catalog_product_id=product.product_id,
+                source="purchase",
             )
-        except ProductActivationError as exc:
-            raise PurchaseError(f"activation_failed:{exc}") from exc
+            activated = self._licenses.redeem(
+                account_id=account_id,
+                license_id=granted.license_id,
+            )
+        except LicenseError as exc:
+            raise PurchaseError(f"license_failed:{exc}") from exc
 
         return build_purchase_view(paid, activated_product=activated)

@@ -1,14 +1,15 @@
 """Commercial Platform 6.4 — PurchaseFacade.
 
 Sole application entry for purchases. Does not own products.
+Grants a License after payment, then redeems it via Activation.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
+from app.portal.license_facade import LicenseFacade
 from app.portal.payment_provider import PaymentProvider, StubPaymentProvider
-from app.portal.product_activation_facade import ProductActivationFacade
 from app.portal.product_catalog_store import ProductCatalogStore
 from app.portal.purchase import PurchaseError
 from app.portal.purchase_service import PurchaseService
@@ -28,7 +29,7 @@ class PurchaseFacade:
         *,
         catalog: ProductCatalogStore,
         purchases: PurchaseStore,
-        activation: ProductActivationFacade,
+        licenses: LicenseFacade,
         payments: PaymentProvider | None = None,
     ) -> PurchaseFacade:
         return cls(
@@ -36,7 +37,7 @@ class PurchaseFacade:
                 catalog=catalog,
                 purchases=purchases,
                 payments=payments if payments is not None else StubPaymentProvider(),
-                activation=activation,
+                licenses=licenses,
             )
         )
 
