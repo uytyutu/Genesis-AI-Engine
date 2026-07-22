@@ -78,8 +78,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.11.2** | **Dashboard Endpoint Integration** | **PASS** · `121d8f9` |
 | **R3.12** | **Account & Activation** | **OPEN** (CEO roadmap 2026-07-22) |
 | → ✅ **R3.12.1** | **Account Ownership Architecture** | **PASS** · `83c8c56` · **CLOSED** |
-| → ✅ **R3.12.2** | **Activation Token Domain** | **PASS** · `80b641e` |
-| → **R3.12.3** | **Password Creation** | **NEXT** (after R3.12.2 review) |
+| → **R3.12.2** | **Activation Token Domain** | **DONE (code)** · `80b641e` — await CEO review |
+| → **R3.12.3** | **Password Creation** | planned |
 | → **R3.12.4** | **Authentication** | planned |
 | → **R3.12.5** | **Dashboard Access** (Account ↔ Website) | planned |
 
