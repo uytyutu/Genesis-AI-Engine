@@ -1838,3 +1838,6 @@ Knowledge Categories
 - CRUD API ✅
 - No AI / external SDK ✅
 
+**Permanent ChatBot invariant:** Knowledge remains a passive fact store; Conversation Engine / AI Provider / Channels may read it later — Knowledge never answers customers.
+
+**Next (not opened):** **BP1.3 Channel Connections (stub)** — channel registry (available channels · config · connection status); no Telegram/Meta SDK.
