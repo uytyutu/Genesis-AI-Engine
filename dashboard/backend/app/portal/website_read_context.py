@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 from app.portal.queries import WebsiteQuery
 from app.portal.read_service import PortalCatalogView, PortalReadService
-from app.portal.views import WebsiteView
+from app.portal.website_view import WebsiteView
 
 ENGINE_ID = "website_read_context_v1"
 

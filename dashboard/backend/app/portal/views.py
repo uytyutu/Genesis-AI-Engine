@@ -1,8 +1,8 @@
 """R3.6.3 / R3.6.4 — Portal View Models.
 
 Read projections for Portal consumers — data only.
+WebsiteView contract lives in ``website_view`` (R3.9.2); re-exported here.
 No business logic · no HTTP · no FastAPI · no Auth.
-Domain models stay unchanged; ReadService maps to these views.
 """
 
 from __future__ import annotations
@@ -13,9 +13,22 @@ from app.portal.asset import Asset, AssetType
 from app.portal.client import Client
 from app.portal.deployment import Deployment, DeploymentStatus
 from app.portal.edit_session import EditSession, EditSessionStatus
-from app.portal.website import Website, WebsiteStatus
+from app.portal.website_view import WebsiteView, to_website_view
 
 ENGINE_ID = "portal_view_v1"
+
+__all__ = [
+    "AssetView",
+    "ClientView",
+    "DeploymentView",
+    "EditSessionView",
+    "WebsiteView",
+    "to_asset_view",
+    "to_client_view",
+    "to_deployment_view",
+    "to_edit_session_view",
+    "to_website_view",
+]
 
 
 @dataclass(frozen=True)
@@ -24,16 +37,6 @@ class ClientView:
     display_name: str
     primary_email: str
     preferred_language: str
-
-
-@dataclass(frozen=True)
-class WebsiteView:
-    website_id: str
-    client_id: str
-    product_id: str
-    market_code: str
-    deployment_id: str | None
-    status: WebsiteStatus
 
 
 @dataclass(frozen=True)
@@ -68,17 +71,6 @@ def to_client_view(client: Client) -> ClientView:
         display_name=client.display_name,
         primary_email=client.primary_email,
         preferred_language=client.preferred_language,
-    )
-
-
-def to_website_view(website: Website) -> WebsiteView:
-    return WebsiteView(
-        website_id=website.website_id,
-        client_id=website.client_id,
-        product_id=website.product_id,
-        market_code=website.market_code,
-        deployment_id=website.deployment_id,
-        status=website.status,
     )
 
 

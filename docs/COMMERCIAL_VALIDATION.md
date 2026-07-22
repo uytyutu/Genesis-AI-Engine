@@ -63,7 +63,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.8.4** | **Portal Lifecycle Contract** | **PASS** · `ba48f18` |
 | ✅ **R3.8** | **Portal Infrastructure** | **CLOSED** (CEO 2026-07-22) |
 | **R3.9** | **Portal Business Features** | **OPEN** |
-| → **R3.9.1** | **Website Read Context** | **DONE (code)** — await CEO review |
+| → ✅ **R3.9.1** | **Website Read Context** | **PASS** · `22f5a0b` |
+| → **R3.9.2** | **Website View Contract** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -252,7 +253,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.8 CLOSED ✅** · **NEXT = R3.9.1 Website Read Context**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.8 CLOSED ✅** · **R3.9.1 PASS ✅** · **NEXT = R3.9.2 Website View Contract**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -546,8 +547,17 @@ Uses Profile · RegistrationOutcome · health. No endpoints · Auth · UI · beh
 
 Profile · Registration · Health · Lifecycle. Portal still inactive (`feature_enabled=False`). Next = business read features (R3.9).
 
-### R3.9.1 — Website Read Context — DONE (code)
+### R3.9.1 — Website Read Context — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/website_read_context.py`  
+**Module:** `dashboard/backend/app/portal/website_read_context.py` · commit `22f5a0b`.  
 **Type:** `WebsiteReadContext` · `get_website(website_id)` → `WebsiteView | None`.  
 **Read-only** — no endpoints · Auth · permissions · mutations.
+
+**Rule:** keep Context focused on Website reads only — split specialized read modules later rather than bloating one class.
+
+### R3.9.2 — Website View Contract — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/website_view.py`  
+**Type:** frozen `WebsiteView` (website_id · client_id · product_id · market_code · status · deployment_id).  
+**Context** returns `WebsiteView` only — never the Website domain model.  
+**Rule:** Portal never consumes internal domain objects directly.
