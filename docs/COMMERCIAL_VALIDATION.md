@@ -16,7 +16,7 @@
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
-| **Mission 5** | Website Settings → Domain → Analytics → ChatBot → CRM | **OPEN** · NEXT = R5.1 |
+| **Mission 5** | Website Settings → Domain → Analytics → ChatBot → CRM | **OPEN** · R5.1 PASS · Module Architecture |
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
 
@@ -292,9 +292,10 @@ Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).
 Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain foundation for Portal / Identity.  
 **R4.1–R4.6 PASS ✅** · **Mission 4 / Portal Platform v1 CLOSED** (CEO 2026-07-22).  
 **Portal Platform v1 — Accepted for Expansion** (CEO 2026-07-22).  
-**Next:** Mission 5 · **R5.1 Website Settings — Basic Profile** (scope lock; no code until open).  
+**R5.1 PASS ✅** · **Module Architecture** established (CEO 2026-07-22) · `7db23a0`.  
+**Next:** Mission 5 continuation (Domain Management / Analytics / …) — CEO scopes next slice.  
+**Review lenses:** Architecture · Security · Product · **Repeatability**.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
-**Infra review lenses:** Architecture · Security · Product (CEO).  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
@@ -867,7 +868,7 @@ Module
 
 **Mission:** Website Settings  
 **Slice:** R5.1 — Website Settings — Basic Profile  
-**Status:** Scope locked · **implementation not started**
+**Status:** **PASS** · `7db23a0` · Mission 5 started
 
 #### R5.1 — allowed fields only
 
@@ -915,5 +916,48 @@ PUT /settings
 - own AuthN / AuthZ / Session / Ownership
 ```
 
-**Product meaning:** after R5.1 the user can **change** something in their product — Portal becomes a tool, not only infrastructure.  
-**Next gate:** CEO opens R5.1 implementation → then code · tests · Architecture/Security/Product review.
+**Product meaning:** after R5.1 the user can **change** something in their product — Portal becomes a tool, not only infrastructure.
+
+### R5.1 — Website Settings Basic Profile — PASS ✅ (CEO 2026-07-22)
+
+**Commit:** `7db23a0` · **Mission 5 start** (first module code).  
+**Endpoints:** `GET|PUT /portal/websites/{website_id}/settings`  
+**Fields:** website_name · company_name · contact_email · phone · social_links  
+**Lenses:** Architecture · Security · Product · Repeatability — all PASS.
+
+**Not in R5.1:** SEO · Theme · Branding · Logo · Favicon · Colors · Domain · Analytics · CRM · ChatBot · Billing · Permissions · new AuthN/AuthZ.
+
+### Module Architecture — Established ✅ (CEO 2026-07-22)
+
+Before R5.1: **Platform Architecture** (AuthN · AuthZ · Session · Ownership).  
+After R5.1: **Module Architecture** — repeatable way to add product capabilities.
+
+```text
+Platform
+──────────────
+AuthN · AuthZ · Session · Ownership
+    ↓
+Module Blueprint
+────────────────────
+Domain · Store · View · Facade · Router · Registration
+    ↓
+Concrete Module
+────────────────────
+Website Settings → Analytics → ChatBot → CRM → …
+```
+
+#### Module Blueprint (binding roles)
+
+Every new Portal module **MUST** expose the same role set (names may vary):
+
+| Role | Responsibility |
+|------|----------------|
+| Domain | Business rules only |
+| Store | Persistence Protocol + adapter |
+| View | Presentation / API shape |
+| Facade | Sole application entry (ModuleFacade) |
+| Router | HTTP · AuthN principal · AuthZ gate · DTO |
+| Registration | Wire + mount |
+
+**Reference:** Website Settings (`website_settings*.py` · `portal_website_settings_*.py`).  
+**Rule:** next modules (Analytics, ChatBot, CRM, …) copy this skeleton — change only the domain.
