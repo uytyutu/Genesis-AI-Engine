@@ -17,7 +17,7 @@
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
 | **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
-| **Mission 6** | Product Platform Architecture Stamp | **STAMPED** · no code yet |
+| **Mission 6** | Product Platform | 6.1 PASS · NEXT = 6.2 Product Ownership (not opened) — not purchase/billing |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -299,9 +299,10 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **R5.3 PASS ✅** · `f1c15fc` · Module Standard formed (Write+Read+Resource State).  
 **R5.4 PASS ✅** · `92ce896` · Integration Module confirmed.  
 **Mission 5 — CLOSED ✅** (CEO 2026-07-22) · Module Standard proven (4 module classes).  
-**Mission 6 — Product Platform Architecture Stamp ✅** (CEO 2026-07-22) · no code yet.  
-**Next:** Mission 6 implementation slices — only after CEO opens a scoped slice (not CRM mass refactor).  
-**Review lenses:** Architecture · Security · Product · Repeatability · Integration Boundary · Product Invariant.  
+**Mission 6 — Product Platform Architecture Stamp ✅** (CEO 2026-07-22) · no mass refactor.  
+**Mission 6.1 PASS ✅** · 6f9e52f · Product Catalog platform endpoint.  
+**Next:** **Mission 6.2 Product Ownership** (planned).  
+**Review lenses:** Architecture · Backward Compatibility · Extensibility · Product Invariant.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1263,3 +1264,36 @@ CRM Product
 - Implementing ProductOwnership code  
 
 **Next gate:** CEO opens a scoped Mission 6 slice (small, intentional) — never a big-bang rewrite.
+
+### Mission 6.1 — Product Catalog · PASS ✅ · 6f9e52f (CEO 2026-07-22)
+
+**Purpose:** introduce standalone ``Product`` without touching Website / Ownership / Billing.  
+**Endpoint:** `GET /portal/products` (platform-level · AuthN required · **no** website AuthZ).  
+**Fields:** product_id · product_type · display_name · description · availability  
+
+**Lenses:** Architecture · Backward Compatibility · Extensibility.
+
+**Forbidden in 6.1:** purchase · licenses · ProductOwnership · WebsiteOwnership changes · AuthN/AuthZ rules · billing · CRM features · Marketplace UI.
+
+**Note:** first practical step Website-centric → Product-centric; next recommended = Product Ownership bridge from WebsiteOwnership.
+
+#### Scope Lock
+
+```text
+Mission: 6.1 — Product Catalog
+
+Platform
+    ↓
+Product Catalog
+    ↓
+Portal GET /portal/products
+
+Разрешено:
+- Product Domain · Store · View · ProductCatalogFacade
+- Router · Registration
+- Static / InMemory catalog seed
+
+Запрещено:
+- Purchase · Licenses · ProductOwnership · WebsiteOwnership edits
+- AuthN/AuthZ rule changes · Billing · CRM · Marketplace UI
+```
