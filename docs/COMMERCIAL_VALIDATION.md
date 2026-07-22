@@ -22,7 +22,7 @@
 | **Brand Architecture v1.0** | Virtus Core (platform) · Vector (AI Business Employee) | **ACCEPTED** (CEO 2026-07-22) · `docs/VIRTUS_BRAND_ARCHITECTURE_v1.md` |
 | **Commercial Platform** | Purchases · Billing · Licenses · Redeem → Activation → Ownership | **CORE CLOSED** ✅ (CEO 2026-07-22) · Marketplace deferred |
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
-| **AI Platform 1.0** | Provider Layer · (future real LLM adapters) | **AP1.1 PASS** · Vector AI Foundation CLOSED ✅ · NEXT = AP1.2 Provider Adapters (not opened) |
+| **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) · NEXT = AP1.3 Prompt & Policy (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -315,15 +315,17 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Commercial Platform 6.5 PASS** · `e75d778` · License central (entitlement · redeem → Activation).  
 **Commercial Platform 6.6 PASS** · `0104b44` · Billing financial ledger.  
 **Commercial Platform Core — CLOSED ✅** (CEO 2026-07-22) · Purchases · Billing · Licenses · Redeem → Activation → Ownership.  
-**Not opened:** Marketplace · AP1.2 Provider Adapters (real SDKs inside adapters only) · real channel SDKs.  
+**Not opened:** Marketplace · AP1.3 Prompt & Policy Layer · KimiAdapter · per-profile Preferred AI Provider · real channel SDKs.  
 **Business Product BP1.1 — PASS ✅** · ChatBot Business Profile & Industry Template (no AI · no channel SDKs).  
 **Business Product BP1.2 — PASS ✅** · Business Knowledge (facts only · fixed categories).  
 **Business Product BP1.3 — PASS ✅** · `422d1a7` · Channel Connections stub (registry · config · status).  
 **Business Product BP1.4 — PASS ✅** · `d003ef2` · Conversation Engine stub (context builder · no AI).  
 **Vector Product Foundation — CLOSED ✅** (CEO 2026-07-22) · Profile · Template · Knowledge · Channels · Conversation Engine.  
 **AI Platform AP1.1 — PASS ✅** · `8e758ac` · Provider Layer (Protocol · Registry · Manager · stubs).  
+**AI Platform AP1.2 — PASS ✅** · `479184e` · Provider Adapters (OpenAI/Anthropic/Ollama · unified AIResponse).  
+**AI Platform 1.0 — CLOSED ✅** (CEO 2026-07-22) · Protocol → Registry → Manager → Adapters → AIResponse.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider Invariant.  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -2055,4 +2057,40 @@ AI Provider Layer
 ```
 
 **Boundary:** Vector product + AI abstraction complete without binding to a concrete LLM SDK.  
-**Next (not opened):** **AP1.2 — Provider Adapters** — real OpenAI/Anthropic/Ollama SDKs only inside adapters; Protocol · Context · Engine · Registry · Manager unchanged.
+**Next:** **AP1.2 — Provider Adapters** — see below.
+
+### AI Platform AP1.2 — Provider Adapters · OPEN → implemented (awaiting CEO PASS)
+
+**Purpose:** how a concrete AI vendor implements the Protocol without affecting platform architecture.  
+**No new public HTTP API** — existing `/portal/chatbot/providers*` unchanged.
+
+#### Adapter Invariant
+
+```text
+Provider Adapters isolate vendor SDKs.
+Provider Adapters return unified AIResponse.
+Provider Adapters never modify ConversationContext.
+Provider Adapters never manage conversations.
+```
+
+#### Adapters
+
+- `OpenAIProviderAdapter` — official `openai` SDK (key: `OPENAI_API_KEY`)
+- `AnthropicProviderAdapter` — official `anthropic` SDK (key: `ANTHROPIC_API_KEY`)
+- `OllamaProviderAdapter` — local HTTP `/api/chat` (host: `OLLAMA_HOST` or config placeholder)
+
+Unified `AIResponse`: response_id · provider · model · content · usage · finish_reason · metadata  
+Errors mapped to: ProviderUnavailable · AuthenticationFailed · RateLimited · InvalidConfiguration · GenerationFailed
+
+Protocol · Registry · Manager · Conversation Engine — **unchanged** (binding via existing `build_stub_runtime` → adapters).
+
+#### Acceptance
+
+- Three adapters ✅
+- SDKs only inside adapters ✅
+- ConversationContext unchanged ✅
+- Unified AIResponse ✅
+- Unified error mapping ✅
+- Engine/Protocol/Registry/Manager unchanged ✅
+
+**Next (not opened):** AP1.3 — Prompt & Policy Layer.
