@@ -2059,7 +2059,7 @@ AI Provider Layer
 **Boundary:** Vector product + AI abstraction complete without binding to a concrete LLM SDK.  
 **Next:** **AP1.2 — Provider Adapters** — see below.
 
-### AI Platform AP1.2 — Provider Adapters · OPEN → implemented (awaiting CEO PASS)
+### AI Platform AP1.2 — Provider Adapters · PASS ✅ · `479184e` (CEO 2026-07-22)
 
 **Purpose:** how a concrete AI vendor implements the Protocol without affecting platform architecture.  
 **No new public HTTP API** — existing `/portal/chatbot/providers*` unchanged.
@@ -2093,4 +2093,25 @@ Protocol · Registry · Manager · Conversation Engine — **unchanged** (bindin
 - Unified error mapping ✅
 - Engine/Protocol/Registry/Manager unchanged ✅
 
-**Next (not opened):** AP1.3 — Prompt & Policy Layer.
+**Permanent Adapter invariant:** Vendor SDKs end inside adapters; above them only Protocol + AIResponse.
+
+### AI Platform 1.0 — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+AIProviderProtocol
+        │
+        ▼
+Provider Registry
+        │
+        ▼
+Provider Manager
+        │
+        ▼
+Provider Adapters
+        │
+        ▼
+Unified AIResponse
+```
+
+**Boundary:** LLM integration layer complete. Further work improves interaction quality (prompts · policies · tools · knowledge), not rewiring vendor coupling.  
+**Horizon (not opened):** AP1.3 Prompt & Policy · KimiAdapter (same Protocol) · Preferred AI Provider on Business Profile · Streaming/Tools only behind adapters.
