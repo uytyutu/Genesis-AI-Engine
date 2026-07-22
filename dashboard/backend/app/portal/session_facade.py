@@ -31,6 +31,11 @@ class SessionFacade:
         return session
 
     def invalidate_session(self, session_id: str) -> bool:
+        """Revoke one session by id (current-device logout).
+
+        Future multi-device ops should add separate methods
+        (e.g. invalidate_all_sessions) — do not overload this one.
+        """
         return self._store.invalidate(session_id)
 
     def get_active_session(self, session_id: str) -> Session | None:

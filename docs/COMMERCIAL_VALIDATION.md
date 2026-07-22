@@ -15,7 +15,7 @@
 | Mission 2 | Factory + Order Experience | ✅ |
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
-| **R4** | Portal HTTP Integration (session-first, no JWT) | **OPEN** · NEXT = R4.5 |
+| **R4** | Portal HTTP Integration (session-first, no JWT) | **OPEN** · Phase B ✅ · NEXT = R4.6 |
 | Mission 4 | Premium Workspace | Later |
 | Mission 5 | Platform Expansion | Later |
 
@@ -96,8 +96,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R4.2** | **Session Domain / Store** | **PASS** · `78eb847` |
 | → ✅ **R4.3** | **Authentication Middleware** | **PASS** · `b5e5790` |
 | → ✅ **R4.4** | **Protected Dashboard** | **PASS** · `aef6ce0` |
-| → **R4.5** | **Logout** | **NEXT** |
-| → **R4.6** | **Activation Flow Integration** | planned |
+| → ✅ **R4.5** | **Logout** | **PASS** — await commit hash |
+| → **R4.6** | **End-to-End User Flow** | **NEXT** |
 
 **R4.1 out of scope:** Session · Cookie · JWT · Middleware · Protected routes.
 
@@ -289,7 +289,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
 Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain foundation for Portal / Identity.  
-**R4.1–R4.4 PASS ✅** · **NEXT = R4.5 Logout**.  
+**R4.1–R4.5 PASS ✅** · **Phase B COMPLETE** · **NEXT = R4.6 End-to-End User Flow**.  
 **R4 policy:** server session + HTTP-only cookie (Phase B); JWT deferred.  
 **Infra review lenses:** Architecture · Security · Product (CEO).  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
@@ -793,3 +793,16 @@ Further work is **infrastructure + UX**, not domain invention.
 **Not in R4.4:** Logout · JWT · CRM · other modules.
 
 **Next:** R4.5 Logout — invalidate session + clear cookie.
+
+### R4.5 — Logout — PASS ✅ (CEO 2026-07-22)
+
+**Endpoint:** `POST /portal/logout` → 204  
+**Chain:** cookie → SessionFacade.invalidate → clear HttpOnly cookie  
+**Idempotent:** repeat logout always 204  
+**Note:** keep `invalidate_session(id)`; multi-device = future separate APIs.  
+**Not in R4.5:** Auth Domain changes · AuthZ · JWT · UI.
+
+### R4 Phase B — COMPLETE ✅ (CEO 2026-07-22)
+
+Login · Session · Middleware · Protected Dashboard · Logout.  
+**Next:** R4.6 End-to-End User Flow (publish → activate → password → login → dashboard → logout).

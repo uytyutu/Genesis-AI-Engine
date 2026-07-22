@@ -80,3 +80,13 @@ class SessionCookieFactory:
             max_age=int(self._ttl.total_seconds()),
             path=self._path,
         )
+
+    def as_delete_cookie_kwargs(self) -> dict[str, Any]:
+        """Clear cookie using the same attributes as set_cookie (R4.5)."""
+        return {
+            "key": self._cookie_name,
+            "path": self._path,
+            "secure": self._secure,
+            "httponly": True,
+            "samesite": self._samesite,
+        }

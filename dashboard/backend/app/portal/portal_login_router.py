@@ -1,10 +1,9 @@
-"""R4.1 / R4.2 — HTTP Login Endpoint.
+"""R4.1 / R4.2 / R4.5 — HTTP Login + Logout.
 
-POST /portal/login → AuthenticationFacade → SessionFacade (on success)
-→ HttpOnly cookie → {authenticated: bool}
+POST /portal/login → AuthenticationFacade → SessionFacade → HttpOnly cookie
+POST /portal/logout → SessionFacade.invalidate → clear cookie → 204
 
-No Middleware · Protected routes · JWT · cookie reading.
-Malformed body → 400.
+Logout is idempotent. Does not touch Authentication / Authorization Domain.
 """
 
 from __future__ import annotations
@@ -98,3 +97,19 @@ async def http_post_login(
     spec = cookies.build(session.session_id)
     response.set_cookie(**spec.as_set_cookie_kwargs())
     return LoginResponse(authenticated=True)
+
+
+@portal_login_router.post("/logout", status_code=204)
+async def http_post_logout(
+    request: Request,
+    response: Response,
+    sessions: Annotated[SessionFacade, Depends(get_session_facade)],
+    cookies: Annotated[SessionCookieFactory, Depends(get_cookie_factory)],
+) -> Response:
+    """Invalidate server session (if any) and clear cookie. Always 204."""
+    raw = request.cookies.get(cookies.cookie_name)
+    if raw:
+        sessions.invalidate_session(raw)
+    response.delete_cookie(**cookies.as_delete_cookie_kwargs())
+    response.status_code = 204
+    return response
