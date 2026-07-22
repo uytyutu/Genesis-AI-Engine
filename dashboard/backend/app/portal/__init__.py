@@ -29,6 +29,7 @@ from app.portal.views import (
     EditSessionView,
     WebsiteView,
 )
+from app.portal.website_dashboard_view import WebsiteDashboardView, build_website_dashboard_view
 from app.portal.website_read_context import WebsiteReadContext
 from app.portal.website_read_facade import WebsiteReadFacade
 from app.portal.website_read_query import WebsiteReadQuery
@@ -57,11 +58,13 @@ __all__ = [
     "PortalReadStack",
     "Website",
     "WebsiteQuery",
+    "WebsiteDashboardView",
     "WebsiteReadContext",
     "WebsiteReadFacade",
     "WebsiteReadQuery",
     "WebsiteView",
     "attach_deployment",
+    "build_website_dashboard_view",
     "close_edit_session",
     "compose_portal_read",
     "is_portal_feature_enabled",
