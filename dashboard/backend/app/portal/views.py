@@ -1,4 +1,4 @@
-"""R3.6.3 — Portal View Models.
+"""R3.6.3 / R3.6.4 — Portal View Models.
 
 Read projections for Portal consumers — data only.
 No business logic · no HTTP · no FastAPI · no Auth.
@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from app.portal.asset import Asset, AssetType
 from app.portal.client import Client
 from app.portal.deployment import Deployment, DeploymentStatus
+from app.portal.edit_session import EditSession, EditSessionStatus
 from app.portal.website import Website, WebsiteStatus
 
 ENGINE_ID = "portal_view_v1"
@@ -52,6 +53,15 @@ class AssetView:
     artifact_ref: str
 
 
+@dataclass(frozen=True)
+class EditSessionView:
+    session_id: str
+    website_id: str
+    status: EditSessionStatus
+    started_at: str
+    ended_at: str | None
+
+
 def to_client_view(client: Client) -> ClientView:
     return ClientView(
         client_id=client.client_id,
@@ -88,4 +98,14 @@ def to_asset_view(asset: Asset) -> AssetView:
         website_id=asset.website_id,
         asset_type=asset.asset_type,
         artifact_ref=asset.artifact_ref,
+    )
+
+
+def to_edit_session_view(session: EditSession) -> EditSessionView:
+    return EditSessionView(
+        session_id=session.session_id,
+        website_id=session.website_id,
+        status=session.status,
+        started_at=session.started_at,
+        ended_at=session.ended_at,
     )

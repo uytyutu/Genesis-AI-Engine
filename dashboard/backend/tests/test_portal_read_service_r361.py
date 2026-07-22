@@ -13,7 +13,13 @@ from app.portal.read_service import (
     PortalCatalogView,
     PortalReadService,
 )
-from app.portal.views import AssetView, ClientView, DeploymentView, WebsiteView
+from app.portal.views import (
+    AssetView,
+    ClientView,
+    DeploymentView,
+    EditSessionView,
+    WebsiteView,
+)
 
 
 def _build_service() -> tuple[PortalReadService, dict]:
@@ -83,13 +89,31 @@ def test_get_assets_returns_views():
     assert svc.get_assets(AssetQuery(website_id="missing")) == ()
 
 
-def test_get_open_edit_session():
+def test_get_open_edit_session_returns_view():
     svc, ids = _build_service()
     s = svc.get_open_edit_session(WebsiteQuery(website_id=ids["website_id"]))
-    assert s is not None
+    assert isinstance(s, EditSessionView)
     assert s.session_id == ids["open_session_id"]
     assert s.status == "open"
     assert svc.get_open_edit_session(WebsiteQuery(website_id="missing")) is None
+
+
+def test_all_get_methods_return_views_not_domain():
+    svc, ids = _build_service()
+    assert isinstance(svc.get_client(ClientQuery(client_id=ids["client_id"])), ClientView)
+    assert isinstance(
+        svc.get_website(WebsiteQuery(website_id=ids["website_id"])), WebsiteView
+    )
+    assert isinstance(
+        svc.get_current_deployment(WebsiteQuery(website_id=ids["website_id"])),
+        DeploymentView,
+    )
+    assets = svc.get_assets(AssetQuery(website_id=ids["website_id"]))
+    assert assets and all(isinstance(a, AssetView) for a in assets)
+    assert isinstance(
+        svc.get_open_edit_session(WebsiteQuery(website_id=ids["website_id"])),
+        EditSessionView,
+    )
 
 
 def test_read_service_has_no_write_methods():

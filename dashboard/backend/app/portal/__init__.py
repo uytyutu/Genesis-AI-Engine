@@ -11,7 +11,13 @@ from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.edit_session import EditSession, close_edit_session, new_edit_session
 from app.portal.queries import AssetQuery, ClientQuery, WebsiteQuery
 from app.portal.read_service import PortalCatalog, PortalCatalogView, PortalReadService
-from app.portal.views import AssetView, ClientView, DeploymentView, WebsiteView
+from app.portal.views import (
+    AssetView,
+    ClientView,
+    DeploymentView,
+    EditSessionView,
+    WebsiteView,
+)
 from app.portal.website import OrderWebsiteRef, Website, new_website
 
 __all__ = [
@@ -24,6 +30,7 @@ __all__ = [
     "Deployment",
     "DeploymentView",
     "EditSession",
+    "EditSessionView",
     "OrderWebsiteRef",
     "PortalCatalog",
     "PortalCatalogView",

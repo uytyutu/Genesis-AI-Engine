@@ -19,10 +19,12 @@ from app.portal.views import (
     AssetView,
     ClientView,
     DeploymentView,
+    EditSessionView,
     WebsiteView,
     to_asset_view,
     to_client_view,
     to_deployment_view,
+    to_edit_session_view,
     to_website_view,
 )
 from app.portal.website import Website
@@ -55,8 +57,7 @@ class PortalCatalog:
 class PortalReadService:
     """Query Portal domain models without changing state.
 
-    Returns View Models (not domain entities) for Client / Website /
-    Deployment / Asset. Missing → ``None`` or empty tuple.
+    Returns View Models only (not domain entities). Missing → ``None`` or ``()``.
     """
 
     def __init__(self, catalog: PortalCatalogView) -> None:
@@ -89,8 +90,7 @@ class PortalReadService:
             rows = [a for a in rows if a.asset_type == query.asset_type]
         return tuple(to_asset_view(a) for a in rows)
 
-    def get_open_edit_session(self, query: WebsiteQuery) -> EditSession | None:
-        """Still returns domain EditSession until an EditSessionView slice."""
+    def get_open_edit_session(self, query: WebsiteQuery) -> EditSessionView | None:
         opens = [
             s
             for s in self._catalog.edit_sessions.values()
@@ -99,4 +99,4 @@ class PortalReadService:
         if not opens:
             return None
         opens.sort(key=lambda s: s.started_at)
-        return opens[0]
+        return to_edit_session_view(opens[0])

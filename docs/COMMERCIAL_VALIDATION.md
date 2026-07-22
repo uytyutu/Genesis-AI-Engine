@@ -47,7 +47,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.6** | **Portal Services** | **OPEN** |
 | → ✅ **R3.6.1** | **Portal Read Service** | **PASS** · `bbfd75f` |
 | → ✅ **R3.6.2** | **Portal Query Objects** | **PASS** · `fe30d15` |
-| → **R3.6.3** | **Portal View Models** | **DONE (code)** — await CEO review |
+| → ✅ **R3.6.3** | **Portal View Models** | **PASS** · `f118637` |
+| → **R3.6.4** | **EditSessionView** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -236,7 +237,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.3 ✅ · **R3.4–R3.5 CLOSED ✅** · **R3.6.1–R3.6.2 PASS ✅** · **NEXT = R3.6.3 Portal View Models**.
+Mission 3: R3.1–R3.3 ✅ · **R3.4–R3.5 CLOSED ✅** · **R3.6.1–R3.6.3 PASS ✅** · **NEXT = R3.6.4 EditSessionView**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -428,10 +429,16 @@ No Portal UI/API/Auth/persistence in R3.5. Next layer = services (R3.6), then AP
 
 **Rule:** Query Objects hold **parameters only** — no computation, business validation, catalog access, or load methods. Extend filters on the Query (e.g. `AssetQuery`), not on `get_assets()` signatures.
 
-### R3.6.3 — Portal View Models — DONE (code)
+### R3.6.3 — Portal View Models — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/views.py`  
+**Module:** `dashboard/backend/app/portal/views.py` · commit `f118637`.  
 **Types:** `ClientView` · `WebsiteView` · `DeploymentView` · `AssetView` (+ pure `to_*_view` mappers).  
 **ReadService** returns View Models for those four; domain entities unchanged.  
-**Note:** `get_open_edit_session` still returns domain `EditSession` until a dedicated view slice.  
 **Not in R3.6.3:** FastAPI · HTTP · UI · Auth · persistence.
+
+### R3.6.4 — EditSessionView — DONE (code)
+
+**Adds:** `EditSessionView` · `to_edit_session_view(...)`.  
+**ReadService:** `get_open_edit_session` → `EditSessionView | None`.  
+**PASS:** all public `get_*` methods return View Models only.  
+**Not in R3.6.4:** HTTP · FastAPI · UI · Auth · persistence.
