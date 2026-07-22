@@ -96,7 +96,7 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R4.3** | **Authentication Middleware** | **PASS** · `b5e5790` |
 | → ✅ **R4.4** | **Protected Dashboard** | **PASS** · `aef6ce0` |
 | → ✅ **R4.5** | **Logout** | **PASS** · `ee2650f` |
-| → ✅ **R4.6** | **End-to-End User Flow** | **PASS** — await commit hash |
+| → ✅ **R4.6** | **End-to-End User Flow** | **PASS** · `a623f13`|
 
 | **R4** | Portal HTTP Integration (session-first, no JWT) | **CLOSED** (CEO 2026-07-22) · Portal Platform v1 |
 
