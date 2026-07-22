@@ -92,6 +92,11 @@ export const CLIENT_NAV_LINKS = [
     label: "Vector",
     hint: "First Run · настройка",
   },
+  {
+    href: "/projects/chatbot/knowledge",
+    label: "Knowledge",
+    hint: "Факты о бизнесе",
+  },
 ] as const;
 
 export const CEO_PRIMARY_LINKS = [

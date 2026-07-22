@@ -664,6 +664,9 @@ export function ChatbotFirstRunWizard() {
             ))}
           </ul>
           <div className="flex flex-wrap gap-2">
+            <ButtonLink href="/projects/chatbot/knowledge">
+              Manage knowledge
+            </ButtonLink>
             <ButtonLink href="/projects">Back to projects</ButtonLink>
             <Button variant="ghost" onClick={() => setStep("welcome")} disabled={busy}>
               Run again
