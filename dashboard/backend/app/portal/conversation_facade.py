@@ -22,6 +22,11 @@ from app.portal.conversation_store import (
     MessageStore,
 )
 from app.portal.conversation_view import ConversationTurnView, ConversationView
+from app.portal.conversation_assistance_view import (
+    AssistanceDraftView,
+    AssistanceReviewView,
+    AssistanceSummaryView,
+)
 from app.portal.industry_template import (
     InMemoryIndustryTemplateStore,
     IndustryTemplateStore,
@@ -108,6 +113,36 @@ class ConversationFacade:
                 account_id=account_id,
                 conversation_id=conversation_id,
                 status=status,
+            )
+        except ConversationError:
+            raise
+
+    def draft_reply(
+        self, *, account_id: str, conversation_id: str
+    ) -> AssistanceDraftView:
+        try:
+            return self._service.draft_reply(
+                account_id=account_id, conversation_id=conversation_id
+            )
+        except ConversationError:
+            raise
+
+    def summarize(
+        self, *, account_id: str, conversation_id: str
+    ) -> AssistanceSummaryView:
+        try:
+            return self._service.summarize(
+                account_id=account_id, conversation_id=conversation_id
+            )
+        except ConversationError:
+            raise
+
+    def review_panel(
+        self, *, account_id: str, conversation_id: str
+    ) -> AssistanceReviewView:
+        try:
+            return self._service.review_panel(
+                account_id=account_id, conversation_id=conversation_id
             )
         except ConversationError:
             raise

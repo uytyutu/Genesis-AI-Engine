@@ -15,6 +15,11 @@ from pydantic import BaseModel, Field
 
 from app.portal.conversation import ConversationError
 from app.portal.conversation_facade import ConversationFacade
+from app.portal.conversation_assistance_view import (
+    AssistanceDraftView,
+    AssistanceReviewView,
+    AssistanceSummaryView,
+)
 from app.portal.conversation_view import ConversationTurnView, ConversationView
 
 ENGINE_ID = "portal_chatbot_conversations_router_v1"
@@ -134,6 +139,63 @@ def http_set_conversation_status(
             account_id=account_id,
             conversation_id=conversation_id,
             status=body.status,
+        )
+    except ConversationError as exc:
+        raise _map_error(exc) from exc
+
+
+@portal_chatbot_conversations_router.post(
+    "/conversations/{conversation_id}/assistance/draft",
+    response_model=None,
+)
+def http_assistance_draft(
+    conversation_id: str,
+    request: Request,
+    facade: Annotated[ConversationFacade, Depends(get_conversation_facade)],
+) -> AssistanceDraftView:
+    """Draft reply for operator — never auto-sends to customer."""
+    account_id = _require_account(request)
+    try:
+        return facade.draft_reply(
+            account_id=account_id, conversation_id=conversation_id
+        )
+    except ConversationError as exc:
+        raise _map_error(exc) from exc
+
+
+@portal_chatbot_conversations_router.post(
+    "/conversations/{conversation_id}/assistance/summary",
+    response_model=None,
+)
+def http_assistance_summary(
+    conversation_id: str,
+    request: Request,
+    facade: Annotated[ConversationFacade, Depends(get_conversation_facade)],
+) -> AssistanceSummaryView:
+    """Conversation summary for operator — never auto-sends."""
+    account_id = _require_account(request)
+    try:
+        return facade.summarize(
+            account_id=account_id, conversation_id=conversation_id
+        )
+    except ConversationError as exc:
+        raise _map_error(exc) from exc
+
+
+@portal_chatbot_conversations_router.get(
+    "/conversations/{conversation_id}/assistance/review",
+    response_model=None,
+)
+def http_assistance_review(
+    conversation_id: str,
+    request: Request,
+    facade: Annotated[ConversationFacade, Depends(get_conversation_facade)],
+) -> AssistanceReviewView:
+    """Priority · tags · knowledge suggestions — display only."""
+    account_id = _require_account(request)
+    try:
+        return facade.review_panel(
+            account_id=account_id, conversation_id=conversation_id
         )
     except ConversationError as exc:
         raise _map_error(exc) from exc

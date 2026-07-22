@@ -71,6 +71,14 @@ export function ConversationWorkspacePanel({ conversationId }: Props) {
   const [notice, setNotice] = useState<string | null>(null);
   const [takeover, setTakeover] = useState(false);
   const [notes, setNotes] = useState("");
+  const [review, setReview] = useState<{
+    priority: string;
+    suggested_tags: string[];
+    suggested_knowledge: Array<{ category: string; title: string; reason?: string }>;
+    insights: string[];
+  } | null>(null);
+  const [draftText, setDraftText] = useState<string | null>(null);
+  const [summaryText, setSummaryText] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -134,6 +142,75 @@ export function ConversationWorkspacePanel({ conversationId }: Props) {
             ? "Conversation closed (archive uses closed status)."
             : `Status → ${status}`,
         );
+      } catch (err) {
+        if (err instanceof PortalApiError) setError(err.detail);
+        else if (err instanceof Error) setError(err.message);
+      } finally {
+        setBusy(false);
+      }
+    })();
+
+  const loadReview = () =>
+    void (async () => {
+      setBusy(true);
+      setError(null);
+      try {
+        const data = await portalFetch<{
+          priority: string;
+          suggested_tags: string[];
+          suggested_knowledge: Array<{
+            category: string;
+            title: string;
+            reason?: string;
+          }>;
+          insights: string[];
+        }>(`/portal/chatbot/conversations/${conversationId}/assistance/review`);
+        setReview(data);
+      } catch (err) {
+        if (err instanceof PortalApiError) setError(err.detail);
+        else if (err instanceof Error) setError(err.message);
+      } finally {
+        setBusy(false);
+      }
+    })();
+
+  const runDraft = () =>
+    void (async () => {
+      setBusy(true);
+      setError(null);
+      try {
+        const data = await portalFetch<{ draft_text: string; auto_sent?: boolean }>(
+          `/portal/chatbot/conversations/${conversationId}/assistance/draft`,
+          { method: "POST" },
+        );
+        setDraftText(data.draft_text);
+        if (data.auto_sent) {
+          setError("invariant_breach: auto_sent must be false");
+        }
+      } catch (err) {
+        if (err instanceof PortalApiError) setError(err.detail);
+        else if (err instanceof Error) setError(err.message);
+      } finally {
+        setBusy(false);
+      }
+    })();
+
+  const runSummary = () =>
+    void (async () => {
+      setBusy(true);
+      setError(null);
+      try {
+        const data = await portalFetch<{
+          summary_text: string;
+          auto_sent?: boolean;
+        }>(
+          `/portal/chatbot/conversations/${conversationId}/assistance/summary`,
+          { method: "POST" },
+        );
+        setSummaryText(data.summary_text);
+        if (data.auto_sent) {
+          setError("invariant_breach: auto_sent must be false");
+        }
       } catch (err) {
         if (err instanceof PortalApiError) setError(err.detail);
         else if (err instanceof Error) setError(err.message);
@@ -331,6 +408,83 @@ export function ConversationWorkspacePanel({ conversationId }: Props) {
                   <dd className="text-zinc-200">{profile?.industry || "—"}</dd>
                 </div>
               </dl>
+            </section>
+
+            <section className="rounded-2xl border border-violet-400/20 bg-violet-500/[0.06] p-4">
+              <h2 className="text-sm font-medium text-white">AI Review Panel</h2>
+              <p className="mt-1 text-xs text-zinc-500">
+                Augments operator · never auto-sends · Prompt &amp; Policy only
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={busy}
+                  onClick={() => void loadReview()}
+                >
+                  Load review
+                </Button>
+                <Button
+                  size="sm"
+                  disabled={busy}
+                  onClick={() => void runDraft()}
+                >
+                  Draft reply
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={busy}
+                  onClick={() => void runSummary()}
+                >
+                  Summarize
+                </Button>
+              </div>
+              {review ? (
+                <div className="mt-3 space-y-2 text-sm">
+                  <p className="text-zinc-300">
+                    Priority:{" "}
+                    <span className="font-medium text-white">{review.priority}</span>
+                  </p>
+                  <p className="text-zinc-400">
+                    Tags: {review.suggested_tags.join(", ") || "—"}
+                  </p>
+                  <ul className="space-y-1 text-xs text-zinc-400">
+                    {review.insights.map((line) => (
+                      <li key={line}>· {line}</li>
+                    ))}
+                  </ul>
+                  {review.suggested_knowledge.length > 0 ? (
+                    <ul className="space-y-1 text-xs text-amber-100/90">
+                      {review.suggested_knowledge.map((item) => (
+                        <li key={`${item.category}-${item.title}`}>
+                          Knowledge hint [{item.category}]: {item.title}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              ) : null}
+              {draftText ? (
+                <div className="mt-3 rounded-xl border border-white/10 bg-black/30 p-3">
+                  <p className="text-xs uppercase tracking-wide text-zinc-500">
+                    Draft (not sent)
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-100">
+                    {draftText}
+                  </p>
+                </div>
+              ) : null}
+              {summaryText ? (
+                <div className="mt-3 rounded-xl border border-white/10 bg-black/30 p-3">
+                  <p className="text-xs uppercase tracking-wide text-zinc-500">
+                    Summary
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-100">
+                    {summaryText}
+                  </p>
+                </div>
+              ) : null}
             </section>
 
             <section className="rounded-2xl border border-white/10 bg-black/20 p-4">
