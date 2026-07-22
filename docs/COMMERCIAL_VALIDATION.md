@@ -51,7 +51,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.6.4** | **EditSessionView** | **PASS** · `626c6dc` |
 | ✅ **R3.6** | **Read Layer** | **CLOSED** (CEO 2026-07-22) |
 | **R3.7** | **Portal API** | **OPEN** |
-| → **R3.7.1** | **Read API Contract** | **DONE (code)** — await CEO review |
+| → ✅ **R3.7.1** | **Read API Contract** | **PASS** · `8477df9` |
+| → **R3.7.2** | **Read API Handlers** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -240,7 +241,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6 Read Layer CLOSED ✅** · **NEXT = R3.7.1 Read API Contract**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6 Read Layer CLOSED ✅** · **R3.7.1 PASS ✅** · **NEXT = R3.7.2 Read API Handlers**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -456,10 +457,18 @@ Domain → CatalogView → PortalReadService ← Query → View Models
 
 Independent of HTTP / FastAPI / UI. Next = R3.7 Portal API.
 
-### R3.7.1 — Read API Contract — DONE (code)
+### R3.7.1 — Read API Contract — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/read_api_contract.py`  
+**Module:** `dashboard/backend/app/portal/read_api_contract.py` · commit `8477df9`.  
 **Declares:** GET `/portal/clients/{id}` · `/websites/{id}` · `/deployment` · `/assets` · `/edit-session`  
 **I/O:** path/query models + View Models as responses.  
 **Flags:** `mounted=False` · `auth=False` — not registered in `main.py`.  
 **Not in R3.7.1:** FastAPI routers · Auth · write APIs · ReadService wiring.
+
+**Rules / backlog:** after first public release, URL changes are breaking · optional `/api/v1/portal/...` later.
+
+### R3.7.2 — Read API Handlers — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/read_api_handlers.py`  
+**Type:** `PortalReadHandlers` — Contract path/query → `PortalReadService` → View Models.  
+**Not in R3.7.2:** FastAPI mounting · Auth · middleware · persistence · write ops · HTTP Response.
