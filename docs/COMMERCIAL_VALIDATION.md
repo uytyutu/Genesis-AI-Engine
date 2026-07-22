@@ -19,7 +19,7 @@
 | **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
 | **Mission 6** | Product Platform Core (6.1–6.3) | **CLOSED** (CEO 2026-07-22) · core complete |
 | **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **ACCEPTED** (CEO 2026-07-22) |
-| **Commercial Platform** | Purchases → Licenses → Billing → Marketplace | **OPEN** · 6.5 PASS · NEXT = 6.6 Billing (not opened) |
+| **Commercial Platform** | Purchases · Billing · Licenses · Redeem → Activation → Ownership | **CORE CLOSED** ✅ (CEO 2026-07-22) · Marketplace UI later · not opened |
 | **Business Products** | ChatBot · CRM · Analytics · Automation · Website · … | **Later** · atop Core + Commerce |
 
 
@@ -311,7 +311,9 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Terminology shift:** further work = **Commercial Platform** + **Business Products** (not new “architecture missions”).  
 **Commercial Platform 6.4 PASS** · `0033110` · Purchase Invariant + Commercial Boundary.  
 **Commercial Platform 6.5 PASS** · `e75d778` · License central (entitlement · redeem → Activation).  
-**Next:** **Commercial Platform 6.6 Billing** (planned · not opened).  
+**Commercial Platform 6.6 PASS** · `0104b44` · Billing financial ledger.  
+**Commercial Platform Core — CLOSED ✅** (CEO 2026-07-22) · Purchases · Billing · Licenses · Redeem → Activation → Ownership.  
+**Not opened:** Marketplace (UI/orchestrator later) · Business Products (ChatBot first when scoped).  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
@@ -1640,13 +1642,13 @@ Admin ─────┘
 ```
 
 
-#### Billing Invariant (recommendation for 6.6)
+#### Billing Invariant (6.6 — binding)
 
 ```text
 Billing records financial events.
 Billing never creates ProductOwnership.
 Billing never activates products.
-Flow: Payment → Grant License → Redeem → Activation → Ownership
+Billing never grants License.
 ```
 
 **Forbidden in 6.5:** Stripe · Paddle · subscriptions · renewals · cancellations · Marketplace · ProductOwnershipStore writes.
@@ -1673,3 +1675,66 @@ POST /portal/licenses/{license_id}/validate
 - Direct ProductOwnershipStore writes
 - Real PSPs · subscriptions · Marketplace UI
 ```
+
+### Commercial Platform 6.6 — Billing · PASS ✅ · `0104b44` (CEO 2026-07-22)
+
+**Purpose:** financial ledger only — which money events occurred?  
+**Endpoints:** `GET /portal/billing` · `GET /portal/billing/{transaction_id}`  
+**Purchase path:** records pending → payment → mark paid · then License (Purchase orchestrates; Billing does not grant).
+
+#### Billing Invariant
+
+```text
+Billing records financial events.
+Billing never creates ProductOwnership.
+Billing never activates products.
+Billing never grants License.
+```
+
+#### Commercial flow
+
+```text
+Purchase → Billing → Payment Confirmed → License → Redeem → Activation → Ownership
+```
+
+#### Scope Lock
+
+```text
+Commercial Platform 6.6 — Billing
+
+Purchase
+    ↓
+BillingFacade (ledger)
+    ↓
+Financial Record (pending | paid | failed)
+
+GET /portal/billing
+GET /portal/billing/{transaction_id}
+
+Fields: transaction_id · account_id · product_id · amount · currency · status · provider · created_at
+
+Разрешено:
+- Billing Domain · Store · View · Service · Facade
+- Purchase writes ledger rows on charge
+
+Запрещено:
+- Stripe/Paddle SDK · refunds · subscriptions · taxes · invoice PDF · webhooks · accounting
+- License.grant · Activation · ProductOwnershipStore writes
+```
+
+### Commercial Platform Core — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+Commercial Platform Core
+────────────────────────
+✓ Purchases
+✓ Billing
+✓ Licenses
+✓ Redeem
+✓ Activation
+✓ Ownership
+```
+
+**Boundary:** Commercial Platform uses Platform Core; does not rewrite Catalog / Ownership / Activation / Bridge.  
+**Not opened:** Marketplace (UI/orchestrator) · real PSPs · Business Products (ChatBot · CRM · Analytics · Automation).  
+**Next when CEO scopes:** Business Product #1 ChatBot (setup wizard · channels · knowledge) — or Marketplace UI only as orchestrator of existing services.
