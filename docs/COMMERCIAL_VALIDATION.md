@@ -30,10 +30,20 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.2** | **Section-Aware Media Gate** | **✅ PASS** (CEO 2026-07-22) |
 | **R3.2.1** | **UX Polish** (back-to-top · overflow) | **✅ PASS** (CEO 2026-07-22) |
 | ✅ **R3.3** | **Section-Aware Content Gate** | **PASS** (CEO 2026-07-22) |
-| **R3.4** | **Global Market Experience** | **NEXT** |
-| R3.5 | Client Portal Foundation | After R3.4 |
+| **R3.4** | **Global Market** (capability) | **OPEN** |
+| → **R3.4.1** | **Market Profile Layer (SSOT)** | **✅ PASS** (CEO 2026-07-22) |
+| → R3.4.1.1 | MarketProfile + resolve() | PASS |
+| → R3.4.1.2 | Composer Migration | PASS |
+| → R3.4.1.3 | Footer Migration | PASS |
+| → R3.4.1.4 | Landing Builder Migration | PASS |
+| → R3.4.1.5 | Cleanup & SSOT Validation | PASS |
+| → R3.4.1 FINAL | End-to-End Validation + Commit | **PASS** |
+| → **R3.4.2** | **Global Market Integration** | **NEXT** |
+| → **R3.4.3** | **Market Validation** | After R3.4.2 |
+| **R3.5** | **Client Portal** | After R3.4 |
 
-**Not now:** full «Semantic Content Engine» · new LLM stack · CRM · Dashboard · particles.
+**Not now:** full «Semantic Content Engine» · new LLM stack · CRM · Mission 4 detail · particles.  
+**Backlog until R3.5:** Client Portal · Gallery Upload · AI Background · SEO AI.
 
 **Backlog (tech debt — not bugs, not R3.2 blockers):**
 - Restaurant Showcase Pack (dedicated stills; generic food-retail OK for now)
@@ -220,5 +230,30 @@ _(none yet — first real traffic / payment opens Entry 1)_
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
 Mission 3 opened on **owner-visibility evidence** (Premium Test FAIL → Premium Visual).
-R3.1 ✅ · R3.2 ✅ · R3.2.1 ✅ · R3.3 ✅ · **NEXT = R3.4 Global Market** → portal.
+R3.1 ✅ · R3.2 ✅ · R3.2.1 ✅ · R3.3 ✅ · **R3.4.1 Market Profile (SSOT) ✅** · **NEXT = R3.4.2 Global Market Integration** → 4.3 Validation → R3.5 Portal.
+
+### R3.4 — architecture (CEO 2026-07-22)
+
+**Capability name:** Global Market (= choose any market).  
+**Architecture entity:** **Market Profile** (single source of truth).
+
+```
+Global Market → Market Profile → Factory (Content / Media / Footer / Forms / later Portal)
+```
+
+**R3.4.1 — Market Profile Layer: PASS ✅ (CEO 2026-07-22)**  
+MarketProfile + `resolve(market_code)` is the **SSOT** for Factory market chrome: language, currency, locale, default CTA, phone/address format, business-hours conventions, legal footer keys + page slugs.  
+Migrated path: Composer → Landing Builder → Footer. No country `if/else` as source of those fields.  
+`resolve_market_design()` remains a **separate visual layer** (density/typography). Legacy `build_landing_html` without profile kept for compatibility. Stub `market_legal_profile.py` removed.
+
+**SSOT (binding):** no new country-specific `if/else` outside Market Profile. New country = new profile row.
+
+**R3.4.2 — Global Market Integration (NEXT):** remaining Factory surfaces (delivery, legal page generation, catalogs, etc.) fully consume the profile where they still use legacy market helpers.  
+**USER CAN VERIFY:** same order built for DE and GB — only Market Profile data differs.
+
+**R3.4.3 — Market Validation:** prove scale. Core: DE · GB · US · UA; then FR · NL · AT · ES (or similar). Success = new market needs profile + local resources only, not Factory logic changes.
+
+**R3.5 — Client Portal (after R3.4):** continuous management — contacts, hours, gallery upload, text updates, publish. Shift ZIP → Published site → Portal.
+
+**Not in R3.4:** Client Portal · Gallery Upload · AI Background · SEO AI · CRM · Mission 4 detail.
 Later stages still wait on market proof where noted.

@@ -304,16 +304,35 @@ def resolve_hero_for_layout(
     business_name: str,
     package_id: str,
 ) -> str:
-    """Hero from profile.hero_variants ∩ niche allowlist (fallback: niche pool)."""
+    """Hero from profile.hero_variants ∩ niche allowlist (fallback: niche pool).
+
+    R3.1: Premium always uses cinematic compositions (B/D/F) — product class,
+    not a niche twin of Basic. Basic prefers simple A/C when available.
+    """
     from app.factory.hero_composer import NICHE_LAYOUT_ALLOWLIST
+    from app.factory.landing_tier_css import BASIC_HERO_PREFER, PREMIUM_HERO_POOL
 
     niche = (niche_id or "generic").strip().lower() or "generic"
+    package = (package_id or "basic").strip().lower() or "basic"
     niche_pool = NICHE_LAYOUT_ALLOWLIST.get(niche) or NICHE_LAYOUT_ALLOWLIST["generic"]
-    pool = tuple(h for h in profile.hero_variants if h in niche_pool) or niche_pool
-    seed = (
-        f"{business_name.strip()}|{package_id.strip().lower()}|{niche}|"
-        f"{profile.id}|layout-hero"
-    )
+
+    if package == "premium":
+        pool = PREMIUM_HERO_POOL
+        seed = f"{business_name.strip()}|premium|{niche}|cinematic-hero"
+    elif package == "basic":
+        preferred = tuple(h for h in BASIC_HERO_PREFER if h in niche_pool)
+        pool = preferred or tuple(
+            h for h in profile.hero_variants if h in niche_pool
+        ) or niche_pool
+        seed = (
+            f"{business_name.strip()}|basic|{niche}|{profile.id}|layout-hero"
+        )
+    else:
+        pool = tuple(h for h in profile.hero_variants if h in niche_pool) or niche_pool
+        seed = (
+            f"{business_name.strip()}|{package}|{niche}|"
+            f"{profile.id}|layout-hero"
+        )
     digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
     return pool[int(digest[:8], 16) % len(pool)]
 
@@ -384,14 +403,17 @@ def compose_footer(
     phone: str = "",
     email: str = "",
     city: str = "",
+    market_profile: Any = None,
 ) -> str:
+    """Build footer HTML.
+
+    R3.4.1.3: when ``market_profile`` is provided (MarketProfile or dict from
+    CompositionResult), legal links come only from that profile — Footer does
+    not call resolve() and does not invent country rules.
+    """
     esc = html_lib.escape
     business = esc(business_name)
-    legal = (
-        f'<a href="{esc(ui["legal_a_href"])}" style="color:#94a3b8;margin-right:0.75rem">'
-        f'{esc(ui["legal_a"])}</a>'
-        f'<a href="{esc(ui["legal_b_href"])}" style="color:#94a3b8">{esc(ui["legal_b"])}</a>'
-    )
+    legal = _footer_legal_html(ui=ui, market_profile=market_profile)
     v = (variant or "compact").strip().lower()
     if v == "contact":
         bits = [f"<strong>{business}</strong>"]
@@ -402,7 +424,8 @@ def compose_footer(
         if city:
             bits.append(esc(city))
         return (
-            f'<footer class="footer-contact" data-footer-variant="contact">'
+            f'<footer class="footer-contact" data-footer-variant="contact"'
+            f'{_footer_profile_attrs(market_profile)}>'
             f'<div class="footer-contact-row">{" · ".join(bits)}</div>'
             f"<div>{legal}</div>"
             f'<p class="footer-copy">© {business}</p>'
@@ -415,22 +438,65 @@ def compose_footer(
         )
         right = f'<div class="footer-legal">{legal}</div>'
         return (
-            f'<footer class="footer-split" data-footer-variant="split">'
+            f'<footer class="footer-split" data-footer-variant="split"'
+            f'{_footer_profile_attrs(market_profile)}>'
             f'<div class="footer-split-grid">{left}{right}</div>'
             f"</footer>"
         )
     if v == "legal":
         return (
-            f'<footer class="footer-legal-heavy" data-footer-variant="legal">'
+            f'<footer class="footer-legal-heavy" data-footer-variant="legal"'
+            f'{_footer_profile_attrs(market_profile)}>'
             f"<p>{business} · © {business}</p>"
             f'<nav class="footer-legal-nav">{legal}</nav>'
             f"</footer>"
         )
     return (
-        f'<footer data-footer-variant="compact">'
+        f'<footer data-footer-variant="compact"'
+        f'{_footer_profile_attrs(market_profile)}>'
         f"{business} · © {business}<br>"
         f"{legal}"
         f"</footer>"
+    )
+
+
+def _coerce_market_profile(market_profile: Any) -> Any:
+    from app.factory.market_profile import coerce_market_profile
+
+    return coerce_market_profile(market_profile)
+
+
+def _footer_profile_attrs(market_profile: Any) -> str:
+    profile = _coerce_market_profile(market_profile)
+    if profile is None:
+        return ""
+    esc = html_lib.escape
+    keys = ",".join(profile.legal_footer_keys)
+    return (
+        f' data-market="{esc(profile.market_code)}"'
+        f' data-legal-keys="{esc(keys)}"'
+    )
+
+
+def _footer_legal_html(*, ui: dict[str, str], market_profile: Any) -> str:
+    esc = html_lib.escape
+    profile = _coerce_market_profile(market_profile)
+    if profile is not None:
+        from app.factory.market_profile import legal_link_pairs
+
+        pairs = legal_link_pairs(profile)
+        if not pairs:
+            return ""
+        bits = []
+        for i, (label, href) in enumerate(pairs):
+            margin = ' style="color:#94a3b8;margin-right:0.75rem"' if i < len(pairs) - 1 else ' style="color:#94a3b8"'
+            bits.append(f'<a href="{esc(href)}"{margin}>{esc(label)}</a>')
+        return "".join(bits)
+    # Legacy path (Landing Builder without profile) — keep ui legal_a/b
+    return (
+        f'<a href="{esc(ui["legal_a_href"])}" style="color:#94a3b8;margin-right:0.75rem">'
+        f'{esc(ui["legal_a"])}</a>'
+        f'<a href="{esc(ui["legal_b_href"])}" style="color:#94a3b8">{esc(ui["legal_b"])}</a>'
     )
 
 

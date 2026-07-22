@@ -101,6 +101,7 @@ def build_landing_html(
     large_headline: bool = False,
     motion_level: str = "none",
     market_code: str | None = None,
+    market_profile: object | None = None,
     hero_photo: bool = True,
     catalog: CatalogView | None = None,
     hero_pack_manifest: dict | None = None,
@@ -112,6 +113,14 @@ def build_landing_html(
     media_css: str = "",
     media_background: bool = False,
 ) -> str:
+    """Build Path A landing HTML.
+
+    R3.4.1.4: when ``market_profile`` is passed (from Composer), language / CTA /
+    locale / legal footer come only from that profile — no resolve(), no new
+    country if/else. Legacy callers without profile keep prior helpers.
+    """
+    from dataclasses import replace as dc_replace
+
     from app.factory.landing_i18n import (
         apply_legal_footer_hrefs,
         landing_lang_for_market,
@@ -120,6 +129,10 @@ def build_landing_html(
         ui_strings,
     )
     from app.factory.market_delivery import market_ui_lang
+    from app.factory.market_profile import (
+        coerce_market_profile,
+        html_lang_for_profile,
+    )
 
     feat = features or resolve_package_features("basic")
     tier = feat.package_id
@@ -131,14 +144,39 @@ def build_landing_html(
     if feat.testimonials:
         include_testimonials = True
 
-    lang = landing_lang_for_market(market_code)
-    html_lang = market_ui_lang(market_code) or lang
-    market_design = resolve_market_design(market_code)
-    # Prefer BCP47 from design profile when it matches the chrome language.
-    if market_design.html_lang == lang or lang == "de":
-        html_lang = market_design.html_lang
-    ui = apply_legal_footer_hrefs(ui_strings(lang), market_code)
-    ui["form_phone_ph"] = market_design.phone_placeholder
+    profile = coerce_market_profile(market_profile)  # type: ignore[arg-type]
+    if profile is not None:
+        # SSOT path — Composer already resolved MarketProfile
+        lang = profile.language
+        html_lang = html_lang_for_profile(profile)
+        market_code = profile.market_code
+        market_design = resolve_market_design(market_code)
+        ui = ui_strings(lang)
+        if profile.phone_format:
+            ui["form_phone_ph"] = f"{profile.phone_format} …"
+        maps_country = profile.label or profile.market_code
+        # Niche copy overlay may run, but CTA stays from profile / Composer
+        cta_preserved = analysis.cta_label or profile.default_cta
+        analysis = localize_analysis(analysis, lang)
+        analysis = dc_replace(
+            analysis,
+            cta_label=cta_preserved or profile.default_cta,
+            hours=analysis.hours or profile.business_hours,
+        )
+        use_profile_footer = True
+    else:
+        # Legacy path (direct build_landing_html without Composer profile)
+        lang = landing_lang_for_market(market_code)
+        html_lang = market_ui_lang(market_code) or lang
+        market_design = resolve_market_design(market_code)
+        if market_design.html_lang == lang or lang == "de":
+            html_lang = market_design.html_lang
+        ui = apply_legal_footer_hrefs(ui_strings(lang), market_code)
+        ui["form_phone_ph"] = market_design.phone_placeholder
+        analysis = localize_analysis(analysis, lang)
+        maps_country = maps_country_label(market_code)
+        use_profile_footer = False
+
     # Real client stats only — never invent 12+/800+ for deliverables.
     trust_payload = client_trust if isinstance(client_trust, dict) else {}
     client_stats = trust_payload.get("stats")
@@ -159,8 +197,6 @@ def build_landing_html(
             "stats_n2": "",
             "stats_n3": "",
         }
-    analysis = localize_analysis(analysis, lang)
-    maps_country = maps_country_label(market_code)
 
     style = _style_from_niche(analysis.niche, modern=modern, blue_boost=blue_boost)
     from app.factory.brand_style import (
@@ -594,6 +630,7 @@ def build_landing_html(
         phone=analysis.phone,
         email=analysis.email,
         city=city,
+        market_profile=profile if use_profile_footer else None,
     )
 
     gallery_nav = (

@@ -7,15 +7,18 @@ Does not invent new site features. Orchestrates existing modules:
   → Component Composer
   → Trust Composer
   → Media Intelligence
-  → Localization (market design / i18n chrome)
+  → Localization (via Market Profile SSOT)
   → Page Composition (landing_builder)
 
 Factory and ZIP Builder talk to this engine — not to each brick.
+
+R3.4.1.2: market language / currency / CTA / locale come from
+resolve(market_code) → MarketProfile — not from Composer-local if/else.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -29,7 +32,7 @@ from app.factory.layout_variants import (
     resolve_hero_for_layout,
     resolve_layout_profile,
 )
-from app.factory.market_design import resolve_market_design
+from app.factory.market_profile import MarketProfile, resolve as resolve_market_profile
 from app.factory.package_features import PackageFeatures
 from app.factory.trust_composer import (
     collect_trust_evidence,
@@ -52,6 +55,11 @@ class CompositionPlan:
     niche_id: str
     package_id: str
     business_name: str
+    # R3.4.1.2 — market chrome from Market Profile (SSOT)
+    language: str = ""
+    currency: str = ""
+    locale: str = ""
+    default_cta: str = ""
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -64,6 +72,10 @@ class CompositionPlan:
             "niche_id": self.niche_id,
             "package_id": self.package_id,
             "business_name": self.business_name,
+            "language": self.language,
+            "currency": self.currency,
+            "locale": self.locale,
+            "default_cta": self.default_cta,
         }
 
     def gate_meta(self) -> dict[str, Any]:
@@ -73,6 +85,9 @@ class CompositionPlan:
             "component_profile": self.component_profile,
             "layout_profile": self.layout_profile.id,
             "package_delivery": {"package_id": self.package_id},
+            "language": self.language,
+            "currency": self.currency,
+            "locale": self.locale,
         }
 
 
@@ -88,6 +103,16 @@ class CompositionResult:
     hero_from_client: bool = False
     content_gate: dict[str, Any] = field(default_factory=dict)
     analysis: AnalysisResult | None = None
+    market_profile: dict[str, Any] = field(default_factory=dict)
+
+
+def _profile_chrome(profile: MarketProfile) -> dict[str, str]:
+    return {
+        "language": profile.language,
+        "currency": profile.currency,
+        "locale": profile.locale,
+        "default_cta": profile.default_cta,
+    }
 
 
 def resolve_composition_plan(
@@ -103,7 +128,9 @@ def resolve_composition_plan(
     has_process: bool = False,
 ) -> CompositionPlan:
     """Client × Package × Market × Niche → deterministic composition plan."""
-    market = resolve_market_design(market_code).market_id
+    profile = resolve_market_profile(market_code)
+    market = profile.market_code
+    chrome = _profile_chrome(profile)
     layout = resolve_layout_profile(
         business_name=business_name,
         package_id=package_id,
@@ -147,6 +174,10 @@ def resolve_composition_plan(
         niche_id=niche_id,
         package_id=package_id,
         business_name=business_name,
+        language=chrome["language"],
+        currency=chrome["currency"],
+        locale=chrome["locale"],
+        default_cta=chrome["default_cta"],
     )
 
 
@@ -163,10 +194,11 @@ def prepare_media(
     """Media Intelligence brick — returns MediaPlan."""
     from app.factory.media_intelligence import finalize_product_media
 
+    market = resolve_market_profile(market_code).market_code
     return finalize_product_media(
         product_dir,
         niche_id=niche_id,
-        market_code=market_code,
+        market_code=market,
         package_id=package_id,
         business_name=business_name,
         hero_from_client=hero_from_client,
@@ -201,13 +233,20 @@ def compose_landing(
     """Full Path A compose: Content Gate → Media → Page Composition via plan."""
     from app.factory.content_gate import run_content_gate
 
+    # R3.4.1.2 — Market Profile SSOT (language / currency / CTA / locale)
+    profile = resolve_market_profile(market_code)
+    market = profile.market_code
+
     # R3.3 — sanitize niche copy before any HTML (swap defaults, no LLM)
     _, analysis = run_content_gate(
         analysis=analysis,
-        market_code=market_code,
+        market_code=market,
         auto_repair=True,
     )
     assert analysis is not None
+
+    # Market default CTA from profile (Composer owns this chrome; Landing Builder unchanged)
+    analysis = replace(analysis, cta_label=profile.default_cta)
 
     gallery = list(client_gallery or [])
     media_plan_obj = None
@@ -220,7 +259,7 @@ def compose_landing(
         media_plan_obj = prepare_media(
             product_dir,
             niche_id=analysis.niche,
-            market_code=market_code,
+            market_code=market,
             package_id=features.package_id,
             business_name=analysis.business_name,
             hero_from_client=hero_from_client,
@@ -235,7 +274,7 @@ def compose_landing(
     plan = resolve_composition_plan(
         business_name=analysis.business_name,
         package_id=features.package_id,
-        market_code=market_code,
+        market_code=market,
         niche_id=analysis.niche,
         commitments=analysis.trust_points,
         portfolio_paths=gallery,
@@ -257,6 +296,7 @@ def compose_landing(
         large_headline=large_headline,
         motion_level=motion_level,
         market_code=plan.market_code,
+        market_profile=profile,
         catalog=catalog,
         hero_pack_manifest=hero_pack_manifest,
         client_logo=client_logo,
@@ -287,4 +327,5 @@ def compose_landing(
         hero_from_client=hero_client,
         content_gate=cg_result.as_dict(),
         analysis=analysis,
+        market_profile=profile.as_dict(),
     )
