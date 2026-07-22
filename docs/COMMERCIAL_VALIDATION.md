@@ -21,7 +21,7 @@
 | **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **ACCEPTED** (CEO 2026-07-22) |
 | **Brand Architecture v1.0** | Virtus Core (platform) · Vector (AI Business Employee) | **ACCEPTED** (CEO 2026-07-22) · `docs/VIRTUS_BRAND_ARCHITECTURE_v1.md` |
 | **Commercial Platform** | Purchases · Billing · Licenses · Redeem → Activation → Ownership | **CORE CLOSED** ✅ (CEO 2026-07-22) · Marketplace deferred |
-| **Business Products** | ChatBot · CRM · Analytics · Automation | **OPEN** · BP1.2 PASS · NEXT = BP1.3 Channel Connections stub (not opened) |
+| **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **OPEN** · BP1.3 PASS · NEXT = BP1.4 Conversation Engine stub (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -314,10 +314,12 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Commercial Platform 6.5 PASS** · `e75d778` · License central (entitlement · redeem → Activation).  
 **Commercial Platform 6.6 PASS** · `0104b44` · Billing financial ledger.  
 **Commercial Platform Core — CLOSED ✅** (CEO 2026-07-22) · Purchases · Billing · Licenses · Redeem → Activation → Ownership.  
-**Not opened:** Marketplace · BP1.3 Channel Connections (stub registry) · AI providers.  
+**Not opened:** Marketplace · BP1.4 Conversation Engine · AI providers · real channel SDKs.  
 **Business Product BP1.1 — PASS ✅** · ChatBot Business Profile & Industry Template (no AI · no channel SDKs).  
 **Business Product BP1.2 — PASS ✅** · Business Knowledge (facts only · fixed categories).  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge Invariant.  
+**Business Product BP1.3 — PASS ✅** · `422d1a7` · Channel Connections stub (registry · config · status).  
+**ChatBot Product Foundation — CLOSED ✅** (CEO 2026-07-22) · Profile · Template · Knowledge · Channels.  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel Invariants · Brand Architecture v1.0.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1786,7 +1788,8 @@ Industries: dental · auto_service · beauty · real_estate · restaurant · eco
 - No external channel/provider SDK ✅
 
 **ChatBot foundation after BP1.2:** Profile · Industry Template · Business Knowledge.  
-**Next (not opened):** **BP1.3 Channel Connections (stub)** — channel registry/config/status only; no Telegram/Meta SDK.
+**ChatBot Product Foundation — CLOSED** after BP1.3 (Channels).  
+**Next (not opened):** **BP1.4 Conversation Engine (stub)** — dialog lifecycle only; no live AI provider.
 
 ### Business Product BP1.2 — Business Knowledge · PASS ✅ · `47b512d` (CEO 2026-07-22)
 
@@ -1841,4 +1844,70 @@ Knowledge Categories
 
 **Permanent ChatBot invariant:** Knowledge remains a passive fact store; Conversation Engine / AI Provider / Channels may read it later — Knowledge never answers customers.
 
-**Next (not opened):** **BP1.3 Channel Connections (stub)** — channel registry (available channels · config · connection status); no Telegram/Meta SDK.
+### Business Product BP1.3 — Channel Connections (Stub) · PASS ✅ · `422d1a7` (CEO 2026-07-22)
+
+**Purpose:** through which channels can Vector work — registry only.  
+**Endpoints:**
+- `GET /portal/chatbot/channels`
+- `POST /portal/chatbot/channels`
+- `PUT /portal/chatbot/channels/{connection_id}`
+- `DELETE /portal/chatbot/channels/{connection_id}`
+
+#### Channel Invariant
+
+```text
+Channel Connections describe communication endpoints.
+Channel Connections never send messages.
+Channel Connections never receive messages.
+Channel Connections never depend on external SDKs.
+```
+
+#### Registry
+
+```text
+Channels: website · telegram · instagram · facebook · whatsapp · email · other
+Status:   not_configured · configured · enabled · disabled
+```
+
+#### Scope Lock
+
+```text
+Business Product BP1.3 — Channel Connections
+
+Business Profile
+    ↓
+ChannelConnection (profile_id)
+    ↓
+configuration (stub placeholders only)
+    ↓
+status
+
+Разрешено:
+- ChannelConnection Domain · Store · View · Service · Facade
+- CRUD HTTP · one connection per channel per profile
+
+Запрещено:
+- Telegram/Meta/WhatsApp SDK · OAuth · Webhooks · message send/receive
+- OpenAI · Anthropic · Conversation Engine
+```
+
+#### Acceptance
+
+- Standalone ChannelConnection ✅
+- Linked to Business Profile ✅
+- Configuration + status ✅
+- CRUD API ✅
+- No external SDK ✅
+
+**Permanent Channel invariant:** Channel Connections remain configuration only — never transport messages; credentials live in future integration layers.
+
+**ChatBot Product Foundation — CLOSED ✅** (CEO 2026-07-22)
+
+```text
+Business Profile
+        ├── Industry Template
+        ├── Business Knowledge
+        └── Channel Connections
+```
+
+**Next (not opened):** **BP1.4 Conversation Engine (Stub)** — accept message · select knowledge sources · prepare context · form request for future AI Provider. No OpenAI/Anthropic · no Telegram/Meta SDK.
