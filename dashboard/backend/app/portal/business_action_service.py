@@ -11,6 +11,9 @@ from app.portal.business_knowledge import BusinessKnowledgeError
 from app.portal.business_knowledge_facade import BusinessKnowledgeFacade
 from app.portal.conversation import ConversationError
 from app.portal.conversation_facade import ConversationFacade
+from app.portal.operational_context import ensure_request_id
+from app.portal.operational_log import emit_ops_event
+from app.portal.operational_metrics import get_operational_metrics
 
 ENGINE_ID = "business_action_service_v1"
 
@@ -45,7 +48,17 @@ class BusinessActionService:
         payload: dict[str, Any] | None = None,
     ) -> BusinessActionView:
         if not approved:
+            get_operational_metrics().record_action_rejected()
+            emit_ops_event(
+                operation="business_action",
+                conversation_id=conversation_id,
+                status="rejected",
+                level="warning",
+                error="approval_required",
+                action_type=action_type,
+            )
             raise BusinessActionError("approval_required")
+        ensure_request_id()
         data = dict(payload or {})
         result: dict[str, Any] = {}
 
@@ -128,4 +141,12 @@ class BusinessActionService:
             status="executed",
         )
         self._store.save(row)
+        get_operational_metrics().record_action_executed()
+        emit_ops_event(
+            operation="business_action",
+            conversation_id=conversation_id,
+            status="ok",
+            action_type=action_type,
+            action_id=row.action_id,
+        )
         return build_action_view(row)

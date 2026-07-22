@@ -40,6 +40,9 @@ from app.portal.conversation_view import (
     context_as_dict,
 )
 from app.portal.industry_template import IndustryTemplateStore
+from app.portal.operational_context import ensure_request_id
+from app.portal.operational_log import emit_ops_event
+from app.portal.operational_metrics import get_operational_metrics
 from app.portal.prompt_facade import PromptFacade
 
 ENGINE_ID = "conversation_service_v1"
@@ -116,6 +119,13 @@ class ConversationService:
             channel_connection_id=channel_connection_id,
         )
         self._conversations.save(row)
+        get_operational_metrics().record_conversation()
+        emit_ops_event(
+            operation="conversation_create",
+            conversation_id=row.conversation_id,
+            channel=channel_connection_id,
+            status="ok",
+        )
         return build_conversation_view(row, messages=())
 
     def list_for_account(self, *, account_id: str) -> list[ConversationView]:
@@ -188,6 +198,7 @@ class ConversationService:
             selected_categories=select_knowledge_categories(None),
         )
         # Ensure assistance marker in metadata for Prompt/Policy consumers.
+        request_id = ensure_request_id()
         context = ConversationContext(
             conversation_id=context.conversation_id,
             profile_id=context.profile_id,
@@ -200,6 +211,7 @@ class ConversationService:
                 **dict(context.metadata),
                 "assistance": True,
                 "auto_send": False,
+                "request_id": request_id,
             },
         )
         package = PromptFacade().build(context)
@@ -219,6 +231,13 @@ class ConversationService:
             account_id=account_id,
             conversation_id=conversation_id,
             instruction=_DRAFT_INSTRUCTION,
+        )
+        get_operational_metrics().record_draft()
+        emit_ops_event(
+            operation="assistance_draft",
+            conversation_id=conversation_id,
+            provider=generation.provider_type,
+            status="ok",
         )
         return AssistanceDraftView(
             conversation_id=conversation_id,

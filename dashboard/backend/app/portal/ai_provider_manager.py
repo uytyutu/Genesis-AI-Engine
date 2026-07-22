@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from app.portal.ai_provider import (
@@ -19,7 +20,15 @@ from app.portal.ai_provider_registry import AIProviderRegistry
 from app.portal.ai_provider_store import AIProviderStore
 from app.portal.ai_provider_view import AIProviderView, build_provider_view
 from app.portal.conversation import ConversationContext
+from app.portal.operational_context import ensure_request_id
+from app.portal.operational_log import emit_ops_event
+from app.portal.operational_metrics import get_operational_metrics
 from app.portal.prompt_facade import PromptFacade
+from app.portal.provider_resilience import (
+    generate_resilient,
+    is_provider_failure,
+    operator_safe_failure,
+)
 
 ENGINE_ID = "ai_provider_manager_v1"
 
@@ -123,28 +132,79 @@ class AIProviderManager:
 
     def generate(self, context: ConversationContext) -> AIGenerationResult:
         """Engine gateway: Prompt & Policy → Protocol.generate(PromptPackage)."""
+        request_id = ensure_request_id(
+            str(context.metadata.get("request_id") or "") or None
+        )
+        meta = dict(context.metadata)
+        meta["request_id"] = request_id
+        context = ConversationContext(
+            conversation_id=context.conversation_id,
+            profile_id=context.profile_id,
+            business=context.business,
+            industry_template=context.industry_template,
+            knowledge=context.knowledge,
+            selected_categories=context.selected_categories,
+            messages=context.messages,
+            metadata=meta,
+        )
+        started = time.perf_counter()
         runtime = self.active_protocol()
         package = self._prompts.build(context)
         if runtime is None:
-            return AIGenerationResult(
-                text=STUB_UNAVAILABLE_REPLY,
+            result = operator_safe_failure(
                 provider_type="none",
                 prepared={
                     "ready": False,
                     "conversation_id": context.conversation_id,
                     "prompt_package": package.as_dict(),
+                    "request_id": request_id,
+                    "legacy_stub": STUB_UNAVAILABLE_REPLY,
                 },
             )
-        prepared = runtime.prepare(context)
-        result = runtime.generate(package)
-        merged = dict(result.prepared)
-        merged["prepare"] = prepared
-        merged["prompt_package_id"] = package.package_id
-        return AIGenerationResult(
-            text=result.text,
-            provider_type=result.provider_type,
-            prepared=merged,
+            duration_ms = (time.perf_counter() - started) * 1000.0
+            get_operational_metrics().record_ai_latency(duration_ms)
+            get_operational_metrics().record_provider_failure()
+            emit_ops_event(
+                operation="ai_generate",
+                status="error",
+                level="warning",
+                conversation_id=context.conversation_id,
+                provider="none",
+                duration_ms=duration_ms,
+                error="provider_unavailable",
+            )
+            return result
+
+        def _once() -> AIGenerationResult:
+            prepared = runtime.prepare(context)
+            raw = runtime.generate(package)
+            merged = dict(raw.prepared)
+            merged["prepare"] = prepared
+            merged["prompt_package_id"] = package.package_id
+            merged["request_id"] = request_id
+            return AIGenerationResult(
+                text=raw.text,
+                provider_type=raw.provider_type,
+                prepared=merged,
+            )
+
+        result = generate_resilient(_once)
+        duration_ms = (time.perf_counter() - started) * 1000.0
+        get_operational_metrics().record_ai_latency(duration_ms)
+        failed = is_provider_failure(result)
+        if failed:
+            get_operational_metrics().record_provider_failure()
+        emit_ops_event(
+            operation="ai_generate",
+            status="error" if failed else "ok",
+            level="warning" if failed else "info",
+            conversation_id=context.conversation_id,
+            provider=result.provider_type,
+            duration_ms=duration_ms,
+            error="provider_unavailable" if failed else None,
+            prompt_package_id=package.package_id,
         )
+        return result
 
     def seed_default_stubs(self) -> None:
         """Ensure openai/anthropic/ollama stubs exist (idempotent)."""

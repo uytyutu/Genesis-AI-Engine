@@ -471,6 +471,10 @@ register_portal_chatbot_actions(
     knowledge=_portal_chatbot_knowledge_facade,
 )
 
+from app.portal.portal_chatbot_ops_registration import register_portal_chatbot_ops
+
+register_portal_chatbot_ops(app)
+
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
 
@@ -482,6 +486,13 @@ from app.portal.portal_authentication_middleware import (
 )
 
 register_portal_authentication_middleware(app)
+
+# OR1 — Request correlation for /portal/*
+from app.portal.portal_operational_middleware import (
+    register_portal_operational_middleware,
+)
+
+register_portal_operational_middleware(app)
 
 # Research Visual Experience stills / demos (Path A preview — read-only assets)
 from pathlib import Path as _Path

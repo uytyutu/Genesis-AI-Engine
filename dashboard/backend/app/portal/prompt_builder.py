@@ -87,6 +87,7 @@ def build_prompt_package(context: ConversationContext) -> PromptPackage:
             "max_tokens": policy.max_tokens,
             "language": policy.language,
             "tone": policy.tone,
+            "request_id": (context.metadata or {}).get("request_id"),
         },
         policy_snapshot=policy.as_dict(),
     )
