@@ -9,6 +9,7 @@ from app.portal.asset import Asset, new_asset
 from app.portal.client import Client, new_client, website_for_client
 from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.edit_session import EditSession, close_edit_session, new_edit_session
+from app.portal.portal_read_router import portal_read_router
 from app.portal.queries import AssetQuery, ClientQuery, WebsiteQuery
 from app.portal.read_api_contract import PORTAL_READ_ROUTES, PortalReadRoute
 from app.portal.read_api_handlers import PortalReadHandlers
@@ -50,5 +51,6 @@ __all__ = [
     "new_deployment",
     "new_edit_session",
     "new_website",
+    "portal_read_router",
     "website_for_client",
 ]

@@ -52,7 +52,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | ✅ **R3.6** | **Read Layer** | **CLOSED** (CEO 2026-07-22) |
 | **R3.7** | **Portal API** | **OPEN** |
 | → ✅ **R3.7.1** | **Read API Contract** | **PASS** · `8477df9` |
-| → **R3.7.2** | **Read API Handlers** | **DONE (code)** — await CEO review |
+| → ✅ **R3.7.2** | **Read API Handlers** | **PASS** · `2cbd0e1` |
+| → **R3.7.3** | **FastAPI Read Router** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -241,7 +242,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6 Read Layer CLOSED ✅** · **R3.7.1 PASS ✅** · **NEXT = R3.7.2 Read API Handlers**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6 CLOSED ✅** · **R3.7.1–R3.7.2 PASS ✅** · **NEXT = R3.7.3 FastAPI Read Router**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -467,8 +468,17 @@ Independent of HTTP / FastAPI / UI. Next = R3.7 Portal API.
 
 **Rules / backlog:** after first public release, URL changes are breaking · optional `/api/v1/portal/...` later.
 
-### R3.7.2 — Read API Handlers — DONE (code)
+### R3.7.2 — Read API Handlers — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/read_api_handlers.py`  
+**Module:** `dashboard/backend/app/portal/read_api_handlers.py` · commit `2cbd0e1`.  
 **Type:** `PortalReadHandlers` — Contract path/query → `PortalReadService` → View Models.  
 **Not in R3.7.2:** FastAPI mounting · Auth · middleware · persistence · write ops · HTTP Response.
+
+**Rule:** Handlers do **not** interpret missing data (`None` / `()`). HTTP status mapping (e.g. 404) belongs only at the framework/router layer.
+
+### R3.7.3 — FastAPI Read Router — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/portal_read_router.py`  
+**Router:** `portal_read_router` — GET only · calls handlers only · `None` → 404 at HTTP layer.  
+**Not mounted** in `main.py`. No Auth · middleware · write API.  
+**Domain / ReadService / Views / Queries:** unchanged.
