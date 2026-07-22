@@ -93,6 +93,10 @@ from app.portal.portal_dashboard_registration import register_portal_dashboard
 from app.portal.portal_dashboard_router import portal_dashboard_router
 from app.portal.portal_login_registration import register_portal_login
 from app.portal.portal_login_router import portal_login_router
+from app.portal.portal_user_journey import (
+    PortalOwnerJourneyState,
+    build_published_owner_journey,
+)
 from app.portal.request_principal import ANONYMOUS, RequestPrincipal
 from app.portal.website_catalog import load_portal_catalog_from_factory_sandbox
 from app.portal.website_dashboard_facade import WebsiteDashboardFacade
@@ -143,6 +147,8 @@ __all__ = [
     "PortalReadRoute",
     "PortalReadService",
     "PortalReadStack",
+    "PortalOwnerJourneyState",
+    "build_published_owner_journey",
     "ANONYMOUS",
     "RequestPrincipal",
     "register_portal_authentication_middleware",

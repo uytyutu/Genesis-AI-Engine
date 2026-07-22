@@ -15,9 +15,8 @@
 | Mission 2 | Factory + Order Experience | ✅ |
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
-| **R4** | Portal HTTP Integration (session-first, no JWT) | **OPEN** · Phase B ✅ · NEXT = R4.6 |
-| Mission 4 | Premium Workspace | Later |
-| Mission 5 | Platform Expansion | Later |
+| **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
+| Mission 5 | Premium Workspace / Platform Expansion | Later |
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
 
@@ -97,11 +96,13 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R4.3** | **Authentication Middleware** | **PASS** · `b5e5790` |
 | → ✅ **R4.4** | **Protected Dashboard** | **PASS** · `aef6ce0` |
 | → ✅ **R4.5** | **Logout** | **PASS** · `ee2650f` |
-| → **R4.6** | **End-to-End User Flow** | **NEXT** |
+| → ✅ **R4.6** | **End-to-End User Flow** | **PASS** — await commit hash |
+
+| **R4** | Portal HTTP Integration (session-first, no JWT) | **CLOSED** (CEO 2026-07-22) · Portal Platform v1 |
 
 **R4.1 out of scope:** Session · Cookie · JWT · Middleware · Protected routes.
 
-**Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
+**Not now:** full CRM · Billing · Marketplace modules (atop Platform v1).  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
 
 **Backlog (tech debt — not bugs, not R3.2 blockers):**
@@ -289,8 +290,9 @@ _(none yet — first real traffic / payment opens Entry 1)_
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
 Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain foundation for Portal / Identity.  
-**R4.1–R4.5 PASS ✅** · **Phase B COMPLETE** · **NEXT = R4.6 End-to-End User Flow**.  
-**R4 policy:** server session + HTTP-only cookie (Phase B); JWT deferred.  
+**R4.1–R4.6 PASS ✅** · **Mission 4 / Portal Platform v1 CLOSED** (CEO 2026-07-22).  
+**Next (product modules atop platform):** Website Settings · CRM · Analytics · ChatBot · …  
+**R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **Infra review lenses:** Architecture · Security · Product (CEO).  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -806,3 +808,15 @@ Further work is **infrastructure + UX**, not domain invention.
 
 Login · Session · Middleware · Protected Dashboard · Logout.  
 **Next:** R4.6 End-to-End User Flow (publish → activate → password → login → dashboard → logout).
+
+### R4.6 — End-to-End User Flow — PASS ✅ (CEO 2026-07-22)
+
+**Module:** `portal_user_journey.py` — orchestration only (no new domain rules).  
+**Proof:** integration test mounts Login + Middleware + Dashboard + Logout.  
+**Path:** activate → password → login → session → AuthZ → dashboard → logout → Anonymous.  
+**Not in R4.6:** new Domain · JWT · OAuth · MFA · new Portal modules.
+
+### Mission 4 / Portal Platform v1 — CLOSED ✅ (CEO 2026-07-22)
+
+R4.1–R4.6 complete. Identity (Mission 3) + Infrastructure (Mission 4) = Minimum Complete User Journey.  
+Further work = **modules on the platform** (Settings, CRM, Analytics, ChatBot, …) using AuthN → AuthZ → ModuleFacade.
