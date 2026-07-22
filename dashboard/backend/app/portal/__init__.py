@@ -10,6 +10,7 @@ from app.portal.client import Client, new_client, website_for_client
 from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.edit_session import EditSession, close_edit_session, new_edit_session
 from app.portal.portal_bootstrap import PortalReadStack, compose_portal_read, teardown_portal_read
+from app.portal.portal_profile import PORTAL_PROFILE, is_portal_feature_enabled
 from app.portal.portal_read_router import portal_read_router
 from app.portal.queries import AssetQuery, ClientQuery, WebsiteQuery
 from app.portal.read_api_contract import PORTAL_READ_ROUTES, PortalReadRoute
@@ -36,6 +37,7 @@ __all__ = [
     "EditSession",
     "EditSessionView",
     "OrderWebsiteRef",
+    "PORTAL_PROFILE",
     "PORTAL_READ_ROUTES",
     "PortalCatalog",
     "PortalCatalogView",
@@ -49,6 +51,7 @@ __all__ = [
     "attach_deployment",
     "close_edit_session",
     "compose_portal_read",
+    "is_portal_feature_enabled",
     "new_asset",
     "new_client",
     "new_deployment",
