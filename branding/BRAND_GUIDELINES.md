@@ -1,20 +1,24 @@
 # Virtus Core Brand Guidelines
 
+**Brand Architecture (strategy):** `docs/VIRTUS_BRAND_ARCHITECTURE_v1.md` — **v1.0 ACCEPTED** (CEO 2026-07-22).
+
 ## Hierarchy
 
 | Role | Name | Public |
 |------|------|--------|
 | Company / Platform | **Virtus Core** | Yes |
-| AI Assistant | **Vector** | Yes |
-| Signature | **by Virtus Core** | Yes |
+| AI Business Employee | **Vector** | Yes |
+| Signature | **Powered by Virtus Core** / **by Virtus Core** | Yes |
 | Internal engine | Genesis | No — code/runtime only |
+
+Public product face for ChatBot: **Vector** (not “чат-бот Virtus”).
 
 ## Signature
 
 ```
-Vector
-Intelligent AI Assistant
-by Virtus Core
+Meet Vector
+Your AI Business Employee
+Powered by Virtus Core
 ```
 
 Compact:
@@ -59,8 +63,9 @@ See `branding/design-tokens.json`.
 
 ## Rules
 
-1. Users talk to **Vector**, not Genesis.
-2. **Virtus Core** is the platform brand.
+1. Users talk to **Vector**, not Genesis — and not to module names (CRM, Knowledge, License).
+2. **Virtus Core** is the platform brand; **Vector** is the AI Business Employee.
 3. Never expose Genesis in public UI, favicons, shortcuts, or marketing.
 4. One mark everywhere — Windows, web, Android, iOS, Linux.
 5. Minimal, premium, timeless — no robots, brains, or generic AI clipart.
+6. Marketing may say “Meet Vector” / “Ask Vector”; platform trust line stays “Powered by Virtus Core.”
