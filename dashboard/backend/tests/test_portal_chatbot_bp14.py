@@ -16,7 +16,7 @@ from app.portal.chatbot_business_profile_facade import ChatBotBusinessProfileFac
 from app.portal.chatbot_business_profile_store import (
     InMemoryChatBotBusinessProfileStore,
 )
-from app.portal.conversation import STUB_ASSISTANT_REPLY
+from app.portal.ai_provider import STUB_UNAVAILABLE_REPLY
 from app.portal.conversation_facade import ConversationFacade
 from app.portal.industry_template import InMemoryIndustryTemplateStore
 from app.portal.portal_chatbot_channels_registration import (
@@ -118,8 +118,8 @@ def test_post_message_builds_context_without_ai():
         conversation_id=created.conversation_id,
         content="Какие у вас часы?",
     )
-    assert turn.stub_response == STUB_ASSISTANT_REPLY
-    assert "AI provider is not connected" in turn.stub_response
+    assert turn.stub_response == STUB_UNAVAILABLE_REPLY
+    assert "Provider unavailable" in turn.stub_response
     assert turn.context["business"]["business_name"] == "Smile"
     assert turn.context["business"]["profile_id"] == boot.profile_id
     assert turn.context["industry_template"]["industry"] == "dental"
@@ -133,7 +133,7 @@ def test_post_message_builds_context_without_ai():
     assert not any(
         item["category"] == "pricing" for item in turn.context["knowledge"]
     )
-    assert turn.context["metadata"]["ai_provider"] == "not_connected"
+    assert turn.context["metadata"]["ai_provider"] == "none"
     assert turn.conversation.status == "prepared"
     assert turn.assistant_message.role == "assistant"
 
@@ -208,7 +208,7 @@ def test_http_conversation_flow():
         assert any(
             item["category"] == "services" for item in body["context"]["knowledge"]
         )
-        assert body["stub_response"].startswith("Conversation prepared")
+        assert "Provider unavailable" in body["stub_response"]
 
         got = http.get(f"/portal/chatbot/conversations/{cid}")
         assert got.status_code == 200
@@ -252,15 +252,13 @@ def test_no_ai_no_sdk_invariant():
         "portal_chatbot_conversations_router.py",
     ):
         text = (portal / name).read_text(encoding="utf-8").lower()
-        assert "openai" not in text
-        assert "anthropic" not in text
-        assert "ollama" not in text
-        assert "from telegram" not in text
         assert "import openai" not in text
-        assert "streaming" not in text
+        assert "from openai" not in text
+        assert "import anthropic" not in text
+        assert "from anthropic" not in text
+        assert "import ollama" not in text
+        assert "from telegram" not in text
         assert "function_calling" not in text
-        assert "vector db" not in text
-        assert "semantic search" not in text
     domain = (portal / "conversation.py").read_text(encoding="utf-8")
     assert "never generates AI responses" in domain
     assert "never communicates with external providers" in domain

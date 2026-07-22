@@ -1,16 +1,21 @@
 """Business Product BP1.4 — ConversationService.
 
-Prepares ConversationContext + stub assistant reply. Never calls AI.
+Prepares ConversationContext, then asks AI Provider Layer via Protocol only.
+Never imports OpenAI/Anthropic/Ollama SDKs.
 """
 
 from __future__ import annotations
 
+from typing import Protocol
+
+from app.portal.ai_provider import STUB_UNAVAILABLE_REPLY
+from app.portal.ai_provider_protocol import AIGenerationResult
 from app.portal.business_knowledge_store import BusinessKnowledgeStore
 from app.portal.channel_connection_store import ChannelConnectionStore
 from app.portal.chatbot_business_profile_store import ChatBotBusinessProfileStore
 from app.portal.conversation import (
+    ConversationContext,
     ConversationError,
-    STUB_ASSISTANT_REPLY,
     mark_conversation_prepared,
     new_conversation,
     new_message,
@@ -32,6 +37,24 @@ from app.portal.industry_template import IndustryTemplateStore
 ENGINE_ID = "conversation_service_v1"
 
 
+class AIGenerationGateway(Protocol):
+    """Conversation Engine → Provider Layer boundary (Protocol only)."""
+
+    def generate(self, context: ConversationContext) -> AIGenerationResult: ...
+
+
+class _UnavailableGateway:
+    def generate(self, context: ConversationContext) -> AIGenerationResult:
+        return AIGenerationResult(
+            text=STUB_UNAVAILABLE_REPLY,
+            provider_type="none",
+            prepared={
+                "ready": False,
+                "conversation_id": context.conversation_id,
+            },
+        )
+
+
 class ConversationService:
     def __init__(
         self,
@@ -42,6 +65,7 @@ class ConversationService:
         knowledge: BusinessKnowledgeStore,
         channels: ChannelConnectionStore,
         templates: IndustryTemplateStore,
+        providers: AIGenerationGateway | None = None,
     ) -> None:
         self._conversations = conversations
         self._messages = messages
@@ -49,6 +73,7 @@ class ConversationService:
         self._knowledge = knowledge
         self._channels = channels
         self._templates = templates
+        self._providers = providers if providers is not None else _UnavailableGateway()
 
     def _require_profile(self, account_id: str):
         profile = self._profiles.get_for_account(account_id)
@@ -125,10 +150,13 @@ class ConversationService:
             selected_categories=selected,
         )
 
+        generation = self._providers.generate(context)
+        reply_text = generation.text
+
         assistant_msg = new_message(
             conversation_id=conversation_id,
             role="assistant",
-            content=STUB_ASSISTANT_REPLY,
+            content=reply_text,
         )
         self._messages.save(assistant_msg)
 
@@ -136,12 +164,19 @@ class ConversationService:
         self._conversations.save(prepared)
         all_messages = self._messages.list_for_conversation(conversation_id)
 
+        context_payload = context_as_dict(context)
+        context_payload["metadata"] = {
+            **context_payload.get("metadata", {}),
+            "ai_provider": generation.provider_type,
+            "provider_prepared": generation.prepared,
+        }
+
         return ConversationTurnView(
             conversation=build_conversation_view(
                 prepared, messages=all_messages
             ),
             user_message=build_message_view(user_msg),
             assistant_message=build_message_view(assistant_msg),
-            context=context_as_dict(context),
-            stub_response=STUB_ASSISTANT_REPLY,
+            context=context_payload,
+            stub_response=reply_text,
         )

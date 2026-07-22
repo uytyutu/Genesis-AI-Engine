@@ -8,6 +8,7 @@ from app.portal.business_knowledge_store import BusinessKnowledgeStore
 from app.portal.channel_connection_store import ChannelConnectionStore
 from app.portal.chatbot_business_profile_store import ChatBotBusinessProfileStore
 from app.portal.conversation_facade import ConversationFacade
+from app.portal.conversation_service import AIGenerationGateway
 from app.portal.conversation_store import ConversationStore, MessageStore
 from app.portal.industry_template import IndustryTemplateStore
 from app.portal.portal_chatbot_conversations_router import (
@@ -25,6 +26,7 @@ def register_portal_chatbot_conversations(
     knowledge: BusinessKnowledgeStore,
     channels: ChannelConnectionStore,
     templates: IndustryTemplateStore,
+    providers: AIGenerationGateway | None = None,
     conversation_store: ConversationStore | None = None,
     message_store: MessageStore | None = None,
 ) -> ConversationFacade:
@@ -35,6 +37,7 @@ def register_portal_chatbot_conversations(
         templates=templates,
         conversations=conversation_store,
         messages=message_store,
+        providers=providers,
     )
     set_conversation_facade(facade)
     app.include_router(portal_chatbot_conversations_router)

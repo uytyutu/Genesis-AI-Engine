@@ -433,7 +433,20 @@ register_portal_chatbot_channels(
     channel_store=_portal_chatbot_channel_store,
 )
 
-# Business Product BP1.4 — Conversation Engine (stub context builder)
+# AI Platform AP1.1 — Provider Layer (stub LLM abstraction)
+from app.portal.ai_provider_store import InMemoryAIProviderStore
+from app.portal.portal_chatbot_providers_registration import (
+    register_portal_chatbot_providers,
+)
+
+_portal_ai_provider_store = InMemoryAIProviderStore()
+_portal_ai_provider_facade = register_portal_chatbot_providers(
+    app,
+    store=_portal_ai_provider_store,
+    seed_stubs=True,
+)
+
+# Business Product BP1.4 — Conversation Engine (context → Provider Protocol)
 from app.portal.portal_chatbot_conversations_registration import (
     register_portal_chatbot_conversations,
 )
@@ -444,6 +457,7 @@ register_portal_chatbot_conversations(
     knowledge=_portal_chatbot_knowledge_store,
     channels=_portal_chatbot_channel_store,
     templates=_portal_chatbot_template_store,
+    providers=_portal_ai_provider_facade.manager,
 )
 
 # R4.1 / R4.2 — HTTP Login + Session cookie

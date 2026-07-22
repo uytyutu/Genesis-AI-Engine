@@ -14,7 +14,7 @@ from app.portal.channel_connection_store import (
 )
 from app.portal.chatbot_business_profile_store import ChatBotBusinessProfileStore
 from app.portal.conversation import ConversationError
-from app.portal.conversation_service import ConversationService
+from app.portal.conversation_service import AIGenerationGateway, ConversationService
 from app.portal.conversation_store import (
     ConversationStore,
     InMemoryConversationStore,
@@ -44,6 +44,7 @@ class ConversationFacade:
         templates: IndustryTemplateStore | None = None,
         conversations: ConversationStore | None = None,
         messages: MessageStore | None = None,
+        providers: AIGenerationGateway | None = None,
     ) -> ConversationFacade:
         return cls(
             _service=ConversationService(
@@ -61,6 +62,7 @@ class ConversationFacade:
                 templates=templates
                 if templates is not None
                 else InMemoryIndustryTemplateStore(),
+                providers=providers,
             )
         )
 
