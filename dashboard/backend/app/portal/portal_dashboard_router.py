@@ -1,18 +1,19 @@
-"""R3.11.1 — Dashboard Read Endpoint.
+"""R3.11.1 / R4.4 — Protected Dashboard Read Endpoint.
 
 GET /portal/websites/{website_id}/dashboard
-→ WebsiteDashboardFacade.get_dashboard → WebsiteDashboardView
+→ RequestPrincipal → AuthorizationFacade → WebsiteDashboardFacade
 
-Auth: temporary stub (always allows) until real Portal Auth.
-No write operations.
+Invariant:
+  Authentication = who · Authorization = may · Dashboard = what
 """
 
 from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
+from app.portal.authorization_facade import AuthorizationFacade
 from app.portal.website_dashboard_facade import WebsiteDashboardFacade
 from app.portal.website_dashboard_view import WebsiteDashboardView
 
@@ -20,28 +21,36 @@ ENGINE_ID = "portal_dashboard_router_v1"
 
 portal_dashboard_router = APIRouter(prefix="/portal", tags=["portal-dashboard"])
 
-_facade: WebsiteDashboardFacade | None = None
+_dash_facade: WebsiteDashboardFacade | None = None
+_authz_facade: AuthorizationFacade | None = None
 
 
 def set_website_dashboard_facade(facade: WebsiteDashboardFacade) -> None:
-    global _facade
-    _facade = facade
+    global _dash_facade
+    _dash_facade = facade
+
+
+def set_authorization_facade(facade: AuthorizationFacade) -> None:
+    global _authz_facade
+    _authz_facade = facade
 
 
 def clear_website_dashboard_facade() -> None:
-    global _facade
-    _facade = None
+    global _dash_facade, _authz_facade
+    _dash_facade = None
+    _authz_facade = None
 
 
 def get_website_dashboard_facade() -> WebsiteDashboardFacade:
-    if _facade is None:
+    if _dash_facade is None:
         raise HTTPException(status_code=503, detail="portal_dashboard_not_configured")
-    return _facade
+    return _dash_facade
 
 
-def dashboard_auth_stub() -> None:
-    """Temporary Auth stub — always allows. Replace with real Auth later."""
-    return None
+def get_authorization_facade() -> AuthorizationFacade:
+    if _authz_facade is None:
+        raise HTTPException(status_code=503, detail="portal_authorization_not_configured")
+    return _authz_facade
 
 
 @portal_dashboard_router.get(
@@ -50,10 +59,19 @@ def dashboard_auth_stub() -> None:
 )
 def http_get_dashboard(
     website_id: str,
-    facade: Annotated[WebsiteDashboardFacade, Depends(get_website_dashboard_facade)],
-    _: Annotated[None, Depends(dashboard_auth_stub)] = None,
+    request: Request,
+    dash: Annotated[WebsiteDashboardFacade, Depends(get_website_dashboard_facade)],
+    authz: Annotated[AuthorizationFacade, Depends(get_authorization_facade)],
 ) -> WebsiteDashboardView:
-    view = facade.get_dashboard(website_id)
+    account = getattr(request.state, "account", None)
+    if account is None:
+        raise HTTPException(status_code=401, detail="unauthorized")
+
+    decision = authz.check_website_access(account, website_id)
+    if not decision.is_allowed:
+        raise HTTPException(status_code=403, detail="forbidden")
+
+    view = dash.get_dashboard(website_id)
     if view is None:
         raise HTTPException(status_code=404, detail="dashboard_not_found")
     return view

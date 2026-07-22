@@ -42,6 +42,7 @@ from app.portal.authorization import (
     authorize_account_for_website,
     new_authorization_request,
 )
+from app.portal.authorization_facade import AuthorizationFacade
 from app.portal.client import Client, new_client, website_for_client
 from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.edit_session import EditSession, close_edit_session, new_edit_session
@@ -115,6 +116,7 @@ __all__ = [
     "AuthenticationFacade",
     "AuthenticationResult",
     "AUTHORIZATION_FUTURE_ROLES",
+    "AuthorizationFacade",
     "AuthorizationRequest",
     "AuthorizationResult",
     "Client",
