@@ -16,7 +16,7 @@
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
-| Mission 5 | Premium Workspace / Platform Expansion | Later |
+| **Mission 5** | Website Settings → Domain → Analytics → ChatBot → CRM | **OPEN** · NEXT = R5.1 |
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
 
@@ -102,8 +102,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 
 **R4.1 out of scope:** Session · Cookie · JWT · Middleware · Protected routes.
 
-**Not now:** full CRM · Billing · Marketplace modules (atop Platform v1).  
-**Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
+**Not now (until R5.1+):** full CRM · Billing · Marketplace · Domain UI.  
+**Backlog until later slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
 
 **Backlog (tech debt — not bugs, not R3.2 blockers):**
 - Restaurant Showcase Pack (dedicated stills; generic food-retail OK for now)
@@ -291,7 +291,8 @@ _(none yet — first real traffic / payment opens Entry 1)_
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
 Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain foundation for Portal / Identity.  
 **R4.1–R4.6 PASS ✅** · **Mission 4 / Portal Platform v1 CLOSED** (CEO 2026-07-22).  
-**Next (product modules atop platform):** Website Settings · CRM · Analytics · ChatBot · …  
+**Portal Platform v1 — Accepted for Expansion** (CEO 2026-07-22).  
+**Next:** Mission 5 · **R5.1 Website Settings — Basic Profile** (scope lock; no code until open).  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **Infra review lenses:** Architecture · Security · Product (CEO).  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
@@ -819,4 +820,100 @@ Login · Session · Middleware · Protected Dashboard · Logout.
 ### Mission 4 / Portal Platform v1 — CLOSED ✅ (CEO 2026-07-22)
 
 R4.1–R4.6 complete. Identity (Mission 3) + Infrastructure (Mission 4) = Minimum Complete User Journey.  
-Further work = **modules on the platform** (Settings, CRM, Analytics, ChatBot, …) using AuthN → AuthZ → ModuleFacade.
+Further work = **modules on the platform** using AuthN → AuthZ → ModuleFacade.
+
+### Portal Platform v1 — Accepted for Expansion ✅ (CEO 2026-07-22)
+
+| Stage | Status |
+|-------|--------|
+| Mission 3: Identity Foundation | **CLOSED** |
+| Mission 4: Portal Platform v1 | **CLOSED** |
+| Platform status | **Accepted for Expansion** |
+
+#### Platform Invariant (binding)
+
+Every Portal module **MUST** use platform services:
+
+- Authentication  
+- Authorization  
+- Session  
+- Ownership  
+
+Portal modules **MUST NOT** implement their own authentication, authorization, session, or ownership logic.
+
+#### Standard module flow
+
+```text
+Authentication
+    ↓
+Authorization
+    ↓
+ModuleFacade
+    ↓
+Module
+```
+
+#### Mission 5 order (product)
+
+1. **Website Settings** — first module (validates platform template)  
+2. **Domain Management**  
+3. **Analytics** (read-only first)  
+4. **ChatBot** (first Marketplace module)  
+5. **CRM** — after module infrastructure is proven  
+
+**Why not CRM first:** large domain; must not dictate platform architecture.
+
+### Mission 5 — OPEN · R5.1 Scope Lock (CEO 2026-07-22)
+
+**Mission:** Website Settings  
+**Slice:** R5.1 — Website Settings — Basic Profile  
+**Status:** Scope locked · **implementation not started**
+
+#### R5.1 — allowed fields only
+
+| Field | In R5.1 |
+|-------|---------|
+| Website Name | ✅ |
+| Company Name | ✅ |
+| Contact Email | ✅ |
+| Phone | ✅ |
+| Social Links | ✅ |
+
+#### R5.1 — forbidden
+
+SEO · Theme · Branding · Colors · Favicon · Logo · Domain Management · Analytics · CRM · ChatBot · Billing · Permissions · new AuthN/AuthZ/Session/Ownership
+
+#### Scope Lock (binding for R5.1 implementation)
+
+```text
+Работай только внутри:
+dashboard/backend/app/portal/
+
+Mission: R5.1 — Website Settings — Basic Profile
+
+Flow:
+Authentication
+    ↓
+Authorization
+    ↓
+WebsiteSettingsFacade
+    ↓
+WebsiteSettings Domain
+    ↓
+GET /settings
+PUT /settings
+
+Разрешено:
+- WebsiteSettingsFacade
+- WebsiteSettings View
+- WebsiteSettings Update
+- Website Name · Company Name · Contact Email · Phone · Social Links
+
+Запрещено:
+- SEO · Theme · Branding · Analytics · CRM · ChatBot · Billing
+- Domain Management · Permissions
+- own AuthN / AuthZ / Session / Ownership
+```
+
+**Product meaning:** after R5.1 the user can **change** something in their product — Portal becomes a tool, not only infrastructure.  
+**Next gate:** CEO opens R5.1 implementation → then code · tests · Architecture/Security/Product review.
