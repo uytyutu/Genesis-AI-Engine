@@ -30,6 +30,7 @@ from app.portal.views import (
 )
 from app.portal.portal_dashboard_registration import register_portal_dashboard
 from app.portal.portal_dashboard_router import portal_dashboard_router
+from app.portal.website_catalog import load_portal_catalog_from_factory_sandbox
 from app.portal.website_dashboard_facade import WebsiteDashboardFacade
 from app.portal.website_dashboard_query import WebsiteDashboardQuery
 from app.portal.website_dashboard_view import WebsiteDashboardView, build_website_dashboard_view
@@ -73,6 +74,7 @@ __all__ = [
     "close_edit_session",
     "compose_portal_read",
     "is_portal_feature_enabled",
+    "load_portal_catalog_from_factory_sandbox",
     "new_asset",
     "new_client",
     "new_deployment",

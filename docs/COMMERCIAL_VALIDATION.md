@@ -73,8 +73,9 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.10.2** | **Website Dashboard Query** | **PASS** · `412638b` |
 | → ✅ **R3.10.3** | **Website Dashboard Facade** | **PASS** · `9bff27e` |
 | ✅ **R3.10** | **Portal Dashboard Stack** | **CLOSED** (CEO 2026-07-22) |
-| **R3.11** | **Portal Dashboard API** | **OPEN** |
-| → **R3.11.1** | **Dashboard Read Endpoint** | **DONE (code)** — await CEO review |
+| ✅ **R3.11** | **Portal Dashboard API** | **CLOSED** (CEO 2026-07-22) |
+| → ✅ **R3.11.1** | **Dashboard Read Endpoint** | **PASS** · `51bbfb9` |
+| → ✅ **R3.11.2** | **Dashboard Endpoint Integration** | **PASS** · `248e565` |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -263,7 +264,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.10 CLOSED ✅** · **NEXT = R3.11.1 Dashboard Read Endpoint**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **NEXT = Account & Activation** (separate series).
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -624,9 +625,24 @@ No FastAPI · Auth · UI · writes.
 
 Facade · Query · View (+ WebsiteView / DeploymentView). Ready for first HTTP read.
 
-### R3.11.1 — Dashboard Read Endpoint — DONE (code)
+### R3.11.1 — Dashboard Read Endpoint — PASS ✅ (CEO 2026-07-22)
 
-**Modules:** `portal_dashboard_router.py` · `portal_dashboard_registration.py`  
+**Modules:** `portal_dashboard_router.py` · `portal_dashboard_registration.py` · commit `51bbfb9`.  
 **Endpoint:** `GET /portal/websites/{website_id}/dashboard` → `WebsiteDashboardView`  
 **Uses:** only `WebsiteDashboardFacade` · Auth stub (always allows) · mounted via `register_portal_dashboard(app)` in `main.py`.  
 **Not in R3.11.1:** write APIs · real Auth · UI.
+
+**Backlog:** unify Dashboard mount under `PortalIntegrationProfile` (one activation strategy for all Portal surfaces).
+
+### R3.11.2 — Dashboard Endpoint Integration — PASS ✅ (CEO 2026-07-22)
+
+**Module:** `dashboard/backend/app/portal/website_catalog.py`  
+**Loader:** `load_portal_catalog_from_factory_sandbox()` maps Factory `meta.json` → `PortalCatalog`.  
+**Registration** defaults to that catalog (override still allowed). Dashboard returns real Website data.  
+**Not in R3.11.2:** Auth activation flow · Portal password · UI · write.
+
+**Architecture note:** sandbox loader = temporary **adapter** into `PortalCatalog`; future DB/cloud adapters should replace it without touching Facade/Query/HTTP.
+
+### R3.11 — Portal Dashboard API — CLOSED ✅
+
+First live HTTP read · Factory → Portal path · real data. Next series: **Account & Activation**.
