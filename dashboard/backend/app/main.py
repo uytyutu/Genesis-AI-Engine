@@ -309,6 +309,11 @@ from app.portal.portal_website_domain_registration import (
 
 register_portal_website_domain(app)
 
+# R5.4 — ChatBot Integration (integration ModuleFacade · stub adapter)
+from app.portal.portal_chatbot_registration import register_portal_chatbot
+
+register_portal_chatbot(app)
+
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
 

@@ -107,10 +107,22 @@ from app.portal.portal_website_domain_registration import (
     register_portal_website_domain,
 )
 from app.portal.portal_website_domain_router import portal_website_domain_router
+from app.portal.portal_chatbot_registration import register_portal_chatbot
+from app.portal.portal_chatbot_router import portal_chatbot_router
 from app.portal.analytics import AnalyticsOverview, empty_analytics_overview
 from app.portal.analytics_facade import AnalyticsFacade
 from app.portal.analytics_store import InMemoryAnalyticsStore
 from app.portal.analytics_view import AnalyticsOverviewView
+from app.portal.chatbot import (
+    ChatBotConnection,
+    ChatBotConnectionUpdate,
+    apply_chatbot_connection_update,
+    empty_chatbot_connection,
+)
+from app.portal.chatbot_facade import ChatBotFacade
+from app.portal.chatbot_integration_adapter import StubChatBotIntegrationAdapter
+from app.portal.chatbot_store import InMemoryChatBotStore
+from app.portal.chatbot_view import ChatBotView
 from app.portal.website_domain import (
     WebsiteDomain,
     WebsiteDomainUpdate,
@@ -185,11 +197,19 @@ __all__ = [
     "AnalyticsFacade",
     "AnalyticsOverview",
     "AnalyticsOverviewView",
+    "ChatBotConnection",
+    "ChatBotConnectionUpdate",
+    "ChatBotFacade",
+    "ChatBotView",
     "RequestPrincipal",
     "register_portal_authentication_middleware",
     "InMemoryAnalyticsStore",
+    "InMemoryChatBotStore",
     "InMemoryWebsiteDomainStore",
+    "StubChatBotIntegrationAdapter",
+    "apply_chatbot_connection_update",
     "empty_analytics_overview",
+    "empty_chatbot_connection",
     "empty_website_domain",
     "apply_website_domain_update",
     "Session",
@@ -249,6 +269,7 @@ __all__ = [
     "new_website_invitation",
     "ownership_for_account_website",
     "portal_analytics_router",
+    "portal_chatbot_router",
     "portal_dashboard_router",
     "portal_lifecycle_snapshot",
     "portal_login_router",
@@ -258,6 +279,7 @@ __all__ = [
     "portal_website_settings_router",
     "refresh_expiry_status",
     "register_portal_analytics",
+    "register_portal_chatbot",
     "register_portal_dashboard",
     "register_portal_login",
     "register_portal_read",
