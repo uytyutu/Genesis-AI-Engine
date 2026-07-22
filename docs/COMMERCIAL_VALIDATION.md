@@ -16,7 +16,7 @@
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
-| **Mission 5** | Settings → Analytics → Domain → ChatBot → CRM | **OPEN** · R5.3 PASS · NEXT = R5.4 ChatBot (not opened) |
+| **Mission 5** | Settings → Analytics → Domain → ChatBot → CRM | **R5.4 PASS** · Module Standard wave 1 complete · NEXT = Mission 6 Product Platform (not opened) — not CRM |
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
 
@@ -295,8 +295,9 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **R5.1 PASS ✅** · **Module Architecture** established (CEO 2026-07-22) · `7db23a0`.  
 **R5.2 PASS ✅** · Analytics Overview (Read-only) · `ba39b43` · Write+Read blueprints confirmed.  
 **R5.3 PASS ✅** · `f1c15fc` · Module Standard formed (Write+Read+Resource State).  
-**Next:** **R5.4 ChatBot** (Marketplace/External · not opened).  
-**Review lenses:** Architecture · Security · Product · Repeatability · **Evolutionary contract**.  
+**R5.4 PASS ✅** · `92ce896` · Integration Module confirmed; Mission 5 initial goal achieved (Write+Read+Resource+Integration).  
+**Next:** Mission 6 Product Platform (planned, not opened).  
+**Review lenses:** Architecture · Security · Product · Repeatability · **Integration Boundary**.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -861,7 +862,7 @@ Module
 1. **Website Settings** (R5.1) — write module ✅  
 2. **Analytics** (R5.2) — read-only module · **PASS ✅** · `ba39b43`  
 3. **Website Domain Management** (R5.3) — resource-state module · **PASS ✅** · `f1c15fc`  
-4. **ChatBot** (R5.4) — connectable Marketplace module  
+4. **ChatBot Integration** (R5.4) — integration module · **PASS ✅** · `92ce896`  
 5. **CRM** (R5.5) — complex business module  
 
 **Why not CRM first:** large domain; must not dictate platform architecture.  
@@ -1036,7 +1037,7 @@ GET /portal/websites/{website_id}/analytics
 
 **Commit:** `f1c15fc` · Module Standard formed (Write+Read+Resource State).  
 **Lenses:** Architecture · Security · Product · Repeatability · **Evolutionary contract** — all PASS.  
-**Next:** R5.4 ChatBot (Marketplace/External · not opened).
+**Next:** Mission 6 Product Platform (planned · not opened).
 
 **Extra lens:** Evolutionary contract — same API must stay valid when Store later gains DNS/SSL/provider backends.
 
@@ -1077,5 +1078,60 @@ PUT /portal/websites/{website_id}/domain
 ### Module Standard — formed ✅ (CEO 2026-07-22)
 
 ```text
-Write ✓  Read ✓  Resource State ✓  →  Next ChatBot (Marketplace/External)
+✓ Write ✓ Read ✓ Resource State ✓ Integration
+Mission 5 initial goal ACHIEVED
+Next: Mission 6 — Product Platform (planned · not opened)
+Not now: CRM as next slice
 ```
+
+### R5.4 — ChatBot Integration · PASS ✅ · `92ce896` (CEO 2026-07-22)
+
+**Purpose:** prove Module Blueprint for an **Integration Module** (external provider behind a boundary).  
+**Not** AI chat — only connection configuration.  
+**Endpoints:** `GET|PUT /portal/websites/{website_id}/chatbot`  
+**Fields:** enabled · provider · status · assistant_id · updated_at  
+
+**Extra lens:** Integration Boundary — provider must not leak into Platform / Domain / Router.  
+**Integration Boundary:** **PASS**.  
+**Commit:** `92ce896` · Integration Module confirmed; Mission 5 initial goal achieved.  
+**Adapter:** `ChatBotIntegrationAdapter` + `StubChatBotIntegrationAdapter` (no network).
+
+**Forbidden in R5.4:** OpenAI/API calls · API keys · chat UI · message history · RAG · embeddings · streaming · tools · marketplace UI.
+
+#### Scope Lock
+
+```text
+Работай только внутри:
+dashboard/backend/app/portal/
+(+ minimal wiring in main.py)
+
+Mission: R5.4 — ChatBot Integration
+
+Flow:
+Authentication
+    ↓
+Authorization
+    ↓
+ChatBotFacade
+    ↓
+ChatBot Domain + Store
+    ↓
+ChatBotIntegrationAdapter (stub today)
+    ↓
+Provider (future)
+
+GET /portal/websites/{website_id}/chatbot
+PUT /portal/websites/{website_id}/chatbot
+
+Разрешено:
+- ChatBot Domain · Store · View · Facade · Router · Registration
+- Integration Adapter Protocol + Stub
+- enabled · provider · status · assistant_id
+
+Запрещено:
+- Real OpenAI/API calls · API keys · chat UI · history
+- RAG · embeddings · streaming · tools · marketplace UI
+- own AuthN/AuthZ/Session/Ownership
+```
+
+**Note:** Website-scoped chatbot routes (`/portal/websites/{website_id}/chatbot`) are OK for now; future Product Ownership may elevate ChatBot to a standalone product without rewriting the Module Blueprint.
