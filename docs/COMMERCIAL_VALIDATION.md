@@ -24,7 +24,7 @@
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
-| **Product Track** | First Run → Knowledge UI → Channels UX → Dashboard → Website | **PT1.1–1.3 PASS** ✅ · NEXT = PT1.4 Vector Dashboard (not opened) |
+| **Product Track** | First Run → Knowledge → Channels → Dashboard | **Iteration 1 CLOSED** ✅ (CEO 2026-07-22) · PT1.1–1.4 PASS · NEXT = PT2 Daily Operations (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -331,7 +331,9 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Product Track PT1.1 — PASS ✅** (CEO 2026-07-22) · Vector First Run Experience (orchestrator only · no new domain models).  
 **Product Track PT1.2 — PASS ✅** (CEO 2026-07-22) · Knowledge Management UI · Knowledge Workspace opened for owners.  
 **Product Track PT1.3 — PASS ✅** (CEO 2026-07-22) · Channel Setup UX · Vector Workspace path prepared (First Run → Knowledge → Channels).  
-**Not opened:** PT1.4 Vector Dashboard · AP2.2 Streaming · Marketplace · real channel SDKs.  
+**Product Track PT1.4 — PASS ✅** (CEO 2026-07-22) · Vector Dashboard (aggregate only · no business logic).  
+**Product Track Iteration 1 — CLOSED ✅** (CEO 2026-07-22) · First Run · Knowledge Workspace · Channel Setup · Vector Dashboard.  
+**Not opened:** PT2 Daily Operations · PT1.5 Workspace Polish · AP2.2 Streaming · Marketplace · real channel SDKs.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
@@ -2218,9 +2220,7 @@ Knowledge Management UI never communicates with providers.
 **Knowledge Workspace:** owner can maintain facts daily without developer help; readiness % guides fill completeness.  
 **Forbidden:** new domain models · AI generation · Prompt & Policy edits · provider calls.
 
-**Horizon (not opened):** PT1.4 Vector Dashboard → PT1.5 Virtus Core Premium Website.
-
-**Horizon (not opened):** PT1.4 Vector Dashboard → PT1.5 Virtus Core Premium Website.
+**Horizon (not opened):** PT1.5 Vector Workspace Polish → Virtus Core Premium Website.
 
 ### Product Track PT1.3 — Channel Setup UX · PASS ✅ (CEO 2026-07-22)
 
@@ -2241,4 +2241,41 @@ Channel Setup UI never modifies Conversation Engine.
 **Vector Workspace (prepared):** Activate → First Run → Knowledge → Channels — ready for PT1.4 Dashboard aggregation.  
 **Forbidden:** Telegram/WhatsApp/Meta SDKs · message send/receive · Conversation Engine changes · new domain models.
 
-**Horizon (not opened):** PT1.4 Vector Dashboard → PT1.5 Virtus Core Premium Website.
+**Horizon (not opened):** PT1.5 Vector Workspace Polish → Virtus Core Premium Website.
+
+### Product Track PT1.4 — Vector Dashboard · PASS ✅ (CEO 2026-07-22)
+
+```text
+Vector Dashboard
+  ├── Business Status
+  ├── Knowledge Readiness
+  ├── Channel Readiness
+  ├── AI Provider (display)
+  ├── Quick Actions
+  └── Recent Activity
+```
+
+**Invariant:**
+```text
+Vector Dashboard aggregates platform state.
+Vector Dashboard never owns business logic.
+Vector Dashboard never edits Business Knowledge.
+Vector Dashboard never edits Channel Connections.
+Vector Dashboard never communicates with AI providers.
+```
+
+**Surface:** `/projects/chatbot` · reads profile · knowledge · channels · providers; Quick Actions link to existing screens.  
+**Forbidden:** duplicate editors · provider generate calls · new domain models · channel SDKs.
+
+### Product Track Iteration 1 — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+PT1.1 First Run
+PT1.2 Knowledge Workspace
+PT1.3 Channel Setup
+PT1.4 Vector Dashboard
+```
+
+**User path:** Purchase → Activate → First Run → Knowledge → Channels → Dashboard.  
+**Boundary:** First finished owner product loop for Vector. Further Product Track work = daily operations (PT2), not reopening setup foundations.  
+**Horizon (not opened):** PT2.1 Conversation Inbox → PT2.2 Customer Timeline → PT2.3 Knowledge Suggestions → PT2.4 Business Insights · AI Track AP2.2+.
