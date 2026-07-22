@@ -2532,6 +2532,17 @@ Operator Approval
 Outbound Message
 ```
 
-**Goal:** First owned channel · commercial / operational proof · full Gen1 path with live visitors.  
-**Still closed:** Streaming · Tool Calling · RAG — until live traffic shows what is needed.  
-**Product focus after IT1.1:** понял → купил → подключился → получил результат.
+**Goal:** First owned channel · commercial / operational proof · full Gen1 path with live visitors.
+
+**Scope Lock (CEO 2026-07-22):**
+```text
+IN:  Widget UI · embed on client site · Conversation create/bind
+     · Conversation Engine (existing) · Streaming UI (if backend ready)
+     · Conversation Workspace · AI Review · Business Actions · Outbound
+OUT: Telegram · Instagram · WhatsApp · Tool Calling · RAG · Memory
+     · new AI capabilities
+```
+
+**Still closed (platform tracks):** AP2.2 / Tool Calling / RAG as separate tracks.  
+**Product focus after IT1.1:** понял → купил → подключился → получил результат · first pilots.  
+**Next chat role:** Product CTO (user path · commercial value · UX) — not platform rewrite.
