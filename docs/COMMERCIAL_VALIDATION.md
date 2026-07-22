@@ -77,9 +77,9 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.11.1** | **Dashboard Read Endpoint** | **PASS** · `51bbfb9` |
 | → ✅ **R3.11.2** | **Dashboard Endpoint Integration** | **PASS** · `121d8f9` |
 | **R3.12** | **Account & Activation** | **OPEN** (CEO roadmap 2026-07-22) |
-| → ✅ **R3.12.1** | **Account Ownership Architecture** | **PASS** · `83c8c56` |
-| → **R3.12.2** | **Activation Token Domain** | **NEXT** |
-| → **R3.12.3** | **Password Creation** | planned |
+| → ✅ **R3.12.1** | **Account Ownership Architecture** | **PASS** · `83c8c56` · **CLOSED** |
+| → ✅ **R3.12.2** | **Activation Token Domain** | **PASS** — await commit hash |
+| → **R3.12.3** | **Password Creation** | **NEXT** (after R3.12.2 review) |
 | → **R3.12.4** | **Authentication** | planned |
 | → **R3.12.5** | **Dashboard Access** (Account ↔ Website) | planned |
 
@@ -270,7 +270,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **R3.12.1 PASS ✅** · **NEXT = R3.12.2 Activation Token Domain**.  
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.11 CLOSED ✅** · **R3.12.1 CLOSED ✅** · **R3.12.2 DONE (code)** — await CEO review · **THEN = R3.12.3 Password Creation**.  
 **R3.12 report rule:** each slice includes **Security Impact** + **Upgrade Path** + **Future Roles** (where relevant).
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
@@ -668,3 +668,11 @@ Each R3.12 report: **Security Impact** · **Upgrade Path** · **Future Roles** (
 **Not in R3.12.1:** Auth · password · JWT · HTTP · SMTP · Activation Token.
 
 **Next:** R3.12.2 Activation Token Domain (domain only — no email/HTTP).
+
+### R3.12.2 — Activation Token Domain — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/activation_token.py`  
+**Entity:** `ActivationToken` bound to `Account.account_id`  
+**Lifecycle:** `created` → `active` → `used` | `expired` | `revoked`  
+**Invariants:** one-shot consume · future `expires_at` · terminal states immutable  
+**Not in R3.12.2:** email · SMTP · HTTP · links · password · JWT · UI.

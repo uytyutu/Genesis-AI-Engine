@@ -11,6 +11,17 @@ from app.portal.account_ownership_architecture import (
     ENGINE_ID as ACCOUNT_OWNERSHIP_ARCHITECTURE_ENGINE_ID,
     OWNERSHIP_FUTURE_ROLES,
 )
+from app.portal.activation_token import (
+    ActivationToken,
+    ActivationTokenError,
+    activate_token,
+    consume_token,
+    expire_token,
+    is_usable,
+    new_activation_token,
+    refresh_expiry_status,
+    revoke_token,
+)
 from app.portal.asset import Asset, new_asset
 from app.portal.client import Client, new_client, website_for_client
 from app.portal.deployment import Deployment, attach_deployment, new_deployment
@@ -58,6 +69,8 @@ from app.portal.website import OrderWebsiteRef, Website, new_website
 __all__ = [
     "ACCOUNT_OWNERSHIP_ARCHITECTURE_ENGINE_ID",
     "Account",
+    "ActivationToken",
+    "ActivationTokenError",
     "Asset",
     "AssetQuery",
     "AssetView",
@@ -91,14 +104,19 @@ __all__ = [
     "WebsiteReadQuery",
     "WebsiteView",
     "account_ids_for_website",
+    "activate_token",
     "attach_deployment",
     "build_website_dashboard_view",
     "close_edit_session",
     "compose_portal_read",
+    "consume_token",
+    "expire_token",
     "grant_website_ownership",
     "is_portal_feature_enabled",
+    "is_usable",
     "load_portal_catalog_from_factory_sandbox",
     "new_account",
+    "new_activation_token",
     "new_asset",
     "new_client",
     "new_deployment",
@@ -110,9 +128,11 @@ __all__ = [
     "portal_lifecycle_snapshot",
     "portal_read_router",
     "portal_registration_snapshot",
+    "refresh_expiry_status",
     "register_portal_dashboard",
     "register_portal_read",
     "resolve_portal_lifecycle_state",
+    "revoke_token",
     "teardown_portal_read",
     "website_for_client",
     "website_ids_for_account",
