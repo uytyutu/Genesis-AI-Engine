@@ -92,15 +92,66 @@ _SEED_PROFILES: tuple[MarketProfile, ...] = (
         legal_footer_keys=("privacy", "contact"),
         legal_page_slugs=("privacy.html", "#contact"),
     ),
+    # R3.4.2.3 — expansion via Registry only (no Factory logic changes)
+    MarketProfile(
+        market_code="FR",
+        label="France",
+        language="fr",
+        currency="EUR",
+        locale="fr_FR",
+        phone_format="+33",
+        address_format="FR",
+        default_cta="Prendre rendez-vous",
+        business_hours="Lun–Ven",
+        legal_footer_keys=("mentions_legales", "confidentialite"),
+        legal_page_slugs=("mentions-legales.html", "confidentialite.html"),
+    ),
+    MarketProfile(
+        market_code="NL",
+        label="Netherlands",
+        language="nl",
+        currency="EUR",
+        locale="nl_NL",
+        phone_format="+31",
+        address_format="NL",
+        default_cta="Afspraak maken",
+        business_hours="Ma–Vr",
+        legal_footer_keys=("privacy", "contact"),
+        legal_page_slugs=("privacy.html", "#contact"),
+    ),
+    MarketProfile(
+        market_code="AT",
+        label="Austria",
+        language="de",
+        currency="EUR",
+        locale="de_AT",
+        phone_format="+43",
+        address_format="AT",
+        default_cta="Termin buchen",
+        business_hours="Mo–Fr",
+        legal_footer_keys=("impressum", "datenschutz"),
+        legal_page_slugs=("impressum.html", "datenschutz.html"),
+    ),
+    MarketProfile(
+        market_code="ES",
+        label="Spain",
+        language="es",
+        currency="EUR",
+        locale="es_ES",
+        phone_format="+34",
+        address_format="ES",
+        default_cta="Pedir cita",
+        business_hours="Lun–Vie",
+        legal_footer_keys=("aviso_legal", "privacidad"),
+        legal_page_slugs=("aviso-legal.html", "privacidad.html"),
+    ),
 )
 
 
 def _ensure_registry_seeded() -> None:
-    """Idempotent seed into DEFAULT_REGISTRY (no behavior change for callers)."""
+    """Idempotent seed into DEFAULT_REGISTRY (register/overwrite seed rows)."""
     from app.factory.market_registry import DEFAULT_REGISTRY
 
-    if DEFAULT_REGISTRY.codes():
-        return
     for profile in _SEED_PROFILES:
         DEFAULT_REGISTRY.register(profile)
 
@@ -207,6 +258,27 @@ _LEGAL_LABELS: dict[str, dict[str, str]] = {
         "privacy": "Конфіденційність",
         "terms": "Умови",
         "contact": "Контакти",
+    },
+    "fr": {
+        "mentions_legales": "Mentions légales",
+        "confidentialite": "Confidentialité",
+        "privacy": "Confidentialité",
+        "terms": "Conditions",
+        "contact": "Contact",
+    },
+    "nl": {
+        "privacy": "Privacy",
+        "terms": "Voorwaarden",
+        "contact": "Contact",
+        "impressum": "Colofon",
+        "datenschutz": "Privacy",
+    },
+    "es": {
+        "aviso_legal": "Aviso legal",
+        "privacidad": "Privacidad",
+        "privacy": "Privacidad",
+        "terms": "Términos",
+        "contact": "Contacto",
     },
 }
 

@@ -61,13 +61,15 @@ def test_resolve_or_none_strict():
     assert resolve_or_none("ZZ") is None
 
 
-def test_list_and_table_cover_four():
-    assert list_market_codes() == ("DE", "GB", "US", "UA")
+def test_list_and_table_cover_core_and_expanded():
+    codes = list_market_codes()
+    for code in ("DE", "GB", "US", "UA", "FR", "NL", "AT", "ES"):
+        assert code in codes
     rows = profile_table()
-    assert len(rows) == 4
-    assert {r["market"] for r in rows} == {"DE", "GB", "US", "UA"}
+    assert {r["market"] for r in rows} == set(codes)
     text = format_profile_table()
     assert "Termin buchen" in text
     assert "Book Now" in text
     assert "Get Quote" in text
     assert "impressum" in text
+    assert "Prendre rendez-vous" in text

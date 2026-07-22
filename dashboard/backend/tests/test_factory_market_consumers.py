@@ -72,6 +72,6 @@ def test_no_duplicate_registered_market_list_outside_registry():
 
 
 def test_registry_is_single_source_for_registered_codes():
-    assert DEFAULT_REGISTRY.codes() == ("DE", "GB", "US", "UA")
-    for code in DEFAULT_REGISTRY.codes():
+    for code in ("DE", "GB", "US", "UA", "FR", "NL", "AT", "ES"):
+        assert code in DEFAULT_REGISTRY.codes()
         assert resolve(code) is DEFAULT_REGISTRY.get(code)

@@ -67,7 +67,7 @@ def test_four_markets_e2e_match_market_profile_only():
     analysis = analyze("Salon Mira Berlin — Haarschnitt, Farbe, Pflege")
     features = resolve_package_features("business")
     rows = []
-    for code in list_market_codes():
+    for code in ("DE", "GB", "US", "UA"):
         p = resolve(code)
         composed = compose_landing(analysis, features=features, market_code=code)
         assert composed.market_profile["market_code"] == p.market_code

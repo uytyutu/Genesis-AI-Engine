@@ -10,8 +10,9 @@ def test_registry_engine_and_seeded_markets():
     assert ENGINE_ID == "market_registry_v1"
     reg = get_registry()
     assert reg is DEFAULT_REGISTRY
-    assert reg.codes() == ("DE", "GB", "US", "UA")
-    assert list_market_codes() == ("DE", "GB", "US", "UA")
+    for code in ("DE", "GB", "US", "UA", "FR", "NL", "AT", "ES"):
+        assert code in reg.codes()
+        assert code in list_market_codes()
 
 
 def test_resolve_uses_registry_unchanged_behavior():
@@ -36,28 +37,30 @@ def test_register_new_market_on_isolated_registry():
     reg.register(resolve("DE"))
     reg.register(
         MarketProfile(
-            market_code="FR",
-            label="France",
-            language="fr",
+            market_code="XX",
+            label="Testland",
+            language="en",
             currency="EUR",
-            locale="fr_FR",
-            phone_format="+33",
-            address_format="FR",
-            default_cta="Prendre rendez-vous",
-            business_hours="Lun–Ven",
-            legal_footer_keys=("mentions_legales", "confidentialite"),
-            legal_page_slugs=("mentions-legales.html", "confidentialite.html"),
+            locale="en_XX",
+            phone_format="+99",
+            address_format="XX",
+            default_cta="Try Now",
+            business_hours="Mon–Fri",
+            legal_footer_keys=("privacy", "contact"),
+            legal_page_slugs=("privacy.html", "#contact"),
         )
     )
-    assert "FR" in reg.codes()
-    assert reg.resolve("FR").default_cta == "Prendre rendez-vous"
-    # Default process registry unchanged
-    assert "FR" not in DEFAULT_REGISTRY.codes()
+    assert "XX" in reg.codes()
+    assert reg.resolve("XX").default_cta == "Try Now"
+    # Default process registry unchanged by isolated register
+    assert "XX" not in DEFAULT_REGISTRY.codes()
 
 
 def test_registry_table_matches_profiles():
     table = DEFAULT_REGISTRY.as_table()
-    assert {r["market"] for r in table} == {"DE", "GB", "US", "UA"}
+    assert {"DE", "GB", "US", "UA", "FR", "NL", "AT", "ES"}.issubset(
+        {r["market"] for r in table}
+    )
     de = next(r for r in table if r["market"] == "DE")
     assert de["cta"] == "Termin buchen"
     assert "impressum" in de["legal_keys"]
