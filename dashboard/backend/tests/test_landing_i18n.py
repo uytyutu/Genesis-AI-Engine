@@ -1,4 +1,8 @@
-"""Factory landing HTML language follows market_code (Mission 1 delivery quality)."""
+"""Factory landing HTML language follows market_code (Mission 1 delivery quality).
+
+R3.4.1.R: after R3.3 Navigation Gate, header is section links + one CTA only —
+do not assert Reviews/Kundenstimmen in nav (those belong in body sections when enabled).
+"""
 
 from __future__ import annotations
 
@@ -35,8 +39,9 @@ def test_de_landing_chrome_german() -> None:
     assert 'lang="de"' in html
     assert "Leistungen" in html
     assert "Anfrage senden" in html
-    assert "Kundenstimmen" in html
     assert "Impressum" in html
+    # Navigation Gate: marketing/review labels are not header chrome
+    assert 'href="#reviews"' not in html.split('<nav class="topbar"', 1)[-1].split("</nav>", 1)[0]
 
 
 def test_gb_landing_chrome_english() -> None:
@@ -44,10 +49,11 @@ def test_gb_landing_chrome_english() -> None:
     assert 'lang="en"' in html
     assert "Services" in html
     assert "Send request" in html
-    assert "Reviews" in html
     assert "Privacy" in html
     assert "Leistungen" not in html
     assert "Anfrage senden" not in html
+    nav = html.split('<nav class="topbar"', 1)[-1].split("</nav>", 1)[0]
+    assert "Reviews" not in nav
 
 
 def test_ua_landing_chrome_ukrainian() -> None:
@@ -55,8 +61,9 @@ def test_ua_landing_chrome_ukrainian() -> None:
     assert 'lang="uk"' in html
     assert "Послуги" in html
     assert "Надіслати" in html
-    assert "Відгуки" in html
     assert "Конфіденційність" in html
+    nav = html.split('<nav class="topbar"', 1)[-1].split("</nav>", 1)[0]
+    assert "Відгуки" not in nav
 
 
 def test_ru_landing_chrome_russian() -> None:
@@ -64,7 +71,8 @@ def test_ru_landing_chrome_russian() -> None:
     assert 'lang="ru"' in html
     assert "Услуги" in html
     assert "Отправить" in html
-    assert "Отзывы" in html
+    nav = html.split('<nav class="topbar"', 1)[-1].split("</nav>", 1)[0]
+    assert "Отзывы" not in nav
 
 
 def test_ui_strings_required_keys() -> None:
