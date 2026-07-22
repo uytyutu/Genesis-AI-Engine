@@ -370,12 +370,23 @@ _portal_license_facade = register_portal_licenses(
     license_store=_portal_license_store,
 )
 
-# Commercial Platform 6.4 — Purchases → License → Activation
+# Commercial Platform 6.6 — Billing (financial ledger only)
+from app.portal.billing_store import InMemoryBillingStore
+from app.portal.portal_billing_registration import register_portal_billing
+
+_portal_billing_store = InMemoryBillingStore()
+_portal_billing_facade = register_portal_billing(
+    app,
+    store=_portal_billing_store,
+)
+
+# Commercial Platform 6.4 — Purchases → Billing → License → Activation
 from app.portal.portal_purchase_registration import register_portal_purchases
 
 register_portal_purchases(
     app,
     licenses=_portal_license_facade,
+    billing=_portal_billing_facade,
     catalog=_portal_product_catalog_store,
 )
 

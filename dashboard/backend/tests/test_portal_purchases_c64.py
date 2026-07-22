@@ -8,8 +8,12 @@ from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
 from app.portal.account import new_account
+from app.portal.billing_facade import BillingFacade
+from app.portal.billing_store import InMemoryBillingStore
 from app.portal.license_facade import LicenseFacade
 from app.portal.license_store import InMemoryLicenseStore
+from app.portal.portal_billing_registration import register_portal_billing
+from app.portal.portal_billing_router import clear_billing_facade
 from app.portal.portal_my_products_registration import register_portal_my_products
 from app.portal.portal_my_products_router import clear_product_ownership_facade
 from app.portal.portal_product_activation_registration import (
@@ -42,7 +46,8 @@ def _stack():
         licenses=InMemoryLicenseStore(),
         activation=activation,
     )
-    return catalog, ownerships, activations, activation, licenses
+    billing = BillingFacade.from_store(InMemoryBillingStore())
+    return catalog, ownerships, activations, activation, licenses, billing
 
 
 def test_engine_id():
@@ -50,11 +55,12 @@ def test_engine_id():
 
 
 def test_purchase_grants_license_then_activates():
-    catalog, ownerships, _, activation, licenses = _stack()
+    catalog, ownerships, _, activation, licenses, billing = _stack()
     facade = PurchaseFacade.from_parts(
         catalog=catalog,
         purchases=InMemoryPurchaseStore(),
         licenses=licenses,
+        billing=billing,
     )
     view = facade.purchase(account_id="acc-1", catalog_product_id="prod_chatbot")
     assert view.status == "paid"
@@ -69,11 +75,12 @@ def test_purchase_grants_license_then_activates():
 
 def test_http_purchase_then_my_products():
     clear_purchase_facade()
+    clear_billing_facade()
     clear_product_activation_facade()
     clear_product_ownership_facade()
 
     account = new_account(email="a@b.c", display_name="A", status="ready")
-    catalog, ownerships, activations, activation, licenses = _stack()
+    catalog, ownerships, activations, activation, licenses, _ = _stack()
     app = FastAPI()
 
     @app.middleware("http")
@@ -91,7 +98,10 @@ def test_http_purchase_then_my_products():
         activation_store=activations,
         facade=activation,
     )
-    register_portal_purchases(app, licenses=licenses, catalog=catalog)
+    billing = register_portal_billing(app)
+    register_portal_purchases(
+        app, licenses=licenses, billing=billing, catalog=catalog
+    )
 
     http = TestClient(app)
     try:
@@ -106,15 +116,19 @@ def test_http_purchase_then_my_products():
         )
     finally:
         clear_purchase_facade()
+        clear_billing_facade()
         clear_product_activation_facade()
         clear_product_ownership_facade()
 
 
 def test_anonymous_401():
     clear_purchase_facade()
-    catalog, _, _, activation, licenses = _stack()
+    clear_billing_facade()
+    catalog, _, _, activation, licenses, billing = _stack()
     app = FastAPI()
-    register_portal_purchases(app, licenses=licenses, catalog=catalog)
+    register_portal_purchases(
+        app, licenses=licenses, billing=billing, catalog=catalog
+    )
     try:
         assert (
             TestClient(app)
@@ -124,12 +138,14 @@ def test_anonymous_401():
         )
     finally:
         clear_purchase_facade()
+        clear_billing_facade()
 
 
 def test_coming_soon_not_purchasable():
     clear_purchase_facade()
+    clear_billing_facade()
     account = new_account(email="a@b.c", display_name="A", status="ready")
-    catalog, _, _, _, licenses = _stack()
+    catalog, _, _, _, licenses, billing = _stack()
     app = FastAPI()
 
     @app.middleware("http")
@@ -137,13 +153,16 @@ def test_coming_soon_not_purchasable():
         request.state.account = account
         return await call_next(request)
 
-    register_portal_purchases(app, licenses=licenses, catalog=catalog)
+    register_portal_purchases(
+        app, licenses=licenses, billing=billing, catalog=catalog
+    )
     try:
         r = TestClient(app).post("/portal/products/prod_crm/purchase")
         assert r.status_code == 400
         assert r.json()["detail"] == "product_not_purchasable"
     finally:
         clear_purchase_facade()
+        clear_billing_facade()
 
 
 def test_commercial_boundary_no_direct_ownership_writes():
@@ -179,4 +198,6 @@ def test_main_wires_purchases_through_licenses():
     text = main.read_text(encoding="utf-8")
     assert "register_portal_purchases(" in text
     assert "licenses=_portal_license_facade" in text
+    assert "billing=_portal_billing_facade" in text
     assert "register_portal_licenses(" in text
+    assert "register_portal_billing(" in text

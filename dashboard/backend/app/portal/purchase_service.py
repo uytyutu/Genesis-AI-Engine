@@ -1,15 +1,16 @@
 """Commercial Platform 6.4 — PurchaseService.
 
 ```text
-Purchase → Stub PaymentProvider → License (entitlement) → redeem → Activation
+Purchase → Billing (ledger) → Stub Payment → License → redeem → Activation
 ```
 
 Never writes ProductOwnershipStore directly.
-Purchase is one source of License — not a required step before License.
+Billing records money only — Purchase still grants License after payment.
 """
 
 from __future__ import annotations
 
+from app.portal.billing_facade import BillingFacade
 from app.portal.license import LicenseError
 from app.portal.license_facade import LicenseFacade
 from app.portal.payment_provider import PaymentProvider
@@ -34,11 +35,13 @@ class PurchaseService:
         purchases: PurchaseStore,
         payments: PaymentProvider,
         licenses: LicenseFacade,
+        billing: BillingFacade,
     ) -> None:
         self._catalog = catalog
         self._purchases = purchases
         self._payments = payments
         self._licenses = licenses
+        self._billing = billing
 
     def purchase(
         self,
@@ -63,16 +66,27 @@ class PurchaseService:
         )
         self._purchases.save(purchase)
 
+        ledger = self._billing.record_pending(
+            account_id=account_id,
+            product_id=product.product_id,
+            purchase_id=purchase.purchase_id,
+        )
+
         charge = self._payments.charge(
             account_id=account_id,
             catalog_product_id=product.product_id,
             purchase_id=purchase.purchase_id,
         )
         if not charge.succeeded or not charge.provider_reference:
+            self._billing.mark_failed(ledger.transaction_id)
             failed = mark_purchase_failed(purchase)
             self._purchases.save(failed)
             raise PurchaseError(charge.failure_reason or "payment_failed")
 
+        self._billing.mark_paid(
+            ledger.transaction_id,
+            provider_reference=charge.provider_reference,
+        )
         paid = mark_purchase_paid(
             purchase, provider_reference=charge.provider_reference
         )

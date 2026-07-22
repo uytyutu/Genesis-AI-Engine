@@ -1,13 +1,16 @@
 """Commercial Platform 6.4 — Register Purchases.
 
-Purchase → License → redeem → Activation. Never writes ProductOwnershipStore.
+Purchase → Billing → License → redeem → Activation.
+Never writes ProductOwnershipStore.
 """
 
 from __future__ import annotations
 
 from fastapi import FastAPI
 
+from app.portal.billing_facade import BillingFacade
 from app.portal.license_facade import LicenseFacade
+from app.portal.payment_provider import PaymentProvider, StubPaymentProvider
 from app.portal.portal_purchase_router import (
     portal_purchase_router,
     set_purchase_facade,
@@ -18,7 +21,6 @@ from app.portal.product_catalog_store import (
 )
 from app.portal.purchase_facade import PurchaseFacade
 from app.portal.purchase_store import InMemoryPurchaseStore, PurchaseStore
-from app.portal.payment_provider import PaymentProvider, StubPaymentProvider
 
 ENGINE_ID = "portal_purchase_registration_v1"
 
@@ -27,11 +29,12 @@ def register_portal_purchases(
     app: FastAPI,
     *,
     licenses: LicenseFacade,
+    billing: BillingFacade,
     catalog: ProductCatalogStore | None = None,
     purchase_store: PurchaseStore | None = None,
     payments: PaymentProvider | None = None,
 ) -> bool:
-    """Wire PurchaseFacade onto LicenseFacade + stub payment provider."""
+    """Wire PurchaseFacade onto Billing + License + stub payment provider."""
     catalog_store = (
         catalog if catalog is not None else InMemoryProductCatalogStore()
     )
@@ -41,6 +44,7 @@ def register_portal_purchases(
             catalog=catalog_store,
             purchases=store,
             licenses=licenses,
+            billing=billing,
             payments=payments if payments is not None else StubPaymentProvider(),
         )
     )
