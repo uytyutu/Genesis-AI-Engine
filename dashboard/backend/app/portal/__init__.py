@@ -103,10 +103,23 @@ from app.portal.portal_website_settings_registration import (
 from app.portal.portal_website_settings_router import portal_website_settings_router
 from app.portal.portal_analytics_registration import register_portal_analytics
 from app.portal.portal_analytics_router import portal_analytics_router
+from app.portal.portal_website_domain_registration import (
+    register_portal_website_domain,
+)
+from app.portal.portal_website_domain_router import portal_website_domain_router
 from app.portal.analytics import AnalyticsOverview, empty_analytics_overview
 from app.portal.analytics_facade import AnalyticsFacade
 from app.portal.analytics_store import InMemoryAnalyticsStore
 from app.portal.analytics_view import AnalyticsOverviewView
+from app.portal.website_domain import (
+    WebsiteDomain,
+    WebsiteDomainUpdate,
+    apply_website_domain_update,
+    empty_website_domain,
+)
+from app.portal.website_domain_facade import WebsiteDomainFacade
+from app.portal.website_domain_store import InMemoryWebsiteDomainStore
+from app.portal.website_domain_view import WebsiteDomainView
 from app.portal.website_settings import (
     WebsiteSettings,
     WebsiteSettingsUpdate,
@@ -175,7 +188,10 @@ __all__ = [
     "RequestPrincipal",
     "register_portal_authentication_middleware",
     "InMemoryAnalyticsStore",
+    "InMemoryWebsiteDomainStore",
     "empty_analytics_overview",
+    "empty_website_domain",
+    "apply_website_domain_update",
     "Session",
     "SessionCookieFactory",
     "SessionFacade",
@@ -184,6 +200,10 @@ __all__ = [
     "WebsiteDashboardFacade",
     "WebsiteDashboardQuery",
     "WebsiteDashboardView",
+    "WebsiteDomain",
+    "WebsiteDomainFacade",
+    "WebsiteDomainUpdate",
+    "WebsiteDomainView",
     "WebsiteInvitation",
     "WebsiteOwnership",
     "WebsiteQuery",
@@ -234,12 +254,14 @@ __all__ = [
     "portal_login_router",
     "portal_read_router",
     "portal_registration_snapshot",
+    "portal_website_domain_router",
     "portal_website_settings_router",
     "refresh_expiry_status",
     "register_portal_analytics",
     "register_portal_dashboard",
     "register_portal_login",
     "register_portal_read",
+    "register_portal_website_domain",
     "register_portal_website_settings",
     "resolve_portal_lifecycle_state",
     "revoke_token",

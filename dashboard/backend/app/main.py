@@ -302,6 +302,13 @@ from app.portal.portal_analytics_registration import register_portal_analytics
 
 register_portal_analytics(app)
 
+# R5.3 — Website Domain Management (resource-state ModuleFacade)
+from app.portal.portal_website_domain_registration import (
+    register_portal_website_domain,
+)
+
+register_portal_website_domain(app)
+
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
 
