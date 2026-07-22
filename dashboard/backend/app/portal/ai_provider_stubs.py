@@ -1,6 +1,6 @@
-"""AI Platform AP1.1 — Stub providers (OpenAI / Anthropic / Ollama).
+"""AI Platform AP1.1 — Stub providers (kept for compatibility).
 
-No SDKs · no HTTP · no real generation.
+AP1.2 routes runtime binding to Provider Adapters via build_stub_runtime.
 """
 
 from __future__ import annotations
@@ -12,10 +12,12 @@ from app.portal.ai_provider import (
     STUB_GENERATION_REPLY,
     STUB_UNAVAILABLE_REPLY,
 )
+from app.portal.ai_provider_adapters import build_adapter_runtime
 from app.portal.ai_provider_protocol import (
     AIGenerationResult,
     AIProviderHealth,
     AIProviderInfo,
+    AIProviderProtocol,
 )
 from app.portal.conversation import ConversationContext
 
@@ -23,6 +25,8 @@ ENGINE_ID = "ai_provider_stubs_v1"
 
 
 class _BaseStubProvider:
+    """Legacy stub shape — unused at runtime after AP1.2 adapters."""
+
     def __init__(self, record: AIProvider) -> None:
         self._record = record
 
@@ -82,27 +86,21 @@ class _BaseStubProvider:
 
 
 class OpenAIProviderStub(_BaseStubProvider):
-    """OpenAI-shaped stub — no openai package."""
+    """OpenAI-shaped stub — superseded by OpenAIProviderAdapter."""
 
 
 class AnthropicProviderStub(_BaseStubProvider):
-    """Anthropic-shaped stub — no anthropic package."""
+    """Anthropic-shaped stub — superseded by AnthropicProviderAdapter."""
 
 
 class OllamaProviderStub(_BaseStubProvider):
-    """Ollama-shaped stub — no local runtime calls."""
+    """Ollama-shaped stub — superseded by OllamaProviderAdapter."""
 
 
 class CustomProviderStub(_BaseStubProvider):
     """Custom-shaped stub for future adapters."""
 
 
-def build_stub_runtime(record: AIProvider) -> _BaseStubProvider:
-    mapping = {
-        "openai": OpenAIProviderStub,
-        "anthropic": AnthropicProviderStub,
-        "ollama": OllamaProviderStub,
-        "custom": CustomProviderStub,
-    }
-    cls = mapping.get(record.provider_type, CustomProviderStub)
-    return cls(record)
+def build_stub_runtime(record: AIProvider) -> AIProviderProtocol:
+    """Registry entrypoint (unchanged import path) → AP1.2 adapters."""
+    return build_adapter_runtime(record)

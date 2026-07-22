@@ -3,19 +3,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
 from app.portal.account import new_account
-from app.portal.ai_provider import STUB_GENERATION_REPLY, STUB_UNAVAILABLE_REPLY
+from app.portal.ai_provider import STUB_UNAVAILABLE_REPLY
 from app.portal.ai_provider_facade import AIProviderFacade
 from app.portal.ai_provider_protocol import AIProviderProtocol
-from app.portal.ai_provider_stubs import (
-    AnthropicProviderStub,
-    OllamaProviderStub,
-    OpenAIProviderStub,
-)
 from app.portal.business_knowledge_store import InMemoryBusinessKnowledgeStore
 from app.portal.channel_connection_store import InMemoryChannelConnectionStore
 from app.portal.chatbot_business_profile_facade import ChatBotBusinessProfileFacade
@@ -57,13 +53,19 @@ def test_protocol_implemented_by_stubs():
         "anthropic",
         "ollama",
     }
+    from app.portal.ai_provider_adapters import (
+        AnthropicProviderAdapter,
+        OllamaProviderAdapter,
+        OpenAIProviderAdapter,
+    )
+
     for row in listed:
         runtime = facade.manager._registry.bind(
             facade.manager._store.get(row.provider_id)
         )
         assert isinstance(
             runtime,
-            (OpenAIProviderStub, AnthropicProviderStub, OllamaProviderStub),
+            (OpenAIProviderAdapter, AnthropicProviderAdapter, OllamaProviderAdapter),
         )
         assert isinstance(runtime, AIProviderProtocol)
 
@@ -84,8 +86,9 @@ def test_generate_via_protocol_without_external_calls():
         messages=({"role": "user", "content": "hi", "created_at": "t"},),
         metadata={},
     )
-    result = facade.generate(context)
-    assert result.text == STUB_GENERATION_REPLY
+    with patch.dict("os.environ", {"OPENAI_API_KEY": ""}, clear=False):
+        result = facade.generate(context)
+    assert "invalid_configuration" in result.text or "Provider unavailable" in result.text
     assert result.provider_type == "openai"
     assert result.prepared["ready"] is True
     assert result.prepared["conversation_id"] == "c1"
@@ -116,13 +119,15 @@ def test_conversation_uses_provider_layer():
         account_id="acc-1", industry="dental", business_name="Smile"
     )
     created = conversations.create_conversation(account_id="acc-1")
-    turn = conversations.post_message(
-        account_id="acc-1",
-        conversation_id=created.conversation_id,
-        content="Hello",
-    )
-    assert turn.stub_response == STUB_GENERATION_REPLY
+    with patch.dict("os.environ", {"OPENAI_API_KEY": ""}, clear=False):
+        turn = conversations.post_message(
+            account_id="acc-1",
+            conversation_id=created.conversation_id,
+            content="Hello",
+        )
+    assert "invalid_configuration" in turn.stub_response
     assert turn.context["metadata"]["ai_provider"] == "openai"
+    assert "ai_response" in turn.context["metadata"]["provider_prepared"]
 
 
 def test_http_providers_crud_and_health():
@@ -148,7 +153,8 @@ def test_http_providers_crud_and_health():
         )
         health = http.post(f"/portal/chatbot/providers/{openai['provider_id']}/health")
         assert health.status_code == 200
-        assert health.json()["ok"] is True
+        # configured (not enabled yet) — adapter reports configured
+        assert health.json()["status"] in {"configured", "enabled"}
 
         enabled = http.put(
             f"/portal/chatbot/providers/{openai['provider_id']}",
@@ -157,6 +163,13 @@ def test_http_providers_crud_and_health():
         assert enabled.status_code == 200
         assert enabled.json()["status"] == "enabled"
         assert enabled.json()["is_active"] is True
+
+        with patch.dict("os.environ", {"OPENAI_API_KEY": ""}, clear=False):
+            health2 = http.post(
+                f"/portal/chatbot/providers/{openai['provider_id']}/health"
+            )
+        assert health2.status_code == 200
+        assert health2.json()["ok"] is False
 
         forbidden = http.put(
             f"/portal/chatbot/providers/{openai['provider_id']}",
