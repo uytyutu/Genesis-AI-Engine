@@ -321,6 +321,11 @@ from app.portal.portal_product_catalog_registration import (
 
 register_portal_product_catalog(app)
 
+# Mission 6.2 — My Products (ProductOwnership + WebsiteOwnershipBridge)
+from app.portal.portal_my_products_registration import register_portal_my_products
+
+register_portal_my_products(app)
+
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
 
