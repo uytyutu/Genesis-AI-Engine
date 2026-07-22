@@ -109,6 +109,10 @@ from app.portal.portal_website_domain_registration import (
 from app.portal.portal_website_domain_router import portal_website_domain_router
 from app.portal.portal_chatbot_registration import register_portal_chatbot
 from app.portal.portal_chatbot_router import portal_chatbot_router
+from app.portal.portal_product_catalog_registration import (
+    register_portal_product_catalog,
+)
+from app.portal.portal_product_catalog_router import portal_product_catalog_router
 from app.portal.analytics import AnalyticsOverview, empty_analytics_overview
 from app.portal.analytics_facade import AnalyticsFacade
 from app.portal.analytics_store import InMemoryAnalyticsStore
@@ -123,6 +127,10 @@ from app.portal.chatbot_facade import ChatBotFacade
 from app.portal.chatbot_integration_adapter import StubChatBotIntegrationAdapter
 from app.portal.chatbot_store import InMemoryChatBotStore
 from app.portal.chatbot_view import ChatBotView
+from app.portal.product import Product, default_product_catalog
+from app.portal.product_catalog_facade import ProductCatalogFacade
+from app.portal.product_catalog_store import InMemoryProductCatalogStore
+from app.portal.product_catalog_view import ProductCatalogItemView
 from app.portal.website_domain import (
     WebsiteDomain,
     WebsiteDomainUpdate,
@@ -201,13 +209,18 @@ __all__ = [
     "ChatBotConnectionUpdate",
     "ChatBotFacade",
     "ChatBotView",
+    "Product",
+    "ProductCatalogFacade",
+    "ProductCatalogItemView",
     "RequestPrincipal",
     "register_portal_authentication_middleware",
     "InMemoryAnalyticsStore",
     "InMemoryChatBotStore",
+    "InMemoryProductCatalogStore",
     "InMemoryWebsiteDomainStore",
     "StubChatBotIntegrationAdapter",
     "apply_chatbot_connection_update",
+    "default_product_catalog",
     "empty_analytics_overview",
     "empty_chatbot_connection",
     "empty_website_domain",
@@ -273,6 +286,7 @@ __all__ = [
     "portal_dashboard_router",
     "portal_lifecycle_snapshot",
     "portal_login_router",
+    "portal_product_catalog_router",
     "portal_read_router",
     "portal_registration_snapshot",
     "portal_website_domain_router",
@@ -282,6 +296,7 @@ __all__ = [
     "register_portal_chatbot",
     "register_portal_dashboard",
     "register_portal_login",
+    "register_portal_product_catalog",
     "register_portal_read",
     "register_portal_website_domain",
     "register_portal_website_settings",

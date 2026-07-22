@@ -314,6 +314,13 @@ from app.portal.portal_chatbot_registration import register_portal_chatbot
 
 register_portal_chatbot(app)
 
+# Mission 6.1 — Product Catalog (platform-level · independent of Website)
+from app.portal.portal_product_catalog_registration import (
+    register_portal_product_catalog,
+)
+
+register_portal_product_catalog(app)
+
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
 
