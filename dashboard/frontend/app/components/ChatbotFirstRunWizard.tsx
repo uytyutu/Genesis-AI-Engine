@@ -667,6 +667,9 @@ export function ChatbotFirstRunWizard() {
             <ButtonLink href="/projects/chatbot/knowledge">
               Manage knowledge
             </ButtonLink>
+            <ButtonLink href="/projects/chatbot/channels">
+              Setup channels
+            </ButtonLink>
             <ButtonLink href="/projects">Back to projects</ButtonLink>
             <Button variant="ghost" onClick={() => setStep("welcome")} disabled={busy}>
               Run again

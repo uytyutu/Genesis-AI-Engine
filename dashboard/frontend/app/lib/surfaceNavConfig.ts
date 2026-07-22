@@ -97,6 +97,11 @@ export const CLIENT_NAV_LINKS = [
     label: "Knowledge",
     hint: "Факты о бизнесе",
   },
+  {
+    href: "/projects/chatbot/channels",
+    label: "Channels",
+    hint: "Где работает Vector",
+  },
 ] as const;
 
 export const CEO_PRIMARY_LINKS = [
