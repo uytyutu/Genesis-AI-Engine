@@ -16,7 +16,9 @@
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
-| **Mission 5** | Settings → Analytics → Domain → ChatBot → CRM | **R5.4 PASS** · Module Standard wave 1 complete · NEXT = Mission 6 Product Platform (not opened) — not CRM |
+| **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
+| **Mission 6** | Product Platform Architecture Stamp | **STAMPED** · no code yet |
+
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
 
@@ -295,9 +297,11 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **R5.1 PASS ✅** · **Module Architecture** established (CEO 2026-07-22) · `7db23a0`.  
 **R5.2 PASS ✅** · Analytics Overview (Read-only) · `ba39b43` · Write+Read blueprints confirmed.  
 **R5.3 PASS ✅** · `f1c15fc` · Module Standard formed (Write+Read+Resource State).  
-**R5.4 PASS ✅** · `92ce896` · Integration Module confirmed; Mission 5 initial goal achieved (Write+Read+Resource+Integration).  
-**Next:** Mission 6 Product Platform (planned, not opened).  
-**Review lenses:** Architecture · Security · Product · Repeatability · **Integration Boundary**.  
+**R5.4 PASS ✅** · `92ce896` · Integration Module confirmed.  
+**Mission 5 — CLOSED ✅** (CEO 2026-07-22) · Module Standard proven (4 module classes).  
+**Mission 6 — Product Platform Architecture Stamp ✅** (CEO 2026-07-22) · no code yet.  
+**Next:** Mission 6 implementation slices — only after CEO opens a scoped slice (not CRM mass refactor).  
+**Review lenses:** Architecture · Security · Product · Repeatability · Integration Boundary · Product Invariant.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1079,9 +1083,8 @@ PUT /portal/websites/{website_id}/domain
 
 ```text
 ✓ Write ✓ Read ✓ Resource State ✓ Integration
-Mission 5 initial goal ACHIEVED
-Next: Mission 6 — Product Platform (planned · not opened)
-Not now: CRM as next slice
+Mission 5 — CLOSED
+Module Standard — PROVEN
 ```
 
 ### R5.4 — ChatBot Integration · PASS ✅ · `92ce896` (CEO 2026-07-22)
@@ -1135,3 +1138,128 @@ PUT /portal/websites/{website_id}/chatbot
 ```
 
 **Note:** Website-scoped chatbot routes (`/portal/websites/{website_id}/chatbot`) are OK for now; future Product Ownership may elevate ChatBot to a standalone product without rewriting the Module Blueprint.
+
+### Mission 5 — CLOSED ✅ (CEO 2026-07-22)
+
+Module Standard proven across four module classes. Blueprint is no longer a hypothesis.  
+**Not opened after R5.4:** CRM (deferred until Product Platform direction is stamped).
+
+### Mission 6 — Product Platform · Architecture Stamp ✅ (CEO 2026-07-22)
+
+**Status:** Architecture Stamp only · **no code** · no mass refactor.  
+**Purpose:** fix the commercial + architectural course before any Product Platform implementation.
+
+#### 1. Center of architecture shifts
+
+**Before (Mission 3–5):**
+
+```text
+Website
+    ↓
+Portal
+    ↓
+Modules
+```
+
+**After (Mission 6 direction):**
+
+```text
+Virtus Core Platform
+    ↓
+Products
+```
+
+#### 2. Product Invariant (binding)
+
+```text
+Every Virtus Core product is independently purchasable.
+Products may integrate with each other.
+No product requires another product to exist.
+```
+
+#### 3. Portal becomes Product Hub
+
+Not “website panel only”.
+
+```text
+Portal
+    ↓
+My Products
+    ├── Website
+    ├── ChatBot
+    ├── CRM
+    ├── Analytics
+    └── Automation
+```
+
+Portal = single client cabinet for all acquired products.
+
+#### 4. Ownership Evolution (direction only — no code in stamp)
+
+**Today:**
+
+```text
+Account
+    ↓
+WebsiteOwnership
+    ↓
+Website
+```
+
+**Future:**
+
+```text
+Account
+    ↓
+ProductOwnership
+    ↓
+Product Instance
+```
+
+Not a Mission 6.1 coding task in this stamp — architectural beacon only.  
+Do **not** rename WebsiteOwnership · change AuthN/AuthZ · rewrite Platform in this stamp.
+
+#### 5. Product Blueprint
+
+After Module Blueprint, next abstraction level:
+
+```text
+Product
+    ↓
+Authentication
+    ↓
+Authorization
+    ↓
+Product Facade
+    ↓
+Modules
+    ↓
+Integration Adapters
+```
+
+Products are composed of modules. Examples:
+
+```text
+ChatBot Product
+    ├── Configuration Module
+    ├── Conversation Module
+    ├── Knowledge Module
+    └── Billing Module
+
+CRM Product
+    ├── Contacts
+    ├── Deals
+    ├── Pipeline
+    └── Automation
+```
+
+#### Explicitly not in this stamp / not now
+
+- Mass refactor of Website-scoped routes  
+- Renaming WebsiteOwnership  
+- Changing AuthN / AuthZ / Session  
+- Rewriting Platform  
+- Opening CRM implementation  
+- Implementing ProductOwnership code  
+
+**Next gate:** CEO opens a scoped Mission 6 slice (small, intentional) — never a big-bang rewrite.
