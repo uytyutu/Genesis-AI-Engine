@@ -390,6 +390,13 @@ register_portal_purchases(
     catalog=_portal_product_catalog_store,
 )
 
+# Business Product BP1.1 — ChatBot Business Profile & Industry Template
+from app.portal.portal_chatbot_product_registration import (
+    register_portal_chatbot_product,
+)
+
+register_portal_chatbot_product(app)
+
 # R4.1 / R4.2 — HTTP Login + Session cookie
 from app.portal.portal_login_registration import register_portal_login
 
