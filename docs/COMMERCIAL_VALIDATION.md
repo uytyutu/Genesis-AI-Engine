@@ -70,7 +70,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | ✅ **R3.9** | **Website Read Pipeline** | **CLOSED** (CEO 2026-07-22) |
 | **R3.10** | **Portal Cabinet Views** | **OPEN** |
 | → ✅ **R3.10.1** | **Website Dashboard View** | **PASS** · `10a175b` |
-| → **R3.10.2** | **Website Dashboard Query** | **DONE (code)** — await CEO review |
+| → ✅ **R3.10.2** | **Website Dashboard Query** | **PASS** · `412638b` |
+| → **R3.10.3** | **Website Dashboard Facade** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -259,7 +260,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.9 CLOSED ✅** · **R3.10.1 PASS ✅** · **NEXT = R3.10.2 Website Dashboard Query**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.9 CLOSED ✅** · **R3.10.1–R3.10.2 PASS ✅** · **NEXT = R3.10.3 Website Dashboard Facade**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -598,9 +599,18 @@ Cabinet aggregate — does not bloat `WebsiteView`. No API · Auth · UI · writ
 
 **Rule:** add CRM/Chat/Analytics into Dashboard only when those products exist — not empty placeholders.
 
-### R3.10.2 — Website Dashboard Query — DONE (code)
+### R3.10.2 — Website Dashboard Query — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/website_dashboard_query.py`  
+**Module:** `dashboard/backend/app/portal/website_dashboard_query.py` · commit `412638b`.  
 **Type:** `WebsiteDashboardQuery` · `execute(website_id)` → `WebsiteDashboardView | None`.  
 Uses `WebsiteReadFacade` + current deployment via `PortalReadService` (views only).  
 No Domain Website · FastAPI · Auth · writes.
+
+**Rule:** stop adding deeper read mediators — next layers are API/UI use cases.
+
+### R3.10.3 — Website Dashboard Facade — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/website_dashboard_facade.py`  
+**Type:** `WebsiteDashboardFacade` · `get_dashboard(website_id)` → `WebsiteDashboardView | None`.  
+Uses only `WebsiteDashboardQuery` — sole entry for future Dashboard API.  
+No FastAPI · Auth · UI · writes.
