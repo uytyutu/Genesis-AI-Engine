@@ -24,8 +24,9 @@
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
-| **Product Track** | Ops · AI Assist · Business Actions CLOSED | **PT4 CLOSED** ✅ · **Human-in-the-Loop CLOSED** ✅ · **IT1 OPEN** (Website Widget) |
-| **Integration Track** | First real channel | **IT1.1 OPEN** (CEO 2026-07-22) · Website Widget → Conversation → Actions |
+| **Product Track** | Generation 1 complete | **Virtus Core Gen1 CLOSED** ✅ |
+| **Operational Readiness** | Pre-channel gate (not a Product Track) | **OR Gate OPEN** (CEO 2026-07-22) · OR1–OR4 |
+| **Integration Track** | First real channel | **IT1.1 PAUSED** until OR Generation 1 CLOSED |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -340,10 +341,12 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **AI Assisted Workspace Generation 1 — CLOSED ✅** (CEO 2026-07-22) · Draft · Summary · Review · Priority · Tags · Knowledge hints · Insights.  
 **Product Track PT4 — CLOSED ✅** (CEO 2026-07-22) · Business Actions complete.  
 **Human-in-the-Loop Execution Model — CLOSED ✅** (CEO 2026-07-22) · AI Review → Human Approval → Business Actions → Audit Trail.  
-**Integration Track IT1 — OPEN** (CEO 2026-07-22) · First real channel (IT1.1 Website Widget).  
-**Not opened:** AP2.2 Streaming · AP2.3 Tool Calling · AP2.5 RAG · Marketplace · CRM Automation.  
+**Virtus Core Generation 1 — CLOSED ✅** (CEO 2026-07-22) · Foundation → Vector → AI → Product → Operations → Assistance → Business Actions.  
+**Operational Readiness Gate — OPEN** (CEO 2026-07-22) · OR1 Correlation · OR2 Structured Logging · OR3 Metrics · OR4 Provider Resilience · not a Product Track.  
+**Integration Track IT1.1 — PAUSED** until Operational Readiness Generation 1 CLOSED (or explicit risk acceptance).  
+**Not opened:** AP2.2 Streaming · AP2.3 Tool Calling · AP2.5 RAG · Marketplace · CRM Automation · Website Widget (blocked by OR).  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline · Business Action approval invariant · Human-in-the-Loop Execution Model.  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline · Business Action approval invariant · Human-in-the-Loop Execution Model · Virtus Core Generation 1.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -2429,28 +2432,108 @@ AI Review → Human Approval → Business Actions → Audit Trail
 
 Permanent rule for all future actions with external consequences (customer messages · knowledge · tickets · assignments).
 
-### Integration Track IT1 — First Real Channel · OPEN (CEO 2026-07-22)
-
-#### IT1.1 Website Widget · OPEN
+### Virtus Core Generation 1 — CLOSED ✅ (CEO 2026-07-22)
 
 ```text
-Website Widget
-        │
-        ▼
-Incoming Message
-        │
-        ▼
-Conversation Engine
-        │
-        ▼
-AI Review / Draft
-        │
-        ▼
+Virtus Core Generation 1 — CLOSED ✅
+Foundation
+├── Identity
+├── Portal
+├── Products
+├── Commercial
+Vector
+├── Business Profile
+├── Business Knowledge
+├── Channels
+├── Conversation Engine
+AI
+├── Provider Layer
+├── Prompt & Policy
+├── AI Interaction Pipeline
+Product
+├── First Run
+├── Knowledge Workspace
+├── Channel Setup
+├── Dashboard
+Operations
+├── Activity
+├── Queue
+├── Inbox
+├── Conversation Workspace
+├── Customers
+AI Assistance
+├── Draft
+├── Summary
+├── Review
 Business Actions
-        │
-        ▼
-Outgoing Message
+├── Human Approval
+├── Action Execution
+└── Audit
 ```
 
-**Goal:** First external channel proving client → Vector → operator → Business Actions in real operation.  
-**Not opened yet:** Streaming · Tool Calling · RAG — after at least one live channel.
+**Chapter boundary:** Generation 1 built the controllable digital employee. Generation 2 = real-world operation (first live channel), not more internal AI infrastructure.
+
+### Operational Readiness Gate — OPEN (CEO 2026-07-22)
+
+**Not a Product Track.** Mandatory gate before first external channel. Architecture unchanged.
+
+| Slice | Theme | CTO |
+|-------|--------|-----|
+| **OR1** | Request Correlation (`request_id` end-to-end) | Must fix |
+| **OR2** | Structured Logging (unified event schema) | Must fix |
+| **OR3** | Baseline Metrics (in-process · no Grafana required) | Must fix |
+| **OR4** | Provider Resilience (timeout · safe retry · operator-safe errors) | One refinement |
+
+**Business Actions audit** — READY ✅ (PASS · keep as incident baseline).
+
+#### OR1 — Request Correlation
+```text
+HTTP Request → Conversation → Prompt → Provider → Business Action → Logs
+```
+Single `request_id` on every hop.
+
+#### OR2 — Structured Logging
+Event fields: `timestamp` · `level` · `request_id` · `conversation_id` · `channel` · `provider` · `operation` · `duration_ms` · `status` · `error`.
+
+#### OR3 — Metrics (minimum)
+AI latency · Provider failures · Conversation count · Business Actions executed · Business Actions rejected · Draft generation count · Average response time.
+
+#### OR4 — Provider Resilience
+Timeout · retry where safe · graceful degradation · operator message e.g. *«AI provider temporarily unavailable. Conversation remains available.»* — never raw stack traces.
+
+#### Acceptance
+```text
+Operational Readiness Generation 1 — CLOSED ✅
+```
+Only then open:
+```text
+Integration Track · IT1.1 Website Widget
+```
+
+### Integration Track IT1 — First Real Channel · PAUSED (awaiting OR)
+
+#### IT1.1 Website Widget · PAUSED
+
+```text
+Visitor
+      │
+Website Widget
+      │
+Conversation
+      │
+Prompt & Policy
+      │
+AI Provider
+      │
+AI Review
+      │
+Business Actions
+      │
+Operator Approval
+      │
+Outbound Message
+```
+
+**Why first channel (when opened):** owned surface · no third-party policy risk · fastest pilots · proves full Gen1 chain.  
+**Blocked by:** Operational Readiness Generation 1.  
+**Still closed:** Streaming · Tool Calling · RAG — until real traffic shows what is needed.
