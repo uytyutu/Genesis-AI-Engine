@@ -14,7 +14,7 @@
 | Mission 1 | Public Launch | ✅ |
 | Mission 2 | Factory + Order Experience | ✅ |
 | **Commercial Validation** | Market proof | **ACTIVE** (parallel) |
-| **Mission 3** | Perception → semantics → market → portal | **OPEN** |
+| **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | Mission 4 | Premium Workspace | Later |
 | Mission 5 | Platform Expansion | Later |
 
@@ -270,8 +270,10 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.12 CLOSED ✅** · **NEXT = HTTP / session infra** (login endpoint · middleware · protected routes) atop R3.12 domain.  
-**R3.12 report rule:** each slice includes **Security Impact** + **Upgrade Path** + **Future Roles** (where relevant).
+Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain foundation for Portal / Identity.  
+**NEXT phase = Infrastructure:** HTTP login · session/JWT · middleware · protected routes — atop R3.12 (domain unchanged).  
+**Infra review lenses:** Architecture · Security · Product (CEO).  
+**R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -719,3 +721,8 @@ Ownership → Activation → Password Creation → Authentication → Authorizat
 ```
 
 Domain foundation complete. **Next (infra):** HTTP login · session/JWT · middleware · protected Portal endpoints — without changing R3.12 domain models.
+
+### Mission 3 — CLOSED ✅ (CEO 2026-07-22)
+
+Factory (product) · Portal (client work) · Identity (R3.12 lifecycle) — foundation for Virtus Core client platform.  
+Further work is **infrastructure + UX**, not domain invention.
