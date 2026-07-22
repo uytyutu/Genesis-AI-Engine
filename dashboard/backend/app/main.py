@@ -414,7 +414,7 @@ from app.portal.portal_chatbot_knowledge_registration import (
 )
 
 _portal_chatbot_knowledge_store = InMemoryBusinessKnowledgeStore()
-register_portal_chatbot_knowledge(
+_portal_chatbot_knowledge_facade = register_portal_chatbot_knowledge(
     app,
     profiles=_portal_chatbot_profile_store,
     knowledge_store=_portal_chatbot_knowledge_store,
@@ -451,13 +451,24 @@ from app.portal.portal_chatbot_conversations_registration import (
     register_portal_chatbot_conversations,
 )
 
-register_portal_chatbot_conversations(
+_portal_chatbot_conversation_facade = register_portal_chatbot_conversations(
     app,
     profiles=_portal_chatbot_profile_store,
     knowledge=_portal_chatbot_knowledge_store,
     channels=_portal_chatbot_channel_store,
     templates=_portal_chatbot_template_store,
     providers=_portal_ai_provider_facade.manager,
+)
+
+# PT4 — Business Actions (explicit operator approval)
+from app.portal.portal_chatbot_actions_registration import (
+    register_portal_chatbot_actions,
+)
+
+register_portal_chatbot_actions(
+    app,
+    conversations=_portal_chatbot_conversation_facade,
+    knowledge=_portal_chatbot_knowledge_facade,
 )
 
 # R4.1 / R4.2 — HTTP Login + Session cookie

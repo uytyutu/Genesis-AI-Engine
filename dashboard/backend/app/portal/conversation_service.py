@@ -303,6 +303,31 @@ class ConversationService:
             summary_available=True,
         )
 
+    def publish_assistant_message(
+        self,
+        *,
+        account_id: str,
+        conversation_id: str,
+        content: str,
+    ) -> ConversationView:
+        """Operator-approved outbound message — no AI call · no auto-send path."""
+        profile = self._require_profile(account_id)
+        conversation = self._conversations.get(conversation_id)
+        if conversation is None or conversation.profile_id != profile.profile_id:
+            raise ConversationError("conversation_not_found")
+        if conversation.status == "closed":
+            raise ConversationError("conversation_closed")
+        assistant_msg = new_message(
+            conversation_id=conversation_id,
+            role="assistant",
+            content=content,
+        )
+        self._messages.save(assistant_msg)
+        prepared = mark_conversation_prepared(conversation)
+        self._conversations.save(prepared)
+        all_messages = self._messages.list_for_conversation(conversation_id)
+        return build_conversation_view(prepared, messages=all_messages)
+
     def post_message(
         self,
         *,

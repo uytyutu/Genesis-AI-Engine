@@ -79,6 +79,21 @@ export function ConversationWorkspacePanel({ conversationId }: Props) {
   } | null>(null);
   const [draftText, setDraftText] = useState<string | null>(null);
   const [summaryText, setSummaryText] = useState<string | null>(null);
+  const [actionHistory, setActionHistory] = useState<
+    Array<{
+      action_id: string;
+      action_type: string;
+      status: string;
+      approved: boolean;
+      created_at: string;
+      result?: Record<string, unknown>;
+    }>
+  >([]);
+  const [knowledgeDraft, setKnowledgeDraft] = useState<{
+    category: string;
+    title: string;
+    content: string;
+  } | null>(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -211,6 +226,61 @@ export function ConversationWorkspacePanel({ conversationId }: Props) {
         if (data.auto_sent) {
           setError("invariant_breach: auto_sent must be false");
         }
+      } catch (err) {
+        if (err instanceof PortalApiError) setError(err.detail);
+        else if (err instanceof Error) setError(err.message);
+      } finally {
+        setBusy(false);
+      }
+    })();
+
+  const loadActionHistory = useCallback(async () => {
+    try {
+      const rows = await portalFetch<
+        Array<{
+          action_id: string;
+          action_type: string;
+          status: string;
+          approved: boolean;
+          created_at: string;
+          result?: Record<string, unknown>;
+        }>
+      >(
+        `/portal/chatbot/actions?conversation_id=${encodeURIComponent(conversationId)}`,
+      );
+      setActionHistory(rows);
+    } catch {
+      /* history is best-effort alongside workspace */
+    }
+  }, [conversationId]);
+
+  useEffect(() => {
+    void loadActionHistory();
+  }, [loadActionHistory]);
+
+  const executeAction = (
+    action_type: string,
+    payload?: Record<string, unknown>,
+  ) =>
+    void (async () => {
+      setBusy(true);
+      setError(null);
+      setNotice(null);
+      try {
+        await portalFetch("/portal/chatbot/actions", {
+          method: "POST",
+          body: JSON.stringify({
+            action_type,
+            approved: true,
+            conversation_id: conversationId,
+            payload: payload ?? {},
+          }),
+        });
+        if (action_type === "send_message") {
+          setDraftText(null);
+        }
+        setNotice(`Action executed: ${action_type}`);
+        await Promise.all([load(), loadActionHistory()]);
       } catch (err) {
         if (err instanceof PortalApiError) setError(err.detail);
         else if (err instanceof Error) setError(err.message);
@@ -455,24 +525,57 @@ export function ConversationWorkspacePanel({ conversationId }: Props) {
                     ))}
                   </ul>
                   {review.suggested_knowledge.length > 0 ? (
-                    <ul className="space-y-1 text-xs text-amber-100/90">
+                    <ul className="space-y-2 text-xs text-amber-100/90">
                       {review.suggested_knowledge.map((item) => (
-                        <li key={`${item.category}-${item.title}`}>
-                          Knowledge hint [{item.category}]: {item.title}
+                        <li
+                          key={`${item.category}-${item.title}`}
+                          className="flex flex-wrap items-center justify-between gap-2"
+                        >
+                          <span>
+                            Knowledge hint [{item.category}]: {item.title}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            disabled={busy}
+                            onClick={() =>
+                              setKnowledgeDraft({
+                                category: item.category,
+                                title: item.title,
+                                content:
+                                  item.reason ||
+                                  `Operator-approved fact: ${item.title}`,
+                              })
+                            }
+                          >
+                            Prepare fact
+                          </Button>
                         </li>
                       ))}
                     </ul>
                   ) : null}
                 </div>
               ) : null}
-              {draftText ? (
-                <div className="mt-3 rounded-xl border border-white/10 bg-black/30 p-3">
+              {draftText !== null ? (
+                <div className="mt-3 space-y-2 rounded-xl border border-white/10 bg-black/30 p-3">
                   <p className="text-xs uppercase tracking-wide text-zinc-500">
-                    Draft (not sent)
+                    Draft (not sent until you approve)
                   </p>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-100">
-                    {draftText}
-                  </p>
+                  <textarea
+                    className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+                    rows={4}
+                    value={draftText}
+                    onChange={(e) => setDraftText(e.target.value)}
+                  />
+                  <Button
+                    size="sm"
+                    disabled={busy || !draftText.trim()}
+                    onClick={() =>
+                      executeAction("send_message", { content: draftText.trim() })
+                    }
+                  >
+                    Approve &amp; Send
+                  </Button>
                 </div>
               ) : null}
               {summaryText ? (
@@ -487,9 +590,90 @@ export function ConversationWorkspacePanel({ conversationId }: Props) {
               ) : null}
             </section>
 
-            <section className="rounded-2xl border border-white/10 bg-black/20 p-4">
-              <h2 className="text-sm font-medium text-white">Actions</h2>
+            <section className="rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.05] p-4">
+              <h2 className="text-sm font-medium text-white">Business Actions</h2>
+              <p className="mt-1 text-xs text-zinc-500">
+                Explicit operator approval · never auto-execute
+              </p>
+              {knowledgeDraft ? (
+                <div className="mt-3 space-y-2 rounded-xl border border-white/10 bg-black/30 p-3">
+                  <p className="text-xs uppercase tracking-wide text-zinc-500">
+                    Create Knowledge Fact
+                  </p>
+                  <input
+                    className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+                    value={knowledgeDraft.title}
+                    onChange={(e) =>
+                      setKnowledgeDraft({
+                        ...knowledgeDraft,
+                        title: e.target.value,
+                      })
+                    }
+                    placeholder="Title"
+                  />
+                  <textarea
+                    className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+                    rows={3}
+                    value={knowledgeDraft.content}
+                    onChange={(e) =>
+                      setKnowledgeDraft({
+                        ...knowledgeDraft,
+                        content: e.target.value,
+                      })
+                    }
+                    placeholder="Content"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      disabled={
+                        busy ||
+                        !knowledgeDraft.title.trim() ||
+                        !knowledgeDraft.content.trim()
+                      }
+                      onClick={() => {
+                        executeAction("create_knowledge", {
+                          category: knowledgeDraft.category,
+                          title: knowledgeDraft.title.trim(),
+                          content: knowledgeDraft.content.trim(),
+                        });
+                        setKnowledgeDraft(null);
+                      }}
+                    >
+                      Approve &amp; save fact
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => setKnowledgeDraft(null)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
               <div className="mt-3 flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={busy || conversation.status === "closed"}
+                  onClick={() => executeAction("escalate_conversation")}
+                >
+                  Escalate
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={busy}
+                  onClick={() =>
+                    executeAction("create_follow_up_task", {
+                      title: `Follow up · ${conversationId.slice(0, 8)}`,
+                    })
+                  }
+                >
+                  Follow-up task
+                </Button>
                 <Button
                   size="sm"
                   variant="secondary"
@@ -506,6 +690,39 @@ export function ConversationWorkspacePanel({ conversationId }: Props) {
                 >
                   Reopen
                 </Button>
+              </div>
+              <div className="mt-4">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                    Action History
+                  </h3>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={busy}
+                    onClick={() => void loadActionHistory()}
+                  >
+                    Refresh
+                  </Button>
+                </div>
+                {actionHistory.length === 0 ? (
+                  <p className="mt-2 text-xs text-zinc-600">No actions yet.</p>
+                ) : (
+                  <ul className="mt-2 space-y-1">
+                    {actionHistory.map((row) => (
+                      <li
+                        key={row.action_id}
+                        className="rounded-lg border border-white/5 bg-black/20 px-2 py-1.5 text-xs text-zinc-400"
+                      >
+                        <span className="text-zinc-200">{row.action_type}</span>
+                        {" · "}
+                        {row.status}
+                        {" · "}
+                        {row.created_at}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </section>
 

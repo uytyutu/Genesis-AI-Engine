@@ -147,6 +147,22 @@ class ConversationFacade:
         except ConversationError:
             raise
 
+    def publish_assistant_message(
+        self,
+        *,
+        account_id: str,
+        conversation_id: str,
+        content: str,
+    ) -> ConversationView:
+        try:
+            return self._service.publish_assistant_message(
+                account_id=account_id,
+                conversation_id=conversation_id,
+                content=content,
+            )
+        except ConversationError:
+            raise
+
     def post_message(
         self,
         *,
