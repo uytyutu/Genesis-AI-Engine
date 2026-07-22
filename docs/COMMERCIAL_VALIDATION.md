@@ -24,7 +24,7 @@
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
-| **Product Track** | Iteration 1 CLOSED · Daily Ops | **PT2 OPEN** · **PT2.1 PASS** ✅ · **PT2.2 OPEN** (CEO 2026-07-22) · Conversation Inbox |
+| **Product Track** | Iteration 1 CLOSED · Daily Ops | **PT2 OPEN** · **PT2.1–2.2 PASS** ✅ · **Customer Operations Workspace OPEN** (CEO 2026-07-22) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -335,8 +335,9 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Product Track Iteration 1 — CLOSED ✅** (CEO 2026-07-22) · First Run · Knowledge Workspace · Channel Setup · Vector Dashboard.  
 **Product Track PT2 — OPEN** (CEO 2026-07-22) · Daily Operations.  
 **Product Track PT2.1 — PASS ✅** (CEO 2026-07-22) · Vector Activity Center (operational aggregate · no edits).  
-**Product Track PT2.2 — OPEN** (CEO 2026-07-22) · Conversation Inbox (list · filters · open · no AI generation).  
-**Not opened:** PT2.3 Conversation View · AP2.2 Streaming · Marketplace · real channel SDKs.  
+**Product Track PT2.2 — PASS ✅** (CEO 2026-07-22) · Conversation Inbox · Conversation Workspace prepared.  
+**Product Track PT2 — Customer Operations Workspace — OPEN** (CEO 2026-07-22) · Conversation View · Queue · Customer card · Feed.  
+**Not opened:** PT3 AI Assisted Operations · AP2.2 Streaming · Marketplace · real channel SDKs.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
@@ -2306,7 +2307,7 @@ Activity Center never communicates with providers.
 **Distinction:** Dashboard = what is configured · Activity Center = what is happening.  
 **Forbidden:** new domain models · Inbox editors · provider generate · message send · duplicate Dashboard editors.
 
-### Product Track PT2.2 — Conversation Inbox · OPEN (CEO 2026-07-22)
+### Product Track PT2.2 — Conversation Inbox · PASS ✅ (CEO 2026-07-22)
 
 ```text
 Conversation Inbox
@@ -2325,6 +2326,23 @@ Conversation Inbox never communicates directly with channels.
 ```
 
 **Surface:** `/projects/chatbot/inbox` · list/filter via existing `/portal/chatbot/conversations`.  
-**Forbidden:** reply composer · AI generate · channel SDKs · new domain models · full Conversation View (PT2.3).
+**Forbidden:** reply composer · AI generate · channel SDKs · new domain models.
 
-**Horizon (not opened):** PT2.3 Conversation View → PT2.4 Knowledge Suggestions → PT2.5 Business Insights.
+### Product Track PT2 — Customer Operations Workspace · OPEN (CEO 2026-07-22)
+
+```text
+Activity ✓ · Inbox ✓
+  → Conversation Workspace · Daily Queue · Customer Workspace · Activity Feed
+```
+
+**Invariant:**
+```text
+Customer Operations Workspace aggregates operational data.
+Workspace never generates AI.
+Workspace never edits Business Knowledge.
+Workspace never edits Prompt & Policy.
+Workspace never communicates with providers.
+Workspace never communicates with external channels.
+```
+
+**Horizon (not opened):** PT3 AI Assisted Operations · AI Track AP2.2+.
