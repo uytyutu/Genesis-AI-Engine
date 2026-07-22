@@ -36,6 +36,7 @@ from app.portal.ai_response import (
     new_ai_response,
 )
 from app.portal.conversation import ConversationContext
+from app.portal.prompt_package import PromptPackage
 
 ENGINE_ID = "ai_provider_adapters_v1"
 
@@ -45,44 +46,14 @@ _ENV_KEYS = {
 }
 
 
-def _model_name(record: AIProvider, default: str) -> str:
+def _model_name(record: AIProvider, default: str, package: PromptPackage | None = None) -> str:
+    if package is not None:
+        override = str(
+            package.generation_parameters.get("model_name") or ""
+        ).strip()
+        if override:
+            return override
     return (record.configuration.get("model_name") or default).strip() or default
-
-
-def _messages_from_context(context: ConversationContext) -> list[dict[str, str]]:
-    """Build provider messages from context without mutating ConversationContext."""
-    messages: list[dict[str, str]] = []
-    system_parts: list[str] = []
-    business = context.business or {}
-    if business.get("business_name"):
-        system_parts.append(f"Business: {business.get('business_name')}")
-    if business.get("industry"):
-        system_parts.append(f"Industry: {business.get('industry')}")
-    if business.get("description"):
-        system_parts.append(f"Description: {business.get('description')}")
-    template = context.industry_template or {}
-    if template.get("system_prompt_seed"):
-        system_parts.append(str(template["system_prompt_seed"]))
-    if template.get("default_behavior"):
-        system_parts.append(f"Behavior: {template['default_behavior']}")
-    if context.knowledge:
-        facts = []
-        for item in context.knowledge:
-            facts.append(
-                f"[{item.get('category', '')}] {item.get('title', '')}: "
-                f"{item.get('content', '')}"
-            )
-        system_parts.append("Knowledge:\n" + "\n".join(facts))
-    if system_parts:
-        messages.append({"role": "system", "content": "\n\n".join(system_parts)})
-    for item in context.messages:
-        role = str(item.get("role") or "user")
-        if role not in {"user", "assistant", "system"}:
-            role = "user"
-        content = str(item.get("content") or "").strip()
-        if content:
-            messages.append({"role": role, "content": content})
-    return messages
 
 
 class _BaseProviderAdapter:
@@ -140,9 +111,16 @@ class _BaseProviderAdapter:
             "adapter": ENGINE_ID,
         }
 
-    def generate(self, context: ConversationContext) -> AIGenerationResult:
-        prepared = self.prepare(context)
-        model = _model_name(self._record, self.default_model)
+    def generate(self, prompt: PromptPackage) -> AIGenerationResult:
+        prepared = {
+            "provider_type": self._record.provider_type,
+            "conversation_id": prompt.conversation_id,
+            "profile_id": prompt.profile_id,
+            "prompt_package_id": prompt.package_id,
+            "ready": True,
+            "adapter": ENGINE_ID,
+        }
+        model = _model_name(self._record, self.default_model, prompt)
         if self._record.status != "enabled":
             response = new_ai_response(
                 provider=self.provider_type,
@@ -154,7 +132,7 @@ class _BaseProviderAdapter:
             return self._to_generation_result(response, prepared)
 
         try:
-            response = self._generate_ai_response(context, model=model)
+            response = self._generate_ai_response(prompt, model=model)
         except ProviderPlatformError as exc:
             response = ai_response_from_error(
                 provider=self.provider_type, model=model, error=exc
@@ -181,9 +159,7 @@ class _BaseProviderAdapter:
     def _ensure_ready(self) -> None:
         raise NotImplementedError
 
-    def _generate_ai_response(
-        self, context: ConversationContext, *, model: str
-    ) -> Any:
+    def _generate_ai_response(self, prompt: PromptPackage, *, model: str) -> Any:
         raise NotImplementedError
 
 
@@ -206,11 +182,11 @@ class OpenAIProviderAdapter(_BaseProviderAdapter):
         except ImportError as exc:
             raise ProviderUnavailable("openai SDK is not installed") from exc
 
-    def _generate_ai_response(
-        self, context: ConversationContext, *, model: str
-    ) -> Any:
+    def _generate_ai_response(self, prompt: PromptPackage, *, model: str) -> Any:
         self._ensure_ready()
-        messages = _messages_from_context(context)
+        messages = prompt.provider_messages()
+        temperature = float(prompt.generation_parameters.get("temperature", 0.4))
+        max_tokens = int(prompt.generation_parameters.get("max_tokens", 800))
         try:
             from openai import OpenAI
 
@@ -218,6 +194,8 @@ class OpenAIProviderAdapter(_BaseProviderAdapter):
             completion = client.chat.completions.create(
                 model=model,
                 messages=messages,  # type: ignore[arg-type]
+                temperature=temperature,
+                max_tokens=max_tokens,
             )
             choice = completion.choices[0]
             content = (choice.message.content or "").strip()
@@ -234,7 +212,7 @@ class OpenAIProviderAdapter(_BaseProviderAdapter):
                 content=content,
                 usage=usage,
                 finish_reason=str(choice.finish_reason or "stop"),
-                metadata={"sdk": "openai"},
+                metadata={"sdk": "openai", "prompt_package_id": prompt.package_id},
             )
         except ProviderPlatformError:
             raise
@@ -261,11 +239,9 @@ class AnthropicProviderAdapter(_BaseProviderAdapter):
         except ImportError as exc:
             raise ProviderUnavailable("anthropic SDK is not installed") from exc
 
-    def _generate_ai_response(
-        self, context: ConversationContext, *, model: str
-    ) -> Any:
+    def _generate_ai_response(self, prompt: PromptPackage, *, model: str) -> Any:
         self._ensure_ready()
-        messages = _messages_from_context(context)
+        messages = prompt.provider_messages()
         system = ""
         chat: list[dict[str, str]] = []
         for item in messages:
@@ -278,14 +254,15 @@ class AnthropicProviderAdapter(_BaseProviderAdapter):
             else:
                 chat.append(item)
         if not chat:
-            chat = [{"role": "user", "content": "Hello"}]
+            chat = [{"role": "user", "content": prompt.user_message or "Hello"}]
+        max_tokens = int(prompt.generation_parameters.get("max_tokens", 800))
         try:
             import anthropic
 
             client = anthropic.Anthropic(api_key=self._api_key())
             result = client.messages.create(
                 model=model,
-                max_tokens=1024,
+                max_tokens=max_tokens,
                 system=system or "You are a helpful business assistant.",
                 messages=chat,  # type: ignore[arg-type]
             )
@@ -304,7 +281,7 @@ class AnthropicProviderAdapter(_BaseProviderAdapter):
                 content="\n".join(parts).strip(),
                 usage=usage,
                 finish_reason=str(result.stop_reason or "stop"),
-                metadata={"sdk": "anthropic"},
+                metadata={"sdk": "anthropic", "prompt_package_id": prompt.package_id},
             )
         except ProviderPlatformError:
             raise
@@ -339,14 +316,18 @@ class OllamaProviderAdapter(_BaseProviderAdapter):
         except Exception as exc:  # noqa: BLE001
             raise ProviderUnavailable(f"ollama unreachable: {exc}") from exc
 
-    def _generate_ai_response(
-        self, context: ConversationContext, *, model: str
-    ) -> Any:
-        messages = _messages_from_context(context)
+    def _generate_ai_response(self, prompt: PromptPackage, *, model: str) -> Any:
+        messages = prompt.provider_messages()
         payload = {
             "model": model,
             "messages": messages,
             "stream": False,
+            "options": {
+                "temperature": float(
+                    prompt.generation_parameters.get("temperature", 0.4)
+                ),
+                "num_predict": int(prompt.generation_parameters.get("max_tokens", 800)),
+            },
         }
         url = f"{self._base_url()}/api/chat"
         try:
@@ -372,7 +353,11 @@ class OllamaProviderAdapter(_BaseProviderAdapter):
                     "eval_count": data.get("eval_count"),
                 },
                 finish_reason="stop" if data.get("done") else "unknown",
-                metadata={"sdk": "ollama_http", "base_url": self._base_url()},
+                metadata={
+                    "sdk": "ollama_http",
+                    "base_url": self._base_url(),
+                    "prompt_package_id": prompt.package_id,
+                },
             )
         except ProviderPlatformError:
             raise
@@ -391,9 +376,7 @@ class CustomProviderAdapter(_BaseProviderAdapter):
     def _ensure_ready(self) -> None:
         raise InvalidConfiguration("custom adapter has no backend configured")
 
-    def _generate_ai_response(
-        self, context: ConversationContext, *, model: str
-    ) -> Any:
+    def _generate_ai_response(self, prompt: PromptPackage, *, model: str) -> Any:
         raise InvalidConfiguration("custom adapter has no backend configured")
 
 

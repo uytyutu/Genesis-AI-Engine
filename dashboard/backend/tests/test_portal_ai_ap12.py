@@ -22,13 +22,14 @@ from app.portal.ai_response import (
     ProviderUnavailable,
 )
 from app.portal.conversation import ConversationContext
+from app.portal.prompt_facade import PromptFacade
 
 
 def _context() -> ConversationContext:
     return ConversationContext(
         conversation_id="c1",
         profile_id="p1",
-        business={"business_name": "Smile", "industry": "dental"},
+        business={"business_name": "Smile", "industry": "dental", "language": "en"},
         industry_template={
             "industry": "dental",
             "system_prompt_seed": "You help a dental clinic.",
@@ -45,6 +46,10 @@ def _context() -> ConversationContext:
         messages=({"role": "user", "content": "When are you open?", "created_at": "t"},),
         metadata={},
     )
+
+
+def _package(context: ConversationContext | None = None):
+    return PromptFacade().build(context or _context())
 
 
 def test_adapters_exist_and_implement_protocol():
@@ -69,7 +74,7 @@ def test_openai_adapter_maps_missing_key_to_unified_error():
     )
     adapter = OpenAIProviderAdapter(record)
     with patch.dict("os.environ", {"OPENAI_API_KEY": ""}, clear=False):
-        result = adapter.generate(_context())
+        result = adapter.generate(_package())
     assert "invalid_configuration" in result.text
     payload = result.prepared["ai_response"]
     assert payload["finish_reason"] == "error"
@@ -99,7 +104,7 @@ def test_openai_adapter_uses_sdk_only_inside_adapter():
 
     with patch.dict("os.environ", {"OPENAI_API_KEY": "sk-test"}, clear=False):
         with patch.dict(sys.modules, {"openai": fake_openai}):
-            result = adapter.generate(_context())
+            result = adapter.generate(_package())
 
     assert result.text == "Clinic hours are 09:00–19:00."
     assert result.prepared["ai_response"]["provider"] == "openai"
@@ -108,7 +113,8 @@ def test_openai_adapter_uses_sdk_only_inside_adapter():
     kwargs = fake_client.chat.completions.create.call_args.kwargs
     assert kwargs["model"] == "gpt-4o-mini"
     assert kwargs["messages"][0]["role"] == "system"
-    assert "Smile" in kwargs["messages"][0]["content"]
+    assert "Vector" in kwargs["messages"][0]["content"]
+    assert kwargs["temperature"] == 0.4
 
 
 def test_anthropic_adapter_maps_sdk_auth_error():
@@ -129,7 +135,7 @@ def test_anthropic_adapter_maps_sdk_auth_error():
 
     with patch.dict("os.environ", {"ANTHROPIC_API_KEY": "ak-test"}, clear=False):
         with patch.dict(sys.modules, {"anthropic": fake_anthropic}):
-            result = adapter.generate(_context())
+            result = adapter.generate(_package())
 
     assert "authentication_failed" in result.text
     assert result.prepared["ai_response"]["finish_reason"] == "error"
@@ -177,7 +183,7 @@ def test_ollama_adapter_http_success(monkeypatch):
             return FakeResponse()
 
     monkeypatch.setattr("app.portal.ai_provider_adapters.httpx.Client", FakeClient)
-    result = adapter.generate(_context())
+    result = adapter.generate(_package())
     assert result.text == "We open at 09:00."
     assert result.prepared["ai_response"]["provider"] == "ollama"
 
@@ -188,7 +194,7 @@ def test_adapter_never_mutates_conversation_context():
     context = _context()
     before = context.as_dict()
     with patch.dict("os.environ", {"OPENAI_API_KEY": ""}, clear=False):
-        adapter.generate(context)
+        adapter.generate(_package(context))
     assert context.as_dict() == before
 
 
@@ -199,7 +205,7 @@ def test_conversation_engine_files_unchanged_contract():
     assert "OpenAI(" not in engine
     protocol = (portal / "ai_provider_protocol.py").read_text(encoding="utf-8")
     assert (
-        "def generate(self, context: ConversationContext) -> AIGenerationResult:"
+        "def generate(self, prompt: PromptPackage) -> AIGenerationResult:"
         in protocol
     )
     registry = (portal / "ai_provider_registry.py").read_text(encoding="utf-8")

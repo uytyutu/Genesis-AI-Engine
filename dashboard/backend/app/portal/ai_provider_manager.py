@@ -19,6 +19,7 @@ from app.portal.ai_provider_registry import AIProviderRegistry
 from app.portal.ai_provider_store import AIProviderStore
 from app.portal.ai_provider_view import AIProviderView, build_provider_view
 from app.portal.conversation import ConversationContext
+from app.portal.prompt_facade import PromptFacade
 
 ENGINE_ID = "ai_provider_manager_v1"
 
@@ -31,9 +32,11 @@ class AIProviderManager:
         *,
         store: AIProviderStore,
         registry: AIProviderRegistry | None = None,
+        prompts: PromptFacade | None = None,
     ) -> None:
         self._store = store
         self._registry = registry if registry is not None else AIProviderRegistry()
+        self._prompts = prompts if prompts is not None else PromptFacade()
 
     def list_providers(self) -> list[AIProviderView]:
         rows = list(self._store.list_all())
@@ -119,8 +122,9 @@ class AIProviderManager:
         return self._registry.resolve_active(self._store.list_all())
 
     def generate(self, context: ConversationContext) -> AIGenerationResult:
-        """Gateway used by Conversation Engine — Protocol only."""
+        """Engine gateway: Prompt & Policy → Protocol.generate(PromptPackage)."""
         runtime = self.active_protocol()
+        package = self._prompts.build(context)
         if runtime is None:
             return AIGenerationResult(
                 text=STUB_UNAVAILABLE_REPLY,
@@ -128,10 +132,19 @@ class AIProviderManager:
                 prepared={
                     "ready": False,
                     "conversation_id": context.conversation_id,
+                    "prompt_package": package.as_dict(),
                 },
             )
-        runtime.prepare(context)
-        return runtime.generate(context)
+        prepared = runtime.prepare(context)
+        result = runtime.generate(package)
+        merged = dict(result.prepared)
+        merged["prepare"] = prepared
+        merged["prompt_package_id"] = package.package_id
+        return AIGenerationResult(
+            text=result.text,
+            provider_type=result.provider_type,
+            prepared=merged,
+        )
 
     def seed_default_stubs(self) -> None:
         """Ensure openai/anthropic/ollama stubs exist (idempotent)."""

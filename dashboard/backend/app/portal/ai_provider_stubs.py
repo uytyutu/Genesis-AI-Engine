@@ -20,6 +20,7 @@ from app.portal.ai_provider_protocol import (
     AIProviderProtocol,
 )
 from app.portal.conversation import ConversationContext
+from app.portal.prompt_package import PromptPackage
 
 ENGINE_ID = "ai_provider_stubs_v1"
 
@@ -70,8 +71,14 @@ class _BaseStubProvider:
             "ready": True,
         }
 
-    def generate(self, context: ConversationContext) -> AIGenerationResult:
-        prepared = self.prepare(context)
+    def generate(self, prompt: PromptPackage) -> AIGenerationResult:
+        prepared = {
+            "provider_type": self._record.provider_type,
+            "conversation_id": prompt.conversation_id,
+            "profile_id": prompt.profile_id,
+            "prompt_package_id": prompt.package_id,
+            "ready": True,
+        }
         if self._record.status != "enabled":
             return AIGenerationResult(
                 text=STUB_UNAVAILABLE_REPLY,
