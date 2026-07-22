@@ -58,7 +58,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | ✅ **R3.7** | **Read API Foundation** | **CLOSED** (CEO 2026-07-22) |
 | **R3.8** | **Portal Integration** | **OPEN** |
 | → ✅ **R3.8.1** | **Portal Integration Profile** | **PASS** · `e88e3e9` |
-| → **R3.8.2** | **Controlled Portal Registration** | **DONE (code)** — await CEO review |
+| → ✅ **R3.8.2** | **Controlled Portal Registration** | **PASS** · `b1717ad` |
+| → **R3.8.3** | **Portal Health Verification** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -247,7 +248,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.7 CLOSED ✅** · **R3.8.1 PASS ✅** · **NEXT = R3.8.2 Controlled Portal Registration**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.7 CLOSED ✅** · **R3.8.1–R3.8.2 PASS ✅** · **NEXT = R3.8.3 Portal Health Verification**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -511,9 +512,17 @@ Contract · Handlers · unmounted Router · Composition Root. Ready for controll
 
 **Backlog:** read `feature_enabled` from settings/.env later (not hardcoded) — after controlled registration exists.
 
-### R3.8.2 — Controlled Portal Registration — DONE (code)
+### R3.8.2 — Controlled Portal Registration — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/portal_registration.py`  
+**Module:** `dashboard/backend/app/portal/portal_registration.py` · commit `b1717ad`.  
 **API:** `register_portal_read(app)` — mounts **iff** `feature_enabled` is True; otherwise no-op.  
 **main.py:** single call to `register_portal_read(app)` (safe while flag is False).  
 **Not in R3.8.2:** enabling Portal · Auth · Persistence · business logic.
+
+**Backlog:** if richer diagnostics are needed, return a result object instead of expanding the bool.
+
+### R3.8.3 — Portal Health Verification — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/portal_health.py`  
+**API:** `portal_registration_snapshot()` → `feature_enabled` · `registration_attempted` · `registration_active`.  
+**Read-only** — does not re-register · does not enable Portal · no new endpoints · `main.py` unchanged.
