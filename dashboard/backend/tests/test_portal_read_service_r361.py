@@ -1,4 +1,4 @@
-"""R3.6.1 — PortalReadService (read-only; no API/UI/persistence)."""
+"""R3.6.1 / R3.6.2 — PortalReadService + Query objects."""
 
 from __future__ import annotations
 
@@ -6,7 +6,13 @@ from app.portal.asset import new_asset
 from app.portal.client import new_client, website_for_client
 from app.portal.deployment import attach_deployment, new_deployment
 from app.portal.edit_session import close_edit_session, new_edit_session
-from app.portal.read_service import ENGINE_ID, PortalCatalog, PortalReadService
+from app.portal.queries import AssetQuery, ClientQuery, WebsiteQuery
+from app.portal.read_service import (
+    ENGINE_ID,
+    PortalCatalog,
+    PortalCatalogView,
+    PortalReadService,
+)
 
 
 def _build_service() -> tuple[PortalReadService, dict]:
@@ -48,38 +54,38 @@ def test_engine_id():
 
 def test_get_client_and_website():
     svc, ids = _build_service()
-    c = svc.get_client(ids["client_id"])
-    w = svc.get_website(ids["website_id"])
+    c = svc.get_client(ClientQuery(client_id=ids["client_id"]))
+    w = svc.get_website(WebsiteQuery(website_id=ids["website_id"]))
     assert c is not None and c.client_id == ids["client_id"]
     assert w is not None and w.client_id == c.client_id
-    assert svc.get_client("missing") is None
-    assert svc.get_website("missing") is None
+    assert svc.get_client(ClientQuery(client_id="missing")) is None
+    assert svc.get_website(WebsiteQuery(website_id="missing")) is None
 
 
 def test_get_current_deployment():
     svc, ids = _build_service()
-    d = svc.get_current_deployment(ids["website_id"])
+    d = svc.get_current_deployment(WebsiteQuery(website_id=ids["website_id"]))
     assert d is not None
     assert d.deployment_id == ids["deployment_id"]
     assert d.website_id == ids["website_id"]
-    assert svc.get_current_deployment("missing") is None
+    assert svc.get_current_deployment(WebsiteQuery(website_id="missing")) is None
 
 
 def test_get_assets():
     svc, ids = _build_service()
-    assets = svc.get_assets(ids["website_id"])
+    assets = svc.get_assets(AssetQuery(website_id=ids["website_id"]))
     assert len(assets) == 2
     assert {a.asset_type for a in assets} == {"logo", "image"}
-    assert svc.get_assets("missing") == ()
+    assert svc.get_assets(AssetQuery(website_id="missing")) == ()
 
 
 def test_get_open_edit_session():
     svc, ids = _build_service()
-    s = svc.get_open_edit_session(ids["website_id"])
+    s = svc.get_open_edit_session(WebsiteQuery(website_id=ids["website_id"]))
     assert s is not None
     assert s.session_id == ids["open_session_id"]
     assert s.status == "open"
-    assert svc.get_open_edit_session("missing") is None
+    assert svc.get_open_edit_session(WebsiteQuery(website_id="missing")) is None
 
 
 def test_read_service_has_no_write_methods():
@@ -96,4 +102,35 @@ def test_read_service_has_no_write_methods():
     }
     names = {n for n in dir(PortalReadService) if not n.startswith("_")}
     assert not (names & forbidden)
-    assert {"get_client", "get_website", "get_current_deployment", "get_assets", "get_open_edit_session"} <= names
+    assert {
+        "get_client",
+        "get_website",
+        "get_current_deployment",
+        "get_assets",
+        "get_open_edit_session",
+    } <= names
+
+
+def test_catalog_is_protocol_view():
+    svc, _ = _build_service()
+    assert isinstance(svc._catalog, PortalCatalogView)
+
+
+def test_asset_query_optional_type_filter():
+    svc, ids = _build_service()
+    logos = svc.get_assets(
+        AssetQuery(website_id=ids["website_id"], asset_type="logo")
+    )
+    assert len(logos) == 1
+    assert logos[0].asset_type == "logo"
+
+
+def test_query_objects_have_no_behavior():
+    for cls in (ClientQuery, WebsiteQuery, AssetQuery):
+        methods = {
+            n
+            for n in dir(cls)
+            if not n.startswith("_") and callable(getattr(cls, n, None))
+        }
+        # dataclasses may expose asdict-like helpers via inheritance — keep empty of domain verbs
+        assert not methods & {"execute", "run", "fetch", "save", "validate"}

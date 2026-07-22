@@ -45,7 +45,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.5.6** | **EditSession Domain Model** | **PASS** · `361f77e` |
 | ✅ **R3.5** | **Domain Foundation** | **CLOSED** (CEO 2026-07-22) |
 | **R3.6** | **Portal Services** | **OPEN** |
-| → **R3.6.1** | **Portal Read Service** | **DONE (code)** — await CEO review |
+| → ✅ **R3.6.1** | **Portal Read Service** | **PASS** · `bbfd75f` |
+| → **R3.6.2** | **Portal Query Objects** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -234,7 +235,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5 Domain Foundation CLOSED ✅** · **NEXT = R3.6.1 Portal Read Service**.
+Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5 Domain Foundation CLOSED ✅** · **R3.6.1 PASS ✅** · **NEXT = R3.6.2 Portal Query Objects**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -408,9 +409,18 @@ Client → Website → Deployment | Asset | EditSession
 
 No Portal UI/API/Auth/persistence in R3.5. Next layer = services (R3.6), then API/UI.
 
-### R3.6.1 — Portal Read Service — DONE (code)
+### R3.6.1 — Portal Read Service — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/read_service.py`  
+**Module:** `dashboard/backend/app/portal/read_service.py` · commit `bbfd75f`.  
 **Types:** `PortalCatalog` (in-memory snapshot) · `PortalReadService`  
 **Methods:** `get_client` · `get_website` · `get_current_deployment` · `get_assets` · `get_open_edit_session`  
 **Not in R3.6.1:** mutations · persistence · API endpoints · Auth · UI · editing.
+
+**Rules:** depends on catalog abstraction (`PortalCatalogView`) · missing → `None` / `()` · `get_current_deployment` uses `Website.deployment_id`.
+
+### R3.6.2 — Portal Query Objects — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/queries.py`  
+**Types:** `ClientQuery` · `WebsiteQuery` · `AssetQuery` (optional `asset_type` filter).  
+**ReadService** accepts Query objects only — no HTTP / FastAPI coupling.  
+**Not in R3.6.2:** API · Auth · persistence · mutations.
