@@ -30,24 +30,19 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.2** | **Section-Aware Media Gate** | **✅ PASS** (CEO 2026-07-22) |
 | **R3.2.1** | **UX Polish** (back-to-top · overflow) | **✅ PASS** (CEO 2026-07-22) |
 | ✅ **R3.3** | **Section-Aware Content Gate** | **PASS** (CEO 2026-07-22) |
-| **R3.4** | **Global Market** (capability) | **OPEN** |
-| → **R3.4.1** | **Market Profile Layer (SSOT)** | **✅ PASS** (CEO 2026-07-22) |
-| → R3.4.1.1 | MarketProfile + resolve() | PASS |
-| → R3.4.1.2 | Composer Migration | PASS |
-| → R3.4.1.3 | Footer Migration | PASS |
-| → R3.4.1.4 | Landing Builder Migration | PASS |
-| → R3.4.1.5 | Cleanup & SSOT Validation | PASS |
-| → R3.4.1 FINAL | End-to-End Validation + Commit | **PASS** · `fb99cbe` |
-| → R3.4.1.R | Regression Cleanup (landing_i18n / nav) | **PASS** · `e3aa8d7` |
-| → **R3.4.2** | **Global Market Integration** | **OPEN** |
-| → **R3.4.2.1** | **Market Registry** | **PASS** · `abb300d` |
-| → **R3.4.2.2** | **Factory Consumers** | **PASS** · `a675c60` |
-| → **R3.4.2.3** | **Market Expansion Validation** | **DONE (code)** — await CEO review |
-| → **R3.4.3** | **Market Validation** | After R3.4.2 |
-| **R3.5** | **Client Portal** | After R3.4 |
+| ✅ **R3.4** | **Global Market** | **CLOSED** (CEO 2026-07-22) |
+| → R3.4.1 | Market Profile (SSOT) | PASS · `fb99cbe` |
+| → R3.4.1.R | Regression Cleanup | PASS · `e3aa8d7` |
+| → R3.4.2.1 | Market Registry | PASS · `abb300d` |
+| → R3.4.2.2 | Factory Consumers | PASS · `a675c60` |
+| → R3.4.2.3 | Market Expansion Validation | PASS · `9756c84` |
+| **R3.5** | **Client Portal** | **OPEN** |
+| → ✅ **R3.5.1** | **Client Portal Architecture** | **PASS** (CEO 2026-07-22) |
+| → **R3.5.2** | **Website Domain Model** | **IN PROGRESS** |
+| → R3.5.3+ | Portal slices (after Website model) | pending |
 
-**Not now:** full «Semantic Content Engine» · new LLM stack · CRM · Mission 4 detail · particles.  
-**Backlog until R3.5:** Client Portal · Gallery Upload · AI Background · SEO AI.
+**Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
+**Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
 
 **Backlog (tech debt — not bugs, not R3.2 blockers):**
 - Restaurant Showcase Pack (dedicated stills; generic food-retail OK for now)
@@ -233,31 +228,118 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3 opened on **owner-visibility evidence** (Premium Test FAIL → Premium Visual).
-R3.1 ✅ · R3.2 ✅ · R3.2.1 ✅ · R3.3 ✅ · **R3.4.1 Market Profile (SSOT) ✅** · **NEXT = R3.4.2 Global Market Integration** → 4.3 Validation → R3.5 Portal.
+Mission 3: R3.1–R3.3 ✅ · **R3.4 Global Market CLOSED ✅** · **R3.5.1 Architecture PASS ✅** · **NEXT = R3.5.2 Website Domain Model**.
 
-### R3.4 — architecture (CEO 2026-07-22)
+### R3.4 — CLOSED (CEO 2026-07-22)
 
-**Capability name:** Global Market (= choose any market).  
-**Architecture entity:** **Market Profile** (single source of truth).
+**Capability:** Global Market (= choose any registered market).  
+**Entities:** MarketRegistry → `resolve(market_code)` → MarketProfile (SSOT for chrome).  
+**Proven:** FR/NL/AT/ES added without changing Composer / Landing Builder / Footer.  
+**Separate layers (keep independent for now):** Market Profile · Market Design · Market Delivery.
 
+Commits: `fb99cbe` · `e3aa8d7` · `abb300d` · `a675c60` · `9756c84`.
+
+### R3.5.1 — Client Portal Architecture — PASS ✅ (CEO 2026-07-22)
+
+**Goal:** minimal ownership model so Portal does not become a mix of CRM + CMS + file manager.  
+**Commit:** `docs: Client Portal architecture R3.5.1 (Mission 3)`.
+
+#### Answers (binding for later slices)
+
+1. **Who owns the site?** A **Client** (business owner identity). Today Path A only has order contact fields — Portal introduces Client as first-class owner.
+2. **How is the site linked?** Client **1 — N** Website (Project). Website points at Factory `product_id` / sandbox artifact. An **Order** may *create* the first Website; it is not the long-term owner.
+3. **Entities (minimum):**
+
+| Entity | Responsibility | Maps from today |
+|--------|----------------|-----------------|
+| **Client** | Owner identity (email, business_name, market) | order contacts / visitor_id |
+| **Website** | One published/manageable site project | `product_id` + `meta.json` + sandbox |
+| **Deployment** | How/where the site is delivered (ZIP now; host/URL later) | `deployment_preference` + ZIP |
+| **Assets** | Media library for that Website (placeholder API) | `client_assets` + `assets/` |
+| **EditSession** | Bounded change batch before publish (placeholder) | Factory `revision` / improve |
+
+#### Entity diagram
+
+```mermaid
+erDiagram
+    CLIENT ||--o{ WEBSITE : owns
+    WEBSITE ||--o{ DEPLOYMENT : has
+    WEBSITE ||--o{ ASSET : contains
+    WEBSITE ||--o{ EDIT_SESSION : opens
+    ORDER ||--o| WEBSITE : creates
+    WEBSITE }o--|| MARKET_PROFILE : uses
+
+    CLIENT {
+        string client_id
+        string email
+        string business_name
+        string market_code
+    }
+    WEBSITE {
+        string website_id
+        string product_id
+        string package_id
+        string status
+    }
+    DEPLOYMENT {
+        string deployment_id
+        string mode
+        string artifact_uri
+    }
+    ASSET {
+        string asset_id
+        string role
+        string path
+    }
+    EDIT_SESSION {
+        string session_id
+        string state
+    }
 ```
-Global Market → Market Profile → Factory (Content / Media / Footer / Forms / later Portal)
+
+#### Data flow
+
+```mermaid
+flowchart LR
+    Order[Order paid] --> Factory[Factory build]
+    Factory --> Website[Website + product_id]
+    Website --> Deploy[Deployment ZIP]
+    Client[Client] --> Portal[Client Portal]
+    Portal --> Website
+    Portal --> Assets[Assets placeholder]
+    Portal --> Edit[EditSession placeholder]
+    Edit --> Website
+    Website --> Deploy
 ```
 
-**R3.4.1 — Market Profile Layer: PASS ✅ (CEO 2026-07-22)**  
-MarketProfile + `resolve(market_code)` is the **SSOT** for Factory market chrome: language, currency, locale, default CTA, phone/address format, business-hours conventions, legal footer keys + page slugs.  
-Migrated path: Composer → Landing Builder → Footer. No country `if/else` as source of those fields.  
-`resolve_market_design()` remains a **separate visual layer** (density/typography). Legacy `build_landing_html` without profile kept for compatibility. Stub `market_legal_profile.py` removed.
+#### Responsibility boundaries
 
-**SSOT (binding):** no new country-specific `if/else` outside Market Profile. New country = new profile row.
+| Layer | Owns | Must not own |
+|-------|------|--------------|
+| **Factory** | Generate / rebuild / gates / MarketProfile chrome | Client login, gallery CMS, billing CRM |
+| **Client Portal** | Auth'd management of *their* Website | Generating new niches, CEO Mission Control |
+| **Deployment** | Artifact + publish record | Editing content |
+| **Assets / EditSession** | Placeholders until R3.5.x | Full CMS / AI rewrite engine |
 
-**R3.4.2 — Global Market Integration (NEXT):** remaining Factory surfaces (delivery, legal page generation, catalogs, etc.) fully consume the profile where they still use legacy market helpers.  
-**USER CAN VERIFY:** same order built for DE and GB — only Market Profile data differs.
+#### Future features → entities
 
-**R3.4.3 — Market Validation:** prove scale. Core: DE · GB · US · UA; then FR · NL · AT · ES (or similar). Success = new market needs profile + local resources only, not Factory logic changes.
+| Feature | Primary entities |
+|---------|------------------|
+| Gallery upload | Website → Assets → (EditSession) → Deployment |
+| Content editing | Website → EditSession → meta/HTML fields |
+| Domain | Website → Deployment (host/DNS record) |
+| Analytics | **Website → Analytics** (site state; not Deployment history) |
 
-**R3.5 — Client Portal (after R3.4):** continuous management — contacts, hours, gallery upload, text updates, publish. Shift ZIP → Published site → Portal.
+**R3.5.1 PASS criteria:** diagrams + boundaries above · **no Portal UI/auth/pages code in this slice.** ✅
 
-**Not in R3.4:** Client Portal · Gallery Upload · AI Background · SEO AI · CRM · Mission 4 detail.
-Later stages still wait on market proof where noted.
+**Architecture notes (backlog — not R3.5):**
+- **Workspace** (future): Client → Workspace → Website — for multi-site / roles / staff. Do **not** introduce in R3.5; note only.
+- **Analytics** attach to Website (live site state). Deployment = publish history (ZIP, domain record, version, published_at, rollback).
+
+**Not in R3.5.1:** implementation · auth · Gallery · CRM · Domain UI.
+
+### R3.5.2 — Website Domain Model (NEXT)
+
+**Scope:** `Website` entity only — no Portal UI/API/auth.  
+**Fields:** website_id · client_id · product_id · market_code · deployment_id · status · created_at · updated_at.  
+**Links:** Order → website_id (creates); Deployment → website_id (publish record).
