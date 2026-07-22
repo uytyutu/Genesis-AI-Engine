@@ -24,7 +24,7 @@
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
-| **Product Track** | Iteration 1 CLOSED · Ops Gen1 CLOSED | **PT2 CLOSED** ✅ · **PT3 OPEN** (CEO 2026-07-22) · AI Assisted Operations |
+| **Product Track** | Ops Gen1 CLOSED · AI Assist Gen1 CLOSED | **PT3 CLOSED** ✅ · **PT4 OPEN** (CEO 2026-07-22) · Business Actions |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -335,7 +335,9 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Product Track Iteration 1 — CLOSED ✅** (CEO 2026-07-22) · First Run · Knowledge Workspace · Channel Setup · Vector Dashboard.  
 **Product Track PT2 — CLOSED ✅** (CEO 2026-07-22) · Customer Operations Workspace complete.  
 **Operations Workspace Generation 1 — CLOSED ✅** (CEO 2026-07-22) · Dashboard · Activity · Queue · Inbox · Conversation · Customers.  
-**Product Track PT3 — OPEN** (CEO 2026-07-22) · AI Assisted Operations (draft · summary · suggestions · never auto-send).  
+**Product Track PT3 — CLOSED ✅** (CEO 2026-07-22) · AI Assisted Operations complete.  
+**AI Assisted Workspace Generation 1 — CLOSED ✅** (CEO 2026-07-22) · Draft · Summary · Review · Priority · Tags · Knowledge hints · Insights.  
+**Product Track PT4 — OPEN** (CEO 2026-07-22) · Business Actions (explicit operator approval · never auto-execute).  
 **Not opened:** AP2.2 Streaming · Marketplace · real channel SDKs · CRM Automation.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline.  
