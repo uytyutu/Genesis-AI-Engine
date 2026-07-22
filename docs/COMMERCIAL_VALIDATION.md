@@ -17,7 +17,7 @@
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
 | **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
-| **Mission 6** | Product Platform | 6.1 PASS · NEXT = 6.2 Product Ownership (not opened) — not purchase/billing |
+| **Mission 6** | Product Platform | **OPEN** · 6.2 PASS · NEXT = 6.3 Product Activation (not opened) — not Billing |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -301,8 +301,9 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Mission 5 — CLOSED ✅** (CEO 2026-07-22) · Module Standard proven (4 module classes).  
 **Mission 6 — Product Platform Architecture Stamp ✅** (CEO 2026-07-22) · no mass refactor.  
 **Mission 6.1 PASS ✅** · 6f9e52f · Product Catalog platform endpoint.  
-**Next:** **Mission 6.2 Product Ownership** (planned).  
-**Review lenses:** Architecture · Backward Compatibility · Extensibility · Product Invariant.  
+**Mission 6.2 PASS ✅** · e7f86c6 · foundation Product Catalog + Product Ownership.  
+**Next:** **Mission 6.3 Product Activation** (planned).  
+**Review lenses:** Architecture · Backward Compatibility · Bridge Strategy · Product Invariant.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1297,3 +1298,46 @@ Portal GET /portal/products
 - Purchase · Licenses · ProductOwnership · WebsiteOwnership edits
 - AuthN/AuthZ rule changes · Billing · CRM · Marketplace UI
 ```
+
+### Mission 6.2 — Product Ownership · PASS ✅ · e7f86c6 (CEO 2026-07-22)
+
+**Purpose:** answer only — which products belong to this Account?  
+**Endpoint:** `GET /portal/my-products`  
+**Strategy:** `WebsiteOwnershipBridge` (read projection) — **no** data migration · **no** WebsiteOwnership edits.  
+**Bridge Strategy:** PASS ✅
+
+```text
+WebsiteOwnership → WebsiteOwnershipBridge → ProductOwnership View
+(+ native ProductOwnershipStore for future ChatBot/CRM/…)
+```
+
+**Fields:** product_id · product_type · display_name · status · source  
+
+**Forbidden in 6.2:** purchase · licenses · subscriptions · billing · payments · Marketplace · migrations · deleting WebsiteOwnership · AuthN/AuthZ changes.
+
+#### Scope Lock
+
+```text
+Mission: 6.2 — Product Ownership
+
+Account
+    ↓
+ProductOwnershipFacade
+    ├── ProductOwnershipStore (native)
+    └── WebsiteOwnershipBridge
+    ↓
+GET /portal/my-products
+
+Разрешено:
+- ProductOwnership Domain · Store · View · Facade
+- WebsiteOwnershipBridge
+- Catalog enrichment (display_name)
+- Router · Registration
+
+Запрещено:
+- Purchase · Licenses · Billing · Marketplace
+- Data migration · WebsiteOwnership mutation
+- AuthN/AuthZ rule changes
+```
+
+**Recommended chain:** 6.3 Activation → 6.4 Purchases → 6.5 Licenses → 6.6 Billing/Marketplace.
