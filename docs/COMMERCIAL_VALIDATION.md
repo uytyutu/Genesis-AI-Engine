@@ -19,8 +19,8 @@
 | **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
 | **Mission 6** | Product Platform Core (6.1–6.3) | **CLOSED** (CEO 2026-07-22) · core complete |
 | **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **ACCEPTED** (CEO 2026-07-22) |
-| **Commercial Platform** | Purchases · Billing · Licenses · Redeem → Activation → Ownership | **CORE CLOSED** ✅ (CEO 2026-07-22) · Marketplace UI later · not opened |
-| **Business Products** | ChatBot · CRM · Analytics · Automation · Website · … | **Later** · atop Core + Commerce |
+| **Commercial Platform** | Purchases · Billing · Licenses · Redeem → Activation → Ownership | **CORE CLOSED** ✅ (CEO 2026-07-22) · Marketplace deferred |
+| **Business Products** | ChatBot · CRM · Analytics · Automation | **OPEN** · BP1.1 PASS · NEXT = BP1.2 Business Knowledge (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -313,8 +313,9 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Commercial Platform 6.5 PASS** · `e75d778` · License central (entitlement · redeem → Activation).  
 **Commercial Platform 6.6 PASS** · `0104b44` · Billing financial ledger.  
 **Commercial Platform Core — CLOSED ✅** (CEO 2026-07-22) · Purchases · Billing · Licenses · Redeem → Activation → Ownership.  
-**Not opened:** Marketplace (UI/orchestrator later) · Business Products (ChatBot first when scoped).  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy.  
+**Not opened:** Marketplace · BP1.2 Business Knowledge · channels · AI providers.  
+**Business Product BP1.1 — PASS ✅** · ChatBot Business Profile & Industry Template (no AI · no channel SDKs).  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1736,5 +1737,49 @@ Commercial Platform Core
 ```
 
 **Boundary:** Commercial Platform uses Platform Core; does not rewrite Catalog / Ownership / Activation / Bridge.  
-**Not opened:** Marketplace (UI/orchestrator) · real PSPs · Business Products (ChatBot · CRM · Analytics · Automation).  
-**Next when CEO scopes:** Business Product #1 ChatBot (setup wizard · channels · knowledge) — or Marketplace UI only as orchestrator of existing services.
+**Marketplace:** deferred (no storefront without products).  
+**Business Products:** ChatBot first — see BP1.1.
+
+### Business Product BP1.1 — ChatBot Business Profile & Industry Template · PASS ✅ · `5f2e72f` (CEO 2026-07-22)
+
+**Purpose:** describe the business for which the digital employee is created — not AI quality.  
+**Endpoints:**
+- `GET /portal/chatbot/profile`
+- `PUT /portal/chatbot/profile`
+- `GET /portal/chatbot/templates`
+- `POST /portal/chatbot/profile/bootstrap`
+
+**Separate from** R5.4 website integration `GET/PUT /portal/websites/{id}/chatbot`.
+
+#### Scope Lock
+
+```text
+Business Product BP1.1 — ChatBot
+
+ChatBot Product
+    ↓
+Business Profile
+    ↓
+Industry Template
+    ↓
+Initial Configuration (bootstrap)
+
+Industries: dental · auto_service · beauty · real_estate · restaurant · ecommerce · other
+
+Разрешено:
+- ChatBotBusinessProfile · IndustryTemplate · InitialConfiguration
+- Seed Store templates · Facade · HTTP above
+
+Запрещено:
+- OpenAI · Anthropic · Telegram/Instagram/Facebook/WhatsApp SDK
+- RAG · Embeddings · Streaming · Conversation Engine
+```
+
+#### Acceptance
+
+- Standalone BusinessProfile ✅
+- IndustryTemplate ✅
+- Bootstrap creates Initial Configuration ✅
+- No AI dependency ✅
+- No external channel/provider SDK ✅
+
