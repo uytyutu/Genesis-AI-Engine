@@ -24,7 +24,8 @@
 | **Business Products** | ChatBot (Vector) · CRM · Analytics · Automation | **Vector Product Foundation CLOSED** ✅ |
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
-| **Product Track** | Ops Gen1 CLOSED · AI Assist Gen1 CLOSED | **PT3 CLOSED** ✅ · **PT4 OPEN** (CEO 2026-07-22) · Business Actions |
+| **Product Track** | Ops · AI Assist · Business Actions CLOSED | **PT4 CLOSED** ✅ · **Human-in-the-Loop CLOSED** ✅ · **IT1 OPEN** (Website Widget) |
+| **Integration Track** | First real channel | **IT1.1 OPEN** (CEO 2026-07-22) · Website Widget → Conversation → Actions |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -337,10 +338,12 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Operations Workspace Generation 1 — CLOSED ✅** (CEO 2026-07-22) · Dashboard · Activity · Queue · Inbox · Conversation · Customers.  
 **Product Track PT3 — CLOSED ✅** (CEO 2026-07-22) · AI Assisted Operations complete.  
 **AI Assisted Workspace Generation 1 — CLOSED ✅** (CEO 2026-07-22) · Draft · Summary · Review · Priority · Tags · Knowledge hints · Insights.  
-**Product Track PT4 — OPEN** (CEO 2026-07-22) · Business Actions (explicit operator approval · never auto-execute).  
-**Not opened:** AP2.2 Streaming · Marketplace · real channel SDKs · CRM Automation.  
+**Product Track PT4 — CLOSED ✅** (CEO 2026-07-22) · Business Actions complete.  
+**Human-in-the-Loop Execution Model — CLOSED ✅** (CEO 2026-07-22) · AI Review → Human Approval → Business Actions → Audit Trail.  
+**Integration Track IT1 — OPEN** (CEO 2026-07-22) · First real channel (IT1.1 Website Widget).  
+**Not opened:** AP2.2 Streaming · AP2.3 Tool Calling · AP2.5 RAG · Marketplace · CRM Automation.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline.  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline · Business Action approval invariant · Human-in-the-Loop Execution Model.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -2357,7 +2360,7 @@ Conversation Inbox · Conversation Workspace · Customer Workspace
 
 **Boundary:** First finished operator workspace for Vector. Further Product Track work makes these screens smarter (PT3), not more shell screens.
 
-### Product Track PT3 — AI Assisted Operations · OPEN (CEO 2026-07-22)
+### Product Track PT3 — AI Assisted Operations · PASS ✅ · CLOSED (CEO 2026-07-22)
 
 ```text
 AI Assisted Operations
@@ -2370,7 +2373,7 @@ AI Assisted Operations
   └── AI Review Panel
 ```
 
-**Invariant:**
+**Permanent AI Assistance invariant:**
 ```text
 AI Assistance augments human operators.
 AI Assistance never bypasses business policies.
@@ -2378,4 +2381,76 @@ AI Assistance never sends customer messages automatically.
 AI Assistance always operates through Prompt & Policy Layer.
 ```
 
-**Forbidden until later:** auto-send · Tool Calling as default · Streaming UI requirement · RAG · Agent Logic · Channel SDKs.
+**Surface:** Conversation Workspace AI Review Panel · `.../assistance/draft|summary|review`.  
+**Forbidden:** auto-send · mutating timeline with assist instructions · bypassing Prompt & Policy.
+
+### AI Assisted Workspace Generation 1 — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+✓ Draft Reply · Conversation Summary · AI Review
+✓ Priority · Tags · Knowledge Hints · Insights
+```
+
+### Product Track PT4 — Business Actions · PASS ✅ · CLOSED (CEO 2026-07-22)
+
+```text
+Business Actions
+  ├── Approve AI Draft → Send Message
+  ├── Create Knowledge Fact / Update FAQ
+  ├── Create Follow-up Task
+  ├── Escalate Conversation
+  └── Action History
+```
+
+**Permanent Business Action invariant:**
+```text
+Business Actions execute explicit operator intent.
+Business Actions never execute automatically.
+Every AI suggestion requires human approval before changing business data or communicating with customers.
+approved: false → approval_required → No execution.
+```
+
+**Surface:** `POST|GET /portal/chatbot/actions` · Conversation Workspace Business Actions panel.  
+**Forbidden:** silent auto-send · auto-write Knowledge · background agents without approval UI · re-calling the model on Approve & Send.
+
+### Business Actions Workspace Generation 1 — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+✓ Unified Action API · Operator approval gate
+✓ Approve & Send (assistant publish · no AI re-call)
+✓ Create Knowledge · Escalate · Follow-up stub · Action History
+```
+
+### Human-in-the-Loop Execution Model — CLOSED ✅ (CEO 2026-07-22)
+
+```text
+AI Review → Human Approval → Business Actions → Audit Trail
+```
+
+Permanent rule for all future actions with external consequences (customer messages · knowledge · tickets · assignments).
+
+### Integration Track IT1 — First Real Channel · OPEN (CEO 2026-07-22)
+
+#### IT1.1 Website Widget · OPEN
+
+```text
+Website Widget
+        │
+        ▼
+Incoming Message
+        │
+        ▼
+Conversation Engine
+        │
+        ▼
+AI Review / Draft
+        │
+        ▼
+Business Actions
+        │
+        ▼
+Outgoing Message
+```
+
+**Goal:** First external channel proving client → Vector → operator → Business Actions in real operation.  
+**Not opened yet:** Streaming · Tool Calling · RAG — after at least one live channel.
