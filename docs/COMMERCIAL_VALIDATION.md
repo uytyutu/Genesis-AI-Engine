@@ -80,7 +80,7 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.12.1** | **Account Ownership Architecture** | **PASS** · `83c8c56` · **CLOSED** |
 | → ✅ **R3.12.2** | **Activation Token Domain** | **PASS** · `80b641e` |
 | → ✅ **R3.12.3** | **Password Creation** | **PASS** · `458be7d` |
-| → ✅ **R3.12.4** | **Authentication Domain** | **PASS** — await commit hash |
+| → ✅ **R3.12.4** | **Authentication Domain** | **PASS** · `b7a9763` |
 | → **R3.12.5** | **Authorization / Dashboard Access** | **NEXT** |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
