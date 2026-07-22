@@ -17,7 +17,9 @@
 | **Mission 3** | Perception → semantics → market → portal · identity | **CLOSED** (CEO 2026-07-22) |
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
 | **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
-| **Mission 6** | Product Platform | **OPEN** · 6.3 PASS · Product Platform core complete · NEXT = Platform Core v2 Architecture Stamp (planned) — not Purchases yet |
+| **Mission 6** | Product Platform Core (6.1–6.3) | **CLOSED** (CEO 2026-07-22) · core complete |
+| **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **STAMPED** (CEO 2026-07-22) · no code |
+| Commercial Platform | Purchases → Licenses → Billing → Marketplace | **Later** · not opened |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -303,8 +305,10 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Mission 6.1 PASS ✅** · 6f9e52f · Product Catalog platform endpoint.  
 **Mission 6.2 PASS ✅** · e7f86c6 · foundation Product Catalog + Product Ownership.  
 **Mission 6.3 PASS ✅** · 546b5bc · Product Platform core (Catalog+Ownership+Activation) complete.  
-**Next:** Platform Core v2 Architecture Stamp (planned, not opened).  
-**Review lenses:** Architecture · Activation≠Provisioning · Bridge intact · No billing.  
+**Mission 6 — CLOSED ✅** (CEO 2026-07-22) · Product Platform Core complete.  
+**Platform Core v2 — STAMPED ✅** (CEO 2026-07-22) · Identity + Portal + Product · no code.  
+**Next:** Commercial Platform (Purchases / Licenses / Billing / Marketplace) — only after CEO opens a scoped slice.  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1384,3 +1388,129 @@ body: { "activation_code": "..." }
 - Provisioning product runtime
 - WebsiteOwnershipBridge changes
 ```
+
+### Platform Core v2 — Architecture Stamp ✅ (CEO 2026-07-22)
+
+**Status:** Architecture Stamp only · **no code** · no refactor.  
+**Meaning:** Identity + Portal + Product Platform cores are complete. Further work = **Commercial Platform**, not foundation rewrite.
+
+```text
+Virtus Core Platform
+────────────────────────────
+Identity Platform
+    ↓
+Portal Platform
+    ↓
+Product Platform
+────────────────────────────
+Products
+Website · ChatBot · CRM · Analytics · Automation · …
+```
+
+#### Platform Layers
+
+**Identity Platform**
+
+```text
+✓ Authentication
+✓ Authorization
+✓ Sessions
+✓ Account Identity
+```
+
+**Portal Platform**
+
+```text
+✓ Module Blueprint
+✓ Portal Routing
+✓ Module Facades
+✓ Integration Boundary
+```
+
+**Product Platform**
+
+```text
+✓ Product Catalog
+✓ Product Ownership
+✓ Product Activation
+```
+
+#### Core Invariants (binding)
+
+**Identity Invariant**
+
+```text
+Identity is platform-wide.
+Products never implement authentication.
+```
+
+**Portal Invariant**
+
+```text
+Portal coordinates modules.
+Modules never own platform concerns.
+```
+
+**Product Invariant**
+
+```text
+Every product is independently purchasable.
+Products may integrate.
+Products do not require other products to exist.
+```
+
+**Activation Invariant**
+
+```text
+Activation creates ownership.
+Activation is independent of purchases,
+licenses and billing.
+```
+
+**Ownership Invariant**
+
+```text
+ProductOwnership is the canonical ownership model.
+WebsiteOwnershipBridge exists only as a compatibility layer
+(not the long-term target model).
+```
+
+#### Evolution Path
+
+```text
+Mission 3 — Identity Platform
+    ↓
+Mission 4 — Portal Platform
+    ↓
+Mission 5 — Module Standard
+    ↓
+Mission 6 — Product Platform Core
+────────────────────────────
+Platform Core v2  ← you are here
+```
+
+#### Commercial Layer (Future — not Platform Core)
+
+```text
+Purchases
+    ↓
+Licenses
+    ↓
+Billing
+    ↓
+Marketplace
+```
+
+Named **Commercial Platform** — expands commerce; does not redefine Core.
+
+#### Must not change after this stamp (without explicit CEO reopen)
+
+- AuthN / AuthZ  
+- Module Blueprint  
+- Product Blueprint / Product Invariant  
+- Product Catalog API (`GET /portal/products`)  
+- Product Ownership API (`GET /portal/my-products`)  
+- Activation API (`POST /portal/products/{id}/activate`)  
+- Bridge Strategy (compatibility layer until Website is native)
+
+**Next gate:** CEO opens a scoped Commercial Platform slice (e.g. Purchases) — never a core rewrite.
