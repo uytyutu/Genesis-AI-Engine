@@ -11,6 +11,10 @@ from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.edit_session import EditSession, close_edit_session, new_edit_session
 from app.portal.portal_bootstrap import PortalReadStack, compose_portal_read, teardown_portal_read
 from app.portal.portal_health import portal_registration_snapshot
+from app.portal.portal_lifecycle import (
+    resolve_portal_lifecycle_state,
+    portal_lifecycle_snapshot,
+)
 from app.portal.portal_profile import PORTAL_PROFILE, is_portal_feature_enabled
 from app.portal.portal_read_router import portal_read_router
 from app.portal.portal_registration import register_portal_read
@@ -59,9 +63,11 @@ __all__ = [
     "new_deployment",
     "new_edit_session",
     "new_website",
+    "portal_lifecycle_snapshot",
     "portal_read_router",
     "portal_registration_snapshot",
     "register_portal_read",
+    "resolve_portal_lifecycle_state",
     "teardown_portal_read",
     "website_for_client",
 ]

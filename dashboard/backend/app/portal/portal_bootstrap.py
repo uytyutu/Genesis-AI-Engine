@@ -72,5 +72,8 @@ def compose_portal_read(
 
 
 def teardown_portal_read() -> None:
-    """Clear router handler slot (tests / shutdown)."""
+    """Clear router handler slot (tests / shutdown) — lifecycle: teardown."""
+    from app.portal.portal_lifecycle import note_portal_teardown
+
     clear_portal_read_handlers()
+    note_portal_teardown()

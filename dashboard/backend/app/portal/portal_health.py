@@ -15,7 +15,13 @@ ENGINE_ID = "portal_health_v1"
 
 
 def portal_registration_snapshot() -> dict[str, Any]:
-    """Diagnostic snapshot of Portal registration — no side effects."""
+    """Diagnostic snapshot of Portal registration — no side effects.
+
+    Field meanings:
+    - registration_attempted: True iff ``register_portal_read`` has run at least
+      once (success or skip). Not a success indicator.
+    - registration_active: True iff that run mounted the read router.
+    """
     outcome = last_registration_outcome()
     attempted = bool(outcome and outcome.attempted)
     active = bool(outcome and outcome.active)

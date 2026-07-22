@@ -59,7 +59,8 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | **R3.8** | **Portal Integration** | **OPEN** |
 | → ✅ **R3.8.1** | **Portal Integration Profile** | **PASS** · `e88e3e9` |
 | → ✅ **R3.8.2** | **Controlled Portal Registration** | **PASS** · `b1717ad` |
-| → **R3.8.3** | **Portal Health Verification** | **DONE (code)** — await CEO review |
+| → ✅ **R3.8.3** | **Portal Health Verification** | **PASS** · `61a0948` |
+| → **R3.8.4** | **Portal Lifecycle Contract** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -248,7 +249,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.7 CLOSED ✅** · **R3.8.1–R3.8.2 PASS ✅** · **NEXT = R3.8.3 Portal Health Verification**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6–R3.7 CLOSED ✅** · **R3.8.1–R3.8.3 PASS ✅** · **NEXT = R3.8.4 Portal Lifecycle Contract**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -521,8 +522,17 @@ Contract · Handlers · unmounted Router · Composition Root. Ready for controll
 
 **Backlog:** if richer diagnostics are needed, return a result object instead of expanding the bool.
 
-### R3.8.3 — Portal Health Verification — DONE (code)
+### R3.8.3 — Portal Health Verification — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/portal_health.py`  
+**Module:** `dashboard/backend/app/portal/portal_health.py` · commit `61a0948`.  
 **API:** `portal_registration_snapshot()` → `feature_enabled` · `registration_attempted` · `registration_active`.  
 **Read-only** — does not re-register · does not enable Portal · no new endpoints · `main.py` unchanged.
+
+**Semantics:** `registration_attempted` = register ran (any result); success = `registration_active` only.
+
+### R3.8.4 — Portal Lifecycle Contract — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/portal_lifecycle.py`  
+**States:** `disabled` → `registered` → `active` → `teardown`  
+**API:** `resolve_portal_lifecycle_state()` · `portal_lifecycle_snapshot()` · transitions table.  
+Uses Profile · RegistrationOutcome · health. No endpoints · Auth · UI · behaviour change.
