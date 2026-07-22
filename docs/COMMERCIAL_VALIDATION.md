@@ -20,7 +20,7 @@
 | **Mission 6** | Product Platform Core (6.1–6.3) | **CLOSED** (CEO 2026-07-22) · core complete |
 | **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **ACCEPTED** (CEO 2026-07-22) |
 | **Commercial Platform** | Purchases · Billing · Licenses · Redeem → Activation → Ownership | **CORE CLOSED** ✅ (CEO 2026-07-22) · Marketplace deferred |
-| **Business Products** | ChatBot · CRM · Analytics · Automation | **OPEN** · BP1.1 PASS · NEXT = BP1.2 Business Knowledge (not opened) |
+| **Business Products** | ChatBot · CRM · Analytics · Automation | **OPEN** · BP1.2 PASS · NEXT = BP1.3 Channel Connections stub (not opened) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -313,9 +313,10 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Commercial Platform 6.5 PASS** · `e75d778` · License central (entitlement · redeem → Activation).  
 **Commercial Platform 6.6 PASS** · `0104b44` · Billing financial ledger.  
 **Commercial Platform Core — CLOSED ✅** (CEO 2026-07-22) · Purchases · Billing · Licenses · Redeem → Activation → Ownership.  
-**Not opened:** Marketplace · BP1.2 Business Knowledge · channels · AI providers.  
+**Not opened:** Marketplace · BP1.3 Channel Connections (stub registry) · AI providers.  
 **Business Product BP1.1 — PASS ✅** · ChatBot Business Profile & Industry Template (no AI · no channel SDKs).  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core.  
+**Business Product BP1.2 — PASS ✅** · Business Knowledge (facts only · fixed categories).  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge Invariant.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
@@ -1782,4 +1783,58 @@ Industries: dental · auto_service · beauty · real_estate · restaurant · eco
 - Bootstrap creates Initial Configuration ✅
 - No AI dependency ✅
 - No external channel/provider SDK ✅
+
+**ChatBot foundation after BP1.2:** Profile · Industry Template · Business Knowledge.  
+**Next (not opened):** **BP1.3 Channel Connections (stub)** — channel registry/config/status only; no Telegram/Meta SDK.
+
+### Business Product BP1.2 — Business Knowledge · PASS ✅ · `47b512d` (CEO 2026-07-22)
+
+**Purpose:** what the digital employee must know about the company — structured facts only.  
+**Endpoints:**
+- `GET /portal/chatbot/knowledge`
+- `POST /portal/chatbot/knowledge`
+- `PUT /portal/chatbot/knowledge/{knowledge_id}`
+- `DELETE /portal/chatbot/knowledge/{knowledge_id}`
+
+#### Knowledge Invariant
+
+```text
+Business Knowledge stores facts.
+Business Knowledge never generates answers.
+Business Knowledge never communicates with customers.
+```
+
+#### Categories (fixed)
+
+```text
+company · services · products · pricing · working_hours · faq · policies · contacts
+```
+
+#### Scope Lock
+
+```text
+Business Product BP1.2 — Business Knowledge
+
+Business Profile
+    ↓
+BusinessKnowledge (profile_id)
+    ↓
+Knowledge Categories
+
+Разрешено:
+- BusinessKnowledge Domain · Store · View · Service · Facade
+- CRUD HTTP above · link to BP1.1 profile
+
+Запрещено:
+- OpenAI · Anthropic · RAG · Embeddings · Vector DB · Semantic Search
+- Telegram · Instagram · Facebook · Website Widget · Conversation Engine
+```
+
+#### Acceptance
+
+- Standalone BusinessKnowledge ✅
+- Fixed categories ✅
+- Linked to Business Profile ✅
+- CRUD API ✅
+- No AI / external SDK ✅
 
