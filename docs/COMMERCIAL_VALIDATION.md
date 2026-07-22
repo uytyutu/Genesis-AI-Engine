@@ -18,8 +18,9 @@
 | **Mission 4** | Portal Infrastructure (R4.1–R4.6) · Platform v1 | **CLOSED** (CEO 2026-07-22) |
 | **Mission 5** | Module Standard (Write · Read · Resource · Integration) | **CLOSED** (CEO 2026-07-22) |
 | **Mission 6** | Product Platform Core (6.1–6.3) | **CLOSED** (CEO 2026-07-22) · core complete |
-| **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **STAMPED** (CEO 2026-07-22) · no code |
-| Commercial Platform | Purchases → Licenses → Billing → Marketplace | **Later** · not opened |
+| **Platform Core v2** | Identity + Portal + Product (architecture stamp) | **ACCEPTED** (CEO 2026-07-22) |
+| **Commercial Platform** | Purchases → Licenses → Billing → Marketplace | **Later** · not opened |
+| **Business Products** | ChatBot · CRM · Analytics · Automation · Website · … | **Later** · atop Core + Commerce |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -306,7 +307,8 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Mission 6.2 PASS ✅** · e7f86c6 · foundation Product Catalog + Product Ownership.  
 **Mission 6.3 PASS ✅** · 546b5bc · Product Platform core (Catalog+Ownership+Activation) complete.  
 **Mission 6 — CLOSED ✅** (CEO 2026-07-22) · Product Platform Core complete.  
-**Platform Core v2 — STAMPED ✅** (CEO 2026-07-22) · Identity + Portal + Product · no code.  
+**Platform Core v2 — ACCEPTED ✅** (CEO 2026-07-22) · Identity + Portal + Product · foundation complete.  
+**Terminology shift:** further work = **Commercial Platform** + **Business Products** (not new “architecture missions”).  
 **Next:** Commercial Platform (Purchases / Licenses / Billing / Marketplace) — only after CEO opens a scoped slice.  
 **Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy.  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
@@ -1514,3 +1516,45 @@ Named **Commercial Platform** — expands commerce; does not redefine Core.
 - Bridge Strategy (compatibility layer until Website is native)
 
 **Next gate:** CEO opens a scoped Commercial Platform slice (e.g. Purchases) — never a core rewrite.
+
+### Platform Core v2 — ACCEPTED ✅ (CEO 2026-07-22)
+
+Foundation complete. Architecture missions stop here; growth continues as commerce + products.
+
+#### Terminology (binding)
+
+| Before (Platform Missions) | After |
+|----------------------------|--------|
+| Building Identity / Portal / Modules / Product Core | **done** |
+| Next architecture waves | **Commercial Platform** · **Business Products** |
+
+```text
+Commercial Platform
+────────────────────
+6.4 Purchases
+6.5 Licenses
+6.6 Billing
+6.7 Marketplace
+
+Business Products
+────────────────────
+ChatBot · CRM · Analytics · Automation · Website · …
+```
+
+Commerce = how products are acquired and serviced.  
+Products = their own domain functionality.
+
+#### Commercial Platform Rule (binding)
+
+```text
+Commerce never owns products.
+Commerce activates products.
+Products own functionality.
+```
+
+- **Purchases** does not create ChatBot.  
+- **Billing** does not manage CRM.  
+- **Marketplace** does not know Analytics internals.  
+
+After a successful commercial process, commerce **only** calls **Product Activation**.  
+Ownership stays in Product Platform; domain behavior stays in Business Products.
