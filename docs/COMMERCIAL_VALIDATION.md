@@ -41,8 +41,9 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.5.2** | **Website Domain Model** | **PASS** · `fad5382` |
 | → ✅ **R3.5.3** | **Client Domain Model** | **PASS** · `871c993` |
 | → ✅ **R3.5.4** | **Deployment Domain Model** | **PASS** · `861be5a` |
-| → **R3.5.5** | **Assets Domain Model** | **DONE (code)** — await CEO review |
-| → R3.5.6+ | EditSession / Portal slices | pending |
+| → ✅ **R3.5.5** | **Assets Domain Model** | **PASS** · `72b6c72` |
+| → **R3.5.6** | **EditSession Domain Model** | **DONE (code)** — await CEO review |
+| → R3.5.7+ | First Portal read scenarios | pending |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -231,7 +232,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5.1–R3.5.4 PASS ✅** · **NEXT = R3.5.5 Assets Domain Model**.
+Mission 3: R3.1–R3.3 ✅ · **R3.4 CLOSED ✅** · **R3.5.1–R3.5.5 PASS ✅** · **NEXT = R3.5.6 EditSession Domain Model**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -379,9 +380,18 @@ Order ──website_id──▶ Website            ← creates, does not own
 
 **Backlog notes:** `version` is per-Website sequence (not Factory-global) · keep `Website.deployment_id` as current pointer when Deployments[] arrives.
 
-### R3.5.5 — Assets Domain Model — DONE (code)
+### R3.5.5 — Assets Domain Model — PASS ✅ (CEO 2026-07-22)
 
-**Module:** `dashboard/backend/app/portal/asset.py`  
+**Module:** `dashboard/backend/app/portal/asset.py` · commit `72b6c72`.  
 **Fields:** asset_id · website_id · asset_type · artifact_ref · created_at.  
 **Link:** `Asset.website_id` → Website (N assets per site).  
 **Not in R3.5.5:** Gallery · upload · storage · CDN · resize · binary data · API/UI.
+
+**Backlog notes:** keep `asset_type` as constrained set · `artifact_ref` is an **opaque reference** (Portal must not assume URL/path/UUID format).
+
+### R3.5.6 — EditSession Domain Model — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/edit_session.py`  
+**Fields:** session_id · website_id · status · started_at · ended_at (optional).  
+**Link:** `EditSession.website_id` → Website.  
+**Not in R3.5.6:** editor · autosave · realtime · version history · API/UI.
