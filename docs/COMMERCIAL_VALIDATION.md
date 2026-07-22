@@ -94,7 +94,7 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 |-------|--------|--------|
 | → ✅ **R4.1** | **HTTP Login Endpoint** | **PASS** · `c60bca0` |
 | → ✅ **R4.2** | **Session Domain / Store** | **PASS** · `78eb847` |
-| → ✅ **R4.3** | **Authentication Middleware** | **PASS** — await commit hash |
+| → ✅ **R4.3** | **Authentication Middleware** | **PASS** · `b5e5790` |
 | → **R4.4** | **Protected Dashboard** | **NEXT** |
 | → **R4.5** | **Logout** | planned |
 | → **R4.6** | **Activation Flow Integration** | planned |
