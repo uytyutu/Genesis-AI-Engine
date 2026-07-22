@@ -48,7 +48,10 @@ Beauty / Computer / Green heroes off-topic. Systemic algorithm gap, not dental-o
 | → ✅ **R3.6.1** | **Portal Read Service** | **PASS** · `bbfd75f` |
 | → ✅ **R3.6.2** | **Portal Query Objects** | **PASS** · `fe30d15` |
 | → ✅ **R3.6.3** | **Portal View Models** | **PASS** · `f118637` |
-| → **R3.6.4** | **EditSessionView** | **DONE (code)** — await CEO review |
+| → ✅ **R3.6.4** | **EditSessionView** | **PASS** · `626c6dc` |
+| ✅ **R3.6** | **Read Layer** | **CLOSED** (CEO 2026-07-22) |
+| **R3.7** | **Portal API** | **OPEN** |
+| → **R3.7.1** | **Read API Contract** | **DONE (code)** — await CEO review |
 
 **Not now:** full CRM · Mission 4 detail · merging Market Design+Delivery into one facade.  
 **Backlog until later R3.5 slices:** Gallery Upload · Content Editing · Domain · Analytics UI.
@@ -237,7 +240,7 @@ _(none yet — first real traffic / payment opens Entry 1)_
 ## After validation
 
 Commercial Validation stays **ACTIVE** in parallel (real orders / funnel).  
-Mission 3: R3.1–R3.3 ✅ · **R3.4–R3.5 CLOSED ✅** · **R3.6.1–R3.6.3 PASS ✅** · **NEXT = R3.6.4 EditSessionView**.
+Mission 3: R3.1–R3.5 ✅ · **R3.6 Read Layer CLOSED ✅** · **NEXT = R3.7.1 Read API Contract**.
 
 ### R3.4 — CLOSED (CEO 2026-07-22)
 
@@ -436,9 +439,27 @@ No Portal UI/API/Auth/persistence in R3.5. Next layer = services (R3.6), then AP
 **ReadService** returns View Models for those four; domain entities unchanged.  
 **Not in R3.6.3:** FastAPI · HTTP · UI · Auth · persistence.
 
-### R3.6.4 — EditSessionView — DONE (code)
+### R3.6.4 — EditSessionView — PASS ✅ (CEO 2026-07-22)
 
-**Adds:** `EditSessionView` · `to_edit_session_view(...)`.  
+**Adds:** `EditSessionView` · `to_edit_session_view(...)` · commit `626c6dc`.  
 **ReadService:** `get_open_edit_session` → `EditSessionView | None`.  
 **PASS:** all public `get_*` methods return View Models only.  
 **Not in R3.6.4:** HTTP · FastAPI · UI · Auth · persistence.
+
+**Rule:** View Models are **read-only** projections — not used to write back into the domain.
+
+### R3.6 — Read Layer — CLOSED ✅
+
+```
+Domain → CatalogView → PortalReadService ← Query → View Models
+```
+
+Independent of HTTP / FastAPI / UI. Next = R3.7 Portal API.
+
+### R3.7.1 — Read API Contract — DONE (code)
+
+**Module:** `dashboard/backend/app/portal/read_api_contract.py`  
+**Declares:** GET `/portal/clients/{id}` · `/websites/{id}` · `/deployment` · `/assets` · `/edit-session`  
+**I/O:** path/query models + View Models as responses.  
+**Flags:** `mounted=False` · `auth=False` — not registered in `main.py`.  
+**Not in R3.7.1:** FastAPI routers · Auth · write APIs · ReadService wiring.
