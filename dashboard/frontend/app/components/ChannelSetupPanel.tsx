@@ -250,6 +250,12 @@ export function ChannelSetupPanel() {
               Refresh
             </Button>
             <Link
+              href="/projects/chatbot"
+              className="inline-flex items-center rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5"
+            >
+              Dashboard
+            </Link>
+            <Link
               href="/projects/chatbot/knowledge"
               className="inline-flex items-center rounded-xl border border-white/10 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5"
             >
