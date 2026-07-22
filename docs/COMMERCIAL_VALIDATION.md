@@ -25,8 +25,8 @@
 | **AI Platform 1.0** | Protocol · Registry · Manager · Adapters · AIResponse | **CLOSED** ✅ (CEO 2026-07-22) |
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
 | **Product Track** | Generation 1 complete | **Virtus Core Gen1 CLOSED** ✅ |
-| **Operational Readiness** | Pre-channel gate (not a Product Track) | **OR Gate OPEN** (CEO 2026-07-22) · OR1–OR4 |
-| **Integration Track** | First real channel | **IT1.1 PAUSED** until OR Generation 1 CLOSED |
+| **Operational Readiness** | Pre-channel gate (not a Product Track) | **OR Gen1 CLOSED** ✅ (CEO 2026-07-22) |
+| **Integration Track** | First real channel | **IT1.1 OPEN** (CEO 2026-07-22) · Website Widget |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -342,11 +342,11 @@ Mission 3: **CLOSED ✅** (CEO 2026-07-22) · R3.1–R3.12 complete · domain fo
 **Product Track PT4 — CLOSED ✅** (CEO 2026-07-22) · Business Actions complete.  
 **Human-in-the-Loop Execution Model — CLOSED ✅** (CEO 2026-07-22) · AI Review → Human Approval → Business Actions → Audit Trail.  
 **Virtus Core Generation 1 — CLOSED ✅** (CEO 2026-07-22) · Foundation → Vector → AI → Product → Operations → Assistance → Business Actions.  
-**Operational Readiness Gate — OPEN** (CEO 2026-07-22) · OR1 Correlation · OR2 Structured Logging · OR3 Metrics · OR4 Provider Resilience · not a Product Track.  
-**Integration Track IT1.1 — PAUSED** until Operational Readiness Generation 1 CLOSED (or explicit risk acceptance).  
-**Not opened:** AP2.2 Streaming · AP2.3 Tool Calling · AP2.5 RAG · Marketplace · CRM Automation · Website Widget (blocked by OR).  
+**Operational Readiness Generation 1 — CLOSED ✅** (CEO 2026-07-22) · Correlation · Structured Logging · Metrics · Provider Resilience · Action Audit.  
+**Integration Track IT1 — OPEN** (CEO 2026-07-22) · IT1.1 Website Widget (first external channel · real users as requirements source).  
+**Not opened:** AP2.2 Streaming · AP2.3 Tool Calling · AP2.5 RAG · Marketplace · CRM Automation.  
 **Vector AI Foundation — CLOSED ✅** (CEO 2026-07-22) · Conversation Engine → ConversationContext → AI Provider Layer.  
-**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline · Business Action approval invariant · Human-in-the-Loop Execution Model · Virtus Core Generation 1.  
+**Frozen after stamp:** AuthN/AuthZ · Module Blueprint · Product Catalog/Ownership/Activation APIs · Bridge Strategy · Commercial Platform Core · ChatBot Knowledge/Channel/Conversation Invariants · Brand Architecture v1.0 · Vector Product Foundation · AI Provider/Adapter Invariants · AI Platform 1.0 · Prompt & Policy Invariant · AI Interaction Pipeline · Business Action approval invariant · Human-in-the-Loop Execution Model · Virtus Core Generation 1 · Operational Readiness Gen1 (log schema · request_id · operator-safe provider errors).  
 **R4 policy (frozen):** server session + HTTP-only cookie; JWT deferred.  
 **R3.12 report rule (historical):** Security Impact + Upgrade Path + Future Roles.
 
