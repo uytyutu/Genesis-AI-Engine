@@ -2473,46 +2473,44 @@ Business Actions
 
 **Chapter boundary:** Generation 1 built the controllable digital employee. Generation 2 = real-world operation (first live channel), not more internal AI infrastructure.
 
-### Operational Readiness Gate — OPEN (CEO 2026-07-22)
+### Operational Readiness Gate — PASS ✅ · CLOSED (CEO 2026-07-22)
 
-**Not a Product Track.** Mandatory gate before first external channel. Architecture unchanged.
+**Not a Product Track.** Observability and resilience around existing architecture — domain contracts unchanged.
 
-| Slice | Theme | CTO |
-|-------|--------|-----|
-| **OR1** | Request Correlation (`request_id` end-to-end) | Must fix |
-| **OR2** | Structured Logging (unified event schema) | Must fix |
-| **OR3** | Baseline Metrics (in-process · no Grafana required) | Must fix |
-| **OR4** | Provider Resilience (timeout · safe retry · operator-safe errors) | One refinement |
+| Slice | Theme | Status |
+|-------|--------|--------|
+| **OR1** | Request Correlation (`request_id` end-to-end) | ✅ PASS |
+| **OR2** | Structured Logging (unified event schema) | ✅ PASS |
+| **OR3** | Baseline Metrics (`GET /portal/chatbot/ops/metrics`) | ✅ PASS |
+| **OR4** | Provider Resilience (timeout · safe retry · operator-safe errors) | ✅ PASS |
+| **Audit** | Business Actions Action History | ✅ READY (unchanged) |
 
-**Business Actions audit** — READY ✅ (PASS · keep as incident baseline).
-
-#### OR1 — Request Correlation
+**Permanent Virtus Core ops log schema:**
 ```text
-HTTP Request → Conversation → Prompt → Provider → Business Action → Logs
+timestamp · level · request_id · conversation_id · channel · provider · operation · duration_ms · status · error
 ```
-Single `request_id` on every hop.
+Future services must emit this format.
 
-#### OR2 — Structured Logging
-Event fields: `timestamp` · `level` · `request_id` · `conversation_id` · `channel` · `provider` · `operation` · `duration_ms` · `status` · `error`.
-
-#### OR3 — Metrics (minimum)
-AI latency · Provider failures · Conversation count · Business Actions executed · Business Actions rejected · Draft generation count · Average response time.
-
-#### OR4 — Provider Resilience
-Timeout · retry where safe · graceful degradation · operator message e.g. *«AI provider temporarily unavailable. Conversation remains available.»* — never raw stack traces.
-
-#### Acceptance
+**Operator-safe provider failure (permanent):**
 ```text
-Operational Readiness Generation 1 — CLOSED ✅
-```
-Only then open:
-```text
-Integration Track · IT1.1 Website Widget
+AI provider temporarily unavailable. Conversation remains available.
 ```
 
-### Integration Track IT1 — First Real Channel · PAUSED (awaiting OR)
+### Operational Readiness Generation 1 — CLOSED ✅ (CEO 2026-07-22)
 
-#### IT1.1 Website Widget · PAUSED
+```text
+✓ Request Correlation
+✓ Structured Logging
+✓ Metrics
+✓ Provider Resilience
+✓ Business Action Audit
+```
+
+**Boundary:** Internal platform preparation for Gen1 is complete. Next source of requirements = real users via first external channel.
+
+### Integration Track IT1 — First Real Channel · OPEN (CEO 2026-07-22)
+
+#### IT1.1 Website Widget · OPEN
 
 ```text
 Visitor
@@ -2534,6 +2532,6 @@ Operator Approval
 Outbound Message
 ```
 
-**Why first channel (when opened):** owned surface · no third-party policy risk · fastest pilots · proves full Gen1 chain.  
-**Blocked by:** Operational Readiness Generation 1.  
-**Still closed:** Streaming · Tool Calling · RAG — until real traffic shows what is needed.
+**Goal:** First owned channel · commercial / operational proof · full Gen1 path with live visitors.  
+**Still closed:** Streaming · Tool Calling · RAG — until live traffic shows what is needed.  
+**Product focus after IT1.1:** понял → купил → подключился → получил результат.
