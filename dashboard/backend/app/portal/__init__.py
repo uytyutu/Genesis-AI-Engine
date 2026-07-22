@@ -23,6 +23,11 @@ from app.portal.activation_token import (
     revoke_token,
 )
 from app.portal.asset import Asset, new_asset
+from app.portal.authentication import (
+    AuthenticationAttempt,
+    AuthenticationResult,
+    authenticate,
+)
 from app.portal.client import Client, new_client, website_for_client
 from app.portal.deployment import Deployment, attach_deployment, new_deployment
 from app.portal.edit_session import EditSession, close_edit_session, new_edit_session
@@ -81,6 +86,8 @@ __all__ = [
     "Asset",
     "AssetQuery",
     "AssetView",
+    "AuthenticationAttempt",
+    "AuthenticationResult",
     "Client",
     "ClientQuery",
     "ClientView",
@@ -115,6 +122,7 @@ __all__ = [
     "account_ids_for_website",
     "activate_token",
     "attach_deployment",
+    "authenticate",
     "build_website_dashboard_view",
     "close_edit_session",
     "complete_account_activation",
