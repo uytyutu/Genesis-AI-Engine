@@ -243,6 +243,22 @@ type StudioStatus = {
     metrics?: Record<string, unknown>;
   } | null;
   ranking_goal_ru?: string;
+  ready_now?: number;
+  waiting?: number;
+  history_count?: number;
+  top_premium_leads?: {
+    id?: string;
+    company_name?: string;
+    market?: string;
+    premium_score?: number;
+    recommended_package_id?: string;
+  }[];
+  countries?: {
+    market?: string;
+    open?: boolean;
+    local_time?: string;
+    timezone?: string;
+  }[];
   pilot_catalog?: {
     checkout_online: string[];
     pilot_quote: string[];
@@ -776,6 +792,57 @@ export default function AcquisitionPage() {
               </span>
             </div>
           )}
+          {status ? (
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3">
+                <p className="text-[10px] uppercase tracking-wide text-emerald-200/80">Ready Now</p>
+                <p className="mt-1 text-2xl font-semibold text-emerald-100">{status.ready_now ?? 0}</p>
+                <p className="mt-1 text-[11px] text-emerald-100/70">09:00–18:00 local · Quality Gate OK</p>
+              </div>
+              <div className="rounded-xl border border-amber-500/25 bg-amber-950/20 p-3">
+                <p className="text-[10px] uppercase tracking-wide text-amber-100/80">Waiting</p>
+                <p className="mt-1 text-2xl font-semibold text-amber-50">{status.waiting ?? 0}</p>
+                <p className="mt-1 text-[11px] text-amber-100/70">Вне окна / ждёт анализ</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+                <p className="text-[10px] uppercase tracking-wide text-white/50">History</p>
+                <p className="mt-1 text-2xl font-semibold text-white/90">{status.history_count ?? status.sent_count}</p>
+                <p className="mt-1 text-[11px] text-white/50">Sent · Won · Lost</p>
+              </div>
+            </div>
+          ) : null}
+          {status?.countries && status.countries.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              {status.countries.slice(0, 8).map((c) => (
+                <span
+                  key={c.market || c.timezone}
+                  className={`rounded-full border px-2.5 py-1 ${
+                    c.open
+                      ? "border-emerald-400/40 bg-emerald-500/15 text-emerald-100"
+                      : "border-white/10 bg-white/5 text-white/50"
+                  }`}
+                >
+                  {c.market} {c.open ? "· open" : "· closed"}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          {status?.top_premium_leads && status.top_premium_leads.length > 0 ? (
+            <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3">
+              <p className="text-xs font-medium text-white/90">Top Premium Leads</p>
+              <ul className="mt-2 space-y-1 text-xs text-genesis-muted">
+                {status.top_premium_leads.slice(0, 6).map((lead) => (
+                  <li key={String(lead.id || lead.company_name)} className="flex justify-between gap-2">
+                    <span className="truncate text-white/85">{lead.company_name || "—"}</span>
+                    <span className="shrink-0 tabular-nums text-emerald-300/90">
+                      {lead.market} · score {lead.premium_score ?? 0}
+                      {lead.recommended_package_id ? ` · ${lead.recommended_package_id}` : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           {status?.ranking_goal_ru ? (
             <p className="mt-3 text-xs text-emerald-200/80">{status.ranking_goal_ru}</p>
           ) : null}

@@ -273,8 +273,11 @@ class OutreachSendQuota:
     def can_send(
         self, from_addr: str, *, region: str | None = None, market: str | None = None
     ) -> tuple[bool, str]:
+        from app.integration.business_time import is_business_hours
         from app.integration.outreach_market_config import market_send_pool, shared_global_mode
 
+        if market and not is_business_hours(market):
+            return False, f"outside_business_hours:{str(market).upper()}"
         domain = _domain_of(from_addr)
         if not domain:
             return False, "bad_from"
@@ -356,8 +359,15 @@ class OutreachSendQuota:
     def pick_from_address(
         self, *, region: str | None = None, market: str | None = None
     ) -> tuple[str | None, dict[str, Any]]:
-        """Least-used From under market + pool + global + pacing."""
+        """Least-used From under market + pool + global + pacing + Business Time."""
+        from app.integration.business_time import is_business_hours
         from app.integration.outreach_market_config import market_send_pool, shared_global_mode
+
+        if market and not is_business_hours(market):
+            return None, {
+                "ok": False,
+                "reason": f"outside_business_hours:{str(market).upper()}",
+            }
 
         pool = configured_from_pool()
         cap = outreach_daily_cap()

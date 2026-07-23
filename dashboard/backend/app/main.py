@@ -1888,6 +1888,13 @@ def acquisition_pipeline(limit: int = 50) -> dict:
     return {"items": items, "count": len(items)}
 
 
+@app.get("/api/acquisition/history")
+def acquisition_history(limit: int = 50) -> dict:
+    """Sent / Won / Lost — separate from Ready working queue."""
+    items = _ctx().acquisition.history_leads(limit=max(1, min(100, limit)))
+    return {"items": items, "count": len(items)}
+
+
 @app.post("/api/acquisition/refresh-leads")
 def acquisition_refresh_leads(body: dict | None = None) -> dict:
     body = body or {}

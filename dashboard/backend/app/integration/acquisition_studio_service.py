@@ -202,11 +202,19 @@ class AcquisitionStudioService:
         """Hide old visible leads so Start shows a clean multi-market queue.
 
         Does not delete history — quality_archive only. Sent/won/lost stay visible
-        for analytics; pending/none/manual_review/approved draft noise is parked.
+        in History; pending/none/manual_review/approved draft noise is parked.
+        Also parks recently contacted companies (recontact cooldown).
         """
+        from app.integration.lead_engine_quality_gate import (
+            RECONTACT_COOLDOWN_DAYS,
+            recently_contacted,
+        )
+
         archived = 0
         kept_sent = 0
-        for row in self._opportunity._load_rows():
+        recontact_blocked = 0
+        rows = self._opportunity._load_rows()
+        for row in rows:
             meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
             if meta.get("quality_archive"):
                 continue
@@ -214,6 +222,15 @@ class AcquisitionStudioService:
             outreach = str(row.get("outreach_status") or "")
             if status in ("won", "lost") or outreach == "sent":
                 kept_sent += 1
+                continue
+            if recently_contacted(row, all_rows=rows, cooldown_days=RECONTACT_COOLDOWN_DAYS):
+                self._archive_quality(
+                    row,
+                    reason="recontact_cooldown",
+                    detail=f"Контакт был недавно (<{RECONTACT_COOLDOWN_DAYS} дн.)",
+                )
+                recontact_blocked += 1
+                archived += 1
                 continue
             self._archive_quality(
                 row,
@@ -225,9 +242,10 @@ class AcquisitionStudioService:
             "ok": True,
             "archived": archived,
             "kept_sent_or_closed": kept_sent,
+            "recontact_blocked": recontact_blocked,
             "message_ru": (
-                f"Список очищен для нового пуска: скрыто {archived}, "
-                f"оставлено отправленных/закрытых {kept_sent}"
+                f"Fresh Campaign: скрыто {archived} (из них recontact {recontact_blocked}), "
+                f"история Sent/Won/Lost: {kept_sent}"
             ),
         }
 
@@ -252,7 +270,9 @@ class AcquisitionStudioService:
         return self._get_runner().tick()
 
     def send_next_quality_lead(self) -> dict[str, Any]:
-        """Send one quality lead if outreach enabled — any market, never force-fill."""
+        """Send one Ready lead: Premium Score → Quality Gate → Business Time → send."""
+        from app.integration.business_time import is_business_hours, market_from_lead
+        from app.integration.lead_engine_quality_gate import quality_gate_before_send
         from app.integration.outreach_ceo_prefs import outreach_send_allowed
 
         outreach_enabled = outreach_send_allowed(self._memory_dir)
@@ -264,19 +284,24 @@ class AcquisitionStudioService:
                 "message_ru": "Отправка выкл. (тумблер Автоотправка / GENESIS_OUTREACH_ENABLED) — только hunt/draft",
             }
         rows = self._opportunity._load_rows()
-        candidates: list[tuple[int, int, dict]] = []
+        candidates: list[tuple[int, str, dict]] = []
+        skipped_reasons: list[str] = []
         for row in rows:
             status = str(row.get("outreach_status") or "")
             if status not in ("approved", "pending_approval"):
                 continue
             meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
-            if meta.get("quality_archive"):
+            if meta.get("quality_archive") or meta.get("skip_outreach"):
                 continue
             if not self._extract_email(row.get("contact", "")):
                 continue
             if not row.get("proposed_message"):
                 continue
-            # Skip if another opportunity already used this email/host (sent/contacted).
+            market = market_from_lead(row)
+            if not is_business_hours(market):
+                skipped_reasons.append("outside_business_hours")
+                continue
+            # Peer email/host already sent
             oid = str(row.get("id") or "")
             email = self._extract_email(str(row.get("contact") or "")).lower()
             host = self._normalize_host(str(row.get("website_url") or ""))
@@ -296,19 +321,36 @@ class AcquisitionStudioService:
             if peer_busy:
                 continue
             win = int(meta.get("win_probability_pct") or 0)
-            score = int(row.get("score") or 0)
             if status == "pending_approval" and win < HIGH_WIN_AUTO_CONFIRM_PCT:
                 continue
-            tier = 2 if status == "approved" else 1
-            candidates.append((tier, win * 1000 + score, row))
+            excl, _ = self._exclusion.check(
+                email=email,
+                website_url=str(row.get("website_url") or ""),
+                exclude_id=oid,
+            )
+            gate = quality_gate_before_send(
+                row, all_rows=rows, exclusion_blocked=bool(excl)
+            )
+            if not gate.get("ok"):
+                skipped_reasons.append(str(gate.get("reason") or "gate"))
+                continue
+            premium = int(meta.get("premium_score") or 0)
+            found = str(row.get("found_at") or "")
+            candidates.append((premium, found, row))
         if not candidates:
+            reason = "outside_business_hours" if "outside_business_hours" in skipped_reasons else "no_quality_leads"
             return {
                 "sent": False,
                 "skipped": True,
-                "reason": "no_quality_leads",
-                "message_ru": "Нет качественных лидов к отправке — квоту не заполняем",
+                "reason": reason,
+                "message_ru": (
+                    "Рабочее окно закрыто — лиды в Waiting (09:00–18:00 local)"
+                    if reason == "outside_business_hours"
+                    else "Нет Ready-лидов к отправке — квоту не заполняем"
+                ),
             }
-        candidates.sort(key=lambda t: (-t[0], -t[1]))
+        # premium_score DESC, found_at DESC
+        candidates.sort(key=lambda t: (t[0], t[1]), reverse=True)
         row = candidates[0][2]
         oid = str(row.get("id") or "")
         if str(row.get("outreach_status")) == "approved":
@@ -488,6 +530,7 @@ class AcquisitionStudioService:
         }
 
     def studio_status(self) -> dict:
+        from app.integration.lead_engine_queues import build_lead_engine_dashboard
         from app.integration.outreach_ceo_prefs import load_prefs, outreach_send_allowed
 
         rows = self._opportunity._load_rows()
@@ -496,16 +539,17 @@ class AcquisitionStudioService:
         sent = sum(1 for r in rows if r.get("outreach_status") == "sent")
         prefs = load_prefs(self._memory_dir)
         outreach_enabled = outreach_send_allowed(self._memory_dir)
+        le = build_lead_engine_dashboard(rows)
         return {
-            "version": "1.5-foundation",
-            "name": "Country Desk · DE",
+            "version": "lead_engine_v1",
+            "name": "Country Desk · Lead Engine v1",
             "auto_search": False,
             "auto_refresh": bool(prefs.get("auto_refresh")),
             "auto_send": bool(prefs.get("auto_send")),
             "outreach_send_enabled": outreach_enabled,
             "outreach_send_note": (
                 "Автоотправка: тумблер CEO или GENESIS_OUTREACH_ENABLED=true + Resend + "
-                "Impressum/Abmelde. Ответственность за рассылку — у отправителя."
+                "Impressum/Abmelde. Только 09:00–18:00 local (Business Time)."
             ),
             "law": "Plan → Approve → Act",
             "pending_approval_count": pending,
@@ -519,14 +563,19 @@ class AcquisitionStudioService:
             "pilot_catalog": ceo_catalog_snapshot(),
             "last_desk_action": self.last_desk_action(),
             "ranking_goal_ru": (
-                "Lead Priority = Business Potential × Website Need × Package Fit × Win% "
-                "(коммерческая ценность, не дешёвые лёгкие сделки)"
+                "Lead Engine v1: Premium Score → Smart Offer → Business Time → Quality Gate"
             ),
             "outreach_daily_cap": outreach_daily_cap(),
             "outreach_quota": self._send_quota.health(),
             "markets_dashboard": self.markets_dashboard(),
             "adaptive_outreach": self.adaptive_dashboard(auto_review=True),
             "outreach_runner": self.runner_status(),
+            "ready_now": le["ready_now"],
+            "waiting": le["waiting"],
+            "history_count": le["history"],
+            "top_premium_leads": le["top_premium_leads"],
+            "countries": le["countries"],
+            "lead_engine": le,
         }
 
     def set_ceo_prefs(
@@ -857,6 +906,39 @@ class AcquisitionStudioService:
                 row["contact"] = channels["primary_email"]
 
         package_id, price, rationale = self._recommend_pricing(row, analysis)
+        # Lead Engine v1 — Premium Scoring + Smart Offer (may override package / skip)
+        from app.integration.lead_engine_premium import apply_premium_and_offer
+
+        smart = apply_premium_and_offer(row, analysis=analysis)
+        if smart.get("skip_outreach"):
+            meta_skip = dict(row.get("meta") or {})
+            meta_skip["skip_outreach"] = True
+            meta_skip["skip_reason"] = smart.get("skip_reason") or "healthy_site"
+            row["meta"] = meta_skip
+            row["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._log_interaction(
+                row,
+                "smart_offer_skip",
+                str(smart.get("rationale") or "healthy_site"),
+            )
+            self._archive_quality(
+                row,
+                reason="healthy_site",
+                detail=str(smart.get("rationale") or "Modern healthy site — skip template"),
+            )
+            return {
+                "ok": True,
+                "skipped": True,
+                "reason": "healthy_site",
+                "id": row.get("id"),
+                "company_name": row.get("company_name"),
+                "outreach_status": row.get("outreach_status"),
+                "opportunity": row,
+                "smart_offer": smart,
+            }
+        if smart.get("recommended_package_id"):
+            package_id = str(smart["recommended_package_id"])
+            rationale = str(smart.get("rationale") or rationale)
         from app.integration.outreach_language_service import resolve_market_from_row
 
         market = resolve_market_from_row(row) or "DE"
@@ -871,6 +953,9 @@ class AcquisitionStudioService:
                 "basic": "Landing Basic",
                 "business": "Landing Business",
                 "premium": "Landing Premium",
+                "repair_lite": "Website Repair Lite",
+                "repair_standard": "Website Repair Standard",
+                "repair_complete": "Website Repair Complete",
             }
             package = {
                 "id": package_id,
@@ -1130,6 +1215,11 @@ class AcquisitionStudioService:
                     website_url=row.get("website_url"),
                     auto_lane=True,
                 )
+                if updated.get("skipped"):
+                    skipped_qual.append(
+                        str(updated.get("company_name") or row.get("company_name") or row["id"])
+                    )
+                    continue
                 name = str(updated.get("company_name") or row.get("company_name") or row["id"])
                 if updated.get("outreach_status") == "manual_review":
                     manual_review.append(name)
@@ -1534,7 +1624,7 @@ class AcquisitionStudioService:
         }
 
     def pipeline_leads(self, *, limit: int = 50) -> list[dict]:
-        """Все активные лиды Country Desk — не только Approve-очередь."""
+        """Active Country Desk leads — excludes archive and Sent/Won/Lost history."""
         rows = self._opportunity.list_opportunities(limit=200)
         out: list[dict] = []
         for r in rows:
@@ -1542,6 +1632,8 @@ class AcquisitionStudioService:
             if meta.get("quality_archive"):
                 continue
             if r.get("status") in ("won", "lost"):
+                continue
+            if str(r.get("outreach_status") or "") == "sent":
                 continue
             item = self._queue_item(r)
             item["status"] = r.get("status")
@@ -1557,9 +1649,12 @@ class AcquisitionStudioService:
             item["website_need"] = meta.get("website_need")
             item["expected_value_eur"] = meta.get("expected_value_eur")
             item["commercial_niche"] = meta.get("commercial_niche")
+            item["premium_score"] = meta.get("premium_score")
+            item["offer_kind"] = meta.get("offer_kind")
             out.append(item)
         out.sort(
             key=lambda x: (
+                -int(x.get("premium_score") or 0),
                 0 if x.get("outreach_status") == "pending_approval" else 1,
                 0 if x.get("outreach_status") == "manual_review" else 1,
                 -float(x.get("lead_priority") or 0),
@@ -1568,6 +1663,27 @@ class AcquisitionStudioService:
                 -int(x.get("score") or 0),
             )
         )
+        return out[:limit]
+
+    def history_leads(self, *, limit: int = 50) -> list[dict]:
+        """Sent / Won / Lost — separate from working Ready queue."""
+        rows = self._opportunity.list_opportunities(limit=300)
+        out: list[dict] = []
+        for r in rows:
+            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            status = str(r.get("status") or "")
+            outreach = str(r.get("outreach_status") or "")
+            if status not in ("won", "lost") and outreach != "sent":
+                continue
+            item = self._queue_item(r)
+            item["status"] = status
+            item["market"] = meta.get("market") or r.get("market")
+            item["premium_score"] = meta.get("premium_score")
+            item["history"] = True
+            item["updated_at"] = r.get("updated_at")
+            item["found_at"] = r.get("found_at")
+            out.append(item)
+        out.sort(key=lambda x: str(x.get("updated_at") or x.get("found_at") or ""), reverse=True)
         return out[:limit]
 
     def auto_confirm_high_probability(self, *, min_win_pct: int = HIGH_WIN_AUTO_CONFIRM_PCT) -> dict[str, Any]:
@@ -1827,6 +1943,7 @@ class AcquisitionStudioService:
         if row.get("outreach_status") not in ("pending_approval", "draft"):
             raise ValueError("not_pending")
 
+        from app.integration.lead_engine_quality_gate import quality_gate_before_send
         from app.integration.outreach_ceo_prefs import outreach_send_allowed
 
         outreach_enabled = outreach_send_allowed(self._memory_dir)
@@ -1840,6 +1957,32 @@ class AcquisitionStudioService:
         )
         if excluded:
             raise ValueError(f"excluded:{excl_reason}")
+
+        all_rows = self._opportunity._load_rows()
+        gate = quality_gate_before_send(
+            row, all_rows=all_rows, exclusion_blocked=False
+        )
+        if not gate.get("ok"):
+            reason = str(gate.get("reason") or "quality_gate")
+            if reason == "outside_business_hours":
+                # Soft: stay approved, wait for window — do not raise
+                row["outreach_status"] = "approved"
+                self._log_interaction(
+                    row,
+                    "waiting_business_hours",
+                    str(gate.get("detail") or "Waiting 09:00–18:00 local"),
+                )
+                self._opportunity._save_rows(self._replace_row(opportunity_id, row))
+                return {
+                    "ok": True,
+                    "sent": False,
+                    "skipped": True,
+                    "reason": reason,
+                    "queue": "waiting",
+                    "opportunity": row,
+                    "send": {"ok": False, "skipped": True, "reason": reason},
+                }
+            raise ValueError(f"quality_gate:{reason}")
 
         if outreach_enabled and to_email:
             # Daily sniper cap before Resend call — prefer From matching lead market

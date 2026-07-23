@@ -1573,6 +1573,13 @@ class AcquisitionStudioStatus(BaseModel):
     auto_refresh: bool = False
     last_desk_action: dict | None = None
     ranking_goal_ru: str = ""
+    # Lead Engine v1
+    ready_now: int = 0
+    waiting: int = 0
+    history_count: int = 0
+    top_premium_leads: list[dict] = []
+    countries: list[dict] = []
+    lead_engine: dict | None = None
 
 
 class AcquisitionApprovalItem(BaseModel):
