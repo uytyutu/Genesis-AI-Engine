@@ -105,11 +105,13 @@ def test_network_scan_requires_places(engine: MonetizationEngineService):
 
 
 def test_withdraw_queues_payout(engine: MonetizationEngineService):
-    snap_path = engine._memory / "finance_snapshot.json"  # noqa: SLF001
-    snap_path.parent.mkdir(parents=True, exist_ok=True)
-    snap_path.write_text(
-        '{"available_for_withdrawal_eur": 100.0, "pending_payouts_eur": 0.0}',
-        encoding="utf-8",
+    # PD-E2: available balance comes from settlement ledger, not hand-written snapshot
+    engine._finance._settlements().record_payment(  # noqa: SLF001
+        amount_eur=100.0,
+        payment_id="test_withdraw_fund_1",
+        provider="sandbox",
+        label="Test withdraw funding",
+        immediate_available=True,
     )
     result = engine.request_withdrawal(40.0, "bank")
     assert result["ok"] is True

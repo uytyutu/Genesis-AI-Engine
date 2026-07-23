@@ -14,6 +14,7 @@
 | ID | Date | Decision | Why | Status |
 |----|------|----------|-----|--------|
 | **PD-E1** | 2026-07-23 | Outreach allocation uses **`per_market`**; regional hard limit is **500**. **`shared_global` is not the RC1 operating mode** (config fallback only until a separate decision). **Single-mailbox** (≤1 From address): regional `GENESIS_OUTREACH_DAILY_CAP` does **not** stack on global + per-market quotas — intentional for Mission 1 one-domain setup. | Match live v6 market config + scalable hard max; fix tests to canon; document bypass so it is never mistaken for a bug. | **Accepted** (Category E Decision #1 / Option C) |
+| **PD-E2** | 2026-07-23 | **Withdraw balance is ledger-backed.** `finance_settlements.jsonl` is the source of truth; `finance_snapshot.json` is derived via `_sync_settlement_snapshot`. Hand-written snapshot balances are not withdrawable. Tests must fund via settlement/`record_payment` (or equivalent), not raw snapshot fields. | Align withdraw tests with intentional Finance Layer (no unverified earned sums). | **Accepted** (Category E Decision #2) |
 
 ---
 
