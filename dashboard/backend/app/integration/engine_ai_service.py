@@ -76,6 +76,45 @@ class EngineAIService:
                 else:
                     os.environ[key] = previous
 
+    @contextmanager
+    def _isolated_key_env(self):
+        """Apply explicit api_keys; when use_env=False, scrub ambient cloud keys too."""
+        if self._use_env:
+            with self._temporary_key_env():
+                yield
+            return
+        cloud_keys = (
+            "GENESIS_GROQ_API_KEY",
+            "GROQ_API_KEY",
+            "GENESIS_LLM_API_KEY",
+            "OPENAI_API_KEY",
+            "GENESIS_GEMINI_API_KEY",
+            "GOOGLE_API_KEY",
+            "GENESIS_OPENROUTER_API_KEY",
+            "GENESIS_ANTHROPIC_API_KEY",
+            "GENESIS_DEEPSEEK_API_KEY",
+            "GENESIS_KIMI_API_KEY",
+            "MOONSHOT_API_KEY",
+        )
+        old: dict[str, str | None] = {k: os.environ.get(k) for k in cloud_keys}
+        if self._api_keys:
+            for key in self._api_keys:
+                old.setdefault(key, os.environ.get(key))
+        for key in list(old):
+            os.environ.pop(key, None)
+        if self._api_keys:
+            for key, value in self._api_keys.items():
+                if value is not None and str(value).strip():
+                    os.environ[key] = str(value).strip()
+        try:
+            yield
+        finally:
+            for key, previous in old.items():
+                if previous is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = previous
+
     def setup_status(self) -> dict[str, Any]:
         groq, openai, gemini = self._has_cloud_keys()
         configured = groq or openai or gemini
@@ -113,7 +152,10 @@ class EngineAIService:
 
     def _pick_provider(self) -> Any | None:
         """Cloud API keys only — Engine outreach needs Groq/OpenAI/Gemini, not local Ollama."""
-        with self._temporary_key_env():
+        if not self._use_env and self._api_keys is None:
+            # use_env=False with no explicit keys → heuristics only (ignore OS env).
+            return None
+        with self._isolated_key_env():
             reg = build_provider_registry()
             for pid in ("groq", "openai", "gemini"):
                 p = reg.get(pid)
@@ -122,8 +164,10 @@ class EngineAIService:
         return None
 
     def _pick_provider_for_task(self, task: str = "simple") -> Any | None:
+        if not self._use_env and self._api_keys is None:
+            return None
         plan = self._router.plan_route(task, premium_allowed=False)
-        with self._temporary_key_env():
+        with self._isolated_key_env():
             reg = build_provider_registry()
             for pid in plan.failover_order:
                 p = reg.get(pid)
