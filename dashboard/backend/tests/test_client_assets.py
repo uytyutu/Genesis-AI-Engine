@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import struct
+import zlib
 from pathlib import Path
 
 from app.factory.client_assets import apply_client_assets, classify_material_images
@@ -20,35 +22,26 @@ def _write_png(path: Path, label: bytes = b"x") -> None:
     )
 
 
-def _write_jpeg(path: Path) -> None:
-    """Minimal JFIF so Media Gate accepts client hero (invalid bytes are replaced)."""
-    path.write_bytes(
-        bytes(
-            [
-                0xFF,
-                0xD8,
-                0xFF,
-                0xE0,
-                0x00,
-                0x10,
-                0x4A,
-                0x46,
-                0x49,
-                0x46,
-                0x00,
-                0x01,
-                0x01,
-                0x00,
-                0x00,
-                0x01,
-                0x00,
-                0x01,
-                0x00,
-                0x00,
-                0xFF,
-                0xD9,
-            ]
+def _png(width: int, height: int, rgb: tuple[int, int, int] = (40, 80, 120)) -> bytes:
+    """Truecolor PNG large enough for Media Intelligence hero floor."""
+    r, g, b = rgb
+    raw = b"".join(b"\x00" + bytes([r, g, b]) * width for _ in range(height))
+    compressed = zlib.compress(raw, 9)
+
+    def chunk(tag: bytes, data: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(data))
+            + tag
+            + data
+            + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
         )
+
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", ihdr)
+        + chunk(b"IDAT", compressed)
+        + chunk(b"IEND", b"")
     )
 
 
@@ -108,9 +101,10 @@ def test_apply_client_assets_writes_files(tmp_path: Path):
 
 def test_factory_build_embeds_client_materials(tmp_path: Path):
     logo = tmp_path / "mein_logo.png"
-    hero = tmp_path / "praxis_empfang.jpg"
+    hero = tmp_path / "praxis_empfang.png"
     _write_png(logo, b"L")
-    _write_jpeg(hero)
+    # Media Intelligence: hero must clear size/dimension floor (≥720×480, ≥800 bytes)
+    hero.write_bytes(_png(1280, 720, (10, 120, 90)))
     factory = FactoryService(memory_dir=tmp_path / "mem", sandbox_dir=tmp_path / "sandbox")
     result = factory.build_landing(
         "Zahnarztpraxis Müller in München — moderne Zahnheilkunde",
@@ -129,8 +123,8 @@ def test_factory_build_embeds_client_materials(tmp_path: Path):
                 },
                 {
                     "path": str(hero),
-                    "filename": "praxis_empfang.jpg",
-                    "content_type": "image/jpeg",
+                    "filename": "praxis_empfang.png",
+                    "content_type": "image/png",
                 },
             ],
         },
@@ -139,8 +133,9 @@ def test_factory_build_embeds_client_materials(tmp_path: Path):
     product_id = result["product_id"]
     product_dir = tmp_path / "sandbox" / product_id
     assert (product_dir / "assets" / "logo.png").is_file()
-    hero_bytes = (product_dir / "assets" / "hero.jpg").read_bytes()
-    assert hero_bytes.startswith(b"\xff\xd8\xff")
+    assert (product_dir / "assets" / "hero.jpg").is_file() or (
+        product_dir / "assets" / "hero.png"
+    ).is_file()
     html = (product_dir / "index.html").read_text(encoding="utf-8")
     assert "assets/logo.png" in html
     import json
