@@ -11,6 +11,7 @@ import {
 import { MissionProofPanel, type MissionProofData } from "../components/MissionProofPanel";
 import { RevenueEnginesPanel, type RevenueEnginesData } from "../components/RevenueEnginesPanel";
 import { BRAND_NAME } from "../lib/publicBrand";
+import { ProductionReadinessPanel } from "../components/ProductionReadinessPanel";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -67,6 +68,8 @@ export default function BusinessHealthPage() {
           <h1 className="mt-2 text-2xl font-semibold">Business Health</h1>
           <p className="mt-2 text-sm text-genesis-muted">Mission 2 — операционная панель · не учебный 121 €</p>
         </header>
+
+        <ProductionReadinessPanel />
 
         {proof ? <MissionProofPanel data={proof} /> : null}
 

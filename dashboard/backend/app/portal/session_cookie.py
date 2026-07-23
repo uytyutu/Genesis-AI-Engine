@@ -55,11 +55,16 @@ class SessionCookieFactory:
         ttl: timedelta = DEFAULT_SESSION_TTL,
     ) -> None:
         if secure is None:
-            secure = os.environ.get("PORTAL_COOKIE_SECURE", "").lower() in (
-                "1",
-                "true",
-                "yes",
-            )
+            flag = os.environ.get("PORTAL_COOKIE_SECURE", "").strip().lower()
+            if flag in ("0", "false", "no"):
+                secure = False
+            elif flag in ("1", "true", "yes"):
+                secure = True
+            else:
+                # S1.2 — production defaults to Secure; local/dev stays False.
+                from app.config import is_production
+
+                secure = is_production()
         self._cookie_name = cookie_name
         self._secure = secure
         self._samesite = samesite

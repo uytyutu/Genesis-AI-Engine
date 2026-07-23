@@ -12,6 +12,7 @@ from fastapi import UploadFile
 
 from app.integration.attachment_policy import AttachmentPolicy, resolve_attachment_tier
 from app.integration.knowledge_intake_transparency import transparency_enabled
+from app.portal.s1_3_xss_upload import assert_safe_upload_filename
 
 _ALLOWED = {
     "image/jpeg",
@@ -47,6 +48,7 @@ class PublicChatAttachmentService:
         files_in_message: int = 1,
     ) -> dict:
         content_type = (upload.content_type or "application/octet-stream").split(";")[0].strip()
+        assert_safe_upload_filename(upload.filename)
         vid = _safe_id(visitor_id)
         tier = resolve_attachment_tier(visitor_id=vid)
 

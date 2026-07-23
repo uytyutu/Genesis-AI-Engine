@@ -31,6 +31,16 @@ from app.security import (
     production_api_allowed,
     support_bridge_allowed,
 )
+from app.security_hardening import (
+    apply_security_headers,
+    check_rate_limit,
+    cors_allow_origins,
+    portal_path_should_rate_limit,
+    portal_rate_limit_per_min,
+    public_rate_limit_per_min,
+    rate_limit_key,
+    rate_limited_response,
+)
 from app.integration.owner_auth import owner_access_allowed
 from app.integration.support_remote import proxy_support, remote_enabled
 from app.schemas import (
@@ -254,20 +264,9 @@ app = FastAPI(
 
 # Always keep local Mission Control origins — empty/override GENESIS_CORS_ORIGINS
 # must not break Genesis.exe desk (browser → :8000).
-_LOCAL_CORS_ORIGINS = (
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-)
-_cors_extra = [
-    o.strip()
-    for o in os.getenv("GENESIS_CORS_ORIGINS", "").split(",")
-    if o.strip()
-]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=list(dict.fromkeys([*_LOCAL_CORS_ORIGINS, *_cors_extra])),
+    allow_origins=cors_allow_origins(extra_csv=os.getenv("GENESIS_CORS_ORIGINS", "")),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -509,26 +508,40 @@ if _research_3d_root.is_dir():
 
 
 @app.middleware("http")
-async def rate_limit_public(request: Request, call_next):
-    """Basic DoS guard on public chat endpoints (per client IP)."""
-    if is_production() and request.url.path.startswith("/api/public/"):
-        import time
-        from collections import defaultdict
+async def security_headers_middleware(request: Request, call_next):
+    """S1.2 — baseline hardening headers on every API response."""
+    response = await call_next(request)
+    return apply_security_headers(response)
 
-        if not hasattr(app.state, "_rate_buckets"):
-            app.state._rate_buckets = defaultdict(list)
-        ip = (request.client.host if request.client else "unknown") or "unknown"
-        now = time.time()
-        window = 60.0
-        limit = int(os.getenv("GENESIS_RATE_LIMIT_PER_MIN", "40"))
-        bucket: list[float] = app.state._rate_buckets[ip]
-        bucket[:] = [t for t in bucket if now - t < window]
-        if len(bucket) >= limit:
-            return JSONResponse(
-                status_code=429,
-                content={"detail": "Too many requests — please wait a moment"},
-            )
-        bucket.append(now)
+
+@app.middleware("http")
+async def rate_limit_public_and_portal(request: Request, call_next):
+    """S1.2 — DoS guard: public chat (prod) + portal (always, per IP)."""
+    from collections import defaultdict
+
+    path = request.url.path
+    if not hasattr(app.state, "_rate_buckets"):
+        app.state._rate_buckets = defaultdict(list)
+    if not hasattr(app.state, "_portal_rate_buckets"):
+        app.state._portal_rate_buckets = defaultdict(list)
+
+    key = rate_limit_key(request)
+    if is_production() and path.startswith("/api/public/"):
+        if not check_rate_limit(
+            app.state._rate_buckets,
+            key=key,
+            limit=public_rate_limit_per_min(),
+            window_sec=60.0,
+        ):
+            return apply_security_headers(rate_limited_response())
+    if portal_path_should_rate_limit(path):
+        if not check_rate_limit(
+            app.state._portal_rate_buckets,
+            key=key,
+            limit=portal_rate_limit_per_min(),
+            window_sec=60.0,
+        ):
+            return apply_security_headers(rate_limited_response())
     return await call_next(request)
 
 

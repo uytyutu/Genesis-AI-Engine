@@ -26,7 +26,11 @@
 | **AI Platform 2.0** | Prompt & Policy → Streaming → Tools → Actions → RAG | **AP2.1 PASS** ✅ · **AI Interaction Pipeline CLOSED** ✅ · AP2.2 not opened |
 | **Product Track** | Generation 1 complete | **Virtus Core Gen1 CLOSED** ✅ |
 | **Operational Readiness** | Pre-channel gate (not a Product Track) | **OR Gen1 CLOSED** ✅ (CEO 2026-07-22) |
-| **Integration Track** | First real channel | **IT1.1 OPEN** (CEO 2026-07-22) · Website Widget |
+| **Integration Track** | First real channel | **IT1.1 OPEN** · Website Widget |
+| Generation | Focus | Status |
+|------------|--------|--------|
+| **Generation 1** | Product Track closed | ✅ |
+| **Generation 2** | Commercial product | **G2.2 FINAL PASS** ✅ · **Security Gate S1 FINAL PASS** ✅ · **G2.3 Commercial Readiness NEXT** |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -2546,3 +2550,310 @@ OUT: Telegram · Instagram · WhatsApp · Tool Calling · RAG · Memory
 **Still closed (platform tracks):** AP2.2 / Tool Calling / RAG as separate tracks.  
 **Product focus after IT1.1:** понял → купил → подключился → получил результат · first pilots.  
 **Next chat role:** Product CTO (user path · commercial value · UX) — not platform rewrite.
+
+### Generation 2 · G2.1 — Virtus Core Public Platform Refresh · OPEN (CEO 2026-07-22)
+
+**Not a platform rewrite.** Mission 1 Landing sales stay primary and working.
+
+```text
+G2.1 sequence
+1 Public image — Virtus Core = digital services platform (Landing first) · PASS Stage 1 ✅
+2 Client cabinet — → moved to G2.2
+3 Products — honest catalog (Order now / Activate / Coming Soon) · in Stage 1 ✅
+4 Marketplace — HIDDEN until purchase→license→activate works
+5 Rebrand — Genesis→Virtus Core · Ramish→Vector in user scenarios (legal owner stays)
+6 Cleanup — old names, domains, stub screens clients must not see
+```
+
+**G2.1 Stage 1 — PASS ✅** (CEO 2026-07-22) · commercial hero · Meet Vector · value cards · Products actions · Mission 1 intact.
+
+**PASS gates (Product CTO):** 5s understand Vector · 30s want to try · 2min know what to pay · 10min real value.  
+**Forbidden:** empty Marketplace · fake subscriptions · breaking `/order` Mission 1.
+
+### Generation 2 · G2.2 — Client Workspace · OPEN (CEO 2026-07-22)
+
+```text
+Login → Dashboard → Welcome
+  ✔ Website · Vector · Orders · Licenses · Billing · Support · Downloads
+```
+
+Use existing portal APIs only (my-products · licenses · billing · login). No duplicate domain logic.  
+Feel: «Welcome to Virtus Core» — platform user, not ZIP download page.
+
+**G2.2 — FINAL PASS ✅** (CEO 2026-07-23) · Client Workspace closed as stage.
+
+### Freeze — Security Gate S1 (CEO 2026-07-23)
+
+**Was active until S1 PASS.** **LIFTED** on Security track (CEO FINAL PASS 2026-07-23).
+
+```text
+✅ Security Gate S1 complete — security Freeze lifted
+▶️ Next: G2.3 Commercial Readiness (prices · catalog · payment path)
+❌ G3 Evolution Center — still blocked until Payments 🟢 / Production Ready
+❌ Do not sell unimplemented modules
+```
+
+### Security Gate S1 — FINAL PASS ✅ (CEO Product CTO 2026-07-23)
+
+Mandatory release gate — closed. **Attack the system as an adversary**, not only checklist code review.
+
+**Commit (CEO authorized):** `feat(security): complete Security Gate S1`
+
+#### Permanent engineering principles — Virtus Core Constitution (CEO 2026-07-23)
+
+**1. Definition of PASS (readiness)** — not «code written»:
+
+| Criterion | Required |
+|-----------|----------|
+| Code implemented | ✅ |
+| Automated tests pass | ✅ |
+| Security tests pass | ✅ |
+| No regressions | ✅ |
+| Documentation updated | ✅ |
+| **Then** stage = **PASS** | ✅ |
+
+**2. Change cycle (mandatory — no skipping Security Gate)**
+
+```text
+Idea → Analysis → Development → Tests → Security Gate → PASS → Commit → Deploy
+```
+
+Jumping over Security Gate is forbidden.
+
+**3. Vulnerability → test (binding)**
+
+> **Every vulnerability must become a permanent automated test.**  
+> An error fixed once must never silently return.
+
+**4. Evolution Center — reusable knowledge (Horizon after S1)**
+
+> **Every approved improvement must become reusable knowledge.**
+
+Not only vulns: UX wins · architecture · conversion · performance · Vector prompt quality → rule, template, or test for future changes.
+
+**5. Usefulness Gate (after Security Gate — Horizon / Evolution Center)**
+
+Before **«Применить»**, Vector shows a scorecard, e.g.:
+
+| Check | Example |
+|-------|---------|
+| Security | ✅ |
+| Regressions | ✅ |
+| Performance | +3% |
+| UX | Improved |
+| Commercial value | High |
+| Risk | Low |
+
+Safe ≠ enough; change must also be **useful**.
+
+**6. Knowledge Ledger (Horizon after S1)**
+
+Each confirmed improvement → ledger entry (type · source · problem · solution · autotest · reuse scope).  
+Year-one goal: not only git history — an engineering knowledge base for Vector and internal agents.
+
+Example shape:
+
+```text
+Knowledge #184
+Type: Security · Source: S1.3
+Problem: IDOR in Orders
+Solution: mandatory owner_id check
+Autotest: orders_idor_test.py
+Reuse: all new user-scoped APIs
+```
+
+#### S1 slices
+
+| Slice | Scope | Status |
+|-------|--------|--------|
+| **S1.1** Secrets & Initial Attack Surface | Secret scan · frontend secret scan · IDOR · cross-account · prompt leak (view) · public rate limit | ✅ **PASS** |
+| **S1.2** Infrastructure Hardening | Security headers · CSP · CSRF posture · portal rate limits · session/cookies · CORS · HSTS/Secure cookie | ✅ **PASS** |
+| **S1.3** Application Security | XSS · upload · orders/invoices IDOR · dependency audit · SAST · **Authorization Matrix** · **Negative Testing** · seed of **Security Regression Suite** | ✅ **PASS** (CEO CTO 2026-07-23) |
+| **S1.4** AI Security | **Mandatory AI attack modeling** | ✅ **PASS** |
+
+##### S1.3 — PASS criteria (CEO 2026-07-23 · stamped before code)
+
+Planned checks (unchanged plan):
+
+| Check | Required |
+|-------|----------|
+| XSS | ✅ |
+| Upload Security | ✅ |
+| Orders IDOR | ✅ |
+| Invoices IDOR | ✅ |
+| Dependency Audit | ✅ |
+| SAST | ✅ |
+
+**Additional PASS criteria (must not skip later):**
+
+**1. Authorization Matrix** — not only spot-check APIs; automatically assert access by role × resource:
+
+| Role | Orders | Billing | Licenses | Support | Admin |
+|------|--------|---------|----------|---------|-------|
+| Guest | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Client | Own only | Own only | Own only | Own | ❌ |
+| Support | Read-only (if permitted) | Limited | Limited | Yes | ❌ |
+| Owner | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+Catches RBAC drift as the product grows.
+
+**2. Negative Testing** — prove what must **fail**:
+
+- nonexistent IDs · negative values · oversized strings  
+- wrong HTTP methods · malformed JSON  
+- empty tokens · expired sessions  
+
+Many vulns only appear on these paths.
+
+**3. Security Regression Suite** — after S1 closes, all findings merge into one release-blocking package, e.g.:
+
+```text
+Security Regression Suite
+Secrets · IDOR · RBAC · XSS · CSRF · Headers · Rate Limits
+AI Security · Prompt Injection · Dependency Audit
+PASS: 100%  (N/N)
+```
+
+Must run automatically before every release. Principle: every vulnerability → permanent test → suite entry.
+
+##### Final Production Ready picture (target after full S1)
+
+```text
+Production Readiness
+🟢 Product
+🟢 Workspace
+🟢 Security
+🟢 Infrastructure
+🟢 Payments
+🟢 Monitoring
+
+Security Regression Suite
+N/N PASS
+
+Overall
+100%
+
+Status:
+Production Ready
+```
+
+Only then: lift Freeze · open Evolution Center / Knowledge Ledger. Until then — discipline over speed; no product feature adds on this track.
+
+##### S1.4 — mandatory AI attack modeling (CEO 2026-07-23)
+
+For Virtus Core, AI attacks are **first-class**, not optional extras. Vector is a core platform surface — model and automate:
+
+| Attack | Goal |
+|--------|------|
+| Prompt Injection | override system / policy |
+| Jailbreak Resistance | bypass safety / role |
+| Tool Permission Escalation | call tools without approval |
+| Data Isolation | read other tenants’ project state |
+| Cross-user Memory | recall another user’s atoms |
+| Secret Extraction | exfiltrate keys / prompts / internals |
+| Function Abuse | spam / misuse actions & workforce |
+
+Each finding → **permanent automated test** (Constitution §3).
+
+Only after **S1.1–S1.4 PASS** → Security lane 🟢 · security Freeze lifted.  
+**Overall 100% / Production Ready** only when **all** lanes green (incl. Payments) → then **G3 Evolution Center**.
+
+| Area | Checks |
+|------|--------|
+| **1 Secrets** | Git history · `.env` · no API keys in frontend / built JS · rotate if found |
+| **2 Access** | IDOR · resource ownership on APIs · RBAC · client isolation |
+| **3 Infra** | HTTPS · security headers · CORS · cookies · session · CSRF where used |
+| **4 App** | XSS · injection · file upload · rate limiting · dependency audit |
+| **5 AI** | server keys never in browser · prompts cannot leak secrets · actions permission-checked · no cross-user AI ops |
+
+#### S1.1 attacker checklist — PASS (CEO discipline 2026-07-23)
+
+| Attack | Expected | Status |
+|--------|----------|--------|
+| **IDOR** — swap conversation IDs across accounts | 403/404 · no foreign payload | ✅ |
+| **API Authorization** — auth ≠ ownership | fail closed | ✅ licenses/billing/my-products |
+| **Frontend Secret Scan** | zero real secrets | ✅ `scripts/s1_frontend_secret_scan.py` |
+| **Prompt Security (view contract)** | no `system_prompt` in client views | ✅ (live Vector → S1.4) |
+| **Public Rate Limit** | 429 on flood `/api/public/*` | ✅ |
+| **Cross-account Isolation** | Alice/Bob fully isolated | ✅ |
+
+#### S1.2 progress — PASS (CEO readiness criteria)
+
+- ✅ API security headers module + middleware (`security_hardening.py`)
+- ✅ Portal rate limit (per IP · env `GENESIS_PORTAL_RATE_LIMIT_PER_MIN`)
+- ✅ Frontend CSP baseline in `next.config.ts`
+- ✅ CSRF posture documented: HttpOnly + SameSite=Lax (double-submit not required while Lax)
+- ✅ CORS regression: no `*` with credentials
+- ✅ HSTS on API responses when `is_production()` (TLS termination remains at edge/host)
+- ✅ Session cookie Secure defaults to True in production (`PORTAL_COOKIE_SECURE` override)
+- ✅ Autotests green · docs updated · no commit until full S1
+
+#### Production Readiness rule (binding)
+
+> **Overall never reaches 100% while any mandatory lane is not green.**
+
+Example while Security is yellow: Product/Workspace green · Security in progress → Overall ≤99% · **Not Production Ready**.  
+Only when **all** lanes (incl. Security after full S1) are green → Overall 100% · **Production Ready**.
+
+Implemented in `ProductionReadinessPanel` (`readinessOverallPercent`).
+
+**S1 progress:**
+- ✅ **Security Gate S1 — FINAL PASS** (CEO Product CTO 2026-07-23)
+- ✅ S1.1 · S1.2 · S1.3 · S1.4 PASS
+- ✅ Security 🟢 · security Freeze **lifted**
+- ✅ Security Regression Suite: `scripts/s1_security_regression_suite.py` → **4/4 gates** · **51** pytest PASS
+- ⏳ Overall **≤99%** while Payments 🟡 — Status: **Commercial Production Pending**
+- ▶️ **Next: G2.3 Commercial Readiness** (real prices · One-time / Monthly catalog · payment path → Payments 🟢)
+- ❌ G3 Evolution Center — only after Overall 100% / Production Ready
+- 📌 S2 wish: `pip-audit` absent → **SKIPPED**, not PASS
+- ⚠ `dashboard/backend/.env.test` git-tracked — verify / untrack if secrets appear
+
+### Security Gate S1 — FINAL PASS (CEO stamped)
+
+```text
+Security Gate S1
+S1.1 PASS
+S1.2 PASS
+S1.3 PASS
+S1.4 PASS
+
+Security
+🟢 COMPLETE
+
+Payments
+🟡
+
+Overall
+≤99%
+
+Status
+Commercial Production Pending
+
+Security Regression Suite
+51 pytest + 4/4 gates PASS
+```
+
+| S1.4 check | Result | Evidence |
+|------------|--------|----------|
+| Prompt Injection | PASS | attack corpus → `is_meta_exfiltration_attempt` |
+| Jailbreak | PASS | DAN / developer mode / «режим без ограничений» |
+| Tool Permission Escalation | PASS | Business Action `approved=False` → `approval_required` |
+| Secret Extraction | PASS | API key / .env probes blocked · answer scrub |
+| Cross-user Memory | PASS | Bob cannot read Alice conversation |
+| Data Isolation | PASS | same suite · account-scoped conversations |
+| Function Abuse | PASS | assistance `auto_sent=False` · no silent send |
+
+### G2.3 — Commercial Readiness (CEO 2026-07-23 · NEXT)
+
+Not new platform features — commercial completion:
+
+- Real prices · real products · real purchase paths
+- Catalog: **One-time Services** vs **Monthly Services**
+- Do not offer unimplemented modules for purchase
+- Landing prices unchanged: Basic €350 · Business €650 · Premium €1200
+- Target tariffs (intent): Analysis €149 · Repair from €199 · SEO €249 · Speed €199 · Security €299 · GBP €149 · Migration from €299 · Vector €99/199/349 mo · CRM €29/79/149 · Automation €49/99
+- When Payments 🟢 → Overall 100% → **Production Ready** → then open **G3 Evolution Center**
+
+**Horizon (blocked until Production Ready):** Evolution Center + Knowledge Ledger + Usefulness Gate — Constitution §§4–6.
+
+**Production Readiness indicator** (Mission Control `/business`): Product · Workspace · Security · Infrastructure · Payments · Monitoring → overall % (never 100% with a non-green lane).

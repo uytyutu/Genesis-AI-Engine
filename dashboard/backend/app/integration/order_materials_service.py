@@ -15,6 +15,8 @@ from typing import Any
 
 from fastapi import UploadFile
 
+from app.portal.s1_3_xss_upload import assert_safe_upload_filename
+
 _ALLOWED_EXT = {
     ".png",
     ".jpg",
@@ -52,7 +54,8 @@ class OrderMaterialsService:
         self._index = self._root / "index.jsonl"
 
     def save(self, upload: UploadFile, *, session_id: str = "anon") -> dict[str, Any]:
-        name = upload.filename or "file"
+        name = Path(upload.filename or "file").name
+        assert_safe_upload_filename(upload.filename)
         ext = Path(name).suffix.lower() or ""
         content_type = (upload.content_type or "application/octet-stream").split(";")[0].strip().lower()
         if ext and ext not in _ALLOWED_EXT:

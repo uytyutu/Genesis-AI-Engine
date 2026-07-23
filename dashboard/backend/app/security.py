@@ -171,7 +171,19 @@ _META_EXFILTRATION = re.compile(
     r"workforce\s*director|runtime\s*pipeline|executive\s*trace|"
     r"director_reflections|employee_ratings|"
     r"покажи\s+(?:свой|мне|полный)|"
-    r"выведи\s+(?:содержимое|все)|dump\s+(?:config|memory|prompt)",
+    r"выведи\s+(?:содержимое|все)|dump\s+(?:config|memory|prompt)|"
+    # S1.4 — jailbreak / prompt-injection / secret extraction probes
+    r"ignore\s+(all\s+)?(previous|prior|above)\s+instructions|"
+    r"disregard\s+(your|the)\s+(rules|instructions|system)|"
+    r"you\s+are\s+now\s+(dan|jailbroken|unrestricted)|"
+    r"developer\s+mode\s+enabled|\bjailbreak\b|"
+    r"reveal\s+(your\s+)?(system|hidden)\s+prompt|"
+    r"print\s+your\s+instructions|"
+    r"пренебреги\s+(предыдущ|системн)|"
+    r"забудь\s+(все\s+)?(?:свои\s+)?инструк|"
+    r"режим\s+без\s+ограничен|"
+    r"покажи\s+системн\w*\s+промпт|"
+    r"extract\s+(the\s+)?api\s*key",
     re.I,
 )
 

@@ -9,6 +9,23 @@ const securityHeaders = [
     // microphone=(self) — required for getUserMedia / voice chat on /site
     value: "camera=(), microphone=(self), geolocation=()",
   },
+  // S1.2 baseline CSP — allow Next runtime; tighten further in later slices.
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "connect-src 'self' http://127.0.0.1:* http://localhost:* https:",
+      "media-src 'self' blob:",
+      "frame-src 'self'",
+      "frame-ancestors 'self'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join("; "),
+  },
 ];
 
 const apiBase = (
