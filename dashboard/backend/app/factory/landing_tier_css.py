@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from typing import Protocol
 
+# Hero layout pools consumed by layout_variants.resolve_hero_for_layout
+# (contract must stay in sync with that import — C0).
+PREMIUM_HERO_POOL = ("B", "D", "F")
+BASIC_HERO_PREFER = ("A", "C")
+
 
 class _Style(Protocol):
     primary: str
