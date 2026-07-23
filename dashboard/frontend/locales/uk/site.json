@@ -377,5 +377,41 @@
   },
   "faqTitle": "Часті запитання",
   "servicesTitle": "Послуги",
-  "servicesIntro": "{{brand}}: Landing Page Neustart (350 / 650 / 1200 €)."
+  "servicesIntro": "{{brand}}: Landing Page Neustart (350 / 650 / 1200 €).",
+  "s0": {
+    "marketLabel": "Ринок / ціни",
+    "analysisTitle": "Website Analysis і Repair",
+    "repairMvpTitle": "Ремонт сайтів — що вміємо на етапі MVP",
+    "repairMvpIntro": "Virtus Core зараз не лагодить сайти автоматично. ШІ — діагност і помічник: аналіз → звіт → кошторис → після оплати ремонт робить оператор за звітом.",
+    "repairMvpFindTitle": "Що знаходимо",
+    "repairMvpFind1": "HTTPS, мобільна версія, швидкість відповіді",
+    "repairMvpFind2": "SEO (title), контакти, CTA, форми, карта",
+    "repairMvpFind3": "Базові проблеми структури та якості",
+    "repairMvpFixTitle": "Що лагодить оператор (після доступу)",
+    "repairMvpFix1": "Тексти, заголовки, CTA, контакти, карта",
+    "repairMvpFix2": "Форми, SEO-мета, прості правки верстки",
+    "repairMvpFix3": "Оптимізація зображень і легкий perf",
+    "repairMvpDisclaimer": "Не обіцяємо авто-ремонт WordPress / Wix / Shopify, тем, плагінів чи баз даних. Пакети Repair Lite / Standard / Complete — кошторис після аналізу.",
+    "onetimeRepairBody": "Website Repair — лише через аналіз вище, якщо ремонт вигідніший за новий сайт. Migration · Google Business · SEO Fixes — окремо.",
+    "analysisFirstCta": "Спочатку аналіз →"
+  },
+  "analysis": {
+    "title": "Website Analysis",
+    "intro": "Безкоштовний вхід: спочатку стан сайту — потім чесна рекомендація: ремонт (оператор за звітом) або новий сайт (350 / 650 / 1200 €). Без авто-ремонту CMS і без фіктивних оцінок.",
+    "emailPh": "Email (щоб зберегти звіт у кабінеті)",
+    "notePh": "Опційно: що не так із сайтом?",
+    "submit": "Перевірити сайт безкоштовно",
+    "submitting": "Аналіз…",
+    "apiError": "Не вдалося звʼязатися з API. Запустіть Virtus Core і спробуйте знову.",
+    "scoreLabel": "Загальна оцінка",
+    "caseLabel": "Звіт: {{id}}",
+    "vectorPlain": "Vector — простими словами",
+    "strengths": "Сильні сторони",
+    "problems": "Проблеми",
+    "checks": "Перевірки",
+    "why": "Чому так",
+    "next": "Що далі",
+    "recommended": "рекомендовано",
+    "askVector": "Обговорити звіт з Vector →"
+  }
 }

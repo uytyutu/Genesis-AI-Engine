@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { publicApiBase } from "../lib/publicApiBase";
 import { logCommerceEvent } from "../lib/commerceFunnel";
 
@@ -60,6 +61,7 @@ export function WebsiteAnalysisPanel({
   market: string;
   onAskVector: () => void;
 }) {
+  const { t, i18n } = useTranslation("site");
   const [url, setUrl] = useState("https://");
   const [email, setEmail] = useState("");
   const [problemNote, setProblemNote] = useState("");
@@ -77,6 +79,7 @@ export function WebsiteAnalysisPanel({
     e.preventDefault();
     setBusy(true);
     setError("");
+    const locale = (i18n.language || "de").slice(0, 2);
     try {
       const res = await fetch(`${publicApiBase()}/api/public/website-analysis`, {
         method: "POST",
@@ -85,7 +88,7 @@ export function WebsiteAnalysisPanel({
           url: url.trim(),
           email: email.trim(),
           problem_note: problemNote.trim(),
-          locale: "ru",
+          locale,
           use_cache: false,
         }),
       });
@@ -100,7 +103,7 @@ export function WebsiteAnalysisPanel({
         niche: null,
       });
     } catch {
-      setError("Не удалось связаться с API. Запустите Virtus Core и попробуйте снова.");
+      setError(t("analysis.apiError"));
       setReport(null);
     } finally {
       setBusy(false);
@@ -109,12 +112,8 @@ export function WebsiteAnalysisPanel({
 
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
-      <h3 className="text-lg font-semibold text-white">Website Analysis</h3>
-      <p className="mt-2 text-sm text-zinc-400">
-        Бесплатный вход: сначала состояние сайта — потом честная рекомендация: ремонт
-        (оператор по отчёту) или новый сайт (350 / 650 / 1200 €). Без авто-ремонта CMS
-        и без фиктивных оценок.
-      </p>
+      <h3 className="text-lg font-semibold text-white">{t("analysis.title")}</h3>
+      <p className="mt-2 text-sm text-zinc-400">{t("analysis.intro")}</p>
 
       <form onSubmit={onSubmit} className="mt-4 space-y-3">
         <input
@@ -129,13 +128,13 @@ export function WebsiteAnalysisPanel({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email (чтобы сохранить отчёт в кабинете)"
+          placeholder={t("analysis.emailPh")}
           className="w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600"
         />
         <textarea
           value={problemNote}
           onChange={(e) => setProblemNote(e.target.value)}
-          placeholder="Опционально: что не так с сайтом?"
+          placeholder={t("analysis.notePh")}
           rows={2}
           className="w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2.5 text-sm text-white placeholder:text-zinc-600"
         />
@@ -144,20 +143,18 @@ export function WebsiteAnalysisPanel({
           disabled={busy}
           className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
         >
-          {busy ? "Анализ…" : "Проверить сайт бесплатно"}
+          {busy ? t("analysis.submitting") : t("analysis.submit")}
         </button>
       </form>
 
-      {error ? (
-        <p className="mt-3 text-sm text-rose-300">{error}</p>
-      ) : null}
+      {error ? <p className="mt-3 text-sm text-rose-300">{error}</p> : null}
 
       {report ? (
         <div className="mt-6 space-y-5 border-t border-white/10 pt-5">
           <div className="flex flex-wrap items-end gap-4">
             <div>
               <p className="text-xs uppercase tracking-wide text-zinc-500">
-                Общая оценка
+                {t("analysis.scoreLabel")}
               </p>
               <p className="text-4xl font-semibold text-white">
                 {report.health_score}
@@ -170,14 +167,16 @@ export function WebsiteAnalysisPanel({
                 <p className="truncate text-xs text-zinc-500">{report.title}</p>
               ) : null}
               {report.case_id ? (
-                <p className="mt-1 text-xs text-sky-300/80">Отчёт: {report.case_id}</p>
+                <p className="mt-1 text-xs text-sky-300/80">
+                  {t("analysis.caseLabel", { id: report.case_id })}
+                </p>
               ) : null}
             </div>
           </div>
 
           {report.vector_plain ? (
             <div className="rounded-xl border border-sky-400/20 bg-sky-950/20 p-4">
-              <p className="text-sm font-medium text-sky-100">Vector — простыми словами</p>
+              <p className="text-sm font-medium text-sky-100">{t("analysis.vectorPlain")}</p>
               <p className="mt-2 text-sm text-zinc-300 whitespace-pre-wrap">
                 {report.vector_plain}
               </p>
@@ -186,7 +185,7 @@ export function WebsiteAnalysisPanel({
 
           {report.strengths?.length ? (
             <div>
-              <p className="text-sm font-medium text-emerald-200">Сильные стороны</p>
+              <p className="text-sm font-medium text-emerald-200">{t("analysis.strengths")}</p>
               <ul className="mt-2 space-y-1 text-sm text-zinc-300">
                 {report.strengths.map((s) => (
                   <li key={s}>✓ {s}</li>
@@ -197,7 +196,7 @@ export function WebsiteAnalysisPanel({
 
           {report.problems?.length ? (
             <div>
-              <p className="text-sm font-medium text-amber-200">Проблемы</p>
+              <p className="text-sm font-medium text-amber-200">{t("analysis.problems")}</p>
               <ul className="mt-2 space-y-1 text-sm text-zinc-300">
                 {report.problems.map((p) => (
                   <li key={p}>⚠ {p}</li>
@@ -207,7 +206,7 @@ export function WebsiteAnalysisPanel({
           ) : null}
 
           <div>
-            <p className="text-sm font-medium text-zinc-200">Проверки</p>
+            <p className="text-sm font-medium text-zinc-200">{t("analysis.checks")}</p>
             <ul className="mt-2 space-y-2">
               {(report.checks || []).map((c) => (
                 <li
@@ -233,14 +232,14 @@ export function WebsiteAnalysisPanel({
           </div>
 
           <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-            <p className="text-sm font-medium text-zinc-100">Почему так</p>
+            <p className="text-sm font-medium text-zinc-100">{t("analysis.why")}</p>
             <p className="mt-2 text-sm text-zinc-300 whitespace-pre-wrap">
               {report.justification}
             </p>
           </div>
 
           <div className="space-y-3">
-            <p className="text-sm font-medium text-white">Что дальше</p>
+            <p className="text-sm font-medium text-white">{t("analysis.next")}</p>
             {(report.recommendations || []).map((r) => (
               <div
                 key={r.id}
@@ -255,7 +254,7 @@ export function WebsiteAnalysisPanel({
                     {r.title}
                     {r.recommended ? (
                       <span className="ml-2 text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
-                        рекомендуется
+                        {t("analysis.recommended")}
                       </span>
                     ) : null}
                   </p>
@@ -273,7 +272,7 @@ export function WebsiteAnalysisPanel({
                         logCommerceEvent(
                           "tier_select",
                           r.package_id || r.id,
-                          "website_analysis"
+                          "website_analysis",
                         )
                       }
                       className="inline-flex rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black hover:brightness-110"
@@ -304,7 +303,7 @@ export function WebsiteAnalysisPanel({
             onClick={onAskVector}
             className="text-sm font-medium text-sky-300 hover:underline"
           >
-            Обсудить отчёт с Vector →
+            {t("analysis.askVector")}
           </button>
         </div>
       ) : null}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
@@ -9,12 +9,14 @@ import { CONTACT_EMAIL } from "../lib/siteConfig";
 import { publicApiBase } from "../lib/publicApiBase";
 import { formatLocalizedMoney } from "../lib/formatEur";
 import { logCommerceEvent } from "../lib/commerceFunnel";
-import { uiLangForMarket } from "../lib/marketLang";
+import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
 import { filterPublicPackages } from "../lib/showSmokePackage";
 import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
 import { GenesisConcierge } from "../components/GenesisConcierge";
 import { WebsiteAnalysisPanel } from "../components/WebsiteAnalysisPanel";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
+import { useLocale } from "../context/LocaleContext";
+import type { UiLocale } from "../lib/locale/types";
 
 type PackageCard = {
   id: string;
@@ -86,6 +88,8 @@ type MarketOption = {
  */
 export function SitePage() {
   const { t, i18n } = useTranslation("site");
+  const { uiLocale, applyUiLocale } = useLocale();
+  const syncLock = useRef<"market" | "lang" | null>(null);
   const [packages, setPackages] = useState<PackageCard[]>(FALLBACK_PACKAGES);
   const [reviews, setReviews] = useState<PublicReviews | null>(null);
   const [market, setMarket] = useState("DE");
@@ -114,11 +118,37 @@ export function SitePage() {
     return key ? t(key) : fallback;
   }
 
+  function writeMarketToUrl(code: string) {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("market", code);
+      window.history.replaceState({}, "", url.toString());
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function selectMarket(next: string) {
+    const code = next.toUpperCase();
+    syncLock.current = "market";
+    setMarket(code);
+    writeMarketToUrl(code);
+    const lang = uiLangForMarket(code) as UiLocale;
+    if (uiLocale !== lang) {
+      applyUiLocale(lang);
+    }
+  }
+
   useEffect(() => {
     try {
       const p = new URLSearchParams(window.location.search);
       const m = (p.get("market") || p.get("country") || "DE").toUpperCase();
+      syncLock.current = "market";
       setMarket(m);
+      const lang = uiLangForMarket(m) as UiLocale;
+      if (uiLocale !== lang) {
+        applyUiLocale(lang);
+      }
       const view = (p.get("view") || "").toLowerCase();
       if (view === "vector" || window.location.hash.includes("vector")) {
         setChatOpen(true);
@@ -126,15 +156,24 @@ export function SitePage() {
     } catch {
       setMarket("DE");
     }
+    // Initial URL → market/lang only once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // LanguageSwitcher is source of truth when buyer picks a UI language.
   useEffect(() => {
-    const lang = uiLangForMarket(market);
-    const current = (i18n.language || "").slice(0, 2).toLowerCase();
-    if (current !== lang) {
-      void i18n.changeLanguage(lang);
+    if (syncLock.current === "market") {
+      syncLock.current = null;
+      return;
     }
-  }, [market, i18n]);
+    const expectedLang = uiLangForMarket(market);
+    if (uiLocale === expectedLang) return;
+    const next = canonicalMarketForLang(uiLocale);
+    if (next === market) return;
+    syncLock.current = "lang";
+    setMarket(next);
+    writeMarketToUrl(next);
+  }, [uiLocale, market]);
 
   useEffect(() => {
     const api = publicApiBase();
@@ -197,18 +236,6 @@ export function SitePage() {
     return `/order?market=${market}&package=${pkg}`;
   }
 
-  function selectMarket(next: string) {
-    const code = next.toUpperCase();
-    setMarket(code);
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.set("market", code);
-      window.history.replaceState({}, "", url.toString());
-    } catch {
-      /* ignore */
-    }
-  }
-
   const comingSoon = t("s0.comingSoon", { defaultValue: "Coming Soon" });
   const orderLabel = t("pathA.cta");
   const detailsLabel = t("s0.details", { defaultValue: "Details" });
@@ -236,7 +263,7 @@ export function SitePage() {
           {markets.length > 0 ? (
             <div className="mx-auto max-w-md text-left">
               <label className="text-xs text-genesis-muted" htmlFor="site-market-select">
-                Markt / Preise
+                {t("s0.marketLabel", { defaultValue: "Market / prices" })}
               </label>
               <select
                 id="site-market-select"
@@ -422,37 +449,33 @@ export function SitePage() {
           <WebsiteAnalysisPanel market={market} onAskVector={openChat} />
           <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
             <h3 className="text-base font-semibold text-white sm:text-lg">
-              Ремонт сайтов — что умеем на этапе MVP
+              {t("s0.repairMvpTitle")}
             </h3>
-            <p className="mt-2 text-sm text-zinc-400">
-              Virtus Core сейчас не чинит сайты автоматически. ИИ — диагност и помощник:
-              анализ → отчёт → смета → после оплаты ремонт делает оператор по отчёту.
-            </p>
+            <p className="mt-2 text-sm text-zinc-400">{t("s0.repairMvpIntro")}</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300/90">
-                  Что находим
+                  {t("s0.repairMvpFindTitle")}
                 </p>
                 <ul className="mt-2 space-y-1.5 text-sm text-zinc-300">
-                  <li>HTTPS, мобильная версия, скорость ответа</li>
-                  <li>SEO (title), контакты, CTA, формы, карта</li>
-                  <li>Базовые проблемы структуры и качества</li>
+                  <li>{t("s0.repairMvpFind1")}</li>
+                  <li>{t("s0.repairMvpFind2")}</li>
+                  <li>{t("s0.repairMvpFind3")}</li>
                 </ul>
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-sky-300/90">
-                  Что чинит оператор (после доступа)
+                  {t("s0.repairMvpFixTitle")}
                 </p>
                 <ul className="mt-2 space-y-1.5 text-sm text-zinc-300">
-                  <li>Тексты, заголовки, CTA, контакты, карта</li>
-                  <li>Формы, SEO-мета, простые правки вёрстки</li>
-                  <li>Оптимизация изображений и лёгкий perf</li>
+                  <li>{t("s0.repairMvpFix1")}</li>
+                  <li>{t("s0.repairMvpFix2")}</li>
+                  <li>{t("s0.repairMvpFix3")}</li>
                 </ul>
               </div>
             </div>
             <p className="mt-4 text-xs leading-relaxed text-zinc-500">
-              Не обещаем авто-ремонт WordPress / Wix / Shopify, тем, плагинов или баз
-              данных. Пакеты Repair Lite / Standard / Complete — смета после анализа.
+              {t("s0.repairMvpDisclaimer")}
             </p>
           </article>
         </section>
@@ -463,15 +486,12 @@ export function SitePage() {
             {t("s0.onetimeTitle", { defaultValue: "One-time services" })}
           </h2>
           <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <p className="text-sm text-zinc-400">
-              Website Repair — только через анализ выше, если ремонт выгоднее нового
-              сайта. Migration · Google Business · SEO Fixes — отдельно.
-            </p>
+            <p className="text-sm text-zinc-400">{t("s0.onetimeRepairBody")}</p>
             <a
               href="#analysis"
               className="mt-4 inline-flex rounded-lg border border-emerald-500/40 bg-emerald-950/30 px-3 py-1.5 text-xs font-semibold text-emerald-100/90 hover:brightness-110"
             >
-              Сначала анализ →
+              {t("s0.analysisFirstCta")}
             </a>
             <p className="mt-3 text-xs text-zinc-500">
               {t("s0.honestNote", {

@@ -9,7 +9,7 @@
     "websitesTitle": "Websites",
     "aiTitle": "AI Solutions",
     "automationTitle": "Automation & CRM",
-    "analysisTitle": "Business Analysis",
+    "analysisTitle": "Website-Analyse & Repair",
     "onetimeTitle": "Einmalige Services",
     "comingSoon": "Coming Soon",
     "details": "Details",
@@ -19,7 +19,21 @@
     "askVector": "Vector fragen",
     "closeChat": "Schließen",
     "chatHint": "Berater — hilft bei der Paketwahl",
-    "honestNote": "Coming Soon ≠ Kaufen. Wir verkaufen nur fertige Lieferpfade."
+    "honestNote": "Coming Soon ≠ Kaufen. Wir verkaufen nur fertige Lieferpfade.",
+    "marketLabel": "Markt / Preise",
+    "repairMvpTitle": "Website-Repair — MVP-Umfang",
+    "repairMvpIntro": "Virtus Core repariert Websites nicht automatisch. Die KI diagnostiziert und hilft: Analyse → Bericht → Angebot → nach Zahlung repariert ein Operator anhand des Berichts.",
+    "repairMvpFindTitle": "Was wir finden",
+    "repairMvpFind1": "HTTPS, Mobile, Antwortzeit",
+    "repairMvpFind2": "SEO (Title), Kontakte, CTAs, Formulare, Karte",
+    "repairMvpFind3": "Grundlegende Struktur- und Qualitätsprobleme",
+    "repairMvpFixTitle": "Was ein Operator behebt (nach Zugang)",
+    "repairMvpFix1": "Texte, Überschriften, CTAs, Kontakte, Karte",
+    "repairMvpFix2": "Formulare, SEO-Meta, einfache Layout-Fixes",
+    "repairMvpFix3": "Bildoptimierung und leichte Performance-Arbeit",
+    "repairMvpDisclaimer": "Wir versprechen keinen Auto-Repair von WordPress / Wix / Shopify, Themes, Plugins oder Datenbanken. Repair Lite / Standard / Complete — Angebot nach Analyse.",
+    "onetimeRepairBody": "Website Repair nur über die Analyse oben — wenn Repair günstiger als eine neue Website ist. Migration · Google Business · SEO Fixes — separat.",
+    "analysisFirstCta": "Zuerst Analyse →"
   },
   "pathA": {
     "eyebrow": "{{brand}}",
@@ -417,5 +431,24 @@
   },
   "faqTitle": "Häufige Fragen",
   "servicesTitle": "Leistungen",
-  "servicesIntro": "{{brand}}: digitaler Neustart für DE-SMB — Landing online, Boost/Audits per Anfrage. Signal → passende Leistung."
+  "servicesIntro": "{{brand}}: digitaler Neustart für DE-SMB — Landing online, Boost/Audits per Anfrage. Signal → passende Leistung.",
+  "analysis": {
+    "title": "Website-Analyse",
+    "intro": "Kostenloser Einstieg: zuerst der Zustand Ihrer Website — dann eine ehrliche Empfehlung: Repair (Operator nach Bericht) oder neue Website (350 / 650 / 1.200 €). Kein Auto-CMS-Repair und keine Fake-Scores.",
+    "emailPh": "E-Mail (Bericht im Kundenbereich speichern)",
+    "notePh": "Optional: was stimmt mit der Website nicht?",
+    "submit": "Website kostenlos prüfen",
+    "submitting": "Analysiere…",
+    "apiError": "API nicht erreichbar. Virtus Core starten und erneut versuchen.",
+    "scoreLabel": "Gesamtwertung",
+    "caseLabel": "Bericht: {{id}}",
+    "vectorPlain": "Vector — in einfachen Worten",
+    "strengths": "Stärken",
+    "problems": "Probleme",
+    "checks": "Prüfungen",
+    "why": "Warum dieses Ergebnis",
+    "next": "Nächste Schritte",
+    "recommended": "empfohlen",
+    "askVector": "Bericht mit Vector besprechen →"
+  }
 }

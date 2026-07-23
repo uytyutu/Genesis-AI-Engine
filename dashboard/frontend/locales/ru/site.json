@@ -9,7 +9,7 @@
     "websitesTitle": "Websites",
     "aiTitle": "AI Solutions",
     "automationTitle": "Automation & CRM",
-    "analysisTitle": "Business Analysis",
+    "analysisTitle": "Website Analysis и Repair",
     "onetimeTitle": "Разовые услуги",
     "comingSoon": "Coming Soon",
     "details": "Подробнее",
@@ -19,7 +19,21 @@
     "askVector": "Спросить Vector",
     "closeChat": "Закрыть",
     "chatHint": "Консультант — поможет подобрать пакет",
-    "honestNote": "Coming Soon ≠ Купить. Продаём только готовые пути доставки."
+    "honestNote": "Coming Soon ≠ Купить. Продаём только готовые пути доставки.",
+    "marketLabel": "Рынок / цены",
+    "repairMvpTitle": "Ремонт сайтов — что умеем на этапе MVP",
+    "repairMvpIntro": "Virtus Core сейчас не чинит сайты автоматически. ИИ — диагност и помощник: анализ → отчёт → смета → после оплаты ремонт делает оператор по отчёту.",
+    "repairMvpFindTitle": "Что находим",
+    "repairMvpFind1": "HTTPS, мобильная версия, скорость ответа",
+    "repairMvpFind2": "SEO (title), контакты, CTA, формы, карта",
+    "repairMvpFind3": "Базовые проблемы структуры и качества",
+    "repairMvpFixTitle": "Что чинит оператор (после доступа)",
+    "repairMvpFix1": "Тексты, заголовки, CTA, контакты, карта",
+    "repairMvpFix2": "Формы, SEO-мета, простые правки вёрстки",
+    "repairMvpFix3": "Оптимизация изображений и лёгкий perf",
+    "repairMvpDisclaimer": "Не обещаем авто-ремонт WordPress / Wix / Shopify, тем, плагинов или баз данных. Пакеты Repair Lite / Standard / Complete — смета после анализа.",
+    "onetimeRepairBody": "Website Repair — только через анализ выше, если ремонт выгоднее нового сайта. Migration · Google Business · SEO Fixes — отдельно.",
+    "analysisFirstCta": "Сначала анализ →"
   },
   "pathA": {
     "eyebrow": "{{brand}}",
@@ -417,5 +431,24 @@
   },
   "faqTitle": "Частые вопросы",
   "servicesTitle": "Услуги",
-  "servicesIntro": "{{brand}}: Landing Page Neustart (350 / 650 / 1200 €)."
+  "servicesIntro": "{{brand}}: Landing Page Neustart (350 / 650 / 1200 €).",
+  "analysis": {
+    "title": "Website Analysis",
+    "intro": "Бесплатный вход: сначала состояние сайта — потом честная рекомендация: ремонт (оператор по отчёту) или новый сайт (350 / 650 / 1200 €). Без авто-ремонта CMS и без фиктивных оценок.",
+    "emailPh": "Email (чтобы сохранить отчёт в кабинете)",
+    "notePh": "Опционально: что не так с сайтом?",
+    "submit": "Проверить сайт бесплатно",
+    "submitting": "Анализ…",
+    "apiError": "Не удалось связаться с API. Запустите Virtus Core и попробуйте снова.",
+    "scoreLabel": "Общая оценка",
+    "caseLabel": "Отчёт: {{id}}",
+    "vectorPlain": "Vector — простыми словами",
+    "strengths": "Сильные стороны",
+    "problems": "Проблемы",
+    "checks": "Проверки",
+    "why": "Почему так",
+    "next": "Что дальше",
+    "recommended": "рекомендуется",
+    "askVector": "Обсудить отчёт с Vector →"
+  }
 }
