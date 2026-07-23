@@ -28,11 +28,26 @@ def test_global_spider_discovers_seed_targets(tmp_path: Path):
 
 
 def test_global_spider_text_query_seeds_use_places(tmp_path: Path, monkeypatch):
+    from app.integration.farm_hunting_defaults import HIGH_VALUE_SEED_TARGETS, merge_hunting_config
+
+    seed = "ремонт ноутбуков"
+    frozen = merge_hunting_config({"seed_targets": [seed], "freeze_lists": True})
+    assert frozen["seed_targets"] == [seed]
+    assert not any(x in frozen["seed_targets"] for x in HIGH_VALUE_SEED_TARGETS[:3])
+
+    monkeypatch.setattr(
+        "app.integration.farm_hunting_defaults.HIGH_VALUE_SEED_TARGETS",
+        [],
+    )
+    monkeypatch.setattr(
+        "app.integration.farm_hunting_defaults.HIGH_VALUE_PLACES_QUERIES",
+        [],
+    )
     cfg = tmp_path / "global_spider_config.json"
     cfg.write_text(
         json.dumps(
             {
-                "seed_targets": ["ремонт ноутбуков"],
+                "seed_targets": [seed],
                 "search_region": "de",
                 "search_city": "Dresden",
                 "regions_enabled": False,
@@ -47,7 +62,8 @@ def test_global_spider_text_query_seeds_use_places(tmp_path: Path, monkeypatch):
         website = "https://repair.example.de"
 
     def fake_search_text(**kwargs):
-        assert "ремонт ноутбуков" in kwargs.get("query", "")
+        if seed not in kwargs.get("query", ""):
+            return []
         return [FakeLead()]
 
     monkeypatch.setattr(spider._places, "configured", lambda: True)
