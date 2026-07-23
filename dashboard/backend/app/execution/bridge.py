@@ -1856,6 +1856,7 @@ def _run_analyze_document(
         **(out.get("context") or {}),
         "execution": result.to_dict(),
         "capability_result": cap,
+        "workspace_id": workspace_id,
         "document_type": doc_type,
         "execution_kind": "document_analysis",
         "source_filename": source_name,
