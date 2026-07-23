@@ -6,6 +6,7 @@ const API = publicApiBase();
 /** Path A + Order Experience v2 funnel events (pricing_analytics.jsonl). */
 export type FunnelEvent =
   | "tier_page_view"
+  | "tier_page_cta"
   | "tier_select"
   | "premium_preview_view"
   | "upgrade_click"

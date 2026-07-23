@@ -28,7 +28,12 @@
 | **Operational Readiness** | Pre-channel gate (not a Product Track) | **OR Gen1 CLOSED** ✅ (CEO 2026-07-22) |
 | **Integration Track** | First real channel | **IT1.1 OPEN** · Website Widget |
 | **Generation 2** | Commercial product | **G2.2** ✅ · **S1 Security** ✅ · **G2.3 Commercial FINAL PASS** ✅ · **Production Ready** ✅ |
-| **Generation 3** | Evolution Center | **G3.1 FINAL PASS** (2026-07-23) |
+| **Generation 3** | Evolution Center | **G3.1 FINAL PASS** · **S0 Storefront First** (CEO Scope Freeze 2026-07-23 · awaiting live PASS) |
+
+**S0 — Storefront First (CEO):** `/site` sells packages first; Vector is consultant (Ask Vector), not the first screen. Prices locked. Coming Soon ≠ Buy. Rule of 3 clicks: card → Order → checkout.
+
+**Future KPI (not this slice):** `/business` Sales Funnel for storefront — Store Visits → Product Views → Package Selected → Order Started → Checkout → Paid.
+
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)

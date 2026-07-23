@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
-import { BRAND_NAME } from "../lib/publicBrand";
+import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
 import { publicApiBase } from "../lib/publicApiBase";
 import { formatLocalizedMoney } from "../lib/formatEur";
@@ -12,6 +12,8 @@ import { logCommerceEvent } from "../lib/commerceFunnel";
 import { uiLangForMarket } from "../lib/marketLang";
 import { filterPublicPackages } from "../lib/showSmokePackage";
 import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
+import { GenesisConcierge } from "../components/GenesisConcierge";
+import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
 
 type PackageCard = {
   id: string;
@@ -41,40 +43,20 @@ const FALLBACK_PACKAGES: PackageCard[] = [
   {
     id: "basic",
     name: "Landing Basic",
-    price_eur: 350,
-    deliverables: [
-      "Fertige moderne Landing Page (mobil) — Design nach Branche",
-      "Ablauf, Zwischen-CTA und Trust-Leiste",
-      "WhatsApp, Kontaktformular, Bewertungsblock",
-      "Vollständiges Website-Archiv (ZIP) — Sie sind Eigentümer",
-      "Anleitung zur Selbst-Veröffentlichung",
-      "Rechtsvorlagen für Ihren Markt (von Ihnen zu prüfen)",
-    ],
+    price_eur: LANDING_PACKAGES_EUR.basic,
+    deliverables: [],
   },
   {
     id: "business",
     name: "Landing Business",
-    price_eur: 650,
-    deliverables: [
-      "Alles aus Basic — plus Design für Kundengewinnung",
-      "Google Maps mit Route, FAQ, Ablauf, Trust-Leiste",
-      "Logo-Platzhalter und erweitertes SEO",
-      "Hilfe beim Upload + 1 Korrekturrunde",
-      "Hinweis: Domain- und Hosting-Gebühren zahlt der Kunde",
-    ],
+    price_eur: LANDING_PACKAGES_EUR.business,
+    deliverables: [],
   },
   {
     id: "premium",
     name: "Landing Premium",
-    price_eur: 1200,
-    deliverables: [
-      "Alles aus Business",
-      "Exklusives Premium-Design, Showcase, Kennzahlen",
-      "Kostenrechner und Analytics-Platzhalter",
-      "Assisted Go-live bei Zugang + 14 Tage Support + 3 Korrekturen",
-      "Kein Inhaber-Login / Online-Zahlung pro Warenkorb in diesem Paket",
-      "Hinweis: Domain/Hosting-Miete nicht im Preis — nur Einrichtung",
-    ],
+    price_eur: LANDING_PACKAGES_EUR.premium,
+    deliverables: [],
   },
 ];
 
@@ -90,9 +72,6 @@ const PACKAGE_DIFF_KEYS: Record<string, string[]> = {
   premium: ["pathA.diffPremium1", "pathA.diffPremium2", "pathA.diffPremium3"],
 };
 
-/**
- * Public Path A storefront — language follows ?market= (plus LanguageSwitcher).
- */
 type MarketOption = {
   code: string;
   flag?: string;
@@ -100,13 +79,29 @@ type MarketOption = {
   basic_price_label?: string;
 };
 
+/**
+ * S0 — Storefront First: buyable products first, Vector chat secondary.
+ * Rule: Don't sell unfinished · 3 clicks to Order · prices locked 350/650/1200.
+ */
 export function SitePage() {
   const { t, i18n } = useTranslation("site");
   const [packages, setPackages] = useState<PackageCard[]>(FALLBACK_PACKAGES);
   const [reviews, setReviews] = useState<PublicReviews | null>(null);
   const [market, setMarket] = useState("DE");
   const [markets, setMarkets] = useState<MarketOption[]>([]);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>("business");
   const localeTag = (i18n.language || "de").replace("_", "-");
+
+  const openChat = useCallback(() => {
+    setChatOpen(true);
+    requestAnimationFrame(() => {
+      document.getElementById("vector-chat-panel")?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    });
+  }, []);
 
   function packageDiffLines(packageId: string): string[] {
     const keys = PACKAGE_DIFF_KEYS[packageId] || PACKAGE_DIFF_KEYS.basic!;
@@ -123,12 +118,15 @@ export function SitePage() {
       const p = new URLSearchParams(window.location.search);
       const m = (p.get("market") || p.get("country") || "DE").toUpperCase();
       setMarket(m);
+      const view = (p.get("view") || "").toLowerCase();
+      if (view === "vector" || window.location.hash.includes("vector")) {
+        setChatOpen(true);
+      }
     } catch {
       setMarket("DE");
     }
   }, []);
 
-  // ?market= drives storefront language (country ↔ currency ↔ package language)
   useEffect(() => {
     const lang = uiLangForMarket(market);
     const current = (i18n.language || "").slice(0, 2).toLowerCase();
@@ -159,9 +157,7 @@ export function SitePage() {
           );
         }
       })
-      .catch(() => {
-        /* keep fallback — storefront must still render */
-      });
+      .catch(() => undefined);
 
     fetch(`${api}/api/public/pricing${qs}`)
       .then((res) => (res.ok ? res.json() : null))
@@ -189,16 +185,12 @@ export function SitePage() {
       .then((body) => {
         if (body && typeof body === "object") setReviews(body as PublicReviews);
       })
-      .catch(() => {
-        /* honest empty via i18n if API down */
-      });
+      .catch(() => undefined);
   }, [i18n.language]);
 
   useEffect(() => {
     logCommerceEvent("tier_page_view", null, "site", { niche: null });
   }, [market]);
-
-  const orderHref = `/order?market=${market}`;
 
   function orderHrefFor(pkg: string) {
     return `/order?market=${market}&package=${pkg}`;
@@ -216,18 +208,29 @@ export function SitePage() {
     }
   }
 
+  const comingSoon = t("s0.comingSoon", { defaultValue: "Coming Soon" });
+  const orderLabel = t("pathA.cta");
+  const detailsLabel = t("s0.details", { defaultValue: "Details" });
+
   return (
     <PublicPageShell>
-      <div className="mx-auto max-w-3xl space-y-10 py-6 animate-fade-up">
+      <div className="relative mx-auto max-w-4xl space-y-12 py-6 pb-28 animate-fade-up">
+        {/* Hero — ecosystem, not chat */}
         <header className="space-y-4 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300/90">
-            {t("pathA.eyebrow", { brand: BRAND_NAME })}
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/90">
+            {BRAND_NAME}
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            {t("pathA.title")}
+            {t("s0.heroTitle", {
+              defaultValue: "Digital ecosystem for business",
+            })}
           </h1>
           <p className="mx-auto max-w-2xl text-base text-genesis-muted sm:text-lg">
-            {t("pathA.subtitle")}
+            {t("s0.heroSubtitle", {
+              defaultValue:
+                "Websites, AI assistants, automation and analysis — clear packages, honest prices.",
+              brand: BRAND_NAME,
+            })}
           </p>
           {markets.length > 0 ? (
             <div className="mx-auto max-w-md text-left">
@@ -250,85 +253,229 @@ export function SitePage() {
               </select>
             </div>
           ) : null}
-          <ul className="mx-auto flex max-w-xl flex-wrap justify-center gap-2 text-xs sm:text-sm">
-            {[t("pathA.benefitMobile"), t("pathA.benefitSeo"), t("pathA.benefitSpeed")].map(
-              (label) => (
-                <li
-                  key={label}
-                  className="rounded-full border border-emerald-500/30 bg-emerald-950/30 px-3 py-1.5 text-emerald-100/90"
-                >
-                  ✓ {label}
-                </li>
-              ),
-            )}
-          </ul>
+          <p className="text-sm text-zinc-400">
+            {t("s0.heroHint", {
+              defaultValue: "Start with a website — ready to order today.",
+            })}
+          </p>
+          <a
+            href="#websites"
+            className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black hover:brightness-110"
+          >
+            {t("s0.seeWebsites", { defaultValue: "See website packages" })} →
+          </a>
         </header>
 
-        <section className="grid gap-3 sm:grid-cols-3">
-          {packages.map((p) => {
-            const price =
-              p.price_label ||
-              formatLocalizedMoney(p.price_eur, p.currency || "EUR", localeTag);
-            const diffs = packageDiffLines(p.id);
-            return (
-              <div
-                key={p.id}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-left"
-              >
-                <p className="text-sm text-genesis-muted">{packageTitle(p.id, p.name)}</p>
-                <p className="mt-1 text-2xl font-semibold text-white">{price}</p>
-                <PackagePreviewCarousel packageId={p.id} className="mt-3" />
-                <ul className="mt-3 space-y-1.5 text-xs text-white/70">
-                  {diffs.map((d) => (
-                    <li key={d}>• {d}</li>
-                  ))}
-                </ul>
-                <Link
-                  href={orderHrefFor(p.id)}
-                  onClick={() => logCommerceEvent("tier_select", p.id, "site")}
-                  className="mt-4 inline-flex text-sm font-medium text-emerald-300 hover:underline"
+        {/* 1. Websites — primary commercial product */}
+        <section id="websites" className="space-y-5" aria-labelledby="websites-heading">
+          <div>
+            <h2 id="websites-heading" className="text-2xl font-semibold text-white">
+              {t("s0.websitesTitle", { defaultValue: "Websites" })}
+            </h2>
+            <p className="mt-1 text-sm text-genesis-muted">
+              {t("pathA.packagesIntro")}
+            </p>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {packages.map((p) => {
+              const price =
+                p.price_label ||
+                formatLocalizedMoney(p.price_eur, p.currency || "EUR", localeTag);
+              const diffs = packageDiffLines(p.id);
+              const featured = p.id === "business";
+              return (
+                <article
+                  key={p.id}
+                  id={`pkg-${p.id}`}
+                  className={`flex flex-col rounded-2xl border p-5 text-left ${
+                    featured
+                      ? "border-emerald-500/40 bg-emerald-950/25 shadow-[0_0_0_1px_rgba(16,185,129,0.15)]"
+                      : "border-white/10 bg-white/[0.03]"
+                  }`}
                 >
-                  {t("pathA.cta")} →
-                </Link>
-              </div>
-            );
-          })}
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-medium text-zinc-300">
+                      {packageTitle(p.id, p.name)}
+                    </p>
+                    {featured ? (
+                      <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
+                        {t("s0.recommended", { defaultValue: "Recommended" })}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-2 text-3xl font-semibold text-white">{price}</p>
+                  <ul className="mt-4 flex-1 space-y-2 text-sm text-zinc-300">
+                    {diffs.map((d) => (
+                      <li key={d} className="flex gap-2">
+                        <span className="text-emerald-400" aria-hidden>
+                          ✓
+                        </span>
+                        <span>{d}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <Link
+                      href={orderHrefFor(p.id)}
+                      onClick={() => logCommerceEvent("tier_select", p.id, "site")}
+                      className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110 min-w-[7rem]"
+                    >
+                      {orderLabel}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setDetailId((cur) => (cur === p.id ? null : p.id))
+                      }
+                      className="inline-flex items-center justify-center rounded-xl border border-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/5"
+                    >
+                      {detailsLabel}
+                    </button>
+                  </div>
+                  {detailId === p.id ? (
+                    <div className="mt-4 border-t border-white/10 pt-4">
+                      <PackagePreviewCarousel packageId={p.id} className="mt-1" />
+                      <p className="mt-2 text-xs text-zinc-500">
+                        {t("s0.previewHint", {
+                          defaultValue: "Example look — order when ready.",
+                        })}
+                      </p>
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
         </section>
 
+        {/* 2. AI Solutions */}
+        <section className="space-y-4" aria-labelledby="ai-heading">
+          <h2 id="ai-heading" className="text-2xl font-semibold text-white">
+            {t("s0.aiTitle", { defaultValue: "AI Solutions" })}
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <article className="rounded-2xl border border-sky-400/25 bg-sky-500/[0.07] p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/90">
+                {ASSISTANT_NAME}
+              </p>
+              <h3 className="mt-2 text-lg font-semibold text-white">
+                {t("pathA.cardVectorTitle")}
+              </h3>
+              <p className="mt-2 text-sm text-zinc-300">
+                {t("pathA.cardVectorBody")}
+              </p>
+              <p className="mt-3 text-sm text-zinc-400">
+                {t("s0.vectorAsk", {
+                  defaultValue: "Not sure what fits? Ask Vector.",
+                })}
+              </p>
+              <button
+                type="button"
+                onClick={openChat}
+                className="mt-4 inline-flex rounded-xl border border-sky-400/40 px-4 py-2 text-sm font-medium text-sky-100 hover:bg-sky-500/10"
+              >
+                {t("pathA.meetVectorCta")}
+              </button>
+            </article>
+            <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <h3 className="text-lg font-semibold text-white">
+                {t("pathA.cardChatbotTitle")}
+              </h3>
+              <p className="mt-2 text-sm text-zinc-400">
+                {t("pathA.cardChatbotBody")}
+              </p>
+              <p className="mt-2 text-xs text-zinc-500">
+                Instagram · Facebook · WhatsApp · Telegram · Website
+              </p>
+              <span className="mt-4 inline-flex rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-1.5 text-xs font-semibold text-amber-100/90">
+                {comingSoon}
+              </span>
+            </article>
+          </div>
+        </section>
+
+        {/* 3. Automation */}
+        <section className="space-y-4" aria-labelledby="auto-heading">
+          <h2 id="auto-heading" className="text-2xl font-semibold text-white">
+            {t("s0.automationTitle", { defaultValue: "Automation & CRM" })}
+          </h2>
+          <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <h3 className="text-lg font-semibold text-white">
+              {t("pathA.cardAutomationTitle")}
+            </h3>
+            <p className="mt-2 text-sm text-zinc-400">
+              {t("pathA.cardAutomationBody")}
+            </p>
+            <p className="mt-2 text-xs text-zinc-500">CRM · Email · Leads · Workflows</p>
+            <span className="mt-4 inline-flex rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-1.5 text-xs font-semibold text-amber-100/90">
+              {comingSoon}
+            </span>
+          </article>
+        </section>
+
+        {/* 4. Analysis */}
+        <section className="space-y-4" aria-labelledby="analysis-heading">
+          <h2 id="analysis-heading" className="text-2xl font-semibold text-white">
+            {t("s0.analysisTitle", { defaultValue: "Business Analysis" })}
+          </h2>
+          <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <h3 className="text-lg font-semibold text-white">
+              {t("pathA.cardAnalysisTitle")}
+            </h3>
+            <p className="mt-2 text-sm text-zinc-400">
+              {t("pathA.cardAnalysisBody")}
+            </p>
+            <p className="mt-2 text-xs text-zinc-500">
+              SEO Audit · Website Audit · Speed · Security
+            </p>
+            <span className="mt-4 inline-flex rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-1.5 text-xs font-semibold text-amber-100/90">
+              {comingSoon}
+            </span>
+          </article>
+        </section>
+
+        {/* 5. One-time */}
+        <section className="space-y-4" aria-labelledby="onetime-heading">
+          <h2 id="onetime-heading" className="text-2xl font-semibold text-white">
+            {t("s0.onetimeTitle", { defaultValue: "One-time services" })}
+          </h2>
+          <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-sm text-zinc-400">
+              Website Repair · Migration · Google Business · SEO Fixes
+            </p>
+            <span className="mt-4 inline-flex rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-1.5 text-xs font-semibold text-amber-100/90">
+              {comingSoon}
+            </span>
+            <p className="mt-3 text-xs text-zinc-500">
+              {t("s0.honestNote", {
+                defaultValue: "Coming Soon is not Buy — we only sell finished delivery paths.",
+              })}
+            </p>
+          </article>
+        </section>
+
+        {/* Process + trust (below fold) */}
         <section className="rounded-2xl border border-emerald-500/25 bg-emerald-950/20 p-6">
           <h2 className="text-lg font-semibold text-white">{t("pathA.whatTitle")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
             <li>• {t("pathA.what1")}</li>
             <li>• {t("pathA.what2")}</li>
             <li>• {t("pathA.what3")}</li>
-            <li>• {t("pathA.whatLogo")}</li>
-            <li>• {t("pathA.what4")}</li>
-            <li>• {t("pathA.whatDomain")}</li>
-            <li>• {t("pathA.whatLegal")}</li>
             <li>• {t("pathA.what5")}</li>
           </ul>
-          <h3 className="mt-6 text-sm font-semibold text-white">{t("pathA.processTitle")}</h3>
-          <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-white/75">
-            <li>{t("pathA.process1")}</li>
-            <li>{t("pathA.process2")}</li>
-            <li>{t("pathA.process3")}</li>
-          </ol>
-          <p className="mt-4 text-sm text-genesis-muted">{t("pathA.afterPay")}</p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              href={orderHref}
-              onClick={() => logCommerceEvent("tier_select", null, "site")}
-              className="inline-flex rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:brightness-110"
-            >
-              {t("pathA.cta")} →
+          <div className="mt-6 flex flex-wrap gap-3 text-sm">
+            <Link href="/products" className="font-medium text-emerald-300 hover:underline">
+              {t("pathA.productsLink")} →
             </Link>
-            <Link
-              href={orderHref}
-              onClick={() => logCommerceEvent("tier_select", null, "site")}
-              className="inline-flex rounded-xl border border-emerald-500/40 px-5 py-3 text-sm font-medium text-emerald-100 hover:bg-emerald-950/40"
-            >
-              {t("pathA.ctaSecondary")}
+            <Link href="/client/login" className="font-medium text-zinc-300 hover:underline">
+              {t("pathA.cabinetLink")} →
             </Link>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="font-medium text-zinc-400 hover:underline"
+            >
+              {CONTACT_EMAIL}
+            </a>
           </div>
         </section>
 
@@ -339,78 +486,68 @@ export function SitePage() {
               {reviews?.empty_message || t("reviews.empty")}
             </p>
           ) : (
-            <>
-              <div className="mt-3 flex flex-wrap gap-3 text-xs text-emerald-100/90">
-                {reviews.average_stars != null && (
-                  <span className="rounded-lg border border-emerald-500/30 px-3 py-1.5">
-                    ★ {t("reviews.avg", { avg: reviews.average_stars })}
-                  </span>
-                )}
-                <span className="rounded-lg border border-emerald-500/30 px-3 py-1.5">
-                  {t("reviews.count", { count: reviews.count })}
-                </span>
-                {reviews.recommend_pct != null && (
-                  <span className="rounded-lg border border-emerald-500/30 px-3 py-1.5">
-                    {t("reviews.recommend", { pct: reviews.recommend_pct })}
-                  </span>
-                )}
-              </div>
-              <ul className="mt-4 space-y-3">
-                {reviews.reviews.map((r) => (
-                  <li
-                    key={r.review_id || r.text.slice(0, 24)}
-                    className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm"
-                  >
-                    <p className="text-amber-300">{"★".repeat(Math.max(1, Math.min(5, r.stars)))}</p>
-                    {(r.verified_purchase !== false) && (
-                      <p className="mt-1 text-xs font-medium text-emerald-300/90">
-                        ✔ {t("reviews.verifiedPurchase")}
-                      </p>
-                    )}
-                    <p className="mt-2 text-white/85">«{r.text}»</p>
-                    {r.company_display_name && (
-                      <p className="mt-2 text-xs font-medium text-white/60">{r.company_display_name}</p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </>
+            <ul className="mt-4 space-y-3">
+              {reviews.reviews.slice(0, 3).map((r) => (
+                <li
+                  key={r.review_id || r.text.slice(0, 24)}
+                  className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm"
+                >
+                  <p className="text-amber-300">
+                    {"★".repeat(Math.max(1, Math.min(5, r.stars)))}
+                  </p>
+                  <p className="mt-2 text-white/85">«{r.text}»</p>
+                </li>
+              ))}
+            </ul>
           )}
-        </section>
-
-        <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
-          <h2 className="text-lg font-semibold text-white">{t("pathA.faqTitle")}</h2>
-          <dl className="mt-4 space-y-4 text-sm">
-            <div>
-              <dt className="font-medium text-white/90">{t("pathA.faq1q")}</dt>
-              <dd className="mt-1 text-genesis-muted">{t("pathA.faq1a")}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-white/90">{t("pathA.faq2q")}</dt>
-              <dd className="mt-1 text-genesis-muted">{t("pathA.faq2a")}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-white/90">{t("pathA.faq3q")}</dt>
-              <dd className="mt-1 text-genesis-muted">
-                {t("pathA.faq3a", { email: CONTACT_EMAIL })}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-medium text-white/90">{t("pathA.faq4q")}</dt>
-              <dd className="mt-1 text-genesis-muted">{t("pathA.faq4a")}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-white/90">{t("pathA.faq5q")}</dt>
-              <dd className="mt-1 text-genesis-muted">
-                {t("pathA.faq5a", { email: CONTACT_EMAIL })}
-              </dd>
-            </div>
-          </dl>
         </section>
 
         <p className="text-center text-xs text-white/40">
           {t("pathA.foot", { brand: BRAND_NAME })}
         </p>
+
+        {/* Secondary Vector chat panel */}
+        {chatOpen ? (
+          <div
+            id="vector-chat-panel"
+            className="fixed inset-x-3 bottom-20 z-40 mx-auto max-w-lg overflow-hidden rounded-2xl border border-sky-400/30 bg-genesis-bg shadow-2xl sm:inset-x-auto sm:right-6 sm:left-auto sm:w-[420px]"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  {ASSISTANT_NAME}
+                </p>
+                <p className="text-xs text-zinc-400">
+                  {t("s0.chatHint", {
+                    defaultValue: "Consultant — helps you choose a package",
+                  })}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChatOpen(false)}
+                className="rounded-lg px-2 py-1 text-sm text-zinc-400 hover:bg-white/5 hover:text-white"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="max-h-[min(70vh,520px)] overflow-y-auto p-2">
+              <GenesisConcierge scope="public" />
+            </div>
+          </div>
+        ) : null}
+
+        {/* Floating ask Vector */}
+        <button
+          type="button"
+          onClick={() => (chatOpen ? setChatOpen(false) : openChat())}
+          className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full border border-sky-400/40 bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:brightness-110"
+        >
+          {chatOpen
+            ? t("s0.closeChat", { defaultValue: "Close" })
+            : t("s0.askVector", { defaultValue: "Ask Vector" })}
+        </button>
       </div>
     </PublicPageShell>
   );
