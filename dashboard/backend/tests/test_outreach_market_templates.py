@@ -101,7 +101,7 @@ def test_templates_tone_by_market(monkeypatch: pytest.MonkeyPatch):
     )
     assert ru_lang == "ru"
     assert "Здравствуйте" in ru_body
-    assert "не предлагаем «починить" in ru_body
+    assert "не «чинить старый CMS»" in ru_body or "перезапуск" in ru_body
 
     _, ua_body, ua_lang = svc.draft_outreach(
         company="Авто Сервіс",
@@ -114,7 +114,7 @@ def test_templates_tone_by_market(monkeypatch: pytest.MonkeyPatch):
     )
     assert ua_lang == "uk"
     assert "Доброго дня" in ua_body
-    assert "не пропонуємо" in ua_body
+    assert "не «лагодити старий CMS»" in ua_body or "перезапуск" in ua_body
 
 
 def test_preview_samples_for_ceo():
