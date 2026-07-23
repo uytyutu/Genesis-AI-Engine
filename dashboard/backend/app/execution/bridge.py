@@ -1610,6 +1610,19 @@ def try_user_execution(
     if decision_out:
         return decision_out
 
+    # Gate3: document analysis with attachments must run before Project PE.
+    # Project intent detection otherwise swallows «проанализируй бизнес-план» + file
+    # and returns a co-design reply without cta_actions.
+    if not (_parse_site_request(goal) or _parse_file_request(goal)):
+        doc_early = _parse_document_request(goal, files)
+        if doc_early:
+            return _run_analyze_document(
+                doc_early,
+                visitor_id=visitor_id,
+                memory_dir=memory_dir,
+                ui_locale=ui_locale,
+            )
+
     from app.execution.project_bridge.router import try_project_execution
 
     project_out = try_project_execution(
