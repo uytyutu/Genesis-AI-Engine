@@ -52,8 +52,8 @@ export const DEFAULT_PRODUCTION_READINESS: ReadinessLane[] = [
   {
     id: "payments",
     label: "Payments",
-    status: "pending",
-    note: "G2.3 Commercial Readiness — catalog · purchase path",
+    status: "pass",
+    note: "G2.3 — Landing Path A sellable · other SKUs Coming Soon",
   },
   {
     id: "monitoring",
@@ -147,8 +147,9 @@ export function ProductionReadinessPanel({
         </p>
       ) : (
         <p className="mt-4 text-xs text-emerald-200/90">
-          Security Gate S1 complete · Freeze lifted. Next: G2.3 Commercial
-          Readiness (Payments). Evolution Center opens only after Overall 100%.
+          {overall >= 100
+            ? "Production Ready. Next: G3.1 AI Support & Continuous Improvement (CEO)."
+            : "Security Gate S1 complete · G2.3 until Overall 100%."}
         </p>
       )}
     </section>

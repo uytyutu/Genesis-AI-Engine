@@ -41,7 +41,7 @@ def test_product_independent_of_website():
 def test_facade_lists_catalog():
     facade = ProductCatalogFacade.from_store(InMemoryProductCatalogStore())
     items = facade.list_products()
-    assert any(i.product_type == "website" and i.display_name == "Website" for i in items)
+    assert any(i.product_type == "website" and i.display_name == "Landing Website" for i in items)
     assert any(i.product_type == "chatbot" for i in items)
     assert any(i.product_type == "crm" for i in items)
 
@@ -74,9 +74,10 @@ def test_authenticated_get_products():
         assert isinstance(body, list)
         assert len(body) >= 3
         by_type = {row["product_type"]: row for row in body}
-        assert by_type["website"]["display_name"] == "Website"
-        assert by_type["chatbot"]["display_name"] == "ChatBot"
+        assert by_type["website"]["display_name"] == "Landing Website"
+        assert "Vector" in by_type["chatbot"]["display_name"]
         assert by_type["crm"]["display_name"] == "CRM"
+        assert by_type["analytics"]["availability"] == "coming_soon"
         for row in body:
             assert "product_id" in row
             assert "availability" in row
@@ -110,7 +111,7 @@ def test_router_get_only_no_website_authz():
 def test_main_registers_product_catalog():
     main = Path(__file__).resolve().parents[1] / "app" / "main.py"
     text = main.read_text(encoding="utf-8")
-    assert "register_portal_product_catalog(app)" in text
+    assert "register_portal_product_catalog(app" in text
     assert "include_router(portal_product_catalog_router)" not in text
 
 

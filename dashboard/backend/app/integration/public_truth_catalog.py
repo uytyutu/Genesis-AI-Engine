@@ -26,7 +26,7 @@ from app.integration.product_line import (
 )
 from app.integration.sales_order_service import _PACKAGES as SALES_PACKAGES
 
-TRUTH_VERSION = "mission1-truth-14"
+TRUTH_VERSION = "g23-commercial-1"
 MISSION1_LANDING_TIMELINE = "oft ca. 15 Minuten"
 MISSION1_PACKAGE_PRICES_EUR = (350, 650, 1200)
 
@@ -274,13 +274,17 @@ def build_truth_pricing_display(market_code: str | None = None) -> dict:
             {
                 "id": t["id"],
                 "name": t["name"],
-                "price_eur_month": 0 if t["id"] == "free" else None,
-                "price_label": f"0 {symbol}" if t["id"] == "free" else "скоро",
+                "price_eur_month": t.get("price_eur_month"),
+                "price_label": (
+                    f"{int(t.get('price_eur_month') or 0)} {symbol}"
+                    if t.get("price_set") and t.get("price_eur_month") is not None
+                    else "скоро"
+                ),
                 "period": "/мес",
                 "audience": t["growth_stage_ru"],
                 "tagline": t["tagline_ru"],
                 "features": [t["description_ru"]],
-                "cta": "Начать работу" if t["available"] else "Скоро",
+                "cta": "Начать работу" if t["available"] else "Coming Soon",
                 "cta_href": "/site" if t["available"] else "/products",
                 "available": t["available"],
             }

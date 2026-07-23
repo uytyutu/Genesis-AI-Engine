@@ -27,7 +27,8 @@
 | **Product Track** | Generation 1 complete | **Virtus Core Gen1 CLOSED** ✅ |
 | **Operational Readiness** | Pre-channel gate (not a Product Track) | **OR Gen1 CLOSED** ✅ (CEO 2026-07-22) |
 | **Integration Track** | First real channel | **IT1.1 OPEN** · Website Widget |
-| **Generation 2** | Commercial product | **G2.2 FINAL PASS** ✅ · **S1 Security FINAL PASS** ✅ · **G2.3 Commercial Readiness NEXT** |
+| **Generation 2** | Commercial product | **G2.2** ✅ · **S1 Security** ✅ · **G2.3 Commercial FINAL PASS** ✅ · **Production Ready** ✅ |
+| **Generation 3** | Evolution Center | **G3.1 AI Support & Continuous Improvement OPEN** (CEO 2026-07-23) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -2840,16 +2841,57 @@ Security Regression Suite
 | Data Isolation | PASS | same suite · account-scoped conversations |
 | Function Abuse | PASS | assistance `auto_sent=False` · no silent send |
 
-### G2.3 — Commercial Readiness (CEO 2026-07-23 · NEXT)
+### G2.3 — Commercial Readiness — FINAL PASS ✅ (CEO Product CTO 2026-07-23)
 
-Not new platform features — commercial completion:
+**Scope Freeze closed.** Catalog · DE prices · honest Coming Soon · Landing payments · Payments 🟢.
 
-- Real prices · real products · real purchase paths
-- Catalog: **One-time Services** vs **Monthly Services**
-- Do not offer unimplemented modules for purchase
-- Landing prices unchanged: Basic €350 · Business €650 · Premium €1200
-- Target tariffs (intent): Analysis €149 · Repair from €199 · SEO €249 · Speed €199 · Security €299 · GBP €149 · Migration from €299 · Vector €99/199/349 mo · CRM €29/79/149 · Automation €49/99
-- When Payments 🟢 → Overall 100% → **Production Ready** → then open **G3 Evolution Center**
+| Area | Status |
+|------|--------|
+| Catalog: Products · One-time · Monthly | ✅ PASS |
+| Landing 350 / 650 / 1200 € | ✅ PASS |
+| Vector priced · Activate · no fake Buy | ✅ PASS |
+| CRM / Automation Coming Soon | ✅ PASS |
+| One-time services priced · Coming Soon | ✅ PASS |
+| Don't sell unfinished products | ✅ **permanent Virtus Core rule** |
+| Payments (Landing Path A) | ✅ 🟢 |
+| Overall | ✅ **100%** |
+| Status | ✅ **Production Ready** |
+
+**Commit (CEO authorized):** `feat(commercial): complete G2.3 Commercial Readiness`
+
+**Permanent commercial rule:**
+
+> **Don't sell unfinished products.** Coming Soon ≠ Buy now.
+
+### Project status stamp (CEO 2026-07-23)
+
+| Stage | Status |
+|-------|--------|
+| Mission 1 | ✅ |
+| G2.1 Public Platform | ✅ |
+| G2.2 Client Workspace | ✅ |
+| Security Gate S1 | ✅ |
+| G2.3 Commercial Readiness | ✅ |
+| **Production Ready** | ✅ |
+
+### G3 — Evolution Center (CEO 2026-07-23 · OPEN)
+
+Platform is Production Ready. Evolution must improve it **under control**, not chaos.
+
+**First module — G3.1 AI Support & Continuous Improvement** (not Marketplace, not new AI products):
+
+```text
+Client → Support
+  → Vector analyzes
+  → proposes fix + diff
+  → runs tests
+  → Security Regression Suite
+  → CEO approve / reject
+  → approved → Knowledge Ledger (reusable rule)
+```
+
+**Forbidden in G3.1 start:** Marketplace · new product SKUs · random feature waves.  
+**Agent:** wait for explicit «старт G3.1» before implementation.
 
 **Horizon (blocked until Production Ready):** Evolution Center + Knowledge Ledger + Usefulness Gate — Constitution §§4–6.
 

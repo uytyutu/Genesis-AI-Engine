@@ -52,22 +52,22 @@ def default_product_catalog() -> tuple[Product, ...]:
         Product(
             product_id="prod_website",
             product_type="website",
-            display_name="Website",
-            description="Published website managed in Virtus Core Portal.",
+            display_name="Landing Website",
+            description="One-time landing packages: Basic 350 € · Business 650 € · Premium 1200 €.",
             availability="available",
         ),
         Product(
             product_id="prod_chatbot",
             product_type="chatbot",
-            display_name="ChatBot",
-            description="ChatBot integration for customer conversations.",
+            display_name="AI Business Employee (Vector)",
+            description="Vector for customer conversations. Activate today; paid monthly plans Coming Soon.",
             availability="available",
         ),
         Product(
             product_id="prod_crm",
             product_type="crm",
             display_name="CRM",
-            description="Customer relationship management.",
+            description="CRM Starter 29 € · Business 79 € · Pro 149 € / mo — Coming Soon.",
             availability="coming_soon",
         ),
         Product(
@@ -75,13 +75,13 @@ def default_product_catalog() -> tuple[Product, ...]:
             product_type="analytics",
             display_name="Analytics",
             description="Website analytics overview.",
-            availability="available",
+            availability="coming_soon",
         ),
         Product(
             product_id="prod_automation",
             product_type="automation",
             display_name="Automation",
-            description="Workflow automation.",
+            description="Automation Starter 49 € · Business 99 € / mo — Coming Soon.",
             availability="coming_soon",
         ),
     )

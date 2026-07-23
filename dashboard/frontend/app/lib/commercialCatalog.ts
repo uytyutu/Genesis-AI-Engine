@@ -1,0 +1,230 @@
+/**
+ * G2.3 — Commercial Readiness catalog (keep in sync with
+ * dashboard/backend/app/integration/commercial_catalog_g23.py).
+ */
+
+export type CommercialCategory = "one_time" | "monthly" | "product";
+export type CommercialCta = "order_now" | "activate" | "coming_soon";
+
+export type CommercialRow = {
+  id: string;
+  category: CommercialCategory;
+  name: string;
+  price_label: string;
+  billing: "one_time" | "monthly";
+  availability: "available" | "coming_soon";
+  cta: CommercialCta;
+  cta_href?: string;
+  cta_label: string;
+  includes: string;
+};
+
+export const LANDING_PACKAGES_EUR = {
+  basic: 350,
+  business: 650,
+  premium: 1200,
+} as const;
+
+export const COMMERCIAL_CATALOG: CommercialRow[] = [
+  {
+    id: "landing_website",
+    category: "product",
+    name: "Landing Website",
+    price_label: `${LANDING_PACKAGES_EUR.basic}–${LANDING_PACKAGES_EUR.premium} €`,
+    billing: "one_time",
+    availability: "available",
+    cta: "order_now",
+    cta_href: "/order",
+    cta_label: "Order now",
+    includes: `Basic ${LANDING_PACKAGES_EUR.basic} € · Business ${LANDING_PACKAGES_EUR.business} € · Premium ${LANDING_PACKAGES_EUR.premium} €`,
+  },
+  {
+    id: "vector_employee",
+    category: "product",
+    name: "AI Business Employee (Vector)",
+    price_label: "from 99 €/mo · Setup from 499 €",
+    billing: "monthly",
+    availability: "available",
+    cta: "activate",
+    cta_href: "/projects/chatbot/setup",
+    cta_label: "Activate",
+    includes:
+      "Starter 99 € · Business 199 € · Professional 349 € / mo (subscription checkout Coming Soon)",
+  },
+  {
+    id: "ai_website_analysis",
+    category: "one_time",
+    name: "AI Website Analysis",
+    price_label: "149 €",
+    billing: "one_time",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Priced for DE SMB · sold when delivery path is ready",
+  },
+  {
+    id: "website_repair",
+    category: "one_time",
+    name: "Website Repair",
+    price_label: "from 199 €",
+    billing: "one_time",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Priced for DE SMB · sold when delivery path is ready",
+  },
+  {
+    id: "seo_audit",
+    category: "one_time",
+    name: "SEO Audit",
+    price_label: "249 €",
+    billing: "one_time",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Priced for DE SMB · sold when delivery path is ready",
+  },
+  {
+    id: "speed_optimization",
+    category: "one_time",
+    name: "Speed Optimization",
+    price_label: "199 €",
+    billing: "one_time",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Priced for DE SMB · sold when delivery path is ready",
+  },
+  {
+    id: "security_check",
+    category: "one_time",
+    name: "Security Check",
+    price_label: "299 €",
+    billing: "one_time",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Priced for DE SMB · sold when delivery path is ready",
+  },
+  {
+    id: "google_business_setup",
+    category: "one_time",
+    name: "Google Business Profile Setup",
+    price_label: "149 €",
+    billing: "one_time",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Priced for DE SMB · sold when delivery path is ready",
+  },
+  {
+    id: "website_migration",
+    category: "one_time",
+    name: "Website Migration",
+    price_label: "from 299 €",
+    billing: "one_time",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Priced for DE SMB · sold when delivery path is ready",
+  },
+  {
+    id: "vector_starter",
+    category: "monthly",
+    name: "Vector Starter",
+    price_label: "99 €/mo",
+    billing: "monthly",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Website widget · limited conversations · DE hosting",
+  },
+  {
+    id: "vector_business",
+    category: "monthly",
+    name: "Vector Business",
+    price_label: "199 €/mo",
+    billing: "monthly",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "More volume · knowledge base · channels",
+  },
+  {
+    id: "vector_professional",
+    category: "monthly",
+    name: "Vector Professional",
+    price_label: "349 €/mo",
+    billing: "monthly",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Priority ops · integrations · higher limits",
+  },
+  {
+    id: "crm_starter",
+    category: "monthly",
+    name: "CRM Starter",
+    price_label: "29 €/mo",
+    billing: "monthly",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Contacts · pipeline basics",
+  },
+  {
+    id: "crm_business",
+    category: "monthly",
+    name: "CRM Business",
+    price_label: "79 €/mo",
+    billing: "monthly",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Pipeline · tasks · reports",
+  },
+  {
+    id: "crm_pro",
+    category: "monthly",
+    name: "CRM Pro",
+    price_label: "149 €/mo",
+    billing: "monthly",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Team · automations · priorities",
+  },
+  {
+    id: "automation_starter",
+    category: "monthly",
+    name: "Automation Starter",
+    price_label: "49 €/mo",
+    billing: "monthly",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Simple workflows",
+  },
+  {
+    id: "automation_business",
+    category: "monthly",
+    name: "Automation Business",
+    price_label: "99 €/mo",
+    billing: "monthly",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Multi-step workflows",
+  },
+  {
+    id: "automation_enterprise",
+    category: "monthly",
+    name: "Automation Enterprise",
+    price_label: "Individual",
+    billing: "monthly",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming Soon",
+    includes: "Custom scope · quote only",
+  },
+];

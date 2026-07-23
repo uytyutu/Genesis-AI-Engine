@@ -198,52 +198,54 @@ SUBSCRIPTION_TIERS: tuple[dict[str, Any], ...] = (
         ),
         "audience_ru": "Знакомство",
         "available": True,
-        "price_set": False,
+        "price_set": True,
+        "price_eur_month": 0,
     },
     {
         "id": SUB_VECTOR_CORE,
         "internal_id": SUB_VECTOR_CORE,
-        "name": "Professional",
-        "customer_name_ru": "Professional",
-        "growth_stage_ru": "Начало работы",
-        "tagline_ru": "Начало работы с цифровой компанией",
+        "name": "Vector Starter",
+        "customer_name_ru": "Vector Starter",
+        "growth_stage_ru": "AI Business Employee",
+        "tagline_ru": "Vector для сайта и базовых диалогов",
         "description_ru": (
-            "Несколько активных проектов, голосовой Vector, документы, сайты и бизнес-планы "
-            "в разумных лимитах. Следующий этап роста — не «снятие ограничений»."
+            "Website widget, ограниченные диалоги, DE hosting. "
+            "Setup from 499 €. Paid checkout Coming Soon."
         ),
-        "audience_ru": "Фрилансеры и предприниматели",
+        "audience_ru": "SMB",
         "available": False,
-        "price_set": False,
+        "price_set": True,
+        "price_eur_month": 99,
     },
     {
         "id": SUB_VECTOR_BUSINESS,
         "internal_id": SUB_VECTOR_BUSINESS,
-        "name": "Business",
-        "customer_name_ru": "Business",
-        "growth_stage_ru": "Рост компании",
-        "tagline_ru": "Рост цифровой компании",
+        "name": "Vector Business",
+        "customer_name_ru": "Vector Business",
+        "growth_stage_ru": "AI Business Employee",
+        "tagline_ru": "Больше объёма и каналов",
         "description_ru": (
-            "Больше проектов, CRM, автоматизация, маркетинг, совместная работа, "
-            "расширенные модели и приоритетная обработка."
+            "Больше объёма, knowledge base, каналы. Paid checkout Coming Soon."
         ),
-        "audience_ru": "Малый и средний бизнес",
+        "audience_ru": "SMB growth",
         "available": False,
-        "price_set": False,
+        "price_set": True,
+        "price_eur_month": 199,
     },
     {
         "id": SUB_VECTOR_ENTERPRISE,
         "internal_id": SUB_VECTOR_ENTERPRISE,
-        "name": "Enterprise",
-        "customer_name_ru": "Enterprise",
-        "growth_stage_ru": "Масштабирование",
-        "tagline_ru": "Масштабирование цифровой компании",
+        "name": "Vector Professional",
+        "customer_name_ru": "Vector Professional",
+        "growth_stage_ru": "AI Business Employee",
+        "tagline_ru": "Приоритет и интеграции",
         "description_ru": (
-            "Команда, роли, интеграции, корпоративная безопасность, "
-            "максимальные лимиты и приоритетная поддержка."
+            "Priority ops, интеграции, выше лимиты. Paid checkout Coming Soon."
         ),
-        "audience_ru": "Компании",
+        "audience_ru": "Growing teams",
         "available": False,
-        "price_set": False,
+        "price_set": True,
+        "price_eur_month": 349,
     },
 )
 
