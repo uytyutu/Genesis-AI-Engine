@@ -28,7 +28,7 @@
 | **Operational Readiness** | Pre-channel gate (not a Product Track) | **OR Gen1 CLOSED** ✅ (CEO 2026-07-22) |
 | **Integration Track** | First real channel | **IT1.1 OPEN** · Website Widget |
 | **Generation 2** | Commercial product | **G2.2** ✅ · **S1 Security** ✅ · **G2.3 Commercial FINAL PASS** ✅ · **Production Ready** ✅ |
-| **Generation 3** | Evolution Center | **G3.1 AI Support & Continuous Improvement OPEN** (CEO 2026-07-23) |
+| **Generation 3** | Evolution Center | **G3.1 FINAL PASS** (2026-07-23) |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
@@ -2873,26 +2873,62 @@ Security Regression Suite
 | Security Gate S1 | ✅ |
 | G2.3 Commercial Readiness | ✅ |
 | **Production Ready** | ✅ |
+| **G3.1 AI Support & Continuous Improvement** | ✅ FINAL PASS |
 
 ### G3 — Evolution Center (CEO 2026-07-23 · OPEN)
 
 Platform is Production Ready. Evolution must improve it **under control**, not chaos.
 
-**First module — G3.1 AI Support & Continuous Improvement** (not Marketplace, not new AI products):
+#### Mission (CEO Product CTO review 2026-07-23)
 
+> **Evolution Center не создаёт новые функции. Он делает существующую платформу безопаснее, стабильнее, полезнее и умнее на основе подтверждённого опыта.**
+
+Process: analysis → proposal → Owner decision → knowledge accumulation. Not an automatic change generator.
+
+#### Permanent rule (CEO 2026-07-23)
+
+> **AI may recommend changes. Only the Owner approves changes.**
+
+Vector never auto-changes code, prices, settings, or platform behaviour. **Auto Apply = false** (permanent until a deliberate future review).
+
+#### G3.1 — AI Support & Continuous Improvement — FINAL PASS (CEO 2026-07-23)
+
+**CEO stamp:** Scope Freeze complete · Product CTO minor changes closed · dual Owner confirm for knowledge · `applied` always false.
+
+**Owner path (canonical):**
 ```text
-Client → Support
-  → Vector analyzes
-  → proposes fix + diff
-  → runs tests
-  → Security Regression Suite
-  → CEO approve / reject
-  → approved → Knowledge Ledger (reusable rule)
+Ticket → Analysis → Proposal → Owner Approve → Rule Candidate → Owner Confirm → Knowledge Ledger
 ```
 
-**Forbidden in G3.1 start:** Marketplace · new product SKUs · random feature waves.  
-**Agent:** wait for explicit «старт G3.1» before implementation.
+**Scope Freeze:**
 
-**Horizon (blocked until Production Ready):** Evolution Center + Knowledge Ledger + Usefulness Gate — Constitution §§4–6.
+| Allowed | Detail |
+|---------|--------|
+| AI Support Center | Client message → analysis → risk → proposal |
+| AI Change Proposal | Problem · Analysis · Confidence · Business Impact · Diff Summary · Rollback · Fix · Tests · Security Suite · Approve/Reject |
+| Similar Cases | Find analogous ledger/ticket patterns |
+| Learning Queue | Approve → **Rule Candidate** (awaits **second** Owner confirm) → then Knowledge Ledger |
+| Knowledge Ledger v1 | Journal: problem · solution · test · reuse · date · version — only after second confirm |
 
-**Production Readiness indicator** (Mission Control `/business`): Product · Workspace · Security · Infrastructure · Payments · Monitoring → overall % (never 100% with a non-green lane).
+**Proposal fields (FINAL PASS):**
+
+| Field | Purpose |
+|-------|---------|
+| Analysis Confidence | % + basis (similar cases · successful fixes · suite planned) |
+| Business Impact | clients affected · error reduction % · risk · sales impact |
+| Rollback | Available Yes/No — visible before Approve |
+| Diff Summary | Human description (Owner need not read code) |
+| Rule Candidate | After Approve: awaits second confirm; only then → Knowledge Ledger |
+
+**Forbidden:** Marketplace · new commercial products · new subscriptions · price changes · drive-by refactor · AI applying code without Owner · auto-promoting rules into ledger.
+
+**Implemented:**
+- `app/evolution/` — tickets · proposals · ledger · learning queue (two-step rule)
+- `POST /api/public/evolution/tickets` — client intake
+- `GET/POST /api/owner/evolution/proposals*` — Owner Approve / Reject
+- `POST /api/owner/evolution/learning/{id}/promote|dismiss` — second confirm
+- `GET /api/owner/evolution/ledger` — Knowledge Ledger + Learning Queue
+- Owner UI: `/business/evolution`
+- Tests: `tests/test_evolution_g31.py`
+
+**USER CAN VERIFY:** Mission Control → Business Health → Evolution · submit demo ticket → Confidence / Impact / Rollback / Diff Summary → Approve → Rule Candidate → Confirm → ledger · `applied` always false.

@@ -71,6 +71,16 @@ export default function BusinessHealthPage() {
 
         <ProductionReadinessPanel />
 
+        <p className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-300">
+          G3.1 Evolution Center:{" "}
+          <Link
+            href="/business/evolution"
+            className="font-medium text-emerald-300 hover:underline"
+          >
+            AI Support & Continuous Improvement →
+          </Link>
+        </p>
+
         {proof ? <MissionProofPanel data={proof} /> : null}
 
         {engines ? <RevenueEnginesPanel data={engines} /> : null}

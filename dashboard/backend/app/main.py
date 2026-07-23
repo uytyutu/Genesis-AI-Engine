@@ -3242,6 +3242,119 @@ def owner_notifications() -> OwnerNotificationsResponse:
     )
 
 
+# --- G3.1 Evolution Center (AI Support · Owner approval required) ---------------
+
+
+def _evolution_service():
+    from app.evolution.service import EvolutionSupportService
+
+    return EvolutionSupportService(_memory_dir())
+
+
+@app.post("/api/public/evolution/tickets")
+def public_evolution_ticket(body: dict) -> dict:
+    """Client support intake — creates ticket + Change Proposal (not applied)."""
+    from fastapi import HTTPException
+
+    message = str((body or {}).get("message") or "")
+    contact = str((body or {}).get("contact") or "")
+    try:
+        return _evolution_service().submit_ticket(message=message, contact=contact)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/owner/evolution/proposals")
+def owner_evolution_proposals(status: str | None = None) -> dict:
+    rows = _evolution_service().list_proposals(status=status)
+    return {
+        "proposals": rows,
+        "rule": "AI may recommend changes. Only the Owner approves changes.",
+        "applied_never_automatic": True,
+    }
+
+
+@app.get("/api/owner/evolution/proposals/{proposal_id}")
+def owner_evolution_proposal(proposal_id: str) -> dict:
+    from fastapi import HTTPException
+
+    row = _evolution_service().get_proposal(proposal_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="proposal_not_found")
+    return row
+
+
+@app.post("/api/owner/evolution/proposals/{proposal_id}/approve")
+def owner_evolution_approve(proposal_id: str, body: dict | None = None) -> dict:
+    from fastapi import HTTPException
+
+    note = str((body or {}).get("owner_note") or "")
+    try:
+        return _evolution_service().approve_proposal(proposal_id, owner_note=note)
+    except ValueError as exc:
+        code = str(exc)
+        status = 404 if code == "proposal_not_found" else 400
+        raise HTTPException(status_code=status, detail=code) from exc
+
+
+@app.post("/api/owner/evolution/proposals/{proposal_id}/reject")
+def owner_evolution_reject(proposal_id: str, body: dict | None = None) -> dict:
+    from fastapi import HTTPException
+
+    note = str((body or {}).get("owner_note") or "")
+    try:
+        return _evolution_service().reject_proposal(proposal_id, owner_note=note)
+    except ValueError as exc:
+        code = str(exc)
+        status = 404 if code == "proposal_not_found" else 400
+        raise HTTPException(status_code=status, detail=code) from exc
+
+
+@app.post("/api/owner/evolution/learning/{learning_id}/promote")
+def owner_evolution_promote_rule(learning_id: str, body: dict | None = None) -> dict:
+    """Second Owner confirm — Rule Candidate → Knowledge Ledger (still not auto-apply)."""
+    from fastapi import HTTPException
+
+    note = str((body or {}).get("owner_note") or "")
+    try:
+        return _evolution_service().promote_rule_candidate(
+            learning_id, owner_note=note
+        )
+    except ValueError as exc:
+        code = str(exc)
+        status = 404 if code == "learning_not_found" else 400
+        raise HTTPException(status_code=status, detail=code) from exc
+
+
+@app.post("/api/owner/evolution/learning/{learning_id}/dismiss")
+def owner_evolution_dismiss_rule(learning_id: str, body: dict | None = None) -> dict:
+    """Dismiss Rule Candidate — do not add to Knowledge Ledger."""
+    from fastapi import HTTPException
+
+    note = str((body or {}).get("owner_note") or "")
+    try:
+        return _evolution_service().dismiss_rule_candidate(
+            learning_id, owner_note=note
+        )
+    except ValueError as exc:
+        code = str(exc)
+        status = 404 if code == "learning_not_found" else 400
+        raise HTTPException(status_code=status, detail=code) from exc
+
+
+@app.get("/api/owner/evolution/ledger")
+def owner_evolution_ledger() -> dict:
+    from app.evolution.service import EVOLUTION_MISSION, OWNER_APPROVAL_RULE
+
+    return {
+        "entries": _evolution_service().list_ledger(),
+        "learning_queue": _evolution_service().list_learning_queue(),
+        "auto_apply": False,
+        "rule": OWNER_APPROVAL_RULE,
+        "mission": EVOLUTION_MISSION,
+    }
+
+
 @app.get("/api/factory/products", response_model=FactoryProductsResponse)
 def list_factory_products() -> FactoryProductsResponse:
     items = _ctx().factory.list_products()
