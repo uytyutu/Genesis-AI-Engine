@@ -1,15 +1,14 @@
 """Regional outreach caps + From-address rotation (DE / CIS / US).
 
-Planning model (not spam): each market region has its own daily pool
-(GENESIS_OUTREACH_DAILY_CAP, hard max 100). Scale = more regions with
-their own warmed domains — not raising one domain past the ceiling.
+RC1 Product Decision (2026-07-23) — Category E Decision #1:
+  • allocation_mode = per_market (official)
+  • regional GENESIS_OUTREACH_DAILY_CAP hard max = 500
+  • shared_global is NOT the RC1 operating mode (config fallback only)
+  • single-mailbox (≤1 From address): intentional — regional daily_cap is NOT
+    applied on top of global + per-market quotas (Mission 1 one-domain setup)
 
-From pool format (GENESIS_OUTREACH_FROM_DOMAINS), comma-separated:
-  de:Virtus Core <hello@de-domain.de>,
-  cis:Virtus <hi@cis-domain.com>,
-  us:Virtus <hello@us-domain.com>
-
-Untagged addresses default to region ``de`` (backward compatible).
+Planning model: each market has a start quota; global_daily_cap is the ceiling.
+Scale = more markets / warmed domains — not raising one mailbox past hard max.
 """
 
 from __future__ import annotations
@@ -302,7 +301,8 @@ class OutreachSendQuota:
             reg = market_send_pool(mcode)
         else:
             reg = _normalize_region(region) if region else self._region_for_addr(from_addr)
-        # One mailbox: do not apply separate regional 100-caps on top of country quotas.
+        # RC1 Decision #1: single mailbox — regional GENESIS_OUTREACH_DAILY_CAP
+        # does not stack on top of global + per-market quotas (intentional).
         pool = configured_from_pool()
         if len(pool) <= 1:
             return True, ""

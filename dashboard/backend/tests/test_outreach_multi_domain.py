@@ -44,7 +44,10 @@ def test_untagged_domains_share_de_region_cap(tmp_path: Path, monkeypatch: pytes
     assert none_meta["reason"] in ("all_regions_at_cap", "region_at_cap:de")
     h = q.health()
     assert h["region_count"] == 1
-    assert h["pool_cap_total"] == 120  # sum enabled markets (DE+US+UA+RU), min(global)
+    # RC1: pool_cap_total = min(enabled markets sum, GENESIS_OUTREACH_GLOBAL_DAILY_CAP)
+    assert h["pool_cap_total"] == 500
+    assert h["allocation_mode"] == "per_market"
+    assert h["hard_max"] == 500
     assert h["sent_today_total"] == 2
 
 
@@ -69,7 +72,8 @@ def test_multi_region_independent_caps(tmp_path: Path, monkeypatch: pytest.Monke
     q.record_send(addr_cis, region="cis")
     h = q.health()
     assert h["region_count"] == 3
-    assert h["pool_cap_total"] == 120  # config markets sum, not regions * env cap
+    assert h["pool_cap_total"] == 500
+    assert h["allocation_mode"] == "per_market"
     assert h["sent_today_total"] == 3
     by = {r["region"]: r for r in h["regions"]}
     assert by["de"]["used_today"] == 2 and by["de"]["at_cap"]
@@ -93,11 +97,12 @@ def test_pick_balances_across_regions(tmp_path: Path, monkeypatch: pytest.Monkey
     assert set(seen) == {"de", "cis", "us"}
 
 
-def test_daily_cap_allows_planning_100(monkeypatch: pytest.MonkeyPatch):
+def test_daily_cap_hard_max_500(monkeypatch: pytest.MonkeyPatch):
+    """RC1: regional env cap clamps at architectural hard max 500."""
     monkeypatch.setenv("GENESIS_OUTREACH_DAILY_CAP", "100")
     assert outreach_daily_cap() == 100
     monkeypatch.setenv("GENESIS_OUTREACH_DAILY_CAP", "999")
-    assert outreach_daily_cap() == 100
+    assert outreach_daily_cap() == 500
 
 
 def test_quota_health_ceo_three_markets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
@@ -113,9 +118,11 @@ def test_quota_health_ceo_three_markets(tmp_path: Path, monkeypatch: pytest.Monk
         q.record_send(addr, region=meta["region"])
     h = q.health()
     assert h["daily_cap"] == 100
+    assert h["hard_max"] == 500
     assert h["region_count"] == 3
     assert h["global_daily_cap"] == 500
-    assert h["pool_cap_total"] == 120  # min(enabled market caps sum, global)
+    assert h["pool_cap_total"] == 500
+    assert h["allocation_mode"] == "per_market"
     assert h["sent_today_total"] == 3
     assert h["remaining_today_total"] == 497
     labels = {r["label_ru"] for r in h["regions"]}

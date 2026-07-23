@@ -1,11 +1,19 @@
 # Virtus Core — Project Canon (RC1)
 
 **Document ID:** `VIRTUS_CORE_PROJECT_CANON`  
-**Version:** RC1 / v1.0  
+**Version:** RC1 / v1.1  
 **Date:** 2026-07-23  
 **Audience:** Owner · future CTO · investor (30-minute read)  
 **Living rule:** After each major stage (G3.x, service lifecycle PASS), bump version (v1.1, v1.2) and regenerate PDF.  
 **Source of truth:** this file + stamped facts in `docs/COMMERCIAL_VALIDATION.md` · `docs/RC1_PRODUCTION_RELEASE_NOTES.md`
+
+---
+
+## 0. Product Decision Log
+
+| ID | Date | Decision | Why | Status |
+|----|------|----------|-----|--------|
+| **PD-E1** | 2026-07-23 | Outreach allocation uses **`per_market`**; regional hard limit is **500**. **`shared_global` is not the RC1 operating mode** (config fallback only until a separate decision). **Single-mailbox** (≤1 From address): regional `GENESIS_OUTREACH_DAILY_CAP` does **not** stack on global + per-market quotas — intentional for Mission 1 one-domain setup. | Match live v6 market config + scalable hard max; fix tests to canon; document bypass so it is never mistaken for a bug. | **Accepted** (Category E Decision #1 / Option C) |
 
 ---
 
@@ -309,11 +317,12 @@ See sections 3, 6, 7, 9 — keep diagrams ASCII in PDF; Mermaid optional in Mark
 
 | Version | When |
 |---------|------|
-| **v1.0 / RC1** | This document |
-| **v1.1+** | After next major PASS (e.g. Analysis FINAL · Repair lifecycle · Release Approved) |
+| **v1.0 / RC1** | Initial Canon |
+| **v1.1 / RC1** | Product Decision Log + PD-E1 (outreach caps) |
+| **v1.2+** | After next major PASS (e.g. Analysis FINAL · Repair lifecycle · Release Approved) |
 
 Regenerate PDF: `py -3.12 scripts/build_project_canon_pdf.py`
 
 ---
 
-*End of Project Canon RC1 v1.0*
+*End of Project Canon RC1 v1.1*

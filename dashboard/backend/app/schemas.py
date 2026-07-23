@@ -1520,7 +1520,7 @@ class OutreachQuotaHealth(BaseModel):
     """CEO send-capacity snapshot (per market region + domain detail)."""
 
     daily_cap: int
-    hard_max: int = 100
+    hard_max: int = 500
     day: str | None = None
     domain_count: int = 0
     region_count: int = 0
