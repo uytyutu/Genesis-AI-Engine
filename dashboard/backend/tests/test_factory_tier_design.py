@@ -85,7 +85,8 @@ def test_tier_html_markers_auto() -> None:
     # Stats strip only when real client KPIs exist — never invent numbers.
     assert 'id="showcase"' in premium
     assert 'id="faq"' in premium
-    assert "--acc: #c5a572" in premium or "c5a572" in premium
+    # Premium keeps a CSS accent token; niche palette may override legacy gold #c5a572
+    assert "--acc:" in premium or "var(--acc)" in premium
     assert any(m in premium for m in ("hero-layout-B", "hero-layout-D", "hero-layout-F"))
     # Premium signature CSS may ship without a dedicated #signature section in Trust-led HTML
     assert "premium-signature" in premium or 'data-tier="premium"' in premium
