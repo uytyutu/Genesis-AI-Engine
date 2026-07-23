@@ -2875,6 +2875,8 @@ Security Regression Suite
 | **Production Ready** | ✅ |
 | **G3.1 AI Support & Continuous Improvement** | ✅ FINAL PASS |
 
+**RC1 tip (local):** `79a97f7` · Status: **🟡 TECHNICAL PASS / RELEASE HOLD** · Notes: `docs/RC1_PRODUCTION_RELEASE_NOTES.md` · Push HOLD until clean tree + full pytest green + CEO **Release Approved**.
+
 ### G3 — Evolution Center (CEO 2026-07-23 · OPEN)
 
 Platform is Production Ready. Evolution must improve it **under control**, not chaos.
