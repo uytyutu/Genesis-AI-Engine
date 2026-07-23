@@ -27,10 +27,7 @@
 | **Product Track** | Generation 1 complete | **Virtus Core Gen1 CLOSED** ✅ |
 | **Operational Readiness** | Pre-channel gate (not a Product Track) | **OR Gen1 CLOSED** ✅ (CEO 2026-07-22) |
 | **Integration Track** | First real channel | **IT1.1 OPEN** · Website Widget |
-| Generation | Focus | Status |
-|------------|--------|--------|
-| **Generation 1** | Product Track closed | ✅ |
-| **Generation 2** | Commercial product | **G2.2 FINAL PASS** ✅ · **Security Gate S1 FINAL PASS** ✅ · **G2.3 Commercial Readiness NEXT** |
+| **Generation 2** | Commercial product | **G2.2 FINAL PASS** ✅ · **S1 Security FINAL PASS** ✅ · **G2.3 Commercial Readiness NEXT** |
 
 
 ## Mission 3 — REORDERED (2026-07-21, CEO)
