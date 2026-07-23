@@ -1383,6 +1383,73 @@ def engine_global_spider_scan(request: EngineGlobalSpiderScanRequest) -> dict:
     )
 
 
+@app.get("/api/engine/lead-engine-v2/status")
+def lead_engine_v2_status() -> dict:
+    from app.integration.lead_engine_v2 import LeadEngineV2
+
+    return LeadEngineV2(_memory_dir()).status()
+
+
+@app.post("/api/engine/lead-engine-v2/reset")
+def lead_engine_v2_reset() -> dict:
+    """Archive old lead base and start Lead Engine v2 empty index."""
+    from app.integration.lead_engine_v2 import LeadEngineV2
+
+    return LeadEngineV2(_memory_dir()).reset_old_base(
+        opportunity_service=_ctx().opportunity
+    )
+
+
+@app.post("/api/engine/lead-engine-v2/pause")
+def lead_engine_v2_pause() -> dict:
+    from app.integration.lead_engine_v2 import LeadEngineV2
+
+    return LeadEngineV2(_memory_dir()).pause()
+
+
+@app.post("/api/engine/lead-engine-v2/resume")
+def lead_engine_v2_resume() -> dict:
+    from app.integration.lead_engine_v2 import LeadEngineV2
+
+    return LeadEngineV2(_memory_dir()).resume()
+
+
+@app.post("/api/engine/lead-engine-v2/configure")
+def lead_engine_v2_configure(body: dict) -> dict:
+    from app.integration.lead_engine_v2 import LeadEngineV2
+
+    return LeadEngineV2(_memory_dir()).configure(body or {})
+
+
+@app.post("/api/engine/lead-engine-v2/countries/{code}/enable")
+def lead_engine_v2_enable_country(code: str, body: dict | None = None) -> dict:
+    from app.integration.lead_engine_v2 import LeadEngineV2
+
+    enabled = True if body is None else bool((body or {}).get("enabled", True))
+    return LeadEngineV2(_memory_dir()).set_country_enabled(code, enabled)
+
+
+@app.get("/api/engine/lead-engine-v2/next-send-slot")
+def lead_engine_v2_next_send_slot() -> dict:
+    from app.integration.lead_engine_v2 import LeadEngineV2
+
+    return LeadEngineV2(_memory_dir()).next_send_slot()
+
+
+@app.post("/api/engine/lead-engine-v2/record-contact")
+def lead_engine_v2_record_contact(body: dict) -> dict:
+    from app.integration.lead_engine_v2 import LeadEngineV2
+
+    return LeadEngineV2(_memory_dir()).record_contact(
+        domain=str((body or {}).get("domain") or ""),
+        email=str((body or {}).get("email") or ""),
+        channel=str((body or {}).get("channel") or "email"),
+        template=str((body or {}).get("template") or ""),
+        country=str((body or {}).get("country") or ""),
+        meta=(body or {}).get("meta") if isinstance((body or {}).get("meta"), dict) else None,
+    )
+
+
 @app.get("/api/engine/ai-brain-setup")
 def engine_ai_brain_setup() -> dict:
     from app.integration.engine_ai_service import EngineAIService
