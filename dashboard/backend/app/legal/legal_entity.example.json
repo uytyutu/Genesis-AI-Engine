@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "updated_at": "",
-  "interview_completed": false,
+  "updated_at": "2026-07-23",
+  "interview_completed": true,
   "documents_last_review": "2026-07",
   "operator": {
-    "legal_form": "",
-    "full_name": "",
+    "legal_form": "Einzelunternehmen",
+    "full_name": "Ramish Oltiiev",
     "trade_name": "Virtus Core",
-    "address_street": "",
-    "address_zip": "",
-    "address_city": "",
+    "address_street": "Tornaer Straße 23",
+    "address_zip": "01237",
+    "address_city": "Dresden",
     "address_country": "DE",
-    "email": "",
+    "email": "hello@genesis-ai-engine.com",
     "phone": "",
-    "website": "",
+    "website": "https://beta.genesis-ai-engine.com",
     "vat_id": "",
     "handelsregister": "",
     "register_court": "",
-    "managing_director": ""
+    "managing_director": "Ramish Oltiiev"
   },
   "data_processing": {
     "hosting_providers": [],
@@ -30,8 +30,8 @@
     "retention_logs_days": 90,
     "retention_order_days": 2555,
     "deletion_on_request_days": 30,
-    "dpo_email": "",
-    "supervisory_authority": "",
+    "dpo_email": "hello@genesis-ai-engine.com",
+    "supervisory_authority": "Sächsische Datenschutz- und Transparenzbeauftragte",
     "never_sold_to_third_parties": true
   },
   "cookies": {

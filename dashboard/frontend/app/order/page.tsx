@@ -44,6 +44,38 @@ type Package = {
   price_label?: string;
 };
 
+const REPAIR_PACKAGES: Package[] = [
+  {
+    id: "repair_lite",
+    name: "Website Repair Lite",
+    price_eur: 199,
+    deliverables: [
+      "Ремонт по отчёту Website Analysis",
+      "Статус в кабинете",
+      "Выполняет оператор Virtus Core",
+    ],
+  },
+  {
+    id: "repair_standard",
+    name: "Website Repair Standard",
+    price_eur: 349,
+    deliverables: [
+      "Расширенный ремонт по анализу",
+      "Before/after кратко",
+      "Оператор Virtus Core",
+    ],
+  },
+  {
+    id: "repair_complete",
+    name: "Website Repair Complete",
+    price_eur: 499,
+    deliverables: [
+      "Полный объём согласованных правок",
+      "Before/after + остаточные рекомендации",
+    ],
+  },
+];
+
 type CommerceContext = {
   currency: string;
   symbol: string;
@@ -166,6 +198,7 @@ export default function OrderSitePage() {
   const draftSaverRef = useRef(createDebouncedOrderDraftSaver(400));
   const urlPackageRef = useRef<string | null>(null);
   const urlNicheRef = useRef<string | null>(null);
+  const analysisCaseRef = useRef<string | null>(null);
   const orderStartedRef = useRef(false);
   const checkoutSummaryViewedRef = useRef(false);
   const checkoutConfirmedLoggedRef = useRef(false);
@@ -174,7 +207,12 @@ export default function OrderSitePage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const pkg = params.get("package");
-    if (pkg && ["basic", "business", "premium"].includes(pkg)) {
+    if (
+      pkg &&
+      ["basic", "business", "premium", "repair_lite", "repair_standard", "repair_complete"].includes(
+        pkg
+      )
+    ) {
       setPackageId(pkg);
       setManualPackage(true);
       urlPackageRef.current = pkg;
@@ -188,6 +226,8 @@ export default function OrderSitePage() {
       setNiche(n);
       urlNicheRef.current = n;
     }
+    const ac = params.get("analysis_case")?.trim();
+    if (ac) analysisCaseRef.current = ac;
     setPurchaseType(parseOrderPurchaseType(params.get("purchase_type")));
     const vid = params.get("visitor_id")?.trim();
     setVisitorId(vid || getVisitorId("public"));
@@ -534,7 +574,14 @@ export default function OrderSitePage() {
     pkg?.price_label ??
     formatLocalizedMoney(amount, pkg?.currency ?? commerce.currency);
 
-  const selected = packages.find((p) => p.id === packageId) ?? packages[0];
+  const displayPackages = useMemo(() => {
+    const repair = REPAIR_PACKAGES.find((p) => p.id === packageId);
+    if (repair && !packages.some((p) => p.id === repair.id)) {
+      return [repair, ...packages];
+    }
+    return packages;
+  }, [packages, packageId]);
+  const selected = displayPackages.find((p) => p.id === packageId) ?? displayPackages[0];
   const coachHints = useMemo(
     () =>
       resolveOrderCoachHints({
@@ -771,6 +818,7 @@ export default function OrderSitePage() {
             uses_analytics: legalAnalytics,
           },
           package_id: packageId,
+          analysis_case_id: analysisCaseRef.current || null,
           brand_style: brandStyle || "auto",
           niche: niche || null,
           specialization: specialization.trim() || null,
@@ -1413,7 +1461,7 @@ export default function OrderSitePage() {
                 </div>
               ) : (
                 <div className="mt-3 space-y-2">
-                  {packages.map((p) => (
+                  {displayPackages.map((p) => (
                     <label
                       key={p.id}
                       className={`flex cursor-pointer items-center justify-between rounded-xl border px-3 py-2.5 text-sm transition-smooth ${

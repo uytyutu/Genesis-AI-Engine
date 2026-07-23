@@ -13,6 +13,7 @@ import { uiLangForMarket } from "../lib/marketLang";
 import { filterPublicPackages } from "../lib/showSmokePackage";
 import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
 import { GenesisConcierge } from "../components/GenesisConcierge";
+import { WebsiteAnalysisPanel } from "../components/WebsiteAnalysisPanel";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
 
 type PackageCard = {
@@ -413,39 +414,31 @@ export function SitePage() {
           </article>
         </section>
 
-        {/* 4. Analysis */}
-        <section className="space-y-4" aria-labelledby="analysis-heading">
+        {/* 4. Analysis — Website Analysis v1 */}
+        <section className="space-y-4" aria-labelledby="analysis-heading" id="analysis">
           <h2 id="analysis-heading" className="text-2xl font-semibold text-white">
             {t("s0.analysisTitle", { defaultValue: "Business Analysis" })}
           </h2>
-          <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="text-lg font-semibold text-white">
-              {t("pathA.cardAnalysisTitle")}
-            </h3>
-            <p className="mt-2 text-sm text-zinc-400">
-              {t("pathA.cardAnalysisBody")}
-            </p>
-            <p className="mt-2 text-xs text-zinc-500">
-              SEO Audit · Website Audit · Speed · Security
-            </p>
-            <span className="mt-4 inline-flex rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-1.5 text-xs font-semibold text-amber-100/90">
-              {comingSoon}
-            </span>
-          </article>
+          <WebsiteAnalysisPanel market={market} onAskVector={openChat} />
         </section>
 
-        {/* 5. One-time */}
+        {/* 5. One-time — Repair is sold via Analysis funnel, not a hero card */}
         <section className="space-y-4" aria-labelledby="onetime-heading">
           <h2 id="onetime-heading" className="text-2xl font-semibold text-white">
             {t("s0.onetimeTitle", { defaultValue: "One-time services" })}
           </h2>
           <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <p className="text-sm text-zinc-400">
-              Website Repair · Migration · Google Business · SEO Fixes
+              Website Repair появляется после бесплатного анализа выше — только если
+              ремонт выгоднее нового сайта. Migration · Google Business · SEO Fixes —
+              отдельно.
             </p>
-            <span className="mt-4 inline-flex rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-1.5 text-xs font-semibold text-amber-100/90">
-              {comingSoon}
-            </span>
+            <a
+              href="#analysis"
+              className="mt-4 inline-flex rounded-lg border border-emerald-500/40 bg-emerald-950/30 px-3 py-1.5 text-xs font-semibold text-emerald-100/90 hover:brightness-110"
+            >
+              Сначала анализ →
+            </a>
             <p className="mt-3 text-xs text-zinc-500">
               {t("s0.honestNote", {
                 defaultValue: "Coming Soon is not Buy — we only sell finished delivery paths.",
@@ -506,13 +499,13 @@ export function SitePage() {
           {t("pathA.foot", { brand: BRAND_NAME })}
         </p>
 
-        {/* Secondary Vector chat panel */}
+        {/* Secondary Vector chat panel — wide consultant surface, not a tiny widget */}
         {chatOpen ? (
           <div
             id="vector-chat-panel"
-            className="fixed inset-x-3 bottom-20 z-40 mx-auto max-w-lg overflow-hidden rounded-2xl border border-sky-400/30 bg-genesis-bg shadow-2xl sm:inset-x-auto sm:right-6 sm:left-auto sm:w-[420px]"
+            className="fixed inset-x-2 bottom-20 top-16 z-40 mx-auto flex w-auto max-w-3xl flex-col overflow-hidden rounded-2xl border border-sky-400/30 bg-genesis-bg shadow-2xl sm:inset-x-auto sm:right-6 sm:left-auto sm:top-auto sm:bottom-20 sm:h-[min(78vh,720px)] sm:w-[min(720px,calc(100vw-3rem))]"
           >
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+            <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-white">
                   {ASSISTANT_NAME}
@@ -532,7 +525,7 @@ export function SitePage() {
                 ✕
               </button>
             </div>
-            <div className="max-h-[min(70vh,520px)] overflow-y-auto p-2">
+            <div className="min-h-0 flex-1 overflow-y-auto p-2">
               <GenesisConcierge scope="public" />
             </div>
           </div>

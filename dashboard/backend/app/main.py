@@ -3355,6 +3355,57 @@ def owner_evolution_ledger() -> dict:
     }
 
 
+@app.post("/api/public/website-analysis")
+def public_website_analysis(body: dict) -> dict:
+    """Website Analysis v1 — owner report + Repair/New funnel CTAs."""
+    from fastapi import HTTPException
+
+    from app.integration.website_analysis_v1 import WebsiteAnalysisV1
+
+    url = str((body or {}).get("url") or "").strip()
+    locale = str((body or {}).get("locale") or "ru").strip()[:8] or "ru"
+    use_cache = bool((body or {}).get("use_cache", True))
+    email = str((body or {}).get("email") or "").strip()
+    problem_note = str((body or {}).get("problem_note") or (body or {}).get("description") or "").strip()
+    if not url:
+        raise HTTPException(status_code=400, detail="url_required")
+    report = WebsiteAnalysisV1(_memory_dir()).analyze(
+        url,
+        locale=locale,
+        use_cache=use_cache,
+        email=email,
+        problem_note=problem_note,
+        save_case=True,
+    )
+    return report
+
+
+@app.get("/api/public/website-analysis/{case_id}")
+def public_website_analysis_case(case_id: str) -> dict:
+    from fastapi import HTTPException
+
+    from app.integration.website_analysis_v1 import WebsiteAnalysisV1
+
+    row = WebsiteAnalysisV1(_memory_dir()).get_case(case_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="case_not_found")
+    return row
+
+
+@app.get("/api/client/analysis-cases")
+def client_analysis_cases(email: str = "") -> dict:
+    """List saved analysis cases for a client email (cabinet)."""
+    from fastapi import HTTPException
+
+    from app.integration.website_analysis_v1 import WebsiteAnalysisV1
+
+    em = str(email or "").strip()
+    if not em or "@" not in em:
+        raise HTTPException(status_code=400, detail="email_required")
+    items = WebsiteAnalysisV1(_memory_dir()).list_cases_for_email(em)
+    return {"ok": True, "email": em.lower(), "cases": items}
+
+
 @app.get("/api/factory/products", response_model=FactoryProductsResponse)
 def list_factory_products() -> FactoryProductsResponse:
     items = _ctx().factory.list_products()

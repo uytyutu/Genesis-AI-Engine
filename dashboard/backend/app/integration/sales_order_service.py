@@ -108,7 +108,59 @@ _PACKAGES = {
             "Lieferzeit: oft ca. 15 Minuten nach Zahlung",
         ],
     },
+    # Repair MVP — operator delivery after payment (no auto CMS surgery)
+    "repair_lite": {
+        "id": "repair_lite",
+        "name": "Website Repair Lite",
+        "price_eur": 199,
+        "product_kind": "repair",
+        "tagline": "Точечный ремонт по отчёту анализа",
+        "included_summary": (
+            "ремонт по отчёту Website Analysis, список правок, статус в кабинете; "
+            "выполняет оператор Virtus Core"
+        ),
+        "deliverables": [
+            "Ремонт по вашему отчёту Website Analysis",
+            "Список выполненных и оставшихся пунктов",
+            "Статус заказа в клиентском кабинете",
+            "Сопровождение Vector до сдачи",
+            "Без автоматического вмешательства в чужой CMS без вашего доступа",
+        ],
+    },
+    "repair_standard": {
+        "id": "repair_standard",
+        "name": "Website Repair Standard",
+        "price_eur": 349,
+        "product_kind": "repair",
+        "tagline": "Расширенный ремонт по отчёту",
+        "included_summary": (
+            "стандартный объём ремонта по анализу, отчёт до/после, кабинет; оператор Virtus Core"
+        ),
+        "deliverables": [
+            "Расширенный ремонт по отчёту анализа",
+            "Краткий before/after для клиента",
+            "Статус и файлы в кабинете",
+            "Сопровождение Vector",
+        ],
+    },
+    "repair_complete": {
+        "id": "repair_complete",
+        "name": "Website Repair Complete",
+        "price_eur": 499,
+        "product_kind": "repair",
+        "tagline": "Максимальный ремонт; при высокой цене часто выгоднее новый сайт",
+        "included_summary": (
+            "полный пакет ремонта по анализу или честная рекомендация нового сайта"
+        ),
+        "deliverables": [
+            "Полный объём согласованных правок по отчёту",
+            "Before/after и остаточные рекомендации",
+            "Кабинет клиента + Vector",
+        ],
+    },
 }
+
+_REPAIR_PACKAGE_IDS = frozenset({"repair_lite", "repair_standard", "repair_complete"})
 
 
 def package_included_summary(package_id: str | None) -> str:
@@ -148,8 +200,10 @@ class SalesOrderService:
             memory_dir=self._memory,
             extra_text=extra_text,
         )
-        deliverables = {k: v["deliverables"] for k, v in _PACKAGES.items()}
-        names = {k: v["name"] for k, v in _PACKAGES.items()}
+        # Public website packages only — repair is sold via Analysis funnel, not storefront grid
+        site_ids = ("basic", "business", "premium")
+        deliverables = {k: _PACKAGES[k]["deliverables"] for k in site_ids}
+        names = {k: _PACKAGES[k]["name"] for k in site_ids}
         result = resolve_checkout_packages(
             resolved,
             deliverables_by_id=deliverables,
@@ -230,6 +284,27 @@ class SalesOrderService:
                 "currency": "EUR",
                 "symbol": market.symbol,
                 "market_code": "DE",
+                "price_label": package["price_label"],
+            }
+
+        if pid in _REPAIR_PACKAGE_IDS:
+            market = get_market((market_code or "DE").strip().upper() or "DE")
+            base = _PACKAGES[pid]
+            amount = float(base["price_eur"])
+            package = {
+                **base,
+                "price_eur": amount,
+                "currency": market.currency,
+                "symbol": market.symbol,
+                "market_code": market.code,
+                "price_label": format_amount(amount, market.symbol),
+            }
+            return package, {
+                "package_id": pid,
+                "amount": amount,
+                "currency": market.currency,
+                "symbol": market.symbol,
+                "market_code": market.code,
                 "price_label": package["price_label"],
             }
 
@@ -344,6 +419,13 @@ class SalesOrderService:
             ),
             "package_id": package_id,
             "package_name": package["name"],
+            "product_kind": (
+                "repair"
+                if str(package_id).strip().lower() in _REPAIR_PACKAGE_IDS
+                or package.get("product_kind") == "repair"
+                else "website"
+            ),
+            "analysis_case_id": (payload.get("analysis_case_id") or "").strip() or None,
             "price_eur": package["price_eur"],
             "currency": package.get("currency", "EUR"),
             "symbol": package.get("symbol", "€"),
@@ -452,6 +534,28 @@ class SalesOrderService:
             raise ValueError("order_not_found")
         if order["status"] not in ("pending_confirmation", "confirmed", "awaiting_payment", "paid"):
             raise ValueError("invalid_status")
+
+        package_id = str(order.get("package_id") or "basic").strip().lower()
+        if package_id in _REPAIR_PACKAGE_IDS or order.get("product_kind") == "repair":
+            from app.factory.market_delivery import client_status_label
+
+            market = str(order.get("market_code") or "DE")
+            order["status"] = "in_production"
+            order["product_kind"] = "repair"
+            order["delivery_mode"] = "operator"
+            order["status_label"] = client_status_label("in_production", market)
+            order["client_status_message"] = (
+                "Zahlung erhalten. Virtus Core führt die Reparatur manuell nach Ihrem "
+                "Analysebericht aus — kein automatischer CMS-Eingriff."
+            )
+            order["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_order(order)
+            return {
+                "ok": True,
+                "order": self._summary(order),
+                "product_id": None,
+                "message": order["client_status_message"],
+            }
 
         existing_product_id = (order.get("product_id") or "").strip()
         if existing_product_id:
