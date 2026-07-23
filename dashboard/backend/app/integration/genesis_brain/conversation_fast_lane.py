@@ -71,8 +71,14 @@ def should_use_conversation_fast_lane(
     has_attachments: bool,
     workforce_task: str | None,
     last_user: str,
+    messages: list[dict[str, str]] | None = None,
+    conversation_state: object | None = None,
 ) -> bool:
-    """Most dialogue turns — skip Mind v3 pre-cycle, still call LLM."""
+    """Most dialogue turns — skip Mind v3 pre-cycle, still call LLM.
+
+    Offline Baseline v1 canon: thread_follow_up / curiosity / factual_question
+    stay on reasoned_human (genesis-local), not Ollama paraphrase.
+    """
     if has_attachments:
         return False
     task = (workforce_task or "conversation").strip().lower()
@@ -81,4 +87,25 @@ def should_use_conversation_fast_lane(
     text = (last_user or "").strip()
     if not text or len(text) > 4000:
         return False
+    if messages is not None and conversation_state is not None:
+        try:
+            from app.integration.genesis_brain.layers.emotional_intelligence import (
+                EmotionalIntelligenceLayer,
+            )
+            from app.integration.genesis_brain.layers.goal_analysis import (
+                GoalAnalysisLayer,
+            )
+
+            emotional = EmotionalIntelligenceLayer().analyze(text)
+            goal = GoalAnalysisLayer().analyze(
+                text, messages, conversation_state, emotional  # type: ignore[arg-type]
+            )
+            if goal.real_goal in (
+                "thread_follow_up",
+                "curiosity",
+                "factual_question",
+            ):
+                return False
+        except Exception:
+            pass
     return True

@@ -160,6 +160,8 @@ class GenesisBrain:
             has_attachments=has_attachments,
             workforce_task=workforce_task,
             last_user=last_user,
+            messages=messages,
+            conversation_state=conv_state,
         ):
             trace_step("conversation_fast_lane", task=workforce_task or "conversation")
             fast_result = self._conversation_fast_lane(
@@ -745,6 +747,8 @@ class GenesisBrain:
             has_attachments=has_attachments,
             workforce_task=workforce_task,
             last_user=last_user,
+            messages=messages,
+            conversation_state=None,
         ):
             return
 
@@ -752,6 +756,14 @@ class GenesisBrain:
         memory_data = self._memory.observe_messages(visitor_id, messages)
         inferences = self._memory.get_inferences(visitor_id)
         conv_state = self._conv_state.process(visitor_id, messages, session_id=session_id)
+        if not should_use_conversation_fast_lane(
+            has_attachments=has_attachments,
+            workforce_task=workforce_task,
+            last_user=last_user,
+            messages=messages,
+            conversation_state=conv_state,
+        ):
+            return
         memory_block = cap_context_block(self._memory.build_context_block(visitor_id))
         state_block = cap_context_block(conv_state.to_prompt_block())
         turn_index = sum(1 for m in messages if m.get("role") == "user")
