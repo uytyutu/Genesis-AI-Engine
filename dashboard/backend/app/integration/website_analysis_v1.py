@@ -615,3 +615,108 @@ class WebsiteAnalysisV1:
 
     def list_cases_for_email(self, email: str) -> list[dict[str, Any]]:
         return self._cases.list_for_email(email)
+
+
+# --- Commercial MVP Vector speech (narrow gate fix — no architecture) ---
+
+_REPAIR_SPEECH = re.compile(
+    r"(?:"
+    r"repair\s*(?:lite|standard|complete)|"
+    r"website\s*repair|"
+    r"смета\s+ремонт|"
+    r"ремонт(?:а|у)?\s+(?:сайт|wordpress|wix|shopify)|"
+    r"почините?\s+ли\s+вы|"
+    r"автоматически\s+(?:любой\s+)?(?:wordpress|wix|shopify)|"
+    r"(?:199|349|499)\s*€?\s*.{0,30}repair|"
+    r"repair.{0,40}(?:199|349|499)"
+    r")",
+    re.I,
+)
+
+_WEBSITE_PACKAGES_SPEECH = re.compile(
+    r"(?:"
+    r"(?:basic|business|premium).{0,60}(?:пакет|package|выбрать)|"
+    r"пакет(?:ы|ах)?.{0,60}(?:basic|business|premium)|"
+    r"объясни\s+пакет|"
+    r"350\s*/\s*650\s*/\s*1200|"
+    r"(?:basic|business|premium).{0,40}(?:350|650|1200)"
+    r")",
+    re.I,
+)
+
+
+def is_commercial_website_repair_query(text: str) -> bool:
+    """True when the user asks about Virtus Core Website Repair — not Bau/Handwerk."""
+    return bool(_REPAIR_SPEECH.search(text or ""))
+
+
+def try_commercial_mvp_speech(question: str) -> dict[str, Any] | None:
+    """Honest commercial answers for Repair / Path A packages. Early route only."""
+    q = (question or "").strip()
+    if len(q) < 12:
+        return None
+
+    if is_commercial_website_repair_query(q):
+        answer = (
+            "Понял — речь про **Website Repair** по отчёту анализа, не про стройку.\n\n"
+            "После анализа мы показываем найденные проблемы (HTTPS, скорость, мобильная "
+            "версия, CTA, title/SEO, контакты, формы, карта и т.п.) и честную смету:\n\n"
+            f"• **Repair Lite — {PRICE_REPAIR_LITE} €** — точечные правки по отчёту "
+            "(тексты, CTA, контакты, простые SEO-правки).\n"
+            f"• **Repair Standard — {PRICE_REPAIR_STANDARD} €** — расширенный объём по "
+            "отчёту + краткий before/after.\n"
+            f"• **Repair Complete — {PRICE_REPAIR_COMPLETE} €** — максимальный согласованный "
+            "объём; если выгоднее — честно рекомендуем **новый сайт** "
+            f"({PRICE_BASIC} / {PRICE_BUSINESS} / {PRICE_PREMIUM} €).\n\n"
+            "**Важно (MVP):** ремонт выполняет **оператор** Virtus Core по вашему отчёту "
+            "после оплаты и доступа. Мы **не** обещаем автоматический ремонт WordPress, "
+            "Wix, Shopify или любого CMS без участия человека.\n\n"
+            "Старт: бесплатный анализ на `/site#analysis` → смета → оплата → кабинет."
+        )
+        return {
+            "answer": answer,
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "commercial_mvp_speech",
+            "cta_href": "/site#analysis",
+            "cta_label": "Сначала анализ",
+            "cta_actions": [
+                {"href": "/site#analysis", "label": "Website Analysis"},
+                {
+                    "href": f"/order?package=repair_standard",
+                    "label": f"Repair Standard {PRICE_REPAIR_STANDARD} €",
+                },
+                {"href": "/order?package=business", "label": f"New Website {PRICE_BUSINESS} €"},
+            ],
+        }
+
+    if _WEBSITE_PACKAGES_SPEECH.search(q) and re.search(
+        r"сайт|лендинг|website|webseite|клининг|cleaning|компани", q, re.I
+    ):
+        answer = (
+            "Понял — нужен **новый сайт** (Path A). Пакеты онлайн:\n\n"
+            f"• **Basic — {PRICE_BASIC} €** — готовый лендинг под нишу, контакты, форма, "
+            "базовая мобильная версия.\n"
+            f"• **Business — {PRICE_BUSINESS} €** — рекомендую большинству: сильнее дизайн, "
+            "галерея/доверие, карта, больше секций под заявки.\n"
+            f"• **Premium — {PRICE_PREMIUM} €** — максимум визуала и сопровождения "
+            "(калькулятор/showcase, приоритетная поддержка).\n\n"
+            "Оформление: `/order` → оплата → Factory → ZIP в кабинете "
+            "(`/client/downloads`). Срок обычно около 15 минут после оплаты.\n\n"
+            "CTA на готовом сайте зависят от ниши (не «запись ко всем подряд»)."
+        )
+        return {
+            "answer": answer,
+            "source": "genesis-ai",
+            "mode": "genesis",
+            "provider": "commercial_mvp_speech",
+            "cta_href": "/order?package=business",
+            "cta_label": f"Business {PRICE_BUSINESS} €",
+            "cta_actions": [
+                {"href": "/order?package=basic", "label": f"Basic {PRICE_BASIC} €"},
+                {"href": "/order?package=business", "label": f"Business {PRICE_BUSINESS} €"},
+                {"href": "/order?package=premium", "label": f"Premium {PRICE_PREMIUM} €"},
+            ],
+        }
+
+    return None

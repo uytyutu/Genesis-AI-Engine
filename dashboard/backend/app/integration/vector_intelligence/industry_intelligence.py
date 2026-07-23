@@ -169,6 +169,11 @@ _PROFESSIONS: tuple[IndustryProfession, ...] = (
 
 def match_industry_profession(text: str) -> IndustryProfession | None:
     t = text or ""
+    # Website Repair commercial queries must not match Bau/Handwerk via «ремонт».
+    from app.integration.website_analysis_v1 import is_commercial_website_repair_query
+
+    if is_commercial_website_repair_query(t):
+        return None
     for prof in _PROFESSIONS:
         if prof.pattern.search(t):
             return prof

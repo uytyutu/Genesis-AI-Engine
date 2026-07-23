@@ -221,6 +221,12 @@ def try_decision_intelligence_route(text: str) -> dict | None:
     t = (text or "").strip()
     if len(t) < 12:
         return None
+
+    from app.integration.website_analysis_v1 import is_commercial_website_repair_query
+
+    if is_commercial_website_repair_query(t):
+        return None
+
     if _explicit_deliverable_request(t):
         return None
 

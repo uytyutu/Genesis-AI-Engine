@@ -141,6 +141,14 @@ class GenesisAIService:
                 user_q,
             )
 
+        # Commercial MVP speech — Repair packages / Path A prices before Decision Intel.
+        from app.integration.website_analysis_v1 import try_commercial_mvp_speech
+
+        commercial = try_commercial_mvp_speech(q)
+        if commercial:
+            trace.finish(ok=True, provider="commercial_mvp_speech")
+            return self._with_project_state(commercial, vid, user_q)
+
         from app.execution.bridge import try_user_execution, should_route_attachments_to_execution
         import time as _time
 
@@ -382,6 +390,15 @@ class GenesisAIService:
                 "cta_label": None,
                 "cta_actions": None,
             })
+            return
+
+        # Commercial MVP speech — before Decision Intel / execution hijack.
+        from app.integration.website_analysis_v1 import try_commercial_mvp_speech
+
+        commercial = try_commercial_mvp_speech(q)
+        if commercial:
+            trace.finish(ok=True, provider="commercial_mvp_speech")
+            yield _done(commercial)
             return
 
         from app.execution.bridge import try_user_execution, should_route_attachments_to_execution
