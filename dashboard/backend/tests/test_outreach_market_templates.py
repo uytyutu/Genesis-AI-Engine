@@ -85,7 +85,9 @@ def test_templates_tone_by_market(monkeypatch: pytest.MonkeyPatch):
     )
     assert us_lang == "en-us"
     assert us_body.startswith("Hi,")
-    assert "Took a look" in us_body
+    # RC1 US pitch: Managing Director intro + review framing (not legacy «Took a look»)
+    assert "We reviewed" in us_body
+    assert "Managing Director" in us_body
     assert "Impressum" not in us_body
 
     _, ru_body, ru_lang = svc.draft_outreach(
