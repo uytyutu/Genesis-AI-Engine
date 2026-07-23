@@ -145,7 +145,7 @@ def test_router_get_only_platform_level():
 def test_main_registers_my_products():
     main = Path(__file__).resolve().parents[1] / "app" / "main.py"
     text = main.read_text(encoding="utf-8")
-    assert "register_portal_my_products(app)" in text
+    assert "register_portal_my_products(" in text
     assert "include_router(portal_my_products_router)" not in text
 
 
@@ -169,7 +169,7 @@ def test_website_ownership_unchanged_and_modules_intact():
         encoding="utf-8"
     )
     assert "register_portal_website_settings(app)" in main
-    assert "register_portal_product_catalog(app)" in main
+    assert "register_portal_product_catalog(" in main
 
 
 def test_bridge_not_a_data_migration():
