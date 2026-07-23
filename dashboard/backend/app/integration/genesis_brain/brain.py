@@ -198,6 +198,53 @@ class GenesisBrain:
 
         emotional = self._emotion.analyze(last_user)
 
+        # Offline Baseline v1: clarification goals → reasoned_human before Workforce LLM
+        from app.integration.genesis_brain.layers.goal_analysis import GoalAnalysisLayer
+
+        offline_goal = GoalAnalysisLayer().analyze(
+            last_user, messages, conv_state, emotional
+        )
+        if offline_goal.real_goal in (
+            "thread_follow_up",
+            "curiosity",
+            "factual_question",
+        ):
+            from app.integration.genesis_brain.layers.executive_brain import (
+                GenesisExecutiveBrain,
+            )
+            from app.integration.genesis_brain.reasoned_human import reasoned_human_reply
+
+            exec_brief = GenesisExecutiveBrain().decide(
+                state=conv_state,
+                last_user=last_user,
+                messages=messages,
+                turn_index=turn_index,
+                emotional=emotional,
+            )
+            # Call reasoned_human directly — do not let business_mode/propose steal the turn
+            routed = reasoned_human_reply(
+                offline_goal,
+                exec_brief,
+                raw=last_user,
+                state=conv_state,
+                visitor_id=visitor_id,
+                turn_index=turn_index,
+                messages=messages,
+            )
+            if routed and routed.strip():
+                shaped = personality.finalize(
+                    routed.strip(),
+                    messages=messages,
+                    memory=memory_data,
+                    visitor_id=visitor_id,
+                    user_uses_ty=personality.user_uses_ty(messages),
+                    response_style=effective_style,
+                )
+                return ChatResult(
+                    answer=shaped,
+                    provider_id="genesis-local",
+                )
+
         # Genesis Mind v3 — internal thinking cycle (never exposed)
         thinking = self._thinking.think(
             last_user=last_user,
