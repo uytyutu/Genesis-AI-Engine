@@ -105,13 +105,14 @@ def test_http_purchase_then_my_products():
 
     http = TestClient(app)
     try:
-        bought = http.post("/portal/products/prod_analytics/purchase")
+        # prod_analytics is coming_soon; happy path uses available prod_chatbot
+        bought = http.post("/portal/products/prod_chatbot/purchase")
         assert bought.status_code == 200
         assert bought.json()["activated_product"]["source"] == "native"
 
         mine = http.get("/portal/my-products")
         assert any(
-            row["product_type"] == "analytics" and row["source"] == "native"
+            row["product_type"] == "chatbot" and row["source"] == "native"
             for row in mine.json()
         )
     finally:

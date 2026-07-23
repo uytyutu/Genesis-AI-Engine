@@ -108,7 +108,8 @@ def test_http_list_and_get_after_purchase():
 
     http = TestClient(app)
     try:
-        bought = http.post("/portal/products/prod_analytics/purchase")
+        # prod_analytics is coming_soon (not purchasable); happy path uses available catalog id
+        bought = http.post("/portal/products/prod_chatbot/purchase")
         assert bought.status_code == 200
 
         listed = http.get("/portal/billing")
@@ -116,8 +117,8 @@ def test_http_list_and_get_after_purchase():
         assert len(listed.json()) == 1
         row = listed.json()[0]
         assert row["status"] == "paid"
-        assert row["product_id"] == "prod_analytics"
-        assert row["amount"] == 1900
+        assert row["product_id"] == "prod_chatbot"
+        assert row["amount"] == 2900
         assert set(row.keys()) >= {
             "transaction_id",
             "account_id",

@@ -5,11 +5,16 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
+from app.portal.account import new_account
+from app.portal.client import new_client
+from app.portal.ownership import grant_website_ownership
+from app.portal.ownership_directory import InMemoryOwnershipDirectory
 from app.portal.portal_dashboard_registration import register_portal_dashboard
 from app.portal.portal_dashboard_router import clear_website_dashboard_facade
+from app.portal.website import new_website
 from app.portal.website_catalog import load_portal_catalog_from_factory_sandbox
 
 
@@ -38,8 +43,26 @@ def test_endpoint_returns_real_sandbox_site(tmp_path: Path):
     )
     clear_website_dashboard_facade()
     catalog = load_portal_catalog_from_factory_sandbox(sandbox_dirs=(tmp_path,))
+    # AuthN/AuthZ is intentional (R4.4): principal + website ownership required.
+    account = new_account(email="owner@nord.test", display_name="Owner", status="ready")
+    client = new_client(display_name="Nord Cafe", primary_email="owner@nord.test")
+    owned = new_website(
+        client_id=client.client_id,
+        product_id=product_id,
+        market_code="DE",
+        website_id=product_id,
+    )
+    ownerships = InMemoryOwnershipDirectory(
+        ownerships=[grant_website_ownership(account, owned)]
+    )
     app = FastAPI()
-    assert register_portal_dashboard(app, catalog=catalog) is True
+
+    @app.middleware("http")
+    async def inject_account(request: Request, call_next):
+        request.state.account = account
+        return await call_next(request)
+
+    assert register_portal_dashboard(app, catalog=catalog, ownerships=ownerships) is True
     http = TestClient(app)
     try:
         r = http.get(f"/portal/websites/{product_id}/dashboard")
