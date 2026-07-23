@@ -413,6 +413,20 @@
     "checkoutConfirmHint": "Bestätigen Sie die Übersicht, um zu zahlen.",
     "checkoutPayCta": "{{price}} bezahlen"
   },
+  "pay": {
+    "heading": "Bestellung bezahlen",
+    "fallbackBusiness": "Ihre Bestellung",
+    "fallbackPackage": "Landing",
+    "sandboxNote": "Testmodus (Sandbox). Es wird kein Geld abgebucht.",
+    "payCta": "{{price}} bezahlen",
+    "processing": "Wird verarbeitet…",
+    "loading": "Laden…",
+    "statusLink": "Bestellstatus",
+    "notFound": "Bestellung nicht gefunden",
+    "backToOrder": "← Zurück zur Bestellung",
+    "payFail": "Zahlung fehlgeschlagen",
+    "serverDown": "Server nicht erreichbar"
+  },
   "reviews": {
     "title": "Kundenstimmen",
     "empty": "Bewertungen erscheinen nach den ersten abgeschlossenen Aufträgen.",

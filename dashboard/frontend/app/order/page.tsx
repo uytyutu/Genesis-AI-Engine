@@ -824,6 +824,7 @@ export default function OrderSitePage() {
           specialization: specialization.trim() || null,
           services_list: parseClientServices(serviceList),
           market_code: commerce.market_code || marketParam || undefined,
+          ui_lang: (i18n.language || "").slice(0, 2).toLowerCase() || undefined,
           visitor_id: visitorId,
         }),
       });

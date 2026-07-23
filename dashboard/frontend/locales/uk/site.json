@@ -359,6 +359,20 @@
     "checkoutConfirmHint": "Confirm the summary to enable payment.",
     "checkoutPayCta": "Pay {{price}}"
   },
+  "pay": {
+    "heading": "Оплата замовлення",
+    "fallbackBusiness": "Ваше замовлення",
+    "fallbackPackage": "Лендінг",
+    "sandboxNote": "Тестовий режим (Sandbox). Кошти не списуються.",
+    "payCta": "Оплатити {{price}}",
+    "processing": "Обробка…",
+    "loading": "Завантаження…",
+    "statusLink": "Статус замовлення",
+    "notFound": "Замовлення не знайдено",
+    "backToOrder": "← Повернутися до замовлення",
+    "payFail": "Оплата не пройшла",
+    "serverDown": "Сервер недоступний"
+  },
   "reviews": {
     "title": "Відгуки клієнтів",
     "empty": "Відгуки з’являться після виконання перших замовлень.",

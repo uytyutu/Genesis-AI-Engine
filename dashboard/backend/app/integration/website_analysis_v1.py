@@ -471,12 +471,31 @@ def _vector_plain(
     """Short client-facing explanation for Vector / cabinet (plain language)."""
     rec = next((r for r in recommendations if r.get("recommended")), recommendations[-1])
     top = problems[:3]
-    probs = "; ".join(top) if top else ("сайт недоступен" if not fetch_ok else "критичных дыр мало")
-    if (locale or "").startswith("de"):
+    lang = (locale or "ru").strip().lower().split("-")[0]
+    empty = {
+        "de": "Seite nicht erreichbar" if not fetch_ok else "wenige kritische Lücken",
+        "en": "site unreachable" if not fetch_ok else "few critical gaps",
+        "uk": "сайт недоступний" if not fetch_ok else "критичних дір мало",
+        "ru": "сайт недоступен" if not fetch_ok else "критичных дыр мало",
+    }
+    probs = "; ".join(top) if top else empty.get(lang, empty["en"])
+    if lang == "de":
         return (
             f"Kurz: Gesundheit {health_score}/100, {fail_n} Probleme. "
             f"Wichtig: {probs}. Empfehlung: {rec['title']} ({rec['price_label']}). "
             "Kein Versprechen, dass KI jedes CMS automatisch repariert."
+        )
+    if lang == "en":
+        return (
+            f"In short: health {health_score}/100, {fail_n} issues. "
+            f"Main: {probs}. Recommendation: {rec['title']} ({rec['price_label']}). "
+            "We do not promise AI auto-repairs every CMS — after payment the team does the work."
+        )
+    if lang == "uk":
+        return (
+            f"Коротко: оцінка {health_score}/100, проблем: {fail_n}. "
+            f"Головне: {probs}. Рекомендація: {rec['title']} ({rec['price_label']}). "
+            "Ми не обіцяємо, що ШІ сам полагодить будь-який CMS — після оплати працює команда."
         )
     return (
         f"Коротко: оценка {health_score}/100, проблем: {fail_n}. "

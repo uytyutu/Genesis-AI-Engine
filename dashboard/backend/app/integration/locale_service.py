@@ -32,6 +32,26 @@ DEFAULT_LOCALE = "ru"
 FALLBACK_LOCALE = "en"
 
 
+def normalize_order_ui_lang(raw: str | None, *, market_code: str | None = None) -> str:
+    """Language stored on the order — CEO packs only (de/en/ru/uk)."""
+    if raw:
+        loc = resolve_locale(raw)
+        if loc in CEO_PACK_LOCALES:
+            return loc
+        if loc.split("-")[0] in CEO_PACK_LOCALES:
+            return loc.split("-")[0]
+    if market_code:
+        try:
+            from app.factory.market_delivery import market_ui_lang
+
+            m = market_ui_lang(market_code)
+            if m in CEO_PACK_LOCALES:
+                return m
+        except Exception:
+            pass
+    return FALLBACK_LOCALE
+
+
 def resolve_locale(raw: str | None) -> str:
     if not raw:
         return DEFAULT_LOCALE

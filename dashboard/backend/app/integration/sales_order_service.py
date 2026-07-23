@@ -329,8 +329,12 @@ class SalesOrderService:
         return package, offer.as_dict()
 
     def create_order(self, payload: dict) -> dict:
-        from app.factory.market_delivery import client_status_label
+        from app.factory.market_delivery import (
+            client_status_label,
+            factory_locale_context,
+        )
         from app.factory.motion_brief import gate_motion_level, normalize_motion_level
+        from app.integration.locale_service import normalize_order_ui_lang
 
         package_id = payload.get("package_id") or self._suggest_package(payload)
         package, _offer = self._package_offer(
@@ -350,7 +354,14 @@ class SalesOrderService:
         project_name = project_ctx.get("project_name")
         order_id = f"ord-{uuid.uuid4().hex[:10]}"
         now = datetime.now(timezone.utc).isoformat()
-        client_message = project_awaiting_payment_message(launch_mode=launch_mode)
+        market_code = str(package.get("market_code", "DE"))
+        ui_lang = normalize_order_ui_lang(
+            payload.get("ui_lang") or payload.get("locale") or payload.get("language"),
+            market_code=market_code,
+        )
+        client_message = project_awaiting_payment_message(
+            launch_mode=launch_mode, ui_lang=ui_lang
+        )
         company_website = self._normalize_company_website(payload.get("company_website"))
         site_analysis = self._analyze_company_website(company_website) if company_website else None
 
@@ -365,9 +376,26 @@ class SalesOrderService:
                 domain_status = "none"
         domain_help_message = None
         if domain_status in ("none", "need_help"):
-            domain_help_message = (
-                "Wir können bei der Auswahl und Anbindung einer Domain helfen — "
-                "ohne sofortigen Kaufzwang."
+            domain_help_message = {
+                "de": (
+                    "Wir können bei der Auswahl und Anbindung einer Domain helfen — "
+                    "ohne sofortigen Kaufzwang."
+                ),
+                "en": (
+                    "We can help choose and connect a domain — "
+                    "without forcing an immediate purchase."
+                ),
+                "ru": (
+                    "Мы можем помочь с выбором и подключением домена — "
+                    "без обязательной покупки сразу."
+                ),
+                "uk": (
+                    "Ми можемо допомогти з вибором і підключенням домену — "
+                    "без обов’язкової покупки одразу."
+                ),
+            }.get(ui_lang) or (
+                "We can help choose and connect a domain — "
+                "without forcing an immediate purchase."
             )
         effective_needs_domain = domain_status in ("none", "need_help") and not existing_domain
 
@@ -411,11 +439,19 @@ class SalesOrderService:
         except Exception as exc:
             logger.warning("order materials/insights skipped: %s", exc)
 
+        locale_ctx = factory_locale_context(
+            {"ui_lang": ui_lang, "market_code": market_code, "currency": package.get("currency")},
+            market_code,
+        )
+        # Prefer explicit buyer language over market default when they diverge.
+        locale_ctx["language"] = ui_lang
+        locale_ctx["locale"] = locale_ctx.get("locale") or f"{ui_lang}_{market_code}"
+
         order = {
             "order_id": order_id,
             "status": "awaiting_payment",
             "status_label": client_status_label(
-                "awaiting_payment", package.get("market_code", "DE")
+                "awaiting_payment", market_code, ui_lang=ui_lang
             ),
             "package_id": package_id,
             "package_name": package["name"],
@@ -429,7 +465,11 @@ class SalesOrderService:
             "price_eur": package["price_eur"],
             "currency": package.get("currency", "EUR"),
             "symbol": package.get("symbol", "€"),
-            "market_code": package.get("market_code", "DE"),
+            "market_code": market_code,
+            "ui_lang": ui_lang,
+            "language": ui_lang,
+            "locale": locale_ctx["locale"],
+            "factory_context": locale_ctx,
             "price_label": package.get("price_label", f"{package['price_eur']} €"),
             "motion_level": motion,
             "brand_style": _normalize_order_brand_style(payload.get("brand_style")),
@@ -490,12 +530,15 @@ class SalesOrderService:
                 service_id,
                 launch_mode=launch_mode,
                 project_name=project_name or payload["business_name"].strip(),
+                ui_lang=ui_lang,
             ),
             "package_name": package["name"],
             "price_eur": package["price_eur"],
             "currency": package.get("currency", "EUR"),
             "symbol": package.get("symbol", "€"),
-            "market_code": package.get("market_code", "DE"),
+            "market_code": market_code,
+            "ui_lang": ui_lang,
+            "locale": locale_ctx["locale"],
             "price_label": package.get("price_label"),
             "motion_level": motion,
             "deliverables": order["deliverables"],
@@ -601,6 +644,10 @@ class SalesOrderService:
             "market_code": market,
             "motion_level": motion,
             "brand_style": order.get("brand_style") or "auto",
+            "ui_lang": order.get("ui_lang") or order.get("language"),
+            "language": order.get("language") or order.get("ui_lang"),
+            "locale": order.get("locale"),
+            "currency": order.get("currency"),
         }
         mats = order.get("materials")
         if isinstance(mats, dict) and isinstance(mats.get("files"), list):
@@ -896,9 +943,10 @@ class SalesOrderService:
             client_timeline,
             delivery_ready_headline,
             delivery_value_items,
-            market_ui_lang,
+            factory_locale_context,
             next_product_offers,
             normalize_market,
+            order_ui_lang,
             publish_status_payload,
         )
         from app.integration.market_registry import format_amount, get_market
@@ -907,6 +955,8 @@ class SalesOrderService:
         if not order:
             raise ValueError("order_not_found")
         market = normalize_market(str(order.get("market_code") or "DE"))
+        ui_lang = order_ui_lang(order, market)
+        locale_ctx = factory_locale_context(order, market)
         currency = str(order.get("currency") or get_market(market).currency or "EUR")
         symbol = str(order.get("symbol") or get_market(market).symbol or "€")
         amount = float(order.get("price_eur") or 0)
@@ -921,7 +971,7 @@ class SalesOrderService:
         if download_ready and status in ("paid", "in_production"):
             status = "ready"
             order["status"] = "ready"
-            order["status_label"] = client_status_label("ready", market)
+            order["status_label"] = client_status_label("ready", market, ui_lang=ui_lang)
             order["updated_at"] = datetime.now(timezone.utc).isoformat()
             self._save_order(order)
         download_bytes, generated_at = self._client_download_meta(
@@ -942,7 +992,9 @@ class SalesOrderService:
             eta_minutes = PATH_A_ETA_MINUTES if status != "awaiting_payment" else None
         client_message = (
             order.get("client_status_message")
-            or client_post_pay_message(status, market, download_ready=download_ready)
+            or client_post_pay_message(
+                status, market, download_ready=download_ready, ui_lang=ui_lang
+            )
             or self._default_client_message(order)
         )
         return {
@@ -956,17 +1008,21 @@ class SalesOrderService:
             "currency": currency,
             "symbol": symbol,
             "market_code": market,
-            "ui_lang": market_ui_lang(market),
+            "ui_lang": ui_lang,
+            "language": ui_lang,
+            "locale": locale_ctx.get("locale"),
+            "factory_context": locale_ctx,
             "motion_level": str(order.get("motion_level") or "none"),
             "status": status,
-            "status_label": client_status_label(status, market),
-            "current_step": client_current_step(status, market),
-            "next_step": client_next_step(status, market),
+            "status_label": client_status_label(status, market, ui_lang=ui_lang),
+            "current_step": client_current_step(status, market, ui_lang=ui_lang),
+            "next_step": client_next_step(status, market, ui_lang=ui_lang),
             "timeline": client_timeline(
                 status,
                 market,
                 download_ready=download_ready,
                 paid_at=str(order.get("paid_at") or "") or None,
+                ui_lang=ui_lang,
             ),
             "estimated_delivery_at": order.get("estimated_delivery_at"),
             "estimated_hours": order.get("estimated_hours"),
@@ -1008,17 +1064,20 @@ class SalesOrderService:
                 "amount": price_label,
                 "currency": currency,
                 "status": client_status_label(
-                    "paid" if status != "awaiting_payment" else status, market
+                    "paid" if status != "awaiting_payment" else status,
+                    market,
+                    ui_lang=ui_lang,
                 ),
                 "date": order.get("paid_at") or order.get("created_at"),
                 "download_available": download_ready,
                 "market_code": market,
+                "ui_lang": ui_lang,
             },
             "delivery_headline": (
-                delivery_ready_headline(market) if download_ready else None
+                delivery_ready_headline(market, ui_lang=ui_lang) if download_ready else None
             ),
             "delivery_items": (
-                delivery_value_items(order.get("package_id"), market)
+                delivery_value_items(order.get("package_id"), market, ui_lang=ui_lang)
                 if download_ready
                 else []
             ),

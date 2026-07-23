@@ -207,7 +207,7 @@ export default function ClientDashboardPage() {
           </div>
           <p className="mt-4 text-sm text-zinc-200">
             {hasVector
-              ? `Здравствуйте. Чем помочь сегодня?`
+              ? "Hello. How can I help you today?"
               : `${ASSISTANT_NAME} is your AI Business Employee. Activate to start.`}
           </p>
           <Link

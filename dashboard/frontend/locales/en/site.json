@@ -413,6 +413,20 @@
     "checkoutConfirmHint": "Confirm the summary to enable payment.",
     "checkoutPayCta": "Pay {{price}}"
   },
+  "pay": {
+    "heading": "Order payment",
+    "fallbackBusiness": "Your order",
+    "fallbackPackage": "Landing",
+    "sandboxNote": "Test mode (Sandbox). No real charge.",
+    "payCta": "Pay {{price}}",
+    "processing": "Processing…",
+    "loading": "Loading…",
+    "statusLink": "Order status",
+    "notFound": "Order not found",
+    "backToOrder": "← Back to order",
+    "payFail": "Payment failed",
+    "serverDown": "Server unavailable"
+  },
   "reviews": {
     "title": "Client reviews",
     "empty": "Reviews will appear after the first completed orders.",

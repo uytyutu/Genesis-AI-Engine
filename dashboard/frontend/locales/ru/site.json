@@ -413,6 +413,20 @@
     "checkoutConfirmHint": "Подтвердите сводку, чтобы открыть оплату.",
     "checkoutPayCta": "Оплатить {{price}}"
   },
+  "pay": {
+    "heading": "Оплата заказа",
+    "fallbackBusiness": "Ваш заказ",
+    "fallbackPackage": "Лендинг",
+    "sandboxNote": "Тестовый режим (Sandbox). Деньги не списываются.",
+    "payCta": "Оплатить {{price}}",
+    "processing": "Обработка…",
+    "loading": "Загрузка…",
+    "statusLink": "Статус заказа",
+    "notFound": "Заказ не найден",
+    "backToOrder": "← Вернуться к заказу",
+    "payFail": "Оплата не прошла",
+    "serverDown": "Сервер недоступен"
+  },
   "reviews": {
     "title": "Отзывы клиентов",
     "empty": "Отзывы появятся после выполнения первых заказов.",

@@ -3,27 +3,36 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../../components/PublicPageShell";
-import { Button, ButtonLink } from "../../components/ui";
+import { Button } from "../../components/ui";
 import { formatEur } from "../../lib/formatEur";
 import { fetchPaymentInfo, startOrderCheckout } from "../../lib/orderCheckout";
 import { parseOrderPurchaseType } from "../../lib/orderTrustCard";
 import { OrderTrustCard } from "../../components/OrderTrustCard";
 import { OrderPayeeIdentity } from "../../components/OrderPayeeIdentity";
 import { publicApiBase } from "../../lib/publicApiBase";
+import { useLocale } from "../../context/LocaleContext";
+import { isUiLocale } from "../../lib/locale/types";
 
 const API = publicApiBase();
+
+type PayStatus = {
+  business_name: string;
+  package_name: string;
+  price_eur: number;
+  paid: boolean;
+  ui_lang?: string | null;
+  price_label?: string | null;
+};
 
 function OrderPayContent() {
   const params = useSearchParams();
   const router = useRouter();
+  const { t, i18n } = useTranslation("site");
+  const { applyUiLocale } = useLocale();
   const orderId = params.get("order_id") ?? "";
-  const [status, setStatus] = useState<{
-    business_name: string;
-    package_name: string;
-    price_eur: number;
-    paid: boolean;
-  } | null>(null);
+  const [status, setStatus] = useState<PayStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [isSandbox, setIsSandbox] = useState(false);
@@ -59,6 +68,13 @@ function OrderPayContent() {
       .catch(() => setLegalReady(undefined));
   }, [orderId, router]);
 
+  useEffect(() => {
+    const lang = status?.ui_lang;
+    if (!lang || !isUiLocale(lang)) return;
+    if ((i18n.language || "").slice(0, 2) === lang.slice(0, 2)) return;
+    applyUiLocale(lang);
+  }, [status?.ui_lang, applyUiLocale, i18n.language]);
+
   async function pay() {
     if (!orderId) return;
     setBusy(true);
@@ -70,7 +86,7 @@ function OrderPayContent() {
         });
         const body = await res.json();
         if (!res.ok) {
-          setError(body.detail || "Оплата не прошла");
+          setError(body.detail || t("pay.payFail"));
           return;
         }
         router.push(`/order/status/${orderId}?paid=1`);
@@ -79,19 +95,22 @@ function OrderPayContent() {
       const url = await startOrderCheckout(orderId);
       window.location.href = url;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Сервер недоступен");
+      setError(e instanceof Error ? e.message : t("pay.serverDown"));
     } finally {
       setBusy(false);
     }
   }
 
+  const priceText =
+    status?.price_label || (status ? formatEur(status.price_eur) : "…");
+
   if (!orderId) {
     return (
       <PublicPageShell>
         <main className="mx-auto max-w-lg py-12 text-center">
-          <p className="text-genesis-muted">Заказ не найден</p>
+          <p className="text-genesis-muted">{t("pay.notFound")}</p>
           <Link href="/order" className="mt-4 inline-block text-genesis-accent hover:underline">
-            ← Вернуться к заказу
+            {t("pay.backToOrder")}
           </Link>
         </main>
       </PublicPageShell>
@@ -102,19 +121,18 @@ function OrderPayContent() {
     <PublicPageShell>
       <main className="mx-auto max-w-lg py-6">
         <div className="rounded-3xl border border-genesis-accent/25 bg-genesis-panel p-8">
-          <p className="genesis-label text-center">Оплата заказа</p>
+          <p className="genesis-label text-center">{t("pay.heading")}</p>
           <h1 className="mt-2 text-center text-2xl font-bold">
-            {status?.business_name ?? "Ваш заказ"}
+            {status?.business_name ?? t("pay.fallbackBusiness")}
           </h1>
           <p className="mt-2 text-center text-genesis-muted">
-            {status?.package_name ?? "Лендинг"} ·{" "}
-            {status ? formatEur(status.price_eur) : "…"}
+            {status?.package_name ?? t("pay.fallbackPackage")} · {priceText}
           </p>
           <p className="mt-1 text-center text-xs text-genesis-muted">№ {orderId}</p>
 
           {isSandbox && (
             <div className="mt-6 rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 text-xs text-amber-100/90">
-              Тестовый режим (Sandbox). Деньги не списываются.
+              {t("pay.sandboxNote")}
             </div>
           )}
 
@@ -132,7 +150,11 @@ function OrderPayContent() {
             onClick={pay}
             className="mt-6"
           >
-            {busy ? "Обработка…" : status ? `Оплатить ${formatEur(status.price_eur)}` : "Загрузка…"}
+            {busy
+              ? t("pay.processing")
+              : status
+                ? t("pay.payCta", { price: priceText })
+                : t("pay.loading")}
           </Button>
           {error && <p className="mt-3 text-center text-xs text-rose-300">{error}</p>}
 
@@ -140,7 +162,7 @@ function OrderPayContent() {
             href={`/order/status/${orderId}`}
             className="mt-4 block text-center text-sm text-genesis-muted hover:text-genesis-text"
           >
-            Статус заказа
+            {t("pay.statusLink")}
           </Link>
         </div>
       </main>
@@ -150,15 +172,7 @@ function OrderPayContent() {
 
 export default function OrderPayPage() {
   return (
-    <Suspense
-      fallback={
-        <PublicPageShell>
-          <main className="mx-auto max-w-lg py-12 text-center text-genesis-muted">
-            Загрузка…
-          </main>
-        </PublicPageShell>
-      }
-    >
+    <Suspense fallback={null}>
       <OrderPayContent />
     </Suspense>
   );

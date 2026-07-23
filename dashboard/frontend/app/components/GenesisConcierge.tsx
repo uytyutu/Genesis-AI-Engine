@@ -115,6 +115,9 @@ type Message = {
   cta_href?: string | null;
   cta_label?: string | null;
   cta_actions?: Array<{ href: string; label: string; group?: string; available?: boolean }> | null;
+  concept_preview_url?: string | null;
+  concept_preview_site_url?: string | null;
+  concept_preview_alt?: string | null;
   attachments?: PendingAttachment[];
   debug?: GenesisDebug | null;
 };
@@ -199,6 +202,9 @@ type ChatApiResponse = {
   cta_href?: string | null;
   cta_label?: string | null;
   cta_actions?: Array<{ href: string; label: string; group?: string; available?: boolean }> | null;
+  concept_preview_url?: string | null;
+  concept_preview_site_url?: string | null;
+  concept_preview_alt?: string | null;
   debug?: GenesisDebug | null;
   context?: {
     workspace_id?: string;
@@ -891,9 +897,17 @@ export function GenesisConcierge({
       abortCauseRef.current = null;
       const requestTimeout = window.setTimeout(() => controller.abort(), 120_000);
 
+      const sessionTitle =
+        uiLocale === "de"
+          ? "Neues Briefing"
+          : uiLocale === "ru"
+            ? "Новое поручение"
+            : uiLocale === "uk"
+              ? "Нове доручення"
+              : "New briefing";
       const sessionPromise =
         !sessionId
-          ? createSession(visitorId, "Новое поручение", { signal: controller.signal }).catch(
+          ? createSession(visitorId, sessionTitle, { signal: controller.signal }).catch(
               () => null,
             )
           : Promise.resolve<ChatSessionMeta | null>(null);
@@ -955,6 +969,12 @@ export function GenesisConcierge({
                   href: normalizePublicHref(a.href) ?? a.href,
                   label: a.label,
                 })) ?? null,
+                concept_preview_url: data?.concept_preview_url ?? null,
+                concept_preview_site_url: data?.concept_preview_site_url
+                  ? normalizePublicHref(data.concept_preview_site_url) ??
+                    data.concept_preview_site_url
+                  : null,
+                concept_preview_alt: data?.concept_preview_alt ?? null,
                 debug: developerMode ? (data?.debug ?? null) : undefined,
               },
             ];
@@ -1785,6 +1805,26 @@ export function GenesisConcierge({
                     />
                   ) : null,
                 )}
+                {m.role === "assistant" && m.concept_preview_url ? (
+                  <div className="mt-3 overflow-hidden rounded-xl border border-emerald-500/25 bg-black/30">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={m.concept_preview_url}
+                      alt={m.concept_preview_alt || "Визуальный концепт сайта"}
+                      className="max-h-64 w-full object-cover object-top"
+                    />
+                    {m.concept_preview_site_url ? (
+                      <a
+                        href={m.concept_preview_site_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block px-3 py-2 text-xs font-medium text-emerald-300 hover:underline"
+                      >
+                        Открыть полный макет →
+                      </a>
+                    ) : null}
+                  </div>
+                ) : null}
                 {m.role === "assistant" && m.provider !== "execution"
                   ? (m.cta_actions && m.cta_actions.length > 0
                       ? m.cta_actions

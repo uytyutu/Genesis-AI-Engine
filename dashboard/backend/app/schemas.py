@@ -309,6 +309,11 @@ class SalesOrderCreateRequest(BaseModel):
     product_id: str | None = Field(default=None, max_length=80)
     visitor_id: str | None = Field(default=None, max_length=64)
     market_code: str | None = Field(default=None, max_length=8)
+    ui_lang: str | None = Field(
+        default=None,
+        max_length=16,
+        description="Buyer UI language (de|en|ru|uk) — Language Consistency Gate",
+    )
 
 
 class SalesOrderCreatedResponse(BaseModel):
@@ -323,6 +328,7 @@ class SalesOrderCreatedResponse(BaseModel):
     price_label: str | None = None
     symbol: str | None = None
     market_code: str | None = None
+    ui_lang: str | None = None
 
 
 class OrderMaterialUploadResponse(BaseModel):

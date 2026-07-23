@@ -200,6 +200,16 @@ class FactoryService:
             "template_id": analysis.template_id,
             "business_name": analysis.business_name,
             "market_code": market,
+            "language": str(
+                contacts.get("language")
+                or contacts.get("ui_lang")
+                or ""
+            ).strip()
+            or None,
+            "locale": str(contacts.get("locale") or "").strip() or None,
+            "currency": str(contacts.get("currency") or "").strip() or None,
+            "ui_lang": str(contacts.get("ui_lang") or contacts.get("language") or "").strip()
+            or None,
             "market_design": resolve_market_design(market).market_id,
             "motion_level": motion,
             "composer_engine": plan.engine_id,
@@ -522,6 +532,7 @@ class FactoryService:
                         or meta.get("package_id")
                         or "basic"
                     ),
+                    ui_lang=str(meta.get("language") or meta.get("ui_lang") or "") or None,
                 ),
             )
 

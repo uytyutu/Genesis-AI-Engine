@@ -382,27 +382,83 @@ def project_order_created_message(
     *,
     launch_mode: bool = False,
     project_name: str | None = None,
+    ui_lang: str | None = None,
 ) -> str:
     """After order submit — project fixed, not «we will start building someday»."""
     name = project_display_name(service_id, project_name=project_name)
+    lang = (ui_lang or "de").strip().lower().split("-")[0]
     if launch_mode:
-        return (
-            f"Danke. {name} ist erfasst — "
-            "wir bereiten die Übergabe der abgestimmten Version vor."
-        )
-    return (
-        f"Danke! Ihre Anfrage für {name} ist eingegangen. "
-        "Bitte zahlen Sie jetzt — dann fixieren wir den Projektstart."
-    )
+        msgs = {
+            "de": (
+                f"Danke. {name} ist erfasst — "
+                "wir bereiten die Übergabe der abgestimmten Version vor."
+            ),
+            "en": (
+                f"Thank you. {name} is registered — "
+                "we are preparing handover of the agreed version."
+            ),
+            "ru": (
+                f"Спасибо. {name} зафиксирован — "
+                "готовим передачу согласованной версии."
+            ),
+            "uk": (
+                f"Дякуємо. {name} зафіксовано — "
+                "готуємо передачу узгодженої версії."
+            ),
+        }
+        return msgs.get(lang) or msgs["en"]
+    msgs = {
+        "de": (
+            f"Danke! Ihre Anfrage für {name} ist eingegangen. "
+            "Bitte zahlen Sie jetzt — dann fixieren wir den Projektstart."
+        ),
+        "en": (
+            f"Thank you! Your request for {name} was received. "
+            "Please pay now — then we lock in the project start."
+        ),
+        "ru": (
+            f"Спасибо! Заявка на {name} получена. "
+            "Оплатите сейчас — после этого фиксируем старт проекта."
+        ),
+        "uk": (
+            f"Дякуємо! Заявку на {name} отримано. "
+            "Оплатіть зараз — після цього фіксуємо старт проєкту."
+        ),
+    }
+    return msgs.get(lang) or msgs["en"]
 
 
-def project_awaiting_payment_message(*, launch_mode: bool = False) -> str:
+def project_awaiting_payment_message(
+    *, launch_mode: bool = False, ui_lang: str | None = None
+) -> str:
+    lang = (ui_lang or "de").strip().lower().split("-")[0]
     if launch_mode:
-        return (
-            "Bitte bezahlen Sie die Bestellung — das Projekt bleibt wie abgestimmt. "
-            "Es ändert sich nur der Status."
-        )
-    return "Bitte bezahlen Sie die Bestellung — dann fixieren wir den Projektstart."
+        msgs = {
+            "de": (
+                "Bitte bezahlen Sie die Bestellung — das Projekt bleibt wie abgestimmt. "
+                "Es ändert sich nur der Status."
+            ),
+            "en": (
+                "Please pay for the order — the project stays as agreed. "
+                "Only the status changes."
+            ),
+            "ru": (
+                "Оплатите заказ — проект остаётся как согласовано. "
+                "Меняется только статус."
+            ),
+            "uk": (
+                "Оплатіть замовлення — проєкт залишається як узгоджено. "
+                "Змінюється лише статус."
+            ),
+        }
+        return msgs.get(lang) or msgs["en"]
+    msgs = {
+        "de": "Bitte bezahlen Sie die Bestellung — dann fixieren wir den Projektstart.",
+        "en": "Please pay for the order — then we lock in the project start.",
+        "ru": "Оплатите заказ — после этого фиксируем старт проекта.",
+        "uk": "Оплатіть замовлення — після цього фіксуємо старт проєкту.",
+    }
+    return msgs.get(lang) or msgs["en"]
 
 
 def project_client_current_step(service_id: str, status: str) -> str:

@@ -308,6 +308,56 @@ def market_ui_lang(market_code: str | None) -> str:
     return _MARKET_LANG.get(normalize_market(market_code), "en")
 
 
+def order_ui_lang(order: dict | None, market_code: str | None = None) -> str:
+    """Buyer language from order (Language Consistency Gate) — never guess."""
+    raw = ""
+    if isinstance(order, dict):
+        raw = str(order.get("ui_lang") or order.get("language") or "").strip()
+        market_code = market_code or order.get("market_code")
+    if raw:
+        try:
+            from app.integration.locale_service import normalize_order_ui_lang
+
+            return normalize_order_ui_lang(raw, market_code=str(market_code or "") or None)
+        except Exception:
+            base = raw.replace("_", "-").split("-")[0].lower()
+            if base in ("de", "en", "ru", "uk"):
+                return base
+    return market_ui_lang(market_code)
+
+
+def factory_locale_context(order: dict | None, market_code: str | None = None) -> dict[str, str]:
+    """Single context Factory / ZIP / emails must consume (no language guessing)."""
+    from app.factory.market_profile import resolve_or_none
+    from app.integration.market_registry import get_market
+
+    market = normalize_market(
+        market_code
+        or (order.get("market_code") if isinstance(order, dict) else None)
+        or "DE"
+    )
+    lang = order_ui_lang(order, market)
+    profile = resolve_or_none(market)
+    currency = ""
+    if isinstance(order, dict):
+        currency = str(order.get("currency") or "").strip()
+    if not currency:
+        currency = str(get_market(market).currency or "EUR")
+    locale = ""
+    if isinstance(order, dict):
+        locale = str(order.get("locale") or "").strip()
+    if not locale and profile is not None:
+        locale = str(profile.locale or "").strip()
+    if not locale:
+        locale = f"{lang}_{market}" if lang else market
+    return {
+        "language": lang,
+        "market": market,
+        "currency": currency,
+        "locale": locale,
+    }
+
+
 def market_legal_pack(market_code: str | None) -> str:
     return _MARKET_LEGAL.get(normalize_market(market_code), "placeholder")
 
@@ -347,13 +397,24 @@ def list_path_a_delivery_matrix() -> list[dict[str, Any]]:
     return [market_delivery_support(code) for code in PATH_A_DELIVERY_MARKETS]
 
 
-def _ui_table(table: dict[str, dict[str, str]], market_code: str | None) -> dict[str, str]:
-    lang = market_ui_lang(market_code)
-    return table.get(lang) or table.get("en") or {}
+def _ui_table(
+    table: dict[str, dict[str, str]],
+    market_code: str | None,
+    *,
+    ui_lang: str | None = None,
+) -> dict[str, str]:
+    lang = (ui_lang or "").strip().lower() or market_ui_lang(market_code)
+    base = lang.split("-")[0] if lang else ""
+    return table.get(lang) or table.get(base) or table.get("en") or {}
 
 
-def client_status_label(status: str, market_code: str | None) -> str:
-    labels = _ui_table(_STATUS_LABELS, market_code)
+def client_status_label(
+    status: str,
+    market_code: str | None,
+    *,
+    ui_lang: str | None = None,
+) -> str:
+    labels = _ui_table(_STATUS_LABELS, market_code, ui_lang=ui_lang)
     return labels.get(status, (_STATUS_LABELS["en"]).get(status, status))
 
 
@@ -363,9 +424,10 @@ def client_timeline(
     *,
     download_ready: bool = False,
     paid_at: str | None = None,
+    ui_lang: str | None = None,
 ) -> list[dict[str, Any]]:
     """Live Factory progress for the order cabinet (trust UX after payment)."""
-    labels = _ui_table(_TIMELINE, market_code) or _TIMELINE["en"]
+    labels = _ui_table(_TIMELINE, market_code, ui_lang=ui_lang) or _TIMELINE["en"]
     paid = status in ("paid", "in_production", "ready", "delivered")
     fully_ready = download_ready or status in ("ready", "delivered")
 
@@ -409,8 +471,13 @@ def client_timeline(
     return out
 
 
-def client_next_step(status: str, market_code: str | None) -> str:
-    table = _ui_table(_NEXT_STEP, market_code) or _NEXT_STEP["en"]
+def client_next_step(
+    status: str,
+    market_code: str | None,
+    *,
+    ui_lang: str | None = None,
+) -> str:
+    table = _ui_table(_NEXT_STEP, market_code, ui_lang=ui_lang) or _NEXT_STEP["en"]
     if status in table:
         return table[status]
     if status in ("paid", "in_production"):
@@ -418,8 +485,13 @@ def client_next_step(status: str, market_code: str | None) -> str:
     return table.get("ready", "")
 
 
-def client_current_step(status: str, market_code: str | None) -> str:
-    table = _ui_table(_CURRENT_STEP, market_code) or _CURRENT_STEP["en"]
+def client_current_step(
+    status: str,
+    market_code: str | None,
+    *,
+    ui_lang: str | None = None,
+) -> str:
+    table = _ui_table(_CURRENT_STEP, market_code, ui_lang=ui_lang) or _CURRENT_STEP["en"]
     if status in table:
         return table[status]
     if status in ("paid", "in_production"):
@@ -432,9 +504,10 @@ def client_post_pay_message(
     market_code: str | None,
     *,
     download_ready: bool = False,
+    ui_lang: str | None = None,
 ) -> str:
     """Short trust message under the order cabinet timeline."""
-    lang = market_ui_lang(market_code)
+    lang = (ui_lang or "").strip().lower() or market_ui_lang(market_code)
     ready = download_ready or status in ("ready", "delivered")
     copy = {
         "de": {
@@ -502,13 +575,13 @@ def client_post_pay_message(
 
 
 def render_client_receipt_text(*, order: dict, status_path: str, paid: float) -> str:
-    """Localized plain-text receipt for copy/email (market language)."""
-    lang = market_ui_lang(order.get("market_code"))
+    """Localized plain-text receipt for copy/email (order language)."""
+    lang = order_ui_lang(order)
     name = str(order.get("business_name") or "").strip() or "—"
     order_id = str(order.get("order_id") or "")
     package = str(order.get("package_name") or order.get("package_id") or "")
     amount = str(order.get("price_label") or f"{paid:.0f} {order.get('symbol') or '€'}".strip())
-    paid_label = client_status_label("paid", order.get("market_code"))
+    paid_label = client_status_label("paid", order.get("market_code"), ui_lang=lang)
     templates = {
         "de": (
             f"Virtus Core — Quittung\n\n"
@@ -613,8 +686,12 @@ def render_client_receipt_text(*, order: dict, status_path: str, paid: float) ->
     return templates.get(lang) or templates["en"]
 
 
-def delivery_ready_headline(market_code: str | None) -> str:
-    lang = market_ui_lang(market_code)
+def delivery_ready_headline(
+    market_code: str | None,
+    *,
+    ui_lang: str | None = None,
+) -> str:
+    lang = (ui_lang or "").strip().lower() or market_ui_lang(market_code)
     copy = {
         "de": "Ihr Website-Paket ist fertig",
         "en": "Your website package is ready",
@@ -628,17 +705,19 @@ def delivery_ready_headline(market_code: str | None) -> str:
         "pl": "Twój pakiet strony jest gotowy",
         "cs": "Váš balíček webu je připraven",
     }
-    return copy.get(lang) or copy["en"]
+    return copy.get(lang) or copy.get(lang.split("-")[0]) or copy["en"]
 
 
 def delivery_value_items(
     package_id: str | None,
     market_code: str | None,
+    *,
+    ui_lang: str | None = None,
 ) -> list[dict[str, str]]:
     """Honest list of what Path A ZIP contains for this package."""
     from app.factory.package_features import resolve_package_features
 
-    lang = market_ui_lang(market_code)
+    lang = (ui_lang or "").strip().lower() or market_ui_lang(market_code)
     feat = resolve_package_features(package_id)
     labels = {
         "de": {
@@ -1116,21 +1195,37 @@ _DEFAULT_LEGAL_CHECKLIST = [
 ]
 
 
-def deploy_readme(market_code: str | None, package_id: str | None = None) -> str:
+def deploy_readme(
+    market_code: str | None,
+    package_id: str | None = None,
+    *,
+    ui_lang: str | None = None,
+) -> str:
+    """ZIP publish README — language from order when provided, else market pack."""
     code = normalize_market(market_code)
-    pack = market_legal_pack(code)
-    if pack == "de_impressum":
+    lang = (ui_lang or "").strip().lower().split("-")[0]
+    if lang == "de":
         body = _README_DE
-    elif pack == "us_privacy":
+    elif lang == "en":
         body = _README_US
-    elif pack == "uk_privacy":
-        body = _README_UK
-    elif code == "UA":
+    elif lang == "uk":
         body = _README_UA
-    elif code == "RU":
+    elif lang == "ru":
         body = _README_RU
     else:
-        body = _README_PLACEHOLDER
+        pack = market_legal_pack(code)
+        if pack == "de_impressum":
+            body = _README_DE
+        elif pack == "us_privacy":
+            body = _README_US
+        elif pack == "uk_privacy":
+            body = _README_UK
+        elif code == "UA":
+            body = _README_UA
+        elif code == "RU":
+            body = _README_RU
+        else:
+            body = _README_PLACEHOLDER
     return _with_package_confirmation(body, package_id)
 
 

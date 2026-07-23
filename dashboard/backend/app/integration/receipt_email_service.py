@@ -8,11 +8,105 @@ from pathlib import Path
 
 import httpx
 
+from app.factory.market_delivery import order_ui_lang
 from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.product_line import project_awaiting_payment_message
 from app.legal.service import LegalFoundationService
 
 _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
+
+# Language Consistency Gate L4 — one pack per CEO locale.
+_EMAIL_PACKS: dict[str, dict[str, str]] = {
+    "de": {
+        "received_title": "Projekt erfasst",
+        "received_subject": "Projekt erfasst — {business} (Nr. {order_id})",
+        "received_hello": "Guten Tag!",
+        "received_body": "Wir haben Ihr Projekt «{business}» erhalten.",
+        "received_cta": "Projekt bezahlen",
+        "received_status": "Projektstatus",
+        "received_regards": "Mit freundlichen Grüßen",
+        "row_order": "Bestellung",
+        "row_business": "Geschäft",
+        "row_package": "Paket",
+        "row_status": "Status",
+        "status_awaiting": "Wartet auf Zahlung",
+        "receipt_title": "Zahlung bestätigt",
+        "receipt_subject": "Zahlung erhalten — {business} (Nr. {order_id})",
+        "receipt_intro": "Danke für Ihre Zahlung! Wir haben mit der Arbeit begonnen.",
+        "receipt_cta": "Bestellstatus",
+        "status_paid": "Bezahlt",
+        "row_eta": "Lieferzeit",
+        "eta_hours": "~{eta} Stunden",
+    },
+    "en": {
+        "received_title": "Project registered",
+        "received_subject": "Project registered — {business} (#{order_id})",
+        "received_hello": "Hello!",
+        "received_body": "We received your project «{business}».",
+        "received_cta": "Pay for project",
+        "received_status": "Project status",
+        "received_regards": "Best regards",
+        "row_order": "Order",
+        "row_business": "Business",
+        "row_package": "Package",
+        "row_status": "Status",
+        "status_awaiting": "Awaiting payment",
+        "receipt_title": "Payment confirmed",
+        "receipt_subject": "Payment received — {business} (#{order_id})",
+        "receipt_intro": "Thank you for your payment! We have started work.",
+        "receipt_cta": "Order status",
+        "status_paid": "Paid",
+        "row_eta": "Delivery time",
+        "eta_hours": "~{eta} hours",
+    },
+    "ru": {
+        "received_title": "Проект зафиксирован",
+        "received_subject": "Проект зафиксирован — {business} (№ {order_id})",
+        "received_hello": "Здравствуйте!",
+        "received_body": "Мы получили ваш проект «{business}».",
+        "received_cta": "Оплатить проект",
+        "received_status": "Статус проекта",
+        "received_regards": "С уважением",
+        "row_order": "Заказ",
+        "row_business": "Бизнес",
+        "row_package": "Пакет",
+        "row_status": "Статус",
+        "status_awaiting": "Ожидает оплаты",
+        "receipt_title": "Оплата подтверждена",
+        "receipt_subject": "Оплата получена — {business} (№ {order_id})",
+        "receipt_intro": "Спасибо за оплату! Мы приступили к работе.",
+        "receipt_cta": "Статус заказа",
+        "status_paid": "Оплачено",
+        "row_eta": "Срок",
+        "eta_hours": "~{eta} ч.",
+    },
+    "uk": {
+        "received_title": "Проєкт зафіксовано",
+        "received_subject": "Проєкт зафіксовано — {business} (№ {order_id})",
+        "received_hello": "Вітаємо!",
+        "received_body": "Ми отримали ваш проєкт «{business}».",
+        "received_cta": "Оплатити проєкт",
+        "received_status": "Статус проєкту",
+        "received_regards": "З повагою",
+        "row_order": "Замовлення",
+        "row_business": "Бізнес",
+        "row_package": "Пакет",
+        "row_status": "Статус",
+        "status_awaiting": "Очікує оплати",
+        "receipt_title": "Оплату підтверджено",
+        "receipt_subject": "Оплату отримано — {business} (№ {order_id})",
+        "receipt_intro": "Дякуємо за оплату! Ми розпочали роботу.",
+        "receipt_cta": "Статус замовлення",
+        "status_paid": "Оплачено",
+        "row_eta": "Строк",
+        "eta_hours": "~{eta} год.",
+    },
+}
+
+
+def _pack(lang: str) -> dict[str, str]:
+    base = (lang or "en").strip().lower().split("-")[0]
+    return _EMAIL_PACKS.get(base) or _EMAIL_PACKS["en"]
 
 
 def _public_url(path: str) -> str:
@@ -25,6 +119,7 @@ def _public_url(path: str) -> str:
 
 def _html_email(
     *,
+    lang: str,
     title: str,
     intro: str,
     rows: list[tuple[str, str]],
@@ -45,8 +140,9 @@ def _html_email(
             f'text-decoration:none;padding:14px 28px;border-radius:12px;font-weight:600">'
             f"{html.escape(cta_label)}</a></p>"
         )
+    html_lang = (lang or "en").split("-")[0]
     return f"""<!DOCTYPE html>
-<html lang="ru">
+<html lang="{html.escape(html_lang)}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;background:#050508;font-family:system-ui,-apple-system,sans-serif">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#050508;padding:32px 16px">
@@ -87,40 +183,46 @@ class ReceiptEmailService:
 
     def send_order_received(self, *, order: dict) -> dict:
         order_id = str(order.get("order_id", ""))
+        business = str(order.get("business_name", ""))
+        lang = order_ui_lang(order)
+        pack = _pack(lang)
         status_path = f"/order/status/{order_id}"
         price = str(
             order.get("price_label")
             or f"{order.get('price_eur', '')} {order.get('symbol') or '€'}".strip()
         )
         rows = [
-            ("Заказ", f"№ {order_id}"),
-            ("Бизнес", str(order.get("business_name", ""))),
-            ("Пакет", f"{order.get('package_name', '')} — {price}"),
-            ("Статус", "Ожидает оплаты"),
+            (pack["row_order"], f"№ {order_id}" if lang in ("ru", "uk", "de") else f"#{order_id}"),
+            (pack["row_business"], business),
+            (pack["row_package"], f"{order.get('package_name', '')} — {price}"),
+            (pack["row_status"], pack["status_awaiting"]),
         ]
         intro = str(
             order.get("client_status_message")
-            or project_awaiting_payment_message(launch_mode=bool(order.get("launch_mode")))
+            or project_awaiting_payment_message(
+                launch_mode=bool(order.get("launch_mode")), ui_lang=lang
+            )
         )
         text = (
-            f"Здравствуйте!\n\n"
-            f"Мы получили ваш проект «{order['business_name']}».\n\n"
-            f"Проект № {order_id}\n"
-            f"Сумма: {price}\n\n"
+            f"{pack['received_hello']}\n\n"
+            f"{pack['received_body'].format(business=business)}\n\n"
+            f"{pack['row_order']} {order_id}\n"
+            f"{price}\n\n"
             f"{intro}\n{_public_url(status_path)}\n\n"
-            f"Статус проекта: {_public_url(status_path)}\n\n"
-            f"С уважением,\n{BRAND_NAME}"
+            f"{pack['received_status']}: {_public_url(status_path)}\n\n"
+            f"{pack['received_regards']},\n{BRAND_NAME}"
         )
         html_body = _html_email(
-            title="Проект зафиксирован",
+            lang=lang,
+            title=pack["received_title"],
             intro=intro,
             rows=rows,
             cta_href=_public_url(status_path),
-            cta_label="Оплатить проект",
+            cta_label=pack["received_cta"],
         )
         return self._send(
             to=str(order.get("email") or "").strip(),
-            subject=f"Проект зафиксирован — {order.get('business_name', BRAND_NAME)} (№ {order_id})",
+            subject=pack["received_subject"].format(business=business or BRAND_NAME, order_id=order_id),
             text=text,
             html=html_body,
         )
@@ -128,6 +230,8 @@ class ReceiptEmailService:
     def send_order_receipt(self, *, order: dict, receipt_text: str) -> dict:
         to = str(order.get("email") or "").strip()
         order_id = str(order.get("order_id", ""))
+        lang = order_ui_lang(order)
+        pack = _pack(lang)
         status_path = f"/order/status/{order_id}"
         status_url = _public_url(status_path)
         body = receipt_text.replace(f"/order/status/{order_id}", status_url)
@@ -144,26 +248,24 @@ class ReceiptEmailService:
             or f"{order.get('price_eur', '')} {order.get('symbol') or '€'}".strip()
         )
         rows = [
-            ("Bestellung", f"Nr. {order_id}"),
-            ("Paket", f"{order.get('package_name', '')} — {price}"),
-            ("Status", "Bezahlt"),
+            (pack["row_order"], f"Nr. {order_id}" if lang == "de" else f"#{order_id}"),
+            (pack["row_package"], f"{order.get('package_name', '')} — {price}"),
+            (pack["row_status"], pack["status_paid"]),
         ]
         if eta:
-            rows.append(("Lieferzeit", f"~{eta} Stunden"))
+            rows.append((pack["row_eta"], pack["eta_hours"].format(eta=eta)))
         html_body = _html_email(
-            title="Zahlung bestätigt",
-            intro=str(
-                order.get("client_status_message")
-                or "Danke für Ihre Zahlung! Wir haben mit der Arbeit begonnen."
-            ),
+            lang=lang,
+            title=pack["receipt_title"],
+            intro=str(order.get("client_status_message") or pack["receipt_intro"]),
             rows=rows,
             cta_href=status_url,
-            cta_label="Bestellstatus",
+            cta_label=pack["receipt_cta"],
         )
-        business = str(order.get("business_name") or "Bestellung")
+        business = str(order.get("business_name") or pack["row_order"])
         return self._send(
             to=to,
-            subject=f"Zahlung erhalten — {business} (Nr. {order_id})",
+            subject=pack["receipt_subject"].format(business=business, order_id=order_id),
             text=body,
             html=html_body,
             bcc=bcc if bcc.lower() != to.lower() else "",
@@ -186,6 +288,7 @@ class ReceiptEmailService:
             f"Produktion wurde gestartet."
         )
         html_body = _html_email(
+            lang="de",
             title="Neue Zahlung",
             intro=f"{business} — {package} ({price}). Produktion gestartet.",
             rows=[
@@ -245,6 +348,7 @@ class ReceiptEmailService:
         paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
         intro = paragraphs[0] if paragraphs else text[:200]
         html_body = _html_email(
+            lang=(language or "en"),
             title=subject,
             intro=intro,
             rows=[("Nachricht", text.replace("\n", " ")[:500] + ("…" if len(text) > 500 else ""))],
