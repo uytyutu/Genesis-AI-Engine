@@ -924,6 +924,12 @@ class SalesOrderService:
             order["status_label"] = client_status_label("ready", market)
             order["updated_at"] = datetime.now(timezone.utc).isoformat()
             self._save_order(order)
+        download_bytes, generated_at = self._client_download_meta(
+            order, download_ready=download_ready
+        )
+        product_kind = str(order.get("product_kind") or "website")
+        if str(order.get("package_id") or "") in _REPAIR_PACKAGE_IDS:
+            product_kind = "repair"
         submitted = bool(order.get("review_submitted"))
         eligible = (
             bool(order.get("review_eligible"))
@@ -944,6 +950,7 @@ class SalesOrderService:
             "business_name": order["business_name"],
             "package_id": order.get("package_id"),
             "package_name": order["package_name"],
+            "product_kind": product_kind,
             "price_eur": amount,
             "price_label": price_label,
             "currency": currency,
@@ -969,8 +976,21 @@ class SalesOrderService:
             "product_id": order.get("product_id"),
             "paid": status in ("paid", "in_production", "ready", "delivered"),
             "paid_at": order.get("paid_at"),
+            "created_at": order.get("created_at"),
+            "updated_at": order.get("updated_at"),
             "download_ready": download_ready,
             "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
+            "download_bytes": download_bytes,
+            "generated_at": generated_at,
+            "download_label": (
+                "Ready for download"
+                if download_ready
+                else (
+                    "generating..."
+                    if status in ("paid", "in_production") and product_kind != "repair"
+                    else None
+                )
+            ),
             "service_id": service_id,
             "launch_mode": launch_mode,
             "review_eligible": eligible,
@@ -1228,6 +1248,7 @@ class SalesOrderService:
             pass
         data, filename = factory.build_client_delivery_zip(product_id)
         order["client_downloaded_at"] = datetime.now(timezone.utc).isoformat()
+        order["download_bytes"] = len(data)
         if order.get("status") == "in_production":
             order["status"] = "ready"
             order["status_label"] = client_status_label("ready", market)
@@ -1245,6 +1266,47 @@ class SalesOrderService:
         if factory is None or not hasattr(factory, "get_product"):
             return False
         return bool(factory.get_product(product_id))
+
+    def _client_download_meta(
+        self, order: dict, *, download_ready: bool
+    ) -> tuple[int | None, str | None]:
+        """Approx archive size (product folder) + generation timestamp for cabinet UX."""
+        generated = (
+            str(order.get("updated_at") or order.get("paid_at") or order.get("created_at") or "")
+            or None
+        )
+        if not download_ready:
+            return None, generated if order.get("status") in (
+                "paid",
+                "in_production",
+                "ready",
+                "delivered",
+            ) else None
+        cached = order.get("download_bytes")
+        if isinstance(cached, int) and cached > 0:
+            return cached, generated
+        product_id = str(order.get("product_id") or "").strip()
+        factory = getattr(self._factory_intent, "_factory", None)
+        if not product_id or factory is None:
+            return None, generated
+        try:
+            sandbox = getattr(factory, "_sandbox", None)
+            if sandbox is None:
+                return None, generated
+            root = Path(sandbox) / product_id
+            if not root.is_dir():
+                return None, generated
+            total = 0
+            for p in root.rglob("*"):
+                if p.is_file():
+                    try:
+                        total += p.stat().st_size
+                    except OSError:
+                        pass
+            # ZIP is typically close to folder payload; show folder bytes as estimate
+            return total if total > 0 else None, generated
+        except Exception:
+            return None, generated
 
     def _client_timeline(self, order: dict) -> list[dict]:
         from app.factory.market_delivery import client_timeline

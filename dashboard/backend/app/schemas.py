@@ -444,6 +444,7 @@ class SalesOrderPublicStatus(BaseModel):
     business_name: str
     package_name: str
     package_id: str | None = None
+    product_kind: str | None = None
     price_eur: float
     price_label: str | None = None
     currency: str | None = None
@@ -464,8 +465,14 @@ class SalesOrderPublicStatus(BaseModel):
     product_id: str | None = None
     paid: bool = False
     paid_at: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
     download_ready: bool = False
     download_url: str | None = None
+    download_bytes: int | None = None
+    generated_at: str | None = None
+    download_label: str | None = None
+    product_kind: str | None = None
     service_id: str | None = None
     launch_mode: bool = False
     review_eligible: bool = False
