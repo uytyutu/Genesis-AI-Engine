@@ -131,6 +131,8 @@ def test_business_factory_path_three_meister_niches(tmp_path: Path):
         assert marker in html or niche in html.lower() or "Reparatur" in html or "Handwerk" in html
         assert "wa.me/" in html
         assert 'id="maps"' in html
-        assert "Beispieltexte" in html
+        # RC1: placeholder review copy removed (no-fake-testimonials)
+        assert "Beispieltexte" not in html
+        assert 'id="testimonials"' not in html
         assert 'src="assets/logo.png"' in html
         assert "G-XXXXXXXXXX" not in html

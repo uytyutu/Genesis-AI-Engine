@@ -41,7 +41,11 @@ def test_tier_html_markers_auto() -> None:
     assert 'id="faq"' not in basic
     assert 'id="stats"' not in basic
     assert 'id="showcase"' not in basic
-    assert 'id="process"' in basic
+    assert (
+        'id="process"' in basic
+        or 'data-trust-block="process"' in basic
+        or "process-grid" in basic
+    )
     assert 'id="mid-cta"' in basic
     assert "trust-strip" in basic
     assert "Anfrage senden" in basic
@@ -57,7 +61,11 @@ def test_tier_html_markers_auto() -> None:
     assert 'data-tier="business"' in business
     assert 'id="maps"' in business
     assert 'id="faq"' in business
-    assert 'id="process"' in business
+    assert (
+        'id="process"' in business
+        or 'data-trust-block="process"' in business
+        or "process-grid" in business
+    )
     assert 'id="mid-cta"' in business
     assert "Route planen" in business
     assert "maps/dir/?api=1" in business
@@ -74,10 +82,36 @@ def test_tier_html_markers_auto() -> None:
     )
     assert 'data-tier="premium"' in premium
     assert 'id="calculator"' in premium
-    assert 'id="stats"' in premium
+    # Stats strip only when real client KPIs exist — never invent numbers.
     assert 'id="showcase"' in premium
     assert 'id="faq"' in premium
-    assert "min-height: 88vh" in premium or 'data-tier="premium"' in premium
+    assert "--acc: #c5a572" in premium or "c5a572" in premium
+    assert any(m in premium for m in ("hero-layout-B", "hero-layout-D", "hero-layout-F"))
+    assert 'id="signature"' in premium
+    assert "premium-signature" in premium
+    assert 'data-tier="premium"' in premium
+
+
+def test_premium_hero_is_cinematic_not_niche_twin() -> None:
+    from app.factory.layout_variants import get_layout_profile, resolve_hero_for_layout
+
+    profile = get_layout_profile("L6")
+    hero = resolve_hero_for_layout(
+        profile,
+        niche_id="dental",
+        business_name="SmileCare Berlin",
+        package_id="premium",
+    )
+    assert hero in ("B", "D", "F")
+    basic = resolve_hero_for_layout(
+        profile,
+        niche_id="dental",
+        business_name="SmileCare Berlin",
+        package_id="basic",
+    )
+    assert basic in ("A", "C")
+    assert hero != basic or True  # may coincide across names; pool class must differ
+    assert hero in ("B", "D", "F") and basic in ("A", "C")
 
 
 def test_factory_writes_hero_asset(tmp_path: Path) -> None:

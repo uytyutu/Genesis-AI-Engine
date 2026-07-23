@@ -45,8 +45,9 @@ def test_factory_basic_includes_whatsapp_and_form(tmp_path: Path):
     assert "Autowerkstatt Müller" in html
     assert "+49 221 555 0101" in html
     assert 'id="maps"' not in html
-    assert 'id="testimonials"' in html
-    assert "Kundenstimmen" in html
+    # RC1: fabricated Kundenstimmen forbidden — section only with real client reviews
+    assert 'id="testimonials"' not in html
+    assert "Beispieltexte" not in html
     assert "G-XXXXXXXXXX" not in html
 
 
@@ -66,7 +67,9 @@ def test_factory_business_maps_reviews_logo(tmp_path: Path):
     html = (tmp_path / "sandbox" / product["product_id"] / "index.html").read_text(encoding="utf-8")
     assert 'id="maps"' in html
     assert "maps.google.com" in html
-    assert 'id="testimonials"' in html
+    # RC1: no placeholder reviews without real client evidence
+    assert 'id="testimonials"' not in html
+    assert "Beispieltexte" not in html
     assert 'src="assets/logo.png"' in html
     assert "application/ld+json" in html
     assert "G-XXXXXXXXXX" not in html

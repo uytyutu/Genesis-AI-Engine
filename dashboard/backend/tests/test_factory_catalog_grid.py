@@ -100,5 +100,10 @@ def test_factory_beauty_no_catalog(tmp_path: Path) -> None:
     html = (root / "index.html").read_text(encoding="utf-8")
     assert 'id="catalog"' not in html
     assert "Wimpern" in html or "Lash" in html
-    assert 'id="process"' in html
+    # Trust Composer may embed process as data-trust-block or keep standalone #process
+    assert (
+        'id="process"' in html
+        or 'data-trust-block="process"' in html
+        or "process-grid" in html
+    )
     assert not (root / "assets" / "catalog.js").is_file()
