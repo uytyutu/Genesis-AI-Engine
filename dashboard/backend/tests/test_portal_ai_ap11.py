@@ -9,9 +9,9 @@ from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
 from app.portal.account import new_account
-from app.portal.ai_provider import STUB_UNAVAILABLE_REPLY
 from app.portal.ai_provider_facade import AIProviderFacade
 from app.portal.ai_provider_protocol import AIProviderProtocol
+from app.portal.provider_resilience import OPERATOR_PROVIDER_UNAVAILABLE
 from app.portal.business_knowledge_store import InMemoryBusinessKnowledgeStore
 from app.portal.channel_connection_store import InMemoryChannelConnectionStore
 from app.portal.chatbot_business_profile_facade import ChatBotBusinessProfileFacade
@@ -88,7 +88,12 @@ def test_generate_via_protocol_without_external_calls():
     )
     with patch.dict("os.environ", {"OPENAI_API_KEY": ""}, clear=False):
         result = facade.generate(context)
-    assert "invalid_configuration" in result.text or "Provider unavailable" in result.text
+    # OR4: operator-safe surface; raw invalid_configuration stays in prepared metadata
+    assert (
+        "invalid_configuration" in result.text
+        or "Provider unavailable" in result.text
+        or result.text == OPERATOR_PROVIDER_UNAVAILABLE
+    )
     assert result.provider_type == "openai"
     assert result.prepared["ready"] is True
     assert result.prepared["conversation_id"] == "c1"
@@ -125,7 +130,10 @@ def test_conversation_uses_provider_layer():
             conversation_id=created.conversation_id,
             content="Hello",
         )
-    assert "invalid_configuration" in turn.stub_response
+    assert (
+        "invalid_configuration" in turn.stub_response
+        or turn.stub_response == OPERATOR_PROVIDER_UNAVAILABLE
+    )
     assert turn.context["metadata"]["ai_provider"] == "openai"
     assert "ai_response" in turn.context["metadata"]["provider_prepared"]
 
@@ -247,4 +255,4 @@ def test_unavailable_without_enabled_provider():
         messages=(),
     )
     result = facade.generate(context)
-    assert result.text == STUB_UNAVAILABLE_REPLY
+    assert result.text == OPERATOR_PROVIDER_UNAVAILABLE

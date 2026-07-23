@@ -78,9 +78,10 @@ def test_sandbox_checkout_to_paid_and_production(tmp_path: Path, sandbox_env):
     order = sales.get_order(order_id)
     assert order is not None
     receipt = str(order.get("client_receipt_text") or "")
-    assert "Bestellnummer" in receipt or "Bestellnr" in receipt or "Zahlung" in receipt
+    assert "Bestellnummer" in receipt or "Bestellnr" in receipt
     assert "Agency CSS-Motion" not in receipt  # classic none by default
-    assert "Zahlung erhalten" in receipt or "vielen Dank" in receipt
+    # RC1 slim Quittung: Status label, not legacy «Zahlung erhalten / vielen Dank»
+    assert "Status:" in receipt and ("Bezahlt" in receipt or "Paid" in receipt or "оплач" in receipt.lower())
     assert order_id in receipt
     assert "/order/status/" in receipt
 

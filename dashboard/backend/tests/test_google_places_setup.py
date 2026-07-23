@@ -9,7 +9,7 @@ def test_places_setup_status_not_configured():
     status = GooglePlacesService(use_env=False).setup_status()
     assert status["configured"] is False
     assert status["autopilot_ready"] is False
-    assert status["env_var"] == "GOOGLE_PLACES_API_KEY"
+    assert status["env_var"] == "GOOGLE_PLACES_API_KEY|GOOGLE_API_KEY"
     assert status["primary_config_file"] == env_config_file()
     assert len(status["setup_steps"]) >= 4
     assert "Places API" in status["setup_steps"][0]["detail"]

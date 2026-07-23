@@ -177,9 +177,15 @@ def test_css_receipt_includes_agency_motion_line(tmp_path: Path, monkeypatch: py
     revenue.begin_checkout(oid, success_url="http://x/ok", cancel_url="http://x/c")
     revenue.complete_sandbox_payment(oid)
     order = sales.get_order(oid)
-    receipt = str(order.get("client_receipt_text") or "")
-    assert "Inklusive: Agency CSS-Motion-Paket aktiviert" in receipt
+    # Slim Quittung no longer carries motion copy; product truth is motion_level + ZIP assets
     assert order.get("motion_level") == "css"
+    data, _ = sales.build_client_download(oid)
+    with zipfile.ZipFile(io.BytesIO(data)) as zf:
+        names = set(zf.namelist())
+    assert "assets/motion_kit.css" in names
+    assert "assets/reveal.js" in names
+    html = zipfile.ZipFile(io.BytesIO(data)).read("index.html").decode("utf-8")
+    assert "motion_kit.css" in html
 
 
 def test_classic_path_a_zip_has_no_motion_assets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):

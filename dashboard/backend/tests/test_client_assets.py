@@ -20,6 +20,38 @@ def _write_png(path: Path, label: bytes = b"x") -> None:
     )
 
 
+def _write_jpeg(path: Path) -> None:
+    """Minimal JFIF so Media Gate accepts client hero (invalid bytes are replaced)."""
+    path.write_bytes(
+        bytes(
+            [
+                0xFF,
+                0xD8,
+                0xFF,
+                0xE0,
+                0x00,
+                0x10,
+                0x4A,
+                0x46,
+                0x49,
+                0x46,
+                0x00,
+                0x01,
+                0x01,
+                0x00,
+                0x00,
+                0x01,
+                0x00,
+                0x01,
+                0x00,
+                0x00,
+                0xFF,
+                0xD9,
+            ]
+        )
+    )
+
+
 def test_classify_logo_and_hero(tmp_path: Path):
     logo = tmp_path / "company_logo.png"
     office = tmp_path / "office_reception.jpg"
@@ -78,7 +110,7 @@ def test_factory_build_embeds_client_materials(tmp_path: Path):
     logo = tmp_path / "mein_logo.png"
     hero = tmp_path / "praxis_empfang.jpg"
     _write_png(logo, b"L")
-    _write_png(hero, b"H")
+    _write_jpeg(hero)
     factory = FactoryService(memory_dir=tmp_path / "mem", sandbox_dir=tmp_path / "sandbox")
     result = factory.build_landing(
         "Zahnarztpraxis Müller in München — moderne Zahnheilkunde",
@@ -107,7 +139,8 @@ def test_factory_build_embeds_client_materials(tmp_path: Path):
     product_id = result["product_id"]
     product_dir = tmp_path / "sandbox" / product_id
     assert (product_dir / "assets" / "logo.png").is_file()
-    assert (product_dir / "assets" / "hero.jpg").read_bytes().endswith(b"H")
+    hero_bytes = (product_dir / "assets" / "hero.jpg").read_bytes()
+    assert hero_bytes.startswith(b"\xff\xd8\xff")
     html = (product_dir / "index.html").read_text(encoding="utf-8")
     assert "assets/logo.png" in html
     import json

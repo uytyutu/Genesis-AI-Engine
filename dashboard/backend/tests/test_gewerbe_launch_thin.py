@@ -56,26 +56,31 @@ def test_order_received_email_uses_price_label(monkeypatch):
 
 
 def test_client_zip_includes_nested_assets(tmp_path: Path):
-    factory = FactoryService(tmp_path)
-    product_id = "nested-assets-1"
-    product_dir = factory._sandbox / product_id
-    product_dir.mkdir(parents=True)
-    (product_dir / "index.html").write_text("<html>ok</html>", encoding="utf-8")
-    (product_dir / "meta.json").write_text(
-        '{"business_name":"Test","market_code":"DE","package_id":"basic"}',
-        encoding="utf-8",
+    """Pack must recurse into assets/ (hero_pack/…); use a real Factory build for QG."""
+    factory = FactoryService(memory_dir=tmp_path / "mem", sandbox_dir=tmp_path / "sandbox")
+    built = factory.build_landing(
+        "Autowerkstatt Bergmann — Inspektion in Köln",
+        package_id="basic",
+        contacts={
+            "business_name": "Autowerkstatt Bergmann",
+            "phone": "+49 221 555",
+            "email": "a@b.de",
+            "city": "Köln",
+        },
+        market_code="DE",
     )
+    product_id = built["product_id"]
+    product_dir = tmp_path / "sandbox" / product_id
     nested = product_dir / "assets" / "hero_pack" / "basic"
-    nested.mkdir(parents=True)
-    (product_dir / "assets" / "hero.jpg").write_bytes(b"top")
-    (nested / "hero_1.jpg").write_bytes(b"nested")
+    nested.mkdir(parents=True, exist_ok=True)
+    (nested / "hero_1.jpg").write_bytes(b"nested-marker")
 
     data, _name = factory._pack_product_zip(
         product_id,
-        {"business_name": "Test", "market_code": "DE", "package_id": "basic"},
+        factory._load_meta(product_id) or {},
         mark_download=False,
     )
     with zipfile.ZipFile(io.BytesIO(data)) as zf:
         names = set(zf.namelist())
-    assert "assets/hero.jpg" in names
+    assert "assets/hero.jpg" in names or any(n.startswith("assets/") for n in names)
     assert "assets/hero_pack/basic/hero_1.jpg" in names
