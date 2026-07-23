@@ -97,6 +97,8 @@ _NICHE_SERVICES: dict[str, list[str]] = {
     "restaurant": ["Mittagstisch", "Abendkarte", "Events", "Takeaway"],
     "energy": ["PV-Planung", "Montage", "Service", "Monitoring"],
     "appliance": ["Reparatur", "Ersatzteile", "Wartung", "Notdienst"],
+    "cleaning": ["Unterhaltsreinigung", "Büroreinigung", "Grundreinigung", "Fenster"],
+    "auto_ankauf": ["Kostenlose Bewertung", "Sofortankauf", "Abholung", "Vertragsabwicklung"],
 }
 
 _NICHE_TRUST: dict[str, tuple[str, ...]] = {
@@ -110,6 +112,8 @@ _NICHE_TRUST: dict[str, tuple[str, ...]] = {
     "restaurant": ("Frische Zutaten", "Lokale Gäste", "Klare Allergene"),
     "energy": ("Ertragsfokus", "Saubere Montage", "Nachbetreuung"),
     "appliance": ("Schneller Einsatz", "Originalteile", "Garantie"),
+    "cleaning": ("Versichert", "Geprüftes Personal", "Flexible Termine"),
+    "auto_ankauf": ("Faire Preise", "Schnelle Abwicklung", "Ohne Verpflichtung"),
 }
 
 _NICHE_BENEFITS: dict[str, tuple[str, ...]] = {
@@ -152,6 +156,16 @@ _NICHE_BENEFITS: dict[str, tuple[str, ...]] = {
         "Saisonale Karte",
         "Reservierung mit Bestätigung",
         "Allergen-Kennzeichnung",
+    ),
+    "cleaning": (
+        "Kostenloses Angebot in 24h",
+        "Festpreis nach Begehung",
+        "Ersatz bei Ausfall",
+    ),
+    "auto_ankauf": (
+        "Bewertung in Minuten",
+        "Auch Unfallfahrzeuge",
+        "Bar oder Überweisung",
     ),
 }
 
@@ -380,8 +394,25 @@ def sanitize_analysis(analysis: AnalysisResult) -> tuple[AnalysisResult, list[st
     trust = _clean(trust) or list(_NICHE_TRUST.get(niche, analysis.trust_points))
     benefits = _clean(benefits) or list(_NICHE_BENEFITS.get(niche, analysis.benefits))
 
+    headline = analysis.headline
+    subtitle = analysis.subtitle
+    cta_label = analysis.cta_label
+    if any(c.id == "hero_fields" and not c.ok for c in result.checks):
+        from app.factory.hero_integrity import ensure_analysis_hero
+
+        filled = ensure_analysis_hero(analysis)
+        headline = filled.headline
+        subtitle = filled.subtitle
+        cta_label = filled.cta_label
+        if not services:
+            services = list(filled.services)
+        repairs.append("hero→niche_defaults")
+
     fixed = replace(
         analysis,
+        headline=headline,
+        subtitle=subtitle,
+        cta_label=cta_label,
         services=services,
         benefits=tuple(benefits),
         trust_points=tuple(trust),

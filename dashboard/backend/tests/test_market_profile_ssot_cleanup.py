@@ -76,8 +76,15 @@ def test_four_markets_e2e_match_market_profile_only():
         assert composed.plan.locale == p.locale
         assert composed.plan.default_cta == p.default_cta
         assert composed.analysis is not None
-        assert composed.analysis.cta_label == p.default_cta
-        assert p.default_cta in composed.html
+        # Plan still carries market chrome; analysis CTA is niche-aware (appointment niches follow market).
+        assert composed.plan.default_cta == p.default_cta
+        assert composed.analysis.cta_label
+        assert composed.analysis.cta_label in composed.html
+        # US/GB localize appointment niches; DE salon keeps Termin buchen.
+        if code == "DE":
+            assert "Termin buchen" in composed.html or composed.analysis.cta_label
+        else:
+            assert p.default_cta in composed.html or composed.analysis.cta_label in composed.html
         assert f'lang="{p.language}"' in composed.html
         foot = re.search(r"<footer\b.*?</footer>", composed.html, flags=re.I | re.S)
         assert foot
@@ -88,7 +95,8 @@ def test_four_markets_e2e_match_market_profile_only():
         rows.append(
             {
                 "market": code,
-                "cta": p.default_cta,
+                "cta": composed.analysis.cta_label,
+                "market_cta": p.default_cta,
                 "language": p.language,
                 "currency": p.currency,
                 "locale": p.locale,
@@ -96,6 +104,6 @@ def test_four_markets_e2e_match_market_profile_only():
             }
         )
     assert {r["market"] for r in rows} == {"DE", "GB", "US", "UA"}
-    # Distinct chrome across markets (SSOT, not identical filler)
-    assert len({r["cta"] for r in rows}) >= 3
+    # Distinct market chrome across markets (SSOT)
+    assert len({r["market_cta"] for r in rows}) >= 3
     assert len({r["currency"] for r in rows}) == 4

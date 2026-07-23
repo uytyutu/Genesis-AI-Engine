@@ -112,7 +112,8 @@ export function WebsiteAnalysisPanel({
       <h3 className="text-lg font-semibold text-white">Website Analysis</h3>
       <p className="mt-2 text-sm text-zinc-400">
         Бесплатный вход: сначала состояние сайта — потом честная рекомендация: ремонт
-        или новый сайт (350 / 650 / 1200 €). Без фиктивных оценок.
+        (оператор по отчёту) или новый сайт (350 / 650 / 1200 €). Без авто-ремонта CMS
+        и без фиктивных оценок.
       </p>
 
       <form onSubmit={onSubmit} className="mt-4 space-y-3">

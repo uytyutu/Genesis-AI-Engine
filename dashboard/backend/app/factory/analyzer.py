@@ -25,6 +25,38 @@ class AnalysisResult:
 
 
 _NICHE_KEYWORDS = {
+    # Specific niches first — dict order = match order.
+    "cleaning": (
+        "reinigung",
+        "reinigungsfirma",
+        "gebäudereinigung",
+        "gebaeudereinigung",
+        "büroreinigung",
+        "bueroreinigung",
+        "unterhaltsreinigung",
+        "putzfirma",
+        "putzservice",
+        "cleaning",
+        "cleaner",
+        "housekeeping",
+        "уборк",
+        "клининг",
+    ),
+    "auto_ankauf": (
+        "autoankauf",
+        "auto ankauf",
+        "pkw ankauf",
+        "fahrzeugankauf",
+        "fahrzeug ankauf",
+        "wir kaufen ihr auto",
+        "auto verkaufen",
+        "pkw verkaufen",
+        "car buying",
+        "sell your car",
+        "автовыкуп",
+        "выкуп авто",
+        "сдать авто",
+    ),
     "dental": (
         "стоматолог",
         "dental",
@@ -115,6 +147,14 @@ _NICHE_KEYWORDS = {
         "семейн",
         "family law",
         "business law",
+        "steuerberater",
+        "steuerberatung",
+        "steuerkanzlei",
+        "buchhaltung",
+        "lohnbuchhaltung",
+        "tax advisor",
+        "бухгалтер",
+        "налогов",
     ),
     "beauty": (
         "салон",
@@ -185,6 +225,8 @@ def analyze(description: str) -> AnalysisResult:
     cta_label = _detect_cta_label(lower)
 
     presets = {
+        "cleaning": _preset_cleaning(business_name, template_id, cta_label, text),
+        "auto_ankauf": _preset_auto_ankauf(business_name, template_id, cta_label, text),
         "dental": _preset_dental(business_name, template_id, cta_label, text),
         "computer": _preset_computer(business_name, template_id, cta_label, text),
         "appliance": _preset_appliance(business_name, template_id, cta_label, text),
@@ -201,6 +243,78 @@ def analyze(description: str) -> AnalysisResult:
         return presets[niche]
 
     return _preset_generic(business_name, cta_label, text)
+
+
+def _preset_cleaning(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "reinigung")
+    cta = "Kostenloses Angebot" if cta_label == "Kontakt aufnehmen" else cta_label
+    return AnalysisResult(
+        niche="cleaning",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — professionelle Reinigung",
+        subtitle="Unterhalt, Büro und Grundreinigung — zuverlässig, versichert und mit klarem Angebot.",
+        services=[
+            "Unterhaltsreinigung",
+            "Büroreinigung",
+            "Grundreinigung",
+            "Fenster & Glas",
+        ],
+        service_descriptions=(
+            "Regelmäßige Pflege für Wohnungen und Häuser.",
+            "Saubere Arbeitsplätze ohne Störung des Betriebs.",
+            "Tiefenreinigung nach Umzug oder Renovierung.",
+            "Streifenfreie Fenster innen und außen.",
+        ),
+        cta_label=cta,
+        trust_points=("Versichert", "Geprüftes Personal", "Flexible Termine"),
+        about_text=(
+            f"{business_name} liefert saubere Ergebnisse mit festen Ansprechpartnern — "
+            "ohne Überraschungen bei Preis und Termin."
+        ),
+        benefits=("Kostenloses Angebot in 24h", "Festpreis nach Begehung", "Ersatz bei Ausfall"),
+        hours="Mo–Fr 7:00–18:00 · Sa nach Vereinbarung",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_auto_ankauf(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "ankauf")
+    cta = "Kostenlose Bewertung" if cta_label == "Kontakt aufnehmen" else cta_label
+    return AnalysisResult(
+        niche="auto_ankauf",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Autoankauf mit fairer Bewertung",
+        subtitle="Kostenlose Einschätzung, transparentes Angebot und schnelle Abwicklung — auch mit Mängeln.",
+        services=[
+            "Kostenlose Bewertung",
+            "Sofortankauf",
+            "Abholung vor Ort",
+            "Vertragsabwicklung",
+        ],
+        service_descriptions=(
+            "Marktgerechte Einschätzung ohne Verpflichtung.",
+            "Auszahlung nach Vereinbarung — oft noch am selben Tag.",
+            "Wir holen Ihr Fahrzeug ab, wenn gewünscht.",
+            "Klare Unterlagen und Abmeldung-Hilfe.",
+        ),
+        cta_label=cta,
+        trust_points=("Faire Preise", "Schnelle Abwicklung", "Ohne Verpflichtung"),
+        about_text=(
+            f"{business_name} kauft PKW und Nutzfahrzeuge an — mit ehrlicher Bewertung "
+            "statt Druckverkauf."
+        ),
+        benefits=("Bewertung in Minuten", "Auch Unfall- und Bastlerfahrzeuge", "Bar oder Überweisung"),
+        hours="Mo–Sa 9:00–18:00",
+        phone=phone,
+        email=email,
+    )
 
 
 def _preset_auto(
@@ -440,6 +554,54 @@ def _preset_law(
     business_name: str, template_id: str, cta_label: str, raw: str
 ) -> AnalysisResult:
     phone, email = _contact_defaults(business_name, "kanzlei")
+    lower = raw.lower()
+    steuer = any(
+        k in lower
+        for k in (
+            "steuerberater",
+            "steuerberatung",
+            "steuerkanzlei",
+            "buchhaltung",
+            "tax advisor",
+            "налогов",
+            "бухгалтер",
+        )
+    )
+    if steuer:
+        cta = "Beratung anfragen" if cta_label == "Kontakt aufnehmen" else cta_label
+        return AnalysisResult(
+            niche="law",
+            template_id=template_id,
+            business_name=business_name,
+            headline=f"{business_name} — Steuerberatung mit klaren Zahlen",
+            subtitle="Buchhaltung, Jahresabschluss und Beratung — verständlich und termintreu.",
+            services=[
+                "Steuererklärung",
+                "Buchhaltung",
+                "Jahresabschluss",
+                "Lohnbuchhaltung",
+            ],
+            service_descriptions=(
+                "Privat und Gewerbe — fristgerecht und nachvollziehbar.",
+                "Laufende Buchführung ohne Chaos in den Belegen.",
+                "Abschluss mit Erläuterung der Kennzahlen.",
+                "Lohnabrechnung und Meldungen an Behörden.",
+            ),
+            cta_label=cta,
+            trust_points=("Vertraulich", "Digitale Belege", "Feste Ansprechpartner"),
+            about_text=(
+                f"{business_name} begleitet Mandanten bei Steuern und Finanzen — "
+                "ohne Fachchinesisch, mit klaren nächsten Schritten."
+            ),
+            benefits=(
+                "Unverbindliches Erstgespräch",
+                "Transparente Honorare",
+                "Erinnerung an Fristen",
+            ),
+            hours="Mo–Fr 9:00–17:30 · Termine nach Vereinbarung",
+            phone=phone,
+            email=email,
+        )
     focus = "Migrations- und Wirtschaftsrecht"
     if re.search(r"семейн|family", raw, re.I):
         focus = "Familienrecht"
@@ -522,17 +684,17 @@ def _preset_beauty(
         business_name=business_name,
         headline=f"{business_name} — Stil, der zu Ihnen passt",
         subtitle="Erfahrene Stylisten, Premium-Produkte und entspannte Atmosphäre.",
-        services=["Schnitt & Styling", "Maniküre", "Gesichtspflege", "Gutscheine"],
+        services=["Schnitt & Styling", "Coloration", "Maniküre", "Gesichtsbehandlung"],
         service_descriptions=(
             "Beratung, Schnitt und Finish — abgestimmt auf Ihren Alltag.",
+            "Farbe und Strähnen mit Premium-Produkten.",
             "Hygienische Abläufe und langlebige Ergebnisse.",
             "Individuelle Pflegepläne für empfindliche Haut.",
-            "Geschenke, die wirklich Freude machen.",
         ),
         cta_label=cta_label if cta_label != "Kontakt aufnehmen" else "Termin buchen",
-        trust_points=("Sterile Tools", "Premium-Marken", "Ruhige Atmosphäre"),
+        trust_points=("Premium-Produkte", "Erfahrene Stylisten", "Entspannte Atmosphäre"),
         about_text=f"{business_name} ist Ihr Salon für Looks, die im Alltag funktionieren.",
-        benefits=("Online-Termine", "Stammstylist auf Wunsch", "Fair kalkulierte Preise"),
+        benefits=("Online-Termine", "Individuelle Beratung", "Fair kalkulierte Preise"),
         hours="Di–Sa 9:00–19:00",
         phone=phone,
         email=email,
@@ -561,7 +723,7 @@ def _preset_energy(
             "Zertifizierte Monteure und saubere Übergabe.",
             "Monitoring und Serviceverträge optional.",
         ),
-        cta_label=cta_label,
+        cta_label="Angebot anfordern" if cta_label == "Kontakt aufnehmen" else cta_label,
         trust_points=("Deutschland", "Transparente Angebote", "Support vor Ort"),
         about_text=f"{business_name} plant Photovoltaik so, dass Zahlen und Realität zusammenpassen.",
         benefits=("Förderberatung", "Festes Projektteam", "Langfristiger Service"),
@@ -593,7 +755,7 @@ def _preset_green(
             "Rasen, Hecken und saisonale Schnitte.",
             "Regelmäßige Pflege für Firmen und Privat.",
         ),
-        cta_label=cta_label,
+        cta_label="Angebot anfordern" if cta_label == "Kontakt aufnehmen" else cta_label,
         trust_points=("Erfahrenes Team", "Klare Termine", "Schriftliche Angebote"),
         about_text=f"{business_name} gestaltet Außenbereiche, die langfristig gepflegt bleiben.",
         benefits=("Kostenlose Erstbegehung", "Festpreis-Angebote", "Saubere Baustellen"),
@@ -780,6 +942,8 @@ def _extract_business_name(text: str, niche: str) -> str:
         defaults = {
             "dental": "Zahnarztpraxis Weber",
             "auto": "Auto Müller",
+            "auto_ankauf": "Auto Ankauf Nord",
+            "cleaning": "Clean Profi",
             "computer": "PC Service Schmidt",
             "appliance": "Hausgeräte Schneider",
             "handwerk": "Handwerk Fischer",
@@ -796,10 +960,15 @@ def business_name_fallback(niche: str) -> str:
     return {
         "dental": "Zahnarztpraxis Weber",
         "auto": "Auto Müller",
+        "auto_ankauf": "Auto Ankauf Nord",
+        "cleaning": "Clean Profi",
         "computer": "PC Service Schmidt",
         "appliance": "Hausgeräte Schneider",
         "handwerk": "Handwerk Fischer",
         "law": "Kanzlei Schmidt",
+        "beauty": "Salon Belle",
+        "energy": "Solar Nord",
+        "green": "Garten Profi",
     }.get(niche, "Ihr Unternehmen")
 
 

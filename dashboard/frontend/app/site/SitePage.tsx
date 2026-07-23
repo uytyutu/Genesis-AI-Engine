@@ -414,12 +414,47 @@ export function SitePage() {
           </article>
         </section>
 
-        {/* 4. Analysis — Website Analysis v1 */}
+        {/* 4. Analysis — Website Analysis v1 + honest Repair scope */}
         <section className="space-y-4" aria-labelledby="analysis-heading" id="analysis">
           <h2 id="analysis-heading" className="text-2xl font-semibold text-white">
-            {t("s0.analysisTitle", { defaultValue: "Business Analysis" })}
+            {t("s0.analysisTitle", { defaultValue: "Website Analysis & Repair" })}
           </h2>
           <WebsiteAnalysisPanel market={market} onAskVector={openChat} />
+          <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+            <h3 className="text-base font-semibold text-white sm:text-lg">
+              Ремонт сайтов — что умеем на этапе MVP
+            </h3>
+            <p className="mt-2 text-sm text-zinc-400">
+              Virtus Core сейчас не чинит сайты автоматически. ИИ — диагност и помощник:
+              анализ → отчёт → смета → после оплаты ремонт делает оператор по отчёту.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300/90">
+                  Что находим
+                </p>
+                <ul className="mt-2 space-y-1.5 text-sm text-zinc-300">
+                  <li>HTTPS, мобильная версия, скорость ответа</li>
+                  <li>SEO (title), контакты, CTA, формы, карта</li>
+                  <li>Базовые проблемы структуры и качества</li>
+                </ul>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-sky-300/90">
+                  Что чинит оператор (после доступа)
+                </p>
+                <ul className="mt-2 space-y-1.5 text-sm text-zinc-300">
+                  <li>Тексты, заголовки, CTA, контакты, карта</li>
+                  <li>Формы, SEO-мета, простые правки вёрстки</li>
+                  <li>Оптимизация изображений и лёгкий perf</li>
+                </ul>
+              </div>
+            </div>
+            <p className="mt-4 text-xs leading-relaxed text-zinc-500">
+              Не обещаем авто-ремонт WordPress / Wix / Shopify, тем, плагинов или баз
+              данных. Пакеты Repair Lite / Standard / Complete — смета после анализа.
+            </p>
+          </article>
         </section>
 
         {/* 5. One-time — Repair is sold via Analysis funnel, not a hero card */}
@@ -429,9 +464,8 @@ export function SitePage() {
           </h2>
           <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <p className="text-sm text-zinc-400">
-              Website Repair появляется после бесплатного анализа выше — только если
-              ремонт выгоднее нового сайта. Migration · Google Business · SEO Fixes —
-              отдельно.
+              Website Repair — только через анализ выше, если ремонт выгоднее нового
+              сайта. Migration · Google Business · SEO Fixes — отдельно.
             </p>
             <a
               href="#analysis"

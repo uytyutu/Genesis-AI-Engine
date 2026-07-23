@@ -16,6 +16,8 @@ LAYOUT_IDS = ("A", "B", "C", "D", "E", "F")
 NICHE_LAYOUT_ALLOWLIST: dict[str, tuple[str, ...]] = {
     "dental": ("A", "C", "E"),
     "auto": ("B", "D", "F"),
+    "auto_ankauf": ("B", "D", "F"),
+    "cleaning": ("A", "D", "E"),
     "law": ("C", "A", "E"),
     "energy": ("A", "D", "E"),
     "beauty": ("E", "A", "C"),
@@ -68,9 +70,15 @@ def compose_hero(
 ) -> HeroComposition:
     """Build Hero HTML + layout CSS. Strings must already be HTML-escaped where needed."""
     lid = layout_id if layout_id in LAYOUT_IDS else "A"
+    # Last line of defense: never render blank hero copy.
+    headline = (headline or "").strip() or html_lib.escape("Ihr Angebot")
+    subtitle = (subtitle or "").strip() or html_lib.escape(
+        "Klares Angebot, schneller Kontakt, professionelle Umsetzung."
+    )
+    cta_label = (cta_label or "").strip() or html_lib.escape("Anfrage senden")
     esc = html_lib.escape
-    trust_html = "".join(f'<span class="trust-pill">{esc(t)}</span>' for t in trust_points)
-    adv = list(benefits)[:3]
+    trust_html = "".join(f'<span class="trust-pill">{esc(t)}</span>' for t in trust_points if str(t).strip())
+    adv = [b for b in list(benefits)[:3] if str(b).strip()]
     adv_html = "".join(f"<li>{esc(b)}</li>" for b in adv)
     kpi = _kpi_html(ui) if (ui.get("stats_v1") or "").strip() else ""
     photo = " has-photo" if hero_photo else ""

@@ -245,8 +245,18 @@ def compose_landing(
     )
     assert analysis is not None
 
-    # Market default CTA from profile (Composer owns this chrome; Landing Builder unchanged)
-    analysis = replace(analysis, cta_label=profile.default_cta)
+    # Niche CTA wins; market profile default_cta is chrome fallback only.
+    from app.factory.hero_integrity import ensure_analysis_hero, resolve_delivery_cta
+
+    analysis = ensure_analysis_hero(analysis)
+    analysis = replace(
+        analysis,
+        cta_label=resolve_delivery_cta(
+            niche=analysis.niche,
+            analysis_cta=analysis.cta_label,
+            market_default_cta=profile.default_cta,
+        ),
+    )
 
     gallery = list(client_gallery or [])
     media_plan_obj = None

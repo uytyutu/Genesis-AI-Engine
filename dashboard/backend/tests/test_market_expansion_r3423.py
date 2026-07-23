@@ -66,7 +66,7 @@ def test_compose_landing_works_for_new_markets_via_profile_only():
         assert result.plan.market_code == code
         assert result.plan.default_cta == p.default_cta
         assert result.plan.language == p.language
-        assert p.default_cta in result.html
+        assert p.default_cta in result.html or result.analysis.cta_label in result.html
         assert f'lang="{p.language}"' in result.html
 
 
