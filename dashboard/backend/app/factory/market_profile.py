@@ -145,6 +145,33 @@ _SEED_PROFILES: tuple[MarketProfile, ...] = (
         legal_footer_keys=("aviso_legal", "privacidad"),
         legal_page_slugs=("aviso-legal.html", "privacidad.html"),
     ),
+    # Path A delivery markets — must not soft-fall back to DE (C remediation).
+    MarketProfile(
+        market_code="PL",
+        label="Poland",
+        language="pl",
+        currency="PLN",
+        locale="pl_PL",
+        phone_format="+48",
+        address_format="PL",
+        default_cta="Umów wizytę",
+        business_hours="Pn–Pt",
+        legal_footer_keys=("privacy", "contact"),
+        legal_page_slugs=("LEGAL_NOTICE.txt", "#contact"),
+    ),
+    MarketProfile(
+        market_code="RU",
+        label="Russia",
+        language="ru",
+        currency="EUR",
+        locale="ru_RU",
+        phone_format="+7",
+        address_format="RU",
+        default_cta="Отправить",
+        business_hours="Пн–Пт",
+        legal_footer_keys=("privacy", "contact"),
+        legal_page_slugs=("LEGAL_NOTICE.txt", "#contact"),
+    ),
 )
 
 
@@ -279,6 +306,20 @@ _LEGAL_LABELS: dict[str, dict[str, str]] = {
         "privacy": "Privacidad",
         "terms": "Términos",
         "contact": "Contacto",
+    },
+    "pl": {
+        "privacy": "Prywatność",
+        "terms": "Regulamin",
+        "contact": "Kontakt",
+        "impressum": "Informacja prawna",
+        "datenschutz": "Prywatność",
+    },
+    "ru": {
+        "privacy": "Конфиденциальность",
+        "terms": "Условия",
+        "contact": "Контакты",
+        "impressum": "Правовая информация",
+        "datenschutz": "Конфиденциальность",
     },
 }
 

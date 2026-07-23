@@ -231,7 +231,7 @@ def run_quality_gate(
     add(
         "accessibility",
         "lang_ok",
-        bool(re.search(r'lang="(?:de|en|fr|es|nl|cs|uk|ru)"', lower)),
+        bool(re.search(r'lang="(?:de|en|fr|es|nl|cs|uk|ru|pl)"', lower)),
         "supported lang",
     )
     imgs = re.findall(r"<img\b[^>]*>", html, flags=re.I)
