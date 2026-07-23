@@ -334,6 +334,23 @@ def _parse_site_request(goal: str) -> str | None:
     return None
 
 
+def _looks_like_revision_instruction(text: str) -> bool:
+    """Edit/revision chat must not become business facts for regenerate."""
+    g = (text or "").strip()
+    if not g:
+        return False
+    if _is_site_revision_request(g):
+        return True
+    lower = g.lower()
+    if re.search(
+        r"(?:хочу\s+внести\s+правк|внеси\s+правк|убери\s+из|оставь\s+только|"
+        r"правк[аиу]|переделай|исправ|поправ|обнови\s+сайт)",
+        lower,
+    ):
+        return True
+    return False
+
+
 def _project_business_brief(memory_dir: Path, visitor_id: str) -> str:
     """Stable business brief from project — not raw edit/chat instructions."""
     ws_id = _existing_workspace_id(memory_dir, visitor_id)
@@ -350,11 +367,15 @@ def _project_business_brief(memory_dir: Path, visitor_id: str) -> str:
     from app.factory.analyzer import business_brief_for_site
 
     chunks: list[str] = []
-    if record.description.strip():
+    if record.description.strip() and not _looks_like_revision_instruction(
+        record.description
+    ):
         chunks.append(record.description.strip())
     for event in reversed(record.timeline or []):
         detail = (event.detail or "").strip()
-        if detail and _has_specific_business_facts(detail):
+        if not detail or _looks_like_revision_instruction(detail):
+            continue
+        if _has_specific_business_facts(detail):
             chunks.append(detail)
             break
     raw = "\n".join(chunks).strip()
