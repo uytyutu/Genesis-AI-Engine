@@ -142,7 +142,7 @@ def test_http_activate_and_my_products_merge_bridge_plus_native():
         assert body["product_type"] == "chatbot"
         assert body["source"] == "native"
         assert body["status"] == "active"
-        assert body["display_name"] == "ChatBot"
+        assert body["display_name"] == "AI Business Employee (Vector)"
 
         after = http.get("/portal/my-products")
         assert after.status_code == 200

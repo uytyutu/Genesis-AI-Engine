@@ -46,7 +46,12 @@ def test_approved_options_two_paths():
 
 def test_subscription_tiers_customer_names():
     names = [t["customer_name_ru"] for t in SUBSCRIPTION_TIERS]
-    assert names == ["Free", "Professional", "Business", "Enterprise"]
+    assert names == [
+        "Free",
+        "Vector Starter",
+        "Vector Business",
+        "Vector Professional",
+    ]
 
 
 def test_service_labels():

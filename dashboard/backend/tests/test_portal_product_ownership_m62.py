@@ -78,10 +78,10 @@ def test_facade_merges_bridge_and_native_with_catalog_names():
     items = facade.list_my_products(account.account_id)
     by_type = {item.product_type: item for item in items}
     assert by_type["website"].source == "website_bridge"
-    assert by_type["website"].display_name == "Website"
+    assert by_type["website"].display_name == "Landing Website"
     assert by_type["website"].product_id == website_product_id(website_id)
     assert by_type["chatbot"].source == "native"
-    assert by_type["chatbot"].display_name == "ChatBot"
+    assert by_type["chatbot"].display_name == "AI Business Employee (Vector)"
 
 
 def test_anonymous_401():
@@ -115,7 +115,7 @@ def test_authenticated_my_products_via_bridge():
         assert body[0]["status"] == "active"
         assert body[0]["source"] == "website_bridge"
         assert body[0]["product_id"] == website_product_id(website_id)
-        assert body[0]["display_name"] == "Website"
+        assert body[0]["display_name"] == "Landing Website"
     finally:
         clear_product_ownership_facade()
 
