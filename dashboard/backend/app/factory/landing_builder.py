@@ -243,10 +243,14 @@ def build_landing_html(
         sec = "section"
 
     niche_profile = resolve_niche_profile(analysis.niche)
+    # Layout/hero/component must use the real market_code (SSOT), not the
+    # design-alias id (e.g. PL→DE). Composer plan uses the same seed inputs;
+    # mismatch here fails quality meta_hero on ZIP pack.
+    layout_market = (market_code or market_design.market_id or "DE").strip().upper()
     layout_profile = resolve_layout_profile(
         business_name=analysis.business_name,
         package_id=tier,
-        market_code=market_design.market_id,
+        market_code=layout_market,
         niche_id=niche_profile.niche_id,
     )
     hero_layout_id = resolve_hero_for_layout(
