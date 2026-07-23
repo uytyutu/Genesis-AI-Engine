@@ -1978,6 +1978,7 @@ def _run_generate_site(
         **(out.get("context") or {}),
         "execution": result.to_dict(),
         "capability_result": cap,
+        "workspace_id": workspace_id,
         "preview_url": preview_path,
         "artifact_type": "website",
     }
