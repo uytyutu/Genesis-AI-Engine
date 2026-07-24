@@ -322,7 +322,11 @@ def _finalize(
         health_score=health_score, fail_n=fail_n, fetch_ok=fetch_ok
     )
     recommendations = _recommendations(
-        health_score=health_score, fail_n=fail_n, fetch_ok=fetch_ok, quote=quote
+        health_score=health_score,
+        fail_n=fail_n,
+        fetch_ok=fetch_ok,
+        quote=quote,
+        locale=locale,
     )
     justification = _justification(
         health_score=health_score,
@@ -330,6 +334,7 @@ def _finalize(
         recommendations=recommendations,
         fetch_ok=fetch_ok,
         quote=quote,
+        locale=locale,
     )
     vector_plain = _vector_plain(
         health_score=health_score,
@@ -362,45 +367,169 @@ def _finalize(
     }
 
 
+def _lang(locale: str) -> str:
+    lang = (locale or "en").strip().lower().split("-")[0]
+    if lang in ("de", "en", "ru", "uk", "fr", "es", "it", "nl", "pl", "pt", "cs"):
+        return lang
+    return "en"
+
+
 def _recommendations(
     *,
     health_score: int,
     fail_n: int,
     fetch_ok: bool,
     quote: dict[str, Any],
+    locale: str = "en",
 ) -> list[dict[str, Any]]:
-    """Funnel CTAs: Repair (priced) + New Website packages. No separate Repair hero."""
+    """Funnel CTAs: Repair (priced) + New Website packages — plain business language."""
+    lang = _lang(locale)
     repair_pkg = quote.get("package_id") or "repair_standard"
-    repair_label = quote.get("label") or f"от {PRICE_REPAIR_FROM} €"
+    repair_label = quote.get("label") or f"from {PRICE_REPAIR_FROM} €"
     repair_available = bool(quote.get("package_id")) and fetch_ok
+
+    copy = {
+        "de": {
+            "repair_title": "Website-Reparatur",
+            "repair_sum": (
+                "Wir verbessern Ihre bestehende Website gezielt. "
+                "Nach der Zahlung setzt unser Team die Punkte aus dem Bericht um."
+            ),
+            "repair_cta": "Reparatur anfragen",
+            "repair_blocked": "Zuerst muss die Website erreichbar sein",
+            "new_title": "Neue Website",
+            "new_sum": (
+                f"Neue Website: Basic {PRICE_BASIC} € · Business {PRICE_BUSINESS} € · "
+                f"Premium {PRICE_PREMIUM} €."
+            ),
+            "new_cta": f"Business bestellen (€{PRICE_BUSINESS})",
+            "why_new": (
+                "Bei diesem Zustand ist eine neue Website (Business) oft klarer und "
+                f"zuverlässiger als eine lange Reparatur (€{PRICE_BUSINESS})."
+            ),
+            "why_repair_alt": (
+                f"Eine Reparatur für etwa {repair_label} ist möglich, "
+                "eine neue Website ist hier aber meist die bessere Basis."
+            ),
+            "why_repair": (
+                f"Ihre Website ist grundsätzlich nutzbar (Eindruck {health_score}/100, "
+                f"{fail_n} offene Punkte). Eine gezielte Reparatur für etwa {repair_label} "
+                "ist meist sinnvoller als ein kompletter Neubau."
+            ),
+        },
+        "en": {
+            "repair_title": "Website repair",
+            "repair_sum": (
+                "We improve your current website where it matters. "
+                "After payment, our team carries out the work from your report."
+            ),
+            "repair_cta": "Request repair",
+            "repair_blocked": "The site needs to be reachable first",
+            "new_title": "New website",
+            "new_sum": (
+                f"New website: Basic {PRICE_BASIC} € · Business {PRICE_BUSINESS} € · "
+                f"Premium {PRICE_PREMIUM} €."
+            ),
+            "new_cta": f"Order Business (€{PRICE_BUSINESS})",
+            "why_new": (
+                "Given the current issues, a new Business website is often clearer "
+                f"and more reliable than a long repair (€{PRICE_BUSINESS})."
+            ),
+            "why_repair_alt": (
+                f"A repair around {repair_label} is possible, "
+                "but a new website is usually the stronger foundation here."
+            ),
+            "why_repair": (
+                f"Your site is basically usable (impression {health_score}/100, "
+                f"{fail_n} open points). A focused repair around {repair_label} "
+                "usually makes more sense than rebuilding everything."
+            ),
+        },
+        "ru": {
+            "repair_title": "Ремонт сайта",
+            "repair_sum": (
+                "Улучшим текущий сайт там, где это мешает клиентам. "
+                "После оплаты команда выполнит работу по вашему отчёту."
+            ),
+            "repair_cta": "Заказать ремонт",
+            "repair_blocked": "Сначала сайт должен открываться",
+            "new_title": "Новый сайт",
+            "new_sum": (
+                f"Новый сайт: Basic {PRICE_BASIC} € · Business {PRICE_BUSINESS} € · "
+                f"Premium {PRICE_PREMIUM} €."
+            ),
+            "new_cta": f"Заказать Business (€{PRICE_BUSINESS})",
+            "why_new": (
+                "При таком состоянии новый сайт Business обычно понятнее и надёжнее, "
+                f"чем долгий ремонт (€{PRICE_BUSINESS})."
+            ),
+            "why_repair_alt": (
+                f"Ремонт примерно за {repair_label} возможен, "
+                "но новый сайт здесь обычно даёт более крепкую основу."
+            ),
+            "why_repair": (
+                f"Сайт в целом рабочий (впечатление {health_score}/100, "
+                f"открытых пунктов: {fail_n}). Точечный ремонт примерно за {repair_label} "
+                "обычно выгоднее полной замены."
+            ),
+        },
+        "uk": {
+            "repair_title": "Ремонт сайту",
+            "repair_sum": (
+                "Покращимо поточний сайт там, де це заважає клієнтам. "
+                "Після оплати команда виконає роботу за вашим звітом."
+            ),
+            "repair_cta": "Замовити ремонт",
+            "repair_blocked": "Спочатку сайт має відкриватися",
+            "new_title": "Новий сайт",
+            "new_sum": (
+                f"Новий сайт: Basic {PRICE_BASIC} € · Business {PRICE_BUSINESS} € · "
+                f"Premium {PRICE_PREMIUM} €."
+            ),
+            "new_cta": f"Замовити Business (€{PRICE_BUSINESS})",
+            "why_new": (
+                "За такого стану новий сайт Business зазвичай зрозуміліший і надійніший, "
+                f"ніж довгий ремонт (€{PRICE_BUSINESS})."
+            ),
+            "why_repair_alt": (
+                f"Ремонт приблизно за {repair_label} можливий, "
+                "але новий сайт тут зазвичай дає міцнішу основу."
+            ),
+            "why_repair": (
+                f"Сайт загалом робочий (враження {health_score}/100, "
+                f"відкритих пунктів: {fail_n}). Точковий ремонт приблизно за {repair_label} "
+                "зазвичай вигідніший за повну заміну."
+            ),
+        },
+    }
+    # Romance / other EU markets: use English business tone for now
+    t = copy.get(lang) or copy["en"]
+    if lang in ("fr", "es", "it", "nl", "pl", "pt", "cs"):
+        # Prefer EN structure but keep titles closer via EN — already readable for SMB
+        t = copy["en"]
+
     rows: list[dict[str, Any]] = [
         {
             "id": "repair",
-            "title": "Website Repair",
-            "price_label": repair_label if repair_available else f"от {PRICE_REPAIR_FROM} €",
-            "summary": (
-                "Точечный ремонт текущего сайта. После оплаты работу ведёт оператор "
-                "Virtus Core по вашему отчёту — без обещания «AI сам починит любой CMS»."
-            ),
+            "title": t["repair_title"],
+            "price_label": repair_label if repair_available else f"from {PRICE_REPAIR_FROM} €",
+            "summary": t["repair_sum"],
             "availability": "available" if repair_available else "unavailable",
             "cta": "order_now" if repair_available else "coming_soon",
             "cta_href": f"/order?package={repair_pkg}" if repair_available else None,
-            "cta_label": "Заказать ремонт" if repair_available else "Сначала нужен доступный сайт",
+            "cta_label": t["repair_cta"] if repair_available else t["repair_blocked"],
             "package_id": repair_pkg if repair_available else None,
             "price_eur": quote.get("price_eur"),
         },
         {
             "id": "new_business",
-            "title": "New Website",
+            "title": t["new_title"],
             "price_label": f"{PRICE_BASIC}–{PRICE_PREMIUM} €",
-            "summary": (
-                f"Новый сайт: Basic {PRICE_BASIC} € · Business {PRICE_BUSINESS} € · "
-                f"Premium {PRICE_PREMIUM} €."
-            ),
+            "summary": t["new_sum"],
             "availability": "available",
             "cta": "order_now",
             "cta_href": "/order?package=business",
-            "cta_label": f"Заказать Business (€{PRICE_BUSINESS})",
+            "cta_label": t["new_cta"],
             "alt_ctas": [
                 {"href": "/order?package=basic", "label": f"Basic (€{PRICE_BASIC})"},
                 {"href": "/order?package=premium", "label": f"Premium (€{PRICE_PREMIUM})"},
@@ -410,21 +539,12 @@ def _recommendations(
     prefer_new = bool(quote.get("prefer_new")) or not fetch_ok
     if prefer_new:
         rows[1]["recommended"] = True
-        rows[1]["why"] = (
-            "По объёму проблем или цене ремонта выгоднее новый сайт "
-            f"(Business €{PRICE_BUSINESS}), чем долгий ремонт."
-        )
+        rows[1]["why"] = t["why_new"]
         if repair_available:
-            rows[0]["why"] = (
-                f"Ремонт ≈ {repair_label} возможен, но новый сайт обычно надёжнее "
-                "при таком состоянии."
-            )
+            rows[0]["why"] = t["why_repair_alt"]
     else:
         rows[0]["recommended"] = True
-        rows[0]["why"] = (
-            f"Сайт в целом живой (оценка {health_score}/100, проблем: {fail_n}). "
-            f"Точечный ремонт ≈ {repair_label} обычно выгоднее полной замены."
-        )
+        rows[0]["why"] = t["why_repair"]
     return rows
 
 
@@ -435,27 +555,90 @@ def _justification(
     recommendations: list[dict[str, Any]],
     fetch_ok: bool,
     quote: dict[str, Any],
+    locale: str = "en",
 ) -> str:
     rec = next((r for r in recommendations if r.get("recommended")), recommendations[-1])
+    lang = _lang(locale)
+    label = quote.get("label") or "—"
     if not fetch_ok:
-        return (
-            "Сначала нужно восстановить доступность сайта. "
-            "Пока страница не открывается, ремонт «вслепую» ненадёжен — "
-            f"разумный следующий шаг: {rec['title']} ({rec['price_label']})."
-        )
+        msg = {
+            "de": (
+                "Zuerst muss die Website wieder erreichbar sein. "
+                "Solange die Seite nicht öffnet, ist eine Reparatur unsicher — "
+                f"sinnvoller nächster Schritt: {rec['title']} ({rec['price_label']})."
+            ),
+            "en": (
+                "First the website needs to be reachable. "
+                "While the page will not open, repair is unreliable — "
+                f"sensible next step: {rec['title']} ({rec['price_label']})."
+            ),
+            "ru": (
+                "Сначала сайт должен снова открываться. "
+                "Пока страница недоступна, ремонт «вслепую» ненадёжен — "
+                f"разумный следующий шаг: {rec['title']} ({rec['price_label']})."
+            ),
+            "uk": (
+                "Спочатку сайт має знову відкриватися. "
+                "Поки сторінка недоступна, ремонт «наосліп» ненадійний — "
+                f"розумний наступний крок: {rec['title']} ({rec['price_label']})."
+            ),
+        }
+        return msg.get(lang) or msg["en"]
     if rec["id"] == "new_business":
-        return (
-            f"Оценка ≈ {health_score}/100, заметных проблем: {fail_n}. "
-            f"Смета ремонта ≈ {quote.get('label') or '—'}. "
-            f"Я рекомендую новый сайт Business (€{PRICE_BUSINESS}) — "
-            "современная база и понятный путь заявок."
-        )
-    return (
-        f"Оценка ≈ {health_score}/100, проблем: {fail_n}. "
-        f"Рекомендую ремонт (~{quote.get('label')}) на текущем сайте. "
-        "После оплаты оператор Virtus Core выполнит работы по отчёту; "
-        "автоматический «ремонт любого WordPress/Wix» мы не обещаем."
-    )
+        msg = {
+            "de": (
+                f"Eindruck ≈ {health_score}/100, offene Punkte: {fail_n}. "
+                f"Geschätzte Reparatur ≈ {label}. "
+                f"Wir empfehlen eine neue Website Business (€{PRICE_BUSINESS}) — "
+                "moderne Basis und klarer Weg zu Anfragen."
+            ),
+            "en": (
+                f"Impression ≈ {health_score}/100, open points: {fail_n}. "
+                f"Estimated repair ≈ {label}. "
+                f"We recommend a new Business website (€{PRICE_BUSINESS}) — "
+                "a modern base and a clear path to inquiries."
+            ),
+            "ru": (
+                f"Впечатление ≈ {health_score}/100, открытых пунктов: {fail_n}. "
+                f"Ориентир по ремонту ≈ {label}. "
+                f"Рекомендуем новый сайт Business (€{PRICE_BUSINESS}) — "
+                "современная основа и понятный путь к заявкам."
+            ),
+            "uk": (
+                f"Враження ≈ {health_score}/100, відкритих пунктів: {fail_n}. "
+                f"Орієнтир по ремонту ≈ {label}. "
+                f"Рекомендуємо новий сайт Business (€{PRICE_BUSINESS}) — "
+                "сучасна основа і зрозумілий шлях до заявок."
+            ),
+        }
+        return msg.get(lang) or msg["en"]
+    msg = {
+        "de": (
+            f"Eindruck ≈ {health_score}/100, offene Punkte: {fail_n}. "
+            f"Wir empfehlen eine Reparatur (~{label}) an Ihrer aktuellen Website. "
+            "Nach der Zahlung setzt unser Team die Punkte aus dem Bericht um — "
+            "ohne Versprechen einer Ein-Klick-Wunderreparatur."
+        ),
+        "en": (
+            f"Impression ≈ {health_score}/100, open points: {fail_n}. "
+            f"We recommend a repair (~{label}) on your current website. "
+            "After payment our team carries out the report — "
+            "no promise of a one-click magic fix."
+        ),
+        "ru": (
+            f"Впечатление ≈ {health_score}/100, открытых пунктов: {fail_n}. "
+            f"Рекомендуем ремонт (~{label}) на текущем сайте. "
+            "После оплаты команда выполнит работу по отчёту — "
+            "без обещания «починить всё одной кнопкой»."
+        ),
+        "uk": (
+            f"Враження ≈ {health_score}/100, відкритих пунктів: {fail_n}. "
+            f"Рекомендуємо ремонт (~{label}) на поточному сайті. "
+            "Після оплати команда виконає роботу за звітом — "
+            "без обіцянки «полагодити все однією кнопкою»."
+        ),
+    }
+    return msg.get(lang) or msg["en"]
 
 
 def _vector_plain(
@@ -468,39 +651,39 @@ def _vector_plain(
     quote: dict[str, Any],
     locale: str,
 ) -> str:
-    """Short client-facing explanation for Vector / cabinet (plain language)."""
+    """Short client-facing explanation (plain language)."""
     rec = next((r for r in recommendations if r.get("recommended")), recommendations[-1])
     top = problems[:3]
-    lang = (locale or "ru").strip().lower().split("-")[0]
+    lang = _lang(locale)
     empty = {
-        "de": "Seite nicht erreichbar" if not fetch_ok else "wenige kritische Lücken",
+        "de": "Seite nicht erreichbar" if not fetch_ok else "wenig kritische Lücken",
         "en": "site unreachable" if not fetch_ok else "few critical gaps",
-        "uk": "сайт недоступний" if not fetch_ok else "критичних дір мало",
-        "ru": "сайт недоступен" if not fetch_ok else "критичных дыр мало",
+        "uk": "сайт недоступний" if not fetch_ok else "критичних прогалин мало",
+        "ru": "сайт недоступен" if not fetch_ok else "критичных пробелов мало",
     }
     probs = "; ".join(top) if top else empty.get(lang, empty["en"])
     if lang == "de":
         return (
-            f"Kurz: Gesundheit {health_score}/100, {fail_n} Probleme. "
+            f"Kurz gesagt: Eindruck {health_score}/100, {fail_n} offene Punkte. "
             f"Wichtig: {probs}. Empfehlung: {rec['title']} ({rec['price_label']}). "
-            "Kein Versprechen, dass KI jedes CMS automatisch repariert."
+            "Nach der Zahlung arbeitet unser Team — keine Ein-Klick-Wunderreparatur."
         )
     if lang == "en":
         return (
-            f"In short: health {health_score}/100, {fail_n} issues. "
+            f"In short: impression {health_score}/100, {fail_n} open points. "
             f"Main: {probs}. Recommendation: {rec['title']} ({rec['price_label']}). "
-            "We do not promise AI auto-repairs every CMS — after payment the team does the work."
+            "After payment our team does the work — no one-click magic fix."
         )
     if lang == "uk":
         return (
-            f"Коротко: оцінка {health_score}/100, проблем: {fail_n}. "
+            f"Коротко: враження {health_score}/100, відкритих пунктів: {fail_n}. "
             f"Головне: {probs}. Рекомендація: {rec['title']} ({rec['price_label']}). "
-            "Ми не обіцяємо, що ШІ сам полагодить будь-який CMS — після оплати працює команда."
+            "Після оплати працює команда — без «полагодити все однією кнопкою»."
         )
     return (
-        f"Коротко: оценка {health_score}/100, проблем: {fail_n}. "
+        f"Коротко: впечатление {health_score}/100, открытых пунктов: {fail_n}. "
         f"Главное: {probs}. Рекомендация: {rec['title']} ({rec['price_label']}). "
-        "Мы не обещаем, что ИИ сам починит любой CMS — после оплаты работу ведёт команда."
+        "После оплаты работает команда — без «починить всё одной кнопкой»."
     )
 
 

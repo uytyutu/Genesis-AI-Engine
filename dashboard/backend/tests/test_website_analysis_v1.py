@@ -34,7 +34,7 @@ def test_report_from_healthy_flags():
         "analyzed_at": "2026-07-23T00:00:00+00:00",
         "error": None,
     }
-    report = build_owner_report(raw)
+    report = build_owner_report(raw, locale="en")
     assert report["engine"] == ENGINE_ID
     assert report["principle"] == "Solve Digital Problems"
     assert 0 <= report["health_score"] <= 100
@@ -51,8 +51,38 @@ def test_report_from_healthy_flags():
     assert repair["cta"] == "order_now"
     assert repair["availability"] == "available"
     assert repair["cta_href"] and "repair_" in repair["cta_href"]
+    assert "operator" not in (repair.get("summary") or "").lower()
+    assert "auto-cms" not in (repair.get("summary") or "").lower()
     assert report.get("vector_plain")
     assert report.get("repair_quote", {}).get("price_eur")
+
+
+def test_german_recommendations_use_reparatur():
+    raw = {
+        "url": "https://example.de",
+        "final_url": "https://example.de",
+        "title": "Shop",
+        "load_ms": 900,
+        "has_https": True,
+        "has_viewport": True,
+        "flags": {
+            "has_contact": True,
+            "has_form": False,
+            "has_cta": True,
+            "has_maps": True,
+            "content_thin": False,
+        },
+        "issues": [],
+        "strengths": [],
+        "analyzed_at": "2026-07-23T00:00:00+00:00",
+        "error": None,
+    }
+    report = build_owner_report(raw, locale="de")
+    repair = next(r for r in report["recommendations"] if r["id"] == "repair")
+    assert "Reparatur" in repair["title"]
+    assert "Operator" not in repair["summary"]
+    assert "Fake" not in report["justification"]
+    assert "Eindruck" in report["vector_plain"] or "empfehl" in report["vector_plain"].lower()
 
 
 def test_unreachable_marks_unavailable_checks():
