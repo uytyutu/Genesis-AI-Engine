@@ -22,7 +22,8 @@ _DEFAULT_VENDORS: tuple[dict[str, Any], ...] = (
         "account_url": "https://dashboard.stripe.com",
         "integration": "manual_link",
         "health": "green",
-        "note": "Kundeneinnahmen · Auszahlungen (Dashboard-Link)",
+        "stack_role": "payments",
+        "note": "Kundeneinnahmen · Auszahlungen · Orders /finance ↔ Stripe",
     },
     {
         "id": "openai",
@@ -32,7 +33,8 @@ _DEFAULT_VENDORS: tuple[dict[str, Any], ...] = (
         "account_url": "https://platform.openai.com/account/billing/overview",
         "integration": "manual_link",
         "health": "green",
-        "note": "API-Billing — Link öffnet Konto, keine Auto-Rechnung",
+        "stack_role": "llm",
+        "note": "API-Billing — Vector / Factory LLM wenn OpenAI aktiv",
     },
     {
         "id": "groq",
@@ -42,7 +44,8 @@ _DEFAULT_VENDORS: tuple[dict[str, Any], ...] = (
         "account_url": "https://console.groq.com",
         "integration": "manual_link",
         "health": "green",
-        "note": "Optional · wenn kostenpflichtig",
+        "stack_role": "llm",
+        "note": "Schnelle LLM-Antworten · optional kostenpflichtig",
     },
     {
         "id": "kimi",
@@ -52,57 +55,74 @@ _DEFAULT_VENDORS: tuple[dict[str, Any], ...] = (
         "account_url": "https://platform.moonshot.ai",
         "integration": "manual_link",
         "health": "green",
+        "stack_role": "llm",
         "note": "GENESIS_KIMI_API_KEY / MOONSHOT_API_KEY — Billing Moonshot",
+    },
+    {
+        "id": "resend",
+        "name": "Resend",
+        "category": "apis",
+        "pay_url": "https://resend.com/emails",
+        "account_url": "https://resend.com/overview",
+        "integration": "manual_link",
+        "health": "green",
+        "stack_role": "outreach_email",
+        "note": "Outreach + Receipts · RESEND_API_KEY · Lead Engine Send",
     },
     {
         "id": "hive",
         "name": "Hive",
         "category": "apis",
-        "pay_url": "https://thehive.ai",
+        "pay_url": "https://thehive.ai/pricing",
         "account_url": "https://thehive.ai",
         "integration": "manual_link",
         "health": "green",
-        "note": "Manueller Link — Rechnungen nicht auto-importiert",
+        "stack_role": "media_moderation",
+        "note": "Media / Moderation APIs · manueller Billing-Link",
     },
     {
         "id": "railway",
         "name": "Railway",
         "category": "hosting",
         "pay_url": "https://railway.app/account/billing",
-        "account_url": "https://railway.app/account",
+        "account_url": "https://railway.app/dashboard",
         "integration": "manual_link",
         "health": "green",
-        "note": "Billing-Seite öffnen — kein Auto-Abruf von PDFs",
+        "stack_role": "backend_host",
+        "note": "Backend / Deploy · Production API + Support Inbox",
     },
     {
         "id": "vercel",
         "name": "Vercel",
         "category": "hosting",
         "pay_url": "https://vercel.com/account/billing",
-        "account_url": "https://vercel.com/account",
+        "account_url": "https://vercel.com/dashboard",
         "integration": "manual_link",
         "health": "green",
-        "note": "Frontend Hosting · manueller Link",
+        "stack_role": "frontend_host",
+        "note": "Frontend Hosting · /site Storefront",
     },
     {
         "id": "hetzner",
         "name": "Hetzner",
         "category": "hosting",
         "pay_url": "https://accounts.hetzner.com/invoice",
-        "account_url": "https://accounts.hetzner.com",
+        "account_url": "https://console.hetzner.com",
         "integration": "manual_link",
         "health": "green",
-        "note": "Server / Storage · manueller Link",
+        "stack_role": "infra",
+        "note": "Server / Storage · optional Infrastruktur",
     },
     {
         "id": "domains",
         "name": "Domains",
         "category": "domains",
-        "pay_url": "",
-        "account_url": "",
-        "integration": "not_configured",
+        "pay_url": "https://www.ionos.de/mein-konto",
+        "account_url": "https://dash.cloudflare.com",
+        "integration": "manual_link",
         "health": "green",
-        "note": "Registrar je Kunde — Zahlungslink noch nicht hinterlegt",
+        "stack_role": "dns",
+        "note": "IONOS (DE) + Cloudflare DNS — Registrar je Kunde; Links öffnen Billing/Konto",
     },
     {
         "id": "toloka",
@@ -112,6 +132,7 @@ _DEFAULT_VENDORS: tuple[dict[str, Any], ...] = (
         "account_url": "https://toloka.ai",
         "integration": "manual_link",
         "health": "green",
+        "stack_role": "optional_crowd",
         "note": "Nur wenn genutzt · kein Auto-Import",
     },
 )
@@ -142,8 +163,9 @@ class FinanceOpsService:
         return {
             "module": "finance_tax_center",
             "disclaimer_de": (
-                "Virtus Core sammelt und klassifiziert Belege — keine automatische Steuerberechnung. "
-                "Endgültige Steuer bleibt bei Ihnen oder Ihrem Steuerberater."
+                "Virtus Core berechnet automatisch eine EÜR-lite Arbeitshilfe (Einnahmen − Ausgaben + "
+                "USt-Rücklage) für das deutsche Finanzamt. Keine ELSTER-Anmeldung und keine Steuerberatung — "
+                "Endgültige Steuer mit Steuerberater oder Finanzamt prüfen."
             ),
             "reality_note_de": (
                 "Heute: Einnahmen aus bezahlten Aufträgen + manuell hinterlegte Belege + "
@@ -176,7 +198,12 @@ class FinanceOpsService:
                         "account_url": (v.get("account_url") or "").strip() or None,
                         "note": v.get("note") or "",
                         "integration": v.get("integration") or "manual_link",
-                        "pay_ready": bool((v.get("pay_url") or "").strip() or (v.get("account_url") or "").strip()),
+                        "stack_role": v.get("stack_role") or "",
+                        "pay_ready": bool(
+                            (v.get("pay_url") or "").strip()
+                            or (v.get("account_url") or "").strip()
+                        ),
+                        "health": v.get("health") or "green",
                     }
                     for v in vendors
                 ]
@@ -184,11 +211,18 @@ class FinanceOpsService:
             "infrastructure_health": health,
             "missing_documents": missing,
             "morning_brief": brief,
+            "stack_map_de": (
+                "Stripe ← bezahlte Aufträge · Resend ← Outreach/Receipts · "
+                "Railway ← Backend · Vercel ← /site · Domains ← IONOS/Cloudflare · "
+                "LLM (OpenAI/Groq/Kimi) ← Vector"
+            ),
             "tax_export": {
                 "available": True,
                 "endpoint": "/api/owner/finance/tax-export",
-                "label_de": "Export für Steuerberater",
+                "label_de": "Finanzamt-Bericht herunterladen (ZIP)",
                 "includes": [
+                    "Finanzamt_Bericht.html",
+                    "Finanzamt_Bericht.csv",
                     "Einnahmen",
                     "Ausgaben",
                     "Stripe",
@@ -196,11 +230,124 @@ class FinanceOpsService:
                     "Hosting",
                     "APIs",
                     "Sonstiges",
-                    "Übersicht.csv",
                     "Uebersicht.csv",
                 ],
             },
+            "finanzamt_report": self.finanzamt_report(),
         }
+
+    def _vat_rate_percent(self) -> float:
+        path = self._memory / "engine_tax_config.json"
+        if path.is_file():
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                return max(0.0, min(50.0, float(data.get("vat_rate_percent") or 19)))
+            except (OSError, json.JSONDecodeError, TypeError, ValueError):
+                pass
+        return 19.0
+
+    def finanzamt_report(self, *, year: int | None = None) -> dict[str, Any]:
+        """Auto-calculated work aid for German Finanzamt / Steuerberater (not ELSTER filing).
+
+        Builds EÜR-lite totals from paid orders + Belege so the CEO does not re-sum by hand.
+        """
+        year = int(year or datetime.now(timezone.utc).year)
+        docs = self._documents()
+        income = self._income_rows()
+
+        def _in_year(raw: str | None) -> bool:
+            return str(raw or "").startswith(str(year))
+
+        income_rows = [r for r in income if _in_year(str(r.get("date") or ""))]
+        # If nothing dated this year yet, still show all (first-year / empty dates)
+        if not income_rows and income:
+            income_rows = list(income)
+        expense_rows = [
+            d
+            for d in docs
+            if str(d.get("kind") or "") != "income" and _in_year(str(d.get("date") or ""))
+        ]
+        if not expense_rows:
+            expense_rows = [d for d in docs if str(d.get("kind") or "") != "income"]
+
+        einnahmen = round(sum(float(r.get("amount_eur") or 0) for r in income_rows), 2)
+        ausgaben = round(sum(float(r.get("amount_eur") or 0) for r in expense_rows), 2)
+        ueberschuss = round(einnahmen - ausgaben, 2)
+        vat = self._vat_rate_percent()
+        # Conservative set-aside on surplus (Arbeitshilfe — not a tax assessment)
+        ust_ruecklage = round(max(0.0, ueberschuss) * (vat / 100.0), 2)
+        nach_ruecklage = round(ueberschuss - ust_ruecklage, 2)
+
+        return {
+            "authority": "Finanzamt (Deutschland)",
+            "authority_note_de": (
+                "Für deutsche Steuerpflichtige: Finanzamt — nicht die US Federal Reserve. "
+                "Dieser Bericht ist eine Arbeitshilfe aus Ihren Einnahmen/Ausgaben in Virtus Core."
+            ),
+            "year": year,
+            "currency": "EUR",
+            "vat_rate_percent": vat,
+            "einnahmen_eur": einnahmen,
+            "ausgaben_eur": ausgaben,
+            "ueberschuss_eur": ueberschuss,
+            "ust_ruecklage_eur": ust_ruecklage,
+            "nach_ruecklage_eur": nach_ruecklage,
+            "income_count": len(income_rows),
+            "expense_count": len(expense_rows),
+            "calculated_at": datetime.now(timezone.utc).isoformat(),
+            "disclaimer_de": (
+                "Keine Steuerberatung und keine ELSTER-Anmeldung. "
+                "Zahlen automatisch aus Stripe/Aufträgen und Belegen. "
+                "Endgültige Steuer mit Steuerberater oder Finanzamt prüfen."
+            ),
+            "download_zip": "/api/owner/finance/tax-export",
+            "download_html": f"/api/owner/finance/finanzamt-report.html?year={year}",
+        }
+
+    def build_finanzamt_html(self, *, year: int | None = None) -> str:
+        rep = self.finanzamt_report(year=year)
+        y = rep["year"]
+
+        def eur(v: float) -> str:
+            return f"{float(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+        return f"""<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<title>Finanzamt-Bericht {y} — Virtus Core</title>
+<style>
+  body {{ font-family: Georgia, serif; max-width: 720px; margin: 2rem auto; color: #111; }}
+  h1 {{ font-size: 1.4rem; }}
+  table {{ width: 100%; border-collapse: collapse; margin: 1.5rem 0; }}
+  th, td {{ border-bottom: 1px solid #ccc; padding: 0.55rem 0; text-align: left; }}
+  td.r {{ text-align: right; font-variant-numeric: tabular-nums; }}
+  .muted {{ color: #555; font-size: 0.9rem; }}
+  .box {{ border: 1px solid #ddd; padding: 1rem; border-radius: 8px; background: #fafafa; }}
+  @media print {{ body {{ margin: 0; }} }}
+</style>
+</head>
+<body>
+  <p class="muted">Virtus Core · Arbeitshilfe für das Finanzamt (DE)</p>
+  <h1>Finanzamt-Bericht {y}</h1>
+  <p class="muted">{rep["authority_note_de"]}</p>
+  <div class="box">
+    <table>
+      <tr><th>Position</th><th class="r">Betrag (EUR)</th></tr>
+      <tr><td>Einnahmen (bezahlt / erfasst)</td><td class="r">{eur(rep["einnahmen_eur"])}</td></tr>
+      <tr><td>Ausgaben (Belege)</td><td class="r">{eur(rep["ausgaben_eur"])}</td></tr>
+      <tr><td><strong>Überschuss (EÜR-lite)</strong></td><td class="r"><strong>{eur(rep["ueberschuss_eur"])}</strong></td></tr>
+      <tr><td>Empfohlene USt-/Steuer-Rücklage ({rep["vat_rate_percent"]:g}%)</td><td class="r">{eur(rep["ust_ruecklage_eur"])}</td></tr>
+      <tr><td>Nach Rücklage (Orientierung)</td><td class="r">{eur(rep["nach_ruecklage_eur"])}</td></tr>
+    </table>
+  </div>
+  <p class="muted">Einnahmen-Zeilen: {rep["income_count"]} · Ausgaben-Zeilen: {rep["expense_count"]} ·
+  Erstellt: {rep["calculated_at"]}</p>
+  <p class="muted"><strong>Hinweis:</strong> {rep["disclaimer_de"]}</p>
+  <p class="muted">Drucken → PDF speichern für Ihre Unterlagen oder den Steuerberater.</p>
+</body>
+</html>
+"""
 
     def add_document(self, payload: dict[str, Any]) -> dict[str, Any]:
         row = {
@@ -287,17 +434,31 @@ class FinanceOpsService:
                         zf.write(src, f"{folders[folder_key]}pdf/{src.name}")
 
             zf.writestr(f"{year}/Uebersicht.csv", "\n".join(overview_lines) + "\n")
+            report = self.finanzamt_report(year=year)
+            report_csv = "\n".join(
+                [
+                    "Kennzahl;Wert_EUR;Hinweis",
+                    f"Einnahmen;{report['einnahmen_eur']:.2f};bezahlt/erfasst",
+                    f"Ausgaben;{report['ausgaben_eur']:.2f};Belege",
+                    f"Ueberschuss_EUR_lite;{report['ueberschuss_eur']:.2f};Einnahmen-Ausgaben",
+                    f"USt_Steuer_Ruecklage_{report['vat_rate_percent']:g}pct;{report['ust_ruecklage_eur']:.2f};Orientierung",
+                    f"Nach_Ruecklage;{report['nach_ruecklage_eur']:.2f};nicht steuerfestgesetzt",
+                ]
+            )
+            zf.writestr(f"{year}/Finanzamt_Bericht.csv", report_csv + "\n")
+            zf.writestr(f"{year}/Finanzamt_Bericht.html", self.build_finanzamt_html(year=year))
             zf.writestr(
                 f"{year}/README.txt",
                 (
-                    "Export fuer Steuerberater — Virtus Core\n"
-                    "Keine Steuerberechnung. Bitte mit Steuerberater pruefen.\n"
+                    "Finanzamt-Bericht — Virtus Core (Deutschland)\n"
+                    "Automatisch berechnet aus Einnahmen und Belegen.\n"
+                    "Dateien: Finanzamt_Bericht.html (drucken/PDF), Finanzamt_Bericht.csv, Uebersicht.csv\n"
+                    "Keine ELSTER-Anmeldung und keine Steuerberatung — mit Steuerberater pruefen.\n"
                     f"Erstellt: {datetime.now(timezone.utc).isoformat()}\n"
-                    "Hinweis: Uebersicht.csv = Zusammenfassung aller Belege.\n"
                 ),
             )
 
-        name = f"virtus_steuer_export_{year}.zip"
+        name = f"virtus_finanzamt_bericht_{year}.zip"
         return buf.getvalue(), name
 
     def _vendors(self) -> list[dict[str, Any]]:
@@ -320,17 +481,44 @@ class FinanceOpsService:
                         continue
                     vid = str(r.get("id") or "")
                     base = dict(defaults.get(vid) or {})
-                    base.update({k: v for k, v in r.items() if v is not None})
+                    # Stored overrides, but empty strings must not wipe default billing URLs.
+                    for k, v in r.items():
+                        if v is None:
+                            continue
+                        if k in ("pay_url", "account_url") and not str(v).strip():
+                            continue
+                        if k == "integration" and str(v) == "not_configured":
+                            # Allow upgrade when defaults now ship working links.
+                            if (defaults.get(vid) or {}).get("integration") == "manual_link":
+                                continue
+                        if k == "health" and str(v) == "amber":
+                            # Stale amber without renewal alert — heal to default green.
+                            continue
+                        base[k] = v
                     if "integration" not in base:
                         base["integration"] = "manual_link"
-                    # Drop obsolete fake countdown fields from older seeds
                     base.pop("renewal_hint_days", None)
-                    # Keep canonical "not_configured" vendors honest (no stale pay URLs)
-                    if (defaults.get(vid) or {}).get("integration") == "not_configured":
-                        base["pay_url"] = defaults[vid].get("pay_url") or ""
-                        base["account_url"] = defaults[vid].get("account_url") or ""
-                        base["integration"] = "not_configured"
-                        base["note"] = defaults[vid].get("note") or base.get("note")
+                    # Heal link readiness
+                    if (base.get("pay_url") or "").strip() or (base.get("account_url") or "").strip():
+                        if base.get("integration") == "not_configured":
+                            base["integration"] = "manual_link"
+                        if str(base.get("health") or "") in ("", "amber"):
+                            base["health"] = "green"
+                    # Fill missing URLs from defaults
+                    dflt = defaults.get(vid) or {}
+                    if not (base.get("pay_url") or "").strip() and (dflt.get("pay_url") or "").strip():
+                        base["pay_url"] = dflt["pay_url"]
+                    if not (base.get("account_url") or "").strip() and (
+                        dflt.get("account_url") or ""
+                    ).strip():
+                        base["account_url"] = dflt["account_url"]
+                    if dflt.get("stack_role") and not base.get("stack_role"):
+                        base["stack_role"] = dflt["stack_role"]
+                    if dflt.get("note") and (
+                        not base.get("note")
+                        or "noch nicht hinterlegt" in str(base.get("note") or "")
+                    ):
+                        base["note"] = dflt["note"]
                     merged.append(base)
                     seen.add(vid)
                 for vid, d in defaults.items():
@@ -499,9 +687,16 @@ class FinanceOpsService:
             status = str(v.get("health") or "green")
             detail = str(v.get("note") or "")
             integration = str(v.get("integration") or "manual_link")
-            if not (v.get("pay_url") or v.get("account_url")):
+            pay_url = (v.get("pay_url") or "").strip()
+            account_url = (v.get("account_url") or "").strip()
+            href = pay_url or account_url
+            if not href:
                 status = "amber"
                 detail = "Zahlungslink nicht konfiguriert"
+                integration = "not_configured"
+            elif status == "amber" and vid not in alert_by_vendor:
+                # Linked + no renewal/PDF alert → green (stale amber healed)
+                status = "green"
             if vid in alert_by_vendor:
                 a = alert_by_vendor[vid]
                 status = "red" if a.get("level") == "red" else "amber"
@@ -513,6 +708,10 @@ class FinanceOpsService:
                     "status": status,
                     "detail": detail,
                     "integration": integration,
+                    "stack_role": v.get("stack_role") or "",
+                    "pay_url": pay_url or None,
+                    "account_url": account_url or None,
+                    "href": href or None,
                 }
             )
         worst = "green"
@@ -523,7 +722,10 @@ class FinanceOpsService:
         return {
             "overall": worst,
             "items": items,
-            "legend_de": "Status manuell / aus CEO-Hinweisen — keine Live-API zu Anbietern.",
+            "legend_de": (
+                "Grün = Billing-Link bereit (manuell). Amber/Rot nur bei echten Hinweisen "
+                "(Ablauf, fehlender Beleg) — keine Live-API zu Anbietern."
+            ),
         }
 
     def _morning_brief(

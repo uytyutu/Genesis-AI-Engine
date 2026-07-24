@@ -21,6 +21,49 @@ def test_finance_ops_dashboard_seeds_vendors(tmp_path: Path):
     assert dash["tax_export"]["available"] is True
     assert dash["infrastructure_health"]["overall"] in ("green", "amber", "red")
     assert (tmp_path / "finance_ops_vendors.json").is_file()
+    fa = dash["finanzamt_report"]
+    assert fa["authority"] == "Finanzamt (Deutschland)"
+    assert "einnahmen_eur" in fa
+    assert "ueberschuss_eur" in fa
+    assert fa["download_zip"]
+    assert "finanzamt-report.html" in fa["download_html"]
+
+
+def test_finanzamt_report_auto_calculates_from_orders(tmp_path: Path):
+    orders = [
+        {
+            "order_id": "ord-1",
+            "status": "paid",
+            "price_eur": 650,
+            "business_name": "Café Berlin",
+            "paid_at": "2026-07-10T10:00:00+00:00",
+        }
+    ]
+    (tmp_path / "sales_orders.json").write_text(json.dumps(orders), encoding="utf-8")
+    svc = FinanceOpsService(tmp_path)
+    svc.add_document(
+        {
+            "vendor": "Railway",
+            "amount_eur": 50,
+            "category": "hosting",
+            "kind": "invoice",
+            "date": "2026-07-12",
+        }
+    )
+    rep = svc.finanzamt_report(year=2026)
+    assert rep["einnahmen_eur"] == 650.0
+    assert rep["ausgaben_eur"] == 50.0
+    assert rep["ueberschuss_eur"] == 600.0
+    assert rep["ust_ruecklage_eur"] == 114.0  # 19% of 600
+    html = svc.build_finanzamt_html(year=2026)
+    assert "Finanzamt" in html
+    assert "600" in html or "600,00" in html
+    raw, name = svc.build_tax_export_zip(year=2026)
+    assert "finanzamt" in name.lower()
+    with zipfile.ZipFile(BytesIO(raw)) as zf:
+        names = zf.namelist()
+        assert any("Finanzamt_Bericht.html" in n for n in names)
+        assert any("Finanzamt_Bericht.csv" in n for n in names)
 
 
 def test_finance_ops_income_from_paid_orders(tmp_path: Path):
@@ -54,7 +97,10 @@ def test_finance_ops_empty_export_and_no_fake_alerts(tmp_path: Path):
     assert dash["billing_monitor"]["alerts"] == []
     assert "reality_note_de" in dash
     domains = next(v for v in dash["payment_center"]["vendors"] if v["id"] == "domains")
-    assert domains["pay_ready"] is False
+    assert domains["pay_ready"] is True
+    assert dash["infrastructure_health"]["overall"] == "green"
+    assert all(i["status"] == "green" for i in dash["infrastructure_health"]["items"])
+    assert any(v["id"] == "resend" for v in dash["payment_center"]["vendors"])
 
     raw, name = svc.build_tax_export_zip(year=2026)
     assert name.endswith(".zip")

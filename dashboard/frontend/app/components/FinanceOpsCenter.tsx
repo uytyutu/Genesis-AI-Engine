@@ -25,6 +25,18 @@ type OpsAlert = {
   pay_url?: string | null;
 };
 
+type HealthItem = {
+  id: string;
+  name: string;
+  status: string;
+  detail?: string;
+  integration?: string;
+  stack_role?: string;
+  href?: string | null;
+  pay_url?: string | null;
+  account_url?: string | null;
+};
+
 type OpsVendor = {
   id: string;
   name: string;
@@ -34,19 +46,14 @@ type OpsVendor = {
   note?: string;
   integration?: string;
   pay_ready?: boolean;
-};
-
-type HealthItem = {
-  id: string;
-  name: string;
-  status: string;
-  detail?: string;
-  integration?: string;
+  stack_role?: string;
+  health?: string;
 };
 
 type FinanceOps = {
   disclaimer_de?: string;
   reality_note_de?: string;
+  stack_map_de?: string;
   empty?: boolean;
   income?: { total_eur: number; rows: OpsRow[] };
   expenses?: { total_eur: number; rows: OpsRow[] };
@@ -62,6 +69,23 @@ type FinanceOps = {
     note_de?: string;
   };
   tax_export?: { label_de: string; endpoint: string; includes: string[] };
+  finanzamt_report?: {
+    authority?: string;
+    authority_note_de?: string;
+    year?: number;
+    currency?: string;
+    vat_rate_percent?: number;
+    einnahmen_eur?: number;
+    ausgaben_eur?: number;
+    ueberschuss_eur?: number;
+    ust_ruecklage_eur?: number;
+    nach_ruecklage_eur?: number;
+    income_count?: number;
+    expense_count?: number;
+    disclaimer_de?: string;
+    download_zip?: string;
+    download_html?: string;
+  };
 };
 
 function statusDot(status: string) {
@@ -96,22 +120,30 @@ export function FinanceOpsCenter() {
     setExporting(true);
     setExportMsg(null);
     try {
-      const res = await fetch(`${API}/api/owner/finance/tax-export`);
+      const year = ops?.finanzamt_report?.year ?? new Date().getFullYear();
+      const res = await fetch(`${API}/api/owner/finance/tax-export?year=${year}`);
       if (!res.ok) throw new Error("export failed");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `virtus_steuer_export_${new Date().getFullYear()}.zip`;
+      a.download = `virtus_finanzamt_bericht_${year}.zip`;
       a.click();
       URL.revokeObjectURL(url);
-      setExportMsg("ZIP heruntergeladen (auch ohne Belege — leere Ordner + Uebersicht.csv).");
+      setExportMsg(
+        `Finanzamt-Bericht ${year} heruntergeladen (HTML + CSV + Belege). Drucken → PDF möglich.`,
+      );
     } catch {
       setExportMsg("Export fehlgeschlagen — Backend prüfen.");
     } finally {
       setExporting(false);
     }
-  }, []);
+  }, [ops?.finanzamt_report?.year]);
+
+  const openFinanzamtHtml = useCallback(() => {
+    const year = ops?.finanzamt_report?.year ?? new Date().getFullYear();
+    window.open(`${API}/api/owner/finance/finanzamt-report.html?year=${year}`, "_blank");
+  }, [ops?.finanzamt_report?.year]);
 
   if (error) {
     return (
@@ -176,24 +208,50 @@ export function FinanceOpsCenter() {
           {health.legend_de ? (
             <p className="mb-3 text-xs text-genesis-muted">{health.legend_de}</p>
           ) : null}
+          {ops.stack_map_de ? (
+            <p className="mb-3 rounded-lg border border-emerald-500/20 bg-emerald-950/20 px-3 py-2 text-xs text-emerald-100/90">
+              {ops.stack_map_de}
+            </p>
+          ) : null}
           <ul className="space-y-2">
-            {health.items.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-start gap-3 rounded-xl border border-genesis-border-subtle px-3 py-2 text-sm"
-              >
-                <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${statusDot(item.status)}`} />
-                <div>
-                  <p className="font-medium">
-                    {item.name}{" "}
-                    <span className="text-xs font-normal text-genesis-muted">
-                      · {item.integration === "not_configured" ? "Link fehlt" : "manueller Link"}
-                    </span>
-                  </p>
-                  <p className="text-xs text-genesis-muted">{item.detail}</p>
-                </div>
-              </li>
-            ))}
+            {health.items.map((item) => {
+              const href = (item.href || item.pay_url || item.account_url || "").trim();
+              return (
+                <li
+                  key={item.id}
+                  className="flex items-start justify-between gap-3 rounded-xl border border-genesis-border-subtle px-3 py-2 text-sm"
+                >
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span
+                      className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${statusDot(item.status)}`}
+                    />
+                    <div className="min-w-0">
+                      <p className="font-medium">
+                        {item.name}{" "}
+                        <span className="text-xs font-normal text-genesis-muted">
+                          ·{" "}
+                          {item.integration === "not_configured" || !href
+                            ? "Link fehlt"
+                            : "manueller Link"}
+                          {item.stack_role ? ` · ${item.stack_role}` : ""}
+                        </span>
+                      </p>
+                      <p className="text-xs text-genesis-muted">{item.detail}</p>
+                    </div>
+                  </div>
+                  {href ? (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="shrink-0 rounded-lg bg-emerald-600/90 px-2.5 py-1 text-xs font-semibold text-white hover:brightness-110"
+                    >
+                      Öffnen →
+                    </a>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         </GenesisCard>
       ) : null}
@@ -310,20 +368,86 @@ export function FinanceOpsCenter() {
         </GenesisCard>
       ) : null}
 
-      <GenesisCard title="Steuer-Archiv" subtitle="Export für Steuerberater">
+      <GenesisCard
+        title="Finanzamt-Bericht (Deutschland)"
+        subtitle="Automatisch berechnet · Arbeitshilfe für Steuer / Steuerberater"
+      >
         <p className="text-sm text-genesis-muted">
-          ZIP mit Ordnern Einnahmen / Ausgaben / Stripe / Domains / Hosting / APIs + Uebersicht.csv.
-          Funktioniert auch ohne Belege. Keine automatische Steuerberechnung.
+          {ops.finanzamt_report?.authority_note_de ??
+            "Für deutsche Steuerpflichtige: Finanzamt — nicht die US Federal Reserve."}
         </p>
-        <button
-          type="button"
-          onClick={downloadTaxExport}
-          disabled={exporting}
-          className="mt-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
-        >
-          {exporting ? "Export…" : ops.tax_export?.label_de ?? "Export für Steuerberater"}
-        </button>
+        {ops.finanzamt_report ? (
+          <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
+            <table className="w-full text-sm">
+              <tbody>
+                {(
+                  [
+                    ["Jahr", String(ops.finanzamt_report.year ?? "—")],
+                    [
+                      "Einnahmen",
+                      formatEur(Number(ops.finanzamt_report.einnahmen_eur ?? 0)),
+                    ],
+                    [
+                      "Ausgaben",
+                      formatEur(Number(ops.finanzamt_report.ausgaben_eur ?? 0)),
+                    ],
+                    [
+                      "Überschuss (EÜR-lite)",
+                      formatEur(Number(ops.finanzamt_report.ueberschuss_eur ?? 0)),
+                    ],
+                    [
+                      `USt-/Steuer-Rücklage (${ops.finanzamt_report.vat_rate_percent ?? 19}%)`,
+                      formatEur(Number(ops.finanzamt_report.ust_ruecklage_eur ?? 0)),
+                    ],
+                    [
+                      "Nach Rücklage (Orientierung)",
+                      formatEur(Number(ops.finanzamt_report.nach_ruecklage_eur ?? 0)),
+                    ],
+                  ] as const
+                ).map(([label, value]) => (
+                  <tr key={label} className="border-b border-white/5 last:border-0">
+                    <td className="px-3 py-2 text-genesis-muted">{label}</td>
+                    <td className="px-3 py-2 text-right font-medium tabular-nums text-white">
+                      {value}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+        <p className="mt-3 text-xs text-genesis-muted">
+          {ops.finanzamt_report?.disclaimer_de ??
+            "Keine ELSTER-Anmeldung — Zahlen aus Aufträgen und Belegen. Mit Steuerberater prüfen."}
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={downloadTaxExport}
+            disabled={exporting}
+            className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
+          >
+            {exporting
+              ? "Export…"
+              : ops.tax_export?.label_de ?? "Finanzamt-Bericht herunterladen (ZIP)"}
+          </button>
+          <button
+            type="button"
+            onClick={openFinanzamtHtml}
+            className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/10"
+          >
+            Bericht öffnen (HTML → Drucken/PDF)
+          </button>
+        </div>
         {exportMsg ? <p className="mt-2 text-xs text-genesis-muted">{exportMsg}</p> : null}
+      </GenesisCard>
+
+      <GenesisCard title="Steuer-Archiv" subtitle="Ordner für Steuerberater">
+        <p className="text-sm text-genesis-muted">
+          Derselbe ZIP enthält Finanzamt_Bericht.html/.csv plus Ordner Einnahmen / Ausgaben /
+          Stripe / Domains / Hosting / APIs. Nutzen Sie die Schaltfläche oben — kein zweites
+          Rechnen nötig.
+        </p>
       </GenesisCard>
     </div>
   );
