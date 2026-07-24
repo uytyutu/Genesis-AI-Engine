@@ -3,12 +3,16 @@ export type FarmTaskEvent = {
   at: string;
   adapter: string;
   pay_eur: number;
+  estimate_eur?: number;
   target: string;
   detail: string;
   ok: boolean;
   skipped?: boolean;
   title_ru?: string;
   lifecycle_stage?: string;
+  real_payout?: boolean;
+  withdrawable?: boolean;
+  payout_id?: string | null;
 };
 
 export type PayoutGuide = {
@@ -22,9 +26,11 @@ export type PayoutGuide = {
 const STAGE_STYLES: Record<string, string> = {
   task_accepted: "border-sky-500/40 bg-sky-950/20",
   task_completed: "border-emerald-500/35 bg-emerald-950/15",
+  reward_estimate: "border-zinc-500/35 bg-zinc-900/40",
   payment_pending: "border-amber-500/35 bg-amber-950/15",
   payment_confirmed: "border-violet-500/35 bg-violet-950/15",
   balance_increased: "border-emerald-400/50 bg-emerald-900/25",
+  cycle_accounted: "border-zinc-500/30 bg-zinc-950/30",
   task_failed: "border-rose-500/40 bg-rose-950/20",
   price_filter: "border-orange-500/35 bg-orange-950/15",
 };
@@ -36,17 +42,31 @@ export function lifecycleRowClass(stage?: string): string {
 
 export function lifecycleTitle(event: FarmTaskEvent): string {
   if (event.title_ru) return event.title_ru;
-  if (event.lifecycle_stage === "balance_increased") return "Баланс увеличился";
-  if (event.ok) return "Задача выполнена";
+  if (event.lifecycle_stage === "balance_increased") return "Баланс биржи обновился";
+  if (event.lifecycle_stage === "reward_estimate") return "Оценка вознаграждения";
+  if (event.lifecycle_stage === "cycle_accounted") return "Расчётный учёт цикла";
+  if (event.lifecycle_stage === "payment_pending") return "Ожидает подтверждения платформой";
+  if (event.ok) return "Задача обработана";
   return "Событие фермы";
 }
 
+/** Only real exchange payouts — never local estimates. */
 export function showPayAmount(event: FarmTaskEvent): boolean {
+  return Boolean(
+    event.withdrawable ||
+      event.real_payout ||
+      (event.pay_eur > 0 &&
+        (event.lifecycle_stage === "payment_confirmed" ||
+          event.lifecycle_stage === "balance_increased")),
+  );
+}
+
+export function showEstimateAmount(event: FarmTaskEvent): boolean {
+  const est = Number(event.estimate_eur || 0);
   return (
-    event.pay_eur > 0 &&
-    (event.lifecycle_stage === "payment_confirmed" ||
-      event.lifecycle_stage === "balance_increased" ||
-      !event.lifecycle_stage)
+    est > 0 &&
+    (event.lifecycle_stage === "reward_estimate" ||
+      event.lifecycle_stage === "cycle_accounted")
   );
 }
 

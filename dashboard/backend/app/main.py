@@ -1419,6 +1419,77 @@ def farm_payment_monitor() -> dict:
     return _ctx().micro_farm.payment_monitor_status()
 
 
+@app.post("/api/farm/real-payout")
+def farm_real_payout(
+    amount_eur: float,
+    payout_id: str,
+    platform: str = "toloka",
+    task_id: str = "",
+    balance_after_eur: float | None = None,
+) -> dict:
+    """Record a real exchange payout (webhook / manual proof). Rejects missing payout_id."""
+    load_local_env()
+    return _ctx().micro_farm.log_real_exchange_payout(
+        amount_eur=amount_eur,
+        payout_id=payout_id,
+        platform=platform,
+        task_id=task_id,
+        balance_after_eur=balance_after_eur,
+    )
+
+
+@app.get("/api/farm/revenue-audit")
+def farm_revenue_audit() -> dict:
+    return _ctx().micro_farm.revenue_capability_audit()
+
+
+@app.get("/api/farm/revenue-sources")
+def farm_revenue_sources() -> dict:
+    return _ctx().micro_farm.revenue_source_catalog()
+
+
+@app.get("/api/farm/revenue-sources/center")
+def farm_revenue_sources_center() -> dict:
+    """Revenue Sources v0 — income control center (no web discovery)."""
+    return _ctx().micro_farm.revenue_sources_center()
+
+
+@app.get("/api/farm/finance-law")
+def farm_finance_law() -> dict:
+    """Finance Reality Law — Reality over Simulation (binding)."""
+    from app.integration.swarm_bridge import ensure_swarm_importable
+
+    ensure_swarm_importable()
+    from swarm.finance_reality_law import law_manifest
+
+    return law_manifest()
+
+
+@app.get("/api/farm/unit-economics")
+def farm_unit_economics() -> dict:
+    return _ctx().micro_farm.unit_economics_report()
+
+
+@app.get("/api/farm/finance-ledger")
+def farm_finance_ledger(real_only: bool = False, limit: int = 100) -> dict:
+    return _ctx().micro_farm.finance_ledger_snapshot(
+        real_only=real_only,
+        limit=max(1, min(500, limit)),
+    )
+
+
+@app.get("/api/farm/finance-ledger.csv")
+def farm_finance_ledger_csv(real_only: bool = True):
+    from fastapi.responses import PlainTextResponse
+
+    body = _ctx().micro_farm.finance_ledger_export_csv(real_only=real_only)
+    return PlainTextResponse(
+        body,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": "attachment; filename=virtus_finance_ledger.csv"},
+    )
+
+
 @app.get("/api/farm/forecast")
 def farm_forecast(labeling_nodes: int = 50, passive_nodes: int = 0) -> dict:
     return _ctx().micro_farm.revenue_forecast(

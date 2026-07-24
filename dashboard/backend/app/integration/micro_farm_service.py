@@ -125,16 +125,24 @@ class MicroFarmService:
         ok: bool = True,
         balance_after_eur: float | None = None,
         platform: str | None = None,
+        payout_id: str = "",
+        real_payout: bool = False,
     ) -> None:
         from app.integration.swarm_bridge import ensure_swarm_importable
 
         ensure_swarm_importable()
-        from swarm.farm_lifecycle_ru import detail_for_stage, stage_title
+        from swarm.farm_lifecycle_ru import (
+            REAL_MONEY_STAGES,
+            STAGE_REWARD_ESTIMATE,
+            STAGE_CYCLE_ACCOUNTED,
+            detail_for_stage,
+            stage_title,
+        )
 
         sandbox = self._business_mode.is_sandbox()
         vault = self._priority_manager().vault
         plat = platform or (
-            "Toloka/Scale (live)" if vault.is_live() and not vault.is_dry_run() else "учебная ферма"
+            "Toloka/Scale (live)" if vault.is_live() and not vault.is_dry_run() else "локальная ферма"
         )
         title_ru = stage_title(stage)
         detail = detail_for_stage(
@@ -144,24 +152,26 @@ class MicroFarmService:
             platform=plat,
             sandbox=sandbox,
             balance_eur=balance_after_eur,
+            payout_id=payout_id,
+            real_payout=real_payout,
         )
-        from swarm.farm_lifecycle_ru import (
-            STAGE_BALANCE_INCREASED,
-            STAGE_PAYMENT_CONFIRMED,
-        )
-
-        show_pay = stage in {STAGE_PAYMENT_CONFIRMED, STAGE_BALANCE_INCREASED}
+        is_real = bool(real_payout and stage in REAL_MONEY_STAGES)
+        is_estimate = stage in {STAGE_REWARD_ESTIMATE, STAGE_CYCLE_ACCOUNTED}
         self._log_event(
             {
                 "id": uuid.uuid4().hex[:12],
                 "at": datetime.now(timezone.utc).isoformat(),
                 "adapter": adapter,
-                "pay_eur": pay_eur if show_pay else 0.0,
+                "pay_eur": round(pay_eur, 4) if is_real else 0.0,
+                "estimate_eur": round(pay_eur, 4) if is_estimate else 0.0,
                 "target": task_id,
                 "detail": detail,
                 "title_ru": title_ru,
                 "lifecycle_stage": stage,
                 "ok": ok,
+                "real_payout": is_real,
+                "payout_id": payout_id or None,
+                "withdrawable": is_real,
             }
         )
 
@@ -173,7 +183,10 @@ class MicroFarmService:
         pay_eur: float,
         ok: bool,
         balance_after_eur: float | None = None,
+        payout_id: str = "",
+        real_payout: bool = False,
     ) -> None:
+        """Journal a local task. Never marks payment_confirmed without real_payout proof."""
         from app.integration.swarm_bridge import ensure_swarm_importable
 
         ensure_swarm_importable()
@@ -181,6 +194,8 @@ class MicroFarmService:
 
         vault = self._priority_manager().vault
         live_ex = vault.is_live() and not vault.is_dry_run()
+        # Local adapter table amounts are estimates — never "confirmed platform pay"
+        confirmed = bool(real_payout and payout_id and pay_eur > 0)
         self._log_lifecycle_event(
             stage=STAGE_ACCEPTED,
             adapter=adapter,
@@ -193,6 +208,7 @@ class MicroFarmService:
             sandbox=self._business_mode.is_sandbox(),
             live_exchange=live_ex,
             pay_eur=pay_eur,
+            real_payout=confirmed,
         ):
             if stage == STAGE_ACCEPTED:
                 continue
@@ -202,7 +218,77 @@ class MicroFarmService:
                 task_id=task_id,
                 pay_eur=pay_eur,
                 ok=ok,
+                payout_id=payout_id if confirmed else "",
+                real_payout=confirmed,
             )
+
+    def log_real_exchange_payout(
+        self,
+        *,
+        amount_eur: float,
+        payout_id: str,
+        platform: str,
+        task_id: str = "",
+        balance_after_eur: float | None = None,
+    ) -> dict[str, Any]:
+        """Record a real exchange payout (API/webhook). Only path that may say «подтвердила оплату»."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.farm_lifecycle_ru import STAGE_BALANCE_INCREASED, STAGE_PAYMENT_CONFIRMED
+
+        amount = round(float(amount_eur or 0), 4)
+        pid = str(payout_id or "").strip()
+        if amount <= 0 or not pid:
+            return {"ok": False, "reason": "payout_id_and_amount_required"}
+        tid = str(task_id or pid)[:48]
+        self._log_lifecycle_event(
+            stage=STAGE_PAYMENT_CONFIRMED,
+            adapter=platform,
+            task_id=tid,
+            pay_eur=amount,
+            ok=True,
+            platform=platform,
+            payout_id=pid,
+            real_payout=True,
+        )
+        if balance_after_eur is not None:
+            self._log_lifecycle_event(
+                stage=STAGE_BALANCE_INCREASED,
+                adapter=platform,
+                task_id=tid,
+                pay_eur=amount,
+                ok=True,
+                balance_after_eur=float(balance_after_eur),
+                platform=platform,
+                payout_id=pid,
+                real_payout=True,
+            )
+        try:
+            from swarm.finance_ledger import FinanceLedger
+            from swarm.revenue_source import CONFIDENCE_CONFIRMED
+
+            FinanceLedger(self._memory).append(
+                source_id=str(platform),
+                amount=amount,
+                currency="EUR",
+                income_type="exchange_payout",
+                description=f"Exchange payout {pid}",
+                confidence=CONFIDENCE_CONFIRMED,
+                payout_id=pid,
+                task_id=tid,
+                status="available",
+            )
+        except Exception:
+            pass
+        return {
+            "ok": True,
+            "payout_id": pid,
+            "amount_eur": amount,
+            "withdrawable": True,
+            "confidence": "CONFIRMED",
+            "note": "Реальная выплата биржи — вывод только вручную на Stripe с кабинета платформы",
+        }
 
     def _recent_events(self, limit: int = 20) -> list[dict[str, Any]]:
         path = self._events_path()
@@ -540,6 +626,86 @@ class MicroFarmService:
 
         threshold = PayoutNotifier(self._memory).snapshot().get("threshold_usd", 10.0)
         return payout_ui_block(threshold_usd=float(threshold or 10.0))
+
+    def revenue_capability_audit(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.revenue_source_capabilities import audit_report
+
+        return audit_report()
+
+    def revenue_source_catalog(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.revenue_source import catalog
+
+        return catalog()
+
+    def unit_economics_report(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.unit_economics import build_unit_economics
+
+        state = self._load_state()
+        return build_unit_economics(farm_state=state)
+
+    def finance_ledger_snapshot(self, *, real_only: bool = False, limit: int = 100) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.finance_ledger import FinanceLedger
+
+        ledger = FinanceLedger(self._memory)
+        return {
+            "summary": ledger.summary(),
+            "entries": ledger.list_entries(limit=limit, real_only=real_only),
+        }
+
+    def finance_ledger_export_csv(self, *, real_only: bool = True) -> str:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.finance_ledger import FinanceLedger
+
+        return FinanceLedger(self._memory).export_csv(real_only=real_only)
+
+    def revenue_sources_center(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+
+        ensure_swarm_importable()
+        from swarm.finance_ledger import FinanceLedger
+        from swarm.revenue_sources_center import build_revenue_sources_center
+
+        state = self._load_state()
+        stripe_income = 0.0
+        stripe_connected = False
+        try:
+            from app.integration.payment_settlement_service import PaymentSettlementService
+
+            settle = PaymentSettlementService(self._memory)
+            totals = settle.totals()
+            stripe_income = float(totals.get("paid_by_client_eur") or 0)
+            stripe_connected = bool(settle.has_stripe_webhook_payment()) or bool(
+                __import__("os").getenv("STRIPE_SECRET_KEY", "").strip()
+            )
+        except Exception:
+            import os
+
+            stripe_connected = bool(os.getenv("STRIPE_SECRET_KEY", "").strip())
+        ledger_real = 0.0
+        try:
+            ledger_real = float(FinanceLedger(self._memory).summary().get("real_withdrawable_eur") or 0)
+        except Exception:
+            ledger_real = 0.0
+        return build_revenue_sources_center(
+            stripe_income_eur=stripe_income,
+            stripe_connected=stripe_connected,
+            ledger_real_eur=ledger_real,
+            farm_estimate_eur=float(state.get("total_earned_eur") or 0),
+        )
 
     def prepare_live_mode(self) -> dict[str, Any]:
         vault = self.platform_vault_status()
@@ -1254,15 +1420,17 @@ class MicroFarmService:
             from app.integration.swarm_bridge import ensure_swarm_importable
 
             ensure_swarm_importable()
-            from swarm.farm_lifecycle_ru import STAGE_BALANCE_INCREASED
+            from swarm.farm_lifecycle_ru import STAGE_CYCLE_ACCOUNTED
 
+            # Local tick totals are accounting estimates — not Stripe-withdrawable income
             self._log_lifecycle_event(
-                stage=STAGE_BALANCE_INCREASED,
+                stage=STAGE_CYCLE_ACCOUNTED,
                 adapter="farm_tick",
                 task_id=f"tick-{state['last_tick_at'][:19]}",
                 pay_eur=round(earned, 4),
                 ok=True,
                 balance_after_eur=float(state.get("total_earned_eur") or 0),
+                real_payout=False,
             )
 
         toloka_submit = self._auto_submit_toloka_if_ready()
@@ -1971,10 +2139,11 @@ class MicroFarmService:
             "last_tick_at": state.get("last_tick_at"),
             "dashboard_fast": True,
             "honesty_note": (
-                "Биржи (Scale, Toloka, MTurk…) подключаются только твоим API-ключом — "
-                "без регистрации на площадке Genesis не может получать реальные €. "
-                "Внутренняя ферма и экспорт разметки работают уже сейчас."
+                "Журнал: локальный цикл даёт только оценку (€). "
+                "«Платформа подтвердила оплату» — только после API/webhook с ID выплаты. "
+                "Вывод на Stripe — вручную с кабинета Toloka/Scale, не из локального счётчика."
             ),
+            "revenue_sources": self.revenue_sources_center(),
             "cost_ratio_note": (
                 f"Расход ИИ: {float(state.get('llm_cost_eur') or 0):.3f} € · "
                 f"доход сегодня: {float(state.get('today_earned_eur') or 0):.2f} €"

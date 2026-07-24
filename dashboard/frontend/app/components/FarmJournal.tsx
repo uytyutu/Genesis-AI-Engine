@@ -9,6 +9,7 @@ import {
   PayoutGuide,
   lifecycleRowClass,
   lifecycleTitle,
+  showEstimateAmount,
   showPayAmount,
   taskTone,
 } from "../lib/farmLifecycleUi";
@@ -235,7 +236,7 @@ export function FarmJournal() {
             <section className="genesis-card p-5">
               <h2 className="text-sm font-semibold text-white">Журнал заработка</h2>
               <p className="mt-1 text-[11px] text-genesis-muted">
-                Задача принята → выполнена → платформа подтвердила → баланс вырос
+                Локально: взята → обработана → оценка · Реально: подтверждение биржи + ID выплаты → вывод на Stripe вручную
               </p>
               {!farmList(dash.recent_tasks).length ? (
                 <p className="mt-4 text-sm text-genesis-muted">
@@ -261,7 +262,11 @@ export function FarmJournal() {
                           </p>
                         </div>
                         <span className={taskTone(t)}>
-                          {showPayAmount(t) ? `+${t.pay_eur.toFixed(4)} € · ` : ""}
+                          {showPayAmount(t)
+                            ? `+${t.pay_eur.toFixed(4)} € · `
+                            : showEstimateAmount(t)
+                              ? `оценка ~${Number(t.estimate_eur || 0).toFixed(4)} € · `
+                              : ""}
                           {t.detail}
                         </span>
                       </div>

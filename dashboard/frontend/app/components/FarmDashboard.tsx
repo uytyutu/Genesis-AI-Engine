@@ -10,9 +10,11 @@ import {
   PayoutGuide,
   lifecycleRowClass,
   lifecycleTitle,
+  showEstimateAmount,
   showPayAmount,
   taskTone,
 } from "../lib/farmLifecycleUi";
+import { RevenueSourcesPanel, type RevenueSourcesCenter } from "./RevenueSourcesPanel";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const VRE_STICKY_KEY = "genesis.mc.vre_verified_sticky";
@@ -136,6 +138,7 @@ type FarmDash = {
   };
   recent_tasks: TaskEvent[];
   honesty_note: string;
+  revenue_sources?: RevenueSourcesCenter;
   cost_ratio_note: string;
   last_tick_at: string | null;
   revenue_forecast?: {
@@ -926,6 +929,8 @@ export function FarmDashboard() {
             </button>
           </div>
         ) : null}
+
+        {dash?.revenue_sources ? <RevenueSourcesPanel data={dash.revenue_sources} /> : null}
 
         {dash?.money_monitor ? <MoneyMonitorPanel data={dash.money_monitor} /> : null}
 
@@ -2088,7 +2093,7 @@ export function FarmDashboard() {
           <section className="genesis-card p-5">
             <h2 className="text-sm font-semibold text-white">Последние задачи</h2>
             <p className="mt-1 text-[11px] text-genesis-muted">
-              Задача принята → выполнена → оплата → баланс · жёлтый = Scale пропущен
+              Оценка вознаграждения · ожидание биржи · реальная выплата только с ID · Stripe — вывод вручную
             </p>
             {!farmList(dash.recent_tasks).length ? (
               <p className="mt-3 text-sm text-genesis-muted">Пусто — жми «Запустить ферму».</p>
@@ -2105,7 +2110,11 @@ export function FarmDashboard() {
                         <span className="text-genesis-muted"> · {ADAPTER_LABELS[t.adapter] ?? t.adapter}</span>
                       </span>
                       <span className={taskTone(t)}>
-                        {showPayAmount(t) ? `+${t.pay_eur.toFixed(4)} € · ` : ""}
+                        {showPayAmount(t)
+                          ? `+${t.pay_eur.toFixed(4)} € · `
+                          : showEstimateAmount(t)
+                            ? `оценка ~${Number(t.estimate_eur || 0).toFixed(4)} € · `
+                            : ""}
                         {t.detail}
                       </span>
                     </div>
