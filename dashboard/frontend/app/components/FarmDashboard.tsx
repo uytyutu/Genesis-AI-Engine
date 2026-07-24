@@ -599,12 +599,35 @@ export function FarmDashboard() {
     setBusy("start");
     setMessage("");
     try {
-      const feed = await fetch(`${API}/api/farm/feed`, { method: "POST" });
-      const feedBody = await feed.json().catch(() => ({}));
-      const res = await fetch(`${API}/api/farm/start?workers=${workers}`, { method: "POST" });
-      const body = await res.json();
-      setMessage(feedBody.message ?? body.message ?? "Ферма запущена");
+      // Primary: Country Desk sniper (09–18 local markets) — Mission 1 path
+      const deskRes = await fetch(`${API}/api/acquisition/runner/start`, {
+        method: "POST",
+      });
+      const deskBody = await deskRes.json().catch(() => ({}));
+      if (!deskRes.ok) {
+        setMessage(
+          typeof deskBody.detail === "string"
+            ? deskBody.detail
+            : `Пуск снайпера не удался (HTTP ${deskRes.status}). Откройте /acquisition.`,
+        );
+        return;
+      }
+      const sniperMsg =
+        deskBody.last_message_ru ||
+        "Снайпер Country Desk запущен · hunt 09–18 local";
+      // Secondary: legacy labeling feed (non-blocking)
+      try {
+        await fetch(`${API}/api/farm/feed`, { method: "POST" });
+        await fetch(`${API}/api/farm/start?workers=${workers}`, { method: "POST" });
+      } catch {
+        /* labeling farm optional */
+      }
+      setMessage(`${sniperMsg} · откройте /acquisition для лидов`);
       refresh();
+    } catch {
+      setMessage(
+        `Backend не отвечает (${API}). Genesis.exe → Запустить, затем снова «Запустить ферму».`,
+      );
     } finally {
       setBusy("");
     }

@@ -149,6 +149,7 @@ def active_markets(
     *,
     paused_markets: dict[str, Any] | None = None,
     effective_cap_fn=None,
+    business_hours_only: bool = False,
 ) -> list[dict[str, Any]]:
     paused = paused_markets or {}
     out: list[dict[str, Any]] = []
@@ -163,6 +164,14 @@ def active_markets(
             except (TypeError, ValueError):
                 continue
         out.append(m)
+    if business_hours_only and out:
+        try:
+            from app.integration.business_time import is_business_hours
+
+            open_only = [m for m in out if is_business_hours(str(m.get("code") or ""))]
+            return open_only
+        except Exception:
+            return out
     return out
 
 
@@ -260,8 +269,10 @@ class HuntRotationCursor:
         markets = active_markets(
             paused_markets=paused_markets,
             effective_cap_fn=effective_cap_fn,
+            business_hours_only=True,
         )
         if not markets:
+            # No country in 09–18 local right now — skip hunt tick
             return None
 
         if market_override:

@@ -201,9 +201,7 @@ class AcquisitionStudioService:
     def archive_stale_pipeline_for_fresh_run(self) -> dict[str, Any]:
         """Hide old visible leads so Start shows a clean multi-market queue.
 
-        Does not delete history — quality_archive only. Sent/won/lost stay visible
-        in History; pending/none/manual_review/approved draft noise is parked.
-        Also parks recently contacted companies (recontact cooldown).
+        Batch-save once (reliable). Sent/won/lost stay in History; drafts parked.
         """
         from app.integration.lead_engine_quality_gate import (
             RECONTACT_COOLDOWN_DAYS,
@@ -214,30 +212,36 @@ class AcquisitionStudioService:
         kept_sent = 0
         recontact_blocked = 0
         rows = self._opportunity._load_rows()
+        out: list[dict[str, Any]] = []
+        now = datetime.now(timezone.utc).isoformat()
         for row in rows:
-            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            row = dict(row)
+            meta = dict(row.get("meta") if isinstance(row.get("meta"), dict) else {})
             if meta.get("quality_archive"):
+                out.append(row)
                 continue
             status = str(row.get("status") or "")
             outreach = str(row.get("outreach_status") or "")
             if status in ("won", "lost") or outreach == "sent":
                 kept_sent += 1
+                out.append(row)
                 continue
+            reason = "fresh_multi_market_start"
+            detail = "Скрыто при Пуске · старый список; hunt только в 09–18 local"
             if recently_contacted(row, all_rows=rows, cooldown_days=RECONTACT_COOLDOWN_DAYS):
-                self._archive_quality(
-                    row,
-                    reason="recontact_cooldown",
-                    detail=f"Контакт был недавно (<{RECONTACT_COOLDOWN_DAYS} дн.)",
-                )
+                reason = "recontact_cooldown"
+                detail = f"Контакт был недавно (<{RECONTACT_COOLDOWN_DAYS} дн.)"
                 recontact_blocked += 1
-                archived += 1
-                continue
-            self._archive_quality(
-                row,
-                reason="fresh_multi_market_start",
-                detail="Скрыто при Пуске · старый список; страны крутятся заново",
-            )
+            meta["quality_archive"] = True
+            meta["quality_archive_reason"] = reason
+            meta["quality_archive_detail"] = detail
+            meta["quality_archived_at"] = now
+            row["meta"] = meta
+            row["updated_at"] = now
             archived += 1
+            out.append(row)
+        if archived:
+            self._opportunity._save_rows(out)
         return {
             "ok": True,
             "archived": archived,
@@ -250,13 +254,60 @@ class AcquisitionStudioService:
         }
 
     def runner_start(self) -> dict[str, Any]:
+        from app.integration.business_time import business_time_status
+        from app.integration.outreach_ceo_prefs import save_prefs
+        from app.integration.outreach_hunt_rotation import active_markets
+
         cleared = self.archive_stale_pipeline_for_fresh_run()
+        # Reset hunt cursor so rotation starts fresh among open markets
+        try:
+            cursor_path = Path(self._memory_dir) / "outreach_hunt_cursor.json"
+            if cursor_path.is_file():
+                cursor_path.unlink()
+        except Exception:
+            pass
+        # Clear adaptive pauses so open APAC/Tier1 are not stuck
+        try:
+            path = Path(self._memory_dir) / "outreach_adaptive_state.json"
+            if path.is_file():
+                path.write_text(
+                    json.dumps(
+                        {
+                            "paused_markets": {},
+                            "history": [],
+                            "last_review_at": None,
+                            "note": "runner_start_fresh",
+                        },
+                        ensure_ascii=False,
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
+        except Exception:
+            pass
+        # Auto-refresh on after Пуск so ticks keep hunting
+        try:
+            save_prefs(self._memory_dir, auto_refresh=True)
+        except Exception:
+            pass
+
         status = self._get_runner().start()
+        open_markets = active_markets(business_hours_only=True)
+        open_codes = [str(m.get("code") or "") for m in open_markets]
+        open_rows = [
+            business_time_status(code)
+            for code in open_codes
+        ]
+        open_label = ", ".join(
+            f"{r['market']} {r['local_hour']:02d}:xx"
+            for r in open_rows
+        ) or "нет (ждите 09:00 local)"
         status["pipeline_cleared"] = cleared
+        status["open_markets"] = open_codes
+        status["pipeline"] = self.pipeline_leads(limit=40)
         status["last_message_ru"] = (
-            f"{status.get('last_message_ru') or 'Пуск'} · "
-            f"старые лиды скрыты ({cleared.get('archived', 0)}) · "
-            "hunt round-robin по всем странам до лимитов"
+            f"Пуск снайпера · старые лиды скрыты ({cleared.get('archived', 0)}) · "
+            f"hunt только 09–18 local: {open_label}"
         )
         return status
 
@@ -532,14 +583,40 @@ class AcquisitionStudioService:
     def studio_status(self) -> dict:
         from app.integration.lead_engine_queues import build_lead_engine_dashboard
         from app.integration.outreach_ceo_prefs import load_prefs, outreach_send_allowed
+        from app.integration.outreach_hunt_rotation import active_markets
 
         rows = self._opportunity._load_rows()
-        pending = sum(1 for r in rows if r.get("outreach_status") == "pending_approval")
-        manual = sum(1 for r in rows if r.get("outreach_status") == "manual_review")
+
+        def _active(r: dict) -> bool:
+            meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                return False
+            if r.get("status") in ("won", "lost"):
+                return False
+            return True
+
+        active_rows = [r for r in rows if _active(r)]
+        pending = sum(
+            1 for r in active_rows if r.get("outreach_status") == "pending_approval"
+        )
+        manual = sum(
+            1 for r in active_rows if r.get("outreach_status") == "manual_review"
+        )
         sent = sum(1 for r in rows if r.get("outreach_status") == "sent")
         prefs = load_prefs(self._memory_dir)
         outreach_enabled = outreach_send_allowed(self._memory_dir)
-        le = build_lead_engine_dashboard(rows)
+        open_codes = [
+            str(m.get("code") or "").upper()
+            for m in active_markets(business_hours_only=True)
+        ]
+        le = build_lead_engine_dashboard(
+            rows,
+            enabled_markets=open_codes
+            or [
+                str(m.get("code") or "").upper()
+                for m in active_markets(business_hours_only=False)
+            ],
+        )
         return {
             "version": "lead_engine_v1",
             "name": "Country Desk · Lead Engine v1",
@@ -556,14 +633,14 @@ class AcquisitionStudioService:
             "manual_review_count": manual,
             "auto_draft_max_eur": AUTO_DRAFT_MAX_EUR,
             "sent_count": sent,
-            "pipeline_count": sum(
-                1 for r in rows if r.get("status") not in ("won", "lost")
-            ),
+            "pipeline_count": len(active_rows),
+            "open_markets_now": open_codes,
             "channels": _ACQUISITION_CHANNELS,
             "pilot_catalog": ceo_catalog_snapshot(),
             "last_desk_action": self.last_desk_action(),
             "ranking_goal_ru": (
-                "Lead Engine v1: Premium Score → Smart Offer → Business Time → Quality Gate"
+                "Lead Engine v1: Premium Score → Smart Offer → Business Time → Quality Gate · "
+                "hunt только страны с 09–18 local"
             ),
             "outreach_daily_cap": outreach_daily_cap(),
             "outreach_quota": self._send_quota.health(),

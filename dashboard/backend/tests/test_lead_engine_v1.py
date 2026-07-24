@@ -287,9 +287,10 @@ def test_fresh_archive_keeps_sent(tmp_path: Path):
     svc._archive_quality = AcquisitionStudioService._archive_quality.__get__(svc)
     result = svc.archive_stale_pipeline_for_fresh_run()
     assert result["kept_sent_or_closed"] >= 2
-    assert rows[0]["meta"].get("quality_archive") is True
-    assert not rows[1]["meta"].get("quality_archive")
-    assert not rows[2]["meta"].get("quality_archive")
+    saved = svc._opportunity._rows
+    assert saved[0]["meta"].get("quality_archive") is True
+    assert not saved[1]["meta"].get("quality_archive")
+    assert not saved[2]["meta"].get("quality_archive")
 
 
 def test_dashboard_ready_waiting_split():

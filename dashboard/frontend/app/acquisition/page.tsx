@@ -246,6 +246,7 @@ type StudioStatus = {
   ready_now?: number;
   waiting?: number;
   history_count?: number;
+  open_markets_now?: string[];
   top_premium_leads?: {
     id?: string;
     company_name?: string;
@@ -256,6 +257,7 @@ type StudioStatus = {
   countries?: {
     market?: string;
     open?: boolean;
+    local_hour?: number;
     local_time?: string;
     timezone?: string;
   }[];
@@ -822,10 +824,19 @@ export default function AcquisitionPage() {
                       : "border-white/10 bg-white/5 text-white/50"
                   }`}
                 >
-                  {c.market} {c.open ? "· open" : "· closed"}
+                  {c.market} {c.open ? `· ${String(c.local_hour ?? "").padStart(2, "0")}:xx open` : "· closed"}
                 </span>
               ))}
             </div>
+          ) : null}
+          {status?.open_markets_now && status.open_markets_now.length > 0 ? (
+            <p className="mt-2 text-xs text-emerald-200/80">
+              Hunt сейчас: {status.open_markets_now.join(", ")} (09:00–18:00 local)
+            </p>
+          ) : status ? (
+            <p className="mt-2 text-xs text-amber-200/70">
+              Сейчас нет стран в окне 09–18 — снайпер ждёт (APAC ночью по Берлину).
+            </p>
           ) : null}
           {status?.top_premium_leads && status.top_premium_leads.length > 0 ? (
             <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3">
@@ -965,13 +976,29 @@ export default function AcquisitionPage() {
                 void (async () => {
                   setBusy("runner-start");
                   setMessage("");
+                  setActionOk(null);
                   try {
                     const res = await fetch(`${API}/api/acquisition/runner/start`, {
                       method: "POST",
                     });
-                    const body = await res.json();
-                    setMessage(body.last_message_ru || "Country Desk запущен");
+                    const body = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                      flash(apiErrorText(body, res.status, "Пуск не удался"), false);
+                      return;
+                    }
+                    flash(
+                      body.last_message_ru || "Country Desk / снайпер запущен",
+                      true,
+                    );
+                    if (Array.isArray(body.pipeline)) {
+                      setPipeline(body.pipeline);
+                    }
                     await refresh();
+                  } catch {
+                    flash(
+                      `Backend не отвечает (${API}). Genesis.exe → Запустить, затем снова ▶ Пуск.`,
+                      false,
+                    );
                   } finally {
                     setBusy("");
                   }

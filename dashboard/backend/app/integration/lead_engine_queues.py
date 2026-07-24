@@ -102,6 +102,7 @@ def build_lead_engine_dashboard(
             markets = ["DE", "GB", "US"]
 
     countries = [business_time_status(code, now_utc=now) for code in markets]
+    countries.sort(key=lambda c: (0 if c.get("open") else 1, str(c.get("market") or "")))
 
     return {
         "ready_now": len(ready),
