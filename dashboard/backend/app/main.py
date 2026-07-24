@@ -947,6 +947,125 @@ def get_stripe_setup(request: Request) -> dict:
     return _ctx().monetization_engine._checkout.stripe_setup_status(public_api_base=base)  # noqa: SLF001
 
 
+@app.get("/api/owner/gmail", response_class=HTMLResponse)
+def owner_gmail_center(request: Request) -> str:
+    """One-time Gmail OAuth desk — localhost only (owner middleware)."""
+    import html as html_lib
+
+    from app.integration import gmail_mail_service as gmail
+
+    base = str(request.base_url).rstrip("/")
+    st = gmail.status(public_api_base=base)
+    redirect = html_lib.escape(str(st.get("redirect_uri") or ""))
+    sender = html_lib.escape(str(st.get("sender") or "—"))
+    ready = "✅" if st.get("send_ready") else "❌"
+    oauth = "✅" if st.get("oauth_client_ready") else "❌"
+    has_rt = "✅" if st.get("has_refresh_token") else "❌"
+    return f"""<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"/><title>Gmail Mail — Virtus Core</title>
+<style>
+body{{font-family:system-ui,sans-serif;max-width:640px;margin:40px auto;padding:0 16px;color:#111;background:#fafafa}}
+code,pre{{background:#eee;padding:2px 6px;border-radius:4px}}
+pre{{padding:12px;overflow:auto;white-space:pre-wrap}}
+a.btn{{display:inline-block;margin-top:16px;padding:12px 18px;background:#111;color:#fff;text-decoration:none;border-radius:8px}}
+.muted{{color:#666;font-size:14px;line-height:1.5}}
+</style></head><body>
+<h1>Gmail API — авторизация</h1>
+<p class="muted">Один раз войдите в Google → скопируйте <code>GMAIL_REFRESH_TOKEN</code> в
+<code>dashboard/backend/.env.local</code> → перезапустите Genesis. Дальше письма идут без повторного входа.
+Resend остаётся основным; Gmail — запасной канал при сбое/лимите.</p>
+<ul>
+<li>OAuth client (ID+Secret): {oauth}</li>
+<li>Refresh token в .env: {has_rt}</li>
+<li>Готов слать: {ready}</li>
+<li>Отправитель: <code>{sender}</code></li>
+<li>Redirect URI (добавьте в Google Cloud → OAuth client):<br/><code>{redirect}</code></li>
+</ul>
+<a class="btn" href="/api/owner/gmail/oauth/start">Connect Gmail</a>
+<p class="muted" style="margin-top:24px">Scope: <code>gmail.send</code> · только localhost CEO desk</p>
+</body></html>"""
+
+
+@app.get("/api/owner/gmail/status")
+def owner_gmail_status(request: Request) -> dict:
+    from app.integration import gmail_mail_service as gmail
+
+    return gmail.status(public_api_base=str(request.base_url).rstrip("/"))
+
+
+@app.get("/api/owner/gmail/oauth/start")
+def owner_gmail_oauth_start(request: Request):
+    from fastapi.responses import RedirectResponse
+
+    from app.integration import gmail_mail_service as gmail
+
+    if not gmail.oauth_client_ready():
+        raise HTTPException(
+            status_code=400,
+            detail="Set GMAIL_CLIENT_ID and GMAIL_CLIENT_SECRET in .env.local",
+        )
+    base = str(request.base_url).rstrip("/")
+    redirect_uri = gmail.default_redirect_uri(base)
+    state = gmail.create_oauth_state()
+    url = gmail.authorization_url(redirect_uri=redirect_uri, state=state)
+    return RedirectResponse(url, status_code=302)
+
+
+@app.get("/api/owner/gmail/oauth/callback", response_class=HTMLResponse)
+def owner_gmail_oauth_callback(
+    request: Request,
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+) -> str:
+    import html as html_lib
+
+    from app.integration import gmail_mail_service as gmail
+
+    if error:
+        return (
+            "<!DOCTYPE html><html><body><h1>Gmail OAuth error</h1>"
+            f"<pre>{html_lib.escape(error)}</pre>"
+            '<p><a href="/api/owner/gmail">Назад</a></p></body></html>'
+        )
+    if not state or not gmail.consume_oauth_state(state):
+        raise HTTPException(status_code=400, detail="Invalid or expired OAuth state")
+    if not code:
+        raise HTTPException(status_code=400, detail="Missing authorization code")
+    base = str(request.base_url).rstrip("/")
+    redirect_uri = gmail.default_redirect_uri(base)
+    result = gmail.exchange_code(code=code, redirect_uri=redirect_uri)
+    if not result.get("ok"):
+        detail = html_lib.escape(str(result.get("detail") or result.get("reason") or ""))
+        return (
+            "<!DOCTYPE html><html><body><h1>Token exchange failed</h1>"
+            f"<pre>{detail}</pre>"
+            '<p><a href="/api/owner/gmail">Повторить</a></p></body></html>'
+        )
+    refresh = result.get("refresh_token")
+    if not refresh:
+        hint = html_lib.escape(str(result.get("hint") or "No refresh_token returned"))
+        return (
+            "<!DOCTYPE html><html><body><h1>Нет refresh_token</h1>"
+            f"<p>{hint}</p>"
+            '<p><a href="/api/owner/gmail">Connect снова</a></p></body></html>'
+        )
+    safe = html_lib.escape(str(refresh))
+    return f"""<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"/><title>Gmail Refresh Token</title>
+<style>
+body{{font-family:system-ui,sans-serif;max-width:720px;margin:40px auto;padding:0 16px}}
+pre{{background:#111;color:#9f9;padding:16px;border-radius:8px;overflow:auto;word-break:break-all}}
+.warn{{color:#a60;font-size:14px}}
+</style></head><body>
+<h1>Gmail авторизация успешна</h1>
+<p>Скопируйте строку в <code>dashboard/backend/.env.local</code> и перезапустите Genesis:</p>
+<pre>GMAIL_REFRESH_TOKEN={safe}</pre>
+<p class="warn">Не коммитьте .env.local и не отправляйте токен в чат. После сохранения перезапуск обязателен.</p>
+<p>Проверка статуса: <a href="/api/owner/gmail/status">/api/owner/gmail/status</a></p>
+</body></html>"""
+
+
 @app.post("/api/acquisition/auto-prepare-discovery")
 def acquisition_auto_prepare_discovery(body: dict | None = None) -> dict:
     body = body or {}

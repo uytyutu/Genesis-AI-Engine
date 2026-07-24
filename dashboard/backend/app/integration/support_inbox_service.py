@@ -634,8 +634,6 @@ class SupportInboxService:
             return {"ok": False, "skipped": True, "reason": "no_email"}
         api_key = os.getenv("RESEND_API_KEY", "").strip()
         from_addr = os.getenv("GENESIS_EMAIL_FROM", "").strip()
-        if not api_key or not from_addr:
-            return {"ok": False, "skipped": True, "reason": "not_configured"}
 
         intro = text.split("\n\n")[0][:280] if text else subject
         safe_text = html.escape(text).replace("\n", "<br>")
@@ -646,32 +644,60 @@ class SupportInboxService:
             f"<p style='margin-top:24px;color:#666;font-size:12px'>{html.escape(BRAND_NAME)}</p>"
             f"</div>"
         )
-        payload = {
-            "from": from_addr,
-            "to": [to],
-            "subject": subject,
-            "text": text,
-            "html": html_body,
-        }
-        try:
-            with httpx.Client(timeout=30.0) as client:
-                res = client.post(
-                    "https://api.resend.com/emails",
-                    json=payload,
-                    headers={"Authorization": f"Bearer {api_key}"},
-                )
-        except Exception as exc:
-            return {"ok": False, "reason": "network_error", "detail": str(exc)[:160]}
-        if res.status_code >= 400:
-            return {
-                "ok": False,
-                "reason": f"resend_error:{res.status_code}",
-                "detail": res.text[:200],
+        resend_result: dict[str, Any] | None = None
+        if api_key and from_addr:
+            payload = {
+                "from": from_addr,
+                "to": [to],
+                "subject": subject,
+                "text": text,
+                "html": html_body,
             }
-        return {
-            "ok": True,
-            "provider": "resend",
-            "id": (res.json() or {}).get("id"),
+            try:
+                with httpx.Client(timeout=30.0) as client:
+                    res = client.post(
+                        "https://api.resend.com/emails",
+                        json=payload,
+                        headers={"Authorization": f"Bearer {api_key}"},
+                    )
+            except Exception as exc:
+                resend_result = {
+                    "ok": False,
+                    "reason": "network_error",
+                    "detail": str(exc)[:160],
+                }
+            else:
+                if res.status_code < 400:
+                    return {
+                        "ok": True,
+                        "provider": "resend",
+                        "id": (res.json() or {}).get("id"),
+                    }
+                resend_result = {
+                    "ok": False,
+                    "reason": f"resend_error:{res.status_code}",
+                    "detail": res.text[:200],
+                }
+
+        from app.integration.gmail_mail_service import send_email as gmail_send
+
+        gmail_result = gmail_send(
+            to=to,
+            subject=subject,
+            text=text,
+            html=html_body,
+            from_addr=from_addr or None,
+        )
+        if gmail_result.get("ok"):
+            if resend_result:
+                gmail_result = {**gmail_result, "fallback_after": resend_result.get("reason")}
+            return gmail_result
+        if resend_result is not None:
+            return resend_result
+        return gmail_result if gmail_result.get("reason") else {
+            "ok": False,
+            "skipped": True,
+            "reason": "not_configured",
         }
 
     @staticmethod

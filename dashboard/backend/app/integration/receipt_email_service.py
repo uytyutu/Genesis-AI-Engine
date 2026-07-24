@@ -378,37 +378,58 @@ class ReceiptEmailService:
             return {"ok": False, "skipped": True, "reason": "no_email"}
         api_key = os.getenv("RESEND_API_KEY", "").strip()
         resolved_from = (from_addr or "").strip() or os.getenv("GENESIS_EMAIL_FROM", "").strip()
-        if not api_key or not resolved_from:
-            return {"ok": False, "skipped": True, "reason": "not_configured"}
-
-        payload: dict = {
-            "from": resolved_from,
-            "to": [to],
-            "subject": subject,
-            "text": text,
-            "html": html,
-        }
-        if bcc.strip():
-            payload["bcc"] = [bcc.strip()]
-        headers = {"Authorization": f"Bearer {api_key}"}
-        if list_unsubscribe.strip():
-            headers["List-Unsubscribe"] = list_unsubscribe.strip()
-        with httpx.Client(timeout=30.0) as client:
-            res = client.post(
-                "https://api.resend.com/emails",
-                json=payload,
-                headers=headers,
-            )
-        if res.status_code >= 400:
-            return {
+        resend_result: dict | None = None
+        if api_key and resolved_from:
+            payload: dict = {
+                "from": resolved_from,
+                "to": [to],
+                "subject": subject,
+                "text": text,
+                "html": html,
+            }
+            if bcc.strip():
+                payload["bcc"] = [bcc.strip()]
+            headers = {"Authorization": f"Bearer {api_key}"}
+            if list_unsubscribe.strip():
+                headers["List-Unsubscribe"] = list_unsubscribe.strip()
+            with httpx.Client(timeout=30.0) as client:
+                res = client.post(
+                    "https://api.resend.com/emails",
+                    json=payload,
+                    headers=headers,
+                )
+            if res.status_code < 400:
+                return {
+                    "ok": True,
+                    "provider": "resend",
+                    "from": resolved_from,
+                    "id": (res.json() or {}).get("id"),
+                }
+            resend_result = {
                 "ok": False,
                 "skipped": False,
                 "reason": f"resend_error:{res.status_code}",
                 "detail": res.text[:200],
             }
-        return {
-            "ok": True,
-            "provider": "resend",
-            "from": resolved_from,
-            "id": (res.json() or {}).get("id"),
+
+        from app.integration.gmail_mail_service import send_email as gmail_send
+
+        gmail_result = gmail_send(
+            to=to,
+            subject=subject,
+            text=text,
+            html=html,
+            from_addr=from_addr,
+            list_unsubscribe=list_unsubscribe,
+        )
+        if gmail_result.get("ok"):
+            if resend_result:
+                gmail_result = {**gmail_result, "fallback_after": resend_result.get("reason")}
+            return gmail_result
+        if resend_result is not None:
+            return resend_result
+        return gmail_result if gmail_result.get("reason") else {
+            "ok": False,
+            "skipped": True,
+            "reason": "not_configured",
         }
