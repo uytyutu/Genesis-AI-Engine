@@ -401,7 +401,6 @@ export function GenesisConcierge({
 
   const hasConversation = messages.some((m) => m.role === "user");
   const showThread = isPublic ? true : hasConversation && !chatCollapsed;
-  const publicImmersive = isPublic && hasConversation && !hubMode;
 
   const { showJumpButton, handleScroll, jumpToLatest, pinToBottom } = useChatAutoScroll(
     messagesRef,
@@ -1543,7 +1542,7 @@ export function GenesisConcierge({
         attachHint={attachHint}
         inputId="genesis-chat-input"
         onFocusChange={setComposerFocused}
-        minimalMobile={isPublic && !hubMode}
+        minimalMobile={false}
         clientWorkspace={isPublicHub}
         onSpeakAnswer={isPublicHub ? undefined : speakLastAnswer}
       />
@@ -1553,7 +1552,7 @@ export function GenesisConcierge({
   const thread = messages ?? [];
 
   return (
-    <div className={`flex flex-col gap-2 md:flex-row md:items-stretch ${isPublic && !hubMode ? "h-full" : isPublicHub ? "h-full min-h-0" : ""}`}>
+    <div className={`flex flex-col gap-2 md:flex-row md:items-stretch ${isPublic && !hubMode ? "h-full min-h-0" : isPublicHub ? "h-full min-h-0" : ""}`}>
       <ChatHistorySidebar
         sessions={sessionList}
         activeSessionId={activeSessionId}
@@ -1574,9 +1573,7 @@ export function GenesisConcierge({
         isPublicHub
           ? "h-full min-h-[min(48dvh,30rem)] max-sm:rounded-2xl"
           : isPublic
-          ? publicImmersive
-            ? `min-h-[min(58dvh,34rem)] max-h-[min(64dvh,38rem)] max-sm:rounded-2xl max-sm:border-x-0${sidebarOpen ? " max-sm:pointer-events-none" : ""}`
-            : "min-h-[min(58dvh,32rem)] max-h-[min(64dvh,36rem)] max-sm:rounded-2xl max-sm:border-x-0"
+          ? "h-full min-h-0 max-h-none rounded-2xl"
           : showThread
             ? composerFocused
               ? "min-h-[min(92dvh,52rem)] max-h-[min(96dvh,56rem)]"

@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
@@ -95,18 +101,103 @@ export function SitePage() {
   const [market, setMarket] = useState("DE");
   const [markets, setMarkets] = useState<MarketOption[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
+  const [chatPos, setChatPos] = useState<{ x: number; y: number } | null>(null);
+  const chatDragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
   const [detailId, setDetailId] = useState<string | null>("business");
   const localeTag = (i18n.language || "de").replace("_", "-");
+  const CHAT_POS_KEY = "vector-chat-panel-pos";
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(CHAT_POS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { x?: unknown; y?: unknown };
+      if (typeof parsed.x === "number" && typeof parsed.y === "number") {
+        setChatPos({ x: parsed.x, y: parsed.y });
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const clampChatPos = useCallback((x: number, y: number) => {
+    if (typeof window === "undefined") return { x, y };
+    const margin = 8;
+    const w = Math.min(720, window.innerWidth - margin * 2);
+    const h = Math.min(720, window.innerHeight * 0.78, window.innerHeight - 88);
+    return {
+      x: Math.max(margin, Math.min(x, window.innerWidth - w - margin)),
+      y: Math.max(margin, Math.min(y, window.innerHeight - h - margin)),
+    };
+  }, []);
 
   const openChat = useCallback(() => {
     setChatOpen(true);
-    requestAnimationFrame(() => {
-      document.getElementById("vector-chat-panel")?.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
-    });
   }, []);
+
+  const onChatDragStart = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement>) => {
+      if (e.button !== 0) return;
+      const panel = document.getElementById("vector-chat-panel");
+      if (!panel) return;
+      const rect = panel.getBoundingClientRect();
+      const origin = chatPos ?? { x: rect.left, y: rect.top };
+      if (!chatPos) setChatPos(origin);
+      chatDragRef.current = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        originX: origin.x,
+        originY: origin.y,
+      };
+      e.currentTarget.setPointerCapture(e.pointerId);
+    },
+    [chatPos],
+  );
+
+  const onChatDragMove = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement>) => {
+      const drag = chatDragRef.current;
+      if (!drag || drag.pointerId !== e.pointerId) return;
+      setChatPos(
+        clampChatPos(
+          drag.originX + (e.clientX - drag.startX),
+          drag.originY + (e.clientY - drag.startY),
+        ),
+      );
+    },
+    [clampChatPos],
+  );
+
+  const onChatDragEnd = useCallback(
+    (e: ReactPointerEvent<HTMLDivElement>) => {
+      const drag = chatDragRef.current;
+      if (!drag || drag.pointerId !== e.pointerId) return;
+      chatDragRef.current = null;
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+      setChatPos((prev) => {
+        if (!prev) return prev;
+        const next = clampChatPos(prev.x, prev.y);
+        try {
+          sessionStorage.setItem(CHAT_POS_KEY, JSON.stringify(next));
+        } catch {
+          /* ignore */
+        }
+        return next;
+      });
+    },
+    [clampChatPos],
+  );
 
   function packageDiffLines(packageId: string): string[] {
     const keys = PACKAGE_DIFF_KEYS[packageId] || PACKAGE_DIFF_KEYS.basic!;
@@ -553,33 +644,60 @@ export function SitePage() {
           {t("pathA.foot", { brand: BRAND_NAME })}
         </p>
 
-        {/* Secondary Vector chat panel — wide consultant surface, not a tiny widget */}
+        {/* Vector chat — same floating card on mobile + desktop; header drags the panel */}
         {chatOpen ? (
           <div
             id="vector-chat-panel"
-            className="fixed inset-x-2 bottom-20 top-16 z-40 mx-auto flex w-auto max-w-3xl flex-col overflow-hidden rounded-2xl border border-sky-400/30 bg-genesis-bg shadow-2xl sm:inset-x-auto sm:right-6 sm:left-auto sm:top-auto sm:bottom-20 sm:h-[min(78vh,720px)] sm:w-[min(720px,calc(100vw-3rem))]"
+            style={
+              chatPos
+                ? { left: chatPos.x, top: chatPos.y, right: "auto", bottom: "auto" }
+                : undefined
+            }
+            className={`fixed z-40 flex flex-col overflow-hidden rounded-2xl border border-sky-400/30 bg-genesis-bg shadow-2xl ${
+              chatPos
+                ? ""
+                : "bottom-20 right-3 left-3 sm:left-auto sm:right-6"
+            } h-[min(78dvh,720px)] max-h-[calc(100dvh-5.5rem)] w-auto max-w-3xl sm:w-[min(720px,calc(100vw-3rem))]`}
           >
-            <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
-              <div>
-                <p className="text-sm font-semibold text-white">
-                  {ASSISTANT_NAME}
-                </p>
-                <p className="text-xs text-zinc-400">
-                  {t("s0.chatHint", {
-                    defaultValue: "Consultant — helps you choose a package",
-                  })}
-                </p>
+            <div
+              className="flex shrink-0 cursor-grab touch-none items-center justify-between gap-2 border-b border-white/10 px-3 py-2.5 active:cursor-grabbing sm:px-4"
+              onPointerDown={onChatDragStart}
+              onPointerMove={onChatDragMove}
+              onPointerUp={onChatDragEnd}
+              onPointerCancel={onChatDragEnd}
+              title={t("s0.dragChat", {
+                defaultValue: "Drag to move",
+              })}
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <span
+                  className="select-none text-zinc-500"
+                  aria-hidden
+                >
+                  ⠿
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-white">
+                    {ASSISTANT_NAME}
+                  </p>
+                  <p className="truncate text-xs text-zinc-400">
+                    {t("s0.chatHint", {
+                      defaultValue: "Consultant — helps you choose a package",
+                    })}
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setChatOpen(false)}
+                onPointerDown={(e) => e.stopPropagation()}
                 className="rounded-lg px-2 py-1 text-sm text-zinc-400 hover:bg-white/5 hover:text-white"
                 aria-label="Close"
               >
                 ✕
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+            <div className="min-h-0 flex-1 overflow-hidden [&_#genesis-chat]:h-full [&_#genesis-chat]:max-h-none [&_#genesis-chat]:min-h-0 [&_#genesis-chat]:rounded-none [&_#genesis-chat]:border-0 [&_#genesis-chat]:shadow-none">
               <GenesisConcierge scope="public" />
             </div>
           </div>
