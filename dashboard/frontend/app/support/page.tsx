@@ -228,9 +228,11 @@ export default function SupportPage() {
 
   async function unsubscribeThread(id: string) {
     if (!id) return;
+    const fromAddr = threads.find((t) => t.id === id)?.from || selected?.from || "";
     if (
       !window.confirm(
         "Отписать адрес от маркетинговых / outreach писем?\n\n" +
+          (fromAddr ? `${fromAddr}\n\n` : "") +
           "Диалог сохранится в истории и закроется. Письмо не удаляется.",
       )
     ) {
@@ -242,15 +244,37 @@ export default function SupportPage() {
     try {
       const res = await fetch(`${API}/api/support/threads/${id}/unsubscribe`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: fromAddr }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
+        // Fallback: block by email only (works when thread lives on Railway)
+        if (fromAddr) {
+          const res2 = await fetch(`${API}/api/support/do-not-email`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: fromAddr, thread_id: id }),
+          });
+          const body2 = await res2.json().catch(() => ({}));
+          if (res2.ok) {
+            setTab("closed");
+            setNote(
+              `Unsubscribed · ${body2.email || fromAddr} · outreach заблокирован` +
+                (body2.leads_suppressed ? ` · лидов: ${body2.leads_suppressed}` : ""),
+            );
+            await loadAll();
+            return;
+          }
+          setError(body2.detail || body.detail || "unsubscribe_failed");
+          return;
+        }
         setError(body.detail || "unsubscribe_failed");
         return;
       }
       setTab("closed");
       setNote(
-        `Unsubscribed · ${body.contact?.email || "email"} · outreach заблокирован` +
+        `Unsubscribed · ${body.contact?.email || body.email || fromAddr || "email"} · outreach заблокирован` +
           (body.leads_suppressed ? ` · лидов: ${body.leads_suppressed}` : ""),
       );
       await loadAll();

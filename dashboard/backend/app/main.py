@@ -627,6 +627,85 @@ async def support_inbox_remote_proxy(request: Request, call_next):
     if request.method == "OPTIONS":
         return with_cors(Response(status_code=204))
 
+    # Unsubscribe must succeed for Country Desk even if Railway is behind / 404.
+    is_unsub = path.endswith("/unsubscribe") or path.endswith("/do-not-email")
+    if is_unsub and request.method == "POST":
+        import json as _json
+
+        body_bytes = await request.body()
+        email = ""
+        try:
+            payload = _json.loads(body_bytes.decode("utf-8") or "{}")
+            if isinstance(payload, dict):
+                email = str(payload.get("email") or "").strip()
+        except Exception:
+            payload = {}
+        # Always apply locally so outreach Quality Gate sees the block
+        local_out: dict | None = None
+        if email and "@" in email:
+            try:
+                tid = ""
+                if "/threads/" in path and path.endswith("/unsubscribe"):
+                    tid = path.rsplit("/threads/", 1)[-1].split("/", 1)[0]
+                local_out = _ctx().support.unsubscribe_email(
+                    email,
+                    thread_id=tid,
+                    source="support_ui",
+                )
+            except ValueError:
+                local_out = None
+
+        if remote_enabled():
+            from app.integration.support_remote import remote_base, bridge_secret
+            import httpx
+
+            url = f"{remote_base()}{path}"
+            if request.url.query:
+                url = f"{url}?{request.url.query}"
+            try:
+                async with httpx.AsyncClient(timeout=45.0) as client:
+                    res = await client.request(
+                        request.method,
+                        url,
+                        content=body_bytes,
+                        headers={
+                            "X-Support-Bridge": bridge_secret(),
+                            "Content-Type": request.headers.get("content-type")
+                            or "application/json",
+                            "Accept": "application/json",
+                        },
+                    )
+                if res.status_code < 400:
+                    return with_cors(
+                        Response(
+                            content=res.content,
+                            status_code=res.status_code,
+                            media_type=res.headers.get("content-type") or "application/json",
+                        )
+                    )
+                # Remote 404/5xx — return local success if we blocked the address
+                if local_out:
+                    return with_cors(JSONResponse(local_out))
+                return with_cors(
+                    Response(
+                        content=res.content,
+                        status_code=res.status_code,
+                        media_type=res.headers.get("content-type") or "application/json",
+                    )
+                )
+            except Exception:
+                if local_out:
+                    return with_cors(JSONResponse(local_out))
+                raise
+
+        if local_out:
+            return with_cors(JSONResponse(local_out))
+        # No email in body — rebuild request so route handler still sees JSON
+        async def _receive():
+            return {"type": "http.request", "body": body_bytes, "more_body": False}
+
+        return await call_next(Request(request.scope, _receive))
+
     if remote_enabled():
         proxied = await proxy_support(request, path)
         if proxied is not None:
@@ -771,6 +850,22 @@ def download_tax_export(year: int | None = None):
         content=raw,
         media_type="application/zip",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@app.get("/api/owner/finance/finanzamt-report.html", response_class=HTMLResponse)
+def download_finanzamt_report_html(year: int | None = None) -> HTMLResponse:
+    """Printable Finanzamt work-aid — browser Print → PDF."""
+    from datetime import datetime, timezone
+
+    from app.integration.finance_ops_service import FinanceOpsService
+
+    ctx = _ctx()
+    html = FinanceOpsService(ctx.finance._memory).build_finanzamt_html(year=year)  # noqa: SLF001
+    y = year or datetime.now(timezone.utc).year
+    return HTMLResponse(
+        content=html,
+        headers={"Content-Disposition": f'inline; filename="Finanzamt_Bericht_{y}.html"'},
     )
 
 
@@ -1845,15 +1940,44 @@ def support_set_thread_status(thread_id: str, body: dict | None = None) -> dict:
 
 
 @app.post("/api/support/threads/{thread_id}/unsubscribe")
-def support_unsubscribe_thread(thread_id: str) -> dict:
+def support_unsubscribe_thread(thread_id: str, body: dict | None = None) -> dict:
     """Mark sender Do Not Email, close thread, keep conversation history."""
+    body = body or {}
+    email_fallback = str(body.get("email") or "").strip()
     try:
-        return _ctx().support.mark_unsubscribed(thread_id)
+        return _ctx().support.mark_unsubscribed(
+            thread_id, email_fallback=email_fallback
+        )
     except ValueError as exc:
         code = str(exc)
+        # Thread may live only on Railway — still block local outreach by email
+        if code == "not_found" and email_fallback:
+            try:
+                return _ctx().support.unsubscribe_email(
+                    email_fallback,
+                    thread_id=thread_id,
+                    source="support_ui",
+                )
+            except ValueError as exc2:
+                raise HTTPException(status_code=400, detail=str(exc2)) from exc2
         if code == "not_found":
             raise HTTPException(status_code=404, detail=code) from exc
         raise HTTPException(status_code=400, detail=code) from exc
+
+
+@app.post("/api/support/do-not-email")
+def support_do_not_email(body: dict | None = None) -> dict:
+    """Block an address without requiring a local thread id."""
+    body = body or {}
+    email = str(body.get("email") or "").strip()
+    try:
+        return _ctx().support.unsubscribe_email(
+            email,
+            thread_id=str(body.get("thread_id") or ""),
+            source=str(body.get("source") or "support_ui"),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.delete("/api/support/threads/{thread_id}")

@@ -67,4 +67,5 @@ def test_suppress_opportunity_jsonl(tmp_path: Path):
     assert n == 1
     text = path.read_text(encoding="utf-8")
     assert "do_not_contact" in text
-    assert '"id": "b"' in text.replace(" ", "") or '"id":"b"' in text
+    assert "other@z.com" in text
+    assert "x@y.com" in text

@@ -48,6 +48,29 @@ def normalize_fingerprint(subject: str, body: str) -> str:
     return hashlib.sha256(cleaned.encode("utf-8")).hexdigest()[:32]
 
 
+def looks_like_unsubscribe_request(subject: str = "", text: str = "") -> bool:
+    """Detect opt-out / Abmelden / unsubscribe language in inbound mail."""
+    blob = f"{subject or ''}\n{text or ''}".lower()
+    if not blob.strip():
+        return False
+    patterns = (
+        r"\bunsubscribe\b",
+        r"\babmelden\b",
+        r"\bopt[\s-]?out\b",
+        r"remove\s+me\s+from",
+        r"from\s+your\s+(mailing\s+)?list",
+        r"stop\s+(sending|email|mail)",
+        r"keine\s+(weiteren\s+)?(e-?mails|mails|nachrichten)",
+        r"отпис",
+        r"не\s+присыла",
+        r"do\s+not\s+(email|contact|mail)",
+        r"please\s+remove",
+        r"streiche[nm]\s+sie\s+mich",
+        r"aus\s+der\s+liste",
+    )
+    return any(re.search(p, blob) for p in patterns)
+
+
 class SupportInboxService:
     def __init__(self, memory_dir: Path | None = None) -> None:
         raw = os.getenv("GENESIS_MEMORY_DIR", "").strip()
@@ -121,6 +144,104 @@ class SupportInboxService:
                 return row
         raise ValueError("not_found")
 
+    def unsubscribe_email(
+        self,
+        email: str,
+        *,
+        thread_id: str = "",
+        source: str = "support",
+        note: str = "",
+    ) -> dict[str, Any]:
+        """Block marketing by email even when thread id is missing (remote/local split)."""
+        from app.integration.email_contact_status import (
+            EmailContactStatusService,
+            normalize_email,
+            suppress_outreach_leads_for_email,
+        )
+
+        key = normalize_email(email)
+        if not key or "@" not in key:
+            raise ValueError("invalid_from")
+
+        contact = EmailContactStatusService(self._memory).mark_unsubscribed(
+            key,
+            source=source,
+            thread_id=str(thread_id or ""),
+            note=note
+            or "Do not send marketing / outreach emails",
+        )
+        leads_touched = suppress_outreach_leads_for_email(self._memory, key)
+
+        updated: dict[str, Any] | None = None
+        rows = self._load_list(self._threads_path)
+        changed = False
+        for row in rows:
+            row_email = normalize_email(str(row.get("from") or ""))
+            match_id = thread_id and str(row.get("id")) == str(thread_id)
+            match_email = row_email == key
+            if not (match_id or match_email):
+                continue
+            row["status"] = "closed"
+            row["email_status"] = "unsubscribed"
+            row["do_not_email"] = True
+            row["updated_at"] = utc_now()
+            note_msg = {
+                "id": str(uuid.uuid4()),
+                "direction": "system",
+                "text": (
+                    f"📧 Email status → Unsubscribed ({key}). "
+                    "Маркетинговые / outreach письма больше не отправляются. "
+                    "История диалога сохранена."
+                ),
+                "created_at": utc_now(),
+                "auto": True,
+            }
+            msgs = list(row.get("messages") or [])
+            msgs.append(note_msg)
+            row["messages"] = msgs
+            updated = row
+            changed = True
+            if match_id:
+                break
+        if changed:
+            self._save_list(self._threads_path, rows)
+
+        return {
+            "ok": True,
+            "thread": updated,
+            "contact": contact,
+            "leads_suppressed": leads_touched,
+            "email": key,
+        }
+
+    def mark_unsubscribed(
+        self,
+        thread_id: str,
+        *,
+        email_fallback: str = "",
+    ) -> dict[str, Any]:
+        """Do Not Email: keep thread history, close dialog, block outreach to sender."""
+        from app.integration.email_contact_status import normalize_email
+
+        thread = self.get_thread(thread_id)
+        email = ""
+        if thread:
+            email = str(thread.get("from") or "").strip()
+        if not email:
+            email = str(email_fallback or "").strip()
+        email = normalize_email(email) or email
+        if not email or "@" not in email:
+            if not thread:
+                raise ValueError("not_found")
+            raise ValueError("invalid_from")
+
+        return self.unsubscribe_email(
+            email,
+            thread_id=str(thread_id or ""),
+            source="support",
+            note="Marked from Support — do not send marketing emails",
+        )
+
     def delete_thread(self, thread_id: str) -> bool:
         """Remove one thread from support_threads.json (frees local/Railway memory)."""
         tid = str(thread_id or "").strip()
@@ -132,63 +253,6 @@ class SupportInboxService:
             return False
         self._save_list(self._threads_path, next_rows)
         return True
-
-    def mark_unsubscribed(self, thread_id: str) -> dict[str, Any]:
-        """Do Not Email: keep thread history, close dialog, block outreach to sender."""
-        from app.integration.email_contact_status import (
-            EmailContactStatusService,
-            suppress_outreach_leads_for_email,
-        )
-
-        thread = self.get_thread(thread_id)
-        if not thread:
-            raise ValueError("not_found")
-        email = str(thread.get("from") or "").strip()
-        if not email or "@" not in email:
-            raise ValueError("invalid_from")
-
-        contact = EmailContactStatusService(self._memory).mark_unsubscribed(
-            email,
-            source="support",
-            thread_id=str(thread_id),
-            note="Marked from Support — do not send marketing emails",
-        )
-        leads_touched = suppress_outreach_leads_for_email(self._memory, email)
-
-        rows = self._load_list(self._threads_path)
-        updated: dict[str, Any] | None = None
-        for row in rows:
-            if str(row.get("id")) != str(thread_id):
-                continue
-            row["status"] = "closed"
-            row["email_status"] = "unsubscribed"
-            row["do_not_email"] = True
-            row["updated_at"] = utc_now()
-            note = {
-                "id": str(uuid.uuid4()),
-                "direction": "system",
-                "text": (
-                    f"📧 Email status → Unsubscribed. "
-                    f"Маркетинговые / outreach письма на {email} больше не отправляются. "
-                    "История диалога сохранена."
-                ),
-                "created_at": utc_now(),
-                "auto": True,
-            }
-            msgs = list(row.get("messages") or [])
-            msgs.append(note)
-            row["messages"] = msgs
-            updated = row
-            break
-        if not updated:
-            raise ValueError("not_found")
-        self._save_list(self._threads_path, rows)
-        return {
-            "ok": True,
-            "thread": updated,
-            "contact": contact,
-            "leads_suppressed": leads_touched,
-        }
 
     def ingest_inbound(
         self,
@@ -260,17 +324,10 @@ class SupportInboxService:
         thread["last_fingerprint"] = fp
         thread["subject"] = thread.get("subject") or subj
 
-        auto_result: dict[str, Any] | None = None
-        if auto_reply:
-            auto_result = self._try_auto_reply(thread, inbound_msg=msg)
-            if auto_result and auto_result.get("ok"):
-                thread["status"] = "waiting"
-                msg["auto_replied"] = True
-
-        if thread["status"] not in ("waiting", "closed"):
+        if thread.get("status") not in ("waiting", "closed"):
             thread["status"] = "needs_reply"
 
-        # upsert thread in list
+        # Persist inbound first (so unsubscribe/auto-reply can find the thread on disk)
         out_rows: list[dict[str, Any]] = []
         replaced = False
         for row in rows:
@@ -282,11 +339,44 @@ class SupportInboxService:
         if not replaced:
             out_rows.insert(0, thread)
         self._save_list(self._threads_path, out_rows)
+
+        auto_result: dict[str, Any] | None = None
+        auto_unsub: dict[str, Any] | None = None
+
+        # Opt-out mail → auto Unsubscribe (keep history, block outreach)
+        if looks_like_unsubscribe_request(subj, body):
+            try:
+                auto_unsub = self.unsubscribe_email(
+                    from_addr,
+                    thread_id=str(thread.get("id") or ""),
+                    source="auto_inbound",
+                    note="Auto: inbound looked like unsubscribe / Abmelden",
+                )
+                fresh = self.get_thread(str(thread.get("id") or ""))
+                if fresh:
+                    thread = fresh
+            except ValueError:
+                auto_unsub = None
+
+        if auto_reply and not auto_unsub:
+            auto_result = self._try_auto_reply(thread, inbound_msg=msg)
+            if auto_result and auto_result.get("ok"):
+                thread["status"] = "waiting"
+                msg["auto_replied"] = True
+                # persist status after auto-reply
+                rows2 = self._load_list(self._threads_path)
+                for i, row in enumerate(rows2):
+                    if str(row.get("id")) == str(thread["id"]):
+                        rows2[i] = thread
+                        break
+                self._save_list(self._threads_path, rows2)
+
         return {
             "ok": True,
             "thread": thread,
             "message": msg,
             "auto_reply": auto_result,
+            "auto_unsubscribed": auto_unsub,
         }
 
     def reply(

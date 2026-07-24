@@ -10,6 +10,36 @@ from app.integration.lead_engine_quality_gate import quality_gate_before_send
 from app.integration.support_inbox_service import SupportInboxService
 
 
+def test_unsubscribe_by_email_without_local_thread(tmp_path: Path):
+    """Railway thread missing locally — email fallback still blocks outreach."""
+    svc = SupportInboxService(memory_dir=tmp_path)
+    out = svc.unsubscribe_email("info@craigrace.com", thread_id="missing-id")
+    assert out["ok"] is True
+    assert out["email"] == "info@craigrace.com"
+    assert EmailContactStatusService(tmp_path).is_marketing_blocked("info@craigrace.com")
+
+
+def test_auto_unsubscribe_on_inbound_opt_out(tmp_path: Path):
+    from app.integration.support_inbox_service import looks_like_unsubscribe_request
+
+    assert looks_like_unsubscribe_request("Unsubscribe", "Please remove me from your list")
+    assert looks_like_unsubscribe_request("Abmelden", "keine weiteren E-Mails")
+    assert not looks_like_unsubscribe_request("Question", "We like your website")
+
+    svc = SupportInboxService(memory_dir=tmp_path)
+    ingested = svc.ingest_inbound(
+        from_email="team@craigrace.com",
+        subject="Re: your offer",
+        text="Sincerely, the Craig Race Architecture Team. Please unsubscribe us.",
+        auto_reply=False,
+    )
+    assert ingested.get("auto_unsubscribed")
+    thread = ingested["thread"]
+    assert thread["status"] == "closed"
+    assert thread["do_not_email"] is True
+    assert EmailContactStatusService(tmp_path).is_marketing_blocked("team@craigrace.com")
+
+
 def test_mark_unsubscribed_keeps_thread_closes_and_blocks_send(tmp_path: Path, monkeypatch):
     monkeypatch.setenv("GENESIS_MEMORY_DIR", str(tmp_path))
     svc = SupportInboxService(memory_dir=tmp_path)
