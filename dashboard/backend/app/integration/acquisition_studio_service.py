@@ -236,6 +236,10 @@ class AcquisitionStudioService:
             meta["quality_archive_reason"] = reason
             meta["quality_archive_detail"] = detail
             meta["quality_archived_at"] = now
+            # Wipe stale quote body so old personal-name drafts cannot be resent
+            row["proposed_message"] = ""
+            row["email_subject"] = ""
+            row["proposed_subject"] = ""
             row["meta"] = meta
             row["updated_at"] = now
             archived += 1
@@ -304,9 +308,17 @@ class AcquisitionStudioService:
         ) or "нет (ждите 09:00 local)"
         status["pipeline_cleared"] = cleared
         status["open_markets"] = open_codes
-        status["pipeline"] = self.pipeline_leads(limit=40)
+        # Rebuild any remaining active quotes with current Pricing Engine + Vector brand
+        rebuilt = {"rebuilt": 0, "repriced": 0}
+        try:
+            rebuilt = self.rebuild_pipeline_quotes(limit=80)
+        except Exception:
+            rebuilt = {"rebuilt": 0, "repriced": 0}
+        status["quotes_rebuilt"] = int(rebuilt.get("rebuilt") or 0)
+        status["pipeline"] = rebuilt.get("pipeline") or self.pipeline_leads(limit=40)
         status["last_message_ru"] = (
             f"Пуск снайпера · старые лиды скрыты ({cleared.get('archived', 0)}) · "
+            f"квоты Vector пересобраны ({status['quotes_rebuilt']}) · "
             f"hunt только 09–18 local: {open_label}"
         )
         return status
@@ -319,6 +331,62 @@ class AcquisitionStudioService:
 
     def runner_tick(self) -> dict[str, Any]:
         return self._get_runner().tick()
+
+    def promote_manual_for_autosend(self, *, limit: int = 25) -> dict[str, Any]:
+        """When Автоотправка is on: lift gate-OK manual_review → pending_approval.
+
+        Path A packages are always >€50, so without this almost every draft stays in
+        manual_review forever and auto-send idles with Ready=0.
+        """
+        from app.integration.business_time import is_business_hours, market_from_lead
+        from app.integration.lead_engine_quality_gate import quality_gate_before_send
+        from app.integration.outreach_ceo_prefs import outreach_send_allowed
+
+        if not outreach_send_allowed(self._memory_dir):
+            return {"promoted": 0, "reason": "outreach_disabled"}
+        rows = self._opportunity._load_rows()
+        promoted: list[str] = []
+        for row in rows:
+            if len(promoted) >= limit:
+                break
+            if str(row.get("outreach_status") or "") != "manual_review":
+                continue
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            if meta.get("quality_archive") or meta.get("skip_outreach"):
+                continue
+            if not self._extract_email(row.get("contact", "")):
+                continue
+            if not row.get("proposed_message"):
+                continue
+            market = market_from_lead(row)
+            if not is_business_hours(market):
+                continue
+            oid = str(row.get("id") or "")
+            email = self._extract_email(str(row.get("contact") or "")).lower()
+            excl, _ = self._exclusion.check(
+                email=email,
+                website_url=str(row.get("website_url") or ""),
+                exclude_id=oid,
+            )
+            gate = quality_gate_before_send(
+                row, all_rows=rows, exclusion_blocked=bool(excl)
+            )
+            if not gate.get("ok"):
+                continue
+            try:
+                self.promote_manual_review(oid)
+                promoted.append(str(row.get("company_name") or oid))
+            except ValueError:
+                continue
+        return {
+            "promoted": len(promoted),
+            "names": promoted[:12],
+            "message_ru": (
+                f"Автоотправка: {len(promoted)} из Ручной проверки → Ready"
+                if promoted
+                else "Нет manual_review в открытом окне для авто-промоута"
+            ),
+        }
 
     def send_next_quality_lead(self) -> dict[str, Any]:
         """Send one Ready lead: Premium Score → Quality Gate → Business Time → send."""
@@ -334,6 +402,8 @@ class AcquisitionStudioService:
                 "reason": "outreach_disabled",
                 "message_ru": "Отправка выкл. (тумблер Автоотправка / GENESIS_OUTREACH_ENABLED) — только hunt/draft",
             }
+        # Unstick Path A drafts parked in manual_review while Автоотправка is on.
+        promoted = self.promote_manual_for_autosend(limit=15)
         rows = self._opportunity._load_rows()
         candidates: list[tuple[int, str, dict]] = []
         skipped_reasons: list[str] = []
@@ -371,9 +441,8 @@ class AcquisitionStudioService:
                     break
             if peer_busy:
                 continue
-            win = int(meta.get("win_probability_pct") or 0)
-            if status == "pending_approval" and win < HIGH_WIN_AUTO_CONFIRM_PCT:
-                continue
+            # Автоотправка already gated above — Quality Gate + Business Time are enough.
+            # (Old win≥75 filter left Ready=0 while hunt filled manual_review.)
             excl, _ = self._exclusion.check(
                 email=email,
                 website_url=str(row.get("website_url") or ""),
@@ -389,15 +458,33 @@ class AcquisitionStudioService:
             found = str(row.get("found_at") or "")
             candidates.append((premium, found, row))
         if not candidates:
-            reason = "outside_business_hours" if "outside_business_hours" in skipped_reasons else "no_quality_leads"
+            manual_n = sum(
+                1
+                for r in rows
+                if str(r.get("outreach_status") or "") == "manual_review"
+                and not (
+                    (r.get("meta") if isinstance(r.get("meta"), dict) else {}).get(
+                        "quality_archive"
+                    )
+                )
+            )
+            reason = (
+                "outside_business_hours"
+                if "outside_business_hours" in skipped_reasons
+                else "no_quality_leads"
+            )
             return {
                 "sent": False,
                 "skipped": True,
                 "reason": reason,
+                "promoted_manual": int(promoted.get("promoted") or 0),
                 "message_ru": (
                     "Рабочее окно закрыто — лиды в Waiting (09:00–18:00 local)"
                     if reason == "outside_business_hours"
-                    else "Нет Ready-лидов к отправке — квоту не заполняем"
+                    else (
+                        f"Нет Ready к отправке · ручная проверка {manual_n} · "
+                        f"промоут {int(promoted.get('promoted') or 0)} · нужен Quality Gate / email"
+                    )
                 ),
             }
         # premium_score DESC, found_at DESC
@@ -421,21 +508,38 @@ class AcquisitionStudioService:
             result.get("sent")
             or result.get("outreach_status") == "sent"
             or (isinstance(result.get("send"), dict) and result["send"].get("ok"))
+            or (
+                isinstance(result.get("send_result"), dict)
+                and result["send_result"].get("ok")
+            )
+            or (
+                isinstance(result.get("opportunity"), dict)
+                and result["opportunity"].get("outreach_status") == "sent"
+            )
         )
+        market = ""
+        try:
+            from app.integration.business_time import market_from_lead
+
+            market = market_from_lead(row)
+        except Exception:
+            market = str((row.get("meta") or {}).get("market") or row.get("market") or "")
         return {
             "sent": sent,
             "skipped": not sent,
             "company": row.get("company_name"),
+            "market": market,
             "to": self._extract_email(row.get("contact", "")),
+            "promoted_manual": int(promoted.get("promoted") or 0),
             "result": result,
             "message_ru": (
-                f"Отправлено: {row.get('company_name')}"
+                f"Отправлено [{market}]: {row.get('company_name')}"
                 if sent
                 else str(
-                    (result.get("send") or {}).get("reason")
+                    (result.get("send_result") or result.get("send") or {}).get("reason")
                     or result.get("message")
                     or result.get("reason")
-                    or "не отправлено (квота/ошибка)"
+                    or "не отправлено"
                 )
             ),
         }
@@ -617,6 +721,45 @@ class AcquisitionStudioService:
                 for m in active_markets(business_hours_only=False)
             ],
         )
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        sent_today_items: list[dict[str, Any]] = []
+        for r in rows:
+            if str(r.get("outreach_status") or "") != "sent":
+                continue
+            updated = str(r.get("updated_at") or r.get("found_at") or "")
+            if not updated.startswith(today):
+                continue
+            m = r.get("meta") if isinstance(r.get("meta"), dict) else {}
+            sent_today_items.append(
+                {
+                    "id": r.get("id"),
+                    "company_name": r.get("company_name"),
+                    "market": str(m.get("market") or r.get("market") or "?"),
+                    "to": self._extract_email(str(r.get("contact") or "")),
+                    "updated_at": updated,
+                    "price_label": r.get("recommended_price_label")
+                    or m.get("recommended_price_label"),
+                }
+            )
+        sent_today_items.sort(key=lambda x: str(x.get("updated_at") or ""), reverse=True)
+        runner = self.runner_status()
+        ready_n = int(le["ready_now"] or 0)
+        if not outreach_enabled:
+            blocker = "Автоотправка выкл. — включите тумблер."
+        elif not runner.get("running"):
+            blocker = "Тумблер вкл., но Country Desk остановлен — нажмите ▶ Пуск (тики шлют письма)."
+        elif ready_n == 0 and manual > 0:
+            blocker = (
+                f"Ready=0 · {manual} в «Ручная проверка» — тик промоутит в Ready и шлёт "
+                f"(09–18 local + Quality Gate). Сейчас Waiting={le['waiting']}."
+            )
+        elif ready_n == 0:
+            blocker = (
+                f"Ready=0 · Waiting={le['waiting']} — нет лидов с email+КП в открытом окне "
+                f"или Quality Gate режет."
+            )
+        else:
+            blocker = ""
         return {
             "version": "lead_engine_v1",
             "name": "Country Desk · Lead Engine v1",
@@ -626,13 +769,17 @@ class AcquisitionStudioService:
             "outreach_send_enabled": outreach_enabled,
             "outreach_send_note": (
                 "Автоотправка: тумблер CEO или GENESIS_OUTREACH_ENABLED=true + Resend + "
-                "Impressum/Abmelde. Только 09:00–18:00 local (Business Time)."
+                "Impressum/Abmelde. Только 09:00–18:00 local (Business Time). "
+                "Нужен ▶ Пуск — тики hunt+send по всем открытым странам."
             ),
             "law": "Plan → Approve → Act",
             "pending_approval_count": pending,
             "manual_review_count": manual,
             "auto_draft_max_eur": AUTO_DRAFT_MAX_EUR,
             "sent_count": sent,
+            "sent_today_count": len(sent_today_items),
+            "sent_today": sent_today_items[:40],
+            "autosend_blocker_ru": blocker,
             "pipeline_count": len(active_rows),
             "open_markets_now": open_codes,
             "channels": _ACQUISITION_CHANNELS,
@@ -646,7 +793,7 @@ class AcquisitionStudioService:
             "outreach_quota": self._send_quota.health(),
             "markets_dashboard": self.markets_dashboard(),
             "adaptive_outreach": self.adaptive_dashboard(auto_review=True),
-            "outreach_runner": self.runner_status(),
+            "outreach_runner": runner,
             "ready_now": le["ready_now"],
             "waiting": le["waiting"],
             "history_count": le["history"],
@@ -663,7 +810,16 @@ class AcquisitionStudioService:
         prefs = save_prefs(
             self._memory_dir, auto_refresh=auto_refresh, auto_send=auto_send
         )
-        # Never auto-start the market here — only CEO «Пуск» starts the runner.
+        runner_started = False
+        # Автоотправка без тиков бесполезна — поднимаем runner (без архивации пула).
+        if prefs.get("auto_send") and auto_send is True:
+            try:
+                st = self._get_runner().start()
+                runner_started = bool(st.get("running"))
+                save_prefs(self._memory_dir, auto_refresh=True)
+                prefs = save_prefs(self._memory_dir)  # reload
+            except Exception:
+                runner_started = False
         return {
             **prefs,
             "outreach_send_enabled": bool(prefs.get("auto_send"))
@@ -671,7 +827,12 @@ class AcquisitionStudioService:
                 __import__("os").getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower()
                 == "true"
             ),
-            "note_ru": "Рынок стартует только кнопкой Пуск. Автообновление действует после Пуска.",
+            "runner_started": runner_started,
+            "note_ru": (
+                "Автоотправка вкл. · runner запущен · тики шлют по открытым рынкам 09–18."
+                if runner_started
+                else "Рынок стартует кнопкой Пуск. Автообновление действует после Пуска."
+            ),
         }
 
     def adaptive_dashboard(self, *, auto_review: bool = False) -> dict[str, Any]:
@@ -1113,15 +1274,22 @@ class AcquisitionStudioService:
         price_f = float(price or 0)
         win_pct = int(evaluation.get("win_probability_pct") or 0)
         meta["win_probability_pct"] = win_pct
+        from app.integration.outreach_ceo_prefs import outreach_send_allowed
+
+        autosend_on = outreach_send_allowed(self._memory_dir)
         if auto_lane and win_pct >= HIGH_WIN_AUTO_QUEUE_PCT:
             row["outreach_status"] = "pending_approval"
             lane = "high_win_auto_queue"
-        elif auto_lane and price_f > AUTO_DRAFT_MAX_EUR:
+        elif auto_lane and price_f > AUTO_DRAFT_MAX_EUR and not autosend_on:
             row["outreach_status"] = "manual_review"
             lane = "manual_review"
         else:
             row["outreach_status"] = "pending_approval"
-            lane = "auto_draft" if (auto_lane and price_f <= AUTO_DRAFT_MAX_EUR) else "ceo_prepare"
+            lane = (
+                "autosend_queue"
+                if (auto_lane and autosend_on and price_f > AUTO_DRAFT_MAX_EUR)
+                else ("auto_draft" if (auto_lane and price_f <= AUTO_DRAFT_MAX_EUR) else "ceo_prepare")
+            )
         meta["price_tier"] = lane
         meta["auto_draft_max_eur"] = AUTO_DRAFT_MAX_EUR
         meta["high_win_auto_queue_pct"] = HIGH_WIN_AUTO_QUEUE_PCT
@@ -2228,6 +2396,24 @@ class AcquisitionStudioService:
         row = self._opportunity.get(opportunity_id)
         if not row:
             raise ValueError("not_found")
+        from app.integration.outreach_language_service import resolve_market_from_row
+
+        lead_market = str(
+            resolve_market_from_row(row)
+            or (row.get("meta") or {}).get("market")
+            or row.get("market")
+            or "DE"
+        ).upper()
+        picked, pick_meta = self._send_quota.pick_from_address(market=lead_market)
+        if picked:
+            try:
+                self._send_quota.record_send(
+                    picked,
+                    region=pick_meta.get("region"),
+                    market=lead_market,
+                )
+            except Exception:
+                pass
         row["outreach_status"] = "sent"
         row["status"] = "contacted"
         row["status_label"] = "Связались"
@@ -2601,8 +2787,8 @@ class AcquisitionStudioService:
             f"Wenn das für Sie interessant klingt — hier die Pakete und Bestellung "
             f"(ohne Verpflichtung):\n{order_url}\n\n"
             f"Beste Grüße\n"
-            f"Ramish Oltiiev\n"
-            f"Geschäftsführer · Virtus Core für Sie\n"
+            f"Vector\n"
+            f"Digitale Firma · Virtus Core\n"
         )
         return subject, body
 

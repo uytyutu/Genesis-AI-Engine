@@ -228,6 +228,16 @@ type StudioStatus = {
   law: string;
   pending_approval_count: number;
   sent_count: number;
+  sent_today_count?: number;
+  sent_today?: {
+    id?: string;
+    company_name?: string;
+    market?: string;
+    to?: string;
+    updated_at?: string;
+    price_label?: string;
+  }[];
+  autosend_blocker_ru?: string;
   pipeline_count: number;
   manual_review_count?: number;
   auto_draft_max_eur?: number;
@@ -795,7 +805,7 @@ export default function AcquisitionPage() {
             </div>
           )}
           {status ? (
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="mt-4 grid gap-3 sm:grid-cols-4">
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-emerald-200/80">Ready Now</p>
                 <p className="mt-1 text-2xl font-semibold text-emerald-100">{status.ready_now ?? 0}</p>
@@ -806,11 +816,47 @@ export default function AcquisitionPage() {
                 <p className="mt-1 text-2xl font-semibold text-amber-50">{status.waiting ?? 0}</p>
                 <p className="mt-1 text-[11px] text-amber-100/70">Вне окна / ждёт анализ</p>
               </div>
+              <div className="rounded-xl border border-sky-500/30 bg-sky-950/25 p-3">
+                <p className="text-[10px] uppercase tracking-wide text-sky-200/80">Sent today</p>
+                <p className="mt-1 text-2xl font-semibold text-sky-100">
+                  {status.sent_today_count ?? 0}
+                </p>
+                <p className="mt-1 text-[11px] text-sky-100/70">
+                  всего sent: {status.sent_count} · квота{" "}
+                  {status.outreach_quota?.sent_today_total ?? "—"}
+                </p>
+              </div>
               <div className="rounded-xl border border-white/10 bg-black/25 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-white/50">History</p>
                 <p className="mt-1 text-2xl font-semibold text-white/90">{status.history_count ?? status.sent_count}</p>
                 <p className="mt-1 text-[11px] text-white/50">Sent · Won · Lost</p>
               </div>
+            </div>
+          ) : null}
+          {status?.autosend_blocker_ru ? (
+            <p className="mt-3 rounded-xl border border-amber-500/35 bg-amber-950/25 px-4 py-3 text-sm text-amber-50">
+              {status.autosend_blocker_ru}
+            </p>
+          ) : null}
+          {status?.sent_today && status.sent_today.length > 0 ? (
+            <div className="mt-3 rounded-xl border border-sky-500/25 bg-sky-950/20 p-3">
+              <p className="text-xs font-medium text-sky-100">Кому ушло сегодня (все страны)</p>
+              <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-xs text-genesis-muted">
+                {status.sent_today.slice(0, 20).map((s) => (
+                  <li
+                    key={String(s.id || `${s.company_name}-${s.updated_at}`)}
+                    className="flex justify-between gap-2"
+                  >
+                    <span className="truncate text-white/85">
+                      {s.market || "?"} · {s.company_name || "—"}
+                      {s.to ? ` · ${s.to}` : ""}
+                    </span>
+                    <span className="shrink-0 tabular-nums text-sky-200/80">
+                      {String(s.updated_at || "").slice(11, 16) || "—"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ) : null}
           {status?.countries && status.countries.length > 0 ? (
@@ -955,7 +1001,9 @@ export default function AcquisitionPage() {
                     const body = await res.json();
                     setMessage(
                       next
-                        ? "Автоотправка включена · тики будут слать Approve/high-win (нужен Resend)"
+                        ? body.runner_started
+                          ? "Автоотправка вкл. · runner запущен · тики шлют Ready по всем открытым странам"
+                          : "Автоотправка вкл. · нажмите ▶ Пуск, иначе тики не идут"
                         : "Автоотправка выключена",
                     );
                     await refresh();
@@ -1532,8 +1580,9 @@ export default function AcquisitionPage() {
             <div>
               <h2 className="text-sm font-semibold">Лиды Country Desk</h2>
               <p className="mt-1 text-xs text-genesis-muted">
-                При Пуске старые черновики скрываются в архив. Новые лиды появляются по тикам
-                (страна → город → ниша → draft → auto-confirm).
+                При Пуске старые черновики архивируются и очищаются. Новые письма — от{" "}
+                <strong className="text-white/80">Vector · Virtus Core</strong> (не личное имя).
+                Если видите старые квоты: ▶ Пуск, затем «Пересобрать все квоты».
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
