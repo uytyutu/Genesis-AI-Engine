@@ -31,7 +31,12 @@ _OFFSET_HOURS: dict[str, tuple[int, int]] = {
     "IE": (0, 1),
     "US": (-5, -4),  # New York
     "CA": (-5, -4),  # Toronto
-    "AU": (10, 10),  # Sydney approx (ignore DST complexity)
+    # APAC — fixed standard offsets (DST ignored; zoneinfo preferred when available)
+    "AU": (10, 10),  # Sydney AEST
+    "NZ": (12, 12),  # Auckland NZST
+    "JP": (9, 9),  # Tokyo JST
+    "KR": (9, 9),  # Seoul KST
+    "SG": (8, 8),  # Singapore
 }
 
 
@@ -55,6 +60,10 @@ def timezone_for_market(market_code: str | None) -> str:
         "US": "America/New_York",
         "CA": "America/Toronto",
         "AU": "Australia/Sydney",
+        "NZ": "Pacific/Auckland",
+        "JP": "Asia/Tokyo",
+        "KR": "Asia/Seoul",
+        "SG": "Asia/Singapore",
         "FR": "Europe/Paris",
         "NL": "Europe/Amsterdam",
     }

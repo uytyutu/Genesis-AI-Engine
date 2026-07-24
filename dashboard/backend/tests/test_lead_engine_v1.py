@@ -64,6 +64,69 @@ def test_us_open_while_de_night():
     assert is_business_hours("DE", now_utc=utc) is False
 
 
+def test_apac_open_at_berlin_night():
+    # ~01:30 Berlin CEST (UTC+2) = 23:30 UTC previous day
+    # 2026-07-20 23:30 UTC → Berlin 01:30 · Sydney 09:30 · Auckland 11:30 · Tokyo 08:30
+    utc = datetime(2026, 7, 20, 23, 30, tzinfo=timezone.utc)
+    assert is_business_hours("DE", now_utc=utc) is False
+    assert is_business_hours("AU", now_utc=utc) is True
+    assert is_business_hours("NZ", now_utc=utc) is True
+    assert is_business_hours("JP", now_utc=utc) is False  # 08:30 — wait for 09:00
+    assert is_business_hours("KR", now_utc=utc) is False
+    assert is_business_hours("SG", now_utc=utc) is False  # 07:30
+
+
+def test_jp_open_after_local_nine():
+    # Tokyo 09:30 = 00:30 UTC (JST+9)
+    utc = datetime(2026, 7, 21, 0, 30, tzinfo=timezone.utc)
+    assert is_business_hours("JP", now_utc=utc) is True
+    assert is_business_hours("KR", now_utc=utc) is True
+    assert is_business_hours("DE", now_utc=utc) is False
+
+
+def test_apac_language_packs():
+    from app.integration.outreach_language_service import (
+        OutreachLanguageService,
+        language_for_market,
+    )
+    from app.integration.country_profiles import DEFAULT_ENABLED, TIER_APAC
+
+    assert language_for_market("JP") == "ja"
+    assert language_for_market("KR") == "ko"
+    assert language_for_market("AU") == "en-us"
+    assert language_for_market("NZ") == "en-us"
+    assert language_for_market("SG") == "en-us"
+    for code in TIER_APAC:
+        assert code in DEFAULT_ENABLED
+
+    svc = OutreachLanguageService()
+    for market, lang in (("JP", "ja"), ("KR", "ko"), ("AU", "en-us")):
+        subject, body, used = svc.draft_outreach(
+            company="Test Co",
+            analysis={"issues": ["mobile"]},
+            package={"name": "Basic", "price_label": "X"},
+            price=100,
+            fit_reason="test",
+            language=lang,
+            row={"market": market, "meta": {"market": market}},
+            allow_llm=False,
+        )
+        assert used == lang
+        assert subject
+        assert "Virtus Core" in body or "Test Co" in body
+
+
+def test_apac_markets_enabled_in_json():
+    from app.integration.outreach_market_config import reload_outreach_markets, get_market
+
+    reload_outreach_markets()
+    for code in ("AU", "NZ", "JP", "KR", "SG"):
+        m = get_market(code)
+        assert m is not None, code
+        assert m.get("enabled") is True, code
+        assert m.get("template"), code
+
+
 def test_premium_score_no_website():
     row = {"website_url": "", "fit_reason": "нет сайта", "meta": {}}
     prem = compute_premium_score(row)

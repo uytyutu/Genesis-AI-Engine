@@ -25,6 +25,8 @@ _OUTREACH_CLOSE: dict[str, str] = {
     "ru": f"С уважением,\n{CEO_NAME}\nГенеральный директор · Virtus Core для вас",
     "uk": f"З повагою,\n{CEO_NAME}\nГенеральний директор · Virtus Core для вас",
     "cs": f"S pozdravem\n{CEO_NAME}\nGenerální ředitel · Virtus Core pro vás",
+    "ja": f"敬具\n{CEO_NAME}\n代表取締役 · Virtus Core",
+    "ko": f"감사합니다.\n{CEO_NAME}\n대표이사 · Virtus Core",
 }
 
 
@@ -54,6 +56,9 @@ _MARKET_TO_LANG: dict[str, str] = {
     "UK": "en-us",
     "AU": "en-us",
     "NZ": "en-us",
+    "SG": "en-us",
+    "JP": "ja",
+    "KR": "ko",
     "FR": "en-us",
     "IT": "en-us",
     "ES": "en-us",
@@ -99,6 +104,12 @@ def normalize_market_code(raw: str | None) -> str | None:
         "RUSSIA": "RU",
         "SNG": "CIS",
         "СНГ": "CIS",
+        "JAPAN": "JP",
+        "KOREA": "KR",
+        "SOUTHKOREA": "KR",
+        "SINGAPORE": "SG",
+        "NEWZEALAND": "NZ",
+        "AUSTRALIA": "AU",
     }
     code = aliases.get(code, code)
     if code in _MARKET_TO_LANG:
@@ -173,6 +184,20 @@ def resolve_market_from_row(row: dict[str, Any] | None) -> str | None:
         return "RO"
     if any(h in city for h in pt_hubs):
         return "PT"
+    au_hubs = ("sydney", "melbourne", "brisbane", "perth", "adelaide")
+    nz_hubs = ("auckland", "wellington", "christchurch", "hamilton")
+    jp_hubs = ("tokyo", "osaka", "yokohama", "nagoya", "fukuoka", "sapporo", "東京", "大阪")
+    kr_hubs = ("seoul", "busan", "incheon", "daegu", "서울", "부산")
+    if any(h in city for h in au_hubs):
+        return "AU"
+    if any(h in city for h in nz_hubs):
+        return "NZ"
+    if any(h in city for h in jp_hubs):
+        return "JP"
+    if any(h in city for h in kr_hubs):
+        return "KR"
+    if "singapore" in city:
+        return "SG"
     # Price-label / website TLD soft signals (when market field was lost)
     blob = " ".join(
         [
@@ -191,6 +216,16 @@ def resolve_market_from_row(row: dict[str, Any] | None) -> str | None:
         return "UA"
     if (".ro" in low) and ("lei" in low or "bucure" in city or "romania" in low):
         return "RO"
+    if ".jp" in low or "¥" in blob or "円" in blob:
+        return "JP"
+    if ".kr" in low or "₩" in blob or "원" in blob:
+        return "KR"
+    if ".sg" in low:
+        return "SG"
+    if ".nz" in low:
+        return "NZ"
+    if ".au" in low:
+        return "AU"
     return None
 
 
@@ -331,6 +366,42 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "close": _OUTREACH_CLOSE["cs"],
         "style": "formal_cs",
     },
+    # JA — Japan B2B (formal, short)
+    "ja": {
+        "subject": "{company}様：ウェブサイト刷新のご提案（{brand}）",
+        "greeting": "{company} ご担当者様",
+        "intro": (
+            "突然のご連絡失礼いたします。{brand}代表のRamish Oltiievです。"
+            "{company}様のオンライン上の見え方を拝見し、古いCMSの修繕ではなく、"
+            "スマホで分かりやすく、電話・予約につながる新しいランディングページをご提案したくご連絡しました。"
+        ),
+        "issues": "現サイトで気になった点：",
+        "offer": (
+            "パッケージ「{package}」· {price_label}（一括）。"
+            "完成HTMLは多くの場合おおよそ15分程度でご用意できます。ご希望があれば貴社ドメインへの掲載もご相談可能です。"
+        ),
+        "cta": "パッケージと料金（義務なし）:\n{order_url}",
+        "close": _OUTREACH_CLOSE["ja"],
+        "style": "formal_ja",
+    },
+    # KO — Korea B2B
+    "ko": {
+        "subject": "{company}: {brand} 웹사이트 리뉴얼 제안",
+        "greeting": "안녕하세요,",
+        "intro": (
+            "{brand} 대표 Ramish Oltiiev입니다. {company}의 온라인 현황을 살펴보고 "
+            "기존 CMS를 고치는 대신, 모바일에서 명확하고 전화·예약으로 이어지는 "
+            "새 랜딩 페이지를 제안드리고자 연락드렸습니다."
+        ),
+        "issues": "현재 사이트에서 눈에 띈 점:",
+        "offer": (
+            "패키지 «{package}» · {price_label} 일시불 — "
+            "완성 HTML은 보통 약 15분 내외로 준비됩니다. 원하시면 도메인 게시도 도와드립니다."
+        ),
+        "cta": "패키지와 요금(의무 없음):\n{order_url}",
+        "close": _OUTREACH_CLOSE["ko"],
+        "style": "formal_ko",
+    },
 }
 
 _NICHE_TEMPLATES_DE: dict[str, dict[str, str]] = {
@@ -383,6 +454,8 @@ _LANG_MARKERS: dict[str, tuple[str, ...]] = {
     "en": ("hello", "your website", "contact form", "opening hours", "no https", "page title"),
     "uk": ("доброго", "сайт", "заявк", "київ", "україн"),
     "ru": ("здравствуйте", "сайт", "заявк", "москв"),
+    "ja": ("こんにちは", "ウェブサイト", "お問い合わせ", "https", "ページ"),
+    "ko": ("안녕하세요", "웹사이트", "문의", "연락", "페이지"),
 }
 
 
@@ -392,7 +465,15 @@ def preview_market_templates(*, company: str = "Muster GmbH", price: float | Non
 
     svc = OutreachLanguageService()
     out: list[dict[str, str]] = []
-    for market, lang in (("DE", "de"), ("US", "en-us"), ("RU", "ru"), ("UA", "uk")):
+    for market, lang in (
+        ("DE", "de"),
+        ("US", "en-us"),
+        ("AU", "en-us"),
+        ("JP", "ja"),
+        ("KR", "ko"),
+        ("RU", "ru"),
+        ("UA", "uk"),
+    ):
         offer = resolve_final_offer("basic", market)
         sample_price = float(price) if price is not None else float(offer.amount)
         subject, body, used = svc.draft_outreach(
@@ -453,6 +534,10 @@ class OutreachLanguageService:
             return "uk"
         if re.search(r"[\u0400-\u04FF]", blob):
             return "ru"
+        if re.search(r"[\u3040-\u30ff\u4e00-\u9faf]", blob):
+            return "ja"
+        if re.search(r"[\uac00-\ud7af]", blob):
+            return "ko"
 
         scores: dict[str, int] = {lang: 0 for lang in _LANG_MARKERS}
         for lang, markers in _LANG_MARKERS.items():

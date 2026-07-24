@@ -1,11 +1,11 @@
 {
-  "version": 6,
+  "version": 7,
   "global_daily_cap_default": 1000,
   "min_interval_sec_default": 90,
   "allocation_mode": "per_market",
   "quality_first": true,
   "force_fill_quotas": false,
-  "note_ru": "Дневной потолок 1000. Старт: US 110 · крупные рынки 65 · остальные 30. Срок поставки сайта после оплаты: ≈15 минут — для всех стран. Рынок при старте лаунчера всегда СТОП — только Пуск. Adaptive поднимает прибыльные страны (до 1000/рынок) без заполнения любой ценой.",
+  "note_ru": "Дневной потолок 1000. APAC 24/7 (AU/NZ/JP/KR/SG) + Tier1. Старт: US 110 · крупные 65 · APAC/малые 30. Срок поставки ≈15 мин. Лаунчер: рынок СТОП до Пуск.",
   "delivery_eta_minutes": 15,
   "markets": [
     {
@@ -625,8 +625,8 @@
     },
     {
       "code": "NZ",
-      "enabled": false,
-      "phase": 2,
+      "enabled": true,
+      "phase": 1,
       "flag": "🇳🇿",
       "name_ru": "Новая Зеландия",
       "name_en": "New Zealand",
@@ -652,7 +652,101 @@
         "Wellington",
         "Christchurch"
       ],
-      "cap_rationale": "Start 30/day · purchase-adaptive"
+      "cap_rationale": "APAC night window · 30/day · Spam Act awareness"
+    },
+    {
+      "code": "JP",
+      "enabled": true,
+      "phase": 1,
+      "flag": "🇯🇵",
+      "name_ru": "Япония",
+      "name_en": "Japan",
+      "language": "ja",
+      "template": "ja",
+      "daily_cap": 30,
+      "timezone": "Asia/Tokyo",
+      "legal_profile": "apac_b2b",
+      "send_pool": "us",
+      "currency": "JPY",
+      "symbol": "¥",
+      "website": {
+        "locale": "ja",
+        "hreflang": "ja-JP",
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
+        "footer_profile": "apac_b2b"
+      },
+      "hubs": [
+        "Tokyo",
+        "Osaka",
+        "Yokohama",
+        "Nagoya",
+        "Fukuoka"
+      ],
+      "cap_rationale": "APAC · ja template · 30/day soft start"
+    },
+    {
+      "code": "KR",
+      "enabled": true,
+      "phase": 1,
+      "flag": "🇰🇷",
+      "name_ru": "Южная Корея",
+      "name_en": "South Korea",
+      "language": "ko",
+      "template": "ko",
+      "daily_cap": 30,
+      "timezone": "Asia/Seoul",
+      "legal_profile": "apac_b2b",
+      "send_pool": "us",
+      "currency": "KRW",
+      "symbol": "₩",
+      "website": {
+        "locale": "ko",
+        "hreflang": "ko-KR",
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
+        "footer_profile": "apac_b2b"
+      },
+      "hubs": [
+        "Seoul",
+        "Busan",
+        "Incheon",
+        "Daegu"
+      ],
+      "cap_rationale": "APAC · ko template · 30/day soft start"
+    },
+    {
+      "code": "SG",
+      "enabled": true,
+      "phase": 1,
+      "flag": "🇸🇬",
+      "name_ru": "Сингапур",
+      "name_en": "Singapore",
+      "language": "en-us",
+      "template": "en-us",
+      "daily_cap": 30,
+      "timezone": "Asia/Singapore",
+      "legal_profile": "apac_b2b",
+      "send_pool": "us",
+      "currency": "SGD",
+      "symbol": "S$",
+      "website": {
+        "locale": "en",
+        "hreflang": "en-SG",
+        "legal_pages": [
+          "privacy",
+          "terms"
+        ],
+        "footer_profile": "apac_b2b"
+      },
+      "hubs": [
+        "Singapore"
+      ],
+      "cap_rationale": "APAC · EN · PDPA · 30/day soft start"
     }
   ]
 }

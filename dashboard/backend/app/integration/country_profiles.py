@@ -19,11 +19,15 @@ TIER_2 = ("NL", "BE", "FR", "IE", "AU")
 TIER_3 = ("ES", "IT", "PL", "SE", "NO", "DK", "FI")
 # CIS / East — language & price packs (CEO): UA, RU, KZ
 TIER_CIS = ("UA", "RU", "KZ")
+# APAC — night window for Europe (24/7 farm rotation)
+TIER_APAC = ("AU", "NZ", "JP", "KR", "SG")
 
-ALL_PROFILE_CODES: tuple[str, ...] = TIER_1 + TIER_2 + TIER_3 + TIER_CIS
+ALL_PROFILE_CODES: tuple[str, ...] = tuple(
+    dict.fromkeys(TIER_1 + TIER_2 + TIER_3 + TIER_CIS + TIER_APAC)
+)
 
-# Default enable on first boot: Tier 1 only (safe launch). Others off until CEO toggles.
-DEFAULT_ENABLED: frozenset[str] = frozenset(TIER_1)
+# 24/7: Tier 1 + APAC (EN/JA/KO packs). Other EU Tier2/3 off until CEO toggles.
+DEFAULT_ENABLED: frozenset[str] = frozenset(TIER_1 + TIER_APAC)
 
 # Global send pacing (seconds between successful sends while rotating countries)
 SEND_INTERVAL_MIN_SEC = 40
@@ -90,6 +94,40 @@ _PRICES_GBP = {
     "repair_lite": 179,
     "repair_standard": 299,
     "repair_complete": 429,
+}
+_PRICES_AUD = {
+    "website_basic": 549,
+    "website_business": 999,
+    "website_premium": 1899,
+    "repair_lite": 299,
+    "repair_standard": 549,
+    "repair_complete": 799,
+}
+_PRICES_JPY = {
+    "website_basic": 55000,
+    "website_business": 98000,
+    "website_premium": 180000,
+    "repair_lite": 35000,
+    "repair_standard": 55000,
+    "repair_complete": 78000,
+    "note": "JPY list anchors",
+}
+_PRICES_KRW = {
+    "website_basic": 490000,
+    "website_business": 890000,
+    "website_premium": 1600000,
+    "repair_lite": 290000,
+    "repair_standard": 490000,
+    "repair_complete": 690000,
+    "note": "KRW list anchors",
+}
+_PRICES_SGD = {
+    "website_basic": 499,
+    "website_business": 899,
+    "website_premium": 1699,
+    "repair_lite": 279,
+    "repair_standard": 479,
+    "repair_complete": 699,
 }
 _PRICES_CIS = {
     "website_basic": 350,
@@ -235,7 +273,7 @@ COUNTRY_PROFILES: dict[str, dict[str, Any]] = {
     "AU": _profile(
         code="AU", name="Australia", tier=2, language="en", currency="AUD",
         timezone="Australia/Sydney", email_template="outreach_au_v1",
-        prices={**_PRICES_USD, "currency_note": "AUD"}, legal_notes="Spam Act 2003 — consent bias.",
+        prices=dict(_PRICES_AUD), legal_notes="Spam Act 2003 — consent bias.",
         hunt_quota_daily=250, send_quota_daily=30, send_interval_sec=50, strict_anti_spam=True,
         cities=["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
     ),
@@ -331,6 +369,71 @@ COUNTRY_PROFILES: dict[str, dict[str, Any]] = {
         send_quota_daily=30,
         send_interval_sec=45,
         cities=["Алматы", "Астана", "Шымкент", "Караганда"],
+    ),
+    # --- APAC (24/7 night window for Europe) ---
+    "NZ": _profile(
+        code="NZ",
+        name="New Zealand",
+        tier=2,
+        language="en",
+        currency="NZD",
+        timezone="Pacific/Auckland",
+        email_template="outreach_nz_v1",
+        prices={**_PRICES_AUD, "currency_note": "NZD"},
+        legal_notes="Unsolicited Electronic Messages Act — consent bias.",
+        hunt_quota_daily=150,
+        send_quota_daily=20,
+        send_interval_sec=55,
+        strict_anti_spam=True,
+        cities=["Auckland", "Wellington", "Christchurch", "Hamilton"],
+    ),
+    "JP": _profile(
+        code="JP",
+        name="Japan",
+        tier=2,
+        language="ja",
+        currency="JPY",
+        timezone="Asia/Tokyo",
+        email_template="outreach_jp_v1",
+        prices=dict(_PRICES_JPY),
+        legal_notes="Act on Specified Commercial Transactions / careful B2B cold mail.",
+        hunt_quota_daily=200,
+        send_quota_daily=20,
+        send_interval_sec=55,
+        strict_anti_spam=True,
+        cities=["Tokyo", "Osaka", "Yokohama", "Nagoya", "Fukuoka", "Sapporo"],
+    ),
+    "KR": _profile(
+        code="KR",
+        name="South Korea",
+        tier=2,
+        language="ko",
+        currency="KRW",
+        timezone="Asia/Seoul",
+        email_template="outreach_kr_v1",
+        prices=dict(_PRICES_KRW),
+        legal_notes="Information and Communications Network Act — conservative B2B.",
+        hunt_quota_daily=180,
+        send_quota_daily=18,
+        send_interval_sec=55,
+        strict_anti_spam=True,
+        cities=["Seoul", "Busan", "Incheon", "Daegu", "Daejeon"],
+    ),
+    "SG": _profile(
+        code="SG",
+        name="Singapore",
+        tier=2,
+        language="en",
+        currency="SGD",
+        timezone="Asia/Singapore",
+        email_template="outreach_sg_v1",
+        prices=dict(_PRICES_SGD),
+        legal_notes="PDPA / Spam Control Act — consent-oriented B2B.",
+        hunt_quota_daily=120,
+        send_quota_daily=15,
+        send_interval_sec=55,
+        strict_anti_spam=True,
+        cities=["Singapore"],
     ),
 }
 
