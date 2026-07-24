@@ -707,6 +707,12 @@ class MicroFarmService:
             farm_estimate_eur=float(state.get("total_earned_eur") or 0),
         )
 
+    def revenue_lab_brief(self) -> dict[str, Any]:
+        """CEO actions from Revenue Lab — isolated research contour."""
+        from app.commercial_api.revenue_lab import RevenueLab
+
+        return RevenueLab(self._memory).ceo_brief()
+
     def prepare_live_mode(self) -> dict[str, Any]:
         vault = self.platform_vault_status()
         cloud = self._priority_manager().dispatcher.snapshot()
@@ -2144,6 +2150,7 @@ class MicroFarmService:
                 "Вывод на Stripe — вручную с кабинета Toloka/Scale, не из локального счётчика."
             ),
             "revenue_sources": self.revenue_sources_center(),
+            "revenue_lab": self.revenue_lab_brief(),
             "cost_ratio_note": (
                 f"Расход ИИ: {float(state.get('llm_cost_eur') or 0):.3f} € · "
                 f"доход сегодня: {float(state.get('today_earned_eur') or 0):.2f} €"

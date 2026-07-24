@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from app.commercial_api.catalog import catalog
 from app.commercial_api.gateway import CommercialApiGateway
 from app.commercial_api.keys import CommercialApiKeyStore
+from app.commercial_api.packages import get_package, list_packages, save_default_packages_file
 from app.commercial_api.pricing import pricing_public, save_default_pricing_file
 from app.commercial_api.revenue_lab import RevenueLab, contours
 
@@ -61,6 +62,7 @@ class CreateKeyBody(BaseModel):
     customer_email: str = Field(default="", max_length=160)
     scopes: list[str] = Field(default_factory=lambda: ["audit"])
     rate_limit_per_min: int = Field(default=100, ge=1, le=1000)
+    package_id: str = Field(default="", max_length=40)
 
 
 class CreditBody(BaseModel):
@@ -99,6 +101,15 @@ def v1_root() -> dict:
 @router.get("/pricing")
 def v1_pricing(request: Request) -> dict:
     return pricing_public(_memory(request))
+
+
+@router.get("/packages")
+def v1_packages(request: Request) -> dict:
+    return {
+        "ok": True,
+        "packages": list_packages(_memory(request)),
+        "note_ru": "Пакеты prepaid: scopes + баланс. Оплата пакета клиентом → CEO выдаёт ключ.",
+    }
 
 
 @router.get("/catalog")
@@ -157,7 +168,19 @@ def v1_admin_create_key(body: CreateKeyBody, request: Request) -> dict:
     _require_owner(request)
     mem = _memory(request)
     save_default_pricing_file(mem)
+    save_default_packages_file(mem)
     store = CommercialApiKeyStore(mem)
+    pkg_id = (body.package_id or "").strip()
+    if pkg_id:
+        package = get_package(pkg_id, mem)
+        if not package:
+            raise HTTPException(status_code=404, detail="package_not_found")
+        key = store.create_from_package(
+            package=package,
+            label=body.label or str(package.get("name") or pkg_id),
+            customer_email=body.customer_email,
+        )
+        return {"ok": True, "package": package, "key": key}
     return {
         "ok": True,
         "key": store.create_key(
@@ -202,6 +225,19 @@ def v1_lab_list(request: Request) -> dict:
     _require_owner(request)
     lab = RevenueLab(_memory(request))
     return {"ok": True, "candidates": lab.list_candidates(), "contours": contours()}
+
+
+@router.post("/admin/lab/scan")
+def v1_lab_scan(request: Request) -> dict:
+    """Research pass — ranked opportunities + CEO connect actions."""
+    _require_owner(request)
+    return RevenueLab(_memory(request)).research_scan(persist_alerts=True)
+
+
+@router.get("/admin/lab/brief")
+def v1_lab_brief(request: Request) -> dict:
+    _require_owner(request)
+    return {"ok": True, **RevenueLab(_memory(request)).ceo_brief()}
 
 
 @router.post("/admin/lab/candidates")

@@ -58,6 +58,8 @@ def price_eur(product_id: str, memory_dir: Path | None = None) -> float:
 
 
 def pricing_public(memory_dir: Path | None = None) -> dict[str, Any]:
+    from app.commercial_api.packages import list_packages
+
     prices = load_prices(memory_dir)
     methods = []
     for pid, amount in prices.items():
@@ -74,10 +76,11 @@ def pricing_public(memory_dir: Path | None = None) -> dict[str, Any]:
         "currency": "EUR",
         "billing": "prepaid_balance_eur",
         "note_ru": (
-            "Цены из каталога услуг. Файл commercial_api_pricing.json "
-            "переопределяет defaults без изменения кода Gateway."
+            "Цены из каталога услуг. commercial_api_pricing.json и "
+            "commercial_api_packages.json меняют ставки без правки Gateway."
         ),
         "methods": methods,
+        "packages": list_packages(memory_dir),
         "roadmap": API_ROADMAP,
     }
 

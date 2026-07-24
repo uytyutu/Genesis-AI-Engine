@@ -88,3 +88,25 @@ def test_leads_scope_denied(tmp_path: Path):
     result = gw.run_leads_preview(created["api_key"], city="Dresden")
     assert result["ok"] is False
     assert result["reason"] == "scope_denied"
+
+
+def test_packages_and_lab_ceo_actions(tmp_path: Path):
+    from app.commercial_api.packages import get_package, list_packages
+    from app.commercial_api.revenue_lab import RevenueLab
+
+    pkgs = list_packages()
+    assert any(p["id"] == "starter" for p in pkgs)
+    starter = get_package("starter")
+    assert starter is not None
+    assert "audit" in starter["scopes"]
+
+    store = CommercialApiKeyStore(tmp_path)
+    key = store.create_from_package(package=starter, label="Agency")
+    assert key["balance_eur"] == starter["balance_eur"]
+    assert "audit" in key["scopes"]
+
+    brief = RevenueLab(tmp_path).ceo_brief()
+    assert brief["ceo_actions"]
+    assert "Подключи" in brief["headline_ru"] or brief["ceo_actions"][0]["title_ru"].startswith(
+        "Подключи"
+    )

@@ -54,6 +54,7 @@ class CommercialApiKeyStore:
         customer_email: str = "",
         scopes: list[str] | None = None,
         rate_limit_per_min: int = DEFAULT_RATE_LIMIT,
+        package_id: str | None = None,
     ) -> dict[str, Any]:
         raw = f"vc_{secrets.token_urlsafe(24)}"
         scope_list = [str(s).strip() for s in (scopes or list(DEFAULT_SCOPES)) if str(s).strip()]
@@ -67,6 +68,7 @@ class CommercialApiKeyStore:
             "key_prefix": raw[:10],
             "balance_eur": round(float(balance_eur or 0), 4),
             "scopes": scope_list,
+            "package_id": package_id,
             "rate_limit_per_min": max(1, min(1000, int(rate_limit_per_min or DEFAULT_RATE_LIMIT))),
             "created_at": _now(),
             "active": True,
@@ -81,6 +83,23 @@ class CommercialApiKeyStore:
         out.pop("key_hash", None)
         return out
 
+    def create_from_package(
+        self,
+        *,
+        package: dict[str, Any],
+        label: str = "",
+        customer_email: str = "",
+    ) -> dict[str, Any]:
+        scopes = list(package.get("scopes") or DEFAULT_SCOPES)
+        balance = float(package.get("balance_eur") or package.get("price_eur") or 0)
+        return self.create_key(
+            label=label or str(package.get("name") or package.get("id") or "client"),
+            balance_eur=balance,
+            customer_email=customer_email,
+            scopes=scopes,
+            rate_limit_per_min=200 if "enterprise" in str(package.get("id")) else 100,
+            package_id=str(package.get("id") or ""),
+        )
     def resolve(self, raw_key: str) -> dict[str, Any] | None:
         raw = (raw_key or "").strip()
         if not raw.startswith("vc_"):
@@ -127,6 +146,7 @@ class CommercialApiKeyStore:
                     "key_prefix": row.get("key_prefix"),
                     "balance_eur": row.get("balance_eur"),
                     "scopes": row.get("scopes") or [],
+                    "package_id": row.get("package_id"),
                     "rate_limit_per_min": row.get("rate_limit_per_min") or DEFAULT_RATE_LIMIT,
                     "active": row.get("active"),
                     "revoked_at": row.get("revoked_at"),

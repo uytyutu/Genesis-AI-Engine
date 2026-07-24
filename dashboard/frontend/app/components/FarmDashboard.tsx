@@ -15,6 +15,7 @@ import {
   taskTone,
 } from "../lib/farmLifecycleUi";
 import { RevenueSourcesPanel, type RevenueSourcesCenter } from "./RevenueSourcesPanel";
+import { RevenueLabCeoPanel, type RevenueLabBrief } from "./RevenueLabCeoPanel";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const VRE_STICKY_KEY = "genesis.mc.vre_verified_sticky";
@@ -139,6 +140,7 @@ type FarmDash = {
   recent_tasks: TaskEvent[];
   honesty_note: string;
   revenue_sources?: RevenueSourcesCenter;
+  revenue_lab?: RevenueLabBrief;
   cost_ratio_note: string;
   last_tick_at: string | null;
   revenue_forecast?: {
@@ -931,6 +933,8 @@ export function FarmDashboard() {
         ) : null}
 
         {dash?.revenue_sources ? <RevenueSourcesPanel data={dash.revenue_sources} /> : null}
+
+        {dash?.revenue_lab ? <RevenueLabCeoPanel data={dash.revenue_lab} /> : null}
 
         {dash?.money_monitor ? <MoneyMonitorPanel data={dash.money_monitor} /> : null}
 
