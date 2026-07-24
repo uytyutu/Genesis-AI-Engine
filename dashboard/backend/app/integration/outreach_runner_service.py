@@ -171,6 +171,7 @@ class OutreachRunnerService:
         detail: dict[str, Any] = {}
 
         # Prefer one send attempt if enabled (approved queue) — still respects quota/exclusion.
+        # Before send: re-enrich contact from scraped emails on Ready candidates (legacy rows).
         send_enabled = False
         try:
             from app.integration.outreach_ceo_prefs import outreach_send_allowed
@@ -188,7 +189,8 @@ class OutreachRunnerService:
                     self._log(
                         state,
                         "send",
-                        f"Отправлено: {send_res.get('company') or send_res.get('to') or 'ok'}",
+                        f"Отправлено [{send_res.get('market') or '?'}]: "
+                        f"{send_res.get('company') or send_res.get('to') or 'ok'}",
                     )
                 elif send_res.get("skipped"):
                     state["session_skipped"] = int(state.get("session_skipped") or 0) + 1

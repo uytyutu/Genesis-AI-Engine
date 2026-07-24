@@ -110,8 +110,19 @@ export function SitePage() {
     originY: number;
   } | null>(null);
   const [detailId, setDetailId] = useState<string | null>("business");
+  const [analyzeUrl, setAnalyzeUrl] = useState("");
   const localeTag = (i18n.language || "de").replace("_", "-");
   const CHAT_POS_KEY = "vector-chat-panel-pos";
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const a = (params.get("analyze") || params.get("url") || "").trim();
+      if (a) setAnalyzeUrl(a);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -537,7 +548,11 @@ export function SitePage() {
           <h2 id="analysis-heading" className="text-2xl font-semibold text-white">
             {t("s0.analysisTitle", { defaultValue: "Website Analysis & Repair" })}
           </h2>
-          <WebsiteAnalysisPanel market={market} onAskVector={openChat} />
+          <WebsiteAnalysisPanel
+            market={market}
+            onAskVector={openChat}
+            initialUrl={analyzeUrl || undefined}
+          />
           <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
             <h3 className="text-base font-semibold text-white sm:text-lg">
               {t("s0.repairMvpTitle")}

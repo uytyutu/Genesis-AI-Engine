@@ -11,22 +11,23 @@ import re
 from typing import Any
 
 from app.integration.engine_ai_service import EngineAIService
-from app.integration.genesis_brain.public_brand import BRAND_NAME
+from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME
 
 _AI = EngineAIService()
 
-CEO_NAME = "Ramish Oltiiev"
+# Public outreach voice = Vector (assistant) · Virtus Core (company). Not a personal name.
+SENDER_NAME = ASSISTANT_NAME
 
-# Localized sign-off — full name + title + Virtus Core for the recipient.
+# Localized sign-off — Vector + Virtus Core for the recipient.
 _OUTREACH_CLOSE: dict[str, str] = {
-    "de": f"Mit freundlichen Grüßen\n{CEO_NAME}\nGeschäftsführer · Virtus Core für Sie",
-    "en-us": f"Thanks,\n{CEO_NAME}\nManaging Director · Virtus Core for you",
-    "en": f"Thanks,\n{CEO_NAME}\nManaging Director · Virtus Core for you",
-    "ru": f"С уважением,\n{CEO_NAME}\nГенеральный директор · Virtus Core для вас",
-    "uk": f"З повагою,\n{CEO_NAME}\nГенеральний директор · Virtus Core для вас",
-    "cs": f"S pozdravem\n{CEO_NAME}\nGenerální ředitel · Virtus Core pro vás",
-    "ja": f"敬具\n{CEO_NAME}\n代表取締役 · Virtus Core",
-    "ko": f"감사합니다.\n{CEO_NAME}\n대표이사 · Virtus Core",
+    "de": f"Mit freundlichen Grüßen\n{SENDER_NAME}\nDigitale Firma · {BRAND_NAME}",
+    "en-us": f"Thanks,\n{SENDER_NAME}\nDigital Company · {BRAND_NAME}",
+    "en": f"Thanks,\n{SENDER_NAME}\nDigital Company · {BRAND_NAME}",
+    "ru": f"С уважением,\n{SENDER_NAME}\nЦифровая компания · {BRAND_NAME}",
+    "uk": f"З повагою,\n{SENDER_NAME}\nЦифрова компанія · {BRAND_NAME}",
+    "cs": f"S pozdravem\n{SENDER_NAME}\nDigitální společnost · {BRAND_NAME}",
+    "ja": f"敬具\n{SENDER_NAME}\nデジタルカンパニー · {BRAND_NAME}",
+    "ko": f"감사합니다.\n{SENDER_NAME}\n디지털 컴퍼니 · {BRAND_NAME}",
 }
 
 
@@ -77,16 +78,40 @@ _MARKET_TO_LANG: dict[str, str] = {
 }
 
 
-def public_order_url(*, market: str | None = None) -> str:
+def public_order_url(*, market: str | None = None, package_id: str | None = None) -> str:
     """Public Path A checkout — ?market= so checkout shows local currency."""
     from app.integration.public_site_url import configured_public_base
+    from urllib.parse import urlencode
 
     base = configured_public_base()
-    url = f"{base}/order"
+    params: dict[str, str] = {}
     m = (market or "").strip().upper()
     if m:
-        return f"{url}?market={m}"
-    return url
+        params["market"] = m
+    pkg = (package_id or "").strip().lower()
+    if pkg:
+        params["package"] = pkg
+    if params:
+        return f"{base}/order?{urlencode(params)}"
+    return f"{base}/order"
+
+
+def public_analysis_url(*, site_url: str | None = None, market: str | None = None) -> str:
+    """Public mini-audit entry — opens /site analysis with the prospect URL prefilled."""
+    from app.integration.public_site_url import configured_public_base
+    from urllib.parse import urlencode
+
+    base = configured_public_base()
+    params: dict[str, str] = {}
+    m = (market or "").strip().upper()
+    if m:
+        params["market"] = m
+    raw = (site_url or "").strip()
+    if raw:
+        params["analyze"] = raw
+    if params:
+        return f"{base}/site?{urlencode(params)}"
+    return f"{base}/site"
 
 
 def normalize_market_code(raw: str | None) -> str | None:
@@ -252,21 +277,22 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: unser Angebot für Ihren digitalen Neustart",
         "greeting": "Guten Tag,",
         "intro": (
-            "hier schreibt Ramish Oltiiev, Geschäftsführer von {brand}. "
+            "hier schreibt {assistant} von {brand} — Ihrer digitalen Firma. "
             "Wir haben den Online-Auftritt von {company} geprüft — "
             "und möchten Ihnen als Team ein klares Angebot machen: "
             "statt Flickwerk am alten System eine neue, schnelle Landing Page, "
             "die mobil überzeugt und Anrufe/Termine leichter macht."
         ),
-        "issues": "Was uns am Ist-Zustand aufgefallen ist:",
+        "issues": "Was die Prüfung am Ist-Zustand gefunden hat:",
+        "friction": "Was Besucher wahrscheinlich ausbremst:",
         "offer": (
-            "Unser Angebot «{package}» · {price_label} einmalig — fertige Landing Page "
+            "Konkretes Angebot «{package}» · {price_label} einmalig — fertige Landing Page "
             "oft in ca. 15 Minuten als HTML für Ihren Host. "
             "Optional richten wir die Seite auf Ihrer Domain für Sie ein."
         ),
         "cta": (
-            "Wenn das zu {company} passt, sehen Sie Pakete und Preis hier "
-            "(ohne Verpflichtung):\n{order_url}"
+            "Kurz-Diagnose ansehen:\n{analysis_url}\n\n"
+            "Paket und Kauf (ohne Verpflichtung):\n{order_url}"
         ),
         "close": _OUTREACH_CLOSE["de"],
         "style": "formal_de",
@@ -276,16 +302,20 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: a concrete offer from {brand}",
         "greeting": "Hi,",
         "intro": (
-            "This is Ramish Oltiiev, Managing Director at {brand}. We reviewed {company}'s "
+            "This is {assistant} from {brand} — your digital company. We reviewed {company}'s "
             "online presence and want to put a clear offer on the table: a fresh, fast landing page — "
             "mobile-first, with a clean path to call or book — instead of patching an old stack."
         ),
-        "issues": "What stood out on the current site:",
+        "issues": "What we diagnosed on the current site:",
+        "friction": "What likely slows visitors down:",
         "offer": (
-            "Our package «{package}» · {price_label} one-time — finished HTML often in about "
+            "Exact offer: package «{package}» · {price_label} one-time — finished HTML often in about "
             "15 minutes. Optional: we place it on your domain."
         ),
-        "cta": "See packages and pricing (no obligation):\n{order_url}",
+        "cta": (
+            "View the short diagnosis:\n{analysis_url}\n\n"
+            "Packages and checkout (no obligation):\n{order_url}"
+        ),
         "close": _OUTREACH_CLOSE["en-us"],
         "style": "short_us",
     },
@@ -293,16 +323,20 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: a concrete offer from {brand}",
         "greeting": "Hi,",
         "intro": (
-            "This is Ramish Oltiiev, Managing Director at {brand}. We reviewed {company}'s "
+            "This is {assistant} from {brand} — your digital company. We reviewed {company}'s "
             "online presence and want to put a clear offer on the table: a fresh, fast landing page — "
             "mobile-first, with a clean path to call or book — instead of patching an old stack."
         ),
-        "issues": "What stood out on the current site:",
+        "issues": "What we diagnosed on the current site:",
+        "friction": "What likely slows visitors down:",
         "offer": (
-            "Our package «{package}» · {price_label} one-time — finished HTML often in about "
+            "Exact offer: package «{package}» · {price_label} one-time — finished HTML often in about "
             "15 minutes. Optional: we place it on your domain."
         ),
-        "cta": "See packages and pricing (no obligation):\n{order_url}",
+        "cta": (
+            "View the short diagnosis:\n{analysis_url}\n\n"
+            "Packages and checkout (no obligation):\n{order_url}"
+        ),
         "close": _OUTREACH_CLOSE["en"],
         "style": "short_us",
     },
@@ -311,18 +345,22 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: предложение от {brand} по перезапуску сайта",
         "greeting": "Здравствуйте,",
         "intro": (
-            "пишет Ramish Oltiiev, генеральный директор {brand}. "
+            "пишет {assistant} из {brand} — вашей цифровой компании. "
             "Мы посмотрели онлайн-присутствие {company} "
             "и хотим дать живое предложение от нашей команды: не «чинить старый CMS», "
             "а сделать понятный перезапуск — современную быструю Landing Page "
             "с ясным путём к звонку или заявке."
         ),
-        "issues": "Что заметили по текущему состоянию:",
+        "issues": "Что система диагностировала:",
+        "friction": "Что мешает человеку на сайте:",
         "offer": (
-            "Наш пакет «{package}» · {price_label} разово — готовая страница часто за ~15 минут "
+            "Конкретное предложение: пакет «{package}» · {price_label} разово — готовая страница часто за ~15 минут "
             "(HTML под ваш хостинг). По желанию поможем выложить на ваш домен."
         ),
-        "cta": "Пакеты и оформление (без обязательств):\n{order_url}",
+        "cta": (
+            "Смотреть краткий анализ:\n{analysis_url}\n\n"
+            "Пакеты и оформление (без обязательств):\n{order_url}"
+        ),
         "close": _OUTREACH_CLOSE["ru"],
         "style": "contextual_ru",
     },
@@ -331,18 +369,22 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: пропозиція від {brand} щодо перезапуску сайту",
         "greeting": "Доброго дня,",
         "intro": (
-            "пише Ramish Oltiiev, генеральний директор {brand}. "
+            "пише {assistant} з {brand} — вашої цифрової компанії. "
             "Ми переглянули онлайн-присутність {company} "
             "і хочемо дати живу пропозицію від нашої команди: не «лагодити старий CMS», "
             "а зробити зрозумілий перезапуск — сучасну швидку Landing Page "
             "з ясним шляхом до дзвінка чи заявки."
         ),
-        "issues": "Що помітили зараз:",
+        "issues": "Що система діагностувала:",
+        "friction": "Що гальмує людину на сайті:",
         "offer": (
-            "Наш пакет «{package}» · {price_label} разово — готова сторінка часто за ~15 хвилин "
+            "Конкретна пропозиція: пакет «{package}» · {price_label} разово — готова сторінка часто за ~15 хвилин "
             "(HTML під ваш хостинг). За бажанням допоможемо викласти на ваш домен."
         ),
-        "cta": "Пакети та оформлення (без зобов’язань):\n{order_url}",
+        "cta": (
+            "Дивитися короткий аналіз:\n{analysis_url}\n\n"
+            "Пакети та оформлення (без зобов’язань):\n{order_url}"
+        ),
         "close": _OUTREACH_CLOSE["uk"],
         "style": "contextual_ua",
     },
@@ -351,18 +393,22 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: nabídka od {brand} na nový web",
         "greeting": "Dobrý den,",
         "intro": (
-            "píše Ramish Oltiiev, generální ředitel {brand}. "
+            "píše {assistant} z {brand} — vaší digitální společnosti. "
             "Prohlédli jsme online prezentaci firmy {company} "
             "a chceme vám jako tým dát konkrétní nabídku: místo oprav starého CMS "
             "novou rychlou landing page — přehlednou v mobilu, s jasnou cestou k hovoru nebo poptávce."
         ),
-        "issues": "Co nás na současném stavu zaujalo:",
+        "issues": "Co systém diagnostikoval:",
+        "friction": "Co návštěvníka na webu brzdí:",
         "offer": (
-            "Naše nabídka «{package}» · {price_label} jednorázově — hotová landing page "
+            "Konkrétní nabídka «{package}» · {price_label} jednorázově — hotová landing page "
             "často do cca 15 minut (HTML pro váš hosting). "
             "Volitelně stránku nasadíme na vaši doménu."
         ),
-        "cta": "Balíčky a ceny (bez závazku):\n{order_url}",
+        "cta": (
+            "Krátká diagnostika:\n{analysis_url}\n\n"
+            "Balíčky a ceny (bez závazku):\n{order_url}"
+        ),
         "close": _OUTREACH_CLOSE["cs"],
         "style": "formal_cs",
     },
@@ -371,16 +417,20 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}様：ウェブサイト刷新のご提案（{brand}）",
         "greeting": "{company} ご担当者様",
         "intro": (
-            "突然のご連絡失礼いたします。{brand}代表のRamish Oltiievです。"
+            "突然のご連絡失礼いたします。デジタルカンパニー{brand}の{assistant}です。"
             "{company}様のオンライン上の見え方を拝見し、古いCMSの修繕ではなく、"
             "スマホで分かりやすく、電話・予約につながる新しいランディングページをご提案したくご連絡しました。"
         ),
-        "issues": "現サイトで気になった点：",
+        "issues": "診断で見つかった点：",
+        "friction": "訪問者が止まりやすい点：",
         "offer": (
             "パッケージ「{package}」· {price_label}（一括）。"
             "完成HTMLは多くの場合おおよそ15分程度でご用意できます。ご希望があれば貴社ドメインへの掲載もご相談可能です。"
         ),
-        "cta": "パッケージと料金（義務なし）:\n{order_url}",
+        "cta": (
+            "診断を見る:\n{analysis_url}\n\n"
+            "パッケージと料金（義務なし）:\n{order_url}"
+        ),
         "close": _OUTREACH_CLOSE["ja"],
         "style": "formal_ja",
     },
@@ -389,16 +439,20 @@ _TEMPLATES: dict[str, dict[str, str]] = {
         "subject": "{company}: {brand} 웹사이트 리뉴얼 제안",
         "greeting": "안녕하세요,",
         "intro": (
-            "{brand} 대표 Ramish Oltiiev입니다. {company}의 온라인 현황을 살펴보고 "
+            "{brand}의 {assistant}입니다 — 디지털 컴퍼니입니다. {company}의 온라인 현황을 살펴보고 "
             "기존 CMS를 고치는 대신, 모바일에서 명확하고 전화·예약으로 이어지는 "
             "새 랜딩 페이지를 제안드리고자 연락드렸습니다."
         ),
-        "issues": "현재 사이트에서 눈에 띈 점:",
+        "issues": "진단 결과:",
+        "friction": "방문자를 막는 요소:",
         "offer": (
             "패키지 «{package}» · {price_label} 일시불 — "
             "완성 HTML은 보통 약 15분 내외로 준비됩니다. 원하시면 도메인 게시도 도와드립니다."
         ),
-        "cta": "패키지와 요금(의무 없음):\n{order_url}",
+        "cta": (
+            "진단 보기:\n{analysis_url}\n\n"
+            "패키지와 요금(의무 없음):\n{order_url}"
+        ),
         "close": _OUTREACH_CLOSE["ko"],
         "style": "formal_ko",
     },
@@ -581,12 +635,19 @@ class OutreachLanguageService:
             price_label_llm = str(package.get("price_label") or "").strip()
             if not price_label_llm:
                 try:
-                    from app.integration.market_registry import format_amount, get_market
+                    from app.integration.pricing_engine import resolve_path_a_offer
 
-                    mkt = get_market(market or "DE")
-                    price_label_llm = format_amount(int(round(float(price))), mkt.symbol)
+                    pkg_id = str(package.get("id") or package.get("package_id") or "basic")
+                    offer = resolve_path_a_offer(pkg_id, market or "DE")
+                    price_label_llm = offer.price_label
                 except Exception:
-                    price_label_llm = f"{float(price):.0f} €"
+                    try:
+                        from app.integration.market_registry import format_amount, get_market
+
+                        mkt = get_market(market or "DE")
+                        price_label_llm = format_amount(int(round(float(price))), mkt.symbol)
+                    except Exception:
+                        price_label_llm = f"{float(price):.0f} €"
             llm_draft = _AI.generate_personalized_offer(
                 company=company,
                 analysis=analysis or {},
@@ -599,7 +660,24 @@ class OutreachLanguageService:
                 fit_reason=fit_reason,
             )
             if llm_draft:
-                return llm_draft["subject"], llm_draft["body"], lang
+                site_u = str(
+                    (analysis or {}).get("final_url")
+                    or (analysis or {}).get("url")
+                    or (row or {}).get("website_url")
+                    or ""
+                )
+                analysis_url = public_analysis_url(site_url=site_u, market=market)
+                order_url = public_order_url(
+                    market=market,
+                    package_id=str(package.get("id") or package.get("package_id") or "") or None,
+                )
+                body_llm = str(llm_draft.get("body") or "")
+                if analysis_url not in body_llm or order_url not in body_llm:
+                    body_llm = (
+                        f"{body_llm.rstrip()}\n\n"
+                        f"{analysis_url}\n{order_url}\n"
+                    )
+                return str(llm_draft["subject"]), body_llm, lang
 
         tpl = dict(_TEMPLATES.get(lang) or _TEMPLATES["en-us"])
         if row:
@@ -614,7 +692,68 @@ class OutreachLanguageService:
             if lang == "de" and niche in _NICHE_TEMPLATES_DE:
                 tpl.update(_NICHE_TEMPLATES_DE[niche])
 
-        issues = (analysis or {}).get("issues") or []
+        issues = list((analysis or {}).get("issues") or [])[:5]
+        flags = (analysis or {}).get("flags") if isinstance((analysis or {}).get("flags"), dict) else {}
+        friction_i18n = {
+            "de": {
+                "cta": "kein klares CTA auf dem ersten Bildschirm",
+                "contact": "Telefon / Kontakt schwer zu finden",
+                "form": "kein einfaches Anfrageformular",
+                "thin": "dünner Inhalt — schwache Vertrauenssignale",
+                "slow": "langsame Antwort (~{ms} ms)",
+                "mobile": "schwache mobile Darstellung",
+            },
+            "ru": {
+                "cta": "нет явного CTA на первом экране",
+                "contact": "сложно найти телефон / контакт",
+                "form": "нет простой формы заявки",
+                "thin": "мало контента — слабое доверие",
+                "slow": "медленный ответ (~{ms} мс)",
+                "mobile": "слабая мобильная версия",
+            },
+            "uk": {
+                "cta": "немає явного CTA на першому екрані",
+                "contact": "важко знайти телефон / контакт",
+                "form": "немає простої форми заявки",
+                "thin": "мало контенту — слабке довіра",
+                "slow": "повільна відповідь (~{ms} мс)",
+                "mobile": "слабка мобільна версія",
+            },
+            "cs": {
+                "cta": "chybí jasné CTA na první obrazovce",
+                "contact": "těžké najít telefon / kontakt",
+                "form": "chybí jednoduchý formulář",
+                "thin": "málo obsahu — slabá důvěra",
+                "slow": "pomalá odezva (~{ms} ms)",
+                "mobile": "slabé mobilní zobrazení",
+            },
+        }
+        fi = friction_i18n.get(lang) or {
+            "cta": "no clear call-to-action on the first screen",
+            "contact": "hard to find phone / contact",
+            "form": "no simple request form",
+            "thin": "thin content — weak trust signals",
+            "slow": "slow response (~{ms} ms)",
+            "mobile": "weak mobile viewport",
+        }
+        friction: list[str] = []
+        if flags.get("has_cta") is False:
+            friction.append(fi["cta"])
+        if flags.get("has_contact") is False:
+            friction.append(fi["contact"])
+        if flags.get("has_form") is False:
+            friction.append(fi["form"])
+        if flags.get("content_thin"):
+            friction.append(fi["thin"])
+        load_ms = int((analysis or {}).get("load_ms") or 0)
+        if load_ms > 3000:
+            friction.append(fi["slow"].format(ms=load_ms))
+        if not (analysis or {}).get("has_viewport", True):
+            friction.append(fi["mobile"])
+        # Prefer concrete site issues as friction when flags empty
+        if not friction and issues:
+            friction = [str(i) for i in issues[:3]]
+
         if lang == "de":
             empty_issue = "• Online-Auftritt wirkt ausbaufähig"
         elif lang == "ru":
@@ -626,26 +765,45 @@ class OutreachLanguageService:
         else:
             empty_issue = "• Room to tighten mobile + contact path"
         issues_block = (
-            "\n".join(f"• {i}" for i in issues[:7]) if issues else empty_issue
+            "\n".join(f"• {i}" for i in issues) if issues else empty_issue
         )
+        friction_block = "\n".join(f"• {f}" for f in friction[:4]) if friction else empty_issue
 
         subject = tpl["subject"].format(company=company, brand=BRAND_NAME)
-        order_url = public_order_url(market=market)
+        site_u = str(
+            (analysis or {}).get("final_url")
+            or (analysis or {}).get("url")
+            or (row or {}).get("website_url")
+            or ""
+        )
+        analysis_url = public_analysis_url(site_url=site_u, market=market)
+        order_url = public_order_url(
+            market=market,
+            package_id=str(package.get("id") or package.get("package_id") or "") or None,
+        )
         price_label = str(package.get("price_label") or "").strip()
         if not price_label:
             try:
-                from app.integration.market_registry import format_amount, get_market
+                from app.integration.pricing_engine import resolve_path_a_offer
 
-                m = get_market(market or "DE")
-                price_label = format_amount(int(round(float(price))), m.symbol)
+                pkg_id = str(package.get("id") or package.get("package_id") or "basic")
+                price_label = resolve_path_a_offer(pkg_id, market or "DE").price_label
             except Exception:
-                price_label = f"{float(price):.0f} €"
+                try:
+                    from app.integration.market_registry import format_amount, get_market
+
+                    m = get_market(market or "DE")
+                    price_label = format_amount(int(round(float(price))), m.symbol)
+                except Exception:
+                    price_label = f"{float(price):.0f} €"
+        friction_heading = tpl.get("friction") or tpl["issues"]
         body = (
             f"{tpl['greeting']}\n\n"
-            f"{tpl['intro'].format(company=company, brand=BRAND_NAME)}\n\n"
+            f"{tpl['intro'].format(company=company, brand=BRAND_NAME, assistant=SENDER_NAME)}\n\n"
             f"{tpl['issues']}\n{issues_block}\n\n"
+            f"{friction_heading}\n{friction_block}\n\n"
             f"{tpl['offer'].format(package=package.get('name', 'Web'), price_label=price_label)}\n\n"
-            f"{tpl['cta'].format(order_url=order_url, company=company)}\n\n"
+            f"{tpl['cta'].format(order_url=order_url, analysis_url=analysis_url, company=company)}\n\n"
             f"{outreach_signoff(lang)}\n"
         )
         return subject, body, lang

@@ -120,10 +120,8 @@ _PATH_A_SKUS: dict[str, dict[str, int]] = {
         "repair_standard": 479,
         "repair_complete": 699,
     },
-    # CIS / East (checkout may still use registry currency)
-    "UA": dict(_DE_SKUS),
-    "RU": dict(_DE_SKUS),
-    "KZ": dict(_DE_SKUS),
+    # CIS / East — amounts from market_registry scale (not raw DE € copied into ₴)
+    # UA/KZ intentionally omitted here so checkout_price_scale applies.
     # Active EU desk markets (preserve prior scale-based commercial amounts)
     "PL": {
         "basic": 1200,

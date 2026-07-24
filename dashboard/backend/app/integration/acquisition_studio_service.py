@@ -405,6 +405,24 @@ class AcquisitionStudioService:
         # Unstick Path A drafts parked in manual_review while Автоотправка is on.
         promoted = self.promote_manual_for_autosend(limit=15)
         rows = self._opportunity._load_rows()
+        # Backfill emails from scrape so Quality Gate can pass on older drafts.
+        dirty = False
+        for row in rows:
+            if self._extract_email(row.get("contact", "")):
+                continue
+            analysis = row.get("site_analysis") if isinstance(row.get("site_analysis"), dict) else {}
+            found = analysis.get("emails_found") or []
+            if not isinstance(found, list):
+                continue
+            for raw_em in found:
+                em = self._extract_email(str(raw_em or ""))
+                if em:
+                    row["contact"] = em
+                    dirty = True
+                    break
+        if dirty:
+            self._opportunity._save_rows(rows)
+            rows = self._opportunity._load_rows()
         candidates: list[tuple[int, str, dict]] = []
         skipped_reasons: list[str] = []
         for row in rows:
@@ -1142,6 +1160,17 @@ class AcquisitionStudioService:
             channels = qual["channels"]
             if channels.get("primary_email") and not self._extract_email(row.get("contact", "")):
                 row["contact"] = channels["primary_email"]
+
+        # Always enrich email from site scrape — force_skip_check used to skip this
+        # and left Ready=0 (no email → Quality Gate blocks auto-send).
+        if not self._extract_email(row.get("contact", "")) and isinstance(analysis, dict):
+            found = analysis.get("emails_found") or []
+            if isinstance(found, list):
+                for raw_em in found:
+                    em = self._extract_email(str(raw_em or ""))
+                    if em:
+                        row["contact"] = em
+                        break
 
         package_id, price, rationale = self._recommend_pricing(row, analysis)
         # Lead Engine v1 — Premium Scoring + Smart Offer (may override package / skip)

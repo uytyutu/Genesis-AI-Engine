@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { publicApiBase } from "../lib/publicApiBase";
 import { logCommerceEvent } from "../lib/commerceFunnel";
@@ -57,17 +57,29 @@ type AnalysisReport = {
 export function WebsiteAnalysisPanel({
   market,
   onAskVector,
+  initialUrl,
 }: {
   market: string;
   onAskVector: () => void;
+  initialUrl?: string;
 }) {
   const { t, i18n } = useTranslation("site");
-  const [url, setUrl] = useState("https://");
+  const [url, setUrl] = useState(() => {
+    const raw = (initialUrl || "").trim();
+    if (!raw) return "https://";
+    return raw.startsWith("http") ? raw : `https://${raw}`;
+  });
   const [email, setEmail] = useState("");
   const [problemNote, setProblemNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [report, setReport] = useState<AnalysisReport | null>(null);
+
+  useEffect(() => {
+    const raw = (initialUrl || "").trim();
+    if (!raw) return;
+    setUrl(raw.startsWith("http") ? raw : `https://${raw}`);
+  }, [initialUrl]);
 
   function orderHref(href: string, caseId?: string) {
     const base = `${href}${href.includes("?") ? "&" : "?"}market=${encodeURIComponent(market)}`;
