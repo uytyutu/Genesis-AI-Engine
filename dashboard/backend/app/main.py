@@ -667,62 +667,10 @@ async def support_inbox_remote_proxy(request: Request, call_next):
             except ValueError:
                 local_out = None
 
-        if remote_enabled():
-            from app.integration.support_remote import remote_base, bridge_secret
-            import httpx
-
-            url = f"{remote_base()}{path}"
-            if request.url.query:
-                url = f"{url}?{request.url.query}"
-            # Ensure remote also receives a usable email for Do Not Email
-            forward_body = body_bytes
-            if email and "@" in email:
-                try:
-                    merged = payload if isinstance(payload, dict) else {}
-                    merged = {**merged, "email": email}
-                    if tid:
-                        merged.setdefault("thread_id", tid)
-                    forward_body = _json.dumps(merged).encode("utf-8")
-                except Exception:
-                    forward_body = body_bytes
-            try:
-                async with httpx.AsyncClient(timeout=45.0) as client:
-                    res = await client.request(
-                        request.method,
-                        url,
-                        content=forward_body,
-                        headers={
-                            "X-Support-Bridge": bridge_secret(),
-                            "Content-Type": "application/json",
-                            "Accept": "application/json",
-                        },
-                    )
-                if res.status_code < 400:
-                    return with_cors(
-                        Response(
-                            content=res.content,
-                            status_code=res.status_code,
-                            media_type=res.headers.get("content-type") or "application/json",
-                        )
-                    )
-                # Remote denied/missing — local suppression still wins for CEO desk
-                if local_out:
-                    return with_cors(JSONResponse(local_out))
-                return with_cors(
-                    Response(
-                        content=res.content,
-                        status_code=res.status_code,
-                        media_type=res.headers.get("content-type") or "application/json",
-                    )
-                )
-            except Exception:
-                if local_out:
-                    return with_cors(JSONResponse(local_out))
-                raise
-
+        # Never proxy unsubscribe to Railway — old remote returns bare "Not Found"
+        # and blocks the CEO desk. Local Do Not Send is the source of truth.
         if local_out:
             return with_cors(JSONResponse(local_out))
-        # No email resolved — rebuild request so route handler still sees JSON
         async def _receive():
             return {"type": "http.request", "body": body_bytes, "more_body": False}
 
@@ -2292,6 +2240,34 @@ def acquisition_ceo_prefs(body: dict | None = None) -> dict:
         auto_refresh=None if auto_refresh is None else bool(auto_refresh),
         auto_send=None if auto_send is None else bool(auto_send),
     )
+
+
+@app.post("/api/acquisition/do-not-email")
+def acquisition_do_not_email(body: dict | None = None) -> dict:
+    """Suppress outreach locally — bypasses Railway Support proxy (no more Not Found)."""
+    body = body or {}
+    email = str(body.get("email") or "").strip()
+    thread_id = str(body.get("thread_id") or "").strip()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="email_required")
+    try:
+        out = _ctx().support.unsubscribe_email(
+            email,
+            thread_id=thread_id,
+            source=str(body.get("source") or "support_ui"),
+            note=str(body.get("note") or "Do not send marketing / outreach emails"),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {
+        "ok": True,
+        "unsubscribed": True,
+        "message": "Unsubscribed successfully",
+        "email": out.get("email"),
+        "contact": out.get("contact"),
+        "leads_suppressed": out.get("leads_suppressed"),
+        "thread": out.get("thread"),
+    }
 
 
 @app.post("/api/acquisition/runner/stop")

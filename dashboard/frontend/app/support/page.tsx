@@ -246,55 +246,37 @@ export default function SupportPage() {
     ) {
       return;
     }
+    if (!fromAddr.includes("@")) {
+      setError("Не найден email отправителя — откройте письмо и повторите.");
+      return;
+    }
     setBusy(true);
     setNote("");
     setError("");
     try {
-      const payload = JSON.stringify({ email: fromAddr, thread_id: id });
-      const res = await fetch(`${API}/api/support/threads/${id}/unsubscribe`, {
+      // Local Country Desk path — NOT /api/support (that proxies to Railway → Not Found)
+      const res = await fetch(`${API}/api/acquisition/do-not-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: payload,
+        body: JSON.stringify({
+          email: fromAddr,
+          thread_id: id,
+          source: "support_ui",
+        }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        // Fallback: block by email only (works when thread lives on Railway)
-        if (fromAddr && fromAddr.includes("@")) {
-          const res2 = await fetch(`${API}/api/support/do-not-email`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: payload,
-          });
-          const body2 = await res2.json().catch(() => ({}));
-          if (res2.ok) {
-            setTab("closed");
-            setNote(
-              `Unsubscribed successfully · ${body2.email || fromAddr} · Do Not Send` +
-                (body2.leads_suppressed ? ` · лидов: ${body2.leads_suppressed}` : ""),
-            );
-            await loadAll();
-            return;
-          }
-          const detail = body2.detail || body.detail || "unsubscribe_failed";
-          setError(
-            typeof detail === "string"
-              ? detail === "not_found" || detail === "Not Found"
-                ? `Не удалось отписать (${fromAddr}). Перезапустите Genesis и повторите.`
-                : detail
-              : "unsubscribe_failed",
-          );
-          return;
-        }
+        const detail = String(body.detail || "");
         setError(
-          body.detail === "not_found" || body.detail === "Not Found"
-            ? "Не найден адрес отправителя для отписки. Откройте письмо и повторите."
-            : body.detail || "unsubscribe_failed",
+          detail === "Not Found" || detail === "not_found" || res.status === 404
+            ? "Нужен перезапуск Genesis (Stop → Start), затем Unsubscribe снова."
+            : detail || "unsubscribe_failed",
         );
         return;
       }
       setTab("closed");
       setNote(
-        `Unsubscribed successfully · ${body.contact?.email || body.email || fromAddr || "email"} · Do Not Send` +
+        `Unsubscribed successfully · ${body.email || fromAddr} · больше не пишем` +
           (body.leads_suppressed ? ` · лидов: ${body.leads_suppressed}` : ""),
       );
       await loadAll();
