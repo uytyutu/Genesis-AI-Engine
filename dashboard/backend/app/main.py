@@ -627,26 +627,38 @@ async def support_inbox_remote_proxy(request: Request, call_next):
     if request.method == "OPTIONS":
         return with_cors(Response(status_code=204))
 
-    # Unsubscribe must succeed for Country Desk even if Railway is behind / 404.
+    # Unsubscribe must succeed for Country Desk even if Railway is behind / 403 / 404.
     is_unsub = path.endswith("/unsubscribe") or path.endswith("/do-not-email")
     if is_unsub and request.method == "POST":
         import json as _json
+        import re as _re
 
         body_bytes = await request.body()
         email = ""
+        tid = ""
         try:
             payload = _json.loads(body_bytes.decode("utf-8") or "{}")
             if isinstance(payload, dict):
                 email = str(payload.get("email") or "").strip()
         except Exception:
             payload = {}
-        # Always apply locally so outreach Quality Gate sees the block
+        if "/threads/" in path and path.endswith("/unsubscribe"):
+            tid = path.rsplit("/threads/", 1)[-1].split("/", 1)[0]
+        # Pull email from local thread when UI body omitted it
+        if (not email or "@" not in email) and tid:
+            try:
+                thr = _ctx().support.get_thread(tid)
+                if thr:
+                    email = str(thr.get("from") or "").strip()
+            except Exception:
+                pass
+        m = _re.search(r"[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}", email or "", _re.I)
+        if m:
+            email = m.group(0)
+
         local_out: dict | None = None
         if email and "@" in email:
             try:
-                tid = ""
-                if "/threads/" in path and path.endswith("/unsubscribe"):
-                    tid = path.rsplit("/threads/", 1)[-1].split("/", 1)[0]
                 local_out = _ctx().support.unsubscribe_email(
                     email,
                     thread_id=tid,
@@ -662,16 +674,26 @@ async def support_inbox_remote_proxy(request: Request, call_next):
             url = f"{remote_base()}{path}"
             if request.url.query:
                 url = f"{url}?{request.url.query}"
+            # Ensure remote also receives a usable email for Do Not Email
+            forward_body = body_bytes
+            if email and "@" in email:
+                try:
+                    merged = payload if isinstance(payload, dict) else {}
+                    merged = {**merged, "email": email}
+                    if tid:
+                        merged.setdefault("thread_id", tid)
+                    forward_body = _json.dumps(merged).encode("utf-8")
+                except Exception:
+                    forward_body = body_bytes
             try:
                 async with httpx.AsyncClient(timeout=45.0) as client:
                     res = await client.request(
                         request.method,
                         url,
-                        content=body_bytes,
+                        content=forward_body,
                         headers={
                             "X-Support-Bridge": bridge_secret(),
-                            "Content-Type": request.headers.get("content-type")
-                            or "application/json",
+                            "Content-Type": "application/json",
                             "Accept": "application/json",
                         },
                     )
@@ -683,7 +705,7 @@ async def support_inbox_remote_proxy(request: Request, call_next):
                             media_type=res.headers.get("content-type") or "application/json",
                         )
                     )
-                # Remote 404/5xx — return local success if we blocked the address
+                # Remote denied/missing — local suppression still wins for CEO desk
                 if local_out:
                     return with_cors(JSONResponse(local_out))
                 return with_cors(
@@ -700,7 +722,7 @@ async def support_inbox_remote_proxy(request: Request, call_next):
 
         if local_out:
             return with_cors(JSONResponse(local_out))
-        # No email in body — rebuild request so route handler still sees JSON
+        # No email resolved — rebuild request so route handler still sees JSON
         async def _receive():
             return {"type": "http.request", "body": body_bytes, "more_body": False}
 

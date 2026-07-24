@@ -228,7 +228,15 @@ export default function SupportPage() {
 
   async function unsubscribeThread(id: string) {
     if (!id) return;
-    const fromAddr = threads.find((t) => t.id === id)?.from || selected?.from || "";
+    const thread = threads.find((t) => t.id === id) || selected;
+    const rawFrom = thread?.from || "";
+    const fromMessages = (thread?.messages || [])
+      .map((m) => m.from || "")
+      .find((v) => v.includes("@"));
+    const emailMatch = `${rawFrom} ${fromMessages || ""}`.match(
+      /[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i,
+    );
+    const fromAddr = (emailMatch?.[0] || rawFrom).trim();
     if (
       !window.confirm(
         "Отписать адрес от маркетинговых / outreach писем?\n\n" +
@@ -242,39 +250,51 @@ export default function SupportPage() {
     setNote("");
     setError("");
     try {
+      const payload = JSON.stringify({ email: fromAddr, thread_id: id });
       const res = await fetch(`${API}/api/support/threads/${id}/unsubscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: fromAddr }),
+        body: payload,
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
         // Fallback: block by email only (works when thread lives on Railway)
-        if (fromAddr) {
+        if (fromAddr && fromAddr.includes("@")) {
           const res2 = await fetch(`${API}/api/support/do-not-email`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: fromAddr, thread_id: id }),
+            body: payload,
           });
           const body2 = await res2.json().catch(() => ({}));
           if (res2.ok) {
             setTab("closed");
             setNote(
-              `Unsubscribed · ${body2.email || fromAddr} · outreach заблокирован` +
+              `Unsubscribed successfully · ${body2.email || fromAddr} · Do Not Send` +
                 (body2.leads_suppressed ? ` · лидов: ${body2.leads_suppressed}` : ""),
             );
             await loadAll();
             return;
           }
-          setError(body2.detail || body.detail || "unsubscribe_failed");
+          const detail = body2.detail || body.detail || "unsubscribe_failed";
+          setError(
+            typeof detail === "string"
+              ? detail === "not_found" || detail === "Not Found"
+                ? `Не удалось отписать (${fromAddr}). Перезапустите Genesis и повторите.`
+                : detail
+              : "unsubscribe_failed",
+          );
           return;
         }
-        setError(body.detail || "unsubscribe_failed");
+        setError(
+          body.detail === "not_found" || body.detail === "Not Found"
+            ? "Не найден адрес отправителя для отписки. Откройте письмо и повторите."
+            : body.detail || "unsubscribe_failed",
+        );
         return;
       }
       setTab("closed");
       setNote(
-        `Unsubscribed · ${body.contact?.email || body.email || fromAddr || "email"} · outreach заблокирован` +
+        `Unsubscribed successfully · ${body.contact?.email || body.email || fromAddr || "email"} · Do Not Send` +
           (body.leads_suppressed ? ` · лидов: ${body.leads_suppressed}` : ""),
       );
       await loadAll();
