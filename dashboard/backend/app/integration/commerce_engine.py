@@ -1,32 +1,24 @@
-"""Commerce Engine — localized checkout offers from market registry.
+"""Commerce Engine — localized checkout offers.
 
-Thin layer between market_registry and sales_order_service.
-Dynamic pricing is one capability; checkout resolution is the Mission 1 surface.
+Path A amounts live in ``pricing_engine`` (SSOT). This module keeps market
+resolution + thin wrappers so callers of ``resolve_final_offer`` keep working.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from app.integration.market_context import resolve_market_context
-from app.integration.market_registry import (
-    MARKET_DE,
-    MARKET_PL,
-    checkout_price_scale,
-    format_amount,
-    get_market,
+from app.integration.market_registry import MARKET_DE, MARKET_PL, get_market
+from app.integration.pricing_engine import (
+    FinalOffer,
+    WEBSITE_PACKAGE_IDS,
+    list_path_a_packages,
+    resolve_path_a_offer,
 )
 
-PACKAGE_IDS = ("basic", "business", "premium")
-
-# Germany canonical checkout anchors (SalesOrderService legacy tiers).
-_DE_CHECKOUT_ANCHORS: dict[str, int] = {
-    "basic": 350,
-    "business": 650,
-    "premium": 1200,
-}
+PACKAGE_IDS = WEBSITE_PACKAGE_IDS
 
 _POLISH_CITY_MARKERS: tuple[str, ...] = (
     "kraków",
@@ -49,26 +41,6 @@ _POLISH_CITY_MARKERS: tuple[str, ...] = (
     "polska",
     "poland",
 )
-
-
-@dataclass(frozen=True)
-class FinalOffer:
-    package_id: str
-    amount: int
-    currency: str
-    symbol: str
-    market_code: str
-    price_label: str
-
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "package_id": self.package_id,
-            "amount": self.amount,
-            "currency": self.currency,
-            "symbol": self.symbol,
-            "market_code": self.market_code,
-            "price_label": self.price_label,
-        }
 
 
 def resolve_checkout_market(
@@ -118,20 +90,8 @@ def resolve_checkout_market(
 
 
 def resolve_final_offer(package_id: str, market_code: str) -> FinalOffer:
-    """Localized fixed checkout price for a sales package tier."""
-    tier = package_id if package_id in _DE_CHECKOUT_ANCHORS else "basic"
-    market = get_market(market_code)
-    scale = checkout_price_scale(market.code)
-    amount = max(1, round(_DE_CHECKOUT_ANCHORS[tier] * scale))
-    label = format_amount(amount, market.symbol)
-    return FinalOffer(
-        package_id=tier,
-        amount=amount,
-        currency=market.currency,
-        symbol=market.symbol,
-        market_code=market.code,
-        price_label=label,
-    )
+    """Localized Path A price (website + repair) — delegates to pricing_engine."""
+    return resolve_path_a_offer(package_id, market_code)
 
 
 def resolve_checkout_packages(
@@ -140,44 +100,21 @@ def resolve_checkout_packages(
     deliverables_by_id: dict[str, list[str]] | None = None,
     names_by_id: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    """All checkout tiers for a target market."""
-    market = get_market(market_code)
-    packages: list[dict[str, Any]] = []
-    for tier in PACKAGE_IDS:
-        offer = resolve_final_offer(tier, market.code)
-        packages.append(
-            {
-                "id": tier,
-                "name": (names_by_id or {}).get(tier, _default_name(tier)),
-                "price_eur": float(offer.amount),
-                "currency": offer.currency,
-                "symbol": offer.symbol,
-                "market_code": offer.market_code,
-                "price_label": offer.price_label,
-                "deliverables": list((deliverables_by_id or {}).get(tier, [])),
-            }
-        )
-    return {
-        "packages": packages,
-        "market_code": market.code,
-        "currency": market.currency,
-        "symbol": market.symbol,
-        "delivery_support": _delivery_support_row(market.code),
-    }
+    """All website checkout tiers for a target market."""
+    payload = list_path_a_packages(
+        market_code,
+        package_ids=WEBSITE_PACKAGE_IDS,
+        deliverables_by_id=deliverables_by_id,
+        names_by_id=names_by_id,
+    )
+    payload["delivery_support"] = _delivery_support_row(payload["market_code"])
+    return payload
 
 
 def _delivery_support_row(market_code: str) -> dict[str, Any]:
     from app.factory.market_delivery import market_delivery_support
 
     return market_delivery_support(market_code)
-
-
-def _default_name(tier: str) -> str:
-    return {
-        "basic": "Landing Basic",
-        "business": "Landing Business",
-        "premium": "Landing Premium",
-    }.get(tier, tier)
 
 
 def _visitor_market_hints(visitor_id: str, memory_dir: Path) -> list[str]:

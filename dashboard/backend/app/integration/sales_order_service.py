@@ -288,25 +288,17 @@ class SalesOrderService:
             }
 
         if pid in _REPAIR_PACKAGE_IDS:
-            market = get_market((market_code or "DE").strip().upper() or "DE")
+            offer = resolve_final_offer(pid, (market_code or "DE").strip().upper() or "DE")
             base = _PACKAGES[pid]
-            amount = float(base["price_eur"])
             package = {
                 **base,
-                "price_eur": amount,
-                "currency": market.currency,
-                "symbol": market.symbol,
-                "market_code": market.code,
-                "price_label": format_amount(amount, market.symbol),
+                "price_eur": float(offer.amount),
+                "currency": offer.currency,
+                "symbol": offer.symbol,
+                "market_code": offer.market_code,
+                "price_label": offer.price_label,
             }
-            return package, {
-                "package_id": pid,
-                "amount": amount,
-                "currency": market.currency,
-                "symbol": market.symbol,
-                "market_code": market.code,
-                "price_label": package["price_label"],
-            }
+            return package, offer.as_dict()
 
         resolved = resolve_checkout_market(
             market_code=market_code,
@@ -648,6 +640,9 @@ class SalesOrderService:
             "language": order.get("language") or order.get("ui_lang"),
             "locale": order.get("locale"),
             "currency": order.get("currency"),
+            "price_label": order.get("price_label"),
+            "price_eur": order.get("price_eur"),
+            "amount": order.get("price_eur"),
         }
         mats = order.get("materials")
         if isinstance(mats, dict) and isinstance(mats.get("files"), list):
@@ -1293,16 +1288,29 @@ class SalesOrderService:
         if factory is None or not hasattr(factory, "build_client_delivery_zip"):
             raise ValueError("factory_unavailable")
         market = normalize_market(str(order.get("market_code") or "DE"))
-        # Ensure product meta carries market before ZIP pack regenerates legal pages.
+        # Ensure product meta carries market + frozen Path A price before ZIP.
         try:
             meta = factory._load_meta(product_id)  # type: ignore[attr-defined]
-            if isinstance(meta, dict) and meta.get("market_code") != market:
-                meta["market_code"] = market
-                product_dir = factory._sandbox / product_id  # type: ignore[attr-defined]
-                (product_dir / "meta.json").write_text(
-                    __import__("json").dumps(meta, ensure_ascii=False, indent=2),
-                    encoding="utf-8",
-                )
+            if isinstance(meta, dict):
+                dirty = False
+                if meta.get("market_code") != market:
+                    meta["market_code"] = market
+                    dirty = True
+                pricing = {
+                    "package_id": str(order.get("package_id") or "basic"),
+                    "amount": order.get("price_eur"),
+                    "currency": order.get("currency"),
+                    "price_label": order.get("price_label"),
+                }
+                if meta.get("path_a_pricing") != pricing:
+                    meta["path_a_pricing"] = pricing
+                    dirty = True
+                if dirty:
+                    product_dir = factory._sandbox / product_id  # type: ignore[attr-defined]
+                    (product_dir / "meta.json").write_text(
+                        __import__("json").dumps(meta, ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
         except Exception:
             pass
         data, filename = factory.build_client_delivery_zip(product_id)

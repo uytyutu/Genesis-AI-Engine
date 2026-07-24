@@ -60,7 +60,7 @@ def _profile(
         "currency": currency,
         "timezone": timezone,
         "email_template": email_template,
-        "prices": prices,
+        "prices": dict(_PRICES_DEPRECATED),  # SSOT: pricing_engine — do not read
         "legal_notes": legal_notes,
         "hunt_quota_daily": hunt_quota_daily,  # discovery soft budget (not a hard lead cap)
         "send_quota_daily": send_quota_daily,  # outreach — protective
@@ -70,74 +70,21 @@ def _profile(
     }
 
 
-# Shared Path A EUR anchors (local display may convert via market_registry later)
-_PRICES_EUR = {
-    "website_basic": 350,
-    "website_business": 650,
-    "website_premium": 1200,
-    "repair_lite": 199,
-    "repair_standard": 349,
-    "repair_complete": 499,
+# Shared Path A EUR anchors — DEPRECATED.
+# Path A amounts live in ``pricing_engine._PATH_A_SKUS``. Profile ``prices``
+# always points here; do not read amounts from country_profiles.
+_PRICES_DEPRECATED: dict[str, Any] = {
+    "deprecated": True,
+    "ssot": "app.integration.pricing_engine",
 }
-_PRICES_USD = {
-    "website_basic": 399,
-    "website_business": 749,
-    "website_premium": 1399,
-    "repair_lite": 229,
-    "repair_standard": 399,
-    "repair_complete": 569,
-}
-_PRICES_GBP = {
-    "website_basic": 299,
-    "website_business": 549,
-    "website_premium": 999,
-    "repair_lite": 179,
-    "repair_standard": 299,
-    "repair_complete": 429,
-}
-_PRICES_AUD = {
-    "website_basic": 549,
-    "website_business": 999,
-    "website_premium": 1899,
-    "repair_lite": 299,
-    "repair_standard": 549,
-    "repair_complete": 799,
-}
-_PRICES_JPY = {
-    "website_basic": 55000,
-    "website_business": 98000,
-    "website_premium": 180000,
-    "repair_lite": 35000,
-    "repair_standard": 55000,
-    "repair_complete": 78000,
-    "note": "JPY list anchors",
-}
-_PRICES_KRW = {
-    "website_basic": 490000,
-    "website_business": 890000,
-    "website_premium": 1600000,
-    "repair_lite": 290000,
-    "repair_standard": 490000,
-    "repair_complete": 690000,
-    "note": "KRW list anchors",
-}
-_PRICES_SGD = {
-    "website_basic": 499,
-    "website_business": 899,
-    "website_premium": 1699,
-    "repair_lite": 279,
-    "repair_standard": 479,
-    "repair_complete": 699,
-}
-_PRICES_CIS = {
-    "website_basic": 350,
-    "website_business": 650,
-    "website_premium": 1200,
-    "repair_lite": 199,
-    "repair_standard": 349,
-    "repair_complete": 499,
-    "note": "EUR list; local offer may use market_registry FX",
-}
+_PRICES_EUR = _PRICES_DEPRECATED
+_PRICES_USD = _PRICES_DEPRECATED
+_PRICES_GBP = _PRICES_DEPRECATED
+_PRICES_AUD = _PRICES_DEPRECATED
+_PRICES_JPY = _PRICES_DEPRECATED
+_PRICES_KRW = _PRICES_DEPRECATED
+_PRICES_SGD = _PRICES_DEPRECATED
+_PRICES_CIS = _PRICES_DEPRECATED
 
 
 COUNTRY_PROFILES: dict[str, dict[str, Any]] = {

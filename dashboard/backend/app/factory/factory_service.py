@@ -210,6 +210,17 @@ class FactoryService:
             "currency": str(contacts.get("currency") or "").strip() or None,
             "ui_lang": str(contacts.get("ui_lang") or contacts.get("language") or "").strip()
             or None,
+            "path_a_pricing": {
+                "package_id": str(
+                    package_id or contacts.get("package_id") or "basic"
+                ).strip().lower()
+                or "basic",
+                "amount": contacts.get("amount")
+                if contacts.get("amount") is not None
+                else contacts.get("price_eur"),
+                "currency": str(contacts.get("currency") or "").strip() or None,
+                "price_label": str(contacts.get("price_label") or "").strip() or None,
+            },
             "market_design": resolve_market_design(market).market_id,
             "motion_level": motion,
             "composer_engine": plan.engine_id,

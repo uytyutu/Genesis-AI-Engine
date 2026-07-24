@@ -1372,6 +1372,7 @@ class AcquisitionStudioService:
         """
         from app.integration.commerce_engine import resolve_final_offer
         from app.integration.outreach_language_service import resolve_market_from_row
+        from app.integration.pricing_engine import normalize_package_id
 
         market = (
             resolve_market_from_row(r)
@@ -1379,13 +1380,11 @@ class AcquisitionStudioService:
             or (str(r.get("market") or "").strip().upper() or None)
             or "DE"
         )
-        package_id = (
+        package_id = normalize_package_id(
             r.get("recommended_package_id")
             or meta.get("recommended_package_id")
             or "basic"
         )
-        if package_id not in ("basic", "business", "premium"):
-            package_id = "basic"
 
         try:
             offer = resolve_final_offer(package_id, market)
@@ -1468,6 +1467,46 @@ class AcquisitionStudioService:
                 meta["market"] = str(mkt).upper()
                 r["market"] = str(mkt).upper()
             r["meta"] = meta
+            # Rebuild letter body so farm does not send a stale price_label
+            if r.get("proposed_message"):
+                try:
+                    pkg_id = (
+                        r.get("recommended_package_id")
+                        or meta.get("recommended_package_id")
+                        or "basic"
+                    )
+                    from app.integration.pricing_engine import normalize_package_id
+
+                    pkg_id = normalize_package_id(str(pkg_id))
+                    package = {
+                        "id": pkg_id,
+                        "name": pkg_id,
+                        "price_eur": pricing["recommended_price_eur"],
+                        "price_label": pricing["recommended_price_label"],
+                        "currency": pricing["recommended_currency"],
+                        "symbol": pricing["recommended_symbol"],
+                        "market_code": str(mkt or "DE").upper(),
+                    }
+                    analysis = (
+                        r.get("site_analysis")
+                        if isinstance(r.get("site_analysis"), dict)
+                        else {}
+                    )
+                    subject, body, lang = self._outreach_lang.draft_outreach(
+                        company=str(r.get("company_name") or ""),
+                        analysis=analysis,
+                        package=package,
+                        price=float(pricing["recommended_price_eur"] or 0),
+                        fit_reason=str(r.get("fit_reason") or ""),
+                        row=r,
+                        allow_llm=False,
+                    )
+                    r["proposed_subject"] = subject
+                    r["proposed_message"] = body
+                    meta["outreach_language"] = lang
+                    r["meta"] = meta
+                except Exception:
+                    pass
             r["updated_at"] = datetime.now(timezone.utc).isoformat()
             rows[i] = r
             changed += 1

@@ -151,7 +151,9 @@ class PaymentCheckoutService:
         if not secret:
             raise ValueError("stripe_not_configured")
         cur = (currency or "eur").lower()
-        amount_cents = int(round(float(amount) * 100))
+        from app.integration.pricing_engine import stripe_unit_amount
+
+        amount_cents = stripe_unit_amount(amount, cur)
         # Frontend already sends .../order/status/{id}?paid=1 — do not append a second "?".
         success = success_url.strip()
         if "order_id=" not in success:
@@ -215,7 +217,12 @@ class PaymentCheckoutService:
         if session.get("payment_status") != "paid":
             return None
         order_id = (session.get("metadata") or {}).get("order_id")
-        amount = float(session.get("amount_total", 0)) / 100.0
+        from app.integration.pricing_engine import stripe_major_from_total
+
+        amount = stripe_major_from_total(
+            float(session.get("amount_total", 0) or 0),
+            str(session.get("currency") or "eur"),
+        )
         if not order_id or amount <= 0:
             return None
         return {
