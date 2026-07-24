@@ -313,6 +313,11 @@ from app.api.webhooks.resend_inbound import router as resend_inbound_webhook_rou
 
 app.include_router(resend_inbound_webhook_router)
 
+# Commercial API Gateway v0 — sell Virtus audit/leads (additive; no farm finance changes)
+from app.commercial_api.router import router as commercial_api_router
+
+app.include_router(commercial_api_router)
+
 # R3.8.2 — controlled Portal registration (no-op while feature_enabled=False)
 from app.portal.portal_registration import register_portal_read
 

@@ -44,6 +44,7 @@ _PUBLIC_EXACT = frozenset({"/health", "/status", "/api/status"})
 _PUBLIC_PREFIXES = (
     "/api/public/",
     "/api/client/",
+    "/api/v1/",
     "/api/sales/packages",
     "/api/sales/payment-status",
     "/api/sales/email-status",
