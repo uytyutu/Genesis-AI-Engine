@@ -13,6 +13,7 @@ from typing import Any
 
 from app.integration.genesis_brain.layers.conversation_state import ConversationState
 from app.integration.genesis_brain.layers.thinking_brief import ThinkingBrief
+from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.public_truth_catalog import studio_unavailable_message, unavailable_online_message
 
 # niche_id -> (label, stack items, service price hint)
@@ -226,9 +227,21 @@ def compose(
     elif re.search(r"хочу\s+открыть|открыть\s+", low):
         open_line = f"Хорошая цель — {rec.niche_label}."
     elif re.search(r"хочу\s+сайт|нужен\s+сайт|интернет-магазин", low):
-        open_line = "Давайте разберём, что именно нужно."
+        open_line = (
+            f"В {BRAND_NAME} сайты в трёх пакетах: Basic, Business и Premium."
+        )
     else:
         open_line = ""
+
+    # Prefer Product Consultant tone when website goal is active
+    if state.consultant_intent == "website" or (
+        state.needs_website and re.search(r"сайт|лендинг|пакет|basic|business|premium", low)
+    ):
+        from app.integration.genesis_brain.product_consultant import try_product_consultant_reply
+
+        pc = try_product_consultant_reply(last_user, messages, state)
+        if pc:
+            return pc.answer
 
     stack_lines = "\n".join(f"• {item}" for item in rec.stack)
     stack_block = (

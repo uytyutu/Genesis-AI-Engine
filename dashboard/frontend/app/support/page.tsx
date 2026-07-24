@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BRAND_NAME } from "../lib/publicBrand";
 
-/** CEO desk is local-only. Hit API host directly (not Next rewrite). */
+/** CEO desk → local backend. CORS always allows :3000 (see main.py). */
 const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
 
 type TabId =
@@ -35,6 +35,8 @@ type SupportThread = {
   updated_at?: string;
   messages?: SupportMessage[];
   last_fingerprint?: string;
+  email_status?: string;
+  do_not_email?: boolean;
 };
 
 type Template = {
@@ -108,7 +110,7 @@ export default function SupportPage() {
       ]);
       if (!st.ok || !th.ok) {
         setError(
-          "API недоступен (нужен Genesis.exe / backend :8000, local owner). " +
+          "API недоступен (нужен Genesis.exe → Запустить, backend :8000). " +
             `${st.status}/${th.status}`,
         );
         return;
@@ -125,7 +127,14 @@ export default function SupportPage() {
         setRules(rbody.items || []);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "load_failed");
+      const msg = e instanceof Error ? e.message : "load_failed";
+      const offline =
+        /failed to fetch|networkerror|load failed|econnrefused/i.test(msg);
+      setError(
+        offline
+          ? "Нет связи с API (Failed to fetch). Backend не запущен на :8000 — в Genesis.exe нажмите «Запустить», дождитесь 🟢, затем «Обновить»."
+          : msg,
+      );
     }
   }, [tab]);
 
@@ -196,6 +205,60 @@ export default function SupportPage() {
     await loadAll();
   }
 
+  async function deleteThread(id: string) {
+    if (!id) return;
+    if (!window.confirm("Удалить это письмо из Inbox? Восстановить нельзя.")) return;
+    setBusy(true);
+    setNote("");
+    setError("");
+    try {
+      const res = await fetch(`${API}/api/support/threads/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.detail || "delete_failed");
+        return;
+      }
+      if (selectedId === id) setSelectedId(null);
+      setNote("Письмо удалено");
+      await loadAll();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function unsubscribeThread(id: string) {
+    if (!id) return;
+    if (
+      !window.confirm(
+        "Отписать адрес от маркетинговых / outreach писем?\n\n" +
+          "Диалог сохранится в истории и закроется. Письмо не удаляется.",
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    setNote("");
+    setError("");
+    try {
+      const res = await fetch(`${API}/api/support/threads/${id}/unsubscribe`, {
+        method: "POST",
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(body.detail || "unsubscribe_failed");
+        return;
+      }
+      setTab("closed");
+      setNote(
+        `Unsubscribed · ${body.contact?.email || "email"} · outreach заблокирован` +
+          (body.leads_suppressed ? ` · лидов: ${body.leads_suppressed}` : ""),
+      );
+      await loadAll();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function openThread(id: string) {
     setSelectedId(id);
     setTab("conversation");
@@ -233,7 +296,10 @@ export default function SupportPage() {
             {!status?.has_api_key ? " · нет RESEND_API_KEY" : ""}
             {!status?.has_from_address ? " · нет GENESIS_EMAIL_FROM" : ""}
             {!status?.inbound_webhook_secret_set ? " · нет RESEND_INBOUND_WEBHOOK_SECRET" : ""}
-            . UI и локальный webhook smoke всё равно работают.
+            {!status?.inbound_ready
+              ? " · если ключи уже в dashboard/backend/.env.local — нажмите «Обновить» или перезапустите Genesis.exe"
+              : ""}
+            .
           </span>
         )}
       </div>
@@ -285,11 +351,11 @@ export default function SupportPage() {
               </li>
             ) : (
               threads.map((th) => (
-                <li key={th.id}>
+                <li key={th.id} className="flex gap-1">
                   <button
                     type="button"
                     onClick={() => openThread(th.id)}
-                    className={`w-full rounded-xl border px-3 py-2.5 text-left transition ${
+                    className={`min-w-0 flex-1 rounded-xl border px-3 py-2.5 text-left transition ${
                       selectedId === th.id
                         ? "border-emerald-400/40 bg-emerald-950/30"
                         : "border-white/10 bg-white/[0.03] hover:border-white/20"
@@ -300,6 +366,18 @@ export default function SupportPage() {
                     <p className="mt-1 text-[10px] uppercase tracking-wide text-white/40">
                       {th.status}
                     </p>
+                  </button>
+                  <button
+                    type="button"
+                    title="Удалить"
+                    disabled={busy}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void deleteThread(th.id);
+                    }}
+                    className="shrink-0 rounded-xl border border-rose-500/30 bg-rose-950/20 px-2 text-xs text-rose-100 hover:bg-rose-950/40 disabled:opacity-40"
+                  >
+                    ✕
                   </button>
                 </li>
               ))
@@ -316,6 +394,8 @@ export default function SupportPage() {
             busy={busy}
             onSend={() => void sendReply()}
             onStatus={(s) => void setThreadStatus(s)}
+            onUnsubscribe={() => selectedId && void unsubscribeThread(selectedId)}
+            onDelete={() => selectedId && void deleteThread(selectedId)}
           />
         </div>
       )}
@@ -332,6 +412,8 @@ export default function SupportPage() {
           busy={busy}
           onSend={() => void sendReply()}
           onStatus={(s) => void setThreadStatus(s)}
+          onUnsubscribe={() => selectedId && void unsubscribeThread(selectedId)}
+          onDelete={() => selectedId && void deleteThread(selectedId)}
           full
         />
       )}
@@ -411,6 +493,8 @@ function ConversationPanel({
   busy,
   onSend,
   onStatus,
+  onUnsubscribe,
+  onDelete,
   full,
 }: {
   thread: SupportThread | null;
@@ -423,6 +507,8 @@ function ConversationPanel({
   busy: boolean;
   onSend: () => void;
   onStatus: (s: string) => void;
+  onUnsubscribe: () => void;
+  onDelete: () => void;
   full?: boolean;
 }) {
   if (!thread) {
@@ -436,6 +522,9 @@ function ConversationPanel({
       </div>
     );
   }
+  const alreadyUnsub =
+    Boolean(thread.do_not_email) ||
+    String(thread.email_status || "").toLowerCase() === "unsubscribed";
   return (
     <div
       className={`flex flex-col rounded-xl border border-white/10 bg-white/[0.03] ${
@@ -443,8 +532,35 @@ function ConversationPanel({
       }`}
     >
       <div className="border-b border-white/10 px-4 py-3">
-        <p className="font-medium text-white">{thread.subject}</p>
-        <p className="text-xs text-white/50">{thread.from}</p>
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="font-medium text-white">{thread.subject}</p>
+            <p className="text-xs text-white/50">{thread.from}</p>
+            {alreadyUnsub ? (
+              <p className="mt-1 text-[11px] text-amber-200/90">📧 Email status: Unsubscribed</p>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+            <button
+              type="button"
+              disabled={busy || alreadyUnsub}
+              onClick={onUnsubscribe}
+              className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-2.5 py-1 text-xs text-amber-50 hover:bg-amber-950/50 disabled:opacity-40"
+              title="Do Not Email — сохранить историю, закрыть диалог"
+            >
+              {alreadyUnsub ? "Unsubscribed" : "Unsubscribe"}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onDelete}
+              className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-white/55 hover:bg-white/10 disabled:opacity-40"
+              title="Удаляет письмо навсегда — для отписки используйте Unsubscribe"
+            >
+              Удалить
+            </button>
+          </div>
+        </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {(["needs_reply", "waiting", "closed"] as const).map((s) => (
             <button

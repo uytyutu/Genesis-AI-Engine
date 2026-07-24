@@ -321,10 +321,17 @@ class BriefSpeechSynthesizer:
             return unavailable_online_message("Интернет-магазин")
 
         if state.needs_website and re.search(r"сайт|лендинг", low):
+            from app.integration.genesis_brain.product_consultant import (
+                try_product_consultant_reply,
+            )
+
+            pc = try_product_consultant_reply(last_user, clean_messages, state)
+            if pc:
+                return pc.answer
             return (
                 f"Сайт для {state.business_type or 'бизнеса'}.\n\n"
-                "Рекомендую: меню · заказ · галерея · отзывы · карта.\n\n"
-                f"Пакеты **350 / 650 / 1200 €** на /order. Срок — {MISSION1_LANDING_TIMELINE}."
+                "Пакеты: **Basic · Business · Premium** (350 / 650 / 1200 €) на /order.\n\n"
+                f"Срок — {MISSION1_LANDING_TIMELINE}. Следующий шаг — выбрать пакет или оформить заказ."
             )
 
         if state.needs_marketing and re.search(r"продвижен|реклам|маркетинг", low):

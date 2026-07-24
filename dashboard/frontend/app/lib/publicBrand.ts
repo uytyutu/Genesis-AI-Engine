@@ -11,7 +11,7 @@ export const CHAT_FEATURE = ASSISTANT_NAME;
 export const PUBLIC_WELCOME = `Здравствуйте! Я ${ASSISTANT_NAME} — ваш цифровой сотрудник в ${BRAND_NAME}.\n\nРасскажите идею, вопрос по бизнесу или задачу — обсудим свободно, как в обычном чате. Когда понадобится хранить материалы, я сам предложу оформить это как проект.`;
 
 /** /site hub — ownership first, project second. */
-export const PUBLIC_SITE_WELCOME = `Здравствуйте! Я ${ASSISTANT_NAME}.\n\nРасскажите свободно — чем занимаетесь, какой сайт нужен, для кого он. Я сам вытащу детали из разговора и соберу черновик справа. Если чего-то не хватает — переспрошу здесь, в чате.`;
+export const PUBLIC_SITE_WELCOME = `Здравствуйте! Я ${ASSISTANT_NAME}.\n\nЯ цифровой менеджер ${BRAND_NAME}: сайты (Basic / Business / Premium), анализ и ремонт, автоматизация.\n\nНапишите задачу — например «хочу сайт» или «отремонтировать сайт» — и я сразу предложу следующий шаг.`;
 
 export function publicLeadCaptureWelcome(nicheLabel: string): string {
   return (

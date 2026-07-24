@@ -212,7 +212,9 @@ export function GenesisChatComposer({
     clientWorkspace ||
     (minimalMobile && narrowViewport) ||
     (focused && !expanded && !clientVoiceDesktop);
-  const simpleToolbar = (minimalMobile && narrowViewport) || clientWorkspace;
+  // Always keep Send visible on phones — never bury it behind mic/settings chrome
+  const simpleToolbar =
+    (minimalMobile && narrowViewport) || clientWorkspace || narrowViewport;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -247,11 +249,28 @@ export function GenesisChatComposer({
     if (!focused || expanded || typeof window === "undefined" || !window.visualViewport) return;
     const vv = window.visualViewport;
     const scrollInput = () => {
-      textareaRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+      textareaRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     };
     vv.addEventListener("resize", scrollInput);
     scrollInput();
     return () => vv.removeEventListener("resize", scrollInput);
+  }, [focused, expanded]);
+
+  const [keyboardPad, setKeyboardPad] = useState(0);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const sync = () => {
+      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKeyboardPad(focused && !expanded ? inset : 0);
+    };
+    sync();
+    vv.addEventListener("resize", sync);
+    vv.addEventListener("scroll", sync);
+    return () => {
+      vv.removeEventListener("resize", sync);
+      vv.removeEventListener("scroll", sync);
+    };
   }, [focused, expanded]);
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -504,6 +523,11 @@ export function GenesisChatComposer({
   return (
     <div
       className={`${floating ? "mx-auto w-full max-w-3xl px-4 pt-2" : minimalMobile ? "px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:px-4 sm:pb-4" : "px-4 pb-4"}`}
+      style={
+        keyboardPad > 0 && !floating
+          ? { paddingBottom: `max(0.5rem, calc(env(safe-area-inset-bottom) + 4px))` }
+          : undefined
+      }
     >
       {safeMicNotice && (
         <div

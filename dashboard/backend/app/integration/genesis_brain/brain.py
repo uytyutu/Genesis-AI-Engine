@@ -150,6 +150,34 @@ class GenesisBrain:
         if last_user_raw:
             self._memory.observe_communication_habits(visitor_id, last_user_raw)
 
+        # Product Consultant v1 — manager replies before LLM / questionnaire paths
+        from app.integration.genesis_brain.product_consultant import (
+            try_product_consultant_reply,
+        )
+
+        consultant = try_product_consultant_reply(last_user, messages, conv_state)
+        if consultant and (consultant.answer or "").strip():
+            self._conv_state.persist(visitor_id, conv_state, session_id=session_id)
+            shaped = personality.finalize(
+                consultant.answer.strip(),
+                messages=messages,
+                memory=memory_data,
+                visitor_id=visitor_id,
+                user_uses_ty=personality.user_uses_ty(messages),
+                response_style=effective_style,
+            )
+            trace_step(
+                "product_consultant",
+                intent=conv_state.consultant_intent,
+                package=conv_state.package_choice,
+            )
+            return ChatResult(
+                answer=shaped,
+                cta_href=consultant.cta_href,
+                cta_label=consultant.cta_label,
+                provider_id="genesis-local",
+            )
+
         from app.integration.genesis_brain.conversation_fast_lane import (
             FAST_MAX_CLOUD_ATTEMPTS,
             FAST_ROUTE_BUDGET_SEC,
@@ -790,6 +818,45 @@ class GenesisBrain:
         messages = clean_user_messages(messages)
         last_user_raw = self._last_user_text(messages)
         last_user = last_user_raw
+
+        personality = GenesisPersonalityLayer(mode=personality_mode)
+        memory_data = self._memory.observe_messages(visitor_id, messages)
+        inferences = self._memory.get_inferences(visitor_id)
+        conv_state = self._conv_state.process(visitor_id, messages, session_id=session_id)
+
+        from app.integration.genesis_brain.product_consultant import (
+            try_product_consultant_reply,
+        )
+
+        consultant = try_product_consultant_reply(last_user, messages, conv_state)
+        if consultant and (consultant.answer or "").strip():
+            self._conv_state.persist(visitor_id, conv_state, session_id=session_id)
+            effective_style = resolve_effective_style(
+                communication_style, last_user, inferences
+            )
+            shaped = personality.finalize(
+                consultant.answer.strip(),
+                messages=messages,
+                memory=memory_data,
+                visitor_id=visitor_id,
+                user_uses_ty=personality.user_uses_ty(messages),
+                response_style=effective_style,
+            )
+            trace_step(
+                "product_consultant",
+                intent=conv_state.consultant_intent,
+                package=conv_state.package_choice,
+                stream=True,
+            )
+            yield {
+                "type": "done",
+                "answer": shaped,
+                "provider": "genesis-local",
+                "cta_href": consultant.cta_href,
+                "cta_label": consultant.cta_label,
+            }
+            return
+
         if not should_use_conversation_fast_lane(
             has_attachments=has_attachments,
             workforce_task=workforce_task,
@@ -799,10 +866,6 @@ class GenesisBrain:
         ):
             return
 
-        personality = GenesisPersonalityLayer(mode=personality_mode)
-        memory_data = self._memory.observe_messages(visitor_id, messages)
-        inferences = self._memory.get_inferences(visitor_id)
-        conv_state = self._conv_state.process(visitor_id, messages, session_id=session_id)
         if not should_use_conversation_fast_lane(
             has_attachments=has_attachments,
             workforce_task=workforce_task,

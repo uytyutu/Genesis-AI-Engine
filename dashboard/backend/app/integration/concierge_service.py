@@ -69,10 +69,13 @@ class ConciergeService:
         if self._match(
             lower,
             "что такое genesis",
+            "что такое virtus",
             "что это",
             "кто вы",
             "what is genesis",
+            "what is virtus",
             "was ist genesis",
+            "was ist virtus",
         ):
             return self._reply(self._what_is_block(), user_message=last_for_lang)
 
@@ -117,6 +120,30 @@ class ConciergeService:
     def _start_service_journey(
         self, question: str, lower: str, *, user_message: str
     ) -> dict[str, Any]:
+        if re.search(
+            r"хочу\s+сайт|нужен\s+сайт|сделать\s+сайт|создать\s+сайт", lower
+        ) and not re.search(
+            r"кафе|кофе|салон|стоматолог|клиник|магазин|для\s+\w+", lower
+        ):
+            body = (
+                f"Отлично! В {BRAND_NAME} мы создаём сайты в трёх пакетах:\n\n"
+                "* **Basic** — одностраничный сайт · **350 €**\n"
+                "* **Business** — сайт компании с системой управления · **650 €**\n"
+                "* **Premium** — блог, бронирование и CRM · **1200 €**\n\n"
+                "Если уже знаете пакет — оформите заказ. Если нет — напишите нишу, помогу выбрать."
+            )
+            return self._reply(
+                body,
+                cta_href="/order",
+                cta_label="Оформить заказ",
+                context={
+                    "intent": "service",
+                    "journey_phase": "quoted",
+                    "project_type": "website",
+                },
+                user_message=user_message,
+            )
+
         business = self._extract_business(lower) or ("кафе" if "кафе" in lower else None)
         ctx: dict[str, Any] = {
             "intent": "service",
@@ -128,19 +155,25 @@ class ConciergeService:
         ctx["journey_phase"] = "quoted"
         ctx["quote"] = quote
 
-        opening = "Принял задачу"
+        opening = "Отлично"
         if business:
-            opening += f": сайт для **{business}**"
+            opening += f" — сайт для **{business}**"
         opening += "."
 
         body = (
             f"{opening}\n\n"
-            f"Рекомендую **{quote['package_name']}** — **{quote['price_eur']} €**, "
+            f"Чаще всего подходит **{quote['package_name']}** — **{quote['price_eur']} €**, "
             f"срок **{quote['timeline']}**.\n\n"
             f"{quote['summary']}\n\n"
             "Следующий шаг — оформить заказ или написать **«изменить требования»**."
         )
-        return self._reply(body, context=ctx, user_message=user_message)
+        return self._reply(
+            body,
+            cta_href=f"/order?package={quote.get('package_id', 'business')}",
+            cta_label="Оформить заказ",
+            context=ctx,
+            user_message=user_message,
+        )
 
     def _continue_journey(
         self, question: str, ctx: dict[str, Any], *, user_message: str
@@ -233,11 +266,12 @@ class ConciergeService:
 
     def _what_is_block(self) -> str:
         return (
-            f"{BRAND_NAME} — платформа цифровой компании: услуги под ключ и инструменты.\n\n"
-            f"**Сейчас:**\n"
-            f"• Работа с {ASSISTANT_NAME}\n"
-            f"• Заказ **лендинга** — от **{self._min_price} €** (350 / 650 / 1200 €)\n\n"
-            f"**{STUDIO_NAME}** — в разработке, купить онлайн нельзя."
+            f"**{BRAND_NAME}** — платформа цифровых услуг: создание сайтов, "
+            "модернизация существующих сайтов, автоматизация и AI-решения для бизнеса.\n\n"
+            f"Я {ASSISTANT_NAME} — помогаю выбрать услугу и довести до заказа.\n\n"
+            f"**Сейчас онлайн:** лендинг от **{self._min_price} €** (Basic / Business / Premium).\n"
+            f"**{STUDIO_NAME}** — в разработке, купить онлайн нельзя.\n\n"
+            "Следующий шаг — скажите: новый сайт, анализ/ремонт или другой запрос."
         )
 
     def _pricing_block(self) -> str:

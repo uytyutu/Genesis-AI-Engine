@@ -262,7 +262,10 @@ class OutreachSendQuota:
             return True, ""
         elapsed = (datetime.now(timezone.utc) - last_dt).total_seconds()
         if elapsed < interval:
-            wait = int(interval - elapsed)
+            wait = int(max(0, interval - elapsed))
+            # Float edge: elapsed=89.7, interval=90 → wait=0 but still blocked; allow ≤0.5s slack.
+            if wait <= 0 or (interval - elapsed) <= 0.5:
+                return True, ""
             return False, f"min_interval:{wait}s"
         return True, ""
 

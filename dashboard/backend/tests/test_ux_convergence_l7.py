@@ -66,10 +66,11 @@ def test_concierge_cafe_immediate_quote_not_questionnaire():
     svc = ConciergeService(_PACKAGES)
     out = svc.ask("Мне нужен сайт для кафе")
     ans = out["answer"].lower()
-    assert "конечно" not in ans or "принял" in ans
+    assert "зафиксир" not in ans
+    assert "какой сайт" not in ans
     assert out["context"]["journey_phase"] == "quoted"
     assert "650" in out["answer"] or "350" in out["answer"]
-    assert out.get("cta_href") is None
+    assert out.get("cta_href")
     assert "заведение" not in ans or "какое у вас" not in ans
 
 

@@ -180,29 +180,51 @@ class OutreachRunnerService:
         except Exception:
             send_enabled = os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true"
         if send_enabled and self._send_next_fn:
-            try:
-                send_res = self._send_next_fn()
-                detail["send"] = send_res
-                if send_res.get("sent"):
-                    state["session_sends"] = int(state.get("session_sends") or 0) + 1
-                    actions.append("send")
-                    self._log(
-                        state,
-                        "send",
-                        f"Отправлено [{send_res.get('market') or '?'}]: "
-                        f"{send_res.get('company') or send_res.get('to') or 'ok'}",
-                    )
-                elif send_res.get("skipped"):
-                    state["session_skipped"] = int(state.get("session_skipped") or 0) + 1
-                    actions.append("send_skip")
-                    self._log(
-                        state,
-                        "send_skip",
-                        str(send_res.get("message_ru") or send_res.get("reason") or "пропуск отправки"),
-                    )
-            except Exception as exc:
-                actions.append("send_error")
-                self._log(state, "send_error", f"Ошибка отправки: {exc}")
+            # Burst: up to 3 Ready leads per tick (quota + pacing still apply).
+            sends_detail: list[dict[str, Any]] = []
+            for _ in range(3):
+                try:
+                    send_res = self._send_next_fn()
+                    sends_detail.append(send_res)
+                    if send_res.get("sent"):
+                        state["session_sends"] = int(state.get("session_sends") or 0) + 1
+                        actions.append("send")
+                        self._log(
+                            state,
+                            "send",
+                            f"Отправлено [{send_res.get('market') or '?'}]: "
+                            f"{send_res.get('company') or send_res.get('to') or 'ok'}",
+                        )
+                        continue
+                    if send_res.get("skipped"):
+                        reason = str(
+                            send_res.get("reason")
+                            or send_res.get("message_ru")
+                            or "пропуск"
+                        )
+                        state["session_skipped"] = int(state.get("session_skipped") or 0) + 1
+                        actions.append("send_skip")
+                        self._log(
+                            state,
+                            "send_skip",
+                            str(send_res.get("message_ru") or reason),
+                        )
+                        # Pacing / no Ready → stop burst this tick
+                        if "min_interval" in reason or reason in (
+                            "no_quality_leads",
+                            "outside_business_hours",
+                            "outreach_disabled",
+                        ):
+                            break
+                        continue
+                    break
+                except Exception as exc:
+                    actions.append("send_error")
+                    self._log(state, "send_error", f"Ошибка отправки: {exc}")
+                    break
+            if sends_detail:
+                detail["send"] = sends_detail[-1]
+                detail["sends"] = sends_detail
 
         # Always try to refresh/draft a small batch so the queue fills.
         if self._refresh_fn:

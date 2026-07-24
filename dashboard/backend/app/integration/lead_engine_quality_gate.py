@@ -103,6 +103,34 @@ def quality_gate_before_send(
     if not email or not _EMAIL_RE.match(email):
         return {"ok": False, "reason": "invalid_email", "detail": "Email missing or invalid"}
 
+    if meta.get("do_not_contact") or meta.get("email_status") in (
+        "unsubscribed",
+        "bounced",
+        "blocked",
+    ):
+        return {
+            "ok": False,
+            "reason": "do_not_contact",
+            "detail": "Contact opted out / blocked for marketing email",
+        }
+
+    try:
+        import os
+        from pathlib import Path
+
+        from app.integration.email_contact_status import EmailContactStatusService
+
+        mem_raw = os.getenv("GENESIS_MEMORY_DIR", "").strip()
+        mem = Path(mem_raw).expanduser() if mem_raw else None
+        if EmailContactStatusService(mem).is_marketing_blocked(email):
+            return {
+                "ok": False,
+                "reason": "unsubscribed",
+                "detail": "Email status is Unsubscribed / Bounced / Blocked",
+            }
+    except Exception:
+        pass
+
     if exclusion_blocked:
         return {"ok": False, "reason": "exclusion", "detail": "Company on stop-list"}
 

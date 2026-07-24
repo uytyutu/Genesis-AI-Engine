@@ -121,6 +121,75 @@ class SupportInboxService:
                 return row
         raise ValueError("not_found")
 
+    def delete_thread(self, thread_id: str) -> bool:
+        """Remove one thread from support_threads.json (frees local/Railway memory)."""
+        tid = str(thread_id or "").strip()
+        if not tid:
+            return False
+        rows = self._load_list(self._threads_path)
+        next_rows = [row for row in rows if str(row.get("id")) != tid]
+        if len(next_rows) == len(rows):
+            return False
+        self._save_list(self._threads_path, next_rows)
+        return True
+
+    def mark_unsubscribed(self, thread_id: str) -> dict[str, Any]:
+        """Do Not Email: keep thread history, close dialog, block outreach to sender."""
+        from app.integration.email_contact_status import (
+            EmailContactStatusService,
+            suppress_outreach_leads_for_email,
+        )
+
+        thread = self.get_thread(thread_id)
+        if not thread:
+            raise ValueError("not_found")
+        email = str(thread.get("from") or "").strip()
+        if not email or "@" not in email:
+            raise ValueError("invalid_from")
+
+        contact = EmailContactStatusService(self._memory).mark_unsubscribed(
+            email,
+            source="support",
+            thread_id=str(thread_id),
+            note="Marked from Support — do not send marketing emails",
+        )
+        leads_touched = suppress_outreach_leads_for_email(self._memory, email)
+
+        rows = self._load_list(self._threads_path)
+        updated: dict[str, Any] | None = None
+        for row in rows:
+            if str(row.get("id")) != str(thread_id):
+                continue
+            row["status"] = "closed"
+            row["email_status"] = "unsubscribed"
+            row["do_not_email"] = True
+            row["updated_at"] = utc_now()
+            note = {
+                "id": str(uuid.uuid4()),
+                "direction": "system",
+                "text": (
+                    f"📧 Email status → Unsubscribed. "
+                    f"Маркетинговые / outreach письма на {email} больше не отправляются. "
+                    "История диалога сохранена."
+                ),
+                "created_at": utc_now(),
+                "auto": True,
+            }
+            msgs = list(row.get("messages") or [])
+            msgs.append(note)
+            row["messages"] = msgs
+            updated = row
+            break
+        if not updated:
+            raise ValueError("not_found")
+        self._save_list(self._threads_path, rows)
+        return {
+            "ok": True,
+            "thread": updated,
+            "contact": contact,
+            "leads_suppressed": leads_touched,
+        }
+
     def ingest_inbound(
         self,
         *,

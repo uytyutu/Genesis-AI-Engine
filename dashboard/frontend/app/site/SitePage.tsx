@@ -102,6 +102,11 @@ export function SitePage() {
   const [markets, setMarkets] = useState<MarketOption[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatPos, setChatPos] = useState<{ x: number; y: number } | null>(null);
+  const [vvLayout, setVvLayout] = useState<{ height: number; offsetTop: number; keyboard: number }>({
+    height: 0,
+    offsetTop: 0,
+    keyboard: 0,
+  });
   const chatDragRef = useRef<{
     pointerId: number;
     startX: number;
@@ -135,6 +140,22 @@ export function SitePage() {
     } catch {
       /* ignore */
     }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const sync = () => {
+      const keyboard = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setVvLayout({ height: vv.height, offsetTop: vv.offsetTop, keyboard });
+    };
+    sync();
+    vv.addEventListener("resize", sync);
+    vv.addEventListener("scroll", sync);
+    return () => {
+      vv.removeEventListener("resize", sync);
+      vv.removeEventListener("scroll", sync);
+    };
   }, []);
 
   const clampChatPos = useCallback((x: number, y: number) => {
@@ -659,20 +680,35 @@ export function SitePage() {
           {t("pathA.foot", { brand: BRAND_NAME })}
         </p>
 
-        {/* Vector chat — same floating card on mobile + desktop; header drags the panel */}
+        {/* Vector chat — floating card; tracks visualViewport so keyboard never covers Send */}
         {chatOpen ? (
           <div
             id="vector-chat-panel"
             style={
               chatPos
-                ? { left: chatPos.x, top: chatPos.y, right: "auto", bottom: "auto" }
-                : undefined
+                ? {
+                    left: chatPos.x,
+                    top: chatPos.y,
+                    right: "auto",
+                    bottom: "auto",
+                    maxHeight: vvLayout.height
+                      ? `${Math.max(280, vvLayout.height - 16)}px`
+                      : undefined,
+                  }
+                : {
+                    bottom: vvLayout.keyboard
+                      ? `max(0.5rem, ${vvLayout.keyboard + 8}px)`
+                      : undefined,
+                    maxHeight: vvLayout.height
+                      ? `${Math.max(280, vvLayout.height - (vvLayout.keyboard > 0 ? 24 : 88))}px`
+                      : undefined,
+                  }
             }
             className={`fixed z-40 flex flex-col overflow-hidden rounded-2xl border border-sky-400/30 bg-genesis-bg shadow-2xl ${
               chatPos
                 ? ""
-                : "bottom-20 right-3 left-3 sm:left-auto sm:right-6"
-            } h-[min(78dvh,720px)] max-h-[calc(100dvh-5.5rem)] w-auto max-w-3xl sm:w-[min(720px,calc(100vw-3rem))]`}
+                : "bottom-20 right-3 left-3 sm:left-auto sm:right-6 sm:bottom-6"
+            } h-[min(78dvh,720px)] w-auto max-w-3xl sm:w-[min(720px,calc(100vw-3rem))]`}
           >
             <div
               className="flex shrink-0 cursor-grab touch-none items-center justify-between gap-2 border-b border-white/10 px-3 py-2.5 active:cursor-grabbing sm:px-4"
@@ -712,22 +748,29 @@ export function SitePage() {
                 ✕
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-hidden [&_#genesis-chat]:h-full [&_#genesis-chat]:max-h-none [&_#genesis-chat]:min-h-0 [&_#genesis-chat]:rounded-none [&_#genesis-chat]:border-0 [&_#genesis-chat]:shadow-none">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden [&_#genesis-chat]:h-full [&_#genesis-chat]:max-h-none [&_#genesis-chat]:min-h-0 [&_#genesis-chat]:rounded-none [&_#genesis-chat]:border-0 [&_#genesis-chat]:shadow-none">
               <GenesisConcierge scope="public" />
             </div>
           </div>
         ) : null}
 
-        {/* Floating ask Vector */}
-        <button
-          type="button"
-          onClick={() => (chatOpen ? setChatOpen(false) : openChat())}
-          className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full border border-sky-400/40 bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:brightness-110"
-        >
-          {chatOpen
-            ? t("s0.closeChat", { defaultValue: "Close" })
-            : t("s0.askVector", { defaultValue: "Ask Vector" })}
-        </button>
+        {/* Floating ask Vector — hide while keyboard open so it never covers Send */}
+        {!(chatOpen && vvLayout.keyboard > 40) ? (
+          <button
+            type="button"
+            onClick={() => (chatOpen ? setChatOpen(false) : openChat())}
+            className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full border border-sky-400/40 bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:brightness-110"
+            style={
+              vvLayout.keyboard > 0 && !chatOpen
+                ? { bottom: `max(1.25rem, ${vvLayout.keyboard + 12}px)` }
+                : undefined
+            }
+          >
+            {chatOpen
+              ? t("s0.closeChat", { defaultValue: "Close" })
+              : t("s0.askVector", { defaultValue: "Ask Vector" })}
+          </button>
+        ) : null}
       </div>
     </PublicPageShell>
   );

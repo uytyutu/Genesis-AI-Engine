@@ -235,19 +235,53 @@ async def lifespan(app: FastAPI):
 
     threading.Thread(target=_warm_integration, daemon=True, name="genesis-warm").start()
 
-    # Country Desk / market runner: always STOPPED on process start (launcher).
-    # CEO starts the market only via Пуск in Mission Control — never resume from disk.
+    # Country Desk: resume auto-send after launcher restart; otherwise stay stopped until Пуск.
     try:
-        from app.integration.outreach_ceo_prefs import save_prefs
+        from app.integration.outreach_ceo_prefs import load_prefs, save_prefs
         from app.integration.outreach_runner_service import OutreachRunnerService
 
-        save_prefs(memory_dir, auto_refresh=False)
-        OutreachRunnerService(memory_dir).stop()
-        logging.getLogger("genesis").info(
-            "Country Desk market forced STOP on startup (Пуск only)"
-        )
+        prefs = load_prefs(memory_dir)
+        runner = OutreachRunnerService(memory_dir)
+        if prefs.get("auto_send"):
+            save_prefs(memory_dir, auto_refresh=True)
+            runner.start()
+            logging.getLogger("genesis").info(
+                "Country Desk resumed on startup (Автоотправка was on)"
+            )
+        else:
+            save_prefs(memory_dir, auto_refresh=False)
+            runner.stop()
+            logging.getLogger("genesis").info(
+                "Country Desk market forced STOP on startup (Пуск only)"
+            )
     except Exception:
-        logging.getLogger("genesis").exception("market force-stop on startup failed")
+        logging.getLogger("genesis").exception("market runner startup preference failed")
+
+    def _country_desk_bg_ticks() -> None:
+        """Send/hunt without CEO keeping /acquisition open (browser tick is optional)."""
+        import time
+
+        log = logging.getLogger("genesis")
+        while True:
+            time.sleep(45)
+            try:
+                from app.integration.outreach_ceo_prefs import outreach_send_allowed
+                from app.integration.context import get_integration
+
+                ctx = get_integration()
+                st = ctx.acquisition.runner_status()
+                if not st.get("running"):
+                    # Auto-heal: prefs say send, but runner died / was never started
+                    if outreach_send_allowed(memory_dir):
+                        ctx.acquisition._get_runner().start()
+                    continue
+                ctx.acquisition.runner_tick()
+            except Exception:
+                log.exception("country desk background tick failed")
+
+    threading.Thread(
+        target=_country_desk_bg_ticks, daemon=True, name="genesis-country-desk"
+    ).start()
 
     yield
 
@@ -1803,6 +1837,18 @@ def support_set_thread_status(thread_id: str, body: dict | None = None) -> dict:
     body = body or {}
     try:
         return _ctx().support.set_status(thread_id, str(body.get("status") or ""))
+    except ValueError as exc:
+        code = str(exc)
+        if code == "not_found":
+            raise HTTPException(status_code=404, detail=code) from exc
+        raise HTTPException(status_code=400, detail=code) from exc
+
+
+@app.post("/api/support/threads/{thread_id}/unsubscribe")
+def support_unsubscribe_thread(thread_id: str) -> dict:
+    """Mark sender Do Not Email, close thread, keep conversation history."""
+    try:
+        return _ctx().support.mark_unsubscribed(thread_id)
     except ValueError as exc:
         code = str(exc)
         if code == "not_found":

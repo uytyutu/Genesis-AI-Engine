@@ -82,6 +82,10 @@ class ConversationState:
     needs_app: bool = False
     needs_marketing: bool = False
     wants_studio: bool = False
+    # Product Consultant v1 — sticky sales goal (not questionnaire facts)
+    consultant_intent: str | None = None
+    package_choice: str | None = None  # basic | business | premium
+    consultant_niche: str | None = None
 
     @classmethod
     def from_messages(cls, messages: list[dict[str, str]]) -> ConversationState:
@@ -120,6 +124,9 @@ class ConversationState:
             needs_app=bool(data.get("needs_app")),
             needs_marketing=bool(data.get("needs_marketing")),
             wants_studio=bool(data.get("wants_studio")),
+            consultant_intent=data.get("consultant_intent"),
+            package_choice=data.get("package_choice"),
+            consultant_niche=data.get("consultant_niche"),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -147,6 +154,9 @@ class ConversationState:
             "needs_app": self.needs_app,
             "needs_marketing": self.needs_marketing,
             "wants_studio": self.wants_studio,
+            "consultant_intent": self.consultant_intent,
+            "package_choice": self.package_choice,
+            "consultant_niche": self.consultant_niche,
         }
 
     def merge(self, other: ConversationState) -> ConversationState:
@@ -281,6 +291,7 @@ class ConversationState:
         if re.search(r"нужен сайт|хочу сайт|сайт для|хачу сайт", low):
             self.needs_website = True
             self.goal = self.goal or "website"
+            self.consultant_intent = self.consultant_intent or "website"
         if "приложен" in low or "app" in low:
             self.needs_app = True
         if any(w in low for w in ("продвижен", "реклам", "маркетинг")):
@@ -292,6 +303,14 @@ class ConversationState:
             self.wants_automation = True
         if re.search(r"сам\s+управл|каждый день", low):
             self.wants_automation = False
+
+        # Product Consultant sticky goal (Intent / Package / niche)
+        try:
+            from app.integration.genesis_brain.product_consultant import _absorb_turn
+
+            _absorb_turn(self, raw)
+        except Exception:
+            pass
 
     def has_country(self) -> bool:
         if self.country:
@@ -423,6 +442,14 @@ class ConversationState:
             lines.append("Не любит работать с людьми лично")
         if self.business_type:
             lines.append(f"Тип бизнеса: {self.business_type}")
+        if self.consultant_intent:
+            lines.append(f"Цель диалога (Intent): {self.consultant_intent}")
+        if self.package_choice:
+            lines.append(f"Пакет: {self.package_choice}")
+        elif self.consultant_intent == "website" or self.needs_website:
+            lines.append("Пакет: ещё не выбран — помочь выбрать, не спрашивать «какой сайт» снова")
+        if self.consultant_niche:
+            lines.append(f"Ниша: {self.consultant_niche}")
         if self.active_topic:
             lines.append(f"Активная тема сейчас: {self.active_topic}")
         if self.background_topics:
@@ -557,10 +584,19 @@ class ConversationStateLayer:
                 break
         if last_user:
             merged.update_topic_focus(last_user)
-        if session_id and self._sessions is not None:
-            self._sessions.set_conversation_state(session_id, merged.to_dict())
-        else:
-            data = self._memory.load(visitor_id)
-            data["conversation_state"] = merged.to_dict()
-            self._memory.save(visitor_id, data)
+        self.persist(visitor_id, merged, session_id=session_id)
         return merged
+
+    def persist(
+        self,
+        visitor_id: str,
+        state: ConversationState,
+        *,
+        session_id: str | None = None,
+    ) -> None:
+        if session_id and self._sessions is not None:
+            self._sessions.set_conversation_state(session_id, state.to_dict())
+            return
+        data = self._memory.load(visitor_id)
+        data["conversation_state"] = state.to_dict()
+        self._memory.save(visitor_id, data)

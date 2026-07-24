@@ -833,6 +833,13 @@ export default function AcquisitionPage() {
               </div>
             </div>
           ) : null}
+          {status?.auto_send || status?.outreach_send_enabled ? (
+            <p className="mt-3 rounded-xl border border-emerald-500/35 bg-emerald-950/30 px-4 py-3 text-sm text-emerald-50">
+              Автоотправка активна: Approve не нужен. Система сама готовит КП и шлёт через Resend.
+              Смотрите <span className="font-semibold">Sent today</span> и лог runner — не жмите
+              «Одобрить» / «Отметить отправленным» вручную.
+            </p>
+          ) : null}
           {status?.autosend_blocker_ru ? (
             <p className="mt-3 rounded-xl border border-amber-500/35 bg-amber-950/25 px-4 py-3 text-sm text-amber-50">
               {status.autosend_blocker_ru}
@@ -1903,6 +1910,12 @@ export default function AcquisitionPage() {
                     {selected.proposed_message}
                   </pre>
                   <div className="flex flex-wrap gap-2">
+                    {status?.auto_send || status?.outreach_send_enabled ? (
+                      <p className="w-full rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 text-xs text-emerald-100/90">
+                        Авторежим: это КП уйдёт само (Quality Gate + 09–18 local). Ручной Approve
+                        не требуется — следите за Sent today.
+                      </p>
+                    ) : (
                     <div className="w-full space-y-2 rounded-xl border border-genesis-border-subtle bg-white/[0.02] p-3 text-xs text-genesis-muted">
                       <p className="font-medium text-white/90">CEO-чеклист · снайпер-одобрение</p>
                       <p className="opacity-80">
@@ -1961,6 +1974,8 @@ export default function AcquisitionPage() {
                         />
                       </span>
                     </div>
+                    )}
+                    {!(status?.auto_send || status?.outreach_send_enabled) ? (
                     <button
                       type="button"
                       onClick={() => approve(selected.id)}
@@ -1975,6 +1990,7 @@ export default function AcquisitionPage() {
                     >
                       Одобрить
                     </button>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() => copyDraft(selected)}

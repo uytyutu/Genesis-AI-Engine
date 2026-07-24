@@ -1542,9 +1542,9 @@ export function GenesisConcierge({
         attachHint={attachHint}
         inputId="genesis-chat-input"
         onFocusChange={setComposerFocused}
-        minimalMobile={false}
-        clientWorkspace={isPublicHub}
-        onSpeakAnswer={isPublicHub ? undefined : speakLastAnswer}
+        minimalMobile={isPublic}
+        clientWorkspace={isPublicHub || isPublic}
+        onSpeakAnswer={isPublicHub || isPublic ? undefined : speakLastAnswer}
       />
     </>
   );

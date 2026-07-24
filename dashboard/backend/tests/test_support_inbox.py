@@ -170,3 +170,19 @@ def test_manual_reply_saves_template_rule(tmp_path: Path, monkeypatch):
     assert out["rule_id"]
     assert len(svc.list_templates()) == 1
     assert len(svc.list_auto_rules()) == 1
+
+
+def test_delete_thread(tmp_path: Path, monkeypatch):
+    svc = SupportInboxService(tmp_path)
+    r1 = svc.ingest_inbound(
+        from_email="c@x.com",
+        subject="Delete me",
+        text="Gone soon",
+        auto_reply=False,
+    )
+    tid = r1["thread"]["id"]
+    assert svc.get_thread(tid) is not None
+    assert svc.delete_thread(tid) is True
+    assert svc.get_thread(tid) is None
+    assert svc.delete_thread(tid) is False
+    assert svc.list_threads() == []
