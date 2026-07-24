@@ -5,15 +5,15 @@
   "navigation": {
     "unity_principle": "Один Virtus Core — общий бренд, язык, Vector, стиль, философия",
     "vector_center": "На любой поверхности пользователь работает с Vector",
-    "client_nav_paths": ["/projects"],
+    "client_nav_paths": ["/projects", "/client"],
     "surfaces": {
       "public": {
         "scenario": "Узнать → попробовать → скачать",
         "user_flow": ["Главная", "Lite Vector", "Услуги", "Скачать приложение"]
       },
       "client": {
-        "scenario": "Открыть компанию → поговорить с Vector → получить результат",
-        "user_flow": ["Компания", "Vector", "Проекты", "Результат"]
+        "scenario": "Войти в платформу → Dashboard → Vector → результат",
+        "user_flow": ["Login", "Dashboard", "My Products", "Vector", "Billing"]
       },
       "ceo": {
         "scenario": "Управлять компанией → принимать решения → развивать продукт",
@@ -333,7 +333,7 @@
     },
     {
       "path": "/revenue",
-      "label": "Revenue",
+      "label": "Доход",
       "target": "ceo",
       "current_shell": "mission_control",
       "capabilities": ["revenue"]

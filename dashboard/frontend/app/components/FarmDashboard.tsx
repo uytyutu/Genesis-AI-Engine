@@ -932,6 +932,20 @@ export function FarmDashboard() {
           </div>
         ) : null}
 
+        <section className="rounded-xl border border-emerald-500/30 bg-emerald-950/15 px-4 py-3 text-sm">
+          <p className="font-medium text-emerald-100">Доход · Revenue Lab</p>
+          <p className="mt-1 text-[11px] text-genesis-muted">
+            Источники, возможности Lab, ключи и пакеты API — в отдельном разделе Mission Control, не
+            внизу фермы.
+          </p>
+          <Link
+            href="/revenue"
+            className="mt-2 inline-flex text-xs font-medium text-emerald-300 hover:underline"
+          >
+            Открыть раздел «Доход» →
+          </Link>
+        </section>
+
         {dash?.revenue_sources ? <RevenueSourcesPanel data={dash.revenue_sources} /> : null}
 
         {dash?.revenue_lab ? <RevenueLabCeoPanel data={dash.revenue_lab} /> : null}

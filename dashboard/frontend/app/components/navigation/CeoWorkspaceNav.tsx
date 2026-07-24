@@ -23,9 +23,16 @@ export function CeoWorkspaceNav() {
     ? CEO_PRIMARY_LINKS.map((item) =>
         item.href === "/" ? { ...item, label: UI_LAYOUT.home_label, hint: "DRY RUN · local" } : item,
       ).filter((item) =>
-        ["/business", "/acquisition", "/support", "/", "/journal", "/finance", "/settings"].includes(
-          item.href,
-        ),
+        [
+          "/business",
+          "/acquisition",
+          "/support",
+          "/",
+          "/journal",
+          "/revenue",
+          "/finance",
+          "/settings",
+        ].includes(item.href),
       )
     : CEO_PRIMARY_LINKS;
 

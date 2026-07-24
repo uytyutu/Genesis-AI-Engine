@@ -9,6 +9,7 @@ const TITLES: Record<string, string> = {
   "/business/kpi": "Mission 2 · KPI",
   "/": "Ферма разметки",
   "/journal": "Журнал",
+  "/revenue": "Доход · Revenue Lab",
   "/company": "Компания",
   "/finance": "Финансы и налоги",
   "/projects": "Проекты",

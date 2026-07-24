@@ -21,7 +21,10 @@ const NAV = (SURFACE_REGISTRY as { navigation?: Record<string, unknown> }).navig
 export const NAV_UNITY = NAV?.unity_principle ?? "Один Virtus Core";
 export const NAV_VECTOR_CENTER = NAV?.vector_center ?? "Работа с Vector";
 
-export const CLIENT_NAV_PATHS: string[] = NAV?.client_nav_paths ?? ["/projects"];
+export const CLIENT_NAV_PATHS: string[] = NAV?.client_nav_paths ?? [
+  "/projects",
+  "/client",
+];
 
 export function surfaceNavMeta(target: SurfaceTarget): SurfaceNavMeta {
   const s = NAV?.surfaces?.[target];
@@ -32,7 +35,11 @@ export function surfaceNavMeta(target: SurfaceTarget): SurfaceNavMeta {
 }
 
 export function resolveNavigationSurface(pathname: string): SurfaceTarget {
-  if (CLIENT_NAV_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+  if (
+    pathname === "/client" ||
+    pathname.startsWith("/client/") ||
+    CLIENT_NAV_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+  ) {
     return "client";
   }
   if (pathname === "/") return "ceo";
@@ -131,6 +138,7 @@ export const CEO_PRIMARY_LINKS = [
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
   { href: "/", label: "Ферма", hint: "Разметка · Toloka (не Desk)" },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
+  { href: "/revenue", label: "Доход", hint: "Lab · источники · ключи · API" },
   { href: "/finance", label: "Финансы и налоги", hint: "Доходы · чеки · экспорт" },
 ] as const;
 
