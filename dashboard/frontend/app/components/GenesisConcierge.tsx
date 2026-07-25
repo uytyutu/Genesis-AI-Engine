@@ -1552,7 +1552,8 @@ export function GenesisConcierge({
   const thread = messages ?? [];
 
   return (
-    <div className={`flex flex-col gap-2 md:flex-row md:items-stretch ${isPublic && !hubMode ? "h-full min-h-0" : isPublicHub ? "h-full min-h-0" : ""}`}>
+    <div className={`flex flex-col gap-2 ${isPublic && !hubMode ? "" : "md:flex-row md:items-stretch"} ${isPublic && !hubMode ? "h-full min-h-0" : isPublicHub ? "h-full min-h-0" : ""}`}>
+      {!(isPublic && !hubMode) ? (
       <ChatHistorySidebar
         sessions={sessionList}
         activeSessionId={activeSessionId}
@@ -1567,6 +1568,7 @@ export function GenesisConcierge({
         overlayOnly={isPublicHub}
         onGoHome={isPublic && !hubMode ? handlePublicMenuHome : isPublicHub ? handlePublicMenuHome : undefined}
       />
+      ) : null}
     <section
       id="genesis-chat"
       className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow ${
@@ -1611,6 +1613,10 @@ export function GenesisConcierge({
           >
             + {t("newChat")}
           </button>
+        ) : isPublic && !hubMode ? (
+          <div className="flex min-w-0 flex-1 items-center">
+            <p className="truncate text-sm font-medium text-white/90">{ASSISTANT_NAME}</p>
+          </div>
         ) : (
           <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-1.5">
             <button
@@ -1641,7 +1647,9 @@ export function GenesisConcierge({
             ) : null}
           </div>
         )}
-        {isPublic || !showThread ? (
+        {isPublic && !hubMode ? (
+          <div className="min-w-0 flex-1" />
+        ) : isPublic || !showThread ? (
           <div className="flex min-w-0 flex-col items-center">
             <VectorBrandSignature
               variant="compact"
@@ -1656,7 +1664,9 @@ export function GenesisConcierge({
           </Badge>
         )}
         <div className="flex items-center gap-2">
-          {isPublic ? (
+          {isPublic && !hubMode ? (
+            <span className="text-[10px] text-genesis-muted max-sm:hidden">консультант</span>
+          ) : isPublic ? (
             <button
               type="button"
               onClick={() => void handleNewChat()}
@@ -1667,7 +1677,7 @@ export function GenesisConcierge({
             </button>
           ) : null}
           {!isPublic && <LanguageSwitcher />}
-          {devAvailable ? (
+          {devAvailable && !isPublic ? (
             <button
               type="button"
               onClick={toggleDeveloperMode}
@@ -1681,7 +1691,7 @@ export function GenesisConcierge({
               Dev {developerMode ? "ON" : "OFF"}
             </button>
           ) : (
-            <span className="w-14" />
+            <span className="w-2 sm:w-4" />
           )}
         </div>
       </header>
@@ -1954,7 +1964,7 @@ export function GenesisConcierge({
         ) : null}
       </div>
 
-      {!hasConversation && showThread && (
+      {!hasConversation && showThread && !isPublic && (
         <div className={`shrink-0 overflow-x-auto px-3 pb-1 sm:px-6 ${isPublicHub ? "border-b border-white/5 py-2" : ""}`}>
           <div className="flex w-max max-w-full gap-2 sm:flex-wrap">
           {(scope === "owner" ? STARTERS_VISIBLE_OWNER : STARTERS_VISIBLE_PUBLIC).map((s) => (

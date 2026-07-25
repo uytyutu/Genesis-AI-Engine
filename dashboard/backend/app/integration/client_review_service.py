@@ -173,6 +173,32 @@ class ClientReviewService:
             raise ValueError("too_short")
         flags = screen_review_text(body)
         company = _normalize_text(company_display_name or "") or str(order.get("business_name") or "").strip()
+        package_id = str(order.get("package_id") or order.get("product_id") or "").strip()
+        niche = str(order.get("niche") or order.get("business_type") or order.get("industry") or "").strip()
+        offer_label = str(
+            order.get("package_name")
+            or order.get("product_name")
+            or order.get("offer_label")
+            or package_id
+            or "Website"
+        ).strip()
+        niche_l = niche.lower()
+        if niche_l and (
+            "renov" in niche_l
+            or niche_l
+            in (
+                "dachdecker",
+                "handwerk",
+                "sanierung",
+                "bau",
+                "maler",
+            )
+        ):
+            service_kind = "renovation_site"
+            service_label = f"Сайт · {offer_label}" if offer_label else "Сайт для ремонта / Handwerk"
+        else:
+            service_kind = "website"
+            service_label = offer_label or "Website"
         row = {
             "review_id": f"REV-{uuid.uuid4().hex[:10].upper()}",
             "order_id": order_id,
@@ -182,6 +208,9 @@ class ClientReviewService:
             "show_logo": bool(show_logo),
             "company_display_name": company,
             "logo_url": order.get("logo_url") if show_logo else None,
+            "package_id": package_id or None,
+            "service_kind": service_kind,
+            "service_label": service_label,
             # Always true: submit is only allowed after Delivered + review_token.
             "verified_purchase": True,
             "status": "pending",
@@ -252,6 +281,8 @@ class ClientReviewService:
                     "stars": int(r.get("stars") or 0),
                     "text": r.get("text"),
                     "company_display_name": company,
+                    "service_label": r.get("service_label") or r.get("package_id") or None,
+                    "service_kind": r.get("service_kind") or "website",
                     "show_logo": bool(r.get("show_logo") and r.get("logo_url")),
                     "logo_url": r.get("logo_url") if r.get("show_logo") else None,
                     "verified_purchase": bool(r.get("verified_purchase", True)),

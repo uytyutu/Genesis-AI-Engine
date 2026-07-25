@@ -44,6 +44,8 @@ type PublicReviews = {
     stars: number;
     text: string;
     company_display_name?: string | null;
+    service_label?: string | null;
+    service_kind?: string | null;
     verified_purchase?: boolean;
   }[];
 };
@@ -131,6 +133,7 @@ export function SitePage() {
 
   useEffect(() => {
     try {
+      if (typeof window !== "undefined" && window.innerWidth < 640) return;
       const raw = sessionStorage.getItem(CHAT_POS_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw) as { x?: unknown; y?: unknown };
@@ -170,8 +173,17 @@ export function SitePage() {
   }, []);
 
   const openChat = useCallback(() => {
+    // Mobile: always full-sheet — ignore stale drag coordinates that push the panel off-screen.
+    try {
+      if (typeof window !== "undefined" && window.innerWidth < 640) {
+        setChatPos(null);
+        sessionStorage.removeItem(CHAT_POS_KEY);
+      }
+    } catch {
+      /* ignore */
+    }
     setChatOpen(true);
-  }, []);
+  }, [CHAT_POS_KEY]);
 
   const onChatDragStart = useCallback(
     (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -274,6 +286,14 @@ export function SitePage() {
       }
       const view = (p.get("view") || "").toLowerCase();
       if (view === "vector" || window.location.hash.includes("vector")) {
+        try {
+          if (window.innerWidth < 640) {
+            setChatPos(null);
+            sessionStorage.removeItem(CHAT_POS_KEY);
+          }
+        } catch {
+          /* ignore */
+        }
         setChatOpen(true);
       }
     } catch {
@@ -653,23 +673,46 @@ export function SitePage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
-          <h2 className="text-lg font-semibold text-white">{t("reviews.title")}</h2>
+        <section className="rounded-2xl border border-amber-500/20 bg-amber-950/10 p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold text-white">{t("reviews.title")}</h2>
+            {reviews?.has_reviews && reviews.average_stars != null ? (
+              <p className="text-xs text-amber-200/90">
+                ★ {reviews.average_stars} · {reviews.count}{" "}
+                {t("reviews.verifiedHint", {
+                  defaultValue: "verified purchases",
+                })}
+              </p>
+            ) : null}
+          </div>
           {!reviews?.has_reviews ? (
             <p className="mt-3 text-sm text-genesis-muted">
               {reviews?.empty_message || t("reviews.empty")}
             </p>
           ) : (
-            <ul className="mt-4 space-y-3">
-              {reviews.reviews.slice(0, 3).map((r) => (
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+              {reviews.reviews.slice(0, 6).map((r) => (
                 <li
                   key={r.review_id || r.text.slice(0, 24)}
                   className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm"
                 >
-                  <p className="text-amber-300">
-                    {"★".repeat(Math.max(1, Math.min(5, r.stars)))}
-                  </p>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-amber-300">
+                      {"★".repeat(Math.max(1, Math.min(5, r.stars)))}
+                    </p>
+                    {r.verified_purchase ? (
+                      <span className="rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-200">
+                        {t("reviews.verifiedPurchase", {
+                          defaultValue: "Оплаченный заказ",
+                        })}
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="mt-2 text-white/85">«{r.text}»</p>
+                  <p className="mt-2 text-[11px] text-genesis-muted">
+                    {[r.company_display_name, r.service_label].filter(Boolean).join(" · ") ||
+                      t("reviews.client", { defaultValue: "Клиент" })}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -680,7 +723,7 @@ export function SitePage() {
           {t("pathA.foot", { brand: BRAND_NAME })}
         </p>
 
-        {/* Vector chat — floating card; tracks visualViewport so keyboard never covers Send */}
+        {/* Vector chat — mobile full sheet; desktop floating card */}
         {chatOpen ? (
           <div
             id="vector-chat-panel"
@@ -695,24 +738,20 @@ export function SitePage() {
                       ? `${Math.max(280, vvLayout.height - 16)}px`
                       : undefined,
                   }
-                : {
-                    bottom: vvLayout.keyboard
-                      ? `max(0.5rem, ${vvLayout.keyboard + 8}px)`
-                      : undefined,
-                    maxHeight: vvLayout.height
-                      ? `${Math.max(280, vvLayout.height - (vvLayout.keyboard > 0 ? 24 : 88))}px`
-                      : undefined,
-                  }
+                : undefined
             }
-            className={`fixed z-40 flex flex-col overflow-hidden rounded-2xl border border-sky-400/30 bg-genesis-bg shadow-2xl ${
+            className={`fixed inset-0 z-[60] flex h-dvh max-h-dvh w-full flex-col overflow-hidden border-0 border-sky-400/30 bg-genesis-bg shadow-2xl sm:inset-auto sm:bottom-6 sm:right-6 sm:left-auto sm:h-[min(78dvh,720px)] sm:max-h-[min(78dvh,720px)] sm:w-[min(720px,calc(100vw-3rem))] sm:rounded-2xl sm:border ${
               chatPos
-                ? ""
-                : "bottom-20 right-3 left-3 sm:left-auto sm:right-6 sm:bottom-6"
-            } h-[min(78dvh,720px)] w-auto max-w-3xl sm:w-[min(720px,calc(100vw-3rem))]`}
+                ? "max-sm:!inset-0 max-sm:!left-0 max-sm:!top-0 max-sm:!right-0 max-sm:!bottom-0 max-sm:!max-h-none"
+                : ""
+            }`}
           >
             <div
-              className="flex shrink-0 cursor-grab touch-none items-center justify-between gap-2 border-b border-white/10 px-3 py-2.5 active:cursor-grabbing sm:px-4"
-              onPointerDown={onChatDragStart}
+              className="flex shrink-0 touch-none items-center justify-between gap-2 border-b border-white/10 px-3 py-2.5 sm:cursor-grab sm:active:cursor-grabbing sm:px-4"
+              onPointerDown={(e) => {
+                if (typeof window !== "undefined" && window.innerWidth < 640) return;
+                onChatDragStart(e);
+              }}
               onPointerMove={onChatDragMove}
               onPointerUp={onChatDragEnd}
               onPointerCancel={onChatDragEnd}
@@ -722,7 +761,7 @@ export function SitePage() {
             >
               <div className="flex min-w-0 items-center gap-2">
                 <span
-                  className="select-none text-zinc-500"
+                  className="hidden select-none text-zinc-500 sm:inline"
                   aria-hidden
                 >
                   ⠿
@@ -733,7 +772,7 @@ export function SitePage() {
                   </p>
                   <p className="truncate text-xs text-zinc-400">
                     {t("s0.chatHint", {
-                      defaultValue: "Consultant — helps you choose a package",
+                      defaultValue: "Consultant — ask anything about packages",
                     })}
                   </p>
                 </div>
@@ -742,7 +781,7 @@ export function SitePage() {
                 type="button"
                 onClick={() => setChatOpen(false)}
                 onPointerDown={(e) => e.stopPropagation()}
-                className="rounded-lg px-2 py-1 text-sm text-zinc-400 hover:bg-white/5 hover:text-white"
+                className="rounded-lg px-3 py-2 text-sm text-zinc-400 hover:bg-white/5 hover:text-white"
                 aria-label="Close"
               >
                 ✕
@@ -754,21 +793,18 @@ export function SitePage() {
           </div>
         ) : null}
 
-        {/* Floating ask Vector — hide while keyboard open so it never covers Send */}
-        {!(chatOpen && vvLayout.keyboard > 40) ? (
+        {!chatOpen ? (
           <button
             type="button"
-            onClick={() => (chatOpen ? setChatOpen(false) : openChat())}
+            onClick={() => openChat()}
             className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full border border-sky-400/40 bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:brightness-110"
             style={
-              vvLayout.keyboard > 0 && !chatOpen
+              vvLayout.keyboard > 0
                 ? { bottom: `max(1.25rem, ${vvLayout.keyboard + 12}px)` }
                 : undefined
             }
           >
-            {chatOpen
-              ? t("s0.closeChat", { defaultValue: "Close" })
-              : t("s0.askVector", { defaultValue: "Ask Vector" })}
+            {t("s0.askVector", { defaultValue: "Ask Vector" })}
           </button>
         ) : null}
       </div>
