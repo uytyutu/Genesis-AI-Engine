@@ -101,6 +101,12 @@ class SupportInboxService:
         path.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def configuration_status(self) -> dict[str, Any]:
+        try:
+            from app.env_loader import load_local_env
+
+            load_local_env()
+        except Exception:
+            pass
         has_key = bool(os.getenv("RESEND_API_KEY", "").strip())
         has_from = bool(os.getenv("GENESIS_EMAIL_FROM", "").strip())
         has_inbound_secret = bool(os.getenv("RESEND_INBOUND_WEBHOOK_SECRET", "").strip())
@@ -114,6 +120,7 @@ class SupportInboxService:
                 os.getenv("GENESIS_SUPPORT_EMAIL", "").strip()
                 or "hello@genesis-ai-engine.com"
             ),
+            "env_file_hint": "dashboard/backend/.env.local",
         }
 
     # --- threads -------------------------------------------------------------

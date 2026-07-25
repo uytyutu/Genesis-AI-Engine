@@ -682,9 +682,20 @@ async def support_inbox_remote_proxy(request: Request, call_next):
         return await call_next(Request(request.scope, _receive))
 
     if remote_enabled():
-        proxied = await proxy_support(request, path)
-        if proxied is not None:
+        from app.integration.support_remote import remote_response_is_unavailable
+        from fastapi import HTTPException as _HTTPException
+
+        try:
+            proxied = await proxy_support(request, path)
+        except _HTTPException as exc:
+            # Remote unreachable → local desk still works with .env.local keys.
+            if int(getattr(exc, "status_code", 0) or 0) in (502, 503, 504):
+                proxied = None
+            else:
+                raise
+        if proxied is not None and not remote_response_is_unavailable(proxied):
             return with_cors(proxied)
+        # Railway 404 / gateway down → local Support handlers (keys from .env.local).
     return await call_next(request)
 
 
@@ -2057,7 +2068,11 @@ def asset_accept_target(opportunity_id: str) -> AssetActionResponse:
 
 @app.get("/api/support/status")
 def support_status() -> dict:
-    return _ctx().support.configuration_status()
+    from app.env_loader import load_local_env
+    from app.integration.support_remote import remote_status_overlay
+
+    load_local_env()
+    return remote_status_overlay(_ctx().support.configuration_status())
 
 
 @app.get("/api/support/threads")

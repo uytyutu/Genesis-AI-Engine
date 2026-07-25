@@ -63,6 +63,9 @@ type SupportStatus = {
   has_api_key?: boolean;
   has_from_address?: boolean;
   support_email?: string;
+  remote_proxy?: boolean;
+  remote_url?: string | null;
+  env_file_hint?: string;
 };
 
 const TABS: { id: TabId; label: string }[] = [
@@ -111,7 +114,10 @@ export default function SupportPage() {
       if (!st.ok || !th.ok) {
         setError(
           "API недоступен (нужен Genesis.exe → Запустить, backend :8000). " +
-            `${st.status}/${th.status}`,
+            `${st.status}/${th.status}` +
+            (st.status === 404 || th.status === 404
+              ? " · если Remote Support на Railway отдаёт 404 — перезапустите Genesis после обновления (local fallback)."
+              : ""),
         );
         return;
       }
@@ -315,18 +321,20 @@ export default function SupportPage() {
         {status?.inbound_ready ? (
           <span>
             Inbound готов · {status.support_email || "hello@…"} · Resend key + webhook secret
+            {status.remote_proxy ? " · remote+local fallback" : " · local"}
           </span>
-        ) : (
+        ) : status ? (
           <span>
             Inbound ещё не полностью настроен
-            {!status?.has_api_key ? " · нет RESEND_API_KEY" : ""}
-            {!status?.has_from_address ? " · нет GENESIS_EMAIL_FROM" : ""}
-            {!status?.inbound_webhook_secret_set ? " · нет RESEND_INBOUND_WEBHOOK_SECRET" : ""}
-            {!status?.inbound_ready
-              ? " · если ключи уже в dashboard/backend/.env.local — нажмите «Обновить» или перезапустите Genesis.exe"
-              : ""}
-            .
+            {!status.has_api_key ? " · нет RESEND_API_KEY" : ""}
+            {!status.has_from_address ? " · нет GENESIS_EMAIL_FROM" : ""}
+            {!status.inbound_webhook_secret_set ? " · нет RESEND_INBOUND_WEBHOOK_SECRET" : ""}
+            {" · проверьте "}
+            {status.env_file_hint || "dashboard/backend/.env.local"}
+            {" → Обновить / перезапуск Genesis.exe."}
           </span>
+        ) : (
+          <span>Проверка конфигурации…</span>
         )}
       </div>
 
