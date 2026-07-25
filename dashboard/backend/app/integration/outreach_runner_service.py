@@ -209,12 +209,23 @@ class OutreachRunnerService:
                             "send_skip",
                             str(send_res.get("message_ru") or reason),
                         )
-                        # Pacing / no Ready в†’ stop burst this tick
+                        # Pacing / no Ready / provider rate-limit → stop burst this tick
                         if "min_interval" in reason or reason in (
                             "no_quality_leads",
                             "outside_business_hours",
                             "outreach_disabled",
+                            "resend_cooldown",
                         ):
+                            break
+                        if "429" in reason or "resend_error:429" in reason or "rate" in reason.lower():
+                            try:
+                                from app.integration.outreach_provider_cooldown import (
+                                    mark_resend_rate_limited,
+                                )
+
+                                mark_resend_rate_limited(self._memory)
+                            except Exception:
+                                pass
                             break
                         continue
                     break

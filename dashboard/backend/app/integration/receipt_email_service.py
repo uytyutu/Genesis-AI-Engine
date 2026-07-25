@@ -379,7 +379,22 @@ class ReceiptEmailService:
         api_key = os.getenv("RESEND_API_KEY", "").strip()
         resolved_from = (from_addr or "").strip() or os.getenv("GENESIS_EMAIL_FROM", "").strip()
         resend_result: dict | None = None
-        if api_key and resolved_from:
+
+        # After 429: skip Resend until cooldown — prefer Gmail so Ready queue moves.
+        resend_ok = True
+        mark_fn = None
+        try:
+            from app.integration.outreach_provider_cooldown import (
+                mark_resend_rate_limited as _mark_resend,
+                resend_available,
+            )
+
+            mark_fn = _mark_resend
+            resend_ok = resend_available(self._memory)
+        except Exception:
+            resend_ok = True
+
+        if api_key and resolved_from and resend_ok:
             payload: dict = {
                 "from": resolved_from,
                 "to": [to],
@@ -411,6 +426,19 @@ class ReceiptEmailService:
                 "reason": f"resend_error:{res.status_code}",
                 "detail": res.text[:200],
             }
+            if res.status_code == 429:
+                try:
+                    if mark_fn:
+                        mark_fn(self._memory, reason="resend_error:429")
+                except Exception:
+                    pass
+        elif api_key and resolved_from and not resend_ok:
+            resend_result = {
+                "ok": False,
+                "skipped": True,
+                "reason": "resend_cooldown",
+                "detail": "Resend paused after 429 — trying Gmail",
+            }
 
         from app.integration.gmail_mail_service import send_email as gmail_send
 
@@ -427,6 +455,18 @@ class ReceiptEmailService:
                 gmail_result = {**gmail_result, "fallback_after": resend_result.get("reason")}
             return gmail_result
         if resend_result is not None:
+            # Prefer actionable combined reason when both failed
+            if gmail_result.get("reason") and str(resend_result.get("reason") or "").startswith(
+                "resend_error:429"
+            ):
+                return {
+                    **resend_result,
+                    "gmail_reason": gmail_result.get("reason"),
+                    "detail_ru": (
+                        "Resend 429 + Gmail недоступен — очередь Ready ждёт "
+                        "снятия лимита или подключения Gmail."
+                    ),
+                }
             return resend_result
         return gmail_result if gmail_result.get("reason") else {
             "ok": False,

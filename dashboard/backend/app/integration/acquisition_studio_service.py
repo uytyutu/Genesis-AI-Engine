@@ -420,9 +420,39 @@ class AcquisitionStudioService:
                     row["contact"] = em
                     dirty = True
                     break
+            if self._extract_email(row.get("contact", "")):
+                continue
+            # Also try meta / channels leftovers
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            for key in ("primary_email", "email", "contact_email"):
+                em = self._extract_email(str(meta.get(key) or ""))
+                if em:
+                    row["contact"] = em
+                    dirty = True
+                    break
         if dirty:
             self._opportunity._save_rows(rows)
             rows = self._opportunity._load_rows()
+        # Provider cooldown: do not burn Ready queue against Resend 429 every tick
+        try:
+            from app.integration.outreach_provider_cooldown import (
+                cooldown_status,
+                resend_available,
+            )
+            from app.integration.gmail_mail_service import send_ready as gmail_send_ready
+
+            if not resend_available(self._memory_dir) and not gmail_send_ready():
+                cool = cooldown_status(self._memory_dir)
+                return {
+                    "sent": False,
+                    "skipped": True,
+                    "reason": "resend_cooldown",
+                    "promoted_manual": int(promoted.get("promoted") or 0),
+                    "message_ru": cool.get("blocker_ru")
+                    or "Resend 429 — пауза. Подключите Gmail или дождитесь лимита.",
+                }
+        except Exception:
+            pass
         candidates: list[tuple[int, str, dict]] = []
         skipped_reasons: list[str] = []
         for row in rows:
@@ -832,18 +862,30 @@ class AcquisitionStudioService:
         sent_today_items.sort(key=lambda x: str(x.get("updated_at") or ""), reverse=True)
         runner = self.runner_status()
         ready_n = int(le["ready_now"] or 0)
+        cooldown = {}
+        try:
+            from app.integration.outreach_provider_cooldown import cooldown_status
+
+            cooldown = cooldown_status(self._memory_dir)
+        except Exception:
+            cooldown = {}
         if not outreach_enabled:
             blocker = "Автоотправка выкл. — включите тумблер."
         elif not runner.get("running"):
             blocker = "Тумблер вкл., но Country Desk остановлен — нажмите ▶ Пуск (тики шлют письма)."
+        elif ready_n > 0 and not cooldown.get("resend_available", True):
+            blocker = str(
+                cooldown.get("blocker_ru")
+                or "Resend 429 — пауза. Подключите Gmail или дождитесь снятия лимита."
+            )
         elif ready_n == 0 and manual > 0:
             blocker = (
                 f"Ready=0 · {manual} в «Ручная проверка» — тик промоутит в Ready и шлёт "
-                f"(09–18 local + Quality Gate). Сейчас Waiting={le['waiting']}."
+                f"(Quality Gate). Сейчас Waiting={le['waiting']}."
             )
         elif ready_n == 0:
             blocker = (
-                f"Ready=0 · Waiting={le['waiting']} — нет лидов с email+КП в открытом окне "
+                f"Ready=0 · Waiting={le['waiting']} — нет лидов с email+КП "
                 f"или Quality Gate режет."
             )
         else:
@@ -856,9 +898,9 @@ class AcquisitionStudioService:
             "auto_send": bool(prefs.get("auto_send")),
             "outreach_send_enabled": outreach_enabled,
             "outreach_send_note": (
-                "Автоотправка: тумблер CEO или GENESIS_OUTREACH_ENABLED=true + Resend + "
-                "Impressum/Abmelde. Только 09:00–18:00 local (Business Time). "
-                "Нужен ▶ Пуск — тики hunt+send по всем открытым странам."
+                "Автоотправка: тумблер CEO + Resend/Gmail. "
+                "После анализа → КП → pending → тик шлёт без ручного Approve. "
+                "При Resend 429 — cooldown и fallback на Gmail."
             ),
             "law": "Plan → Approve → Act",
             "pending_approval_count": pending,
@@ -867,6 +909,7 @@ class AcquisitionStudioService:
             "sent_count": sent,
             "sent_today_count": len(sent_today_items),
             "sent_today": sent_today_items[:40],
+            "provider_cooldown": cooldown,
             "autosend_blocker_ru": blocker,
             "pipeline_count": len(active_rows),
             "open_markets_now": open_codes,
