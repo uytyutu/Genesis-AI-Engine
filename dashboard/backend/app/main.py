@@ -2309,7 +2309,7 @@ def worker_research_payout_proof(
     reference: str = "",
     note: str = "",
 ) -> dict:
-    """Record one CONFIRMED payout — required before Working."""
+    """Record one CONFIRMED payout — L4; Working only via Adapter Builder promote."""
     result = _ctx().worker_research.record_payout_proof(
         platform_id,
         amount_eur=amount_eur,
@@ -2318,6 +2318,46 @@ def worker_research_payout_proof(
     )
     if not result.get("ok"):
         raise HTTPException(status_code=400, detail=result.get("error") or "proof_failed")
+    maturity = _ctx().worker_adapters.on_payout_recorded(platform_id)
+    result["maturity"] = maturity
+    return result
+
+
+@app.get("/api/worker-adapters/board")
+def worker_adapters_board() -> dict:
+    """Adapter Builder — maturity L0–L6 and Work Farm allowlist."""
+    return _ctx().worker_adapters.board()
+
+
+@app.post("/api/worker-adapters/{platform_id}/create")
+def worker_adapters_create(platform_id: str, note: str = "") -> dict:
+    result = _ctx().worker_adapters.create_adapter(platform_id, note=note)
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("error") or "create_failed")
+    return result
+
+
+@app.post("/api/worker-adapters/{platform_id}/sandbox")
+def worker_adapters_sandbox(platform_id: str) -> dict:
+    result = _ctx().worker_adapters.run_sandbox(platform_id)
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("error") or "sandbox_failed")
+    return result
+
+
+@app.post("/api/worker-adapters/{platform_id}/promote-working")
+def worker_adapters_promote(platform_id: str) -> dict:
+    result = _ctx().worker_adapters.promote_working(platform_id)
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("detail_ru") or result.get("error") or "promote_failed")
+    return result
+
+
+@app.post("/api/worker-adapters/{platform_id}/mark-scaled")
+def worker_adapters_scaled(platform_id: str, jobs_done: int = 0) -> dict:
+    result = _ctx().worker_adapters.mark_scaled(platform_id, jobs_done=jobs_done)
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("error") or "scaled_failed")
     return result
 
 

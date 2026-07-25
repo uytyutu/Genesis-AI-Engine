@@ -291,15 +291,22 @@ class WorkerResearchLab:
         )
         if plat.get("verdict") == "reject":
             return plat
-        if proven and cycle_ok and tos in ("allowed", "allowed_as_seller", "own_platform"):
+        # Auto-Working only for own Path A. External → Adapter Builder L5 promote.
+        if proven and pid == "path_a_stripe":
             plat["verdict"] = "working"
-        elif proven and pid == "path_a_stripe":
+        elif proven and tos == "own_platform" and cycle_ok:
             plat["verdict"] = "working"
         elif cycle_ok and tos_ok and not proven:
-            if plat.get("verdict") not in ("reject",):
+            if plat.get("verdict") not in ("reject", "working"):
                 plat["verdict"] = "candidate"
                 plat["gate_ru"] = (
                     "Правила/API выглядят ок, но нет CONFIRMED payout proof — Working запрещён."
+                )
+        elif proven and plat.get("verdict") != "working":
+            if plat.get("verdict") not in ("reject",):
+                plat["verdict"] = "candidate"
+                plat["gate_ru"] = (
+                    "Payout есть — нужен Adapter Builder: Sandbox (L3) → Promote Working (L5)."
                 )
         return plat
 
@@ -443,13 +450,31 @@ class WorkerResearchLab:
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
         plat = dict(state["platforms"][pid])
         plat["real_payout_proven"] = True
-        # Promote own/allowed sellers; candidates stay candidate until tos allowed
-        if plat.get("tos_automation") in ("own_platform", "allowed", "allowed_as_seller") or pid == "path_a_stripe":
+        # Path A may stay/become working; external platforms need Adapter Builder L5
+        if pid == "path_a_stripe" or plat.get("tos_automation") == "own_platform":
             plat["verdict"] = "working"
+        elif plat.get("verdict") == "working" and pid != "path_a_stripe":
+            # Do not keep working without builder promote — demote to candidate until L5
+            plat["verdict"] = "candidate"
+            plat["gate_ru"] = (
+                "Payout записан (L4 path). Working только через Adapter Builder Promote (L5)."
+            )
         state["platforms"][pid] = plat
         self._save_state(state)
         self.scan(persist=True)
         return {"ok": True, "proof": row, "platform": state["platforms"][pid]}
+
+    def attach_maturity(self, platforms: list[dict[str, Any]], maturity_map: dict[str, Any]) -> list[dict[str, Any]]:
+        out = []
+        for p in platforms:
+            pid = str(p.get("id") or "")
+            mat = maturity_map.get(pid) or {}
+            level = int(mat.get("level") or (5 if p.get("verdict") == "working" and pid == "path_a_stripe" else (1 if p.get("verdict") in ("candidate", "partial") else 0)))
+            row = dict(p)
+            row["maturity_level"] = level
+            row["maturity_label"] = mat.get("label") or ("working" if level >= 5 else "candidate" if level >= 1 else "unknown")
+            out.append(row)
+        return out
 
     def board(self) -> dict[str, Any]:
         self.maybe_scan(force=False)
@@ -467,7 +492,8 @@ class WorkerResearchLab:
             "rule_ru": (
                 "Новая платформа = Working только если правила разрешают автоматизацию "
                 "И есть хотя бы одна реальная выплата. "
-                "Регистрация / ToS / ключи — только CEO."
+                "Регистрация / ToS / ключи — только CEO. "
+                "Adapter Builder: L0→L6 до входа в Work Farm."
             ),
             "scan_interval_hours": SCAN_INTERVAL_HOURS,
             "last_scan_at": state.get("last_scan_at"),
@@ -484,9 +510,9 @@ class WorkerResearchLab:
             "ceo_approvals": state.get("ceo_approvals") or {},
             "pipeline_ru": [
                 "Internet / catalogs",
-                "Opportunity / Worker Research",
+                "Worker Research",
                 "CEO key + ToS",
-                "Worker Adapter",
+                "Adapter Builder L2–L5",
                 "Work Farm",
                 "Quality",
                 "Revenue",
@@ -497,5 +523,6 @@ class WorkerResearchLab:
                 "Авто-принятие ToS",
                 "Подключение ключей без CEO",
                 "Working без CONFIRMED payout",
+                "Work Farm ниже maturity L5",
             ],
         }

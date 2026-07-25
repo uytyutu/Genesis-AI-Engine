@@ -670,6 +670,14 @@ class WorkFarmService:
     def status_board(self) -> dict[str, Any]:
         recent = self.list_recent(limit=15)
         landing = self.stats(work_type="landing_page")
+        adapter_allowlist: list[str] = []
+        try:
+            from app.integration.context import get_integration
+
+            ctx = get_integration(self._memory)
+            adapter_allowlist = list(ctx.worker_adapters.work_farm_allowlist())
+        except Exception:
+            adapter_allowlist = ["path_a_stripe"]
         return {
             "ok": True,
             "version": WORK_FARM_VERSION,
@@ -680,8 +688,12 @@ class WorkFarmService:
                 "landing_page": landing,
             },
             "recent_jobs": recent,
+            "adapter_allowlist": adapter_allowlist,
+            "external_task_execution": False,
             "headline_ru": (
                 "Work Farm v0: Stripe → Landing Factory → Quality Gate. "
-                "Marketplace внешних задач — не здесь."
+                "External sources only if Adapter Builder maturity ≥ L5 "
+                f"(allowlist: {', '.join(adapter_allowlist) or '—'}). "
+                "Live external fetch still off."
             ),
         }

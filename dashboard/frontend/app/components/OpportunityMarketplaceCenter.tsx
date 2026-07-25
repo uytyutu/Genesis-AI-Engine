@@ -83,6 +83,30 @@ type ResearchPlatform = {
   real_payout_proven?: boolean;
 };
 
+type AdapterPlatform = {
+  id: string;
+  name?: string;
+  maturity_level?: number;
+  maturity_label_ru?: string;
+  has_adapter?: boolean;
+  sandbox_passed?: boolean;
+  work_farm_eligible?: boolean;
+  verdict?: string;
+  real_payout_proven?: boolean;
+  ceo_approved?: boolean;
+};
+
+type AdapterBoard = {
+  title_ru?: string;
+  rule_ru?: string;
+  levels_ru?: string[];
+  pipeline_ru?: string[];
+  counts_by_level?: Record<string, number>;
+  work_farm_allowlist?: string[];
+  platforms?: AdapterPlatform[];
+  forbidden_ru?: string[];
+};
+
 type ResearchBoard = {
   title_ru?: string;
   rule_ru?: string;
@@ -117,6 +141,7 @@ function verdictPill(v: string): string {
 export function OpportunityMarketplaceCenter() {
   const [board, setBoard] = useState<Board | null>(null);
   const [research, setResearch] = useState<ResearchBoard | null>(null);
+  const [adapters, setAdapters] = useState<AdapterBoard | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [researchMsg, setResearchMsg] = useState("");
@@ -124,9 +149,10 @@ export function OpportunityMarketplaceCenter() {
   const load = useCallback(async () => {
     setBusy(true);
     try {
-      const [mRes, rRes] = await Promise.all([
+      const [mRes, rRes, aRes] = await Promise.all([
         fetch(`${API}/api/earn-marketplace/today`),
         fetch(`${API}/api/worker-research/board`),
+        fetch(`${API}/api/worker-adapters/board`),
       ]);
       if (!mRes.ok) {
         setErr(`Marketplace ${mRes.status} — перезапустите Genesis`);
@@ -134,6 +160,7 @@ export function OpportunityMarketplaceCenter() {
       }
       setBoard(await mRes.json());
       if (rRes.ok) setResearch(await rRes.json());
+      if (aRes.ok) setAdapters(await aRes.json());
       setErr("");
     } catch {
       setErr("Backend недоступен");
@@ -181,11 +208,35 @@ export function OpportunityMarketplaceCenter() {
     }
   }
 
+  async function adapterAction(
+    platformId: string,
+    action: "create" | "sandbox" | "promote-working",
+  ) {
+    setResearchMsg("");
+    try {
+      const res = await fetch(
+        `${API}/api/worker-adapters/${encodeURIComponent(platformId)}/${action}`,
+        { method: "POST" },
+      );
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setResearchMsg(String(body?.detail || `${action} failed`));
+        return;
+      }
+      setResearchMsg(body.message_ru || `${action} OK · L${body.maturity_level ?? "?"}`);
+      await load();
+    } catch {
+      setResearchMsg("Backend недоступен");
+    }
+  }
+
   const pulse = board?.desk_pulse;
   const opps = board?.opportunities ?? [];
   const farms = board?.farms ?? [];
   const findings = research?.findings ?? [];
   const platforms = research?.platforms ?? [];
+  const adapterRows = adapters?.platforms ?? [];
+  const levelCounts = adapters?.counts_by_level ?? {};
 
   return (
     <main className="min-h-screen pb-12">
@@ -349,6 +400,82 @@ export function OpportunityMarketplaceCenter() {
           {research?.forbidden_ru?.length ? (
             <p className="mt-3 text-[10px] text-rose-200/60">
               Запрещено: {research.forbidden_ru.join(" · ")}
+            </p>
+          ) : null}
+        </section>
+
+        <section className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-950/30 via-black/20 to-genesis-panel p-5 sm:p-6">
+          <h2 className="text-sm font-semibold text-amber-100">
+            {adapters?.title_ru ?? "Worker Adapter Builder"}
+          </h2>
+          <p className="mt-1 max-w-2xl text-[11px] text-genesis-muted">
+            {adapters?.rule_ru ??
+              "Research → Adapter → Sandbox → First payout → Working. Sandbox ≠ деньги."}
+          </p>
+          {adapters?.pipeline_ru?.length ? (
+            <p className="mt-2 text-[11px] text-amber-100/75">{adapters.pipeline_ru.join(" → ")}</p>
+          ) : null}
+          <div className="mt-3 flex flex-wrap gap-1.5 text-[10px]">
+            {[0, 1, 2, 3, 4, 5, 6].map((lv) => (
+              <span
+                key={lv}
+                className="rounded border border-white/15 px-2 py-0.5 text-white/70"
+              >
+                L{lv} {levelCounts[String(lv)] ?? 0}
+              </span>
+            ))}
+          </div>
+          <p className="mt-2 text-[10px] text-emerald-200/80">
+            Work Farm allowlist: {(adapters?.work_farm_allowlist || []).join(", ") || "—"}
+          </p>
+          <ul className="mt-4 space-y-2">
+            {adapterRows
+              .filter((p) => p.verdict !== "reject")
+              .map((p) => (
+                <li
+                  key={p.id}
+                  className="rounded-xl border border-white/10 bg-black/25 px-3 py-2.5 text-sm"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-medium text-white">{p.name || p.id}</p>
+                    <span className="rounded-full border border-amber-400/40 px-2 py-0.5 text-[10px] text-amber-100">
+                      L{p.maturity_level ?? 0} {p.maturity_label_ru}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[10px] text-white/45">
+                    adapter {p.has_adapter ? "✓" : "—"} · sandbox {p.sandbox_passed ? "✓" : "—"} ·
+                    payout {p.real_payout_proven ? "✓" : "—"} · farm{" "}
+                    {p.work_farm_eligible ? "✓" : "—"}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void adapterAction(p.id, "create")}
+                      className="rounded-md border border-white/20 px-2 py-1 text-[11px] text-white/80 hover:bg-white/5"
+                    >
+                      Create Adapter
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void adapterAction(p.id, "sandbox")}
+                      className="rounded-md border border-sky-400/35 px-2 py-1 text-[11px] text-sky-100 hover:bg-sky-950/40"
+                    >
+                      Sandbox
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void adapterAction(p.id, "promote-working")}
+                      className="rounded-md border border-emerald-500/40 px-2 py-1 text-[11px] text-emerald-100 hover:bg-emerald-950/40"
+                    >
+                      Promote Working
+                    </button>
+                  </div>
+                </li>
+              ))}
+          </ul>
+          {adapters?.forbidden_ru?.length ? (
+            <p className="mt-3 text-[10px] text-rose-200/60">
+              {adapters.forbidden_ru.join(" · ")}
             </p>
           ) : null}
         </section>

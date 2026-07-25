@@ -106,6 +106,15 @@ _PRODUCT_FEATURES: dict[str, dict[str, Any]] = {
         "enabled": True,
         "notes": "Scan platforms for official get-task→pay cycle. CEO key/ToS only. Working needs CONFIRMED payout.",
     },
+    "worker_adapter_builder": {
+        "label": "Worker Adapter Builder",
+        "layer": "adapters",
+        "exists": True,
+        "stable": False,
+        "ready": True,
+        "enabled": True,
+        "notes": "Maturity L0–L6: Adapter→Sandbox→Payout→Working. Work Farm only L5+. Live fetch hooks still off.",
+    },
     "business_automation": {
         "label": "Business Automation",
         "layer": "business_automation",

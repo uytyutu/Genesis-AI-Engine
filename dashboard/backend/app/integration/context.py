@@ -31,6 +31,7 @@ from app.integration.monetization_engine_service import MonetizationEngineServic
 from app.integration.micro_farm_service import MicroFarmService
 from app.integration.work_farm_v0 import WorkFarmService
 from app.integration.worker_research_lab import WorkerResearchLab
+from app.integration.worker_adapter_builder import WorkerAdapterBuilder
 from app.integration.engine_accounting_service import EngineAccountingService
 from app.integration.financial_export_bridge import FinancialExportBridge
 from app.integration.business_mode_service import BusinessModeService
@@ -90,6 +91,7 @@ class IntegrationContext:
     micro_farm: MicroFarmService
     work_farm: WorkFarmService
     worker_research: WorkerResearchLab
+    worker_adapters: WorkerAdapterBuilder
     engine_accounting: EngineAccountingService
     financial_export: FinancialExportBridge
     business_mode: BusinessModeService
@@ -129,6 +131,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             get_product=factory.get_product,
         )
         worker_research = WorkerResearchLab(path)
+        worker_adapters = WorkerAdapterBuilder(path, worker_research)
         revenue = RevenuePipelineService(
             sales, finance, checkout, notifications, work_farm=work_farm
         )
@@ -189,6 +192,7 @@ def get_integration(memory_dir: Path | None = None) -> IntegrationContext:
             micro_farm=micro_farm,
             work_farm=work_farm,
             worker_research=worker_research,
+            worker_adapters=worker_adapters,
             engine_accounting=engine_accounting,
             financial_export=financial_export,
             business_mode=business_mode,
