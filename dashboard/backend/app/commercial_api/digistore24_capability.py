@@ -207,13 +207,11 @@ def digistore24_capability_brief(*, key_present: bool) -> dict[str, Any]:
         "q2_automatable": q2,
         "q3_first_commission": q3,
         "next_lab_task_ru": (
-            "Не просить ключ снова. Следующая задача: "
-            "(1) probe getUserInfo/ping, "
-            "(2) listProducts под нишу клиента, "
-            "(3) встроить выдачу официальной ссылки в путь после аудита, "
-            "(4) читать listCommissions → только факт → Ledger."
+            "Не просить ключ снова. Recommendation Engine: "
+            "аудит → confirmed need → официальная ссылка Digistore (один из источников). "
+            "Комиссия клиенту не показывать; Ledger только после CONFIRMED продажи."
             if key_present
-            else "Сначала ключ CEO, затем этот же план."
+            else "Сначала ключ CEO, затем Recommendation Engine."
         ),
         "sources_ru": (
             "Digistore24 API basics + function reference (listProducts, listCommissions, "

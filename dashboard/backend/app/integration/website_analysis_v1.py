@@ -345,6 +345,25 @@ def _finalize(
         quote=quote,
         locale=locale,
     )
+
+    recommended_solutions = None
+    try:
+        from app.recommendation_engine.engine import build_recommended_solutions
+
+        memory_dir = None
+        # raw may carry memory path only via caller — catalog uses defaults if None
+        recommended_solutions = build_recommended_solutions(
+            fetch_ok=fetch_ok,
+            locale=locale,
+            confirmed_needs=list(raw.get("confirmed_needs") or []),
+            audience="client",
+        )
+        if not recommended_solutions.get("solutions"):
+            # Still expose confirmed needs + empty solutions (honest: need yes, offer no)
+            pass
+    except Exception:
+        recommended_solutions = None
+
     return {
         "engine": ENGINE_ID,
         "principle": "Solve Digital Problems",
@@ -357,6 +376,8 @@ def _finalize(
         "problems": problems,
         "repair_quote": quote,
         "recommendations": recommendations,
+        "recommended_solutions": recommended_solutions,
+        "confirmed_needs": raw.get("confirmed_needs") or [],
         "justification": justification,
         "vector_plain": vector_plain,
         "analyzed_at": raw.get("analyzed_at"),
@@ -807,6 +828,19 @@ class WebsiteAnalysisV1:
     ) -> dict[str, Any]:
         raw = self._site.analyze(url, use_cache=use_cache)
         report = build_owner_report(raw, locale=locale)
+        # Rebuild solutions with memory catalog (CEO overrides) when available.
+        try:
+            from app.recommendation_engine.engine import build_recommended_solutions
+
+            report["recommended_solutions"] = build_recommended_solutions(
+                fetch_ok=not bool(raw.get("error")),
+                locale=locale,
+                memory_dir=self._memory,
+                confirmed_needs=list(raw.get("confirmed_needs") or []),
+                audience="client",
+            )
+        except Exception:
+            pass
         if save_case:
             meta = self._cases.save(report, email=email, problem_note=problem_note)
             report = {**report, **meta}

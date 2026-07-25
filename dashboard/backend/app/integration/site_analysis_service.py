@@ -145,17 +145,51 @@ class SiteAnalysisService:
         else:
             strengths.append("Viewport für Mobilgeräte")
 
-        if len(html) < 1500:
+        content_thin = len(html) < 1500
+        if content_thin:
             issues.append("Sehr wenig Inhalt — möglicherweise veraltet oder Platzhalter")
 
         if any(x in lower for x in ("jquery-1.", "flash", "under construction", "coming soon")):
             issues.append("Anzeichen veralteter Technik oder Baustelle")
 
-        if not re.search(r"mailto:|type=[\"']email[\"']", lower):
-            issues.append("Kein sichtbares Kontaktformular / E-Mail-Feld")
+        has_form = bool(
+            re.search(r"<form\b|type=[\"']email[\"']|name=[\"']email[\"']", lower)
+        )
+        has_mailto = bool(re.search(r"mailto:", lower))
+        has_phone = bool(re.search(r"tel:|whatsapp|wa\.me", lower))
+        has_contact = has_mailto or has_phone or has_form
 
-        if not re.search(r"tel:|whatsapp|wa\.me", lower):
+        if not has_form and not has_mailto:
+            issues.append("Kein sichtbares Kontaktformular / E-Mail-Feld")
+        if not has_phone:
             issues.append("Kein direkter Anruf / WhatsApp-Link")
+        if has_contact:
+            strengths.append("Kontaktweg sichtbar")
+
+        has_cta = bool(
+            re.search(
+                r"(?:jetzt|anrufen|anfragen|buchen|termin|bestellen|kontakt|"
+                r"order|book|call|contact|запис|заказ|звон|заявк)",
+                lower,
+            )
+            and re.search(r"<a\b|<button\b", lower)
+        )
+        if has_cta:
+            strengths.append("CTA erkennbar")
+        else:
+            issues.append("Kein klares CTA auf der Startseite")
+
+        has_maps = bool(
+            re.search(
+                r"google\.(?:com|de)/maps|maps\.google|googleapis\.com/maps|"
+                r"openstreetmap|mapbox",
+                lower,
+            )
+        )
+        if has_maps:
+            strengths.append("Karte / Maps gefunden")
+        else:
+            issues.append("Keine Google Maps Einbindung erkannt")
 
         title_match = re.search(r"<title[^>]*>([^<]+)</title>", html, re.I)
         title = title_match.group(1).strip() if title_match else ""
@@ -175,6 +209,22 @@ class SiteAnalysisService:
         for m in re.findall(r"mailto:([^\s\"'?]+)", html, re.I):
             emails_found.extend(extract_emails_from_text(m))
         emails_found = list(dict.fromkeys(emails_found))[:5]
+
+        confirmed_needs: list[dict] = []
+        try:
+            from app.recommendation_engine.needs import detect_confirmed_needs
+
+            confirmed_needs = detect_confirmed_needs(
+                html=html,
+                flags={
+                    "has_contact": has_contact,
+                    "has_form": has_form,
+                    "has_cta": has_cta,
+                },
+                fetch_ok=started.status_code < 400,
+            )
+        except Exception:
+            confirmed_needs = []
 
         score = self._score(issues, strengths)
         niche_info = None
@@ -202,6 +252,14 @@ class SiteAnalysisService:
             "load_ms": load_ms,
             "has_https": final_url.startswith("https://"),
             "has_viewport": "viewport" in lower,
+            "flags": {
+                "has_contact": has_contact,
+                "has_form": has_form,
+                "has_cta": has_cta,
+                "has_maps": has_maps,
+                "content_thin": content_thin,
+            },
+            "confirmed_needs": confirmed_needs,
             "issues": issues,
             "strengths": strengths,
             "issue_count": len(issues),
@@ -251,12 +309,20 @@ class SiteAnalysisService:
             "load_ms": 0,
             "has_https": False,
             "has_viewport": False,
+            "flags": {},
+            "confirmed_needs": [],
             "issues": ["Website nicht erreichbar oder ungültige URL"],
             "strengths": [],
             "issue_count": 1,
             "improvement_score": 80,
+            "tech_stack": [],
+            "detected_lang": "",
+            "emails_found": [],
+            "classified_niche": None,
             "analyzed_at": __import__("datetime").datetime.now(
                 __import__("datetime").timezone.utc
             ).isoformat(),
             "error": error,
+            "from_cache": False,
+            "stealth": {"mode": "stealth", "read_only": True},
         }

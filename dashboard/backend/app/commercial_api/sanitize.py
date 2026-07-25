@@ -24,6 +24,11 @@ _STRIP_KEYS = frozenset(
         "swarm",
         "toloka",
         "scale_ai",
+        "commission_eur",
+        "affiliate_commission",
+        "partner_payout",
+        "commission_amount",
+        "estimated_commission",
     }
 )
 

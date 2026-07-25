@@ -28,6 +28,23 @@ type Recommendation = {
   alt_ctas?: Array<{ href: string; label: string }>;
 };
 
+type SolutionRec = {
+  id: string;
+  need_id: string;
+  need_label: string;
+  title: string;
+  why: string;
+  official_url: string;
+  source_label?: string;
+};
+
+type RecommendedSolutions = {
+  title: string;
+  solutions: SolutionRec[];
+  confirmed_needs?: { id: string; label: string; why: string }[];
+  count?: number;
+};
+
 type AnalysisReport = {
   health_score: number;
   url: string;
@@ -37,6 +54,7 @@ type AnalysisReport = {
   problems: string[];
   checks: CheckRow[];
   recommendations: Recommendation[];
+  recommended_solutions?: RecommendedSolutions | null;
   justification: string;
   vector_plain?: string;
   case_id?: string;
@@ -212,6 +230,46 @@ export function WebsiteAnalysisPanel({
               <ul className="mt-2 space-y-1 text-sm text-zinc-300">
                 {report.problems.map((p) => (
                   <li key={p}>⚠ {p}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {report.recommended_solutions?.solutions?.length ? (
+            <div className="rounded-xl border border-sky-500/30 bg-sky-950/15 p-4 space-y-3">
+              <p className="text-sm font-medium text-sky-100">
+                {report.recommended_solutions.title || "Рекомендуемые решения"}
+              </p>
+              <p className="text-[11px] text-zinc-400">
+                Только после подтверждённой потребности аудита · официальные ссылки · без рекламного
+                спама
+              </p>
+              <ul className="space-y-3">
+                {report.recommended_solutions.solutions.map((s) => (
+                  <li
+                    key={s.id}
+                    className="rounded-lg border border-white/10 bg-black/25 px-3 py-2.5 text-sm"
+                  >
+                    <p className="font-medium text-white">
+                      {s.title}
+                      {s.source_label ? (
+                        <span className="ml-2 text-[10px] font-normal text-zinc-500">
+                          {s.source_label}
+                        </span>
+                      ) : null}
+                    </p>
+                    <p className="mt-1 text-xs text-amber-100/90">
+                      Почему: {s.why || s.need_label}
+                    </p>
+                    <a
+                      href={s.official_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex text-xs font-medium text-sky-300 hover:underline"
+                    >
+                      Официальная ссылка →
+                    </a>
+                  </li>
                 ))}
               </ul>
             </div>
