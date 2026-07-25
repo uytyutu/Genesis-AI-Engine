@@ -2263,9 +2263,27 @@ def work_farm_status() -> dict:
     return _ctx().work_farm.status_board()
 
 
+@app.get("/api/work-farm/stats")
+def work_farm_stats(work_type: str = "landing_page") -> dict:
+    """Landing (or other) job aggregates — real files only."""
+    return {
+        "ok": True,
+        "stats": _ctx().work_farm.stats(work_type=str(work_type or "landing_page")),
+    }
+
+
 @app.get("/api/work-farm/catalog")
 def work_farm_catalog() -> dict:
     return _ctx().work_farm.catalog()
+
+
+@app.get("/api/work-farm/replay/{job_id}")
+def work_farm_replay(job_id: str) -> dict:
+    """Replay Job — timeline + economics (read-only)."""
+    result = _ctx().work_farm.replay(job_id)
+    if not result.get("ok"):
+        raise HTTPException(status_code=404, detail=result.get("error") or "job_not_found")
+    return result
 
 
 @app.get("/api/work-farm/jobs/{order_id}")
