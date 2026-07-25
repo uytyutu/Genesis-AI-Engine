@@ -1,4 +1,4 @@
-"""Country Desk runner — Start/Stop with visible ticks (hunt → draft → optional send).
+"""Country Desk runner вЂ” Start/Stop with visible ticks (hunt в†’ draft в†’ optional send).
 
 Does not bypass CEO Approve unless outreach is enabled and a lead is already
 approved / high-win auto-confirm path. Exclusion still blocks re-contact.
@@ -75,10 +75,10 @@ class OutreachRunnerService:
     def _interval(self) -> int:
         if self._interval_fn:
             try:
-                return max(15, int(self._interval_fn()))
+                return max(5, int(self._interval_fn()))
             except Exception:
                 pass
-        return 90
+        return 10
 
     def _log(self, state: dict[str, Any], action: str, message_ru: str) -> None:
         entry = {
@@ -115,7 +115,7 @@ class OutreachRunnerService:
         self._log(
             state,
             "start",
-            f"Пуск Country Desk · все страны round-robin · тик ~{interval}с · письмо только Approve/квота",
+            f"РџСѓСЃРє Country Desk В· РІСЃРµ СЃС‚СЂР°РЅС‹ round-robin В· С‚РёРє ~{interval}СЃ В· РїРёСЃСЊРјРѕ С‚РѕР»СЊРєРѕ Approve/РєРІРѕС‚Р°",
         )
         self._save(state)
         return self.status()
@@ -125,7 +125,7 @@ class OutreachRunnerService:
         state["running"] = False
         state["stopped_at"] = _utc_now().isoformat()
         state["next_tick_at"] = None
-        self._log(state, "stop", "Стоп · генерация и тики остановлены")
+        self._log(state, "stop", "РЎС‚РѕРї В· РіРµРЅРµСЂР°С†РёСЏ Рё С‚РёРєРё РѕСЃС‚Р°РЅРѕРІР»РµРЅС‹")
         self._save(state)
         return self.status()
 
@@ -155,8 +155,8 @@ class OutreachRunnerService:
             "outreach_send_enabled": outreach_on,
             "log": list(state.get("log") or [])[-15:],
             "note_ru": (
-                "Пуск / автообновление = hunt/draft round-robin по странам до лимитов ×3. "
-                "Автоотправка: тумблер CEO или GENESIS_OUTREACH_ENABLED + Approve/high-win."
+                "РџСѓСЃРє / Р°РІС‚РѕРѕР±РЅРѕРІР»РµРЅРёРµ = hunt/draft round-robin РїРѕ СЃС‚СЂР°РЅР°Рј РґРѕ Р»РёРјРёС‚РѕРІ Г—3. "
+                "РђРІС‚РѕРѕС‚РїСЂР°РІРєР°: С‚СѓРјР±Р»РµСЂ CEO РёР»Рё GENESIS_OUTREACH_ENABLED + Approve/high-win."
             ),
         }
 
@@ -170,7 +170,7 @@ class OutreachRunnerService:
         actions: list[str] = []
         detail: dict[str, Any] = {}
 
-        # Prefer one send attempt if enabled (approved queue) — still respects quota/exclusion.
+        # Prefer one send attempt if enabled (approved queue) вЂ” still respects quota/exclusion.
         # Before send: re-enrich contact from scraped emails on Ready candidates (legacy rows).
         send_enabled = False
         try:
@@ -192,7 +192,7 @@ class OutreachRunnerService:
                         self._log(
                             state,
                             "send",
-                            f"Отправлено [{send_res.get('market') or '?'}]: "
+                            f"РћС‚РїСЂР°РІР»РµРЅРѕ [{send_res.get('market') or '?'}]: "
                             f"{send_res.get('company') or send_res.get('to') or 'ok'}",
                         )
                         continue
@@ -200,7 +200,7 @@ class OutreachRunnerService:
                         reason = str(
                             send_res.get("reason")
                             or send_res.get("message_ru")
-                            or "пропуск"
+                            or "РїСЂРѕРїСѓСЃРє"
                         )
                         state["session_skipped"] = int(state.get("session_skipped") or 0) + 1
                         actions.append("send_skip")
@@ -209,7 +209,7 @@ class OutreachRunnerService:
                             "send_skip",
                             str(send_res.get("message_ru") or reason),
                         )
-                        # Pacing / no Ready → stop burst this tick
+                        # Pacing / no Ready в†’ stop burst this tick
                         if "min_interval" in reason or reason in (
                             "no_quality_leads",
                             "outside_business_hours",
@@ -220,7 +220,7 @@ class OutreachRunnerService:
                     break
                 except Exception as exc:
                     actions.append("send_error")
-                    self._log(state, "send_error", f"Ошибка отправки: {exc}")
+                    self._log(state, "send_error", f"РћС€РёР±РєР° РѕС‚РїСЂР°РІРєРё: {exc}")
                     break
             if sends_detail:
                 detail["send"] = sends_detail[-1]
@@ -248,7 +248,7 @@ class OutreachRunnerService:
                 )
             except Exception as exc:
                 actions.append("hunt_error")
-                self._log(state, "hunt_error", f"Ошибка hunt: {exc}")
+                self._log(state, "hunt_error", f"РћС€РёР±РєР° hunt: {exc}")
 
         state["ticks"] = int(state.get("ticks") or 0) + 1
         state["last_tick_at"] = now.isoformat()

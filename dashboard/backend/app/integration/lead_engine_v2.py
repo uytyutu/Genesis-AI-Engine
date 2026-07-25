@@ -477,8 +477,8 @@ class LeadEngineV2:
         farm = farms[idx]
         state["rotation_country_index"] = (idx + 1) % len(farms)
         self._save_state(state)
-        lo = int(cfg.get("send_interval_min_sec") or 40)
-        hi = int(cfg.get("send_interval_max_sec") or 60)
+        lo = int(cfg.get("send_interval_min_sec") or 10)
+        hi = int(cfg.get("send_interval_max_sec") or 10)
         # Strict markets: prefer upper half of interval
         if farm.get("strict_anti_spam"):
             wait = random.randint(max(lo, (lo + hi) // 2), hi)

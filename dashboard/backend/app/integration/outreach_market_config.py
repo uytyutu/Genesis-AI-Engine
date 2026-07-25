@@ -101,9 +101,9 @@ def default_global_daily_cap() -> int:
 
 def default_min_interval_sec() -> int:
     try:
-        return int(_load_raw().get("min_interval_sec_default") or 90)
+        return int(_load_raw().get("min_interval_sec_default") or 10)
     except (TypeError, ValueError):
-        return 90
+        return 10
 
 
 def enabled_markets_sum_caps() -> int:

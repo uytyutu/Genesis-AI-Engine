@@ -1,7 +1,7 @@
 {
   "version": 7,
   "global_daily_cap_default": 1000,
-  "min_interval_sec_default": 90,
+  "min_interval_sec_default": 10,
   "allocation_mode": "per_market",
   "quality_first": true,
   "force_fill_quotas": false,

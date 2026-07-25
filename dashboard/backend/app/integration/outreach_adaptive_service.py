@@ -94,26 +94,25 @@ class OutreachAdaptiveService:
     def effective_interval_sec(self) -> int:
         cfg = _load_config()
         interval_cfg = cfg.get("interval") or {}
-        lo = int(interval_cfg.get("min_sec") or 60)
+        lo = int(interval_cfg.get("min_sec") or 10)
         hi = int(interval_cfg.get("max_sec") or 600)
         state = self._load_state()
         if state.get("interval_sec") is not None:
             try:
-                return max(lo, min(hi, int(state["interval_sec"])))
+                stored = int(state["interval_sec"])
+                # Migrate old 60s+ default pacing down to configured floor (CEO: 10s).
+                if stored >= 60 and lo <= 15:
+                    return lo
+                return max(lo, min(hi, stored))
             except (TypeError, ValueError):
                 pass
-        from app.integration.outreach_send_quota import outreach_global_daily_cap
-
-        # Pace against the shared mailbox ceiling, not sum of soft country shares.
-        total_cap = outreach_global_daily_cap()
-        total_cap = max(1, total_cap)
-        base = int(36000 / total_cap)
-        return max(lo, min(hi, base))
+        # Default send gap = configured min_sec (not cap formula).
+        return lo
 
     def compute_interval_for_cap_total(self, total_cap: int) -> int:
         cfg = _load_config()
         interval_cfg = cfg.get("interval") or {}
-        lo = int(interval_cfg.get("min_sec") or 60)
+        lo = int(interval_cfg.get("min_sec") or 10)
         hi = int(interval_cfg.get("max_sec") or 600)
         jitter = float(interval_cfg.get("jitter_pct") or 20) / 100.0
         total_cap = max(1, int(total_cap))
