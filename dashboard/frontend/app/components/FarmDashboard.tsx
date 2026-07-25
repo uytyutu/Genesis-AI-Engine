@@ -619,7 +619,7 @@ export function FarmDashboard() {
       }
       const sniperMsg =
         deskBody.last_message_ru ||
-        "Снайпер Country Desk запущен · hunt 09–18 local";
+        "Снайпер Country Desk запущен · hunt 24/7";
       // Secondary: legacy labeling feed (non-blocking)
       try {
         await fetch(`${API}/api/farm/feed`, { method: "POST" });

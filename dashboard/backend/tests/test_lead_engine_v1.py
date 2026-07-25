@@ -15,6 +15,13 @@ from app.integration.lead_engine_premium import (
 from app.integration.lead_engine_quality_gate import quality_gate_before_send
 from app.integration.lead_engine_queues import build_lead_engine_dashboard, classify_lead_queue
 from app.integration.acquisition_studio_service import AcquisitionStudioService
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _enforce_legacy_business_hours(monkeypatch):
+    """Most Lead Engine tests assume weekday 09–18; production default is 24/7."""
+    monkeypatch.setenv("GENESIS_OUTREACH_BUSINESS_HOURS", "enforce")
 
 
 class _Opp:
@@ -38,10 +45,12 @@ class _Opp:
         self._rows = list(rows)
 
 
-def test_business_hours_de_weekday_open():
-    # Monday 10:00 Berlin
-    utc = datetime(2026, 7, 20, 8, 0, tzinfo=timezone.utc)  # 10:00 CEST
+def test_business_hours_default_is_24_7(monkeypatch):
+    monkeypatch.delenv("GENESIS_OUTREACH_BUSINESS_HOURS", raising=False)
+    monkeypatch.setenv("GENESIS_OUTREACH_BUSINESS_HOURS", "off")
+    utc = datetime(2026, 7, 20, 20, 0, tzinfo=timezone.utc)
     assert is_business_hours("DE", now_utc=utc) is True
+    assert is_business_hours("DE", now_utc=datetime(2026, 7, 25, 3, 0, tzinfo=timezone.utc)) is True
 
 
 def test_business_hours_de_night_closed():

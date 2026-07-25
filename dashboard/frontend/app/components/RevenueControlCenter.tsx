@@ -54,6 +54,8 @@ export function RevenueControlCenter() {
 
   const refresh = useCallback(async () => {
     setLoadError("");
+    setMsg("");
+    setBusy("refresh");
     const errors: string[] = [];
 
     try {
@@ -68,9 +70,13 @@ export function RevenueControlCenter() {
     }
 
     try {
-      const briefRes = await fetch(`${API}/api/v1/admin/lab/brief`, {
-        credentials: "include",
-      });
+      // Farm route — no owner gate (Genesis.exe local desk). Fallback to admin.
+      let briefRes = await fetch(`${API}/api/farm/revenue-lab/brief`);
+      if (!briefRes.ok) {
+        briefRes = await fetch(`${API}/api/v1/admin/lab/brief`, {
+          credentials: "include",
+        });
+      }
       if (briefRes.ok) {
         const body = await briefRes.json();
         setBrief({
@@ -81,6 +87,8 @@ export function RevenueControlCenter() {
         });
         setFindings(Array.isArray(body.findings) ? body.findings : []);
         if (body.digistore24) setDigistore(body.digistore24 as DigistoreCapability);
+        if (body.contours) setContours(body.contours);
+        setMsg("Обновлено · Lab показывает живые пути дохода (Country Desk + ключи).");
       } else if (briefRes.status === 403) {
         errors.push("Lab: нужен owner-доступ");
       } else {
@@ -88,18 +96,6 @@ export function RevenueControlCenter() {
       }
     } catch {
       errors.push("Lab недоступна");
-    }
-
-    try {
-      const candRes = await fetch(`${API}/api/v1/admin/lab/candidates`, {
-        credentials: "include",
-      });
-      if (candRes.ok) {
-        const body = await candRes.json();
-        if (body.contours) setContours(body.contours);
-      }
-    } catch {
-      /* optional */
     }
 
     try {
@@ -118,6 +114,7 @@ export function RevenueControlCenter() {
     }
 
     if (errors.length) setLoadError(errors.join(" · "));
+    setBusy("");
   }, []);
 
   useEffect(() => {
@@ -128,13 +125,20 @@ export function RevenueControlCenter() {
     setBusy("scan");
     setMsg("");
     try {
-      const res = await fetch(`${API}/api/v1/admin/lab/scan`, {
-        method: "POST",
-        credentials: "include",
-      });
+      let res = await fetch(`${API}/api/farm/revenue-lab/scan`, { method: "POST" });
+      if (!res.ok) {
+        res = await fetch(`${API}/api/v1/admin/lab/scan`, {
+          method: "POST",
+          credentials: "include",
+        });
+      }
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setMsg(body.detail === "owner_only" ? "Нужен owner-доступ для скана." : `Скан: ${res.status}`);
+        setMsg(
+          body.detail === "owner_only"
+            ? "Нужен owner-доступ для скана."
+            : `Скан: ${res.status}`,
+        );
         return;
       }
       setFindings(Array.isArray(body.findings) ? body.findings : []);
@@ -146,9 +150,12 @@ export function RevenueControlCenter() {
       });
       if (body.digistore24) setDigistore(body.digistore24 as DigistoreCapability);
       if (body.contours) setContours(body.contours);
-      setMsg("Скан обновлён — ниже что найдено и что подтвердить.");
+      setMsg(
+        `Скан ${body.scanned_at ? String(body.scanned_at).slice(11, 19) : "OK"} · ` +
+          `${(body.findings || []).length} путей · ${(body.ceo_actions || []).length} действий CEO`,
+      );
     } catch {
-      setMsg("Скан не удался — backend не отвечает.");
+      setMsg("Скан не удался — backend не отвечает (Genesis.exe → Запустить).");
     } finally {
       setBusy("");
     }
@@ -164,9 +171,9 @@ export function RevenueControlCenter() {
           <p className="text-xs uppercase tracking-[0.35em] text-emerald-400/80">{BRAND_NAME}</p>
           <h1 className="mt-2 text-2xl font-semibold text-white">Доход · Revenue Lab</h1>
           <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
-            Отдельный раздел Mission Control: что Lab проверяет в своём списке кандидатов, какие ключи
-            backend видит, что нужно подтвердить. Скан ≠ поиск в интернете. Ключ ≠ Active (нужны
-            реальные деньги).
+            Lab ищет пути к доходу внутри Virtus: Country Desk (лиды 24/7), Stripe, Digistore,
+            Recommendation Engine. Это не скрапинг интернета. «Обновить» / «Сканировать» перечитывают
+            живое состояние — ключ ≠ деньги.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button

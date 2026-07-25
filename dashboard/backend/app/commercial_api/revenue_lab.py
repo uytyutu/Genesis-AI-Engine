@@ -358,28 +358,6 @@ class RevenueLab:
             )
         ]
 
-        ceo_actions.sort(key=lambda a: int(a.get("priority") or 99))
-        digistore_use = next(
-            (
-                a
-                for a in ceo_actions
-                if a.get("source_id") == "digistore24_affiliate"
-                and a.get("kind") == "use_connected"
-            ),
-            None,
-        )
-        top = ceo_actions[0] if ceo_actions else None
-        if digistore_use:
-            # Digistore key done → headline pushes next legitimate use, not "add key again".
-            headline = digistore_use["title_ru"] + " — " + digistore_use["action_ru"]
-        elif top:
-            headline = top["title_ru"] + " — " + top.get("why_income_ru", top.get("action_ru", ""))
-        else:
-            headline = (
-                "Все известные кандидаты с ключами закрыты — "
-                "ищи доход через уже подключённые API и ферму до первой CONFIRMED операции."
-            )
-
         digistore_finding = next(
             (f for f in findings if f["id"] == "digistore24_affiliate"),
             None,
@@ -390,29 +368,182 @@ class RevenueLab:
             key_present=bool(digistore_finding and digistore_finding.get("connected"))
         )
 
+        live_paths = self._live_income_paths()
+        for path in live_paths:
+            findings.append(path["finding"])
+            if path.get("action"):
+                ceo_actions.append(path["action"])
+
+        ceo_actions.sort(key=lambda a: int(a.get("priority") or 99))
+        # Headline: Country Desk first (live € path), then Digistore use, then other.
+        desk = next(
+            (a for a in ceo_actions if a.get("source_id") == "country_desk_leads"),
+            None,
+        )
+        digistore_use = next(
+            (
+                a
+                for a in ceo_actions
+                if a.get("source_id") == "digistore24_affiliate"
+                and a.get("kind") == "use_connected"
+            ),
+            None,
+        )
+        top = ceo_actions[0] if ceo_actions else None
+        if desk:
+            headline = desk["title_ru"] + " — " + desk.get("action_ru", desk.get("why_income_ru", ""))
+        elif digistore_use:
+            headline = digistore_use["title_ru"] + " — " + digistore_use["action_ru"]
+        elif top:
+            headline = top["title_ru"] + " — " + top.get("why_income_ru", top.get("action_ru", ""))
+        else:
+            headline = (
+                "Нет срочных дыр в ключах — доход через Country Desk (лиды) + "
+                "Stripe/Digistore после реальной продажи (Reality over Simulation)."
+            )
+
         return {
             "ok": True,
             "scanned_at": _now(),
             "findings": findings,
             "ceo_actions": ceo_actions,
             "headline_ru": headline,
+            "live_income_paths": [p["finding"] for p in live_paths],
             "digistore24": digistore_brief,
             "rule_ru": (
                 "Lab не создаёт аккаунты и не принимает ToS. "
                 "Ключ есть ≠ деньги (Reality over Simulation). "
-                "Если ключ уже в .env.local — Lab не просит его снова; "
-                "следующий шаг = легально использовать API/ферму."
+                "Поиск дохода = Country Desk (лиды 24/7) + Recommendation Engine "
+                "+ уже подключённые Stripe/Digistore — не скрапинг случайных сайтов."
             ),
             "contours": contours(),
         }
+
+    def _live_income_paths(self) -> list[dict[str, Any]]:
+        """Live earning paths from Country Desk / Recommendation — not web scrape."""
+        paths: list[dict[str, Any]] = []
+        ready = 0
+        waiting = 0
+        autosend = False
+        try:
+            from app.integration.context import get_integration
+
+            desk = get_integration().acquisition.studio_status()
+            le = desk.get("lead_engine") if isinstance(desk, dict) else None
+            if not isinstance(le, dict):
+                le = desk if isinstance(desk, dict) else {}
+            ready = int(le.get("ready_now") or desk.get("ready_now") or 0)
+            waiting = int(le.get("waiting") or desk.get("waiting") or 0)
+            autosend = bool(desk.get("auto_send") or desk.get("outreach_send_enabled"))
+        except Exception:
+            try:
+                from app.integration.outreach_ceo_prefs import outreach_send_allowed
+
+                autosend = outreach_send_allowed(self._memory)
+            except Exception:
+                autosend = False
+
+        finding = {
+            "id": "country_desk_leads",
+            "name": "Country Desk · лиды → КП → Stripe",
+            "type": "LeadFarm",
+            "api": True,
+            "automation_allowed": True,
+            "payouts": True,
+            "connected": True,
+            "missing_env": [],
+            "status": "ready" if autosend else "needs_ceo",
+            "status_ru": (
+                f"Автоотправка {'вкл' if autosend else 'выкл'} · Ready {ready} · Waiting {waiting} · окно 24/7"
+            ),
+            "model_ru": (
+                "Hunt лидов → Quality Gate → Resend КП → клиент платит Stripe. "
+                "Окно 09–18 снято (24/7). Доход = CONFIRMED оплата, не estimate фермы."
+            ),
+            "income_hypothesis_ru": (
+                "Главный путь к первому €: автоматическая отправка КП по готовым лидам."
+            ),
+            "ceo_action_ru": (
+                "Country Desk → runner должен крутиться; не шли вручную при автоотправке."
+                if autosend
+                else "Включи автоотправку на Country Desk (или GENESIS_OUTREACH_ENABLED=true)."
+            ),
+            "uses_farm": True,
+            "uses_commercial_api": False,
+            "confidence": "LIVE_PIPELINE",
+            "reality_note_ru": "Лиды ≠ деньги. Деньги после оплаты клиента.",
+        }
+        action = {
+            "id": "act-country-desk-leads",
+            "priority": 5,
+            "source_id": "country_desk_leads",
+            "kind": "use_connected" if autosend else "connect_key",
+            "title_ru": (
+                f"Country Desk: {ready} Ready · автоотправка 24/7"
+                if autosend
+                else "Country Desk: включи автоотправку лидов"
+            ),
+            "action_ru": finding["ceo_action_ru"],
+            "why_income_ru": finding["income_hypothesis_ru"],
+            "env_vars": [],
+            "missing_env": [],
+            "at": _now(),
+        }
+        paths.append({"finding": finding, "action": action})
+
+        paths.append(
+            {
+                "finding": {
+                    "id": "reco_engine_audit",
+                    "name": "Recommendation Engine · аудит → офер",
+                    "type": "Recommend",
+                    "api": True,
+                    "automation_allowed": True,
+                    "payouts": True,
+                    "connected": True,
+                    "status": "ready",
+                    "status_ru": "Потребность → официальная ссылка Digistore/партнёр",
+                    "model_ru": (
+                        "Website Audit находит CRM/booking/email gaps → "
+                        "рекомендация с официальной ссылкой → комиссия после покупки."
+                    ),
+                    "income_hypothesis_ru": (
+                        "Доп. слой дохода после аудита — не реклама всем подряд."
+                    ),
+                    "ceo_action_ru": (
+                        "Гоняй аудиты — блок «Рекомендуемые решения» на /site#analysis."
+                    ),
+                    "uses_farm": True,
+                    "uses_commercial_api": True,
+                    "confidence": "LIVE_PIPELINE",
+                    "reality_note_ru": "Комиссия только после CONFIRMED продажи партнёра.",
+                },
+                "action": {
+                    "id": "act-reco-engine",
+                    "priority": 18,
+                    "source_id": "reco_engine_audit",
+                    "kind": "use_connected",
+                    "title_ru": "Recommendation Engine: аудит → партнёрская ссылка",
+                    "action_ru": (
+                        "После аудита с confirmed need показывай официальные оферы "
+                        "(Digistore и др.) — клиенту без суммы комиссии."
+                    ),
+                    "why_income_ru": "Комиссия после реальной покупки по ссылке.",
+                    "env_vars": [],
+                    "at": _now(),
+                },
+            }
+        )
+        return paths
 
     def ceo_brief(self) -> dict[str, Any]:
         scan = self.research_scan(persist_alerts=False)
         return {
             "title_ru": "Revenue Lab → действия CEO",
             "headline_ru": scan["headline_ru"],
-            "ceo_actions": scan["ceo_actions"][:8],
+            "ceo_actions": scan["ceo_actions"][:12],
             "findings": scan["findings"],
+            "live_income_paths": scan.get("live_income_paths"),
             "digistore24": scan.get("digistore24"),
             "recent_alerts": self._read_jsonl(self._alerts, limit=10),
             "rule_ru": scan["rule_ru"],

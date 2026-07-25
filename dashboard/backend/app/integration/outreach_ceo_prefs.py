@@ -9,8 +9,8 @@ from typing import Any
 
 
 _DEFAULTS: dict[str, Any] = {
-    "auto_refresh": False,
-    "auto_send": False,
+    "auto_refresh": True,
+    "auto_send": True,
 }
 
 
@@ -27,8 +27,8 @@ def load_prefs(memory_dir: Path | None) -> dict[str, Any]:
         try:
             raw = json.loads(path.read_text(encoding="utf-8"))
             if isinstance(raw, dict):
-                data["auto_refresh"] = bool(raw.get("auto_refresh", False))
-                data["auto_send"] = bool(raw.get("auto_send", False))
+                data["auto_refresh"] = bool(raw.get("auto_refresh", True))
+                data["auto_send"] = bool(raw.get("auto_send", True))
         except (json.JSONDecodeError, OSError):
             pass
     return data
@@ -47,7 +47,14 @@ def save_prefs(memory_dir: Path | None, **updates: Any) -> dict[str, Any]:
 
 
 def outreach_send_allowed(memory_dir: Path | None = None) -> bool:
-    """Env gate OR CEO toggle — both still need Resend + legal footer in send path."""
-    if os.getenv("GENESIS_OUTREACH_ENABLED", "").strip().lower() == "true":
+    """Env gate OR CEO toggle — both still need Resend + legal footer in send path.
+
+    Default: enabled (CEO asked for automatic lead send). Set
+    GENESIS_OUTREACH_ENABLED=false to require the Desk toggle only.
+    """
+    flag = os.getenv("GENESIS_OUTREACH_ENABLED", "true").strip().lower()
+    if flag in ("0", "false", "off", "no"):
+        return bool(load_prefs(memory_dir).get("auto_send"))
+    if flag in ("1", "true", "yes", "on"):
         return True
     return bool(load_prefs(memory_dir).get("auto_send"))

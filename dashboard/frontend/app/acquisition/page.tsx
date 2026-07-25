@@ -809,12 +809,12 @@ export default function AcquisitionPage() {
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-emerald-200/80">Ready Now</p>
                 <p className="mt-1 text-2xl font-semibold text-emerald-100">{status.ready_now ?? 0}</p>
-                <p className="mt-1 text-[11px] text-emerald-100/70">09:00–18:00 local · Quality Gate OK</p>
+                <p className="mt-1 text-[11px] text-emerald-100/70">24/7 · Quality Gate OK</p>
               </div>
               <div className="rounded-xl border border-amber-500/25 bg-amber-950/20 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-amber-100/80">Waiting</p>
                 <p className="mt-1 text-2xl font-semibold text-amber-50">{status.waiting ?? 0}</p>
-                <p className="mt-1 text-[11px] text-amber-100/70">Вне окна / ждёт анализ</p>
+                <p className="mt-1 text-[11px] text-amber-100/70">Ждёт анализ / Quality Gate</p>
               </div>
               <div className="rounded-xl border border-sky-500/30 bg-sky-950/25 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-sky-200/80">Sent today</p>
@@ -884,11 +884,11 @@ export default function AcquisitionPage() {
           ) : null}
           {status?.open_markets_now && status.open_markets_now.length > 0 ? (
             <p className="mt-2 text-xs text-emerald-200/80">
-              Hunt сейчас: {status.open_markets_now.join(", ")} (09:00–18:00 local)
+              Hunt сейчас: {status.open_markets_now.join(", ")} (24/7)
             </p>
           ) : status ? (
             <p className="mt-2 text-xs text-amber-200/70">
-              Сейчас нет стран в окне 09–18 — снайпер ждёт (APAC ночью по Берлину).
+              Нет активных рынков в ротации — проверьте Country Profiles / паузы.
             </p>
           ) : null}
           {status?.top_premium_leads && status.top_premium_leads.length > 0 ? (
@@ -1912,7 +1912,7 @@ export default function AcquisitionPage() {
                   <div className="flex flex-wrap gap-2">
                     {status?.auto_send || status?.outreach_send_enabled ? (
                       <p className="w-full rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 text-xs text-emerald-100/90">
-                        Авторежим: это КП уйдёт само (Quality Gate + 09–18 local). Ручной Approve
+                        Авторежим: это КП уйдёт само (Quality Gate · 24/7). Ручной Approve
                         не требуется — следите за Sent today.
                       </p>
                     ) : (

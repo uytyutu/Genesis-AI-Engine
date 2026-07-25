@@ -1,15 +1,16 @@
-"""Business Time — local send window 09:00–18:00 (Lead Engine v1).
+"""Business Time — optional local send window (Lead Engine).
 
-Hunt may run 24/7. Auto-send only when the lead's market is in weekday
-business hours in that market's timezone (country_profiles).
+CEO (2026-07-25): default is 24/7 — no 09:00–18:00 gate.
+Set GENESIS_OUTREACH_BUSINESS_HOURS=enforce to restore weekday 09–18 local.
 """
 
 from __future__ import annotations
 
+import os
 from datetime import datetime, timedelta, time, timezone
 from typing import Any
 
-# Inclusive start, exclusive end — [09:00, 18:00)
+# Inclusive start, exclusive end — [09:00, 18:00) when enforced
 BUSINESS_OPEN = time(9, 0)
 BUSINESS_CLOSE = time(18, 0)
 
@@ -101,13 +102,21 @@ def local_now(market_code: str | None, *, now_utc: datetime | None = None) -> da
         return _offset_local(market_code, now)
 
 
+def business_hours_enforced() -> bool:
+    """False (default) = send/hunt any day/hour. True only if CEO sets enforce."""
+    raw = os.getenv("GENESIS_OUTREACH_BUSINESS_HOURS", "off").strip().lower()
+    return raw in ("1", "true", "on", "yes", "enforce", "09-18", "hours")
+
+
 def is_business_hours(
     market_code: str | None,
     *,
     now_utc: datetime | None = None,
     local_dt: datetime | None = None,
 ) -> bool:
-    """True Mon–Fri and local time in [09:00, 18:00)."""
+    """True when send is allowed. Default 24/7; optional Mon–Fri [09:00, 18:00)."""
+    if not business_hours_enforced():
+        return True
     local = local_dt or local_now(market_code, now_utc=now_utc)
     if local.weekday() >= 5:  # Sat/Sun
         return False
@@ -123,6 +132,7 @@ def business_time_status(
     """Status row for Ready/Waiting / UI."""
     local = local_now(market_code, now_utc=now_utc)
     open_now = is_business_hours(market_code, local_dt=local)
+    enforced = business_hours_enforced()
     return {
         "market": (market_code or "DE").strip().upper() or "DE",
         "timezone": timezone_for_market(market_code),
@@ -130,7 +140,8 @@ def business_time_status(
         "local_hour": local.hour,
         "weekday": local.weekday(),
         "open": open_now,
-        "window": "09:00-18:00",
+        "window": "09:00-18:00" if enforced else "24/7",
+        "business_hours_enforced": enforced,
         "queue": "ready" if open_now else "waiting",
     }
 

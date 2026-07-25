@@ -1470,6 +1470,43 @@ def farm_revenue_sources_center() -> dict:
     return _ctx().micro_farm.revenue_sources_center()
 
 
+@app.get("/api/farm/revenue-lab/brief")
+def farm_revenue_lab_brief() -> dict:
+    """Revenue Lab brief for CEO desk — no Commercial API owner gate."""
+    return {"ok": True, **_ctx().micro_farm.revenue_lab_brief()}
+
+
+@app.post("/api/farm/revenue-lab/scan")
+def farm_revenue_lab_scan() -> dict:
+    """Research scan + live Country Desk / reco paths."""
+    from app.commercial_api.revenue_lab import RevenueLab
+
+    return RevenueLab(_memory_dir()).research_scan(persist_alerts=True)
+
+
+@app.get("/api/farm/revenue-lab/brief")
+def farm_revenue_lab_brief() -> dict:
+    """Revenue Lab CEO brief — local farm path (no Commercial Gateway owner gate)."""
+    return {"ok": True, **_ctx().micro_farm.revenue_lab_brief()}
+
+
+@app.post("/api/farm/revenue-lab/scan")
+def farm_revenue_lab_scan() -> dict:
+    """Research scan + live income opportunities (Desk / Digistore / Stripe)."""
+    from app.commercial_api.revenue_lab import RevenueLab
+
+    mem = _memory_dir()
+    scan = RevenueLab(mem).research_scan(persist_alerts=True)
+    try:
+        live = _ctx().micro_farm.live_income_opportunities()
+        scan["live_opportunities"] = live
+        if live.get("headline_ru"):
+            scan["headline_ru"] = live["headline_ru"]
+    except Exception:
+        scan["live_opportunities"] = {"ok": False}
+    return scan
+
+
 @app.get("/api/farm/finance-law")
 def farm_finance_law() -> dict:
     """Finance Reality Law — Reality over Simulation (binding)."""
