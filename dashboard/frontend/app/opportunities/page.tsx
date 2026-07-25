@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-/** Legacy path — farm journal lives at /journal (M3 master workshop). */
-export default function OpportunitiesRedirect() {
-  redirect("/journal");
+import { OpportunityMarketplaceCenter } from "../components/OpportunityMarketplaceCenter";
+
+export default function OpportunitiesPage() {
+  return <OpportunityMarketplaceCenter />;
 }

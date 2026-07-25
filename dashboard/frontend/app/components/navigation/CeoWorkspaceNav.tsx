@@ -26,6 +26,7 @@ export function CeoWorkspaceNav() {
         [
           "/business",
           "/acquisition",
+          "/opportunities",
           "/support",
           "/",
           "/journal",

@@ -134,11 +134,12 @@ export const CLIENT_NAV_LINKS = [
 export const CEO_PRIMARY_LINKS = [
   { href: "/business", label: "Бизнес", hint: "Mission 2 · KPI" },
   { href: "/acquisition", label: "Поиск лидов", hint: "Country Desk · все рынки · Path A" },
+  { href: "/opportunities", label: "Возможности", hint: "Affiliate · Report · API · ROI сегодня" },
   { href: "/support", label: "Поддержка", hint: "Inbox · автоответы · шаблоны" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
   { href: "/", label: "Ферма", hint: "Разметка · Toloka (не Desk)" },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
-  { href: "/revenue", label: "Доход", hint: "Lab · источники · ключи · API" },
+  { href: "/revenue", label: "Доход", hint: "Lab · Work Farm · ключи · API" },
   { href: "/finance", label: "Финансы и налоги", hint: "Доходы · чеки · экспорт" },
 ] as const;
 

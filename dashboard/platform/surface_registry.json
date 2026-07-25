@@ -339,12 +339,20 @@
       "capabilities": ["revenue"]
     },
     {
+      "path": "/opportunities",
+      "label": "Возможности",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["earn_marketplace"],
+      "migration_note": "Earn Opportunity Marketplace — separate from Toloka farm and lead CRM."
+    },
+    {
       "path": "/marketplace",
       "label": "Marketplace",
       "target": "ceo",
       "current_shell": "mission_control",
       "capabilities": ["marketplace"],
-      "migration_note": "Horizon — client marketplace after M3.4 foundation."
+      "migration_note": "Horizon — external task marketplace after Path A pays."
     }
   ]
 }

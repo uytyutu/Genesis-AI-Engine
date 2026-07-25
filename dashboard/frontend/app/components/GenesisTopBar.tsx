@@ -24,7 +24,7 @@ const TITLES: Record<string, string> = {
   "/check": "Разработчик",
   "/settings": "Настройки",
   "/create": "Фабрика",
-  "/opportunities": "Возможности",
+  "/opportunities": "Возможности · заработок",
   "/monitor": "Мониторинг",
   "/tasks": "Задачи",
 };

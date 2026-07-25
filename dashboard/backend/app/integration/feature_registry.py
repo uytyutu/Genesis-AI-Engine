@@ -88,6 +88,15 @@ _PRODUCT_FEATURES: dict[str, dict[str, Any]] = {
         "enabled": True,
         "notes": "Stripe paid → Landing Factory → Quality Gate. SEO/translate next. No external marketplace.",
     },
+    "earn_marketplace": {
+        "label": "Earn Opportunity Marketplace",
+        "layer": "marketplace",
+        "exists": True,
+        "stable": False,
+        "ready": True,
+        "enabled": True,
+        "notes": "/opportunities — Affiliate/Report/API/Work value board. Not Toloka farm. External tasks still false.",
+    },
     "business_automation": {
         "label": "Business Automation",
         "layer": "business_automation",

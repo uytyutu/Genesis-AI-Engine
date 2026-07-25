@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Возможности — Virtus Core",
-  description: "Opportunity Engine: журнал возможностей и источников дохода.",
+  description:
+    "Marketplace возможностей: Affiliate · Report · Content · API · Work — не ферма разметки.",
 };
 
 export default function OpportunitiesLayout({

@@ -2257,6 +2257,29 @@ def farm_live_monitor(window_minutes: int = 10) -> dict:
     )
 
 
+@app.get("/api/earn-marketplace/today")
+def earn_marketplace_today() -> dict:
+    """Marketplace of earning opportunities — not Toloka farm, not lead CRM list."""
+    from app.integration.earn_opportunity_marketplace import build_earn_marketplace_board
+
+    return build_earn_marketplace_board(_memory_dir())
+
+
+@app.get("/api/earn-marketplace/status")
+def earn_marketplace_status() -> dict:
+    from app.integration.earn_opportunity_marketplace import build_earn_marketplace_board
+
+    board = build_earn_marketplace_board(_memory_dir())
+    return {
+        "ok": True,
+        "version": board.get("version"),
+        "headline_ru": board.get("headline_ru"),
+        "farms": len(board.get("farms") or []),
+        "opportunities": len(board.get("opportunities") or []),
+        "external_task_marketplace": False,
+    }
+
+
 @app.get("/api/work-farm/status")
 def work_farm_status() -> dict:
     """Work Farm v0 board — own paid orders only (no marketplace)."""
