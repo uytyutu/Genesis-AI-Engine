@@ -9,6 +9,7 @@ import secrets
 import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 
@@ -154,6 +155,48 @@ def exchange_code(*, code: str, redirect_uri: str) -> dict[str, Any]:
             "https://myaccount.google.com/permissions then Connect again with prompt=consent."
         ),
     }
+
+
+def persist_refresh_token(refresh_token: str) -> dict[str, Any]:
+    """Write GMAIL_REFRESH_TOKEN into dashboard/backend/.env.local and os.environ.
+
+    Never logs the token. Creates .env.local if missing. Replaces existing key line.
+    """
+    token = (refresh_token or "").strip()
+    if not token or len(token) < 20:
+        return {"ok": False, "reason": "invalid_token"}
+    backend_dir = Path(__file__).resolve().parent.parent
+    path = backend_dir / ".env.local"
+    line = f"GMAIL_REFRESH_TOKEN={token}"
+    try:
+        if path.is_file():
+            rows = path.read_text(encoding="utf-8-sig").splitlines()
+            out: list[str] = []
+            replaced = False
+            for raw in rows:
+                if raw.strip().startswith("GMAIL_REFRESH_TOKEN="):
+                    out.append(line)
+                    replaced = True
+                else:
+                    out.append(raw)
+            if not replaced:
+                if out and out[-1].strip():
+                    out.append("")
+                out.append("# Gmail OAuth — auto-saved by /api/owner/gmail/oauth/callback")
+                out.append(line)
+            path.write_text("\n".join(out) + "\n", encoding="utf-8")
+        else:
+            path.write_text(
+                "# Local secrets — do not commit\n"
+                "# Gmail OAuth — auto-saved by /api/owner/gmail/oauth/callback\n"
+                f"{line}\n",
+                encoding="utf-8",
+            )
+        os.environ["GMAIL_REFRESH_TOKEN"] = token
+        return {"ok": True, "path": str(path), "send_ready": send_ready()}
+    except OSError as exc:
+        logger.warning("gmail persist refresh token failed: %s", exc)
+        return {"ok": False, "reason": "write_failed", "detail": str(exc)[:120]}
 
 
 def access_token_from_refresh() -> dict[str, Any]:

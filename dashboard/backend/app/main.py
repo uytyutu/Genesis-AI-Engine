@@ -958,9 +958,8 @@ a.btn{{display:inline-block;margin-top:16px;padding:12px 18px;background:#111;co
 .muted{{color:#666;font-size:14px;line-height:1.5}}
 </style></head><body>
 <h1>Gmail API — авторизация</h1>
-<p class="muted">Один раз войдите в Google → скопируйте <code>GMAIL_REFRESH_TOKEN</code> в
-<code>dashboard/backend/.env.local</code> → перезапустите Genesis. Дальше письма идут без повторного входа.
-Resend остаётся основным; Gmail — запасной канал при сбое/лимите.</p>
+<p class="muted">Один раз: <strong>Connect Gmail</strong> → токен сам пишется в
+<code>.env.local</code> → перезапуск Genesis. Resend основной; Gmail — запас при 429.</p>
 <ul>
 <li>OAuth client (ID+Secret): {oauth}</li>
 <li>Refresh token в .env: {has_rt}</li>
@@ -1037,19 +1036,32 @@ def owner_gmail_oauth_callback(
             f"<p>{hint}</p>"
             '<p><a href="/api/owner/gmail">Connect снова</a></p></body></html>'
         )
+    saved = gmail.persist_refresh_token(str(refresh))
+    saved_ok = bool(saved.get("ok"))
+    ready = "✅" if gmail.send_ready() else "❌"
     safe = html_lib.escape(str(refresh))
+    if saved_ok:
+        body_main = (
+            f"<p class=\"ok\">Токен записан в <code>dashboard/backend/.env.local</code>. "
+            f"send_ready={ready}. Перезапустите Genesis.exe один раз.</p>"
+        )
+    else:
+        body_main = (
+            "<p class=\"warn\">Автозапись не удалась — скопируйте вручную:</p>"
+            f"<pre>GMAIL_REFRESH_TOKEN={safe}</pre>"
+        )
     return f"""<!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"/><title>Gmail Refresh Token</title>
 <style>
 body{{font-family:system-ui,sans-serif;max-width:720px;margin:40px auto;padding:0 16px}}
 pre{{background:#111;color:#9f9;padding:16px;border-radius:8px;overflow:auto;word-break:break-all}}
 .warn{{color:#a60;font-size:14px}}
+.ok{{color:#060;font-size:14px}}
 </style></head><body>
 <h1>Gmail авторизация успешна</h1>
-<p>Скопируйте строку в <code>dashboard/backend/.env.local</code> и перезапустите Genesis:</p>
-<pre>GMAIL_REFRESH_TOKEN={safe}</pre>
-<p class="warn">Не коммитьте .env.local и не отправляйте токен в чат. После сохранения перезапуск обязателен.</p>
-<p>Проверка статуса: <a href="/api/owner/gmail/status">/api/owner/gmail/status</a></p>
+{body_main}
+<p class="warn">Не коммитьте .env.local и не отправляйте токен в чат.</p>
+<p>Проверка: <a href="/api/owner/gmail/status">/api/owner/gmail/status</a></p>
 </body></html>"""
 
 
