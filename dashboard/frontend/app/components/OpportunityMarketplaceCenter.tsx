@@ -50,6 +50,52 @@ type Board = {
   };
 };
 
+type ResearchFinding = {
+  id: string;
+  platform_id: string;
+  name?: string;
+  stars?: number;
+  verdict?: string;
+  title_ru?: string;
+  detail_ru?: string;
+  needs_ceo_key?: boolean;
+  can_get_task?: boolean;
+  can_submit?: boolean;
+  can_payout?: boolean;
+  gate_ru?: string;
+  next_ru?: string;
+};
+
+type ResearchPlatform = {
+  id: string;
+  name?: string;
+  stars?: number;
+  verdict?: string;
+  api_get_task?: boolean;
+  api_submit_result?: boolean;
+  api_receive_payout?: boolean;
+  automation_pct?: number;
+  tos_automation?: string;
+  reason_ru?: string;
+  next_ru?: string;
+  gate_ru?: string;
+  ceo_approved?: boolean;
+  real_payout_proven?: boolean;
+};
+
+type ResearchBoard = {
+  title_ru?: string;
+  rule_ru?: string;
+  last_scan_at?: string | null;
+  next_scan_at?: string | null;
+  scan_count?: number;
+  counts?: { working?: number; candidates?: number; rejected?: number; findings?: number };
+  findings?: ResearchFinding[];
+  platforms?: ResearchPlatform[];
+  pipeline_ru?: string[];
+  forbidden_ru?: string[];
+};
+
 function roiTone(roi: string): string {
   if (roi === "high") return "border-emerald-500/40 bg-emerald-950/25 text-emerald-100";
   if (roi === "medium") return "border-amber-500/35 bg-amber-950/20 text-amber-50";
@@ -62,20 +108,32 @@ function statusPill(status: string): string {
   return "border-white/20 text-white/50";
 }
 
+function verdictPill(v: string): string {
+  if (v === "working") return "border-emerald-400/50 text-emerald-200";
+  if (v === "candidate" || v === "partial") return "border-amber-400/45 text-amber-100";
+  return "border-rose-400/35 text-rose-200/80";
+}
+
 export function OpportunityMarketplaceCenter() {
   const [board, setBoard] = useState<Board | null>(null);
+  const [research, setResearch] = useState<ResearchBoard | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [researchMsg, setResearchMsg] = useState("");
 
   const load = useCallback(async () => {
     setBusy(true);
     try {
-      const res = await fetch(`${API}/api/earn-marketplace/today`);
-      if (!res.ok) {
-        setErr(`Marketplace ${res.status} — перезапустите Genesis`);
+      const [mRes, rRes] = await Promise.all([
+        fetch(`${API}/api/earn-marketplace/today`),
+        fetch(`${API}/api/worker-research/board`),
+      ]);
+      if (!mRes.ok) {
+        setErr(`Marketplace ${mRes.status} — перезапустите Genesis`);
         return;
       }
-      setBoard(await res.json());
+      setBoard(await mRes.json());
+      if (rRes.ok) setResearch(await rRes.json());
       setErr("");
     } catch {
       setErr("Backend недоступен");
@@ -88,9 +146,46 @@ export function OpportunityMarketplaceCenter() {
     void load();
   }, [load]);
 
+  async function runScan() {
+    setResearchMsg("");
+    try {
+      const res = await fetch(`${API}/api/worker-research/scan?force=true`, { method: "POST" });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setResearchMsg(String(body?.detail || "Scan failed"));
+        return;
+      }
+      setResearchMsg(`Scan OK · findings ${body.findings_count ?? "—"}`);
+      await load();
+    } catch {
+      setResearchMsg("Backend недоступен");
+    }
+  }
+
+  async function approvePlatform(platformId: string) {
+    setResearchMsg("");
+    try {
+      const res = await fetch(
+        `${API}/api/worker-research/platforms/${encodeURIComponent(platformId)}/approve`,
+        { method: "POST" },
+      );
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setResearchMsg(String(body?.detail || "Approve failed"));
+        return;
+      }
+      setResearchMsg(body.message_ru || "Одобрено");
+      await load();
+    } catch {
+      setResearchMsg("Backend недоступен");
+    }
+  }
+
   const pulse = board?.desk_pulse;
   const opps = board?.opportunities ?? [];
   const farms = board?.farms ?? [];
+  const findings = research?.findings ?? [];
+  const platforms = research?.platforms ?? [];
 
   return (
     <main className="min-h-screen pb-12">
@@ -151,6 +246,112 @@ export function OpportunityMarketplaceCenter() {
             />
           </section>
         ) : null}
+
+        <section className="rounded-2xl border border-sky-500/30 bg-gradient-to-br from-sky-950/35 via-black/20 to-genesis-panel p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-sky-100">
+                {research?.title_ru ?? "Worker Research Lab"}
+              </h2>
+              <p className="mt-1 max-w-2xl text-[11px] text-genesis-muted">
+                {research?.rule_ru ??
+                  "Ищем платформы с официальным циклом: взять задачу → сделать → получить оплату. Без авто-регистрации."}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void runScan()}
+              className="rounded-lg border border-sky-400/40 bg-sky-950/40 px-3 py-1.5 text-xs text-sky-100 hover:bg-sky-900/50"
+            >
+              Scan сейчас
+            </button>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-white/55">
+            <span>
+              Working {research?.counts?.working ?? 0} · Candidates {research?.counts?.candidates ?? 0}{" "}
+              · Rejected {research?.counts?.rejected ?? 0}
+            </span>
+            {research?.next_scan_at ? (
+              <span>· next {String(research.next_scan_at).slice(0, 16)}</span>
+            ) : null}
+          </div>
+          {research?.pipeline_ru?.length ? (
+            <p className="mt-2 text-[11px] text-sky-100/70">{research.pipeline_ru.join(" → ")}</p>
+          ) : null}
+          {researchMsg ? <p className="mt-2 text-xs text-amber-100">{researchMsg}</p> : null}
+
+          <h3 className="mt-5 text-xs font-semibold uppercase tracking-wide text-sky-200/80">
+            Сегодня найдено (worker)
+          </h3>
+          <ul className="mt-2 space-y-2">
+            {findings.length === 0 ? (
+              <li className="text-xs text-genesis-muted">Нет findings — нажмите Scan.</li>
+            ) : (
+              findings.slice(0, 8).map((f) => (
+                <li
+                  key={f.id}
+                  className="rounded-xl border border-white/10 bg-black/25 px-3 py-2.5 text-sm"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-medium text-white">
+                      {"★".repeat(Math.min(5, Number(f.stars) || 0))} {f.title_ru || f.name}
+                    </p>
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-[10px] uppercase ${verdictPill(
+                        String(f.verdict || ""),
+                      )}`}
+                    >
+                      {f.verdict}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-white/60">{f.detail_ru}</p>
+                  <p className="mt-1 text-[10px] text-white/40">
+                    API: task {f.can_get_task ? "✓" : "✗"} · submit {f.can_submit ? "✓" : "✗"} · pay{" "}
+                    {f.can_payout ? "✓" : "✗"}
+                  </p>
+                  {f.gate_ru ? <p className="mt-1 text-[10px] text-amber-200/80">{f.gate_ru}</p> : null}
+                  {f.needs_ceo_key ? (
+                    <button
+                      type="button"
+                      onClick={() => void approvePlatform(f.platform_id)}
+                      className="mt-2 rounded-md border border-emerald-500/35 px-2.5 py-1 text-[11px] text-emerald-100 hover:bg-emerald-950/40"
+                    >
+                      CEO: в очередь Adapter (ключ вручную)
+                    </button>
+                  ) : null}
+                </li>
+              ))
+            )}
+          </ul>
+
+          <h3 className="mt-5 text-xs font-semibold uppercase tracking-wide text-white/50">
+            Каталог платформ
+          </h3>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {platforms.map((p) => (
+              <article
+                key={p.id}
+                className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-[11px]"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-medium text-white/90">{p.name}</span>
+                  <span className={`rounded border px-1.5 py-0.5 text-[9px] uppercase ${verdictPill(String(p.verdict || ""))}`}>
+                    {p.verdict}
+                  </span>
+                </div>
+                <p className="mt-1 text-white/45">{p.reason_ru}</p>
+                {p.ceo_approved ? (
+                  <p className="mt-1 text-emerald-300/80">CEO approved · payout {p.real_payout_proven ? "proven" : "pending"}</p>
+                ) : null}
+              </article>
+            ))}
+          </div>
+          {research?.forbidden_ru?.length ? (
+            <p className="mt-3 text-[10px] text-rose-200/60">
+              Запрещено: {research.forbidden_ru.join(" · ")}
+            </p>
+          ) : null}
+        </section>
 
         <section className="rounded-2xl border border-emerald-500/25 bg-emerald-950/15 p-5">
           <h2 className="text-sm font-semibold text-emerald-100">Сегодня найдено</h2>

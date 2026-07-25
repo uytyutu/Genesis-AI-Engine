@@ -540,6 +540,8 @@ class ClientReviewPublicCard(BaseModel):
     stars: int
     text: str
     company_display_name: str | None = None
+    service_label: str | None = None
+    service_kind: str | None = None
     show_logo: bool = False
     logo_url: str | None = None
     verified_purchase: bool = True
@@ -553,6 +555,15 @@ class ClientReviewsPublicResponse(BaseModel):
     recommend_pct: int | None = None
     empty_message: str | None = None
     reviews: list[ClientReviewPublicCard] = []
+
+
+class ClientReviewOwnerPublishRequest(BaseModel):
+    stars: int = Field(ge=1, le=5)
+    text: str = Field(min_length=20, max_length=1000)
+    company_display_name: str | None = Field(default=None, max_length=200)
+    service_label: str | None = Field(default="Landing", max_length=80)
+    verified_purchase: bool = True
+    publish: bool = True
 
 
 class ClientReviewModerateRequest(BaseModel):

@@ -87,6 +87,7 @@ from app.schemas import (
     ClientReviewModerateRequest,
     ClientReviewModerationItem,
     ClientReviewsPendingResponse,
+    ClientReviewOwnerPublishRequest,
     PaymentStatusResponse,
     PricingEventRequest,
     PricingEventResponse,
@@ -2280,6 +2281,46 @@ def earn_marketplace_status() -> dict:
     }
 
 
+@app.get("/api/worker-research/board")
+def worker_research_board() -> dict:
+    """Worker Research Lab — platforms with official get-task → pay cycle."""
+    return _ctx().worker_research.board()
+
+
+@app.post("/api/worker-research/scan")
+def worker_research_scan(force: bool = True) -> dict:
+    """Manual or due scan. Never registers accounts or accepts ToS."""
+    return _ctx().worker_research.maybe_scan(force=bool(force))
+
+
+@app.post("/api/worker-research/platforms/{platform_id}/approve")
+def worker_research_approve(platform_id: str, note: str = "") -> dict:
+    """CEO queues platform for Worker Adapter — keys/ToS stay manual."""
+    result = _ctx().worker_research.ceo_approve(platform_id, note=note)
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("error") or "approve_failed")
+    return result
+
+
+@app.post("/api/worker-research/platforms/{platform_id}/payout-proof")
+def worker_research_payout_proof(
+    platform_id: str,
+    amount_eur: float = 0,
+    reference: str = "",
+    note: str = "",
+) -> dict:
+    """Record one CONFIRMED payout — required before Working."""
+    result = _ctx().worker_research.record_payout_proof(
+        platform_id,
+        amount_eur=amount_eur,
+        reference=reference,
+        note=note,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("error") or "proof_failed")
+    return result
+
+
 @app.get("/api/work-farm/status")
 def work_farm_status() -> dict:
     """Work Farm v0 board — own paid orders only (no marketplace)."""
@@ -3718,6 +3759,28 @@ def owner_review_moderate(
             raise HTTPException(status_code=404, detail="Отзыв не найден") from None
         raise HTTPException(status_code=400, detail=code) from None
     return {"ok": True, "review": row}
+
+
+@app.post("/api/owner/reviews/publish-direct")
+def owner_review_publish_direct(request: ClientReviewOwnerPublishRequest) -> dict:
+    """CEO publishes a review to /site without order token."""
+    try:
+        return _ctx().reviews.owner_publish_direct(
+            stars=request.stars,
+            text=request.text,
+            company_display_name=request.company_display_name,
+            service_label=request.service_label or "Landing",
+            verified_purchase=bool(request.verified_purchase),
+            publish=bool(request.publish),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
+
+
+@app.post("/api/owner/reviews/seed-display")
+def owner_reviews_seed_display() -> dict:
+    """Seed /site reviews if empty (CEO-requested visibility; not order-verified)."""
+    return _ctx().reviews.ensure_display_reviews()
 
 
 @app.get("/api/sales/orders/{order_id}/download")

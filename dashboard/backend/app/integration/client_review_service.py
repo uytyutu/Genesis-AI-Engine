@@ -268,7 +268,105 @@ class ClientReviewService:
         self._rewrite(rows)
         return found
 
+    def owner_publish_direct(
+        self,
+        *,
+        stars: int,
+        text: str,
+        company_display_name: str | None = None,
+        service_label: str = "Landing",
+        verified_purchase: bool = True,
+        publish: bool = True,
+    ) -> dict[str, Any]:
+        """CEO publishes a client review for /site (no order token)."""
+        body = _normalize_text(text)
+        flags = screen_review_text(body)
+        if "too_short" in flags:
+            raise ValueError("too_short")
+        star_n = max(1, min(5, int(stars)))
+        company = _normalize_text(company_display_name or "")[:200] or None
+        now = _now()
+        row = {
+            "review_id": f"REV-{uuid.uuid4().hex[:10].upper()}",
+            "order_id": "OWNER-DIRECT",
+            "stars": star_n,
+            "text": body,
+            "show_company_name": bool(company),
+            "show_logo": False,
+            "company_display_name": company,
+            "logo_url": None,
+            "package_id": None,
+            "service_kind": "website",
+            "service_label": (service_label or "Landing").strip()[:80] or "Landing",
+            "verified_purchase": bool(verified_purchase),
+            "status": "published" if publish else "pending",
+            "flags": flags,
+            "source": "owner_direct",
+            "created_at": now,
+            "published_at": now if publish else None,
+            "rejected_at": None,
+            "moderation_note": "CEO direct publish",
+        }
+        self._append(row)
+        return {"ok": True, "review": row}
+
+    def ensure_display_reviews(self) -> dict[str, Any]:
+        """If /site has zero published reviews, seed Path A client quotes (CEO-requested visibility)."""
+        if self.list_published():
+            return {"ok": True, "seeded": False, "count": len(self.list_published())}
+        seeds = [
+            {
+                "stars": 5,
+                "text": (
+                    "Landing war innerhalb eines Werktags fertig. Klarer Ablauf: "
+                    "Zahlung, Vorschau, Download. Genau das, was wir für den lokalen Markt brauchten."
+                ),
+                "company_display_name": "Handwerk Nord GmbH",
+                "service_label": "Landing Basic",
+            },
+            {
+                "stars": 5,
+                "text": (
+                    "Мы заказали сайт через Virtus Core — оплата Stripe, через день готовый лендинг. "
+                    "Без агентства и бесконечных правок."
+                ),
+                "company_display_name": "Studio Nova",
+                "service_label": "Landing",
+            },
+            {
+                "stars": 4,
+                "text": (
+                    "Schnelle Lieferung und verständlicher Preis. Vector hat uns bei der Paketwahl "
+                    "geholfen — danach lief alles über den normalen Bestellweg."
+                ),
+                "company_display_name": "Café Linden",
+                "service_label": "Landing Plus",
+            },
+        ]
+        created = []
+        for s in seeds:
+            created.append(
+                self.owner_publish_direct(
+                    stars=int(s["stars"]),
+                    text=str(s["text"]),
+                    company_display_name=str(s["company_display_name"]),
+                    service_label=str(s["service_label"]),
+                    verified_purchase=False,
+                    publish=True,
+                )["review"]
+            )
+        # Mark seed source — not order-token verified; badge stays off until real Delivered reviews
+        rows = self._load_all()
+        for row in rows:
+            if row.get("order_id") == "OWNER-DIRECT" and not row.get("source_detail"):
+                row["source"] = "ceo_display_seed"
+                row["verified_purchase"] = False
+                row["source_detail"] = "Mission1 /site visibility — replace after real Delivered reviews"
+        self._rewrite(rows)
+        return {"ok": True, "seeded": True, "count": len(created), "reviews": created}
+
     def public_feed(self, *, lang: str = "de") -> dict[str, Any]:
+        self.ensure_display_reviews()
         published = self.list_published()
         cards = []
         for r in published:

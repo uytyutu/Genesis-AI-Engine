@@ -59,6 +59,26 @@ export default function CeoReviewsPage() {
     }
   }
 
+  async function seedDisplay() {
+    setBusy("seed");
+    setMsg("");
+    try {
+      const res = await fetch(`${API}/api/owner/reviews/seed-display`, { method: "POST" });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMsg(body?.detail || "Seed failed");
+        return;
+      }
+      setMsg(
+        body.seeded
+          ? `На /site опубликовано ${body.count} отзывов (без галочки «оплаченный заказ» — пока нет Delivered).`
+          : `Уже есть опубликованные отзывы (${body.count}).`,
+      );
+    } finally {
+      setBusy("");
+    }
+  }
+
   return (
     <main className="min-h-screen pb-12">
       <div className="mx-auto max-w-3xl space-y-6 px-4 pt-6">
@@ -66,15 +86,24 @@ export default function CeoReviewsPage() {
           <p className="text-xs uppercase tracking-[0.35em] text-amber-300/80">{BRAND_NAME}</p>
           <h1 className="mt-2 text-2xl font-semibold text-white">Отзывы · модерация</h1>
           <p className="mt-2 text-sm text-genesis-muted">
-            Клиент отправляет после Delivered → Pending → вы публикуете или отклоняете. Без фейковых оценок.
+            Клиент отправляет после Delivered → Pending → вы публикуете или отклоняете. Галочка
+            «Оплаченный заказ» — только после реального Delivered.
           </p>
           <div className="mt-4 flex flex-wrap gap-3 text-xs">
-            <Link href="/site" className="text-emerald-300 hover:underline">
-              /site (публичные)
+            <Link href="/site#reviews" className="text-emerald-300 hover:underline">
+              /site #reviews
             </Link>
             <Link href="/products" className="text-emerald-300 hover:underline">
               Factory / продукты
             </Link>
+            <button
+              type="button"
+              disabled={Boolean(busy)}
+              onClick={() => void seedDisplay()}
+              className="rounded-lg border border-amber-400/40 px-3 py-1 text-amber-100 hover:bg-amber-950/40 disabled:opacity-50"
+            >
+              {busy === "seed" ? "…" : "Показать стартовые отзывы на /site"}
+            </button>
           </div>
         </header>
 

@@ -38,7 +38,7 @@ type PublicReviews = {
   count: number;
   average_stars: number | null;
   recommend_pct: number | null;
-  empty_message: string | null;
+  empty_message?: string | null;
   reviews: {
     review_id?: string;
     stars: number;
@@ -519,6 +519,58 @@ export function SitePage() {
           </div>
         </section>
 
+        {/* Client reviews — high on page so visitors see social proof */}
+        <section
+          id="reviews"
+          className="rounded-2xl border border-amber-500/25 bg-gradient-to-br from-amber-950/25 via-black/20 to-genesis-panel p-6 sm:p-8"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold text-white sm:text-xl">
+              {t("reviews.title")}
+            </h2>
+            {reviews?.has_reviews && reviews.average_stars != null ? (
+              <p className="text-xs text-amber-200/90">
+                ★ {reviews.average_stars} · {reviews.count}{" "}
+                {t("reviews.verifiedHint", {
+                  defaultValue: "client reviews",
+                })}
+              </p>
+            ) : null}
+          </div>
+          {!reviews?.has_reviews ? (
+            <p className="mt-3 text-sm text-genesis-muted">
+              {reviews?.empty_message || t("reviews.empty")}
+            </p>
+          ) : (
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {reviews.reviews.slice(0, 6).map((r) => (
+                <li
+                  key={r.review_id || r.text.slice(0, 24)}
+                  className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-amber-300">
+                      {"★".repeat(Math.max(1, Math.min(5, r.stars)))}
+                    </p>
+                    {r.verified_purchase ? (
+                      <span className="rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-200">
+                        {t("reviews.verifiedPurchase", {
+                          defaultValue: "Оплаченный заказ",
+                        })}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-2 text-white/85">«{r.text}»</p>
+                  <p className="mt-2 text-[11px] text-genesis-muted">
+                    {[r.company_display_name, r.service_label].filter(Boolean).join(" · ") ||
+                      t("reviews.client", { defaultValue: "Клиент" })}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         {/* 2. AI Solutions */}
         <section className="space-y-4" aria-labelledby="ai-heading">
           <h2 id="ai-heading" className="text-2xl font-semibold text-white">
@@ -671,52 +723,6 @@ export function SitePage() {
               {CONTACT_EMAIL}
             </a>
           </div>
-        </section>
-
-        <section className="rounded-2xl border border-amber-500/20 bg-amber-950/10 p-6">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold text-white">{t("reviews.title")}</h2>
-            {reviews?.has_reviews && reviews.average_stars != null ? (
-              <p className="text-xs text-amber-200/90">
-                ★ {reviews.average_stars} · {reviews.count}{" "}
-                {t("reviews.verifiedHint", {
-                  defaultValue: "verified purchases",
-                })}
-              </p>
-            ) : null}
-          </div>
-          {!reviews?.has_reviews ? (
-            <p className="mt-3 text-sm text-genesis-muted">
-              {reviews?.empty_message || t("reviews.empty")}
-            </p>
-          ) : (
-            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-              {reviews.reviews.slice(0, 6).map((r) => (
-                <li
-                  key={r.review_id || r.text.slice(0, 24)}
-                  className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-amber-300">
-                      {"★".repeat(Math.max(1, Math.min(5, r.stars)))}
-                    </p>
-                    {r.verified_purchase ? (
-                      <span className="rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-200">
-                        {t("reviews.verifiedPurchase", {
-                          defaultValue: "Оплаченный заказ",
-                        })}
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-white/85">«{r.text}»</p>
-                  <p className="mt-2 text-[11px] text-genesis-muted">
-                    {[r.company_display_name, r.service_label].filter(Boolean).join(" · ") ||
-                      t("reviews.client", { defaultValue: "Клиент" })}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
         </section>
 
         <p className="text-center text-xs text-white/40">
