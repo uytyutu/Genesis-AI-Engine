@@ -107,6 +107,35 @@ def test_packages_and_lab_ceo_actions(tmp_path: Path):
 
     brief = RevenueLab(tmp_path).ceo_brief()
     assert brief["ceo_actions"]
-    assert "Подключи" in brief["headline_ru"] or brief["ceo_actions"][0]["title_ru"].startswith(
-        "Подключи"
+    assert any(
+        a.get("kind") in {"connect_key", "complete_keys", "use_connected"}
+        or "Подключи" in a.get("title_ru", "")
+        or "Используй" in a.get("title_ru", "")
+        for a in brief["ceo_actions"]
     )
+
+
+def test_lab_digistore_key_stops_connect_asks_use(monkeypatch, tmp_path: Path):
+    from app.commercial_api.revenue_lab import RevenueLab
+
+    monkeypatch.setenv("DIGISTORE24_API_KEY", "ds24_test_key")
+    monkeypatch.delenv("AWIN_API_TOKEN", raising=False)
+    monkeypatch.delenv("AWIN_PUBLISHER_ID", raising=False)
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_x")
+
+    scan = RevenueLab(tmp_path).research_scan(persist_alerts=False)
+    digi = next(f for f in scan["findings"] if f["id"] == "digistore24_affiliate")
+    assert digi["connected"] is True
+    assert not any(
+        a.get("source_id") == "digistore24_affiliate" and a.get("kind") == "connect_key"
+        for a in scan["ceo_actions"]
+    )
+    use = next(
+        a
+        for a in scan["ceo_actions"]
+        if a.get("source_id") == "digistore24_affiliate" and a.get("kind") == "use_connected"
+    )
+    assert "не просим" in use["action_ru"].lower() or "уже" in use["action_ru"].lower()
+    assert "Digistore24" in scan["headline_ru"]
+    assert "DIGISTORE24_API_KEY" not in scan["headline_ru"] or "добавь" not in scan["headline_ru"].lower()

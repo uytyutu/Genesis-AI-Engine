@@ -42,6 +42,7 @@ STATUS_EMOJI = {
 
 # Extra display confidences for center (not bookkeeping ladder)
 CONF_NOT_CONNECTED = "NOT_CONNECTED"
+CONF_KEYS_PRESENT = "KEYS_PRESENT"
 CONF_UNSUPPORTED = "UNSUPPORTED"
 CONF_COST = "COST"
 
@@ -50,10 +51,14 @@ def build_revenue_sources_center(
     *,
     stripe_income_eur: float = 0.0,
     stripe_connected: bool = False,
+    stripe_webhook: bool = False,
+    awin_connected: bool = False,
+    digistore_connected: bool = False,
     ledger_real_eur: float = 0.0,
     farm_estimate_eur: float = 0.0,
     stripe_confirmed_ops: int = 0,
     stripe_active_days: int = 0,
+    keys_probe: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Curated catalog — candidates added manually, never auto-scraped."""
     law = law_manifest()
@@ -65,7 +70,7 @@ def build_revenue_sources_center(
         confirmed_ops=stripe_confirmed_ops,
         active_days=stripe_active_days,
     )
-    # Proven inflows → Active. Connected without money stays Candidate until trial/proof.
+    # Proven inflows → Active. Key alone ≠ Active (Reality over Simulation).
     stripe_active = stripe_amt > 0 or (stripe_connected and stripe_trial_ok)
     sources = [
         _row(
@@ -76,8 +81,14 @@ def build_revenue_sources_center(
             income_eur=stripe_amt,
             income_label=_money_or_dash(stripe_amt),
             roi_label="+" if stripe_amt > 0 else ("?" if not stripe_connected else "0"),
-            confidence=CONFIDENCE_BOOKED if stripe_amt > 0 else (
-                CONF_NOT_CONNECTED if not stripe_connected else CONFIDENCE_CONFIRMED
+            confidence=(
+                CONFIDENCE_BOOKED
+                if stripe_amt > 0
+                else (
+                    CONF_NOT_CONNECTED
+                    if not stripe_connected
+                    else CONF_KEYS_PRESENT
+                )
             ),
             automation_score=100,
             why_ru=(
@@ -87,12 +98,31 @@ def build_revenue_sources_center(
                     "Вывод на банк — через Stripe Dashboard / payout schedule. "
                     + str(law["trial"]["note_ru"])
                 )
-                if stripe_amt > 0 or stripe_connected
-                else "Кандидат: нужен STRIPE_SECRET_KEY + webhook. Пока нет оплат — доход 0."
+                if stripe_amt > 0
+                else (
+                    "Ключ STRIPE_SECRET_KEY виден. "
+                    + (
+                        "Webhook тоже есть. "
+                        if stripe_webhook
+                        else "Нет STRIPE_WEBHOOK_SECRET — оплаты не попадут в Ledger. "
+                    )
+                    + "Active только после реальной оплаты клиента (ключ ≠ доход)."
+                    if stripe_connected
+                    else "Кандидат: нужен STRIPE_SECRET_KEY (+ webhook). Пока нет оплат — доход 0."
+                )
             ),
-            action_ru="Работает" if stripe_active else "Подключить ключи Stripe / пройти испытание",
+            action_ru=(
+                "Работает"
+                if stripe_active
+                else (
+                    "Ключи есть · ждём первую оплату клиента"
+                    if stripe_connected
+                    else "Добавь STRIPE_SECRET_KEY в .env.local → перезапуск Genesis"
+                )
+            ),
             scalable=True,
             trial_passed_flag=bool(stripe_amt > 0 or stripe_trial_ok),
+            keys_present=bool(stripe_connected),
         ),
         _row(
             source_id="awin",
@@ -102,15 +132,24 @@ def build_revenue_sources_center(
             income_eur=None,
             income_label="—",
             roi_label="?",
-            confidence=CONF_NOT_CONNECTED,
+            confidence=CONF_KEYS_PRESENT if awin_connected else CONF_NOT_CONNECTED,
             automation_score=90,
             why_ru=(
                 "Партнёрская сеть с официальным reporting API. "
                 "Комиссии реальные после продаж; вывод обычно SEPA/кабинет. "
-                "Не подключён: нет ключа и адаптера. Owner gate — регистрация только CEO."
+                + (
+                    "Ключи AWIN_API_TOKEN + AWIN_PUBLISHER_ID на месте — адаптер ещё не пишет комиссии в Ledger."
+                    if awin_connected
+                    else "Нет ключей: нужен вход в кабинет Awin (Owner Gate — только CEO)."
+                )
             ),
-            action_ru="Подключить (нужен API-ключ владельца)",
+            action_ru=(
+                "Ключи есть · ждём первую комиссию / дописать адаптер"
+                if awin_connected
+                else "Подключить AWIN_API_TOKEN + AWIN_PUBLISHER_ID"
+            ),
             scalable=True,
+            keys_present=bool(awin_connected),
         ),
         _row(
             source_id="digistore24",
@@ -120,14 +159,23 @@ def build_revenue_sources_center(
             income_eur=None,
             income_label="—",
             roi_label="?",
-            confidence=CONF_NOT_CONNECTED,
+            confidence=CONF_KEYS_PRESENT if digistore_connected else CONF_NOT_CONNECTED,
             automation_score=90,
             why_ru=(
                 "Партнёрские комиссии (часто DE/EU). IPN/API для учёта конверсий. "
-                "Кандидат вручную — без автопоиска. Ключ и ToS только владелец."
+                + (
+                    "Ключ DIGISTORE24_API_KEY найден. Active/доход — только после реальной комиссии, не от факта ключа."
+                    if digistore_connected
+                    else "Ключ не виден процессу. Имя в .env.local: DIGISTORE24_API_KEY → перезапуск Genesis."
+                )
             ),
-            action_ru="Подключить (нужен API-ключ владельца)",
+            action_ru=(
+                "Ключ есть · ждём первую комиссию"
+                if digistore_connected
+                else "Добавь DIGISTORE24_API_KEY → Остановить/Запустить Genesis"
+            ),
             scalable=True,
+            keys_present=bool(digistore_connected),
         ),
         _row(
             source_id="toloka",
@@ -237,14 +285,31 @@ def build_revenue_sources_center(
             "action",
         ],
         "sources": sources,
+        "keys_probe": keys_probe
+        or {
+            "stripe_secret": bool(stripe_connected),
+            "stripe_webhook": bool(stripe_webhook),
+            "awin": bool(awin_connected),
+            "digistore24": bool(digistore_connected),
+            "note_ru": (
+                "Ключ в файле ≠ Active. Active = реальные деньги. "
+                "После правки .env.local нужен перезапуск Genesis.exe."
+            ),
+        },
         "summary": {
             "active": len(active),
             "candidates": len(candidates),
             "blocked_or_cost": len(unsupported),
             "real_income_eur": stripe_amt,
+            "keys_present": sum(
+                1
+                for flag in (stripe_connected, awin_connected, digistore_connected)
+                if flag
+            ),
             "verdict_ru": (
-                "Масштабировать: Stripe (Active) и affiliate-кандидаты после ключей. "
-                "Toloka/Scale — Unsupported как доход. Внутренняя ферма — только estimate."
+                "Ключи не равны доходу: Candidate + KEYS_PRESENT = ключ виден, ждём деньги. "
+                "Active только после CONFIRMED поступлений. "
+                "Toloka/Scale — Unsupported как доход. Ферма — только estimate."
             ),
         },
     }
@@ -271,6 +336,7 @@ def _row(
     action_ru: str,
     scalable: bool,
     trial_passed_flag: bool = False,
+    keys_present: bool = False,
 ) -> dict[str, Any]:
     conf_display = confidence
     if confidence in {
@@ -280,15 +346,26 @@ def _row(
         CONFIDENCE_SIMULATED,
     }:
         conf_label_ru = confidence_label(confidence)
+    elif confidence == CONF_KEYS_PRESENT:
+        conf_label_ru = "KEYS_PRESENT · ключ есть"
     else:
         conf_label_ru = confidence
+
+    # Candidate + keys: keep Candidate (no fake Active), clarify label for CEO.
+    if status == STATUS_CANDIDATE and keys_present:
+        status_label = "Ключ есть"
+        status_emoji = "🟡"
+    else:
+        status_label = STATUS_LABEL_RU.get(status, status)
+        status_emoji = STATUS_EMOJI.get(status, "⚪")
 
     return {
         "id": source_id,
         "name": name,
         "status": status,
-        "status_emoji": STATUS_EMOJI.get(status, "⚪"),
-        "status_label": STATUS_LABEL_RU.get(status, status),
+        "status_emoji": status_emoji,
+        "status_label": status_label,
+        "keys_present": bool(keys_present),
         "type": income_type,
         "income_eur": income_eur,
         "income_label": income_label,

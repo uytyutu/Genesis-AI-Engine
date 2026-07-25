@@ -42,3 +42,22 @@ def test_revenue_sources_center_stripe_active_toloka_unsupported():
     assert "Discovery" in center["discovery_ru"] or "автопоиск" in center["discovery_ru"].lower()
     why = by_id["toloka"]["why_ru"].lower()
     assert "заказчик" in why or "requester" in why or "performer" in why
+
+
+def test_revenue_sources_keys_present_not_active():
+    center = build_revenue_sources_center(
+        stripe_income_eur=0.0,
+        stripe_connected=True,
+        stripe_webhook=True,
+        digistore_connected=True,
+        awin_connected=False,
+    )
+    by_id = {s["id"]: s for s in center["sources"]}
+    assert by_id["stripe"]["status"] == "candidate"
+    assert by_id["stripe"]["status_label"] == "Ключ есть"
+    assert by_id["stripe"]["confidence"] == "KEYS_PRESENT"
+    assert by_id["digistore24"]["keys_present"] is True
+    assert by_id["digistore24"]["confidence"] == "KEYS_PRESENT"
+    assert by_id["awin"]["keys_present"] is False
+    assert center["keys_probe"]["digistore24"] is True
+    assert center["summary"]["keys_present"] == 2

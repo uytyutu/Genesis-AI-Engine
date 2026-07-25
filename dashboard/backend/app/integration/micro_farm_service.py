@@ -676,25 +676,34 @@ class MicroFarmService:
         from app.integration.swarm_bridge import ensure_swarm_importable
 
         ensure_swarm_importable()
+        import os
+
         from swarm.finance_ledger import FinanceLedger
         from swarm.revenue_sources_center import build_revenue_sources_center
 
         state = self._load_state()
         stripe_income = 0.0
-        stripe_connected = False
+        stripe_secret = bool(os.getenv("STRIPE_SECRET_KEY", "").strip())
+        stripe_webhook = bool(os.getenv("STRIPE_WEBHOOK_SECRET", "").strip())
+        stripe_connected = stripe_secret
         try:
             from app.integration.payment_settlement_service import PaymentSettlementService
 
             settle = PaymentSettlementService(self._memory)
             totals = settle.totals()
             stripe_income = float(totals.get("paid_by_client_eur") or 0)
-            stripe_connected = bool(settle.has_stripe_webhook_payment()) or bool(
-                __import__("os").getenv("STRIPE_SECRET_KEY", "").strip()
-            )
+            stripe_connected = bool(settle.has_stripe_webhook_payment()) or stripe_secret
         except Exception:
-            import os
+            stripe_connected = stripe_secret
 
-            stripe_connected = bool(os.getenv("STRIPE_SECRET_KEY", "").strip())
+        awin_connected = bool(os.getenv("AWIN_API_TOKEN", "").strip()) and bool(
+            os.getenv("AWIN_PUBLISHER_ID", "").strip()
+        )
+        digistore_connected = bool(
+            os.getenv("DIGISTORE24_API_KEY", "").strip()
+            or os.getenv("DIGISTORE_API_KEY", "").strip()
+        )
+
         ledger_real = 0.0
         try:
             ledger_real = float(FinanceLedger(self._memory).summary().get("real_withdrawable_eur") or 0)
@@ -703,8 +712,22 @@ class MicroFarmService:
         return build_revenue_sources_center(
             stripe_income_eur=stripe_income,
             stripe_connected=stripe_connected,
+            stripe_webhook=stripe_webhook,
+            awin_connected=awin_connected,
+            digistore_connected=digistore_connected,
             ledger_real_eur=ledger_real,
             farm_estimate_eur=float(state.get("total_earned_eur") or 0),
+            keys_probe={
+                "stripe_secret": stripe_secret,
+                "stripe_webhook": stripe_webhook,
+                "awin": awin_connected,
+                "digistore24": digistore_connected,
+                "env_file_ru": "dashboard/backend/.env.local",
+                "note_ru": (
+                    "Ключ в файле ≠ Active. Active = реальные деньги. "
+                    "После правки .env.local — Genesis.exe Остановить → Запустить."
+                ),
+            },
         )
 
     def revenue_lab_brief(self) -> dict[str, Any]:

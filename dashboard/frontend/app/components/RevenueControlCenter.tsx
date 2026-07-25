@@ -160,8 +160,9 @@ export function RevenueControlCenter() {
           <p className="text-xs uppercase tracking-[0.35em] text-emerald-400/80">{BRAND_NAME}</p>
           <h1 className="mt-2 text-2xl font-semibold text-white">Доход · Revenue Lab</h1>
           <p className="mt-2 max-w-2xl text-sm text-genesis-muted">
-            Отдельный раздел Mission Control: что Lab ищет, что нашла, что нужно подтвердить или
-            подключить ключом. Не симуляция дохода — только пути к реальному €.
+            Отдельный раздел Mission Control: что Lab проверяет в своём списке кандидатов, какие ключи
+            backend видит, что нужно подтвердить. Скан ≠ поиск в интернете. Ключ ≠ Active (нужны
+            реальные деньги).
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button

@@ -61,6 +61,7 @@ _OPPORTUNITY_SEED: tuple[dict[str, Any], ...] = (
         "name": "Stripe (клиентские оплаты)",
         "type": "Merchant",
         "env_vars": ["STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
+        "env_any_enough": ["STRIPE_SECRET_KEY"],
         "api_ok": True,
         "automation_allowed": True,
         "payouts": True,
@@ -73,6 +74,12 @@ _OPPORTUNITY_SEED: tuple[dict[str, Any], ...] = (
         "priority": 1,
         "uses_farm": False,
         "uses_commercial_api": True,
+        "next_use_title_ru": "Используй Stripe: первая реальная оплата",
+        "next_use_ru": (
+            "Ключ уже есть. Следующий шаг — провести первую клиентскую оплату "
+            "(сайт / Path A / API-пакет) → webhook → CONFIRMED в Ledger. "
+            "Пока нет оплаты — Stripe остаётся Candidate (ключ ≠ деньги)."
+        ),
     },
     {
         "id": "virtus_api_audit",
@@ -93,6 +100,11 @@ _OPPORTUNITY_SEED: tuple[dict[str, Any], ...] = (
         "priority": 2,
         "uses_farm": False,
         "uses_commercial_api": True,
+        "next_use_title_ru": "Продай Audit API первому клиенту",
+        "next_use_ru": (
+            "Gateway готов. Создай ключ Starter, дай клиенту POST /api/v1/audit — "
+            "доход только после prepaid/оплаты пакета, не от симуляции."
+        ),
     },
     {
         "id": "awin_affiliate",
@@ -103,7 +115,7 @@ _OPPORTUNITY_SEED: tuple[dict[str, Any], ...] = (
         "automation_allowed": True,
         "payouts": True,
         "model_ru": "Рекомендация сервиса клиенту → комиссия после покупки",
-        "ceo_action_ru": "Зарегистрируй publisher на Awin → вставь AWIN_API_TOKEN",
+        "ceo_action_ru": "Зарегистрируй publisher на Awin → вставь AWIN_API_TOKEN + AWIN_PUBLISHER_ID",
         "income_hypothesis_ru": (
             "Ферма/анализ видит потребность клиента → подбирает продукт → "
             "комиссия только после реальной продажи (не микрозадачи)."
@@ -117,11 +129,12 @@ _OPPORTUNITY_SEED: tuple[dict[str, Any], ...] = (
         "name": "Digistore24 (партнёрка DE/EU)",
         "type": "Affiliate",
         "env_vars": ["DIGISTORE24_API_KEY"],
+        "env_aliases": {"DIGISTORE24_API_KEY": ["DIGISTORE_API_KEY"]},
         "api_ok": True,
         "automation_allowed": True,
         "payouts": True,
         "model_ru": "IPN/API учёта конверсий → комиссия",
-        "ceo_action_ru": "Создай аккаунт Digistore24 → DIGISTORE24_API_KEY в .env.local",
+        "ceo_action_ru": "Создай аккаунт Digistore24 → DIGISTORE24_API_KEY в .env.local → перезапуск Genesis",
         "income_hypothesis_ru": (
             "Цифровые продукты + партнёрская ссылка после аудита сайта клиента. "
             "Выплата после подтверждённой продажи."
@@ -129,6 +142,14 @@ _OPPORTUNITY_SEED: tuple[dict[str, Any], ...] = (
         "priority": 4,
         "uses_farm": True,
         "uses_commercial_api": False,
+        "next_use_title_ru": "Используй Digistore24: легальные возможности дохода",
+        "next_use_ru": (
+            "Ключ уже настроен — не просим добавить снова. "
+            "Следующая задача Lab/фермы: официальный API Digistore24 "
+            "(статистика, комиссии, продажи) + рекомендации продуктов после аудита клиента. "
+            "Доход в отчётах — только после первой CONFIRMED комиссии. "
+            "Без обхода ToS и без симуляции выплат."
+        ),
     },
     {
         "id": "open_data_monitor",
@@ -149,6 +170,11 @@ _OPPORTUNITY_SEED: tuple[dict[str, Any], ...] = (
         "priority": 5,
         "uses_farm": True,
         "uses_commercial_api": True,
+        "next_use_title_ru": "Выбери нишу отчёта под Stripe/API",
+        "next_use_ru": (
+            "Ищи доход от уже доступных контуров (ферма + Stripe + Audit API): "
+            "отчёт клиенту за деньги, не «бесплатный data API = доход»."
+        ),
     },
 )
 
@@ -157,6 +183,37 @@ def _env_ok(names: list[str]) -> bool:
     if not names:
         return True
     return all(bool(os.getenv(n, "").strip()) for n in names)
+
+
+def _env_any(names: list[str]) -> bool:
+    return any(bool(os.getenv(n, "").strip()) for n in names)
+
+
+def _missing_env(names: list[str]) -> list[str]:
+    return [n for n in names if not os.getenv(n, "").strip()]
+
+
+def _seed_connected(seed: dict[str, Any]) -> tuple[bool, list[str]]:
+    """Return (keys_ok, missing_required_names). Aliases and env_any_enough supported."""
+    required = list(seed.get("env_vars") or [])
+    aliases: dict[str, list[str]] = dict(seed.get("env_aliases") or {})
+    any_enough = list(seed.get("env_any_enough") or [])
+
+    if any_enough:
+        if _env_any(any_enough):
+            missing = _missing_env(required)
+            return True, missing  # connected enough; missing = optional leftovers (e.g. webhook)
+        return False, _missing_env(any_enough)
+
+    if not required:
+        return True, []
+
+    missing: list[str] = []
+    for name in required:
+        alts = [name, *aliases.get(name, [])]
+        if not _env_any(alts):
+            missing.append(name)
+    return (len(missing) == 0), missing
 
 
 def _now() -> str:
@@ -206,9 +263,14 @@ class RevenueLab:
         ceo_actions: list[dict[str, Any]] = []
 
         for seed in sorted(_OPPORTUNITY_SEED, key=lambda s: int(s.get("priority") or 99)):
-            connected = _env_ok(list(seed.get("env_vars") or []))
+            connected, missing = _seed_connected(seed)
             status = "ready" if connected else "needs_ceo"
-            status_ru = "Ключи на месте" if connected else "Нужен аккаунт / ключ CEO"
+            if connected and missing:
+                status_ru = f"Ключи есть · ещё нужно: {', '.join(missing)}"
+            elif connected:
+                status_ru = "Ключи на месте"
+            else:
+                status_ru = "Нужен аккаунт / ключ CEO"
             finding = {
                 "id": seed["id"],
                 "name": seed["name"],
@@ -217,6 +279,7 @@ class RevenueLab:
                 "automation_allowed": seed["automation_allowed"],
                 "payouts": seed["payouts"],
                 "connected": connected,
+                "missing_env": missing,
                 "status": status,
                 "status_ru": status_ru,
                 "model_ru": seed["model_ru"],
@@ -227,7 +290,8 @@ class RevenueLab:
                 "confidence": "CONNECTED_KEYS" if connected else "NOT_CONNECTED",
                 "reality_note_ru": (
                     "Гипотеза дохода — не запись в Ledger. "
-                    "CONFIRMED только после реальной выплаты/оплаты."
+                    "CONFIRMED только после реальной выплаты/оплаты. "
+                    "Скан не ищет интернет — это фиксированный список кандидатов."
                 ),
             }
             findings.append(finding)
@@ -236,31 +300,98 @@ class RevenueLab:
                     "id": f"act-{seed['id']}",
                     "priority": seed["priority"],
                     "source_id": seed["id"],
+                    "kind": "connect_key",
                     "title_ru": f"Подключи: {seed['name']}",
                     "action_ru": seed["ceo_action_ru"],
                     "why_income_ru": seed["income_hypothesis_ru"],
                     "env_vars": seed.get("env_vars") or [],
+                    "missing_env": missing,
                     "at": _now(),
                 }
                 ceo_actions.append(action)
                 if persist_alerts:
                     self._append(self._alerts, action)
+            elif missing:
+                # Partial: e.g. Stripe secret ok, webhook still needed
+                action = {
+                    "id": f"act-{seed['id']}-partial",
+                    "priority": int(seed["priority"]) + 50,
+                    "source_id": seed["id"],
+                    "kind": "complete_keys",
+                    "title_ru": f"Дополни: {seed['name']}",
+                    "action_ru": f"Добавь в .env.local: {', '.join(missing)} → перезапуск Genesis",
+                    "why_income_ru": seed["income_hypothesis_ru"],
+                    "env_vars": missing,
+                    "missing_env": missing,
+                    "at": _now(),
+                }
+                ceo_actions.append(action)
+            elif seed.get("next_use_ru"):
+                # Key already present — never ask to add the same key again.
+                action = {
+                    "id": f"act-{seed['id']}-use",
+                    "priority": 20 + int(seed.get("priority") or 99),
+                    "source_id": seed["id"],
+                    "kind": "use_connected",
+                    "title_ru": seed.get("next_use_title_ru")
+                    or f"Используй: {seed['name']}",
+                    "action_ru": seed["next_use_ru"],
+                    "why_income_ru": (
+                        "Ключ есть ≠ доход. Следующий шаг — легально использовать уже "
+                        "подключённый API/ферму до первой CONFIRMED операции."
+                    ),
+                    "env_vars": [],
+                    "missing_env": [],
+                    "at": _now(),
+                }
+                ceo_actions.append(action)
+
+        # Never ask to reconnect Digistore/Stripe/etc when keys are present.
+        ceo_actions = [
+            a
+            for a in ceo_actions
+            if not (
+                a.get("kind") == "connect_key"
+                and any(
+                    f["id"] == a.get("source_id") and f.get("connected")
+                    for f in findings
+                )
+            )
+        ]
 
         ceo_actions.sort(key=lambda a: int(a.get("priority") or 99))
+        digistore_use = next(
+            (
+                a
+                for a in ceo_actions
+                if a.get("source_id") == "digistore24_affiliate"
+                and a.get("kind") == "use_connected"
+            ),
+            None,
+        )
         top = ceo_actions[0] if ceo_actions else None
+        if digistore_use:
+            # Digistore key done → headline pushes next legitimate use, not "add key again".
+            headline = digistore_use["title_ru"] + " — " + digistore_use["action_ru"]
+        elif top:
+            headline = top["title_ru"] + " — " + top.get("why_income_ru", top.get("action_ru", ""))
+        else:
+            headline = (
+                "Все известные кандидаты с ключами закрыты — "
+                "ищи доход через уже подключённые API и ферму до первой CONFIRMED операции."
+            )
+
         return {
             "ok": True,
             "scanned_at": _now(),
             "findings": findings,
             "ceo_actions": ceo_actions,
-            "headline_ru": (
-                top["title_ru"] + " — " + top["why_income_ru"]
-                if top
-                else "Все известные кандидаты с ключами закрыты — можно искать новую нишу вручную."
-            ),
+            "headline_ru": headline,
             "rule_ru": (
                 "Lab не создаёт аккаунты и не принимает ToS. "
-                "Она говорит CEO, что подключить, чтобы открыть путь к доходу."
+                "Ключ есть ≠ деньги (Reality over Simulation). "
+                "Если ключ уже в .env.local — Lab не просит его снова; "
+                "следующий шаг = легально использовать API/ферму."
             ),
             "contours": contours(),
         }

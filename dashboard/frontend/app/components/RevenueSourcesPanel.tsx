@@ -6,6 +6,7 @@ export type RevenueSourceRow = {
   status: string;
   status_emoji: string;
   status_label: string;
+  keys_present?: boolean;
   type: string;
   income_label: string;
   roi_label: string;
@@ -28,18 +29,28 @@ export type RevenueSourcesCenter = {
     inequalities_ru: string[];
     trial: { note_ru: string };
   };
+  keys_probe?: {
+    stripe_secret?: boolean;
+    stripe_webhook?: boolean;
+    awin?: boolean;
+    digistore24?: boolean;
+    env_file_ru?: string;
+    note_ru?: string;
+  };
   sources: RevenueSourceRow[];
   summary: {
     active: number;
     candidates: number;
     blocked_or_cost: number;
     real_income_eur: number;
+    keys_present?: number;
     verdict_ru: string;
   };
 };
 
-function statusClass(status: string): string {
+function statusClass(status: string, keysPresent?: boolean): string {
   if (status === "active") return "border-emerald-500/40 bg-emerald-950/20 text-emerald-100";
+  if (keysPresent) return "border-sky-500/40 bg-sky-950/20 text-sky-100";
   if (status === "candidate") return "border-amber-500/40 bg-amber-950/15 text-amber-100";
   if (status === "unsupported" || status === "stub") return "border-rose-500/35 bg-rose-950/15 text-rose-100";
   return "border-white/10 bg-white/5 text-genesis-muted";
@@ -67,6 +78,27 @@ export function RevenueSourcesPanel({ data }: { data: RevenueSourcesCenter }) {
         <p className="text-[10px] text-amber-100/80">{data.law.trial.note_ru}</p>
       ) : null}
 
+      {data.keys_probe ? (
+        <div className="rounded-lg border border-sky-500/25 bg-sky-950/20 px-3 py-2 text-[11px] text-sky-100/90 space-y-1">
+          <p className="font-medium text-sky-50">Что backend видит в env (да/нет, без секретов)</p>
+          <p>
+            Stripe secret: {data.keys_probe.stripe_secret ? "✅" : "❌"}
+            {" · "}
+            Stripe webhook: {data.keys_probe.stripe_webhook ? "✅" : "❌"}
+            {" · "}
+            Digistore24: {data.keys_probe.digistore24 ? "✅" : "❌"}
+            {" · "}
+            Awin: {data.keys_probe.awin ? "✅" : "❌"}
+          </p>
+          {data.keys_probe.env_file_ru ? (
+            <p className="text-genesis-muted">Файл: {data.keys_probe.env_file_ru}</p>
+          ) : null}
+          {data.keys_probe.note_ru ? (
+            <p className="text-genesis-muted">{data.keys_probe.note_ru}</p>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="overflow-x-auto">
         <table className="w-full min-w-[52rem] border-collapse text-left text-xs">
           <thead>
@@ -89,7 +121,12 @@ export function RevenueSourcesPanel({ data }: { data: RevenueSourcesCenter }) {
                   <p className="mt-1 max-w-xs text-[10px] leading-snug text-genesis-muted">{s.why_ru}</p>
                 </td>
                 <td className="py-2.5 pr-3">
-                  <span className={`inline-flex rounded border px-2 py-0.5 text-[10px] ${statusClass(s.status)}`}>
+                  <span
+                    className={`inline-flex rounded border px-2 py-0.5 text-[10px] ${statusClass(
+                      s.status,
+                      s.keys_present,
+                    )}`}
+                  >
                     {s.status_emoji} {s.status_label}
                   </span>
                 </td>
@@ -107,8 +144,9 @@ export function RevenueSourcesPanel({ data }: { data: RevenueSourcesCenter }) {
 
       <p className="text-[11px] leading-relaxed text-white/70">{data.summary.verdict_ru}</p>
       <p className="text-[10px] text-genesis-muted">
-        Active {data.summary.active} · Candidate {data.summary.candidates} · Blocked/cost{" "}
-        {data.summary.blocked_or_cost} · Real {data.summary.real_income_eur.toFixed(2)} €
+        Active {data.summary.active} · Candidate {data.summary.candidates} · Keys seen{" "}
+        {data.summary.keys_present ?? 0} · Blocked/cost {data.summary.blocked_or_cost} · Real{" "}
+        {data.summary.real_income_eur.toFixed(2)} €
       </p>
     </section>
   );
