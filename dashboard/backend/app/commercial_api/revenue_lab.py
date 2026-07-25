@@ -145,10 +145,9 @@ _OPPORTUNITY_SEED: tuple[dict[str, Any], ...] = (
         "next_use_title_ru": "Используй Digistore24: легальные возможности дохода",
         "next_use_ru": (
             "Ключ уже настроен — не просим добавить снова. "
-            "Следующая задача Lab/фермы: официальный API Digistore24 "
-            "(статистика, комиссии, продажи) + рекомендации продуктов после аудита клиента. "
-            "Доход в отчётах — только после первой CONFIRMED комиссии. "
-            "Без обхода ToS и без симуляции выплат."
+            "Lab отвечает на 3 вопроса (API / автоматизация / первая комиссия) в блоке Digistore24. "
+            "Цепочка: ключ → данные → процесс → клик по ссылке → продажа → CONFIRMED → Ledger. "
+            "API сам деньги не создаёт."
         ),
     },
     {
@@ -381,12 +380,23 @@ class RevenueLab:
                 "ищи доход через уже подключённые API и ферму до первой CONFIRMED операции."
             )
 
+        digistore_finding = next(
+            (f for f in findings if f["id"] == "digistore24_affiliate"),
+            None,
+        )
+        from app.commercial_api.digistore24_capability import digistore24_capability_brief
+
+        digistore_brief = digistore24_capability_brief(
+            key_present=bool(digistore_finding and digistore_finding.get("connected"))
+        )
+
         return {
             "ok": True,
             "scanned_at": _now(),
             "findings": findings,
             "ceo_actions": ceo_actions,
             "headline_ru": headline,
+            "digistore24": digistore_brief,
             "rule_ru": (
                 "Lab не создаёт аккаунты и не принимает ToS. "
                 "Ключ есть ≠ деньги (Reality over Simulation). "
@@ -403,6 +413,7 @@ class RevenueLab:
             "headline_ru": scan["headline_ru"],
             "ceo_actions": scan["ceo_actions"][:8],
             "findings": scan["findings"],
+            "digistore24": scan.get("digistore24"),
             "recent_alerts": self._read_jsonl(self._alerts, limit=10),
             "rule_ru": scan["rule_ru"],
         }

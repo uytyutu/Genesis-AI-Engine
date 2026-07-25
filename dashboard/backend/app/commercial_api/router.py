@@ -13,6 +13,7 @@ from app.commercial_api.keys import CommercialApiKeyStore
 from app.commercial_api.packages import get_package, list_packages, save_default_packages_file
 from app.commercial_api.pricing import pricing_public, save_default_pricing_file
 from app.commercial_api.revenue_lab import RevenueLab, contours
+from app.commercial_api.digistore24_capability import digistore24_capability_brief
 
 router = APIRouter(prefix="/api/v1", tags=["commercial-api"])
 
@@ -238,6 +239,19 @@ def v1_lab_scan(request: Request) -> dict:
 def v1_lab_brief(request: Request) -> dict:
     _require_owner(request)
     return {"ok": True, **RevenueLab(_memory(request)).ceo_brief()}
+
+
+@router.get("/admin/lab/digistore24")
+def v1_lab_digistore24(request: Request) -> dict:
+    """Three Digistore questions — capability brief, no invented earnings."""
+    _require_owner(request)
+    import os
+
+    key_present = bool(
+        os.getenv("DIGISTORE24_API_KEY", "").strip()
+        or os.getenv("DIGISTORE_API_KEY", "").strip()
+    )
+    return {"ok": True, **digistore24_capability_brief(key_present=key_present)}
 
 
 @router.post("/admin/lab/candidates")

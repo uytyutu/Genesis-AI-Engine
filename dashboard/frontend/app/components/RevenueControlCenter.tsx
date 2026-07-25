@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { BRAND_NAME } from "../lib/publicBrand";
 import { RevenueSourcesPanel, type RevenueSourcesCenter } from "./RevenueSourcesPanel";
 import { RevenueLabCeoPanel, type CeoAction, type RevenueLabBrief } from "./RevenueLabCeoPanel";
+import { Digistore24LabPanel, type DigistoreCapability } from "./Digistore24LabPanel";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -44,6 +45,7 @@ export function RevenueControlCenter() {
   const [sources, setSources] = useState<RevenueSourcesCenter | null>(null);
   const [brief, setBrief] = useState<RevenueLabBrief | null>(null);
   const [findings, setFindings] = useState<LabFinding[]>([]);
+  const [digistore, setDigistore] = useState<DigistoreCapability | null>(null);
   const [packages, setPackages] = useState<PackageRow[]>([]);
   const [contours, setContours] = useState<Contours | null>(null);
   const [loadError, setLoadError] = useState("");
@@ -78,6 +80,7 @@ export function RevenueControlCenter() {
           ceo_actions: (body.ceo_actions ?? []) as CeoAction[],
         });
         setFindings(Array.isArray(body.findings) ? body.findings : []);
+        if (body.digistore24) setDigistore(body.digistore24 as DigistoreCapability);
       } else if (briefRes.status === 403) {
         errors.push("Lab: нужен owner-доступ");
       } else {
@@ -141,6 +144,7 @@ export function RevenueControlCenter() {
         rule_ru: body.rule_ru,
         ceo_actions: (body.ceo_actions ?? []) as CeoAction[],
       });
+      if (body.digistore24) setDigistore(body.digistore24 as DigistoreCapability);
       if (body.contours) setContours(body.contours);
       setMsg("Скан обновлён — ниже что найдено и что подтвердить.");
     } catch {
@@ -216,6 +220,8 @@ export function RevenueControlCenter() {
         ) : null}
 
         {brief ? <RevenueLabCeoPanel data={brief} /> : null}
+
+        {digistore ? <Digistore24LabPanel data={digistore} /> : null}
 
         <section className="genesis-card space-y-4 border-sky-500/25 p-5">
           <div>
