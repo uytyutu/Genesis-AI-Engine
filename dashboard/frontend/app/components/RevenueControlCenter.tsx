@@ -7,6 +7,7 @@ import { RevenueSourcesPanel, type RevenueSourcesCenter } from "./RevenueSources
 import { RevenueLabCeoPanel, type CeoAction, type RevenueLabBrief } from "./RevenueLabCeoPanel";
 import { Digistore24LabPanel, type DigistoreCapability } from "./Digistore24LabPanel";
 import { LiveActivityMonitor } from "./LiveActivityMonitor";
+import { WorkFarmPanel } from "./WorkFarmPanel";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -210,6 +211,8 @@ export function RevenueControlCenter() {
         </header>
 
         <LiveActivityMonitor pollMs={10000} />
+
+        <WorkFarmPanel />
 
         {contours?.contours?.length ? (
           <section className="genesis-card space-y-2 border-white/10 p-5">

@@ -93,12 +93,14 @@ class RevenuePipelineService:
         checkout: PaymentCheckoutService,
         notifications: OwnerNotificationService,
         receipt_email: ReceiptEmailService | None = None,
+        work_farm: object | None = None,
     ) -> None:
         self._sales = sales
         self._finance = finance
         self._checkout = checkout
         self._notifications = notifications
         self._receipt_email = receipt_email or ReceiptEmailService()
+        self._work_farm = work_farm
 
     def payment_status(self) -> dict:
         from app.integration.public_site_url import configured_public_base
@@ -327,15 +329,31 @@ class RevenuePipelineService:
         )
         self._sales._save_order(order)
 
-        production = self._sales.start_production(order_id)
-        product_id = production.get("product_id")
+        # Work Farm v0: Stripe → planner → Factory → Quality Gate (Landing primary).
+        # Falls back to direct start_production if farm not wired (tests).
+        product_id = None
+        work_job = None
+        if self._work_farm is not None:
+            try:
+                farm_res = self._work_farm.run_for_order(order_id)
+                work_job = farm_res.get("job") if isinstance(farm_res, dict) else None
+                if isinstance(work_job, dict):
+                    product_id = work_job.get("product_id")
+                if not product_id and isinstance(farm_res, dict):
+                    product_id = (farm_res.get("job") or {}).get("product_id")
+            except Exception:
+                production = self._sales.start_production(order_id)
+                product_id = production.get("product_id")
+        else:
+            production = self._sales.start_production(order_id)
+            product_id = production.get("product_id")
         price_display = str(order.get("price_label") or f"{paid:.0f} €")
 
         self._notifications.notify(
             title="Neue Zahlung",
             message=(
                 f"🟢 {order['business_name']} — {price_display} ({order['package_name']}). "
-                f"Produktion automatisch gestartet."
+                f"Work Farm · производство запущено."
             ),
             order_id=order_id,
         )
@@ -355,6 +373,7 @@ class RevenuePipelineService:
             "order_id": order_id,
             "amount_eur": paid,
             "product_id": product_id,
+            "work_farm_job": work_job,
             "client_message": order["client_status_message"],
             "order": self._sales.public_status(order_id),
             "receipt_email": email_result,

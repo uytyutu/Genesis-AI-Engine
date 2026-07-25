@@ -2257,6 +2257,31 @@ def farm_live_monitor(window_minutes: int = 10) -> dict:
     )
 
 
+@app.get("/api/work-farm/status")
+def work_farm_status() -> dict:
+    """Work Farm v0 board — own paid orders only (no marketplace)."""
+    return _ctx().work_farm.status_board()
+
+
+@app.get("/api/work-farm/catalog")
+def work_farm_catalog() -> dict:
+    return _ctx().work_farm.catalog()
+
+
+@app.get("/api/work-farm/jobs/{order_id}")
+def work_farm_job_for_order(order_id: str) -> dict:
+    job = _ctx().work_farm.find_job_for_order(order_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="job_not_found")
+    return {"ok": True, "job": job}
+
+
+@app.post("/api/work-farm/run/{order_id}")
+def work_farm_run(order_id: str, force: bool = False) -> dict:
+    """Manual / retry: run Work Farm for an existing paid order."""
+    return _ctx().work_farm.run_for_order(order_id, force=force)
+
+
 @app.get("/api/acquisition/gate-funnel")
 def acquisition_gate_funnel() -> dict:
     return _ctx().acquisition.gate_funnel()
