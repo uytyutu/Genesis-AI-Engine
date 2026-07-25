@@ -586,6 +586,76 @@ class AcquisitionStudioService:
 
         return gate_funnel_metrics(self._opportunity, memory_dir=self._memory_dir)
 
+    def live_monitor(self, *, window_minutes: int = 10) -> dict[str, Any]:
+        """CEO Live Monitor — real activity facts, not capability cards."""
+        from app.integration.live_activity_monitor import build_live_monitor
+
+        rows = self._opportunity._load_rows()
+        runner = self.runner_status()
+        quota = self._send_quota.health()
+        stripe_paid = 0.0
+        settlements: list[dict[str, Any]] = []
+        try:
+            from app.integration.payment_settlement_service import PaymentSettlementService
+
+            settle = PaymentSettlementService(self._memory_dir)
+            stripe_paid = float(settle.totals().get("paid_by_client_eur") or 0)
+            settlements = settle.list_settlements(limit=80)
+        except Exception:
+            pass
+        digi = 0.0
+        try:
+            from app.integration.swarm_bridge import ensure_swarm_importable
+
+            ensure_swarm_importable()
+            from swarm.finance_ledger import FinanceLedger
+
+            for entry in FinanceLedger(self._memory_dir).list_entries(limit=200) or []:
+                if not isinstance(entry, dict):
+                    continue
+                src = str(
+                    entry.get("source_id") or entry.get("source") or entry.get("provider") or ""
+                ).lower()
+                if "digistore" not in src:
+                    continue
+                conf = str(entry.get("confidence") or "").lower()
+                if conf not in ("confirmed", "booked", "paid", "withdrawn") and not entry.get(
+                    "withdrawable"
+                ):
+                    continue
+                digi += float(entry.get("amount") or entry.get("amount_eur") or 0)
+        except Exception:
+            digi = 0.0
+
+        payload = build_live_monitor(
+            memory_dir=self._memory_dir,
+            opportunity_rows=rows if isinstance(rows, list) else [],
+            runner=runner,
+            quota_health=quota if isinstance(quota, dict) else {},
+            stripe_settlements=settlements,
+            stripe_paid_eur=stripe_paid,
+            digistore_commission_eur=digi,
+            window_minutes=window_minutes,
+        )
+        # Attach Ready/Waiting for one-glance (from studio, not invented)
+        try:
+            from app.integration.lead_engine_queues import build_lead_engine_dashboard
+            from app.integration.outreach_hunt_rotation import active_markets
+
+            open_codes = [
+                str(m.get("code") or "").upper()
+                for m in active_markets(business_hours_only=False)
+            ]
+            le = build_lead_engine_dashboard(rows, enabled_markets=open_codes)
+            payload["queues"] = {
+                "ready_now": int(le.get("ready_now") or 0),
+                "waiting": int(le.get("waiting") or 0),
+                "history": int(le.get("history") or 0),
+            }
+        except Exception:
+            payload["queues"] = {"ready_now": 0, "waiting": 0, "history": 0}
+        return payload
+
     def markets_dashboard(self) -> dict[str, Any]:
         """CEO table: country · limit · sent · replies · orders (config-driven)."""
         from app.integration.outreach_market_config import list_markets, outreach_markets_config

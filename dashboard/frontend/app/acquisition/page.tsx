@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatEur, formatLocalizedMoney } from "../lib/formatEur";
 
 import { BRAND_NAME } from "../lib/publicBrand";
+import { LiveActivityMonitor } from "../components/LiveActivityMonitor";
 
 /** CEO desk is local-only (backend guard). Always hit the API host, not Next rewrite. */
 const API = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
@@ -1169,6 +1170,8 @@ export default function AcquisitionPage() {
             </div>
           ) : null}
         </header>
+
+        <LiveActivityMonitor pollMs={10000} />
 
         {funnel?.stages ? (
           <section className="genesis-card space-y-3 p-5">

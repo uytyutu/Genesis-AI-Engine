@@ -2241,6 +2241,22 @@ def acquisition_studio_status() -> AcquisitionStudioStatus:
     return AcquisitionStudioStatus(**_ctx().acquisition.studio_status())
 
 
+@app.get("/api/acquisition/live-monitor")
+def acquisition_live_monitor(window_minutes: int = 10) -> dict:
+    """Live Activity Monitor — runner + funnel facts (not capability cards)."""
+    return _ctx().acquisition.live_monitor(
+        window_minutes=max(1, min(120, int(window_minutes or 10)))
+    )
+
+
+@app.get("/api/farm/live-monitor")
+def farm_live_monitor(window_minutes: int = 10) -> dict:
+    """Same Live Monitor for Доход desk (no owner gate)."""
+    return _ctx().acquisition.live_monitor(
+        window_minutes=max(1, min(120, int(window_minutes or 10)))
+    )
+
+
 @app.get("/api/acquisition/gate-funnel")
 def acquisition_gate_funnel() -> dict:
     return _ctx().acquisition.gate_funnel()

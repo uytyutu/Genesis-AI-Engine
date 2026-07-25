@@ -6,6 +6,7 @@ import { BRAND_NAME } from "../lib/publicBrand";
 import { RevenueSourcesPanel, type RevenueSourcesCenter } from "./RevenueSourcesPanel";
 import { RevenueLabCeoPanel, type CeoAction, type RevenueLabBrief } from "./RevenueLabCeoPanel";
 import { Digistore24LabPanel, type DigistoreCapability } from "./Digistore24LabPanel";
+import { LiveActivityMonitor } from "./LiveActivityMonitor";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -207,6 +208,8 @@ export function RevenueControlCenter() {
           {msg ? <p className="mt-3 text-xs text-emerald-200">{msg}</p> : null}
           {loadError ? <p className="mt-2 text-xs text-amber-200/90">{loadError}</p> : null}
         </header>
+
+        <LiveActivityMonitor pollMs={10000} />
 
         {contours?.contours?.length ? (
           <section className="genesis-card space-y-2 border-white/10 p-5">
