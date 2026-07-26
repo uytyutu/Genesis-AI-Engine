@@ -39,6 +39,101 @@ class CustomerIdentityService:
         self._store = CustomerIdentityStore(memory_dir)
         self._provisioner = CustomerProvisioner(memory_dir)
 
+    def start_registration(
+        self,
+        *,
+        name: str,
+        email: str,
+        password: str,
+        locale: str = "en",
+        country: str = "",
+        prior_visitor_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Step 1 — validate + email a one-time code. Account is not created yet."""
+        import time
+
+        from app.integration.customer_identity.registration_otp import (
+            OTP_TTL_SEC,
+            PendingRegistration,
+            _code_hash,
+            generate_otp_code,
+            save_pending,
+            send_registration_code,
+        )
+
+        clean_name = (name or "").strip()
+        if len(clean_name) < 2:
+            raise HTTPException(status_code=400, detail="name_required")
+        if len(password or "") < 8:
+            raise HTTPException(status_code=400, detail="password_too_short")
+        normalized_email = validate_email(email)
+        if self._store.find_customer_by_email(normalized_email):
+            raise HTTPException(status_code=409, detail="email_already_registered")
+
+        code = generate_otp_code()
+        pending = PendingRegistration(
+            email=normalized_email,
+            name=clean_name,
+            password_hash=hash_password(password),
+            locale=(locale or "en")[:8],
+            country=(country or "")[:64],
+            code_hash=_code_hash(code),
+            created_at=time.time(),
+            visitor_id=prior_visitor_id,
+        )
+        save_pending(self._memory, pending)
+        delivery = send_registration_code(
+            to=normalized_email,
+            code=code,
+            name=clean_name,
+            locale=locale,
+        )
+        out: dict[str, Any] = {
+            "ok": True,
+            "email": normalized_email,
+            "expires_in_sec": OTP_TTL_SEC,
+            "delivery": delivery.get("delivery") or "email",
+            "next": "confirm_code",
+        }
+        if delivery.get("code"):
+            out["dev_code"] = delivery["code"]
+        return out
+
+    def confirm_registration(self, *, email: str, code: str) -> dict[str, Any]:
+        """Step 2 — verify OTP, create personal office account."""
+        from app.integration.customer_identity.registration_otp import (
+            delete_pending,
+            verify_pending_code,
+        )
+
+        normalized_email = validate_email(email)
+        pending = verify_pending_code(
+            self._memory, email=normalized_email, code=(code or "").strip()
+        )
+        if self._store.find_customer_by_email(normalized_email):
+            delete_pending(self._memory, normalized_email)
+            raise HTTPException(status_code=409, detail="email_already_registered")
+
+        account, card, company, welcome = self._provisioner.provision(
+            name=pending.name,
+            email=normalized_email,
+            password_hash=pending.password_hash,
+            locale=pending.locale,
+            country=pending.country,
+            prior_visitor_id=pending.visitor_id,
+        )
+        account.email_verified = True
+        self._store.save_account(account)
+        delete_pending(self._memory, normalized_email)
+        token = issue_client_token(customer_id=account.customer_id, email=account.email)
+        return self._session_response(
+            token=token,
+            account=account,
+            card=card,
+            company=company,
+            welcome=welcome,
+        )
+
     def register(
         self,
         *,
@@ -49,6 +144,7 @@ class CustomerIdentityService:
         country: str = "",
         prior_visitor_id: str | None = None,
     ) -> dict[str, Any]:
+        """Direct register (tests / internal). Public HTTP uses start + confirm OTP."""
         clean_name = (name or "").strip()
         if len(clean_name) < 2:
             raise HTTPException(status_code=400, detail="name_required")

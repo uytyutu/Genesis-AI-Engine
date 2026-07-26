@@ -112,6 +112,36 @@ export default function ClientDashboardPage() {
         </p>
       ) : null}
 
+      {products !== null && products.length === 0 ? (
+        <section className="mb-6 rounded-2xl border border-sky-400/25 bg-sky-500/[0.07] p-5">
+          <h2 className="text-lg font-semibold text-white">Your office is ready</h2>
+          <p className="mt-2 text-sm text-zinc-300">
+            No products yet. Order a website or AI bot anytime — you can also buy
+            from the public site without signing in.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              href="/order"
+              className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110"
+            >
+              Order a website
+            </Link>
+            <Link
+              href="/site?service=bots"
+              className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/5"
+            >
+              Order an AI bot
+            </Link>
+            <Link
+              href="/site"
+              className="rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-400 hover:text-white"
+            >
+              All services
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <section className="rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.06] p-5">
           <h2 className="text-lg font-semibold text-white">Today</h2>

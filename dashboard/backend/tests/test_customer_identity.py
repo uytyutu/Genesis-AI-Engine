@@ -18,6 +18,41 @@ def svc(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     return CustomerIdentityService(memory)
 
 
+def test_register_otp_flow(svc: CustomerIdentityService, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("GENESIS_CLIENT_OTP_DEV", "1")
+    start = svc.start_registration(
+        name="Anna Kraft",
+        email="anna.otp@example.com",
+        password="securepass1",
+        locale="en",
+    )
+    assert start["ok"] is True
+    assert start["next"] == "confirm_code"
+    assert start.get("dev_code")
+    out = svc.confirm_registration(
+        email="anna.otp@example.com", code=str(start["dev_code"])
+    )
+    assert out["token"]
+    assert out["email"] == "anna.otp@example.com"
+    me = svc.me(svc._store.find_customer_by_email("anna.otp@example.com") or "")
+    assert me["email_verified"] is True
+
+
+def test_register_otp_rejects_bad_code(
+    svc: CustomerIdentityService, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setenv("GENESIS_CLIENT_OTP_DEV", "1")
+    svc.start_registration(
+        name="Bad Code",
+        email="badcode@example.com",
+        password="securepass1",
+    )
+    with pytest.raises(HTTPException) as exc:
+        svc.confirm_registration(email="badcode@example.com", code="000000")
+    assert exc.value.status_code == 400
+    assert exc.value.detail == "invalid_code"
+
+
 def test_register_creates_company(svc: CustomerIdentityService):
     out = svc.register(
         name="Анна Крафт",

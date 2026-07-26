@@ -3,15 +3,25 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
-import { PortalApiError, portalFetch } from "../../lib/portalApi";
+import { publicApiBase } from "../../lib/publicApiBase";
+import {
+  bridgePortalSession,
+  setClientSession,
+} from "../../lib/clientAuth";
 import { BRAND_NAME } from "../../lib/publicBrand";
+
+type LoginResponse = {
+  token?: string;
+  name?: string;
+  detail?: string;
+};
 
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const nextPath = params.get("next") || "/client";
-  const [email, setEmail] = useState("client@virtus.local");
-  const [password, setPassword] = useState("demo-vector");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,22 +30,26 @@ function LoginForm() {
     setBusy(true);
     setError(null);
     try {
-      const res = await portalFetch<{ authenticated: boolean }>("/portal/login", {
+      const res = await fetch(`${publicApiBase()}/api/client/login`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), password }),
       });
-      if (!res.authenticated) {
-        throw new PortalApiError(401, "login_failed");
+      const body = (await res.json().catch(() => ({}))) as LoginResponse;
+      if (!res.ok || !body.token) {
+        throw new Error(
+          typeof body.detail === "string" ? body.detail : "invalid_credentials",
+        );
       }
+      setClientSession(body.token, body.name);
+      await bridgePortalSession(email.trim(), password);
       const safeNext =
         nextPath.startsWith("/") && !nextPath.startsWith("//")
           ? nextPath
           : "/client";
       router.replace(safeNext);
     } catch (err) {
-      if (err instanceof PortalApiError) setError(err.detail);
-      else if (err instanceof Error) setError(err.message);
-      else setError("login_failed");
+      setError(err instanceof Error ? err.message : "login_failed");
     } finally {
       setBusy(false);
     }
@@ -47,18 +61,20 @@ function LoginForm() {
         {BRAND_NAME}
       </p>
       <h1 className="mt-3 text-3xl font-semibold text-white">
-        Welcome to {BRAND_NAME}
+        Sign in to your office
       </h1>
       <p className="mt-2 text-sm text-zinc-400">
-        Sign in to your personal account — websites, AI bots, orders, and billing.
+        Your personal workspace for projects, bots, and automation. Buying a
+        website or bot does not require sign-in.
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <label className="block text-sm text-zinc-300">
           Email
           <input
-            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white"
             type="email"
+            inputMode="email"
             autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -68,7 +84,7 @@ function LoginForm() {
         <label className="block text-sm text-zinc-300">
           Password
           <input
-            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white"
             type="password"
             autoComplete="current-password"
             value={password}
@@ -84,7 +100,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
+          className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
         >
           {busy ? "Signing in…" : "Sign in"}
         </button>
@@ -99,12 +115,9 @@ function LoginForm() {
           Create personal account
         </Link>
       </p>
-      <p className="mt-4 text-xs text-zinc-500">
-        Demo: client@virtus.local / demo-vector
-      </p>
       <p className="mt-4 text-sm text-zinc-400">
         <Link href="/site" className="text-emerald-300 hover:underline">
-          ← Back to public site
+          ← Buy without account
         </Link>
       </p>
     </div>

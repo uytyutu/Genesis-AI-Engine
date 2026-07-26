@@ -2114,6 +2114,11 @@ class ClientRegisterRequest(BaseModel):
     visitor_id: str | None = Field(default=None, max_length=64)
 
 
+class ClientRegisterConfirmRequest(BaseModel):
+    email: str = Field(max_length=254)
+    code: str = Field(min_length=4, max_length=12)
+
+
 class ClientLoginRequest(BaseModel):
     email: str = Field(max_length=254)
     password: str = Field(min_length=1, max_length=128)

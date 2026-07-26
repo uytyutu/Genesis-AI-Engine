@@ -454,9 +454,8 @@ export function SitePage() {
   const orderLabel = t("pathA.cta");
   const detailsLabel = t("s0.details", { defaultValue: "Details" });
   const backLabel = t("s0.backToServices", { defaultValue: "← All services" });
-  const botOrderHref =
-    "/client/register?next=" +
-    encodeURIComponent("/projects/chatbot/setup");
+  const botOrderHref = (packageId: string) =>
+    `/order?market=${encodeURIComponent(market)}&purchase_type=subscription&intent=bot&package=${encodeURIComponent(packageId)}`;
 
   const marketSelect =
     markets.length > 0 ? (
@@ -498,15 +497,23 @@ export function SitePage() {
               <p className="mx-auto max-w-2xl text-base text-genesis-muted sm:text-lg">
                 {t("s0.hubSubtitle", {
                   defaultValue:
-                    "Choose a service. Then pick a package. Create a personal account when you are ready to buy.",
+                    "Choose a service and order directly — no account required. Register only if you want a personal office for your business.",
                   brand: BRAND_NAME,
                 })}
               </p>
               {marketSelect}
               <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+                <a
+                  href="#services"
+                  className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black hover:brightness-110"
+                >
+                  {t("s0.chooseService", {
+                    defaultValue: "Choose a service",
+                  })}
+                </a>
                 <Link
                   href="/client/register"
-                  className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black hover:brightness-110"
+                  className="inline-flex rounded-xl border border-white/20 px-5 py-2.5 text-sm font-medium text-white hover:bg-white/5"
                 >
                   {t("s0.createAccount", {
                     defaultValue: "Create personal account",
@@ -514,7 +521,7 @@ export function SitePage() {
                 </Link>
                 <Link
                   href="/client/login"
-                  className="inline-flex rounded-xl border border-white/20 px-5 py-2.5 text-sm font-medium text-white hover:bg-white/5"
+                  className="inline-flex text-sm font-medium text-zinc-400 hover:text-white"
                 >
                   {t("s0.signIn", { defaultValue: "Sign in" })}
                 </Link>
@@ -522,6 +529,7 @@ export function SitePage() {
             </header>
 
             <section
+              id="services"
               className="grid gap-4 sm:grid-cols-2"
               aria-label={t("s0.servicesLabel", { defaultValue: "Services" })}
             >
@@ -622,7 +630,7 @@ export function SitePage() {
             <p className="text-center text-xs text-zinc-500">
               {t("s0.hubAccountHint", {
                 defaultValue:
-                  "A personal account is required to buy a website or add bots. Use Register in the header anytime.",
+                  "No account needed to buy. Register only for your personal office — run projects, bots, automation, upgrades.",
               })}
             </p>
           </>
@@ -718,7 +726,7 @@ export function SitePage() {
             </div>
             <p className="text-sm text-zinc-400">
               {t("s0.needAccount", {
-                defaultValue: "Need an account to manage orders later?",
+                defaultValue: "Want an office to manage this later?",
               })}{" "}
               <Link href="/client/register" className="text-emerald-300 hover:underline">
                 {t("s0.createAccount", { defaultValue: "Create personal account" })}
@@ -743,7 +751,7 @@ export function SitePage() {
               <p className="mt-1 text-sm text-genesis-muted">
                 {t("s0.botsIntro", {
                   defaultValue:
-                    "Separate from websites. Pick a package, create your personal account, then set up the bot.",
+                    "Separate from websites. Order a package directly — no registration required. Open an office later if you want to manage bots and automation.",
                 })}
               </p>
             </div>
@@ -775,11 +783,11 @@ export function SitePage() {
                       Website chat · Telegram · WhatsApp / Instagram in rollout
                     </p>
                     <Link
-                      href={botOrderHref}
+                      href={botOrderHref(pkg.package_id)}
                       className="mt-5 inline-flex items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110"
                     >
                       {t("s0.botsCta", {
-                        defaultValue: "Create account & continue",
+                        defaultValue: "Order without account",
                       })}
                     </Link>
                   </article>

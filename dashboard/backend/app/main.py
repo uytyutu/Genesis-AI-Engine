@@ -191,6 +191,7 @@ from app.schemas import (
     GenesisAISetupResponse,
     GenesisAISetupStatus,
     ClientRegisterRequest,
+    ClientRegisterConfirmRequest,
     ClientLoginRequest,
     ClientWelcomeAnswerRequest,
     ClientMergeVisitorRequest,
@@ -3435,13 +3436,23 @@ def _customer_identity():
 
 @app.post("/api/client/register")
 def client_register(body: ClientRegisterRequest) -> dict:
-    return _customer_identity().register(
+    """Start registration — sends email verification code. Does not create session yet."""
+    return _customer_identity().start_registration(
         name=body.name,
         email=body.email,
         password=body.password,
         locale=body.locale,
         country=body.country,
         prior_visitor_id=body.visitor_id,
+    )
+
+
+@app.post("/api/client/register/confirm")
+def client_register_confirm(body: ClientRegisterConfirmRequest) -> dict:
+    """Confirm email code → create personal office account + token."""
+    return _customer_identity().confirm_registration(
+        email=body.email,
+        code=body.code,
     )
 
 
