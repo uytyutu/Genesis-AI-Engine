@@ -968,9 +968,11 @@ a.btn{{display:inline-block;margin-top:16px;padding:12px 18px;background:#111;co
 <li>Отправитель: <code>{sender}</code></li>
 <li>Redirect URI (добавьте в Google Cloud → OAuth client):<br/><code>{redirect}</code></li>
 </ul>
-<a class="btn" href="/api/owner/gmail/oauth/start">Connect Gmail</a>
-<a class="btn" href="/api/owner/gmail/test-send" style="margin-left:8px;background:#0a7">Тестовая отправка</a>
-<p class="muted" style="margin-top:24px">Scope: <code>gmail.send</code> · только localhost CEO desk.
+<a class="btn" href="/api/owner/gmail/oauth/start" target="_top" rel="noopener">Connect Gmail</a>
+<a class="btn" href="/api/owner/gmail/test-send" target="_blank" rel="noopener" style="margin-left:8px;background:#0a7">Тестовая отправка</a>
+<p class="muted" style="margin-top:24px"><strong>Важно:</strong> открывайте эту страницу в обычной вкладке браузера
+(<code>http://localhost:8000/api/owner/gmail</code>), не внутри Mission Control — Google блокирует вход во iframe (белый экран).</p>
+<p class="muted">Scope: <code>gmail.send</code> · только localhost CEO desk.
 Если старый токен скомпрометирован: отзовите доступ на
 <a href="https://myaccount.google.com/permissions" target="_blank" rel="noreferrer">myaccount.google.com/permissions</a>,
 затем Connect снова.</p>
@@ -984,8 +986,12 @@ def owner_gmail_status(request: Request) -> dict:
     return gmail.status(public_api_base=str(request.base_url).rstrip("/"))
 
 
-@app.get("/api/owner/gmail/oauth/start")
+@app.get("/api/owner/gmail/oauth/start", response_class=HTMLResponse)
 def owner_gmail_oauth_start(request: Request):
+    """Break out of Mission Control iframe — Google OAuth cannot render inside frames."""
+    import html as html_lib
+    import json
+
     from fastapi.responses import RedirectResponse
 
     from app.integration import gmail_mail_service as gmail
@@ -999,6 +1005,23 @@ def owner_gmail_oauth_start(request: Request):
     redirect_uri = gmail.default_redirect_uri(base)
     state = gmail.create_oauth_state()
     url = gmail.authorization_url(redirect_uri=redirect_uri, state=state)
+    # Prefer HTML breakout: empty 302 inside iframe = white screen (X-Frame-Options: DENY).
+    accept = (request.headers.get("accept") or "").lower()
+    if "text/html" in accept or "mozilla" in (request.headers.get("user-agent") or "").lower():
+        safe = html_lib.escape(url, quote=True)
+        js_url = json.dumps(url)
+        return f"""<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"/>
+<meta http-equiv="refresh" content="0;url={safe}"/>
+<title>Redirect to Google…</title></head>
+<body style="font-family:system-ui;padding:2rem;background:#111;color:#eee">
+<p>Переход к Google… Если экран пустой — откройте ссылку в новой вкладке:</p>
+<p><a href="{safe}" target="_top" style="color:#8cf">Continue to Google</a></p>
+<script>
+try {{ window.top.location.href = {js_url}; }}
+catch (e) {{ window.location.href = {js_url}; }}
+</script>
+</body></html>"""
     return RedirectResponse(url, status_code=302)
 
 
