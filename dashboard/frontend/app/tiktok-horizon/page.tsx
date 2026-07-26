@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-type TabId = "overview" | "trends" | "review" | "queue";
+type TabId = "overview" | "accounts" | "trends" | "review" | "queue";
 
 type Dash = {
   tiktok_enabled?: boolean;
@@ -14,7 +14,30 @@ type Dash = {
   note_ru?: string;
   counts?: Record<string, number>;
   capabilities?: Record<string, boolean>;
+  visibility?: {
+    visibility?: string;
+    owner_internal_only?: boolean;
+    note_ru?: string;
+  };
+  accounts?: TikTokAccount[];
+  oauth?: { data?: { oauth_client_ready?: boolean } };
   adapters?: Record<string, { provider?: string; stage1_disabled?: boolean }>;
+};
+
+type TikTokAccount = {
+  id: string;
+  open_id?: string;
+  display_name?: string | null;
+  username?: string | null;
+  status?: string;
+  connected_at?: string;
+  last_sync_at?: string;
+  label?: string;
+  tokens?: {
+    has_access_token?: boolean;
+    has_refresh_token?: boolean;
+    access_token_expires_at?: string;
+  };
 };
 
 type Trend = {
@@ -61,6 +84,7 @@ type QueueItem = {
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "overview", label: "Обзор" },
+  { id: "accounts", label: "Accounts" },
   { id: "trends", label: "Тренды" },
   { id: "review", label: "Human Review" },
   { id: "queue", label: "Очередь" },
@@ -74,6 +98,8 @@ export default function TikTokHorizonPage() {
   const [trends, setTrends] = useState<Trend[]>([]);
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [accounts, setAccounts] = useState<TikTokAccount[]>([]);
+  const [oauthReady, setOauthReady] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
   const [editHook, setEditHook] = useState("");
   const [editCaption, setEditCaption] = useState("");
@@ -84,13 +110,18 @@ export default function TikTokHorizonPage() {
 
   const refresh = useCallback(async () => {
     try {
-      const [dRes, tRes, drRes, qRes] = await Promise.all([
+      const [dRes, tRes, drRes, qRes, aRes] = await Promise.all([
         fetch(`${API}/api/owner/tiktok-horizon`),
         fetch(`${API}/api/owner/tiktok-horizon/trends`),
         fetch(`${API}/api/owner/tiktok-horizon/drafts`),
         fetch(`${API}/api/owner/tiktok-horizon/queue`),
+        fetch(`${API}/api/owner/tiktok-horizon/accounts`),
       ]);
-      if (dRes.ok) setDash(await dRes.json());
+      if (dRes.ok) {
+        const d = await dRes.json();
+        setDash(d);
+        if (Array.isArray(d.accounts)) setAccounts(d.accounts);
+      }
       if (tRes.ok) setTrends((await tRes.json()).items ?? []);
       if (drRes.ok) {
         const items = (await drRes.json()).items ?? [];
@@ -98,6 +129,11 @@ export default function TikTokHorizonPage() {
         if (!selectedId && items[0]?.id) setSelectedId(items[0].id);
       }
       if (qRes.ok) setQueue((await qRes.json()).items ?? []);
+      if (aRes.ok) {
+        const a = await aRes.json();
+        setAccounts(a.accounts ?? []);
+        setOauthReady(Boolean(a.oauth_client_ready));
+      }
     } catch {
       setMessage("Backend недоступен.");
     }
@@ -106,6 +142,24 @@ export default function TikTokHorizonPage() {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get("tab");
+    if (tabParam === "accounts" || tabParam === "trends" || tabParam === "review" || tabParam === "queue") {
+      setTab(tabParam);
+    }
+    if (params.get("oauth") === "ok") {
+      setMessage("TikTok-аккаунт подключён.");
+      setTab("accounts");
+    }
+    const err = params.get("oauth_error");
+    if (err) {
+      setMessage(`OAuth: ${err}`);
+      setTab("accounts");
+    }
+  }, []);
 
   useEffect(() => {
     if (!selected) return;
@@ -302,6 +356,43 @@ export default function TikTokHorizonPage() {
     }
   }
 
+  async function disconnectAccount(id: string) {
+    if (!window.confirm("Отключить этот TikTok-аккаунт?")) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`${API}/api/owner/tiktok-horizon/accounts/${id}/disconnect`, {
+        method: "POST",
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setMessage(typeof body.detail === "string" ? body.detail : "Disconnect failed");
+        return;
+      }
+      setMessage("Аккаунт отключён.");
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function syncAccount(id: string) {
+    setBusy(true);
+    try {
+      const res = await fetch(`${API}/api/owner/tiktok-horizon/accounts/${id}/sync`, {
+        method: "POST",
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setMessage(typeof body.detail === "string" ? body.detail : "Sync failed");
+        return;
+      }
+      setMessage("Синхронизация выполнена.");
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const quality = selected?.quality || {};
 
   return (
@@ -318,14 +409,14 @@ export default function TikTokHorizonPage() {
       }}
     >
       <p style={{ margin: 0, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-        Virtus Core · Internal
+        Virtus Core · Owner Internal · {dash?.visibility?.visibility || "INTERNAL_OWNER"}
       </p>
       <h1 style={{ margin: "0.35rem 0 0.5rem", fontSize: "2rem", fontWeight: 600 }}>
         TikTok Horizon
       </h1>
       <p style={{ margin: "0 0 1rem", maxWidth: 52, fontSize: 15, lineHeight: 1.45 }}>
-        Stage 1 Foundation — тренды, идеи, сценарии, промпты, качество, Human Review, очередь.
-        Без генерации видео и без публикации.
+        Stage {dash?.stage ?? 2} — OAuth-аккаунты, тренды, сценарии, Human Review, очередь.
+        Не коммерческий продукт. Не для клиентов. Без публикации.
       </p>
       <p style={{ margin: "0 0 1.5rem" }}>
         <Link href="/mission-control">← Mission Control</Link>
@@ -394,6 +485,7 @@ export default function TikTokHorizonPage() {
         <section>
           <p>{dash?.pipeline_ru}</p>
           <p style={{ opacity: 0.85 }}>{dash?.note_ru}</p>
+          <p style={{ opacity: 0.85 }}>{dash?.visibility?.note_ru}</p>
           <ul>
             {Object.entries(dash?.counts || {}).map(([k, v]) => (
               <li key={k}>
@@ -409,6 +501,86 @@ export default function TikTokHorizonPage() {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {tab === "accounts" && (
+        <section>
+          <p style={{ marginBottom: "0.75rem" }}>
+            Мультиаккаунты · официальный TikTok OAuth · токены только в зашифрованном виде.
+            Публикация отключена.
+          </p>
+          <p style={{ fontSize: 14, marginBottom: "1rem" }}>
+            OAuth client: {oauthReady ? "ready" : "нужны TIKTOK_CLIENT_KEY + TIKTOK_CLIENT_SECRET"}
+          </p>
+          <p style={{ marginBottom: "1.25rem" }}>
+            <a
+              href={`${API}/api/owner/tiktok-horizon/oauth/start`}
+              style={{
+                display: "inline-block",
+                padding: "0.5rem 0.9rem",
+                border: "1px solid #222",
+                background: "#222",
+                color: "#f5f0e6",
+                textDecoration: "none",
+              }}
+            >
+              + Connect TikTok
+            </a>
+          </p>
+          {accounts.length === 0 ? (
+            <p>Нет подключённых аккаунтов.</p>
+          ) : (
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {accounts.map((a) => (
+                <li
+                  key={a.id}
+                  style={{
+                    marginBottom: "0.75rem",
+                    padding: "0.85rem",
+                    background: "rgba(255,255,255,0.55)",
+                    border: "1px solid #cfc4b0",
+                  }}
+                >
+                  <strong>
+                    {a.status === "connected" ? "✔ " : ""}
+                    {a.label || a.username || a.display_name || a.id}
+                  </strong>
+                  <div style={{ fontSize: 14, marginTop: 6 }}>
+                    Status: {a.status}
+                    <br />
+                    Username: {a.username || "—"} · Display: {a.display_name || "—"}
+                    <br />
+                    Connected: {a.connected_at || "—"}
+                    <br />
+                    Last Sync: {a.last_sync_at || "—"}
+                    <br />
+                    Tokens: access={String(a.tokens?.has_access_token)} refresh=
+                    {String(a.tokens?.has_refresh_token)}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                    {a.status === "connected" ? (
+                      <>
+                        <button type="button" disabled={busy} onClick={() => void syncAccount(a.id)}>
+                          Sync
+                        </button>
+                        <a href={`${API}/api/owner/tiktok-horizon/oauth/start`}>Reconnect</a>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => void disconnectAccount(a.id)}
+                        >
+                          Disconnect
+                        </button>
+                      </>
+                    ) : (
+                      <a href={`${API}/api/owner/tiktok-horizon/oauth/start`}>Reconnect</a>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
 

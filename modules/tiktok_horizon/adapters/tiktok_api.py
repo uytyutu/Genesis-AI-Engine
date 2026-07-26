@@ -9,24 +9,25 @@ from modules.tiktok_horizon.models import TrendObservation
 
 
 class TikTokOfficialAdapter(ExternalAdapter):
-    """Placeholder for OAuth + Content Posting / Research endpoints.
-
-    Stage 1 does not call TikTok. When credentials exist later, implement
-    fetch_trend_signals / publish_video using only official APIs.
-    """
+    """Official TikTok API surface — OAuth accounts in Stage 2; publish still OFF."""
 
     provider_id = "tiktok_official"
 
-    def __init__(self, *, connected: bool = False) -> None:
+    def __init__(self, *, connected: bool = False, connected_accounts: int = 0) -> None:
         self._connected = connected
+        self._connected_accounts = connected_accounts
 
     def health(self) -> AdapterResult:
         return AdapterResult(
             ok=True,
             provider=self.provider_id,
-            data={"connected": self._connected, "publish_enabled": False},
+            data={
+                "connected": self._connected or self._connected_accounts > 0,
+                "connected_accounts": self._connected_accounts,
+                "publish_enabled": False,
+            },
             stage1_disabled=True,
-            meta={"note": "Stage 1: account connect + publish not wired."},
+            meta={"note": "Stage 2: OAuth accounts OK. Publish / video still disabled."},
         )
 
     def fetch_trend_signals(self) -> AdapterResult:

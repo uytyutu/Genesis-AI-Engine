@@ -94,8 +94,9 @@ def test_pipeline_trend_to_queue(tmp_path: Path, monkeypatch):
     assert len(ing["trends"]) >= 1
 
     dash = svc.dashboard()
-    assert dash["stage"] == 1
+    assert dash["stage"] >= 1
     assert dash["capabilities"]["video_generation"] is False
+    assert dash["visibility"]["owner_internal_only"] is True
 
     drafts = svc.generate_drafts(limit=2, language="ru")
     assert len(drafts) == 2

@@ -1257,8 +1257,24 @@ def _horizon_http_error(exc: Exception) -> HTTPException:
     code = str(exc)
     if code == "tiktok_disabled":
         return HTTPException(status_code=403, detail="TikTok Horizon выключен (kill switch).")
+    if code == "horizon_not_internal_owner":
+        return HTTPException(
+            status_code=403,
+            detail="TikTok Horizon доступен только Owner (INTERNAL_OWNER).",
+        )
     if code == "draft_not_found":
         return HTTPException(status_code=404, detail="Черновик не найден")
+    if code == "account_not_found":
+        return HTTPException(status_code=404, detail="TikTok-аккаунт не найден")
+    if code == "account_not_connected":
+        return HTTPException(status_code=400, detail="Аккаунт не подключён")
+    if code == "tiktok_oauth_not_configured":
+        return HTTPException(
+            status_code=400,
+            detail="Задайте TIKTOK_CLIENT_KEY и TIKTOK_CLIENT_SECRET в .env.local",
+        )
+    if code == "invalid_oauth_state":
+        return HTTPException(status_code=400, detail="Invalid or expired OAuth state")
     if code == "no_trends":
         return HTTPException(
             status_code=400,
@@ -1354,6 +1370,103 @@ def owner_tiktok_horizon_enqueue(body: dict) -> dict:
     except ValueError as exc:
         raise _horizon_http_error(exc) from exc
     return {"ok": True, "item": item}
+
+
+@app.get("/api/owner/tiktok-horizon/accounts")
+def owner_tiktok_horizon_accounts(request: Request) -> dict:
+    svc = _tiktok_horizon()
+    try:
+        return svc.oauth_status(public_api_base=str(request.base_url).rstrip("/"))
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+
+
+@app.get("/api/owner/tiktok-horizon/oauth/start")
+def owner_tiktok_horizon_oauth_start(request: Request):
+    from fastapi.responses import RedirectResponse
+
+    try:
+        started = _tiktok_horizon().begin_oauth(
+            public_api_base=str(request.base_url).rstrip("/")
+        )
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+    return RedirectResponse(started["authorize_url"], status_code=302)
+
+
+@app.get("/api/owner/tiktok-horizon/oauth/callback")
+def owner_tiktok_horizon_oauth_callback(
+    request: Request,
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+    error_description: str | None = None,
+):
+    import os
+    from urllib.parse import quote
+
+    from fastapi.responses import RedirectResponse
+
+    frontend = (
+        os.getenv("GENESIS_FRONTEND_URL", "").strip()
+        or os.getenv("NEXT_PUBLIC_SITE_URL", "").strip()
+        or "http://localhost:3000"
+    ).rstrip("/")
+    accounts_url = f"{frontend}/tiktok-horizon?tab=accounts"
+
+    if error:
+        msg = quote(error_description or error or "oauth_error")
+        return RedirectResponse(f"{accounts_url}&oauth_error={msg}", status_code=302)
+    if not code or not state:
+        return RedirectResponse(
+            f"{accounts_url}&oauth_error={quote('missing_code_or_state')}",
+            status_code=302,
+        )
+    try:
+        _tiktok_horizon().complete_oauth(
+            code=code,
+            state=state,
+            public_api_base=str(request.base_url).rstrip("/"),
+        )
+    except ValueError as exc:
+        return RedirectResponse(
+            f"{accounts_url}&oauth_error={quote(str(exc))}",
+            status_code=302,
+        )
+    return RedirectResponse(f"{accounts_url}&oauth=ok", status_code=302)
+
+
+@app.post("/api/owner/tiktok-horizon/accounts/{account_id}/disconnect")
+def owner_tiktok_horizon_disconnect(account_id: str) -> dict:
+    try:
+        account = _tiktok_horizon().disconnect_account(account_id)
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+    return {"ok": True, "account": account}
+
+
+@app.post("/api/owner/tiktok-horizon/accounts/{account_id}/sync")
+def owner_tiktok_horizon_sync(account_id: str) -> dict:
+    try:
+        account = _tiktok_horizon().sync_account(account_id)
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+    return {"ok": True, "account": account}
+
+
+@app.post("/api/owner/tiktok-horizon/accounts/{account_id}/reconnect")
+def owner_tiktok_horizon_reconnect(account_id: str, request: Request):
+    """Reconnect = start OAuth again (multi-account upsert by open_id)."""
+    from fastapi.responses import RedirectResponse
+
+    _ = account_id  # reserved for future account-scoped state
+    try:
+        started = _tiktok_horizon().begin_oauth(
+            public_api_base=str(request.base_url).rstrip("/")
+        )
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+    return RedirectResponse(started["authorize_url"], status_code=302)
 
 
 @app.get("/api/owner/growth", response_model=GrowthCenter)

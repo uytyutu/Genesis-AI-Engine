@@ -9,8 +9,10 @@ from pathlib import Path
 from typing import Any
 
 from modules.tiktok_horizon.adapters.tiktok_api import TikTokOfficialAdapter
+from modules.tiktok_horizon.adapters.tiktok_oauth import TikTokOAuthAdapter
 from modules.tiktok_horizon.adapters.tts_api import TtsAdapter
 from modules.tiktok_horizon.adapters.video_api import VideoGeneratorAdapter
+from modules.tiktok_horizon.accounts import TikTokAccountStore
 from modules.tiktok_horizon.analytics import AnalyticsStore
 from modules.tiktok_horizon.content_quality import ContentQualityEngine
 from modules.tiktok_horizon.gate import is_horizon_enabled, require_horizon_enabled
@@ -22,6 +24,7 @@ from modules.tiktok_horizon.publish_intelligence import PublishIntelligence
 from modules.tiktok_horizon.scheduler import Scheduler
 from modules.tiktok_horizon.script_generator import ScriptGenerator
 from modules.tiktok_horizon.trend_intelligence import TrendIntelligence
+from modules.tiktok_horizon.visibility import assert_owner_internal_access, visibility_policy
 
 STAGE1_CAPABILITIES = {
     "trend_intelligence": True,
@@ -36,9 +39,12 @@ STAGE1_CAPABILITIES = {
     "analytics_schema": True,
     "learning_architecture": True,
     "tiktok_adapter_stub": True,
+    "tiktok_oauth": True,
+    "multi_account": True,
     "video_generation": False,
     "tts_generation": False,
     "auto_publish": False,
+    "video_publish": False,
 }
 
 
@@ -54,7 +60,13 @@ class HorizonService:
         if not self._drafts.exists():
             self._drafts.write_text("", encoding="utf-8")
 
-        self.tiktok = TikTokOfficialAdapter(connected=False)
+        self.accounts = TikTokAccountStore(self._root)
+        self.oauth = TikTokOAuthAdapter()
+        n_connected = self.accounts.connected_count()
+        self.tiktok = TikTokOfficialAdapter(
+            connected=n_connected > 0,
+            connected_accounts=n_connected,
+        )
         self.video = VideoGeneratorAdapter()
         self.tts = TtsAdapter()
         self.trends = TrendIntelligence(self._root, tiktok=self.tiktok)
@@ -68,20 +80,35 @@ class HorizonService:
         self.analytics = AnalyticsStore(self._root)
         self.learning = LearningEngine(self._root)
 
+    def _require_owner_module(self) -> None:
+        try:
+            assert_owner_internal_access()
+        except RuntimeError as exc:
+            raise ValueError("horizon_not_internal_owner") from exc
+
     def _require(self) -> None:
+        self._require_owner_module()
         try:
             require_horizon_enabled()
         except RuntimeError as exc:
             raise ValueError("tiktok_disabled") from exc
 
     def dashboard(self) -> dict[str, Any]:
+        self._require_owner_module()
         enabled = is_horizon_enabled()
         drafts = self.list_drafts()
+        accounts = self.list_accounts()
+        n_connected = sum(1 for a in accounts if a.get("status") == "connected")
+        self.tiktok = TikTokOfficialAdapter(
+            connected=n_connected > 0,
+            connected_accounts=n_connected,
+        )
         return {
             "ok": True,
             "module": "tiktok_horizon",
-            "stage": 1,
+            "stage": 2,
             "tiktok_enabled": enabled,
+            "visibility": visibility_policy(),
             "capabilities": STAGE1_CAPABILITIES,
             "counts": {
                 "observations": len(self.trends.list_observations()),
@@ -90,9 +117,14 @@ class HorizonService:
                 "review": sum(1 for d in drafts if d.get("status") == "review"),
                 "approved": sum(1 for d in drafts if d.get("status") == "approved"),
                 "queue": len(self.scheduler.list_queue()),
+                "accounts": len(accounts),
+                "accounts_connected": n_connected,
             },
+            "accounts": accounts,
+            "oauth": self.oauth.health().__dict__,
             "adapters": {
                 "tiktok": self.tiktok.health().__dict__,
+                "tiktok_oauth": self.oauth.health().__dict__,
                 "video": self.video.health().__dict__,
                 "tts": self.tts.health().__dict__,
             },
@@ -100,10 +132,125 @@ class HorizonService:
             "analytics_schema": self.analytics.schema(),
             "pipeline_ru": "Trend → Draft → Human Review → Approve → Queue (publish OFF)",
             "note_ru": (
-                "Внутренний модуль владельца. Не клиентский сервис. "
-                "Генерация видео и публикация отключены на Stage 1."
+                "Внутренний модуль Owner (INTERNAL_OWNER). "
+                "Stage 2: OAuth мультиаккаунты. Генерация видео и публикация отключены."
             ),
         }
+
+    # --- Stage 2: TikTok Accounts (OAuth) — no kill switch required ---
+
+    def list_accounts(self) -> list[dict[str, Any]]:
+        self._require_owner_module()
+        return self.accounts.list_public()
+
+    def oauth_status(self, *, public_api_base: str = "") -> dict[str, Any]:
+        self._require_owner_module()
+        redirect = (
+            self.oauth.default_redirect_uri(public_api_base) if public_api_base else None
+        )
+        return {
+            "oauth_client_ready": self.oauth.oauth_client_ready(),
+            "redirect_uri": redirect,
+            "scopes": (self.oauth.health().data or {}).get("scopes"),
+            "accounts": self.list_accounts(),
+            "multi_account": True,
+            "publish_enabled": False,
+            "env_required": ["TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET"],
+            "note_ru": (
+                "Зарегистрируйте redirect_uri в TikTok for Developers → Login Kit. "
+                "Токены хранятся только в зашифрованном виде."
+            ),
+        }
+
+    def begin_oauth(self, *, public_api_base: str) -> dict[str, Any]:
+        self._require_owner_module()
+        if not self.oauth.oauth_client_ready():
+            raise ValueError("tiktok_oauth_not_configured")
+        redirect_uri = self.oauth.default_redirect_uri(public_api_base)
+        state = self.oauth.create_state()
+        url = self.oauth.authorization_url(redirect_uri=redirect_uri, state=state)
+        return {"authorize_url": url, "redirect_uri": redirect_uri, "state": state}
+
+    def complete_oauth(self, *, code: str, state: str, public_api_base: str) -> dict[str, Any]:
+        self._require_owner_module()
+        if not self.oauth.consume_state(state):
+            raise ValueError("invalid_oauth_state")
+        redirect_uri = self.oauth.default_redirect_uri(public_api_base)
+        tokens = self.oauth.exchange_code(code=code, redirect_uri=redirect_uri)
+        if not tokens.get("ok"):
+            raise ValueError(str(tokens.get("reason") or "oauth_exchange_failed"))
+        profile = self.oauth.fetch_user_profile(access_token=str(tokens["access_token"]))
+        display_name = profile.get("display_name") if profile.get("ok") else None
+        username = profile.get("username") if profile.get("ok") else None
+        avatar_url = profile.get("avatar_url") if profile.get("ok") else None
+        open_id = str(tokens["open_id"])
+        if profile.get("ok") and profile.get("open_id"):
+            open_id = str(profile["open_id"])
+        account = self.accounts.upsert_from_oauth(
+            open_id=open_id,
+            access_token=str(tokens["access_token"]),
+            refresh_token=str(tokens.get("refresh_token") or ""),
+            expires_in=int(tokens.get("expires_in") or 86400),
+            refresh_expires_in=int(tokens.get("refresh_expires_in") or 0),
+            scopes=list(tokens.get("scopes") or []),
+            display_name=str(display_name) if display_name else None,
+            username=str(username) if username else None,
+            avatar_url=str(avatar_url) if avatar_url else None,
+        )
+        self.learning.record_event(
+            {
+                "event_type": "oauth_connected",
+                "draft_id": None,
+                "payload": {"account_id": account.get("id"), "open_id": open_id},
+            }
+        )
+        return {"ok": True, "account": account}
+
+    def disconnect_account(self, account_id: str) -> dict[str, Any]:
+        self._require_owner_module()
+        revoke_ok = None
+        raw = self.accounts.get_raw(account_id)
+        if raw and raw.get("status") == "connected" and raw.get("access_token_sealed"):
+            try:
+                token = self.accounts.get_access_token(account_id)
+                revoke_ok = bool(self.oauth.revoke(access_token=token).get("ok"))
+            except ValueError:
+                revoke_ok = False
+        return self.accounts.disconnect(account_id, revoke_ok=revoke_ok)
+
+    def sync_account(self, account_id: str) -> dict[str, Any]:
+        self._require_owner_module()
+        raw = self.accounts.get_raw(account_id)
+        if not raw:
+            raise ValueError("account_not_found")
+        if raw.get("status") != "connected":
+            raise ValueError("account_not_connected")
+        # Refresh token if possible, then profile
+        try:
+            refresh = self.accounts.get_refresh_token(account_id)
+        except ValueError:
+            refresh = ""
+        if refresh:
+            refreshed = self.oauth.refresh_access_token(refresh_token=refresh)
+            if refreshed.get("ok"):
+                self.accounts.update_tokens(
+                    account_id,
+                    access_token=str(refreshed["access_token"]),
+                    refresh_token=str(refreshed.get("refresh_token") or refresh),
+                    expires_in=int(refreshed.get("expires_in") or 86400),
+                    refresh_expires_in=int(refreshed.get("refresh_expires_in") or 0) or None,
+                    scopes=list(refreshed.get("scopes") or []),
+                )
+        access = self.accounts.get_access_token(account_id)
+        profile = self.oauth.fetch_user_profile(access_token=access)
+        profile_fields = None
+        if profile.get("ok"):
+            profile_fields = {
+                "display_name": profile.get("display_name"),
+                "username": profile.get("username"),
+                "avatar_url": profile.get("avatar_url"),
+            }
+        return self.accounts.mark_synced(account_id, profile=profile_fields)
 
     def ingest_observations(self, rows: list[dict[str, Any]]) -> dict[str, Any]:
         self._require()

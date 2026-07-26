@@ -2,6 +2,11 @@
   "tiktok_enabled": false,
   "media_engine_enabled": false,
   "note": "Kill switches. Path A (Country Desk → Stripe → Factory) never depends on these flags.",
+  "tiktok_horizon": {
+    "visibility": "INTERNAL_OWNER",
+    "owner_internal_only": true,
+    "note": "Never expose Horizon in Products, Services, /site, Client Workspace, or public API."
+  },
   "video_factory": {
     "channels": {
       "tiktok": { "stage": "dormant" },
