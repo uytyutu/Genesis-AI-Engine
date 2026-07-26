@@ -127,7 +127,7 @@ export default function ClientDashboardPage() {
               Order a website
             </Link>
             <Link
-              href="/site?service=bots"
+              href="/order/bot?package=bot_business"
               className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/5"
             >
               Order an AI bot
@@ -151,7 +151,7 @@ export default function ClientDashboardPage() {
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {[
-              { href: "/site?service=bots", label: "AI Bot" },
+              { href: "/order/bot?package=bot_business", label: "AI Bot" },
               { href: "/order?package=seo_audit", label: "SEO Audit" },
               { href: "/order?package=speed_optimization", label: "Speed" },
               { href: "/order?package=website_repair", label: "Repair" },

@@ -70,7 +70,7 @@ export default function ClientProductsPage() {
               Order Landing
             </Link>
             <Link
-              href="/site?service=bots"
+              href="/order/bot?package=bot_business"
               className="rounded-xl border border-white/15 px-4 py-2 text-sm text-white hover:bg-white/5"
             >
               Order AI Bot

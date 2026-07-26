@@ -253,6 +253,12 @@ export default function OrderSitePage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const pkg = params.get("package");
+    const intent = (params.get("intent") || "").toLowerCase();
+    // Bot orders use a dedicated wizard — never the website form.
+    if (intent === "bot" || (pkg && pkg.toLowerCase().startsWith("bot_"))) {
+      window.location.replace(`/order/bot?${params.toString()}`);
+      return;
+    }
     if (
       pkg &&
       ["basic", "business", "premium", "repair_lite", "repair_standard", "repair_complete"].includes(

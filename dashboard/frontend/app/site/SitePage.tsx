@@ -455,7 +455,7 @@ export function SitePage() {
   const detailsLabel = t("s0.details", { defaultValue: "Details" });
   const backLabel = t("s0.backToServices", { defaultValue: "← All services" });
   const botOrderHref = (packageId: string) =>
-    `/order?market=${encodeURIComponent(market)}&purchase_type=subscription&intent=bot&package=${encodeURIComponent(packageId)}`;
+    `/order/bot?market=${encodeURIComponent(market)}&package=${encodeURIComponent(packageId)}`;
 
   const marketSelect =
     markets.length > 0 ? (

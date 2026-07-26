@@ -37,6 +37,183 @@ def _normalize_order_brand_style(raw: object) -> str:
     return normalize_brand_style(str(raw or ""))
 
 
+_BOT_CHANNELS_AVAILABLE = frozenset({"telegram", "website_chat"})
+_BOT_CHANNELS_COMING_SOON = frozenset(
+    {"whatsapp", "instagram", "facebook_messenger"}
+)
+_BOT_CAPABILITIES = frozenset(
+    {
+        "consult",
+        "faq",
+        "leads",
+        "booking",
+        "handoff",
+        "always_on",
+    }
+)
+_BOT_EXTRAS = frozenset(
+    {
+        "ai_enabled",
+        "multilingual",
+        "company_training",
+        "website_integration",
+    }
+)
+_BOT_KNOWLEDGE_SOURCES = frozenset(
+    {
+        "website",
+        "pdf",
+        "faq",
+        "word",
+        "manual_text",
+        "later",
+    }
+)
+_BOT_HANDOFF_RULES = frozenset(
+    {
+        "when_asks_manager",
+        "when_unknown",
+        "after_lead",
+        "never",
+    }
+)
+_BOT_LANGUAGES = frozenset({"de", "ru", "en", "uk", "other"})
+
+# Extra channel beyond the first included in package — billed separately (EUR setup).
+_BOT_CHANNEL_ADDON_SETUP_EUR: dict[str, int] = {
+    "telegram": 0,
+    "website_chat": 149,
+    "whatsapp": 199,
+    "instagram": 199,
+    "facebook_messenger": 199,
+}
+
+
+def bot_channel_addon_quote(channels: list[str]) -> dict:
+    """First available channel included in package; each extra costs setup fee."""
+    available = [c for c in channels if c in _BOT_CHANNELS_AVAILABLE]
+    included = available[:1]
+    extras = available[1:]
+    lines = []
+    total = 0
+    for ch in extras:
+        fee = int(_BOT_CHANNEL_ADDON_SETUP_EUR.get(ch, 149))
+        total += fee
+        lines.append({"channel": ch, "setup_eur": fee, "status": "billable"})
+    for ch in included:
+        lines.append({"channel": ch, "setup_eur": 0, "status": "included"})
+    return {
+        "included_channels": included,
+        "addon_channels": extras,
+        "addon_setup_total_eur": total,
+        "lines": lines,
+        "expandable": True,
+        "note_ru": (
+            "Первый канал входит в тариф. Каждый дополнительный канал — отдельная "
+            "оплата setup. Позже: «Добавить канал» к тому же боту без нового проекта."
+        ),
+    }
+
+
+def _normalize_bot_config(raw: object) -> dict:
+    """Bot order wizard payload — only available channels are orderable now."""
+    data = raw if isinstance(raw, dict) else {}
+    channels_in = data.get("channels") or []
+    if isinstance(channels_in, str):
+        channels_in = [x.strip() for x in channels_in.split(",") if x.strip()]
+    channels: list[str] = []
+    for ch in channels_in:
+        key = str(ch).strip().lower()
+        if key in _BOT_CHANNELS_AVAILABLE and key not in channels:
+            channels.append(key)
+    if not channels:
+        channels = ["telegram"]
+
+    caps_in = data.get("capabilities") or []
+    if isinstance(caps_in, str):
+        caps_in = [x.strip() for x in caps_in.split(",") if x.strip()]
+    capabilities = [
+        str(c).strip().lower()
+        for c in caps_in
+        if str(c).strip().lower() in _BOT_CAPABILITIES
+    ][:12]
+
+    extras_in = data.get("extras") or []
+    if isinstance(extras_in, str):
+        extras_in = [x.strip() for x in extras_in.split(",") if x.strip()]
+    extras = [
+        str(e).strip().lower()
+        for e in extras_in
+        if str(e).strip().lower() in _BOT_EXTRAS
+    ][:12]
+
+    knowledge_in = data.get("knowledge_sources") or []
+    if isinstance(knowledge_in, str):
+        knowledge_in = [x.strip() for x in knowledge_in.split(",") if x.strip()]
+    knowledge = [
+        str(k).strip().lower()
+        for k in knowledge_in
+        if str(k).strip().lower() in _BOT_KNOWLEDGE_SOURCES
+    ][:8]
+    if not knowledge:
+        knowledge = ["later"]
+    if "later" in knowledge and len(knowledge) > 1:
+        knowledge = [k for k in knowledge if k != "later"]
+
+    handoff_in = data.get("handoff_rules") or []
+    if isinstance(handoff_in, str):
+        handoff_in = [x.strip() for x in handoff_in.split(",") if x.strip()]
+    handoff = [
+        str(h).strip().lower()
+        for h in handoff_in
+        if str(h).strip().lower() in _BOT_HANDOFF_RULES
+    ][:6]
+    if "never" in handoff and len(handoff) > 1:
+        handoff = ["never"]
+    if not handoff:
+        handoff = ["when_asks_manager", "when_unknown"]
+
+    langs_in = data.get("languages") or []
+    if isinstance(langs_in, str):
+        langs_in = [x.strip() for x in langs_in.split(",") if x.strip()]
+    languages = [
+        str(lang).strip().lower()
+        for lang in langs_in
+        if str(lang).strip().lower() in _BOT_LANGUAGES
+    ][:8]
+    legacy = str(data.get("reply_language") or "").strip().lower()
+    if legacy in _BOT_LANGUAGES and legacy not in languages:
+        languages.insert(0, legacy)
+    if not languages:
+        languages = ["de"]
+
+    channel_quote = bot_channel_addon_quote(channels)
+
+    return {
+        "channels": channels,
+        "channels_coming_soon_requested": [
+            str(c).strip().lower()
+            for c in (data.get("channels_interest") or [])
+            if str(c).strip().lower() in _BOT_CHANNELS_COMING_SOON
+        ][:6],
+        "capabilities": capabilities,
+        "extras": extras,
+        "knowledge_sources": knowledge,
+        "handoff_rules": handoff,
+        "languages": languages,
+        "activity": str(data.get("activity") or "").strip()[:200] or None,
+        "country": str(data.get("country") or "").strip()[:80] or None,
+        "reply_language": languages[0],
+        "channel_pricing": channel_quote,
+        "expandable_channels": True,
+        "add_channel_path": "/client/bots?action=add_channel",
+        "note_ru": (
+            "Сайт и AI Bot — разные продукты. Доп. каналы оплачиваются отдельно и "
+            "добавляются к тому же боту («Добавить канал»), без нового проекта."
+        ),
+    }
+
+
 # Post-ZIP handoff (Assisted Deployment) — never store host passwords.
 DEPLOYMENT_PREFERENCES = frozenset({"unset", "zip_only", "assisted"})
 HOSTING_PROVIDERS = frozenset(
@@ -269,12 +446,24 @@ _ADDON_PACKAGE_IDS = frozenset(
 def package_included_summary(package_id: str | None) -> str:
     """One-line Layer A canon for ZIP / next-steps emails."""
     pid = (package_id or "basic").strip().lower()
+    if pid.startswith("bot_"):
+        from app.integration.pricing_engine import resolve_bot_offer
+
+        bot = resolve_bot_offer(pid, "DE")
+        return (
+            f"AI bot setup {bot.setup_label} + {bot.monthly_label}/mo; "
+            "channels from order; expandable later"
+        )
     row = _PACKAGES.get(pid) or _PACKAGES["basic"]
     return str(row.get("included_summary") or "")
 
 
 def package_display_name(package_id: str | None) -> str:
     pid = (package_id or "basic").strip().lower()
+    if pid.startswith("bot_"):
+        from app.integration.pricing_engine import resolve_bot_offer
+
+        return resolve_bot_offer(pid, "DE").name
     row = _PACKAGES.get(pid) or _PACKAGES["basic"]
     return str(row.get("name") or "Landing Basic")
 
@@ -427,6 +616,51 @@ class SalesOrderService:
                 "price_label": price_label,
             }
 
+        from app.integration.pricing_engine import BOT_PACKAGE_IDS, resolve_bot_offer
+
+        if pid in BOT_PACKAGE_IDS or str(pid).startswith("bot_"):
+            from app.integration.market_registry import format_amount
+
+            bot = resolve_bot_offer(pid, (market_code or "DE").strip().upper() or "DE")
+            setup_label = format_amount(bot.setup_amount, bot.symbol)
+            monthly_label = format_amount(bot.monthly_amount, bot.symbol)
+            package = {
+                "id": bot.package_id,
+                "name": bot.name,
+                "price_eur": float(bot.setup_amount),
+                "currency": bot.currency,
+                "symbol": bot.symbol,
+                "market_code": bot.market_code,
+                "price_label": f"{setup_label} + {monthly_label}/mo",
+                "product_kind": "bot",
+                "purchase_type": "subscription",
+                "setup_amount": bot.setup_amount,
+                "monthly_amount": bot.monthly_amount,
+                "tagline": "AI Business Bot — separate from website packages",
+                "included_summary": (
+                    f"AI bot setup ({setup_label}) + monthly ({monthly_label}/mo); "
+                    "channels chosen at order; expandable later"
+                ),
+                "deliverables": [
+                    "Bot setup for selected channels (Telegram / Website Chat when available)",
+                    "Company knowledge questionnaire after payment",
+                    "Client workspace for bot status",
+                    f"Monthly plan: {monthly_label}/mo after setup",
+                    "Additional channels can be added later without a new website order",
+                ],
+            }
+            return package, {
+                "package_id": bot.package_id,
+                "amount": bot.setup_amount,
+                "currency": bot.currency,
+                "symbol": bot.symbol,
+                "market_code": bot.market_code,
+                "price_label": package["price_label"],
+                "setup_amount": bot.setup_amount,
+                "monthly_amount": bot.monthly_amount,
+                "product_kind": "bot",
+            }
+
         resolved = resolve_checkout_market(
             market_code=market_code,
             city=city,
@@ -566,6 +800,35 @@ class SalesOrderService:
         locale_ctx["language"] = ui_lang
         locale_ctx["locale"] = locale_ctx.get("locale") or f"{ui_lang}_{market_code}"
 
+        product_kind = str(
+            package.get("product_kind")
+            or (
+                "repair"
+                if str(package_id).strip().lower() in _REPAIR_PACKAGE_IDS
+                else "website"
+            )
+        )
+        bot_config = None
+        price_eur = float(package["price_eur"])
+        price_label = package.get("price_label", f"{price_eur} €")
+        setup_amount = package.get("setup_amount")
+        if product_kind == "bot" or str(package_id).startswith("bot_"):
+            product_kind = "bot"
+            bot_config = _normalize_bot_config(payload.get("bot_config"))
+            addon = int(
+                (bot_config.get("channel_pricing") or {}).get("addon_setup_total_eur")
+                or 0
+            )
+            if addon > 0:
+                price_eur = float(price_eur) + addon
+                setup_amount = float(setup_amount or package["price_eur"]) + addon
+                sym = package.get("symbol", "€")
+                price_label = f"{price_eur:g} {sym}"
+                if package.get("monthly_amount") is not None:
+                    price_label = (
+                        f"{price_eur:g} {sym} + {package['monthly_amount']} {sym}/mo"
+                    )
+
         order = {
             "order_id": order_id,
             "status": "awaiting_payment",
@@ -574,16 +837,17 @@ class SalesOrderService:
             ),
             "package_id": package_id,
             "package_name": package["name"],
-            "product_kind": str(
-                package.get("product_kind")
-                or (
-                    "repair"
-                    if str(package_id).strip().lower() in _REPAIR_PACKAGE_IDS
-                    else "website"
-                )
+            "product_kind": product_kind,
+            "purchase_type": str(
+                payload.get("purchase_type")
+                or package.get("purchase_type")
+                or "one_time"
             ),
+            "bot_config": bot_config,
+            "setup_amount": setup_amount,
+            "monthly_amount": package.get("monthly_amount"),
             "analysis_case_id": (payload.get("analysis_case_id") or "").strip() or None,
-            "price_eur": package["price_eur"],
+            "price_eur": price_eur,
             "currency": package.get("currency", "EUR"),
             "symbol": package.get("symbol", "€"),
             "market_code": market_code,
@@ -591,7 +855,7 @@ class SalesOrderService:
             "language": ui_lang,
             "locale": locale_ctx["locale"],
             "factory_context": locale_ctx,
-            "price_label": package.get("price_label", f"{package['price_eur']} €"),
+            "price_label": price_label,
             "motion_level": motion,
             "brand_style": _normalize_order_brand_style(payload.get("brand_style")),
             "deliverables": (
@@ -653,17 +917,21 @@ class SalesOrderService:
                 project_name=project_name or payload["business_name"].strip(),
                 ui_lang=ui_lang,
             ),
+            "package_id": package_id,
             "package_name": package["name"],
-            "price_eur": package["price_eur"],
+            "product_kind": order.get("product_kind"),
+            "price_eur": order.get("price_eur", package["price_eur"]),
             "currency": package.get("currency", "EUR"),
             "symbol": package.get("symbol", "€"),
             "market_code": market_code,
             "ui_lang": ui_lang,
             "locale": locale_ctx["locale"],
-            "price_label": package.get("price_label"),
+            "price_label": order.get("price_label") or package.get("price_label"),
             "motion_level": motion,
             "deliverables": order["deliverables"],
             "buyer_insights": buyer_insights,
+            "bot_config": order.get("bot_config"),
+            "monthly_amount": order.get("monthly_amount"),
         }
 
     def list_orders(self, limit: int = 20) -> list[dict]:
