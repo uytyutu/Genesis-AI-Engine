@@ -1247,6 +1247,115 @@ def owner_video_factory_earnings() -> dict:
     return _video_factory().earnings_snapshot()
 
 
+def _tiktok_horizon():
+    from modules.tiktok_horizon import HorizonService
+
+    return HorizonService(_memory_dir())
+
+
+def _horizon_http_error(exc: Exception) -> HTTPException:
+    code = str(exc)
+    if code == "tiktok_disabled":
+        return HTTPException(status_code=403, detail="TikTok Horizon выключен (kill switch).")
+    if code == "draft_not_found":
+        return HTTPException(status_code=404, detail="Черновик не найден")
+    if code == "no_trends":
+        return HTTPException(
+            status_code=400,
+            detail="Нет трендов — сначала ingest observations или refresh trends.",
+        )
+    if code == "draft_not_approved":
+        return HTTPException(status_code=400, detail="Сначала Approve, потом Queue.")
+    return HTTPException(status_code=400, detail=code)
+
+
+@app.get("/api/owner/tiktok-horizon")
+def owner_tiktok_horizon_dashboard() -> dict:
+    return _tiktok_horizon().dashboard()
+
+
+@app.get("/api/owner/tiktok-horizon/trends")
+def owner_tiktok_horizon_trends() -> dict:
+    return {"items": _tiktok_horizon().list_trends()}
+
+
+@app.post("/api/owner/tiktok-horizon/trends/refresh")
+def owner_tiktok_horizon_trends_refresh() -> dict:
+    try:
+        return _tiktok_horizon().refresh_trends()
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+
+
+@app.post("/api/owner/tiktok-horizon/observations")
+def owner_tiktok_horizon_ingest(body: dict) -> dict:
+    rows = body.get("observations") or body.get("items") or []
+    if not isinstance(rows, list):
+        raise HTTPException(status_code=400, detail="observations must be a list")
+    try:
+        return _tiktok_horizon().ingest_observations(rows)
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+
+
+@app.get("/api/owner/tiktok-horizon/drafts")
+def owner_tiktok_horizon_drafts() -> dict:
+    return {"items": _tiktok_horizon().list_drafts()}
+
+
+@app.post("/api/owner/tiktok-horizon/drafts/generate")
+def owner_tiktok_horizon_generate(body: dict | None = None) -> dict:
+    body = body or {}
+    try:
+        drafts = _tiktok_horizon().generate_drafts(
+            limit=int(body.get("limit") or 3),
+            language=str(body.get("language") or "ru"),
+        )
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+    return {"ok": True, "drafts": drafts}
+
+
+@app.get("/api/owner/tiktok-horizon/drafts/{draft_id}/review")
+def owner_tiktok_horizon_review(draft_id: str) -> dict:
+    try:
+        return _tiktok_horizon().review_checklist(draft_id)
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+
+
+@app.post("/api/owner/tiktok-horizon/drafts/{draft_id}/review")
+def owner_tiktok_horizon_apply_review(draft_id: str, body: dict) -> dict:
+    try:
+        draft = _tiktok_horizon().apply_review_edits(draft_id, body.get("edits") or body)
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+    return {"ok": True, "draft": draft}
+
+
+@app.post("/api/owner/tiktok-horizon/drafts/{draft_id}/approve")
+def owner_tiktok_horizon_approve(draft_id: str) -> dict:
+    try:
+        draft = _tiktok_horizon().approve_draft(draft_id)
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+    return {"ok": True, "draft": draft}
+
+
+@app.get("/api/owner/tiktok-horizon/queue")
+def owner_tiktok_horizon_queue() -> dict:
+    return {"items": _tiktok_horizon().list_queue()}
+
+
+@app.post("/api/owner/tiktok-horizon/queue")
+def owner_tiktok_horizon_enqueue(body: dict) -> dict:
+    try:
+        item = _tiktok_horizon().enqueue_draft(str(body.get("draft_id") or ""))
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+    return {"ok": True, "item": item}
+
+
 @app.get("/api/owner/growth", response_model=GrowthCenter)
 def get_growth_center() -> GrowthCenter:
     data = _ctx().growth.center()

@@ -5,115 +5,120 @@ import Link from "next/link";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-type TabId = "library" | "trends" | "drafts" | "queue" | "earnings";
+type TabId = "overview" | "trends" | "review" | "queue";
 
-type FeaturesSnap = {
-  tiktok_enabled: boolean;
-  media_engine_enabled?: boolean;
-  path_a_independent?: boolean;
-  status_ru?: string;
-  principle_ru?: string;
-  module?: string;
-  config_path?: string;
+type Dash = {
+  tiktok_enabled?: boolean;
+  stage?: number;
+  pipeline_ru?: string;
+  note_ru?: string;
+  counts?: Record<string, number>;
+  capabilities?: Record<string, boolean>;
+  adapters?: Record<string, { provider?: string; stage1_disabled?: boolean }>;
 };
 
-type FactoryDash = {
-  tiktok_enabled: boolean;
-  counts: { library: number; drafts: number; queue: number; approved: number };
-  channels: { id: string; label: string; stage: string; launch_order: number; next_slot: boolean }[];
-  capcut: { connected: boolean; status_ru: string };
-  earnings: {
-    balance_in_virtus: number;
-    withdraw_via: string;
-    note_ru: string;
-  };
-  trends: { connected: boolean; note_ru: string; items: unknown[] };
-  reality?: Record<string, boolean>;
-  reality_note_ru: string;
-  capabilities?: {
-    available: { id: string; label_ru: string; ok: boolean }[];
-    unavailable: { id: string; label_ru: string; ok: boolean }[];
-  };
+type Trend = {
+  trend_id: string;
+  topic_label: string;
+  growth_score: number;
+  hook_style?: string;
+  editing_style?: string;
+  average_duration?: number;
 };
 
 type Draft = {
   id: string;
   status: string;
-  source?: string;
-  niche?: string;
-  city?: string;
-  scenario?: { hook_de?: string; body_beats_de?: string[]; cta_de?: string };
+  title?: string;
+  style_variant?: string;
+  human_edited?: boolean;
+  quality?: Record<string, number | string[]>;
+  quality_ready?: boolean;
+  script?: {
+    hook_seconds?: string;
+    caption?: string;
+    narrator_text?: string;
+    hashtags?: string[];
+  };
+  prompt?: { prompt_text?: string; video_api_enabled?: boolean };
+  publish_window?: {
+    window_start_local?: string;
+    window_end_local?: string;
+    confidence?: number;
+    confidence_label?: string;
+    reasons?: string[];
+  };
 };
 
-type LibItem = { id: string; title: string; niche?: string; status?: string; note_ru?: string };
 type QueueItem = {
   id: string;
-  channel: string;
-  status: string;
-  queue_state?: string;
-  display_status?: string;
-  block_reason_ru?: string;
-  publish_blocked?: string;
+  draft_id?: string;
+  title?: string;
+  status?: string;
   publish_note_ru?: string;
-  hook_de?: string;
-  source?: string;
+  publish_enabled?: boolean;
 };
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: "library", label: "Библиотека" },
+  { id: "overview", label: "Обзор" },
   { id: "trends", label: "Тренды" },
-  { id: "drafts", label: "Черновики" },
+  { id: "review", label: "Human Review" },
   { id: "queue", label: "Очередь" },
-  { id: "earnings", label: "Доход" },
 ];
 
 export default function TikTokHorizonPage() {
-  const [snap, setSnap] = useState<FeaturesSnap | null>(null);
-  const [dash, setDash] = useState<FactoryDash | null>(null);
-  const [tab, setTab] = useState<TabId>("drafts");
+  const [dash, setDash] = useState<Dash | null>(null);
+  const [tab, setTab] = useState<TabId>("overview");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [trends, setTrends] = useState<Trend[]>([]);
   const [drafts, setDrafts] = useState<Draft[]>([]);
-  const [library, setLibrary] = useState<LibItem[]>([]);
   const [queue, setQueue] = useState<QueueItem[]>([]);
-  const [niche, setNiche] = useState("Handwerk");
-  const [city, setCity] = useState("Köln");
-  const [issues, setIssues] = useState("Kein HTTPS\nKein WhatsApp-Button");
-  const [libTitle, setLibTitle] = useState("");
+  const [selectedId, setSelectedId] = useState<string>("");
+  const [editHook, setEditHook] = useState("");
+  const [editCaption, setEditCaption] = useState("");
+  const [editNarrator, setEditNarrator] = useState("");
+
+  const enabled = dash?.tiktok_enabled === true;
+  const selected = drafts.find((d) => d.id === selectedId) || drafts[0];
 
   const refresh = useCallback(async () => {
     try {
-      const [fRes, dRes] = await Promise.all([
-        fetch(`${API}/api/owner/features`),
-        fetch(`${API}/api/owner/video-factory`),
+      const [dRes, tRes, drRes, qRes] = await Promise.all([
+        fetch(`${API}/api/owner/tiktok-horizon`),
+        fetch(`${API}/api/owner/tiktok-horizon/trends`),
+        fetch(`${API}/api/owner/tiktok-horizon/drafts`),
+        fetch(`${API}/api/owner/tiktok-horizon/queue`),
       ]);
-      if (fRes.ok) setSnap(await fRes.json());
       if (dRes.ok) setDash(await dRes.json());
-      const [dr, li, qu] = await Promise.all([
-        fetch(`${API}/api/owner/video-factory/drafts`),
-        fetch(`${API}/api/owner/video-factory/library`),
-        fetch(`${API}/api/owner/video-factory/queue`),
-      ]);
-      if (dr.ok) setDrafts((await dr.json()).items ?? []);
-      if (li.ok) setLibrary((await li.json()).items ?? []);
-      if (qu.ok) setQueue((await qu.json()).items ?? []);
+      if (tRes.ok) setTrends((await tRes.json()).items ?? []);
+      if (drRes.ok) {
+        const items = (await drRes.json()).items ?? [];
+        setDrafts(items);
+        if (!selectedId && items[0]?.id) setSelectedId(items[0].id);
+      }
+      if (qRes.ok) setQueue((await qRes.json()).items ?? []);
     } catch {
-      setMessage("Backend недоступен — флаги не прочитаны.");
+      setMessage("Backend недоступен.");
     }
-  }, []);
+  }, [selectedId]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
-  const enabled = snap?.tiktok_enabled === true;
+  useEffect(() => {
+    if (!selected) return;
+    setEditHook(selected.script?.hook_seconds || "");
+    setEditCaption(selected.script?.caption || "");
+    setEditNarrator(selected.script?.narrator_text || "");
+  }, [selected?.id]);
 
   async function activate() {
     const ok = window.confirm(
-      "Активировать Video Factory (TikTok Horizon)?\n\n" +
-        "v0: сценарии и очередь статусов. Без автопубликации и без CapCut.\n" +
-        "Path A (Stripe / Country Desk) не затрагивается.\n\n" +
-        "Продолжить?",
+      "Активировать TikTok Horizon Stage 1?\n\n" +
+        "Тренды → черновики → Human Review → очередь.\n" +
+        "Без генерации видео и без публикации.\n\nПродолжить?",
     );
     if (!ok) return;
     setBusy(true);
@@ -129,8 +134,7 @@ export default function TikTokHorizonPage() {
         setMessage(typeof body.detail === "string" ? body.detail : "Ошибка активации");
         return;
       }
-      setSnap(body);
-      setMessage("Флаг tiktok_enabled=true. Автопубликация не запущена.");
+      setMessage("Horizon включён (kill switch ON). Публикация не запущена.");
       await refresh();
     } finally {
       setBusy(false);
@@ -140,20 +144,15 @@ export default function TikTokHorizonPage() {
   async function deactivate() {
     setBusy(true);
     try {
-      const res = await fetch(`${API}/api/owner/features/tiktok/deactivate`, {
-        method: "POST",
-      });
-      if (res.ok) {
-        setSnap(await res.json());
-        setMessage("Kill switch снова OFF — безопасно.");
-        await refresh();
-      }
+      await fetch(`${API}/api/owner/features/tiktok/deactivate`, { method: "POST" });
+      setMessage("Kill switch OFF.");
+      await refresh();
     } finally {
       setBusy(false);
     }
   }
 
-  async function createDraft() {
+  async function seedAndAnalyze() {
     if (!enabled) {
       setMessage("Сначала включите kill switch.");
       return;
@@ -161,470 +160,421 @@ export default function TikTokHorizonPage() {
     setBusy(true);
     setMessage("");
     try {
-      const res = await fetch(`${API}/api/owner/video-factory/drafts`, {
+      const observations = [
+        {
+          topic_tokens: ["handwerk", "anruf", "landing"],
+          duration_sec: 22,
+          hook_style: "question",
+          editing_style: "fast_cut",
+          caption_style: "short_cta",
+          hashtag_pattern: ["handwerk", "tipps"],
+          engagement_proxy: 2.5,
+        },
+        {
+          topic_tokens: ["handwerk", "whatsapp"],
+          duration_sec: 26,
+          hook_style: "question",
+          editing_style: "fast_cut",
+          caption_style: "short_cta",
+          hashtag_pattern: ["handwerk"],
+          engagement_proxy: 3.0,
+        },
+        {
+          topic_tokens: ["seo", "local"],
+          duration_sec: 34,
+          hook_style: "myth",
+          editing_style: "talking_head",
+          caption_style: "story",
+          hashtag_pattern: ["seo"],
+          engagement_proxy: 1.4,
+        },
+      ];
+      const res = await fetch(`${API}/api/owner/tiktok-horizon/observations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ observations }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setMessage(typeof body.detail === "string" ? body.detail : "Ingest failed");
+        return;
+      }
+      setMessage(`Observations: ${body.ingested}. Trends: ${(body.trends || []).length}`);
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function generateDrafts() {
+    if (!enabled) {
+      setMessage("Сначала включите kill switch.");
+      return;
+    }
+    setBusy(true);
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/owner/tiktok-horizon/drafts/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: 3, language: "ru" }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setMessage(typeof body.detail === "string" ? body.detail : "Generate failed");
+        return;
+      }
+      const first = body.drafts?.[0]?.id;
+      if (first) setSelectedId(first);
+      setTab("review");
+      setMessage(`Создано черновиков: ${(body.drafts || []).length}`);
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function saveEdits() {
+    if (!selected) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`${API}/api/owner/tiktok-horizon/drafts/${selected.id}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          niche,
-          city,
-          pattern_issues: issues,
-          source: "manual",
+          edits: {
+            hook_seconds: editHook,
+            caption: editCaption,
+            narrator_text: editNarrator,
+          },
         }),
       });
       const body = await res.json();
       if (!res.ok) {
-        setMessage(typeof body.detail === "string" ? body.detail : "Не удалось создать черновик");
+        setMessage(typeof body.detail === "string" ? body.detail : "Edit failed");
         return;
       }
-      setMessage(`Черновик создан: ${body.draft?.id}`);
+      setMessage("Human Review сохранён.");
       await refresh();
-      setTab("drafts");
     } finally {
       setBusy(false);
     }
   }
 
-  async function approveDraft(id: string) {
+  async function approve() {
+    if (!selected) return;
     setBusy(true);
     try {
-      const res = await fetch(`${API}/api/owner/video-factory/drafts/${id}/approve`, {
+      const res = await fetch(`${API}/api/owner/tiktok-horizon/drafts/${selected.id}/approve`, {
         method: "POST",
       });
       const body = await res.json();
       if (!res.ok) {
-        setMessage(typeof body.detail === "string" ? body.detail : "Ошибка утверждения");
+        setMessage(typeof body.detail === "string" ? body.detail : "Approve failed");
         return;
       }
-      setMessage(`Утверждён: ${id}`);
+      setMessage("Утверждено. Можно поставить в очередь.");
       await refresh();
     } finally {
       setBusy(false);
     }
   }
 
-  async function enqueue(id: string) {
+  async function enqueue() {
+    if (!selected) return;
     setBusy(true);
     try {
-      const res = await fetch(`${API}/api/owner/video-factory/queue`, {
+      const res = await fetch(`${API}/api/owner/tiktok-horizon/queue`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ draft_id: id, channel: "tiktok" }),
+        body: JSON.stringify({ draft_id: selected.id }),
       });
       const body = await res.json();
       if (!res.ok) {
-        setMessage(typeof body.detail === "string" ? body.detail : "Ошибка очереди");
+        setMessage(typeof body.detail === "string" ? body.detail : "Queue failed");
         return;
       }
-      setMessage(`В очереди TikTok (publish blocked): ${body.item?.id}`);
-      await refresh();
       setTab("queue");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function addLibrary() {
-    if (!libTitle.trim()) return;
-    setBusy(true);
-    try {
-      const res = await fetch(`${API}/api/owner/video-factory/library`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: libTitle.trim(), niche, source: "manual" }),
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        setMessage(typeof body.detail === "string" ? body.detail : "Ошибка библиотеки");
-        return;
-      }
-      setLibTitle("");
+      setMessage("В очереди. Публикация Stage 1 отключена.");
       await refresh();
     } finally {
       setBusy(false);
     }
   }
 
-  async function setChannelStage(channel: string, stage: string) {
-    setBusy(true);
-    try {
-      const res = await fetch(`${API}/api/owner/video-factory/channels/${channel}/stage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stage }),
-      });
-      const body = await res.json();
-      if (!res.ok) {
-        setMessage(typeof body.detail === "string" ? body.detail : "Ошибка стадии канала");
-        return;
-      }
-      await refresh();
-    } finally {
-      setBusy(false);
-    }
-  }
+  const quality = selected?.quality || {};
 
   return (
-    <main className="min-h-screen pb-12">
-      <div className="mx-auto max-w-4xl space-y-6 animate-fade-up px-4">
-        <header className="rounded-2xl border border-white/10 bg-genesis-panel p-6">
-          <p className="text-xs uppercase tracking-[0.35em] text-amber-200/80">
-            Horizon · Video Factory v0
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold">Video Factory</h1>
-          <p className="mt-2 text-sm text-genesis-muted">
-            Отдельная ниша заработка: сценарии → очередь каналов. Запуск по очереди (TikTok
-            первый). Path A не зависит от этого модуля.
-          </p>
-          <p className="mt-3 text-xs text-amber-100/90">
-            {dash?.reality_note_ru ||
-              snap?.principle_ru ||
-              "Ролик только из повторяющейся закономерности → человек → /order."}
-          </p>
-        </header>
+    <main
+      style={{
+        maxWidth: 960,
+        margin: "0 auto",
+        padding: "2rem 1.25rem 4rem",
+        fontFamily: "Georgia, 'Times New Roman', serif",
+        color: "#1a1a1a",
+        background:
+          "linear-gradient(165deg, #f7f3eb 0%, #ebe4d8 45%, #e2ddd4 100%)",
+        minHeight: "100vh",
+      }}
+    >
+      <p style={{ margin: 0, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+        Virtus Core · Internal
+      </p>
+      <h1 style={{ margin: "0.35rem 0 0.5rem", fontSize: "2rem", fontWeight: 600 }}>
+        TikTok Horizon
+      </h1>
+      <p style={{ margin: "0 0 1rem", maxWidth: 52, fontSize: 15, lineHeight: 1.45 }}>
+        Stage 1 Foundation — тренды, идеи, сценарии, промпты, качество, Human Review, очередь.
+        Без генерации видео и без публикации.
+      </p>
+      <p style={{ margin: "0 0 1.5rem" }}>
+        <Link href="/mission-control">← Mission Control</Link>
+      </p>
 
-        <section className="genesis-card space-y-3 p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold">Kill switch</h2>
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-xs ${
-                enabled ? "bg-amber-500/20 text-amber-200" : "bg-emerald-500/20 text-emerald-300"
-              }`}
-            >
-              {snap?.status_ru ?? "…"}
-            </span>
-          </div>
-          <p className="text-xs text-genesis-muted">
-            Модуль: <code className="text-white/80">{snap?.module ?? "modules/tiktok_factory"}</code>
-          </p>
-          <div className="flex flex-wrap gap-2 pt-1">
-            {!enabled ? (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void activate()}
-                className="rounded-lg bg-amber-600/90 px-4 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-50"
-              >
-                Активировать направление
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void deactivate()}
-                className="rounded-lg border border-emerald-500/40 px-4 py-2 text-sm text-emerald-200 disabled:opacity-50"
-              >
-                Выключить (kill switch)
-              </button>
-            )}
-            <Link
-              href="/acquisition"
-              className="rounded-lg border border-genesis-border px-4 py-2 text-sm hover:bg-white/5"
-            >
-              ← Country Desk (Path A)
-            </Link>
-            <Link
-              href="/ceo-site"
-              className="rounded-lg border border-genesis-border px-4 py-2 text-sm hover:bg-white/5"
-            >
-              Сайт клиентов
-            </Link>
-          </div>
-          {message ? <p className="text-xs text-genesis-muted">{message}</p> : null}
-        </section>
+      <section
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "0.75rem",
+          alignItems: "center",
+          marginBottom: "1.25rem",
+        }}
+      >
+        <span
+          style={{
+            padding: "0.35rem 0.7rem",
+            border: "1px solid #222",
+            background: enabled ? "#d8f0d0" : "#f0d8d8",
+          }}
+        >
+          Kill switch: {enabled ? "ON" : "OFF"}
+        </span>
+        {!enabled ? (
+          <button type="button" disabled={busy} onClick={() => void activate()}>
+            Активировать Horizon
+          </button>
+        ) : (
+          <button type="button" disabled={busy} onClick={() => void deactivate()}>
+            Выключить
+          </button>
+        )}
+        <button type="button" disabled={busy || !enabled} onClick={() => void seedAndAnalyze()}>
+          Ingest sample trends
+        </button>
+        <button type="button" disabled={busy || !enabled} onClick={() => void generateDrafts()}>
+          Generate drafts
+        </button>
+      </section>
 
-        <section className="genesis-card space-y-3 p-5">
-          <h2 className="text-sm font-semibold text-white">Capability Matrix</h2>
-          <div className="grid gap-4 sm:grid-cols-2 text-sm">
-            <ul className="space-y-1">
-              {(dash?.capabilities?.available ?? []).map((c) => (
-                <li key={c.id} className="text-emerald-300">
-                  ✓ {c.label_ru}
-                </li>
-              ))}
-            </ul>
-            <ul className="space-y-1">
-              {(dash?.capabilities?.unavailable ?? []).map((c) => (
-                <li key={c.id} className="text-genesis-muted">
-                  ✗ {c.label_ru}
-                </li>
-              ))}
-            </ul>
-          </div>
-          {dash?.reality ? (
-            <pre className="overflow-x-auto rounded-lg bg-black/30 p-3 text-[10px] text-emerald-100/70">
-              {JSON.stringify(dash.reality, null, 2)}
-            </pre>
-          ) : null}
-        </section>
+      {message ? (
+        <p style={{ marginBottom: "1rem", padding: "0.75rem", background: "#fff8e8", border: "1px solid #c9b48a" }}>
+          {message}
+        </p>
+      ) : null}
 
-        <section className="genesis-card space-y-3 p-5">
-          <h2 className="text-sm font-semibold text-white">Каналы (по очереди)</h2>
-          <ul className="space-y-2 text-sm">
-            {(dash?.channels ?? []).map((ch) => (
-              <li
-                key={ch.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 px-3 py-2"
-              >
-                <span>
-                  <span className="font-medium text-white">
-                    {ch.launch_order}. {ch.label}
-                  </span>
-                  <span className="ml-2 text-xs text-genesis-muted">{ch.stage}</span>
-                  {ch.next_slot ? (
-                    <span className="ml-2 text-[10px] text-amber-200/80">следующий слот</span>
-                  ) : null}
-                </span>
-                <span className="flex gap-1">
-                  {(["dormant", "ready", "live"] as const).map((st) => (
-                    <button
-                      key={st}
-                      type="button"
-                      disabled={busy || !enabled}
-                      onClick={() => void setChannelStage(ch.id, st)}
-                      className={`rounded px-2 py-0.5 text-[10px] border ${
-                        ch.stage === st
-                          ? "border-amber-400/50 text-amber-100"
-                          : "border-white/10 text-genesis-muted"
-                      } disabled:opacity-40`}
-                    >
-                      {st}
-                    </button>
-                  ))}
-                </span>
+      <nav style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            style={{
+              padding: "0.4rem 0.8rem",
+              border: "1px solid #333",
+              background: tab === t.id ? "#222" : "transparent",
+              color: tab === t.id ? "#f5f0e6" : "#222",
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </nav>
+
+      {tab === "overview" && (
+        <section>
+          <p>{dash?.pipeline_ru}</p>
+          <p style={{ opacity: 0.85 }}>{dash?.note_ru}</p>
+          <ul>
+            {Object.entries(dash?.counts || {}).map(([k, v]) => (
+              <li key={k}>
+                {k}: {v}
               </li>
             ))}
           </ul>
-          <p className="text-xs text-genesis-muted">
-            CapCut: {dash?.capcut.status_ru ?? "не подключено"} · live в v0 всё равно без публикации
-          </p>
+          <h3>Capabilities</h3>
+          <ul>
+            {Object.entries(dash?.capabilities || {}).map(([k, v]) => (
+              <li key={k}>
+                {v ? "✓" : "✗"} {k}
+              </li>
+            ))}
+          </ul>
         </section>
+      )}
 
-        <div className="flex flex-wrap gap-2">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`rounded-full px-3 py-1.5 text-xs ${
-                tab === t.id
-                  ? "bg-genesis-accent/20 text-white"
-                  : "border border-white/10 text-genesis-muted hover:text-white"
-              }`}
-            >
-              {t.label}
-              {t.id === "library" && dash ? ` (${dash.counts.library})` : ""}
-              {t.id === "drafts" && dash ? ` (${dash.counts.drafts})` : ""}
-              {t.id === "queue" && dash ? ` (${dash.counts.queue})` : ""}
-            </button>
-          ))}
-        </div>
-
-        {tab === "library" && (
-          <section className="genesis-card space-y-3 p-5">
-            <h2 className="text-sm font-semibold text-white">Библиотека</h2>
-            <p className="text-xs text-genesis-muted">Метаданные сценариев/карточек — без MP4 в v0.</p>
-            <div className="flex flex-wrap gap-2">
-              <input
-                value={libTitle}
-                onChange={(e) => setLibTitle(e.target.value)}
-                placeholder="Название карточки"
-                className="min-w-[200px] flex-1 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm"
-                disabled={!enabled}
-              />
-              <button
-                type="button"
-                disabled={busy || !enabled}
-                onClick={() => void addLibrary()}
-                className="rounded-lg border border-genesis-border px-3 py-2 text-sm disabled:opacity-40"
-              >
-                Добавить
-              </button>
-            </div>
-            <ul className="space-y-2 text-sm">
-              {library.length === 0 ? (
-                <li className="text-genesis-muted text-xs">Пусто — честное пустое состояние.</li>
-              ) : (
-                library.map((item) => (
-                  <li key={item.id} className="rounded-lg border border-white/10 px-3 py-2">
-                    <p className="font-medium text-white">{item.title}</p>
-                    <p className="text-xs text-genesis-muted">
-                      {item.status}
-                      {item.niche ? ` · ${item.niche}` : ""}
-                    </p>
-                  </li>
-                ))
-              )}
+      {tab === "trends" && (
+        <section>
+          {trends.length === 0 ? (
+            <p>База трендов пуста. Сначала Ingest sample trends (или официальный API позже).</p>
+          ) : (
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {trends.map((t) => (
+                <li
+                  key={t.trend_id}
+                  style={{
+                    marginBottom: "0.75rem",
+                    padding: "0.85rem",
+                    background: "rgba(255,255,255,0.55)",
+                    border: "1px solid #cfc4b0",
+                  }}
+                >
+                  <strong>{t.topic_label}</strong>
+                  <div style={{ fontSize: 14, marginTop: 4 }}>
+                    growth {t.growth_score} · hook {t.hook_style} · edit {t.editing_style} · ~
+                    {t.average_duration}s
+                  </div>
+                </li>
+              ))}
             </ul>
-          </section>
-        )}
+          )}
+        </section>
+      )}
 
-        {tab === "trends" && (
-          <section className="genesis-card space-y-2 p-5">
-            <h2 className="text-sm font-semibold text-white">Тренды</h2>
-            {dash?.reality?.trend_analysis ? (
-              <p className="text-sm text-genesis-muted">Анализ активен.</p>
-            ) : (
-              <p className="text-sm text-genesis-muted">
-                {dash?.trends.note_ru ??
-                  "Анализатор трендов не подключён — топ не имитируем."}
-              </p>
-            )}
-          </section>
-        )}
-
-        {tab === "drafts" && (
-          <section className="genesis-card space-y-4 p-5">
-            <h2 className="text-sm font-semibold text-white">Черновики сценариев</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="text-xs text-genesis-muted">
-                Ниша
-                <input
-                  value={niche}
-                  onChange={(e) => setNiche(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white"
-                  disabled={!enabled}
-                />
+      {tab === "review" && (
+        <section>
+          {drafts.length === 0 ? (
+            <p>Нет черновиков — Generate drafts после анализа трендов.</p>
+          ) : (
+            <>
+              <label style={{ display: "block", marginBottom: 12 }}>
+                Черновик{" "}
+                <select
+                  value={selected?.id || ""}
+                  onChange={(e) => setSelectedId(e.target.value)}
+                >
+                  {drafts.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      [{d.status}] {d.title}
+                    </option>
+                  ))}
+                </select>
               </label>
-              <label className="text-xs text-genesis-muted">
-                Город
-                <input
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white"
-                  disabled={!enabled}
-                />
-              </label>
-            </div>
-            <label className="block text-xs text-genesis-muted">
-              Повторяющиеся проблемы (по строке)
-              <textarea
-                value={issues}
-                onChange={(e) => setIssues(e.target.value)}
-                rows={3}
-                className="mt-1 w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white"
-                disabled={!enabled}
-              />
-            </label>
-            <button
-              type="button"
-              disabled={busy || !enabled}
-              onClick={() => void createDraft()}
-              className="rounded-lg bg-genesis-accent/90 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-            >
-              Создать черновик
-            </button>
-            <ul className="space-y-3 text-sm">
-              {drafts.length === 0 ? (
-                <li className="text-xs text-genesis-muted">Нет черновиков.</li>
-              ) : (
-                drafts.map((d) => (
-                  <li key={d.id} className="rounded-lg border border-white/10 px-3 py-3 space-y-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs text-genesis-muted">
-                        {d.id} · {d.status} · source:{d.source || "manual"} · {d.niche}/{d.city}
-                      </span>
-                      <span className="flex gap-1">
-                        <button
-                          type="button"
-                          disabled={busy || !enabled || d.status === "approved" || d.status === "queued"}
-                          onClick={() => void approveDraft(d.id)}
-                          className="rounded border border-emerald-500/30 px-2 py-0.5 text-[11px] text-emerald-200 disabled:opacity-40"
-                        >
-                          Утвердить
-                        </button>
-                        <button
-                          type="button"
-                          disabled={busy || !enabled}
-                          onClick={() => void enqueue(d.id)}
-                          className="rounded border border-amber-500/30 px-2 py-0.5 text-[11px] text-amber-100 disabled:opacity-40"
-                        >
-                          В очередь TikTok
-                        </button>
-                      </span>
-                    </div>
-                    {d.scenario?.hook_de ? (
-                      <p className="text-white">{d.scenario.hook_de}</p>
-                    ) : null}
-                    {d.scenario?.body_beats_de?.length ? (
-                      <ul className="text-xs text-genesis-muted space-y-1">
-                        {d.scenario.body_beats_de.map((b) => (
-                          <li key={b}>• {b}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                  </li>
-                ))
-              )}
-            </ul>
-          </section>
-        )}
 
-        {tab === "queue" && (
-          <section className="genesis-card space-y-3 p-5">
-            <h2 className="text-sm font-semibold text-white">Очередь публикации</h2>
-            <ul className="space-y-2 text-sm">
-              {queue.length === 0 ? (
-                <li className="text-xs text-genesis-muted">Очередь пуста.</li>
-              ) : (
-                queue.map((q) => (
-                  <li key={q.id} className="rounded-lg border border-white/10 px-3 py-2 space-y-1">
-                    <p className="font-medium text-white">{q.hook_de || q.id}</p>
-                    <p className="text-xs">
-                      <span className="text-genesis-muted">
-                        {(q.queue_state || "queued").replace(/^./, (c) => c.toUpperCase())}
-                      </span>
-                      {" · "}
-                      <span
-                        className={
-                          q.display_status === "Blocked" || q.status === "blocked"
-                            ? "text-amber-200"
-                            : "text-emerald-300"
-                        }
-                      >
-                        {q.display_status || q.status}
-                      </span>
-                      <span className="text-genesis-muted"> · {q.channel}</span>
-                    </p>
-                    {q.block_reason_ru ? (
-                      <p className="text-xs text-amber-100/90">
-                        Причина: {q.block_reason_ru}
-                      </p>
-                    ) : null}
-                    {q.publish_note_ru ? (
-                      <p className="text-xs text-genesis-muted">{q.publish_note_ru}</p>
-                    ) : null}
-                  </li>
-                ))
-              )}
-            </ul>
-          </section>
-        )}
+              {selected && (
+                <>
+                  <p style={{ fontSize: 14 }}>
+                    Style: {selected.style_variant} · Human edited:{" "}
+                    {selected.human_edited ? "yes" : "no"} · Ready:{" "}
+                    {selected.quality_ready ? "yes" : "review more"}
+                  </p>
 
-        {tab === "earnings" && (
-          <section className="genesis-card space-y-3 p-5">
-            <h2 className="text-sm font-semibold text-white">Доход</h2>
-            {dash?.reality?.earn_money_inside_virtus ? (
-              <p className="text-3xl font-bold tabular-nums">
-                {dash?.earnings.balance_in_virtus ?? 0} €
-              </p>
-            ) : (
-              <>
-                <p className="text-3xl font-bold tabular-nums text-genesis-muted">0 €</p>
-                <p className="text-xs text-amber-100/80">
-                  earn_money_inside_virtus=false — баланс внутри Virtus не ведётся.
-                </p>
-              </>
-            )}
-            <p className="text-sm text-genesis-muted">
-              {dash?.earnings.note_ru ??
-                "Прибыль и вывод — в кабинете TikTok владельца. Virtus Core не кошелёк."}
-            </p>
-            <p className="text-xs text-genesis-muted">
-              withdraw_via: {dash?.earnings.withdraw_via ?? "tiktok_owner_account"}
-            </p>
-          </section>
-        )}
-      </div>
+                  <h3>Content Quality</h3>
+                  <ul>
+                    {(["originality", "structure_diversity", "visual_diversity", "hook_strength", "caption_quality", "publishing_readiness"] as const).map(
+                      (k) => (
+                        <li key={k}>
+                          {k}: {String(quality[k] ?? "—")}
+                        </li>
+                      ),
+                    )}
+                  </ul>
+
+                  <h3>Publish window (confidence ≠ virality)</h3>
+                  <p style={{ fontSize: 14 }}>
+                    {selected.publish_window?.window_start_local} →{" "}
+                    {selected.publish_window?.window_end_local}
+                    <br />
+                    Confidence: {selected.publish_window?.confidence_label} (
+                    {selected.publish_window?.confidence})
+                  </p>
+                  <ul>
+                    {(selected.publish_window?.reasons || []).map((r) => (
+                      <li key={r}>{r}</li>
+                    ))}
+                  </ul>
+
+                  <h3>Human Review checklist</h3>
+                  <label style={{ display: "block", marginBottom: 8 }}>
+                    Hook (первые 3 сек)
+                    <textarea
+                      value={editHook}
+                      onChange={(e) => setEditHook(e.target.value)}
+                      rows={2}
+                      style={{ width: "100%", display: "block", marginTop: 4 }}
+                    />
+                  </label>
+                  <label style={{ display: "block", marginBottom: 8 }}>
+                    Сценарий / диктор
+                    <textarea
+                      value={editNarrator}
+                      onChange={(e) => setEditNarrator(e.target.value)}
+                      rows={6}
+                      style={{ width: "100%", display: "block", marginTop: 4 }}
+                    />
+                  </label>
+                  <label style={{ display: "block", marginBottom: 12 }}>
+                    Описание
+                    <textarea
+                      value={editCaption}
+                      onChange={(e) => setEditCaption(e.target.value)}
+                      rows={2}
+                      style={{ width: "100%", display: "block", marginTop: 4 }}
+                    />
+                  </label>
+
+                  <details style={{ marginBottom: 12 }}>
+                    <summary>Prompt для будущего Video API (не вызывается)</summary>
+                    <pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>
+                      {selected.prompt?.prompt_text}
+                    </pre>
+                  </details>
+
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button type="button" disabled={busy} onClick={() => void saveEdits()}>
+                      Сохранить правки
+                    </button>
+                    <button type="button" disabled={busy} onClick={() => void approve()}>
+                      Approve
+                    </button>
+                    <button type="button" disabled={busy} onClick={() => void enqueue()}>
+                      В очередь
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </section>
+      )}
+
+      {tab === "queue" && (
+        <section>
+          {queue.length === 0 ? (
+            <p>Очередь пуста.</p>
+          ) : (
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {queue.map((q) => (
+                <li
+                  key={q.id}
+                  style={{
+                    marginBottom: "0.75rem",
+                    padding: "0.85rem",
+                    background: "rgba(255,255,255,0.55)",
+                    border: "1px solid #cfc4b0",
+                  }}
+                >
+                  <strong>{q.title || q.id}</strong>
+                  <div style={{ fontSize: 14 }}>
+                    {q.status} · publish={String(q.publish_enabled)}
+                    <br />
+                    {q.publish_note_ru}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
     </main>
   );
 }
