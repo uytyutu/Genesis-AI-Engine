@@ -10,7 +10,7 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PublicPageShell } from "../../components/PublicPageShell";
-import { BRAND_NAME } from "../../lib/brand";
+import { BRAND_NAME } from "../../lib/publicBrand";
 import { formatApiDetail } from "../../lib/formatApiError";
 import { startOrderCheckout } from "../../lib/orderCheckout";
 import { publicApiBase } from "../../lib/publicApiBase";
