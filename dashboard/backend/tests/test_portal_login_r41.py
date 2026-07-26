@@ -98,6 +98,60 @@ def test_unknown_email_same_shape():
         clear_authentication_facade()
 
 
+def test_register_success_sets_cookie():
+    directory, _ = _ready_directory()
+    http = _client(directory)
+    try:
+        r = http.post(
+            "/portal/register",
+            json={
+                "email": "new.client@ex.de",
+                "password": "secret99",
+                "display_name": "New Client",
+            },
+        )
+        assert r.status_code == 200
+        assert r.json() == {"authenticated": True}
+        assert "httponly" in r.headers.get("set-cookie", "").lower()
+        # Can login with the same credentials
+        again = http.post(
+            "/portal/login",
+            json={"email": "new.client@ex.de", "password": "secret99"},
+        )
+        assert again.status_code == 200
+        assert again.json() == {"authenticated": True}
+    finally:
+        clear_authentication_facade()
+
+
+def test_register_duplicate_email_400():
+    directory, secret = _ready_directory()
+    http = _client(directory)
+    try:
+        r = http.post(
+            "/portal/register",
+            json={"email": "owner@ex.de", "password": "secret99"},
+        )
+        assert r.status_code == 400
+        assert r.json()["detail"] == "email_already_registered"
+    finally:
+        clear_authentication_facade()
+
+
+def test_register_short_password_400():
+    directory, _ = _ready_directory()
+    http = _client(directory)
+    try:
+        r = http.post(
+            "/portal/register",
+            json={"email": "short@ex.de", "password": "123"},
+        )
+        assert r.status_code == 400
+        assert r.json()["detail"] == "password_too_short"
+    finally:
+        clear_authentication_facade()
+
+
 def test_invalid_body_400():
     directory, _ = _ready_directory()
     http = _client(directory)
@@ -141,15 +195,17 @@ def test_main_registers_login():
     assert "register_portal_login(app)" in text
 
 
-def test_router_only_post_login():
+def test_router_post_login_and_register():
     paths = [
         getattr(route, "path", "")
         for route in portal_login_router.routes
         if hasattr(route, "methods")
     ]
     assert any(p.endswith("/login") for p in paths)
+    assert any(p.endswith("/register") for p in paths)
     for route in portal_login_router.routes:
-        if hasattr(route, "methods") and str(getattr(route, "path", "")).endswith(
-            "/login"
-        ):
+        if not hasattr(route, "methods"):
+            continue
+        path = str(getattr(route, "path", ""))
+        if path.endswith("/login") or path.endswith("/register"):
             assert route.methods == {"POST"}

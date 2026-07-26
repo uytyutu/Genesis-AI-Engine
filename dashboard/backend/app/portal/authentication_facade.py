@@ -54,6 +54,46 @@ class InMemoryAuthenticationDirectory:
     def find_credential(self, account_id: str) -> PasswordCredential | None:
         return self.credentials_by_account.get(account_id)
 
+    def register(
+        self,
+        *,
+        email: str,
+        password: str,
+        display_name: str = "",
+    ) -> str:
+        """Create ready account + credential. Raises ValueError on conflict/invalid."""
+        from app.portal.account import new_account
+        from app.portal.activation_token import activate_token, new_activation_token
+        from app.portal.password_credential import (
+            complete_account_activation,
+            create_primary_password,
+        )
+
+        key = email.strip().lower()
+        if not key or "@" not in key:
+            raise ValueError("invalid_email")
+        secret = (password or "").strip()
+        if len(secret) < 6:
+            raise ValueError("password_too_short")
+        if key in self.accounts_by_email:
+            raise ValueError("email_already_registered")
+        name = (display_name or "").strip() or key.split("@")[0]
+        account = new_account(
+            email=key,
+            display_name=name,
+            status="pending_activation",
+        )
+        token = activate_token(new_activation_token(account))
+        activated, used = complete_account_activation(account, token)
+        ready, cred = create_primary_password(
+            activated,
+            password_hash=secret,
+            activation_token=used,
+        )
+        self.accounts_by_email[ready.email] = ready
+        self.credentials_by_account[ready.account_id] = cred
+        return ready.account_id
+
 
 class AuthenticationFacade:
     """Thin use-case entry: email + secret → account_id or None."""
@@ -79,6 +119,21 @@ class AuthenticationFacade:
         if not result.is_authenticated:
             return None
         return account.account_id
+
+    def register(
+        self,
+        *,
+        email: str,
+        password: str,
+        display_name: str = "",
+    ) -> str:
+        """Register a new account. Requires directory with ``register``."""
+        register_fn = getattr(self._directory, "register", None)
+        if not callable(register_fn):
+            raise ValueError("registration_unavailable")
+        return str(
+            register_fn(email=email, password=password, display_name=display_name)
+        )
 
 
 def empty_authentication_directory() -> InMemoryAuthenticationDirectory:

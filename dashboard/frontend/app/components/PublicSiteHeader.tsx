@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -19,8 +20,24 @@ export function PublicSiteHeader({ customerDecisionFlow = false }: { customerDec
         <div className="min-w-0 flex-1">
           <VirtusSurfaceIdentity surface="public" homeHref="/site" />
         </div>
-        <div className="flex shrink-0 items-center gap-2 pt-1">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 pt-1">
           <LanguageSwitcher compact />
+          {!customerDecisionFlow ? (
+            <>
+              <Link
+                href="/client/login"
+                className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-white/5 sm:text-sm"
+              >
+                {t("nav.signIn", { defaultValue: "Sign in" })}
+              </Link>
+              <Link
+                href="/client/register"
+                className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-black hover:brightness-110 sm:text-sm"
+              >
+                {t("nav.register", { defaultValue: "Register" })}
+              </Link>
+            </>
+          ) : null}
           {showMenu ? (
             <button
               type="button"

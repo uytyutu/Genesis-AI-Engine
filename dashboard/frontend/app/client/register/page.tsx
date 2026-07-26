@@ -6,12 +6,13 @@ import { FormEvent, Suspense, useState } from "react";
 import { PortalApiError, portalFetch } from "../../lib/portalApi";
 import { BRAND_NAME } from "../../lib/publicBrand";
 
-function LoginForm() {
+function RegisterForm() {
   const router = useRouter();
   const params = useSearchParams();
   const nextPath = params.get("next") || "/client";
-  const [email, setEmail] = useState("client@virtus.local");
-  const [password, setPassword] = useState("demo-vector");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,12 +21,19 @@ function LoginForm() {
     setBusy(true);
     setError(null);
     try {
-      const res = await portalFetch<{ authenticated: boolean }>("/portal/login", {
-        method: "POST",
-        body: JSON.stringify({ email: email.trim(), password }),
-      });
+      const res = await portalFetch<{ authenticated: boolean }>(
+        "/portal/register",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: email.trim(),
+            password,
+            display_name: displayName.trim(),
+          }),
+        },
+      );
       if (!res.authenticated) {
-        throw new PortalApiError(401, "login_failed");
+        throw new PortalApiError(400, "register_failed");
       }
       const safeNext =
         nextPath.startsWith("/") && !nextPath.startsWith("//")
@@ -35,7 +43,7 @@ function LoginForm() {
     } catch (err) {
       if (err instanceof PortalApiError) setError(err.detail);
       else if (err instanceof Error) setError(err.message);
-      else setError("login_failed");
+      else setError("register_failed");
     } finally {
       setBusy(false);
     }
@@ -47,13 +55,23 @@ function LoginForm() {
         {BRAND_NAME}
       </p>
       <h1 className="mt-3 text-3xl font-semibold text-white">
-        Welcome to {BRAND_NAME}
+        Create personal account
       </h1>
       <p className="mt-2 text-sm text-zinc-400">
-        Sign in to your personal account — websites, AI bots, orders, and billing.
+        One account for ordering a website, buying an AI bot, and managing your
+        products. No owner approval needed.
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
+        <label className="block text-sm text-zinc-300">
+          Name (optional)
+          <input
+            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            autoComplete="name"
+          />
+        </label>
         <label className="block text-sm text-zinc-300">
           Email
           <input
@@ -66,13 +84,14 @@ function LoginForm() {
           />
         </label>
         <label className="block text-sm text-zinc-300">
-          Password
+          Password (min 6 characters)
           <input
             className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
             type="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            minLength={6}
             required
           />
         </label>
@@ -86,21 +105,18 @@ function LoginForm() {
           disabled={busy}
           className="w-full rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
         >
-          {busy ? "Signing in…" : "Sign in"}
+          {busy ? "Creating…" : "Create account"}
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-zinc-300">
-        New here?{" "}
+      <p className="mt-6 text-sm text-zinc-400">
+        Already have an account?{" "}
         <Link
-          href={`/client/register${nextPath !== "/client" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
-          className="font-semibold text-emerald-300 hover:underline"
+          href={`/client/login${nextPath !== "/client" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
+          className="text-emerald-300 hover:underline"
         >
-          Create personal account
+          Sign in
         </Link>
-      </p>
-      <p className="mt-4 text-xs text-zinc-500">
-        Demo: client@virtus.local / demo-vector
       </p>
       <p className="mt-4 text-sm text-zinc-400">
         <Link href="/site" className="text-emerald-300 hover:underline">
@@ -111,7 +127,7 @@ function LoginForm() {
   );
 }
 
-export default function ClientLoginPage() {
+export default function ClientRegisterPage() {
   return (
     <Suspense
       fallback={
@@ -120,7 +136,7 @@ export default function ClientLoginPage() {
         </div>
       }
     >
-      <LoginForm />
+      <RegisterForm />
     </Suspense>
   );
 }

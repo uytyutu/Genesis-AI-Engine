@@ -7,7 +7,9 @@
     "studio": "Studio",
     "order": "Order",
     "menu": "Menu",
-    "close": "Close"
+    "close": "Close",
+    "signIn": "Sign in",
+    "register": "Register"
   },
   "language": {
     "title": "Language",

@@ -99,6 +99,36 @@ async def http_post_login(
     return LoginResponse(authenticated=True)
 
 
+@portal_login_router.post("/register", response_model=LoginResponse)
+async def http_post_register(
+    request: Request,
+    response: Response,
+    auth: Annotated[AuthenticationFacade, Depends(get_authentication_facade)],
+    sessions: Annotated[SessionFacade, Depends(get_session_facade)],
+    cookies: Annotated[SessionCookieFactory, Depends(get_cookie_factory)],
+) -> LoginResponse:
+    """Create personal account + session cookie. Client self-serve (no CEO)."""
+    try:
+        raw: Any = await request.json()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="invalid_json") from exc
+    if not isinstance(raw, dict):
+        raise HTTPException(status_code=400, detail="invalid_request")
+    email = str(raw.get("email") or "").strip()
+    password = str(raw.get("password") or "")
+    display_name = str(raw.get("display_name") or "").strip()
+    try:
+        account_id = auth.register(
+            email=email, password=password, display_name=display_name
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    session = sessions.start_session(account_id)
+    spec = cookies.build(session.session_id)
+    response.set_cookie(**spec.as_set_cookie_kwargs())
+    return LoginResponse(authenticated=True)
+
+
 @portal_login_router.post("/logout", status_code=204)
 async def http_post_logout(
     request: Request,

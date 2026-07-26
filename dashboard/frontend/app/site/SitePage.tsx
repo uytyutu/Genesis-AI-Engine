@@ -33,6 +33,16 @@ type PackageCard = {
   price_label?: string;
 };
 
+type BotPackageCard = {
+  package_id: string;
+  name: string;
+  setup_label: string;
+  monthly_label: string;
+  price_label: string;
+};
+
+type ServiceView = "hub" | "websites" | "bots" | "analysis";
+
 type PublicReviews = {
   has_reviews: boolean;
   count: number;
@@ -118,14 +128,57 @@ export function SitePage() {
   } | null>(null);
   const [detailId, setDetailId] = useState<string | null>("business");
   const [analyzeUrl, setAnalyzeUrl] = useState("");
+  const [serviceView, setServiceView] = useState<ServiceView>("hub");
+  const [botPackages, setBotPackages] = useState<BotPackageCard[]>([]);
   const localeTag = (i18n.language || "de").replace("_", "-");
   const CHAT_POS_KEY = "vector-chat-panel-pos";
+
+  function writeServiceToUrl(view: ServiceView) {
+    try {
+      const url = new URL(window.location.href);
+      if (view === "hub") {
+        url.searchParams.delete("service");
+        url.hash = "";
+      } else {
+        url.searchParams.set("service", view);
+        url.hash = view;
+      }
+      window.history.replaceState({}, "", url.toString());
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function openService(view: ServiceView) {
+    setServiceView(view);
+    writeServiceToUrl(view);
+    if (view === "websites" || view === "bots" || view === "analysis") {
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch {
+        /* ignore */
+      }
+    }
+  }
 
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
       const a = (params.get("analyze") || params.get("url") || "").trim();
-      if (a) setAnalyzeUrl(a);
+      if (a) {
+        setAnalyzeUrl(a);
+        setServiceView("analysis");
+        writeServiceToUrl("analysis");
+        return;
+      }
+      const service = (params.get("service") || "").toLowerCase();
+      const hash = (window.location.hash || "").replace(/^#/, "").toLowerCase();
+      const raw = service || hash;
+      if (raw === "websites" || raw === "bots" || raw === "analysis") {
+        setServiceView(raw);
+      } else {
+        setServiceView("hub");
+      }
     } catch {
       /* ignore */
     }
@@ -358,6 +411,24 @@ export function SitePage() {
         }
       })
       .catch(() => undefined);
+
+    fetch(`${api}/api/public/bots/pricing${qs}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body) => {
+        const list = body?.packages;
+        if (Array.isArray(list) && list.length > 0) {
+          setBotPackages(
+            list.map((p: BotPackageCard) => ({
+              package_id: String(p.package_id || ""),
+              name: String(p.name || ""),
+              setup_label: String(p.setup_label || ""),
+              monthly_label: String(p.monthly_label || ""),
+              price_label: String(p.price_label || ""),
+            })),
+          );
+        }
+      })
+      .catch(() => undefined);
   }, [market]);
 
   useEffect(() => {
@@ -382,144 +453,398 @@ export function SitePage() {
   const comingSoon = t("s0.comingSoon", { defaultValue: "Coming Soon" });
   const orderLabel = t("pathA.cta");
   const detailsLabel = t("s0.details", { defaultValue: "Details" });
+  const backLabel = t("s0.backToServices", { defaultValue: "← All services" });
+  const botOrderHref =
+    "/client/register?next=" +
+    encodeURIComponent("/projects/chatbot/setup");
+
+  const marketSelect =
+    markets.length > 0 ? (
+      <div className="mx-auto max-w-md text-left">
+        <label className="text-xs text-genesis-muted" htmlFor="site-market-select">
+          {t("s0.marketLabel", { defaultValue: "Market / prices" })}
+        </label>
+        <select
+          id="site-market-select"
+          className="mt-1 w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white"
+          value={market}
+          onChange={(e) => selectMarket(e.target.value)}
+        >
+          {markets.map((m) => (
+            <option key={m.code} value={m.code}>
+              {(m.flag ? `${m.flag} ` : "") +
+                (m.name_en || m.code) +
+                (m.basic_price_label ? ` · ab ${m.basic_price_label}` : "")}
+            </option>
+          ))}
+        </select>
+      </div>
+    ) : null;
 
   return (
     <PublicPageShell>
       <div className="relative mx-auto max-w-4xl space-y-12 py-6 pb-28 animate-fade-up">
-        {/* Hero — ecosystem, not chat */}
-        <header className="space-y-4 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/90">
-            {BRAND_NAME}
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            {t("s0.heroTitle", {
-              defaultValue: "Digital ecosystem for business",
-            })}
-          </h1>
-          <p className="mx-auto max-w-2xl text-base text-genesis-muted sm:text-lg">
-            {t("s0.heroSubtitle", {
-              defaultValue:
-                "Websites, AI assistants, automation and analysis — clear packages, honest prices.",
-              brand: BRAND_NAME,
-            })}
-          </p>
-          {markets.length > 0 ? (
-            <div className="mx-auto max-w-md text-left">
-              <label className="text-xs text-genesis-muted" htmlFor="site-market-select">
-                {t("s0.marketLabel", { defaultValue: "Market / prices" })}
-              </label>
-              <select
-                id="site-market-select"
-                className="mt-1 w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white"
-                value={market}
-                onChange={(e) => selectMarket(e.target.value)}
-              >
-                {markets.map((m) => (
-                  <option key={m.code} value={m.code}>
-                    {(m.flag ? `${m.flag} ` : "") +
-                      (m.name_en || m.code) +
-                      (m.basic_price_label ? ` · ab ${m.basic_price_label}` : "")}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : null}
-          <p className="text-sm text-zinc-400">
-            {t("s0.heroHint", {
-              defaultValue: "Start with a website — ready to order today.",
-            })}
-          </p>
-          <a
-            href="#websites"
-            className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black hover:brightness-110"
-          >
-            {t("s0.seeWebsites", { defaultValue: "See website packages" })} →
-          </a>
-        </header>
-
-        {/* 1. Websites — primary commercial product */}
-        <section id="websites" className="space-y-5" aria-labelledby="websites-heading">
-          <div>
-            <h2 id="websites-heading" className="text-2xl font-semibold text-white">
-              {t("s0.websitesTitle", { defaultValue: "Websites" })}
-            </h2>
-            <p className="mt-1 text-sm text-genesis-muted">
-              {t("pathA.packagesIntro")}
-            </p>
-          </div>
-          <div className="grid gap-4 lg:grid-cols-3">
-            {packages.map((p) => {
-              const price =
-                p.price_label ||
-                formatLocalizedMoney(p.price_eur, p.currency || "EUR", localeTag);
-              const diffs = packageDiffLines(p.id);
-              const featured = p.id === "business";
-              return (
-                <article
-                  key={p.id}
-                  id={`pkg-${p.id}`}
-                  className={`flex flex-col rounded-2xl border p-5 text-left ${
-                    featured
-                      ? "border-emerald-500/40 bg-emerald-950/25 shadow-[0_0_0_1px_rgba(16,185,129,0.15)]"
-                      : "border-white/10 bg-white/[0.03]"
-                  }`}
+        {serviceView === "hub" ? (
+          <>
+            <header className="space-y-4 text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/90">
+                {BRAND_NAME}
+              </p>
+              <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                {t("s0.hubTitle", {
+                  defaultValue: "What do you want to do?",
+                })}
+              </h1>
+              <p className="mx-auto max-w-2xl text-base text-genesis-muted sm:text-lg">
+                {t("s0.hubSubtitle", {
+                  defaultValue:
+                    "Choose a service. Then pick a package. Create a personal account when you are ready to buy.",
+                  brand: BRAND_NAME,
+                })}
+              </p>
+              {marketSelect}
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+                <Link
+                  href="/client/register"
+                  className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black hover:brightness-110"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium text-zinc-300">
-                      {packageTitle(p.id, p.name)}
-                    </p>
-                    {featured ? (
-                      <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
-                        {t("s0.recommended", { defaultValue: "Recommended" })}
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-3xl font-semibold text-white">{price}</p>
-                  <ul className="mt-4 flex-1 space-y-2 text-sm text-zinc-300">
-                    {diffs.map((d) => (
-                      <li key={d} className="flex gap-2">
-                        <span className="text-emerald-400" aria-hidden>
-                          ✓
+                  {t("s0.createAccount", {
+                    defaultValue: "Create personal account",
+                  })}
+                </Link>
+                <Link
+                  href="/client/login"
+                  className="inline-flex rounded-xl border border-white/20 px-5 py-2.5 text-sm font-medium text-white hover:bg-white/5"
+                >
+                  {t("s0.signIn", { defaultValue: "Sign in" })}
+                </Link>
+              </div>
+            </header>
+
+            <section
+              className="grid gap-4 sm:grid-cols-2"
+              aria-label={t("s0.servicesLabel", { defaultValue: "Services" })}
+            >
+              <button
+                type="button"
+                onClick={() => openService("websites")}
+                className="rounded-2xl border border-emerald-500/35 bg-emerald-950/25 p-6 text-left transition hover:border-emerald-400/50 hover:bg-emerald-950/40"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/90">
+                  {t("s0.cardWebsiteEyebrow", { defaultValue: "Ready today" })}
+                </p>
+                <h2 className="mt-2 text-xl font-semibold text-white">
+                  {t("s0.cardWebsiteTitle", {
+                    defaultValue: "Create a website",
+                  })}
+                </h2>
+                <p className="mt-2 text-sm text-zinc-300">
+                  {t("s0.cardWebsiteBody", {
+                    defaultValue:
+                      "Landing packages with clear prices — Basic, Business, Premium.",
+                  })}
+                </p>
+                <span className="mt-4 inline-flex text-sm font-semibold text-emerald-300">
+                  {t("s0.seePackages", { defaultValue: "See packages" })} →
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => openService("bots")}
+                className="rounded-2xl border border-sky-400/30 bg-sky-500/[0.07] p-6 text-left transition hover:border-sky-300/45 hover:bg-sky-500/10"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/90">
+                  {t("s0.cardBotEyebrow", { defaultValue: "Separate product" })}
+                </p>
+                <h2 className="mt-2 text-xl font-semibold text-white">
+                  {t("s0.cardBotTitle", {
+                    defaultValue: "Buy an AI bot",
+                  })}
+                </h2>
+                <p className="mt-2 text-sm text-zinc-300">
+                  {t("s0.cardBotBody", {
+                    defaultValue:
+                      "Business chatbots for your site and Telegram — setup + monthly plan.",
+                  })}
+                </p>
+                <span className="mt-4 inline-flex text-sm font-semibold text-sky-200">
+                  {t("s0.seePackages", { defaultValue: "See packages" })} →
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => openService("analysis")}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-left transition hover:border-white/25 hover:bg-white/[0.05]"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+                  {t("s0.cardAnalysisEyebrow", { defaultValue: "Free start" })}
+                </p>
+                <h2 className="mt-2 text-xl font-semibold text-white">
+                  {t("s0.cardAnalysisTitle", {
+                    defaultValue: "Analyze my website",
+                  })}
+                </h2>
+                <p className="mt-2 text-sm text-zinc-300">
+                  {t("s0.cardAnalysisBody", {
+                    defaultValue:
+                      "See what to fix — then repair or order a new site.",
+                  })}
+                </p>
+                <span className="mt-4 inline-flex text-sm font-semibold text-zinc-200">
+                  {t("s0.startAnalysis", { defaultValue: "Start analysis" })} →
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={openChat}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-left transition hover:border-white/25 hover:bg-white/[0.05]"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
+                  {ASSISTANT_NAME}
+                </p>
+                <h2 className="mt-2 text-xl font-semibold text-white">
+                  {t("pathA.cardVectorTitle")}
+                </h2>
+                <p className="mt-2 text-sm text-zinc-300">
+                  {t("s0.vectorAsk", {
+                    defaultValue: "Not sure what fits? Ask Vector.",
+                  })}
+                </p>
+                <span className="mt-4 inline-flex text-sm font-semibold text-zinc-200">
+                  {t("pathA.meetVectorCta")} →
+                </span>
+              </button>
+            </section>
+
+            <p className="text-center text-xs text-zinc-500">
+              {t("s0.hubAccountHint", {
+                defaultValue:
+                  "A personal account is required to buy a website or add bots. Use Register in the header anytime.",
+              })}
+            </p>
+          </>
+        ) : null}
+
+        {serviceView === "websites" ? (
+          <section id="websites" className="space-y-5" aria-labelledby="websites-heading">
+            <button
+              type="button"
+              onClick={() => openService("hub")}
+              className="text-sm font-medium text-emerald-300 hover:underline"
+            >
+              {backLabel}
+            </button>
+            <div>
+              <h2 id="websites-heading" className="text-2xl font-semibold text-white">
+                {t("s0.websitesTitle", { defaultValue: "Websites" })}
+              </h2>
+              <p className="mt-1 text-sm text-genesis-muted">
+                {t("pathA.packagesIntro")}
+              </p>
+            </div>
+            {marketSelect}
+            <div className="grid gap-4 lg:grid-cols-3">
+              {packages.map((p) => {
+                const price =
+                  p.price_label ||
+                  formatLocalizedMoney(p.price_eur, p.currency || "EUR", localeTag);
+                const diffs = packageDiffLines(p.id);
+                const featured = p.id === "business";
+                return (
+                  <article
+                    key={p.id}
+                    id={`pkg-${p.id}`}
+                    className={`flex flex-col rounded-2xl border p-5 text-left ${
+                      featured
+                        ? "border-emerald-500/40 bg-emerald-950/25 shadow-[0_0_0_1px_rgba(16,185,129,0.15)]"
+                        : "border-white/10 bg-white/[0.03]"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-zinc-300">
+                        {packageTitle(p.id, p.name)}
+                      </p>
+                      {featured ? (
+                        <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
+                          {t("s0.recommended", { defaultValue: "Recommended" })}
                         </span>
-                        <span>{d}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    <Link
-                      href={orderHrefFor(p.id)}
-                      onClick={() => logCommerceEvent("tier_select", p.id, "site")}
-                      className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110 min-w-[7rem]"
-                    >
-                      {orderLabel}
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setDetailId((cur) => (cur === p.id ? null : p.id))
-                      }
-                      className="inline-flex items-center justify-center rounded-xl border border-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/5"
-                    >
-                      {detailsLabel}
-                    </button>
-                  </div>
-                  {detailId === p.id ? (
-                    <div className="mt-4 border-t border-white/10 pt-4">
-                      <PackagePreviewCarousel packageId={p.id} className="mt-1" />
-                      <p className="mt-2 text-xs text-zinc-500">
-                        {t("s0.previewHint", {
-                          defaultValue: "Example look — order when ready.",
+                      ) : null}
+                    </div>
+                    <p className="mt-2 text-3xl font-semibold text-white">{price}</p>
+                    <ul className="mt-4 flex-1 space-y-2 text-sm text-zinc-300">
+                      {diffs.map((d) => (
+                        <li key={d} className="flex gap-2">
+                          <span className="text-emerald-400" aria-hidden>
+                            ✓
+                          </span>
+                          <span>{d}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      <Link
+                        href={orderHrefFor(p.id)}
+                        onClick={() => logCommerceEvent("tier_select", p.id, "site")}
+                        className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110 min-w-[7rem]"
+                      >
+                        {orderLabel}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDetailId((cur) => (cur === p.id ? null : p.id))
+                        }
+                        className="inline-flex items-center justify-center rounded-xl border border-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/5"
+                      >
+                        {detailsLabel}
+                      </button>
+                    </div>
+                    {detailId === p.id ? (
+                      <div className="mt-4 border-t border-white/10 pt-4">
+                        <PackagePreviewCarousel packageId={p.id} className="mt-1" />
+                        <p className="mt-2 text-xs text-zinc-500">
+                          {t("s0.previewHint", {
+                            defaultValue: "Example look — order when ready.",
+                          })}
+                        </p>
+                      </div>
+                    ) : null}
+                  </article>
+                );
+              })}
+            </div>
+            <p className="text-sm text-zinc-400">
+              {t("s0.needAccount", {
+                defaultValue: "Need an account to manage orders later?",
+              })}{" "}
+              <Link href="/client/register" className="text-emerald-300 hover:underline">
+                {t("s0.createAccount", { defaultValue: "Create personal account" })}
+              </Link>
+            </p>
+          </section>
+        ) : null}
+
+        {serviceView === "bots" ? (
+          <section id="bots" className="space-y-5" aria-labelledby="bots-heading">
+            <button
+              type="button"
+              onClick={() => openService("hub")}
+              className="text-sm font-medium text-emerald-300 hover:underline"
+            >
+              {backLabel}
+            </button>
+            <div>
+              <h2 id="bots-heading" className="text-2xl font-semibold text-white">
+                {t("s0.botsTitle", { defaultValue: "AI bots" })}
+              </h2>
+              <p className="mt-1 text-sm text-genesis-muted">
+                {t("s0.botsIntro", {
+                  defaultValue:
+                    "Separate from websites. Pick a package, create your personal account, then set up the bot.",
+                })}
+              </p>
+            </div>
+            {marketSelect}
+            <div className="grid gap-4 sm:grid-cols-3">
+              {botPackages.length === 0 ? (
+                <p className="text-sm text-zinc-500 sm:col-span-3">
+                  {t("s0.botsLoading", { defaultValue: "Loading bot packages…" })}
+                </p>
+              ) : (
+                botPackages.map((pkg) => (
+                  <article
+                    key={pkg.package_id}
+                    className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+                  >
+                    <p className="text-lg font-semibold text-white">{pkg.name}</p>
+                    <p className="mt-3 text-2xl font-semibold tracking-tight text-emerald-300">
+                      {pkg.setup_label || pkg.price_label}
+                    </p>
+                    {pkg.monthly_label ? (
+                      <p className="mt-1 text-sm text-zinc-400">
+                        {t("s0.botsMonthly", {
+                          defaultValue: "setup · then {{monthly}}/mo",
+                          monthly: pkg.monthly_label,
                         })}
                       </p>
-                    </div>
-                  ) : null}
-                </article>
-              );
-            })}
-          </div>
-        </section>
+                    ) : null}
+                    <p className="mt-4 flex-1 text-xs leading-relaxed text-zinc-500">
+                      Website chat · Telegram · WhatsApp / Instagram in rollout
+                    </p>
+                    <Link
+                      href={botOrderHref}
+                      className="mt-5 inline-flex items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110"
+                    >
+                      {t("s0.botsCta", {
+                        defaultValue: "Create account & continue",
+                      })}
+                    </Link>
+                  </article>
+                ))
+              )}
+            </div>
+          </section>
+        ) : null}
 
-        {/* Client reviews — high on page so visitors see social proof */}
+        {serviceView === "analysis" ? (
+          <section
+            id="analysis"
+            className="space-y-4"
+            aria-labelledby="analysis-heading"
+          >
+            <button
+              type="button"
+              onClick={() => openService("hub")}
+              className="text-sm font-medium text-emerald-300 hover:underline"
+            >
+              {backLabel}
+            </button>
+            <h2 id="analysis-heading" className="text-2xl font-semibold text-white">
+              {t("s0.analysisTitle", { defaultValue: "Website Analysis & Repair" })}
+            </h2>
+            <WebsiteAnalysisPanel
+              market={market}
+              onAskVector={openChat}
+              initialUrl={analyzeUrl || undefined}
+            />
+            <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+              <h3 className="text-base font-semibold text-white sm:text-lg">
+                {t("s0.repairMvpTitle")}
+              </h3>
+              <p className="mt-2 text-sm text-zinc-400">{t("s0.repairMvpIntro")}</p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300/90">
+                    {t("s0.repairMvpFindTitle")}
+                  </p>
+                  <ul className="mt-2 space-y-1.5 text-sm text-zinc-300">
+                    <li>{t("s0.repairMvpFind1")}</li>
+                    <li>{t("s0.repairMvpFind2")}</li>
+                    <li>{t("s0.repairMvpFind3")}</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-sky-300/90">
+                    {t("s0.repairMvpFixTitle")}
+                  </p>
+                  <ul className="mt-2 space-y-1.5 text-sm text-zinc-300">
+                    <li>{t("s0.repairMvpFix1")}</li>
+                    <li>{t("s0.repairMvpFix2")}</li>
+                    <li>{t("s0.repairMvpFix3")}</li>
+                  </ul>
+                </div>
+              </div>
+              <p className="mt-4 text-xs leading-relaxed text-zinc-500">
+                {t("s0.repairMvpDisclaimer")}
+              </p>
+            </article>
+          </section>
+        ) : null}
+
+        {serviceView === "hub" ? (
         <section
           id="reviews"
           className="rounded-2xl border border-amber-500/25 bg-gradient-to-br from-amber-950/25 via-black/20 to-genesis-panel p-6 sm:p-8"
@@ -570,54 +895,9 @@ export function SitePage() {
             </ul>
           )}
         </section>
+        ) : null}
 
-        {/* 2. AI Solutions */}
-        <section className="space-y-4" aria-labelledby="ai-heading">
-          <h2 id="ai-heading" className="text-2xl font-semibold text-white">
-            {t("s0.aiTitle", { defaultValue: "AI Solutions" })}
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <article className="rounded-2xl border border-sky-400/25 bg-sky-500/[0.07] p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/90">
-                {ASSISTANT_NAME}
-              </p>
-              <h3 className="mt-2 text-lg font-semibold text-white">
-                {t("pathA.cardVectorTitle")}
-              </h3>
-              <p className="mt-2 text-sm text-zinc-300">
-                {t("pathA.cardVectorBody")}
-              </p>
-              <p className="mt-3 text-sm text-zinc-400">
-                {t("s0.vectorAsk", {
-                  defaultValue: "Not sure what fits? Ask Vector.",
-                })}
-              </p>
-              <button
-                type="button"
-                onClick={openChat}
-                className="mt-4 inline-flex rounded-xl border border-sky-400/40 px-4 py-2 text-sm font-medium text-sky-100 hover:bg-sky-500/10"
-              >
-                {t("pathA.meetVectorCta")}
-              </button>
-            </article>
-            <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              <h3 className="text-lg font-semibold text-white">
-                {t("pathA.cardChatbotTitle")}
-              </h3>
-              <p className="mt-2 text-sm text-zinc-400">
-                {t("pathA.cardChatbotBody")}
-              </p>
-              <p className="mt-2 text-xs text-zinc-500">
-                Instagram · Facebook · WhatsApp · Telegram · Website
-              </p>
-              <span className="mt-4 inline-flex rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-1.5 text-xs font-semibold text-amber-100/90">
-                {comingSoon}
-              </span>
-            </article>
-          </div>
-        </section>
-
-        {/* 3. Automation */}
+        {serviceView === "hub" ? (
         <section className="space-y-4" aria-labelledby="auto-heading">
           <h2 id="auto-heading" className="text-2xl font-semibold text-white">
             {t("s0.automationTitle", { defaultValue: "Automation & CRM" })}
@@ -635,70 +915,7 @@ export function SitePage() {
             </span>
           </article>
         </section>
-
-        {/* 4. Analysis — Website Analysis v1 + honest Repair scope */}
-        <section className="space-y-4" aria-labelledby="analysis-heading" id="analysis">
-          <h2 id="analysis-heading" className="text-2xl font-semibold text-white">
-            {t("s0.analysisTitle", { defaultValue: "Website Analysis & Repair" })}
-          </h2>
-          <WebsiteAnalysisPanel
-            market={market}
-            onAskVector={openChat}
-            initialUrl={analyzeUrl || undefined}
-          />
-          <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
-            <h3 className="text-base font-semibold text-white sm:text-lg">
-              {t("s0.repairMvpTitle")}
-            </h3>
-            <p className="mt-2 text-sm text-zinc-400">{t("s0.repairMvpIntro")}</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300/90">
-                  {t("s0.repairMvpFindTitle")}
-                </p>
-                <ul className="mt-2 space-y-1.5 text-sm text-zinc-300">
-                  <li>{t("s0.repairMvpFind1")}</li>
-                  <li>{t("s0.repairMvpFind2")}</li>
-                  <li>{t("s0.repairMvpFind3")}</li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-sky-300/90">
-                  {t("s0.repairMvpFixTitle")}
-                </p>
-                <ul className="mt-2 space-y-1.5 text-sm text-zinc-300">
-                  <li>{t("s0.repairMvpFix1")}</li>
-                  <li>{t("s0.repairMvpFix2")}</li>
-                  <li>{t("s0.repairMvpFix3")}</li>
-                </ul>
-              </div>
-            </div>
-            <p className="mt-4 text-xs leading-relaxed text-zinc-500">
-              {t("s0.repairMvpDisclaimer")}
-            </p>
-          </article>
-        </section>
-
-        {/* 5. One-time — Repair is sold via Analysis funnel, not a hero card */}
-        <section className="space-y-4" aria-labelledby="onetime-heading">
-          <h2 id="onetime-heading" className="text-2xl font-semibold text-white">
-            {t("s0.onetimeTitle", { defaultValue: "One-time services" })}
-          </h2>
-          <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <p className="text-sm text-zinc-400">{t("s0.onetimeRepairBody")}</p>
-            <a
-              href="#analysis"
-              className="mt-4 inline-flex rounded-lg border border-emerald-500/40 bg-emerald-950/30 px-3 py-1.5 text-xs font-semibold text-emerald-100/90 hover:brightness-110"
-            >
-              {t("s0.analysisFirstCta")}
-            </a>
-            <p className="mt-3 text-xs text-zinc-500">
-              {t("s0.honestNote", {
-                defaultValue: "Coming Soon is not Buy — we only sell finished delivery paths.",
-              })}
-            </p>
-          </article>
-        </section>
+        ) : null}
 
         {/* Process + trust (below fold) */}
         <section className="rounded-2xl border border-emerald-500/25 bg-emerald-950/20 p-6">
@@ -712,6 +929,9 @@ export function SitePage() {
           <div className="mt-6 flex flex-wrap gap-3 text-sm">
             <Link href="/products" className="font-medium text-emerald-300 hover:underline">
               {t("pathA.productsLink")} →
+            </Link>
+            <Link href="/client/register" className="font-medium text-emerald-300 hover:underline">
+              {t("s0.createAccount", { defaultValue: "Create personal account" })} →
             </Link>
             <Link href="/client/login" className="font-medium text-zinc-300 hover:underline">
               {t("pathA.cabinetLink")} →

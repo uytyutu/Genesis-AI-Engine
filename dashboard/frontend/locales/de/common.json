@@ -7,7 +7,9 @@
     "studio": "Studio",
     "order": "Bestellen",
     "menu": "Menü",
-    "close": "Schließen"
+    "close": "Schließen",
+    "signIn": "Anmelden",
+    "register": "Registrieren"
   },
   "language": {
     "title": "Sprache",
