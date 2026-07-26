@@ -160,7 +160,8 @@ def exchange_code(*, code: str, redirect_uri: str) -> dict[str, Any]:
 def persist_refresh_token(refresh_token: str) -> dict[str, Any]:
     """Write GMAIL_REFRESH_TOKEN into dashboard/backend/.env.local and os.environ.
 
-    Never logs the token. Creates .env.local if missing. Replaces existing key line.
+    Never logs the token. Creates .env.local if missing.
+    Keeps exactly one GMAIL_REFRESH_TOKEN= line (removes duplicates/empties).
     """
     token = (refresh_token or "").strip()
     if not token or len(token) < 20:
@@ -175,6 +176,8 @@ def persist_refresh_token(refresh_token: str) -> dict[str, Any]:
             replaced = False
             for raw in rows:
                 if raw.strip().startswith("GMAIL_REFRESH_TOKEN="):
+                    if replaced:
+                        continue  # drop duplicate keys
                     out.append(line)
                     replaced = True
                 else:
