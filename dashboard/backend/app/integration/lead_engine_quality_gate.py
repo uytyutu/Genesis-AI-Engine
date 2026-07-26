@@ -134,6 +134,29 @@ def quality_gate_before_send(
     if exclusion_blocked:
         return {"ok": False, "reason": "exclusion", "detail": "Company on stop-list"}
 
+    try:
+        import os
+        from pathlib import Path
+
+        from app.integration.outreach_sent_forever import OutreachSentForever
+
+        mem_raw = os.getenv("GENESIS_MEMORY_DIR", "").strip()
+        mem = Path(mem_raw).expanduser() if mem_raw else None
+        forever = OutreachSentForever(mem)
+        if not forever.path.is_file():
+            forever.bootstrap_from_memory()
+        blocked_forever, forever_why = forever.was_sent(
+            email=email, website_url=str(row.get("website_url") or "")
+        )
+        if blocked_forever:
+            return {
+                "ok": False,
+                "reason": "ever_sent",
+                "detail": f"Already emailed (forever suppress: {forever_why})",
+            }
+    except Exception:
+        pass
+
     if recently_contacted(row, all_rows=all_rows, now_utc=now_utc):
         return {
             "ok": False,

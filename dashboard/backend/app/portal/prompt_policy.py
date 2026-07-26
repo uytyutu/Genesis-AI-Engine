@@ -84,6 +84,7 @@ def resolve_policy(context: ConversationContext) -> PromptPolicy:
     language = str(business.get("language") or "ru").strip() or "ru"
     industry = str(business.get("industry") or template.get("industry") or "other")
     behavior = str(template.get("default_behavior") or "").strip()
+    tone = str(business.get("tone") or "professional_friendly").strip() or "professional_friendly"
     style_notes: list[str] = []
     if behavior:
         style_notes.append(f"Industry behavior: {behavior}")
@@ -94,7 +95,7 @@ def resolve_policy(context: ConversationContext) -> PromptPolicy:
     )
     return PromptPolicy(
         language=language,
-        tone="professional_friendly",
+        tone=tone,
         max_response_sentences=6,
         formatting="plain_text_short_paragraphs",
         safety_rules=safety,

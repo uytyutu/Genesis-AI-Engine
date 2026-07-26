@@ -3,8 +3,23 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { BRAND_NAME } from "../lib/publicBrand";
+import { publicApiBase } from "../lib/publicApiBase";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = publicApiBase();
+
+function apiDetail(body: unknown, fallback: string): string {
+  if (!body || typeof body !== "object") return fallback;
+  const d = (body as { detail?: unknown; detail_ru?: unknown; message_ru?: unknown }).detail;
+  const ru = (body as { detail_ru?: unknown }).detail_ru;
+  const msg = (body as { message_ru?: unknown }).message_ru;
+  if (typeof ru === "string" && ru.trim()) return ru;
+  if (typeof msg === "string" && msg.trim()) return msg;
+  if (typeof d === "string" && d.trim()) return d;
+  if (Array.isArray(d) && d[0] && typeof d[0] === "object" && "msg" in d[0]) {
+    return String((d[0] as { msg: unknown }).msg);
+  }
+  return fallback;
+}
 
 type Farm = {
   id: string;
@@ -145,6 +160,8 @@ export function OpportunityMarketplaceCenter() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [researchMsg, setResearchMsg] = useState("");
+  const [adapterMsg, setAdapterMsg] = useState("");
+  const [actionBusy, setActionBusy] = useState("");
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -160,7 +177,9 @@ export function OpportunityMarketplaceCenter() {
       }
       setBoard(await mRes.json());
       if (rRes.ok) setResearch(await rRes.json());
+      else setResearchMsg(`Research board ${rRes.status}`);
       if (aRes.ok) setAdapters(await aRes.json());
+      else setAdapterMsg(`Adapters board ${aRes.status} — кнопки могут не обновляться`);
       setErr("");
     } catch {
       setErr("Backend недоступен");
@@ -175,22 +194,26 @@ export function OpportunityMarketplaceCenter() {
 
   async function runScan() {
     setResearchMsg("");
+    setActionBusy("scan");
     try {
       const res = await fetch(`${API}/api/worker-research/scan?force=true`, { method: "POST" });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setResearchMsg(String(body?.detail || "Scan failed"));
+        setResearchMsg(apiDetail(body, "Scan failed"));
         return;
       }
       setResearchMsg(`Scan OK · findings ${body.findings_count ?? "—"}`);
       await load();
     } catch {
       setResearchMsg("Backend недоступен");
+    } finally {
+      setActionBusy("");
     }
   }
 
   async function approvePlatform(platformId: string) {
     setResearchMsg("");
+    setActionBusy(`approve:${platformId}`);
     try {
       const res = await fetch(
         `${API}/api/worker-research/platforms/${encodeURIComponent(platformId)}/approve`,
@@ -198,13 +221,15 @@ export function OpportunityMarketplaceCenter() {
       );
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setResearchMsg(String(body?.detail || "Approve failed"));
+        setResearchMsg(apiDetail(body, "Approve failed"));
         return;
       }
       setResearchMsg(body.message_ru || "Одобрено");
       await load();
     } catch {
       setResearchMsg("Backend недоступен");
+    } finally {
+      setActionBusy("");
     }
   }
 
@@ -212,7 +237,8 @@ export function OpportunityMarketplaceCenter() {
     platformId: string,
     action: "create" | "sandbox" | "promote-working",
   ) {
-    setResearchMsg("");
+    setAdapterMsg("…");
+    setActionBusy(`${action}:${platformId}`);
     try {
       const res = await fetch(
         `${API}/api/worker-adapters/${encodeURIComponent(platformId)}/${action}`,
@@ -220,13 +246,15 @@ export function OpportunityMarketplaceCenter() {
       );
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setResearchMsg(String(body?.detail || `${action} failed`));
+        setAdapterMsg(apiDetail(body, `${action} failed`));
         return;
       }
-      setResearchMsg(body.message_ru || `${action} OK · L${body.maturity_level ?? "?"}`);
+      setAdapterMsg(body.message_ru || `${action} OK · L${body.maturity_level ?? "?"}`);
       await load();
     } catch {
-      setResearchMsg("Backend недоступен");
+      setAdapterMsg("Backend недоступен — перезапустите Genesis.exe");
+    } finally {
+      setActionBusy("");
     }
   }
 
@@ -428,6 +456,16 @@ export function OpportunityMarketplaceCenter() {
           <p className="mt-2 text-[10px] text-emerald-200/80">
             Work Farm allowlist: {(adapters?.work_farm_allowlist || []).join(", ") || "—"}
           </p>
+          {adapterMsg ? (
+            <p className="mt-3 rounded-lg border border-amber-400/30 bg-amber-950/40 px-3 py-2 text-xs text-amber-50">
+              {adapterMsg}
+            </p>
+          ) : null}
+          {adapterRows.filter((p) => p.verdict !== "reject").length === 0 ? (
+            <p className="mt-4 text-xs text-genesis-muted">
+              Нет платформ для адаптера — сначала Scan / Approve в Research Lab выше.
+            </p>
+          ) : null}
           <ul className="mt-4 space-y-2">
             {adapterRows
               .filter((p) => p.verdict !== "reject")
@@ -447,27 +485,35 @@ export function OpportunityMarketplaceCenter() {
                     payout {p.real_payout_proven ? "✓" : "—"} · farm{" "}
                     {p.work_farm_eligible ? "✓" : "—"}
                   </p>
+                  {!p.ceo_approved && p.id !== "path_a_stripe" ? (
+                    <p className="mt-1 text-[10px] text-amber-200/70">
+                      Сначала «CEO: в очередь Adapter» в Research Lab — иначе Create вернёт ошибку.
+                    </p>
+                  ) : null}
                   <div className="mt-2 flex flex-wrap gap-2">
                     <button
                       type="button"
+                      disabled={Boolean(actionBusy)}
                       onClick={() => void adapterAction(p.id, "create")}
-                      className="rounded-md border border-white/20 px-2 py-1 text-[11px] text-white/80 hover:bg-white/5"
+                      className="rounded-md border border-white/20 px-2 py-1 text-[11px] text-white/80 hover:bg-white/5 disabled:opacity-40"
                     >
-                      Create Adapter
+                      {actionBusy === `create:${p.id}` ? "…" : "Create Adapter"}
                     </button>
                     <button
                       type="button"
+                      disabled={Boolean(actionBusy)}
                       onClick={() => void adapterAction(p.id, "sandbox")}
-                      className="rounded-md border border-sky-400/35 px-2 py-1 text-[11px] text-sky-100 hover:bg-sky-950/40"
+                      className="rounded-md border border-sky-400/35 px-2 py-1 text-[11px] text-sky-100 hover:bg-sky-950/40 disabled:opacity-40"
                     >
-                      Sandbox
+                      {actionBusy === `sandbox:${p.id}` ? "…" : "Sandbox"}
                     </button>
                     <button
                       type="button"
+                      disabled={Boolean(actionBusy)}
                       onClick={() => void adapterAction(p.id, "promote-working")}
-                      className="rounded-md border border-emerald-500/40 px-2 py-1 text-[11px] text-emerald-100 hover:bg-emerald-950/40"
+                      className="rounded-md border border-emerald-500/40 px-2 py-1 text-[11px] text-emerald-100 hover:bg-emerald-950/40 disabled:opacity-40"
                     >
-                      Promote Working
+                      {actionBusy === `promote-working:${p.id}` ? "…" : "Promote Working"}
                     </button>
                   </div>
                 </li>

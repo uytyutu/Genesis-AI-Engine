@@ -271,3 +271,242 @@ def _default_name(tier: str) -> str:
         "repair_standard": "Website Repair Standard",
         "repair_complete": "Website Repair Complete",
     }.get(tier, tier)
+
+
+# --- AI Business Bots (separate product; not Path A website) ---------------------
+
+BOT_PACKAGE_IDS: tuple[str, ...] = ("bot_starter", "bot_business", "bot_professional")
+
+# DE anchors — setup one-time + monthly (major units). Market rows override.
+_DE_BOT_SKUS: dict[str, dict[str, int]] = {
+    "bot_starter": {"setup": 499, "monthly": 99},
+    "bot_business": {"setup": 999, "monthly": 199},
+    "bot_professional": {"setup": 1499, "monthly": 349},
+}
+
+# Curated local-market bot prices (SMB AI chatbot / Telegram+web widget).
+_BOT_SKUS: dict[str, dict[str, dict[str, int]]] = {
+    "DE": dict(_DE_BOT_SKUS),
+    "AT": dict(_DE_BOT_SKUS),
+    "CH": {
+        "bot_starter": {"setup": 549, "monthly": 119},
+        "bot_business": {"setup": 1090, "monthly": 229},
+        "bot_professional": {"setup": 1690, "monthly": 399},
+    },
+    "US": {
+        "bot_starter": {"setup": 599, "monthly": 129},
+        "bot_business": {"setup": 1199, "monthly": 249},
+        "bot_professional": {"setup": 1799, "monthly": 399},
+    },
+    "CA": {
+        "bot_starter": {"setup": 599, "monthly": 129},
+        "bot_business": {"setup": 1199, "monthly": 249},
+        "bot_professional": {"setup": 1799, "monthly": 399},
+    },
+    "GB": {
+        "bot_starter": {"setup": 449, "monthly": 89},
+        "bot_business": {"setup": 899, "monthly": 179},
+        "bot_professional": {"setup": 1299, "monthly": 299},
+    },
+    "AU": {
+        "bot_starter": {"setup": 799, "monthly": 149},
+        "bot_business": {"setup": 1499, "monthly": 299},
+        "bot_professional": {"setup": 2299, "monthly": 449},
+    },
+    "NZ": {
+        "bot_starter": {"setup": 799, "monthly": 149},
+        "bot_business": {"setup": 1499, "monthly": 299},
+        "bot_professional": {"setup": 2299, "monthly": 449},
+    },
+    "JP": {
+        "bot_starter": {"setup": 88000, "monthly": 16000},
+        "bot_business": {"setup": 168000, "monthly": 32000},
+        "bot_professional": {"setup": 268000, "monthly": 54000},
+    },
+    "KR": {
+        "bot_starter": {"setup": 790000, "monthly": 140000},
+        "bot_business": {"setup": 1490000, "monthly": 280000},
+        "bot_professional": {"setup": 2390000, "monthly": 480000},
+    },
+    "SG": {
+        "bot_starter": {"setup": 699, "monthly": 129},
+        "bot_business": {"setup": 1299, "monthly": 249},
+        "bot_professional": {"setup": 1999, "monthly": 399},
+    },
+    "NL": {
+        "bot_starter": {"setup": 499, "monthly": 99},
+        "bot_business": {"setup": 999, "monthly": 199},
+        "bot_professional": {"setup": 1499, "monthly": 349},
+    },
+    "BE": {
+        "bot_starter": {"setup": 499, "monthly": 99},
+        "bot_business": {"setup": 999, "monthly": 199},
+        "bot_professional": {"setup": 1499, "monthly": 349},
+    },
+    "FR": {
+        "bot_starter": {"setup": 499, "monthly": 99},
+        "bot_business": {"setup": 999, "monthly": 199},
+        "bot_professional": {"setup": 1499, "monthly": 349},
+    },
+    "IE": {
+        "bot_starter": {"setup": 499, "monthly": 99},
+        "bot_business": {"setup": 999, "monthly": 199},
+        "bot_professional": {"setup": 1499, "monthly": 349},
+    },
+    "ES": {
+        "bot_starter": {"setup": 399, "monthly": 79},
+        "bot_business": {"setup": 799, "monthly": 149},
+        "bot_professional": {"setup": 1199, "monthly": 279},
+    },
+    "IT": {
+        "bot_starter": {"setup": 399, "monthly": 79},
+        "bot_business": {"setup": 799, "monthly": 149},
+        "bot_professional": {"setup": 1199, "monthly": 279},
+    },
+    "PL": {
+        "bot_starter": {"setup": 1999, "monthly": 399},
+        "bot_business": {"setup": 3999, "monthly": 799},
+        "bot_professional": {"setup": 5999, "monthly": 1299},
+    },
+    "CZ": {
+        "bot_starter": {"setup": 12000, "monthly": 2490},
+        "bot_business": {"setup": 24900, "monthly": 4990},
+        "bot_professional": {"setup": 36900, "monthly": 8490},
+    },
+    "SE": {
+        "bot_starter": {"setup": 5499, "monthly": 1099},
+        "bot_business": {"setup": 10999, "monthly": 2199},
+        "bot_professional": {"setup": 16499, "monthly": 3799},
+    },
+    "NO": {
+        "bot_starter": {"setup": 5990, "monthly": 1190},
+        "bot_business": {"setup": 11990, "monthly": 2390},
+        "bot_professional": {"setup": 17990, "monthly": 4190},
+    },
+    "DK": {
+        "bot_starter": {"setup": 3990, "monthly": 799},
+        "bot_business": {"setup": 7990, "monthly": 1590},
+        "bot_professional": {"setup": 11990, "monthly": 2790},
+    },
+    "FI": {
+        "bot_starter": {"setup": 499, "monthly": 99},
+        "bot_business": {"setup": 999, "monthly": 199},
+        "bot_professional": {"setup": 1499, "monthly": 349},
+    },
+    "UA": {
+        "bot_starter": {"setup": 18900, "monthly": 3900},
+        "bot_business": {"setup": 37900, "monthly": 7900},
+        "bot_professional": {"setup": 56900, "monthly": 13900},
+    },
+    "RU": {
+        "bot_starter": {"setup": 49000, "monthly": 9900},
+        "bot_business": {"setup": 99000, "monthly": 19900},
+        "bot_professional": {"setup": 149000, "monthly": 34900},
+    },
+    "KZ": {
+        "bot_starter": {"setup": 249000, "monthly": 49000},
+        "bot_business": {"setup": 499000, "monthly": 99000},
+        "bot_professional": {"setup": 749000, "monthly": 179000},
+    },
+}
+
+
+@dataclass(frozen=True)
+class BotOffer:
+    package_id: str
+    setup_amount: int
+    monthly_amount: int
+    currency: str
+    symbol: str
+    market_code: str
+    setup_label: str
+    monthly_label: str
+    name: str
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "package_id": self.package_id,
+            "setup_amount": self.setup_amount,
+            "monthly_amount": self.monthly_amount,
+            "currency": self.currency,
+            "symbol": self.symbol,
+            "market_code": self.market_code,
+            "setup_label": self.setup_label,
+            "monthly_label": self.monthly_label,
+            "price_label": f"{self.setup_label} + {self.monthly_label}/mo",
+            "name": self.name,
+        }
+
+
+def normalize_bot_package_id(package_id: str | None) -> str:
+    pid = str(package_id or "bot_business").strip().lower()
+    if pid in BOT_PACKAGE_IDS:
+        return pid
+    aliases = {
+        "starter": "bot_starter",
+        "business": "bot_business",
+        "professional": "bot_professional",
+        "pro": "bot_professional",
+    }
+    return aliases.get(pid, "bot_business")
+
+
+def _bot_sku_amounts(market_code: str, package_id: str) -> tuple[int, int]:
+    code = (market_code or "DE").strip().upper() or "DE"
+    pid = normalize_bot_package_id(package_id)
+    row = (_BOT_SKUS.get(code) or {}).get(pid)
+    if row:
+        return max(1, int(row["setup"])), max(1, int(row["monthly"]))
+    from app.integration.market_registry import checkout_price_scale
+
+    scale = checkout_price_scale(code)
+    de = _DE_BOT_SKUS[pid]
+    return (
+        max(1, int(round(de["setup"] * scale))),
+        max(1, int(round(de["monthly"] * scale))),
+    )
+
+
+def _bot_default_name(package_id: str) -> str:
+    return {
+        "bot_starter": "AI Bot Starter",
+        "bot_business": "AI Bot Business",
+        "bot_professional": "AI Bot Professional",
+    }.get(package_id, package_id)
+
+
+def resolve_bot_offer(package_id: str, market_code: str) -> BotOffer:
+    """Localized AI bot package — setup + monthly in market currency."""
+    from app.integration.market_registry import get_market
+
+    pid = normalize_bot_package_id(package_id)
+    market = get_market(market_code)
+    setup, monthly = _bot_sku_amounts(market.code, pid)
+    return BotOffer(
+        package_id=pid,
+        setup_amount=setup,
+        monthly_amount=monthly,
+        currency=market.currency,
+        symbol=market.symbol,
+        market_code=market.code,
+        setup_label=format_path_a_price(setup, market.symbol),
+        monthly_label=format_path_a_price(monthly, market.symbol),
+        name=_bot_default_name(pid),
+    )
+
+
+def list_bot_packages(market_code: str) -> dict[str, Any]:
+    """Catalog grid for Virtus Core Bots tab."""
+    from app.integration.market_registry import get_market
+
+    market = get_market(market_code)
+    packages = [resolve_bot_offer(pid, market.code).as_dict() for pid in BOT_PACKAGE_IDS]
+    return {
+        "product_id": "prod_chatbot",
+        "packages": packages,
+        "market_code": market.code,
+        "currency": market.currency,
+        "symbol": market.symbol,
+        "channels": ["Website chat", "Telegram", "WhatsApp (rollout)", "Instagram (rollout)"],
+        "note": "Separate add-on — not included in Landing Website packages.",
+    }

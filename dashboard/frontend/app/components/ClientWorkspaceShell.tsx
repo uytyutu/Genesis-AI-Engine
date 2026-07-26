@@ -12,6 +12,11 @@ export const CLIENT_WORKSPACE_LINKS = [
     match: (p: string) => p.startsWith("/client/products"),
   },
   {
+    href: "/client/bots",
+    label: "Боты",
+    match: (p: string) => p.startsWith("/client/bots"),
+  },
+  {
     href: "/client/orders",
     label: "Orders",
     match: (p: string) => p.startsWith("/client/orders"),

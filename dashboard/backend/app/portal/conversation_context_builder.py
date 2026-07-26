@@ -49,6 +49,7 @@ def build_conversation_context(
     templates: IndustryTemplateStore,
     channels: ChannelConnectionStore,
     selected_categories: tuple[str, ...] | None = None,
+    configuration: object | None = None,
 ) -> ConversationContext:
     categories = selected_categories or DEFAULT_KNOWLEDGE_CATEGORIES
     facts = []
@@ -83,6 +84,21 @@ def build_conversation_context(
                 "status": channel.status,
             }
 
+    system_prompt = ""
+    tone = ""
+    if configuration is not None:
+        placeholders = getattr(configuration, "placeholders", None) or {}
+        if isinstance(placeholders, dict):
+            system_prompt = str(placeholders.get("system_prompt") or "").strip()
+            tone = str(placeholders.get("tone") or "").strip()
+            if template_payload is not None and system_prompt:
+                template_payload = {
+                    **template_payload,
+                    "system_prompt_seed": system_prompt,
+                    "default_behavior": getattr(configuration, "behavior", None)
+                    or template_payload.get("default_behavior"),
+                }
+
     return ConversationContext(
         conversation_id=conversation.conversation_id,
         profile_id=profile.profile_id,
@@ -93,6 +109,8 @@ def build_conversation_context(
             "description": profile.description,
             "language": profile.language,
             "timezone": profile.timezone,
+            "system_prompt": system_prompt,
+            "tone": tone,
         },
         industry_template=template_payload,
         knowledge=tuple(facts),

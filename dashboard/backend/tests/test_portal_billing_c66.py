@@ -68,7 +68,7 @@ def test_purchase_writes_paid_ledger_row():
     assert len(rows) == 1
     assert rows[0].status == "paid"
     assert rows[0].product_id == "prod_chatbot"
-    assert rows[0].amount == 2900
+    assert rows[0].amount == 99900
     assert rows[0].currency == "EUR"
     assert rows[0].provider == "stub"
     assert ownerships.list_for_account("acc-1")  # ownership via license path
@@ -118,7 +118,7 @@ def test_http_list_and_get_after_purchase():
         row = listed.json()[0]
         assert row["status"] == "paid"
         assert row["product_id"] == "prod_chatbot"
-        assert row["amount"] == 2900
+        assert row["amount"] == 99900
         assert set(row.keys()) >= {
             "transaction_id",
             "account_id",

@@ -36,11 +36,16 @@ dashboard/backend/_research_3d/scenes/**/*.bin
 *.pem
 *.p12
 
+# Local sandboxes (crypto / AI farm) — live outside Virtus kernel; never on C:
+_local_sandboxes/
+
 # Runtime memory & training data (never commit)
 dashboard/backend/memory/workforce/
 dashboard/backend/memory/genesis_brain/
 dashboard/backend/memory/human_review/
 dashboard/backend/memory/*.jsonl
+dashboard/backend/memory/outreach_sent_forever.json
+dashboard/backend/app/memory/outreach_sent_forever.json
 memory/
 **/training_candidates.jsonl
 **/employee_ratings.json

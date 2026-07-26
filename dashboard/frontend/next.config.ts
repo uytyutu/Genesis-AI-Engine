@@ -99,6 +99,11 @@ const nextConfig: NextConfig = {
         source: "/portal/:path*",
         destination: `${apiBase}/portal/:path*`,
       },
+      // Mission Control boards (Возможности / Adapter / Work Farm) — same-origin
+      {
+        source: "/api/:path*",
+        destination: `${apiBase}/api/:path*`,
+      },
     ];
   },
 };

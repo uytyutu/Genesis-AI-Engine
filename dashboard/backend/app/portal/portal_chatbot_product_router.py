@@ -48,6 +48,28 @@ class BootstrapBody(BaseModel):
     timezone: str | None = Field(default=None, max_length=64)
 
 
+class QuestionnaireBody(BaseModel):
+    business_name: str = Field(min_length=1, max_length=200)
+    what_company_does: str = Field(default="", max_length=4000)
+    services: str = Field(default="", max_length=4000)
+    answer_topics: str = Field(default="", max_length=4000)
+    avoid_topics: str = Field(default="", max_length=4000)
+    working_hours: str = Field(default="", max_length=500)
+    address: str = Field(default="", max_length=500)
+    phone: str = Field(default="", max_length=80)
+    website: str = Field(default="", max_length=300)
+    language: str = Field(default="de", max_length=16)
+    tone: str = Field(default="professional_friendly", max_length=64)
+    industry: str = Field(default="other", max_length=64)
+    book_appointments: bool = True
+    take_leads: bool = True
+    give_prices: bool = False
+    timezone: str = Field(default="Europe/Berlin", max_length=64)
+
+    def as_answers(self) -> dict:
+        return self.model_dump()
+
+
 def set_chatbot_business_profile_facade(
     facade: ChatBotBusinessProfileFacade,
 ) -> None:
@@ -142,3 +164,73 @@ def http_bootstrap_profile(
         )
     except ChatBotProfileError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@portal_chatbot_product_router.post("/setup/preview", response_model=None)
+def http_setup_preview(
+    body: QuestionnaireBody,
+    request: Request,
+    facade: Annotated[
+        ChatBotBusinessProfileFacade, Depends(get_chatbot_business_profile_facade)
+    ],
+) -> dict:
+    """Client questionnaire → preview (no CEO)."""
+    _require_account(request)
+    try:
+        return facade.preview_setup(answers=body.as_answers())
+    except ChatBotProfileError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@portal_chatbot_product_router.post("/setup/publish", response_model=None)
+def http_setup_publish(
+    body: QuestionnaireBody,
+    request: Request,
+    facade: Annotated[
+        ChatBotBusinessProfileFacade, Depends(get_chatbot_business_profile_facade)
+    ],
+) -> dict:
+    """Client publishes digital employee — self-serve, no owner approve."""
+    account_id = _require_account(request)
+    try:
+        result = facade.publish_setup(account_id=account_id, answers=body.as_answers())
+    except ChatBotProfileError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    try:
+        from app.portal.portal_chatbot_knowledge_router import get_business_knowledge_facade
+
+        knowledge = get_business_knowledge_facade()
+        for row in result.get("knowledge") or []:
+            try:
+                knowledge.create_knowledge(
+                    account_id=account_id,
+                    category=str(row.get("category") or "company"),
+                    title=str(row.get("title") or "Fact"),
+                    content=str(row.get("content") or ""),
+                )
+            except Exception:
+                continue
+    except Exception:
+        pass
+
+    try:
+        from app.portal.portal_chatbot_channels_router import get_channel_connection_facade
+
+        channels = get_channel_connection_facade()
+        existing = channels.list_channels(account_id=account_id)
+        has_website = any(
+            (getattr(c, "channel", None) or "") == "website" for c in existing
+        )
+        if not has_website:
+            channels.create_channel(
+                account_id=account_id,
+                channel="website",
+                display_name="Website chat",
+                status="connected",
+            )
+    except Exception:
+        pass
+
+    result["ceo_approve_required"] = False
+    return result

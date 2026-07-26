@@ -59,8 +59,12 @@ def default_product_catalog() -> tuple[Product, ...]:
         Product(
             product_id="prod_chatbot",
             product_type="chatbot",
-            display_name="AI Business Employee (Vector)",
-            description="Vector for customer conversations. Activate today; paid monthly plans Coming Soon.",
+            display_name="AI Business Bots",
+            description=(
+                "Separate add-on (not included in Landing): AI bots for website + Telegram. "
+                "DE market: Starter 499 € + 99 €/mo · Business 999 € + 199 €/mo · "
+                "Professional 1499 € + 349 €/mo. Localized prices in Virtus → Bots tab."
+            ),
             availability="available",
         ),
         Product(

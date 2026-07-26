@@ -93,3 +93,53 @@ class ChatBotBusinessProfileFacade:
             )
         except ChatBotProfileError:
             raise
+
+    def preview_setup(self, *, answers: dict) -> dict:
+        from app.portal.bot_setup_questionnaire import build_setup_preview
+
+        return build_setup_preview(answers)
+
+    def publish_setup(self, *, account_id: str, answers: dict) -> dict:
+        """Client self-serve publish — no CEO approve."""
+        from app.portal.bot_setup_questionnaire import (
+            build_configuration,
+            build_greeting,
+            build_system_prompt,
+            knowledge_rows,
+            parse_answers,
+        )
+        from app.portal.chatbot_business_profile import ChatBotInitialConfiguration
+
+        parsed = parse_answers(answers)
+        view = self.bootstrap(
+            account_id=account_id,
+            industry=parsed.industry,
+            business_name=parsed.business_name,
+            description=parsed.what_company_does,
+            language=parsed.language,
+            timezone=parsed.timezone,
+        )
+        config = build_configuration(parsed)
+        placeholders = dict(config.placeholders)
+        placeholders["setup_status"] = "published"
+        placeholders["system_prompt"] = build_system_prompt(parsed)
+        published = ChatBotInitialConfiguration(
+            greeting=build_greeting(parsed),
+            working_hours=config.working_hours,
+            faq=config.faq,
+            behavior=config.behavior,
+            placeholders=placeholders,
+        )
+        self._service.save_configuration(account_id, published)
+        refreshed = self.get_profile(account_id=account_id)
+        return {
+            "ok": True,
+            "status": "published",
+            "profile": (refreshed or view).as_dict(),
+            "greeting": published.greeting,
+            "system_prompt": placeholders["system_prompt"],
+            "configuration": published.as_dict(),
+            "knowledge": knowledge_rows(parsed),
+            "ceo_approve_required": False,
+            "message_ru": "Цифровой сотрудник опубликован. Клиент может пользоваться сразу.",
+        }

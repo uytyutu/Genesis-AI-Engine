@@ -112,9 +112,23 @@ class GlobalExclusionService:
         website_url: str | None = None,
         exclude_id: str | None = None,
     ) -> tuple[bool, str]:
-        return is_excluded(
+        blocked, reason = is_excluded(
             email=email,
             website_url=website_url,
             rows=self._rows(),
             exclude_id=exclude_id,
         )
+        if blocked:
+            return blocked, reason
+        try:
+            from app.integration.outreach_sent_forever import OutreachSentForever
+
+            mem = getattr(self._opportunity, "memory_dir", None) or getattr(
+                self._opportunity, "_memory", None
+            )
+            forever = OutreachSentForever(mem)
+            if not forever.path.is_file():
+                forever.bootstrap_from_memory()
+            return forever.was_sent(email=email, website_url=website_url)
+        except Exception:
+            return False, ""

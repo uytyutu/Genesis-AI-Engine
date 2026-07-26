@@ -1473,6 +1473,26 @@ class AcquisitionStudioService:
             host = host[4:]
         return host
 
+    def _record_forever_sent(
+        self,
+        row: dict,
+        *,
+        to_email: str = "",
+        source: str = "outreach",
+    ) -> None:
+        """Permanent suppress — survives lead reset / queue wipe."""
+        try:
+            from app.integration.outreach_sent_forever import OutreachSentForever
+
+            OutreachSentForever(self._memory_dir).record_sent(
+                email=to_email or self._extract_email(str(row.get("contact") or "")),
+                website_url=str(row.get("website_url") or ""),
+                source=source,
+                opportunity_id=str(row.get("id") or ""),
+            )
+        except Exception:
+            pass
+
     _PIPELINE_BUSY = frozenset(
         {"sent", "contacted", "approved", "pending_approval"}
     )
@@ -2495,6 +2515,7 @@ class AcquisitionStudioService:
                         row["outreach_status"] = "sent"
                         row["status"] = "contacted"
                         row["status_label"] = "Связались"
+                        self._record_forever_sent(row, to_email=to_email, source="auto_send")
                         self._log_interaction(row, "sent", f"Отправлено на {to_email}")
                     else:
                         row["outreach_status"] = "approved"
@@ -2560,6 +2581,11 @@ class AcquisitionStudioService:
         row["status"] = "contacted"
         row["status_label"] = "Связались"
         row["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._record_forever_sent(
+            row,
+            to_email=self._extract_email(str(row.get("contact") or "")),
+            source="sent_manual",
+        )
         self._log_interaction(row, "sent_manual", note or "CEO отправил вручную")
         self._opportunity._save_rows(self._replace_row(opportunity_id, row))
         return row

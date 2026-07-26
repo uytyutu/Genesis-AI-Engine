@@ -1,11 +1,11 @@
 "use client";
 
-import { ChatbotFirstRunWizard } from "../../../components/ChatbotFirstRunWizard";
+import { ChatbotSetupQuestionnaire } from "../../../components/ChatbotSetupQuestionnaire";
 
 export default function VectorFirstRunSetupPage() {
   return (
     <div className="flex min-h-[calc(100dvh-10rem)] flex-col">
-      <ChatbotFirstRunWizard />
+      <ChatbotSetupQuestionnaire />
     </div>
   );
 }

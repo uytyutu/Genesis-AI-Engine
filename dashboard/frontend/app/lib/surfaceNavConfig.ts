@@ -95,6 +95,11 @@ export const PUBLIC_NAV_LINKS: readonly PublicNavLink[] = [];
 export const CLIENT_NAV_LINKS = [
   { href: "/projects", label: "Проекты", hint: "Мои результаты" },
   {
+    href: "/client/bots",
+    label: "Боты",
+    hint: "AI bots · цены по рынку · отдельно от сайта",
+  },
+  {
     href: "/projects/chatbot",
     label: "Vector",
     hint: "Dashboard · состояние",
@@ -135,6 +140,7 @@ export const CEO_PRIMARY_LINKS = [
   { href: "/business", label: "Бизнес", hint: "Mission 2 · KPI" },
   { href: "/acquisition", label: "Поиск лидов", hint: "Country Desk · все рынки · Path A" },
   { href: "/opportunities", label: "Возможности", hint: "Affiliate · Report · API · ROI сегодня" },
+  { href: "/client/bots", label: "Боты", hint: "AI bots · цены по странам · отдельный продукт" },
   { href: "/support", label: "Поддержка", hint: "Inbox · автоответы · шаблоны" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
   { href: "/", label: "Ферма", hint: "Разметка · Toloka (не Desk)" },

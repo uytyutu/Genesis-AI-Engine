@@ -196,6 +196,7 @@ class ConversationService:
             templates=self._templates,
             channels=self._channels,
             selected_categories=select_knowledge_categories(None),
+            configuration=self._profiles.get_configuration(profile.account_id),
         )
         # Ensure assistance marker in metadata for Prompt/Policy consumers.
         request_id = ensure_request_id()
@@ -377,6 +378,7 @@ class ConversationService:
             templates=self._templates,
             channels=self._channels,
             selected_categories=selected,
+            configuration=self._profiles.get_configuration(profile.account_id),
         )
 
         generation = self._providers.generate(context)

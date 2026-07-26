@@ -41,15 +41,15 @@ export const COMMERCIAL_CATALOG: CommercialRow[] = [
   {
     id: "vector_employee",
     category: "product",
-    name: "AI Business Employee (Vector)",
-    price_label: "from 99 €/mo · Setup from 499 €",
+    name: "AI Business Bots",
+    price_label: "from 499 € setup + 99 €/mo",
     billing: "monthly",
     availability: "available",
     cta: "activate",
-    cta_href: "/projects/chatbot/setup",
-    cta_label: "Activate",
+    cta_href: "/client/bots",
+    cta_label: "Open Bots",
     includes:
-      "Starter 99 € · Business 199 € · Professional 349 € / mo (subscription checkout Coming Soon)",
+      "DE: Starter 499+99 · Business 999+199 · Pro 1499+349 € — local currency in Bots tab",
   },
   {
     id: "ai_website_analysis",

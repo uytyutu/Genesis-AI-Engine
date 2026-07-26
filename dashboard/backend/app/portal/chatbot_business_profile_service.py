@@ -135,3 +135,10 @@ class ChatBotBusinessProfileService:
         self._profiles.save_profile(profile)
         self._profiles.save_configuration(account_id, config)
         return build_profile_view(profile, configuration=config)
+
+    def save_configuration(self, account_id: str, config: object) -> None:
+        from app.portal.chatbot_business_profile import ChatBotInitialConfiguration
+
+        if not isinstance(config, ChatBotInitialConfiguration):
+            raise ChatBotProfileError("invalid_configuration")
+        self._profiles.save_configuration(account_id, config)

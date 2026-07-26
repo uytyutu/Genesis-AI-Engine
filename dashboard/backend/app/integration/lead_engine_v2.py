@@ -232,6 +232,17 @@ class LeadEngineV2:
     def was_contacted(self, *, domain: str = "", email: str = "") -> bool:
         dom = normalize_domain(domain) if domain else ""
         em = normalize_email(email)
+        try:
+            from app.integration.outreach_sent_forever import OutreachSentForever
+
+            forever = OutreachSentForever(self._memory)
+            if not forever.path.is_file():
+                forever.bootstrap_from_memory()
+            blocked, _ = forever.was_sent(email=em, website_url=dom)
+            if blocked:
+                return True
+        except Exception:
+            pass
         if not self._contacts.is_file():
             return False
         try:
@@ -281,6 +292,16 @@ class LeadEngineV2:
         if row["email"]:
             idx["emails"][row["email"]] = idx["emails"].get(row["email"]) or f"contacted:{dom}"
         self._save_dedup(idx)
+        try:
+            from app.integration.outreach_sent_forever import OutreachSentForever
+
+            OutreachSentForever(self._memory).record_sent(
+                email=row["email"],
+                website_url=dom,
+                source="lead_engine_contact",
+            )
+        except Exception:
+            pass
         return {"ok": True, "contact": row}
 
     # --- reset --------------------------------------------------------------------
@@ -289,6 +310,16 @@ class LeadEngineV2:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         dest = self._archive / stamp
         dest.mkdir(parents=True, exist_ok=True)
+        # Freeze every historically emailed address BEFORE wiping live queues.
+        forever_counts: dict[str, int] = {"emails": 0, "hosts": 0}
+        try:
+            from app.integration.outreach_sent_forever import OutreachSentForever
+
+            forever = OutreachSentForever(self._memory)
+            forever.bootstrap_from_memory()
+            forever_counts = forever.counts()
+        except Exception:
+            pass
         moved: list[str] = []
         for name in (
             "opportunities.jsonl",
@@ -302,6 +333,7 @@ class LeadEngineV2:
                 shutil.copy2(src, dest / name)
                 src.unlink(missing_ok=True)
                 moved.append(name)
+        # Never move/delete outreach_sent_forever.json — permanent suppress list.
         for p in (self._leads, self._dedup, self._state, self._contacts):
             if p.is_file():
                 shutil.copy2(p, dest / p.name)
@@ -343,7 +375,13 @@ class LeadEngineV2:
             "archived_to": str(dest),
             "files_moved": moved,
             "opportunities_archived": archived_ops,
-            "message": "Lead Engine v2: старая база архивирована, индекс и contact history очищены.",
+            "forever_suppress_emails": int(forever_counts.get("emails") or 0),
+            "forever_suppress_hosts": int(forever_counts.get("hosts") or 0),
+            "message": (
+                "Lead Engine v2: очередь архивирована. "
+                "Адреса, которым уже писали, остаются в forever-suppress "
+                f"({int(forever_counts.get('emails') or 0)} email) — повторная отправка запрещена."
+            ),
         }
 
     def is_duplicate(self, *, website: str = "", email: str = "", domain: str = "") -> tuple[bool, str]:

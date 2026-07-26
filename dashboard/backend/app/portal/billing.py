@@ -91,10 +91,10 @@ def mark_billing_failed(row: BillingTransaction) -> BillingTransaction:
     return replace(row, status="failed", updated_at=_utc_now_iso())
 
 
-# Demo catalog amounts in minor units (cents) — not real pricing.
+# Catalog amounts in minor units (cents) — prod_chatbot = DE Bot Business setup.
 STUB_PRODUCT_AMOUNTS_CENTS: dict[str, int] = {
     "prod_website": 4900,
-    "prod_chatbot": 2900,
+    "prod_chatbot": 99900,
     "prod_analytics": 1900,
     "prod_crm": 9900,
     "prod_automation": 3900,

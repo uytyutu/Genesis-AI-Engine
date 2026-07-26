@@ -2341,11 +2341,20 @@ def worker_adapters_board() -> dict:
     return _ctx().worker_adapters.board()
 
 
+def _adapter_http_detail(result: dict) -> str:
+    return str(
+        result.get("detail_ru")
+        or result.get("message_ru")
+        or result.get("error")
+        or "adapter_failed"
+    )
+
+
 @app.post("/api/worker-adapters/{platform_id}/create")
 def worker_adapters_create(platform_id: str, note: str = "") -> dict:
     result = _ctx().worker_adapters.create_adapter(platform_id, note=note)
     if not result.get("ok"):
-        raise HTTPException(status_code=400, detail=result.get("error") or "create_failed")
+        raise HTTPException(status_code=400, detail=_adapter_http_detail(result))
     return result
 
 
@@ -2353,7 +2362,7 @@ def worker_adapters_create(platform_id: str, note: str = "") -> dict:
 def worker_adapters_sandbox(platform_id: str) -> dict:
     result = _ctx().worker_adapters.run_sandbox(platform_id)
     if not result.get("ok"):
-        raise HTTPException(status_code=400, detail=result.get("error") or "sandbox_failed")
+        raise HTTPException(status_code=400, detail=_adapter_http_detail(result))
     return result
 
 
@@ -2361,7 +2370,7 @@ def worker_adapters_sandbox(platform_id: str) -> dict:
 def worker_adapters_promote(platform_id: str) -> dict:
     result = _ctx().worker_adapters.promote_working(platform_id)
     if not result.get("ok"):
-        raise HTTPException(status_code=400, detail=result.get("detail_ru") or result.get("error") or "promote_failed")
+        raise HTTPException(status_code=400, detail=_adapter_http_detail(result))
     return result
 
 
@@ -2369,7 +2378,7 @@ def worker_adapters_promote(platform_id: str) -> dict:
 def worker_adapters_scaled(platform_id: str, jobs_done: int = 0) -> dict:
     result = _ctx().worker_adapters.mark_scaled(platform_id, jobs_done=jobs_done)
     if not result.get("ok"):
-        raise HTTPException(status_code=400, detail=result.get("error") or "scaled_failed")
+        raise HTTPException(status_code=400, detail=_adapter_http_detail(result))
     return result
 
 
@@ -3242,6 +3251,14 @@ def path_a_delivery_matrix() -> PathADeliveryMatrixResponse:
 @app.get("/api/public/pricing")
 def public_pricing(market: str | None = None) -> dict:
     return _ctx().pricing_display.get_display(market_code=market)
+
+
+@app.get("/api/public/bots/pricing")
+def public_bots_pricing(market: str | None = None) -> dict:
+    """AI Business Bots catalog — market-local setup + monthly (separate from Landing)."""
+    from app.integration.pricing_engine import list_bot_packages
+
+    return list_bot_packages(market or "DE")
 
 
 def _legal():

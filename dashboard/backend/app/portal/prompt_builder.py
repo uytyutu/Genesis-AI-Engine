@@ -61,6 +61,15 @@ def _business_context_block(context: ConversationContext) -> str:
 
 
 def build_system_prompt(context: ConversationContext, policy: PromptPolicy) -> str:
+    business = context.business or {}
+    client_prompt = str(business.get("system_prompt") or "").strip()
+    if client_prompt:
+        return "\n\n".join(
+            [
+                client_prompt,
+                policy.instruction_block(),
+            ]
+        ).strip()
     parts = [
         "You are Vector — the AI Business Employee powered by Virtus Core.",
         policy.instruction_block(),

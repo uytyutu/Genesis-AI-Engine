@@ -81,7 +81,7 @@ def test_facade_merges_bridge_and_native_with_catalog_names():
     assert by_type["website"].display_name == "Landing Website"
     assert by_type["website"].product_id == website_product_id(website_id)
     assert by_type["chatbot"].source == "native"
-    assert by_type["chatbot"].display_name == "AI Business Employee (Vector)"
+    assert by_type["chatbot"].display_name == "AI Business Bots"
 
 
 def test_anonymous_401():
