@@ -76,6 +76,52 @@ const REPAIR_PACKAGES: Package[] = [
   },
 ];
 
+/** G2.X — standalone services (orderable without a Landing website). */
+const ADDON_PACKAGES: Package[] = [
+  {
+    id: "ai_website_analysis",
+    name: "AI Website Analysis",
+    price_eur: 149,
+    deliverables: ["AI report", "Priorities", "Repair vs new site advice"],
+  },
+  {
+    id: "website_repair",
+    name: "Website Repair",
+    price_eur: 199,
+    deliverables: ["Agreed repair scope", "Cabinet status", "Vector support"],
+  },
+  {
+    id: "seo_audit",
+    name: "SEO Audit",
+    price_eur: 249,
+    deliverables: ["Technical SEO", "Meta / structure", "Action plan"],
+  },
+  {
+    id: "speed_optimization",
+    name: "Speed Optimization",
+    price_eur: 199,
+    deliverables: ["Before/after metrics", "Image & cache fixes"],
+  },
+  {
+    id: "security_check",
+    name: "Security Check",
+    price_eur: 299,
+    deliverables: ["HTTPS & forms review", "Priority report"],
+  },
+  {
+    id: "google_business_setup",
+    name: "Google Business Profile Setup",
+    price_eur: 149,
+    deliverables: ["Profile setup", "Hours / photos / categories"],
+  },
+  {
+    id: "website_migration",
+    name: "Website Migration",
+    price_eur: 299,
+    deliverables: ["Migration plan", "Cutover check"],
+  },
+];
+
 type CommerceContext = {
   currency: string;
   symbol: string;
@@ -576,10 +622,15 @@ export default function OrderSitePage() {
 
   const displayPackages = useMemo(() => {
     const repair = REPAIR_PACKAGES.find((p) => p.id === packageId);
-    if (repair && !packages.some((p) => p.id === repair.id)) {
-      return [repair, ...packages];
+    const addon = ADDON_PACKAGES.find((p) => p.id === packageId);
+    const extra = [repair, addon].filter(Boolean) as Package[];
+    let list = packages;
+    for (const row of extra) {
+      if (!list.some((p) => p.id === row.id)) {
+        list = [row, ...list];
+      }
     }
-    return packages;
+    return list;
   }, [packages, packageId]);
   const selected = displayPackages.find((p) => p.id === packageId) ?? displayPackages[0];
   const coachHints = useMemo(

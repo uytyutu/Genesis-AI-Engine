@@ -133,11 +133,41 @@ export default function ClientDashboardPage() {
               Order an AI bot
             </Link>
             <Link
-              href="/site"
+              href="/products"
               className="rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-400 hover:text-white"
             >
               All services
             </Link>
+          </div>
+        </section>
+      ) : null}
+
+      {products !== null && products.length > 0 ? (
+        <section className="mb-6 rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.05] p-5">
+          <h2 className="text-lg font-semibold text-white">Expand your project</h2>
+          <p className="mt-1 text-sm text-zinc-400">
+            Add services later — bot, SEO, speed, security, repair — without
+            starting over.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[
+              { href: "/site?service=bots", label: "AI Bot" },
+              { href: "/order?package=seo_audit", label: "SEO Audit" },
+              { href: "/order?package=speed_optimization", label: "Speed" },
+              { href: "/order?package=website_repair", label: "Repair" },
+              { href: "/order?package=security_check", label: "Security" },
+              { href: "/order?package=google_business_setup", label: "Google Business" },
+              { href: "/order?package=ai_website_analysis", label: "Analysis" },
+              { href: "/products", label: "Full catalog" },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-white/5"
+              >
+                + {item.label}
+              </Link>
+            ))}
           </div>
         </section>
       ) : null}

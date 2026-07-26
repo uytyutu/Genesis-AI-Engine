@@ -35,6 +35,15 @@ export function surfaceNavMeta(target: SurfaceTarget): SurfaceNavMeta {
 }
 
 export function resolveNavigationSurface(pathname: string): SurfaceTarget {
+  // Auth-only screens must never render Client Workspace chrome.
+  if (
+    pathname === "/client/login" ||
+    pathname === "/client/register" ||
+    pathname.startsWith("/client/login?") ||
+    pathname.startsWith("/client/register?")
+  ) {
+    return "public";
+  }
   if (
     pathname === "/client" ||
     pathname.startsWith("/client/") ||

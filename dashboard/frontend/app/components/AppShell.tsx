@@ -9,6 +9,7 @@ import { GenesisMobileNav } from "./GenesisMobileNav";
 import { ClientWorkspaceNav } from "./navigation/ClientWorkspaceNav";
 import { ClientWorkspaceTopBar } from "./navigation/ClientWorkspaceTopBar";
 import { ClientMobileNav } from "./navigation/ClientMobileNav";
+import { ClientAuthGate } from "./ClientAuthGate";
 
 /** M3.2: three navigation shells — one product, one Vector, shared kernel. */
 
@@ -27,12 +28,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (surface === "client") {
     return (
       <div className="genesis-app-shell virtus-surface-client" data-surface="client">
-        <ClientWorkspaceNav />
-        <div className="genesis-app-main">
-          <ClientWorkspaceTopBar />
-          <ClientMobileNav />
-          <div className="genesis-app-content">{children}</div>
-        </div>
+        <ClientAuthGate>
+          <ClientWorkspaceNav />
+          <div className="genesis-app-main">
+            <ClientWorkspaceTopBar />
+            <ClientMobileNav />
+            <div className="genesis-app-content">{children}</div>
+          </div>
+        </ClientAuthGate>
       </div>
     );
   }

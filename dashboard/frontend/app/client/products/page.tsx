@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ClientWorkspaceShell } from "../../components/ClientWorkspaceShell";
 import { PortalApiError, portalFetch } from "../../lib/portalApi";
-import { ASSISTANT_NAME } from "../../lib/publicBrand";
 
 type MyProduct = {
   product_id: string;
@@ -71,10 +70,16 @@ export default function ClientProductsPage() {
               Order Landing
             </Link>
             <Link
-              href="/projects/chatbot/setup"
+              href="/site?service=bots"
               className="rounded-xl border border-white/15 px-4 py-2 text-sm text-white hover:bg-white/5"
             >
-              Activate {ASSISTANT_NAME}
+              Order AI Bot
+            </Link>
+            <Link
+              href="/products"
+              className="rounded-xl border border-white/15 px-4 py-2 text-sm text-white hover:bg-white/5"
+            >
+              Expand with services
             </Link>
           </div>
         </div>

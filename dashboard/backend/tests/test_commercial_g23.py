@@ -1,4 +1,4 @@
-"""G2.3 — Commercial Readiness (catalog honesty · Landing payments path)."""
+"""G2.X — Commercial catalog honesty (active services + Coming Soon channels)."""
 
 from __future__ import annotations
 
@@ -30,7 +30,11 @@ class _Factory:
 def test_engine_and_no_fake_buy():
     assert ENGINE_ID == "commercial_catalog_g23_v1"
     assert_no_fake_buy_buttons()
-    assert sellable_online_ids() == frozenset({"landing_website"})
+    sellable = sellable_online_ids()
+    assert "landing_website" in sellable
+    assert "seo_audit" in sellable
+    assert "telegram_ai_bot" in sellable
+    assert "whatsapp_ai_bot" not in sellable
 
 
 def test_landing_prices_locked():
@@ -39,19 +43,30 @@ def test_landing_prices_locked():
         assert _PACKAGES[pid]["price_eur"] == eur
 
 
-def test_vector_monthly_tariffs_published_not_sold():
-    assert VECTOR_MONTHLY_EUR == {"starter": 99, "business": 199, "professional": 349}
-    monthly = [r for r in commercial_catalog_rows() if r["id"].startswith("vector_")]
-    paid = [r for r in monthly if r["id"] != "vector_employee"]
-    assert paid
-    assert all(r["cta"] == "coming_soon" for r in paid)
+def test_unready_channels_stay_coming_soon():
+    by_id = {r["id"]: r for r in commercial_catalog_rows()}
+    assert by_id["whatsapp_ai_bot"]["cta"] == "coming_soon"
+    assert by_id["instagram_ai_bot"]["cta"] == "coming_soon"
+    assert by_id["crm_starter"]["cta"] == "coming_soon"
 
 
-def test_coming_soon_services_have_prices():
-    ones = [r for r in commercial_catalog_rows() if r["category"] == "one_time"]
+def test_website_services_are_orderable():
+    ones = [r for r in commercial_catalog_rows() if r.get("group") == "website_services"]
     assert len(ones) >= 5
-    assert all(r["availability"] == "coming_soon" for r in ones)
-    assert all("€" in r["price_label"] or "Individual" in r["price_label"] for r in ones)
+    assert all(r["availability"] == "available" for r in ones)
+    assert all(r["cta"] == "order_now" and r["cta_href"] for r in ones)
+
+
+def test_addon_packages_exist_in_sales():
+    for pid in (
+        "seo_audit",
+        "speed_optimization",
+        "security_check",
+        "ai_website_analysis",
+        "website_repair",
+    ):
+        assert pid in _PACKAGES
+        assert _PACKAGES[pid]["product_kind"] == "addon"
 
 
 def test_portal_catalog_does_not_sell_unready_analytics():
@@ -62,7 +77,6 @@ def test_portal_catalog_does_not_sell_unready_analytics():
 
 
 def test_landing_payment_path_order_to_paid_status(tmp_path: Path):
-    """Sellable product path: create order → mark paid → public status paid."""
     sales = SalesOrderService(tmp_path, _Factory())
     created = sales.create_order(
         {
@@ -83,3 +97,19 @@ def test_landing_payment_path_order_to_paid_status(tmp_path: Path):
     assert status["paid"] is True
     assert status["order_id"] == order_id
     assert "email" not in status
+
+
+def test_addon_order_keeps_package_id(tmp_path: Path):
+    sales = SalesOrderService(tmp_path, _Factory())
+    created = sales.create_order(
+        {
+            "business_name": "SEO Client",
+            "email": "seo@g23.test",
+            "package_id": "seo_audit",
+            "description": "Standalone SEO",
+        }
+    )
+    order = sales.get_order(created["order_id"])
+    assert order is not None
+    assert order["package_id"] == "seo_audit"
+    assert float(order.get("price_eur") or 0) == 249.0

@@ -158,9 +158,112 @@ _PACKAGES = {
             "Кабинет клиента + Vector",
         ],
     },
+    # G2.X — standalone add-ons (orderable without buying a website)
+    "ai_website_analysis": {
+        "id": "ai_website_analysis",
+        "name": "AI Website Analysis",
+        "price_eur": 149,
+        "product_kind": "addon",
+        "tagline": "Анализ сайта с понятным отчётом",
+        "included_summary": "AI-отчёт по сайту, приоритеты улучшений, рекомендации ремонта или нового сайта",
+        "deliverables": [
+            "Отчёт по безопасности, мобильной версии и скорости",
+            "Приоритетный список улучшений",
+            "Рекомендация: ремонт vs новый сайт",
+        ],
+    },
+    "seo_audit": {
+        "id": "seo_audit",
+        "name": "SEO Audit",
+        "price_eur": 249,
+        "product_kind": "addon",
+        "tagline": "SEO-аудит для локального бизнеса",
+        "included_summary": "техническое SEO, мета-теги, локальная видимость, план действий",
+        "deliverables": [
+            "Технический SEO-чек",
+            "Мета / заголовки / структура",
+            "План приоритетных правок",
+        ],
+    },
+    "speed_optimization": {
+        "id": "speed_optimization",
+        "name": "Speed Optimization",
+        "price_eur": 199,
+        "product_kind": "addon",
+        "tagline": "Ускорение загрузки сайта",
+        "included_summary": "изображения, кэш, критические правки скорости",
+        "deliverables": [
+            "Измерение до/после",
+            "Оптимизация изображений и базового кэша",
+            "Список остаточных улучшений",
+        ],
+    },
+    "security_check": {
+        "id": "security_check",
+        "name": "Security Check",
+        "price_eur": 299,
+        "product_kind": "addon",
+        "tagline": "Проверка безопасности сайта",
+        "included_summary": "HTTPS, формы, уязвимости, отчёт с приоритетами",
+        "deliverables": [
+            "Проверка HTTPS и базовых уязвимостей",
+            "Проверка форм и контактов",
+            "Отчёт с приоритетами",
+        ],
+    },
+    "google_business_setup": {
+        "id": "google_business_setup",
+        "name": "Google Business Profile Setup",
+        "price_eur": 149,
+        "product_kind": "addon",
+        "tagline": "Настройка Google Business Profile",
+        "included_summary": "карточка, категории, фото, часы работы, базовые посты",
+        "deliverables": [
+            "Настройка / восстановление профиля",
+            "Категории, часы, контакты, фото",
+            "Краткая инструкция для владельца",
+        ],
+    },
+    "website_migration": {
+        "id": "website_migration",
+        "name": "Website Migration",
+        "price_eur": 299,
+        "product_kind": "addon",
+        "tagline": "Перенос сайта на новый хостинг",
+        "included_summary": "перенос файлов/DNS-помощь, проверка после миграции",
+        "deliverables": [
+            "План миграции",
+            "Перенос и проверка доступности",
+            "Краткий отчёт после переноса",
+        ],
+    },
+    "website_repair": {
+        "id": "website_repair",
+        "name": "Website Repair",
+        "price_eur": 199,
+        "product_kind": "addon",
+        "tagline": "Ремонт существующего сайта",
+        "included_summary": "старт с анализа или сразу repair lite — без покупки нового лендинга",
+        "deliverables": [
+            "Согласованный объём ремонта",
+            "Статус в кабинете",
+            "Сопровождение Vector",
+        ],
+    },
 }
 
 _REPAIR_PACKAGE_IDS = frozenset({"repair_lite", "repair_standard", "repair_complete"})
+_ADDON_PACKAGE_IDS = frozenset(
+    {
+        "ai_website_analysis",
+        "seo_audit",
+        "speed_optimization",
+        "security_check",
+        "google_business_setup",
+        "website_migration",
+        "website_repair",
+    }
+)
 
 
 def package_included_summary(package_id: str | None) -> str:
@@ -299,6 +402,30 @@ class SalesOrderService:
                 "price_label": offer.price_label,
             }
             return package, offer.as_dict()
+
+        if pid in _ADDON_PACKAGE_IDS:
+            from app.integration.market_registry import format_amount, get_market
+
+            market = get_market((market_code or "DE").strip().upper() or "DE")
+            base = _PACKAGES[pid]
+            amount = int(base["price_eur"])
+            price_label = format_amount(amount, market.symbol)
+            package = {
+                **base,
+                "price_eur": float(amount),
+                "currency": market.currency,
+                "symbol": market.symbol,
+                "market_code": market.code,
+                "price_label": price_label,
+            }
+            return package, {
+                "package_id": pid,
+                "amount": amount,
+                "currency": market.currency,
+                "symbol": market.symbol,
+                "market_code": market.code,
+                "price_label": price_label,
+            }
 
         resolved = resolve_checkout_market(
             market_code=market_code,
@@ -447,11 +574,13 @@ class SalesOrderService:
             ),
             "package_id": package_id,
             "package_name": package["name"],
-            "product_kind": (
-                "repair"
-                if str(package_id).strip().lower() in _REPAIR_PACKAGE_IDS
-                or package.get("product_kind") == "repair"
-                else "website"
+            "product_kind": str(
+                package.get("product_kind")
+                or (
+                    "repair"
+                    if str(package_id).strip().lower() in _REPAIR_PACKAGE_IDS
+                    else "website"
+                )
             ),
             "analysis_case_id": (payload.get("analysis_case_id") or "").strip() or None,
             "price_eur": package["price_eur"],
