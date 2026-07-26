@@ -82,10 +82,12 @@ class ConversationState:
     needs_app: bool = False
     needs_marketing: bool = False
     wants_studio: bool = False
-    # Product Consultant v1 — sticky sales goal (not questionnaire facts)
+    # Product Consultant — sticky sales goal (not questionnaire facts)
     consultant_intent: str | None = None
-    package_choice: str | None = None  # basic | business | premium
+    package_choice: str | None = None  # basic | business | premium | bot_*
     consultant_niche: str | None = None
+    # Sales Consultant — discovery answers (website / bot sell path)
+    sales_discovery: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_messages(cls, messages: list[dict[str, str]]) -> ConversationState:
@@ -127,6 +129,7 @@ class ConversationState:
             consultant_intent=data.get("consultant_intent"),
             package_choice=data.get("package_choice"),
             consultant_niche=data.get("consultant_niche"),
+            sales_discovery=dict(data.get("sales_discovery") or {}),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -157,6 +160,7 @@ class ConversationState:
             "consultant_intent": self.consultant_intent,
             "package_choice": self.package_choice,
             "consultant_niche": self.consultant_niche,
+            "sales_discovery": dict(self.sales_discovery or {}),
         }
 
     def merge(self, other: ConversationState) -> ConversationState:
@@ -166,6 +170,10 @@ class ConversationState:
                 merged = list(set((d.get(k) or []) + (v or [])))
                 if merged:
                     d[k] = merged
+            elif k == "sales_discovery":
+                merged = dict(d.get("sales_discovery") or {})
+                merged.update(dict(v or {}))
+                d[k] = merged
             elif v is not None and v is not False:
                 d[k] = v
         return ConversationState.from_dict(d)
@@ -450,6 +458,9 @@ class ConversationState:
             lines.append("Пакет: ещё не выбран — помочь выбрать, не спрашивать «какой сайт» снова")
         if self.consultant_niche:
             lines.append(f"Ниша: {self.consultant_niche}")
+        sd = self.sales_discovery or {}
+        if sd.get("step"):
+            lines.append(f"Sales discovery step: {sd.get('step')}")
         if self.active_topic:
             lines.append(f"Активная тема сейчас: {self.active_topic}")
         if self.background_topics:

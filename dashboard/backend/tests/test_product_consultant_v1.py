@@ -1,4 +1,4 @@
-"""Product Consultant — manager replies + sticky dialog goal + G2.X catalog."""
+"""Product Consultant — sales discovery + catalog CTAs."""
 
 from __future__ import annotations
 
@@ -14,40 +14,63 @@ def _turn(state: ConversationState, text: str):
     return try_product_consultant_reply(text, [{"role": "user", "content": text}], state)
 
 
-def test_want_website_offers_packages_not_questionnaire():
+def test_want_website_starts_sales_discovery():
     state = ConversationState()
     reply = _turn(state, "Хочу сайт.")
     assert reply is not None
     low = reply.answer.lower()
-    assert "basic" in low and "business" in low and "premium" in low
-    assert "зафиксир" not in low
-    assert "какой сайт" not in low
-    assert reply.cta_href == "/order"
-    assert reply.cta_label == "Оформить заказ"
+    assert "вопрос" in low or "чем занимается" in low or "1/7" in reply.answer
     assert state.consultant_intent == "website"
     snap = consultant_state_snapshot(state)
-    assert snap["next_step"] == "помочь выбрать пакет"
+    assert snap["next_step"] == "sales discovery"
+    assert snap["sales_step"] == "niche"
 
 
-def test_sticky_intent_business_package_no_reask():
+def test_sales_discovery_recommends_business_and_order_cta():
     state = ConversationState()
     _turn(state, "Хочу сайт.")
-    reply = _turn(state, "Бизнес.")
+    _turn(state, "Автосервис")
+    _turn(state, "Нет сайта")
+    _turn(state, "Да, нужен бот")
+    _turn(state, "Да, заявки")
+    _turn(state, "Нет")
+    _turn(state, "Да, SEO")
+    reply = _turn(state, "2-5 сотрудников")
+    assert reply is not None
+    assert "рекомендую" in reply.answer.lower() or "Business" in reply.answer
+    assert "почему" in reply.answer.lower()
+    assert reply.cta_label == "Оформить заказ"
+    assert reply.cta_href and "order" in reply.cta_href
+    assert state.package_choice in ("basic", "business", "premium")
+
+
+def test_explicit_package_skips_discovery():
+    state = ConversationState()
+    _turn(state, "Хочу сайт.")
+    reply = _turn(state, "Business")
     assert reply is not None
     assert state.package_choice == "business"
-    assert "business" in reply.answer.lower() or "Business" in reply.answer
     assert reply.cta_href and "business" in reply.cta_href
     assert reply.cta_label == "Оформить заказ"
-    assert "какой сайт" not in reply.answer.lower()
 
 
-def test_dental_recommends_business():
+def test_show_packages_escape_hatch():
     state = ConversationState()
     _turn(state, "Хочу сайт.")
-    reply = _turn(state, "Мне для стоматологии.")
+    reply = _turn(state, "Покажи пакеты без вопросов")
     assert reply is not None
-    assert "Business" in reply.answer or "business" in reply.answer.lower()
-    assert reply.cta_href
+    assert "Basic" in reply.answer and "Premium" in reply.answer
+    assert reply.cta_href == "/order"
+
+
+def test_autoservice_seed_niche_then_next_question():
+    state = ConversationState()
+    reply = _turn(state, "Мне нужен сайт автосервиса.")
+    assert reply is not None
+    assert state.consultant_niche == "autoservice" or "автосервис" in (
+        state.sales_discovery or {}
+    ).get("niche", "")
+    assert "2/7" in reply.answer or "есть ли уже сайт" in reply.answer.lower()
 
 
 def test_repair_is_orderable():
@@ -72,15 +95,6 @@ def test_about_virtus_core():
     reply = _turn(state, "Что такое Virtus Core?")
     assert reply is not None
     assert "Virtus" in reply.answer or "платформ" in reply.answer.lower()
-
-
-def test_affirmation_advances_not_restarts():
-    state = ConversationState()
-    _turn(state, "Хочу сайт.")
-    reply = _turn(state, "Да.")
-    assert reply is not None
-    assert "Basic" in reply.answer or "пакет" in reply.answer.lower()
-    assert "зафиксир" not in reply.answer.lower()
 
 
 def test_from_messages_keeps_package_across_history():

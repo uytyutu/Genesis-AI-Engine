@@ -144,13 +144,27 @@ def _absorb_turn(state: ConversationState, text: str) -> None:
 
     detected = _detect_intent(low)
     if detected:
-        if state.consultant_intent == INTENT_WEBSITE and detected in (
+        sd = state.sales_discovery or {}
+        discovery_active = (
+            state.consultant_intent == INTENT_WEBSITE
+            and bool(sd.get("step"))
+            and sd.get("step") != "done"
+        )
+        # Mid sales-discovery: don't jump to SEO/pricing on answers like «Да, SEO»
+        if discovery_active and detected not in (
+            INTENT_WEBSITE,
+            INTENT_ORDER,
+            INTENT_PAYMENT,
+            INTENT_TIMELINE,
+        ):
+            detected = None
+        elif state.consultant_intent == INTENT_WEBSITE and detected in (
             INTENT_ABOUT,
             INTENT_TIMELINE,
             INTENT_PAYMENT,
         ):
-            pass
-        else:
+            pass  # keep website sticky
+        elif detected:
             state.consultant_intent = detected
 
     if re.search(
@@ -316,13 +330,223 @@ def _continue_active_goal(state: ConversationState) -> ConsultantReply:
         return _reply_chatbot(state, "да")
     if state.package_choice and str(state.package_choice).startswith("bot_"):
         return _reply_chatbot(state, "")
-    if state.package_choice:
+    if state.package_choice and state.package_choice in _PACKAGE_LABELS:
         return _reply_order(state)
     if state.consultant_intent == INTENT_REPAIR:
         return _reply_repair(state)
     if state.needs_website or state.consultant_intent == INTENT_WEBSITE:
-        return _reply_website(state, "")
+        return _reply_website(state, "да")
     return _reply_about()
+
+
+def _sales_sd(state: ConversationState) -> dict[str, Any]:
+    if state.sales_discovery is None:
+        state.sales_discovery = {}
+    return state.sales_discovery
+
+
+_SALES_STEPS = (
+    "niche",
+    "has_site",
+    "wants_bot",
+    "wants_leads",
+    "wants_blog",
+    "wants_seo",
+    "team",
+)
+
+_SALES_PROMPTS = {
+    "niche": "1/7 Чем занимается ваша компания? (ниша или сфера)",
+    "has_site": "2/7 Есть ли уже сайт? (да / нет / устаревший)",
+    "wants_bot": "3/7 Нужен ли Telegram-бот или чат на сайте? (да / нет / позже)",
+    "wants_leads": "4/7 Нужно ли принимать заявки с сайта? (да / нет)",
+    "wants_blog": "5/7 Нужен ли блог или новости? (да / нет)",
+    "wants_seo": "6/7 Планируете SEO / продвижение? (да / нет / позже)",
+    "team": "7/7 Сколько примерно сотрудников отвечает клиентам? (1 / 2–5 / больше)",
+}
+
+
+def _parse_yes_no_later(text: str) -> str | None:
+    low = text.lower().strip()
+    if re.search(r"\b(нет|no|не\s+нуж|не\s+надо|без\s+эт|не\s+хочу)\b", low):
+        return "no"
+    if re.search(r"\b(позже|потом|пока\s+нет|maybe|perhaps)\b", low):
+        return "later"
+    if re.search(r"\b(да|yes|нуж|хочу|конечно|ага|угу|есть)\b", low):
+        return "yes"
+    if re.search(r"устарев|старый\s+сайт|ломается|плохо\s+работа", low):
+        return "outdated"
+    return None
+
+
+def _parse_team(text: str) -> str | None:
+    low = text.lower().strip()
+    if re.search(r"\b(1|один|одна|я\s+сам|solo|единолич)\b", low):
+        return "solo"
+    if re.search(r"\b(2|3|4|5|двое|трое|небольш|small)\b", low):
+        return "small"
+    if re.search(r"\b(больше|много|команда|отдел|10|20|large)\b", low):
+        return "large"
+    return None
+
+
+def _absorb_sales_answer(state: ConversationState, text: str) -> None:
+    sd = _sales_sd(state)
+    step = sd.get("step")
+    if not step or step not in _SALES_STEPS:
+        return
+    low = text.lower().strip()
+
+    if step == "niche":
+        niche = _detect_niche(low) or state.consultant_niche
+        if niche:
+            state.consultant_niche = niche
+            sd["niche"] = niche
+        elif len(low) >= 2 and not _is_short_affirmation(text):
+            sd["niche"] = text.strip()[:80]
+            state.consultant_niche = state.consultant_niche or sd["niche"]
+        else:
+            return
+        sd["step"] = "has_site"
+        return
+
+    if step == "has_site":
+        yn = _parse_yes_no_later(low)
+        if yn == "outdated":
+            sd["has_site"] = "outdated"
+        elif yn == "yes":
+            sd["has_site"] = "yes"
+        elif yn == "no":
+            sd["has_site"] = "no"
+        else:
+            return
+        sd["step"] = "wants_bot"
+        return
+
+    if step == "wants_bot":
+        yn = _parse_yes_no_later(low)
+        if not yn:
+            return
+        sd["wants_bot"] = yn
+        sd["step"] = "wants_leads"
+        return
+
+    if step == "wants_leads":
+        yn = _parse_yes_no_later(low)
+        if not yn:
+            return
+        sd["wants_leads"] = "yes" if yn == "yes" else "no"
+        sd["step"] = "wants_blog"
+        return
+
+    if step == "wants_blog":
+        yn = _parse_yes_no_later(low)
+        if not yn:
+            return
+        sd["wants_blog"] = "yes" if yn == "yes" else "no"
+        sd["step"] = "wants_seo"
+        return
+
+    if step == "wants_seo":
+        yn = _parse_yes_no_later(low)
+        if not yn:
+            return
+        sd["wants_seo"] = yn
+        sd["step"] = "team"
+        return
+
+    if step == "team":
+        team = _parse_team(low)
+        if not team:
+            return
+        sd["team"] = team
+        sd["step"] = "done"
+
+
+def _recommend_website_package(state: ConversationState) -> tuple[str, list[str]]:
+    """Return package id + why bullets from discovery answers."""
+    sd = _sales_sd(state)
+    reasons: list[str] = []
+    score = {"basic": 0, "business": 0, "premium": 0}
+
+    score["business"] += 1  # default lean
+
+    if sd.get("has_site") in ("yes", "outdated"):
+        score["business"] += 1
+        reasons.append("у вас уже есть сайт — нужен сильный новый каркас и помощь с публикацией")
+    else:
+        score["basic"] += 1
+        reasons.append("сайт с нуля — можно стартовать с чистого лендинга")
+
+    if sd.get("wants_leads") == "yes":
+        score["business"] += 2
+        reasons.append("нужны заявки с сайта — в Business это заложено лучше")
+    if sd.get("wants_bot") == "yes":
+        score["business"] += 1
+        reasons.append("бот можно добавить отдельно; сайт Business удобная база под заявки")
+    if sd.get("wants_blog") == "yes":
+        score["premium"] += 2
+        reasons.append("блог / расширенный контент — ближе к Premium")
+    if sd.get("wants_seo") == "yes":
+        score["business"] += 1
+        reasons.append("SEO можно докупить отдельно; Business уже даёт крепкую SEO-основу")
+    if sd.get("team") == "large":
+        score["premium"] += 1
+        reasons.append("больше команда — чаще нужен Premium-уровень подачи")
+    if sd.get("team") == "solo":
+        score["basic"] += 1
+    if state.consultant_niche in ("dental", "clinic", "salon"):
+        score["business"] += 2
+        reasons.append(f"для ниши «{state.consultant_niche}» обычно выбирают Business")
+
+    pkg = max(score, key=lambda k: score[k])
+    if not reasons:
+        reasons.append("сбалансированный вариант для большинства компаний")
+    return pkg, reasons[:4]
+
+
+def _reply_sales_recommend(state: ConversationState) -> ConsultantReply:
+    pkg, reasons = _recommend_website_package(state)
+    state.package_choice = pkg
+    label, price, desc = _PACKAGE_LABELS[pkg]
+    why = "\n".join(f"• {r}" for r in reasons)
+    extras: list[str] = []
+    sd = _sales_sd(state)
+    if sd.get("wants_bot") == "yes":
+        extras.append("AI Bot (Telegram / website chat) — отдельным заказом после сайта")
+    if sd.get("wants_seo") in ("yes", "later"):
+        extras.append("SEO Audit — можно добавить к проекту позже")
+    extra_block = ""
+    if extras:
+        extra_block = "\n\nПозже можно расширить проект:\n" + "\n".join(
+            f"• {e}" for e in extras
+        )
+    return ConsultantReply(
+        answer=(
+            f"Я рекомендую пакет **{label}** — **{price} €**.\n"
+            f"{desc}.\n\n"
+            f"Почему:\n{why}"
+            f"{extra_block}\n\n"
+            "Можно сразу оформить заказ — в форме укажете компанию и контакты."
+        ),
+        cta_href=f"/order?package={pkg}",
+        cta_label="Оформить заказ",
+    )
+
+
+def _reply_sales_question(state: ConversationState) -> ConsultantReply:
+    sd = _sales_sd(state)
+    step = sd.get("step") or "niche"
+    prompt = _SALES_PROMPTS.get(step, _SALES_PROMPTS["niche"])
+    return ConsultantReply(
+        answer=(
+            "Отлично.\n\n"
+            "Чтобы подобрать оптимальный вариант, ответьте на несколько вопросов.\n\n"
+            f"**{prompt}**"
+        )
+        if step == "niche" and not sd.get("_intro_shown")
+        else f"**{prompt}**"
+    )
 
 
 def _packages_block() -> str:
@@ -350,11 +574,13 @@ def _bot_order_href(package_id: str | None = None) -> str:
 
 
 def _reply_website(state: ConversationState, text: str) -> ConsultantReply:
+    low = (text or "").lower().strip()
     niche = state.consultant_niche
     pkg = state.package_choice
     if pkg and str(pkg).startswith("bot_"):
         pkg = None
 
+    # Explicit package → skip discovery
     if pkg and pkg in _PACKAGE_LABELS:
         label, price, desc = _PACKAGE_LABELS[pkg]
         niche_note = ""
@@ -372,26 +598,54 @@ def _reply_website(state: ConversationState, text: str) -> ConsultantReply:
             cta_label="Оформить заказ",
         )
 
-    if niche == "dental":
+    # Escape hatch: show all packages without discovery
+    if re.search(
+        r"покажи\s+пакет|все\s+пакет|сразу\s+заказ|без\s+вопрос|просто\s+цены",
+        low,
+    ):
         return ConsultantReply(
             answer=(
-                "Для стоматологии чаще всего подходит **Business** — услуги, запись, контакты.\n\n"
-                "Можете сразу оформить заказ — или скажите Basic / Premium."
+                f"Пакеты сайта {BRAND_NAME}:\n\n"
+                f"{_packages_block()}\n\n"
+                "Напишите Basic / Business / Premium — или оформите заказ."
             ),
-            cta_href="/order?package=business",
+            cta_href="/order",
             cta_label="Оформить заказ",
         )
 
-    return ConsultantReply(
-        answer=(
-            f"Отлично! В {BRAND_NAME} сайты в трёх пакетах:\n\n"
-            f"{_packages_block()}\n\n"
-            "Скажите Basic / Business / Premium — или оформите заказ. "
-            f"Срок ориентир: **{MISSION1_LANDING_TIMELINE}**."
-        ),
-        cta_href="/order",
-        cta_label="Оформить заказ",
-    )
+    sd = _sales_sd(state)
+    if not sd.get("step"):
+        sd["step"] = "niche"
+        sd["_intro_shown"] = True
+        # If niche already known from first message (e.g. «сайт автосервиса»)
+        if state.consultant_niche or _detect_niche(low):
+            if not state.consultant_niche:
+                state.consultant_niche = _detect_niche(low)
+            sd["niche"] = state.consultant_niche
+            sd["step"] = "has_site"
+            return ConsultantReply(
+                answer=(
+                    f"Отлично — ниша: **{state.consultant_niche}**.\n\n"
+                    "Чтобы подобрать оптимальный пакет, ещё несколько коротких вопросов.\n\n"
+                    f"**{_SALES_PROMPTS['has_site']}**"
+                )
+            )
+        return _reply_sales_question(state)
+
+    if sd.get("step") != "done":
+        before = sd.get("step")
+        _absorb_sales_answer(state, text)
+        after = sd.get("step")
+        if before == after and after != "done":
+            # Unparsed answer — re-ask same step
+            return ConsultantReply(answer=f"**{_SALES_PROMPTS.get(after, _SALES_PROMPTS['niche'])}**")
+        if sd.get("step") == "done":
+            return _reply_sales_recommend(state)
+        # Advance to next question
+        nxt = sd.get("step")
+        return ConsultantReply(answer=f"**{_SALES_PROMPTS.get(nxt, _SALES_PROMPTS['niche'])}**")
+
+    return _reply_sales_recommend(state)
 
 
 def _reply_repair(state: ConversationState) -> ConsultantReply:
@@ -667,10 +921,13 @@ def _reply_timeline() -> ConsultantReply:
 def consultant_state_snapshot(state: ConversationState) -> dict[str, Any]:
     intent = state.consultant_intent or ("website" if state.needs_website else None)
     pkg = state.package_choice
+    sd = state.sales_discovery or {}
     if intent == INTENT_REPAIR:
         nxt = "оформить ремонт или анализ"
     elif intent == INTENT_CHATBOT and not (pkg and str(pkg).startswith("bot_")):
         nxt = "подобрать тариф бота"
+    elif intent == INTENT_WEBSITE and sd.get("step") and sd.get("step") != "done" and not pkg:
+        nxt = "sales discovery"
     elif intent == INTENT_WEBSITE and not pkg:
         nxt = "помочь выбрать пакет"
     elif pkg:
@@ -682,4 +939,5 @@ def consultant_state_snapshot(state: ConversationState) -> dict[str, Any]:
         "package": pkg,
         "niche": state.consultant_niche,
         "next_step": nxt,
+        "sales_step": sd.get("step"),
     }
