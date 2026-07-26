@@ -969,7 +969,11 @@ a.btn{{display:inline-block;margin-top:16px;padding:12px 18px;background:#111;co
 <li>Redirect URI (добавьте в Google Cloud → OAuth client):<br/><code>{redirect}</code></li>
 </ul>
 <a class="btn" href="/api/owner/gmail/oauth/start">Connect Gmail</a>
-<p class="muted" style="margin-top:24px">Scope: <code>gmail.send</code> · только localhost CEO desk</p>
+<a class="btn" href="/api/owner/gmail/test-send" style="margin-left:8px;background:#0a7">Тестовая отправка</a>
+<p class="muted" style="margin-top:24px">Scope: <code>gmail.send</code> · только localhost CEO desk.
+Если старый токен скомпрометирован: отзовите доступ на
+<a href="https://myaccount.google.com/permissions" target="_blank" rel="noreferrer">myaccount.google.com/permissions</a>,
+затем Connect снова.</p>
 </body></html>"""
 
 
@@ -1063,7 +1067,52 @@ pre{{background:#111;color:#9f9;padding:16px;border-radius:8px;overflow:auto;wor
 {body_main}
 <p class="warn">Не коммитьте .env.local и не отправляйте токен в чат.</p>
 <p>Проверка: <a href="/api/owner/gmail/status">/api/owner/gmail/status</a></p>
+<p><a class="btn" href="/api/owner/gmail/test-send">Тестовая отправка</a></p>
 </body></html>"""
+
+
+@app.post("/api/owner/gmail/test-send")
+@app.get("/api/owner/gmail/test-send")
+def owner_gmail_test_send(request: Request, to: str | None = None) -> dict:
+    """CEO desk: refresh access token + send one short test mail."""
+    from app.integration import gmail_mail_service as gmail
+
+    if not gmail.send_ready():
+        return {
+            "ok": False,
+            "reason": "gmail_not_ready",
+            "status": gmail.status(public_api_base=str(request.base_url).rstrip("/")),
+            "fix": "Open /api/owner/gmail → Connect Gmail, then retry.",
+        }
+    refreshed = gmail.access_token_from_refresh()
+    if not refreshed.get("ok"):
+        return {
+            "ok": False,
+            "reason": refreshed.get("reason") or "refresh_failed",
+            "detail": refreshed.get("detail"),
+            "fix": "Revoke app at https://myaccount.google.com/permissions then Connect again.",
+        }
+    target = (to or str(gmail.status().get("sender") or "")).strip()
+    if not target:
+        return {"ok": False, "reason": "no_sender"}
+    sent = gmail.send_email(
+        to=target,
+        subject="Virtus Core — Gmail test OK",
+        text=(
+            "Gmail OAuth refresh + send works.\n"
+            "Lead outreach failover can use Gmail again.\n"
+        ),
+        html=(
+            "<p>Gmail OAuth refresh + send works.</p>"
+            "<p>Lead outreach failover can use Gmail again.</p>"
+        ),
+    )
+    return {
+        "ok": bool(sent.get("ok")),
+        "refresh_ok": True,
+        "send": {k: v for k, v in sent.items() if k != "raw"},
+        "to": target,
+    }
 
 
 @app.post("/api/acquisition/auto-prepare-discovery")
@@ -1377,6 +1426,15 @@ def owner_tiktok_horizon_accounts(request: Request) -> dict:
     svc = _tiktok_horizon()
     try:
         return svc.oauth_status(public_api_base=str(request.base_url).rstrip("/"))
+    except ValueError as exc:
+        raise _horizon_http_error(exc) from exc
+
+
+@app.post("/api/owner/tiktok-horizon/accounts/sandbox")
+def owner_tiktok_horizon_sandbox_account() -> dict:
+    """Bind a local sandbox TikTok profile so Stage 1 pipeline can run before OAuth keys."""
+    try:
+        return _tiktok_horizon().connect_sandbox_account()
     except ValueError as exc:
         raise _horizon_http_error(exc) from exc
 

@@ -1,11 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+/**
+ * TikTok Horizon — Owner Internal module (Mission Control style).
+ * Stage 1–2: connect accounts → trends → drafts → human review → queue.
+ * No live video generation / publish until later stages.
+ */
+
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-type TabId = "overview" | "accounts" | "trends" | "review" | "queue";
+type TabId = "start" | "accounts" | "trends" | "review" | "queue";
 
 type Dash = {
   tiktok_enabled?: boolean;
@@ -21,7 +27,6 @@ type Dash = {
   };
   accounts?: TikTokAccount[];
   oauth?: { data?: { oauth_client_ready?: boolean } };
-  adapters?: Record<string, { provider?: string; stage1_disabled?: boolean }>;
 };
 
 type TikTokAccount = {
@@ -83,16 +88,16 @@ type QueueItem = {
 };
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: "overview", label: "Обзор" },
-  { id: "accounts", label: "Accounts" },
+  { id: "start", label: "Старт" },
+  { id: "accounts", label: "Аккаунты" },
   { id: "trends", label: "Тренды" },
-  { id: "review", label: "Human Review" },
+  { id: "review", label: "Review" },
   { id: "queue", label: "Очередь" },
 ];
 
 export default function TikTokHorizonPage() {
   const [dash, setDash] = useState<Dash | null>(null);
-  const [tab, setTab] = useState<TabId>("overview");
+  const [tab, setTab] = useState<TabId>("start");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [trends, setTrends] = useState<Trend[]>([]);
@@ -107,6 +112,10 @@ export default function TikTokHorizonPage() {
 
   const enabled = dash?.tiktok_enabled === true;
   const selected = drafts.find((d) => d.id === selectedId) || drafts[0];
+  const connectedCount = useMemo(
+    () => accounts.filter((a) => a.status === "connected").length,
+    [accounts],
+  );
 
   const refresh = useCallback(async () => {
     try {
@@ -135,7 +144,7 @@ export default function TikTokHorizonPage() {
         setOauthReady(Boolean(a.oauth_client_ready));
       }
     } catch {
-      setMessage("Backend недоступен.");
+      setMessage("Backend недоступен. Запустите стек через Genesis.exe.");
     }
   }, [selectedId]);
 
@@ -147,11 +156,17 @@ export default function TikTokHorizonPage() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const tabParam = params.get("tab");
-    if (tabParam === "accounts" || tabParam === "trends" || tabParam === "review" || tabParam === "queue") {
+    if (
+      tabParam === "accounts" ||
+      tabParam === "trends" ||
+      tabParam === "review" ||
+      tabParam === "queue" ||
+      tabParam === "start"
+    ) {
       setTab(tabParam);
     }
     if (params.get("oauth") === "ok") {
-      setMessage("TikTok-аккаунт подключён.");
+      setMessage("TikTok-аккаунт подключён. Можно включать анализ.");
       setTab("accounts");
     }
     const err = params.get("oauth_error");
@@ -170,9 +185,9 @@ export default function TikTokHorizonPage() {
 
   async function activate() {
     const ok = window.confirm(
-      "Активировать TikTok Horizon Stage 1?\n\n" +
+      "Активировать TikTok Horizon?\n\n" +
         "Тренды → черновики → Human Review → очередь.\n" +
-        "Без генерации видео и без публикации.\n\nПродолжить?",
+        "Публикация и live video API пока выключены.\n\nПродолжить?",
     );
     if (!ok) return;
     setBusy(true);
@@ -188,8 +203,9 @@ export default function TikTokHorizonPage() {
         setMessage(typeof body.detail === "string" ? body.detail : "Ошибка активации");
         return;
       }
-      setMessage("Horizon включён (kill switch ON). Публикация не запущена.");
+      setMessage("Horizon включён. Дальше: подключите аккаунт → анализ → черновики.");
       await refresh();
+      setTab(connectedCount ? "trends" : "accounts");
     } finally {
       setBusy(false);
     }
@@ -208,7 +224,8 @@ export default function TikTokHorizonPage() {
 
   async function seedAndAnalyze() {
     if (!enabled) {
-      setMessage("Сначала включите kill switch.");
+      setMessage("Сначала включите модуль на вкладке Старт.");
+      setTab("start");
       return;
     }
     setBusy(true);
@@ -253,7 +270,8 @@ export default function TikTokHorizonPage() {
         setMessage(typeof body.detail === "string" ? body.detail : "Ingest failed");
         return;
       }
-      setMessage(`Observations: ${body.ingested}. Trends: ${(body.trends || []).length}`);
+      setMessage(`Анализ: ${body.ingested} наблюдений → ${(body.trends || []).length} трендов`);
+      setTab("trends");
       await refresh();
     } finally {
       setBusy(false);
@@ -262,7 +280,13 @@ export default function TikTokHorizonPage() {
 
   async function generateDrafts() {
     if (!enabled) {
-      setMessage("Сначала включите kill switch.");
+      setMessage("Сначала включите модуль на вкладке Старт.");
+      setTab("start");
+      return;
+    }
+    if (trends.length === 0) {
+      setMessage("Сначала запустите анализ трендов.");
+      setTab("trends");
       return;
     }
     setBusy(true);
@@ -281,7 +305,7 @@ export default function TikTokHorizonPage() {
       const first = body.drafts?.[0]?.id;
       if (first) setSelectedId(first);
       setTab("review");
-      setMessage(`Создано черновиков: ${(body.drafts || []).length}`);
+      setMessage(`Создано черновиков сценариев: ${(body.drafts || []).length}`);
       await refresh();
     } finally {
       setBusy(false);
@@ -349,7 +373,7 @@ export default function TikTokHorizonPage() {
         return;
       }
       setTab("queue");
-      setMessage("В очереди. Публикация Stage 1 отключена.");
+      setMessage("В очереди. Live publish пока отключён (Stage 1–2).");
       await refresh();
     } finally {
       setBusy(false);
@@ -393,360 +417,486 @@ export default function TikTokHorizonPage() {
     }
   }
 
+  async function connectSandbox() {
+    setBusy(true);
+    setMessage("");
+    try {
+      const res = await fetch(`${API}/api/owner/tiktok-horizon/accounts/sandbox`, {
+        method: "POST",
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setMessage(typeof body.detail === "string" ? body.detail : "Sandbox failed");
+        return;
+      }
+      setMessage(
+        body.note_ru ||
+          "Sandbox-аккаунт привязан. Включите Horizon и запустите анализ трендов.",
+      );
+      await refresh();
+      setTab("start");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const quality = selected?.quality || {};
+  const step1Done = oauthReady;
+  const step2Done = connectedCount > 0;
+  const step3Done = enabled;
+  const step4Done = trends.length > 0;
+  const step5Done = drafts.length > 0;
 
   return (
-    <main
-      style={{
-        maxWidth: 960,
-        margin: "0 auto",
-        padding: "2rem 1.25rem 4rem",
-        fontFamily: "Georgia, 'Times New Roman', serif",
-        color: "#1a1a1a",
-        background:
-          "linear-gradient(165deg, #f7f3eb 0%, #ebe4d8 45%, #e2ddd4 100%)",
-        minHeight: "100vh",
-      }}
-    >
-      <p style={{ margin: 0, fontSize: 13, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-        Virtus Core · Owner Internal · {dash?.visibility?.visibility || "INTERNAL_OWNER"}
-      </p>
-      <h1 style={{ margin: "0.35rem 0 0.5rem", fontSize: "2rem", fontWeight: 600 }}>
-        TikTok Horizon
-      </h1>
-      <p style={{ margin: "0 0 1rem", maxWidth: 52, fontSize: 15, lineHeight: 1.45 }}>
-        Stage {dash?.stage ?? 2} — OAuth-аккаунты, тренды, сценарии, Human Review, очередь.
-        Не коммерческий продукт. Не для клиентов. Без публикации.
-      </p>
-      <p style={{ margin: "0 0 1.5rem" }}>
-        <Link href="/mission-control">← Mission Control</Link>
-      </p>
-
-      <section
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "0.75rem",
-          alignItems: "center",
-          marginBottom: "1.25rem",
-        }}
-      >
-        <span
-          style={{
-            padding: "0.35rem 0.7rem",
-            border: "1px solid #222",
-            background: enabled ? "#d8f0d0" : "#f0d8d8",
-          }}
-        >
-          Kill switch: {enabled ? "ON" : "OFF"}
-        </span>
-        {!enabled ? (
-          <button type="button" disabled={busy} onClick={() => void activate()}>
-            Активировать Horizon
-          </button>
-        ) : (
-          <button type="button" disabled={busy} onClick={() => void deactivate()}>
-            Выключить
-          </button>
-        )}
-        <button type="button" disabled={busy || !enabled} onClick={() => void seedAndAnalyze()}>
-          Ingest sample trends
-        </button>
-        <button type="button" disabled={busy || !enabled} onClick={() => void generateDrafts()}>
-          Generate drafts
-        </button>
-      </section>
-
-      {message ? (
-        <p style={{ marginBottom: "1rem", padding: "0.75rem", background: "#fff8e8", border: "1px solid #c9b48a" }}>
-          {message}
-        </p>
-      ) : null}
-
-      <nav style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            style={{
-              padding: "0.4rem 0.8rem",
-              border: "1px solid #333",
-              background: tab === t.id ? "#222" : "transparent",
-              color: tab === t.id ? "#f5f0e6" : "#222",
-            }}
+    <main className="min-h-screen bg-[#070a12] text-zinc-100">
+      <div className="mx-auto max-w-5xl px-4 py-8 pb-24">
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300/80">
+              Virtus Core · Owner Internal
+            </p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-white">
+              TikTok Horizon
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm text-zinc-400">
+              Модуль программы: подключить аккаунт → включить → анализ трендов → сценарии
+              топ-видео → Human Review. Stage {dash?.stage ?? 2}. Публикация и live video API
+              пока выключены.
+            </p>
+          </div>
+          <Link
+            href="/mission-control"
+            className="rounded-lg border border-white/15 px-3 py-2 text-sm text-zinc-300 hover:border-cyan-400/40 hover:text-white"
           >
-            {t.label}
-          </button>
-        ))}
-      </nav>
+            ← Mission Control
+          </Link>
+        </div>
 
-      {tab === "overview" && (
-        <section>
-          <p>{dash?.pipeline_ru}</p>
-          <p style={{ opacity: 0.85 }}>{dash?.note_ru}</p>
-          <p style={{ opacity: 0.85 }}>{dash?.visibility?.note_ru}</p>
-          <ul>
-            {Object.entries(dash?.counts || {}).map(([k, v]) => (
-              <li key={k}>
-                {k}: {v}
-              </li>
-            ))}
-          </ul>
-          <h3>Capabilities</h3>
-          <ul>
-            {Object.entries(dash?.capabilities || {}).map(([k, v]) => (
-              <li key={k}>
-                {v ? "✓" : "✗"} {k}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+        {message ? (
+          <p className="mb-4 rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+            {message}
+          </p>
+        ) : null}
 
-      {tab === "accounts" && (
-        <section>
-          <p style={{ marginBottom: "0.75rem" }}>
-            Мультиаккаунты · официальный TikTok OAuth · токены только в зашифрованном виде.
-            Публикация отключена.
-          </p>
-          <p style={{ fontSize: 14, marginBottom: "1rem" }}>
-            OAuth client: {oauthReady ? "ready" : "нужны TIKTOK_CLIENT_KEY + TIKTOK_CLIENT_SECRET"}
-          </p>
-          <p style={{ marginBottom: "1.25rem" }}>
-            <a
-              href={`${API}/api/owner/tiktok-horizon/oauth/start`}
-              style={{
-                display: "inline-block",
-                padding: "0.5rem 0.9rem",
-                border: "1px solid #222",
-                background: "#222",
-                color: "#f5f0e6",
-                textDecoration: "none",
-              }}
+        <nav className="mb-6 flex flex-wrap gap-2">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`rounded-lg px-3 py-2 text-sm ${
+                tab === t.id
+                  ? "bg-cyan-500 text-black font-semibold"
+                  : "border border-white/10 text-zinc-300 hover:border-white/25"
+              }`}
             >
-              + Connect TikTok
-            </a>
-          </p>
-          {accounts.length === 0 ? (
-            <p>Нет подключённых аккаунтов.</p>
-          ) : (
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {accounts.map((a) => (
-                <li
-                  key={a.id}
-                  style={{
-                    marginBottom: "0.75rem",
-                    padding: "0.85rem",
-                    background: "rgba(255,255,255,0.55)",
-                    border: "1px solid #cfc4b0",
-                  }}
-                >
-                  <strong>
-                    {a.status === "connected" ? "✔ " : ""}
-                    {a.label || a.username || a.display_name || a.id}
-                  </strong>
-                  <div style={{ fontSize: 14, marginTop: 6 }}>
-                    Status: {a.status}
-                    <br />
-                    Username: {a.username || "—"} · Display: {a.display_name || "—"}
-                    <br />
-                    Connected: {a.connected_at || "—"}
-                    <br />
-                    Last Sync: {a.last_sync_at || "—"}
-                    <br />
-                    Tokens: access={String(a.tokens?.has_access_token)} refresh=
-                    {String(a.tokens?.has_refresh_token)}
-                  </div>
-                  <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                    {a.status === "connected" ? (
-                      <>
-                        <button type="button" disabled={busy} onClick={() => void syncAccount(a.id)}>
-                          Sync
-                        </button>
-                        <a href={`${API}/api/owner/tiktok-horizon/oauth/start`}>Reconnect</a>
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => void disconnectAccount(a.id)}
-                        >
-                          Disconnect
-                        </button>
-                      </>
-                    ) : (
-                      <a href={`${API}/api/owner/tiktok-horizon/oauth/start`}>Reconnect</a>
-                    )}
-                  </div>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        {tab === "start" && (
+          <section className="space-y-5">
+            <div className="rounded-2xl border border-white/10 bg-[#0c111c] p-5">
+              <h2 className="text-lg font-semibold text-white">Как работать</h2>
+              <ol className="mt-4 space-y-3 text-sm text-zinc-300">
+                <li className="flex gap-3">
+                  <span className={step1Done ? "text-emerald-400" : "text-zinc-500"}>
+                    {step1Done ? "✔" : "1."}
+                  </span>
+                  <span>
+                    OAuth client в `.env` (`TIKTOK_CLIENT_KEY` + `TIKTOK_CLIENT_SECRET`) —{" "}
+                    {oauthReady ? "готово" : "нужно настроить"}
+                  </span>
                 </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
-
-      {tab === "trends" && (
-        <section>
-          {trends.length === 0 ? (
-            <p>База трендов пуста. Сначала Ingest sample trends (или официальный API позже).</p>
-          ) : (
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {trends.map((t) => (
-                <li
-                  key={t.trend_id}
-                  style={{
-                    marginBottom: "0.75rem",
-                    padding: "0.85rem",
-                    background: "rgba(255,255,255,0.55)",
-                    border: "1px solid #cfc4b0",
-                  }}
-                >
-                  <strong>{t.topic_label}</strong>
-                  <div style={{ fontSize: 14, marginTop: 4 }}>
-                    growth {t.growth_score} · hook {t.hook_style} · edit {t.editing_style} · ~
-                    {t.average_duration}s
-                  </div>
+                <li className="flex gap-3">
+                  <span className={step2Done ? "text-emerald-400" : "text-zinc-500"}>
+                    {step2Done ? "✔" : "2."}
+                  </span>
+                  <span>
+                    Подключить хотя бы один TikTok-аккаунт (вкладка Аккаунты → Connect TikTok)
+                  </span>
                 </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
+                <li className="flex gap-3">
+                  <span className={step3Done ? "text-emerald-400" : "text-zinc-500"}>
+                    {step3Done ? "✔" : "3."}
+                  </span>
+                  <span>Включить kill switch модуля</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className={step4Done ? "text-emerald-400" : "text-zinc-500"}>
+                    {step4Done ? "✔" : "4."}
+                  </span>
+                  <span>Запустить анализ трендов</span>
+                </li>
+                <li className="flex gap-3">
+                  <span className={step5Done ? "text-emerald-400" : "text-zinc-500"}>
+                    {step5Done ? "✔" : "5."}
+                  </span>
+                  <span>Сгенерировать сценарии топ-видео → Review → очередь</span>
+                </li>
+              </ol>
+            </div>
 
-      {tab === "review" && (
-        <section>
-          {drafts.length === 0 ? (
-            <p>Нет черновиков — Generate drafts после анализа трендов.</p>
-          ) : (
-            <>
-              <label style={{ display: "block", marginBottom: 12 }}>
-                Черновик{" "}
-                <select
-                  value={selected?.id || ""}
-                  onChange={(e) => setSelectedId(e.target.value)}
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-[#0c111c] p-5">
+              <span
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                  enabled
+                    ? "bg-emerald-500/20 text-emerald-200"
+                    : "bg-rose-500/20 text-rose-200"
+                }`}
+              >
+                Kill switch: {enabled ? "ON" : "OFF"}
+              </span>
+              {!enabled ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void activate()}
+                  className="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-black disabled:opacity-50"
                 >
-                  {drafts.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      [{d.status}] {d.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              {selected && (
-                <>
-                  <p style={{ fontSize: 14 }}>
-                    Style: {selected.style_variant} · Human edited:{" "}
-                    {selected.human_edited ? "yes" : "no"} · Ready:{" "}
-                    {selected.quality_ready ? "yes" : "review more"}
-                  </p>
-
-                  <h3>Content Quality</h3>
-                  <ul>
-                    {(["originality", "structure_diversity", "visual_diversity", "hook_strength", "caption_quality", "publishing_readiness"] as const).map(
-                      (k) => (
-                        <li key={k}>
-                          {k}: {String(quality[k] ?? "—")}
-                        </li>
-                      ),
-                    )}
-                  </ul>
-
-                  <h3>Publish window (confidence ≠ virality)</h3>
-                  <p style={{ fontSize: 14 }}>
-                    {selected.publish_window?.window_start_local} →{" "}
-                    {selected.publish_window?.window_end_local}
-                    <br />
-                    Confidence: {selected.publish_window?.confidence_label} (
-                    {selected.publish_window?.confidence})
-                  </p>
-                  <ul>
-                    {(selected.publish_window?.reasons || []).map((r) => (
-                      <li key={r}>{r}</li>
-                    ))}
-                  </ul>
-
-                  <h3>Human Review checklist</h3>
-                  <label style={{ display: "block", marginBottom: 8 }}>
-                    Hook (первые 3 сек)
-                    <textarea
-                      value={editHook}
-                      onChange={(e) => setEditHook(e.target.value)}
-                      rows={2}
-                      style={{ width: "100%", display: "block", marginTop: 4 }}
-                    />
-                  </label>
-                  <label style={{ display: "block", marginBottom: 8 }}>
-                    Сценарий / диктор
-                    <textarea
-                      value={editNarrator}
-                      onChange={(e) => setEditNarrator(e.target.value)}
-                      rows={6}
-                      style={{ width: "100%", display: "block", marginTop: 4 }}
-                    />
-                  </label>
-                  <label style={{ display: "block", marginBottom: 12 }}>
-                    Описание
-                    <textarea
-                      value={editCaption}
-                      onChange={(e) => setEditCaption(e.target.value)}
-                      rows={2}
-                      style={{ width: "100%", display: "block", marginTop: 4 }}
-                    />
-                  </label>
-
-                  <details style={{ marginBottom: 12 }}>
-                    <summary>Prompt для будущего Video API (не вызывается)</summary>
-                    <pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>
-                      {selected.prompt?.prompt_text}
-                    </pre>
-                  </details>
-
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button type="button" disabled={busy} onClick={() => void saveEdits()}>
-                      Сохранить правки
-                    </button>
-                    <button type="button" disabled={busy} onClick={() => void approve()}>
-                      Approve
-                    </button>
-                    <button type="button" disabled={busy} onClick={() => void enqueue()}>
-                      В очередь
-                    </button>
-                  </div>
-                </>
+                  Включить Horizon
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void deactivate()}
+                  className="rounded-lg border border-white/20 px-4 py-2 text-sm text-zinc-200"
+                >
+                  Выключить
+                </button>
               )}
-            </>
-          )}
-        </section>
-      )}
+              <button
+                type="button"
+                onClick={() => setTab("accounts")}
+                className="rounded-lg border border-cyan-400/40 px-4 py-2 text-sm text-cyan-100"
+              >
+                {connectedCount ? `Аккаунты (${connectedCount})` : "Подключить аккаунт →"}
+              </button>
+              <button
+                type="button"
+                disabled={busy || !enabled}
+                onClick={() => void seedAndAnalyze()}
+                className="rounded-lg border border-white/15 px-4 py-2 text-sm disabled:opacity-40"
+              >
+                Анализ трендов
+              </button>
+              <button
+                type="button"
+                disabled={busy || !enabled || trends.length === 0}
+                onClick={() => void generateDrafts()}
+                className="rounded-lg border border-white/15 px-4 py-2 text-sm disabled:opacity-40"
+              >
+                Генерация сценариев
+              </button>
+            </div>
 
-      {tab === "queue" && (
-        <section>
-          {queue.length === 0 ? (
-            <p>Очередь пуста.</p>
-          ) : (
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {queue.map((q) => (
-                <li
-                  key={q.id}
-                  style={{
-                    marginBottom: "0.75rem",
-                    padding: "0.85rem",
-                    background: "rgba(255,255,255,0.55)",
-                    border: "1px solid #cfc4b0",
-                  }}
-                >
-                  <strong>{q.title || q.id}</strong>
-                  <div style={{ fontSize: 14 }}>
-                    {q.status} · publish={String(q.publish_enabled)}
-                    <br />
-                    {q.publish_note_ru}
+            <p className="text-xs text-zinc-500">
+              {dash?.pipeline_ru} {dash?.note_ru}
+            </p>
+          </section>
+        )}
+
+        {tab === "accounts" && (
+          <section className="space-y-4">
+            <div className="rounded-2xl border border-white/10 bg-[#0c111c] p-5">
+              <h2 className="text-lg font-semibold text-white">Привязка TikTok</h2>
+              <p className="mt-2 text-sm text-zinc-400">
+                Официальный OAuth. Токены хранятся зашифрованно. Можно несколько аккаунтов.
+                Публикация отключена до следующих Stage.
+              </p>
+              <p className="mt-3 text-sm">
+                OAuth client:{" "}
+                <span className={oauthReady ? "text-emerald-300" : "text-amber-300"}>
+                  {oauthReady
+                    ? "ready"
+                    : "нужны TIKTOK_CLIENT_KEY + TIKTOK_CLIENT_SECRET в .env.local"}
+                </span>
+              </p>
+              <a
+                href={`${API}/api/owner/tiktok-horizon/oauth/start`}
+                className={`mt-4 inline-flex rounded-lg px-4 py-2.5 text-sm font-semibold ${
+                  oauthReady
+                    ? "bg-cyan-500 text-black"
+                    : "pointer-events-none bg-zinc-700 text-zinc-400"
+                }`}
+              >
+                + Connect TikTok
+              </a>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void connectSandbox()}
+                className="mt-3 ml-0 inline-flex rounded-lg border border-amber-400/40 px-4 py-2.5 text-sm text-amber-100 sm:ml-3"
+              >
+                Привязать sandbox (анализ без OAuth)
+              </button>
+              {!oauthReady ? (
+                <p className="mt-3 text-xs text-amber-200/90">
+                  Ключей TikTok Developer пока нет — начните с sandbox, чтобы сразу запустить
+                  анализ и генерацию сценариев. Позже замените на реальный Connect TikTok
+                  (`TIKTOK_CLIENT_KEY` + `TIKTOK_CLIENT_SECRET` в `.env.local`).
+                </p>
+              ) : (
+                <p className="mt-3 text-xs text-zinc-500">
+                  Sandbox можно использовать параллельно с реальным аккаунтом для тестов
+                  пайплайна.
+                </p>
+              )}
+            </div>
+
+            {accounts.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-white/15 px-4 py-8 text-center text-sm text-zinc-500">
+                Нет подключённых аккаунтов. Нажмите Connect TikTok выше.
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {accounts.map((a) => (
+                  <li
+                    key={a.id}
+                    className="rounded-xl border border-white/10 bg-[#0c111c] p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-white">
+                          {a.status === "connected" ? "✔ " : ""}
+                          {a.label || a.username || a.display_name || a.id}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-500">
+                          {a.status} · @{a.username || "—"} · sync {a.last_sync_at || "—"}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-600">
+                          tokens: access={String(a.tokens?.has_access_token)} refresh=
+                          {String(a.tokens?.has_refresh_token)}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {a.status === "connected" ? (
+                          <>
+                            <button
+                              type="button"
+                              disabled={busy}
+                              onClick={() => void syncAccount(a.id)}
+                              className="rounded-lg border border-white/15 px-3 py-1.5 text-xs"
+                            >
+                              Sync
+                            </button>
+                            <a
+                              href={`${API}/api/owner/tiktok-horizon/oauth/start`}
+                              className="rounded-lg border border-white/15 px-3 py-1.5 text-xs"
+                            >
+                              Reconnect
+                            </a>
+                            <button
+                              type="button"
+                              disabled={busy}
+                              onClick={() => void disconnectAccount(a.id)}
+                              className="rounded-lg border border-rose-400/30 px-3 py-1.5 text-xs text-rose-200"
+                            >
+                              Disconnect
+                            </button>
+                          </>
+                        ) : (
+                          <a
+                            href={`${API}/api/owner/tiktok-horizon/oauth/start`}
+                            className="rounded-lg bg-cyan-500 px-3 py-1.5 text-xs font-semibold text-black"
+                          >
+                            Reconnect
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {connectedCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => setTab("start")}
+                className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-black"
+              >
+                Аккаунт есть → включить и анализировать
+              </button>
+            ) : null}
+          </section>
+        )}
+
+        {tab === "trends" && (
+          <section className="space-y-4">
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                disabled={busy || !enabled}
+                onClick={() => void seedAndAnalyze()}
+                className="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-black disabled:opacity-40"
+              >
+                Запустить анализ
+              </button>
+              <button
+                type="button"
+                disabled={busy || !enabled || trends.length === 0}
+                onClick={() => void generateDrafts()}
+                className="rounded-lg border border-white/15 px-4 py-2 text-sm disabled:opacity-40"
+              >
+                Сгенерировать сценарии
+              </button>
+            </div>
+            {trends.length === 0 ? (
+              <p className="text-sm text-zinc-500">
+                База трендов пуста. Нажмите «Запустить анализ» (sample observations → trend
+                scoring). Официальный TikTok research API — следующим Stage.
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {trends.map((t) => (
+                  <li
+                    key={t.trend_id}
+                    className="rounded-xl border border-white/10 bg-[#0c111c] p-4"
+                  >
+                    <p className="font-medium text-white">{t.topic_label}</p>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      growth {t.growth_score} · hook {t.hook_style} · edit {t.editing_style} · ~
+                      {t.average_duration}s
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+
+        {tab === "review" && (
+          <section className="space-y-4">
+            {drafts.length === 0 ? (
+              <p className="text-sm text-zinc-500">
+                Нет черновиков. Сначала анализ трендов → генерация сценариев.
+              </p>
+            ) : (
+              <>
+                <label className="block text-sm text-zinc-400">
+                  Черновик
+                  <select
+                    className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
+                    value={selected?.id || ""}
+                    onChange={(e) => setSelectedId(e.target.value)}
+                  >
+                    {drafts.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        [{d.status}] {d.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {selected ? (
+                  <div className="space-y-4 rounded-2xl border border-white/10 bg-[#0c111c] p-5">
+                    <p className="text-xs text-zinc-500">
+                      Style: {selected.style_variant} · edited:{" "}
+                      {selected.human_edited ? "yes" : "no"} · ready:{" "}
+                      {selected.quality_ready ? "yes" : "review"}
+                    </p>
+                    <div className="grid gap-2 text-xs text-zinc-400 sm:grid-cols-2">
+                      {(
+                        [
+                          "originality",
+                          "structure_diversity",
+                          "visual_diversity",
+                          "hook_strength",
+                          "caption_quality",
+                          "publishing_readiness",
+                        ] as const
+                      ).map((k) => (
+                        <div key={k}>
+                          {k}: {String(quality[k] ?? "—")}
+                        </div>
+                      ))}
+                    </div>
+                    <label className="block text-sm text-zinc-400">
+                      Hook (первые 3 сек)
+                      <textarea
+                        className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
+                        value={editHook}
+                        onChange={(e) => setEditHook(e.target.value)}
+                        rows={2}
+                      />
+                    </label>
+                    <label className="block text-sm text-zinc-400">
+                      Сценарий / диктор
+                      <textarea
+                        className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
+                        value={editNarrator}
+                        onChange={(e) => setEditNarrator(e.target.value)}
+                        rows={6}
+                      />
+                    </label>
+                    <label className="block text-sm text-zinc-400">
+                      Описание
+                      <textarea
+                        className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
+                        value={editCaption}
+                        onChange={(e) => setEditCaption(e.target.value)}
+                        rows={2}
+                      />
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void saveEdits()}
+                        className="rounded-lg border border-white/15 px-3 py-2 text-sm"
+                      >
+                        Сохранить
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void approve()}
+                        className="rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void enqueue()}
+                        className="rounded-lg bg-cyan-500 px-3 py-2 text-sm font-semibold text-black"
+                      >
+                        В очередь
+                      </button>
+                    </div>
                   </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
+                ) : null}
+              </>
+            )}
+          </section>
+        )}
+
+        {tab === "queue" && (
+          <section>
+            {queue.length === 0 ? (
+              <p className="text-sm text-zinc-500">Очередь пуста.</p>
+            ) : (
+              <ul className="space-y-3">
+                {queue.map((q) => (
+                  <li
+                    key={q.id}
+                    className="rounded-xl border border-white/10 bg-[#0c111c] p-4"
+                  >
+                    <p className="font-medium text-white">{q.title || q.id}</p>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      {q.status} · publish={String(q.publish_enabled)}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-600">{q.publish_note_ru}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+      </div>
     </main>
   );
 }

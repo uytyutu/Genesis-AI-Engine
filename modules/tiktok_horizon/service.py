@@ -206,6 +206,26 @@ class HorizonService:
         )
         return {"ok": True, "account": account}
 
+    def connect_sandbox_account(self) -> dict[str, Any]:
+        """Owner desk: bind a local sandbox profile until TikTok OAuth keys exist."""
+        self._require_owner_module()
+        account = self.accounts.upsert_sandbox_owner_account()
+        self.learning.record_event(
+            {
+                "event_type": "sandbox_account_connected",
+                "draft_id": None,
+                "payload": {"account_id": account.get("id"), "sandbox": True},
+            }
+        )
+        return {
+            "ok": True,
+            "account": account,
+            "note_ru": (
+                "Sandbox-аккаунт для анализа и сценариев. Для реального TikTok добавьте "
+                "TIKTOK_CLIENT_KEY + TIKTOK_CLIENT_SECRET и нажмите Connect TikTok."
+            ),
+        }
+
     def disconnect_account(self, account_id: str) -> dict[str, Any]:
         self._require_owner_module()
         revoke_ok = None

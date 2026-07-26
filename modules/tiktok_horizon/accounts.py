@@ -128,6 +128,60 @@ class TikTokAccountStore:
         self._write(data)
         return self.to_public(row)
 
+    def upsert_sandbox_owner_account(
+        self,
+        *,
+        username: str = "virtus_sandbox",
+        display_name: str = "Virtus Sandbox",
+    ) -> dict[str, Any]:
+        """Owner-only placeholder so trend/draft pipeline runs before real OAuth keys."""
+        open_id = "sandbox-owner-tiktok"
+        data = self._read()
+        accounts: list[dict[str, Any]] = list(data.get("accounts") or [])
+        now = _now()
+        existing = next((a for a in accounts if a.get("open_id") == open_id), None)
+        if existing:
+            existing.update(
+                {
+                    "status": "connected",
+                    "display_name": display_name,
+                    "username": username,
+                    "last_sync_at": now,
+                    "updated_at": now,
+                    "sandbox": True,
+                    "publish_enabled": False,
+                }
+            )
+            if not existing.get("connected_at"):
+                existing["connected_at"] = now
+            row = existing
+        else:
+            row = {
+                "id": f"tta-{uuid.uuid4().hex[:10]}",
+                "open_id": open_id,
+                "display_name": display_name,
+                "username": username,
+                "avatar_url": None,
+                "status": "connected",
+                "connected_at": now,
+                "last_sync_at": now,
+                "updated_at": now,
+                "access_token_sealed": "",
+                "refresh_token_sealed": "",
+                "access_token_expires_at": None,
+                "refresh_token_expires_at": None,
+                "scopes": ["sandbox.local"],
+                "sandbox": True,
+                "publish_enabled": False,
+            }
+            accounts.append(row)
+        data["accounts"] = accounts
+        self._write(data)
+        public = self.to_public(row)
+        public["sandbox"] = True
+        public["label"] = f"@{username} (sandbox)"
+        return public
+
     def disconnect(self, account_id: str, *, revoke_ok: bool | None = None) -> dict[str, Any]:
         data = self._read()
         accounts = list(data.get("accounts") or [])
