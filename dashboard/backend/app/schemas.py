@@ -305,8 +305,20 @@ class SalesOrderCreateRequest(BaseModel):
     telegram: str | None = Field(default=None, max_length=400)
     material_ids: list[str] = Field(default_factory=list, max_length=40)
     client_legal: ClientLegalFields | None = None
-    package_id: str | None = Field(default=None, pattern="^(basic|business|premium|smoke)$")
+    package_id: str | None = Field(
+        default=None,
+        max_length=64,
+        description="Website: basic|business|premium|smoke · Bot: bot_starter|bot_business|bot_professional · repairs/addons",
+    )
     product_id: str | None = Field(default=None, max_length=80)
+    product_kind: str | None = Field(
+        default=None,
+        max_length=32,
+        description="website | bot | repair | addon",
+    )
+    bot_config: dict | None = None
+    customer_id: str | None = Field(default=None, max_length=80)
+    workspace_id: str | None = Field(default=None, max_length=80)
     visitor_id: str | None = Field(default=None, max_length=64)
     market_code: str | None = Field(default=None, max_length=8)
     ui_lang: str | None = Field(
@@ -1591,6 +1603,15 @@ class AcquisitionStudioStatus(BaseModel):
     top_premium_leads: list[dict] = []
     countries: list[dict] = []
     lead_engine: dict | None = None
+    provider_cooldown: dict | None = None
+    autosend_blocker_ru: str = ""
+    sent_today_count: int = 0
+    sent_today: list[dict] = []
+    open_markets_now: list[str] = []
+    lead_sending_health: dict | None = None
+    email_providers: dict | None = None
+
+    model_config = {"extra": "ignore"}
 
 
 class AcquisitionApprovalItem(BaseModel):
@@ -2435,3 +2456,40 @@ class BusinessHealthDashboard(BaseModel):
 class BusinessHealthManualBumpRequest(BaseModel):
     field: str = Field(pattern="^(conversations|proposals|payments|repeats)$")
     delta: int = Field(default=1, ge=-10, le=10)
+
+
+class ClientBotCreateRequest(BaseModel):
+    display_name: str = Field(min_length=1, max_length=120)
+    bot_config: dict | None = None
+    channels: list[str] | None = None
+
+
+class ClientBotUpdateRequest(BaseModel):
+    display_name: str | None = Field(default=None, max_length=120)
+    status: str | None = Field(default=None, max_length=40)
+    bot_config: dict | None = None
+    channels: list[str] | None = None
+
+
+class ClientBotTelegramConnectRequest(BaseModel):
+    bot_id: str = Field(min_length=1, max_length=80)
+    token: str = Field(min_length=10, max_length=200)
+    connection_id: str | None = Field(default=None, max_length=80)
+
+
+class ClientBotDisconnectRequest(BaseModel):
+    connection_id: str = Field(min_length=1, max_length=80)
+
+
+class ClientBotMetaOAuthStartRequest(BaseModel):
+    bot_id: str = Field(min_length=1, max_length=80)
+    channel: str = Field(
+        default="facebook_messenger",
+        max_length=40,
+        description="whatsapp | instagram | facebook_messenger | meta",
+    )
+
+
+class ClientBotOrderDraftRequest(BaseModel):
+    draft: dict | None = None
+

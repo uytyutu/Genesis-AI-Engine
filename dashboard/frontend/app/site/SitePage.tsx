@@ -39,6 +39,17 @@ type BotPackageCard = {
   setup_label: string;
   monthly_label: string;
   price_label: string;
+  tagline_ru?: string;
+  includes_ru?: string[];
+  features?: {
+    knowledge_sources?: string;
+    languages?: string;
+    scenarios?: string;
+    ai_analysis?: boolean;
+    training?: string;
+    extra_channels?: string;
+    support?: string;
+  };
 };
 
 type ServiceView = "hub" | "websites" | "bots" | "analysis";
@@ -424,6 +435,11 @@ export function SitePage() {
               setup_label: String(p.setup_label || ""),
               monthly_label: String(p.monthly_label || ""),
               price_label: String(p.price_label || ""),
+              tagline_ru: p.tagline_ru ? String(p.tagline_ru) : undefined,
+              includes_ru: Array.isArray(p.includes_ru)
+                ? p.includes_ru.map(String)
+                : undefined,
+              features: p.features,
             })),
           );
         }
@@ -567,13 +583,13 @@ export function SitePage() {
                 </p>
                 <h2 className="mt-2 text-xl font-semibold text-white">
                   {t("s0.cardBotTitle", {
-                    defaultValue: "Buy an AI bot",
+                    defaultValue: "AI Business Bot",
                   })}
                 </h2>
                 <p className="mt-2 text-sm text-zinc-300">
                   {t("s0.cardBotBody", {
                     defaultValue:
-                      "Business chatbots for your site and Telegram — setup + monthly plan.",
+                      "Digital employee for your company — Website Chat, Telegram, WhatsApp, Instagram, Messenger.",
                   })}
                 </p>
                 <span className="mt-4 inline-flex text-sm font-semibold text-sky-200">
@@ -630,7 +646,7 @@ export function SitePage() {
             <p className="text-center text-xs text-zinc-500">
               {t("s0.hubAccountHint", {
                 defaultValue:
-                  "No account needed to buy. Register only for your personal office — run projects, bots, automation, upgrades.",
+                  "Websites: order as a guest. AI Business Bot: register Workspace first, then pay and connect your channels.",
               })}
             </p>
           </>
@@ -746,12 +762,12 @@ export function SitePage() {
             </button>
             <div>
               <h2 id="bots-heading" className="text-2xl font-semibold text-white">
-                {t("s0.botsTitle", { defaultValue: "AI bots" })}
+                {t("s0.botsTitle", { defaultValue: "AI Business Bot" })}
               </h2>
               <p className="mt-1 text-sm text-genesis-muted">
                 {t("s0.botsIntro", {
                   defaultValue:
-                    "Separate from websites. Order a package directly — no registration required. Open an office later if you want to manage bots and automation.",
+                    "One product — a digital employee. Packages by AI-bot count (1 / up to 3 / Fair Use). Register your Workspace before payment, then connect your own channels.",
                 })}
               </p>
             </div>
@@ -779,15 +795,28 @@ export function SitePage() {
                         })}
                       </p>
                     ) : null}
-                    <p className="mt-4 flex-1 text-xs leading-relaxed text-zinc-500">
-                      Website chat · Telegram · WhatsApp / Instagram in rollout
+                    {pkg.tagline_ru ? (
+                      <p className="mt-3 text-sm leading-relaxed text-zinc-300">{pkg.tagline_ru}</p>
+                    ) : null}
+                    <ul className="mt-3 flex-1 space-y-1 text-xs leading-relaxed text-zinc-500">
+                      {(pkg.includes_ru || []).slice(0, 6).map((line) => (
+                        <li key={line}>• {line}</li>
+                      ))}
+                      {!pkg.includes_ru?.length ? (
+                        <li>
+                          Website Chat ✅ · Telegram ✅ · Knowledge / языки зависят от тарифа
+                        </li>
+                      ) : null}
+                    </ul>
+                    <p className="mt-3 text-[11px] text-zinc-600">
+                      Каналы: Website Chat · Telegram · WhatsApp · Instagram · Messenger (подключение своих аккаунтов после оплаты).
                     </p>
                     <Link
                       href={botOrderHref(pkg.package_id)}
                       className="mt-5 inline-flex items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110"
                     >
                       {t("s0.botsCta", {
-                        defaultValue: "Order without account",
+                        defaultValue: "Choose package →",
                       })}
                     </Link>
                   </article>

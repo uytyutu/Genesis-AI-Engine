@@ -79,38 +79,34 @@ _BOT_HANDOFF_RULES = frozenset(
 )
 _BOT_LANGUAGES = frozenset({"de", "ru", "en", "uk", "other"})
 
-# Extra channel beyond the first included in package — billed separately (EUR setup).
+# Legacy map kept for compatibility; channel addons are not billed (tier = AI-bot count).
 _BOT_CHANNEL_ADDON_SETUP_EUR: dict[str, int] = {
     "telegram": 0,
-    "website_chat": 149,
-    "whatsapp": 199,
-    "instagram": 199,
-    "facebook_messenger": 199,
+    "website_chat": 0,
+    "whatsapp": 0,
+    "instagram": 0,
+    "facebook_messenger": 0,
 }
 
 
 def bot_channel_addon_quote(channels: list[str]) -> dict:
-    """First available channel included in package; each extra costs setup fee."""
+    """Channels are not a tier limit — all selected channels are included (0 € addon)."""
     available = [c for c in channels if c in _BOT_CHANNELS_AVAILABLE]
-    included = available[:1]
-    extras = available[1:]
-    lines = []
-    total = 0
-    for ch in extras:
-        fee = int(_BOT_CHANNEL_ADDON_SETUP_EUR.get(ch, 149))
-        total += fee
-        lines.append({"channel": ch, "setup_eur": fee, "status": "billable"})
-    for ch in included:
-        lines.append({"channel": ch, "setup_eur": 0, "status": "included"})
+    interest = [c for c in channels if c in _BOT_CHANNELS_COMING_SOON]
+    lines = [
+        {"channel": ch, "setup_eur": 0, "status": "included"} for ch in available
+    ] + [
+        {"channel": ch, "setup_eur": 0, "status": "interest"} for ch in interest
+    ]
     return {
-        "included_channels": included,
-        "addon_channels": extras,
-        "addon_setup_total_eur": total,
+        "included_channels": available,
+        "addon_channels": [],
+        "addon_setup_total_eur": 0,
         "lines": lines,
         "expandable": True,
         "note_ru": (
-            "Первый канал входит в тариф. Каждый дополнительный канал — отдельная "
-            "оплата setup. Позже: «Добавить канал» к тому же боту без нового проекта."
+            "Каналы не ограничивают тариф. Лимит пакета — число независимых AI-ботов. "
+            "Подключение своих аккаунтов — после оплаты в личном кабинете."
         ),
     }
 
@@ -122,10 +118,13 @@ def _normalize_bot_config(raw: object) -> dict:
     if isinstance(channels_in, str):
         channels_in = [x.strip() for x in channels_in.split(",") if x.strip()]
     channels: list[str] = []
+    interest_from_channels: list[str] = []
     for ch in channels_in:
         key = str(ch).strip().lower()
         if key in _BOT_CHANNELS_AVAILABLE and key not in channels:
             channels.append(key)
+        elif key in _BOT_CHANNELS_COMING_SOON and key not in interest_from_channels:
+            interest_from_channels.append(key)
     if not channels:
         channels = ["telegram"]
 
@@ -188,14 +187,27 @@ def _normalize_bot_config(raw: object) -> dict:
         languages = ["de"]
 
     channel_quote = bot_channel_addon_quote(channels)
+    tone = str(data.get("tone") or "").strip().lower()[:40] or None
+    bot_display_name = str(data.get("bot_display_name") or data.get("bot_name") or "").strip()[:80] or None
+    faq_text = str(data.get("faq") or data.get("faq_text") or "").strip()[:8000] or None
+    ai_instructions = str(data.get("ai_instructions") or data.get("instructions") or "").strip()[:8000] or None
 
     return {
         "channels": channels,
-        "channels_coming_soon_requested": [
-            str(c).strip().lower()
-            for c in (data.get("channels_interest") or [])
-            if str(c).strip().lower() in _BOT_CHANNELS_COMING_SOON
-        ][:6],
+        "channels_coming_soon_requested": (
+            list(
+                dict.fromkeys(
+                    [
+                        *[
+                            str(c).strip().lower()
+                            for c in (data.get("channels_interest") or [])
+                            if str(c).strip().lower() in _BOT_CHANNELS_COMING_SOON
+                        ],
+                        *interest_from_channels,
+                    ]
+                )
+            )[:6]
+        ),
         "capabilities": capabilities,
         "extras": extras,
         "knowledge_sources": knowledge,
@@ -204,12 +216,16 @@ def _normalize_bot_config(raw: object) -> dict:
         "activity": str(data.get("activity") or "").strip()[:200] or None,
         "country": str(data.get("country") or "").strip()[:80] or None,
         "reply_language": languages[0],
+        "tone": tone,
+        "bot_display_name": bot_display_name,
+        "faq": faq_text,
+        "ai_instructions": ai_instructions,
         "channel_pricing": channel_quote,
         "expandable_channels": True,
-        "add_channel_path": "/client/bots?action=add_channel",
+        "add_channel_path": "/client/bots?action=connect",
         "note_ru": (
-            "Сайт и AI Bot — разные продукты. Доп. каналы оплачиваются отдельно и "
-            "добавляются к тому же боту («Добавить канал»), без нового проекта."
+            "AI Business Bot — цифровой сотрудник. Лимит тарифа — число AI-ботов, "
+            "не каналов. После оплаты подключите свои аккаунты в личном кабинете."
         ),
     }
 
@@ -812,8 +828,13 @@ class SalesOrderService:
         price_eur = float(package["price_eur"])
         price_label = package.get("price_label", f"{price_eur} €")
         setup_amount = package.get("setup_amount")
+        customer_id = (payload.get("customer_id") or "").strip()[:80] or None
+        workspace_id = (payload.get("workspace_id") or "").strip()[:80] or None
         if product_kind == "bot" or str(package_id).startswith("bot_"):
             product_kind = "bot"
+            if not customer_id:
+                raise ValueError("customer_id_required_for_bot")
+            workspace_id = workspace_id or customer_id
             bot_config = _normalize_bot_config(payload.get("bot_config"))
             addon = int(
                 (bot_config.get("channel_pricing") or {}).get("addon_setup_total_eur")
@@ -847,6 +868,8 @@ class SalesOrderService:
             "setup_amount": setup_amount,
             "monthly_amount": package.get("monthly_amount"),
             "analysis_case_id": (payload.get("analysis_case_id") or "").strip() or None,
+            "customer_id": customer_id,
+            "workspace_id": workspace_id,
             "price_eur": price_eur,
             "currency": package.get("currency", "EUR"),
             "symbol": package.get("symbol", "€"),

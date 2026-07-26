@@ -33,8 +33,9 @@ def test_engine_and_no_fake_buy():
     sellable = sellable_online_ids()
     assert "landing_website" in sellable
     assert "seo_audit" in sellable
-    assert "telegram_ai_bot" in sellable
+    assert "ai_business_bot" in sellable
     assert "whatsapp_ai_bot" not in sellable
+    assert "telegram_ai_bot" not in sellable
 
 
 def test_landing_prices_locked():
@@ -45,8 +46,10 @@ def test_landing_prices_locked():
 
 def test_unready_channels_stay_coming_soon():
     by_id = {r["id"]: r for r in commercial_catalog_rows()}
-    assert by_id["whatsapp_ai_bot"]["cta"] == "coming_soon"
-    assert by_id["instagram_ai_bot"]["cta"] == "coming_soon"
+    # Channel SKUs collapsed into ai_business_bot — Meta channels connect after pay
+    assert "whatsapp_ai_bot" not in by_id
+    assert "instagram_ai_bot" not in by_id
+    assert by_id["ai_business_bot"]["cta"] == "order_now"
     assert by_id["crm_starter"]["cta"] == "coming_soon"
 
 

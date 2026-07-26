@@ -433,23 +433,28 @@ class AcquisitionStudioService:
         if dirty:
             self._opportunity._save_rows(rows)
             rows = self._opportunity._load_rows()
-        # Provider cooldown: do not burn Ready queue against Resend 429 every tick
+        # Provider pool: skip only when NO provider can send (not merely Resend down).
         try:
-            from app.integration.outreach_provider_cooldown import (
-                cooldown_status,
-                resend_available,
-            )
-            from app.integration.gmail_mail_service import send_ready as gmail_send_ready
+            from app.integration.email_provider_pool import any_provider_ready
 
-            if not resend_available(self._memory_dir) and not gmail_send_ready():
-                cool = cooldown_status(self._memory_dir)
+            if not any_provider_ready(self._memory_dir):
+                cool = {}
+                try:
+                    from app.integration.outreach_provider_cooldown import cooldown_status
+
+                    cool = cooldown_status(self._memory_dir)
+                except Exception:
+                    cool = {}
                 return {
                     "sent": False,
                     "skipped": True,
-                    "reason": "resend_cooldown",
+                    "reason": "all_providers_unavailable",
                     "promoted_manual": int(promoted.get("promoted") or 0),
                     "message_ru": cool.get("blocker_ru")
-                    or "Resend 429 — пауза. Подключите Gmail или дождитесь лимита.",
+                    or (
+                        "Все почтовые провайдеры недоступны (Resend/Gmail/SMTP/SES/Mailgun). "
+                        "Очередь ждёт — Hunt продолжается."
+                    ),
                 }
         except Exception:
             pass
@@ -890,6 +895,53 @@ class AcquisitionStudioService:
             )
         else:
             blocker = ""
+
+        sending_health: dict = {}
+        email_providers: dict = {}
+        try:
+            import os as _os
+
+            from app.integration.email_provider_pool import (
+                email_providers_health,
+            )
+            from app.integration.gmail_mail_service import send_ready as gmail_send_ready
+            from app.integration.google_places_service import GooglePlacesService
+            from app.integration.lead_sending_health import build_lead_sending_health
+
+            quota = self._send_quota.health()
+            email_providers = email_providers_health(
+                Path(self._memory_dir), domain_quota=quota if isinstance(quota, dict) else None
+            )
+            domains = quota.get("domains") if isinstance(quota, dict) else None
+            domain_at_cap = False
+            domain_remaining = None
+            if isinstance(domains, list) and domains:
+                d0 = domains[0] if isinstance(domains[0], dict) else {}
+                domain_at_cap = bool(d0.get("at_cap"))
+                domain_remaining = d0.get("remaining")
+            places_ready = bool(GooglePlacesService().setup_status().get("configured"))
+            sending_health = build_lead_sending_health(
+                memory_dir=Path(self._memory_dir),
+                auto_send=bool(prefs.get("auto_send")),
+                runner_running=bool(runner.get("running")),
+                ready_now=ready_n,
+                places_ready=places_ready,
+                gmail_send_ready=bool(gmail_send_ready()),
+                resend_key_present=bool(_os.getenv("RESEND_API_KEY", "").strip()),
+                cooldown=cooldown,
+                domain_at_cap=domain_at_cap,
+                domain_remaining=int(domain_remaining)
+                if domain_remaining is not None
+                else None,
+                hunt_ok=True,
+                email_providers=email_providers,
+            )
+            if not blocker and sending_health.get("current_blocker_ru"):
+                blocker = str(sending_health["current_blocker_ru"])
+        except Exception:
+            sending_health = {}
+            email_providers = {}
+
         return {
             "version": "lead_engine_v1",
             "name": "Country Desk · Lead Engine v1",
@@ -898,9 +950,9 @@ class AcquisitionStudioService:
             "auto_send": bool(prefs.get("auto_send")),
             "outreach_send_enabled": outreach_enabled,
             "outreach_send_note": (
-                "Автоотправка: тумблер CEO + Resend/Gmail. "
-                "После анализа → КП → pending → тик шлёт без ручного Approve. "
-                "При Resend 429 — cooldown и fallback на Gmail."
+                "Автоотправка: тумблер CEO + Provider Pool "
+                "(Resend → Gmail → SMTP → SES → Mailgun). "
+                "При недоступности одного — следующий; система не останавливается."
             ),
             "law": "Plan → Approve → Act",
             "pending_approval_count": pending,
@@ -911,6 +963,8 @@ class AcquisitionStudioService:
             "sent_today": sent_today_items[:40],
             "provider_cooldown": cooldown,
             "autosend_blocker_ru": blocker,
+            "lead_sending_health": sending_health,
+            "email_providers": email_providers,
             "pipeline_count": len(active_rows),
             "open_markets_now": open_codes,
             "channels": _ACQUISITION_CHANNELS,

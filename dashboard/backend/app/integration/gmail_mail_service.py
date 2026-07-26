@@ -108,6 +108,9 @@ def authorization_url(*, redirect_uri: str, state: str) -> str:
         "include_granted_scopes": "true",
         "state": state,
     }
+    sender = _sender()
+    if sender:
+        params["login_hint"] = sender
     return f"{_AUTH_URL}?{urlencode(params)}"
 
 
@@ -166,8 +169,11 @@ def persist_refresh_token(refresh_token: str) -> dict[str, Any]:
     token = (refresh_token or "").strip()
     if not token or len(token) < 20:
         return {"ok": False, "reason": "invalid_token"}
-    backend_dir = Path(__file__).resolve().parent.parent
+    # gmail_mail_service.py → integration → app → backend
+    backend_dir = Path(__file__).resolve().parents[2]
     path = backend_dir / ".env.local"
+    # Migrate stray token file if an older build wrote under app/
+    stray = Path(__file__).resolve().parents[1] / ".env.local"
     line = f"GMAIL_REFRESH_TOKEN={token}"
     try:
         if path.is_file():
@@ -195,6 +201,19 @@ def persist_refresh_token(refresh_token: str) -> dict[str, Any]:
                 f"{line}\n",
                 encoding="utf-8",
             )
+        # Clear token from mistaken app/.env.local so only canonical path remains
+        if stray.is_file() and stray.resolve() != path.resolve():
+            try:
+                srows = stray.read_text(encoding="utf-8-sig").splitlines()
+                cleaned = [
+                    r
+                    for r in srows
+                    if not r.strip().startswith("GMAIL_REFRESH_TOKEN=")
+                ]
+                if cleaned != srows:
+                    stray.write_text("\n".join(cleaned) + ("\n" if cleaned else ""), encoding="utf-8")
+            except OSError:
+                pass
         os.environ["GMAIL_REFRESH_TOKEN"] = token
         return {"ok": True, "path": str(path), "send_ready": send_ready()}
     except OSError as exc:

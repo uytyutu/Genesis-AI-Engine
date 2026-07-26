@@ -1,9 +1,8 @@
 "use client";
 
 /**
- * Dedicated AI Bot order wizard — not the website /order form.
- * Website and AI Bot are separate products.
- * Extra channels expand the same bot later («Добавить канал») — each costs setup.
+ * AI Business Bot order wizard:
+ * Package → Register → Company/AI → Channels → Pay → Connect (Dashboard).
  */
 
 import Link from "next/link";
@@ -11,6 +10,11 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PublicPageShell } from "../../components/PublicPageShell";
 import { BRAND_NAME } from "../../lib/publicBrand";
+import {
+  clientAuthHeaders,
+  getClientToken,
+  setClientSession,
+} from "../../lib/clientAuth";
 import { formatApiDetail } from "../../lib/formatApiError";
 import { startOrderCheckout } from "../../lib/orderCheckout";
 import { publicApiBase } from "../../lib/publicApiBase";
@@ -29,6 +33,9 @@ type BotOffer = {
   currency: string;
   symbol: string;
   market_code: string;
+  includes_ru?: string[];
+  max_bots?: number | null;
+  max_bots_label?: string;
 };
 
 type ChannelId =
@@ -42,66 +49,26 @@ const CHANNELS: {
   id: ChannelId;
   label: string;
   available: boolean;
-  addonEur: number;
+  note: string;
 }[] = [
-  { id: "telegram", label: "Telegram", available: true, addonEur: 0 },
-  { id: "website_chat", label: "Website Chat", available: true, addonEur: 149 },
-  { id: "whatsapp", label: "WhatsApp", available: false, addonEur: 199 },
-  { id: "instagram", label: "Instagram", available: false, addonEur: 199 },
+  { id: "website_chat", label: "Website Chat", available: true, note: "Connect after pay" },
+  { id: "telegram", label: "Telegram", available: true, note: "Own bot token after pay" },
+  { id: "whatsapp", label: "WhatsApp", available: false, note: "Meta OAuth after pay" },
+  { id: "instagram", label: "Instagram", available: false, note: "Meta OAuth after pay" },
   {
     id: "facebook_messenger",
-    label: "Facebook Messenger",
+    label: "Messenger",
     available: false,
-    addonEur: 199,
+    note: "Meta OAuth after pay",
   },
 ];
 
-const CAPABILITIES: { id: string; label: string }[] = [
-  { id: "consult", label: "Консультировать клиентов" },
-  { id: "faq", label: "Отвечать на вопросы" },
-  { id: "leads", label: "Принимать заявки" },
-  { id: "booking", label: "Записывать клиентов" },
-  { id: "handoff", label: "Передавать диалог сотруднику" },
-  { id: "always_on", label: "Работать 24/7" },
-];
-
-const KNOWLEDGE: { id: string; label: string }[] = [
-  { id: "website", label: "Мой сайт" },
-  { id: "pdf", label: "PDF-документы" },
-  { id: "faq", label: "FAQ" },
-  { id: "word", label: "Документы Word" },
-  { id: "manual_text", label: "Текст вручную" },
-  { id: "later", label: "Пока не загружать" },
-];
-
-const HANDOFF: { id: string; label: string }[] = [
-  { id: "when_asks_manager", label: "Когда клиент просит менеджера" },
-  { id: "when_unknown", label: "Когда бот не знает ответ" },
-  { id: "after_lead", label: "После заявки" },
-  { id: "never", label: "Никогда" },
-];
-
-const LANGUAGES: { id: string; label: string }[] = [
-  { id: "de", label: "Немецкий" },
-  { id: "ru", label: "Русский" },
-  { id: "en", label: "Английский" },
-  { id: "uk", label: "Украинский" },
-  { id: "other", label: "Другой" },
-];
-
-const EXTRAS: { id: string; label: string }[] = [
-  { id: "ai_enabled", label: "Подключение AI" },
-  { id: "company_training", label: "Обучение на информации компании" },
-  { id: "website_integration", label: "Интеграция с сайтом" },
-];
-
 const STEPS = [
-  "Интеграции",
-  "Компания",
-  "Задачи",
-  "Knowledge Base",
-  "Языки и эскалация",
-  "Итог",
+  "Пакет",
+  "Аккаунт",
+  "Компания и AI",
+  "Каналы",
+  "Оплата",
 ] as const;
 
 function normalizePackageId(raw: string | null): string {
@@ -133,26 +100,28 @@ function BotOrderWizard() {
   const [offers, setOffers] = useState<BotOffer[]>([]);
   const [loadingOffers, setLoadingOffers] = useState(true);
 
-  const [channels, setChannels] = useState<ChannelId[]>(["telegram"]);
+  const [channels, setChannels] = useState<ChannelId[]>(["telegram", "website_chat"]);
   const [channelInterest, setChannelInterest] = useState<ChannelId[]>([]);
 
   const [businessName, setBusinessName] = useState("");
   const [activity, setActivity] = useState("");
+  const [services, setServices] = useState("");
+  const [faq, setFaq] = useState("");
+  const [aiInstructions, setAiInstructions] = useState("");
+  const [botDisplayName, setBotDisplayName] = useState("");
+  const [tone, setTone] = useState("friendly");
+  const [languages, setLanguages] = useState<string[]>(["de", "ru"]);
   const [website, setWebsite] = useState("");
   const [country, setCountry] = useState("");
 
-  const [capabilities, setCapabilities] = useState<string[]>([
-    "consult",
-    "leads",
-    "always_on",
-  ]);
-  const [knowledge, setKnowledge] = useState<string[]>(["website"]);
-  const [handoff, setHandoff] = useState<string[]>([
-    "when_asks_manager",
-    "when_unknown",
-  ]);
-  const [languages, setLanguages] = useState<string[]>(["de", "ru"]);
-  const [extras, setExtras] = useState<string[]>(["ai_enabled", "company_training"]);
+  const [authMode, setAuthMode] = useState<"login" | "register">("register");
+  const [authName, setAuthName] = useState("");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authCode, setAuthCode] = useState("");
+  const [awaitingCode, setAwaitingCode] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [clientEmail, setClientEmail] = useState("");
 
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -162,7 +131,6 @@ function BotOrderWizard() {
     order_id: string;
     package_name: string;
     price_label?: string;
-    price_eur?: number;
   } | null>(null);
 
   useEffect(() => {
@@ -171,6 +139,7 @@ function BotOrderWizard() {
     setPackageId(pkg);
     setMarket(m);
     setCountry(m);
+    setLoggedIn(Boolean(getClientToken()));
   }, [search]);
 
   useEffect(() => {
@@ -194,6 +163,47 @@ function BotOrderWizard() {
     };
   }, [market]);
 
+  // Restore Workspace draft when authenticated
+  useEffect(() => {
+    if (!getClientToken()) return;
+    let cancelled = false;
+    fetch(`${API}/api/client/bots/order-draft`, {
+      headers: { ...clientAuthHeaders() },
+      cache: "no-store",
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body) => {
+        if (cancelled || !body?.draft) return;
+        const d = body.draft as Record<string, unknown>;
+        if (typeof d.package_id === "string") setPackageId(normalizePackageId(d.package_id));
+        if (typeof d.business_name === "string") setBusinessName(d.business_name);
+        if (typeof d.activity === "string") setActivity(d.activity);
+        if (typeof d.services === "string") setServices(d.services);
+        if (typeof d.faq === "string") setFaq(d.faq);
+        if (typeof d.ai_instructions === "string") setAiInstructions(d.ai_instructions);
+        if (typeof d.bot_display_name === "string") setBotDisplayName(d.bot_display_name);
+        if (typeof d.tone === "string") setTone(d.tone);
+        if (typeof d.website === "string") setWebsite(d.website);
+        if (typeof d.email === "string") setEmail(d.email);
+        if (typeof d.phone === "string") setPhone(d.phone);
+        if (Array.isArray(d.languages)) setLanguages(d.languages.map(String));
+        if (Array.isArray(d.channels)) {
+          setChannels(d.channels.filter((c): c is ChannelId =>
+            CHANNELS.some((m) => m.id === c && m.available),
+          ) as ChannelId[]);
+        }
+        if (Array.isArray(d.channel_interest)) {
+          setChannelInterest(d.channel_interest.map(String) as ChannelId[]);
+        }
+        if (typeof d.step === "number" && d.step >= 1 && d.step <= 5) setStep(d.step);
+        setLoggedIn(true);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const selected = useMemo(() => {
     return (
       offers.find((o) => o.package_id === packageId) ||
@@ -203,13 +213,69 @@ function BotOrderWizard() {
     );
   }, [offers, packageId]);
 
-  const channelAddonEur = useMemo(() => {
-    if (channels.length <= 1) return 0;
-    return channels.slice(1).reduce((sum, id) => {
-      const meta = CHANNELS.find((c) => c.id === id);
-      return sum + (meta?.addonEur || 149);
-    }, 0);
-  }, [channels]);
+  const draftPayload = useCallback(() => {
+    return {
+      step,
+      package_id: packageId,
+      market,
+      business_name: businessName,
+      activity,
+      services,
+      faq,
+      ai_instructions: aiInstructions,
+      bot_display_name: botDisplayName,
+      tone,
+      languages,
+      website,
+      email,
+      phone,
+      channels: [...channels, ...channelInterest],
+      channel_interest: channelInterest,
+      country,
+    };
+  }, [
+    step,
+    packageId,
+    market,
+    businessName,
+    activity,
+    services,
+    faq,
+    aiInstructions,
+    botDisplayName,
+    tone,
+    languages,
+    website,
+    email,
+    phone,
+    channels,
+    channelInterest,
+    country,
+  ]);
+
+  const persistDraft = useCallback(async () => {
+    if (!getClientToken()) return;
+    try {
+      await fetch(`${API}/api/client/bots/order-draft`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...clientAuthHeaders(),
+        },
+        body: JSON.stringify({ draft: draftPayload() }),
+      });
+    } catch {
+      /* best-effort */
+    }
+  }, [draftPayload]);
+
+  useEffect(() => {
+    if (!loggedIn || step < 2) return;
+    const t = setTimeout(() => {
+      void persistDraft();
+    }, 600);
+    return () => clearTimeout(t);
+  }, [loggedIn, step, persistDraft]);
 
   const toggleChannel = useCallback((id: ChannelId, available: boolean) => {
     if (!available) {
@@ -227,56 +293,24 @@ function BotOrderWizard() {
     });
   }, []);
 
-  const toggleList = useCallback(
-    (id: string, list: string[], setList: (v: string[]) => void) => {
-      setList(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
-    },
-    [],
-  );
-
-  const toggleKnowledge = useCallback((id: string) => {
-    setKnowledge((prev) => {
-      if (id === "later") return ["later"];
-      const withoutLater = prev.filter((x) => x !== "later");
-      if (withoutLater.includes(id)) {
-        const next = withoutLater.filter((x) => x !== id);
-        return next.length ? next : ["later"];
-      }
-      return [...withoutLater, id];
-    });
-  }, []);
-
-  const toggleHandoff = useCallback((id: string) => {
-    setHandoff((prev) => {
-      if (id === "never") return ["never"];
-      const withoutNever = prev.filter((x) => x !== "never");
-      if (withoutNever.includes(id)) {
-        const next = withoutNever.filter((x) => x !== id);
-        return next.length ? next : ["when_asks_manager"];
-      }
-      return [...withoutNever, id];
-    });
-  }, []);
-
   function validateStep(s: number): string {
-    if (s === 1 && channels.length < 1) {
-      return "Выберите хотя бы одну доступную интеграцию (Telegram или Website Chat).";
+    if (s === 1 && !packageId) return "Выберите пакет.";
+    if (s === 2 && !getClientToken()) {
+      return "Войдите или зарегистрируйте Workspace — оплата только для аккаунта.";
     }
-    if (s === 2) {
+    if (s === 3) {
       if (!businessName.trim()) return "Укажите название компании.";
-      if (!activity.trim()) return "Укажите вид деятельности.";
+      if (!activity.trim()) return "Укажите нишу / вид деятельности.";
+      if (!botDisplayName.trim()) return "Укажите имя цифрового сотрудника.";
+      if (languages.length < 1) return "Выберите хотя бы один язык.";
     }
-    if (s === 3 && capabilities.length < 1) {
-      return "Выберите хотя бы одну задачу бота.";
-    }
-    if (s === 4 && knowledge.length < 1) {
-      return "Укажите источник знаний или «Пока не загружать».";
+    if (s === 4 && channels.length < 1) {
+      return "Выберите хотя бы один доступный канал.";
     }
     if (s === 5) {
-      if (languages.length < 1) return "Выберите хотя бы один язык.";
-      if (handoff.length < 1) return "Укажите правила передачи оператору.";
+      const mail = (email || clientEmail || authEmail).trim();
+      if (!mail.includes("@")) return "Укажите email для чека.";
     }
-    if (s === 6 && !email.trim()) return "Укажите email для заказа и оплаты.";
     return "";
   }
 
@@ -287,91 +321,173 @@ function BotOrderWizard() {
       return;
     }
     setError("");
-    setStep((x) => Math.min(6, x + 1));
+    await persistDraft();
+    setStep((s) => Math.min(5, s + 1));
   }
 
-  async function submit() {
-    const err = validateStep(6);
-    if (err) {
-      setError(err);
-      return;
-    }
-    if (!selected) {
-      setError("Пакет бота не загружен. Обновите страницу.");
-      return;
-    }
+  async function handleRegisterStart() {
     setBusy(true);
     setError("");
     try {
-      const res = await fetch(`${API}/api/sales/orders`, {
+      const res = await fetch(`${API}/api/client/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          business_name: businessName.trim(),
-          description: activity.trim() || "AI Business Bot",
-          company_website: website.trim() || null,
-          email: email.trim(),
-          phone: phone.trim() || null,
-          package_id: selected.package_id,
-          purchase_type: "subscription",
-          product_kind: "bot",
-          market_code: market,
-          visitor_id: getVisitorId("public"),
-          niche: activity.trim() || null,
-          bot_config: {
-            channels,
-            channels_interest: channelInterest,
-            capabilities,
-            extras,
-            knowledge_sources: knowledge,
-            handoff_rules: handoff,
-            languages,
-            activity: activity.trim(),
-            country: country.trim() || market,
-            reply_language: languages[0],
-          },
-          extra_wishes: [
-            `Channels: ${channels.join(", ")}`,
-            channelInterest.length
-              ? `Interest (Coming Soon): ${channelInterest.join(", ")}`
-              : "",
-            `Capabilities: ${capabilities.join(", ")}`,
-            `Knowledge: ${knowledge.join(", ")}`,
-            `Handoff: ${handoff.join(", ")}`,
-            `Languages: ${languages.join(", ")}`,
-            `Extras: ${extras.join(", ")}`,
-          ]
-            .filter(Boolean)
-            .join("\n"),
+          name: authName.trim(),
+          email: authEmail.trim(),
+          password: authPassword,
+          locale: "ru",
+          country: country || market,
+          visitor_id: getVisitorId(),
         }),
       });
-      const body = await res.json();
+      const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(formatApiDetail(body.detail) || "Не удалось создать заказ бота");
-        return;
+        throw new Error(formatApiDetail(body.detail) || "Не удалось начать регистрацию");
       }
-      setDone({
-        order_id: body.order_id,
-        package_name: body.package_name,
-        price_label: body.price_label,
-        price_eur: body.price_eur,
-      });
-    } catch {
-      setError("Сеть недоступна. Попробуйте ещё раз.");
+      setAwaitingCode(true);
+      setClientEmail(authEmail.trim());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка регистрации");
     } finally {
       setBusy(false);
     }
   }
 
-  async function pay() {
-    if (!done?.order_id) return;
+  async function handleRegisterConfirm() {
     setBusy(true);
     setError("");
     try {
-      const url = await startOrderCheckout(done.order_id);
+      const res = await fetch(`${API}/api/client/register/confirm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: authEmail.trim(), code: authCode.trim() }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(formatApiDetail(body.detail) || "Неверный код");
+      }
+      const token = String(body.token || body.access_token || "");
+      if (!token) throw new Error("Нет токена сессии");
+      setClientSession(token, body.name || authName);
+      setLoggedIn(true);
+      setEmail(authEmail.trim());
+      setAwaitingCode(false);
+      await persistDraft();
+      setStep(3);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка подтверждения");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleLogin() {
+    setBusy(true);
+    setError("");
+    try {
+      const res = await fetch(`${API}/api/client/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: authEmail.trim(),
+          password: authPassword,
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(formatApiDetail(body.detail) || "Не удалось войти");
+      }
+      const token = String(body.token || body.access_token || "");
+      if (!token) throw new Error("Нет токена сессии");
+      setClientSession(token, body.name);
+      setLoggedIn(true);
+      setClientEmail(authEmail.trim());
+      setEmail(authEmail.trim());
+      await persistDraft();
+      setStep(3);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка входа");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitAndPay() {
+    const err = validateStep(5);
+    if (err) {
+      setError(err);
+      return;
+    }
+    if (!getClientToken()) {
+      setError("Сначала войдите в Workspace.");
+      setStep(2);
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      await persistDraft();
+      const allChannels = [...new Set([...channels, ...channelInterest])];
+      const description = [
+        activity.trim(),
+        services.trim() && `Услуги: ${services.trim()}`,
+        aiInstructions.trim() && `Задачи бота: ${aiInstructions.trim()}`,
+      ]
+        .filter(Boolean)
+        .join(". ")
+        .slice(0, 2000);
+
+      const res = await fetch(`${API}/api/sales/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...clientAuthHeaders(),
+        },
+        body: JSON.stringify({
+          business_name: businessName.trim(),
+          description: description || activity.trim() || "AI Business Bot",
+          email: (email || clientEmail || authEmail).trim(),
+          phone: phone.trim() || undefined,
+          company_website: website.trim() || undefined,
+          package_id: packageId,
+          product_kind: "bot",
+          market_code: market,
+          ui_lang: "ru",
+          visitor_id: getVisitorId(),
+          bot_config: {
+            channels: allChannels,
+            languages,
+            tone,
+            bot_display_name: botDisplayName.trim(),
+            faq: faq.trim(),
+            ai_instructions: aiInstructions.trim(),
+            activity: activity.trim(),
+            country: country || market,
+            capabilities: ["consult", "faq", "leads", "always_on"],
+            extras: ["ai_enabled", "company_training"],
+            knowledge_sources: website.trim() ? ["website", "faq"] : ["faq", "manual_text"],
+            handoff_rules: ["when_asks_manager", "when_unknown"],
+          },
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(formatApiDetail(body.detail) || "Не удалось создать заказ");
+      }
+      const orderId = String(body.order_id || "");
+      setDone({
+        order_id: orderId,
+        package_name: String(body.package_name || selected?.name || "AI Business Bot"),
+        price_label: body.price_label,
+      });
+      const url = await startOrderCheckout(orderId, {
+        successPath: `/client/bots/setup?order=${encodeURIComponent(orderId)}&paid=1`,
+        cancelPath: `/order/bot?package=${encodeURIComponent(packageId)}&canceled=1`,
+      });
       window.location.href = url;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Оплата недоступна");
+      setError(e instanceof Error ? e.message : "Ошибка оплаты");
       setBusy(false);
     }
   }
@@ -379,429 +495,453 @@ function BotOrderWizard() {
   return (
     <>
       <header className="space-y-2 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300/90">
-          {BRAND_NAME} · AI Bot
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/90">
+          {BRAND_NAME}
         </p>
-        <h1 className="text-3xl font-bold text-white">Заказ AI Business Bot</h1>
+        <h1 className="text-3xl font-semibold text-white">AI Business Bot</h1>
         <p className="text-sm text-genesis-muted">
-          Отдельный продукт — не форма заказа сайта. Первый канал входит в тариф; каждый
-          дополнительный — отдельная оплата. Позже: «Добавить канал» к этому же боту, без
-          нового проекта.
-        </p>
-        <p className="text-sm">
-          <Link href="/site?service=bots" className="text-emerald-300 hover:underline">
-            ← К пакетам ботов
-          </Link>
-          {" · "}
-          <Link href="/order" className="text-zinc-400 hover:underline">
-            Нужен сайт?
-          </Link>
+          Цифровой сотрудник для вашей компании. Пакет → Workspace → настройка → оплата →
+          подключение своих каналов.
         </p>
       </header>
 
-      {!done ? (
-        <>
-          <nav className="flex flex-wrap gap-2 justify-center">
-            {STEPS.map((label, i) => {
-              const n = i + 1;
-              const active = step === n;
+      <ol className="flex flex-wrap justify-center gap-2 text-xs">
+        {STEPS.map((label, i) => {
+          const n = i + 1;
+          const active = step === n;
+          return (
+            <li
+              key={label}
+              className={`rounded-full px-3 py-1 ${
+                active
+                  ? "bg-emerald-500/20 text-emerald-200"
+                  : n < step
+                    ? "bg-white/10 text-zinc-300"
+                    : "bg-white/5 text-zinc-500"
+              }`}
+            >
+              {n}. {label}
+            </li>
+          );
+        })}
+      </ol>
+
+      {error ? (
+        <p className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+          {error}
+        </p>
+      ) : null}
+
+      {done ? (
+        <div className="space-y-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center">
+          <p className="text-lg font-semibold text-white">Переход к оплате…</p>
+          <p className="text-sm text-zinc-300">
+            Заказ {done.order_id} · {done.package_name}
+            {done.price_label ? ` · ${done.price_label}` : ""}
+          </p>
+          <Link href={`/client/bots/setup?order=${done.order_id}`} className="text-emerald-300 underline">
+            Открыть кабинет ботов
+          </Link>
+        </div>
+      ) : null}
+
+      {!done && step === 1 ? (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-white">1. Выберите пакет</h2>
+          <p className="text-sm text-zinc-400">
+            Лимит тарифа — число независимых AI-ботов, не каналов. Как это работает: после оплаты
+            подключите свои Telegram / Meta аккаунты в личном кабинете.
+          </p>
+          <label className="block text-sm text-zinc-400">
+            Рынок
+            <select
+              className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+              value={market}
+              onChange={(e) => setMarket(e.target.value.toUpperCase())}
+            >
+              {["DE", "AT", "CH", "US", "GB", "UA", "RU"].map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </label>
+          {loadingOffers ? (
+            <p className="text-sm text-zinc-500">Загрузка пакетов…</p>
+          ) : (
+            <div className="grid gap-3">
+              {offers.map((pkg) => {
+                const active = pkg.package_id === packageId;
+                return (
+                  <button
+                    key={pkg.package_id}
+                    type="button"
+                    onClick={() => setPackageId(pkg.package_id)}
+                    className={`rounded-2xl border p-4 text-left transition ${
+                      active
+                        ? "border-emerald-400/50 bg-emerald-500/10"
+                        : "border-white/10 bg-white/[0.03] hover:border-white/25"
+                    }`}
+                  >
+                    <p className="font-semibold text-white">{pkg.name}</p>
+                    <p className="mt-1 text-emerald-200">
+                      {pkg.setup_label || pkg.price_label}
+                      {pkg.monthly_label ? ` · затем ${pkg.monthly_label}/мес` : ""}
+                    </p>
+                    {pkg.max_bots_label ? (
+                      <p className="mt-2 text-xs text-zinc-400">{pkg.max_bots_label}</p>
+                    ) : null}
+                    <ul className="mt-2 space-y-1 text-xs text-zinc-500">
+                      {(pkg.includes_ru || []).slice(0, 4).map((line) => (
+                        <li key={line}>• {line}</li>
+                      ))}
+                    </ul>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      ) : null}
+
+      {!done && step === 2 ? (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-white">2. Workspace</h2>
+          <p className="text-sm text-zinc-400">
+            Регистрация до оплаты обязательна — заказ привязывается к вашему Workspace.
+          </p>
+          {loggedIn ? (
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-100">
+              Вы вошли. Можно продолжить настройку.
+              <div className="mt-3">
+                <button
+                  type="button"
+                  className="rounded-xl bg-emerald-500 px-4 py-2 font-semibold text-black"
+                  onClick={() => void goNext()}
+                >
+                  Далее →
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex gap-2 text-sm">
+                <button
+                  type="button"
+                  className={`rounded-lg px-3 py-1.5 ${
+                    authMode === "register" ? "bg-white/15 text-white" : "text-zinc-400"
+                  }`}
+                  onClick={() => {
+                    setAuthMode("register");
+                    setAwaitingCode(false);
+                  }}
+                >
+                  Регистрация
+                </button>
+                <button
+                  type="button"
+                  className={`rounded-lg px-3 py-1.5 ${
+                    authMode === "login" ? "bg-white/15 text-white" : "text-zinc-400"
+                  }`}
+                  onClick={() => {
+                    setAuthMode("login");
+                    setAwaitingCode(false);
+                  }}
+                >
+                  Вход
+                </button>
+              </div>
+              {authMode === "register" && !awaitingCode ? (
+                <div className="space-y-3">
+                  <input
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+                    placeholder="Имя"
+                    value={authName}
+                    onChange={(e) => setAuthName(e.target.value)}
+                  />
+                  <input
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+                    placeholder="Email"
+                    type="email"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                  />
+                  <input
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+                    placeholder="Пароль (от 8 символов)"
+                    type="password"
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void handleRegisterStart()}
+                    className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-50"
+                  >
+                    Получить код на email
+                  </button>
+                </div>
+              ) : null}
+              {authMode === "register" && awaitingCode ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-zinc-300">Код отправлен на {authEmail}</p>
+                  <input
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+                    placeholder="Код из письма"
+                    value={authCode}
+                    onChange={(e) => setAuthCode(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void handleRegisterConfirm()}
+                    className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-50"
+                  >
+                    Подтвердить и продолжить
+                  </button>
+                </div>
+              ) : null}
+              {authMode === "login" ? (
+                <div className="space-y-3">
+                  <input
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+                    placeholder="Email"
+                    type="email"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                  />
+                  <input
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+                    placeholder="Пароль"
+                    type="password"
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void handleLogin()}
+                    className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-50"
+                  >
+                    Войти
+                  </button>
+                </div>
+              ) : null}
+              <p className="text-xs text-zinc-500">
+                Уже есть кабинет?{" "}
+                <Link href="/client/login" className="text-emerald-300 underline">
+                  /client/login
+                </Link>
+              </p>
+            </>
+          )}
+        </section>
+      ) : null}
+
+      {!done && step === 3 ? (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-white">3. Компания и AI</h2>
+          <input
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            placeholder="Название компании *"
+            value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)}
+          />
+          <input
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            placeholder="Ниша / вид деятельности *"
+            value={activity}
+            onChange={(e) => setActivity(e.target.value)}
+          />
+          <textarea
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            placeholder="Услуги (кратко)"
+            rows={2}
+            value={services}
+            onChange={(e) => setServices(e.target.value)}
+          />
+          <textarea
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            placeholder="FAQ / типичные вопросы"
+            rows={3}
+            value={faq}
+            onChange={(e) => setFaq(e.target.value)}
+          />
+          <input
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            placeholder="Имя цифрового сотрудника *"
+            value={botDisplayName}
+            onChange={(e) => setBotDisplayName(e.target.value)}
+          />
+          <textarea
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            placeholder="Что должен делать бот"
+            rows={3}
+            value={aiInstructions}
+            onChange={(e) => setAiInstructions(e.target.value)}
+          />
+          <label className="block text-sm text-zinc-400">
+            Тон
+            <select
+              className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+              value={tone}
+              onChange={(e) => setTone(e.target.value)}
+            >
+              <option value="friendly">Дружелюбный</option>
+              <option value="professional">Деловой</option>
+              <option value="concise">Краткий</option>
+            </select>
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {[
+              ["de", "DE"],
+              ["ru", "RU"],
+              ["en", "EN"],
+              ["uk", "UK"],
+            ].map(([id, label]) => {
+              const on = languages.includes(id);
               return (
                 <button
-                  key={label}
+                  key={id}
                   type="button"
-                  disabled={n > step}
-                  onClick={() => n <= step && setStep(n)}
-                  className={`rounded-full px-3 py-1 text-xs ${
-                    active
-                      ? "bg-emerald-500 text-black"
-                      : n < step
-                        ? "border border-emerald-500/40 text-emerald-200"
-                        : "border border-white/10 text-zinc-500"
+                  onClick={() =>
+                    setLanguages((prev) =>
+                      on ? prev.filter((x) => x !== id) : [...prev, id],
+                    )
+                  }
+                  className={`rounded-lg px-3 py-1.5 text-sm ${
+                    on ? "bg-sky-500/30 text-sky-100" : "bg-white/5 text-zinc-400"
                   }`}
                 >
-                  {n}. {label}
+                  {label}
                 </button>
               );
             })}
-          </nav>
+          </div>
+          <input
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            placeholder="Сайт компании (если есть)"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
+        </section>
+      ) : null}
 
-          {error ? (
-            <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-              {error}
+      {!done && step === 4 ? (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-white">4. Каналы</h2>
+          <p className="text-sm text-zinc-400">
+            Каналы не ограничивают тариф. После оплаты подключите свои аккаунты.
+          </p>
+          <div className="grid gap-2">
+            {CHANNELS.map((ch) => {
+              const selectedCh = ch.available
+                ? channels.includes(ch.id)
+                : channelInterest.includes(ch.id);
+              return (
+                <button
+                  key={ch.id}
+                  type="button"
+                  onClick={() => toggleChannel(ch.id, ch.available)}
+                  className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left ${
+                    selectedCh
+                      ? "border-emerald-400/40 bg-emerald-500/10"
+                      : "border-white/10 bg-white/[0.03]"
+                  }`}
+                >
+                  <span>
+                    <span className="font-medium text-white">{ch.label}</span>
+                    <span className="mt-0.5 block text-xs text-zinc-500">{ch.note}</span>
+                  </span>
+                  <span className="text-xs text-zinc-400">
+                    {ch.available ? (selectedCh ? "✓" : "") : "скоро"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+
+      {!done && step === 5 ? (
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-white">5. Итог и оплата</h2>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300">
+            <p>
+              <strong className="text-white">{selected?.name || packageId}</strong>
             </p>
-          ) : null}
-
-          <section className="rounded-2xl border border-white/10 bg-black/30 p-5 space-y-4">
-            {step === 1 && (
-              <>
-                <h2 className="text-lg font-semibold text-white">Подключить</h2>
-                <p className="text-sm text-genesis-muted">
-                  Доступные каналы можно заказать сейчас. Coming Soon — интерес на будущее;
-                  когда откроются, добавите к этому же AI Bot кнопкой «Добавить канал».
-                </p>
-                <ul className="space-y-2">
-                  {CHANNELS.map((ch) => {
-                    const checked = ch.available
-                      ? channels.includes(ch.id)
-                      : channelInterest.includes(ch.id);
-                    const isExtra =
-                      ch.available &&
-                      channels.includes(ch.id) &&
-                      channels[0] !== ch.id &&
-                      channels.length > 1;
-                    return (
-                      <li key={ch.id}>
-                        <label
-                          className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 ${
-                            checked
-                              ? "border-emerald-400/50 bg-emerald-500/10"
-                              : "border-white/10"
-                          } ${!ch.available ? "opacity-80" : ""}`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => toggleChannel(ch.id, ch.available)}
-                          />
-                          <span className="text-white">{ch.label}</span>
-                          {ch.available && channels.includes(ch.id) && channels[0] === ch.id ? (
-                            <span className="ml-auto text-xs text-emerald-200">✔ в тарифе</span>
-                          ) : null}
-                          {isExtra ? (
-                            <span className="ml-auto text-xs text-amber-200">
-                              +{ch.addonEur} € setup
-                            </span>
-                          ) : null}
-                          {!ch.available ? (
-                            <span className="ml-auto text-xs text-amber-200/90">
-                              Coming Soon · ➕ позже
-                            </span>
-                          ) : null}
-                        </label>
-                      </li>
-                    );
-                  })}
-                </ul>
-                {channelAddonEur > 0 ? (
-                  <p className="text-sm text-amber-100">
-                    Доп. каналы сейчас: +{channelAddonEur} € к setup (каждый канал платный).
-                  </p>
-                ) : null}
-              </>
-            )}
-
-            {step === 2 && (
-              <>
-                <h2 className="text-lg font-semibold text-white">Информация о компании</h2>
-                <label className="block text-sm text-genesis-muted">
-                  Название компании *
-                  <input
-                    className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
-                    value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
-                  />
-                </label>
-                <label className="block text-sm text-genesis-muted">
-                  Вид деятельности *
-                  <input
-                    className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
-                    value={activity}
-                    onChange={(e) => setActivity(e.target.value)}
-                    placeholder="автосервис, клиника, салон…"
-                  />
-                </label>
-                <label className="block text-sm text-genesis-muted">
-                  Сайт (если есть)
-                  <input
-                    className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                    placeholder="https://"
-                  />
-                </label>
-                <label className="block text-sm text-genesis-muted">
-                  Страна
-                  <input
-                    className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                  />
-                </label>
-              </>
-            )}
-
-            {step === 3 && (
-              <>
-                <h2 className="text-lg font-semibold text-white">Что должен делать бот?</h2>
-                <ul className="space-y-2">
-                  {CAPABILITIES.map((c) => (
-                    <li key={c.id}>
-                      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 px-3 py-3">
-                        <input
-                          type="checkbox"
-                          checked={capabilities.includes(c.id)}
-                          onChange={() =>
-                            toggleList(c.id, capabilities, setCapabilities)
-                          }
-                        />
-                        <span className="text-white">{c.label}</span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-                <h3 className="pt-2 text-sm font-medium text-zinc-300">Дополнительно</h3>
-                <ul className="space-y-2">
-                  {EXTRAS.map((c) => (
-                    <li key={c.id}>
-                      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 px-3 py-3">
-                        <input
-                          type="checkbox"
-                          checked={extras.includes(c.id)}
-                          onChange={() => toggleList(c.id, extras, setExtras)}
-                        />
-                        <span className="text-white">{c.label}</span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-
-            {step === 4 && (
-              <>
-                <h2 className="text-lg font-semibold text-white">Knowledge Base</h2>
-                <p className="text-sm text-genesis-muted">
-                  Откуда бот должен получать информацию?
-                </p>
-                <ul className="space-y-2">
-                  {KNOWLEDGE.map((c) => (
-                    <li key={c.id}>
-                      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 px-3 py-3">
-                        <input
-                          type="checkbox"
-                          checked={knowledge.includes(c.id)}
-                          onChange={() => toggleKnowledge(c.id)}
-                        />
-                        <span className="text-white">{c.label}</span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-
-            {step === 5 && (
-              <>
-                <h2 className="text-lg font-semibold text-white">Языки</h2>
-                <ul className="space-y-2">
-                  {LANGUAGES.map((c) => (
-                    <li key={c.id}>
-                      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 px-3 py-3">
-                        <input
-                          type="checkbox"
-                          checked={languages.includes(c.id)}
-                          onChange={() => toggleList(c.id, languages, setLanguages)}
-                        />
-                        <span className="text-white">{c.label}</span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-                <h2 className="pt-4 text-lg font-semibold text-white">
-                  Передача оператору
-                </h2>
-                <p className="text-sm text-genesis-muted">
-                  Когда бот должен передавать разговор человеку?
-                </p>
-                <ul className="space-y-2">
-                  {HANDOFF.map((c) => (
-                    <li key={c.id}>
-                      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 px-3 py-3">
-                        <input
-                          type="checkbox"
-                          checked={handoff.includes(c.id)}
-                          onChange={() => toggleHandoff(c.id)}
-                        />
-                        <span className="text-white">{c.label}</span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-
-            {step === 6 && (
-              <>
-                <h2 className="text-lg font-semibold text-white">Итог заказа</h2>
-                {loadingOffers ? (
-                  <p className="text-sm text-genesis-muted">Загрузка тарифа…</p>
-                ) : (
-                  <div className="space-y-3 text-sm text-zinc-200">
-                    <p>
-                      <strong className="text-white">Тариф:</strong>{" "}
-                      {selected?.name || packageId} · {selected?.price_label || "—"}
-                      {channelAddonEur > 0
-                        ? ` + ${channelAddonEur} € доп. каналы`
-                        : ""}
-                    </p>
-                    <p>
-                      <strong className="text-white">Интеграции:</strong>{" "}
-                      {channels
-                        .map((id) => CHANNELS.find((c) => c.id === id)?.label || id)
-                        .join(", ")}
-                    </p>
-                    {channelInterest.length > 0 ? (
-                      <p className="text-amber-200/90">
-                        Интерес (➕ позже):{" "}
-                        {channelInterest
-                          .map((id) => CHANNELS.find((c) => c.id === id)?.label || id)
-                          .join(", ")}
-                      </p>
-                    ) : null}
-                    <p>
-                      <strong className="text-white">Knowledge:</strong>{" "}
-                      {knowledge
-                        .map((id) => KNOWLEDGE.find((c) => c.id === id)?.label || id)
-                        .join("; ")}
-                    </p>
-                    <p>
-                      <strong className="text-white">Языки:</strong>{" "}
-                      {languages
-                        .map((id) => LANGUAGES.find((c) => c.id === id)?.label || id)
-                        .join(", ")}
-                    </p>
-                    <p>
-                      <strong className="text-white">Эскалация:</strong>{" "}
-                      {handoff
-                        .map((id) => HANDOFF.find((c) => c.id === id)?.label || id)
-                        .join("; ")}
-                    </p>
-                    <p>
-                      <strong className="text-white">Задачи:</strong>{" "}
-                      {capabilities
-                        .map((id) => CAPABILITIES.find((c) => c.id === id)?.label || id)
-                        .join("; ")}
-                    </p>
-                    <p>
-                      <strong className="text-white">Компания:</strong> {businessName} ·{" "}
-                      {activity}
-                    </p>
-                    <label className="block text-sm text-genesis-muted pt-2">
-                      Тариф
-                      <select
-                        className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
-                        value={packageId}
-                        onChange={(e) => setPackageId(e.target.value)}
-                      >
-                        {(offers.length
-                          ? offers
-                          : [
-                              {
-                                package_id: "bot_starter",
-                                name: "AI Bot Starter",
-                                price_label: "—",
-                              },
-                              {
-                                package_id: "bot_business",
-                                name: "AI Bot Business",
-                                price_label: "—",
-                              },
-                              {
-                                package_id: "bot_professional",
-                                name: "AI Bot Professional",
-                                price_label: "—",
-                              },
-                            ]
-                        ).map((o) => (
-                          <option key={o.package_id} value={o.package_id}>
-                            {o.name} · {o.price_label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="block text-sm text-genesis-muted">
-                      Email *
-                      <input
-                        type="email"
-                        className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </label>
-                    <label className="block text-sm text-genesis-muted">
-                      Телефон
-                      <input
-                        className="mt-1 w-full rounded-lg border border-white/15 bg-black/40 px-3 py-2 text-white"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                      />
-                    </label>
-                  </div>
-                )}
-              </>
-            )}
-
-            <div className="flex flex-wrap gap-3 pt-2">
-              {step > 1 ? (
-                <button
-                  type="button"
-                  className="rounded-xl border border-white/20 px-4 py-2 text-sm text-white"
-                  onClick={() => {
-                    setError("");
-                    setStep((s) => Math.max(1, s - 1));
-                  }}
-                >
-                  Назад
-                </button>
-              ) : null}
-              {step < 6 ? (
-                <button
-                  type="button"
-                  className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black"
-                  onClick={() => void goNext()}
-                >
-                  Далее
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled={busy}
-                  className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
-                  onClick={() => void submit()}
-                >
-                  {busy ? "Создаём…" : "Подтвердить заказ"}
-                </button>
-              )}
-            </div>
-          </section>
-        </>
-      ) : (
-        <section className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 space-y-4 text-center">
-          <h2 className="text-xl font-semibold text-white">Заказ бота создан</h2>
-          <p className="text-sm text-zinc-200">
-            {done.package_name} · {done.price_label || `${done.price_eur} €`}
-          </p>
-          <p className="text-xs text-genesis-muted">
-            ID: {done.order_id} · позже: добавить канал к этому же боту (платно)
-          </p>
+            <p className="mt-1 text-emerald-200">
+              {selected?.setup_label || selected?.price_label}
+              {selected?.monthly_label ? ` · ${selected.monthly_label}/мес` : ""}
+            </p>
+            <p className="mt-3">Компания: {businessName || "—"}</p>
+            <p>Сотрудник: {botDisplayName || "—"}</p>
+            <p>
+              Каналы: {[...channels, ...channelInterest].join(", ") || "—"}
+            </p>
+          </div>
+          <input
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            placeholder="Email для чека *"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+            placeholder="Телефон (необязательно)"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
           <button
             type="button"
             disabled={busy}
-            className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black"
-            onClick={() => void pay()}
+            onClick={() => void submitAndPay()}
+            className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black disabled:opacity-50"
           >
-            Перейти к оплате
+            {busy ? "Создаём заказ…" : "Оплатить через Stripe"}
           </button>
-          <p>
-            <Link
-              href={`/order/status/${done.order_id}`}
-              className="text-sm text-emerald-300 hover:underline"
-            >
-              Статус заказа
-            </Link>
-          </p>
         </section>
-      )}
+      ) : null}
+
+      {!done && step !== 2 ? (
+        <div className="flex justify-between gap-3 pt-2">
+          <button
+            type="button"
+            disabled={step <= 1 || busy}
+            onClick={() => {
+              setError("");
+              setStep((s) => Math.max(1, s - 1));
+            }}
+            className="rounded-xl border border-white/15 px-4 py-2 text-sm text-zinc-300 disabled:opacity-40"
+          >
+            ← Назад
+          </button>
+          {step < 5 ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void goNext()}
+              className="rounded-xl bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/15"
+            >
+              Далее →
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
+      {step === 2 && !loggedIn ? (
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="text-sm text-zinc-400 underline"
+          >
+            ← К выбору пакета
+          </button>
+        </div>
+      ) : null}
     </>
   );
 }

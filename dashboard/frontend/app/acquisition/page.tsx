@@ -239,6 +239,71 @@ type StudioStatus = {
     price_label?: string;
   }[];
   autosend_blocker_ru?: string;
+  lead_sending_health?: {
+    ok?: boolean;
+    headline_ru?: string;
+    current_blocker_ru?: string;
+    next_action_ru?: string;
+    next_actions?: string[];
+    lamps?: Record<
+      string,
+      {
+        status?: string;
+        label?: string;
+        ok?: boolean;
+        ready_now?: number;
+        last_reason?: string;
+        last_detail?: string;
+        last_http_status?: number;
+      }
+    >;
+    blockers?: { code?: string; title?: string; detail?: string }[];
+    note_ru?: string;
+  } | null;
+  email_providers?: {
+    ok?: boolean;
+    title_ru?: string;
+    ready_providers?: string[];
+    next_action_ru?: string;
+    note_ru?: string;
+    env_help_ru?: Record<string, string>;
+    quota_today?: Record<
+      string,
+      | {
+          used?: number;
+          remaining?: number;
+          at_cap?: boolean;
+          label?: string | null;
+          domain?: string;
+          status?: string;
+          detail?: string | null;
+          until?: string | null;
+        }
+      | null
+    >;
+    providers?: {
+      id: string;
+      label?: string;
+      lamp?: string;
+      configured?: boolean;
+      ready?: boolean;
+      cooldown_active?: boolean;
+      last_reason?: string | null;
+      last_detail?: string | null;
+      last_http_status?: number | null;
+      last_at?: string | null;
+      env_required?: string[];
+      note_ru?: string | null;
+    }[];
+    send_journal?: {
+      at?: string;
+      provider?: string;
+      to?: string;
+      subject?: string;
+      id?: string | null;
+      fallback_chain?: string[];
+    }[];
+  } | null;
   pipeline_count: number;
   manual_review_count?: number;
   auto_draft_max_eur?: number;
@@ -840,6 +905,137 @@ export default function AcquisitionPage() {
               Смотрите <span className="font-semibold">Sent today</span> и лог runner — не жмите
               «Одобрить» / «Отметить отправленным» вручную.
             </p>
+          ) : null}
+          {status?.lead_sending_health?.ok ? (
+            <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-white/60">
+                Lead Sending
+              </p>
+              <p className="mt-1 text-sm text-white">
+                {status.lead_sending_health.headline_ru}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {Object.entries(status.lead_sending_health.lamps || {}).map(([key, lamp]) => (
+                  <span
+                    key={key}
+                    className={`rounded-lg border px-2.5 py-1 text-xs ${
+                      lamp.status === "green"
+                        ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-100"
+                        : lamp.status === "yellow"
+                          ? "border-amber-500/40 bg-amber-950/40 text-amber-100"
+                          : "border-rose-500/40 bg-rose-950/40 text-rose-100"
+                    }`}
+                  >
+                    {lamp.status === "green" ? "🟢" : lamp.status === "yellow" ? "🟡" : "🔴"}{" "}
+                    {lamp.label || key}
+                    {key === "queue" && lamp.ready_now != null ? ` ${lamp.ready_now}` : ""}
+                  </span>
+                ))}
+              </div>
+              {status.lead_sending_health.current_blocker_ru ? (
+                <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-2 text-sm text-amber-50">
+                  <p className="text-[10px] uppercase tracking-wide text-amber-200/80">
+                    Current blocker
+                  </p>
+                  <p className="mt-1">{status.lead_sending_health.current_blocker_ru}</p>
+                  <p className="mt-2 text-xs text-amber-100/90">
+                    Next action: {status.lead_sending_health.next_action_ru}
+                  </p>
+                </div>
+              ) : null}
+              {status.lead_sending_health.note_ru ? (
+                <p className="mt-2 text-[11px] text-white/45">{status.lead_sending_health.note_ru}</p>
+              ) : null}
+            </div>
+          ) : null}
+          {status?.email_providers?.ok ? (
+            <div className="mt-4 rounded-xl border border-cyan-500/20 bg-cyan-950/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-cyan-200/80">
+                Email Providers
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(status.email_providers.providers || []).map((p) => (
+                  <span
+                    key={p.id}
+                    className={`rounded-lg border px-2.5 py-1 text-xs ${
+                      p.lamp === "green"
+                        ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-100"
+                        : p.lamp === "yellow"
+                          ? "border-amber-500/40 bg-amber-950/40 text-amber-100"
+                          : p.lamp === "gray"
+                            ? "border-white/15 bg-black/30 text-zinc-400"
+                            : "border-rose-500/40 bg-rose-950/40 text-rose-100"
+                    }`}
+                    title={p.last_detail || p.last_reason || p.note_ru || ""}
+                  >
+                    {p.lamp === "green"
+                      ? "🟢"
+                      : p.lamp === "yellow"
+                        ? "🟡"
+                        : p.lamp === "gray"
+                          ? "⚪"
+                          : "🔴"}{" "}
+                    {p.label || p.id}
+                    {!p.configured ? " (не настроен)" : ""}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {Object.entries(status.email_providers.quota_today || {}).map(([key, q]) => {
+                  if (!q) return null;
+                  const label =
+                    q.label ||
+                    (q.status
+                      ? String(q.status)
+                      : q.used != null
+                        ? `${q.used} / ${(q.used || 0) + (q.remaining || 0)}`
+                        : "—");
+                  return (
+                    <div
+                      key={key}
+                      className="rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-xs text-zinc-300"
+                    >
+                      <p className="uppercase tracking-wide text-white/45">{key}</p>
+                      <p className="mt-1 text-sm text-white">{label}</p>
+                      {q.detail ? (
+                        <p className="mt-1 text-[11px] text-rose-200/90 break-words">{q.detail}</p>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+              {status.email_providers.next_action_ru ? (
+                <p className="mt-3 text-xs text-cyan-100/90">
+                  Next: {status.email_providers.next_action_ru}
+                </p>
+              ) : null}
+              <details className="mt-3 text-[11px] text-white/45">
+                <summary className="cursor-pointer text-white/60">
+                  Как подключить Resend / Gmail / Mailbox.org
+                </summary>
+                <ul className="mt-2 list-disc space-y-1 pl-4">
+                  {Object.entries(status.email_providers.env_help_ru || {}).map(([k, v]) => (
+                    <li key={k}>
+                      <span className="text-zinc-300">{k}:</span> {v}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+              {(status.email_providers.send_journal || []).length ? (
+                <details className="mt-3 text-[11px] text-white/45">
+                  <summary className="cursor-pointer text-white/60">Журнал отправок (провайдер)</summary>
+                  <ul className="mt-2 space-y-1 pl-1 font-mono text-[10px] text-zinc-400">
+                    {(status.email_providers.send_journal || []).slice(0, 10).map((row, idx) => (
+                      <li key={`${row.at}-${idx}`}>
+                        {row.at?.slice(0, 19)} ·{" "}
+                        <span className="text-cyan-200/90">{row.provider}</span>
+                        {row.to ? ` → ${row.to}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ) : null}
+            </div>
           ) : null}
           {status?.autosend_blocker_ru ? (
             <p className="mt-3 rounded-xl border border-amber-500/35 bg-amber-950/25 px-4 py-3 text-sm text-amber-50">

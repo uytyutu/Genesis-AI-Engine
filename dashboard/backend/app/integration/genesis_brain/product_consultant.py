@@ -41,13 +41,23 @@ _PACKAGE_LABELS = {
 }
 
 _BOT_LABELS = {
-    "bot_starter": ("AI Bot Starter", 499, 99, "сайт-чат + Telegram, базовый объём"),
-    "bot_business": ("AI Bot Business", 999, 199, "больше диалогов, база знаний, каналы"),
+    "bot_starter": (
+        "AI Bot Starter",
+        499,
+        99,
+        "1 источник знаний · 1 язык · базовые сценарии · Website Chat + Telegram",
+    ),
+    "bot_business": (
+        "AI Bot Business",
+        999,
+        199,
+        "до 5 источников · до 3 языков · AI-анализ · расширенные сценарии",
+    ),
     "bot_professional": (
         "AI Bot Professional",
         1499,
         349,
-        "приоритет, интеграции, расширенные лимиты",
+        "без лимита KB/языков · индивидуальные сценарии · приоритет поддержки",
     ),
 }
 
@@ -566,11 +576,8 @@ def _bots_block() -> str:
 
 def _bot_order_href(package_id: str | None = None) -> str:
     if package_id and package_id in _BOT_LABELS:
-        return (
-            f"/order?purchase_type=subscription&intent=bot"
-            f"&package={package_id}"
-        )
-    return "/site?service=bots"
+        return f"/order/bot?package={package_id}"
+    return "/order/bot"
 
 
 def _reply_website(state: ConversationState, text: str) -> ConsultantReply:

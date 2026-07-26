@@ -28,11 +28,15 @@
 | **Operational Readiness** | Pre-channel gate (not a Product Track) | **OR Gen1 CLOSED** ✅ (CEO 2026-07-22) |
 | **Integration Track** | First real channel | **IT1.1 OPEN** · Website Widget |
 | **Generation 2** | Commercial product | **G2.2** ✅ · **S1 Security** ✅ · **G2.3 Commercial FINAL PASS** ✅ · **Production Ready** ✅ |
-| **Generation 3** | Evolution Center | **G3.1 FINAL PASS** · **S0 Storefront First** (CEO Scope Freeze 2026-07-23 · awaiting live PASS) |
+| **Generation 3** | Evolution Center | **G3.1 FINAL PASS** · **S0 Storefront First PASS** · **Website Analysis v1 IN PROGRESS** |
 
-**S0 — Storefront First (CEO):** `/site` sells packages first; Vector is consultant (Ask Vector), not the first screen. Prices locked. Coming Soon ≠ Buy. Rule of 3 clicks: card → Order → checkout.
+**Principle (CEO):** Solve Digital Problems — not Sell Websites. Repair when honest; new site when better for the client.
 
-**Future KPI (not this slice):** `/business` Sales Funnel for storefront — Store Visits → Product Views → Package Selected → Order Started → Checkout → Paid.
+**S0 — Storefront First (CEO PASS):** `/site` sells packages first; Vector is consultant.
+
+**Website Analysis v1 (Scope Freeze):** URL → real heuristic report → Repair/SEO Coming Soon · New Website Order → justification. No fake scores · no auto-fix.
+
+**Future KPI (not this slice):** `/business` Sales Funnel — Store Visits → Product Views → Package Selected → Order Started → Checkout → Paid.
 
 
 

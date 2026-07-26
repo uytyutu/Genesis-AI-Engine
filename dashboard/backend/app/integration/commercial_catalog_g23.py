@@ -1,7 +1,7 @@
 """G2.X — Commercial catalog (DE market · honest sellability).
 
-Active: Landing, AI bots (Telegram/Website chat), website services.
-Coming Soon only for channels/modules that cannot deliver yet (WhatsApp, Instagram, CRM…).
+Active: Landing, AI Business Bot (one product), website services.
+Coming Soon: CRM/automation modules not yet deliverable.
 """
 
 from __future__ import annotations
@@ -59,56 +59,20 @@ def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
             ),
         },
         {
-            "id": "telegram_ai_bot",
+            "id": "ai_business_bot",
             "category": "product",
             "group": "bots",
-            "name": "Telegram AI Bot",
-            "price_label": f"from {VECTOR_SETUP_FROM_EUR} € setup + {VECTOR_MONTHLY_EUR['starter']} €/mo",
+            "name": "AI Business Bot",
+            "price_label": f"499–1499 € setup + {VECTOR_MONTHLY_EUR['starter']}–349 €/mo",
             "billing": "monthly",
             "availability": "available",
             "cta": "order_now",
             "cta_href": "/order/bot?package=bot_business",
             "cta_label": "Order",
-            "includes": "Business bot for Telegram · multi-channel wizard",
-        },
-        {
-            "id": "website_ai_chat",
-            "category": "product",
-            "group": "bots",
-            "name": "Website AI Chat",
-            "price_label": f"from {VECTOR_SETUP_FROM_EUR} € setup + {VECTOR_MONTHLY_EUR['starter']} €/mo",
-            "billing": "monthly",
-            "availability": "available",
-            "cta": "order_now",
-            "cta_href": "/order/bot?package=bot_business",
-            "cta_label": "Order",
-            "includes": "Site chat widget · same packages as Telegram bot",
-        },
-        {
-            "id": "whatsapp_ai_bot",
-            "category": "product",
-            "group": "bots",
-            "name": "WhatsApp AI Bot",
-            "price_label": "—",
-            "billing": "monthly",
-            "availability": "coming_soon",
-            "cta": "coming_soon",
-            "cta_href": None,
-            "cta_label": "Coming Soon",
-            "includes": "Channel in rollout — not sold until delivery works",
-        },
-        {
-            "id": "instagram_ai_bot",
-            "category": "product",
-            "group": "bots",
-            "name": "Instagram AI Bot",
-            "price_label": "—",
-            "billing": "monthly",
-            "availability": "coming_soon",
-            "cta": "coming_soon",
-            "cta_href": None,
-            "cta_label": "Coming Soon",
-            "includes": "Channel in rollout — not sold until delivery works",
+            "includes": (
+                "1 / up to 3 / Fair Use AI-bots · Website · Telegram · WhatsApp · "
+                "Instagram · Messenger"
+            ),
         },
         _addon("ai_website_analysis", "AI Website Analysis", 149),
         _addon("website_repair", "Website Repair", 199, from_price=True),

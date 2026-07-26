@@ -40,7 +40,10 @@ async function fetchJsonWithRetry(
   throw lastErr instanceof Error ? lastErr : new Error("fetch_failed");
 }
 
-export async function startOrderCheckout(orderId: string): Promise<string> {
+export async function startOrderCheckout(
+  orderId: string,
+  options?: { successPath?: string; cancelPath?: string },
+): Promise<string> {
   const origin = storefrontOrigin();
   try {
     const { logCommerceEvent } = await import("./commerceFunnel");
@@ -50,12 +53,16 @@ export async function startOrderCheckout(orderId: string): Promise<string> {
   } catch {
     /* optional */
   }
+  const successPath =
+    options?.successPath || `/order/status/${orderId}?paid=1`;
+  const cancelPath =
+    options?.cancelPath || `/order/status/${orderId}?canceled=1`;
   const res = await fetch(`${API}/api/sales/orders/${orderId}/checkout`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      success_url: `${origin}/order/status/${orderId}?paid=1`,
-      cancel_url: `${origin}/order/status/${orderId}?canceled=1`,
+      success_url: `${origin}${successPath.startsWith("/") ? successPath : `/${successPath}`}`,
+      cancel_url: `${origin}${cancelPath.startsWith("/") ? cancelPath : `/${cancelPath}`}`,
     }),
   });
   const body = await res.json();

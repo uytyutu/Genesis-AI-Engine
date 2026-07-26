@@ -195,6 +195,12 @@ from app.schemas import (
     ClientLoginRequest,
     ClientWelcomeAnswerRequest,
     ClientMergeVisitorRequest,
+    ClientBotCreateRequest,
+    ClientBotUpdateRequest,
+    ClientBotTelegramConnectRequest,
+    ClientBotDisconnectRequest,
+    ClientBotMetaOAuthStartRequest,
+    ClientBotOrderDraftRequest,
     DevBuildEntry,
     DevFileEntry,
     DevProject,
@@ -2818,6 +2824,51 @@ def acquisition_runner_status() -> dict:
     return _ctx().acquisition.runner_status()
 
 
+@app.get("/api/acquisition/sending-health")
+def acquisition_sending_health() -> dict:
+    """CEO: lamps + human blocker for lead delivery (Resend/Gmail/quota)."""
+    status = _ctx().acquisition.studio_status()
+    health = status.get("lead_sending_health")
+    if isinstance(health, dict) and health.get("ok"):
+        return health
+    return {"ok": False, "error": "health_unavailable"}
+
+
+@app.get("/api/acquisition/email-providers")
+def acquisition_email_providers() -> dict:
+    """CEO Health Dashboard — Email Provider Pool lamps + last errors + quota."""
+    status = _ctx().acquisition.studio_status()
+    board = status.get("email_providers")
+    if isinstance(board, dict) and board.get("ok"):
+        return board
+    from pathlib import Path
+
+    from app.integration.email_provider_pool import email_providers_health
+
+    quota = status.get("outreach_quota") if isinstance(status.get("outreach_quota"), dict) else None
+    return email_providers_health(
+        Path(_ctx().acquisition._memory_dir),  # noqa: SLF001
+        domain_quota=quota,
+    )
+
+
+@app.post("/api/acquisition/provider-cooldown/clear")
+def acquisition_clear_provider_cooldown(body: dict | None = None) -> dict:
+    """CEO: clear Resend / pool cooldowns (including leftover diagnostic tests)."""
+    from pathlib import Path
+
+    from app.integration.email_provider_pool import clear_provider_cooldown
+    from app.integration.outreach_provider_cooldown import clear_resend_cooldown
+
+    body = body or {}
+    reason = str(body.get("reason") or "cleared_by_ceo_api")[:120]
+    provider = str(body.get("provider") or "").strip().lower() or None
+    mem = Path(_ctx().acquisition._memory_dir)  # noqa: SLF001
+    pool = clear_provider_cooldown(mem, provider=provider)
+    legacy = clear_resend_cooldown(mem, cleared_reason=reason)
+    return {"ok": True, "pool": pool, "legacy_resend": legacy}
+
+
 @app.post("/api/acquisition/runner/start")
 def acquisition_runner_start() -> dict:
     return _ctx().acquisition.runner_start()
@@ -3808,11 +3859,190 @@ def client_merge_visitor(request: Request, body: ClientMergeVisitorRequest) -> d
     return _customer_identity().merge_visitor(str(payload["sub"]), visitor_id=body.visitor_id)
 
 
+@app.get("/api/client/bots")
+def client_bots_list(request: Request) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_ai_bots as wab
+    from app.integration import workspace_channel_credentials as wcc
+    from app.integration.meta_oauth_client import meta_oauth_configured
+
+    payload = require_client(request)
+    cid = str(payload["sub"])
+    mem = _memory_dir()
+    return {
+        "ok": True,
+        "entitlements": wab.get_entitlements(mem, cid),
+        "bots": wab.list_bots(mem, cid),
+        "connections": wcc.list_connections(mem, cid),
+        "meta_oauth_configured": meta_oauth_configured(),
+    }
+
+
+@app.post("/api/client/bots")
+def client_bots_create(request: Request, body: ClientBotCreateRequest) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_ai_bots as wab
+
+    payload = require_client(request)
+    result = wab.create_bot(
+        _memory_dir(),
+        str(payload["sub"]),
+        display_name=body.display_name,
+        bot_config=body.bot_config,
+        channels=body.channels,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "create_failed")
+    return result
+
+
+@app.patch("/api/client/bots/{bot_id}")
+def client_bots_update(request: Request, bot_id: str, body: ClientBotUpdateRequest) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_ai_bots as wab
+
+    payload = require_client(request)
+    patch = body.model_dump(exclude_none=True)
+    result = wab.update_bot(_memory_dir(), str(payload["sub"]), bot_id, patch)
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "update_failed")
+    return result
+
+
+@app.get("/api/client/bots/order-draft")
+def client_bots_order_draft_get(request: Request) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_ai_bots as wab
+
+    payload = require_client(request)
+    return wab.get_order_draft(_memory_dir(), str(payload["sub"]))
+
+
+@app.put("/api/client/bots/order-draft")
+def client_bots_order_draft_put(request: Request, body: ClientBotOrderDraftRequest) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_ai_bots as wab
+
+    payload = require_client(request)
+    return wab.save_order_draft(_memory_dir(), str(payload["sub"]), body.draft)
+
+
+@app.post("/api/client/bots/telegram/connect")
+def client_bots_telegram_connect(
+    request: Request, body: ClientBotTelegramConnectRequest
+) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_ai_bots as wab
+    from app.integration import workspace_channel_credentials as wcc
+
+    payload = require_client(request)
+    cid = str(payload["sub"])
+    mem = _memory_dir()
+    result = wcc.save_telegram_token(
+        mem,
+        cid,
+        bot_id=body.bot_id,
+        token=body.token,
+        connection_id=body.connection_id,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "connect_failed")
+    wab.update_bot(mem, cid, body.bot_id, {"status": "online"})
+    return result
+
+
+@app.post("/api/client/bots/connections/{connection_id}/test")
+def client_bots_connection_test(request: Request, connection_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_channel_credentials as wcc
+
+    payload = require_client(request)
+    return wcc.test_connection(_memory_dir(), str(payload["sub"]), connection_id)
+
+
+@app.post("/api/client/bots/connections/disconnect")
+def client_bots_connection_disconnect(
+    request: Request, body: ClientBotDisconnectRequest
+) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_channel_credentials as wcc
+
+    payload = require_client(request)
+    result = wcc.disconnect(_memory_dir(), str(payload["sub"]), body.connection_id)
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "disconnect_failed")
+    return result
+
+
+@app.post("/api/client/bots/meta/oauth/start")
+def client_bots_meta_oauth_start(
+    request: Request, body: ClientBotMetaOAuthStartRequest
+) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration.meta_oauth_client import start_meta_oauth
+
+    payload = require_client(request)
+    result = start_meta_oauth(
+        customer_id=str(payload["sub"]),
+        bot_id=body.bot_id,
+        channel=body.channel,
+    )
+    if not result.get("ok"):
+        status = 503 if result.get("reason") == "meta_not_configured" else 400
+        raise HTTPException(status_code=status, detail=result.get("reason") or "oauth_failed")
+    return result
+
+
+@app.get("/api/client/bots/meta/oauth/callback")
+def client_bots_meta_oauth_callback(
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+) -> Response:
+    from fastapi.responses import RedirectResponse
+    from app.integration.meta_oauth_client import complete_meta_oauth_callback
+
+    frontend = (
+        os.getenv("GENESIS_PUBLIC_URL", "").strip().rstrip("/")
+        or "http://127.0.0.1:3000"
+    )
+    dash = f"{frontend}/client/bots"
+    if error:
+        return RedirectResponse(f"{dash}?meta=error&reason={error}", status_code=302)
+    if not code or not state:
+        return RedirectResponse(f"{dash}?meta=error&reason=missing_code", status_code=302)
+    result = complete_meta_oauth_callback(_memory_dir(), code=code, state=state)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "oauth_failed")
+        return RedirectResponse(f"{dash}?meta=error&reason={reason}", status_code=302)
+    bot_id = str(result.get("bot_id") or "")
+    return RedirectResponse(
+        f"{dash}?meta=ok&bot={bot_id}&channel={result.get('channel') or ''}",
+        status_code=302,
+    )
+
+
 @app.post("/api/sales/orders", response_model=SalesOrderCreatedResponse)
-def create_sales_order(request: SalesOrderCreateRequest) -> SalesOrderCreatedResponse:
+def create_sales_order(request: Request, body: SalesOrderCreateRequest) -> SalesOrderCreatedResponse:
     from app.integration.receipt_email_service import ReceiptEmailService
 
-    result = _ctx().sales.create_order(request.model_dump())
+    data = body.model_dump()
+    package_id = str(data.get("package_id") or "")
+    product_kind = str(data.get("product_kind") or "")
+    if product_kind == "bot" or package_id.startswith("bot_"):
+        from app.integration.customer_identity.auth import require_client
+
+        payload = require_client(request)
+        data["customer_id"] = str(payload["sub"])
+        data["workspace_id"] = str(data.get("workspace_id") or payload["sub"])
+        data["product_kind"] = "bot"
+    try:
+        result = _ctx().sales.create_order(data)
+    except ValueError as exc:
+        msg = str(exc)
+        if msg == "customer_id_required_for_bot":
+            raise HTTPException(status_code=401, detail=msg) from exc
+        raise HTTPException(status_code=400, detail=msg) from exc
     order = _ctx().sales.get_order(result["order_id"])
     if order and order.get("email"):
         ReceiptEmailService().send_order_received(order=order)

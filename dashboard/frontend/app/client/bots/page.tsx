@@ -2,171 +2,483 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { ClientWorkspaceShell } from "../../components/ClientWorkspaceShell";
+import { clientAuthHeaders, getClientToken } from "../../lib/clientAuth";
+import { formatApiDetail } from "../../lib/formatApiError";
 import { BRAND_NAME } from "../../lib/publicBrand";
 import { publicApiBase } from "../../lib/publicApiBase";
 
-type BotPackage = {
-  package_id: string;
-  name: string;
-  setup_amount: number;
-  monthly_amount: number;
-  setup_label: string;
-  monthly_label: string;
-  price_label: string;
-  currency: string;
-  symbol: string;
-  market_code: string;
+const API = publicApiBase();
+
+type BotRecord = {
+  bot_id: string;
+  display_name: string;
+  status: string;
+  channels?: string[];
+  bot_config?: Record<string, unknown>;
+  package_id?: string;
 };
 
-type BotCatalog = {
-  product_id: string;
-  packages: BotPackage[];
-  market_code: string;
-  currency: string;
-  symbol: string;
-  channels: string[];
-  note?: string;
+type Connection = {
+  connection_id: string;
+  channel: string;
+  bot_id?: string;
+  status?: string;
+  telegram?: { username?: string };
 };
 
-const MARKETS = [
-  "DE",
-  "AT",
-  "CH",
-  "US",
-  "CA",
-  "GB",
-  "AU",
-  "NZ",
-  "JP",
-  "KR",
-  "SG",
-  "NL",
-  "BE",
-  "FR",
-  "IE",
-  "ES",
-  "IT",
-  "PL",
-  "CZ",
-  "SE",
-  "NO",
-  "DK",
-  "FI",
-  "UA",
-  "RU",
-  "KZ",
-] as const;
+type Entitlements = {
+  package_id?: string;
+  max_bots?: number | null;
+  bots_used?: number;
+};
 
-export default function ClientBotsPage() {
-  const api = publicApiBase();
-  const [market, setMarket] = useState("DE");
-  const [catalog, setCatalog] = useState<BotCatalog | null>(null);
+function statusLamp(status: string): string {
+  const s = (status || "").toLowerCase();
+  if (s === "online") return "🟢 Online";
+  if (s === "pending_connect" || s === "learning") return "🟡 Learning";
+  return "🔴 Offline";
+}
+
+function ClientBotsDashboard() {
+  const search = useSearchParams();
+  const [bots, setBots] = useState<BotRecord[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [ents, setEnts] = useState<Entitlements | null>(null);
+  const [metaConfigured, setMetaConfigured] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editInstructions, setEditInstructions] = useState("");
+  const [tgToken, setTgToken] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [banner, setBanner] = useState<string | null>(null);
 
-  const load = useCallback(
-    async (code: string) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(
-          `${api}/api/public/bots/pricing?market=${encodeURIComponent(code)}`,
-          { cache: "no-store" },
-        );
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-        setCatalog((await res.json()) as BotCatalog);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "load_failed");
-        setCatalog(null);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [api],
+  const selected = useMemo(
+    () => bots.find((b) => b.bot_id === selectedId) || bots[0] || null,
+    [bots, selectedId],
   );
+
+  const load = useCallback(async () => {
+    if (!getClientToken()) {
+      setError("Войдите в Workspace, чтобы управлять ботами.");
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API}/api/client/bots`, {
+        headers: { ...clientAuthHeaders() },
+        cache: "no-store",
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(formatApiDetail(body.detail) || `HTTP ${res.status}`);
+      }
+      setBots((body.bots || []) as BotRecord[]);
+      setConnections((body.connections || []) as Connection[]);
+      setEnts((body.entitlements || null) as Entitlements | null);
+      setMetaConfigured(Boolean(body.meta_oauth_configured));
+      if (!selectedId && body.bots?.[0]?.bot_id) {
+        setSelectedId(String(body.bots[0].bot_id));
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка загрузки");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedId]);
 
   useEffect(() => {
-    void load(market);
-  }, [load, market]);
+    void load();
+  }, [load]);
 
-  const subtitle = useMemo(
-    () =>
-      `Отдельный продукт ${BRAND_NAME}: AI-боты для бизнеса. Цены по рынку и валюте — не входят в Landing Website.`,
-    [],
-  );
+  useEffect(() => {
+    const meta = search.get("meta");
+    if (meta === "ok") setBanner("Meta канал подключён.");
+    if (meta === "error") {
+      setBanner(`Meta OAuth: ${search.get("reason") || "ошибка"}`);
+    }
+  }, [search]);
+
+  useEffect(() => {
+    if (!selected) return;
+    setEditName(selected.display_name || "");
+    const cfg = selected.bot_config || {};
+    setEditInstructions(String(cfg.ai_instructions || ""));
+  }, [selected]);
+
+  const botConnections = useMemo(() => {
+    if (!selected) return [];
+    return connections.filter((c) => c.bot_id === selected.bot_id);
+  }, [connections, selected]);
+
+  async function saveBot() {
+    if (!selected) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API}/api/client/bots/${selected.bot_id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...clientAuthHeaders(),
+        },
+        body: JSON.stringify({
+          display_name: editName.trim(),
+          bot_config: { ai_instructions: editInstructions.trim() },
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(formatApiDetail(body.detail) || "Не удалось сохранить");
+      }
+      await load();
+      setBanner("Инструкции сохранены.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function connectTelegram() {
+    if (!selected || !tgToken.trim()) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API}/api/client/bots/telegram/connect`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...clientAuthHeaders(),
+        },
+        body: JSON.stringify({ bot_id: selected.bot_id, token: tgToken.trim() }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(formatApiDetail(body.detail) || "Telegram connect failed");
+      }
+      setTgToken("");
+      setBanner("Telegram подключён. Бот Online.");
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка Telegram");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function startMeta(channel: string) {
+    if (!selected) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API}/api/client/bots/meta/oauth/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...clientAuthHeaders(),
+        },
+        body: JSON.stringify({ bot_id: selected.bot_id, channel }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          formatApiDetail(body.detail) ||
+            (body.detail === "meta_not_configured"
+              ? "Connect Meta — platform keys pending"
+              : "Meta OAuth failed"),
+        );
+      }
+      const url = String(body.authorize_url || "");
+      if (!url) throw new Error("Нет authorize_url");
+      window.location.href = url;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Meta error");
+      setBusy(false);
+    }
+  }
+
+  async function addBot() {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API}/api/client/bots`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...clientAuthHeaders(),
+        },
+        body: JSON.stringify({
+          display_name: `AI Bot ${(ents?.bots_used || 0) + 1}`,
+          channels: ["website_chat"],
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          formatApiDetail(body.detail) ||
+            (body.detail === "max_bots_reached"
+              ? "Лимит пакета исчерпан"
+              : "Не удалось создать бота"),
+        );
+      }
+      await load();
+      if (body.bot?.bot_id) setSelectedId(String(body.bot.bot_id));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const canAdd =
+    ents?.max_bots == null ||
+    Number(ents.bots_used || 0) < Number(ents.max_bots || 0);
 
   return (
-    <ClientWorkspaceShell title="Боты" subtitle={subtitle}>
-      <div className="mb-6 flex flex-wrap items-end gap-3">
-        <label className="text-sm text-zinc-400">
-          Рынок
-          <select
-            className="mt-1 block rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
-            value={market}
-            onChange={(e) => setMarket(e.target.value)}
-          >
-            {MARKETS.map((code) => (
-              <option key={code} value={code}>
-                {code}
-              </option>
-            ))}
-          </select>
-        </label>
-        {catalog ? (
-          <p className="pb-2 text-sm text-zinc-500">
-            Валюта: {catalog.currency} ({catalog.symbol})
+    <ClientWorkspaceShell>
+      <div className="mx-auto max-w-4xl space-y-6 py-6">
+        <header className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/80">
+            {BRAND_NAME} · Workspace
+          </p>
+          <h1 className="text-2xl font-semibold text-white">AI Business Bot</h1>
+          <p className="text-sm text-genesis-muted">
+            Цифровые сотрудники · Online/Offline · подключение своих каналов
+          </p>
+          {ents ? (
+            <p className="text-xs text-zinc-500">
+              Пакет {ents.package_id || "—"} · ботов {ents.bots_used ?? 0}
+              {ents.max_bots != null ? ` / ${ents.max_bots}` : " · Fair Use"}
+            </p>
+          ) : null}
+        </header>
+
+        {banner ? (
+          <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+            {banner}
           </p>
         ) : null}
-      </div>
-
-      {error ? (
-        <p className="mb-4 text-sm text-rose-200">
-          Не удалось загрузить цены: {error}
-        </p>
-      ) : null}
-      {loading ? <p className="text-sm text-zinc-500">Загрузка цен…</p> : null}
-
-      {!loading && catalog ? (
-        <ul className="grid gap-4 sm:grid-cols-3">
-          {catalog.packages.map((pkg) => (
-            <li
-              key={pkg.package_id}
-              className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-            >
-              <p className="text-lg font-semibold text-white">{pkg.name}</p>
-              <p className="mt-3 text-2xl font-semibold tracking-tight text-emerald-300">
-                {pkg.setup_label}
-              </p>
-              <p className="mt-1 text-sm text-zinc-400">
-                настройка · затем {pkg.monthly_label}/мес
-              </p>
-              <p className="mt-4 flex-1 text-xs leading-relaxed text-zinc-500">
-                Website chat + Telegram. WhatsApp / Instagram — в rollout.
-              </p>
-              <div className="mt-5">
-                <Link
-                  href="/projects/chatbot/setup"
-                  className="inline-block rounded-lg bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-black hover:brightness-110"
-                >
-                  Заказать и настроить
+        {error ? (
+          <p className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+            {error}
+            {!getClientToken() ? (
+              <>
+                {" "}
+                <Link href="/client/login" className="underline">
+                  Войти
                 </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+              </>
+            ) : null}
+          </p>
+        ) : null}
 
-      {catalog?.channels?.length ? (
-        <p className="mt-6 text-sm text-zinc-500">
-          Каналы: {catalog.channels.join(" · ")}
+        {loading ? (
+          <p className="text-sm text-zinc-500">Загрузка…</p>
+        ) : bots.length === 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-3">
+            <p className="text-sm text-zinc-300">
+              Пока нет AI-ботов. Оформите пакет или создайте бота, если пакет уже оплачен.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/order/bot"
+                className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black"
+              >
+                Заказать AI Business Bot
+              </Link>
+              <button
+                type="button"
+                disabled={busy || !canAdd}
+                onClick={() => void addBot()}
+                className="rounded-xl border border-white/20 px-4 py-2 text-sm text-white disabled:opacity-40"
+              >
+                Создать бота
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+            <aside className="space-y-2">
+              {bots.map((bot) => (
+                <button
+                  key={bot.bot_id}
+                  type="button"
+                  onClick={() => setSelectedId(bot.bot_id)}
+                  className={`w-full rounded-xl border px-3 py-3 text-left text-sm ${
+                    selected?.bot_id === bot.bot_id
+                      ? "border-emerald-400/40 bg-emerald-500/10"
+                      : "border-white/10 bg-white/[0.03]"
+                  }`}
+                >
+                  <p className="font-medium text-white">{bot.display_name}</p>
+                  <p className="mt-1 text-xs text-zinc-400">{statusLamp(bot.status)}</p>
+                </button>
+              ))}
+              <button
+                type="button"
+                disabled={busy || !canAdd}
+                onClick={() => void addBot()}
+                className="w-full rounded-xl border border-dashed border-white/20 px-3 py-2 text-xs text-zinc-400 disabled:opacity-40"
+              >
+                {canAdd ? "+ Добавить AI-бота" : "Лимит пакета"}
+              </button>
+            </aside>
+
+            {selected ? (
+              <section className="space-y-5">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="text-lg font-semibold text-white">
+                      {selected.display_name}
+                    </h2>
+                    <span className="text-sm text-zinc-300">
+                      {statusLamp(selected.status)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-500">id: {selected.bot_id}</p>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    {(selected.channels || []).map((ch) => {
+                      const online = botConnections.some(
+                        (c) => c.channel === ch && c.status === "online",
+                      );
+                      return (
+                        <span
+                          key={ch}
+                          className={`rounded-full px-2.5 py-1 ${
+                            online
+                              ? "bg-emerald-500/20 text-emerald-100"
+                              : "bg-white/5 text-zinc-400"
+                          }`}
+                        >
+                          {online ? "●" : "○"} {ch}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 space-y-3">
+                  <h3 className="font-medium text-white">Инструкции AI</h3>
+                  <input
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="Имя цифрового сотрудника"
+                  />
+                  <textarea
+                    className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
+                    rows={4}
+                    value={editInstructions}
+                    onChange={(e) => setEditInstructions(e.target.value)}
+                    placeholder="Чем занимается бот, тон, запреты…"
+                  />
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void saveBot()}
+                    className="rounded-xl bg-white/10 px-4 py-2 text-sm text-white"
+                  >
+                    Сохранить
+                  </button>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 space-y-4">
+                  <h3 className="font-medium text-white">Каналы</h3>
+
+                  <div className="space-y-2">
+                    <p className="text-sm text-zinc-300">Telegram — свой бот из @BotFather</p>
+                    <input
+                      className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 font-mono text-sm text-white"
+                      placeholder="123456:ABC…"
+                      value={tgToken}
+                      onChange={(e) => setTgToken(e.target.value)}
+                      autoComplete="off"
+                    />
+                    <button
+                      type="button"
+                      disabled={busy || !tgToken.trim()}
+                      onClick={() => void connectTelegram()}
+                      className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-black disabled:opacity-40"
+                    >
+                      Подключить Telegram
+                    </button>
+                  </div>
+
+                  <div className="space-y-2 border-t border-white/10 pt-4">
+                    <p className="text-sm text-zinc-300">Meta (WhatsApp / Instagram / Messenger)</p>
+                    {metaConfigured ? (
+                      <div className="flex flex-wrap gap-2">
+                        {["whatsapp", "instagram", "facebook_messenger"].map((ch) => (
+                          <button
+                            key={ch}
+                            type="button"
+                            disabled={busy}
+                            onClick={() => void startMeta(ch)}
+                            className="rounded-xl border border-white/20 px-3 py-1.5 text-xs text-white"
+                          >
+                            Connect {ch}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-amber-200/90">
+                        Connect Meta — platform keys pending (META_APP_ID / META_APP_SECRET).
+                        Telegram и Website Chat работают без Meta.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="border-t border-white/10 pt-4">
+                    <p className="text-sm text-zinc-300">Website Chat</p>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      Привязка к виджету сайта Workspace — без стороннего OAuth.
+                    </p>
+                  </div>
+
+                  {botConnections.length ? (
+                    <ul className="space-y-1 text-xs text-zinc-400">
+                      {botConnections.map((c) => (
+                        <li key={c.connection_id}>
+                          {c.channel}: {c.status || "—"}
+                          {c.telegram?.username ? ` @${c.telegram.username}` : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                  <h3 className="font-medium text-white">Статистика</h3>
+                  <p className="mt-2 text-xs text-zinc-500">
+                    Лог сообщений и базовая аналитика — после стабильного connect (stub).
+                  </p>
+                </div>
+              </section>
+            ) : null}
+          </div>
+        )}
+
+        <p className="text-center text-sm text-zinc-500">
+          <Link href="/order/bot" className="text-emerald-300 hover:underline">
+            Новый заказ AI Business Bot
+          </Link>
         </p>
-      ) : null}
-      {catalog?.note ? (
-        <p className="mt-2 text-xs text-zinc-600">{catalog.note}</p>
-      ) : null}
+      </div>
     </ClientWorkspaceShell>
+  );
+}
+
+export default function ClientBotsPage() {
+  return (
+    <Suspense fallback={<p className="p-8 text-center text-zinc-500">Загрузка…</p>}>
+      <ClientBotsDashboard />
+    </Suspense>
   );
 }

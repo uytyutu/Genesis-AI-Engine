@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -11,6 +12,8 @@ from app.integration.owner_notification_service import OwnerNotificationService
 from app.integration.receipt_email_service import ReceiptEmailService
 from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.integration.payment_checkout_service import PaymentCheckoutService
+
+logger = logging.getLogger(__name__)
 
 _SUPPORT_EMAIL = "hello@genesis-ai-engine.com"
 _RECEIPT_TEMPLATE = (
@@ -328,6 +331,21 @@ class RevenuePipelineService:
             order=order, status_path=status_path, paid=paid
         )
         self._sales._save_order(order)
+
+        # AI Business Bot: attach entitlements + first digital employee to Workspace
+        if str(order.get("product_kind") or "") == "bot" and order.get("customer_id"):
+            try:
+                from app.integration.workspace_ai_bots import provision_from_paid_order
+
+                mem = getattr(self._sales, "_memory", None)
+                if mem is not None:
+                    provision_from_paid_order(
+                        Path(mem) if not isinstance(mem, Path) else mem,
+                        str(order["customer_id"]),
+                        order,
+                    )
+            except Exception:
+                logger.exception("bot_workspace_provision_failed order=%s", order_id)
 
         # Work Farm v0: Stripe → planner → Factory → Quality Gate (Landing primary).
         # Falls back to direct start_production if farm not wired (tests).

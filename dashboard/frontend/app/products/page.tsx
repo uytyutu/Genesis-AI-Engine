@@ -15,8 +15,17 @@ import { BRAND_NAME } from "../lib/publicBrand";
  * Guest can Order any available service; Coming Soon only for unfinished channels.
  */
 
+const BOT_CHANNEL_ICONS: { label: string; glyph: string }[] = [
+  { label: "Website", glyph: "◎" },
+  { label: "Telegram", glyph: "✈" },
+  { label: "WhatsApp", glyph: "✆" },
+  { label: "Instagram", glyph: "◇" },
+  { label: "Messenger", glyph: "▣" },
+];
+
 function ProductCard({ row }: { row: CommercialRow }) {
   const live = row.cta !== "coming_soon";
+  const isBot = row.id === "ai_business_bot";
   return (
     <Card
       padding="lg"
@@ -29,6 +38,22 @@ function ProductCard({ row }: { row: CommercialRow }) {
             {row.price_label}
           </p>
           <p className="mt-2 text-sm text-genesis-muted">{row.includes}</p>
+          {isBot ? (
+            <ul className="mt-3 flex flex-wrap gap-2" aria-label="Channels">
+              {BOT_CHANNEL_ICONS.map((ch) => (
+                <li
+                  key={ch.label}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-zinc-300"
+                  title={ch.label}
+                >
+                  <span aria-hidden className="text-sky-200/90">
+                    {ch.glyph}
+                  </span>
+                  {ch.label}
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
         <Badge variant={live ? "success" : "outline"}>{row.cta_label}</Badge>
       </div>
@@ -60,8 +85,8 @@ export default function ProductsPage() {
             Product catalog
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-genesis-muted">
-            Buy one service or grow a project over time. No account required to
-            order — register only if you want a personal office.
+            Websites can be ordered as a guest. AI Business Bot requires a
+            Workspace account before payment — then connect your own channels.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <Link
@@ -101,12 +126,12 @@ export default function ProductsPage() {
           <h2 className="text-lg font-semibold text-white">Two ways to buy</h2>
           <ul className="mt-3 space-y-2 text-sm text-zinc-300">
             <li>
-              <strong className="text-white">One service</strong> — order Landing,
-              SEO, Repair, or a bot as a guest. Done when delivered.
+              <strong className="text-white">Websites & services</strong> — order
+              Landing, SEO, Repair as a guest when you prefer.
             </li>
             <li>
-              <strong className="text-white">Virtus Core office</strong> — register,
-              then expand the same project: add bot, SEO, speed, security later.
+              <strong className="text-white">AI Business Bot</strong> — register
+              Workspace first, pay, then connect Telegram / Meta yourself.
             </li>
           </ul>
         </section>

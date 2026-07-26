@@ -469,10 +469,94 @@ def _bot_sku_amounts(market_code: str, package_id: str) -> tuple[int, int]:
 
 def _bot_default_name(package_id: str) -> str:
     return {
-        "bot_starter": "AI Bot Starter",
-        "bot_business": "AI Bot Business",
-        "bot_professional": "AI Bot Professional",
+        "bot_starter": "AI Business Bot Starter",
+        "bot_business": "AI Business Bot Business",
+        "bot_professional": "AI Business Bot Professional",
     }.get(package_id, package_id)
+
+
+# Package limit = number of independent AI-bots (not channel count).
+BOT_PACKAGE_MAX_BOTS: dict[str, int | None] = {
+    "bot_starter": 1,
+    "bot_business": 3,
+    "bot_professional": None,  # Fair Use
+}
+
+
+def bot_package_max_bots(package_id: str) -> int | None:
+    pid = normalize_bot_package_id(package_id)
+    return BOT_PACKAGE_MAX_BOTS.get(pid, 1)
+
+
+_BOT_PACKAGE_FEATURES: dict[str, dict[str, Any]] = {
+    "bot_starter": {
+        "tagline_ru": "Один цифровой сотрудник — отвечает на вопросы и принимает заявки.",
+        "max_bots": 1,
+        "max_bots_label": "1 AI-бот",
+        "knowledge_sources": "До 1 источника",
+        "languages": "1 язык",
+        "scenarios": "Базовые",
+        "dialog_history": "Базовая",
+        "ai_analysis": False,
+        "training": "Базовое",
+        "extra_channels": "Любой канал",
+        "support": "Стандарт",
+        "includes_ru": [
+            "1 AI-бот (цифровой сотрудник)",
+            "Любой канал: Website Chat, Telegram, WhatsApp, Instagram, Messenger",
+            "Knowledge Base: до 1 источника",
+            "1 язык",
+            "Базовые сценарии + передача оператору",
+        ],
+    },
+    "bot_business": {
+        "tagline_ru": "До трёх цифровых сотрудников — для разных каналов и задач.",
+        "max_bots": 3,
+        "max_bots_label": "До 3 AI-ботов",
+        "knowledge_sources": "До 5 источников",
+        "languages": "До 3 языков",
+        "scenarios": "Расширенные",
+        "dialog_history": "Расширенная",
+        "ai_analysis": True,
+        "training": "Регулярное",
+        "extra_channels": "Любой канал",
+        "support": "Стандарт",
+        "includes_ru": [
+            "До 3 независимых AI-ботов",
+            "Каждый бот — любой поддерживаемый канал",
+            "Knowledge Base: до 5 источников",
+            "До 3 языков",
+            "Расширенные сценарии + AI-анализ обращений",
+            "Регулярное обучение",
+        ],
+    },
+    "bot_professional": {
+        "tagline_ru": "Команда цифровых сотрудников — Fair Use, полная аналитика, VIP-поддержка.",
+        "max_bots": None,
+        "max_bots_label": "Fair Use (без жёсткого лимита)",
+        "knowledge_sources": "Неограниченно",
+        "languages": "Неограниченно",
+        "scenarios": "Индивидуальные",
+        "dialog_history": "Полная аналитика",
+        "ai_analysis": True,
+        "training": "Приоритетное",
+        "extra_channels": "Любой канал",
+        "support": "VIP",
+        "includes_ru": [
+            "Неограниченное число AI-ботов (Fair Use)",
+            "Все каналы по мере появления",
+            "Knowledge Base без лимита источников",
+            "Неограниченно языков",
+            "Индивидуальные сценарии + полная аналитика",
+            "VIP-поддержка",
+        ],
+    },
+}
+
+
+def bot_package_features(package_id: str) -> dict[str, Any]:
+    pid = normalize_bot_package_id(package_id)
+    return dict(_BOT_PACKAGE_FEATURES.get(pid) or _BOT_PACKAGE_FEATURES["bot_business"])
 
 
 def resolve_bot_offer(package_id: str, market_code: str) -> BotOffer:
@@ -500,13 +584,42 @@ def list_bot_packages(market_code: str) -> dict[str, Any]:
     from app.integration.market_registry import get_market
 
     market = get_market(market_code)
-    packages = [resolve_bot_offer(pid, market.code).as_dict() for pid in BOT_PACKAGE_IDS]
+    packages = []
+    for pid in BOT_PACKAGE_IDS:
+        offer = resolve_bot_offer(pid, market.code).as_dict()
+        feat = bot_package_features(pid)
+        offer["tagline_ru"] = feat["tagline_ru"]
+        offer["includes_ru"] = feat["includes_ru"]
+        offer["features"] = {
+            "max_bots": feat.get("max_bots"),
+            "max_bots_label": feat.get("max_bots_label"),
+            "knowledge_sources": feat["knowledge_sources"],
+            "languages": feat["languages"],
+            "scenarios": feat["scenarios"],
+            "dialog_history": feat["dialog_history"],
+            "ai_analysis": feat["ai_analysis"],
+            "training": feat["training"],
+            "extra_channels": feat["extra_channels"],
+            "support": feat["support"],
+        }
+        packages.append(offer)
     return {
-        "product_id": "prod_chatbot",
+        "product_id": "prod_ai_business_bot",
+        "product_name": "AI Business Bot",
         "packages": packages,
         "market_code": market.code,
         "currency": market.currency,
         "symbol": market.symbol,
-        "channels": ["Website chat", "Telegram", "WhatsApp (rollout)", "Instagram (rollout)"],
-        "note": "Separate add-on — not included in Landing Website packages.",
+        "channels_available": ["Website Chat", "Telegram"],
+        "channels_coming_soon": ["WhatsApp", "Instagram", "Facebook Messenger"],
+        "channels_note_ru": (
+            "Один продукт — AI Business Bot. Каналы не ограничивают тариф: "
+            "лимит — число независимых AI-ботов. Сейчас подключение: Website Chat, Telegram. "
+            "WhatsApp, Instagram, Messenger — после OAuth Meta."
+        ),
+        "comparison_note_ru": (
+            "Разница тарифов — в числе AI-ботов (1 / до 3 / Fair Use) и уровне AI: "
+            "база знаний, языки, сценарии, аналитика, поддержка. Не в количестве мессенджеров."
+        ),
+        "note": "Digital employee product — not included in Landing Website packages.",
     }

@@ -1,0 +1,140 @@
+"use client";
+
+import Link from "next/link";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { ClientWorkspaceShell } from "../../../components/ClientWorkspaceShell";
+import { clientAuthHeaders, getClientToken } from "../../../lib/clientAuth";
+import { BRAND_NAME } from "../../../lib/publicBrand";
+import { publicApiBase } from "../../../lib/publicApiBase";
+
+const API = publicApiBase();
+
+function SetupInner() {
+  const search = useSearchParams();
+  const orderId = search.get("order") || "";
+  const paid = search.get("paid") === "1";
+  const [status, setStatus] = useState<string>("loading");
+  const [botName, setBotName] = useState("");
+  const [botId, setBotId] = useState("");
+
+  useEffect(() => {
+    if (!getClientToken()) {
+      setStatus("need_login");
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        if (orderId) {
+          const st = await fetch(
+            `${API}/api/sales/orders/${encodeURIComponent(orderId)}/status`,
+            { cache: "no-store" },
+          );
+          if (st.ok) {
+            const body = await st.json();
+            if (!cancelled && body.status === "paid") {
+              setStatus("paid");
+            }
+          }
+        }
+        const res = await fetch(`${API}/api/client/bots`, {
+          headers: { ...clientAuthHeaders() },
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          if (!cancelled) setStatus(paid ? "paid" : "ready");
+          return;
+        }
+        const body = await res.json();
+        const bots = (body.bots || []) as { bot_id: string; display_name: string; status: string }[];
+        if (cancelled) return;
+        if (bots.length) {
+          setBotName(bots[0].display_name);
+          setBotId(bots[0].bot_id);
+          setStatus(bots[0].status === "online" ? "online" : "learning");
+        } else {
+          setStatus(paid ? "paid" : "ready");
+        }
+      } catch {
+        if (!cancelled) setStatus(paid ? "paid" : "ready");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [orderId, paid]);
+
+  return (
+    <ClientWorkspaceShell>
+      <div className="mx-auto max-w-lg space-y-6 py-10 text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/80">
+          {BRAND_NAME}
+        </p>
+        <h1 className="text-2xl font-semibold text-white">Подключение AI Business Bot</h1>
+
+        {status === "need_login" ? (
+          <p className="text-sm text-zinc-300">
+            Войдите, чтобы продолжить.{" "}
+            <Link
+              href={`/client/login?next=${encodeURIComponent(`/client/bots/setup?order=${orderId}`)}`}
+              className="text-emerald-300 underline"
+            >
+              Войти
+            </Link>
+          </p>
+        ) : null}
+
+        {status === "loading" ? (
+          <p className="text-sm text-zinc-400">Проверяем оплату и Workspace…</p>
+        ) : null}
+
+        {status === "paid" || status === "learning" || status === "ready" ? (
+          <div className="space-y-3 rounded-2xl border border-amber-400/30 bg-amber-500/10 p-6">
+            <p className="text-lg font-medium text-white">Bot learning…</p>
+            <p className="text-sm text-zinc-300">
+              {botName
+                ? `«${botName}» готовится. Подключите Telegram или Meta — затем статус станет Online.`
+                : "Оплата получена. Подключите каналы, чтобы вывести бота Online."}
+            </p>
+            {orderId ? (
+              <p className="text-xs text-zinc-500">Заказ {orderId}</p>
+            ) : null}
+          </div>
+        ) : null}
+
+        {status === "online" ? (
+          <div className="space-y-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-6">
+            <p className="text-lg font-medium text-white">🟢 Online</p>
+            <p className="text-sm text-zinc-300">
+              {botName || "AI Business Bot"} готов принимать сообщения.
+            </p>
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link
+            href={botId ? `/client/bots` : "/client/bots"}
+            className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black"
+          >
+            Открыть Bot Dashboard
+          </Link>
+          <Link
+            href="/order/bot"
+            className="rounded-xl border border-white/20 px-4 py-2.5 text-sm text-white"
+          >
+            Ещё один пакет
+          </Link>
+        </div>
+      </div>
+    </ClientWorkspaceShell>
+  );
+}
+
+export default function ClientBotsSetupPage() {
+  return (
+    <Suspense fallback={<p className="p-8 text-center text-zinc-500">Загрузка…</p>}>
+      <SetupInner />
+    </Suspense>
+  );
+}
