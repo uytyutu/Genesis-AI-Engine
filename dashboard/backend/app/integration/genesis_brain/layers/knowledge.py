@@ -116,8 +116,8 @@ class GenesisKnowledgeLayer:
             f"- {STUDIO_NAME} — в разработке, купить нельзя"
         )
         caps_section = capabilities or (
-            "Mission 1: лендинг под ключ. "
-            "Магазин, боты, приложения — не в онлайн-каталоге."
+            "Mission 1: лендинг под ключ, AI Bot (Telegram + website chat), "
+            "анализ/ремонт/SEO/speed/security/Google Business/миграция — онлайн-заказ."
         )
 
         return f"""## Каталог {BRAND_NAME} (факты)
@@ -129,6 +129,13 @@ class GenesisKnowledgeLayer:
 {packages_block}
 Срок ориентир: {MISSION1_LANDING_TIMELINE}
 
+### AI Bot (отдельно от сайта)
+- AI Bot Starter — от 499 € setup + 99 €/мес (Website chat + Telegram)
+- AI Bot Business — от 999 € setup + 199 €/мес
+- AI Bot Professional — от 1499 € setup + 349 €/мес
+- WhatsApp / Instagram каналы — в разработке, не продавать как готовые
+- Заказ: /site?service=bots или /order?purchase_type=subscription&intent=bot
+
 ### Подписки и платформа
 {subs_section}
 
@@ -136,9 +143,16 @@ class GenesisKnowledgeLayer:
 {caps_section}
 
 ### Ограничения и доступность
-- Онлайн-заказ сейчас: лендинг (пакеты выше), страница `/order`
+- Онлайн-заказ: лендинг (/order), AI Bot, SEO Audit, Speed, Security, Repair, Analysis, Google Business, Migration
+- CRM / глубокая Automation как подписка — Coming Soon (не продавать checkout)
+- WhatsApp / Instagram bot channels — Coming Soon
 - {STUDIO_NAME}: в разработке, купить нельзя
-- Интернет-магазин, мобильное приложение, чат-бот под ключ: оформить на сайте нельзя
+- Гостевой заказ без регистрации разрешён; кабинет — опционально
 - {service_when}
 - {product_when}
-- {anti_example}"""
+- {anti_example}
+
+### Поведение консультанта
+- На вопросы о продуктах отвечай как консультант {BRAND_NAME}: тарифы, отличия, процесс заказа
+- В конце предлагай действие «Оформить заказ» со ссылкой на /order или /site?service=bots — не отправляй на главную «искать самому»
+"""
