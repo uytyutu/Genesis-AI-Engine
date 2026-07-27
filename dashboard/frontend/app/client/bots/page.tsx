@@ -242,23 +242,21 @@ function ClientBotsDashboard() {
     Number(ents.bots_used || 0) < Number(ents.max_bots || 0);
 
   return (
-    <ClientWorkspaceShell>
-      <div className="mx-auto max-w-4xl space-y-6 py-6">
-        <header className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/80">
-            {BRAND_NAME} · Workspace
+    <ClientWorkspaceShell
+      title="AI Business Bot"
+      subtitle="Цифровые сотрудники · Online/Offline · подключение своих каналов"
+    >
+      <div className="mx-auto max-w-4xl space-y-6 py-2">
+        {ents ? (
+          <p className="text-xs text-zinc-500">
+            Пакет {ents.package_id || "—"} · ботов {ents.bots_used ?? 0}
+            {ents.max_bots != null ? ` / ${ents.max_bots}` : " · Fair Use"}
+            {" · "}
+            {BRAND_NAME} Workspace
           </p>
-          <h1 className="text-2xl font-semibold text-white">AI Business Bot</h1>
-          <p className="text-sm text-genesis-muted">
-            Цифровые сотрудники · Online/Offline · подключение своих каналов
-          </p>
-          {ents ? (
-            <p className="text-xs text-zinc-500">
-              Пакет {ents.package_id || "—"} · ботов {ents.bots_used ?? 0}
-              {ents.max_bots != null ? ` / ${ents.max_bots}` : " · Fair Use"}
-            </p>
-          ) : null}
-        </header>
+        ) : (
+          <p className="text-xs text-zinc-500">{BRAND_NAME} Workspace</p>
+        )}
 
         {banner ? (
           <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">

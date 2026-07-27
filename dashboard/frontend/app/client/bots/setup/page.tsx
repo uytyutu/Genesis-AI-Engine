@@ -66,13 +66,11 @@ function SetupInner() {
   }, [orderId, paid]);
 
   return (
-    <ClientWorkspaceShell>
-      <div className="mx-auto max-w-lg space-y-6 py-10 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/80">
-          {BRAND_NAME}
-        </p>
-        <h1 className="text-2xl font-semibold text-white">Подключение AI Business Bot</h1>
-
+    <ClientWorkspaceShell
+      title="Подключение AI Business Bot"
+      subtitle={`${BRAND_NAME} · после оплаты подключите свои каналы`}
+    >
+      <div className="mx-auto max-w-lg space-y-6 py-6 text-center">
         {status === "need_login" ? (
           <p className="text-sm text-zinc-300">
             Войдите, чтобы продолжить.{" "}
