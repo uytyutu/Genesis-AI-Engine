@@ -29,10 +29,8 @@ export default function OwnerGateClient() {
         <p className="text-xs uppercase tracking-[0.35em] text-amber-300/80">Virtus Core</p>
         <h1 className="mt-2 text-2xl font-bold text-white">Доступ только для владельца</h1>
         <p className="mt-3 text-sm text-genesis-muted">
-          Beta закрыта для публики. Ежедневная работа — через <strong className="text-white">Genesis.exe</strong>{" "}
-          (localhost). Для доступа с телефона / другой сети нужен ключ CEO
-          (<code className="text-amber-200/90">GENESIS_OWNER_GATE_SECRET</code> в{" "}
-          <code className="text-amber-200/90">dashboard/frontend/.env.local</code>, затем перезапуск Next).
+          Ежедневная работа с пультом — через <strong className="text-white">Genesis.exe</strong>{" "}
+          (localhost), без ключа. Эта страница только для редкого удалённого доступа по секрету.
         </p>
         <form onSubmit={submit} className="mt-6 space-y-3">
           <input
