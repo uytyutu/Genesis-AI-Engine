@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * AI Business Bot order wizard:
+ * AI Digital Employee order wizard:
  * Package → Register → Company/AI → Channels → Pay → Connect (Dashboard).
  */
 
@@ -19,6 +19,14 @@ import { formatApiDetail } from "../../lib/formatApiError";
 import { startOrderCheckout } from "../../lib/orderCheckout";
 import { publicApiBase } from "../../lib/publicApiBase";
 import { getVisitorId } from "../../lib/visitorId";
+import { BotChannelIconRow } from "../../components/ChannelBrandIcons";
+import {
+  IconInstagram,
+  IconMessenger,
+  IconTelegram,
+  IconWebsite,
+  IconWhatsApp,
+} from "../../components/ChannelBrandIcons";
 
 const API = publicApiBase();
 
@@ -50,16 +58,42 @@ const CHANNELS: {
   label: string;
   available: boolean;
   note: string;
+  Icon: typeof IconTelegram;
 }[] = [
-  { id: "website_chat", label: "Website Chat", available: true, note: "Connect after pay" },
-  { id: "telegram", label: "Telegram", available: true, note: "Own bot token after pay" },
-  { id: "whatsapp", label: "WhatsApp", available: false, note: "Meta OAuth after pay" },
-  { id: "instagram", label: "Instagram", available: false, note: "Meta OAuth after pay" },
+  {
+    id: "website_chat",
+    label: "Website Chat",
+    available: true,
+    note: "Connect after pay",
+    Icon: IconWebsite,
+  },
+  {
+    id: "telegram",
+    label: "Telegram",
+    available: true,
+    note: "Own bot token after pay",
+    Icon: IconTelegram,
+  },
+  {
+    id: "whatsapp",
+    label: "WhatsApp",
+    available: false,
+    note: "Meta OAuth after pay",
+    Icon: IconWhatsApp,
+  },
+  {
+    id: "instagram",
+    label: "Instagram",
+    available: false,
+    note: "Meta OAuth after pay",
+    Icon: IconInstagram,
+  },
   {
     id: "facebook_messenger",
     label: "Messenger",
     available: false,
     note: "Meta OAuth after pay",
+    Icon: IconMessenger,
   },
 ];
 
@@ -446,7 +480,7 @@ function BotOrderWizard() {
         },
         body: JSON.stringify({
           business_name: businessName.trim(),
-          description: description || activity.trim() || "AI Business Bot",
+          description: description || activity.trim() || "AI Digital Employee",
           email: (email || clientEmail || authEmail).trim(),
           phone: phone.trim() || undefined,
           company_website: website.trim() || undefined,
@@ -478,7 +512,7 @@ function BotOrderWizard() {
       const orderId = String(body.order_id || "");
       setDone({
         order_id: orderId,
-        package_name: String(body.package_name || selected?.name || "AI Business Bot"),
+        package_name: String(body.package_name || selected?.name || "AI Digital Employee"),
         price_label: body.price_label,
       });
       const url = await startOrderCheckout(orderId, {
@@ -498,10 +532,10 @@ function BotOrderWizard() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/90">
           {BRAND_NAME}
         </p>
-        <h1 className="text-3xl font-semibold text-white">AI Business Bot</h1>
+        <h1 className="text-3xl font-semibold text-white">AI Digital Employee</h1>
         <p className="text-sm text-genesis-muted">
-          Цифровой сотрудник для вашей компании. Пакет → Workspace → настройка → оплата →
-          подключение своих каналов.
+          AI Sales Assistant for your company. Package → Workspace → setup → pay →
+          connect your own channels.
         </p>
       </header>
 
@@ -552,6 +586,7 @@ function BotOrderWizard() {
             Лимит тарифа — число независимых AI-ботов, не каналов. Как это работает: после оплаты
             подключите свои Telegram / Meta аккаунты в личном кабинете.
           </p>
+          <BotChannelIconRow />
           <label className="block text-sm text-zinc-400">
             Рынок
             <select
@@ -850,9 +885,25 @@ function BotOrderWizard() {
                       : "border-white/10 bg-white/[0.03]"
                   }`}
                 >
-                  <span>
-                    <span className="font-medium text-white">{ch.label}</span>
-                    <span className="mt-0.5 block text-xs text-zinc-500">{ch.note}</span>
+                  <span className="flex items-start gap-3">
+                    <ch.Icon
+                      className={`mt-0.5 h-6 w-6 shrink-0 ${
+                        ch.id === "telegram"
+                          ? "text-[#2AABEE]"
+                          : ch.id === "whatsapp"
+                            ? "text-[#25D366]"
+                            : ch.id === "instagram"
+                              ? "text-[#E4405F]"
+                              : ch.id === "facebook_messenger"
+                                ? "text-[#0084FF]"
+                                : "text-emerald-300"
+                      }`}
+                      title={ch.label}
+                    />
+                    <span>
+                      <span className="font-medium text-white">{ch.label}</span>
+                      <span className="mt-0.5 block text-xs text-zinc-500">{ch.note}</span>
+                    </span>
                   </span>
                   <span className="text-xs text-zinc-400">
                     {ch.available ? (selectedCh ? "✓" : "") : "скоро"}

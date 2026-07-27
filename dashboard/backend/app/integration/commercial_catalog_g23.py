@@ -1,6 +1,6 @@
 """G2.X — Commercial catalog (DE market · honest sellability).
 
-Active: Landing, AI Business Bot (one product), website services.
+Active: Landing, AI Digital Employee (one product), live website services + interest forms.
 Coming Soon: CRM/automation modules not yet deliverable.
 """
 
@@ -62,25 +62,36 @@ def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
             "id": "ai_business_bot",
             "category": "product",
             "group": "bots",
-            "name": "AI Business Bot",
+            "name": "AI Digital Employee",
             "price_label": f"499–1499 € setup + {VECTOR_MONTHLY_EUR['starter']}–349 €/mo",
             "billing": "monthly",
             "availability": "available",
             "cta": "order_now",
-            "cta_href": "/order/bot?package=bot_business",
+            "cta_href": "/order/bot",
             "cta_label": "Order",
             "includes": (
-                "1 / up to 3 / Fair Use AI-bots · Website · Telegram · WhatsApp · "
+                "AI Sales Assistant · Website · Telegram · WhatsApp · "
                 "Instagram · Messenger"
             ),
         },
         _addon("ai_website_analysis", "AI Website Analysis", 149),
         _addon("website_repair", "Website Repair", 199, from_price=True),
-        _addon("seo_audit", "SEO Audit", 249),
-        _addon("speed_optimization", "Speed Optimization", 199),
-        _addon("security_check", "Security Check", 299),
-        _addon("google_business_setup", "Google Business Profile Setup", 149),
-        _addon("website_migration", "Website Migration", 299, from_price=True),
+        _addon("seo_audit", "SEO Audit", 249, available=False),
+        _addon("speed_optimization", "Speed Optimization", 199, available=False),
+        _addon("security_check", "Security Check", 299, available=False),
+        _addon(
+            "google_business_setup",
+            "Google Business Profile Setup",
+            149,
+            available=False,
+        ),
+        _addon(
+            "website_migration",
+            "Website Migration",
+            299,
+            from_price=True,
+            available=False,
+        ),
         _monthly(
             "crm_starter",
             "CRM Starter",
@@ -96,10 +107,20 @@ def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
     )
 
 
+# Honest sellability: only analysis + repair have intake → pay today.
+_ADDON_LIVE = frozenset({"ai_website_analysis", "website_repair"})
+
+
 def _addon(
-    id_: str, name: str, eur: int, *, from_price: bool = False
+    id_: str,
+    name: str,
+    eur: int,
+    *,
+    from_price: bool = False,
+    available: bool | None = None,
 ) -> dict[str, Any]:
     label = f"from {eur} €" if from_price else f"{eur} €"
+    live = id_ in _ADDON_LIVE if available is None else available
     return {
         "id": id_,
         "category": "one_time",
@@ -107,11 +128,15 @@ def _addon(
         "name": name,
         "price_label": label,
         "billing": "one_time",
-        "availability": "available",
-        "cta": "order_now",
-        "cta_href": f"/order?package={id_}",
-        "cta_label": "Order",
-        "includes": "Standalone service — no website purchase required",
+        "availability": "available" if live else "coming_soon",
+        "cta": "order_now" if live else "coming_soon",
+        "cta_href": f"/order/service/{id_}",
+        "cta_label": "Order form" if live else "Coming Soon",
+        "includes": (
+            "Order form first, then payment"
+            if live
+            else "Opening soon — ask Vector or open the interest form"
+        ),
     }
 
 

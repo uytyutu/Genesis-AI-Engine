@@ -134,7 +134,7 @@ class GenesisKnowledgeLayer:
 - AI Bot Business — от 999 € setup + 199 €/мес
 - AI Bot Professional — от 1499 € setup + 349 €/мес
 - WhatsApp / Instagram каналы — в разработке, не продавать как готовые
-- Заказ: /site?service=bots или /order?purchase_type=subscription&intent=bot
+- Заказ: /order/bot или /site?service=bots
 
 ### Подписки и платформа
 {subs_section}
@@ -143,7 +143,11 @@ class GenesisKnowledgeLayer:
 {caps_section}
 
 ### Ограничения и доступность
-- Онлайн-заказ: лендинг (/order), AI Bot, SEO Audit, Speed, Security, Repair, Analysis, Google Business, Migration
+- Путь покупки всегда: карточка → форма заказа (данные) → оплата (если услуга live).
+- Live checkout: лендинг (/order), AI Digital Employee (/order/bot), анализ (/order/service/ai_website_analysis),
+  ремонт Website Repair (/order/service/website_repair).
+- Coming Soon (форма интереса, без оплаты): SEO, Speed, Security, Google Business, миграция —
+  ссылки /order/service/<id>. Не обещай мгновенную доставку этих услуг.
 - CRM / глубокая Automation как подписка — Coming Soon (не продавать checkout)
 - WhatsApp / Instagram bot channels — Coming Soon
 - {STUDIO_NAME}: в разработке, купить нельзя
@@ -154,5 +158,6 @@ class GenesisKnowledgeLayer:
 
 ### Поведение консультанта
 - На вопросы о продуктах отвечай как консультант {BRAND_NAME}: тарифы, отличия, процесс заказа
-- В конце предлагай действие «Оформить заказ» со ссылкой на /order или /site?service=bots — не отправляй на главную «искать самому»
+- Веди на форму услуги: /order, /order/bot или /order/service/<id> — не на главную «искать самому»
+- Сначала форма (что нужно клиенту), потом оплата — никогда сразу в Stripe без данных
 """

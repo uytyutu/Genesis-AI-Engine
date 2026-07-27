@@ -143,6 +143,27 @@ export default function OrderSitePage() {
   useEffect(() => {
     try {
       const p = new URLSearchParams(window.location.search);
+      const pkg = (p.get("package") || "").trim();
+      const ADDONS = new Set([
+        "ai_website_analysis",
+        "website_repair",
+        "seo_audit",
+        "speed_optimization",
+        "security_check",
+        "google_business_setup",
+        "website_migration",
+      ]);
+      if (ADDONS.has(pkg)) {
+        window.location.replace(`/order/service/${pkg}`);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
       setMarketParam((p.get("market") || p.get("country") || "").toUpperCase());
     } catch {
       setMarketParam("");

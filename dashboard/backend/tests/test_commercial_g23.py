@@ -32,8 +32,10 @@ def test_engine_and_no_fake_buy():
     assert_no_fake_buy_buttons()
     sellable = sellable_online_ids()
     assert "landing_website" in sellable
-    assert "seo_audit" in sellable
+    assert "ai_website_analysis" in sellable
+    assert "website_repair" in sellable
     assert "ai_business_bot" in sellable
+    assert "seo_audit" not in sellable
     assert "whatsapp_ai_bot" not in sellable
     assert "telegram_ai_bot" not in sellable
 
@@ -56,8 +58,17 @@ def test_unready_channels_stay_coming_soon():
 def test_website_services_are_orderable():
     ones = [r for r in commercial_catalog_rows() if r.get("group") == "website_services"]
     assert len(ones) >= 5
-    assert all(r["availability"] == "available" for r in ones)
-    assert all(r["cta"] == "order_now" and r["cta_href"] for r in ones)
+    live_ids = {"ai_website_analysis", "website_repair"}
+    for r in ones:
+        assert r["cta_href"] and str(r["cta_href"]).startswith("/order/service/")
+        if r["id"] in live_ids:
+            assert r["availability"] == "available"
+            assert r["cta"] == "order_now"
+        else:
+            assert r["availability"] == "coming_soon"
+            assert r["cta"] == "coming_soon"
+    assert "seo_audit" not in sellable_online_ids()
+    assert "ai_website_analysis" in sellable_online_ids()
 
 
 def test_addon_packages_exist_in_sales():

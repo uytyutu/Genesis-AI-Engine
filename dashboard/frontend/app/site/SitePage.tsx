@@ -21,6 +21,8 @@ import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
 import { GenesisConcierge } from "../components/GenesisConcierge";
 import { WebsiteAnalysisPanel } from "../components/WebsiteAnalysisPanel";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
+import { ServiceCatalogGrid } from "../components/ServiceCatalogCards";
+import { BotChannelIconRow } from "../components/ChannelBrandIcons";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
 
@@ -546,98 +548,28 @@ export function SitePage() {
 
             <section
               id="services"
-              className="grid gap-4 sm:grid-cols-2"
+              className="space-y-4"
               aria-label={t("s0.servicesLabel", { defaultValue: "Services" })}
             >
-              <button
-                type="button"
-                onClick={() => openService("websites")}
-                className="rounded-2xl border border-emerald-500/35 bg-emerald-950/25 p-6 text-left transition hover:border-emerald-400/50 hover:bg-emerald-950/40"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/90">
-                  {t("s0.cardWebsiteEyebrow", { defaultValue: "Ready today" })}
-                </p>
-                <h2 className="mt-2 text-xl font-semibold text-white">
-                  {t("s0.cardWebsiteTitle", {
-                    defaultValue: "Create a website",
-                  })}
-                </h2>
-                <p className="mt-2 text-sm text-zinc-300">
-                  {t("s0.cardWebsiteBody", {
-                    defaultValue:
-                      "Landing packages with clear prices — Basic, Business, Premium.",
-                  })}
-                </p>
-                <span className="mt-4 inline-flex text-sm font-semibold text-emerald-300">
-                  {t("s0.seePackages", { defaultValue: "See packages" })} →
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openService("bots")}
-                className="rounded-2xl border border-sky-400/30 bg-sky-500/[0.07] p-6 text-left transition hover:border-sky-300/45 hover:bg-sky-500/10"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/90">
-                  {t("s0.cardBotEyebrow", { defaultValue: "Separate product" })}
-                </p>
-                <h2 className="mt-2 text-xl font-semibold text-white">
-                  {t("s0.cardBotTitle", {
-                    defaultValue: "AI Business Bot",
-                  })}
-                </h2>
-                <p className="mt-2 text-sm text-zinc-300">
-                  {t("s0.cardBotBody", {
-                    defaultValue:
-                      "Digital employee for your company — Website Chat, Telegram, WhatsApp, Instagram, Messenger.",
-                  })}
-                </p>
-                <span className="mt-4 inline-flex text-sm font-semibold text-sky-200">
-                  {t("s0.seePackages", { defaultValue: "See packages" })} →
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openService("analysis")}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-left transition hover:border-white/25 hover:bg-white/[0.05]"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
-                  {t("s0.cardAnalysisEyebrow", { defaultValue: "Free start" })}
-                </p>
-                <h2 className="mt-2 text-xl font-semibold text-white">
-                  {t("s0.cardAnalysisTitle", {
-                    defaultValue: "Analyze my website",
-                  })}
-                </h2>
-                <p className="mt-2 text-sm text-zinc-300">
-                  {t("s0.cardAnalysisBody", {
-                    defaultValue:
-                      "See what to fix — then repair or order a new site.",
-                  })}
-                </p>
-                <span className="mt-4 inline-flex text-sm font-semibold text-zinc-200">
-                  {t("s0.startAnalysis", { defaultValue: "Start analysis" })} →
-                </span>
-              </button>
-
+              <ServiceCatalogGrid mode="hub" />
               <button
                 type="button"
                 onClick={openChat}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-left transition hover:border-white/25 hover:bg-white/[0.05]"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/25 hover:bg-white/[0.05]"
               >
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
                   {ASSISTANT_NAME}
                 </p>
-                <h2 className="mt-2 text-xl font-semibold text-white">
+                <h2 className="mt-2 text-lg font-semibold text-white">
                   {t("pathA.cardVectorTitle")}
                 </h2>
                 <p className="mt-2 text-sm text-zinc-300">
                   {t("s0.vectorAsk", {
-                    defaultValue: "Not sure what fits? Ask Vector.",
+                    defaultValue:
+                      "Not sure what fits? Ask Vector — he links you to the right order form.",
                   })}
                 </p>
-                <span className="mt-4 inline-flex text-sm font-semibold text-zinc-200">
+                <span className="mt-3 inline-flex text-sm font-semibold text-zinc-200">
                   {t("pathA.meetVectorCta")} →
                 </span>
               </button>
@@ -646,7 +578,7 @@ export function SitePage() {
             <p className="text-center text-xs text-zinc-500">
               {t("s0.hubAccountHint", {
                 defaultValue:
-                  "Websites: order as a guest. AI Business Bot: register Workspace first, then pay and connect your channels.",
+                  "Each card opens that product’s order form. Payment comes after you describe what you need. AI Digital Employee: register Workspace, then pay and connect channels.",
               })}
             </p>
           </>
@@ -762,12 +694,12 @@ export function SitePage() {
             </button>
             <div>
               <h2 id="bots-heading" className="text-2xl font-semibold text-white">
-                {t("s0.botsTitle", { defaultValue: "AI Business Bot" })}
+                {t("s0.botsTitle", { defaultValue: "AI Digital Employee" })}
               </h2>
               <p className="mt-1 text-sm text-genesis-muted">
                 {t("s0.botsIntro", {
                   defaultValue:
-                    "One product — a digital employee. Packages by AI-bot count (1 / up to 3 / Fair Use). Register your Workspace before payment, then connect your own channels.",
+                    "One product — an AI Sales Assistant for your company. Packages by capacity (1 / up to 3 / Fair Use). Register your Workspace before payment, then connect your own channels.",
                 })}
               </p>
             </div>

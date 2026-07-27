@@ -469,9 +469,9 @@ def _bot_sku_amounts(market_code: str, package_id: str) -> tuple[int, int]:
 
 def _bot_default_name(package_id: str) -> str:
     return {
-        "bot_starter": "AI Business Bot Starter",
-        "bot_business": "AI Business Bot Business",
-        "bot_professional": "AI Business Bot Professional",
+        "bot_starter": "AI Digital Employee Starter",
+        "bot_business": "AI Digital Employee Business",
+        "bot_professional": "AI Digital Employee Professional",
     }.get(package_id, package_id)
 
 
@@ -605,7 +605,7 @@ def list_bot_packages(market_code: str) -> dict[str, Any]:
         packages.append(offer)
     return {
         "product_id": "prod_ai_business_bot",
-        "product_name": "AI Business Bot",
+        "product_name": "AI Digital Employee",
         "packages": packages,
         "market_code": market.code,
         "currency": market.currency,
@@ -613,12 +613,13 @@ def list_bot_packages(market_code: str) -> dict[str, Any]:
         "channels_available": ["Website Chat", "Telegram"],
         "channels_coming_soon": ["WhatsApp", "Instagram", "Facebook Messenger"],
         "channels_note_ru": (
-            "Один продукт — AI Business Bot. Каналы не ограничивают тариф: "
-            "лимит — число независимых AI-ботов. Сейчас подключение: Website Chat, Telegram. "
+            "Один продукт — AI Digital Employee (AI Sales Assistant). "
+            "Каналы не ограничивают тариф: лимит — число независимых AI-сотрудников. "
+            "Сейчас подключение: Website Chat, Telegram. "
             "WhatsApp, Instagram, Messenger — после OAuth Meta."
         ),
         "comparison_note_ru": (
-            "Разница тарифов — в числе AI-ботов (1 / до 3 / Fair Use) и уровне AI: "
+            "Разница тарифов — в числе AI-сотрудников (1 / до 3 / Fair Use) и уровне AI: "
             "база знаний, языки, сценарии, аналитика, поддержка. Не в количестве мессенджеров."
         ),
         "note": "Digital employee product — not included in Landing Website packages.",
