@@ -12,6 +12,17 @@ export const metadata: Metadata = {
     template: "%s · Virtus Core",
   },
   description: "Virtus Core — Vector ведёт ваш проект: чат, черновик сайта и оформление в одном рабочем месте.",
+  // P0 — default noindex; public marketing pages opt in via publicPageMetadata.
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
   icons: {
     icon: [
       { url: "/brand/favicon-16.png", sizes: "16x16", type: "image/png" },

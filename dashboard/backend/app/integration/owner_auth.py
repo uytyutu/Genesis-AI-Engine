@@ -81,7 +81,21 @@ def verify_owner_bearer(request: Request) -> bool:
 
 
 def owner_access_allowed(request: Request) -> bool:
-    """Owner endpoints: localhost (dev) or valid bearer when secret configured."""
+    """Owner endpoints: valid bearer, or direct loopback (not proxied).
+
+    Proxied requests (X-Forwarded-For / X-Real-IP) must present a bearer token.
+    This blocks LAN phones from reaching /api/owner via Next.js rewrite while
+    still allowing Genesis.exe → uvicorn on 127.0.0.1.
+    """
+    if verify_owner_bearer(request):
+        return True
+    forwarded = (
+        (request.headers.get("x-forwarded-for") or "").strip()
+        or (request.headers.get("x-real-ip") or "").strip()
+        or (request.headers.get("x-forwarded-host") or "").strip()
+    )
+    if forwarded:
+        return False
     if local_owner_access_allowed(request):
         return True
     if is_production() and os.getenv("GENESIS_OWNER_REMOTE", "").strip().lower() not in (
@@ -90,7 +104,8 @@ def owner_access_allowed(request: Request) -> bool:
         "yes",
     ):
         return False
-    return verify_owner_bearer(request)
+    return False
+
 
 
 def remote_owner_enabled() -> bool:

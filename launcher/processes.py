@@ -279,6 +279,8 @@ def _start_frontend_dev(
     env = os.environ.copy()
     env["PATH"] = augmented_path()
     env["PORT"] = "3000"
+    # P0 — Mission Control must not listen on LAN (phone-on-WiFi exposure).
+    env["HOSTNAME"] = "127.0.0.1"
     proc = subprocess.Popen(
         [npm, "run", "dev"],
         cwd=fe,
@@ -376,6 +378,8 @@ def start_frontend(
     env = os.environ.copy()
     env["PATH"] = augmented_path()
     env["PORT"] = "3000"
+    # P0 — Mission Control must not listen on LAN (phone-on-WiFi exposure).
+    env["HOSTNAME"] = "127.0.0.1"
     proc = subprocess.Popen(
         [npm, "run", "start"],
         cwd=fe,

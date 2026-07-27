@@ -599,14 +599,47 @@ async def guard_internal_routes(request: Request, call_next):
     if is_production():
         if path.startswith("/api/support") and support_bridge_allowed(request):
             return await call_next(request)
+        # Public storefront / webhooks only — unless authenticated owner (remote CEO).
+        if is_owner_api_path(path):
+            if owner_access_allowed(request):
+                return await call_next(request)
+            return JSONResponse(
+                status_code=401,
+                content={"detail": "Owner authentication required"},
+            )
+        if is_internal_api_path(path) and not is_public_api_path(path, method):
+            if owner_access_allowed(request):
+                return await call_next(request)
+            return JSONResponse(
+                status_code=403,
+                content=api_access_denied_response(path, method),
+            )
         if not production_api_allowed(path, method):
-            return JSONResponse(status_code=403, content=api_access_denied_response(path, method))
+            return JSONResponse(
+                status_code=403,
+                content=api_access_denied_response(path, method),
+            )
     elif is_internal_api_path(path) and not (
         owner_access_allowed(request)
         if is_owner_api_path(path)
-        else local_owner_access_allowed(request)
+        else (
+            owner_access_allowed(request)
+            if (
+                (request.headers.get("x-forwarded-for") or "").strip()
+                or (request.headers.get("x-real-ip") or "").strip()
+            )
+            else local_owner_access_allowed(request)
+        )
     ):
-        return JSONResponse(status_code=403, content=api_access_denied_response(path, method))
+        status = 401 if is_owner_api_path(path) else 403
+        return JSONResponse(
+            status_code=status,
+            content=(
+                {"detail": "Unauthorized"}
+                if status == 401
+                else api_access_denied_response(path, method)
+            ),
+        )
     return await call_next(request)
 
 

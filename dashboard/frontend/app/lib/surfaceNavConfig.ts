@@ -35,6 +35,12 @@ export function surfaceNavMeta(target: SurfaceTarget): SurfaceNavMeta {
 }
 
 export function resolveNavigationSurface(pathname: string): SurfaceTarget {
+  if (
+    pathname === "/owner-gate" ||
+    pathname.startsWith("/owner-gate?")
+  ) {
+    return "public";
+  }
   // Auth-only screens must never render Client Workspace chrome.
   if (
     pathname === "/client/login" ||
@@ -142,6 +148,11 @@ export const CLIENT_NAV_LINKS = [
     href: "/projects/chatbot/channels",
     label: "Channels",
     hint: "Где работает Vector",
+  },
+  {
+    href: "/client/privacy",
+    label: "Privacy & Cookies",
+    hint: "Согласие · Essential / Analytics / Marketing",
   },
 ] as const;
 

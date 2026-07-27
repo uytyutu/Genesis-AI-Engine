@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getClientToken } from "../lib/clientAuth";
+import { getClientToken, setClientSession } from "../lib/clientAuth";
 import { BRAND_NAME } from "../lib/publicBrand";
 
 type AuthState = "loading" | "authed" | "guest";
@@ -32,7 +32,10 @@ export function ClientAuthGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      if (getClientToken()) {
+      const token = getClientToken();
+      if (token) {
+        // Keep middleware cookie in sync with localStorage (P0 server gate).
+        setClientSession(token);
         if (!cancelled) setState("authed");
         return;
       }

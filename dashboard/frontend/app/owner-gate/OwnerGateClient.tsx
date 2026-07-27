@@ -30,7 +30,9 @@ export default function OwnerGateClient() {
         <h1 className="mt-2 text-2xl font-bold text-white">Доступ только для владельца</h1>
         <p className="mt-3 text-sm text-genesis-muted">
           Beta закрыта для публики. Ежедневная работа — через <strong className="text-white">Genesis.exe</strong>{" "}
-          (localhost). Для beta нужен ключ CEO.
+          (localhost). Для доступа с телефона / другой сети нужен ключ CEO
+          (<code className="text-amber-200/90">GENESIS_OWNER_GATE_SECRET</code> в{" "}
+          <code className="text-amber-200/90">dashboard/frontend/.env.local</code>, затем перезапуск Next).
         </p>
         <form onSubmit={submit} className="mt-6 space-y-3">
           <input

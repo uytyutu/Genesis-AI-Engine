@@ -1,63 +1,198 @@
+/**
+ * P0 — Auth + indexing gate for Virtus Core Next.js surfaces.
+ *
+ * Fail-closed for ALL hosts (including localhost / Genesis.exe).
+ * Anonymous / Incognito never receive Owner Panel HTML.
+ * LAN (192.168.*) is never trusted. Bind Mission Control to 127.0.0.1 as well.
+ */
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PREFIXES = [
+/** Public marketing / legal — crawlable, no owner auth. */
+const PUBLIC_EXACT = new Set([
+  "/site",
+  "/services",
+  "/products",
+  "/order",
+  "/pricing",
+  "/faq",
+  "/kontakt",
+  "/trust",
+  "/impressum",
+  "/datenschutz",
+  "/agb",
+  "/widerruf",
+  "/cookies",
+  "/ai-disclaimer",
+  "/intellectual-property",
   "/owner-gate",
-  "/api/",
+  "/client/login",
+  "/client/register",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/manifest.webmanifest",
+]);
+
+const PUBLIC_ASSET_PREFIXES = [
+  "/order/",
+  "/products/",
+  "/site/",
+  "/brand/",
   "/_next/",
+  "/package-previews/",
   "/icon",
   "/favicon",
-  "/manifest",
-  "/package-previews/",
 ];
 
-function isLocalHost(host: string): boolean {
+/** APIs safe without owner cookie (still validated by backend). */
+const PUBLIC_API_PREFIXES = [
+  "/api/public/",
+  "/api/sales/",
+  "/api/client/",
+  "/api/webhooks/",
+  "/api/v1/",
+  "/api/factory/",
+  "/webhooks/",
+];
+
+/** Client office — needs client session cookie (or portal virtus_session). */
+const CLIENT_PREFIXES = ["/client", "/projects"];
+
+const SECURITY_HEADERS: Record<string, string> = {
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(self), geolocation=()",
+  "X-DNS-Prefetch-Control": "off",
+  "Content-Security-Policy": [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' http://127.0.0.1:* http://localhost:* https:",
+    "media-src 'self' blob:",
+    "frame-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; "),
+};
+
+const NOINDEX =
+  "noindex, nofollow, noarchive, nosnippet, noimageindex";
+
+function isLoopbackHost(host: string): boolean {
   const h = (host || "").split(":")[0]?.toLowerCase() ?? "";
-  if (!h) return false;
-  if (h.includes("localhost") || h === "127.0.0.1" || h === "[::1]" || h === "::1") {
-    return true;
-  }
-  // CEO phone on same Wi‑Fi (Genesis.exe LAN URL) — same trust as localhost.
-  if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
-  if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
-  if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(h)) return true;
-  return false;
+  return (
+    h === "localhost" ||
+    h === "127.0.0.1" ||
+    h === "[::1]" ||
+    h === "::1"
+  );
 }
 
-function isPublicPath(path: string): boolean {
-  return PUBLIC_PREFIXES.some((prefix) => path.startsWith(prefix));
+function isPublicMarketingPath(path: string): boolean {
+  if (PUBLIC_EXACT.has(path)) return true;
+  return PUBLIC_ASSET_PREFIXES.some((p) => path.startsWith(p));
 }
 
-export function middleware(request: NextRequest) {
-  const gateEnabled = process.env.NEXT_PUBLIC_OWNER_GATE === "1";
-  if (!gateEnabled) {
-    return NextResponse.next();
-  }
+function isPublicApiPath(path: string): boolean {
+  return PUBLIC_API_PREFIXES.some((p) => path.startsWith(p));
+}
 
-  const host = request.headers.get("host") || "";
-  if (isLocalHost(host)) {
-    return NextResponse.next();
+function isClientPath(path: string): boolean {
+  if (
+    path === "/client/login" ||
+    path === "/client/register" ||
+    path.startsWith("/client/login") ||
+    path.startsWith("/client/register")
+  ) {
+    return false;
   }
+  return CLIENT_PREFIXES.some(
+    (p) => path === p || path.startsWith(`${p}/`),
+  );
+}
 
-  const path = request.nextUrl.pathname;
-  if (isPublicPath(path)) {
-    return NextResponse.next();
+function applySecurityHeaders(
+  response: NextResponse,
+  opts: { noindex: boolean },
+): NextResponse {
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(k, v);
   }
-
-  const secret = (process.env.GENESIS_OWNER_GATE_SECRET || "").trim();
-  if (!secret) {
-    return NextResponse.next();
+  if (opts.noindex) {
+    response.headers.set("X-Robots-Tag", NOINDEX);
   }
+  return response;
+}
 
+function ownerSecret(): string {
+  return (
+    process.env.GENESIS_OWNER_GATE_SECRET ||
+    process.env.NEXT_PUBLIC_OWNER_GATE_SECRET ||
+    ""
+  ).trim();
+}
+
+function hasOwnerCookie(request: NextRequest): boolean {
+  const secret = ownerSecret();
+  if (!secret) return false;
   const cookie = request.cookies.get("genesis_owner")?.value;
   const tokenParam = request.nextUrl.searchParams.get("owner");
+  return cookie === secret || tokenParam === secret;
+}
 
-  if (cookie === secret || tokenParam === secret) {
-    const response = NextResponse.next();
-    if (tokenParam === secret && cookie !== secret) {
+function hasClientSession(request: NextRequest): boolean {
+  const token = request.cookies.get("virtus_client_token")?.value;
+  if (token && token.length > 8) return true;
+  const portal = request.cookies.get("virtus_session")?.value;
+  return Boolean(portal && portal.length > 8);
+}
+
+function redirectTo(
+  request: NextRequest,
+  pathname: string,
+  nextPath?: string,
+): NextResponse {
+  const url = request.nextUrl.clone();
+  url.pathname = pathname;
+  url.search = "";
+  if (nextPath) {
+    url.searchParams.set("next", nextPath);
+  }
+  return applySecurityHeaders(NextResponse.redirect(url), { noindex: true });
+}
+
+function unauthorizedJson(): NextResponse {
+  return applySecurityHeaders(
+    NextResponse.json({ detail: "Unauthorized" }, { status: 401 }),
+    { noindex: true },
+  );
+}
+
+function requireOwnerPage(request: NextRequest, path: string): NextResponse {
+  const secret = ownerSecret();
+  // Fail-closed: no secret → never CEO HTML (gate page only).
+  if (!secret) {
+    if (path === "/owner-gate") {
+      return applySecurityHeaders(NextResponse.next(), { noindex: true });
+    }
+    return redirectTo(request, "/owner-gate", path);
+  }
+
+  if (hasOwnerCookie(request)) {
+    const response = applySecurityHeaders(NextResponse.next(), {
+      noindex: true,
+    });
+    const tokenParam = request.nextUrl.searchParams.get("owner");
+    if (tokenParam === secret) {
       response.cookies.set("genesis_owner", secret, {
         httpOnly: true,
         sameSite: "lax",
+        secure: request.nextUrl.protocol === "https:",
         maxAge: 60 * 60 * 24 * 30,
         path: "/",
       });
@@ -66,17 +201,53 @@ export function middleware(request: NextRequest) {
   }
 
   if (path !== "/owner-gate") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/owner-gate";
-    url.searchParams.set("next", path);
-    return NextResponse.redirect(url);
+    return redirectTo(request, "/owner-gate", path);
+  }
+  return applySecurityHeaders(NextResponse.next(), { noindex: true });
+}
+
+export function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  const host = request.headers.get("host") || "";
+  const loopback = isLoopbackHost(host);
+
+  // Portal commerce — cookie session enforced by backend; allow through.
+  if (path.startsWith("/portal/")) {
+    return applySecurityHeaders(NextResponse.next(), { noindex: true });
   }
 
-  return NextResponse.next();
+  // Public marketing / assets
+  if (isPublicMarketingPath(path)) {
+    return applySecurityHeaders(NextResponse.next(), { noindex: false });
+  }
+
+  // Public commerce / client-auth APIs
+  if (isPublicApiPath(path)) {
+    return applySecurityHeaders(NextResponse.next(), { noindex: true });
+  }
+
+  // Internal APIs: loopback (Genesis.exe) or owner cookie; else 401.
+  if (path.startsWith("/api/") || path.startsWith("/webhooks/")) {
+    if (loopback || hasOwnerCookie(request)) {
+      return applySecurityHeaders(NextResponse.next(), { noindex: true });
+    }
+    return unauthorizedJson();
+  }
+
+  // Client workspace — auth always (incognito without cookie → login).
+  if (isClientPath(path)) {
+    if (hasClientSession(request)) {
+      return applySecurityHeaders(NextResponse.next(), { noindex: true });
+    }
+    return redirectTo(request, "/client/login", path);
+  }
+
+  // CEO / Owner / Mission Control — auth always (no localhost guest bypass).
+  return requireOwnerPage(request, path);
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|package-previews/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|js|css|html)$).*)",
+    "/((?!_next/static|_next/image|package-previews/|brand/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|js|css|ico|woff2?)$).*)",
   ],
 };
