@@ -21,7 +21,7 @@ const securityHeaders = [
       "connect-src 'self' http://127.0.0.1:* http://localhost:* https:",
       "media-src 'self' blob:",
       "frame-src 'self'",
-      "frame-ancestors 'self'",
+      "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join("; "),

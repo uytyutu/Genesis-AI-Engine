@@ -36,10 +36,9 @@ CEO_PATHS = (
     "/acquisition",
     "/settings",
     "/revenue",
-    "/projects",
 )
 
-CLIENT_PATHS = ("/client",)
+CLIENT_PATHS = ("/client", "/projects")
 PUBLIC_OK = ("/site", "/owner-gate")
 
 

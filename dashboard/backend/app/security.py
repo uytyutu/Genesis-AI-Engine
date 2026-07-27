@@ -112,11 +112,16 @@ def is_public_api_path(path: str, method: str = "GET") -> bool:
 
 
 def production_api_allowed(path: str, method: str = "GET") -> bool:
+    """Only explicitly public paths are open in production.
+
+    Owner/internal APIs are gated separately in ``guard_internal_routes``
+    via ``owner_access_allowed`` / localhost — never treated as public here.
+    """
     return is_public_api_path(path, method)
 
 
 def support_bridge_allowed(request: Request) -> bool:
-    """CEO desk (localhost) may call production /api/support with shared bridge secret."""
+    """CEO desk may call production /api/support with shared bridge secret."""
     secret = (
         os.getenv("SUPPORT_BRIDGE_SECRET", "").strip()
         or os.getenv("RESEND_INBOUND_WEBHOOK_SECRET", "").strip()
@@ -165,9 +170,11 @@ def require_local_owner(request: Request) -> None:
 
 def api_access_denied_response(path: str, method: str) -> dict[str, str]:
     if is_production():
+        if is_owner_api_path(path):
+            return {"detail": "Owner authentication required"}
         return {"detail": "Not available in production"}
     if is_owner_api_path(path):
-        return {"detail": "Owner endpoints require localhost"}
+        return {"detail": "Owner endpoints require localhost or bearer token"}
     return {"detail": "Internal endpoints require localhost"}
 
 
