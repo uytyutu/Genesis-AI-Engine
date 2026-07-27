@@ -1,15 +1,16 @@
 /**
- * P0 — Auth + indexing gate for Virtus Core Next.js surfaces.
+ * Public vs Owner surfaces.
  *
- * Fail-closed for ALL hosts (including localhost / Genesis.exe).
- * Anonymous / Incognito never receive Owner Panel HTML.
- * LAN (192.168.*) is never trusted. Bind Mission Control to 127.0.0.1 as well.
+ * - Genesis.exe / localhost / 127.0.0.1 → Mission Control ALWAYS open (no key).
+ * - Public DNS (beta / Google) → CEO remote control NEVER shown to anonymous;
+ *   send them to the marketing storefront `/site` (buy sites / bots).
+ * - Optional: GENESIS_OWNER_GATE_SECRET cookie still unlocks remote CEO if needed.
  */
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-/** Public marketing / legal — crawlable, no owner auth. */
+/** Public marketing / legal — crawlable. */
 const PUBLIC_EXACT = new Set([
   "/site",
   "/services",
@@ -45,7 +46,6 @@ const PUBLIC_ASSET_PREFIXES = [
   "/favicon",
 ];
 
-/** APIs safe without owner cookie (still validated by backend). */
 const PUBLIC_API_PREFIXES = [
   "/api/public/",
   "/api/sales/",
@@ -56,7 +56,6 @@ const PUBLIC_API_PREFIXES = [
   "/webhooks/",
 ];
 
-/** Client office — needs client session cookie (or portal virtus_session). */
 const CLIENT_PREFIXES = ["/client", "/projects"];
 
 const SECURITY_HEADERS: Record<string, string> = {
@@ -65,19 +64,6 @@ const SECURITY_HEADERS: Record<string, string> = {
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Permissions-Policy": "camera=(), microphone=(self), geolocation=()",
   "X-DNS-Prefetch-Control": "off",
-  "Content-Security-Policy": [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https:",
-    "font-src 'self' data:",
-    "connect-src 'self' http://127.0.0.1:* http://localhost:* https:",
-    "media-src 'self' blob:",
-    "frame-src 'self'",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-  ].join("; "),
 };
 
 const NOINDEX =
@@ -155,14 +141,10 @@ function hasClientSession(request: NextRequest): boolean {
 function redirectTo(
   request: NextRequest,
   pathname: string,
-  nextPath?: string,
 ): NextResponse {
   const url = request.nextUrl.clone();
   url.pathname = pathname;
   url.search = "";
-  if (nextPath) {
-    url.searchParams.set("next", nextPath);
-  }
   return applySecurityHeaders(NextResponse.redirect(url), { noindex: true });
 }
 
@@ -173,22 +155,18 @@ function unauthorizedJson(): NextResponse {
   );
 }
 
-function requireOwnerPage(request: NextRequest, path: string): NextResponse {
-  const secret = ownerSecret();
-  // Fail-closed: no secret → never CEO HTML (gate page only).
-  if (!secret) {
-    if (path === "/owner-gate") {
-      return applySecurityHeaders(NextResponse.next(), { noindex: true });
-    }
-    return redirectTo(request, "/owner-gate", path);
-  }
-
+/**
+ * Public internet: never render CEO remote control for anonymous visitors.
+ * Send them to the storefront. Optional owner cookie unlocks remote CEO.
+ */
+function publicCeoGate(request: NextRequest): NextResponse {
   if (hasOwnerCookie(request)) {
+    const secret = ownerSecret();
     const response = applySecurityHeaders(NextResponse.next(), {
       noindex: true,
     });
     const tokenParam = request.nextUrl.searchParams.get("owner");
-    if (tokenParam === secret) {
+    if (secret && tokenParam === secret) {
       response.cookies.set("genesis_owner", secret, {
         httpOnly: true,
         sameSite: "lax",
@@ -199,11 +177,8 @@ function requireOwnerPage(request: NextRequest, path: string): NextResponse {
     }
     return response;
   }
-
-  if (path !== "/owner-gate") {
-    return redirectTo(request, "/owner-gate", path);
-  }
-  return applySecurityHeaders(NextResponse.next(), { noindex: true });
+  // Google / strangers → marketing site (buy), not Mission Control.
+  return redirectTo(request, "/site");
 }
 
 export function middleware(request: NextRequest) {
@@ -211,39 +186,41 @@ export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const loopback = isLoopbackHost(host);
 
-  // Portal commerce — cookie session enforced by backend; allow through.
+  // Owner daily path (Genesis.exe): Mission Control always open.
+  if (loopback) {
+    return applySecurityHeaders(NextResponse.next(), {
+      noindex: !isPublicMarketingPath(path),
+    });
+  }
+
   if (path.startsWith("/portal/")) {
     return applySecurityHeaders(NextResponse.next(), { noindex: true });
   }
 
-  // Public marketing / assets
   if (isPublicMarketingPath(path)) {
     return applySecurityHeaders(NextResponse.next(), { noindex: false });
   }
 
-  // Public commerce / client-auth APIs
   if (isPublicApiPath(path)) {
     return applySecurityHeaders(NextResponse.next(), { noindex: true });
   }
 
-  // Internal APIs: loopback (Genesis.exe) or owner cookie; else 401.
   if (path.startsWith("/api/") || path.startsWith("/webhooks/")) {
-    if (loopback || hasOwnerCookie(request)) {
+    if (hasOwnerCookie(request)) {
       return applySecurityHeaders(NextResponse.next(), { noindex: true });
     }
     return unauthorizedJson();
   }
 
-  // Client workspace — auth always (incognito without cookie → login).
   if (isClientPath(path)) {
     if (hasClientSession(request)) {
       return applySecurityHeaders(NextResponse.next(), { noindex: true });
     }
-    return redirectTo(request, "/client/login", path);
+    // Logged-out strangers → storefront (not CEO chrome).
+    return redirectTo(request, "/site");
   }
 
-  // CEO / Owner / Mission Control — auth always (no localhost guest bypass).
-  return requireOwnerPage(request, path);
+  return publicCeoGate(request);
 }
 
 export const config = {
