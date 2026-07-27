@@ -537,6 +537,11 @@ function BotOrderWizard() {
           AI Sales Assistant for your company. Package → Workspace → setup → pay →
           connect your own channels.
         </p>
+        <ul className="mx-auto mt-4 flex max-w-md flex-col gap-1.5 text-left text-sm text-zinc-200 sm:items-center sm:text-center">
+          <li>✓ Answers customers 24/7</li>
+          <li>✓ Captures leads automatically</li>
+          <li>✓ Speaks multiple languages</li>
+        </ul>
       </header>
 
       <ol className="flex flex-wrap justify-center gap-2 text-xs">

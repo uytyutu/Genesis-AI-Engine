@@ -45,7 +45,7 @@ def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
             "id": "landing_website",
             "category": "product",
             "group": "websites",
-            "name": "Landing Websites",
+            "name": "Business Website That Brings Leads",
             "price_label": f"{LANDING_PACKAGES_EUR['basic']}–{LANDING_PACKAGES_EUR['premium']} €",
             "billing": "one_time",
             "availability": "available",
@@ -53,6 +53,7 @@ def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
             "cta_href": "/order",
             "cta_label": "Order",
             "includes": (
+                "Get more customers with a professional website · "
                 f"Basic {LANDING_PACKAGES_EUR['basic']} € · "
                 f"Business {LANDING_PACKAGES_EUR['business']} € · "
                 f"Premium {LANDING_PACKAGES_EUR['premium']} €"
@@ -70,12 +71,17 @@ def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
             "cta_href": "/order/bot",
             "cta_label": "Order",
             "includes": (
-                "AI Sales Assistant · Website · Telegram · WhatsApp · "
-                "Instagram · Messenger"
+                "Answers 24/7 · Captures leads · Multi-language · "
+                "Website · Telegram · WhatsApp · Instagram · Messenger"
             ),
         },
         _addon("ai_website_analysis", "AI Website Analysis", 149),
-        _addon("website_repair", "Website Repair", 199, from_price=True),
+        _addon(
+            "website_repair",
+            "Website Repair",
+            199,
+            from_price=True,
+        ),
         _addon("seo_audit", "SEO Audit", 249, available=False),
         _addon("speed_optimization", "Speed Optimization", 199, available=False),
         _addon("security_check", "Security Check", 299, available=False),
@@ -121,6 +127,12 @@ def _addon(
 ) -> dict[str, Any]:
     label = f"from {eur} €" if from_price else f"{eur} €"
     live = id_ in _ADDON_LIVE if available is None else available
+    if not live:
+        includes = "Opening soon — ask Vector or open the interest form"
+    elif id_ == "website_repair":
+        includes = "Broken website? Recovery target 24–48h · form first, then payment"
+    else:
+        includes = "Order form first, then payment"
     return {
         "id": id_,
         "category": "one_time",
@@ -132,11 +144,7 @@ def _addon(
         "cta": "order_now" if live else "coming_soon",
         "cta_href": f"/order/service/{id_}",
         "cta_label": "Order form" if live else "Coming Soon",
-        "includes": (
-            "Order form first, then payment"
-            if live
-            else "Opening soon — ask Vector or open the interest form"
-        ),
+        "includes": includes,
     }
 
 

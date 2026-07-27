@@ -67,7 +67,7 @@ function SetupInner() {
 
   return (
     <ClientWorkspaceShell
-      title="Подключение AI Business Bot"
+      title="Подключение AI Digital Employee"
       subtitle={`${BRAND_NAME} · после оплаты подключите свои каналы`}
     >
       <div className="mx-auto max-w-lg space-y-6 py-6 text-center">
@@ -88,15 +88,20 @@ function SetupInner() {
         ) : null}
 
         {status === "paid" || status === "learning" || status === "ready" ? (
-          <div className="space-y-3 rounded-2xl border border-amber-400/30 bg-amber-500/10 p-6">
-            <p className="text-lg font-medium text-white">Bot learning…</p>
-            <p className="text-sm text-zinc-300">
+          <div className="space-y-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-6 text-left">
+            <p className="text-center text-lg font-medium text-white">Payment received</p>
+            <ul className="space-y-2 text-sm text-zinc-300">
+              <li>✓ Within 24 hours we will contact you if anything is missing for setup.</li>
+              <li>✓ You will receive: Workspace access and channel connection steps.</li>
+              <li>✓ Your AI employee goes live after you connect Telegram / Website Chat.</li>
+            </ul>
+            <p className="text-sm text-zinc-400">
               {botName
-                ? `«${botName}» готовится. Подключите Telegram или Meta — затем статус станет Online.`
-                : "Оплата получена. Подключите каналы, чтобы вывести бота Online."}
+                ? `«${botName}» готовится. Подключите каналы — затем статус станет Online.`
+                : "Подключите каналы, чтобы вывести AI Digital Employee Online."}
             </p>
             {orderId ? (
-              <p className="text-xs text-zinc-500">Заказ {orderId}</p>
+              <p className="text-center text-xs text-zinc-500">Заказ {orderId}</p>
             ) : null}
           </div>
         ) : null}
@@ -105,7 +110,7 @@ function SetupInner() {
           <div className="space-y-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-6">
             <p className="text-lg font-medium text-white">🟢 Online</p>
             <p className="text-sm text-zinc-300">
-              {botName || "AI Business Bot"} готов принимать сообщения.
+              {botName || "AI Digital Employee"} готов принимать сообщения.
             </p>
           </div>
         ) : null}

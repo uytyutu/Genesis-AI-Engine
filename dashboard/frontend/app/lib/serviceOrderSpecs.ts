@@ -40,6 +40,8 @@ export type ServiceSpec = {
   deliveryNote: string;
   /** Trust block on cards + confirmation screen */
   includes: string[];
+  /** Optional 5-second value props (shown above includes on cards) */
+  highlights?: string[];
   stages: string[];
   timeline: string;
   afterPay: string[];
@@ -71,9 +73,10 @@ const contactFields: ServiceField[] = [
 export const SERVICE_SPECS: ServiceSpec[] = [
   {
     id: "landing_website",
-    name: "Create a website",
+    name: "Business Website That Brings Leads",
     price_label: "350–1200 €",
-    blurb: "Landing packages — Basic, Business, Premium.",
+    blurb:
+      "Get more customers with a professional website — Basic, Business, Premium packages.",
     mark: "W",
     accent: "border-emerald-400/35 bg-emerald-500/[0.08]",
     availability: "available",
@@ -98,6 +101,11 @@ export const SERVICE_SPECS: ServiceSpec[] = [
     href: "/order/bot",
     fields: [],
     deliveryNote: "Wizard: package → account → company → channels → pay.",
+    highlights: [
+      "Answers customers 24/7",
+      "Captures leads automatically",
+      "Speaks multiple languages",
+    ],
     includes: [
       "One AI employee for your brand",
       "Channels you choose",
@@ -145,7 +153,8 @@ export const SERVICE_SPECS: ServiceSpec[] = [
     id: "website_repair",
     name: "Website Repair",
     price_label: "from 199 €",
-    blurb: "Emergency Website Recovery — fix an existing site without buying a new Landing.",
+    blurb:
+      "Broken website? We can recover it within 24–48 hours — Emergency Website Recovery without buying a new Landing.",
     mark: "R",
     accent: "border-amber-400/35 bg-amber-500/[0.08]",
     availability: "available",
@@ -174,9 +183,13 @@ export const SERVICE_SPECS: ServiceSpec[] = [
       },
     ],
     deliveryNote: "Operator-led repair after payment — status in your cabinet.",
-    includes: ["Agreed repair scope", "Before/after notes", "Cabinet tracking"],
+    includes: [
+      "Emergency recovery focus",
+      "Agreed repair scope",
+      "Before/after notes",
+    ],
     stages: ["Form", "Payment", "Access", "Repair", "Handover"],
-    timeline: "typically 2–5 business days after access",
+    timeline: "target recovery 24–48 hours after access",
     afterPay: ["We request access securely", "Work starts", "You approve result"],
     support: "Vector + cabinet status",
   },

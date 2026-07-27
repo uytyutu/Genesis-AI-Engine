@@ -35,8 +35,8 @@ export const PRODUCT_SHOWCASE_GROUPS: {
 }[] = [
   {
     id: "websites",
-    title: "Websites",
-    blurb: "Landing packages — buy once, own the files.",
+    title: "Websites that bring leads",
+    blurb: "Professional site for more customers — buy once, own the files.",
   },
   {
     id: "bots",
@@ -55,14 +55,14 @@ export const COMMERCIAL_CATALOG: CommercialRow[] = [
     id: "landing_website",
     category: "product",
     group: "websites",
-    name: "Landing Websites",
+    name: "Business Website That Brings Leads",
     price_label: `${LANDING_PACKAGES_EUR.basic}–${LANDING_PACKAGES_EUR.premium} €`,
     billing: "one_time",
     availability: "available",
     cta: "order_now",
     cta_href: "/order",
     cta_label: "Order",
-    includes: `Basic ${LANDING_PACKAGES_EUR.basic} € · Business ${LANDING_PACKAGES_EUR.business} € · Premium ${LANDING_PACKAGES_EUR.premium} €`,
+    includes: `Get more customers · Basic ${LANDING_PACKAGES_EUR.basic} € · Business ${LANDING_PACKAGES_EUR.business} € · Premium ${LANDING_PACKAGES_EUR.premium} €`,
   },
   {
     id: "ai_business_bot",
@@ -102,7 +102,7 @@ export const COMMERCIAL_CATALOG: CommercialRow[] = [
     cta: "order_now",
     cta_href: "/order/service/website_repair",
     cta_label: "Order form",
-    includes: "Repair existing site · form → payment",
+    includes: "Broken site? Recovery target 24–48h · form → payment",
   },
   {
     id: "seo_audit",

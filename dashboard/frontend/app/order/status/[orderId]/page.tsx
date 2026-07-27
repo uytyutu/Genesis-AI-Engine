@@ -337,11 +337,31 @@ function OrderStatusContent() {
           {showThankYou && (
             <>
               <p className="text-center text-4xl">✓</p>
-              <h1 className="mt-3 text-center text-2xl font-bold">{t("order.status.thanks")}</h1>
+              <h1 className="mt-3 text-center text-2xl font-bold">
+                {t("order.status.paymentReceived")}
+              </h1>
               {data.paid && (
-                <p className="mt-2 text-center text-sm text-emerald-300">
-                  {t("order.status.paymentReceived")} · {t("order.status.orderAccepted")}
-                </p>
+                <div className="mt-4 space-y-2 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-4 text-left text-sm text-emerald-50/95">
+                  <p>
+                    {t("order.status.afterPayContact", {
+                      hours: data.estimated_hours || 24,
+                      defaultValue:
+                        "Within {{hours}} hours we will contact you about this order.",
+                    })}
+                  </p>
+                  <p>
+                    {t("order.status.afterPayReceive", {
+                      defaultValue:
+                        "You will receive: payment confirmation, order reference, and clear next steps.",
+                    })}
+                  </p>
+                  <p>
+                    {t("order.status.afterPayStarts", {
+                      defaultValue:
+                        "Project work starts after we confirm scope (and access, when needed).",
+                    })}
+                  </p>
+                </div>
               )}
             </>
           )}

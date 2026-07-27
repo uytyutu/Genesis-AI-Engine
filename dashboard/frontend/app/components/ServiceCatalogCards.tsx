@@ -36,9 +36,23 @@ function ServiceCard({
           {live ? "Order" : "Soon"}
         </span>
       </div>
-      <h3 className="mt-4 text-lg font-semibold text-white">{spec.name}</h3>
+      <h3 className="mt-4 text-lg font-semibold leading-snug text-white">
+        {spec.name}
+      </h3>
       <p className="mt-1 text-sm font-medium text-emerald-200/90">{spec.price_label}</p>
       <p className="mt-2 text-sm text-zinc-400">{spec.blurb}</p>
+      {spec.highlights?.length ? (
+        <ul className="mt-3 space-y-1.5 text-sm text-zinc-200">
+          {spec.highlights.slice(0, 3).map((line) => (
+            <li key={line} className="flex gap-2">
+              <span className="text-emerald-400" aria-hidden>
+                ✓
+              </span>
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       {spec.id === "ai_business_bot" ? (
         <div className="mt-3">
           <BotChannelIconRow />
