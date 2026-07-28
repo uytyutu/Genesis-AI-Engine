@@ -60,9 +60,9 @@ function writeLocaleCookie(uiLocale: UiLocale): void {
  */
 export function defaultLocaleState(
   initialLocale?: UiLocale,
-  *,
-  fromCookie = false,
+  options?: { fromCookie?: boolean },
 ): LocaleState {
+  const fromCookie = Boolean(options?.fromCookie);
   const uiLocale =
     initialLocale && isPlatformLocale(initialLocale)
       ? initialLocale
