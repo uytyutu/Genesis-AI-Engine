@@ -423,3 +423,33 @@ def test_begin_checkout_passes_order_currency(tmp_path: Path, sandbox_env, monke
         cancel_url="http://localhost:3000/order",
     )
     assert captured.get("currency") == "pln"
+
+
+def test_confirm_already_paid_includes_order_id(tmp_path: Path, sandbox_env):
+    """Idempotent confirm must not 500 — RevenuePaymentResponse requires order_id."""
+    from app.schemas import RevenuePaymentResponse
+
+    sales, revenue = _pipeline(tmp_path)
+    created = sales.create_order(
+        {
+            "business_name": "Already Paid Cafe",
+            "description": "Test",
+            "email": "owner@test.com",
+            "package_id": "basic",
+            "city": "Berlin",
+        }
+    )
+    order_id = created["order_id"]
+    revenue.begin_checkout(
+        order_id,
+        success_url="http://localhost:3000/order/status",
+        cancel_url="http://localhost:3000/order",
+    )
+    first = revenue.complete_sandbox_payment(order_id)
+    assert first["ok"] is True
+
+    second = revenue.confirm_stripe_payment(order_id)
+    assert second["already_processed"] is True
+    assert second["order_id"] == order_id
+    # Would have been HTTP 500 if order_id missing (Pydantic ResponseValidationError).
+    RevenuePaymentResponse(**second)

@@ -225,12 +225,7 @@ class RevenuePipelineService:
         if order.get("status") in ("paid", "in_production", "ready", "delivered"):
             self._backfill_email_from_checkout(order)
             email_result = self._send_receipt_if_needed(order)
-            return {
-                "ok": True,
-                "already_processed": True,
-                "order": self._sales.public_status(order_id),
-                "receipt_email": email_result,
-            }
+            return self._already_paid_response(order_id, email_result=email_result)
         if self._checkout.provider() != "stripe":
             raise ValueError("stripe_only")
         session_id = str(order.get("checkout_session_id") or "").strip()
@@ -267,12 +262,7 @@ class RevenuePipelineService:
             self._ensure_order_email(order, sender)
             self._backfill_email_from_checkout(order)
             email_result = self._send_receipt_if_needed(order)
-            return {
-                "ok": True,
-                "already_processed": True,
-                "order": self._sales.public_status(order_id),
-                "receipt_email": email_result,
-            }
+            return self._already_paid_response(order_id, email_result=email_result)
 
         expected = float(order["price_eur"])
         paid = expected if amount_eur is None else round(float(amount_eur), 2)
@@ -396,6 +386,27 @@ class RevenuePipelineService:
             "order": self._sales.public_status(order_id),
             "receipt_email": email_result,
             "owner_payment_alert": owner_mail,
+        }
+
+    def _already_paid_response(
+        self, order_id: str, *, email_result: dict | None = None
+    ) -> dict:
+        """Idempotent confirm — must satisfy RevenuePaymentResponse (order_id required)."""
+        order = self._sales.get_order(order_id) or {}
+        amount = order.get("price_eur")
+        try:
+            amount_eur = float(amount) if amount is not None else None
+        except (TypeError, ValueError):
+            amount_eur = None
+        return {
+            "ok": True,
+            "order_id": order_id,
+            "amount_eur": amount_eur,
+            "product_id": order.get("product_id"),
+            "client_message": str(order.get("client_status_message") or ""),
+            "already_processed": True,
+            "order": self._sales.public_status(order_id),
+            "receipt_email": email_result,
         }
 
     def _ensure_order_email(self, order: dict, sender: str | None) -> None:
