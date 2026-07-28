@@ -2,6 +2,9 @@
 
 Run from repo root:
     py scripts/verify_release.py
+
+This is local smoke only. Merge to main also requires human PASS on:
+    docs/BETA_MAIN_RELEASE_GATE.md  (beta environment)
 """
 
 from __future__ import annotations
