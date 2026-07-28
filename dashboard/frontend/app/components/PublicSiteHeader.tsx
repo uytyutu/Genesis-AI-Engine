@@ -27,12 +27,14 @@ export function PublicSiteHeader({ customerDecisionFlow = false }: { customerDec
               <Link
                 href="/client/login"
                 className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-white/5 sm:text-sm"
+                suppressHydrationWarning
               >
                 {t("nav.signIn", { defaultValue: "Sign in" })}
               </Link>
               <Link
                 href="/client/register"
                 className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-black hover:brightness-110 sm:text-sm"
+                suppressHydrationWarning
               >
                 {t("nav.register", { defaultValue: "Register" })}
               </Link>

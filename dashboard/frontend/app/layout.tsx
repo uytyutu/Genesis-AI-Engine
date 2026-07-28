@@ -1,8 +1,11 @@
+import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { AppShell } from "./components/AppShell";
 import { LocaleProvider } from "./context/LocaleContext";
 import { ToastProvider } from "./components/ToastProvider";
 import { SITE_URL } from "./lib/siteConfig";
+import { DEFAULT_UI_LOCALE, isPlatformLocale } from "./lib/locale/types";
+import type { UiLocale } from "./lib/locale/types";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -34,16 +37,27 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
 };
 
-export default function RootLayout({
+function readInitialLocale(raw: string | undefined): UiLocale {
+  return isPlatformLocale(raw) ? raw : DEFAULT_UI_LOCALE;
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const jar = await cookies();
+  const raw = jar.get("virtus_ui_locale")?.value;
+  const localeFromCookie = isPlatformLocale(raw);
+  const initialLocale = readInitialLocale(raw);
+
   return (
-    <html lang="ru">
+    <html lang={initialLocale}>
       <body className="genesis-os-shell overflow-x-hidden antialiased">
-        <LocaleProvider>
-          <ToastProvider>
+        <LocaleProvider
+          initialLocale={initialLocale}
+          localeFromCookie={localeFromCookie}
+        >          <ToastProvider>
             <AppShell>{children}</AppShell>
           </ToastProvider>
         </LocaleProvider>

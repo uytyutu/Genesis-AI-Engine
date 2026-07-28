@@ -31,9 +31,20 @@ type LocaleContextValue = LocaleState & {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
-export function LocaleProvider({ children }: { children: ReactNode }) {
-  // Same seed on server + first client paint — avoids hydration mismatch.
-  const [state, setState] = useState<LocaleState>(() => defaultLocaleState());
+export function LocaleProvider({
+  children,
+  initialLocale,
+  localeFromCookie = false,
+}: {
+  children: ReactNode;
+  /** From cookie in root layout — keeps SSR HTML language aligned with client. */
+  initialLocale?: UiLocale;
+  localeFromCookie?: boolean;
+}) {
+  const [state, setState] = useState<LocaleState>(() =>
+    defaultLocaleState(initialLocale, { fromCookie: localeFromCookie }),
+  );
+  const [hydrated, setHydrated] = useState(false);
   const i18n = useMemo(() => ensureI18n(state.uiLocale), [state.uiLocale]);
 
   const commit = useCallback(
@@ -45,18 +56,21 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     [i18n],
   );
 
-  // After mount: apply stored / browser locale (safe to diverge from SSR seed).
+  // After mount: apply stored / browser locale (cookie already seeded SSR).
   useEffect(() => {
+    setHydrated(true);
     const loaded = loadLocaleState();
+    // Prefer explicit user choice (autoDetect off) from localStorage.
+    // If autoDetect and cookie already matches browser, keep it.
     if (
       loaded.uiLocale === state.uiLocale &&
       loaded.assistantLocale === state.assistantLocale &&
       loaded.autoDetect === state.autoDetect
     ) {
+      persistLocaleState(loaded);
       return;
     }
     commit(loaded);
-    // Only on mount — do not re-run when state changes from commit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -94,8 +108,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
         const next: LocaleState = {
           autoDetect: false,
           uiLocale,
-          // Public chips use applyUiLocale (UI+assistant together). Full panel may
-          // keep assistant separate until the user changes it too.
           assistantLocale:
             prev.assistantLocale === prev.uiLocale ? uiLocale : prev.assistantLocale,
         };
@@ -107,16 +119,13 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     [i18n],
   );
 
-  const setAssistantLocale = useCallback(
-    (assistantLocale: AssistantLocale) => {
-      setState((prev) => {
-        const next: LocaleState = { ...prev, autoDetect: false, assistantLocale };
-        persistLocaleState(next);
-        return next;
-      });
-    },
-    [],
-  );
+  const setAssistantLocale = useCallback((assistantLocale: AssistantLocale) => {
+    setState((prev) => {
+      const next: LocaleState = { ...prev, autoDetect: false, assistantLocale };
+      persistLocaleState(next);
+      return next;
+    });
+  }, []);
 
   const applyUiLocale = useCallback(
     (uiLocale: UiLocale) => {
@@ -143,7 +152,15 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   return (
     <LocaleContext.Provider value={value}>
-      <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+      <I18nextProvider i18n={i18n}>
+        {/* Hide translated chrome until hydrated when no cookie yet — rare flash only */}
+        <div
+          suppressHydrationWarning
+          data-locale-hydrated={hydrated ? "1" : "0"}
+        >
+          {children}
+        </div>
+      </I18nextProvider>
     </LocaleContext.Provider>
   );
 }

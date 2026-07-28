@@ -10,6 +10,8 @@ import {
 const AUTO_KEY = "virtus_ui_locale_auto";
 const UI_KEY = "virtus_ui_locale";
 const ASSISTANT_KEY = "virtus_assistant_locale";
+/** Cookie mirrors UI locale so SSR HTML matches client (stops Angebot≠Предложение). */
+export const UI_LOCALE_COOKIE = "virtus_ui_locale";
 
 function readAuto(): boolean {
   if (typeof window === "undefined") return true;
@@ -43,15 +45,33 @@ function readStoredAssistant(): AssistantLocale | null {
   }
 }
 
+function writeLocaleCookie(uiLocale: UiLocale): void {
+  if (typeof document === "undefined") return;
+  try {
+    const maxAge = 60 * 60 * 24 * 365;
+    document.cookie = `${UI_LOCALE_COOKIE}=${encodeURIComponent(uiLocale)}; path=/; max-age=${maxAge}; samesite=lax`;
+  } catch {
+    /* ignore */
+  }
+}
+
 /**
- * Hydration-safe seed — identical on server and first client paint.
- * Never read navigator / localStorage here (that caused skip-link SSR≠client).
+ * Hydration-safe seed — identical on server and first client paint when cookie matches.
  */
-export function defaultLocaleState(): LocaleState {
+export function defaultLocaleState(
+  initialLocale?: UiLocale,
+  *,
+  fromCookie = false,
+): LocaleState {
+  const uiLocale =
+    initialLocale && isPlatformLocale(initialLocale)
+      ? initialLocale
+      : DEFAULT_UI_LOCALE;
   return {
-    autoDetect: true,
-    uiLocale: DEFAULT_UI_LOCALE,
-    assistantLocale: DEFAULT_UI_LOCALE,
+    // Cookie = explicit prior choice (or last persist). No cookie → still allow auto-detect after mount.
+    autoDetect: !fromCookie,
+    uiLocale,
+    assistantLocale: uiLocale,
   };
 }
 
@@ -77,6 +97,7 @@ export function persistLocaleState(state: LocaleState): void {
     localStorage.setItem(AUTO_KEY, state.autoDetect ? "1" : "0");
     localStorage.setItem(UI_KEY, state.uiLocale);
     localStorage.setItem(ASSISTANT_KEY, state.assistantLocale);
+    writeLocaleCookie(state.uiLocale);
   } catch {
     /* private mode */
   }
