@@ -80,7 +80,7 @@ export const SERVICE_SPECS: ServiceSpec[] = [
     mark: "W",
     accent: "border-emerald-400/35 bg-emerald-500/[0.08]",
     availability: "available",
-    href: "/order",
+    href: "/order?form=1",
     fields: [],
     deliveryNote: "Full order form with packages and materials.",
     includes: ["Mobile landing", "Impressum / Datenschutz ready", "Files you own"],
@@ -414,7 +414,6 @@ export const HUB_PRIMARY_SERVICE_IDS = [
 ] as const;
 
 export const HUB_MORE_SERVICE_IDS = [
-  "ai_website_analysis",
   "seo_audit",
   "speed_optimization",
   "security_check",

@@ -47,6 +47,11 @@ export const CLIENT_WORKSPACE_LINKS = [
     match: (p: string) => p.startsWith("/client/support"),
   },
   {
+    href: "/client/privacy",
+    label: "Privacy & Cookies",
+    match: (p: string) => p.startsWith("/client/privacy"),
+  },
+  {
     href: "/projects/chatbot",
     label: ASSISTANT_NAME,
     match: (p: string) => p.startsWith("/projects/chatbot"),

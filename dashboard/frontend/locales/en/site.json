@@ -148,6 +148,8 @@
     "cityPh": "Cologne",
     "phone": "Phone",
     "phoneOptional": "Phone (optional)",
+    "contactBeforePayTitle": "Contact for confirmation and payment",
+    "contactBeforePayHint": "No account needed — email only for the payment link. Phone is optional.",
     "whatsapp": "WhatsApp",
     "email": "Email",
     "emailLaunch": "Email for launch confirmation",
@@ -608,5 +610,210 @@
     "next": "What you can do next",
     "recommended": "recommended",
     "askVector": "Discuss the report with Vector →"
+  },
+  "cookies": {
+    "title": "We use cookies",
+    "body": "Essential cookies are required for the site and your {{brand}} cabinet. With your consent we may also use analytics and marketing cookies to improve the service.",
+    "more": "More:",
+    "policy": "Cookie policy",
+    "privacy": "Privacy",
+    "cabinetPrivacy": "Privacy in cabinet",
+    "essential": "Essential",
+    "essentialHint": "Always on — session, security, cabinet.",
+    "analytics": "Analytics",
+    "analyticsHint": "With consent — understand usage (e.g. GA).",
+    "marketing": "Marketing",
+    "marketingHint": "With consent — ads and retargeting.",
+    "acceptAll": "Accept all",
+    "essentialOnly": "Essential only",
+    "save": "Save choice",
+    "customize": "Customize"
+  },
+  "orderBot": {
+    "loading": "Loading…",
+    "steps": ["Package", "Account", "Company & AI", "Channels", "Payment"],
+    "step1Title": "1. Choose a package",
+    "step1Hint": "The plan limit is the number of independent AI bots, not channels. After payment, connect your own Telegram / Meta accounts in the cabinet.",
+    "market": "Market",
+    "loadingPackages": "Loading packages…",
+    "thenMonthly": " · then {{monthly}}/mo",
+    "step2Title": "2. Workspace",
+    "step2Hint": "Account before payment — the order is tied to your Workspace. Website orders do not need an account.",
+    "loggedIn": "You are signed in. Continue setup.",
+    "continue": "Continue →",
+    "registerTab": "Register",
+    "loginTab": "Sign in",
+    "namePh": "Name",
+    "passwordPh": "Password (min. 8 characters)",
+    "sendCode": "Send code to email",
+    "codeSent": "Code sent to {{email}}",
+    "codePh": "Code from email",
+    "confirmContinue": "Confirm and continue",
+    "passwordLoginPh": "Password",
+    "login": "Sign in",
+    "haveCabinet": "Already have a cabinet?",
+    "step3Title": "3. Company & AI",
+    "companyPh": "Company name *",
+    "activityPh": "Niche / activity *",
+    "servicesPh": "Services (short)",
+    "faqPh": "FAQ / typical questions",
+    "botNamePh": "Digital employee name *",
+    "botTasksPh": "What should the bot do?",
+    "tone": "Tone",
+    "toneFriendly": "Friendly",
+    "toneProfessional": "Professional",
+    "toneConcise": "Concise",
+    "websitePh": "Company website (if any)",
+    "step4Title": "4. Channels",
+    "step4Hint": "Channels do not limit the plan. After payment, connect your accounts.",
+    "soon": "soon",
+    "step5Title": "5. Summary and payment",
+    "companyLabel": "Company: {{name}}",
+    "employeeLabel": "Employee: {{name}}",
+    "channelsLabel": "Channels: {{list}}",
+    "emailReceiptPh": "Email for receipt *",
+    "phoneOptionalPh": "Phone (optional)",
+    "payStripe": "Pay with Stripe",
+    "creating": "Creating order…",
+    "back": "← Back",
+    "backToPackages": "← Back to packages",
+    "payingTitle": "Going to payment…",
+    "orderLine": "Order {{id}} · {{name}}",
+    "openCabinet": "Open bot cabinet",
+    "errPickPackage": "Choose a package.",
+    "errNeedAccount": "Sign in or register a Workspace — payment requires an account.",
+    "errCompany": "Enter company name.",
+    "errActivity": "Enter niche / activity.",
+    "errBotName": "Enter digital employee name.",
+    "errLanguage": "Choose at least one language.",
+    "errChannel": "Choose at least one available channel.",
+    "errEmail": "Enter email for the receipt.",
+    "errRegister": "Registration failed",
+    "errCode": "Invalid code",
+    "errNoToken": "No session token",
+    "errConfirm": "Confirmation failed",
+    "errLogin": "Sign-in failed",
+    "errNeedLogin": "Sign in to Workspace first.",
+    "errOrder": "Could not create order",
+    "errPay": "Payment error",
+    "servicesPrefix": "Services: {{text}}",
+    "tasksPrefix": "Bot tasks: {{text}}",
+    "channelNoteLive": "Connect after pay",
+    "channelNoteMeta": "Meta OAuth after pay",
+    "channelNoteToken": "Own bot token after pay",
+    "packages": {
+      "bot_starter": {
+        "includes": [
+          "1 AI bot (digital employee)",
+          "Any channel: Website Chat, Telegram, WhatsApp, Instagram, Messenger",
+          "Knowledge Base: up to 1 source",
+          "1 language",
+          "Basic scenarios + handoff to operator"
+        ]
+      },
+      "bot_business": {
+        "includes": [
+          "Up to 3 independent AI bots",
+          "Each bot — any supported channel",
+          "Knowledge Base: up to 5 sources",
+          "Up to 3 languages",
+          "Advanced scenarios + AI analysis",
+          "Regular training"
+        ]
+      },
+      "bot_professional": {
+        "includes": [
+          "Unlimited AI bots (Fair Use)",
+          "All channels as they become available",
+          "Knowledge Base without source limit",
+          "Unlimited languages",
+          "Full scenarios + full analytics",
+          "VIP support"
+        ]
+      }
+    }
+  },
+  "serviceForm": {
+    "backStorefront": "← {{brand}} storefront",
+    "backSite": "← Back to storefront",
+    "notFound": "Service not found",
+    "formStep": "Order form",
+    "confirmStep": "Ready for payment",
+    "confirmReady": "Thanks — your request is prepared.",
+    "confirmPayIntro": "Next you pay securely. After payment this is what you get:",
+    "stepHint": "Step 1 of 2: tell us what you need → then confirm value → payment.",
+    "included": "Included",
+    "timeline": "Timeline",
+    "afterPay": "After payment",
+    "support": "Support: {{support}}",
+    "editForm": "← Edit form",
+    "paySecure": "Pay securely →",
+    "openingPay": "Opening payment…",
+    "orderDraft": "Order draft: {{id}}",
+    "comingSoonBanner": "Checkout is not open yet — submit interest and we will contact you.",
+    "prepareRequest": "Prepare request →",
+    "saving": "Saving…",
+    "sendInterest": "Send interest",
+    "interestSent": "Interest sent",
+    "interestThanks": "Thanks — interest recorded.",
+    "interestBody": "Checkout for this service is not open yet. We will contact you when it goes live. No payment was taken.",
+    "interestRef": "Reference: {{id}}",
+    "fillRequired": "Please fill: {{field}}",
+    "emailRequired": "Valid email required",
+    "orderFailed": "Order failed",
+    "fields": {
+      "email": {
+        "label": "Email",
+        "placeholder": "you@company.com"
+      },
+      "business_name": {
+        "label": "Company / brand",
+        "placeholder": "Your business name"
+      },
+      "phone": {
+        "label": "Phone",
+        "placeholder": "+49 …"
+      },
+      "website_url": {
+        "label": "Website URL",
+        "placeholder": "https://…"
+      },
+      "city": {
+        "label": "City / area",
+        "placeholder": "Berlin, Munich area…"
+      },
+      "goal": {
+        "label": "Your goal / focus",
+        "placeholder": "What should we focus on?"
+      },
+      "notes": {
+        "label": "Hours / photos / special notes",
+        "placeholder": "Opening hours, photos, special requests…"
+      },
+      "access_notes": {
+        "label": "Access notes (optional)",
+        "placeholder": "Hosting / CMS login will be shared after payment"
+      },
+      "whatsapp": {
+        "label": "WhatsApp",
+        "placeholder": "+49 …"
+      },
+      "gbp_name": {
+        "label": "Business name on Google",
+        "placeholder": "Name as shown on Google Maps"
+      },
+      "gbp_category": {
+        "label": "Main category",
+        "placeholder": "e.g. Auto repair shop"
+      },
+      "hosting_from": {
+        "label": "Current hosting",
+        "placeholder": "e.g. Wix, WordPress.com, IONOS…"
+      },
+      "hosting_to": {
+        "label": "Target hosting (if known)",
+        "placeholder": "Leave blank if we should advise"
+      }
+    }
   }
 }

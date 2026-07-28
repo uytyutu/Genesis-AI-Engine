@@ -10,6 +10,10 @@ export function publicPageMetadata(
   return {
     title: `${title} — ${SITE_NAME}`,
     description,
+    robots: {
+      index: true,
+      follow: true,
+    },
     openGraph: {
       type: "website",
       locale: "de_DE",

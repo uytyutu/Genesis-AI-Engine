@@ -3,12 +3,19 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { PublicPageShell } from "../../../components/PublicPageShell";
 import { BRAND_NAME } from "../../../lib/publicBrand";
 import { formatApiDetail } from "../../../lib/formatApiError";
 import { startOrderCheckout } from "../../../lib/orderCheckout";
 import { publicApiBase } from "../../../lib/publicApiBase";
-import { getServiceSpec, type ServiceFieldId } from "../../../lib/serviceOrderSpecs";
+import {
+  getServiceSpec,
+  type ServiceField,
+  type ServiceFieldId,
+  type ServiceSpec,
+} from "../../../lib/serviceOrderSpecs";
 import { getVisitorId } from "../../../lib/visitorId";
 
 const API = publicApiBase();
@@ -16,11 +23,50 @@ const API = publicApiBase();
 type FormState = Partial<Record<ServiceFieldId, string>>;
 type Step = "form" | "confirm";
 
+function localizedSpec(spec: ServiceSpec, t: TFunction) {
+  const k = `catalog.${spec.id}`;
+  const includes = t(`${k}.includes`, {
+    returnObjects: true,
+    defaultValue: spec.includes,
+  });
+  const afterPayRaw = t(`${k}.afterPay`, {
+    returnObjects: true,
+    defaultValue: spec.afterPay,
+  });
+  return {
+    name: t(`${k}.name`, { defaultValue: spec.name }),
+    price_label: t(`${k}.price`, { defaultValue: spec.price_label }),
+    blurb: t(`${k}.blurb`, { defaultValue: spec.blurb }),
+    includes: Array.isArray(includes) ? (includes as string[]) : spec.includes,
+    afterPay: Array.isArray(afterPayRaw)
+      ? (afterPayRaw as string[])
+      : spec.afterPay,
+    timeline: t(`${k}.timeline`, { defaultValue: spec.timeline }),
+    support: t(`${k}.support`, { defaultValue: spec.support }),
+    deliveryNote: t(`${k}.deliveryNote`, { defaultValue: spec.deliveryNote }),
+  };
+}
+
+function fieldLabel(f: ServiceField, t: TFunction) {
+  return t(`serviceForm.fields.${f.id}.label`, { defaultValue: f.label });
+}
+
+function fieldPlaceholder(f: ServiceField, t: TFunction) {
+  return t(`serviceForm.fields.${f.id}.placeholder`, {
+    defaultValue: f.placeholder || "",
+  });
+}
+
 export default function ServiceOrderPage() {
   const params = useParams();
   const router = useRouter();
+  const { t } = useTranslation("site");
   const serviceId = String(params?.serviceId || "");
   const spec = useMemo(() => getServiceSpec(serviceId), [serviceId]);
+  const copy = useMemo(
+    () => (spec ? localizedSpec(spec, t) : null),
+    [spec, t],
+  );
 
   const [values, setValues] = useState<FormState>({});
   const [step, setStep] = useState<Step>("form");
@@ -29,13 +75,15 @@ export default function ServiceOrderPage() {
   const [waitlisted, setWaitlisted] = useState(false);
   const [orderId, setOrderId] = useState("");
 
-  if (!spec) {
+  if (!spec || !copy) {
     return (
       <PublicPageShell>
         <main className="mx-auto max-w-lg px-4 py-16 text-center">
-          <h1 className="text-xl font-semibold text-white">Service not found</h1>
+          <h1 className="text-xl font-semibold text-white">
+            {t("serviceForm.notFound", { defaultValue: "Service not found" })}
+          </h1>
           <Link href="/site" className="mt-4 inline-block text-emerald-300 hover:underline">
-            ← Back to storefront
+            {t("serviceForm.backSite", { defaultValue: "← Back to storefront" })}
           </Link>
         </main>
       </PublicPageShell>
@@ -62,12 +110,17 @@ export default function ServiceOrderPage() {
   function validateForm(): string | null {
     for (const f of spec!.fields) {
       if (f.required && !(values[f.id] || "").trim()) {
-        return `Please fill: ${f.label}`;
+        return t("serviceForm.fillRequired", {
+          field: fieldLabel(f, t),
+          defaultValue: "Please fill: {{field}}",
+        });
       }
     }
     const email = (values.email || "").trim();
     if (spec!.fields.some((f) => f.id === "email") && !email.includes("@")) {
-      return "Valid email required";
+      return t("serviceForm.emailRequired", {
+        defaultValue: "Valid email required",
+      });
     }
     return null;
   }
@@ -94,7 +147,7 @@ export default function ServiceOrderPage() {
       setError(invalid);
       return;
     }
-    if (spec!.availability === "coming_soon") {
+    if (spec.availability === "coming_soon") {
       setBusy(true);
       try {
         const wishes = buildWishes();
@@ -103,9 +156,9 @@ export default function ServiceOrderPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            package_id: spec!.id,
+            package_id: spec.id,
             business_name: (values.business_name || "").trim() || "Interest request",
-            description: `[interest] ${wishes || spec!.blurb}`,
+            description: `[interest] ${wishes || spec.blurb}`,
             email,
             phone: (values.phone || "").trim() || null,
             whatsapp: (values.whatsapp || "").trim() || null,
@@ -117,12 +170,19 @@ export default function ServiceOrderPage() {
         });
         const body = await res.json();
         if (!res.ok) {
-          throw new Error(formatApiDetail(body.detail) || "Could not save interest");
+          throw new Error(
+            formatApiDetail(body.detail) ||
+              t("serviceForm.orderFailed", { defaultValue: "Could not save interest" }),
+          );
         }
         setOrderId(String(body.order_id || body.id || ""));
         setWaitlisted(true);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Interest failed");
+        setError(
+          err instanceof Error
+            ? err.message
+            : t("serviceForm.orderFailed", { defaultValue: "Interest failed" }),
+        );
       } finally {
         setBusy(false);
       }
@@ -141,9 +201,9 @@ export default function ServiceOrderPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          package_id: spec!.id,
+          package_id: spec.id,
           business_name: (values.business_name || "").trim() || "Service order",
-          description: wishes || spec!.blurb,
+          description: wishes || spec.blurb,
           email,
           phone: (values.phone || "").trim() || null,
           whatsapp: (values.whatsapp || "").trim() || null,
@@ -155,18 +215,25 @@ export default function ServiceOrderPage() {
       });
       const body = await res.json();
       if (!res.ok) {
-        throw new Error(formatApiDetail(body.detail) || "Could not create order");
+        throw new Error(
+          formatApiDetail(body.detail) ||
+            t("serviceForm.orderFailed", { defaultValue: "Could not create order" }),
+        );
       }
       const id = String(body.order_id || body.id || "");
       if (!id) throw new Error("No order id");
       setOrderId(id);
       const url = await startOrderCheckout(id, {
         successPath: `/order/status/${id}?paid=1`,
-        cancelPath: `/order/service/${spec!.id}?canceled=1`,
+        cancelPath: `/order/service/${spec.id}?canceled=1`,
       });
       window.location.href = url;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Order failed");
+      setError(
+        err instanceof Error
+          ? err.message
+          : t("serviceForm.orderFailed", { defaultValue: "Order failed" }),
+      );
       setBusy(false);
     }
   }
@@ -175,50 +242,65 @@ export default function ServiceOrderPage() {
     <PublicPageShell>
       <main className="mx-auto max-w-xl px-4 py-10">
         <Link href="/site" className="text-sm text-emerald-300 hover:underline">
-          ← {BRAND_NAME} storefront
+          {t("serviceForm.backStorefront", {
+            brand: BRAND_NAME,
+            defaultValue: "← {{brand}} storefront",
+          })}
         </Link>
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">
-          {step === "form" ? "Order form" : "Ready for payment"}
+          {step === "form"
+            ? t("serviceForm.formStep", { defaultValue: "Order form" })
+            : t("serviceForm.confirmStep", { defaultValue: "Ready for payment" })}
         </p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">{spec.name}</h1>
-        <p className="mt-1 text-lg text-emerald-200/90">{spec.price_label}</p>
-        <p className="mt-3 text-sm text-zinc-400">{spec.blurb}</p>
+        <h1 className="mt-2 text-3xl font-semibold text-white">{copy.name}</h1>
+        <p className="mt-1 text-lg text-emerald-200/90">{copy.price_label}</p>
+        <p className="mt-3 text-sm text-zinc-400">{copy.blurb}</p>
 
         {step === "confirm" ? (
           <div className="mt-8 space-y-5 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.07] p-5">
             <p className="text-lg font-semibold text-white">
-              Thanks — your request is prepared.
+              {t("serviceForm.confirmReady", {
+                defaultValue: "Thanks — your request is prepared.",
+              })}
             </p>
             <p className="text-sm text-zinc-300">
-              Next you pay securely. After payment this is what you get:
+              {t("serviceForm.confirmPayIntro", {
+                defaultValue:
+                  "Next you pay securely. After payment this is what you get:",
+              })}
             </p>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                Included
+                {t("serviceForm.included", { defaultValue: "Included" })}
               </p>
               <ul className="mt-2 space-y-1 text-sm text-zinc-200">
-                {spec.includes.map((line) => (
+                {copy.includes.map((line) => (
                   <li key={line}>✓ {line}</li>
                 ))}
               </ul>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                Timeline
+                {t("serviceForm.timeline", { defaultValue: "Timeline" })}
               </p>
-              <p className="mt-1 text-sm text-zinc-200">{spec.timeline}</p>
+              <p className="mt-1 text-sm text-zinc-200">{copy.timeline}</p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                After payment
+                {t("serviceForm.afterPay", { defaultValue: "After payment" })}
               </p>
               <ul className="mt-2 space-y-1 text-sm text-zinc-200">
-                {spec.afterPay.map((line) => (
+                {copy.afterPay.map((line) => (
                   <li key={line}>→ {line}</li>
                 ))}
               </ul>
             </div>
-            <p className="text-xs text-zinc-500">Support: {spec.support}</p>
+            <p className="text-xs text-zinc-500">
+              {t("serviceForm.support", {
+                support: copy.support,
+                defaultValue: "Support: {{support}}",
+              })}
+            </p>
             {error ? (
               <p className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
                 {error}
@@ -231,7 +313,7 @@ export default function ServiceOrderPage() {
                 disabled={busy}
                 className="rounded-xl border border-white/20 px-4 py-3 text-sm font-medium text-white hover:bg-white/5 disabled:opacity-60"
               >
-                ← Edit form
+                {t("serviceForm.editForm", { defaultValue: "← Edit form" })}
               </button>
               <button
                 type="button"
@@ -239,41 +321,56 @@ export default function ServiceOrderPage() {
                 disabled={busy}
                 className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-60"
               >
-                {busy ? "Opening payment…" : "Pay securely →"}
+                {busy
+                  ? t("serviceForm.openingPay", { defaultValue: "Opening payment…" })
+                  : t("serviceForm.paySecure", { defaultValue: "Pay securely →" })}
               </button>
             </div>
             {orderId ? (
-              <p className="text-[11px] text-zinc-500">Order draft: {orderId}</p>
+              <p className="text-[11px] text-zinc-500">
+                {t("serviceForm.orderDraft", {
+                  id: orderId,
+                  defaultValue: "Order draft: {{id}}",
+                })}
+              </p>
             ) : null}
           </div>
         ) : (
           <form onSubmit={onSubmitForm} className="mt-8 space-y-4">
             {spec.availability === "coming_soon" ? (
               <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
-                Checkout is not open yet — submit interest and we will contact you.
+                {t("serviceForm.comingSoonBanner", {
+                  defaultValue:
+                    "Checkout is not open yet — submit interest and we will contact you.",
+                })}
               </p>
             ) : (
               <p className="text-xs text-zinc-500">
-                Step 1 of 2: tell us what you need → then confirm value → payment.
+                {t("serviceForm.stepHint", {
+                  defaultValue:
+                    "Step 1 of 2: tell us what you need → then confirm value → payment.",
+                })}
               </p>
             )}
 
             <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs text-zinc-400">
-              <p className="font-semibold text-zinc-300">What&apos;s included</p>
+              <p className="font-semibold text-zinc-300">
+                {t("serviceForm.included", { defaultValue: "What's included" })}
+              </p>
               <ul className="mt-2 space-y-1">
-                {spec.includes.map((line) => (
+                {copy.includes.map((line) => (
                   <li key={line}>✓ {line}</li>
                 ))}
               </ul>
               <p className="mt-2 text-zinc-500">
-                {spec.stages.join(" → ")} · {spec.timeline}
+                {spec.stages.join(" → ")} · {copy.timeline}
               </p>
             </div>
 
             {spec.fields.map((f) => (
               <label key={f.id} className="block text-sm text-zinc-300">
                 <span className="mb-1.5 block font-medium text-zinc-200">
-                  {f.label}
+                  {fieldLabel(f, t)}
                   {f.required ? " *" : ""}
                 </span>
                 {f.multiline ? (
@@ -281,7 +378,7 @@ export default function ServiceOrderPage() {
                     rows={4}
                     value={values[f.id] || ""}
                     onChange={(e) => setField(f.id, e.target.value)}
-                    placeholder={f.placeholder}
+                    placeholder={fieldPlaceholder(f, t)}
                     className="w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2.5 text-white outline-none focus:border-emerald-400/50"
                   />
                 ) : (
@@ -289,7 +386,7 @@ export default function ServiceOrderPage() {
                     type={f.type || "text"}
                     value={values[f.id] || ""}
                     onChange={(e) => setField(f.id, e.target.value)}
-                    placeholder={f.placeholder}
+                    placeholder={fieldPlaceholder(f, t)}
                     className="w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2.5 text-white outline-none focus:border-emerald-400/50"
                   />
                 )}
@@ -303,13 +400,24 @@ export default function ServiceOrderPage() {
             ) : null}
             {waitlisted ? (
               <div className="space-y-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-3 text-sm text-emerald-100">
-                <p className="font-semibold text-white">Thanks — interest recorded.</p>
+                <p className="font-semibold text-white">
+                  {t("serviceForm.interestThanks", {
+                    defaultValue: "Thanks — interest recorded.",
+                  })}
+                </p>
                 <p>
-                  Checkout for this service is not open yet. We will contact you when it
-                  goes live. No payment was taken.
+                  {t("serviceForm.interestBody", {
+                    defaultValue:
+                      "Checkout for this service is not open yet. We will contact you when it goes live. No payment was taken.",
+                  })}
                 </p>
                 {orderId ? (
-                  <p className="text-[11px] text-emerald-200/70">Reference: {orderId}</p>
+                  <p className="text-[11px] text-emerald-200/70">
+                    {t("serviceForm.interestRef", {
+                      id: orderId,
+                      defaultValue: "Reference: {{id}}",
+                    })}
+                  </p>
                 ) : null}
               </div>
             ) : null}
@@ -320,12 +428,14 @@ export default function ServiceOrderPage() {
               className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-60"
             >
               {busy
-                ? "Saving…"
+                ? t("serviceForm.saving", { defaultValue: "Saving…" })
                 : waitlisted
-                  ? "Interest sent"
+                  ? t("serviceForm.interestSent", { defaultValue: "Interest sent" })
                   : spec.availability === "coming_soon"
-                    ? "Send interest"
-                    : "Prepare request →"}
+                    ? t("serviceForm.sendInterest", { defaultValue: "Send interest" })
+                    : t("serviceForm.prepareRequest", {
+                        defaultValue: "Prepare request →",
+                      })}
             </button>
           </form>
         )}

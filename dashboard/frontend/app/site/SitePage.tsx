@@ -531,7 +531,7 @@ export function SitePage() {
   }, [router]);
 
   function orderHrefFor(pkg: string) {
-    return `/order?market=${market}&package=${pkg}`;
+    return `/order?market=${encodeURIComponent(market)}&package=${encodeURIComponent(pkg)}&form=1`;
   }
 
   const comingSoon = t("s0.comingSoon", { defaultValue: "Coming Soon" });
@@ -596,18 +596,18 @@ export function SitePage() {
                   })}
                 </a>
                 <Link
-                  href="/client/register"
-                  className="inline-flex rounded-xl border border-white/20 px-5 py-2.5 text-sm font-medium text-white hover:bg-white/5"
-                >
-                  {t("s0.createAccount", {
-                    defaultValue: "Create personal account",
-                  })}
-                </Link>
-                <Link
                   href="/client/login"
                   className="inline-flex text-sm font-medium text-zinc-400 hover:text-white"
                 >
                   {t("s0.signIn", { defaultValue: "Sign in" })}
+                </Link>
+                <Link
+                  href="/client/register"
+                  className="inline-flex text-sm font-medium text-zinc-500 hover:text-zinc-300"
+                >
+                  {t("s0.createAccount", {
+                    defaultValue: "Create personal account",
+                  })}
                 </Link>
               </div>
             </header>

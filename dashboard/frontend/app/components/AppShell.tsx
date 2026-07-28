@@ -10,6 +10,8 @@ import { ClientWorkspaceNav } from "./navigation/ClientWorkspaceNav";
 import { ClientWorkspaceTopBar } from "./navigation/ClientWorkspaceTopBar";
 import { ClientMobileNav } from "./navigation/ClientMobileNav";
 import { ClientAuthGate } from "./ClientAuthGate";
+import { CookieConsentBanner } from "./CookieConsentBanner";
+import { CookieAnalyticsGate } from "./CookieAnalyticsGate";
 
 /** M3.2: three navigation shells — one product, one Vector, shared kernel. */
 
@@ -21,6 +23,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return (
       <div className="virtus-surface-public min-h-screen" data-surface="public">
         {children}
+        <CookieAnalyticsGate />
+        <CookieConsentBanner />
       </div>
     );
   }
@@ -36,6 +40,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="genesis-app-content">{children}</div>
           </div>
         </ClientAuthGate>
+        <CookieAnalyticsGate />
+        <CookieConsentBanner />
       </div>
     );
   }
@@ -57,6 +63,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <GenesisMobileNav />
         <div className="genesis-app-content">{children}</div>
       </div>
+      <CookieAnalyticsGate />
+      <CookieConsentBanner />
     </div>
   );
 }

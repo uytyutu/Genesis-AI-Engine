@@ -8,7 +8,9 @@
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../../components/PublicPageShell";
+import { useLocale } from "../../context/LocaleContext";
 import { BRAND_NAME } from "../../lib/publicBrand";
 import {
   clientAuthHeaders,
@@ -19,6 +21,8 @@ import { formatApiDetail } from "../../lib/formatApiError";
 import { startOrderCheckout } from "../../lib/orderCheckout";
 import { publicApiBase } from "../../lib/publicApiBase";
 import { getVisitorId } from "../../lib/visitorId";
+import type { UiLocale } from "../../lib/locale/types";
+import { uiLangForMarket } from "../../lib/marketLang";
 import { BotChannelIconRow } from "../../components/ChannelBrandIcons";
 import {
   IconInstagram,
@@ -53,57 +57,51 @@ type ChannelId =
   | "instagram"
   | "facebook_messenger";
 
-const CHANNELS: {
+type ChannelNoteKey = "channelNoteLive" | "channelNoteMeta" | "channelNoteToken";
+
+const CHANNEL_DEFS: {
   id: ChannelId;
   label: string;
   available: boolean;
-  note: string;
+  noteKey: ChannelNoteKey;
   Icon: typeof IconTelegram;
 }[] = [
   {
     id: "website_chat",
     label: "Website Chat",
     available: true,
-    note: "Connect after pay",
+    noteKey: "channelNoteLive",
     Icon: IconWebsite,
   },
   {
     id: "telegram",
     label: "Telegram",
     available: true,
-    note: "Own bot token after pay",
+    noteKey: "channelNoteToken",
     Icon: IconTelegram,
   },
   {
     id: "whatsapp",
     label: "WhatsApp",
     available: false,
-    note: "Meta OAuth after pay",
+    noteKey: "channelNoteMeta",
     Icon: IconWhatsApp,
   },
   {
     id: "instagram",
     label: "Instagram",
     available: false,
-    note: "Meta OAuth after pay",
+    noteKey: "channelNoteMeta",
     Icon: IconInstagram,
   },
   {
     id: "facebook_messenger",
     label: "Messenger",
     available: false,
-    note: "Meta OAuth after pay",
+    noteKey: "channelNoteMeta",
     Icon: IconMessenger,
   },
 ];
-
-const STEPS = [
-  "Пакет",
-  "Аккаунт",
-  "Компания и AI",
-  "Каналы",
-  "Оплата",
-] as const;
 
 function normalizePackageId(raw: string | null): string {
   const p = (raw || "bot_business").trim().toLowerCase();
@@ -114,11 +112,16 @@ function normalizePackageId(raw: string | null): string {
   return "bot_business";
 }
 
+function BotOrderLoadingFallback() {
+  const { t } = useTranslation("site");
+  return <p className="text-center text-genesis-muted">{t("orderBot.loading")}</p>;
+}
+
 export default function BotOrderPage() {
   return (
     <PublicPageShell>
       <div className="relative mx-auto max-w-2xl space-y-8 py-8 pb-28 animate-fade-up">
-        <Suspense fallback={<p className="text-center text-genesis-muted">Загрузка…</p>}>
+        <Suspense fallback={<BotOrderLoadingFallback />}>
           <BotOrderWizard />
         </Suspense>
       </div>
@@ -127,6 +130,8 @@ export default function BotOrderPage() {
 }
 
 function BotOrderWizard() {
+  const { t, i18n } = useTranslation("site");
+  const { applyUiLocale } = useLocale();
   const search = useSearchParams();
   const [step, setStep] = useState(1);
   const [market, setMarket] = useState("DE");
@@ -144,7 +149,7 @@ function BotOrderWizard() {
   const [aiInstructions, setAiInstructions] = useState("");
   const [botDisplayName, setBotDisplayName] = useState("");
   const [tone, setTone] = useState("friendly");
-  const [languages, setLanguages] = useState<string[]>(["de", "ru"]);
+  const [languages, setLanguages] = useState<string[]>(["de"]);
   const [website, setWebsite] = useState("");
   const [country, setCountry] = useState("");
 
@@ -167,12 +172,34 @@ function BotOrderWizard() {
     price_label?: string;
   } | null>(null);
 
+  const lang = (i18n.language || "en").slice(0, 2).toLowerCase();
+
+  const steps = useMemo(
+    () => (t("orderBot.steps", { returnObjects: true }) as string[]) || [],
+    [t],
+  );
+
+  const channelsWithNotes = useMemo(
+    () =>
+      CHANNEL_DEFS.map((ch) => ({
+        ...ch,
+        note: t(`orderBot.${ch.noteKey}`),
+      })),
+    [t],
+  );
+
+  useEffect(() => {
+    const next = uiLangForMarket(market) as UiLocale;
+    applyUiLocale(next);
+  }, [market, applyUiLocale]);
+
   useEffect(() => {
     const pkg = normalizePackageId(search.get("package"));
     const m = (search.get("market") || "DE").toUpperCase();
     setPackageId(pkg);
     setMarket(m);
     setCountry(m);
+    setLanguages([uiLangForMarket(m)]);
     setLoggedIn(Boolean(getClientToken()));
   }, [search]);
 
@@ -223,7 +250,7 @@ function BotOrderWizard() {
         if (Array.isArray(d.languages)) setLanguages(d.languages.map(String));
         if (Array.isArray(d.channels)) {
           setChannels(d.channels.filter((c): c is ChannelId =>
-            CHANNELS.some((m) => m.id === c && m.available),
+            CHANNEL_DEFS.some((m) => m.id === c && m.available),
           ) as ChannelId[]);
         }
         if (Array.isArray(d.channel_interest)) {
@@ -305,10 +332,10 @@ function BotOrderWizard() {
 
   useEffect(() => {
     if (!loggedIn || step < 2) return;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       void persistDraft();
     }, 600);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [loggedIn, step, persistDraft]);
 
   const toggleChannel = useCallback((id: ChannelId, available: boolean) => {
@@ -327,23 +354,34 @@ function BotOrderWizard() {
     });
   }, []);
 
+  function packageIncludes(pkg: BotOffer): string[] {
+    const includes = t(`orderBot.packages.${pkg.package_id}.includes`, {
+      returnObjects: true,
+      defaultValue: [],
+    });
+    if (Array.isArray(includes) && includes.every((x) => typeof x === "string")) {
+      return includes as string[];
+    }
+    return [];
+  }
+
   function validateStep(s: number): string {
-    if (s === 1 && !packageId) return "Выберите пакет.";
+    if (s === 1 && !packageId) return t("orderBot.errPickPackage");
     if (s === 2 && !getClientToken()) {
-      return "Войдите или зарегистрируйте Workspace — оплата только для аккаунта.";
+      return t("orderBot.errNeedAccount");
     }
     if (s === 3) {
-      if (!businessName.trim()) return "Укажите название компании.";
-      if (!activity.trim()) return "Укажите нишу / вид деятельности.";
-      if (!botDisplayName.trim()) return "Укажите имя цифрового сотрудника.";
-      if (languages.length < 1) return "Выберите хотя бы один язык.";
+      if (!businessName.trim()) return t("orderBot.errCompany");
+      if (!activity.trim()) return t("orderBot.errActivity");
+      if (!botDisplayName.trim()) return t("orderBot.errBotName");
+      if (languages.length < 1) return t("orderBot.errLanguage");
     }
     if (s === 4 && channels.length < 1) {
-      return "Выберите хотя бы один доступный канал.";
+      return t("orderBot.errChannel");
     }
     if (s === 5) {
       const mail = (email || clientEmail || authEmail).trim();
-      if (!mail.includes("@")) return "Укажите email для чека.";
+      if (!mail.includes("@")) return t("orderBot.errEmail");
     }
     return "";
   }
@@ -370,19 +408,19 @@ function BotOrderWizard() {
           name: authName.trim(),
           email: authEmail.trim(),
           password: authPassword,
-          locale: "ru",
+          locale: (i18n.language || "de").slice(0, 2),
           country: country || market,
           visitor_id: getVisitorId(),
         }),
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(formatApiDetail(body.detail) || "Не удалось начать регистрацию");
+        throw new Error(formatApiDetail(body.detail) || t("orderBot.errRegister"));
       }
       setAwaitingCode(true);
       setClientEmail(authEmail.trim());
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Ошибка регистрации");
+      setError(e instanceof Error ? e.message : t("orderBot.errRegister"));
     } finally {
       setBusy(false);
     }
@@ -399,10 +437,10 @@ function BotOrderWizard() {
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(formatApiDetail(body.detail) || "Неверный код");
+        throw new Error(formatApiDetail(body.detail) || t("orderBot.errCode"));
       }
       const token = String(body.token || body.access_token || "");
-      if (!token) throw new Error("Нет токена сессии");
+      if (!token) throw new Error(t("orderBot.errNoToken"));
       setClientSession(token, body.name || authName);
       setLoggedIn(true);
       setEmail(authEmail.trim());
@@ -410,7 +448,7 @@ function BotOrderWizard() {
       await persistDraft();
       setStep(3);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Ошибка подтверждения");
+      setError(e instanceof Error ? e.message : t("orderBot.errConfirm"));
     } finally {
       setBusy(false);
     }
@@ -430,10 +468,10 @@ function BotOrderWizard() {
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(formatApiDetail(body.detail) || "Не удалось войти");
+        throw new Error(formatApiDetail(body.detail) || t("orderBot.errLogin"));
       }
       const token = String(body.token || body.access_token || "");
-      if (!token) throw new Error("Нет токена сессии");
+      if (!token) throw new Error(t("orderBot.errNoToken"));
       setClientSession(token, body.name);
       setLoggedIn(true);
       setClientEmail(authEmail.trim());
@@ -441,7 +479,7 @@ function BotOrderWizard() {
       await persistDraft();
       setStep(3);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Ошибка входа");
+      setError(e instanceof Error ? e.message : t("orderBot.errLogin"));
     } finally {
       setBusy(false);
     }
@@ -454,7 +492,7 @@ function BotOrderWizard() {
       return;
     }
     if (!getClientToken()) {
-      setError("Сначала войдите в Workspace.");
+      setError(t("orderBot.errNeedLogin"));
       setStep(2);
       return;
     }
@@ -465,8 +503,9 @@ function BotOrderWizard() {
       const allChannels = [...new Set([...channels, ...channelInterest])];
       const description = [
         activity.trim(),
-        services.trim() && `Услуги: ${services.trim()}`,
-        aiInstructions.trim() && `Задачи бота: ${aiInstructions.trim()}`,
+        services.trim() && t("orderBot.servicesPrefix", { text: services.trim() }),
+        aiInstructions.trim() &&
+          t("orderBot.tasksPrefix", { text: aiInstructions.trim() }),
       ]
         .filter(Boolean)
         .join(". ")
@@ -487,7 +526,7 @@ function BotOrderWizard() {
           package_id: packageId,
           product_kind: "bot",
           market_code: market,
-          ui_lang: "ru",
+          ui_lang: (i18n.language || "de").slice(0, 2),
           visitor_id: getVisitorId(),
           bot_config: {
             channels: allChannels,
@@ -507,7 +546,7 @@ function BotOrderWizard() {
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(formatApiDetail(body.detail) || "Не удалось создать заказ");
+        throw new Error(formatApiDetail(body.detail) || t("orderBot.errOrder"));
       }
       const orderId = String(body.order_id || "");
       setDone({
@@ -521,10 +560,12 @@ function BotOrderWizard() {
       });
       window.location.href = url;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Ошибка оплаты");
+      setError(e instanceof Error ? e.message : t("orderBot.errPay"));
       setBusy(false);
     }
   }
+
+  const dash = "—";
 
   return (
     <>
@@ -545,7 +586,7 @@ function BotOrderWizard() {
       </header>
 
       <ol className="flex flex-wrap justify-center gap-2 text-xs">
-        {STEPS.map((label, i) => {
+        {steps.map((label, i) => {
           const n = i + 1;
           const active = step === n;
           return (
@@ -573,27 +614,24 @@ function BotOrderWizard() {
 
       {done ? (
         <div className="space-y-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center">
-          <p className="text-lg font-semibold text-white">Переход к оплате…</p>
+          <p className="text-lg font-semibold text-white">{t("orderBot.payingTitle")}</p>
           <p className="text-sm text-zinc-300">
-            Заказ {done.order_id} · {done.package_name}
+            {t("orderBot.orderLine", { id: done.order_id, name: done.package_name })}
             {done.price_label ? ` · ${done.price_label}` : ""}
           </p>
           <Link href={`/client/bots/setup?order=${done.order_id}`} className="text-emerald-300 underline">
-            Открыть кабинет ботов
+            {t("orderBot.openCabinet")}
           </Link>
         </div>
       ) : null}
 
       {!done && step === 1 ? (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">1. Выберите пакет</h2>
-          <p className="text-sm text-zinc-400">
-            Лимит тарифа — число независимых AI-ботов, не каналов. Как это работает: после оплаты
-            подключите свои Telegram / Meta аккаунты в личном кабинете.
-          </p>
+          <h2 className="text-xl font-semibold text-white">{t("orderBot.step1Title")}</h2>
+          <p className="text-sm text-zinc-400">{t("orderBot.step1Hint")}</p>
           <BotChannelIconRow />
           <label className="block text-sm text-zinc-400">
-            Рынок
+            {t("orderBot.market")}
             <select
               className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
               value={market}
@@ -607,11 +645,12 @@ function BotOrderWizard() {
             </select>
           </label>
           {loadingOffers ? (
-            <p className="text-sm text-zinc-500">Загрузка пакетов…</p>
+            <p className="text-sm text-zinc-500">{t("orderBot.loadingPackages")}</p>
           ) : (
             <div className="grid gap-3">
               {offers.map((pkg) => {
                 const active = pkg.package_id === packageId;
+                const includes = packageIncludes(pkg);
                 return (
                   <button
                     key={pkg.package_id}
@@ -626,13 +665,15 @@ function BotOrderWizard() {
                     <p className="font-semibold text-white">{pkg.name}</p>
                     <p className="mt-1 text-emerald-200">
                       {pkg.setup_label || pkg.price_label}
-                      {pkg.monthly_label ? ` · затем ${pkg.monthly_label}/мес` : ""}
+                      {pkg.monthly_label
+                        ? t("orderBot.thenMonthly", { monthly: pkg.monthly_label })
+                        : ""}
                     </p>
                     {pkg.max_bots_label ? (
                       <p className="mt-2 text-xs text-zinc-400">{pkg.max_bots_label}</p>
                     ) : null}
                     <ul className="mt-2 space-y-1 text-xs text-zinc-500">
-                      {(pkg.includes_ru || []).slice(0, 4).map((line) => (
+                      {includes.slice(0, 4).map((line) => (
                         <li key={line}>• {line}</li>
                       ))}
                     </ul>
@@ -646,20 +687,18 @@ function BotOrderWizard() {
 
       {!done && step === 2 ? (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">2. Workspace</h2>
-          <p className="text-sm text-zinc-400">
-            Регистрация до оплаты обязательна — заказ привязывается к вашему Workspace.
-          </p>
+          <h2 className="text-xl font-semibold text-white">{t("orderBot.step2Title")}</h2>
+          <p className="text-sm text-zinc-400">{t("orderBot.step2Hint")}</p>
           {loggedIn ? (
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-100">
-              Вы вошли. Можно продолжить настройку.
+              {t("orderBot.loggedIn")}
               <div className="mt-3">
                 <button
                   type="button"
                   className="rounded-xl bg-emerald-500 px-4 py-2 font-semibold text-black"
                   onClick={() => void goNext()}
                 >
-                  Далее →
+                  {t("orderBot.continue")}
                 </button>
               </div>
             </div>
@@ -676,7 +715,7 @@ function BotOrderWizard() {
                     setAwaitingCode(false);
                   }}
                 >
-                  Регистрация
+                  {t("orderBot.registerTab")}
                 </button>
                 <button
                   type="button"
@@ -688,14 +727,14 @@ function BotOrderWizard() {
                     setAwaitingCode(false);
                   }}
                 >
-                  Вход
+                  {t("orderBot.loginTab")}
                 </button>
               </div>
               {authMode === "register" && !awaitingCode ? (
                 <div className="space-y-3">
                   <input
                     className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-                    placeholder="Имя"
+                    placeholder={t("orderBot.namePh")}
                     value={authName}
                     onChange={(e) => setAuthName(e.target.value)}
                   />
@@ -708,7 +747,7 @@ function BotOrderWizard() {
                   />
                   <input
                     className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-                    placeholder="Пароль (от 8 символов)"
+                    placeholder={t("orderBot.passwordPh")}
                     type="password"
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
@@ -719,16 +758,18 @@ function BotOrderWizard() {
                     onClick={() => void handleRegisterStart()}
                     className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-50"
                   >
-                    Получить код на email
+                    {t("orderBot.sendCode")}
                   </button>
                 </div>
               ) : null}
               {authMode === "register" && awaitingCode ? (
                 <div className="space-y-3">
-                  <p className="text-sm text-zinc-300">Код отправлен на {authEmail}</p>
+                  <p className="text-sm text-zinc-300">
+                    {t("orderBot.codeSent", { email: authEmail })}
+                  </p>
                   <input
                     className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-                    placeholder="Код из письма"
+                    placeholder={t("orderBot.codePh")}
                     value={authCode}
                     onChange={(e) => setAuthCode(e.target.value)}
                   />
@@ -738,7 +779,7 @@ function BotOrderWizard() {
                     onClick={() => void handleRegisterConfirm()}
                     className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-50"
                   >
-                    Подтвердить и продолжить
+                    {t("orderBot.confirmContinue")}
                   </button>
                 </div>
               ) : null}
@@ -753,7 +794,7 @@ function BotOrderWizard() {
                   />
                   <input
                     className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-                    placeholder="Пароль"
+                    placeholder={t("orderBot.passwordLoginPh")}
                     type="password"
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
@@ -764,12 +805,12 @@ function BotOrderWizard() {
                     onClick={() => void handleLogin()}
                     className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black disabled:opacity-50"
                   >
-                    Войти
+                    {t("orderBot.login")}
                   </button>
                 </div>
               ) : null}
               <p className="text-xs text-zinc-500">
-                Уже есть кабинет?{" "}
+                {t("orderBot.haveCabinet")}{" "}
                 <Link href="/client/login" className="text-emerald-300 underline">
                   /client/login
                 </Link>
@@ -781,56 +822,56 @@ function BotOrderWizard() {
 
       {!done && step === 3 ? (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">3. Компания и AI</h2>
+          <h2 className="text-xl font-semibold text-white">{t("orderBot.step3Title")}</h2>
           <input
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-            placeholder="Название компании *"
+            placeholder={t("orderBot.companyPh")}
             value={businessName}
             onChange={(e) => setBusinessName(e.target.value)}
           />
           <input
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-            placeholder="Ниша / вид деятельности *"
+            placeholder={t("orderBot.activityPh")}
             value={activity}
             onChange={(e) => setActivity(e.target.value)}
           />
           <textarea
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-            placeholder="Услуги (кратко)"
+            placeholder={t("orderBot.servicesPh")}
             rows={2}
             value={services}
             onChange={(e) => setServices(e.target.value)}
           />
           <textarea
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-            placeholder="FAQ / типичные вопросы"
+            placeholder={t("orderBot.faqPh")}
             rows={3}
             value={faq}
             onChange={(e) => setFaq(e.target.value)}
           />
           <input
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-            placeholder="Имя цифрового сотрудника *"
+            placeholder={t("orderBot.botNamePh")}
             value={botDisplayName}
             onChange={(e) => setBotDisplayName(e.target.value)}
           />
           <textarea
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-            placeholder="Что должен делать бот"
+            placeholder={t("orderBot.botTasksPh")}
             rows={3}
             value={aiInstructions}
             onChange={(e) => setAiInstructions(e.target.value)}
           />
           <label className="block text-sm text-zinc-400">
-            Тон
+            {t("orderBot.tone")}
             <select
               className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
               value={tone}
               onChange={(e) => setTone(e.target.value)}
             >
-              <option value="friendly">Дружелюбный</option>
-              <option value="professional">Деловой</option>
-              <option value="concise">Краткий</option>
+              <option value="friendly">{t("orderBot.toneFriendly")}</option>
+              <option value="professional">{t("orderBot.toneProfessional")}</option>
+              <option value="concise">{t("orderBot.toneConcise")}</option>
             </select>
           </label>
           <div className="flex flex-wrap gap-2">
@@ -861,7 +902,7 @@ function BotOrderWizard() {
           </div>
           <input
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-            placeholder="Сайт компании (если есть)"
+            placeholder={t("orderBot.websitePh")}
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
           />
@@ -870,12 +911,10 @@ function BotOrderWizard() {
 
       {!done && step === 4 ? (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">4. Каналы</h2>
-          <p className="text-sm text-zinc-400">
-            Каналы не ограничивают тариф. После оплаты подключите свои аккаунты.
-          </p>
+          <h2 className="text-xl font-semibold text-white">{t("orderBot.step4Title")}</h2>
+          <p className="text-sm text-zinc-400">{t("orderBot.step4Hint")}</p>
           <div className="grid gap-2">
-            {CHANNELS.map((ch) => {
+            {channelsWithNotes.map((ch) => {
               const selectedCh = ch.available
                 ? channels.includes(ch.id)
                 : channelInterest.includes(ch.id);
@@ -911,7 +950,7 @@ function BotOrderWizard() {
                     </span>
                   </span>
                   <span className="text-xs text-zinc-400">
-                    {ch.available ? (selectedCh ? "✓" : "") : "скоро"}
+                    {ch.available ? (selectedCh ? "✓" : "") : t("orderBot.soon")}
                   </span>
                 </button>
               );
@@ -922,31 +961,37 @@ function BotOrderWizard() {
 
       {!done && step === 5 ? (
         <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">5. Итог и оплата</h2>
+          <h2 className="text-xl font-semibold text-white">{t("orderBot.step5Title")}</h2>
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300">
             <p>
               <strong className="text-white">{selected?.name || packageId}</strong>
             </p>
             <p className="mt-1 text-emerald-200">
               {selected?.setup_label || selected?.price_label}
-              {selected?.monthly_label ? ` · ${selected.monthly_label}/мес` : ""}
+              {selected?.monthly_label
+                ? t("orderBot.thenMonthly", { monthly: selected.monthly_label })
+                : ""}
             </p>
-            <p className="mt-3">Компания: {businessName || "—"}</p>
-            <p>Сотрудник: {botDisplayName || "—"}</p>
+            <p className="mt-3">
+              {t("orderBot.companyLabel", { name: businessName || dash })}
+            </p>
+            <p>{t("orderBot.employeeLabel", { name: botDisplayName || dash })}</p>
             <p>
-              Каналы: {[...channels, ...channelInterest].join(", ") || "—"}
+              {t("orderBot.channelsLabel", {
+                list: [...channels, ...channelInterest].join(", ") || dash,
+              })}
             </p>
           </div>
           <input
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-            placeholder="Email для чека *"
+            placeholder={t("orderBot.emailReceiptPh")}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
             className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-            placeholder="Телефон (необязательно)"
+            placeholder={t("orderBot.phoneOptionalPh")}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
@@ -956,7 +1001,7 @@ function BotOrderWizard() {
             onClick={() => void submitAndPay()}
             className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black disabled:opacity-50"
           >
-            {busy ? "Создаём заказ…" : "Оплатить через Stripe"}
+            {busy ? t("orderBot.creating") : t("orderBot.payStripe")}
           </button>
         </section>
       ) : null}
@@ -972,7 +1017,7 @@ function BotOrderWizard() {
             }}
             className="rounded-xl border border-white/15 px-4 py-2 text-sm text-zinc-300 disabled:opacity-40"
           >
-            ← Назад
+            {t("orderBot.back")}
           </button>
           {step < 5 ? (
             <button
@@ -981,7 +1026,7 @@ function BotOrderWizard() {
               onClick={() => void goNext()}
               className="rounded-xl bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/15"
             >
-              Далее →
+              {t("orderBot.continue")}
             </button>
           ) : null}
         </div>
@@ -994,7 +1039,7 @@ function BotOrderWizard() {
             onClick={() => setStep(1)}
             className="text-sm text-zinc-400 underline"
           >
-            ← К выбору пакета
+            {t("orderBot.backToPackages")}
           </button>
         </div>
       ) : null}

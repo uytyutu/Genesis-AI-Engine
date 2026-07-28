@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
+import { openCookiePreferences } from "../lib/cookieConsent";
 
 const LEGAL_MORE = [
   { href: "/impressum", label: "Impressum" },
@@ -58,8 +59,23 @@ export function PublicSiteFooter() {
               </Link>
             </li>
           ))}
+          <li>
+            <button
+              type="button"
+              onClick={() => openCookiePreferences()}
+              className="text-genesis-muted hover:text-white"
+            >
+              {t("footer.cookieSettings", { defaultValue: "Cookie settings" })}
+            </button>
+          </li>
+          <li>
+            <Link href="/client/privacy" className="text-genesis-muted hover:text-white">
+              {t("footer.cabinetPrivacy", { defaultValue: "Privacy in cabinet" })}
+            </Link>
+          </li>
         </ul>
       </details>
+      {/* Locale: footer.cabinetPrivacy — never hardcode кабинет */}
       <p className="mt-8 text-center text-[11px] text-genesis-muted/80">
         © {new Date().getFullYear()} {BRAND_NAME}
       </p>

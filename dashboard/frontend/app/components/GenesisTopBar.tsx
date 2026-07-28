@@ -52,7 +52,7 @@ export function GenesisTopBar() {
         <Link href="/acquisition" className="genesis-topbar__link">
           Country Desk
         </Link>
-        <Link href="/order" className="genesis-topbar__cta">
+        <Link href="/order?form=1" className="genesis-topbar__cta">
           /order
         </Link>
       </div>

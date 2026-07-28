@@ -38,9 +38,6 @@ export function resolveOrderCoachHints(input: OrderCoachInput): OrderCoachHint[]
     if (!filled(input.businessName)) {
       out.push({ id: "biz", messageKey: "coachNeedBusiness", severity: "block" });
     }
-    if (!filled(input.email) || !input.email.includes("@")) {
-      out.push({ id: "email", messageKey: "coachNeedEmail", severity: "block" });
-    }
     if (!filled(input.description, 8)) {
       out.push({ id: "desc", messageKey: "coachNeedDescription", severity: "block" });
     }
@@ -50,8 +47,8 @@ export function resolveOrderCoachHints(input: OrderCoachInput): OrderCoachHint[]
     if (out.length < 3 && !filled(input.niche)) {
       out.push({ id: "niche", messageKey: "coachTipNiche", severity: "tip" });
     }
-    if (out.length < 3 && !filled(input.companyWebsite) && !filled(input.phone)) {
-      out.push({ id: "contact", messageKey: "coachTipContactOrSite", severity: "tip" });
+    if (out.length < 3 && !filled(input.companyWebsite)) {
+      out.push({ id: "site", messageKey: "coachTipCity", severity: "tip" });
     }
   }
 
@@ -74,11 +71,16 @@ export function resolveOrderCoachHints(input: OrderCoachInput): OrderCoachHint[]
   }
 
   if (step === 4) {
+    if (!filled(input.email) || !input.email.includes("@")) {
+      out.push({ id: "email", messageKey: "coachNeedEmail", severity: "block" });
+    }
     if ((input.packageId || "").toLowerCase() === "premium" && !filled(input.serviceList, 4)) {
       out.push({ id: "svc", messageKey: "coachTipPremiumServices", severity: "tip" });
     }
-    out.push({ id: "pay", messageKey: "coachTipReadyPay", severity: "tip" });
-    out.push({ id: "legal", messageKey: "coachTipLegal", severity: "tip" });
+    if (out.every((h) => h.severity !== "block")) {
+      out.push({ id: "pay", messageKey: "coachTipReadyPay", severity: "tip" });
+      out.push({ id: "legal", messageKey: "coachTipLegal", severity: "tip" });
+    }
   }
 
   return out.slice(0, 4);

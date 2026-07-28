@@ -150,6 +150,8 @@
     "cityPh": "Köln",
     "phone": "Telefon",
     "phoneOptional": "Telefon (optional)",
+    "contactBeforePayTitle": "Kontakt für Bestätigung und Zahlung",
+    "contactBeforePayHint": "Keine Registrierung — nur E-Mail für den Zahlungslink. Telefon ist optional.",
     "whatsapp": "WhatsApp",
     "email": "E-Mail",
     "emailLaunch": "E-Mail zur Launch-Bestätigung",
@@ -189,7 +191,7 @@
     "analysisBusy": "Analyse läuft…",
     "analysisEmpty": "Keine öffentlichen Signale — wir starten mit Ihren Angaben.",
     "packageHint": "Paket rechts wählen — Galerie wechselt sofort (Basic / Business / Premium).",
-    "upgradePremium": "Upgrade to Premium",
+    "upgradePremium": "Auf Premium upgraden",
     "previewGalleryLabel": "So kann Ihre Website aussehen",
     "previewExamplesTitle": "Mögliches Ergebnis",
     "previewExamplesHint": "Beispiel-Websites dieses Pakets — so kann Ihre Seite aussehen, nicht Ihre fertige Website eins zu eins.",
@@ -610,5 +612,210 @@
     "next": "So können Sie weitermachen",
     "recommended": "empfohlen",
     "askVector": "Bericht mit Vector besprechen →"
+  },
+  "cookies": {
+    "title": "Wir verwenden Cookies",
+    "body": "Notwendige Cookies braucht die Website und Ihr Kabinett bei {{brand}}. Mit Ihrer Zustimmung können wir auch Analyse- und Marketing-Cookies nutzen, um den Service zu verbessern.",
+    "more": "Mehr:",
+    "policy": "Cookie-Richtlinie",
+    "privacy": "Datenschutz",
+    "cabinetPrivacy": "Datenschutz im Kabinett",
+    "essential": "Notwendig",
+    "essentialHint": "Immer aktiv — Sitzung, Sicherheit, Kabinett.",
+    "analytics": "Analyse",
+    "analyticsHint": "Nur mit Zustimmung — Nutzung verstehen (z. B. GA).",
+    "marketing": "Marketing",
+    "marketingHint": "Nur mit Zustimmung — Werbung und Retargeting.",
+    "acceptAll": "Alle akzeptieren",
+    "essentialOnly": "Nur notwendige",
+    "save": "Auswahl speichern",
+    "customize": "Einstellungen"
+  },
+  "orderBot": {
+    "loading": "Laden…",
+    "steps": ["Paket", "Konto", "Unternehmen & AI", "Kanäle", "Zahlung"],
+    "step1Title": "1. Paket wählen",
+    "step1Hint": "Das Tariflimit ist die Zahl unabhängiger AI-Bots, nicht der Kanäle. Nach der Zahlung verbinden Sie Ihre eigenen Telegram-/Meta-Konten im Kabinett.",
+    "market": "Markt",
+    "loadingPackages": "Pakete werden geladen…",
+    "thenMonthly": " · dann {{monthly}}/Monat",
+    "step2Title": "2. Workspace",
+    "step2Hint": "Konto vor der Zahlung — der Auftrag gehört zu Ihrem Workspace. Kein Konto braucht nur die Website-Bestellung.",
+    "loggedIn": "Sie sind angemeldet. Weiter mit der Einrichtung.",
+    "continue": "Weiter →",
+    "registerTab": "Registrieren",
+    "loginTab": "Anmelden",
+    "namePh": "Name",
+    "passwordPh": "Passwort (mind. 8 Zeichen)",
+    "sendCode": "Code per E-Mail senden",
+    "codeSent": "Code gesendet an {{email}}",
+    "codePh": "Code aus der E-Mail",
+    "confirmContinue": "Bestätigen und weiter",
+    "passwordLoginPh": "Passwort",
+    "login": "Anmelden",
+    "haveCabinet": "Schon ein Kabinett?",
+    "step3Title": "3. Unternehmen & AI",
+    "companyPh": "Firmenname *",
+    "activityPh": "Branche / Tätigkeit *",
+    "servicesPh": "Leistungen (kurz)",
+    "faqPh": "FAQ / typische Fragen",
+    "botNamePh": "Name des digitalen Mitarbeiters *",
+    "botTasksPh": "Was soll der Bot tun?",
+    "tone": "Ton",
+    "toneFriendly": "Freundlich",
+    "toneProfessional": "Geschäftlich",
+    "toneConcise": "Kurz",
+    "websitePh": "Firmenwebsite (falls vorhanden)",
+    "step4Title": "4. Kanäle",
+    "step4Hint": "Kanäle begrenzen den Tarif nicht. Nach der Zahlung verbinden Sie Ihre Konten.",
+    "soon": "demnächst",
+    "step5Title": "5. Übersicht und Zahlung",
+    "companyLabel": "Unternehmen: {{name}}",
+    "employeeLabel": "Mitarbeiter: {{name}}",
+    "channelsLabel": "Kanäle: {{list}}",
+    "emailReceiptPh": "E-Mail für die Quittung *",
+    "phoneOptionalPh": "Telefon (optional)",
+    "payStripe": "Mit Stripe bezahlen",
+    "creating": "Auftrag wird erstellt…",
+    "back": "← Zurück",
+    "backToPackages": "← Zurück zur Paketwahl",
+    "payingTitle": "Weiter zur Zahlung…",
+    "orderLine": "Auftrag {{id}} · {{name}}",
+    "openCabinet": "Bot-Kabinett öffnen",
+    "errPickPackage": "Bitte Paket wählen.",
+    "errNeedAccount": "Bitte anmelden oder Workspace registrieren — Zahlung nur mit Konto.",
+    "errCompany": "Firmenname angeben.",
+    "errActivity": "Branche / Tätigkeit angeben.",
+    "errBotName": "Namen des digitalen Mitarbeiters angeben.",
+    "errLanguage": "Mindestens eine Sprache wählen.",
+    "errChannel": "Mindestens einen verfügbaren Kanal wählen.",
+    "errEmail": "E-Mail für die Quittung angeben.",
+    "errRegister": "Registrierung fehlgeschlagen",
+    "errCode": "Ungültiger Code",
+    "errNoToken": "Keine Sitzung",
+    "errConfirm": "Bestätigung fehlgeschlagen",
+    "errLogin": "Anmeldung fehlgeschlagen",
+    "errNeedLogin": "Bitte zuerst im Workspace anmelden.",
+    "errOrder": "Auftrag konnte nicht erstellt werden",
+    "errPay": "Zahlungsfehler",
+    "servicesPrefix": "Leistungen: {{text}}",
+    "tasksPrefix": "Bot-Aufgaben: {{text}}",
+    "channelNoteLive": "Nach Zahlung verbinden",
+    "channelNoteMeta": "Meta-OAuth nach Zahlung",
+    "channelNoteToken": "Eigener Bot-Token nach Zahlung",
+    "packages": {
+      "bot_starter": {
+        "includes": [
+          "1 AI-Bot (digitaler Mitarbeiter)",
+          "Jeder Kanal: Website Chat, Telegram, WhatsApp, Instagram, Messenger",
+          "Knowledge Base: bis 1 Quelle",
+          "1 Sprache",
+          "Basis-Szenarien + Übergabe an Operator"
+        ]
+      },
+      "bot_business": {
+        "includes": [
+          "Bis zu 3 unabhängige AI-Bots",
+          "Jeder Bot — jeder unterstützte Kanal",
+          "Knowledge Base: bis 5 Quellen",
+          "Bis zu 3 Sprachen",
+          "Erweiterte Szenarien + AI-Analyse",
+          "Regelmäßiges Training"
+        ]
+      },
+      "bot_professional": {
+        "includes": [
+          "Unbegrenzte AI-Bots (Fair Use)",
+          "Alle Kanäle sobald verfügbar",
+          "Knowledge Base ohne Quellenlimit",
+          "Unbegrenzte Sprachen",
+          "Vollständige Szenarien + volle Analytik",
+          "VIP-Support"
+        ]
+      }
+    }
+  },
+  "serviceForm": {
+    "backStorefront": "← {{brand}}-Storefront",
+    "backSite": "← Zurück zum Storefront",
+    "notFound": "Service nicht gefunden",
+    "formStep": "Bestellformular",
+    "confirmStep": "Bereit zur Zahlung",
+    "confirmReady": "Danke — Ihre Anfrage ist vorbereitet.",
+    "confirmPayIntro": "Als Nächstes zahlen Sie sicher. Nach der Zahlung erhalten Sie:",
+    "stepHint": "Schritt 1 von 2: sagen Sie uns, was Sie brauchen → Wert bestätigen → Zahlung.",
+    "included": "Enthalten",
+    "timeline": "Zeitplan",
+    "afterPay": "Nach der Zahlung",
+    "support": "Support: {{support}}",
+    "editForm": "← Formular bearbeiten",
+    "paySecure": "Sicher bezahlen →",
+    "openingPay": "Zahlung wird geöffnet…",
+    "orderDraft": "Bestellentwurf: {{id}}",
+    "comingSoonBanner": "Checkout noch nicht offen — Interesse senden, wir melden uns.",
+    "prepareRequest": "Anfrage vorbereiten →",
+    "saving": "Wird gespeichert…",
+    "sendInterest": "Interesse senden",
+    "interestSent": "Interesse gesendet",
+    "interestThanks": "Danke — Interesse erfasst.",
+    "interestBody": "Checkout für diesen Service ist noch nicht offen. Wir melden uns, sobald er live geht. Es wurde nichts abgebucht.",
+    "interestRef": "Referenz: {{id}}",
+    "fillRequired": "Bitte ausfüllen: {{field}}",
+    "emailRequired": "Gültige E-Mail erforderlich",
+    "orderFailed": "Bestellung fehlgeschlagen",
+    "fields": {
+      "email": {
+        "label": "E-Mail",
+        "placeholder": "sie@firma.de"
+      },
+      "business_name": {
+        "label": "Firma / Marke",
+        "placeholder": "Ihr Firmenname"
+      },
+      "phone": {
+        "label": "Telefon",
+        "placeholder": "+49 …"
+      },
+      "website_url": {
+        "label": "Website-URL",
+        "placeholder": "https://…"
+      },
+      "city": {
+        "label": "Stadt / Region",
+        "placeholder": "Berlin, München und Umgebung…"
+      },
+      "goal": {
+        "label": "Ihr Ziel / Fokus",
+        "placeholder": "Worauf sollen wir uns konzentrieren?"
+      },
+      "notes": {
+        "label": "Öffnungszeiten / Fotos / Hinweise",
+        "placeholder": "Öffnungszeiten, Fotos, besondere Wünsche…"
+      },
+      "access_notes": {
+        "label": "Zugangshinweise (optional)",
+        "placeholder": "Hosting- / CMS-Zugang teilen wir nach der Zahlung"
+      },
+      "whatsapp": {
+        "label": "WhatsApp",
+        "placeholder": "+49 …"
+      },
+      "gbp_name": {
+        "label": "Firmenname bei Google",
+        "placeholder": "Name wie auf Google Maps"
+      },
+      "gbp_category": {
+        "label": "Hauptkategorie",
+        "placeholder": "z. B. Autowerkstatt"
+      },
+      "hosting_from": {
+        "label": "Aktuelles Hosting",
+        "placeholder": "z. B. Wix, WordPress.com, IONOS…"
+      },
+      "hosting_to": {
+        "label": "Ziel-Hosting (falls bekannt)",
+        "placeholder": "Leer lassen, wenn wir beraten sollen"
+      }
+    }
   }
 }

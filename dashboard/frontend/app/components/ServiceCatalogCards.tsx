@@ -174,6 +174,8 @@ export function ServiceCatalogGrid({
   const primary = HUB_PRIMARY_SERVICE_IDS.map(
     (id) => SERVICE_SPECS.find((s) => s.id === id)!,
   ).filter(Boolean);
+  // Hub primary: website · AI employee · free check · repair.
+  // Paid written AI report is not listed next to free check (avoids price confusion).
   const more = HUB_MORE_SERVICE_IDS.map(
     (id) => SERVICE_SPECS.find((s) => s.id === id)!,
   ).filter(Boolean);

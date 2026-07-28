@@ -18,7 +18,6 @@ import { publicApiBase } from "../lib/publicApiBase";
 import { logCommerceEvent } from "../lib/commerceFunnel";
 import { uiLangForMarket } from "../lib/marketLang";
 import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
-import { OrderLivePreviewPanel } from "../components/OrderLivePreviewPanel";
 import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePackage";
 import { parseClientServices } from "../lib/packagePreviewGallery";
 import { resolveOrderCoachHints } from "../lib/orderFormCoach";
@@ -531,6 +530,24 @@ export default function OrderSitePage() {
 
   useEffect(() => {
     if (!visitorId) return;
+    // Storefront /order is always the brief form. Launch checkout only when
+    // Vector explicitly sends the buyer with ?launch=1 (never auto from visitor project).
+    let wantLaunch = false;
+    try {
+      const p = new URLSearchParams(window.location.search);
+      wantLaunch =
+        p.get("launch") === "1" ||
+        p.get("from") === "vector" ||
+        p.get("from") === "project";
+      if (p.get("form") === "1") wantLaunch = false;
+    } catch {
+      wantLaunch = false;
+    }
+    if (!wantLaunch) {
+      setLaunch(null);
+      setLaunchLoading(false);
+      return;
+    }
     let cancelled = false;
     setLaunchLoading(true);
     fetchProjectPlatform(visitorId)
@@ -782,10 +799,6 @@ export default function OrderSitePage() {
     if (step === 1) {
       if (!businessName.trim()) {
         setError(t("order.coachNeedBusiness"));
-        return false;
-      }
-      if (!email.trim() || !email.includes("@")) {
-        setError(t("order.coachNeedEmail"));
         return false;
       }
       if (!description.trim() || description.trim().length < 8) {
@@ -1055,7 +1068,9 @@ export default function OrderSitePage() {
           ) : null}
         </div>
 
-        {launch ? <OrderProjectSummary launch={launch} /> : null}
+        {launch ? (
+          <OrderProjectSummary launch={launch} packageId={packageId} niche={niche} />
+        ) : null}
         {launchLoading && !launch ? (
           <p className="mb-6 text-center text-sm text-genesis-muted">{t("order.loadingProject")}</p>
         ) : null}
@@ -1101,16 +1116,6 @@ export default function OrderSitePage() {
                         required
                       />
                     </Field>
-                    <Field label={t("order.email")} required error={error && !email.trim() ? error : undefined}>
-                      <Input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="hello@…"
-                        required
-                        error={Boolean(error && !email.trim())}
-                      />
-                    </Field>
                     <Field label={t("order.description")} required>
                       <Textarea
                         value={description}
@@ -1123,25 +1128,17 @@ export default function OrderSitePage() {
                       <Field label={t("order.city")}>
                         <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("order.cityPh")} />
                       </Field>
-                      <Field label={t("order.phone")}>
+                      <Field label={t("order.companyWebsite")} hint={t("order.companyWebsiteHint")}>
                         <Input
-                          type="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="+49 …"
+                          type="text"
+                          inputMode="url"
+                          value={companyWebsite}
+                          onChange={(e) => setCompanyWebsite(e.target.value)}
+                          placeholder={t("order.companyWebsitePh")}
+                          autoComplete="url"
                         />
                       </Field>
                     </div>
-                    <Field label={t("order.companyWebsite")} hint={t("order.companyWebsiteHint")}>
-                      <Input
-                        type="text"
-                        inputMode="url"
-                        value={companyWebsite}
-                        onChange={(e) => setCompanyWebsite(e.target.value)}
-                        placeholder={t("order.companyWebsitePh")}
-                        autoComplete="url"
-                      />
-                    </Field>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <Field label={t("order.niche")}>
                         <select
@@ -1340,6 +1337,34 @@ export default function OrderSitePage() {
 
                 {formStep === 4 && (
                   <>
+                    <div className="rounded-xl border border-emerald-500/25 bg-emerald-950/20 p-4 space-y-3">
+                      <p className="text-sm font-medium text-white">{t("order.contactBeforePayTitle")}</p>
+                      <p className="text-xs text-genesis-muted">{t("order.contactBeforePayHint")}</p>
+                      <Field
+                        label={t("order.email")}
+                        required
+                        error={error && !email.trim() ? error : undefined}
+                      >
+                        <Input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="hello@…"
+                          required
+                          error={Boolean(error && !email.trim())}
+                          autoComplete="email"
+                        />
+                      </Field>
+                      <Field label={t("order.phoneOptional")}>
+                        <Input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="+49 …"
+                          autoComplete="tel"
+                        />
+                      </Field>
+                    </div>
                     {(insightsBusy || (insights && insights.checks.length > 0)) && (
                       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
                         <p className="text-sm font-medium text-white">{t("order.insightsTitle")}</p>
@@ -1585,22 +1610,6 @@ export default function OrderSitePage() {
                       </p>
                     </div>
                   ) : null}
-                  <OrderLivePreviewPanel
-                    input={{
-                      businessName,
-                      description,
-                      niche,
-                      brandStyle,
-                      packageId,
-                      marketCode: marketParam || commerce.market_code || "DE",
-                      city,
-                      email,
-                      phone,
-                      needsLogo,
-                      hasMaterials: materials.length > 0,
-                      formStep,
-                    }}
-                  />
                   <PackagePreviewCarousel
                     packageId={packageId}
                     niche={niche}

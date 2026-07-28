@@ -148,6 +148,8 @@
     "cityPh": "Кёльн",
     "phone": "Телефон",
     "phoneOptional": "Телефон (необязательно)",
+    "contactBeforePayTitle": "Контакт для подтверждения и оплаты",
+    "contactBeforePayHint": "Регистрация не нужна — только email для ссылки на оплату. Телефон по желанию.",
     "whatsapp": "WhatsApp",
     "email": "Email",
     "emailLaunch": "Email для подтверждения запуска",
@@ -187,7 +189,7 @@
     "analysisBusy": "Идёт анализ…",
     "analysisEmpty": "Нет публичных сигналов — стартуем с ваших данных.",
     "packageHint": "Выберите пакет справа — превью меняется сразу.",
-    "upgradePremium": "Upgrade to Premium",
+    "upgradePremium": "Перейти на Premium",
     "previewGalleryLabel": "Так может выглядеть ваш сайт",
     "previewExamplesTitle": "Возможный результат",
     "previewExamplesHint": "Образцы сайтов этого пакета — как может выглядеть ваша страница, не готовый сайт один в один.",
@@ -608,5 +610,210 @@
     "next": "Что можно сделать дальше",
     "recommended": "рекомендуем",
     "askVector": "Обсудить отчёт с Vector →"
+  },
+  "cookies": {
+    "title": "Мы используем cookies",
+    "body": "Необходимые cookies нужны для работы сайта и личного кабинета {{brand}}. С вашего согласия мы также можем использовать аналитические и маркетинговые cookies для улучшения сервиса.",
+    "more": "Подробнее:",
+    "policy": "Политика cookies",
+    "privacy": "Конфиденциальность",
+    "cabinetPrivacy": "Конфиденциальность в кабинете",
+    "essential": "Необходимые",
+    "essentialHint": "Всегда включены — сессия, безопасность, кабинет.",
+    "analytics": "Аналитика",
+    "analyticsHint": "По согласию — понимание использования сервиса.",
+    "marketing": "Маркетинг",
+    "marketingHint": "По согласию — реклама и ретаргетинг.",
+    "acceptAll": "Принять все",
+    "essentialOnly": "Только необходимые",
+    "save": "Сохранить выбор",
+    "customize": "Настроить"
+  },
+  "orderBot": {
+    "loading": "Загрузка…",
+    "steps": ["Пакет", "Аккаунт", "Компания и AI", "Каналы", "Оплата"],
+    "step1Title": "1. Выберите пакет",
+    "step1Hint": "Лимит тарифа — число независимых AI-ботов, не каналов. После оплаты подключите свои Telegram / Meta аккаунты в личном кабинете.",
+    "market": "Рынок",
+    "loadingPackages": "Загрузка пакетов…",
+    "thenMonthly": " · затем {{monthly}}/мес",
+    "step2Title": "2. Workspace",
+    "step2Hint": "Регистрация до оплаты обязательна — заказ привязывается к вашему Workspace. Для заказа сайта аккаунт не нужен.",
+    "loggedIn": "Вы вошли. Можно продолжить настройку.",
+    "continue": "Далее →",
+    "registerTab": "Регистрация",
+    "loginTab": "Вход",
+    "namePh": "Имя",
+    "passwordPh": "Пароль (от 8 символов)",
+    "sendCode": "Получить код на email",
+    "codeSent": "Код отправлен на {{email}}",
+    "codePh": "Код из письма",
+    "confirmContinue": "Подтвердить и продолжить",
+    "passwordLoginPh": "Пароль",
+    "login": "Войти",
+    "haveCabinet": "Уже есть кабинет?",
+    "step3Title": "3. Компания и AI",
+    "companyPh": "Название компании *",
+    "activityPh": "Ниша / вид деятельности *",
+    "servicesPh": "Услуги (кратко)",
+    "faqPh": "FAQ / типичные вопросы",
+    "botNamePh": "Имя цифрового сотрудника *",
+    "botTasksPh": "Что должен делать бот",
+    "tone": "Тон",
+    "toneFriendly": "Дружелюбный",
+    "toneProfessional": "Деловой",
+    "toneConcise": "Краткий",
+    "websitePh": "Сайт компании (если есть)",
+    "step4Title": "4. Каналы",
+    "step4Hint": "Каналы не ограничивают тариф. После оплаты подключите свои аккаунты.",
+    "soon": "скоро",
+    "step5Title": "5. Итог и оплата",
+    "companyLabel": "Компания: {{name}}",
+    "employeeLabel": "Сотрудник: {{name}}",
+    "channelsLabel": "Каналы: {{list}}",
+    "emailReceiptPh": "Email для чека *",
+    "phoneOptionalPh": "Телефон (необязательно)",
+    "payStripe": "Оплатить через Stripe",
+    "creating": "Создаём заказ…",
+    "back": "← Назад",
+    "backToPackages": "← К выбору пакета",
+    "payingTitle": "Переход к оплате…",
+    "orderLine": "Заказ {{id}} · {{name}}",
+    "openCabinet": "Открыть кабинет ботов",
+    "errPickPackage": "Выберите пакет.",
+    "errNeedAccount": "Войдите или зарегистрируйте Workspace — оплата только для аккаунта.",
+    "errCompany": "Укажите название компании.",
+    "errActivity": "Укажите нишу / вид деятельности.",
+    "errBotName": "Укажите имя цифрового сотрудника.",
+    "errLanguage": "Выберите хотя бы один язык.",
+    "errChannel": "Выберите хотя бы один доступный канал.",
+    "errEmail": "Укажите email для чека.",
+    "errRegister": "Не удалось начать регистрацию",
+    "errCode": "Неверный код",
+    "errNoToken": "Нет токена сессии",
+    "errConfirm": "Ошибка подтверждения",
+    "errLogin": "Ошибка входа",
+    "errNeedLogin": "Сначала войдите в Workspace.",
+    "errOrder": "Не удалось создать заказ",
+    "errPay": "Ошибка оплаты",
+    "servicesPrefix": "Услуги: {{text}}",
+    "tasksPrefix": "Задачи бота: {{text}}",
+    "channelNoteLive": "Подключить после оплаты",
+    "channelNoteMeta": "Meta OAuth после оплаты",
+    "channelNoteToken": "Свой токен бота после оплаты",
+    "packages": {
+      "bot_starter": {
+        "includes": [
+          "1 AI-бот (цифровой сотрудник)",
+          "Любой канал: Website Chat, Telegram, WhatsApp, Instagram, Messenger",
+          "Knowledge Base: до 1 источника",
+          "1 язык",
+          "Базовые сценарии + передача оператору"
+        ]
+      },
+      "bot_business": {
+        "includes": [
+          "До 3 независимых AI-ботов",
+          "Каждый бот — любой поддерживаемый канал",
+          "Knowledge Base: до 5 источников",
+          "До 3 языков",
+          "Расширенные сценарии + AI-анализ обращений",
+          "Регулярное обучение"
+        ]
+      },
+      "bot_professional": {
+        "includes": [
+          "Неограниченное число AI-ботов (Fair Use)",
+          "Все каналы по мере появления",
+          "Knowledge Base без лимита источников",
+          "Неограниченно языков",
+          "Полные сценарии + полная аналитика",
+          "VIP-поддержка"
+        ]
+      }
+    }
+  },
+  "serviceForm": {
+    "backStorefront": "← Витрина {{brand}}",
+    "backSite": "← Назад на витрину",
+    "notFound": "Услуга не найдена",
+    "formStep": "Форма заказа",
+    "confirmStep": "Готово к оплате",
+    "confirmReady": "Спасибо — ваш запрос подготовлен.",
+    "confirmPayIntro": "Далее вы оплатите безопасно. После оплаты вы получите:",
+    "stepHint": "Шаг 1 из 2: расскажите, что нужно → подтвердите ценность → оплата.",
+    "included": "Включено",
+    "timeline": "Сроки",
+    "afterPay": "После оплаты",
+    "support": "Поддержка: {{support}}",
+    "editForm": "← Изменить форму",
+    "paySecure": "Оплатить безопасно →",
+    "openingPay": "Открываем оплату…",
+    "orderDraft": "Черновик заказа: {{id}}",
+    "comingSoonBanner": "Оплата пока недоступна — отправьте интерес, мы свяжемся с вами.",
+    "prepareRequest": "Подготовить запрос →",
+    "saving": "Сохраняем…",
+    "sendInterest": "Отправить интерес",
+    "interestSent": "Интерес отправлен",
+    "interestThanks": "Спасибо — интерес зафиксирован.",
+    "interestBody": "Оплата для этой услуги пока не открыта. Мы свяжемся с вами, когда она станет доступна. Оплата не списана.",
+    "interestRef": "Номер: {{id}}",
+    "fillRequired": "Заполните: {{field}}",
+    "emailRequired": "Нужен корректный email",
+    "orderFailed": "Не удалось оформить заказ",
+    "fields": {
+      "email": {
+        "label": "Email",
+        "placeholder": "you@company.com"
+      },
+      "business_name": {
+        "label": "Компания / бренд",
+        "placeholder": "Название вашего бизнеса"
+      },
+      "phone": {
+        "label": "Телефон",
+        "placeholder": "+7 …"
+      },
+      "website_url": {
+        "label": "URL сайта",
+        "placeholder": "https://…"
+      },
+      "city": {
+        "label": "Город / регион",
+        "placeholder": "Москва, область…"
+      },
+      "goal": {
+        "label": "Ваша цель / фокус",
+        "placeholder": "На чём сосредоточиться?"
+      },
+      "notes": {
+        "label": "Часы работы / фото / заметки",
+        "placeholder": "Часы работы, фото, особые пожелания…"
+      },
+      "access_notes": {
+        "label": "Заметки о доступе (необязательно)",
+        "placeholder": "Доступ к хостингу / CMS — после оплаты"
+      },
+      "whatsapp": {
+        "label": "WhatsApp",
+        "placeholder": "+7 …"
+      },
+      "gbp_name": {
+        "label": "Название в Google",
+        "placeholder": "Как на Google Maps"
+      },
+      "gbp_category": {
+        "label": "Основная категория",
+        "placeholder": "напр. автосервис"
+      },
+      "hosting_from": {
+        "label": "Текущий хостинг",
+        "placeholder": "напр. Wix, WordPress.com, IONOS…"
+      },
+      "hosting_to": {
+        "label": "Целевой хостинг (если известен)",
+        "placeholder": "Оставьте пустым — подскажем"
+      }
+    }
   }
 }
