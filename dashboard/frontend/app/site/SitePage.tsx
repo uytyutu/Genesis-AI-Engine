@@ -495,24 +495,38 @@ export function SitePage() {
           .catch(() => undefined);
       };
       if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-        window.requestIdleCallback(() => loadBots(), { timeout: 2500 });
+        (
+          window as Window & {
+            requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number;
+          }
+        ).requestIdleCallback(() => loadBots(), { timeout: 2500 });
       } else {
         window.setTimeout(loadBots, 400);
       }
     };
 
     // Let first paint finish before three network round-trips contend with clicks.
-    const idle =
-      typeof window !== "undefined" && "requestIdleCallback" in window
-        ? window.requestIdleCallback(() => load(), { timeout: 1200 })
-        : window.setTimeout(load, 0);
+    let idleHandle: number | null = null;
+    let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      idleHandle = (
+        window as Window & {
+          requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number;
+        }
+      ).requestIdleCallback(() => load(), { timeout: 1200 });
+    } else {
+      timeoutHandle = window.setTimeout(load, 0);
+    }
 
     return () => {
       cancelled = true;
-      if (typeof idle === "number" && "cancelIdleCallback" in window) {
-        window.cancelIdleCallback(idle);
-      } else {
-        window.clearTimeout(idle as number);
+      if (idleHandle != null && "cancelIdleCallback" in window) {
+        (
+          window as Window & { cancelIdleCallback: (id: number) => void }
+        ).cancelIdleCallback(idleHandle);
+      }
+      if (timeoutHandle != null) {
+        window.clearTimeout(timeoutHandle);
       }
     };
   }, [market]);

@@ -31,7 +31,6 @@ export function ensureI18n(uiLocale: UiLocale): typeof i18n {
       ns: ["common", "chat", "site", "errors"],
       interpolation: { escapeValue: false },
       react: { useSuspense: false },
-      initImmediate: false,
     });
     initialized = true;
   } else {
