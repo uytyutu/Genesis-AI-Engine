@@ -622,7 +622,11 @@
     "why": "Why we recommend this",
     "next": "What you can do next",
     "recommended": "recommended",
-    "askVector": "Discuss the report with Vector →"
+    "askVector": "Discuss the report with Vector →",
+    "solutionsTitle": "Recommended solutions",
+    "solutionsRule": "Only after a confirmed gap from the audit · official links · no ad spam",
+    "solutionsWhy": "Why: {{reason}}",
+    "solutionsLink": "Official link →"
   },
   "cookies": {
     "title": "We use cookies",

@@ -624,7 +624,11 @@
     "why": "Unsere Empfehlung — warum",
     "next": "So können Sie weitermachen",
     "recommended": "empfohlen",
-    "askVector": "Bericht mit Vector besprechen →"
+    "askVector": "Bericht mit Vector besprechen →",
+    "solutionsTitle": "Empfohlene Lösungen",
+    "solutionsRule": "Nur nach bestätigtem Bedarf aus der Analyse · offizielle Links · kein Werbe-Spam",
+    "solutionsWhy": "Warum: {{reason}}",
+    "solutionsLink": "Offizielle Seite →"
   },
   "cookies": {
     "title": "Wir verwenden Cookies",

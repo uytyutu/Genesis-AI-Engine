@@ -83,6 +83,16 @@ def test_german_recommendations_use_reparatur():
     assert "Operator" not in repair["summary"]
     assert "Fake" not in report["justification"]
     assert "Eindruck" in report["vector_plain"] or "empfehl" in report["vector_plain"].lower()
+    # Owner-facing check copy must follow DE locale (no accidental RU/CJK).
+    joined = " ".join(
+        [c["label"] + " " + c["detail"] for c in report["checks"]]
+        + list(report["problems"])
+        + list(report["strengths"])
+    )
+    assert "Контакты" not in joined
+    assert "Форма обратной" not in joined
+    assert "Kontakte" in joined or "Kontaktformular" in joined
+    assert not any("\u0400" <= ch <= "\u04FF" for ch in joined)
 
 
 def test_unreachable_marks_unavailable_checks():

@@ -238,12 +238,9 @@ export function WebsiteAnalysisPanel({
           {report.recommended_solutions?.solutions?.length ? (
             <div className="rounded-xl border border-sky-500/30 bg-sky-950/15 p-4 space-y-3">
               <p className="text-sm font-medium text-sky-100">
-                {report.recommended_solutions.title || "Рекомендуемые решения"}
+                {report.recommended_solutions.title || t("analysis.solutionsTitle")}
               </p>
-              <p className="text-[11px] text-zinc-400">
-                Только после подтверждённой потребности аудита · официальные ссылки · без рекламного
-                спама
-              </p>
+              <p className="text-[11px] text-zinc-400">{t("analysis.solutionsRule")}</p>
               <ul className="space-y-3">
                 {report.recommended_solutions.solutions.map((s) => (
                   <li
@@ -259,7 +256,7 @@ export function WebsiteAnalysisPanel({
                       ) : null}
                     </p>
                     <p className="mt-1 text-xs text-amber-100/90">
-                      Почему: {s.why || s.need_label}
+                      {t("analysis.solutionsWhy", { reason: s.why || s.need_label })}
                     </p>
                     <a
                       href={s.official_url}
@@ -267,7 +264,7 @@ export function WebsiteAnalysisPanel({
                       rel="noopener noreferrer"
                       className="mt-2 inline-flex text-xs font-medium text-sky-300 hover:underline"
                     >
-                      Официальная ссылка →
+                      {t("analysis.solutionsLink")}
                     </a>
                   </li>
                 ))}

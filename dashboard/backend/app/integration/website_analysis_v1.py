@@ -95,12 +95,126 @@ def _check(
     return {"id": id_, "label": label, "status": status, "detail": detail}
 
 
+def _owner_check_copy(locale: str) -> dict[str, Any]:
+    """Owner-facing check labels/details — language follows request locale."""
+    lang = _lang(locale)
+    packs: dict[str, dict[str, Any]] = {
+        "de": {
+            "reachability": "Erreichbarkeit",
+            "reach_fail": "Website nicht erreichbar oder URL ungültig. Seitenanalyse nicht ausgeführt.",
+            "unavailable_fetch": "Diese Prüfung ist noch nicht verfügbar — die Seite wurde nicht geladen.",
+            "unavailable_cache": "Diese Prüfung ist im Cache noch nicht verfügbar — Analyse erneut starten.",
+            "site_unverified": "Website konnte nicht geprüft werden",
+            "https": "HTTPS",
+            "https_pass": "Verbindung ist geschützt.",
+            "https_fail": "Kein HTTPS — Risiko für Besucher und Vertrauen.",
+            "mobile": "Mobile Friendly",
+            "mobile_pass": "Viewport für Smartphones vorhanden.",
+            "mobile_fail": "Kein Viewport — die Seite wirkt auf dem Telefon oft schlecht.",
+            "speed": "Antwortzeit",
+            "speed_na": "Antwortzeit in diesem Lauf nicht gemessen.",
+            "speed_fail": "Langsame Serverantwort (~{ms} ms).",
+            "speed_pass": "Antwort in ~{ms} ms (einfacher Check, kein voller Lighthouse).",
+            "contacts": "Kontakte",
+            "contacts_pass": "Telefon, WhatsApp oder E-Mail vorhanden.",
+            "contacts_fail": "Kein direkter Telefon- / WhatsApp- / E-Mail-Kontakt sichtbar.",
+            "forms": "Kontaktformular",
+            "forms_pass": "Formular oder E-Mail-Feld gefunden.",
+            "forms_fail": "Anfrageformular / E-Mail-Feld nicht gefunden.",
+            "cta": "Call-to-Action (CTA)",
+            "cta_pass": "Klarer Aufruf sichtbar (Anfrage, Anruf, Termin).",
+            "cta_fail": "Kein klarer CTA auf der Startseite gefunden.",
+            "maps": "Google Maps",
+            "maps_pass": "Karte oder Maps-Link gefunden.",
+            "maps_fail": "Google Maps auf der Seite nicht gefunden.",
+            "seo_title": "SEO Title",
+            "seo_pass": "Title: «{title}»",
+            "seo_fail": "Fehlender oder leerer <title> — schwach für die Suche.",
+            "structure": "Inhalt und Struktur",
+            "structure_fail": "Sehr wenig Inhalt — möglicherweise eine Platzhalterseite.",
+            "structure_pass": "Grundlegender HTML-Umfang reicht für eine Landing Page (Heuristik).",
+        },
+        "en": {
+            "reachability": "Site reachability",
+            "reach_fail": "Site unreachable or URL invalid. Page analysis was not run.",
+            "unavailable_fetch": "This check is not available yet — the page was not loaded.",
+            "unavailable_cache": "This check is not available in cache — run analysis again.",
+            "site_unverified": "Could not check the website",
+            "https": "HTTPS",
+            "https_pass": "Connection is protected.",
+            "https_fail": "No HTTPS — risk for visitors and trust.",
+            "mobile": "Mobile Friendly",
+            "mobile_pass": "Viewport for phones is present.",
+            "mobile_fail": "No viewport — the site often looks poor on phones.",
+            "speed": "Response time",
+            "speed_na": "Response time was not measured in this run.",
+            "speed_fail": "Slow server response (~{ms} ms).",
+            "speed_pass": "Responded in ~{ms} ms (simple check, not full Lighthouse).",
+            "contacts": "Contacts",
+            "contacts_pass": "Phone, WhatsApp, or email is present.",
+            "contacts_fail": "No direct phone / WhatsApp / email visible.",
+            "forms": "Contact form",
+            "forms_pass": "Form or email field found.",
+            "forms_fail": "Lead form / email field not found.",
+            "cta": "Call to action (CTA)",
+            "cta_pass": "Clear call to action (order, call, book).",
+            "cta_fail": "No clear CTA found on the homepage.",
+            "maps": "Google Maps",
+            "maps_pass": "Map or Maps link found.",
+            "maps_fail": "Google Maps not found on the page.",
+            "seo_title": "SEO Title",
+            "seo_pass": "Title: «{title}»",
+            "seo_fail": "Missing or empty <title> — weak for search.",
+            "structure": "Content volume and structure",
+            "structure_fail": "Very little content — may be a placeholder page.",
+            "structure_pass": "Basic HTML volume is enough for a landing page (heuristic).",
+        },
+        "ru": {
+            "reachability": "Доступность сайта",
+            "reach_fail": "Сайт недоступен или URL некорректен. Анализ страницы не выполнен.",
+            "unavailable_fetch": "Эта проверка пока недоступна — страница не была загружена.",
+            "unavailable_cache": "Эта проверка пока недоступна в кэше — нажмите анализ ещё раз.",
+            "site_unverified": "Сайт не удалось проверить",
+            "https": "HTTPS",
+            "https_pass": "Соединение защищено.",
+            "https_fail": "Нет HTTPS — риск для посетителей и доверия.",
+            "mobile": "Mobile Friendly",
+            "mobile_pass": "Есть viewport для телефонов.",
+            "mobile_fail": "Нет viewport — сайт часто плохо выглядит на телефоне.",
+            "speed": "Скорость ответа",
+            "speed_na": "Время ответа не измерено в этом прогоне.",
+            "speed_fail": "Медленный ответ сервера (~{ms} мс).",
+            "speed_pass": "Ответ за ~{ms} мс (простая проверка, не полный Lighthouse).",
+            "contacts": "Контакты",
+            "contacts_pass": "Есть телефон, WhatsApp или e-mail.",
+            "contacts_fail": "Не видно прямого телефона / WhatsApp / e-mail.",
+            "forms": "Форма обратной связи",
+            "forms_pass": "Найдена форма или поле e-mail.",
+            "forms_fail": "Форма заявки / поле e-mail не обнаружены.",
+            "cta": "Призыв к действию (CTA)",
+            "cta_pass": "Есть заметный призыв (заказ, звонок, запись).",
+            "cta_fail": "Явный CTA на главной не найден.",
+            "maps": "Google Maps",
+            "maps_pass": "Карта или ссылка на Maps найдена.",
+            "maps_fail": "Google Maps на странице не обнаружен.",
+            "seo_title": "SEO Title",
+            "seo_pass": "Title: «{title}»",
+            "seo_fail": "Нет или пустой <title> — слабо для поиска.",
+            "structure": "Объём и структура контента",
+            "structure_fail": "Очень мало контента — возможна заглушка.",
+            "structure_pass": "Базовый объём HTML достаточен для лендинга (эвристика).",
+        },
+    }
+    return packs.get(lang) or packs["en"]
+
+
 def build_owner_report(
     raw: dict[str, Any],
     *,
     locale: str = "ru",
 ) -> dict[str, Any]:
     """Map stealth/heuristic analysis → owner-facing report."""
+    copy = _owner_check_copy(locale)
     error = raw.get("error")
     checks: list[dict[str, Any]] = []
 
@@ -108,28 +222,28 @@ def build_owner_report(
         checks.append(
             _check(
                 "reachability",
-                "Доступность сайта",
+                copy["reachability"],
                 "fail",
-                "Сайт недоступен или URL некорректен. Анализ страницы не выполнен.",
+                copy["reach_fail"],
             )
         )
-        for cid, label in (
-            ("https", "HTTPS"),
-            ("mobile", "Mobile Friendly"),
-            ("speed", "Скорость ответа"),
-            ("contacts", "Контакты"),
-            ("cta", "Призыв к действию (CTA)"),
-            ("forms", "Форма обратной связи"),
-            ("seo_title", "SEO Title"),
-            ("maps", "Google Maps"),
-            ("structure", "Объём и структура контента"),
+        for cid, label_key in (
+            ("https", "https"),
+            ("mobile", "mobile"),
+            ("speed", "speed"),
+            ("contacts", "contacts"),
+            ("cta", "cta"),
+            ("forms", "forms"),
+            ("seo_title", "seo_title"),
+            ("maps", "maps"),
+            ("structure", "structure"),
         ):
             checks.append(
                 _check(
                     cid,
-                    label,
+                    copy[label_key],
                     "unavailable",
-                    "Эта проверка пока недоступна — страница не была загружена.",
+                    copy["unavailable_fetch"],
                 )
             )
         return _finalize(
@@ -137,7 +251,7 @@ def build_owner_report(
             checks=checks,
             health_score=0,
             strengths=[],
-            problems=["Сайт не удалось проверить"],
+            problems=[copy["site_unverified"]],
             locale=locale,
             fetch_ok=False,
         )
@@ -147,9 +261,9 @@ def build_owner_report(
     checks.append(
         _check(
             "https",
-            "HTTPS",
+            copy["https"],
             "pass" if has_https else "fail",
-            "Соединение защищено." if has_https else "Нет HTTPS — риск для посетителей и доверия.",
+            copy["https_pass"] if has_https else copy["https_fail"],
         )
     )
 
@@ -157,11 +271,9 @@ def build_owner_report(
     checks.append(
         _check(
             "mobile",
-            "Mobile Friendly",
+            copy["mobile"],
             "pass" if has_viewport else "fail",
-            "Есть viewport для телефонов."
-            if has_viewport
-            else "Нет viewport — сайт часто плохо выглядит на телефоне.",
+            copy["mobile_pass"] if has_viewport else copy["mobile_fail"],
         )
     )
 
@@ -170,27 +282,27 @@ def build_owner_report(
         checks.append(
             _check(
                 "speed",
-                "Скорость ответа",
+                copy["speed"],
                 "unavailable",
-                "Время ответа не измерено в этом прогоне.",
+                copy["speed_na"],
             )
         )
     elif load_ms > 3000:
         checks.append(
             _check(
                 "speed",
-                "Скорость ответа",
+                copy["speed"],
                 "fail",
-                f"Медленный ответ сервера (~{load_ms} мс).",
+                copy["speed_fail"].format(ms=load_ms),
             )
         )
     else:
         checks.append(
             _check(
                 "speed",
-                "Скорость ответа",
+                copy["speed"],
                 "pass",
-                f"Ответ за ~{load_ms} мс (простая проверка, не полный Lighthouse).",
+                copy["speed_pass"].format(ms=load_ms),
             )
         )
 
@@ -207,80 +319,70 @@ def build_owner_report(
         checks.append(
             _check(
                 "contacts",
-                "Контакты",
+                copy["contacts"],
                 "pass" if has_contact else "fail",
-                "Есть телефон, WhatsApp или e-mail."
-                if has_contact
-                else "Не видно прямого телефона / WhatsApp / e-mail.",
+                copy["contacts_pass"] if has_contact else copy["contacts_fail"],
             )
         )
         checks.append(
             _check(
                 "forms",
-                "Форма обратной связи",
+                copy["forms"],
                 "pass" if has_form else "fail",
-                "Найдена форма или поле e-mail."
-                if has_form
-                else "Форма заявки / поле e-mail не обнаружены.",
+                copy["forms_pass"] if has_form else copy["forms_fail"],
             )
         )
         checks.append(
             _check(
                 "cta",
-                "Призыв к действию (CTA)",
+                copy["cta"],
                 "pass" if has_cta else "fail",
-                "Есть заметный призыв (заказ, звонок, запись)."
-                if has_cta
-                else "Явный CTA на главной не найден.",
+                copy["cta_pass"] if has_cta else copy["cta_fail"],
             )
         )
         checks.append(
             _check(
                 "maps",
-                "Google Maps",
+                copy["maps"],
                 "pass" if has_maps else "fail",
-                "Карта или ссылка на Maps найдена."
-                if has_maps
-                else "Google Maps на странице не обнаружен.",
+                copy["maps_pass"] if has_maps else copy["maps_fail"],
             )
         )
     else:
         content_thin = False
         title_ok = bool((raw.get("title") or "").strip())
-        for cid, label in (
-            ("contacts", "Контакты"),
-            ("forms", "Форма обратной связи"),
-            ("cta", "Призыв к действию (CTA)"),
-            ("maps", "Google Maps"),
+        for cid, label_key in (
+            ("contacts", "contacts"),
+            ("forms", "forms"),
+            ("cta", "cta"),
+            ("maps", "maps"),
         ):
             checks.append(
                 _check(
                     cid,
-                    label,
+                    copy[label_key],
                     "unavailable",
-                    "Эта проверка пока недоступна в кэше — нажмите анализ ещё раз.",
+                    copy["unavailable_cache"],
                 )
             )
 
     checks.append(
         _check(
             "seo_title",
-            "SEO Title",
+            copy["seo_title"],
             "pass" if title_ok else "fail",
-            f"Title: «{(raw.get('title') or '')[:80]}»"
+            copy["seo_pass"].format(title=(raw.get("title") or "")[:80])
             if title_ok
-            else "Нет или пустой <title> — слабо для поиска.",
+            else copy["seo_fail"],
         )
     )
 
     checks.append(
         _check(
             "structure",
-            "Объём и структура контента",
+            copy["structure"],
             "fail" if content_thin else "pass",
-            "Очень мало контента — возможна заглушка."
-            if content_thin
-            else "Базовый объём HTML достаточен для лендинга (эвристика).",
+            copy["structure_fail"] if content_thin else copy["structure_pass"],
         )
     )
 
