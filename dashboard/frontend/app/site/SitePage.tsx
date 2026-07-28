@@ -425,7 +425,7 @@ export function SitePage() {
     const qs = `?market=${encodeURIComponent(market)}`;
     let cancelled = false;
 
-    const load = () => {
+    const loadPackagesAndMarkets = () => {
       if (cancelled) return;
       fetch(`${api}/api/sales/packages${qs}`)
         .then((res) => (res.ok ? res.json() : null))
@@ -466,68 +466,44 @@ export function SitePage() {
           }
         })
         .catch(() => undefined);
-
-      // Bots pricing only needed for bots section — defer after hub paint.
-      const loadBots = () => {
-        if (cancelled) return;
-        fetch(`${api}/api/public/bots/pricing${qs}`)
-          .then((res) => (res.ok ? res.json() : null))
-          .then((body) => {
-            if (cancelled) return;
-            const list = body?.packages;
-            if (Array.isArray(list) && list.length > 0) {
-              setBotPackages(
-                list.map((p: BotPackageCard) => ({
-                  package_id: String(p.package_id || ""),
-                  name: String(p.name || ""),
-                  setup_label: String(p.setup_label || ""),
-                  monthly_label: String(p.monthly_label || ""),
-                  price_label: String(p.price_label || ""),
-                  tagline_ru: p.tagline_ru ? String(p.tagline_ru) : undefined,
-                  includes_ru: Array.isArray(p.includes_ru)
-                    ? p.includes_ru.map(String)
-                    : undefined,
-                  features: p.features,
-                })),
-              );
-            }
-          })
-          .catch(() => undefined);
-      };
-      if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-        (
-          window as Window & {
-            requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number;
-          }
-        ).requestIdleCallback(() => loadBots(), { timeout: 2500 });
-      } else {
-        window.setTimeout(loadBots, 400);
-      }
     };
 
-    // Let first paint finish before three network round-trips contend with clicks.
-    let idleHandle: number | null = null;
-    let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
-    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-      idleHandle = (
-        window as Window & {
-          requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number;
-        }
-      ).requestIdleCallback(() => load(), { timeout: 1200 });
-    } else {
-      timeoutHandle = window.setTimeout(load, 0);
-    }
+    const loadBots = () => {
+      if (cancelled) return;
+      fetch(`${api}/api/public/bots/pricing${qs}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((body) => {
+          if (cancelled) return;
+          const list = body?.packages;
+          if (Array.isArray(list) && list.length > 0) {
+            setBotPackages(
+              list.map((p: BotPackageCard) => ({
+                package_id: String(p.package_id || ""),
+                name: String(p.name || ""),
+                setup_label: String(p.setup_label || ""),
+                monthly_label: String(p.monthly_label || ""),
+                price_label: String(p.price_label || ""),
+                tagline_ru: p.tagline_ru ? String(p.tagline_ru) : undefined,
+                includes_ru: Array.isArray(p.includes_ru)
+                  ? p.includes_ru.map(String)
+                  : undefined,
+                features: p.features,
+              })),
+            );
+          }
+        })
+        .catch(() => undefined);
+    };
+
+    // Defer network so first paint / clicks are not blocked. setTimeout avoids
+    // Window.requestIdleCallback TS narrowing that broke Vercel builds.
+    const hubTimer = window.setTimeout(loadPackagesAndMarkets, 0);
+    const botsTimer = window.setTimeout(loadBots, 500);
 
     return () => {
       cancelled = true;
-      if (idleHandle != null && "cancelIdleCallback" in window) {
-        (
-          window as Window & { cancelIdleCallback: (id: number) => void }
-        ).cancelIdleCallback(idleHandle);
-      }
-      if (timeoutHandle != null) {
-        window.clearTimeout(timeoutHandle);
-      }
+      window.clearTimeout(hubTimer);
+      window.clearTimeout(botsTimer);
     };
   }, [market]);
 

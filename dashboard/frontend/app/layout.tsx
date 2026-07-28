@@ -57,7 +57,8 @@ export default async function RootLayout({
         <LocaleProvider
           initialLocale={initialLocale}
           localeFromCookie={localeFromCookie}
-        >          <ToastProvider>
+        >
+          <ToastProvider>
             <AppShell>{children}</AppShell>
           </ToastProvider>
         </LocaleProvider>
