@@ -423,66 +423,98 @@ export function SitePage() {
   useEffect(() => {
     const api = publicApiBase();
     const qs = `?market=${encodeURIComponent(market)}`;
-    fetch(`${api}/api/sales/packages${qs}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((body) => {
-        const list = body?.packages;
-        if (Array.isArray(list) && list.length > 0) {
-          setPackages(
-            filterPublicPackages(
-              list.map((p: PackageCard) => ({
-                id: p.id,
-                name: p.name,
-                price_eur: p.price_eur,
-                deliverables: Array.isArray(p.deliverables) ? p.deliverables : [],
-                currency: p.currency,
-                price_label: p.price_label,
+    let cancelled = false;
+
+    const load = () => {
+      if (cancelled) return;
+      fetch(`${api}/api/sales/packages${qs}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((body) => {
+          if (cancelled) return;
+          const list = body?.packages;
+          if (Array.isArray(list) && list.length > 0) {
+            setPackages(
+              filterPublicPackages(
+                list.map((p: PackageCard) => ({
+                  id: p.id,
+                  name: p.name,
+                  price_eur: p.price_eur,
+                  deliverables: Array.isArray(p.deliverables) ? p.deliverables : [],
+                  currency: p.currency,
+                  price_label: p.price_label,
+                })),
+              ),
+            );
+          }
+        })
+        .catch(() => undefined);
+
+      fetch(`${api}/api/public/pricing${qs}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((body) => {
+          if (cancelled) return;
+          const rows = body?.markets;
+          if (Array.isArray(rows) && rows.length > 0) {
+            setMarkets(
+              rows.map((m: MarketOption) => ({
+                code: String(m.code || "").toUpperCase(),
+                flag: m.flag,
+                name_en: m.name_en,
+                basic_price_label: m.basic_price_label,
               })),
-            ),
-          );
-        }
-      })
-      .catch(() => undefined);
+            );
+          }
+        })
+        .catch(() => undefined);
 
-    fetch(`${api}/api/public/pricing${qs}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((body) => {
-        const rows = body?.markets;
-        if (Array.isArray(rows) && rows.length > 0) {
-          setMarkets(
-            rows.map((m: MarketOption) => ({
-              code: String(m.code || "").toUpperCase(),
-              flag: m.flag,
-              name_en: m.name_en,
-              basic_price_label: m.basic_price_label,
-            })),
-          );
-        }
-      })
-      .catch(() => undefined);
+      // Bots pricing only needed for bots section — defer after hub paint.
+      const loadBots = () => {
+        if (cancelled) return;
+        fetch(`${api}/api/public/bots/pricing${qs}`)
+          .then((res) => (res.ok ? res.json() : null))
+          .then((body) => {
+            if (cancelled) return;
+            const list = body?.packages;
+            if (Array.isArray(list) && list.length > 0) {
+              setBotPackages(
+                list.map((p: BotPackageCard) => ({
+                  package_id: String(p.package_id || ""),
+                  name: String(p.name || ""),
+                  setup_label: String(p.setup_label || ""),
+                  monthly_label: String(p.monthly_label || ""),
+                  price_label: String(p.price_label || ""),
+                  tagline_ru: p.tagline_ru ? String(p.tagline_ru) : undefined,
+                  includes_ru: Array.isArray(p.includes_ru)
+                    ? p.includes_ru.map(String)
+                    : undefined,
+                  features: p.features,
+                })),
+              );
+            }
+          })
+          .catch(() => undefined);
+      };
+      if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+        window.requestIdleCallback(() => loadBots(), { timeout: 2500 });
+      } else {
+        window.setTimeout(loadBots, 400);
+      }
+    };
 
-    fetch(`${api}/api/public/bots/pricing${qs}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((body) => {
-        const list = body?.packages;
-        if (Array.isArray(list) && list.length > 0) {
-          setBotPackages(
-            list.map((p: BotPackageCard) => ({
-              package_id: String(p.package_id || ""),
-              name: String(p.name || ""),
-              setup_label: String(p.setup_label || ""),
-              monthly_label: String(p.monthly_label || ""),
-              price_label: String(p.price_label || ""),
-              tagline_ru: p.tagline_ru ? String(p.tagline_ru) : undefined,
-              includes_ru: Array.isArray(p.includes_ru)
-                ? p.includes_ru.map(String)
-                : undefined,
-              features: p.features,
-            })),
-          );
-        }
-      })
-      .catch(() => undefined);
+    // Let first paint finish before three network round-trips contend with clicks.
+    const idle =
+      typeof window !== "undefined" && "requestIdleCallback" in window
+        ? window.requestIdleCallback(() => load(), { timeout: 1200 })
+        : window.setTimeout(load, 0);
+
+    return () => {
+      cancelled = true;
+      if (typeof idle === "number" && "cancelIdleCallback" in window) {
+        window.cancelIdleCallback(idle);
+      } else {
+        window.clearTimeout(idle as number);
+      }
+    };
   }, [market]);
 
   useEffect(() => {

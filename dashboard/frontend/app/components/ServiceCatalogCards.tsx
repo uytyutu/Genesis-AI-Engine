@@ -151,13 +151,14 @@ function ServiceCard({
     );
   }
 
+  // Native <a>: hard navigation — survives React lag better than client Link soft-nav.
   return (
-    <Link href={spec.href} prefetch className={className}>
+    <a href={spec.href} className={className}>
       {inner}
       {!live ? (
         <p className="mt-2 text-xs text-zinc-500">{copy.deliveryNote}</p>
       ) : null}
-    </Link>
+    </a>
   );
 }
 
