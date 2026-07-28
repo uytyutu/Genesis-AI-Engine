@@ -53,11 +53,25 @@ type NextOffer = {
   interest_logged?: boolean;
 };
 
+const ADDON_OR_SERVICE_IDS = new Set([
+  "website_repair",
+  "ai_website_analysis",
+  "seo_audit",
+  "speed_optimization",
+  "security_check",
+  "google_business_setup",
+  "website_migration",
+  "repair_lite",
+  "repair_standard",
+  "repair_complete",
+]);
+
 type OrderStatus = {
   order_id: string;
   business_name: string;
   package_name: string;
   package_id?: string | null;
+  product_kind?: string | null;
   price_eur: number;
   price_label?: string | null;
   currency?: string | null;
@@ -327,7 +341,15 @@ function OrderStatusContent() {
     formatLocalizedMoney(data.price_eur, data.currency || "EUR");
   const pref = data.deployment_preference || "unset";
   const guide = data.assisted_guide;
-  const building = data.paid && !data.download_ready;
+  const packageId = String(data.package_id || "").toLowerCase();
+  const productKind = String(data.product_kind || "").toLowerCase();
+  const isBotOrder = productKind === "bot" || packageId.startsWith("bot_");
+  const isServiceOrder =
+    productKind === "addon" ||
+    productKind === "repair" ||
+    ADDON_OR_SERVICE_IDS.has(packageId);
+  const isWebsiteBuild = !isBotOrder && !isServiceOrder;
+  const building = Boolean(data.paid && isWebsiteBuild && !data.download_ready);
   const etaMinutes = data.estimated_minutes ?? 15;
 
   return (
@@ -431,6 +453,16 @@ function OrderStatusContent() {
                 {t("order.status.building")}
               </p>
             )}
+            {data.paid && isServiceOrder && (
+              <p className="mt-4 text-center text-sm text-amber-200/90">
+                {t("order.status.serviceInProgress")}
+              </p>
+            )}
+            {data.paid && isBotOrder && (
+              <p className="mt-4 text-center text-sm text-amber-200/90">
+                {t("order.status.botInProgress")}
+              </p>
+            )}
 
             {data.next_step && (
               <div className="mt-5">
@@ -439,7 +471,7 @@ function OrderStatusContent() {
               </div>
             )}
 
-            {data.paid && !data.download_ready && (
+            {data.paid && isWebsiteBuild && !data.download_ready && (
               <div className="mt-5">
                 <p className="genesis-label">{t("order.status.eta")}</p>
                 <p className="mt-1 text-sm font-medium">
@@ -453,8 +485,8 @@ function OrderStatusContent() {
             <p className="mt-4 text-center text-sm text-genesis-muted">{data.client_message}</p>
           )}
 
-          {/* Download — active only when ZIP ready */}
-          {data.paid && (
+          {/* Download — website builds only */}
+          {data.paid && isWebsiteBuild && (
             <div className="mt-5">
               {data.download_ready ? (
                 <a
@@ -479,6 +511,11 @@ function OrderStatusContent() {
                 </p>
               )}
             </div>
+          )}
+          {data.paid && !isWebsiteBuild && (
+            <p className="mt-5 text-center text-[11px] text-genesis-muted">
+              {t("order.status.noZipForService")}
+            </p>
           )}
 
           {/* Value reveal — what was created */}

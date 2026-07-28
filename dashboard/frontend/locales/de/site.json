@@ -177,12 +177,12 @@
     "formStep3": "Personalisierung",
     "formStep4": "Bestätigung",
     "journeyAria": "Projektpfad",
-    "journeyWelcome": "Welcome",
-    "journeyBusiness": "Business",
+    "journeyWelcome": "Start",
+    "journeyBusiness": "Unternehmen",
     "journeyAnalysis": "Analyse",
     "journeyPackage": "Paket",
-    "journeyPersonal": "Personal",
-    "journeyCheckout": "Checkout",
+    "journeyPersonal": "Angaben",
+    "journeyCheckout": "Zahlung",
     "niche": "Branche",
     "specialization": "Spezialisierung",
     "specializationNone": "— optional —",
@@ -202,6 +202,9 @@
     "premiumServicesClientTitle": "Ihre Leistungen auf der Seite",
     "premiumServicesClientCite": "aus Ihrer Bestellung",
     "previewOpenDemo": "Vollständiges Demo öffnen",
+    "previewPrev": "Vorheriges Beispiel",
+    "previewNext": "Nächstes Beispiel",
+    "previewSlide": "Beispiel {{n}}",
     "previewLiveSite": "Live-Vorschau der Website",
     "previewPlaceholderTitle": "Beispiele folgen",
     "previewPlaceholderHint": "Für dieses Paket werden Vorschauen vorbereitet.",
@@ -316,10 +319,13 @@
       "orderAccepted": "Bestellung angenommen",
       "afterPayContact": "Innerhalb von {{hours}} Stunden melden wir uns zu dieser Bestellung.",
       "afterPayReceive": "Sie erhalten: Zahlungsbestätigung, Bestellreferenz und klare nächste Schritte.",
-      "afterPayStarts": "Die Projektarbeit startet nach Bestätigung des Umfangs (und Zugangs, falls nötig).",
+      "afterPayStarts": "Die Projektarbeit startet nach Bestätigung des Umfangs (und Zugang, falls nötig).",
       "building": "Wir bereiten Ihre Website vor…",
+      "serviceInProgress": "Wir bearbeiten Ihren Auftrag — kein Website-ZIP nötig.",
+      "botInProgress": "Nach der Zahlung richten Sie den Bot im Workspace ein und verbinden Ihre Kanäle.",
       "etaMinutes": "ca. {{minutes}} Minuten",
       "downloadSoon": "Download wird freigeschaltet, sobald das ZIP fertig ist",
+      "noZipForService": "Für diese Leistung gibt es kein Website-ZIP — Lieferung läuft über Status und Support.",
       "viewReceipt": "Quittung anzeigen",
       "orderHistory": "Meine Bestellungen",
       "goliveTitle": "Nächste Schritte (für Einsteiger)",
@@ -545,8 +551,15 @@
         "Vereinbarter Reparaturumfang",
         "Vorher/Nachher-Notizen"
       ],
+      "stages": ["Formular", "Zahlung", "Zugang", "Reparatur", "Übergabe"],
       "timeline": "Ziel 24–48 Stunden nach Zugang",
-      "support": "Vector + Status im Kabinett"
+      "afterPay": [
+        "Wir fordern Zugang sicher an",
+        "Reparatur startet",
+        "Sie freigeben das Ergebnis"
+      ],
+      "support": "Vector + Status im Kabinett",
+      "deliveryNote": "Operator-geführte Reparatur nach Zahlung — Status im Kabinett."
     },
     "seo_audit": {
       "name": "SEO-Audit",
@@ -620,6 +633,8 @@
     "policy": "Cookie-Richtlinie",
     "privacy": "Datenschutz",
     "cabinetPrivacy": "Datenschutz im Kabinett",
+    "cabinetTitle": "Datenschutz & Cookies",
+    "cabinetSubtitle": "Cookie-Einwilligung im Kabinett verwalten — nicht nur im Footer.",
     "essential": "Notwendig",
     "essentialHint": "Immer aktiv — Sitzung, Sicherheit, Kabinett.",
     "analytics": "Analyse",
@@ -629,10 +644,19 @@
     "acceptAll": "Alle akzeptieren",
     "essentialOnly": "Nur notwendige",
     "save": "Auswahl speichern",
-    "customize": "Einstellungen"
+    "customize": "Einstellungen",
+    "notSavedYet": "Für diese Richtlinienversion noch keine Auswahl — bitte unten festlegen.",
+    "lastChoice": "Letzte Auswahl: {{source}} · {{when}}",
+    "saved": "Gespeichert."
   },
   "orderBot": {
     "loading": "Laden…",
+    "heroTitle": "KI-Digitalmitarbeiter",
+    "heroSubtitle": "KI-Verkaufsassistent für Ihr Unternehmen. Paket → Workspace → Einrichtung → Zahlung → eigene Kanäle verbinden.",
+    "heroBullet1": "Beantwortet Kunden rund um die Uhr",
+    "heroBullet2": "Erfasst Anfragen automatisch",
+    "heroBullet3": "Spricht mehrere Sprachen",
+    "emailPh": "E-Mail",
     "steps": ["Paket", "Konto", "Unternehmen & AI", "Kanäle", "Zahlung"],
     "step1Title": "1. Paket wählen",
     "step1Hint": "Das Tariflimit ist die Zahl unabhängiger AI-Bots, nicht der Kanäle. Nach der Zahlung verbinden Sie Ihre eigenen Telegram-/Meta-Konten im Kabinett.",
@@ -787,6 +811,10 @@
       "goal": {
         "label": "Ihr Ziel / Fokus",
         "placeholder": "Worauf sollen wir uns konzentrieren?"
+      },
+      "goalRepair": {
+        "label": "Was muss behoben werden?",
+        "placeholder": "Kaputtes Mobilmenü, langsame Bilder, Kontaktformular…"
       },
       "notes": {
         "label": "Öffnungszeiten / Fotos / Hinweise",

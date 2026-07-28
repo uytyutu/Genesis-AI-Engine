@@ -191,6 +191,12 @@ function BotOrderWizard() {
   useEffect(() => {
     const next = uiLangForMarket(market) as UiLocale;
     applyUiLocale(next);
+    const t0 = window.setTimeout(() => applyUiLocale(next), 0);
+    const t1 = window.setTimeout(() => applyUiLocale(next), 50);
+    return () => {
+      window.clearTimeout(t0);
+      window.clearTimeout(t1);
+    };
   }, [market, applyUiLocale]);
 
   useEffect(() => {
@@ -573,15 +579,14 @@ function BotOrderWizard() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200/90">
           {BRAND_NAME}
         </p>
-        <h1 className="text-3xl font-semibold text-white">AI Digital Employee</h1>
-        <p className="text-sm text-genesis-muted">
-          AI Sales Assistant for your company. Package → Workspace → setup → pay →
-          connect your own channels.
-        </p>
+        <h1 className="text-3xl font-semibold text-white">
+          {t("orderBot.heroTitle")}
+        </h1>
+        <p className="text-sm text-genesis-muted">{t("orderBot.heroSubtitle")}</p>
         <ul className="mx-auto mt-4 flex max-w-md flex-col gap-1.5 text-left text-sm text-zinc-200 sm:items-center sm:text-center">
-          <li>✓ Answers customers 24/7</li>
-          <li>✓ Captures leads automatically</li>
-          <li>✓ Speaks multiple languages</li>
+          <li>✓ {t("orderBot.heroBullet1")}</li>
+          <li>✓ {t("orderBot.heroBullet2")}</li>
+          <li>✓ {t("orderBot.heroBullet3")}</li>
         </ul>
       </header>
 
@@ -740,7 +745,7 @@ function BotOrderWizard() {
                   />
                   <input
                     className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-                    placeholder="Email"
+                    placeholder={t("orderBot.emailPh")}
                     type="email"
                     value={authEmail}
                     onChange={(e) => setAuthEmail(e.target.value)}
@@ -787,7 +792,7 @@ function BotOrderWizard() {
                 <div className="space-y-3">
                   <input
                     className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-white"
-                    placeholder="Email"
+                    placeholder={t("orderBot.emailPh")}
                     type="email"
                     value={authEmail}
                     onChange={(e) => setAuthEmail(e.target.value)}

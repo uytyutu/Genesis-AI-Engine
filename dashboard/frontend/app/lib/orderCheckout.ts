@@ -67,21 +67,23 @@ export async function startOrderCheckout(
   });
   const body = await res.json();
   if (!res.ok) {
-    throw new Error(formatApiDetail(body.detail) || "Не удалось начать оплату");
+    throw new Error(
+      formatApiDetail(body.detail) || "Zahlung konnte nicht gestartet werden",
+    );
   }
   const url = String(body.checkout_url || "");
   if (!url) {
-    throw new Error("Нет ссылки на оплату");
+    throw new Error("Keine Zahlungslink erhalten");
   }
   if (LEGACY_HOST_RE.test(url) || /\.vercel\.app/i.test(url)) {
     throw new Error(
-      "Оплата вернула устаревший адрес (Vercel). Обновите GENESIS_PUBLIC_URL на beta.genesis-ai-engine.com",
+      "Zahlung lieferte eine veraltete Adresse. GENESIS_PUBLIC_URL muss auf die Live-Domain zeigen.",
     );
   }
   const sandbox = Boolean(body.sandbox);
   const isStripe = /^https:\/\/checkout\.stripe\.com\//i.test(url);
   if (!sandbox && !isStripe) {
-    throw new Error("Оплата настроена неверно: ожидается Stripe Checkout");
+    throw new Error("Zahlung falsch konfiguriert: Stripe Checkout erwartet");
   }
   return url;
 }

@@ -200,6 +200,9 @@
     "premiumServicesClientTitle": "Your services on the site",
     "premiumServicesClientCite": "from your order",
     "previewOpenDemo": "Open full demo",
+    "previewPrev": "Previous example",
+    "previewNext": "Next example",
+    "previewSlide": "Example {{n}}",
     "previewLiveSite": "Live site preview",
     "previewPlaceholderTitle": "Examples coming soon",
     "previewPlaceholderHint": "Previews for this package are being prepared.",
@@ -316,8 +319,11 @@
       "afterPayReceive": "You will receive: payment confirmation, order reference, and clear next steps.",
       "afterPayStarts": "Project work starts after we confirm scope (and access, when needed).",
       "building": "Preparing your website…",
+      "serviceInProgress": "We are working on your order — no website ZIP is needed.",
+      "botInProgress": "After payment, set up the bot in Workspace and connect your channels.",
       "etaMinutes": "about {{minutes}} minutes",
       "downloadSoon": "Download unlocks when the ZIP is ready",
+      "noZipForService": "This service has no website ZIP — delivery is via status and support.",
       "viewReceipt": "View receipt",
       "orderHistory": "My orders",
       "goliveTitle": "Next steps (for beginners)",
@@ -543,8 +549,15 @@
         "Agreed repair scope",
         "Before/after notes"
       ],
+      "stages": ["Form", "Payment", "Access", "Repair", "Handover"],
       "timeline": "target recovery 24–48 hours after access",
-      "support": "Vector + cabinet status"
+      "afterPay": [
+        "We request access securely",
+        "Work starts",
+        "You approve the result"
+      ],
+      "support": "Vector + cabinet status",
+      "deliveryNote": "Operator-led repair after payment — status in your cabinet."
     },
     "seo_audit": {
       "name": "SEO Audit",
@@ -618,6 +631,8 @@
     "policy": "Cookie policy",
     "privacy": "Privacy",
     "cabinetPrivacy": "Privacy in cabinet",
+    "cabinetTitle": "Privacy & Cookies",
+    "cabinetSubtitle": "Manage cookie consent in your cabinet — not only from the footer.",
     "essential": "Essential",
     "essentialHint": "Always on — session, security, cabinet.",
     "analytics": "Analytics",
@@ -627,10 +642,19 @@
     "acceptAll": "Accept all",
     "essentialOnly": "Essential only",
     "save": "Save choice",
-    "customize": "Customize"
+    "customize": "Customize",
+    "notSavedYet": "No choice saved for this policy version yet — set preferences below.",
+    "lastChoice": "Last choice: {{source}} · {{when}}",
+    "saved": "Saved."
   },
   "orderBot": {
     "loading": "Loading…",
+    "heroTitle": "AI Digital Employee",
+    "heroSubtitle": "AI Sales Assistant for your company. Package → Workspace → setup → pay → connect your own channels.",
+    "heroBullet1": "Answers customers 24/7",
+    "heroBullet2": "Captures leads automatically",
+    "heroBullet3": "Speaks multiple languages",
+    "emailPh": "Email",
     "steps": ["Package", "Account", "Company & AI", "Channels", "Payment"],
     "step1Title": "1. Choose a package",
     "step1Hint": "The plan limit is the number of independent AI bots, not channels. After payment, connect your own Telegram / Meta accounts in the cabinet.",

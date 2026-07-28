@@ -17,6 +17,8 @@ import { Badge, Button, ButtonLink, Card, Field, Input, Textarea } from "../comp
 import { publicApiBase } from "../lib/publicApiBase";
 import { logCommerceEvent } from "../lib/commerceFunnel";
 import { uiLangForMarket } from "../lib/marketLang";
+import { useLocale } from "../context/LocaleContext";
+import type { UiLocale } from "../lib/locale/types";
 import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
 import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePackage";
 import { parseClientServices } from "../lib/packagePreviewGallery";
@@ -137,6 +139,7 @@ function suggestPackage(needsLogo: boolean, needsDomain: boolean, extra: string)
 
 export default function OrderSitePage() {
   const { t, i18n } = useTranslation("site");
+  const { applyUiLocale } = useLocale();
   const [marketParam, setMarketParam] = useState("");
   const [marketReady, setMarketReady] = useState(false);
   useEffect(() => {
@@ -172,13 +175,18 @@ export default function OrderSitePage() {
   }, []);
   // Country Desk market → order UI language (packages already currency-synced via API)
   useEffect(() => {
-    if (!marketParam) return;
-    const lang = uiLangForMarket(marketParam);
-    const current = (i18n.language || "").slice(0, 2).toLowerCase();
-    if (current !== lang) {
-      void i18n.changeLanguage(lang);
-    }
-  }, [marketParam, i18n]);
+    if (!marketReady) return;
+    const market = (marketParam || "DE").toUpperCase();
+    const lang = uiLangForMarket(market) as UiLocale;
+    applyUiLocale(lang);
+    // Win race vs LocaleProvider hydration that re-applies browser "auto" English.
+    const t = window.setTimeout(() => applyUiLocale(lang), 0);
+    const t2 = window.setTimeout(() => applyUiLocale(lang), 50);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(t2);
+    };
+  }, [marketParam, marketReady, applyUiLocale]);
   const launchDeliverables = useMemo(
     () => [t("order.launchD1"), t("order.launchD2"), t("order.launchD3"), t("order.launchD4")],
     [t],

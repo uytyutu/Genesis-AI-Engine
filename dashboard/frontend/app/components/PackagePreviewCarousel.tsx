@@ -207,7 +207,7 @@ export function PackagePreviewCarousel({
               <>
                 <button
                   type="button"
-                  aria-label="Previous"
+                  aria-label={t("order.previewPrev", { defaultValue: "Previous" })}
                   className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 px-2 py-1 text-sm text-white hover:bg-black/65"
                   onClick={() => go(index - 1)}
                 >
@@ -215,7 +215,7 @@ export function PackagePreviewCarousel({
                 </button>
                 <button
                   type="button"
-                  aria-label="Next"
+                  aria-label={t("order.previewNext", { defaultValue: "Next" })}
                   className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 px-2 py-1 text-sm text-white hover:bg-black/65"
                   onClick={() => go(index + 1)}
                 >
@@ -232,7 +232,10 @@ export function PackagePreviewCarousel({
                 <button
                   key={s.src}
                   type="button"
-                  aria-label={`Slide ${i + 1}`}
+                  aria-label={t("order.previewSlide", {
+                    n: i + 1,
+                    defaultValue: "Slide {{n}}",
+                  })}
                   className={`h-1.5 rounded-full transition ${
                     i === index ? "w-4 bg-emerald-400" : "w-1.5 bg-white/30 hover:bg-white/50"
                   }`}

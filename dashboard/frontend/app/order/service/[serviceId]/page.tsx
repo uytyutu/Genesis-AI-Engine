@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { PublicPageShell } from "../../../components/PublicPageShell";
+import { useLocale } from "../../../context/LocaleContext";
 import { BRAND_NAME } from "../../../lib/publicBrand";
 import { formatApiDetail } from "../../../lib/formatApiError";
 import { startOrderCheckout } from "../../../lib/orderCheckout";
@@ -17,6 +18,8 @@ import {
   type ServiceSpec,
 } from "../../../lib/serviceOrderSpecs";
 import { getVisitorId } from "../../../lib/visitorId";
+import type { UiLocale } from "../../../lib/locale/types";
+import { uiLangForMarket } from "../../../lib/marketLang";
 
 const API = publicApiBase();
 
@@ -33,6 +36,10 @@ function localizedSpec(spec: ServiceSpec, t: TFunction) {
     returnObjects: true,
     defaultValue: spec.afterPay,
   });
+  const stagesRaw = t(`${k}.stages`, {
+    returnObjects: true,
+    defaultValue: spec.stages,
+  });
   return {
     name: t(`${k}.name`, { defaultValue: spec.name }),
     price_label: t(`${k}.price`, { defaultValue: spec.price_label }),
@@ -41,17 +48,28 @@ function localizedSpec(spec: ServiceSpec, t: TFunction) {
     afterPay: Array.isArray(afterPayRaw)
       ? (afterPayRaw as string[])
       : spec.afterPay,
+    stages: Array.isArray(stagesRaw) ? (stagesRaw as string[]) : spec.stages,
     timeline: t(`${k}.timeline`, { defaultValue: spec.timeline }),
     support: t(`${k}.support`, { defaultValue: spec.support }),
     deliveryNote: t(`${k}.deliveryNote`, { defaultValue: spec.deliveryNote }),
   };
 }
 
-function fieldLabel(f: ServiceField, t: TFunction) {
+function fieldLabel(f: ServiceField, t: TFunction, serviceId?: string) {
+  if (serviceId === "website_repair" && f.id === "goal") {
+    return t("serviceForm.fields.goalRepair.label", {
+      defaultValue: f.label,
+    });
+  }
   return t(`serviceForm.fields.${f.id}.label`, { defaultValue: f.label });
 }
 
-function fieldPlaceholder(f: ServiceField, t: TFunction) {
+function fieldPlaceholder(f: ServiceField, t: TFunction, serviceId?: string) {
+  if (serviceId === "website_repair" && f.id === "goal") {
+    return t("serviceForm.fields.goalRepair.placeholder", {
+      defaultValue: f.placeholder || "",
+    });
+  }
   return t(`serviceForm.fields.${f.id}.placeholder`, {
     defaultValue: f.placeholder || "",
   });
@@ -61,6 +79,7 @@ export default function ServiceOrderPage() {
   const params = useParams();
   const router = useRouter();
   const { t } = useTranslation("site");
+  const { applyUiLocale } = useLocale();
   const serviceId = String(params?.serviceId || "");
   const spec = useMemo(() => getServiceSpec(serviceId), [serviceId]);
   const copy = useMemo(
@@ -74,6 +93,18 @@ export default function ServiceOrderPage() {
   const [error, setError] = useState("");
   const [waitlisted, setWaitlisted] = useState(false);
   const [orderId, setOrderId] = useState("");
+
+  useEffect(() => {
+    // German market storefront default — one language, no mixed RU/EN.
+    const lang = uiLangForMarket("DE") as UiLocale;
+    applyUiLocale(lang);
+    const t0 = window.setTimeout(() => applyUiLocale(lang), 0);
+    const t1 = window.setTimeout(() => applyUiLocale(lang), 50);
+    return () => {
+      window.clearTimeout(t0);
+      window.clearTimeout(t1);
+    };
+  }, [applyUiLocale]);
 
   if (!spec || !copy) {
     return (
@@ -90,15 +121,18 @@ export default function ServiceOrderPage() {
     );
   }
 
-  if (spec.id === "landing_website") {
+  const liveSpec = spec;
+  const liveCopy = copy;
+
+  if (liveSpec.id === "landing_website") {
     router.replace("/order");
     return null;
   }
-  if (spec.id === "ai_business_bot") {
+  if (liveSpec.id === "ai_business_bot") {
     router.replace("/order/bot");
     return null;
   }
-  if (spec.id === "website_check") {
+  if (liveSpec.id === "website_check") {
     router.replace("/site?service=analysis");
     return null;
   }
@@ -108,16 +142,16 @@ export default function ServiceOrderPage() {
   }
 
   function validateForm(): string | null {
-    for (const f of spec!.fields) {
+    for (const f of liveSpec.fields) {
       if (f.required && !(values[f.id] || "").trim()) {
         return t("serviceForm.fillRequired", {
-          field: fieldLabel(f, t),
+          field: fieldLabel(f, t, spec!.id),
           defaultValue: "Please fill: {{field}}",
         });
       }
     }
     const email = (values.email || "").trim();
-    if (spec!.fields.some((f) => f.id === "email") && !email.includes("@")) {
+    if (liveSpec.fields.some((f) => f.id === "email") && !email.includes("@")) {
       return t("serviceForm.emailRequired", {
         defaultValue: "Valid email required",
       });
@@ -147,7 +181,7 @@ export default function ServiceOrderPage() {
       setError(invalid);
       return;
     }
-    if (spec.availability === "coming_soon") {
+    if (liveSpec.availability === "coming_soon") {
       setBusy(true);
       try {
         const wishes = buildWishes();
@@ -156,9 +190,9 @@ export default function ServiceOrderPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            package_id: spec.id,
+            package_id: liveSpec.id,
             business_name: (values.business_name || "").trim() || "Interest request",
-            description: `[interest] ${wishes || spec.blurb}`,
+            description: `[interest] ${wishes || liveSpec.blurb}`,
             email,
             phone: (values.phone || "").trim() || null,
             whatsapp: (values.whatsapp || "").trim() || null,
@@ -166,6 +200,7 @@ export default function ServiceOrderPage() {
             company_website: (values.website_url || "").trim() || null,
             extra_wishes: wishes || null,
             visitor_id: getVisitorId(),
+            interest_only: true,
           }),
         });
         const body = await res.json();
@@ -201,9 +236,9 @@ export default function ServiceOrderPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          package_id: spec.id,
+          package_id: liveSpec.id,
           business_name: (values.business_name || "").trim() || "Service order",
-          description: wishes || spec.blurb,
+          description: wishes || liveSpec.blurb,
           email,
           phone: (values.phone || "").trim() || null,
           whatsapp: (values.whatsapp || "").trim() || null,
@@ -225,7 +260,7 @@ export default function ServiceOrderPage() {
       setOrderId(id);
       const url = await startOrderCheckout(id, {
         successPath: `/order/status/${id}?paid=1`,
-        cancelPath: `/order/service/${spec.id}?canceled=1`,
+        cancelPath: `/order/service/${liveSpec.id}?canceled=1`,
       });
       window.location.href = url;
     } catch (err) {
@@ -252,9 +287,9 @@ export default function ServiceOrderPage() {
             ? t("serviceForm.formStep", { defaultValue: "Order form" })
             : t("serviceForm.confirmStep", { defaultValue: "Ready for payment" })}
         </p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">{copy.name}</h1>
-        <p className="mt-1 text-lg text-emerald-200/90">{copy.price_label}</p>
-        <p className="mt-3 text-sm text-zinc-400">{copy.blurb}</p>
+        <h1 className="mt-2 text-3xl font-semibold text-white">{liveCopy.name}</h1>
+        <p className="mt-1 text-lg text-emerald-200/90">{liveCopy.price_label}</p>
+        <p className="mt-3 text-sm text-zinc-400">{liveCopy.blurb}</p>
 
         {step === "confirm" ? (
           <div className="mt-8 space-y-5 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.07] p-5">
@@ -274,7 +309,7 @@ export default function ServiceOrderPage() {
                 {t("serviceForm.included", { defaultValue: "Included" })}
               </p>
               <ul className="mt-2 space-y-1 text-sm text-zinc-200">
-                {copy.includes.map((line) => (
+                {liveCopy.includes.map((line) => (
                   <li key={line}>✓ {line}</li>
                 ))}
               </ul>
@@ -283,21 +318,21 @@ export default function ServiceOrderPage() {
               <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
                 {t("serviceForm.timeline", { defaultValue: "Timeline" })}
               </p>
-              <p className="mt-1 text-sm text-zinc-200">{copy.timeline}</p>
+              <p className="mt-1 text-sm text-zinc-200">{liveCopy.timeline}</p>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
                 {t("serviceForm.afterPay", { defaultValue: "After payment" })}
               </p>
               <ul className="mt-2 space-y-1 text-sm text-zinc-200">
-                {copy.afterPay.map((line) => (
+                {liveCopy.afterPay.map((line) => (
                   <li key={line}>→ {line}</li>
                 ))}
               </ul>
             </div>
             <p className="text-xs text-zinc-500">
               {t("serviceForm.support", {
-                support: copy.support,
+                support: liveCopy.support,
                 defaultValue: "Support: {{support}}",
               })}
             </p>
@@ -337,7 +372,7 @@ export default function ServiceOrderPage() {
           </div>
         ) : (
           <form onSubmit={onSubmitForm} className="mt-8 space-y-4">
-            {spec.availability === "coming_soon" ? (
+            {liveSpec.availability === "coming_soon" ? (
               <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
                 {t("serviceForm.comingSoonBanner", {
                   defaultValue:
@@ -358,19 +393,19 @@ export default function ServiceOrderPage() {
                 {t("serviceForm.included", { defaultValue: "What's included" })}
               </p>
               <ul className="mt-2 space-y-1">
-                {copy.includes.map((line) => (
+                {liveCopy.includes.map((line) => (
                   <li key={line}>✓ {line}</li>
                 ))}
               </ul>
               <p className="mt-2 text-zinc-500">
-                {spec.stages.join(" → ")} · {copy.timeline}
+                {liveCopy.stages.join(" → ")} · {liveCopy.timeline}
               </p>
             </div>
 
-            {spec.fields.map((f) => (
+            {liveSpec.fields.map((f) => (
               <label key={f.id} className="block text-sm text-zinc-300">
                 <span className="mb-1.5 block font-medium text-zinc-200">
-                  {fieldLabel(f, t)}
+                  {fieldLabel(f, t, liveSpec.id)}
                   {f.required ? " *" : ""}
                 </span>
                 {f.multiline ? (
@@ -378,7 +413,7 @@ export default function ServiceOrderPage() {
                     rows={4}
                     value={values[f.id] || ""}
                     onChange={(e) => setField(f.id, e.target.value)}
-                    placeholder={fieldPlaceholder(f, t)}
+                    placeholder={fieldPlaceholder(f, t, liveSpec.id)}
                     className="w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2.5 text-white outline-none focus:border-emerald-400/50"
                   />
                 ) : (
@@ -386,7 +421,7 @@ export default function ServiceOrderPage() {
                     type={f.type || "text"}
                     value={values[f.id] || ""}
                     onChange={(e) => setField(f.id, e.target.value)}
-                    placeholder={fieldPlaceholder(f, t)}
+                    placeholder={fieldPlaceholder(f, t, liveSpec.id)}
                     className="w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2.5 text-white outline-none focus:border-emerald-400/50"
                   />
                 )}
@@ -431,7 +466,7 @@ export default function ServiceOrderPage() {
                 ? t("serviceForm.saving", { defaultValue: "Saving…" })
                 : waitlisted
                   ? t("serviceForm.interestSent", { defaultValue: "Interest sent" })
-                  : spec.availability === "coming_soon"
+                  : liveSpec.availability === "coming_soon"
                     ? t("serviceForm.sendInterest", { defaultValue: "Send interest" })
                     : t("serviceForm.prepareRequest", {
                         defaultValue: "Prepare request →",
