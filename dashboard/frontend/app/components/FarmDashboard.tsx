@@ -562,13 +562,20 @@ export function FarmDashboard() {
 
   useEffect(() => {
     void refresh();
-    const warming = !loadError && dash != null && !isFarmSectionReady(dash.farm_program);
-    const intervalMs = loadError ? pollBackoffMs : warming ? 3_000 : 15_000;
+  }, [refresh]);
+
+  // Interval only — do NOT depend on dash.farm_program object identity (new object
+  // every poll was restarting the effect → refresh storm → Mission Control freeze).
+  const farmWarming =
+    dash != null && !loadError && !isFarmSectionReady(dash.farm_program);
+
+  useEffect(() => {
+    const intervalMs = loadError ? pollBackoffMs : farmWarming ? 5_000 : 20_000;
     const poll = window.setInterval(() => {
       void refresh();
     }, intervalMs);
     return () => window.clearInterval(poll);
-  }, [refresh, loadError, pollBackoffMs, dash?.farm_program]);
+  }, [refresh, loadError, pollBackoffMs, farmWarming]);
 
   useEffect(() => {
     const kick = () => {
@@ -596,7 +603,7 @@ export function FarmDashboard() {
       } catch {
         /* background */
       }
-    }, 20_000);
+    }, 45_000);
     return () => window.clearInterval(tick);
   }, [dash?.running, refresh]);
 

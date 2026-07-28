@@ -117,12 +117,35 @@ export const SERVICE_SPECS: ServiceSpec[] = [
     support: "Cabinet + Vector setup help",
   },
   {
-    id: "ai_website_analysis",
-    name: "Analyze my website",
-    price_label: "149 €",
-    blurb: "AI report + priorities — no website purchase required.",
+    id: "website_check",
+    name: "Free website check",
+    price_label: "Free",
+    blurb:
+      "See what to improve — then repair or a new site. No payment for this check.",
     mark: "A",
     accent: "border-violet-400/35 bg-violet-500/[0.08]",
+    availability: "available",
+    href: "/site?service=analysis",
+    fields: [],
+    deliveryNote: "Opens the free checker on the storefront.",
+    includes: [
+      "HTTPS / mobile / speed signals",
+      "Clear next step",
+      "Optional repair or new site",
+    ],
+    stages: ["URL", "Report", "Next step"],
+    timeline: "results in about a minute",
+    afterPay: ["Not a paid product — no checkout"],
+    support: "Vector can explain the report",
+  },
+  {
+    id: "ai_website_analysis",
+    name: "Written AI analysis report",
+    price_label: "149 €",
+    blurb:
+      "Paid deep report in your cabinet — after (or instead of) the free check on /site.",
+    mark: "A+",
+    accent: "border-violet-400/25 bg-violet-500/[0.05]",
     availability: "available",
     href: "/order/service/ai_website_analysis",
     fields: [
@@ -386,11 +409,12 @@ export function getServiceSpec(id: string): ServiceSpec | undefined {
 export const HUB_PRIMARY_SERVICE_IDS = [
   "landing_website",
   "ai_business_bot",
-  "ai_website_analysis",
+  "website_check",
   "website_repair",
 ] as const;
 
 export const HUB_MORE_SERVICE_IDS = [
+  "ai_website_analysis",
   "seo_audit",
   "speed_optimization",
   "security_check",

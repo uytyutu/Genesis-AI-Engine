@@ -8,6 +8,17 @@ import { localeResources } from "./resources";
 
 let initialized = false;
 
+/** Keep i18n.language in sync before React paints (SSR + hydration). */
+function applyLanguageSync(uiLocale: UiLocale): void {
+  if (i18n.language === uiLocale && i18n.resolvedLanguage === uiLocale) {
+    return;
+  }
+  // changeLanguage is async; set immediately so first paint matches.
+  i18n.language = uiLocale;
+  (i18n as { resolvedLanguage?: string }).resolvedLanguage = uiLocale;
+  void i18n.changeLanguage(uiLocale);
+}
+
 export function ensureI18n(uiLocale: UiLocale): typeof i18n {
   if (!initialized) {
     void i18n.use(initReactI18next).init({
@@ -20,10 +31,11 @@ export function ensureI18n(uiLocale: UiLocale): typeof i18n {
       ns: ["common", "chat", "site", "errors"],
       interpolation: { escapeValue: false },
       react: { useSuspense: false },
+      initImmediate: false,
     });
     initialized = true;
-  } else if (i18n.language !== uiLocale) {
-    void i18n.changeLanguage(uiLocale);
+  } else {
+    applyLanguageSync(uiLocale);
   }
   return i18n;
 }

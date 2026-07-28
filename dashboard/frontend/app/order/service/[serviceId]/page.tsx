@@ -50,6 +50,10 @@ export default function ServiceOrderPage() {
     router.replace("/order/bot");
     return null;
   }
+  if (spec.id === "website_check") {
+    router.replace("/site?service=analysis");
+    return null;
+  }
 
   function setField(id: ServiceFieldId, v: string) {
     setValues((prev) => ({ ...prev, [id]: v }));

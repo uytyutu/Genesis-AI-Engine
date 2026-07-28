@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { BRAND_NAME } from "../lib/publicBrand";
 import { fetchApi } from "../lib/fetchApi";
 import { GenesisCard } from "./GenesisCard";
-import { useToast } from "./ToastProvider";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -49,18 +48,16 @@ const FIX_HINTS: Record<string, { text: string; href?: string }> = {
 };
 
 export function SystemHealthBanner() {
-  const { push } = useToast();
   const [data, setData] = useState<SystemCheck | null>(null);
   const [checkedOnce, setCheckedOnce] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetchApi(`${API}/api/owner/system-check`, { timeoutMs: 10_000 });
+      const res = await fetchApi(`${API}/api/owner/system-check`, { timeoutMs: 4_000 });
       if (!res.ok) throw new Error("offline");
       const json = (await res.json()) as SystemCheck;
       setData(json);
       if (json.ready && !checkedOnce) {
-        push({ title: "Система проверена", tone: "success" });
         setCheckedOnce(true);
       }
     } catch {
@@ -79,14 +76,15 @@ export function SystemHealthBanner() {
         warnings: [],
       });
     }
-  }, [checkedOnce, push]);
+  }, [checkedOnce]);
 
   useEffect(() => {
-    refresh();
-    if (data?.ready) {
-      return;
-    }
-    const id = window.setInterval(refresh, 30000);
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (data?.ready) return;
+    const id = window.setInterval(() => void refresh(), 30_000);
     return () => window.clearInterval(id);
   }, [refresh, data?.ready]);
 

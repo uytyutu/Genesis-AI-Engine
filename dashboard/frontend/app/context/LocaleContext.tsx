@@ -14,7 +14,11 @@ import { I18nextProvider } from "react-i18next";
 import { ensureI18n } from "../lib/i18n/client";
 import { detectBrowserLocale } from "../lib/locale/detect";
 import { getLocaleDefinition, isRtlLocale } from "../lib/locale/registry";
-import { loadLocaleState, persistLocaleState } from "../lib/locale/storage";
+import {
+  defaultLocaleState,
+  loadLocaleState,
+  persistLocaleState,
+} from "../lib/locale/storage";
 import type { AssistantLocale, LocaleState, UiLocale } from "../lib/locale/types";
 
 type LocaleContextValue = LocaleState & {
@@ -28,7 +32,8 @@ type LocaleContextValue = LocaleState & {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<LocaleState>(() => loadLocaleState());
+  // Same seed on server + first client paint — avoids hydration mismatch.
+  const [state, setState] = useState<LocaleState>(() => defaultLocaleState());
   const i18n = useMemo(() => ensureI18n(state.uiLocale), [state.uiLocale]);
 
   const commit = useCallback(
@@ -40,17 +45,20 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     [i18n],
   );
 
-  // Re-apply browser locale after mount when auto-detect is on.
+  // After mount: apply stored / browser locale (safe to diverge from SSR seed).
   useEffect(() => {
-    if (!state.autoDetect) return;
-    const browser = detectBrowserLocale();
-    if (browser === state.uiLocale) return;
-    commit({
-      autoDetect: true,
-      uiLocale: browser,
-      assistantLocale: browser,
-    });
-  }, [state.autoDetect, state.uiLocale, commit]);
+    const loaded = loadLocaleState();
+    if (
+      loaded.uiLocale === state.uiLocale &&
+      loaded.assistantLocale === state.assistantLocale &&
+      loaded.autoDetect === state.autoDetect
+    ) {
+      return;
+    }
+    commit(loaded);
+    // Only on mount — do not re-run when state changes from commit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const def = getLocaleDefinition(state.uiLocale);

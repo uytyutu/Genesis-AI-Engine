@@ -43,10 +43,30 @@ function readStoredAssistant(): AssistantLocale | null {
   }
 }
 
+/**
+ * Hydration-safe seed — identical on server and first client paint.
+ * Never read navigator / localStorage here (that caused skip-link SSR≠client).
+ */
+export function defaultLocaleState(): LocaleState {
+  return {
+    autoDetect: true,
+    uiLocale: DEFAULT_UI_LOCALE,
+    assistantLocale: DEFAULT_UI_LOCALE,
+  };
+}
+
+/**
+ * Browser-only locale after mount. Safe to use navigator + localStorage.
+ */
 export function loadLocaleState(): LocaleState {
+  if (typeof window === "undefined") {
+    return defaultLocaleState();
+  }
   const autoDetect = readAuto();
   const storedUi = readStoredUi();
-  const uiLocale = autoDetect ? detectBrowserLocale() : storedUi ?? DEFAULT_UI_LOCALE;
+  const uiLocale = autoDetect
+    ? detectBrowserLocale()
+    : storedUi ?? DEFAULT_UI_LOCALE;
   const assistantLocale = readStoredAssistant() ?? uiLocale;
   return { uiLocale, assistantLocale, autoDetect };
 }

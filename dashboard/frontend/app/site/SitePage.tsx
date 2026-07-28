@@ -6,9 +6,12 @@ import {
   useEffect,
   useRef,
   useState,
+  useTransition,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { useTranslation } from "react-i18next";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { BRAND_NAME, ASSISTANT_NAME } from "../lib/publicBrand";
 import { CONTACT_EMAIL } from "../lib/siteConfig";
@@ -17,14 +20,28 @@ import { formatLocalizedMoney } from "../lib/formatEur";
 import { logCommerceEvent } from "../lib/commerceFunnel";
 import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
 import { filterPublicPackages } from "../lib/showSmokePackage";
-import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
-import { GenesisConcierge } from "../components/GenesisConcierge";
-import { WebsiteAnalysisPanel } from "../components/WebsiteAnalysisPanel";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
 import { ServiceCatalogGrid } from "../components/ServiceCatalogCards";
 import { BotChannelIconRow } from "../components/ChannelBrandIcons";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
+
+const PackagePreviewCarousel = dynamic(
+  () =>
+    import("../components/PackagePreviewCarousel").then((m) => m.PackagePreviewCarousel),
+  { ssr: false, loading: () => null },
+);
+const WebsiteAnalysisPanel = dynamic(
+  () =>
+    import("../components/WebsiteAnalysisPanel").then((m) => m.WebsiteAnalysisPanel),
+  { ssr: false, loading: () => (
+    <p className="text-sm text-zinc-500">Laden…</p>
+  ) },
+);
+const GenesisConcierge = dynamic(
+  () => import("../components/GenesisConcierge").then((m) => m.GenesisConcierge),
+  { ssr: false, loading: () => null },
+);
 
 type PackageCard = {
   id: string;
@@ -120,6 +137,8 @@ type MarketOption = {
 export function SitePage() {
   const { t, i18n } = useTranslation("site");
   const { uiLocale, applyUiLocale } = useLocale();
+  const router = useRouter();
+  const [, startViewTransition] = useTransition();
   const syncLock = useRef<"market" | "lang" | null>(null);
   const [packages, setPackages] = useState<PackageCard[]>(FALLBACK_PACKAGES);
   const [reviews, setReviews] = useState<PublicReviews | null>(null);
@@ -163,7 +182,9 @@ export function SitePage() {
   }
 
   function openService(view: ServiceView) {
-    setServiceView(view);
+    startViewTransition(() => {
+      setServiceView(view);
+    });
     writeServiceToUrl(view);
     if (view === "websites" || view === "bots" || view === "analysis") {
       try {
@@ -195,6 +216,21 @@ export function SitePage() {
     } catch {
       /* ignore */
     }
+    const onPop = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const service = (params.get("service") || "").toLowerCase();
+        if (service === "websites" || service === "bots" || service === "analysis") {
+          setServiceView(service);
+        } else if (!service) {
+          setServiceView("hub");
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, []);
 
   useEffect(() => {
@@ -464,6 +500,14 @@ export function SitePage() {
     logCommerceEvent("tier_page_view", null, "site", { niche: null });
   }, [market]);
 
+  // Warm order routes so card clicks feel instant.
+  useEffect(() => {
+    router.prefetch("/order");
+    router.prefetch("/order/bot");
+    router.prefetch("/order/service/website_repair");
+    router.prefetch("/order/service/ai_website_analysis");
+  }, [router]);
+
   function orderHrefFor(pkg: string) {
     return `/order?market=${market}&package=${pkg}`;
   }
@@ -551,7 +595,12 @@ export function SitePage() {
               className="space-y-4"
               aria-label={t("s0.servicesLabel", { defaultValue: "Services" })}
             >
-              <ServiceCatalogGrid mode="hub" />
+              <ServiceCatalogGrid
+                mode="hub"
+                onOpenLocal={(id) => {
+                  if (id === "website_check") openService("analysis");
+                }}
+              />
               <button
                 type="button"
                 onClick={openChat}
@@ -578,7 +627,7 @@ export function SitePage() {
             <p className="text-center text-xs text-zinc-500">
               {t("s0.hubAccountHint", {
                 defaultValue:
-                  "Each card opens that product’s order form. Payment comes after you describe what you need. AI Digital Employee: register Workspace, then pay and connect channels.",
+                  "Each card opens the right form. Payment only after your details. Free website check has no checkout. AI Digital Employee: register Workspace, then pay and connect channels.",
               })}
             </p>
           </>
@@ -727,21 +776,28 @@ export function SitePage() {
                         })}
                       </p>
                     ) : null}
-                    {pkg.tagline_ru ? (
+                    {pkg.tagline_ru && (i18n.language || "").startsWith("ru") ? (
                       <p className="mt-3 text-sm leading-relaxed text-zinc-300">{pkg.tagline_ru}</p>
                     ) : null}
                     <ul className="mt-3 flex-1 space-y-1 text-xs leading-relaxed text-zinc-500">
-                      {(pkg.includes_ru || []).slice(0, 6).map((line) => (
-                        <li key={line}>• {line}</li>
-                      ))}
-                      {!pkg.includes_ru?.length ? (
-                        <li>
-                          Website Chat ✅ · Telegram ✅ · Knowledge / языки зависят от тарифа
-                        </li>
-                      ) : null}
+                      {(i18n.language || "").startsWith("ru") && pkg.includes_ru?.length
+                        ? pkg.includes_ru.slice(0, 6).map((line) => (
+                            <li key={line}>• {line}</li>
+                          ))
+                        : (
+                            <li>
+                              {t("s0.botsChannelsHint", {
+                                defaultValue:
+                                  "Website Chat · Telegram · WhatsApp · Instagram · Messenger — connect your own accounts after payment.",
+                              })}
+                            </li>
+                          )}
                     </ul>
                     <p className="mt-3 text-[11px] text-zinc-600">
-                      Каналы: Website Chat · Telegram · WhatsApp · Instagram · Messenger (подключение своих аккаунтов после оплаты).
+                      {t("s0.botsChannelsNote", {
+                        defaultValue:
+                          "Channels: Website Chat · Telegram · WhatsApp · Instagram · Messenger (own accounts after payment).",
+                      })}
                     </p>
                     <Link
                       href={botOrderHref(pkg.package_id)}
@@ -849,7 +905,7 @@ export function SitePage() {
                     {r.verified_purchase ? (
                       <span className="rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-200">
                         {t("reviews.verifiedPurchase", {
-                          defaultValue: "Оплаченный заказ",
+                          defaultValue: "Verified purchase",
                         })}
                       </span>
                     ) : null}
@@ -857,7 +913,7 @@ export function SitePage() {
                   <p className="mt-2 text-white/85">«{r.text}»</p>
                   <p className="mt-2 text-[11px] text-genesis-muted">
                     {[r.company_display_name, r.service_label].filter(Boolean).join(" · ") ||
-                      t("reviews.client", { defaultValue: "Клиент" })}
+                      t("reviews.client", { defaultValue: "Client" })}
                   </p>
                 </li>
               ))}

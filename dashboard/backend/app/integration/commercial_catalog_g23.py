@@ -75,7 +75,7 @@ def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
                 "Website · Telegram · WhatsApp · Instagram · Messenger"
             ),
         },
-        _addon("ai_website_analysis", "AI Website Analysis", 149),
+        _addon("ai_website_analysis", "Written AI analysis report", 149),
         _addon(
             "website_repair",
             "Website Repair",
@@ -133,6 +133,8 @@ def _addon(
         includes = "Broken website? Recovery target 24–48h · form first, then payment"
     else:
         includes = "Order form first, then payment"
+    if id_ == "ai_website_analysis" and live:
+        includes = "Free check on /site first · paid written report via form"
     return {
         "id": id_,
         "category": "one_time",

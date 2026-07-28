@@ -96,12 +96,15 @@ export function FarmJournal() {
 
   useEffect(() => {
     void refresh();
-    const refreshMs = dash?.running ? 3000 : 5000;
+  }, [refresh]);
+
+  useEffect(() => {
+    const refreshMs = dash?.running ? 8_000 : 20_000;
     const id = window.setInterval(refresh, refreshMs);
     return () => window.clearInterval(id);
   }, [refresh, dash?.running]);
 
-  const pollSec = Math.max(5, dash?.global_spider?.polling_interval_sec ?? 8);
+  const pollSec = Math.max(8, dash?.global_spider?.polling_interval_sec ?? 12);
 
   useEffect(() => {
     if (!dash?.running) return;

@@ -368,8 +368,19 @@ class ClientReviewService:
     def public_feed(self, *, lang: str = "de") -> dict[str, Any]:
         self.ensure_display_reviews()
         published = self.list_published()
+        lang2 = (lang or "de")[:2].lower()
         cards = []
         for r in published:
+            text = str(r.get("text") or "")
+            # One UI language: do not mix Cyrillic quotes into DE/EN storefront.
+            cyr = sum(1 for ch in text if "\u0400" <= ch <= "\u04FF")
+            latin = sum(1 for ch in text if ("A" <= ch <= "Z") or ("a" <= ch <= "z"))
+            if lang2 in {"ru", "uk"}:
+                if cyr < 8 and latin > cyr:
+                    continue
+            elif lang2 in {"de", "en", "nl", "fr", "es", "it", "pt", "pl", "cs"}:
+                if cyr > max(8, latin // 2):
+                    continue
             company = None
             if r.get("show_company_name"):
                 company = r.get("company_display_name")
@@ -377,7 +388,7 @@ class ClientReviewService:
                 {
                     "review_id": r.get("review_id"),
                     "stars": int(r.get("stars") or 0),
-                    "text": r.get("text"),
+                    "text": text,
                     "company_display_name": company,
                     "service_label": r.get("service_label") or r.get("package_id") or None,
                     "service_kind": r.get("service_kind") or "website",
@@ -393,7 +404,7 @@ class ClientReviewService:
                 "de": _EMPTY_PUBLIC_MESSAGE_DE,
                 "en": _EMPTY_PUBLIC_MESSAGE_EN,
                 "uk": _EMPTY_PUBLIC_MESSAGE_UK,
-            }.get((lang or "de")[:2], _EMPTY_PUBLIC_MESSAGE_DE)
+            }.get(lang2, _EMPTY_PUBLIC_MESSAGE_DE)
             return {
                 "has_reviews": False,
                 "count": 0,

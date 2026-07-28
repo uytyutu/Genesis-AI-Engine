@@ -474,6 +474,122 @@
   "faqTitle": "FAQ",
   "servicesTitle": "Services",
   "servicesIntro": "{{brand}}: Landing Page restart (350 / 650 / 1200 €) for local businesses.",
+  "catalog": {
+    "badgeOrder": "Order",
+    "badgeSoon": "Soon",
+    "openForm": "Open order form →",
+    "interestForm": "Interest form →",
+    "moreTitle": "More website services",
+    "stagesLine": "{{count}} stages · {{timeline}}",
+    "supportLine": "Support: {{support}}",
+    "landing_website": {
+      "name": "Business Website That Brings Leads",
+      "price": "350–1200 €",
+      "blurb": "Get more customers with a professional website — Basic, Business, Premium packages.",
+      "includes": ["Mobile landing", "Impressum / Datenschutz ready", "Files you own"],
+      "timeline": "typically 3–10 days after brief",
+      "support": "Vector + cabinet status"
+    },
+    "ai_business_bot": {
+      "name": "AI Digital Employee",
+      "price": "from 499 € + monthly",
+      "blurb": "AI Sales Assistant for your company — Website Chat, Telegram, WhatsApp, Instagram, Messenger.",
+      "highlights": [
+        "Answers customers 24/7",
+        "Captures leads automatically",
+        "Speaks multiple languages"
+      ],
+      "includes": [
+        "One AI employee for your brand",
+        "Channels you choose",
+        "Workspace after payment"
+      ],
+      "timeline": "connect channels right after payment",
+      "support": "Cabinet + Vector setup help"
+    },
+    "website_check": {
+      "name": "Free website check",
+      "price": "Free",
+      "blurb": "See what to improve — then repair or a new site. No payment for this check.",
+      "includes": [
+        "HTTPS / mobile / speed signals",
+        "Clear next step",
+        "Optional repair or new site"
+      ],
+      "timeline": "results in about a minute",
+      "support": "Vector can explain the report"
+    },
+    "ai_website_analysis": {
+      "name": "Written AI analysis report",
+      "price": "149 €",
+      "blurb": "Paid deep report in your cabinet — after (or instead of) the free check on /site.",
+      "includes": [
+        "HTTPS / mobile / speed checks",
+        "Priority list",
+        "Repair vs new-site advice"
+      ],
+      "timeline": "report within 1–3 business days",
+      "support": "Cabinet + Vector questions",
+      "deliveryNote": "Pay after the form — not the free check."
+    },
+    "website_repair": {
+      "name": "Website Repair",
+      "price": "from 199 €",
+      "blurb": "Broken website? We can recover it within 24–48 hours — Emergency Website Recovery without buying a new Landing.",
+      "includes": [
+        "Emergency recovery focus",
+        "Agreed repair scope",
+        "Before/after notes"
+      ],
+      "timeline": "target recovery 24–48 hours after access",
+      "support": "Vector + cabinet status"
+    },
+    "seo_audit": {
+      "name": "SEO Audit",
+      "price": "249 €",
+      "blurb": "Technical + local SEO plan.",
+      "includes": ["Technical SEO check", "Meta / structure", "Action plan"],
+      "timeline": "2–4 days when live",
+      "support": "Vector waitlist",
+      "deliveryNote": "Interest form open — checkout when delivery is live."
+    },
+    "speed_optimization": {
+      "name": "Speed Optimization",
+      "price": "199 €",
+      "blurb": "Load-time improvements for your site.",
+      "includes": ["Before/after metrics", "Image & cache focus", "Residual list"],
+      "timeline": "2–5 days when live",
+      "support": "Vector waitlist",
+      "deliveryNote": "Interest form open — checkout when delivery is live."
+    },
+    "security_check": {
+      "name": "Security Check",
+      "price": "299 €",
+      "blurb": "HTTPS, forms, vulnerability review.",
+      "includes": ["HTTPS & forms review", "Priority report", "No fake pen-test claims"],
+      "timeline": "1–3 days when live",
+      "support": "Vector waitlist",
+      "deliveryNote": "Interest form open — checkout when delivery is live."
+    },
+    "google_business_setup": {
+      "name": "Google Business Profile",
+      "price": "149 €",
+      "blurb": "Local discovery — profile setup for your company.",
+      "includes": ["Profile / categories", "Hours & contacts", "Owner checklist"],
+      "timeline": "3–7 days when live",
+      "support": "Vector waitlist",
+      "deliveryNote": "Form ready — checkout opens when delivery is live."
+    },
+    "website_migration": {
+      "name": "Website Migration",
+      "price": "from 299 €",
+      "blurb": "Move your site to new hosting.",
+      "includes": ["Migration plan", "Cutover check", "Post-move report"],
+      "timeline": "3–10 days when live",
+      "support": "Vector waitlist",
+      "deliveryNote": "Interest form open — checkout when delivery is live."
+    }
+  },
   "analysis": {
     "title": "Website analysis",
     "intro": "Free website analysis. We review your site and send a clear report. If needed, we recommend a repair or a new website. No made-up scores — just an honest assessment.",

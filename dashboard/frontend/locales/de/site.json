@@ -7,7 +7,7 @@
     "heroHint": "Start mit einer Website — heute bestellbar.",
     "hubTitle": "Was möchten Sie tun?",
     "hubSubtitle": "Service wählen und direkt bestellen — kein Konto nötig. Registrieren nur für Ihr persönliches Büro.",
-    "hubAccountHint": "Kein Konto zum Kaufen nötig. Registrieren nur für Ihr Büro — Projekte, Bots, Automation, Upgrades.",
+    "hubAccountHint": "Jede Karte öffnet das passende Formular. Zahlung erst nach Ihren Angaben. Kostenlose Website-Prüfung ohne Checkout. AI Digital Employee: Workspace registrieren, dann zahlen und Kanäle verbinden.",
     "createAccount": "Persönliches Konto anlegen",
     "signIn": "Anmelden",
     "chooseService": "Service wählen",
@@ -22,13 +22,15 @@
     "cardAnalysisTitle": "Meine Website analysieren",
     "cardAnalysisBody": "Sehen Sie, was zu verbessern ist — dann Reparatur oder neue Website.",
     "seePackages": "Pakete ansehen",
-    "startAnalysis": "Analyse starten",
+    "startAnalysis": "Kostenlos prüfen →",
     "backToServices": "← Alle Services",
-    "botsTitle": "AI-Bots",
-    "botsIntro": "Separat von Websites. Paket direkt bestellen — keine Registrierung nötig.",
-    "botsLoading": "Bot-Pakete werden geladen…",
+    "botsTitle": "AI Digital Employee",
+    "botsIntro": "Ein Produkt — AI Sales Assistant für Ihr Unternehmen. Workspace vor der Zahlung anlegen, dann eigene Kanäle verbinden.",
+    "botsLoading": "Pakete werden geladen…",
     "botsMonthly": "Setup · danach {{monthly}}/Monat",
-    "botsCta": "Ohne Konto bestellen",
+    "botsCta": "Paket wählen →",
+    "botsChannelsHint": "Website Chat · Telegram · WhatsApp · Instagram · Messenger — eigene Konten nach der Zahlung.",
+    "botsChannelsNote": "Kanäle: Website Chat · Telegram · WhatsApp · Instagram · Messenger (eigene Konten nach der Zahlung).",
     "needAccount": "Büro für späteres Management?",
     "seeWebsites": "Website-Pakete ansehen",
     "websitesTitle": "Websites",
@@ -474,6 +476,122 @@
   "faqTitle": "Häufige Fragen",
   "servicesTitle": "Leistungen",
   "servicesIntro": "{{brand}}: digitaler Neustart für DE-SMB — Landing online, Boost/Audits per Anfrage. Signal → passende Leistung.",
+  "catalog": {
+    "badgeOrder": "Bestellen",
+    "badgeSoon": "Demnächst",
+    "openForm": "Zum Formular →",
+    "interestForm": "Interesse melden →",
+    "moreTitle": "Weitere Website-Services",
+    "stagesLine": "{{count}} Schritte · {{timeline}}",
+    "supportLine": "Support: {{support}}",
+    "landing_website": {
+      "name": "Professionelle Website, die Anfragen bringt",
+      "price": "350–1200 €",
+      "blurb": "Mehr Kunden mit einer klaren Business-Website — Pakete Basic, Business, Premium.",
+      "includes": ["Mobile Landing", "Impressum / Datenschutz vorbereitet", "Dateien gehören Ihnen"],
+      "timeline": "typisch 3–10 Tage nach Briefing",
+      "support": "Vector + Status im Kabinett"
+    },
+    "ai_business_bot": {
+      "name": "AI Digital Employee",
+      "price": "ab 499 € + monatlich",
+      "blurb": "AI Sales Assistant für Ihr Unternehmen — Website-Chat, Telegram, WhatsApp, Instagram, Messenger.",
+      "highlights": [
+        "Antwortet Kunden 24/7",
+        "Erfasst Anfragen automatisch",
+        "Spricht mehrere Sprachen"
+      ],
+      "includes": [
+        "Ein AI-Mitarbeiter für Ihre Marke",
+        "Kanäle nach Ihrer Wahl",
+        "Workspace nach Zahlung"
+      ],
+      "timeline": "Kanäle direkt nach der Zahlung verbinden",
+      "support": "Kabinett + Hilfe von Vector"
+    },
+    "website_check": {
+      "name": "Website kostenlos prüfen",
+      "price": "Kostenlos",
+      "blurb": "Sehen Sie, was zu verbessern ist — danach Reparatur oder neue Website. Keine Zahlung für diese Prüfung.",
+      "includes": [
+        "HTTPS / Mobil / Tempo-Signale",
+        "Klarer nächster Schritt",
+        "Optional Reparatur oder neue Seite"
+      ],
+      "timeline": "Ergebnis in etwa einer Minute",
+      "support": "Vector erklärt den Bericht"
+    },
+    "ai_website_analysis": {
+      "name": "Schriftlicher KI-Analysebericht",
+      "price": "149 €",
+      "blurb": "Bezahlter Tiefenbericht im Kabinett — nach (oder statt) der kostenlosen Prüfung oben.",
+      "includes": [
+        "HTTPS / Mobil / Tempo-Checks",
+        "Prioritätenliste",
+        "Reparatur vs. neue Website"
+      ],
+      "timeline": "Bericht in 1–3 Werktagen",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Zahlung nach Formular — nicht die kostenlose Prüfung."
+    },
+    "website_repair": {
+      "name": "Website-Reparatur",
+      "price": "ab 199 €",
+      "blurb": "Website defekt? Wir können sie in 24–48 Stunden wiederherstellen — Notfall-Recovery ohne neue Landing.",
+      "includes": [
+        "Fokus Notfall-Wiederherstellung",
+        "Vereinbarter Reparaturumfang",
+        "Vorher/Nachher-Notizen"
+      ],
+      "timeline": "Ziel 24–48 Stunden nach Zugang",
+      "support": "Vector + Status im Kabinett"
+    },
+    "seo_audit": {
+      "name": "SEO-Audit",
+      "price": "249 €",
+      "blurb": "Technisches und lokales SEO-Konzept.",
+      "includes": ["Technisches SEO", "Meta / Struktur", "Maßnahmenplan"],
+      "timeline": "2–4 Tage wenn live",
+      "support": "Vector-Warteliste",
+      "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
+    },
+    "speed_optimization": {
+      "name": "Geschwindigkeits-Optimierung",
+      "price": "199 €",
+      "blurb": "Schnellere Ladezeiten für Ihre Website.",
+      "includes": ["Vorher/Nachher-Messwerte", "Bilder & Cache", "Restliste"],
+      "timeline": "2–5 Tage wenn live",
+      "support": "Vector-Warteliste",
+      "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
+    },
+    "security_check": {
+      "name": "Sicherheits-Check",
+      "price": "299 €",
+      "blurb": "HTTPS, Formulare, Schwachstellen-Review.",
+      "includes": ["HTTPS & Formulare", "Prioritätenbericht", "Keine Fake-Pen-Tests"],
+      "timeline": "1–3 Tage wenn live",
+      "support": "Vector-Warteliste",
+      "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
+    },
+    "google_business_setup": {
+      "name": "Google Unternehmensprofil",
+      "price": "149 €",
+      "blurb": "Lokale Auffindbarkeit — Profil-Setup für Ihr Unternehmen.",
+      "includes": ["Profil / Kategorien", "Zeiten & Kontakte", "Owner-Checkliste"],
+      "timeline": "3–7 Tage wenn live",
+      "support": "Vector-Warteliste",
+      "deliveryNote": "Formular bereit — Checkout wenn Lieferung startet."
+    },
+    "website_migration": {
+      "name": "Website-Migration",
+      "price": "ab 299 €",
+      "blurb": "Umzug Ihrer Website auf neues Hosting.",
+      "includes": ["Migrationsplan", "Cutover-Check", "Bericht nach dem Umzug"],
+      "timeline": "3–10 Tage wenn live",
+      "support": "Vector-Warteliste",
+      "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
+    }
+  },
   "analysis": {
     "title": "Website-Analyse",
     "intro": "Kostenlose Website-Analyse. Wir prüfen Ihre Website und senden Ihnen einen verständlichen Bericht. Falls nötig, empfehlen wir eine Reparatur oder eine neue Website. Keine künstlichen Bewertungen — nur eine ehrliche Einschätzung.",
