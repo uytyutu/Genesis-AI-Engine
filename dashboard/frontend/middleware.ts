@@ -66,6 +66,23 @@ const SECURITY_HEADERS: Record<string, string> = {
   "X-DNS-Prefetch-Control": "off",
 };
 
+/** Only Privacy + Terms — TikTok Developer Portal embeds these in an iframe. */
+const FRAMEABLE_LEGAL = new Set(["/agb", "/datenschutz"]);
+
+const LEGAL_EMBED_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' http://127.0.0.1:* http://localhost:* https:",
+  "media-src 'self' blob:",
+  "frame-src 'self'",
+  "frame-ancestors *",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join("; ");
+
 const NOINDEX =
   "noindex, nofollow, noarchive, nosnippet, noimageindex";
 
@@ -104,10 +121,19 @@ function isClientPath(path: string): boolean {
 
 function applySecurityHeaders(
   response: NextResponse,
-  opts: { noindex: boolean },
+  opts: { noindex: boolean; pathname?: string },
 ): NextResponse {
+  const allowFrame = Boolean(
+    opts.pathname && FRAMEABLE_LEGAL.has(opts.pathname),
+  );
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
+    if (allowFrame && k === "X-Frame-Options") continue;
     response.headers.set(k, v);
+  }
+  if (allowFrame) {
+    // Strip DENY from next.config global headers; allow portal iframes.
+    response.headers.delete("X-Frame-Options");
+    response.headers.set("Content-Security-Policy", LEGAL_EMBED_CSP);
   }
   if (opts.noindex) {
     response.headers.set("X-Robots-Tag", NOINDEX);
@@ -145,7 +171,10 @@ function redirectTo(
   const url = request.nextUrl.clone();
   url.pathname = pathname;
   url.search = "";
-  return applySecurityHeaders(NextResponse.redirect(url), { noindex: true });
+  return applySecurityHeaders(NextResponse.redirect(url), {
+    noindex: true,
+    pathname: request.nextUrl.pathname,
+  });
 }
 
 function unauthorizedJson(): NextResponse {
@@ -164,6 +193,7 @@ function publicCeoGate(request: NextRequest): NextResponse {
     const secret = ownerSecret();
     const response = applySecurityHeaders(NextResponse.next(), {
       noindex: true,
+      pathname: request.nextUrl.pathname,
     });
     const tokenParam = request.nextUrl.searchParams.get("owner");
     if (secret && tokenParam === secret) {
@@ -190,31 +220,47 @@ export function middleware(request: NextRequest) {
   if (loopback) {
     return applySecurityHeaders(NextResponse.next(), {
       noindex: !isPublicMarketingPath(path),
+      pathname: path,
     });
   }
 
   if (path.startsWith("/portal/")) {
-    return applySecurityHeaders(NextResponse.next(), { noindex: true });
+    return applySecurityHeaders(NextResponse.next(), {
+      noindex: true,
+      pathname: path,
+    });
   }
 
   if (isPublicMarketingPath(path)) {
-    return applySecurityHeaders(NextResponse.next(), { noindex: false });
+    return applySecurityHeaders(NextResponse.next(), {
+      noindex: false,
+      pathname: path,
+    });
   }
 
   if (isPublicApiPath(path)) {
-    return applySecurityHeaders(NextResponse.next(), { noindex: true });
+    return applySecurityHeaders(NextResponse.next(), {
+      noindex: true,
+      pathname: path,
+    });
   }
 
   if (path.startsWith("/api/") || path.startsWith("/webhooks/")) {
     if (hasOwnerCookie(request)) {
-      return applySecurityHeaders(NextResponse.next(), { noindex: true });
+      return applySecurityHeaders(NextResponse.next(), {
+        noindex: true,
+        pathname: path,
+      });
     }
     return unauthorizedJson();
   }
 
   if (isClientPath(path)) {
     if (hasClientSession(request)) {
-      return applySecurityHeaders(NextResponse.next(), { noindex: true });
+      return applySecurityHeaders(NextResponse.next(), {
+        noindex: true,
+        pathname: path,
+      });
     }
     // Logged-out strangers → storefront (not CEO chrome).
     return redirectTo(request, "/site");

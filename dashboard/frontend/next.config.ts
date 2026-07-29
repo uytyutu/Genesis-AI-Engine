@@ -28,6 +28,31 @@ const securityHeaders = [
   },
 ];
 
+/** TikTok / OAuth portals embed Privacy + Terms in iframe — only these two paths. */
+const legalEmbedCsp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' http://127.0.0.1:* http://localhost:* https:",
+  "media-src 'self' blob:",
+  "frame-src 'self'",
+  "frame-ancestors *",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join("; ");
+
+const securityHeadersNoFrameDeny = securityHeaders.filter(
+  (h) => h.key !== "X-Frame-Options" && h.key !== "Content-Security-Policy",
+);
+
+const legalEmbedHeaders = [
+  ...securityHeadersNoFrameDeny,
+  // No X-Frame-Options — required for cross-origin TikTok portal iframe.
+  { key: "Content-Security-Policy", value: legalEmbedCsp },
+];
+
 const apiBase = (
   process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8000"
 ).replace(/\/$/, "");
@@ -44,8 +69,13 @@ const nextConfig: NextConfig = {
     // Global X-Frame-Options: DENY would blank those previews (PC + mobile).
     // Later matching sources override earlier ones for the same header key.
     return [
+      // Root + everything except Privacy/Terms keep clickjacking DENY.
       {
-        source: "/(.*)",
+        source: "/",
+        headers: securityHeaders,
+      },
+      {
+        source: "/((?!agb$|datenschutz$).*)",
         headers: securityHeaders,
       },
       {
@@ -54,6 +84,14 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
         ],
+      },
+      {
+        source: "/agb",
+        headers: legalEmbedHeaders,
+      },
+      {
+        source: "/datenschutz",
+        headers: legalEmbedHeaders,
       },
     ];
   },
