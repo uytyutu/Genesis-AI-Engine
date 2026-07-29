@@ -1,0 +1,6 @@
+{
+  "website_url": "https://heyman-manufacturing.de",
+  "expect_decision": "HOLD",
+  "expect_chosen": null,
+  "must_reject_contains": ["support@hypernode.com"]
+}

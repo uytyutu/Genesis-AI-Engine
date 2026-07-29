@@ -36,33 +36,54 @@ def extract_emails_from_text(text: str) -> list[str]:
             continue
         if match not in found:
             found.append(match)
-    return found[:5]
+    # Cap harvest; CCI ranks — do not treat order as selection.
+    return found[:20]
 
 
 def discover_contact_channels(
     *,
     contact: str,
     analysis: dict[str, Any] | None,
+    website_url: str = "",
 ) -> dict[str, Any]:
+    """Resolve commercial contact via CCI (never first-email-wins)."""
+    from app.integration.cci import decision_to_dict, resolve_commercial_contact
+
     emails = extract_emails_from_text(contact or "")
     if analysis:
         emails.extend(analysis.get("emails_found") or [])
         for issue in analysis.get("issues") or []:
             emails.extend(extract_emails_from_text(str(issue)))
-    # dedupe
     unique: list[str] = []
     for e in emails:
-        if e not in unique:
-            unique.append(e)
+        low = str(e).strip().lower()
+        if low and low not in unique:
+            unique.append(low)
     has_phone = bool(
         re.search(r"\+?\d[\d\s\-()]{7,}", contact or "")
-        or (analysis and any("whatsapp" in str(i).lower() or "tel:" in str(i).lower() for i in (analysis.get("issues") or [])))
+        or (
+            analysis
+            and any(
+                "whatsapp" in str(i).lower() or "tel:" in str(i).lower()
+                for i in (analysis.get("issues") or [])
+            )
+        )
     )
+    url = (
+        website_url
+        or str((analysis or {}).get("final_url") or "")
+        or str((analysis or {}).get("url") or "")
+    )
+    decision = resolve_commercial_contact(emails=unique, website_url=url, html="")
+    primary = decision.chosen or ""
+    # Canon: auto commercial path needs CCI auto_send; phone-only still ok for non-email outreach.
+    can_email = decision.decision == "auto_send" and bool(primary)
     return {
-        "emails": unique[:3],
-        "primary_email": unique[0] if unique else "",
+        "emails": unique[:8],
+        "primary_email": primary,
         "has_phone_or_whatsapp": has_phone,
-        "can_outreach": bool(unique) or has_phone,
+        "can_outreach": can_email or has_phone,
+        "cci": decision_to_dict(decision),
     }
 
 
@@ -167,18 +188,28 @@ def qualify_lead(
         f"{issue_count} проблем · мёртвых сигналов {dead_signals}",
     )
 
-    # 5 — Контакт
-    channels = discover_contact_channels(contact=str(row.get("contact") or ""), analysis=analysis)
+    # 5 — Контакт (CCI — commercial mailbox, not first scrape hit)
+    channels = discover_contact_channels(
+        contact=str(row.get("contact") or ""),
+        analysis=analysis,
+        website_url=url,
+    )
     email_ok = bool(channels["primary_email"])
+    cci = channels.get("cci") if isinstance(channels.get("cci"), dict) else {}
     if require_email:
         contact_ok = email_ok
     else:
         contact_ok = channels["can_outreach"]
+    detail_contact = channels["primary_email"] or (
+        "телефон/WhatsApp" if channels["has_phone_or_whatsapp"] else "не найден"
+    )
+    if cci.get("decision") == "HOLD" and not channels["primary_email"]:
+        detail_contact = f"CCI HOLD · conf {cci.get('contact_confidence', 0)}"
     _step(
         "email_found",
         "Контакт для outreach",
         contact_ok,
-        channels["primary_email"] or ("телефон/WhatsApp" if channels["has_phone_or_whatsapp"] else "не найден"),
+        detail_contact,
     )
 
     # 6 — Оффер подходит

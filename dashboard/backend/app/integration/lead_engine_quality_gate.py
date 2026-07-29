@@ -103,6 +103,49 @@ def quality_gate_before_send(
     if not email or not _EMAIL_RE.match(email):
         return {"ok": False, "reason": "invalid_email", "detail": "Email missing or invalid"}
 
+    # Canon: auto commercial send MUST pass CCI (no first-email bypass).
+    try:
+        from app.integration.cci import resolve_commercial_contact
+
+        analysis = row.get("site_analysis") if isinstance(row.get("site_analysis"), dict) else {}
+        found = list(analysis.get("emails_found") or []) if isinstance(analysis, dict) else []
+        if email.lower() not in [str(x).lower() for x in found]:
+            found = [email] + found
+        cci_meta = meta.get("cci") if isinstance(meta.get("cci"), dict) else None
+        dec = resolve_commercial_contact(
+            emails=[str(x) for x in found] if found else [email],
+            website_url=str(row.get("website_url") or ""),
+            html="",
+        )
+        if dec.decision != "auto_send" or not dec.chosen:
+            return {
+                "ok": False,
+                "reason": "cci_hold",
+                "detail": (
+                    f"CCI {dec.decision} · conf {dec.contact_confidence} · "
+                    f"trace {dec.trace_id}"
+                ),
+            }
+        # Chosen must match row contact (or we refuse — prevents stale first-email).
+        if dec.chosen.lower() != email.lower():
+            return {
+                "ok": False,
+                "reason": "cci_mismatch",
+                "detail": (
+                    f"Contact {email} ≠ CCI chosen {dec.chosen} "
+                    f"(trace {dec.trace_id})"
+                ),
+            }
+        # Prefer fresh decision over stale meta
+        if cci_meta is None or cci_meta.get("trace_id") != dec.trace_id:
+            pass  # caller may persist; gate only checks
+    except Exception as exc:
+        return {
+            "ok": False,
+            "reason": "cci_error",
+            "detail": f"CCI required for send · {type(exc).__name__}",
+        }
+
     if meta.get("do_not_contact") or meta.get("email_status") in (
         "unsubscribed",
         "bounced",

@@ -405,31 +405,34 @@ class AcquisitionStudioService:
         # Unstick Path A drafts parked in manual_review while Автоотправка is on.
         promoted = self.promote_manual_for_autosend(limit=15)
         rows = self._opportunity._load_rows()
-        # Backfill emails from scrape so Quality Gate can pass on older drafts.
+        # Backfill emails via CCI (canon: no first-email bypass).
         dirty = False
+        from app.integration.cci import decision_to_dict, resolve_commercial_contact
+
         for row in rows:
             if self._extract_email(row.get("contact", "")):
                 continue
             analysis = row.get("site_analysis") if isinstance(row.get("site_analysis"), dict) else {}
-            found = analysis.get("emails_found") or []
-            if not isinstance(found, list):
-                continue
-            for raw_em in found:
-                em = self._extract_email(str(raw_em or ""))
-                if em:
-                    row["contact"] = em
-                    dirty = True
-                    break
-            if self._extract_email(row.get("contact", "")):
-                continue
-            # Also try meta / channels leftovers
+            found = list(analysis.get("emails_found") or []) if isinstance(analysis.get("emails_found"), list) else []
             meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
             for key in ("primary_email", "email", "contact_email"):
                 em = self._extract_email(str(meta.get(key) or ""))
-                if em:
-                    row["contact"] = em
-                    dirty = True
-                    break
+                if em and em.lower() not in [str(x).lower() for x in found]:
+                    found.append(em)
+            if not found:
+                continue
+            dec = resolve_commercial_contact(
+                emails=[str(x) for x in found],
+                website_url=str(row.get("website_url") or analysis.get("final_url") or ""),
+                html="",
+            )
+            meta["cci"] = decision_to_dict(dec)
+            row["meta"] = meta
+            if dec.decision == "auto_send" and dec.chosen:
+                row["contact"] = dec.chosen
+                dirty = True
+            else:
+                dirty = True  # persist CCI HOLD audit even without contact
         if dirty:
             self._opportunity._save_rows(rows)
             rows = self._opportunity._load_rows()
@@ -1325,19 +1328,29 @@ class AcquisitionStudioService:
                 raise ValueError("qualification_failed")
 
             channels = qual["channels"]
+            meta_cci = dict(row.get("meta") or {})
+            if isinstance(channels.get("cci"), dict):
+                meta_cci["cci"] = channels["cci"]
+                row["meta"] = meta_cci
             if channels.get("primary_email") and not self._extract_email(row.get("contact", "")):
                 row["contact"] = channels["primary_email"]
 
-        # Always enrich email from site scrape — force_skip_check used to skip this
-        # and left Ready=0 (no email → Quality Gate blocks auto-send).
+        # CCI enrich — never assign first scraped email outside the Decision object.
         if not self._extract_email(row.get("contact", "")) and isinstance(analysis, dict):
+            from app.integration.cci import decision_to_dict, resolve_commercial_contact
+
             found = analysis.get("emails_found") or []
-            if isinstance(found, list):
-                for raw_em in found:
-                    em = self._extract_email(str(raw_em or ""))
-                    if em:
-                        row["contact"] = em
-                        break
+            if isinstance(found, list) and found:
+                dec = resolve_commercial_contact(
+                    emails=[str(x) for x in found],
+                    website_url=str(row.get("website_url") or analysis.get("final_url") or url or ""),
+                    html="",
+                )
+                meta_e = dict(row.get("meta") or {})
+                meta_e["cci"] = decision_to_dict(dec)
+                row["meta"] = meta_e
+                if dec.decision == "auto_send" and dec.chosen:
+                    row["contact"] = dec.chosen
 
         package_id, price, rationale = self._recommend_pricing(row, analysis)
         # Lead Engine v1 — Premium Scoring + Smart Offer (may override package / skip)

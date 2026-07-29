@@ -1,0 +1,6 @@
+{
+  "website_url": "https://firma.de",
+  "expect_decision": "auto_send",
+  "expect_chosen": "sales@firma.de",
+  "must_reject_contains": ["support@firma.de"]
+}
