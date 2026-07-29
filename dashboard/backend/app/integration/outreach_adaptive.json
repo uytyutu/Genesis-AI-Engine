@@ -19,10 +19,10 @@
     "redistribute_on_pause": true
   },
   "interval": {
-    "min_sec": 10,
+    "min_sec": 5,
     "max_sec": 600,
     "jitter_pct": 20,
-    "formula_note": "interval ≈ (work_seconds_per_day / global_cap) with jitter; floor 10s"
+    "formula_note": "default send gap = min_sec (5s); persisted high intervals clamp down to floor"
   },
   "thresholds": {
     "bounce_rate_max_pct": 3.0,
@@ -46,10 +46,10 @@
     "note_ru": "Потрачено = sent × cost_per_email_eur (прокси). ROI = (revenue - spent) / spent."
   },
   "runner": {
-    "default_tick_sec": 10,
+    "default_tick_sec": 5,
     "leads_per_tick": 3,
     "send_one_per_tick_if_enabled": true,
     "note_ru": "Пуск крутит hunt/draft по тикам. Отправка письма — только если GENESIS_OUTREACH_ENABLED и есть Approve/high-win."
   },
-  "note_ru": "Стартовые квоты из markets.json. Scale-up только при покупках/выручке (require_revenue_for_scale_up). Replies без заказов → HOLD. Слабые рынки step_down / pause. Письма — Approve/снайпер."
+  "note_ru": "Стартовые квоты из outreach_markets.json. Scale-up только при покупках/выручке (require_revenue_for_scale_up). Replies без заказов → HOLD. Слабые рынки step_down / pause. Письма — Approve/снайпер. Интервал пола 5с."
 }

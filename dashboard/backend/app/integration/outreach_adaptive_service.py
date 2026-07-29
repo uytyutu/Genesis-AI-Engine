@@ -100,8 +100,12 @@ class OutreachAdaptiveService:
         if state.get("interval_sec") is not None:
             try:
                 stored = int(state["interval_sec"])
-                # Migrate old 60s+ default pacing down to configured floor (CEO: 10s).
+                # Migrate old 60s+ default pacing down to configured floor (CEO: 5s).
                 if stored >= 60 and lo <= 15:
+                    return lo
+                # Also clamp down when a persisted interval is much higher than the
+                # current configured floor (e.g. state=43s, cfg.min_sec=5s).
+                if stored >= max(30, lo * 2) and lo <= 15:
                     return lo
                 return max(lo, min(hi, stored))
             except (TypeError, ValueError):

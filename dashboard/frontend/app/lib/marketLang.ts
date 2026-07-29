@@ -9,6 +9,9 @@ export const MARKET_UI_LANG: Record<string, string> = {
   AU: "en",
   NZ: "en",
   IE: "en",
+  SG: "en",
+  JP: "en",
+  KR: "en",
   FR: "fr",
   IT: "it",
   ES: "es",
@@ -18,7 +21,8 @@ export const MARKET_UI_LANG: Record<string, string> = {
   PL: "pl",
   CZ: "cs",
   SK: "cs",
-  RO: "ro",
+  // No Romanian UI pack yet — keep EN copy; prices still use market=RO via selector.
+  RO: "en",
   UA: "uk",
   RU: "ru",
 };
@@ -36,6 +40,8 @@ export const LANG_CANONICAL_MARKET: Record<string, string> = {
   pt: "PT",
   pl: "PL",
   cs: "CZ",
+  ja: "JP",
+  ko: "KR",
 };
 
 /** Languages we actively sell on Country Desk / Path A. */

@@ -120,3 +120,12 @@ def test_dashboard_roi_and_shared(tmp_path: Path):
     de_roi = next(r for r in dash["roi_table"] if r["code"] == "DE")
     assert de_roi["orders"] == 1
     assert de_roi["spent_eur"] > 0
+
+
+def test_effective_interval_clamps_persisted_high_value(tmp_path: Path):
+    svc = OutreachAdaptiveService(tmp_path)
+    state = svc._load_state()
+    # UI currently shows ~43s persisted pacing; should clamp to cfg floor.
+    state["interval_sec"] = 43
+    svc._save_state(state)
+    assert svc.effective_interval_sec() == 5

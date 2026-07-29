@@ -122,6 +122,44 @@ def test_reprice_rebuilds_proposed_message(tmp_path: Path):
     assert stale not in (updated.get("proposed_message") or "")
 
 
+def test_desk_market_basic_anchors_match_ceo_table():
+    """Country Desk Basic anchors — currency + amount (major units)."""
+    expected = {
+        "US": (399, "USD"),
+        "DE": (350, "EUR"),
+        "GB": (299, "GBP"),
+        "FR": (330, "EUR"),
+        "IT": (320, "EUR"),
+        "ES": (300, "EUR"),
+        "CA": (399, "USD"),
+        "AU": (549, "AUD"),
+        "NL": (370, "EUR"),
+        "PL": (1200, "PLN"),
+        "CH": (390, "CHF"),
+        "AT": (350, "EUR"),
+        "BE": (350, "EUR"),
+        "PT": (270, "EUR"),
+        "CZ": (15000, "CZK"),
+        "RO": (200, "EUR"),
+        "SK": (220, "EUR"),
+        "UA": (8000, "UAH"),
+        "RU": (180, "EUR"),
+        "NZ": (549, "NZD"),
+        "JP": (55000, "JPY"),
+        "KR": (490000, "KRW"),
+        "SG": (499, "SGD"),
+    }
+    for market, (amount, currency) in expected.items():
+        offer = resolve_path_a_offer("basic", market)
+        assert offer.amount == amount, f"{market} amount"
+        assert offer.currency == currency, f"{market} currency"
+        grid = resolve_checkout_packages(market)
+        assert grid["currency"] == currency
+        basic = next(p for p in grid["packages"] if p["id"] == "basic")
+        assert float(basic["price_eur"]) == float(amount)
+        assert basic["currency"] == currency
+
+
 def test_sales_repair_uses_pricing_engine(tmp_path: Path):
     from app.integration.sales_order_service import SalesOrderService
 

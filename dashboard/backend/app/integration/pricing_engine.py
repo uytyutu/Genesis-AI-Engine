@@ -120,9 +120,7 @@ _PATH_A_SKUS: dict[str, dict[str, int]] = {
         "repair_standard": 479,
         "repair_complete": 699,
     },
-    # CIS / East — amounts from market_registry scale (not raw DE € copied into ₴)
-    # UA/KZ intentionally omitted here so checkout_price_scale applies.
-    # Active EU desk markets (preserve prior scale-based commercial amounts)
+    # Active EU / CIS desk — Basic anchors from Country Desk; tiers from DE ratio.
     "PL": {
         "basic": 1200,
         "business": 2200,
@@ -138,6 +136,80 @@ _PATH_A_SKUS: dict[str, dict[str, int]] = {
         "repair_lite": 8500,
         "repair_standard": 15000,
         "repair_complete": 21000,
+    },
+    # Active EU / CIS desk — Basic anchors from Country Desk; tiers from DE ratio.
+    "FR": {
+        "basic": 330,
+        "business": 610,
+        "premium": 1130,
+        "repair_lite": 189,
+        "repair_standard": 329,
+        "repair_complete": 469,
+    },
+    "IT": {
+        "basic": 320,
+        "business": 595,
+        "premium": 1100,
+        "repair_lite": 182,
+        "repair_standard": 319,
+        "repair_complete": 456,
+    },
+    "ES": {
+        "basic": 300,
+        "business": 560,
+        "premium": 1030,
+        "repair_lite": 170,
+        "repair_standard": 299,
+        "repair_complete": 428,
+    },
+    "NL": {
+        "basic": 370,
+        "business": 685,
+        "premium": 1270,
+        "repair_lite": 210,
+        "repair_standard": 369,
+        "repair_complete": 528,
+    },
+    "BE": dict(_DE_SKUS),
+    "PT": {
+        "basic": 270,
+        "business": 500,
+        "premium": 925,
+        "repair_lite": 154,
+        "repair_standard": 269,
+        "repair_complete": 385,
+    },
+    "RO": {
+        "basic": 200,
+        "business": 370,
+        "premium": 685,
+        "repair_lite": 114,
+        "repair_standard": 199,
+        "repair_complete": 285,
+    },
+    "SK": {
+        "basic": 220,
+        "business": 410,
+        "premium": 755,
+        "repair_lite": 125,
+        "repair_standard": 219,
+        "repair_complete": 314,
+    },
+    "UA": {
+        "basic": 8000,
+        "business": 14900,
+        "premium": 27400,
+        "repair_lite": 4550,
+        "repair_standard": 8000,
+        "repair_complete": 11400,
+    },
+    "RU": {
+        "basic": 180,
+        "business": 335,
+        "premium": 615,
+        "repair_lite": 102,
+        "repair_standard": 179,
+        "repair_complete": 257,
     },
 }
 

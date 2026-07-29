@@ -1,11 +1,11 @@
 {
-  "version": 7,
+  "version": 8,
   "global_daily_cap_default": 1000,
-  "min_interval_sec_default": 10,
+  "min_interval_sec_default": 5,
   "allocation_mode": "per_market",
   "quality_first": true,
   "force_fill_quotas": false,
-  "note_ru": "Дневной потолок 1000. APAC 24/7 (AU/NZ/JP/KR/SG) + Tier1. Старт: US 110 · крупные 65 · APAC/малые 30. Срок поставки ≈15 мин. Лаунчер: рынок СТОП до Пуск.",
+  "note_ru": "Дневной потолок 1000. Интервал пола 5с. APAC 24/7 + Tier1. Старт: US 110 · крупные 65 · APAC/малые 30. Цены Path A = pricing_engine / market_registry. Срок ≈15 мин.",
   "delivery_eta_minutes": 15,
   "markets": [
     {
@@ -120,7 +120,7 @@
       "flag": "🇫🇷",
       "name_ru": "Франция",
       "name_en": "France",
-      "language": "en-us",
+      "language": "fr",
       "template": "en-us",
       "daily_cap": 65,
       "timezone": "Europe/Paris",
@@ -129,7 +129,7 @@
       "currency": "EUR",
       "symbol": "€",
       "website": {
-        "locale": "en",
+        "locale": "fr",
         "hreflang": "fr-FR",
         "legal_pages": [
           "privacy",
@@ -144,7 +144,7 @@
         "Marseille",
         "Toulouse"
       ],
-      "cap_rationale": "Start 65/day · share of global 1000 · FR copy later"
+      "cap_rationale": "Start 65/day · share of global 1000 · FR locale · Basic 330 €"
     },
     {
       "code": "IT",
@@ -153,7 +153,7 @@
       "flag": "🇮🇹",
       "name_ru": "Италия",
       "name_en": "Italy",
-      "language": "en-us",
+      "language": "it",
       "template": "en-us",
       "daily_cap": 65,
       "timezone": "Europe/Rome",
@@ -162,7 +162,7 @@
       "currency": "EUR",
       "symbol": "€",
       "website": {
-        "locale": "en",
+        "locale": "it",
         "hreflang": "it-IT",
         "legal_pages": [
           "privacy",
@@ -176,7 +176,7 @@
         "Napoli",
         "Torino"
       ],
-      "cap_rationale": "Start 65/day · share of global 1000"
+      "cap_rationale": "Start 65/day · share of global 1000 · IT locale · Basic 320 €"
     },
     {
       "code": "ES",
@@ -185,7 +185,7 @@
       "flag": "🇪🇸",
       "name_ru": "Испания",
       "name_en": "Spain",
-      "language": "en-us",
+      "language": "es",
       "template": "en-us",
       "daily_cap": 65,
       "timezone": "Europe/Madrid",
@@ -194,7 +194,7 @@
       "currency": "EUR",
       "symbol": "€",
       "website": {
-        "locale": "en",
+        "locale": "es",
         "hreflang": "es-ES",
         "legal_pages": [
           "privacy",
@@ -208,7 +208,7 @@
         "Valencia",
         "Sevilla"
       ],
-      "cap_rationale": "Start 65/day · share of global 1000"
+      "cap_rationale": "Start 65/day · share of global 1000 · ES locale · Basic 300 €"
     },
     {
       "code": "CA",
@@ -223,7 +223,7 @@
       "timezone": "America/Toronto",
       "legal_profile": "us_can_spam",
       "send_pool": "us",
-      "currency": "CAD",
+      "currency": "USD",
       "symbol": "$",
       "website": {
         "locale": "en",
@@ -241,7 +241,7 @@
         "Calgary",
         "Ottawa"
       ],
-      "cap_rationale": "Start 65/day · share of global 1000 · CASL awareness"
+      "cap_rationale": "Start 65/day · share of global 1000 · CASL awareness · checkout USD"
     },
     {
       "code": "AU",
@@ -282,7 +282,7 @@
       "flag": "🇳🇱",
       "name_ru": "Нидерланды",
       "name_en": "Netherlands",
-      "language": "en-us",
+      "language": "nl",
       "template": "en-us",
       "daily_cap": 65,
       "timezone": "Europe/Amsterdam",
@@ -291,7 +291,7 @@
       "currency": "EUR",
       "symbol": "€",
       "website": {
-        "locale": "en",
+        "locale": "nl",
         "hreflang": "nl-NL",
         "legal_pages": [
           "privacy",
@@ -305,7 +305,7 @@
         "Utrecht",
         "Den Haag"
       ],
-      "cap_rationale": "Start 65/day · share of global 1000 · EN B2B"
+      "cap_rationale": "Start 65/day · share of global 1000 · NL locale · Basic 370 €"
     },
     {
       "code": "PL",
@@ -314,7 +314,7 @@
       "flag": "🇵🇱",
       "name_ru": "Польша",
       "name_en": "Poland",
-      "language": "en-us",
+      "language": "pl",
       "template": "en-us",
       "daily_cap": 65,
       "timezone": "Europe/Warsaw",
@@ -323,7 +323,7 @@
       "currency": "PLN",
       "symbol": "zł",
       "website": {
-        "locale": "en",
+        "locale": "pl",
         "hreflang": "pl-PL",
         "legal_pages": [
           "privacy",
@@ -337,7 +337,7 @@
         "Wrocław",
         "Gdańsk"
       ],
-      "cap_rationale": "Start 65/day · share of global 1000"
+      "cap_rationale": "Start 65/day · share of global 1000 · PL locale · Basic 1 200 zł"
     },
     {
       "code": "CH",
@@ -412,7 +412,7 @@
       "flag": "🇧🇪",
       "name_ru": "Бельгия",
       "name_en": "Belgium",
-      "language": "en-us",
+      "language": "nl",
       "template": "en-us",
       "daily_cap": 30,
       "timezone": "Europe/Brussels",
@@ -421,8 +421,8 @@
       "currency": "EUR",
       "symbol": "€",
       "website": {
-        "locale": "en",
-        "hreflang": "en-BE",
+        "locale": "nl",
+        "hreflang": "nl-BE",
         "legal_pages": [
           "privacy",
           "terms"
@@ -434,7 +434,7 @@
         "Antwerpen",
         "Gent"
       ],
-      "cap_rationale": "Start 30/day · share of global 1000"
+      "cap_rationale": "Start 30/day · share of global 1000 · NL UI · Basic 350 € (=DE)"
     },
     {
       "code": "PT",
@@ -443,7 +443,7 @@
       "flag": "🇵🇹",
       "name_ru": "Португалия",
       "name_en": "Portugal",
-      "language": "en-us",
+      "language": "pt",
       "template": "en-us",
       "daily_cap": 30,
       "timezone": "Europe/Lisbon",
@@ -452,7 +452,7 @@
       "currency": "EUR",
       "symbol": "€",
       "website": {
-        "locale": "en",
+        "locale": "pt",
         "hreflang": "pt-PT",
         "legal_pages": [
           "privacy",
@@ -464,7 +464,7 @@
         "Lisboa",
         "Porto"
       ],
-      "cap_rationale": "Start 30/day · share of global 1000"
+      "cap_rationale": "Start 30/day · share of global 1000 · PT locale · Basic 270 €"
     },
     {
       "code": "CZ",
@@ -482,7 +482,7 @@
       "currency": "CZK",
       "symbol": "Kč",
       "website": {
-        "locale": "en",
+        "locale": "cs",
         "hreflang": "cs-CZ",
         "legal_pages": [
           "privacy",
@@ -494,7 +494,7 @@
         "Praha",
         "Brno"
       ],
-      "cap_rationale": "Start 30/day · share of global 1000"
+      "cap_rationale": "Start 30/day · share of global 1000 · CS locale · Basic 15 000 Kč"
     },
     {
       "code": "RO",
@@ -503,7 +503,7 @@
       "flag": "🇷🇴",
       "name_ru": "Румыния",
       "name_en": "Romania",
-      "language": "en-us",
+      "language": "ro",
       "template": "en-us",
       "daily_cap": 30,
       "timezone": "Europe/Bucharest",
@@ -512,7 +512,7 @@
       "currency": "EUR",
       "symbol": "€",
       "website": {
-        "locale": "en",
+        "locale": "ro",
         "hreflang": "ro-RO",
         "legal_pages": [
           "privacy",
@@ -534,8 +534,8 @@
       "flag": "🇸🇰",
       "name_ru": "Словакия",
       "name_en": "Slovakia",
-      "language": "en-us",
-      "template": "en-us",
+      "language": "cs",
+      "template": "cs",
       "daily_cap": 30,
       "timezone": "Europe/Bratislava",
       "legal_profile": "eu_gdpr",
@@ -543,7 +543,7 @@
       "currency": "EUR",
       "symbol": "€",
       "website": {
-        "locale": "en",
+        "locale": "cs",
         "hreflang": "sk-SK",
         "legal_pages": [
           "privacy",
@@ -555,7 +555,7 @@
         "Bratislava",
         "Košice"
       ],
-      "cap_rationale": "Start 30/day · share of global 1000"
+      "cap_rationale": "Start 30/day · share of global 1000 · CS UI · Basic 220 €"
     },
     {
       "code": "UA",
