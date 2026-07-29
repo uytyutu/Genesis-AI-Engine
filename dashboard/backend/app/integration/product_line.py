@@ -386,7 +386,9 @@ def project_order_created_message(
 ) -> str:
     """After order submit — project fixed, not «we will start building someday»."""
     name = project_display_name(service_id, project_name=project_name)
-    lang = (ui_lang or "de").strip().lower().split("-")[0]
+    from app.integration.locale_service import resolve_generation_language
+
+    lang = resolve_generation_language(ui_lang)
     if launch_mode:
         msgs = {
             "de": (
@@ -431,7 +433,11 @@ def project_order_created_message(
 def project_awaiting_payment_message(
     *, launch_mode: bool = False, ui_lang: str | None = None
 ) -> str:
-    lang = (ui_lang or "de").strip().lower().split("-")[0]
+    lang = (ui_lang or "").strip().lower().split("-")[0]
+    if not lang:
+        from app.integration.locale_service import resolve_generation_language
+
+        lang = resolve_generation_language(ui_lang)
     if launch_mode:
         msgs = {
             "de": (

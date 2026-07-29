@@ -58,7 +58,7 @@ class QuestionnaireBody(BaseModel):
     address: str = Field(default="", max_length=500)
     phone: str = Field(default="", max_length=80)
     website: str = Field(default="", max_length=300)
-    language: str = Field(default="de", max_length=16)
+    language: str = Field(default="en", max_length=16)
     tone: str = Field(default="professional_friendly", max_length=64)
     industry: str = Field(default="other", max_length=64)
     book_appointments: bool = True

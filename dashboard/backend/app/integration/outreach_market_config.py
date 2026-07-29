@@ -63,10 +63,23 @@ def market_daily_cap(code: str) -> int:
 
 
 def market_template_lang(code: str | None) -> str | None:
+    """Template pack key for outreach bodies (may be en-us while language is fr)."""
     m = get_market(code)
     if not m:
         return None
     return str(m.get("template") or m.get("language") or "").strip() or None
+
+
+def market_generation_lang(code: str | None) -> str | None:
+    """Buyer/generation locale for this market — never invent German from market alone.
+
+    Prefer explicit ``language`` (locale). ``template`` is only a pack fallback.
+    Market still drives currency/prices/legal elsewhere — not this string.
+    """
+    m = get_market(code)
+    if not m:
+        return None
+    return str(m.get("language") or m.get("template") or "").strip() or None
 
 
 def market_send_pool(code: str | None) -> str:

@@ -32,6 +32,59 @@ DEFAULT_LOCALE = "ru"
 FALLBACK_LOCALE = "en"
 
 
+def resolve_generation_language(
+    *candidates: str | None,
+    market_code: str | None = None,
+    default: str = FALLBACK_LOCALE,
+) -> str:
+    """Unified Language Resolver for AI text, emails, offers, and public copy.
+
+    Priority:
+      1. First non-empty candidate (locale / ui_lang / language / …)
+      2. Market → generation language map (currency/market still separate)
+      3. ``default`` (English) — never German unless chosen above
+
+    German is returned only when a candidate or the market language is German.
+    """
+    for raw in candidates:
+        if raw is None:
+            continue
+        text = str(raw).strip()
+        if not text:
+            continue
+        loc = resolve_locale(text)
+        base = loc.split("-")[0].lower()
+        if base == "en" or loc.lower().startswith("en"):
+            return "en"
+        return base
+
+    code = (market_code or "").strip()
+    if code:
+        try:
+            from app.integration.outreach_market_config import market_generation_lang
+
+            hit = market_generation_lang(code)
+            if hit:
+                h = str(hit).strip().lower()
+                if h in ("en", "en-us", "en-gb"):
+                    return "en"
+                return h.split("-")[0]
+        except Exception:
+            pass
+        try:
+            from app.factory.market_delivery import market_ui_lang
+
+            m = market_ui_lang(code)
+            if m:
+                mb = str(m).strip().lower().split("-")[0]
+                if mb:
+                    return "en" if mb == "en" else mb
+        except Exception:
+            pass
+
+    return default
+
+
 def normalize_order_ui_lang(raw: str | None, *, market_code: str | None = None) -> str:
     """Language stored on the order — CEO packs only (de/en/ru/uk)."""
     if raw:
@@ -40,15 +93,10 @@ def normalize_order_ui_lang(raw: str | None, *, market_code: str | None = None) 
             return loc
         if loc.split("-")[0] in CEO_PACK_LOCALES:
             return loc.split("-")[0]
-    if market_code:
-        try:
-            from app.factory.market_delivery import market_ui_lang
-
-            m = market_ui_lang(market_code)
-            if m in CEO_PACK_LOCALES:
-                return m
-        except Exception:
-            pass
+    # Prefer unified resolver (English fallback) over forcing German via market alone.
+    gen = resolve_generation_language(market_code=market_code, default=FALLBACK_LOCALE)
+    if gen in CEO_PACK_LOCALES:
+        return gen
     return FALLBACK_LOCALE
 
 

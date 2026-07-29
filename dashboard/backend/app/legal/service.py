@@ -109,7 +109,9 @@ class LegalFoundationService:
         privacy_url = f"{site}/privacy"
         publishable = cfg.is_impressum_publishable()
         m = (normalize_market_code(market) or "DE").upper()
-        lang = (language or "de").lower()
+        from app.integration.locale_service import resolve_generation_language
+
+        lang = resolve_generation_language(language, market_code=m)
         try:
             from app.integration.outreach_market_config import market_legal_profile
 

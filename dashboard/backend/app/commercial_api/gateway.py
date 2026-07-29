@@ -90,10 +90,11 @@ class CommercialApiGateway:
                 "http_status": 402,
             }
         from app.integration.website_analysis_v1 import WebsiteAnalysisV1
+        from app.integration.locale_service import resolve_generation_language
 
         report = WebsiteAnalysisV1(self._memory).analyze(
             url,
-            locale=locale or "de",
+            locale=resolve_generation_language(locale),
             use_cache=True,
             save_case=True,
         )

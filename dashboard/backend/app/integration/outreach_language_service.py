@@ -1,7 +1,7 @@
 """Outreach drafts by market: DE formal · EN-US short · RU/UA contextual.
 
-Language is resolved from lead ``market`` / ``meta.market`` / ``meta.country_code``
-first — site-language guessing is fallback only.
+Generation language = explicit locale / outreach_language first.
+Market drives currency, prices, legal — not forced German copy.
 """
 
 from __future__ import annotations
@@ -60,15 +60,15 @@ _MARKET_TO_LANG: dict[str, str] = {
     "SG": "en-us",
     "JP": "ja",
     "KR": "ko",
-    "FR": "en-us",
-    "IT": "en-us",
-    "ES": "en-us",
-    "NL": "en-us",
-    "BE": "en-us",
-    "PT": "en-us",
-    "PL": "en-us",
+    "FR": "fr",
+    "IT": "it",
+    "ES": "es",
+    "NL": "nl",
+    "BE": "nl",
+    "PT": "pt",
+    "PL": "pl",
     "RO": "en-us",
-    "SK": "en-us",
+    "SK": "cs",
     "CZ": "cs",
     "RU": "ru",
     "UA": "uk",
@@ -255,18 +255,47 @@ def resolve_market_from_row(row: dict[str, Any] | None) -> str | None:
 
 
 def language_for_market(market: str | None) -> str | None:
+    """Locale for generated outreach text for a market (not template-pack id)."""
     if not market:
         return None
     try:
-        from app.integration.outreach_market_config import market_template_lang
+        from app.integration.outreach_market_config import market_generation_lang
 
-        hit = market_template_lang(market)
+        hit = market_generation_lang(market)
         if hit:
             return hit
     except Exception:
         pass
-    m = normalize_market_code(market) or market.upper()
+    m = normalize_market_code(market) or str(market).upper()
     return _MARKET_TO_LANG.get(m)
+
+
+def resolve_generation_locale(
+    *,
+    language: str | None = None,
+    row: dict[str, Any] | None = None,
+) -> str | None:
+    """Single source for outreach/LLM language — explicit locale beats market."""
+    from app.integration.locale_service import resolve_generation_language
+
+    meta = row.get("meta") if isinstance(row, dict) and isinstance(row.get("meta"), dict) else {}
+    market = resolve_market_from_row(row) if row else None
+    candidates: list[str | None] = [language]
+    if row:
+        for key in (
+            "locale",
+            "ui_lang",
+            "ui_locale",
+            "outreach_language",
+            "generation_language",
+            "language",
+        ):
+            raw = meta.get(key) if key in meta else row.get(key)
+            if isinstance(raw, str) and raw.strip():
+                candidates.append(raw.strip())
+    # Always returns a language (en fallback). Caller may treat as resolved.
+    return resolve_generation_language(*candidates, market_code=market)
+
 
 
 # --- Path A templates (CEO review) -------------------------------------------------
@@ -557,6 +586,13 @@ class OutreachLanguageService:
     """Draft sniper outreach in the market's language (templates → optional LLM)."""
 
     def detect_language(self, row: dict[str, Any]) -> str:
+        explicit = resolve_generation_locale(row=row)
+        if explicit:
+            base = explicit.split("-")[0]
+            if base == "en" or explicit.startswith("en"):
+                return "en-us"
+            return explicit if explicit in _TEMPLATES else base
+
         market = resolve_market_from_row(row)
         by_market = language_for_market(market)
         if by_market:
@@ -570,11 +606,6 @@ class OutreachLanguageService:
                 return "en-us"
             if base in _TEMPLATES:
                 return base
-
-        meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
-        if meta.get("outreach_language"):
-            raw = str(meta["outreach_language"]).split("-")[0]
-            return "en-us" if raw == "en" else raw
 
         blob = " ".join(
             [
@@ -617,8 +648,7 @@ class OutreachLanguageService:
     ) -> tuple[str, str, str]:
         market = resolve_market_from_row(row)
         lang = (
-            language
-            or language_for_market(market)
+            resolve_generation_locale(language=language, row=row)
             or (self.detect_language(row) if row else None)
             or "en-us"
         )
@@ -627,24 +657,35 @@ class OutreachLanguageService:
             lang = "en-us"
         elif "-" in lang and lang not in _TEMPLATES:
             lang = lang.split("-")[0]
+
+        # LLM follows resolved locale; deterministic pack may fall back (fr → en-us pack).
+        llm_locale = lang
+        template_key = lang if lang in _TEMPLATES else "en-us"
         if lang not in _TEMPLATES:
-            lang = "en-us"
+            try:
+                from app.integration.outreach_market_config import market_template_lang
+
+                pack = market_template_lang(market)
+                if pack and pack in _TEMPLATES:
+                    template_key = pack
+            except Exception:
+                pass
 
         if allow_llm:
-            llm_lang = "en" if lang == "en-us" else lang
+            llm_lang = "en" if llm_locale in ("en-us", "en") else llm_locale.split("-")[0]
             price_label_llm = str(package.get("price_label") or "").strip()
             if not price_label_llm:
                 try:
                     from app.integration.pricing_engine import resolve_path_a_offer
 
                     pkg_id = str(package.get("id") or package.get("package_id") or "basic")
-                    offer = resolve_path_a_offer(pkg_id, market or "DE")
+                    offer = resolve_path_a_offer(pkg_id, market or "US")
                     price_label_llm = offer.price_label
                 except Exception:
                     try:
                         from app.integration.market_registry import format_amount, get_market
 
-                        mkt = get_market(market or "DE")
+                        mkt = get_market(market or "US")
                         price_label_llm = format_amount(int(round(float(price))), mkt.symbol)
                     except Exception:
                         price_label_llm = f"{float(price):.0f} €"
@@ -677,8 +718,9 @@ class OutreachLanguageService:
                         f"{body_llm.rstrip()}\n\n"
                         f"{analysis_url}\n{order_url}\n"
                     )
-                return str(llm_draft["subject"]), body_llm, lang
+                return str(llm_draft["subject"]), body_llm, llm_locale
 
+        lang = template_key
         tpl = dict(_TEMPLATES.get(lang) or _TEMPLATES["en-us"])
         if row:
             from app.integration.lead_pipeline_service import detect_niche_key
@@ -693,6 +735,25 @@ class OutreachLanguageService:
                 tpl.update(_NICHE_TEMPLATES_DE[niche])
 
         issues = list((analysis or {}).get("issues") or [])[:5]
+        # Do not leak German diagnosis strings into non-German drafts.
+        gen_base = str(llm_locale or "en").split("-")[0].lower()
+        if gen_base != "de":
+            de_markers = (
+                "kein ",
+                "keine ",
+                "nicht ",
+                "antwort",
+                "seitentitel",
+                "öffnungs",
+                "langsame",
+                "fehlender",
+                "website nicht",
+            )
+            issues = [
+                i
+                for i in issues
+                if not any(m in str(i).lower() for m in de_markers)
+            ]
         flags = (analysis or {}).get("flags") if isinstance((analysis or {}).get("flags"), dict) else {}
         friction_i18n = {
             "de": {
@@ -787,12 +848,12 @@ class OutreachLanguageService:
                 from app.integration.pricing_engine import resolve_path_a_offer
 
                 pkg_id = str(package.get("id") or package.get("package_id") or "basic")
-                price_label = resolve_path_a_offer(pkg_id, market or "DE").price_label
+                price_label = resolve_path_a_offer(pkg_id, market or "US").price_label
             except Exception:
                 try:
                     from app.integration.market_registry import format_amount, get_market
 
-                    m = get_market(market or "DE")
+                    m = get_market(market or "US")
                     price_label = format_amount(int(round(float(price))), m.symbol)
                 except Exception:
                     price_label = f"{float(price):.0f} €"
@@ -806,4 +867,8 @@ class OutreachLanguageService:
             f"{tpl['cta'].format(order_url=order_url, analysis_url=analysis_url, company=company)}\n\n"
             f"{outreach_signoff(lang)}\n"
         )
-        return subject, body, lang
+        # Report generation locale (fr/pl/…), not only the EN template pack key.
+        reported = llm_locale
+        if str(reported).lower() in ("en", "en-gb"):
+            reported = "en-us"
+        return subject, body, reported

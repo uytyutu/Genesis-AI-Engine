@@ -82,7 +82,9 @@ def parse_answers(raw: dict[str, Any] | None) -> BotSetupAnswers:
     industry = str(data.get("industry") or "other").strip().lower() or "other"
     if industry not in ALLOWED_INDUSTRIES:
         industry = "other"
-    lang = str(data.get("language") or "de").strip().lower() or "de"
+    from app.integration.locale_service import resolve_generation_language
+
+    lang = resolve_generation_language(data.get("language"), default="en")
     tone = str(data.get("tone") or "professional_friendly").strip() or "professional_friendly"
     if tone not in _TONE_LABELS:
         tone = "professional_friendly"

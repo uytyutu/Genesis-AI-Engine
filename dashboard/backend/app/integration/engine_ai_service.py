@@ -11,7 +11,7 @@ from typing import Any, Mapping
 
 from app.config import env_config_file
 from app.integration.genesis_brain.providers import build_provider_registry
-from app.integration.genesis_brain.public_brand import BRAND_NAME
+from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAME
 from app.integration.llm_router.router import LLMRouter
 
 _NICHE_LABELS = (
@@ -278,7 +278,7 @@ class EngineAIService:
 
         issues = [str(i) for i in (analysis.get("issues") or [])[:7]]
         strengths = [str(s) for s in (analysis.get("strengths") or [])[:3]]
-        lang = (language or "de").split("-")[0]
+        lang = (language or "en").split("-")[0].lower()
         lang_names = {
             "de": "German",
             "en": "English",
@@ -287,14 +287,22 @@ class EngineAIService:
             "uk": "Ukrainian",
             "ru": "Russian",
             "cs": "Czech",
+            "pl": "Polish",
+            "nl": "Dutch",
+            "it": "Italian",
+            "pt": "Portuguese",
+            "ja": "Japanese",
+            "ko": "Korean",
         }
-        lang_label = lang_names.get(lang, "German")
+        lang_label = lang_names.get(lang, "English")
         money = (price_label or "").strip() or f"{price_eur:.0f} EUR"
 
         system = (
-            f"You write ONE commercial proposal email in {lang_label} as Virtus Core / {BRAND_NAME} "
-            f"(sender: Ramish Oltiiev, Managing Director — sign off with full name, title, "
-            f"and «Virtus Core for you» localized). "
+            f"You write ONE commercial proposal email in {lang_label} as {ASSISTANT_NAME} "
+            f"from {BRAND_NAME} (digital company). "
+            f"Sign off as {ASSISTANT_NAME} · {BRAND_NAME}. Never use a personal human founder name. "
+            f"Write the ENTIRE email in {lang_label} only — do not mix German or any other language. "
+            "If diagnosis notes in the JSON are in another language, translate them into the email language. "
             "Tone: living offer from a digital company — concrete, respectful, not spam. "
             "Write as WE/OUR team addressing THEIR company by name. "
             "Mention SPECIFIC website issues as DIAGNOSIS only. "

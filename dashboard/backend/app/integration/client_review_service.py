@@ -365,10 +365,12 @@ class ClientReviewService:
         self._rewrite(rows)
         return {"ok": True, "seeded": True, "count": len(created), "reviews": created}
 
-    def public_feed(self, *, lang: str = "de") -> dict[str, Any]:
+    def public_feed(self, *, lang: str = "en") -> dict[str, Any]:
         self.ensure_display_reviews()
         published = self.list_published()
-        lang2 = (lang or "de")[:2].lower()
+        from app.integration.locale_service import resolve_generation_language
+
+        lang2 = resolve_generation_language(lang)
         cards = []
         for r in published:
             text = str(r.get("text") or "")

@@ -13,6 +13,9 @@ import {
   type ServiceCategory,
 } from "../lib/pricingApi";
 import { BRAND_NAME } from "../lib/publicBrand";
+import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
+import { useLocale } from "../context/LocaleContext";
+import type { UiLocale } from "../lib/locale/types";
 
 type GoToMarket = {
   levels?: { id: string; title: string; body: string }[];
@@ -169,16 +172,36 @@ export default function ServicesPage() {
   const [data, setData] = useState<PricingDisplay | null>(null);
   const [loading, setLoading] = useState(true);
   const [market, setMarket] = useState("DE");
+  const { uiLocale, applyUiLocale } = useLocale();
 
   useEffect(() => {
     try {
       const p = new URLSearchParams(window.location.search);
-      const m = (p.get("market") || p.get("country") || "DE").toUpperCase();
-      setMarket(m);
+      const explicit = (p.get("market") || p.get("country") || "").toUpperCase();
+      if (explicit) {
+        setMarket(explicit);
+      } else {
+        setMarket(canonicalMarketForLang(uiLocale));
+      }
     } catch {
-      setMarket("DE");
+      setMarket(canonicalMarketForLang(uiLocale));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Language switch should keep pricing currency/amount in sync.
+  useEffect(() => {
+    try {
+      const expectedMarket = canonicalMarketForLang(uiLocale);
+      if (!expectedMarket || expectedMarket === market) return;
+      setMarket(expectedMarket);
+      const url = new URL(window.location.href);
+      url.searchParams.set("market", expectedMarket);
+      window.history.replaceState({}, "", url.toString());
+    } catch {
+      /* ignore */
+    }
+  }, [uiLocale, market]);
 
   useEffect(() => {
     setLoading(true);
@@ -225,6 +248,7 @@ export default function ServicesPage() {
               const url = new URL(window.location.href);
               url.searchParams.set("market", next);
               window.history.replaceState({}, "", url.toString());
+              applyUiLocale(uiLangForMarket(next) as UiLocale);
             }}
           >
             {markets.map((m) => (

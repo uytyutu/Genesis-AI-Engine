@@ -48,7 +48,7 @@ def _require_owner(request: Request) -> None:
 
 class AuditBody(BaseModel):
     url: str = Field(..., min_length=4, max_length=2048)
-    locale: str = Field(default="de", max_length=8)
+    locale: str = Field(default="en", max_length=8)
 
 
 class LeadsBody(BaseModel):

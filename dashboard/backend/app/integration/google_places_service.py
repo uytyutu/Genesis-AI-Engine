@@ -169,10 +169,14 @@ class GooglePlacesService:
             return []
         limit = max(1, min(int(limit), 50))
 
+        from app.integration.locale_service import resolve_generation_language
+
         body: dict[str, Any] = {
             "textQuery": q,
-            "languageCode": (language or "de").split("-")[0],
-            "regionCode": (region or "de").upper()[:2],
+            "languageCode": resolve_generation_language(
+                language, market_code=(region or "").upper()[:2] or None
+            ),
+            "regionCode": (region or "DE").upper()[:2],
             "maxResultCount": min(limit, 20),
         }
         if lat is not None and lng is not None:

@@ -2,9 +2,9 @@
 
 import { Suspense } from "react";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { PublicSiteFooter } from "./PublicSiteFooter";
 import { PublicSiteHeader } from "./PublicSiteHeader";
-import { useTranslation } from "react-i18next";
 import { isCustomerPurchasePath } from "../lib/surfaceNavConfig";
 
 export function PublicPageShell({

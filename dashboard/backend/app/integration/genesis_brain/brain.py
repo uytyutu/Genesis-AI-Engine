@@ -216,9 +216,9 @@ class GenesisBrain:
                 return fast_result
 
         if fast_lane_only:
-            from app.integration.locale_service import localized_service_copy
+            from app.integration.locale_service import FALLBACK_LOCALE, localized_service_copy
 
-            loc = assistant_locale or "de"
+            loc = assistant_locale or FALLBACK_LOCALE
             return ChatResult(
                 answer=localized_service_copy("error_fallback", loc),
                 provider_id="genesis-local",

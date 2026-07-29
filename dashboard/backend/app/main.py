@@ -3019,7 +3019,15 @@ def acquisition_generate_drafts(body: dict) -> dict:
         city = str(body.get("city") or "").strip()
         query = str(body.get("query") or "").strip()
         limit = int(body.get("limit") or 10)
-        language = str(body.get("language") or "de").strip() or "de"
+        language = str(body.get("language") or "").strip()
+        if not language:
+            from app.integration.locale_service import resolve_generation_language
+
+            language = resolve_generation_language(
+                body.get("locale"),
+                body.get("ui_lang"),
+                market_code=str(body.get("market") or body.get("market_code") or "") or None,
+            )
         throttle_ms = int(body.get("throttle_ms") or 250)
         force_skip_check = bool(body.get("force_skip_check"))
         result = _ctx().acquisition.generate_drafts_from_places(
@@ -3758,16 +3766,17 @@ def public_visual_experience(
     niche: str | None = None,
     specialization: str | None = None,
     tier: str = "business",
-    locale: str = "de",
+    locale: str = "en",
 ) -> VisualExperiencePreviewResponse:
     """Adaptive VXP preview for Path A order wizard (still / motion — never empty)."""
     from app.integration.path_a_visual_preview import resolve_path_a_visual_preview
+    from app.integration.locale_service import resolve_generation_language
 
     exp = resolve_path_a_visual_preview(
         niche_id=niche,
         tier=tier,
         specialization=specialization,
-        locale=locale,
+        locale=resolve_generation_language(locale),
     )
     return VisualExperiencePreviewResponse(
         ok=bool(exp.get("ok", True)),
@@ -4138,12 +4147,21 @@ def preview_sales_order_insights(body: OrderInsightsPreviewRequest) -> OrderInsi
     visual_experience = None
     try:
         from app.integration.path_a_visual_preview import resolve_path_a_visual_preview
+        from app.integration.locale_service import resolve_generation_language
 
         visual_experience = resolve_path_a_visual_preview(
             niche_id=body.niche,
             tier=body.package_id or "business",
             specialization=body.specialization,
-            locale="de",
+            locale=resolve_generation_language(
+                getattr(body, "locale", None),
+                getattr(body, "ui_lang", None),
+                getattr(body, "language", None),
+                market_code=str(
+                    getattr(body, "market", None) or getattr(body, "market_code", None) or ""
+                )
+                or None,
+            ),
         )
     except Exception:
         visual_experience = None

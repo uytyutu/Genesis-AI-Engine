@@ -271,36 +271,148 @@ class ReceiptEmailService:
 
     def send_owner_payment_alert(self, *, order: dict, support_email: str) -> dict:
         """Direct alert to CEO inbox when a Landing order is paid."""
+        from app.integration.locale_service import resolve_generation_language
+
         to = (support_email or "").strip() or "hello@genesis-ai-engine.com"
         order_id = str(order.get("order_id") or "")
         business = str(order.get("business_name") or "")
         package = str(order.get("package_name") or "")
         price = str(order.get("price_label") or f"{order.get('price_eur', '')} €")
         status_url = _public_url(f"/order/status/{order_id}")
-        text = (
-            f"Neue Zahlung · Virtus Core\n\n"
-            f"Geschäft: {business}\n"
-            f"Bestellung: {order_id}\n"
-            f"Paket: {package} — {price}\n"
-            f"Status: {_public_url(f'/order/status/{order_id}')}\n\n"
-            f"Produktion wurde gestartet."
+        lang = resolve_generation_language(
+            order.get("ui_lang"),
+            order.get("language"),
+            market_code=str(order.get("market_code") or "") or None,
         )
+        alerts = {
+            "de": {
+                "title": "Neue Zahlung",
+                "intro": f"{business} — {package} ({price}). Produktion gestartet.",
+                "text": (
+                    f"Neue Zahlung · Virtus Core\n\n"
+                    f"Geschäft: {business}\n"
+                    f"Bestellung: {order_id}\n"
+                    f"Paket: {package} — {price}\n"
+                    f"Status: {status_url}\n\n"
+                    f"Produktion wurde gestartet."
+                ),
+                "subject": f"Neue Zahlung — {business or order_id} ({price})",
+                "cta": "Bestellung öffnen",
+                "rows": [
+                    ("Bestellung", order_id),
+                    ("Geschäft", business),
+                    ("Paket", f"{package} — {price}"),
+                ],
+            },
+            "en": {
+                "title": "New payment",
+                "intro": f"{business} — {package} ({price}). Production started.",
+                "text": (
+                    f"New payment · Virtus Core\n\n"
+                    f"Business: {business}\n"
+                    f"Order: {order_id}\n"
+                    f"Package: {package} — {price}\n"
+                    f"Status: {status_url}\n\n"
+                    f"Production has started."
+                ),
+                "subject": f"New payment — {business or order_id} ({price})",
+                "cta": "Open order",
+                "rows": [
+                    ("Order", order_id),
+                    ("Business", business),
+                    ("Package", f"{package} — {price}"),
+                ],
+            },
+            "ru": {
+                "title": "Новая оплата",
+                "intro": f"{business} — {package} ({price}). Производство запущено.",
+                "text": (
+                    f"Новая оплата · Virtus Core\n\n"
+                    f"Бизнес: {business}\n"
+                    f"Заказ: {order_id}\n"
+                    f"Пакет: {package} — {price}\n"
+                    f"Статус: {status_url}\n\n"
+                    f"Производство запущено."
+                ),
+                "subject": f"Новая оплата — {business or order_id} ({price})",
+                "cta": "Открыть заказ",
+                "rows": [
+                    ("Заказ", order_id),
+                    ("Бизнес", business),
+                    ("Пакет", f"{package} — {price}"),
+                ],
+            },
+            "uk": {
+                "title": "Нова оплата",
+                "intro": f"{business} — {package} ({price}). Виробництво запущено.",
+                "text": (
+                    f"Нова оплата · Virtus Core\n\n"
+                    f"Бізнес: {business}\n"
+                    f"Замовлення: {order_id}\n"
+                    f"Пакет: {package} — {price}\n"
+                    f"Статус: {status_url}\n\n"
+                    f"Виробництво запущено."
+                ),
+                "subject": f"Нова оплата — {business or order_id} ({price})",
+                "cta": "Відкрити замовлення",
+                "rows": [
+                    ("Замовлення", order_id),
+                    ("Бізнес", business),
+                    ("Пакет", f"{package} — {price}"),
+                ],
+            },
+            "fr": {
+                "title": "Nouveau paiement",
+                "intro": f"{business} — {package} ({price}). Production démarrée.",
+                "text": (
+                    f"Nouveau paiement · Virtus Core\n\n"
+                    f"Entreprise: {business}\n"
+                    f"Commande: {order_id}\n"
+                    f"Pack: {package} — {price}\n"
+                    f"Statut: {status_url}\n\n"
+                    f"La production a démarré."
+                ),
+                "subject": f"Nouveau paiement — {business or order_id} ({price})",
+                "cta": "Ouvrir la commande",
+                "rows": [
+                    ("Commande", order_id),
+                    ("Entreprise", business),
+                    ("Pack", f"{package} — {price}"),
+                ],
+            },
+            "pl": {
+                "title": "Nowa płatność",
+                "intro": f"{business} — {package} ({price}). Produkcja rozpoczęta.",
+                "text": (
+                    f"Nowa płatność · Virtus Core\n\n"
+                    f"Firma: {business}\n"
+                    f"Zamówienie: {order_id}\n"
+                    f"Pakiet: {package} — {price}\n"
+                    f"Status: {status_url}\n\n"
+                    f"Produkcja została uruchomiona."
+                ),
+                "subject": f"Nowa płatność — {business or order_id} ({price})",
+                "cta": "Otwórz zamówienie",
+                "rows": [
+                    ("Zamówienie", order_id),
+                    ("Firma", business),
+                    ("Pakiet", f"{package} — {price}"),
+                ],
+            },
+        }
+        pack = alerts.get(lang) or alerts["en"]
         html_body = _html_email(
-            lang="de",
-            title="Neue Zahlung",
-            intro=f"{business} — {package} ({price}). Produktion gestartet.",
-            rows=[
-                ("Bestellung", order_id),
-                ("Geschäft", business),
-                ("Paket", f"{package} — {price}"),
-            ],
+            lang=lang if lang in ("de", "en", "ru", "uk", "fr", "pl") else "en",
+            title=str(pack["title"]),
+            intro=str(pack["intro"]),
+            rows=list(pack["rows"]),
             cta_href=status_url,
-            cta_label="Bestellung öffnen",
+            cta_label=str(pack["cta"]),
         )
         return self._send(
             to=to,
-            subject=f"Neue Zahlung — {business or order_id} ({price})",
-            text=text,
+            subject=str(pack["subject"]),
+            text=str(pack["text"]),
             html=html_body,
         )
 

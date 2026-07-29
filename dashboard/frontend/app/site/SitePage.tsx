@@ -379,12 +379,21 @@ export function SitePage() {
   useEffect(() => {
     try {
       const p = new URLSearchParams(window.location.search);
-      const m = (p.get("market") || p.get("country") || "DE").toUpperCase();
-      syncLock.current = "market";
-      setMarket(m);
-      const lang = uiLangForMarket(m) as UiLocale;
-      if (uiLocale !== lang) {
-        applyUiLocale(lang);
+      const explicit = (p.get("market") || p.get("country") || "").toUpperCase();
+      if (explicit) {
+        // Explicit price-policy URL wins → sync UI language to that market.
+        syncLock.current = "market";
+        setMarket(explicit);
+        const lang = uiLangForMarket(explicit) as UiLocale;
+        if (uiLocale !== lang) {
+          applyUiLocale(lang);
+        }
+      } else {
+        // LanguageSwitcher / localStorage wins → sync market + URL to UI language.
+        const next = canonicalMarketForLang(uiLocale);
+        syncLock.current = "lang";
+        setMarket(next);
+        writeMarketToUrl(next);
       }
       const view = (p.get("view") || "").toLowerCase();
       if (view === "vector" || window.location.hash.includes("vector")) {
@@ -399,9 +408,9 @@ export function SitePage() {
         setChatOpen(true);
       }
     } catch {
-      setMarket("DE");
+      setMarket(canonicalMarketForLang(uiLocale));
     }
-    // Initial URL → market/lang only once on mount.
+    // Initial URL ↔ market/lang only once on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

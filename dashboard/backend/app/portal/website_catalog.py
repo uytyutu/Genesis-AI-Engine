@@ -58,11 +58,18 @@ def _client_from_meta(product_id: str, meta: dict[str, Any]) -> Client:
     client_id = str(uuid5(NAMESPACE_URL, f"portal-client:{email}"))
     created = str(meta.get("created_at") or "")
     updated = str(meta.get("updated_at") or created)
+    from app.integration.locale_service import resolve_generation_language
+
     return Client(
         client_id=client_id,
         display_name=name,
         primary_email=email,
-        preferred_language=str(meta.get("market_code") or "de").lower()[:2] or "de",
+        preferred_language=resolve_generation_language(
+            meta.get("ui_lang"),
+            meta.get("language"),
+            meta.get("locale"),
+            market_code=str(meta.get("market_code") or "") or None,
+        ),
         created_at=created or "1970-01-01T00:00:00+00:00",
         updated_at=updated or created or "1970-01-01T00:00:00+00:00",
     )
