@@ -98,6 +98,9 @@ function isLoopbackHost(host: string): boolean {
 
 function isPublicMarketingPath(path: string): boolean {
   if (PUBLIC_EXACT.has(path)) return true;
+  // Domain / Search Console / TikTok signature files at site root (static /public).
+  if (/^\/google[a-z0-9]+\.html$/i.test(path)) return true;
+  if (/^\/tiktok[A-Za-z0-9_-]+\.txt$/i.test(path)) return true;
   return PUBLIC_ASSET_PREFIXES.some((p) => path.startsWith(p));
 }
 
