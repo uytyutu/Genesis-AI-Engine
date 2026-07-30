@@ -4,8 +4,8 @@
   "min_interval_sec_default": 5,
   "allocation_mode": "per_market",
   "quality_first": true,
-  "force_fill_quotas": false,
-  "note_ru": "Дневной потолок 1000. Интервал пола 5с. APAC 24/7 + Tier1. Старт: US 110 · крупные 65 · APAC/малые 30. Цены Path A = pricing_engine / market_registry. Срок ≈15 мин.",
+  "force_fill_quotas": true,
+  "note_ru": "CEO 2026-07-30: force_fill_quotas=true — квоты не режем из-за отсутствия выручки. Дневной потолок 1000. Интервал 5с. Hunt/send 24/7. Цены Path A = pricing_engine / market_registry.",
   "delivery_eta_minutes": 15,
   "markets": [
     {

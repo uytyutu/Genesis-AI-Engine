@@ -13,10 +13,10 @@
     "step_down": 20,
     "max_daily_cap": 1000,
     "min_daily_cap": 5,
-    "require_revenue_for_scale_up": true,
-    "min_replies_without_revenue_hold": 3,
-    "auto_pause_weeks_without_orders": 3,
-    "redistribute_on_pause": true
+    "require_revenue_for_scale_up": false,
+    "min_replies_without_revenue_hold": 0,
+    "auto_pause_weeks_without_orders": 0,
+    "redistribute_on_pause": false
   },
   "interval": {
     "min_sec": 5,
@@ -51,5 +51,5 @@
     "send_one_per_tick_if_enabled": true,
     "note_ru": "Пуск крутит hunt/draft по тикам. Отправка письма — только если GENESIS_OUTREACH_ENABLED и есть Approve/high-win."
   },
-  "note_ru": "Стартовые квоты из outreach_markets.json. Scale-up только при покупках/выручке (require_revenue_for_scale_up). Replies без заказов → HOLD. Слабые рынки step_down / pause. Письма — Approve/снайпер. Интервал пола 5с."
+  "note_ru": "CEO 2026-07-30: 24/7. Нет revenue HOLD / auto-pause. Scale-up по health (reply/bounce/spam), не по выручке. Квоты из outreach_markets.json. Quality Gate + CCI + дубли + rate limit остаются. Интервал пола 5с."
 }

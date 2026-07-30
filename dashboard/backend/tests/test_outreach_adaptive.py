@@ -97,17 +97,18 @@ def test_countries_independent(tmp_path: Path):
     assert by["US"]["decision"] == "scale_down"
 
 
-def test_profit_hold_without_revenue(tmp_path: Path):
+def test_profit_hold_without_revenue_disabled(tmp_path: Path):
+    """CEO 2026-07-30: no revenue HOLD — excellent replies can scale_up without orders."""
     svc = OutreachAdaptiveService(tmp_path)
-    # Excellent replies but €0 → HOLD (no scale_up)
     rows = _rows_for("DE", sent=20, replies=5, orders=0)
     health = svc.health_score(svc.collect_market_metrics(rows)["DE"])
-    assert health["can_scale_up"] is False
-    assert "replies_without_revenue" in health["reasons"] or "no_revenue_hold" in health["reasons"]
+    assert health["can_scale_up"] is True
+    assert "replies_without_revenue" not in health["reasons"]
+    assert "no_revenue_hold" not in health["reasons"]
     result = svc.run_weekly_review(rows, force=True, apply=True)
     de = next(d for d in result["decisions"] if d["code"] == "DE")
-    assert de["decision"] in ("hold", "pause", "scale_down")
-    assert de["decision"] != "scale_up"
+    assert de["decision"] == "scale_up"
+    assert de["decision"] != "pause"
 
 
 def test_dashboard_roi_and_shared(tmp_path: Path):

@@ -269,10 +269,10 @@ class HuntRotationCursor:
         markets = active_markets(
             paused_markets=paused_markets,
             effective_cap_fn=effective_cap_fn,
-            business_hours_only=True,
+            business_hours_only=False,
         )
         if not markets:
-            # No country in 09–18 local right now — skip hunt tick
+            # No enabled markets with remaining quota
             return None
 
         if market_override:

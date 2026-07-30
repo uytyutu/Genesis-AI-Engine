@@ -227,7 +227,7 @@ class AcquisitionStudioService:
                 out.append(row)
                 continue
             reason = "fresh_multi_market_start"
-            detail = "Скрыто при Пуске · старый список; hunt только в 09–18 local"
+            detail = "Скрыто при Пуске · старый список; hunt 24/7"
             if recently_contacted(row, all_rows=rows, cooldown_days=RECONTACT_COOLDOWN_DAYS):
                 reason = "recontact_cooldown"
                 detail = f"Контакт был недавно (<{RECONTACT_COOLDOWN_DAYS} дн.)"
@@ -296,7 +296,7 @@ class AcquisitionStudioService:
             pass
 
         status = self._get_runner().start()
-        open_markets = active_markets(business_hours_only=True)
+        open_markets = active_markets(business_hours_only=False)
         open_codes = [str(m.get("code") or "") for m in open_markets]
         open_rows = [
             business_time_status(code)
@@ -305,7 +305,7 @@ class AcquisitionStudioService:
         open_label = ", ".join(
             f"{r['market']} {r['local_hour']:02d}:xx"
             for r in open_rows
-        ) or "нет (ждите 09:00 local)"
+        ) or "нет enabled рынков"
         status["pipeline_cleared"] = cleared
         status["open_markets"] = open_codes
         # Rebuild any remaining active quotes with current Pricing Engine + Vector brand
@@ -319,7 +319,7 @@ class AcquisitionStudioService:
         status["last_message_ru"] = (
             f"Пуск снайпера · старые лиды скрыты ({cleared.get('archived', 0)}) · "
             f"квоты Vector пересобраны ({status['quotes_rebuilt']}) · "
-            f"hunt только 09–18 local: {open_label}"
+            f"hunt 24/7: {open_label}"
         )
         return status
 
@@ -338,7 +338,6 @@ class AcquisitionStudioService:
         Path A packages are always >€50, so without this almost every draft stays in
         manual_review forever and auto-send idles with Ready=0.
         """
-        from app.integration.business_time import is_business_hours, market_from_lead
         from app.integration.lead_engine_quality_gate import quality_gate_before_send
         from app.integration.outreach_ceo_prefs import outreach_send_allowed
 
@@ -357,9 +356,6 @@ class AcquisitionStudioService:
             if not self._extract_email(row.get("contact", "")):
                 continue
             if not row.get("proposed_message"):
-                continue
-            market = market_from_lead(row)
-            if not is_business_hours(market):
                 continue
             oid = str(row.get("id") or "")
             email = self._extract_email(str(row.get("contact") or "")).lower()
@@ -384,13 +380,12 @@ class AcquisitionStudioService:
             "message_ru": (
                 f"Автоотправка: {len(promoted)} из Ручной проверки → Ready"
                 if promoted
-                else "Нет manual_review в открытом окне для авто-промоута"
+                else "Нет manual_review для авто-промоута"
             ),
         }
 
     def send_next_quality_lead(self) -> dict[str, Any]:
-        """Send one Ready lead: Premium Score → Quality Gate → Business Time → send."""
-        from app.integration.business_time import is_business_hours, market_from_lead
+        """Send one Ready lead: Premium Score → Quality Gate → send (24/7)."""
         from app.integration.lead_engine_quality_gate import quality_gate_before_send
         from app.integration.outreach_ceo_prefs import outreach_send_allowed
 
@@ -474,10 +469,6 @@ class AcquisitionStudioService:
                 continue
             if not row.get("proposed_message"):
                 continue
-            market = market_from_lead(row)
-            if not is_business_hours(market):
-                skipped_reasons.append("outside_business_hours")
-                continue
             # Peer email/host already sent
             oid = str(row.get("id") or "")
             email = self._extract_email(str(row.get("contact") or "")).lower()
@@ -497,8 +488,7 @@ class AcquisitionStudioService:
                     break
             if peer_busy:
                 continue
-            # Автоотправка already gated above — Quality Gate + Business Time are enough.
-            # (Old win≥75 filter left Ready=0 while hunt filled manual_review.)
+            # Автоотправка already gated above — Quality Gate is enough.
             excl, _ = self._exclusion.check(
                 email=email,
                 website_url=str(row.get("website_url") or ""),
@@ -524,23 +514,14 @@ class AcquisitionStudioService:
                     )
                 )
             )
-            reason = (
-                "outside_business_hours"
-                if "outside_business_hours" in skipped_reasons
-                else "no_quality_leads"
-            )
             return {
                 "sent": False,
                 "skipped": True,
-                "reason": reason,
+                "reason": "no_quality_leads",
                 "promoted_manual": int(promoted.get("promoted") or 0),
                 "message_ru": (
-                    "Рабочее окно закрыто — лиды в Waiting (09:00–18:00 local)"
-                    if reason == "outside_business_hours"
-                    else (
-                        f"Нет Ready к отправке · ручная проверка {manual_n} · "
-                        f"промоут {int(promoted.get('promoted') or 0)} · нужен Quality Gate / email"
-                    )
+                    f"Нет Ready к отправке · ручная проверка {manual_n} · "
+                    f"промоут {int(promoted.get('promoted') or 0)} · нужен Quality Gate / email"
                 ),
             }
         # premium_score DESC, found_at DESC
@@ -837,7 +818,7 @@ class AcquisitionStudioService:
         outreach_enabled = outreach_send_allowed(self._memory_dir)
         open_codes = [
             str(m.get("code") or "").upper()
-            for m in active_markets(business_hours_only=True)
+            for m in active_markets(business_hours_only=False)
         ]
         le = build_lead_engine_dashboard(
             rows,
@@ -974,8 +955,7 @@ class AcquisitionStudioService:
             "pilot_catalog": ceo_catalog_snapshot(),
             "last_desk_action": self.last_desk_action(),
             "ranking_goal_ru": (
-                "Lead Engine v1: Premium Score → Smart Offer → Business Time → Quality Gate · "
-                "hunt только страны с 09–18 local"
+                "Lead Engine v1: Premium Score → Smart Offer → Quality Gate · hunt/send 24/7"
             ),
             "outreach_daily_cap": outreach_daily_cap(),
             "outreach_quota": self._send_quota.health(),
@@ -1017,7 +997,7 @@ class AcquisitionStudioService:
             ),
             "runner_started": runner_started,
             "note_ru": (
-                "Автоотправка вкл. · runner запущен · тики шлют по открытым рынкам 09–18."
+                "Автоотправка вкл. · runner запущен · тики шлют 24/7 (Quality Gate / CCI / квоты)."
                 if runner_started
                 else "Рынок стартует кнопкой Пуск. Автообновление действует после Пуска."
             ),
@@ -2516,24 +2496,6 @@ class AcquisitionStudioService:
         )
         if not gate.get("ok"):
             reason = str(gate.get("reason") or "quality_gate")
-            if reason == "outside_business_hours":
-                # Soft: stay approved, wait for window — do not raise
-                row["outreach_status"] = "approved"
-                self._log_interaction(
-                    row,
-                    "waiting_business_hours",
-                    str(gate.get("detail") or "Waiting 09:00–18:00 local"),
-                )
-                self._opportunity._save_rows(self._replace_row(opportunity_id, row))
-                return {
-                    "ok": True,
-                    "sent": False,
-                    "skipped": True,
-                    "reason": reason,
-                    "queue": "waiting",
-                    "opportunity": row,
-                    "send": {"ok": False, "skipped": True, "reason": reason},
-                }
             raise ValueError(f"quality_gate:{reason}")
 
         if outreach_enabled and to_email:

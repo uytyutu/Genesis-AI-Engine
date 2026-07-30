@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
-from app.integration.business_time import business_time_status, is_business_hours, market_from_lead
+from app.integration.business_time import business_time_status, market_from_lead
 from app.integration.lead_engine_quality_gate import quality_gate_before_send
 
 
@@ -33,11 +33,7 @@ def classify_lead_queue(
     if meta.get("skip_outreach") or meta.get("skip_reason") == "healthy_site":
         return "skip"
 
-    market = market_from_lead(row)
-    in_hours = is_business_hours(market, now_utc=now_utc)
     has_draft = bool(_email_ok(row) and row.get("proposed_message"))
-    if not in_hours:
-        return "waiting"
 
     if outreach not in ("approved", "pending_approval"):
         return "waiting"

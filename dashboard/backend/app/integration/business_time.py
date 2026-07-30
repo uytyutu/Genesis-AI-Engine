@@ -1,16 +1,16 @@
-"""Business Time — optional local send window (Lead Engine).
+"""Business Time — market local clock helpers (Lead Engine).
 
-CEO (2026-07-25): default is 24/7 — no 09:00–18:00 gate.
-Set GENESIS_OUTREACH_BUSINESS_HOURS=enforce to restore weekday 09–18 local.
+CEO (2026-07-30): Outreach strategy is 24/7.
+Hunt / qualify / draft / send are never gated by weekday 09:00–18:00.
+GENESIS_OUTREACH_BUSINESS_HOURS is ignored (legacy env kept for docs only).
 """
 
 from __future__ import annotations
 
-import os
 from datetime import datetime, timedelta, time, timezone
 from typing import Any
 
-# Inclusive start, exclusive end — [09:00, 18:00) when enforced
+# Legacy window constants (unused for gating; kept for status display history)
 BUSINESS_OPEN = time(9, 0)
 BUSINESS_CLOSE = time(18, 0)
 
@@ -103,9 +103,8 @@ def local_now(market_code: str | None, *, now_utc: datetime | None = None) -> da
 
 
 def business_hours_enforced() -> bool:
-    """False (default) = send/hunt any day/hour. True only if CEO sets enforce."""
-    raw = os.getenv("GENESIS_OUTREACH_BUSINESS_HOURS", "off").strip().lower()
-    return raw in ("1", "true", "on", "yes", "enforce", "09-18", "hours")
+    """Always False — 24/7 outreach strategy (2026-07-30)."""
+    return False
 
 
 def is_business_hours(
@@ -114,14 +113,8 @@ def is_business_hours(
     now_utc: datetime | None = None,
     local_dt: datetime | None = None,
 ) -> bool:
-    """True when send is allowed. Default 24/7; optional Mon–Fri [09:00, 18:00)."""
-    if not business_hours_enforced():
-        return True
-    local = local_dt or local_now(market_code, now_utc=now_utc)
-    if local.weekday() >= 5:  # Sat/Sun
-        return False
-    clock = time(local.hour, local.minute, local.second)
-    return BUSINESS_OPEN <= clock < BUSINESS_CLOSE
+    """Always True — no local-hour send gate."""
+    return True
 
 
 def business_time_status(
@@ -129,20 +122,18 @@ def business_time_status(
     *,
     now_utc: datetime | None = None,
 ) -> dict[str, Any]:
-    """Status row for Ready/Waiting / UI."""
+    """Status row for Ready/Waiting / UI (always open under 24/7 strategy)."""
     local = local_now(market_code, now_utc=now_utc)
-    open_now = is_business_hours(market_code, local_dt=local)
-    enforced = business_hours_enforced()
     return {
         "market": (market_code or "DE").strip().upper() or "DE",
         "timezone": timezone_for_market(market_code),
         "local_time": local.isoformat(),
         "local_hour": local.hour,
         "weekday": local.weekday(),
-        "open": open_now,
-        "window": "09:00-18:00" if enforced else "24/7",
-        "business_hours_enforced": enforced,
-        "queue": "ready" if open_now else "waiting",
+        "open": True,
+        "window": "24/7",
+        "business_hours_enforced": False,
+        "queue": "ready",
     }
 
 

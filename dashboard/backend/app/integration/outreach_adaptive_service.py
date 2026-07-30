@@ -79,9 +79,11 @@ class OutreachAdaptiveService:
         scaling = cfg.get("scaling") or {}
         lo = int(scaling.get("min_daily_cap") or 5)
         hi = int(scaling.get("max_daily_cap") or 100)
+        pause_weeks = int(scaling.get("auto_pause_weeks_without_orders") or 0)
         state = self._load_state()
         paused = state.get("paused_markets") or {}
-        if paused.get(str(code).upper()):
+        # Strategy 2026-07-30: auto-pause off → ignore legacy paused_markets (cap stays usable)
+        if pause_weeks > 0 and paused.get(str(code).upper()):
             return 0
         overrides = state.get("cap_overrides") or {}
         if str(code).upper() in overrides:
@@ -273,11 +275,18 @@ class OutreachAdaptiveService:
 
         min_sent = int((cfg.get("review") or {}).get("min_sent_for_scale_up") or 15)
         scaling = cfg.get("scaling") or {}
-        require_rev = bool(scaling.get("require_revenue_for_scale_up", True))
-        min_replies_hold = int(scaling.get("min_replies_without_revenue_hold") or 3)
+        require_rev = bool(scaling.get("require_revenue_for_scale_up", False))
+        min_replies_hold = int(scaling.get("min_replies_without_revenue_hold") or 0)
         replies = int(metrics.get("replies") or 0)
 
-        if require_rev and replies >= min_replies_hold and revenue <= 0 and orders <= 0 and sent >= min_sent:
+        if (
+            require_rev
+            and min_replies_hold > 0
+            and replies >= min_replies_hold
+            and revenue <= 0
+            and orders <= 0
+            and sent >= min_sent
+        ):
             reasons.append("replies_without_revenue")
             can_scale_up = False
         else:
@@ -344,7 +353,7 @@ class OutreachAdaptiveService:
         step_down = int(scaling.get("step_down") or 20)
         lo = int(scaling.get("min_daily_cap") or 5)
         hi = int(scaling.get("max_daily_cap") or 100)
-        pause_weeks = int(scaling.get("auto_pause_weeks_without_orders") or 3)
+        pause_weeks = int(scaling.get("auto_pause_weeks_without_orders") or 0)
         redistribute = bool(scaling.get("redistribute_on_pause", True))
         from app.integration.outreach_send_quota import outreach_global_daily_cap
         from app.integration.outreach_market_config import shared_global_mode
@@ -360,6 +369,11 @@ class OutreachAdaptiveService:
         decisions: list[dict[str, Any]] = []
         paused_now: list[str] = []
 
+        # Strategy 2026-07-30: auto-pause disabled → clear sticky pauses
+        if pause_weeks <= 0:
+            paused = {}
+            zero_weeks = {}
+
         for m in list_markets(enabled_only=True):
             code = str(m["code"]).upper()
             metrics = metrics_by.get(code) or {}
@@ -372,24 +386,25 @@ class OutreachAdaptiveService:
             revenue = float(metrics.get("revenue_eur") or 0)
             sent = int(metrics.get("sent") or 0)
 
-            # Auto-pause: N weeks of activity with 0 deals → pause market
-            if sent > 0 and orders <= 0 and revenue <= 0:
-                zero_weeks[code] = int(zero_weeks.get(code) or 0) + 1
-            else:
-                zero_weeks[code] = 0
-            if pause_weeks > 0 and int(zero_weeks.get(code) or 0) >= pause_weeks:
-                paused[code] = {
-                    "at": _utc_now().isoformat(),
-                    "weeks": zero_weeks[code],
-                    "reason": "zero_orders",
-                }
-                decision = "pause"
-                new_cap = 0
-                reason = f"auto_pause:{zero_weeks[code]}w_zero_orders"
-                paused_now.append(code)
-            elif paused.get(code) and (orders > 0 or revenue > 0):
-                paused.pop(code, None)
-                reason = "resume_after_revenue"
+            # Auto-pause: N weeks of activity with 0 deals → pause market (off when pause_weeks<=0)
+            if pause_weeks > 0:
+                if sent > 0 and orders <= 0 and revenue <= 0:
+                    zero_weeks[code] = int(zero_weeks.get(code) or 0) + 1
+                else:
+                    zero_weeks[code] = 0
+                if int(zero_weeks.get(code) or 0) >= pause_weeks:
+                    paused[code] = {
+                        "at": _utc_now().isoformat(),
+                        "weeks": zero_weeks[code],
+                        "reason": "zero_orders",
+                    }
+                    decision = "pause"
+                    new_cap = 0
+                    reason = f"auto_pause:{zero_weeks[code]}w_zero_orders"
+                    paused_now.append(code)
+                elif paused.get(code) and (orders > 0 or revenue > 0):
+                    paused.pop(code, None)
+                    reason = "resume_after_revenue"
 
             if decision != "pause":
                 if health.get("can_scale_up"):

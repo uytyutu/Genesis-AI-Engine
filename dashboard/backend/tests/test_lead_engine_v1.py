@@ -1,12 +1,11 @@
-"""Lead Engine v1 — Business Time, Premium Score, Smart Offer, Quality Gate."""
+"""Lead Engine v1 — Business Time (24/7), Premium Score, Smart Offer, Quality Gate."""
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
-from app.integration.business_time import is_business_hours, local_now, business_time_status
+from app.integration.business_time import is_business_hours, business_time_status
 from app.integration.lead_engine_premium import (
     apply_premium_and_offer,
     compute_premium_score,
@@ -17,11 +16,6 @@ from app.integration.lead_engine_queues import build_lead_engine_dashboard, clas
 from app.integration.acquisition_studio_service import AcquisitionStudioService
 import pytest
 
-
-@pytest.fixture(autouse=True)
-def _enforce_legacy_business_hours(monkeypatch):
-    """Most Lead Engine tests assume weekday 09–18; production default is 24/7."""
-    monkeypatch.setenv("GENESIS_OUTREACH_BUSINESS_HOURS", "enforce")
 
 
 class _Opp:
@@ -45,52 +39,18 @@ class _Opp:
         self._rows = list(rows)
 
 
-def test_business_hours_default_is_24_7(monkeypatch):
-    monkeypatch.delenv("GENESIS_OUTREACH_BUSINESS_HOURS", raising=False)
-    monkeypatch.setenv("GENESIS_OUTREACH_BUSINESS_HOURS", "off")
-    utc = datetime(2026, 7, 20, 20, 0, tzinfo=timezone.utc)
-    assert is_business_hours("DE", now_utc=utc) is True
-    assert is_business_hours("DE", now_utc=datetime(2026, 7, 25, 3, 0, tzinfo=timezone.utc)) is True
-
-
-def test_business_hours_de_night_closed():
-    # Monday 22:00 Berlin
-    utc = datetime(2026, 7, 20, 20, 0, tzinfo=timezone.utc)  # 22:00 CEST
-    assert is_business_hours("DE", now_utc=utc) is False
-
-
-def test_business_hours_weekend_closed():
-    # Saturday noon Berlin
-    utc = datetime(2026, 7, 25, 10, 0, tzinfo=timezone.utc)
-    assert is_business_hours("DE", now_utc=utc) is False
-
-
-def test_us_open_while_de_night():
-    # 14:00 New York = 20:00 Berlin summer — US open, DE closed
-    # 2026-07-20 18:00 UTC = 14:00 EDT, 20:00 CEST
-    utc = datetime(2026, 7, 20, 18, 0, tzinfo=timezone.utc)
-    assert is_business_hours("US", now_utc=utc) is True
-    assert is_business_hours("DE", now_utc=utc) is False
-
-
-def test_apac_open_at_berlin_night():
-    # ~01:30 Berlin CEST (UTC+2) = 23:30 UTC previous day
-    # 2026-07-20 23:30 UTC → Berlin 01:30 · Sydney 09:30 · Auckland 11:30 · Tokyo 08:30
-    utc = datetime(2026, 7, 20, 23, 30, tzinfo=timezone.utc)
-    assert is_business_hours("DE", now_utc=utc) is False
-    assert is_business_hours("AU", now_utc=utc) is True
-    assert is_business_hours("NZ", now_utc=utc) is True
-    assert is_business_hours("JP", now_utc=utc) is False  # 08:30 — wait for 09:00
-    assert is_business_hours("KR", now_utc=utc) is False
-    assert is_business_hours("SG", now_utc=utc) is False  # 07:30
-
-
-def test_jp_open_after_local_nine():
-    # Tokyo 09:30 = 00:30 UTC (JST+9)
-    utc = datetime(2026, 7, 21, 0, 30, tzinfo=timezone.utc)
-    assert is_business_hours("JP", now_utc=utc) is True
-    assert is_business_hours("KR", now_utc=utc) is True
-    assert is_business_hours("DE", now_utc=utc) is False
+def test_business_hours_always_24_7():
+    """CEO 2026-07-30: no weekday 09-18 gate — always open."""
+    utc_night = datetime(2026, 7, 20, 20, 0, tzinfo=timezone.utc)
+    utc_weekend = datetime(2026, 7, 25, 10, 0, tzinfo=timezone.utc)
+    assert is_business_hours("DE", now_utc=utc_night) is True
+    assert is_business_hours("DE", now_utc=utc_weekend) is True
+    assert is_business_hours("US", now_utc=utc_night) is True
+    assert is_business_hours("JP", now_utc=utc_night) is True
+    st = business_time_status("DE", now_utc=utc_night)
+    assert st["open"] is True
+    assert st["window"] == "24/7"
+    assert st["business_hours_enforced"] is False
 
 
 def test_apac_language_packs():
@@ -195,7 +155,7 @@ def test_quality_gate_invalid_email():
     assert gate["reason"] == "invalid_email"
 
 
-def test_quality_gate_outside_hours():
+def test_quality_gate_night_still_passes_hours():
     row = {
         "contact": "a@b.com",
         "proposed_message": "Hi",
@@ -205,53 +165,8 @@ def test_quality_gate_outside_hours():
     }
     utc = datetime(2026, 7, 20, 20, 0, tzinfo=timezone.utc)  # 22:00 Berlin
     gate = quality_gate_before_send(row, now_utc=utc)
-    assert gate["ok"] is False
-    assert gate["reason"] == "outside_business_hours"
-
-
-def test_send_next_skips_outside_business_hours(tmp_path: Path):
-    rows = [
-        {
-            "id": "opp-1",
-            "company_name": "Night GmbH",
-            "contact": "ceo@night.de",
-            "website_url": "https://night.de",
-            "proposed_message": "Hallo",
-            "outreach_status": "approved",
-            "status": "new",
-            "score": 80,
-            "found_at": "2026-07-20T10:00:00+00:00",
-            "meta": {
-                "market": "DE",
-                "premium_score": 90,
-                "win_probability_pct": 80,
-            },
-        }
-    ]
-    svc = AcquisitionStudioService.__new__(AcquisitionStudioService)
-    svc._memory_dir = tmp_path
-    svc._opportunity = _Opp(rows)
-    svc._exclusion = type("E", (), {"check": staticmethod(lambda **k: (False, ""))})()
-    # Patch outreach allowed
-    import app.integration.outreach_ceo_prefs as prefs
-
-    old = prefs.outreach_send_allowed
-    prefs.outreach_send_allowed = lambda *_a, **_k: True
-    try:
-        # Night Berlin
-        from unittest.mock import patch
-
-        night = datetime(2026, 7, 20, 20, 0, tzinfo=timezone.utc)
-        with patch("app.integration.business_time.is_business_hours", return_value=False):
-            with patch(
-                "app.integration.lead_engine_quality_gate.is_business_hours",
-                return_value=False,
-            ):
-                result = svc.send_next_quality_lead()
-        assert result["skipped"] is True
-        assert result["reason"] in ("outside_business_hours", "no_quality_leads")
-    finally:
-        prefs.outreach_send_allowed = old
+    # Hours gate removed — may still fail CCI / other quality checks, never hours.
+    assert gate.get("reason") != "outside_business_hours"
 
 
 def test_fresh_archive_keeps_sent(tmp_path: Path):
@@ -303,18 +218,20 @@ def test_fresh_archive_keeps_sent(tmp_path: Path):
 
 
 def test_dashboard_ready_waiting_split():
-    utc = datetime(2026, 7, 20, 8, 0, tzinfo=timezone.utc)  # DE open
+    utc = datetime(2026, 7, 20, 8, 0, tzinfo=timezone.utc)
     rows = [
         {
             "id": "1",
             "company_name": "Ready Co",
-            "contact": "a@b.de",
+            "contact": "info@ready-co.de",
+            "website_url": "https://ready-co.de",
             "proposed_message": "Hi",
             "outreach_status": "approved",
             "status": "new",
             "found_at": "2026-07-20T09:00:00+00:00",
             "recommended_package_id": "basic",
             "meta": {"market": "DE", "premium_score": 55},
+            "site_analysis": {"fetch_ok": True, "emails_found": ["info@ready-co.de"]},
         },
         {
             "id": "2",
@@ -329,6 +246,7 @@ def test_dashboard_ready_waiting_split():
     assert dash["ready_now"] >= 1
     assert dash["history"] >= 1
     assert dash["countries"][0]["market"] == "DE"
+    assert dash["countries"][0]["window"] == "24/7"
 
 
 def test_apply_premium_mutates_meta():

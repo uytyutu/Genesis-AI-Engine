@@ -6,8 +6,6 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from app.integration.business_time import is_business_hours, market_from_lead
-
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 # Recontact cooldown (days) — Fresh Campaign rule
@@ -228,14 +226,5 @@ def quality_gate_before_send(
                     "reason": "site_down",
                     "detail": "Website does not respond",
                 }
-
-    market = market_from_lead(row)
-    if not is_business_hours(market, now_utc=now_utc):
-        return {
-            "ok": False,
-            "reason": "outside_business_hours",
-            "detail": f"Market {market} outside 09:00–18:00 local (Waiting)",
-            "queue": "waiting",
-        }
 
     return {"ok": True, "reason": "pass", "detail": "Quality Gate OK", "queue": "ready"}
