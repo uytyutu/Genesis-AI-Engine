@@ -1214,7 +1214,9 @@ class AcquisitionStudioService:
             website = str(row.get("website_url") or "").strip() or None
             if website and not row.get("site_analysis"):
                 try:
-                    row["site_analysis"] = self._site.analyze(website)
+                    meta0 = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+                    mkt = str(meta0.get("market") or row.get("market") or "") or None
+                    row["site_analysis"] = self._site.analyze(website, market=mkt)
                     row["website_url"] = website
                 except Exception:
                     pass
@@ -1291,8 +1293,10 @@ class AcquisitionStudioService:
 
         url = (website_url or row.get("website_url") or "").strip()
         analysis: dict | None = None
+        meta_mkt = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+        market_code = str(meta_mkt.get("market") or row.get("market") or "") or None
         if url and not skip_site_analysis:
-            analysis = self._site.analyze(url)
+            analysis = self._site.analyze(url, market=market_code)
             row["website_url"] = url
             row["site_analysis"] = analysis
         elif skip_site_analysis:
@@ -1301,7 +1305,7 @@ class AcquisitionStudioService:
             if url:
                 row["website_url"] = url
         elif url:
-            analysis = self._site.analyze(url)
+            analysis = self._site.analyze(url, market=market_code)
             row["website_url"] = url
             row["site_analysis"] = analysis
 
@@ -1442,6 +1446,26 @@ class AcquisitionStudioService:
             price_label=price_label,
             win_pct=int(evaluation.get("win_probability_pct") or 0),
         )
+
+        # Localize scanner issues to outreach language before drafting (legacy DE cache).
+        if isinstance(analysis, dict):
+            try:
+                from app.integration.site_analysis_i18n import localize_analysis_issues
+
+                analysis = dict(analysis)
+                codes = (
+                    analysis.get("issue_codes")
+                    if isinstance(analysis.get("issue_codes"), list)
+                    else None
+                )
+                analysis["issues"] = localize_analysis_issues(
+                    list(analysis.get("issues") or []),
+                    market=market,
+                    codes=codes,
+                )
+                row["site_analysis"] = analysis
+            except Exception:
+                pass
 
         subject, body, lang = self._outreach_lang.draft_outreach(
             company=row.get("company_name", ""),
@@ -2106,7 +2130,22 @@ class AcquisitionStudioService:
     @staticmethod
     def _queue_item(r: dict) -> dict:
         meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
-        issues = list((r.get("site_analysis") or {}).get("issues") or [])[:5]
+        market = meta.get("market") or r.get("market")
+        analysis = r.get("site_analysis") if isinstance(r.get("site_analysis"), dict) else {}
+        raw_issues = list(analysis.get("issues") or [])[:5]
+        codes = analysis.get("issue_codes") if isinstance(analysis.get("issue_codes"), list) else None
+        try:
+            from app.integration.site_analysis_i18n import localize_analysis_issues
+
+            issues = localize_analysis_issues(
+                raw_issues,
+                # Prefer market language over cached analysis_language (legacy DE blobs).
+                language=None,
+                market=str(market or "") or None,
+                codes=codes[:5] if codes else None,
+            )[:5]
+        except Exception:
+            issues = raw_issues
         pricing = AcquisitionStudioService._resolve_queue_pricing(r, meta)
         currency = pricing["recommended_currency"]
         price_label = pricing["recommended_price_label"]
@@ -2124,7 +2163,7 @@ class AcquisitionStudioService:
             "proposed_message": r.get("proposed_message"),
             "fit_reason": r.get("fit_reason"),
             "pricing_rationale": r.get("pricing_rationale"),
-            "issue_count": (r.get("site_analysis") or {}).get("issue_count", 0),
+            "issue_count": analysis.get("issue_count", 0),
             "site_issues": issues,
             "suggested_services": suggest_services_for_site_issues(issues),
             "score": r.get("score"),
@@ -2132,7 +2171,7 @@ class AcquisitionStudioService:
             "price_tier": meta.get("price_tier"),
             "last_market_lesson": meta.get("last_market_lesson"),
             "crm_status": r.get("status"),
-            "market": meta.get("market") or r.get("market"),
+            "market": market,
             "hunt_city": meta.get("hunt_city"),
         }
 

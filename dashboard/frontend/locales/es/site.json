@@ -371,7 +371,18 @@
     "repairMvpFix3": "Imágenes y mejoras notables de velocidad",
     "repairMvpDisclaimer": "No prometemos una reparación mágica con un clic en cada plataforma. Tras el análisis recibe un presupuesto claro (reparación ligera / estándar / completa) — y nuestro equipo hace el trabajo.",
     "onetimeRepairBody": "La reparación empieza con el análisis gratuito de arriba — cuando tiene más sentido que un sitio nuevo. Migración, Google Business y proyectos SEO mayores — por separado.",
-    "analysisFirstCta": "Empezar con el análisis →"
+    "analysisFirstCta": "Empezar con el análisis →",
+    "hubTitle": "¿Qué quieres hacer?",
+    "hubSubtitle": "Elige un servicio y pide directamente — no hace falta cuenta. Regístrate solo si quieres tu oficina personal.",
+    "createAccount": "Crear cuenta personal",
+    "signIn": "Iniciar sesión",
+    "chooseService": "Elegir un servicio",
+    "servicesLabel": "Servicios",
+    "priceFrom": "desde",
+    "startAnalysis": "Empezar comprobación gratis →",
+    "vectorAsk": "¿No estás seguro de qué encaja?",
+    "askVector": "Preguntar a Vector",
+    "hubAccountHint": "No necesitas cuenta para comprar. Registro solo para tu oficina personal."
   },
   "analysis": {
     "title": "Análisis de sitio web",
@@ -391,5 +402,67 @@
     "next": "Qué puede hacer a continuación",
     "recommended": "recomendado",
     "askVector": "Comentar el informe con Vector →"
+  },
+  "catalog": {
+    "badgeOrder": "Pedir",
+    "badgeSoon": "Pronto",
+    "openForm": "Abrir formulario →",
+    "interestForm": "Formulario de interés →",
+    "moreTitle": "Más servicios web",
+    "stagesLine": "{{count}} etapas · {{timeline}}",
+    "supportLine": "Soporte: {{support}}",
+    "landing_website": {
+      "name": "Web de negocio que trae leads",
+      "price": "350–1200 €",
+      "blurb": "Más clientes con una web profesional — Basic, Business, Premium.",
+      "includes": [
+        "Landing móvil",
+        "Aviso legal / Privacidad listos",
+        "Archivos suyos"
+      ],
+      "timeline": "normalmente 3–10 días tras el brief",
+      "support": "Vector + estado en gabinete"
+    },
+    "ai_business_bot": {
+      "name": "Empleado digital IA",
+      "price": "desde 499 € + mensual",
+      "blurb": "Asistente comercial IA — Chat web, Telegram, WhatsApp, Instagram, Messenger.",
+      "includes": [
+        "Un empleado IA para tu marca",
+        "Canales a elegir",
+        "Workspace tras el pago"
+      ],
+      "timeline": "canales justo tras el pago",
+      "support": "Gabinete + Vector",
+      "highlights": [
+        "Responde 24/7",
+        "Captura leads",
+        "Habla varios idiomas"
+      ]
+    },
+    "website_check": {
+      "name": "Revisión web gratuita",
+      "price": "Gratis",
+      "blurb": "Ve qué mejorar — luego reparación o web nueva. Sin pago por esta revisión.",
+      "includes": [
+        "HTTPS / móvil / velocidad",
+        "Siguiente paso claro",
+        "Reparación o web nueva opcional"
+      ],
+      "timeline": "resultado en cerca de un minuto",
+      "support": "Vector explica el informe"
+    },
+    "website_repair": {
+      "name": "Reparación web",
+      "price": "desde 199 €",
+      "blurb": "¿Web rota? La recuperamos o arrancamos limpio.",
+      "includes": [
+        "Diagnóstico",
+        "Reparación o reinicio",
+        "Oferta clara"
+      ],
+      "timeline": "tras el análisis",
+      "support": "Equipo + Vector"
+    }
   }
 }

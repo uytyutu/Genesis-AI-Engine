@@ -371,7 +371,18 @@
     "repairMvpFix3": "Immagini e miglioramenti evidenti della velocità",
     "repairMvpDisclaimer": "Non promettiamo una riparazione magica con un clic su ogni piattaforma. Dopo l'analisi ricevete un preventivo chiaro (riparazione leggera / standard / completa) — poi interviene il nostro team.",
     "onetimeRepairBody": "La riparazione inizia con l'analisi gratuita sopra — quando conviene più di un sito nuovo. Migrazione, Google Business e progetti SEO più ampi — separati.",
-    "analysisFirstCta": "Iniziare con l'analisi →"
+    "analysisFirstCta": "Iniziare con l'analisi →",
+    "hubTitle": "Cosa vuoi fare?",
+    "hubSubtitle": "Scegli un servizio e ordina subito — nessun account richiesto. Registrati solo per il tuo ufficio personale.",
+    "createAccount": "Crea account personale",
+    "signIn": "Accedi",
+    "chooseService": "Scegli un servizio",
+    "servicesLabel": "Servizi",
+    "priceFrom": "da",
+    "startAnalysis": "Avvia controllo gratuito →",
+    "vectorAsk": "Non sai cosa ti serve?",
+    "askVector": "Chiedi a Vector",
+    "hubAccountHint": "Nessun account per acquistare. Registrazione solo per l'ufficio personale."
   },
   "analysis": {
     "title": "Analisi sito web",
@@ -391,5 +402,67 @@
     "next": "Cosa potete fare adesso",
     "recommended": "consigliato",
     "askVector": "Discutere il report con Vector →"
+  },
+  "catalog": {
+    "badgeOrder": "Ordina",
+    "badgeSoon": "Presto",
+    "openForm": "Apri modulo →",
+    "interestForm": "Modulo interesse →",
+    "moreTitle": "Altri servizi web",
+    "stagesLine": "{{count}} fasi · {{timeline}}",
+    "supportLine": "Supporto: {{support}}",
+    "landing_website": {
+      "name": "Sito business che porta lead",
+      "price": "350–1200 €",
+      "blurb": "Più clienti con un sito professionale — Basic, Business, Premium.",
+      "includes": [
+        "Landing mobile",
+        "Note legali / Privacy pronti",
+        "File tuoi"
+      ],
+      "timeline": "di solito 3–10 giorni dopo il brief",
+      "support": "Vector + stato in cabinet"
+    },
+    "ai_business_bot": {
+      "name": "Dipendente digitale AI",
+      "price": "da 499 € + mensile",
+      "blurb": "Assistente vendite AI — Chat sito, Telegram, WhatsApp, Instagram, Messenger.",
+      "includes": [
+        "Un dipendente AI per il tuo brand",
+        "Canali a scelta",
+        "Workspace dopo il pagamento"
+      ],
+      "timeline": "canali subito dopo il pagamento",
+      "support": "Cabinet + Vector",
+      "highlights": [
+        "Risponde 24/7",
+        "Cattura lead",
+        "Parla più lingue"
+      ]
+    },
+    "website_check": {
+      "name": "Controllo sito gratuito",
+      "price": "Gratis",
+      "blurb": "Vedi cosa migliorare — poi riparazione o sito nuovo. Nessun pagamento per questo controllo.",
+      "includes": [
+        "HTTPS / mobile / velocità",
+        "Prossimo passo chiaro",
+        "Riparazione o sito nuovo opzionale"
+      ],
+      "timeline": "risultato in circa un minuto",
+      "support": "Vector spiega il report"
+    },
+    "website_repair": {
+      "name": "Riparazione sito",
+      "price": "da 199 €",
+      "blurb": "Sito rotto? Lo recuperiamo o ripartiamo puliti.",
+      "includes": [
+        "Diagnosi",
+        "Riparazione o restart",
+        "Offerta chiara"
+      ],
+      "timeline": "dopo l'analisi",
+      "support": "Team + Vector"
+    }
   }
 }

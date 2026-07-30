@@ -22,6 +22,10 @@ import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
 import { filterPublicPackages } from "../lib/showSmokePackage";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
 import { ServiceCatalogGrid } from "../components/ServiceCatalogCards";
+import {
+  composeHubCardPriceLabels,
+  type HubCardPrices,
+} from "../lib/marketCardPrices";
 import { BotChannelIconRow } from "../components/ChannelBrandIcons";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
@@ -162,6 +166,7 @@ export function SitePage() {
   const [analyzeUrl, setAnalyzeUrl] = useState("");
   const [serviceView, setServiceView] = useState<ServiceView>("hub");
   const [botPackages, setBotPackages] = useState<BotPackageCard[]>([]);
+  const [hubCardPrices, setHubCardPrices] = useState<HubCardPrices | null>(null);
   const localeTag = (i18n.language || "de").replace("_", "-");
   const CHAT_POS_KEY = "vector-chat-panel-pos";
 
@@ -436,6 +441,7 @@ export function SitePage() {
 
     const loadPackagesAndMarkets = () => {
       if (cancelled) return;
+      setHubCardPrices(null);
       fetch(`${api}/api/sales/packages${qs}`)
         .then((res) => (res.ok ? res.json() : null))
         .then((body) => {
@@ -472,6 +478,10 @@ export function SitePage() {
                 basic_price_label: m.basic_price_label,
               })),
             );
+          }
+          const hub = body?.hub_card_prices;
+          if (hub && typeof hub === "object" && hub.landing_website) {
+            setHubCardPrices(hub as HubCardPrices);
           }
         })
         .catch(() => undefined);
@@ -547,6 +557,11 @@ export function SitePage() {
   const orderLabel = t("pathA.cta");
   const detailsLabel = t("s0.details", { defaultValue: "Details" });
   const backLabel = t("s0.backToServices", { defaultValue: "← All services" });
+  const hubPriceOverrides = composeHubCardPriceLabels(hubCardPrices, {
+    priceFrom: t("s0.priceFrom", { defaultValue: "from" }),
+    monthly: t("catalog.monthlySuffix", { defaultValue: "monthly" }),
+    free: t("catalog.website_check.price", { defaultValue: "Free" }),
+  });
   const botOrderHref = (packageId: string) =>
     `/order/bot?market=${encodeURIComponent(market)}&package=${encodeURIComponent(packageId)}`;
 
@@ -566,7 +581,9 @@ export function SitePage() {
             <option key={m.code} value={m.code}>
               {(m.flag ? `${m.flag} ` : "") +
                 (m.name_en || m.code) +
-                (m.basic_price_label ? ` · ab ${m.basic_price_label}` : "")}
+                (m.basic_price_label
+                  ? ` · ${t("s0.priceFrom", { defaultValue: "from" })} ${m.basic_price_label}`
+                  : "")}
             </option>
           ))}
         </select>
@@ -628,6 +645,8 @@ export function SitePage() {
             >
               <ServiceCatalogGrid
                 mode="hub"
+                market={market}
+                priceOverrides={hubPriceOverrides}
                 onOpenLocal={(id) => {
                   if (id === "website_check") openService("analysis");
                 }}

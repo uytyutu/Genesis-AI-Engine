@@ -192,6 +192,12 @@ def build_mission1_vector_commerce_rules(packages: list[dict[str, Any]] | None =
 **Не путать:** услуга = готовый результат. Professional = подписка (этап роста, не скидка)."""
 
 
+def _hub_card_prices(market_code: str) -> dict[str, Any]:
+    from app.integration.pricing_engine import resolve_hub_catalog_prices
+
+    return resolve_hub_catalog_prices(market_code)
+
+
 def build_truth_pricing_display(market_code: str | None = None) -> dict:
     from app.integration.commerce_engine import resolve_checkout_packages
     from app.integration.pilot_service_catalog import public_go_to_market
@@ -245,6 +251,7 @@ def build_truth_pricing_display(market_code: str | None = None) -> dict:
         "currency": currency,
         "symbol": symbol,
         "markets": market_rows,
+        "hub_card_prices": _hub_card_prices(resolved),
         "disclaimer": {
             "ru": (
                 f"**Любая услуга** Virtus Core: диалог → концепция → согласование → разовая покупка или подписка. "

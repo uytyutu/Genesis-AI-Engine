@@ -9,7 +9,10 @@ import {
 } from "../lib/serviceOrderSpecs";
 import { BotChannelIconRow } from "./ChannelBrandIcons";
 
-function useLocalizedSpec(spec: ServiceSpec) {
+function useLocalizedSpec(
+  spec: ServiceSpec,
+  priceOverrides?: Record<string, string>,
+) {
   const { t } = useTranslation("site");
   const k = `catalog.${spec.id}`;
   const includes = t(`${k}.includes`, {
@@ -20,9 +23,11 @@ function useLocalizedSpec(spec: ServiceSpec) {
     returnObjects: true,
     defaultValue: spec.highlights || [],
   });
+  const marketPrice = priceOverrides?.[spec.id];
   return {
     name: t(`${k}.name`, { defaultValue: spec.name }),
-    price_label: t(`${k}.price`, { defaultValue: spec.price_label }),
+    price_label:
+      marketPrice || t(`${k}.price`, { defaultValue: spec.price_label }),
     blurb: t(`${k}.blurb`, { defaultValue: spec.blurb }),
     includes: Array.isArray(includes) ? (includes as string[]) : spec.includes,
     highlights: Array.isArray(highlightsRaw)
@@ -41,15 +46,33 @@ function ServiceCard({
   spec,
   featured,
   onOpenLocal,
+  priceOverrides,
+  market,
 }: {
   spec: ServiceSpec;
   featured?: boolean;
   onOpenLocal?: (id: string) => void;
+  priceOverrides?: Record<string, string>;
+  market?: string;
 }) {
   const { t } = useTranslation("site");
-  const copy = useLocalizedSpec(spec);
+  const copy = useLocalizedSpec(spec, priceOverrides);
   const live = spec.availability === "available";
-  const localOnly = spec.id === "website_check" && typeof onOpenLocal === "function";
+  const localOnly =
+    spec.id === "website_check" && typeof onOpenLocal === "function";
+
+  const href = (() => {
+    if (!market || !spec.href.startsWith("/")) return spec.href;
+    try {
+      const u = new URL(spec.href, "https://virtus.local");
+      if (!u.searchParams.has("market")) {
+        u.searchParams.set("market", market);
+      }
+      return `${u.pathname}${u.search}${u.hash}`;
+    } catch {
+      return spec.href;
+    }
+  })();
 
   const inner = (
     <>
@@ -75,7 +98,9 @@ function ServiceCard({
       <h3 className="mt-4 text-lg font-semibold leading-snug text-white">
         {copy.name}
       </h3>
-      <p className="mt-1 text-sm font-medium text-emerald-200/90">{copy.price_label}</p>
+      <p className="mt-1 text-sm font-medium text-emerald-200/90">
+        {copy.price_label}
+      </p>
       <p className="mt-2 text-sm text-zinc-400">{copy.blurb}</p>
       {copy.highlights.length ? (
         <ul className="mt-3 space-y-1.5 text-sm text-zinc-200">
@@ -153,7 +178,7 @@ function ServiceCard({
 
   // Native <a>: hard navigation — survives React lag better than client Link soft-nav.
   return (
-    <a href={spec.href} className={className}>
+    <a href={href} className={className}>
       {inner}
       {!live ? (
         <p className="mt-2 text-xs text-zinc-500">{copy.deliveryNote}</p>
@@ -165,10 +190,15 @@ function ServiceCard({
 export function ServiceCatalogGrid({
   mode = "hub",
   onOpenLocal,
+  priceOverrides,
+  market,
 }: {
   mode?: "hub" | "all";
   /** Hub: free website check stays on /site without full navigation. */
   onOpenLocal?: (serviceId: string) => void;
+  /** Market-resolved price labels (from resolve_hub_catalog_prices). */
+  priceOverrides?: Record<string, string>;
+  market?: string;
 }) {
   const { t } = useTranslation("site");
   const primary = HUB_PRIMARY_SERVICE_IDS.map(
@@ -190,6 +220,8 @@ export function ServiceCatalogGrid({
             featured={
               spec.id === "landing_website" || spec.id === "ai_business_bot"
             }
+            priceOverrides={priceOverrides}
+            market={market}
           />
         ))}
       </div>
@@ -205,6 +237,8 @@ export function ServiceCatalogGrid({
             spec={spec}
             featured={spec.id === "landing_website"}
             onOpenLocal={onOpenLocal}
+            priceOverrides={priceOverrides}
+            market={market}
           />
         ))}
       </div>
@@ -214,7 +248,12 @@ export function ServiceCatalogGrid({
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {more.map((spec) => (
-            <ServiceCard key={spec.id} spec={spec} />
+            <ServiceCard
+              key={spec.id}
+              spec={spec}
+              priceOverrides={priceOverrides}
+              market={market}
+            />
           ))}
         </div>
       </div>

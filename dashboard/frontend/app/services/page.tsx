@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { PublicPageShell } from "../components/PublicPageShell";
 import { PublicFunnelFooter } from "../components/navigation/PublicFunnelFooter";
 import { PublicPageHero } from "../components/PublicPageHero";
@@ -173,6 +174,7 @@ export default function ServicesPage() {
   const [loading, setLoading] = useState(true);
   const [market, setMarket] = useState("DE");
   const { uiLocale, applyUiLocale } = useLocale();
+  const { t } = useTranslation("site");
 
   useEffect(() => {
     try {
@@ -255,7 +257,9 @@ export default function ServicesPage() {
               <option key={m.code} value={m.code}>
                 {(m.flag ? `${m.flag} ` : "") +
                   (m.name_en || m.code) +
-                  (m.basic_price_label ? ` · ab ${m.basic_price_label}` : "")}
+                  (m.basic_price_label
+                    ? ` · ${t("s0.priceFrom", { defaultValue: "from" })} ${m.basic_price_label}`
+                    : "")}
               </option>
             ))}
           </select>

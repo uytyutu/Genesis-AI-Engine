@@ -217,17 +217,36 @@ def signals_from_site_issues(issues: list[str] | None) -> list[str]:
     for raw in issues or ():
         low = str(raw or "").lower()
         mapped: str | None = None
-        if "https" in low or "unsicher" in low:
+        if "https" in low or "unsicher" in low or "insecure" in low:
             mapped = "no_https"
-        elif "whatsapp" in low or "wa.me" in low or "anruf" in low:
+        elif (
+            "whatsapp" in low
+            or "wa.me" in low
+            or "anruf" in low
+            or "call /" in low
+            or "direct call" in low
+        ):
             mapped = "no_whatsapp"
-        elif "seo" in low or "seitentitel" in low or "meta-tags" in low:
+        elif (
+            "seo" in low
+            or "seitentitel" in low
+            or "meta-tags" in low
+            or "page title" in low
+            or "social meta" in low
+        ):
             mapped = "poor_seo"
-        elif "langsam" in low or "ms)" in low:
+        elif "langsam" in low or "slow" in low or "ms)" in low:
             mapped = "slow_site"
-        elif "veraltet" in low or "platzhalter" in low or "baustelle" in low:
+        elif (
+            "veraltet" in low
+            or "platzhalter" in low
+            or "baustelle" in low
+            or "outdated" in low
+            or "placeholder" in low
+            or "under construction" in low
+        ):
             mapped = "outdated_design"
-        elif "nicht erreichbar" in low:
+        elif "nicht erreichbar" in low or "unreachable" in low or "inaccessible" in low:
             mapped = "no_site"
         if mapped and mapped not in seen:
             seen.add(mapped)

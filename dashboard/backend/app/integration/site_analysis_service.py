@@ -1,6 +1,7 @@
 """Lightweight website analysis for Business Acquisition Studio.
 
 Stealth Mode: robots.txt, rate limit, browser UA, read-only GET.
+Issue copy is localized by generation language (not hardcoded German).
 """
 
 from __future__ import annotations
@@ -12,6 +13,12 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from app.integration.lead_qualification_gate import extract_emails_from_text
+from app.integration.site_analysis_i18n import (
+    analysis_lang_base,
+    issue_message,
+    localize_analysis_issues,
+    strength_message,
+)
 from app.integration.stealth_crawl_service import stealth_fetch_get, stealth_preflight
 from app.integration.stealth_http import UnauthorizedOperation
 
@@ -19,59 +26,93 @@ _DEFAULT_MEMORY = Path(__file__).resolve().parent.parent / "memory"
 _CACHE_TTL_HOURS = 72
 
 
-def _stealth_issue_message(err: str) -> list[str]:
+def _stealth_issue_message(err: str, lang: str) -> list[str]:
+    # Keep operational stealth messages short; prefer English outside DE.
     if err == "Unauthorized Operation":
-        return ["Unauthorized Operation — только GET/HEAD разрешены"]
+        if lang == "de":
+            return ["Unauthorized Operation — nur GET/HEAD erlaubt"]
+        return ["Unauthorized Operation — only GET/HEAD allowed"]
     if err == "robots_txt_disallowed":
-        return ["robots.txt запрещает доступ — Genesis проходит мимо"]
+        if lang == "de":
+            return ["robots.txt verbietet Zugriff — Genesis geht vorbei"]
+        return ["robots.txt disallows access — skipping"]
     if err == "forbidden_target":
-        return ["Закрытый раздел (admin/login) — только публичные страницы"]
-    return ["Сканирование пропущено — Stealth Mode"]
+        if lang == "de":
+            return ["Geschützter Bereich (admin/login) — nur öffentliche Seiten"]
+        return ["Protected section (admin/login) — public pages only"]
+    if lang == "de":
+        return ["Scan übersprungen — Stealth Mode"]
+    return ["Scan skipped — Stealth Mode"]
 
 
 class SiteAnalysisService:
     def __init__(self, memory_dir: Path | None = None) -> None:
         self._memory = memory_dir or _DEFAULT_MEMORY
 
-    def _cache_path(self, url: str) -> Path:
+    def _cache_path(self, url: str, language: str = "en") -> Path:
+        key = hashlib.sha256(url.encode("utf-8")).hexdigest()[:24]
+        return self._memory / "site_analysis_cache" / f"{key}_{language}.json"
+
+    def _legacy_cache_path(self, url: str) -> Path:
         key = hashlib.sha256(url.encode("utf-8")).hexdigest()[:24]
         return self._memory / "site_analysis_cache" / f"{key}.json"
 
-    def _load_cache(self, url: str) -> dict | None:
-        path = self._cache_path(url)
-        if not path.is_file():
-            return None
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-            if not isinstance(data, dict):
-                return None
-            analyzed = str(data.get("analyzed_at") or "")
-            if analyzed:
-                from datetime import datetime, timezone, timedelta
+    def _load_cache(self, url: str, language: str) -> dict | None:
+        for path in (self._cache_path(url, language), self._legacy_cache_path(url)):
+            if not path.is_file():
+                continue
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                if not isinstance(data, dict):
+                    continue
+                analyzed = str(data.get("analyzed_at") or "")
+                if analyzed:
+                    from datetime import datetime, timezone, timedelta
 
-                dt = datetime.fromisoformat(analyzed.replace("Z", "+00:00"))
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone.utc)
-                if datetime.now(timezone.utc) - dt > timedelta(hours=_CACHE_TTL_HOURS):
-                    return None
-            return data
-        except (json.JSONDecodeError, OSError, ValueError):
-            return None
+                    dt = datetime.fromisoformat(analyzed.replace("Z", "+00:00"))
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=timezone.utc)
+                    if datetime.now(timezone.utc) - dt > timedelta(hours=_CACHE_TTL_HOURS):
+                        continue
+                # Re-localize if cache language differs / legacy DE blob.
+                cached_lang = str(data.get("analysis_language") or "").lower()
+                codes = data.get("issue_codes")
+                if isinstance(codes, list) and codes:
+                    data["issues"] = localize_analysis_issues(
+                        None, language=language, codes=codes
+                    )
+                elif cached_lang != language:
+                    data["issues"] = localize_analysis_issues(
+                        list(data.get("issues") or []), language=language
+                    )
+                data["analysis_language"] = language
+                data["from_cache"] = True
+                return data
+            except (json.JSONDecodeError, OSError, ValueError):
+                continue
+        return None
 
-    def _save_cache(self, url: str, result: dict) -> None:
-        path = self._cache_path(url)
+    def _save_cache(self, url: str, result: dict, language: str) -> None:
+        path = self._cache_path(url, language)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    def analyze(self, url: str, *, use_cache: bool = True) -> dict:
+    def analyze(
+        self,
+        url: str,
+        *,
+        use_cache: bool = True,
+        language: str | None = None,
+        market: str | None = None,
+    ) -> dict:
+        lang = analysis_lang_base(language, market)
         normalized = self._normalize_url(url)
         if not normalized:
-            return self._empty_result(url, error="invalid_url")
+            return self._empty_result(url, error="invalid_url", language=lang)
 
         if use_cache:
-            cached = self._load_cache(normalized)
+            cached = self._load_cache(normalized, lang)
             if cached:
-                cached["from_cache"] = True
                 return cached
 
         try:
@@ -81,8 +122,8 @@ class SiteAnalysisService:
             err = str(exc)
             gate = stealth_preflight(normalized, skip_throttle=True)
             return {
-                **self._empty_result(normalized, error=err),
-                "issues": _stealth_issue_message(err),
+                **self._empty_result(normalized, error=err, language=lang),
+                "issues": _stealth_issue_message(err, lang),
                 "stealth": {
                     "mode": "stealth",
                     "robots_checked": gate.robots_checked,
@@ -93,7 +134,9 @@ class SiteAnalysisService:
         except UnauthorizedOperation:
             gate = stealth_preflight(normalized, skip_throttle=True)
             return {
-                **self._empty_result(normalized, error="Unauthorized Operation"),
+                **self._empty_result(
+                    normalized, error="Unauthorized Operation", language=lang
+                ),
                 "issues": ["Unauthorized Operation — Stealth Force-Read-Only"],
                 "stealth": {
                     "mode": "stealth",
@@ -103,22 +146,26 @@ class SiteAnalysisService:
                 },
             }
         except Exception as exc:
-            return self._empty_result(normalized, error=f"fetch_failed:{type(exc).__name__}")
+            return self._empty_result(
+                normalized,
+                error=f"fetch_failed:{type(exc).__name__}",
+                language=lang,
+            )
 
         html = started.text or ""
         final_url = str(started.url)
-        issues: list[str] = []
-        strengths: list[str] = []
+        issue_codes: list[str] = []
+        strength_codes: list[tuple[str, dict]] = []
 
         if not final_url.startswith("https://"):
-            issues.append("Kein HTTPS — unsicher für Besucher")
+            issue_codes.append("no_https")
         else:
-            strengths.append("HTTPS aktiv")
+            strength_codes.append(("https_ok", {}))
 
         if started.status_code >= 400:
-            issues.append(f"Seite antwortet mit HTTP {started.status_code}")
+            issue_codes.append(f"http_error:{started.status_code}")
         elif started.status_code == 200:
-            strengths.append("Seite erreichbar")
+            strength_codes.append(("reachable", {}))
 
         lower = html.lower()
         tech_stack: list[str] = []
@@ -141,16 +188,16 @@ class SiteAnalysisService:
             detected_lang = "hi"
 
         if "viewport" not in lower:
-            issues.append("Kein viewport — oft schlecht auf dem Handy")
+            issue_codes.append("no_viewport")
         else:
-            strengths.append("Viewport für Mobilgeräte")
+            strength_codes.append(("viewport_ok", {}))
 
         content_thin = len(html) < 1500
         if content_thin:
-            issues.append("Sehr wenig Inhalt — möglicherweise veraltet oder Platzhalter")
+            issue_codes.append("thin_content")
 
         if any(x in lower for x in ("jquery-1.", "flash", "under construction", "coming soon")):
-            issues.append("Anzeichen veralteter Technik oder Baustelle")
+            issue_codes.append("outdated_tech")
 
         has_form = bool(
             re.search(r"<form\b|type=[\"']email[\"']|name=[\"']email[\"']", lower)
@@ -160,11 +207,11 @@ class SiteAnalysisService:
         has_contact = has_mailto or has_phone or has_form
 
         if not has_form and not has_mailto:
-            issues.append("Kein sichtbares Kontaktformular / E-Mail-Feld")
+            issue_codes.append("no_contact_form")
         if not has_phone:
-            issues.append("Kein direkter Anruf / WhatsApp-Link")
+            issue_codes.append("no_call_whatsapp")
         if has_contact:
-            strengths.append("Kontaktweg sichtbar")
+            strength_codes.append(("contact_ok", {}))
 
         has_cta = bool(
             re.search(
@@ -175,9 +222,9 @@ class SiteAnalysisService:
             and re.search(r"<a\b|<button\b", lower)
         )
         if has_cta:
-            strengths.append("CTA erkennbar")
+            strength_codes.append(("cta_ok", {}))
         else:
-            issues.append("Kein klares CTA auf der Startseite")
+            issue_codes.append("no_cta")
 
         has_maps = bool(
             re.search(
@@ -187,23 +234,28 @@ class SiteAnalysisService:
             )
         )
         if has_maps:
-            strengths.append("Karte / Maps gefunden")
+            strength_codes.append(("maps_ok", {}))
         else:
-            issues.append("Keine Google Maps Einbindung erkannt")
+            issue_codes.append("no_maps")
 
         title_match = re.search(r"<title[^>]*>([^<]+)</title>", html, re.I)
         title = title_match.group(1).strip() if title_match else ""
         if not title:
-            issues.append("Kein Seitentitel — schlecht für SEO")
+            issue_codes.append("no_title")
 
         if "og:" not in lower and "twitter:" not in lower:
-            issues.append("Keine Social-Meta-Tags — schwache Vorschau in Messengern")
+            issue_codes.append("no_social_meta")
 
         load_ms = int(started.elapsed.total_seconds() * 1000) if started.elapsed else 0
         if load_ms > 3000:
-            issues.append(f"Langsame Antwort (~{load_ms} ms)")
+            issue_codes.append(f"slow_response:{load_ms}")
         elif load_ms > 0:
-            strengths.append(f"Ladezeit ~{load_ms} ms")
+            strength_codes.append(("load_ok", {"ms": load_ms}))
+
+        issues = localize_analysis_issues(None, language=lang, codes=issue_codes)
+        strengths = [
+            strength_message(code, lang, **fmt) for code, fmt in strength_codes
+        ]
 
         emails_found = extract_emails_from_text(html)
         for m in re.findall(r"mailto:([^\s\"'?]+)", html, re.I):
@@ -261,11 +313,13 @@ class SiteAnalysisService:
             },
             "confirmed_needs": confirmed_needs,
             "issues": issues,
+            "issue_codes": issue_codes,
             "strengths": strengths,
             "issue_count": len(issues),
             "improvement_score": score,
             "tech_stack": tech_stack,
             "detected_lang": detected_lang,
+            "analysis_language": lang,
             "emails_found": emails_found,
             "classified_niche": niche_info,
             "analyzed_at": __import__("datetime").datetime.now(
@@ -280,7 +334,7 @@ class SiteAnalysisService:
                 "read_only": True,
             },
         }
-        self._save_cache(normalized, result)
+        self._save_cache(normalized, result, lang)
         return result
 
     def _normalize_url(self, url: str) -> str:
@@ -300,7 +354,7 @@ class SiteAnalysisService:
         base = max(base, 20 if issues else 5)
         return min(100, base + (10 if len(issues) >= 3 else 0))
 
-    def _empty_result(self, url: str, *, error: str) -> dict:
+    def _empty_result(self, url: str, *, error: str, language: str = "en") -> dict:
         return {
             "url": url,
             "final_url": url,
@@ -311,12 +365,14 @@ class SiteAnalysisService:
             "has_viewport": False,
             "flags": {},
             "confirmed_needs": [],
-            "issues": ["Website nicht erreichbar oder ungültige URL"],
+            "issues": [issue_message("unreachable", language)],
+            "issue_codes": ["unreachable"],
             "strengths": [],
             "issue_count": 1,
             "improvement_score": 80,
             "tech_stack": [],
             "detected_lang": "",
+            "analysis_language": language,
             "emails_found": [],
             "classified_niche": None,
             "analyzed_at": __import__("datetime").datetime.now(

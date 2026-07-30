@@ -371,7 +371,18 @@
     "repairMvpFix3": "Obrázky a znatelné zrychlení",
     "repairMvpDisclaimer": "Neslibujeme magickou opravu jedním kliknutím pro každou platformu. Po analýze dostanete jasnou nabídku (lehká / standardní / kompletní oprava) — pak práci udělá náš tým.",
     "onetimeRepairBody": "Oprava začíná bezplatnou analýzou výše — když dává větší smysl než nový web. Migrace, Google Business a větší SEO projekty — zvlášť.",
-    "analysisFirstCta": "Začít analýzou →"
+    "analysisFirstCta": "Začít analýzou →",
+    "hubTitle": "Co chcete udělat?",
+    "hubSubtitle": "Vyberte službu a objednejte rovnou — účet není nutný. Registrace jen pro osobní kancelář.",
+    "createAccount": "Vytvořit osobní účet",
+    "signIn": "Přihlásit se",
+    "chooseService": "Vybrat službu",
+    "servicesLabel": "Služby",
+    "priceFrom": "od",
+    "startAnalysis": "Spustit bezplatnou kontrolu →",
+    "vectorAsk": "Nejste si jistí, co sedí?",
+    "askVector": "Zeptat se Vector",
+    "hubAccountHint": "Účet k nákupu nepotřebujete. Registrace jen pro osobní kancelář."
   },
   "analysis": {
     "title": "Analýza webu",
@@ -391,5 +402,67 @@
     "next": "Co můžete udělat dál",
     "recommended": "doporučeno",
     "askVector": "Probrat zprávu s Vector →"
+  },
+  "catalog": {
+    "badgeOrder": "Objednat",
+    "badgeSoon": "Brzy",
+    "openForm": "Otevřít formulář →",
+    "interestForm": "Formulář zájmu →",
+    "moreTitle": "Další webové služby",
+    "stagesLine": "{{count}} fáze · {{timeline}}",
+    "supportLine": "Podpora: {{support}}",
+    "landing_website": {
+      "name": "Firemní web, který přivádí poptávky",
+      "price": "350–1200 €",
+      "blurb": "Více zákazníků s profesionálním webem — balíčky Basic, Business, Premium.",
+      "includes": [
+        "Mobilní landing",
+        "Právní stránky připraveny",
+        "Soubory patří vám"
+      ],
+      "timeline": "obvykle 3–10 dní po briefu",
+      "support": "Vector + stav v kabinetu"
+    },
+    "ai_business_bot": {
+      "name": "AI digitální zaměstnanec",
+      "price": "od 499 € + měsíčně",
+      "blurb": "AI Sales Assistant pro firmu — Website Chat, Telegram, WhatsApp, Instagram, Messenger.",
+      "includes": [
+        "Jeden AI zaměstnanec pod vaši značku",
+        "Kanály dle výběru",
+        "Workspace po platbě"
+      ],
+      "timeline": "kanály hned po platbě",
+      "support": "Kabinet + Vector",
+      "highlights": [
+        "Odpovídá 24/7",
+        "Zachytává poptávky automaticky",
+        "Mluví více jazyky"
+      ]
+    },
+    "website_check": {
+      "name": "Bezplatná kontrola webu",
+      "price": "Zdarma",
+      "blurb": "Uvidíte, co zlepšit — pak oprava nebo nový web. Kontrola bez platby.",
+      "includes": [
+        "HTTPS / mobil / rychlost",
+        "Jasný další krok",
+        "Volitelná oprava nebo nový web"
+      ],
+      "timeline": "výsledek zhruba za minutu",
+      "support": "Vector vysvětlí zprávu"
+    },
+    "website_repair": {
+      "name": "Oprava webu",
+      "price": "od 199 €",
+      "blurb": "Rozbitý web? Obnovíme ho nebo připravíme jasný restart.",
+      "includes": [
+        "Diagnóza",
+        "Oprava nebo restart",
+        "Srozumitelná nabídka"
+      ],
+      "timeline": "po analýze",
+      "support": "Tým + Vector"
+    }
   }
 }

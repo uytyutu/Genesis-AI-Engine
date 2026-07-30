@@ -371,7 +371,18 @@
     "repairMvpFix3": "Obrazy i wyraźne przyspieszenie strony",
     "repairMvpDisclaimer": "Nie obiecujemy magicznej naprawy jednym kliknięciem na każdej platformie. Po analizie dostajesz jasną wycenę (naprawa lekka / standard / pełna) — potem pracuje nasz zespół.",
     "onetimeRepairBody": "Naprawa zaczyna się od bezpłatnej analizy powyżej — gdy to ma więcej sensu niż nowa strona. Migracja, Google Business i większe projekty SEO — osobno.",
-    "analysisFirstCta": "Zacznij od analizy →"
+    "analysisFirstCta": "Zacznij od analizy →",
+    "hubTitle": "Co chcesz zrobić?",
+    "hubSubtitle": "Wybierz usługę i zamów od razu — konto nie jest wymagane. Rejestracja tylko do osobistego biura.",
+    "createAccount": "Utwórz konto osobiste",
+    "signIn": "Zaloguj się",
+    "chooseService": "Wybierz usługę",
+    "servicesLabel": "Usługi",
+    "priceFrom": "od",
+    "startAnalysis": "Rozpocznij darmową analizę →",
+    "vectorAsk": "Nie wiesz, co pasuje?",
+    "askVector": "Zapytaj Vector",
+    "hubAccountHint": "Konto nie jest potrzebne do zakupu. Rejestracja tylko do osobistego biura."
   },
   "analysis": {
     "title": "Analiza strony",
@@ -391,5 +402,67 @@
     "next": "Co możesz zrobić dalej",
     "recommended": "polecane",
     "askVector": "Omów raport z Vector →"
+  },
+  "catalog": {
+    "badgeOrder": "Zamów",
+    "badgeSoon": "Wkrótce",
+    "openForm": "Otwórz formularz →",
+    "interestForm": "Formularz zainteresowania →",
+    "moreTitle": "Więcej usług www",
+    "stagesLine": "{{count}} etapy · {{timeline}}",
+    "supportLine": "Wsparcie: {{support}}",
+    "landing_website": {
+      "name": "Strona firmowa, która daje leady",
+      "price": "350–1200 €",
+      "blurb": "Więcej klientów dzięki profesjonalnej stronie — Basic, Business, Premium.",
+      "includes": [
+        "Landing mobilny",
+        "Strony prawne gotowe",
+        "Pliki należą do Ciebie"
+      ],
+      "timeline": "zwykle 3–10 dni po briefie",
+      "support": "Vector + status w gabinecie"
+    },
+    "ai_business_bot": {
+      "name": "Cyfrowy pracownik AI",
+      "price": "od 499 € + miesięcznie",
+      "blurb": "Asystent sprzedaży AI — czat na stronie, Telegram, WhatsApp, Instagram, Messenger.",
+      "includes": [
+        "Jeden pracownik AI pod Twoją markę",
+        "Kanały do wyboru",
+        "Workspace po płatności"
+      ],
+      "timeline": "kanały zaraz po płatności",
+      "support": "Gabinet + Vector",
+      "highlights": [
+        "Odpowiada 24/7",
+        "Zbiera leady",
+        "Mówi wieloma językami"
+      ]
+    },
+    "website_check": {
+      "name": "Darmowa analiza strony",
+      "price": "Gratis",
+      "blurb": "Zobacz, co poprawić — potem naprawa lub nowa strona. Bez płatności za analizę.",
+      "includes": [
+        "HTTPS / mobile / szybkość",
+        "Jasny kolejny krok",
+        "Opcjonalnie naprawa lub nowa strona"
+      ],
+      "timeline": "wynik w około minutę",
+      "support": "Vector wyjaśni raport"
+    },
+    "website_repair": {
+      "name": "Naprawa strony",
+      "price": "od 199 €",
+      "blurb": "Zepsuta strona? Odzyskamy lub zrobimy czysty restart.",
+      "includes": [
+        "Diagnoza",
+        "Naprawa lub restart",
+        "Jasna oferta"
+      ],
+      "timeline": "po analizie",
+      "support": "Zespół + Vector"
+    }
   }
 }

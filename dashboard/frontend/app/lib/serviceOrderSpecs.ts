@@ -83,7 +83,7 @@ export const SERVICE_SPECS: ServiceSpec[] = [
     href: "/order?form=1",
     fields: [],
     deliveryNote: "Full order form with packages and materials.",
-    includes: ["Mobile landing", "Impressum / Datenschutz ready", "Files you own"],
+    includes: ["Mobile landing", "Legal notice / Privacy ready", "Files you own"],
     stages: ["Brief", "Build", "Review", "Handover"],
     timeline: "typically 3–10 days after brief",
     afterPay: ["Project opens in cabinet", "Vector follows progress"],

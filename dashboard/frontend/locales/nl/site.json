@@ -371,7 +371,18 @@
     "repairMvpFix3": "Afbeeldingen en merkbare snelheidsverbetering",
     "repairMvpDisclaimer": "We beloven geen magische one-click-reparatie voor elk platform. Na de analyse krijgt u een duidelijke offerte (licht / standaard / compleet) — daarna doet ons team het werk.",
     "onetimeRepairBody": "Reparatie begint met de gratis analyse hierboven — wanneer dat slimmer is dan een nieuwe site. Migratie, Google Business en grotere SEO-projecten — apart.",
-    "analysisFirstCta": "Begin met analyse →"
+    "analysisFirstCta": "Begin met analyse →",
+    "hubTitle": "Wat wilt u doen?",
+    "hubSubtitle": "Kies een dienst en bestel direct — geen account nodig. Registreren alleen voor uw persoonlijke kantoor.",
+    "createAccount": "Persoonlijk account aanmaken",
+    "signIn": "Inloggen",
+    "chooseService": "Dienst kiezen",
+    "servicesLabel": "Diensten",
+    "priceFrom": "vanaf",
+    "startAnalysis": "Gratis check starten →",
+    "vectorAsk": "Niet zeker wat past?",
+    "askVector": "Vraag Vector",
+    "hubAccountHint": "Geen account nodig om te kopen. Registreren alleen voor uw persoonlijke kantoor."
   },
   "analysis": {
     "title": "Website-analyse",
@@ -391,5 +402,67 @@
     "next": "Wat u vervolgens kunt doen",
     "recommended": "aanbevolen",
     "askVector": "Rapport bespreken met Vector →"
+  },
+  "catalog": {
+    "badgeOrder": "Bestellen",
+    "badgeSoon": "Binnenkort",
+    "openForm": "Bestelformulier openen →",
+    "interestForm": "Interesseformulier →",
+    "moreTitle": "Meer website-diensten",
+    "stagesLine": "{{count}} stappen · {{timeline}}",
+    "supportLine": "Support: {{support}}",
+    "landing_website": {
+      "name": "Zakelijke website die leads oplevert",
+      "price": "350–1200 €",
+      "blurb": "Meer klanten met een professionele site — Basic, Business, Premium.",
+      "includes": [
+        "Mobiele landing",
+        "Juridische pagina's klaar",
+        "Bestanden van u"
+      ],
+      "timeline": "meestal 3–10 dagen na brief",
+      "support": "Vector + kabinetstatus"
+    },
+    "ai_business_bot": {
+      "name": "AI digitale medewerker",
+      "price": "vanaf 499 € + maandelijks",
+      "blurb": "AI Sales Assistant voor uw bedrijf — Website Chat, Telegram, WhatsApp, Instagram, Messenger.",
+      "includes": [
+        "Eén AI-medewerker voor uw merk",
+        "Kanalen naar keuze",
+        "Workspace na betaling"
+      ],
+      "timeline": "kanalen direct na betaling",
+      "support": "Kabinet + Vector",
+      "highlights": [
+        "Antwoordt 24/7",
+        "Vangt leads automatisch",
+        "Spreekt meerdere talen"
+      ]
+    },
+    "website_check": {
+      "name": "Gratis website-check",
+      "price": "Gratis",
+      "blurb": "Zie wat te verbeteren — daarna reparatie of nieuwe site. Geen betaling voor deze check.",
+      "includes": [
+        "HTTPS / mobiel / snelheid",
+        "Duidelijke volgende stap",
+        "Optioneel reparatie of nieuwe site"
+      ],
+      "timeline": "resultaat in ongeveer een minuut",
+      "support": "Vector legt het rapport uit"
+    },
+    "website_repair": {
+      "name": "Website-reparatie",
+      "price": "vanaf 199 €",
+      "blurb": "Kapotte website? We herstellen of starten schoon opnieuw.",
+      "includes": [
+        "Diagnose",
+        "Reparatie of herstart",
+        "Duidelijke offerte"
+      ],
+      "timeline": "na analyse",
+      "support": "Team + Vector"
+    }
   }
 }

@@ -267,6 +267,55 @@ def format_path_a_price(amount: int, symbol: str) -> str:
     return format_amount(int(amount), symbol)
 
 
+def format_path_a_range(lo: int, hi: int, symbol: str) -> str:
+    """Single-symbol range for hub cards (e.g. ``350–1200 €``, ``15 000–… Kč``)."""
+    lo_s = f"{int(lo):,}".replace(",", " ")
+    hi_s = f"{int(hi):,}".replace(",", " ")
+    return f"{lo_s}–{hi_s} {symbol}"
+
+
+def resolve_hub_catalog_prices(market_code: str) -> dict[str, Any]:
+    """Market Resolver for /site hub product cards.
+
+    Currency, symbol, and formatted amounts come only from Path A + bot offers.
+    UI composes localized ``from`` / ``monthly`` / ``Free`` prefixes around these.
+    """
+    from app.integration.market_registry import get_market
+
+    market = get_market(market_code)
+    basic = resolve_path_a_offer("basic", market.code)
+    premium = resolve_path_a_offer("premium", market.code)
+    repair = resolve_path_a_offer("repair_lite", market.code)
+    bot = resolve_bot_offer("bot_starter", market.code)
+    return {
+        "market_code": market.code,
+        "currency": market.currency,
+        "symbol": market.symbol,
+        "landing_website": {
+            "range_label": format_path_a_range(
+                basic.amount, premium.amount, market.symbol
+            ),
+            "basic_label": basic.price_label,
+            "premium_label": premium.price_label,
+            "basic_amount": basic.amount,
+            "premium_amount": premium.amount,
+        },
+        "ai_business_bot": {
+            "setup_label": bot.setup_label,
+            "monthly_label": bot.monthly_label,
+            "setup_amount": bot.setup_amount,
+            "monthly_amount": bot.monthly_amount,
+        },
+        "website_repair": {
+            "from_label": repair.price_label,
+            "amount": repair.amount,
+        },
+        "website_check": {
+            "free": True,
+        },
+    }
+
+
 def _sku_amount(market_code: str, package_id: str) -> int:
     """Resolve curated amount; unknown market → DE × checkout_price_scale."""
     code = (market_code or "DE").strip().upper() or "DE"

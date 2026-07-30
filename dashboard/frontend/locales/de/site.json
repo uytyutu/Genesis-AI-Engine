@@ -60,7 +60,8 @@
     "repairMvpFix3": "Bilder und spürbare Verbesserungen der Geschwindigkeit",
     "repairMvpDisclaimer": "Wir versprechen keine magische Ein-Klick-Reparatur jedes CMS. Nach der Analyse erhalten Sie ein klares Angebot (Reparatur leicht / Standard / komplett) — und unser Team setzt es um.",
     "onetimeRepairBody": "Website-Reparatur startet mit der kostenlosen Analyse oben — wenn eine Reparatur sinnvoller ist als eine neue Website. Migration, Google Business und größere SEO-Projekte separat.",
-    "analysisFirstCta": "Zuerst Analyse →"
+    "analysisFirstCta": "Zuerst Analyse →",
+    "priceFrom": "ab"
   },
   "pathA": {
     "eyebrow": "{{brand}}",
@@ -496,7 +497,11 @@
       "name": "Professionelle Website, die Anfragen bringt",
       "price": "350–1200 €",
       "blurb": "Mehr Kunden mit einer klaren Business-Website — Pakete Basic, Business, Premium.",
-      "includes": ["Mobile Landing", "Impressum / Datenschutz vorbereitet", "Dateien gehören Ihnen"],
+      "includes": [
+        "Mobile Landing",
+        "Impressum / Datenschutz vorbereitet",
+        "Dateien gehören Ihnen"
+      ],
       "timeline": "typisch 3–10 Tage nach Briefing",
       "support": "Vector + Status im Kabinett"
     },
@@ -551,7 +556,13 @@
         "Vereinbarter Reparaturumfang",
         "Vorher/Nachher-Notizen"
       ],
-      "stages": ["Formular", "Zahlung", "Zugang", "Reparatur", "Übergabe"],
+      "stages": [
+        "Formular",
+        "Zahlung",
+        "Zugang",
+        "Reparatur",
+        "Übergabe"
+      ],
       "timeline": "Ziel 24–48 Stunden nach Zugang",
       "afterPay": [
         "Wir fordern Zugang sicher an",
@@ -565,7 +576,11 @@
       "name": "SEO-Audit",
       "price": "249 €",
       "blurb": "Technisches und lokales SEO-Konzept.",
-      "includes": ["Technisches SEO", "Meta / Struktur", "Maßnahmenplan"],
+      "includes": [
+        "Technisches SEO",
+        "Meta / Struktur",
+        "Maßnahmenplan"
+      ],
       "timeline": "2–4 Tage wenn live",
       "support": "Vector-Warteliste",
       "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
@@ -574,7 +589,11 @@
       "name": "Geschwindigkeits-Optimierung",
       "price": "199 €",
       "blurb": "Schnellere Ladezeiten für Ihre Website.",
-      "includes": ["Vorher/Nachher-Messwerte", "Bilder & Cache", "Restliste"],
+      "includes": [
+        "Vorher/Nachher-Messwerte",
+        "Bilder & Cache",
+        "Restliste"
+      ],
       "timeline": "2–5 Tage wenn live",
       "support": "Vector-Warteliste",
       "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
@@ -583,7 +602,11 @@
       "name": "Sicherheits-Check",
       "price": "299 €",
       "blurb": "HTTPS, Formulare, Schwachstellen-Review.",
-      "includes": ["HTTPS & Formulare", "Prioritätenbericht", "Keine Fake-Pen-Tests"],
+      "includes": [
+        "HTTPS & Formulare",
+        "Prioritätenbericht",
+        "Keine Fake-Pen-Tests"
+      ],
       "timeline": "1–3 Tage wenn live",
       "support": "Vector-Warteliste",
       "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
@@ -592,7 +615,11 @@
       "name": "Google Unternehmensprofil",
       "price": "149 €",
       "blurb": "Lokale Auffindbarkeit — Profil-Setup für Ihr Unternehmen.",
-      "includes": ["Profil / Kategorien", "Zeiten & Kontakte", "Owner-Checkliste"],
+      "includes": [
+        "Profil / Kategorien",
+        "Zeiten & Kontakte",
+        "Owner-Checkliste"
+      ],
       "timeline": "3–7 Tage wenn live",
       "support": "Vector-Warteliste",
       "deliveryNote": "Formular bereit — Checkout wenn Lieferung startet."
@@ -601,7 +628,11 @@
       "name": "Website-Migration",
       "price": "ab 299 €",
       "blurb": "Umzug Ihrer Website auf neues Hosting.",
-      "includes": ["Migrationsplan", "Cutover-Check", "Bericht nach dem Umzug"],
+      "includes": [
+        "Migrationsplan",
+        "Cutover-Check",
+        "Bericht nach dem Umzug"
+      ],
       "timeline": "3–10 Tage wenn live",
       "support": "Vector-Warteliste",
       "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
@@ -661,7 +692,13 @@
     "heroBullet2": "Erfasst Anfragen automatisch",
     "heroBullet3": "Spricht mehrere Sprachen",
     "emailPh": "E-Mail",
-    "steps": ["Paket", "Konto", "Unternehmen & AI", "Kanäle", "Zahlung"],
+    "steps": [
+      "Paket",
+      "Konto",
+      "Unternehmen & AI",
+      "Kanäle",
+      "Zahlung"
+    ],
     "step1Title": "1. Paket wählen",
     "step1Hint": "Das Tariflimit ist die Zahl unabhängiger AI-Bots, nicht der Kanäle. Nach der Zahlung verbinden Sie Ihre eigenen Telegram-/Meta-Konten im Kabinett.",
     "market": "Markt",

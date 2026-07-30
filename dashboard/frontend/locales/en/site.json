@@ -58,7 +58,8 @@
     "repairMvpFix3": "Images and noticeable speed improvements",
     "repairMvpDisclaimer": "We do not promise a one-click fix for every website platform. After the analysis you get a clear quote (light / standard / complete repair) — then our team does the work.",
     "onetimeRepairBody": "Website repair starts with the free analysis above — when repair makes more sense than a new site. Migration, Google Business, and larger SEO projects are separate.",
-    "analysisFirstCta": "Start with analysis →"
+    "analysisFirstCta": "Start with analysis →",
+    "priceFrom": "from"
   },
   "pathA": {
     "eyebrow": "{{brand}}",
@@ -494,7 +495,11 @@
       "name": "Business Website That Brings Leads",
       "price": "350–1200 €",
       "blurb": "Get more customers with a professional website — Basic, Business, Premium packages.",
-      "includes": ["Mobile landing", "Impressum / Datenschutz ready", "Files you own"],
+      "includes": [
+        "Mobile landing",
+        "Legal notice / Privacy ready",
+        "Files you own"
+      ],
       "timeline": "typically 3–10 days after brief",
       "support": "Vector + cabinet status"
     },
@@ -549,7 +554,13 @@
         "Agreed repair scope",
         "Before/after notes"
       ],
-      "stages": ["Form", "Payment", "Access", "Repair", "Handover"],
+      "stages": [
+        "Form",
+        "Payment",
+        "Access",
+        "Repair",
+        "Handover"
+      ],
       "timeline": "target recovery 24–48 hours after access",
       "afterPay": [
         "We request access securely",
@@ -563,7 +574,11 @@
       "name": "SEO Audit",
       "price": "249 €",
       "blurb": "Technical + local SEO plan.",
-      "includes": ["Technical SEO check", "Meta / structure", "Action plan"],
+      "includes": [
+        "Technical SEO check",
+        "Meta / structure",
+        "Action plan"
+      ],
       "timeline": "2–4 days when live",
       "support": "Vector waitlist",
       "deliveryNote": "Interest form open — checkout when delivery is live."
@@ -572,7 +587,11 @@
       "name": "Speed Optimization",
       "price": "199 €",
       "blurb": "Load-time improvements for your site.",
-      "includes": ["Before/after metrics", "Image & cache focus", "Residual list"],
+      "includes": [
+        "Before/after metrics",
+        "Image & cache focus",
+        "Residual list"
+      ],
       "timeline": "2–5 days when live",
       "support": "Vector waitlist",
       "deliveryNote": "Interest form open — checkout when delivery is live."
@@ -581,7 +600,11 @@
       "name": "Security Check",
       "price": "299 €",
       "blurb": "HTTPS, forms, vulnerability review.",
-      "includes": ["HTTPS & forms review", "Priority report", "No fake pen-test claims"],
+      "includes": [
+        "HTTPS & forms review",
+        "Priority report",
+        "No fake pen-test claims"
+      ],
       "timeline": "1–3 days when live",
       "support": "Vector waitlist",
       "deliveryNote": "Interest form open — checkout when delivery is live."
@@ -590,7 +613,11 @@
       "name": "Google Business Profile",
       "price": "149 €",
       "blurb": "Local discovery — profile setup for your company.",
-      "includes": ["Profile / categories", "Hours & contacts", "Owner checklist"],
+      "includes": [
+        "Profile / categories",
+        "Hours & contacts",
+        "Owner checklist"
+      ],
       "timeline": "3–7 days when live",
       "support": "Vector waitlist",
       "deliveryNote": "Form ready — checkout opens when delivery is live."
@@ -599,7 +626,11 @@
       "name": "Website Migration",
       "price": "from 299 €",
       "blurb": "Move your site to new hosting.",
-      "includes": ["Migration plan", "Cutover check", "Post-move report"],
+      "includes": [
+        "Migration plan",
+        "Cutover check",
+        "Post-move report"
+      ],
       "timeline": "3–10 days when live",
       "support": "Vector waitlist",
       "deliveryNote": "Interest form open — checkout when delivery is live."
@@ -659,7 +690,13 @@
     "heroBullet2": "Captures leads automatically",
     "heroBullet3": "Speaks multiple languages",
     "emailPh": "Email",
-    "steps": ["Package", "Account", "Company & AI", "Channels", "Payment"],
+    "steps": [
+      "Package",
+      "Account",
+      "Company & AI",
+      "Channels",
+      "Payment"
+    ],
     "step1Title": "1. Choose a package",
     "step1Hint": "The plan limit is the number of independent AI bots, not channels. After payment, connect your own Telegram / Meta accounts in the cabinet.",
     "market": "Market",
