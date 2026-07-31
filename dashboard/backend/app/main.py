@@ -27,6 +27,7 @@ from app.security import (
     dev_mode_allowed,
     is_internal_api_path,
     is_owner_api_path,
+    is_public_api_path,
     local_owner_access_allowed,
     production_api_allowed,
     support_bridge_allowed,
