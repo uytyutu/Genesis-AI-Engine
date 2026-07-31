@@ -47,23 +47,63 @@ def test_auto_prepare_skips_blocklist(studio):
 
 
 def test_ceo_prepare_lands_in_approval_queue(studio):
-    """CEO-initiated prepare always → pending_approval (even if price > 50€)."""
+    """CEO prepare with email → pending_approval (even if price > 50€)."""
     svc, opp = studio
-    row = opp.create(_row("Test GmbH", "https://test-gmbh.de"))
+    row = opp.create(
+        _row("Test GmbH", "https://test-gmbh.de", contact="info@test-gmbh.de")
+    )
     prepared = svc.prepare_opportunity(row["id"], skip_qualification=True, auto_lane=False)
     assert prepared["outreach_status"] == "pending_approval"
     outbox = svc.ceo_outbox_summary()
     assert outbox["pending_count"] >= 1
 
 
+def test_prepare_without_email_is_needs_email(studio):
+    """Draft without contact email must not enter Approve queue."""
+    svc, opp = studio
+    row = opp.create(_row("No Mail GmbH", "https://no-mail-gmbh.de"))
+    prepared = svc.prepare_opportunity(row["id"], skip_qualification=True, auto_lane=False)
+    assert prepared["outreach_status"] == "needs_email"
+    assert prepared.get("meta", {}).get("enrichment_required") == "email"
+    assert svc.approval_queue() == []
+    repaired = svc.reclassify_pending_without_email()
+    assert repaired["moved"] == 0
+
+
+def test_reclassify_pending_without_email(studio):
+    svc, opp = studio
+    row = opp.create(_row("Legacy Co", "https://legacy-co.de"))
+    opp.update(
+        row["id"],
+        {
+            "outreach_status": "pending_approval",
+            "proposed_message": "Hallo",
+            "status": "proposed",
+        },
+    )
+    result = svc.reclassify_pending_without_email()
+    assert result["moved"] == 1
+    updated = opp.get(row["id"])
+    assert updated["outreach_status"] == "needs_email"
+    diag = svc.ready_send_diagnostics()
+    assert diag["needs_email"] >= 1
+    assert diag["ready_now"] == 0
+
+
 def test_auto_lane_high_price_manual_review(studio, monkeypatch):
     svc, opp = studio
-    row = opp.create(_row("Premium Co", "https://premium-co.de"))
+    row = opp.create(
+        _row("Premium Co", "https://premium-co.de", contact="ceo@premium-co.de")
+    )
 
     def _price(self, row, analysis):
         return "business", 350.0, "tier test"
 
     monkeypatch.setattr(AcquisitionStudioService, "_recommend_pricing", _price)
+    monkeypatch.setattr(
+        "app.integration.outreach_ceo_prefs.outreach_send_allowed",
+        lambda _mem: False,
+    )
     # Force low win so price-tier manual_review applies (high win would auto-queue).
     import app.integration.opportunity_discovery_engine as ode
 
@@ -85,7 +125,7 @@ def test_auto_lane_high_price_manual_review(studio, monkeypatch):
 
 def test_approve_batch(studio):
     svc, opp = studio
-    row = opp.create(_row("Batch Co", "https://batch-co.de"))
+    row = opp.create(_row("Batch Co", "https://batch-co.de", contact="hello@batch-co.de"))
     svc.prepare_opportunity(row["id"], skip_qualification=True, auto_lane=False)
     result = svc.approve_batch(limit=5)
     assert result["approved_count"] >= 1

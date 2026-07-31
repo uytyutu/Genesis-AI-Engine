@@ -806,15 +806,26 @@ class AcquisitionStudioService:
                 return False
             return True
 
+        # One-shot repair: Approve queue must mean sendable after approve.
+        try:
+            self.reclassify_pending_without_email()
+            rows = self._opportunity._load_rows()
+        except Exception:
+            pass
+
         active_rows = [r for r in rows if _active(r)]
         pending = sum(
             1 for r in active_rows if r.get("outreach_status") == "pending_approval"
+        )
+        needs_email = sum(
+            1 for r in active_rows if r.get("outreach_status") == "needs_email"
         )
         manual = sum(
             1 for r in active_rows if r.get("outreach_status") == "manual_review"
         )
         sent = sum(1 for r in rows if r.get("outreach_status") == "sent")
         prefs = load_prefs(self._memory_dir)
+        ready_diag = self.ready_send_diagnostics(rows)
         outreach_enabled = outreach_send_allowed(self._memory_dir)
         open_codes = [
             str(m.get("code") or "").upper()
@@ -867,6 +878,11 @@ class AcquisitionStudioService:
                 cooldown.get("blocker_ru")
                 or "Resend 429 — пауза. Подключите Gmail или дождитесь снятия лимита."
             )
+        elif ready_n == 0 and needs_email > 0:
+            blocker = (
+                f"Ready=0 · {needs_email} без email (needs_email) — Quality Gate не пускает. "
+                f"Approve только с email. Waiting={le['waiting']}."
+            )
         elif ready_n == 0 and manual > 0:
             blocker = (
                 f"Ready=0 · {manual} в «Ручная проверка» — тик промоутит в Ready и шлёт "
@@ -879,6 +895,8 @@ class AcquisitionStudioService:
             )
         else:
             blocker = ""
+        if ready_n == 0 and ready_diag.get("summary_ru"):
+            blocker = str(ready_diag["summary_ru"])
 
         sending_health: dict = {}
         email_providers: dict = {}
@@ -940,7 +958,9 @@ class AcquisitionStudioService:
             ),
             "law": "Plan → Approve → Act",
             "pending_approval_count": pending,
+            "needs_email_count": needs_email,
             "manual_review_count": manual,
+            "ready_send_diagnostics": ready_diag,
             "auto_draft_max_eur": AUTO_DRAFT_MAX_EUR,
             "sent_count": sent,
             "sent_today_count": len(sent_today_items),
@@ -1479,44 +1499,27 @@ class AcquisitionStudioService:
         row["potential_value_eur"] = price
         row["email_subject"] = subject
         row["proposed_message"] = body
-        # Tier + high-win override:
-        # - CEO prepare → always pending_approval
-        # - auto + win≥65 → pending_approval (even if price > 50)
-        # - auto + price>50 + win<65 → manual_review
-        # - auto + price≤50 → pending_approval
+        # pending_approval only with valid email; else needs_email (enrichment).
+        # With email: CEO → Approve; auto+win≥65 → Approve; auto+price>50+autosend off → manual;
+        # else Approve / autosend queue.
         price_f = float(price or 0)
         win_pct = int(evaluation.get("win_probability_pct") or 0)
         meta["win_probability_pct"] = win_pct
-        from app.integration.outreach_ceo_prefs import outreach_send_allowed
-
-        autosend_on = outreach_send_allowed(self._memory_dir)
-        if auto_lane and win_pct >= HIGH_WIN_AUTO_QUEUE_PCT:
-            row["outreach_status"] = "pending_approval"
-            lane = "high_win_auto_queue"
-        elif auto_lane and price_f > AUTO_DRAFT_MAX_EUR and not autosend_on:
-            row["outreach_status"] = "manual_review"
-            lane = "manual_review"
-        else:
-            row["outreach_status"] = "pending_approval"
-            lane = (
-                "autosend_queue"
-                if (auto_lane and autosend_on and price_f > AUTO_DRAFT_MAX_EUR)
-                else ("auto_draft" if (auto_lane and price_f <= AUTO_DRAFT_MAX_EUR) else "ceo_prepare")
-            )
-        meta["price_tier"] = lane
         meta["auto_draft_max_eur"] = AUTO_DRAFT_MAX_EUR
         meta["high_win_auto_queue_pct"] = HIGH_WIN_AUTO_QUEUE_PCT
         row["meta"] = meta
-        row["status"] = "proposed"
-        row["status_label"] = (
-            f"Ручная проверка (цена > {AUTO_DRAFT_MAX_EUR:.0f} {symbol})"
-            if row["outreach_status"] == "manual_review"
-            else (
-                f"Высокий win {win_pct}% · в Approve"
-                if lane == "high_win_auto_queue"
-                else "Предложение готово"
-            )
+        from app.integration.outreach_ceo_prefs import outreach_send_allowed
+
+        autosend_on = outreach_send_allowed(self._memory_dir)
+        lane = self._apply_prepare_outreach_status(
+            row,
+            auto_lane=auto_lane,
+            price_f=price_f,
+            win_pct=win_pct,
+            autosend_on=autosend_on,
+            symbol=symbol,
         )
+        row["status"] = "proposed"
         self._apply_lead_priority(row, analysis=analysis, win_pct=win_pct)
         row["updated_at"] = now
         self._log_interaction(
@@ -1565,8 +1568,213 @@ class AcquisitionStudioService:
             pass
 
     _PIPELINE_BUSY = frozenset(
-        {"sent", "contacted", "approved", "pending_approval"}
+        {"sent", "contacted", "approved", "pending_approval", "needs_email"}
     )
+
+    def _contact_has_valid_email(self, row: dict) -> bool:
+        email = self._extract_email(str(row.get("contact") or ""))
+        return bool(email and "@" in email and "." in email.split("@")[-1])
+
+    def _apply_prepare_outreach_status(
+        self,
+        row: dict,
+        *,
+        auto_lane: bool,
+        price_f: float,
+        win_pct: int,
+        autosend_on: bool,
+        symbol: str,
+    ) -> str:
+        """pending_approval only when a sendable email exists; else needs_email."""
+        meta = dict(row.get("meta") or {})
+        if not self._contact_has_valid_email(row):
+            row["outreach_status"] = "needs_email"
+            meta["enrichment_required"] = "email"
+            meta["price_tier"] = "needs_email"
+            row["meta"] = meta
+            row["status_label"] = "Нужен email · enrichment (не Approve)"
+            return "needs_email"
+
+        meta.pop("enrichment_required", None)
+        if auto_lane and win_pct >= HIGH_WIN_AUTO_QUEUE_PCT:
+            row["outreach_status"] = "pending_approval"
+            lane = "high_win_auto_queue"
+        elif auto_lane and price_f > AUTO_DRAFT_MAX_EUR and not autosend_on:
+            row["outreach_status"] = "manual_review"
+            lane = "manual_review"
+        else:
+            row["outreach_status"] = "pending_approval"
+            lane = (
+                "autosend_queue"
+                if (auto_lane and autosend_on and price_f > AUTO_DRAFT_MAX_EUR)
+                else (
+                    "auto_draft"
+                    if (auto_lane and price_f <= AUTO_DRAFT_MAX_EUR)
+                    else "ceo_prepare"
+                )
+            )
+        meta["price_tier"] = lane
+        row["meta"] = meta
+        row["status_label"] = (
+            f"Ручная проверка (цена > {AUTO_DRAFT_MAX_EUR:.0f} {symbol})"
+            if row["outreach_status"] == "manual_review"
+            else (
+                f"Высокий win {win_pct}% · в Approve"
+                if lane == "high_win_auto_queue"
+                else "Предложение готово"
+            )
+        )
+        return lane
+
+    def reclassify_pending_without_email(self) -> dict[str, Any]:
+        """Repair: pending_approval without email → needs_email."""
+        rows = self._opportunity._load_rows()
+        moved = 0
+        for row in rows:
+            if str(row.get("outreach_status") or "") != "pending_approval":
+                continue
+            if self._contact_has_valid_email(row):
+                continue
+            meta = dict(row.get("meta") or {})
+            row["outreach_status"] = "needs_email"
+            meta["enrichment_required"] = "email"
+            meta["price_tier"] = "needs_email"
+            meta["reclassified_from"] = "pending_approval"
+            row["meta"] = meta
+            row["status_label"] = "Нужен email · enrichment (не Approve)"
+            row["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._log_interaction(
+                row,
+                "reclassify_needs_email",
+                "pending_approval without email → needs_email",
+            )
+            moved += 1
+        if moved:
+            self._opportunity._save_rows(rows)
+        return {"ok": True, "moved": moved}
+
+    def ready_send_diagnostics(self, rows: list[dict] | None = None) -> dict[str, Any]:
+        """CEO: why Ready=0 — factual counts."""
+        from app.integration.lead_engine_queues import classify_lead_queue
+        from app.integration.outreach_ceo_prefs import outreach_send_allowed
+
+        rows = rows if rows is not None else self._opportunity._load_rows()
+        needs_email = 0
+        pending = 0
+        pending_with_email = 0
+        manual = 0
+        ready = 0
+        for row in rows:
+            meta = row.get("meta") if isinstance(row.get("meta"), dict) else {}
+            if meta.get("quality_archive"):
+                continue
+            outreach = str(row.get("outreach_status") or "")
+            if outreach == "needs_email":
+                needs_email += 1
+            elif outreach == "pending_approval":
+                pending += 1
+                if self._contact_has_valid_email(row):
+                    pending_with_email += 1
+            elif outreach == "manual_review":
+                manual += 1
+            if classify_lead_queue(row, all_rows=rows) == "ready":
+                ready += 1
+
+        quota: dict[str, Any] = {}
+        try:
+            quota = self._send_quota.health()
+        except Exception:
+            quota = {}
+        cooldown: dict[str, Any] = {}
+        try:
+            from app.integration.outreach_provider_cooldown import cooldown_status
+
+            cooldown = cooldown_status(self._memory_dir)
+        except Exception:
+            cooldown = {}
+        providers_ready = True
+        try:
+            from app.integration.email_provider_pool import any_provider_ready
+
+            providers_ready = bool(any_provider_ready(self._memory_dir))
+        except Exception:
+            providers_ready = True
+
+        outreach_on = outreach_send_allowed(self._memory_dir)
+        runner_on = bool(self.runner_status().get("running"))
+        gcap = int(quota.get("global_daily_cap") or 0) if quota else 0
+        sent_total = int(quota.get("sent_today_total") or 0) if quota else 0
+        at_cap = bool(gcap and sent_total >= gcap)
+        remaining = quota.get("remaining_today_total")
+
+        reasons: list[dict[str, Any]] = [
+            {
+                "code": "needs_email",
+                "count": needs_email,
+                "ok": needs_email == 0,
+                "label_ru": f"{needs_email} без email",
+            },
+            {
+                "code": "manual_review",
+                "count": manual,
+                "ok": True,
+                "label_ru": f"{manual} ждут ручного одобрения",
+            },
+            {
+                "code": "pending_approval",
+                "count": pending,
+                "ok": True,
+                "label_ru": f"{pending} в Approve (с email: {pending_with_email})",
+            },
+            {
+                "code": "send_quota",
+                "count": sent_total,
+                "ok": not at_cap,
+                "label_ru": (
+                    f"{sent_total} квота отправки исчерпана"
+                    if at_cap
+                    else f"0 превышение квоты отправки (осталось {remaining})"
+                ),
+            },
+            {
+                "code": "smtp_providers",
+                "count": 0 if providers_ready else 1,
+                "ok": providers_ready,
+                "label_ru": (
+                    "0 ошибки SMTP" if providers_ready else "ошибки / нет SMTP-провайдеров"
+                ),
+            },
+        ]
+        if not outreach_on:
+            reasons.append(
+                {
+                    "code": "autosend_off",
+                    "count": 1,
+                    "ok": False,
+                    "label_ru": "автоотправка выкл.",
+                }
+            )
+        if outreach_on and not runner_on:
+            reasons.append(
+                {
+                    "code": "runner_stopped",
+                    "count": 1,
+                    "ok": False,
+                    "label_ru": "Country Desk остановлен",
+                }
+            )
+
+        return {
+            "ready_now": ready,
+            "needs_email": needs_email,
+            "pending_approval": pending,
+            "pending_with_email": pending_with_email,
+            "manual_review": manual,
+            "outreach_send_enabled": outreach_on,
+            "runner_running": runner_on,
+            "reasons": reasons,
+            "summary_ru": f"Ready: {ready}. " + " · ".join(r["label_ru"] for r in reasons),
+        }
 
     def _pipeline_busy_keys(self, rows: list[dict], *, exclude_id: str = "") -> tuple[set[str], set[str]]:
         """Emails and hosts already in outreach pipeline — do not re-offer."""
@@ -1632,7 +1840,8 @@ class AcquisitionStudioService:
                 "manual_review",
             ):
                 continue
-            if row.get("proposed_message"):
+            # needs_email: re-prepare allowed (enrich contact), even if draft exists.
+            if row.get("proposed_message") and row.get("outreach_status") != "needs_email":
                 continue
             if self._is_pipeline_duplicate(
                 row, busy_emails=busy_emails, busy_hosts=busy_hosts
@@ -1820,6 +2029,8 @@ class AcquisitionStudioService:
         pending = []
         for r in rows:
             if r.get("outreach_status") != "pending_approval":
+                continue
+            if not self._contact_has_valid_email(r):
                 continue
             meta = r.get("meta") if isinstance(r.get("meta"), dict) else {}
             if meta.get("quality_archive"):
@@ -2411,10 +2622,24 @@ class AcquisitionStudioService:
             raise ValueError("not_manual_review")
         if not row.get("proposed_message"):
             raise ValueError("no_draft")
+        if not self._contact_has_valid_email(row):
+            meta = dict(row.get("meta") or {})
+            row["outreach_status"] = "needs_email"
+            meta["enrichment_required"] = "email"
+            meta["price_tier"] = "needs_email"
+            row["meta"] = meta
+            row["status_label"] = "Нужен email · enrichment (не Approve)"
+            row["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._log_interaction(
+                row, "promote_needs_email", "manual_review without email → needs_email"
+            )
+            self._opportunity._save_rows(self._replace_row(opportunity_id, row))
+            return row
         row["outreach_status"] = "pending_approval"
         row["status_label"] = "Предложение готово · после ручной проверки"
         meta = dict(row.get("meta") or {})
         meta["price_tier"] = "ceo_promoted"
+        meta.pop("enrichment_required", None)
         row["meta"] = meta
         row["updated_at"] = datetime.now(timezone.utc).isoformat()
         self._log_interaction(row, "promoted_to_approval", "CEO: manual_review → pending_approval")

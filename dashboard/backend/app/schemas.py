@@ -538,6 +538,15 @@ class ClientReviewSubmitRequest(BaseModel):
     company_display_name: str | None = Field(default=None, max_length=200)
 
 
+class ClientReviewGuestSubmitRequest(BaseModel):
+    author_name: str = Field(min_length=2, max_length=80)
+    company: str | None = Field(default=None, max_length=120)
+    email: str = Field(min_length=5, max_length=160)
+    stars: int = Field(ge=1, le=5)
+    text: str = Field(min_length=20, max_length=1000)
+    website: str = Field(default="", max_length=200)  # honeypot — must stay empty
+
+
 class ClientReviewSubmitResponse(BaseModel):
     ok: bool = True
     review_id: str
@@ -545,12 +554,14 @@ class ClientReviewSubmitResponse(BaseModel):
     flags: list[str] = []
     message_ru: str = ""
     message_de: str = ""
+    message_en: str = ""
 
 
 class ClientReviewPublicCard(BaseModel):
     review_id: str | None = None
     stars: int
     text: str
+    author_name: str | None = None
     company_display_name: str | None = None
     service_label: str | None = None
     service_kind: str | None = None
@@ -558,6 +569,7 @@ class ClientReviewPublicCard(BaseModel):
     logo_url: str | None = None
     verified_purchase: bool = True
     published_at: str | None = None
+    created_at: str | None = None
 
 
 class ClientReviewsPublicResponse(BaseModel):
@@ -579,7 +591,7 @@ class ClientReviewOwnerPublishRequest(BaseModel):
 
 
 class ClientReviewModerateRequest(BaseModel):
-    action: str = Field(pattern="^(publish|reject)$")
+    action: str = Field(pattern="^(publish|reject|delete)$")
     note: str = Field(default="", max_length=500)
 
 
@@ -590,16 +602,28 @@ class ClientReviewModerationItem(BaseModel):
     text: str
     status: str
     flags: list[str] = []
+    author_name: str | None = None
+    author_email: str | None = None
     company_display_name: str | None = None
     created_at: str | None = None
+    published_at: str | None = None
     show_company_name: bool = True
     show_logo: bool = False
     verified_purchase: bool = True
+    source: str | None = None
 
 
 class ClientReviewsPendingResponse(BaseModel):
     pending: list[ClientReviewModerationItem] = []
     count: int = 0
+
+
+class ClientReviewsOwnerListResponse(BaseModel):
+    reviews: list[ClientReviewModerationItem] = []
+    count: int = 0
+    pending_count: int = 0
+    published_count: int = 0
+    rejected_count: int = 0
 
 
 class SalesCheckoutRequest(BaseModel):
@@ -1582,6 +1606,7 @@ class AcquisitionStudioStatus(BaseModel):
     outreach_send_note: str
     law: str
     pending_approval_count: int
+    needs_email_count: int = 0
     sent_count: int
     pipeline_count: int
     channels: list[dict] = []
@@ -1610,6 +1635,7 @@ class AcquisitionStudioStatus(BaseModel):
     open_markets_now: list[str] = []
     lead_sending_health: dict | None = None
     email_providers: dict | None = None
+    ready_send_diagnostics: dict | None = None
 
     model_config = {"extra": "ignore"}
 

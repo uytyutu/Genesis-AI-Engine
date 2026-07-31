@@ -228,6 +228,7 @@ type StudioStatus = {
   outreach_send_note: string;
   law: string;
   pending_approval_count: number;
+  needs_email_count?: number;
   sent_count: number;
   sent_today_count?: number;
   sent_today?: {
@@ -337,7 +338,15 @@ type StudioStatus = {
     local_time?: string;
     timezone?: string;
   }[];
-  pilot_catalog?: {
+  ready_send_diagnostics?: {
+    ready_now?: number;
+    needs_email?: number;
+    pending_approval?: number;
+    pending_with_email?: number;
+    manual_review?: number;
+    summary_ru?: string;
+    reasons?: { code?: string; count?: number; ok?: boolean; label_ru?: string }[];
+  } | null;  pilot_catalog?: {
     checkout_online: string[];
     pilot_quote: string[];
     horizon: string[];
@@ -864,12 +873,30 @@ export default function AcquisitionPage() {
               <Badge ok={(status.manual_review_count ?? 0) === 0}>
                 Ручная проверка: {status.manual_review_count ?? 0}
               </Badge>
+              <Badge ok={(status.needs_email_count ?? 0) === 0}>
+                Без email: {status.needs_email_count ?? 0}
+              </Badge>
               <Badge ok={status.outreach_send_enabled}>Resend / send path</Badge>
               <span className="text-genesis-muted self-center">
                 Одобрение: {status.pending_approval_count} · Отправлено: {status.sent_count}
               </span>
             </div>
           )}
+          {status?.ready_send_diagnostics ? (
+            <div className="mt-3 rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white/85">
+              <p className="text-[10px] uppercase tracking-wide text-white/50">Ready · причины</p>
+              <p className="mt-1 font-medium text-white">
+                Ready: {status.ready_send_diagnostics.ready_now ?? status.ready_now ?? 0}
+              </p>
+              <ul className="mt-2 space-y-1 text-xs text-white/75">
+                {(status.ready_send_diagnostics.reasons || []).map((r) => (
+                  <li key={r.code || r.label_ru}>
+                    {r.ok ? "✓" : "✗"} {r.label_ru}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
           {status ? (
             <div className="mt-4 grid gap-3 sm:grid-cols-4">
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/30 p-3">
