@@ -73,30 +73,35 @@ VPS → DNS → Webhook → Monitoring
 
 ---
 
-## Mission 3 — VRE Research (Earn Connectors)
+## Mission 3 — Earn Connectors
 
-**Goal:** find **legal, automatable Earn Connectors** and decide Go / No-Go — **before** writing performer adapters.
+**Goal:** deliver **at least one working Earn Connector** (legal + confirmed payout) — the unfinished branch of the original Farm design.
 
-**Status of all Earn Connectors:** Research (not build).
+**Not the goal:** “make Toloka pay.” Toloka Requester stays a **Spend** connector. Earn is a separate branch.
+
+**Status today:** all Earn Connectors = Research (no adapters yet).
 
 ```
 Research
-  → Choose Earn Connector candidate(s)
-  → Legal Review          ← mandatory gate
+  → Legal Review          ← mandatory before any adapter
+  → Choose Connector      ← exactly one first candidate
   → Prototype (small)
-  → One real payout
-  → Decision (develop / park / reject)
+  → One confirmed payout  ← CONFIRMED payout_id / REAL
+  → Go / No-Go
 ```
 
-**Why Legal Review before code:** many platforms forbid automated performer work. Building an adapter first risks an unusable integration.
+**Catalog work (before code):** for each platform document — allowed work model · payout path · API or supported integration · legal limits · integration difficulty · potential ROI. Then pick **one** candidate.
+
+**Why Legal Review before code:** many platforms forbid automated performer work. An adapter without ToS green-light is wasted engineering.
 
 **Success (Mission 3):**
-- shortlist of candidate Earn Connectors with ToS/API stance documented;
-- Legal Review done for the chosen candidate;
-- optional: one controlled prototype + one real payout fact;
-- explicit Go / No-Go for further engineering.
+- catalog of Earn candidates with honest ToS/API notes;
+- Legal Review PASS for the chosen platform;
+- one prototype Earn Connector;
+- **one confirmed payout** recorded in Farm/VRE truth (REAL);
+- explicit Go / No-Go to scale that connector.
 
-**Not Mission 3:** enabling `FARM_LIVE_MODE`, Toloka auto-submit, or Spend→Country Desk bridge.
+**Not Mission 3:** enabling `FARM_LIVE_MODE` for Toloka Spend, auto-submit, or Spend→Country Desk bridge.
 
 ---
 
@@ -162,15 +167,20 @@ Money Monitor honesty (REAL / SPENT / PREDICTION + Earn OFF) may already be ship
 1. Observe VPS 1–2 days (laptop may be off).
 2. Stage 4: DNS → Stripe webhook → one real payment → **Mission 1 PASS**.
 3. Stability → **Mission 2**.
-4. **Mission 3:** Research → Choose → **Legal Review** → Prototype → One payout → Decision.
-5. Only then: Earn connector engineering if Go.
+4. **Mission 3 — Earn Connectors:** Research → Legal Review → Choose one → Prototype → **One confirmed payout** → Go/No-Go.
+5. Only then: scale that Earn Connector (or park it).
 
 ## Decision filter
 
 > Does this bring the first paying client closer?
 
 - Yes → Mission 1 / 2.
-- No → Mission 3 (Research) or Horizon — **not** code on Earn adapters yet.
+- No → Mission 3 (Earn Connectors) or Horizon — **no Earn adapter code until Mission 1 PASS + Legal Review**.
+
+> Does this finish the Farm Earn branch legally?
+
+- Yes → Mission 3.
+- “Make Toloka (Requester) pay” → **wrong question** — that is Spend.
 
 ---
 
