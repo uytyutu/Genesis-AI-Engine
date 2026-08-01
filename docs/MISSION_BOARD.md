@@ -1,7 +1,8 @@
 # Virtus Core — Mission Board (operational lock)
 
-**Locked:** 2026-08-01 · Updated: terminology Connectors + Mission 3 Research.  
-**Rule:** Commerce ≠ R&D. Do not mix Path A sales with VRE experiments.
+**Locked:** 2026-08-01 · Updated: Mission 3 renamed to **Earn Connectors**.  
+**Rule:** Commerce ≠ R&D. Do not mix Path A sales with VRE / Farm Earn experiments.  
+**Farm north star:** finish the **Earn branch** — not “make Toloka pay.”
 
 ---
 
