@@ -92,6 +92,8 @@ Research
 
 **Catalog work (before code):** for each platform document — allowed work model · payout path · API or supported integration · legal limits · integration difficulty · potential ROI. Then pick **one** candidate.
 
+**Spec (no code):** `docs/EARN_CONNECTOR_SPEC_v0.md` — interface · state machine · payout · ledger · requirements. Scaffold only after Legal Review PASS on a real candidate.
+
 **Why Legal Review before code:** many platforms forbid automated performer work. An adapter without ToS green-light is wasted engineering.
 
 **Success (Mission 3):**
