@@ -1,19 +1,67 @@
 # Virtus Core — Mission Board (operational lock)
 
-**Locked:** 2026-08-01 · Commerce ≠ R&D. Do not mix Path A sales with Farm/Toloka.
+**Locked:** 2026-08-01 · Updated: terminology Connectors + Mission 3 Research.  
+**Rule:** Commerce ≠ R&D. Do not mix Path A sales with VRE experiments.
 
-## Mission 1 — First Customer
+---
+
+## Connector model (canonical vocabulary)
+
+VRE is **not** an exchange and **not** “Toloka”.  
+VRE is the **engine that evaluates and compares external connectors**.
+
+```
+VRE
+ ├── Earn Connectors      ← platforms pay Virtus / owner (Research)
+ ├── Spend Connectors     ← Virtus pays for labeling / work
+ └── B2B Connectors       ← clients pay Virtus (Path A)
+```
+
+| Connector class | Money direction | Status today |
+|-----------------|-----------------|--------------|
+| **Earn Connectors** | Platform → Virtus / owner wallet | **Research** — none wired as performer payout |
+| **Spend Connectors** | Virtus → platform | Wired as requester (e.g. Toloka Pipeline, Scale customer) |
+| **B2B Connectors** | Client → Virtus (Stripe) | **Live path** — Mission 1 frontline |
+
+Example board (conceptual):
+
+```
+Earn
+  ○ Channel A          Research
+  ○ Channel B          Research
+Spend
+  ● Toloka Requester   Spend connector
+  ● Scale Labeling     Spend connector
+B2B
+  ● Path A / Stripe    Commercial
+```
+
+Do **not** center strategy on one brand name. Prefer: *Earn / Spend / B2B Connectors*.
+
+---
+
+## Mission 1 — First Customer (Path A)
 
 **Goal:** first real paying client.
+
+```
+Places → Email → Stripe → First €
+```
 
 **Success:**
 - real payment via Stripe;
 - order completes the full path;
 - client receives the result.
 
+---
+
 ## Mission 2 — Stable Commercial Platform
 
-**Goal:** commercial stack runs stably without the owner laptop.
+**Goal:** commercial stack runs 24/7 without the owner laptop.
+
+```
+VPS → DNS → Webhook → Monitoring
+```
 
 **Success:**
 - VPS serves clients 24/7;
@@ -22,54 +70,77 @@
 - repeatable payments without manual rescue;
 - Railway/Vercel retired after observation window.
 
-## Mission VRE — Verified Revenue Engine
+---
 
-**Goal:** verify economics of new income/spend channels — **not** a client-facing product.
+## Mission 3 — VRE Research (Earn Connectors)
 
-VRE is a **CEO-only** surface (owner). Clients see orders / products / payment only. Staff do not see VRE unless explicitly granted.
+**Goal:** find **legal, automatable Earn Connectors** and decide Go / No-Go — **before** writing performer adapters.
 
-### Money truth (UI contract) — shipped in Money Monitor
+**Status of all Earn Connectors:** Research (not build).
+
+```
+Research
+  → Choose Earn Connector candidate(s)
+  → Legal Review          ← mandatory gate
+  → Prototype (small)
+  → One real payout
+  → Decision (develop / park / reject)
+```
+
+**Why Legal Review before code:** many platforms forbid automated performer work. Building an adapter first risks an unusable integration.
+
+**Success (Mission 3):**
+- shortlist of candidate Earn Connectors with ToS/API stance documented;
+- Legal Review done for the chosen candidate;
+- optional: one controlled prototype + one real payout fact;
+- explicit Go / No-Go for further engineering.
+
+**Not Mission 3:** enabling `FARM_LIVE_MODE`, Toloka auto-submit, or Spend→Country Desk bridge.
+
+---
+
+## VRE product shape (after Mission 1–2)
+
+VRE is a **CEO-only** surface. Clients never see it. Staff only with explicit rights.
+
+### Money truth (UI)
 
 | Field | Meaning |
 |-------|---------|
-| **REAL** | Confirmed money received (e.g. Stripe) |
-| **SPENT** | Confirmed experiment spend (LLM/API + verified exchange spend) |
-| **PREDICTION** | Model estimate — never presented as cash on hand |
-| **ROI** | Only after REAL and SPENT exist for the same channel |
+| **REAL** | Confirmed money received |
+| **SPENT** | Confirmed experiment / API spend |
+| **PREDICTION** | Model estimate — not cash |
+| **ROI** | Only when REAL and SPENT exist |
 
-Channel board (Earn / Spend / B2B) is built from `swarm/farm_channel_board.py` + capability audit. **Earn ON = 0 today** (no performer payout adapter).
-
-### VRE levels
+### VRE measurement levels
 
 | Level | Success criteria |
 |-------|------------------|
-| **L1** | 1 dataset → 1 run → completed → known spend → verified |
-| **L2** | Job history with balance before/after (spent fact) |
+| **L1** | One controlled job cycle with known cost (Spend or Earn) → verified |
+| **L2** | Job history with balance before/after |
 | **L3** | Avg cost / time / error rate from N jobs |
-| **L4** | Compare channels (Toloka / Scale / Appen / Path A / custom) → Go/No-Go |
+| **L4** | Compare Connectors → recommend best ROI |
 
-### Channel roles (architecture)
+Long-term north star (vision, not a build ticket now):
 
-| Role | Examples | Money direction |
-|------|----------|-----------------|
-| Spend (labeling) | Toloka Pipeline requester, Scale customer | Virtus → platform |
-| Earn (work platforms) | performer/HIT accounts — **not wired today** | platform → owner wallet (manual) |
-| Commercial services | Path A Stripe | client → Virtus |
+> Virtus Core connects external Earn / Spend / B2B connectors, measures their economics, and compares ROI.
 
-**Original intent vs wired reality:** early Farm/VRE narrative hoped for exchange earnings; the code that shipped is **requester submit + CEO wallet checklist**. Performer payout into Virtus Core was **never implemented**. The only automated money-in path is **Stripe Path A**. See section below.
+Farm / VRE **may** become a major income stream later — only after Mission 1 proves Path A and Mission 3 clears Legal Review for Earn.
 
 ### CEO Dashboard placement (target)
 
 ```
 CEO
  ├── Path A / Business
-├── Finance
-├── Acquisition / Country Desk
-├── Factory
-├── VRE (Experimental)   ← owner only
+ ├── Finance
+ ├── Acquisition / Country Desk
+ ├── Factory
+ ├── VRE (Experimental)   ← owner only · Connectors board
 ├── Labs
 └── System / Infrastructure
 ```
+
+---
 
 ## Freeze until Mission 1 is closed
 
@@ -79,33 +150,35 @@ Do **not** enable:
 - `TOLOKA_AUTO_SUBMIT=1`
 - `FARM_AUTO_PREPARE_OUTREACH=1`
 
-Do **not** build the VRE CEO tab or remove main-page prediction UI until Mission 1 PASS (unless CEO opens a scoped ticket).
+Do **not** start Earn connector adapters or Mission 3 engineering until Mission 1 PASS (and preferably Mission 2 underway).
+
+Money Monitor honesty (REAL / SPENT / PREDICTION + Earn OFF) may already be shipped — that is terminology/truth, not Earn live.
+
+---
 
 ## Sequence
 
 1. Observe VPS 1–2 days (laptop may be off).
 2. Stage 4: DNS → Stripe webhook → one real payment → **Mission 1 PASS**.
-3. Stability observation → **Mission 2**.
-4. Separate day → **Mission VRE L1** (one controlled spend verification).
+3. Stability → **Mission 2**.
+4. **Mission 3:** Research → Choose → **Legal Review** → Prototype → One payout → Decision.
+5. Only then: Earn connector engineering if Go.
 
 ## Decision filter
 
 > Does this bring the first paying client closer?
 
 - Yes → Mission 1 / 2.
-- No → Mission VRE or Horizon.
+- No → Mission 3 (Research) or Horizon — **not** code on Earn adapters yet.
 
 ---
 
-## Architecture note — Was VRE meant to earn?
+## Architecture note — intent vs wired reality
 
-**Short answer:** Ambition = earn + measure; **shipped wiring** = spend (requester) + manual wallet check. No automated “tasks done → money into Virtus Core” except Stripe.
+| Layer | Reality |
+|-------|---------|
+| Early narrative | Exchange earnings, Withdraw → Stripe |
+| Shipped wiring | Spend Connectors (requester) + B2B Stripe |
+| Earn Connectors | **Research** — no performer payout adapter in Virtus |
 
-| Intent layer | What existed |
-|--------------|--------------|
-| Narrative / UI hints | “выплаты на кошелёк”, VRE steps `wallet_toloka` / `withdraw_path`, forecasts like nodes → € |
-| Honest registry | Toloka = requester; “performer wallet = separate account”; Scale = no performer earnings in code |
-| Unit economics | Toloka/Scale gross = 0 in this integration; Stripe = real B2B |
-| Money back into Virtus | **Only Path A Stripe** is an automated inbound path |
-
-So: VRE should evolve as a **multi-channel verification engine** (spend channels + future earn channels + Path A), not as “Toloka will pay Virtus.”
+Automated money **into** Virtus today: **B2B Connector (Stripe Path A)** only.
