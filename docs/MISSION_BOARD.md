@@ -28,16 +28,16 @@
 
 VRE is a **CEO-only** surface (owner). Clients see orders / products / payment only. Staff do not see VRE unless explicitly granted.
 
-### Money truth (UI contract)
-
-Replace “50 nodes = 298 €” style forecasts on the main commercial UI with:
+### Money truth (UI contract) — shipped in Money Monitor
 
 | Field | Meaning |
 |-------|---------|
 | **REAL** | Confirmed money received (e.g. Stripe) |
-| **SPENT** | Confirmed experiment spend (e.g. Toloka requester billing) |
+| **SPENT** | Confirmed experiment spend (LLM/API + verified exchange spend) |
 | **PREDICTION** | Model estimate — never presented as cash on hand |
 | **ROI** | Only after REAL and SPENT exist for the same channel |
+
+Channel board (Earn / Spend / B2B) is built from `swarm/farm_channel_board.py` + capability audit. **Earn ON = 0 today** (no performer payout adapter).
 
 ### VRE levels
 

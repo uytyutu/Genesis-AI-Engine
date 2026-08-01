@@ -193,7 +193,7 @@ def build_revenue_path_map(
     current = next((s for s in steps if not s["done"]), steps[-1])
     return {
         "title_ru": "Карта пути дохода → ваша карта",
-        "diagram_ru": "Работа → Submit → Pipeline → Wallet → Withdraw → Карта → Repeat×3",
+        "diagram_ru": "Spend: Dataset → Run → Completed → Spent$ · Earn (OFF): Task → Pay → Wallet → Withdraw · B2B: Order → Stripe",
         "current_step_ru": current["title_ru"],
         "current_money_note_ru": current["money_ru"],
         "steps": steps,
@@ -316,7 +316,7 @@ def build_farm_program(
         "mission1_freeze": freeze,
         "pr_gate": pr_gate,
         "pipeline": {
-            "diagram_ru": "Spider → Queue → Workers → Export → Submit → Toloka → Wallet → Withdraw → Repeat×3",
+            "diagram_ru": "Spend path: Export → Submit → Pipeline → Spent$ · Earn path OFF until performer adapter",
             "stages": stages,
         },
         "revenue_path_map": revenue_path,

@@ -1,4 +1,4 @@
-"""Money Monitor — три канала денег: учебный ledger · биржа (цех) · B2B (банк)."""
+"""Money Monitor — REAL / SPENT / PREDICTION · Earn vs Spend · B2B."""
 
 from __future__ import annotations
 
@@ -22,7 +22,9 @@ def build_money_monitor(
     finance_inputs: dict[str, Any] | None = None,
     revenue_forecast: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Genesis = приборная панель. Биржа = касса (CEO вручную). B2B = реальный €."""
+    """Genesis = приборная панель. Earn OFF сегодня · Spend = requester · B2B = Stripe."""
+    from swarm.farm_channel_board import build_farm_channel_board, build_money_truth
+
     pm = payment_monitor or {}
     monitor = pm.get("monitor") or {}
     payout = pm.get("payout") or {}
@@ -30,6 +32,8 @@ def build_money_monitor(
 
     training_eur = round(float(farm_state.get("total_earned_eur") or 0), 2)
     llm_cost = round(float(farm_state.get("llm_cost_eur") or 0), 2)
+    verified_spend = round(float(farm_state.get("verified_spend_eur") or 0), 2)
+    spent_eur = round(llm_cost + verified_spend, 2)
     tasks = int(farm_state.get("total_tasks_done") or 0)
 
     fin = finance_inputs or {}
@@ -53,6 +57,15 @@ def build_money_monitor(
     paid_by_client_eur = float(actual_revenue["paid_by_client_eur"])
     received_eur = float(actual_revenue["available_for_withdrawal_eur"])
     pending_eur = float(actual_revenue["pending_settlement_eur"])
+    prediction_eur = float((real_money.get("forecast") or {}).get("amount_eur") or 0)
+
+    channel_board = build_farm_channel_board()
+    money_truth = build_money_truth(
+        real_eur=paid_by_client_eur,
+        spent_eur=spent_eur,
+        prediction_eur=prediction_eur,
+    )
+    earn_on = int(channel_board["summary"]["earn_on_count"])
 
     pending_proposals = sum(
         1 for r in opps if r.get("outreach_status") == "pending_approval"
@@ -70,7 +83,7 @@ def build_money_monitor(
             exchange_balance_usd = float(bal)
             break
 
-    withdraw_ready = bool(payout.get("has_withdraw_ready"))
+    withdraw_ready = bool(payout.get("has_withdraw_ready")) and earn_on > 0
     alert_message = ""
     if withdraw_ready and payout.get("pending_alerts"):
         alert_message = str(payout["pending_alerts"][0].get("message") or "")
@@ -79,41 +92,41 @@ def build_money_monitor(
         {
             "id": "training_ledger",
             "icon": "📊",
-            "label_ru": "Журнал фермы (не Stripe)",
+            "label_ru": "Журнал фермы (estimate)",
             "amount_eur": farm_potential["farm_journal_eur"],
             "amount_label_ru": farm_potential["amount_label_ru"],
             "status": "simulation",
-            "status_ru": "Учебный · не выручка CEO",
+            "status_ru": "Учебный · не REAL и не SPENT",
             "detail_ru": farm_potential["detail_ru"],
         },
         {
             "id": "exchange_factory",
             "icon": "🏭",
-            "label_ru": "Биржа — заводской цех",
+            "label_ru": "Spend · Requester цех",
             "amount_eur": None,
             "amount_label_ru": (
-                f"${exchange_balance_usd:.2f} на бирже"
+                f"${exchange_balance_usd:.2f} баланс кабинета"
                 if exchange_balance_usd is not None
-                else "Баланс: зайдите на биржу"
+                else "Spend-канал · не копилка Virtus"
             ),
             "status": "crash_test" if toloka.get("connected") else "offline",
             "status_ru": (
                 f"Toloka Requester · {toloka_submit_count} submit"
                 if toloka_submit_count
-                else "Toloka Requester · crash-test API"
+                else "Toloka Requester · earn OFF"
             ),
             "detail_ru": (
-                "Не работодатель — инструмент: stress-test pipeline, делегирование разметки клиенту. "
-                "Wallet $0 при Requester — норма. Performer = другой аккаунт."
+                "Текущая роль: Spend (Virtus платит за разметку). "
+                "Путь Performer → баланс → Withdraw → Stripe в коде не подключён."
             ),
             "toloka_connected": bool(toloka.get("connected")),
             "scale_connected": bool(scale.get("connected")),
-            "withdraw_note_ru": toloka.get("withdraw_note") or scale.get("withdraw_note") or "",
+            "withdraw_note_ru": "",
         },
         {
             "id": "b2b_client",
             "icon": "💶",
-            "label_ru": "B2B — путь к банку",
+            "label_ru": "B2B / Path A — REAL",
             "amount_eur": paid_by_client_eur,
             "amount_label_ru": f"{paid_by_client_eur:.2f} € оплачено",
             "status": "primary" if paid_by_client_eur > 0 else "waiting",
@@ -127,34 +140,37 @@ def build_money_monitor(
         },
     ]
 
-    withdraw_alert = {
-        "active": withdraw_ready,
-        "level": (
-            "green"
-            if withdraw_ready
-            else ("amber" if pending_proposals else "none")
-        ),
-        "title_ru": (
-            "🟢 Биржа: можно вывести на Stripe (не B2B-выручка)"
-            if withdraw_ready
-            else (
-                "🟡 Одобрите письма в Outbox — путь к первому €"
-                if pending_proposals
-                else "Баланс биржи ниже порога"
-            )
-        ),
-        "message_ru": alert_message or (
-            f"Порог ${threshold:.0f}. Genesis не выводит сам — зайдите на toloka.ai / scale.com → Withdraw → Stripe."
-            if not withdraw_ready
-            else alert_message
-        ),
-        "threshold_usd": threshold,
-        "ceo_action_ru": (
-            "toloka.ai или scale.com → Wallet → Withdraw → Stripe → банк (SEPA 1–3 дня)"
-            if withdraw_ready
-            else "/business → Одобрить все → дождаться оплаты клиента"
-        ),
-    }
+    if earn_on > 0 and withdraw_ready:
+        withdraw_alert = {
+            "active": True,
+            "level": "green",
+            "title_ru": "🟢 Earn-канал: можно вывести (не B2B)",
+            "message_ru": alert_message
+            or f"Порог ${threshold:.0f}. Вывод вручную в кабинете биржи → Stripe.",
+            "threshold_usd": threshold,
+            "ceo_action_ru": "Кабинет биржи (performer) → Withdraw → Stripe → банк",
+        }
+    elif pending_proposals:
+        withdraw_alert = {
+            "active": False,
+            "level": "amber",
+            "title_ru": "🟡 Одобрите письма в Outbox — путь к первому €",
+            "message_ru": "Earn-каналы OFF. Реальный доход сегодня — Path A (Stripe).",
+            "threshold_usd": threshold,
+            "ceo_action_ru": "/business → Одобрить → дождаться оплаты клиента",
+        }
+    else:
+        withdraw_alert = {
+            "active": False,
+            "level": "none",
+            "title_ru": "Earn OFF · фокус Path A",
+            "message_ru": (
+                "Toloka/Scale в Virtus = requester (SPENT), не performer (REAL). "
+                "Не путать прогноз фермы с деньгами на счёте."
+            ),
+            "threshold_usd": threshold,
+            "ceo_action_ru": "Mission 1: Places → Email → Stripe. Mission VRE — после первого клиента.",
+        }
 
     pipeline = [
         {"step": 1, "id": "spider", "title_ru": "Spider", "detail_ru": "Ищет компании и сырьё"},
@@ -192,7 +208,9 @@ def build_money_monitor(
 
     return {
         "title_ru": "Приборная панель — деньги",
-        "subtitle_ru": "Hero = только Stripe/B2B · ферма и биржа — отдельно",
+        "subtitle_ru": "REAL / SPENT / PREDICTION · Earn OFF пока нет performer-адаптера",
+        "money_truth": money_truth,
+        "channel_board": channel_board,
         "actual_revenue": actual_revenue,
         "farm_potential": farm_potential,
         "real_money": real_money,
@@ -209,8 +227,8 @@ def build_money_monitor(
             else "Модель не доказана — нужна хотя бы 1 успешная B2B-сделка с оплатой."
         ),
         "toloka_role_ru": (
-            "Toloka сейчас: Requester (заводской цех). "
-            f"{toloka_submit_count} submit = портфолио надёжности API. "
-            "Заработок performer — отдельный аккаунт toloka.ai."
+            "Toloka сейчас: Spend / Requester. "
+            f"{toloka_submit_count} submit · LLM/API SPENT={spent_eur:.2f} €. "
+            "Earn (performer → Withdraw → Stripe) в коде не подключён."
         ),
     }

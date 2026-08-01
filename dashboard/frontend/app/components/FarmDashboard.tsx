@@ -1896,7 +1896,8 @@ export function FarmDashboard() {
               </p>
             ) : null}
             <p className="mt-1 text-xs text-emerald-200/70">
-              Порог вывода: ${paymentMonitor.payout?.threshold_usd ?? 10} · Stripe вручную с биржи
+              Порог вывода (если Earn ON): ${paymentMonitor.payout?.threshold_usd ?? 10} · сейчас Earn OFF
+              — Withdraw→Stripe с биржи не подключён как performer.
             </p>
             <div className="mt-3 space-y-2 text-xs text-white/90">
               <p>
@@ -1957,15 +1958,42 @@ export function FarmDashboard() {
           </section>
         ) : null}
 
-        {revenueForecast ? (
+        {revenueForecast || dash?.money_monitor?.money_truth ? (
           <section className="genesis-card border-sky-500/20 bg-sky-950/10 p-5">
-            <h2 className="text-sm font-bold text-sky-100">Прогноз (математика, не гарантия)</h2>
-            <p className="mt-1 text-xs text-sky-200/70">{revenueForecast.disclaimer}</p>
-            <p className="mt-3 text-sm text-white">
-              50 нод × 10 ч: ~
-              <strong>{formatEur(revenueForecast.labeling_swarm_10h?.net_eur)}</strong> чистыми · сутки: ~
-              <strong>{formatEur(revenueForecast.labeling_swarm_per_day?.net_eur)}</strong>
-            </p>
+            <h2 className="text-sm font-bold text-sky-100">Деньги: REAL · SPENT · PREDICTION</h2>
+            {dash?.money_monitor?.money_truth ? (
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                <div>
+                  <p className="text-[10px] uppercase text-genesis-muted">REAL</p>
+                  <p className="text-lg font-bold text-emerald-200">
+                    {dash.money_monitor.money_truth.real_label_ru}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase text-genesis-muted">SPENT</p>
+                  <p className="text-lg font-bold text-amber-200">
+                    {dash.money_monitor.money_truth.spent_label_ru}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase text-genesis-muted">PREDICTION</p>
+                  <p className="text-lg font-bold text-sky-200">
+                    {dash.money_monitor.money_truth.prediction_label_ru}
+                  </p>
+                </div>
+              </div>
+            ) : null}
+            {revenueForecast ? (
+              <>
+                <p className="mt-3 text-xs text-sky-200/70">{revenueForecast.disclaimer}</p>
+                <p className="mt-2 text-sm text-white/80">
+                  Модель (не баланс): 50 нод × 10 ч ≈{" "}
+                  <strong>{formatEur(revenueForecast.labeling_swarm_10h?.net_eur)}</strong> · сутки ≈{" "}
+                  <strong>{formatEur(revenueForecast.labeling_swarm_per_day?.net_eur)}</strong>
+                  {" — "}только PREDICTION, Earn-каналы сейчас OFF.
+                </p>
+              </>
+            ) : null}
             {dash?.last_battle_test ? (
               <p className="mt-2 text-xs text-emerald-200">
                 Последний боевой тест: +{Number(dash?.last_battle_test.earned_eur ?? 0).toFixed(4)} € ·{" "}
@@ -1973,13 +2001,15 @@ export function FarmDashboard() {
                 {Number(dash?.last_battle_test.pay_per_task_eur ?? 0).toFixed(4)} €/задача
               </p>
             ) : null}
-            <ul className="mt-3 space-y-1 text-xs text-genesis-muted">
-              {farmList(revenueForecast.phases).map((p) => (
-                <li key={p.label}>
-                  <strong>{p.label}</strong>: {p.eur_per_day} €/день — {p.note}
-                </li>
-              ))}
-            </ul>
+            {revenueForecast ? (
+              <ul className="mt-3 space-y-1 text-xs text-genesis-muted">
+                {farmList(revenueForecast.phases).map((p) => (
+                  <li key={p.label}>
+                    <strong>{p.label}</strong>: {p.eur_per_day} €/день — {p.note}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </section>
         ) : null}
 
@@ -2118,7 +2148,7 @@ export function FarmDashboard() {
           <section className="genesis-card p-5">
             <h2 className="text-sm font-semibold text-white">Последние задачи</h2>
             <p className="mt-1 text-[11px] text-genesis-muted">
-              Оценка вознаграждения · ожидание биржи · реальная выплата только с ID · Stripe — вывод вручную
+              Оценка / dry-run · Toloka = Spend (requester) · REAL только через Stripe Path A
             </p>
             {!farmList(dash.recent_tasks).length ? (
               <p className="mt-3 text-sm text-genesis-muted">Пусто — жми «Запустить ферму».</p>

@@ -239,7 +239,7 @@ export function FarmJournal() {
             <section className="genesis-card p-5">
               <h2 className="text-sm font-semibold text-white">Журнал заработка</h2>
               <p className="mt-1 text-[11px] text-genesis-muted">
-                Локально: взята → обработана → оценка · Реально: подтверждение биржи + ID выплаты → вывод на Stripe вручную
+                Локально: estimate · Spend: requester billing · REAL: только Stripe Path A (не Toloka performer)
               </p>
               {!farmList(dash.recent_tasks).length ? (
                 <p className="mt-4 text-sm text-genesis-muted">

@@ -25,10 +25,13 @@ def test_three_lanes_training_not_bank():
     assert len(panel["lanes"]) == 3
     ledger = panel["lanes"][0]
     assert ledger["id"] == "training_ledger"
-    assert "не выводить" in ledger["status_ru"].lower() or "не банк" in ledger["detail_ru"].lower()
+    assert "real" in ledger["status_ru"].lower() or "estimate" in ledger["detail_ru"].lower()
+    assert "requester" in ledger["detail_ru"].lower() or "не stripe" in ledger["detail_ru"].lower() or "не Stripe" in ledger["detail_ru"]
     factory = panel["lanes"][1]
     assert factory["id"] == "exchange_factory"
     assert "1253" in factory["status_ru"]
+    assert panel["money_truth"]["spent_eur"] == 0.72
+    assert panel["channel_board"]["summary"]["earn_on_count"] == 0
     b2b = panel["lanes"][2]
     assert b2b["id"] == "b2b_client"
     assert b2b["amount_eur"] == 0
@@ -223,6 +226,7 @@ def test_money_monitor_includes_sales_funnel():
 
 
 def test_withdraw_alert_green():
+    """Green withdraw only when an Earn (performer) channel is ON — not requester."""
     panel = build_money_monitor(
         farm_state={},
         payment_monitor={
@@ -241,5 +245,38 @@ def test_withdraw_alert_green():
             "demo_mode": False,
         },
     )
-    assert panel["withdraw_alert"]["active"] is True
-    assert panel["withdraw_alert"]["level"] == "green"
+    # Earn OFF today → no green exchange withdraw
+    assert panel["withdraw_alert"]["active"] is False
+    assert panel["channel_board"]["summary"]["earn_on_count"] == 0
+    assert panel["money_truth"]["real_eur"] == 0.0
+
+
+def test_money_truth_and_channel_board():
+    panel = build_money_monitor(
+        farm_state={"total_earned_eur": 10, "llm_cost_eur": 0.42, "verified_spend_eur": 0.18},
+        finance_inputs={
+            "finance_snapshot": {"paid_by_client_eur": 100.0},
+            "transactions": [],
+            "pending_payments": [],
+            "payout_history": [],
+            "settlements": [
+                {"amount_eur": 100.0, "provider": "stripe", "payment_id": "pi_x", "paid_at": "2026-08-01"}
+            ],
+            "payment_connected": True,
+            "demo_mode": False,
+        },
+        revenue_forecast={"labeling_swarm_per_day": {"net_eur": 298.0}},
+    )
+    truth = panel["money_truth"]
+    assert truth["real_eur"] == 100.0
+    assert truth["spent_eur"] == 0.6
+    assert truth["prediction_eur"] == 298.0
+    board = panel["channel_board"]
+    assert board["summary"]["performer_path_wired"] is False
+    spend_ids = {c["id"] for c in board["spend_channels"]}
+    assert "toloka" in spend_ids
+    b2b_ids = {c["id"] for c in board["b2b_channels"]}
+    assert "stripe" in b2b_ids
+    assert any(c["status"] == "on" for c in board["b2b_channels"] if c["id"] == "stripe")
+    assert panel["lanes"][1]["label_ru"].startswith("Spend")
+    assert "Earn OFF" in panel["withdraw_alert"]["title_ru"] or "Earn" in panel["withdraw_alert"]["message_ru"]

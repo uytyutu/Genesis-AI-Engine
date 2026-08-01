@@ -65,8 +65,8 @@ def get_farm_potential(*, farm_state: dict[str, Any]) -> dict[str, Any]:
         "label_ru": "Накопления фермы",
         "amount_label_ru": _format_eur(journal),
         "detail_ru": (
-            f"{tasks} задач · учебный журнал конвейера. "
-            "Не Stripe, не банк — контроль на бирже (Toloka/Scale), не в Genesis."
+            f"{tasks} задач · учебный журнал конвейера (estimate). "
+            "Не Stripe и не баланс performer. Toloka в коде = requester (расход), не копилка."
         ),
     }
 

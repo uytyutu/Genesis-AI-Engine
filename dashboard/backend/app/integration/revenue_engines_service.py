@@ -208,9 +208,9 @@ def build_revenue_engines(
         "engines": engines,
         "experiments": experiments,
         "money_route_ru": (
-            "Клиент (B2B checkout) → Stripe → webhook → finance_settlements.jsonl → "
-            "«Оплачено клиентом» → 3 раб. дня DE → «Доступно к выводу» → ваш банк. "
-            "Ферма/Toloka: биржевой кошелёк → Withdraw на Stripe → банк (отдельно, не в Hero)."
+            "Клиент (B2B) → Stripe → webhook → settlements → REAL → банк. "
+            "Toloka/Scale в коде = Spend (requester). "
+            "Earn (performer → Withdraw → Stripe) пока OFF — нет адаптера выплат."
         ),
         "lab_rule_ru": (
             "Двигатель 3: любая идея → эксперiment → если ≥0,01 € подтверждены Stripe/webhook → "

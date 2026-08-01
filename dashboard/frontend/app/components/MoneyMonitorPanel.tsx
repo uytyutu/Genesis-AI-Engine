@@ -55,9 +55,45 @@ export type MoneyMonitorLane = {
   status?: string;
 };
 
+export type MoneyTruth = {
+  real_eur: number;
+  real_label_ru: string;
+  spent_eur: number;
+  spent_label_ru: string;
+  prediction_eur: number;
+  prediction_label_ru: string;
+  roi_pct?: number | null;
+  roi_label_ru: string;
+  legend_ru?: { real?: string; spent?: string; prediction?: string };
+};
+
+export type ChannelBoardEntry = {
+  id: string;
+  name: string;
+  mode: string;
+  status: string;
+  status_label_ru: string;
+  note_ru?: string;
+};
+
+export type ChannelBoard = {
+  title_ru?: string;
+  rule_ru?: string;
+  earn_channels?: ChannelBoardEntry[];
+  spend_channels?: ChannelBoardEntry[];
+  b2b_channels?: ChannelBoardEntry[];
+  summary?: {
+    earn_on_count?: number;
+    verdict_ru?: string;
+    performer_path_wired?: boolean;
+  };
+};
+
 export type MoneyMonitorData = {
   title_ru: string;
   subtitle_ru: string;
+  money_truth?: MoneyTruth | null;
+  channel_board?: ChannelBoard | null;
   actual_revenue?: {
     paid_by_client_eur: number;
     pending_settlement_eur: number;
@@ -96,15 +132,72 @@ type Props = {
   compact?: boolean;
 };
 
+function MoneyTruthStrip({ truth, compact }: { truth: MoneyTruth; compact?: boolean }) {
+  const cells = [
+    { key: "real", label: "REAL", value: truth.real_label_ru, hint: truth.legend_ru?.real, tone: "text-emerald-100 border-emerald-500/40 bg-emerald-950/30" },
+    { key: "spent", label: "SPENT", value: truth.spent_label_ru, hint: truth.legend_ru?.spent, tone: "text-amber-100 border-amber-500/35 bg-amber-950/25" },
+    { key: "prediction", label: "PREDICTION", value: truth.prediction_label_ru, hint: truth.legend_ru?.prediction, tone: "text-sky-100/90 border-sky-500/25 bg-sky-950/20" },
+    { key: "roi", label: "ROI", value: truth.roi_label_ru, hint: "Только после REAL и SPENT", tone: "text-white/80 border-white/15 bg-genesis-bg/40" },
+  ];
+  return (
+    <div className={`mt-4 grid gap-3 ${compact ? "grid-cols-2" : "sm:grid-cols-4"}`}>
+      {cells.map((c) => (
+        <div key={c.key} className={`rounded-xl border p-4 ${c.tone}`}>
+          <p className="text-[10px] uppercase tracking-widest text-genesis-muted">{c.label}</p>
+          <p className={`mt-2 font-bold tabular-nums ${compact ? "text-xl" : "text-2xl"}`}>{c.value}</p>
+          {c.hint && !compact ? <p className="mt-2 text-[11px] leading-relaxed text-genesis-muted">{c.hint}</p> : null}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ChannelBoardStrip({ board, compact }: { board: ChannelBoard; compact?: boolean }) {
+  const earn = Array.isArray(board.earn_channels) ? board.earn_channels : [];
+  const spend = Array.isArray(board.spend_channels) ? board.spend_channels : [];
+  const b2b = Array.isArray(board.b2b_channels) ? board.b2b_channels : [];
+  if (!earn.length && !spend.length && !b2b.length) return null;
+  const renderList = (title: string, rows: ChannelBoardEntry[]) => (
+    <div>
+      <p className="text-[10px] uppercase tracking-widest text-genesis-muted">{title}</p>
+      <ul className="mt-2 space-y-1 text-xs">
+        {rows.slice(0, compact ? 3 : 6).map((r) => (
+          <li key={r.id} className="flex justify-between gap-2">
+            <span className="text-white/85">{r.name}</span>
+            <span className={r.status === "on" ? "text-emerald-300" : "text-amber-200/80"}>
+              {r.status_label_ru}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+  return (
+    <div className="mt-4 rounded-xl border border-white/10 bg-genesis-bg/40 p-4">
+      <p className="text-sm font-medium text-white">{board.title_ru ?? "Каналы"}</p>
+      {board.summary?.verdict_ru ? (
+        <p className="mt-1 text-xs text-amber-100/85">{board.summary.verdict_ru}</p>
+      ) : null}
+      <div className={`mt-3 grid gap-4 ${compact ? "grid-cols-1" : "sm:grid-cols-3"}`}>
+        {renderList("Earn (платят ферме)", earn)}
+        {renderList("Spend (ферма платит)", spend)}
+        {renderList("B2B / Path A", b2b)}
+      </div>
+    </div>
+  );
+}
+
 function RealMoneyHero({
   rm,
   actual,
   farm,
+  truth,
   compact,
 }: {
   rm: RealMoneyData;
   actual?: MoneyMonitorData["actual_revenue"];
   farm?: MoneyMonitorData["farm_potential"];
+  truth?: MoneyTruth | null;
   compact?: boolean;
 }) {
   const withdrawable =
@@ -116,8 +209,10 @@ function RealMoneyHero({
 
   return (
     <div className="mt-4 space-y-4">
+      {truth ? <MoneyTruthStrip truth={truth} compact={compact} /> : null}
+
       <div className="rounded-2xl border border-emerald-500/50 bg-gradient-to-br from-emerald-950/50 to-genesis-bg/60 p-5 sm:p-6">
-        <p className="text-xs uppercase tracking-widest text-emerald-300/90">Выручка к выводу</p>
+        <p className="text-xs uppercase tracking-widest text-emerald-300/90">Выручка к выводу (Stripe)</p>
         <p className="mt-2 text-xs text-genesis-muted">
           {actual?.source_ru ?? rm.rule_ru}
         </p>
@@ -131,16 +226,12 @@ function RealMoneyHero({
         {!compact ? (
           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
             <div>
-              <p className="text-genesis-muted">Оплачено клиентом</p>
+              <p className="text-genesis-muted">Оплачено клиентом (REAL)</p>
               <p className="font-semibold tabular-nums text-sky-100">{paid}</p>
             </div>
             <div>
               <p className="text-genesis-muted">Settling (DE ~3 дня)</p>
               <p className="font-semibold tabular-nums text-amber-100">{settling}</p>
-            </div>
-            <div>
-              <p className="text-genesis-muted">{rm.forecast?.icon} {rm.forecast?.label_ru}</p>
-              <p className="font-semibold tabular-nums text-sky-200/80">{rm.forecast?.amount_label_ru}</p>
             </div>
           </div>
         ) : (
@@ -150,14 +241,14 @@ function RealMoneyHero({
         )}
         {actual && actual.payment_count === 0 ? (
           <p className="mt-3 rounded-lg border border-amber-500/25 bg-amber-950/20 px-3 py-2 text-xs text-amber-100/90">
-            Stripe пуст — 0 € до первого webhook-платежа. Учебный журнал фермы не смешивается с выручкой.
+            Stripe пуст — REAL = 0 € до первого webhook. PREDICTION и журнал фермы не смешиваются с выручкой.
           </p>
         ) : null}
       </div>
 
       <div className="rounded-xl border border-white/10 bg-genesis-bg/40 p-4">
         <p className="text-xs uppercase tracking-wide text-genesis-muted">
-          {farm?.label_ru ?? rm.training?.label_ru} · не Stripe
+          {farm?.label_ru ?? rm.training?.label_ru} · estimate, не REAL
         </p>
         <p className="mt-1 text-xl font-semibold tabular-nums text-white/70">
           {farm?.amount_label_ru ?? rm.training?.amount_label_ru}
@@ -228,8 +319,15 @@ export function MoneyMonitorPanel({ data, compact }: Props) {
           rm={data.real_money}
           actual={data.actual_revenue}
           farm={data.farm_potential}
+          truth={data.money_truth}
           compact={compact}
         />
+      ) : data.money_truth ? (
+        <MoneyTruthStrip truth={data.money_truth} compact={compact} />
+      ) : null}
+
+      {data.channel_board && !compact ? (
+        <ChannelBoardStrip board={data.channel_board} compact={compact} />
       ) : null}
 
       <div className={`mt-4 grid gap-3 ${compact ? "sm:grid-cols-1" : "sm:grid-cols-3"}`}>
