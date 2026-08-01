@@ -9,6 +9,9 @@ dist/
 .git/
 .cursor/
 launcher/logs/
-dashboard/frontend/
+# Keep frontend sources available for deploy/Dockerfile.frontend (exclude only build junk).
+dashboard/frontend/node_modules/
+dashboard/frontend/.next/
+dashboard/frontend/out/
 dashboard/backend/sandbox/
 *.egg-info/

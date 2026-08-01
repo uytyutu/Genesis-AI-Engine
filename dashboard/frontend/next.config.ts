@@ -53,8 +53,12 @@ const legalEmbedHeaders = [
   { key: "Content-Security-Policy", value: legalEmbedCsp },
 ];
 
+// Docker/VPS: INTERNAL_API_URL=http://genesis:8000 for server rewrites.
+// Browser: NEXT_PUBLIC_API_URL empty → same-origin /api via nginx.
 const apiBase = (
-  process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8000"
+  process.env.INTERNAL_API_URL?.trim() ||
+  process.env.NEXT_PUBLIC_API_URL?.trim() ||
+  "http://localhost:8000"
 ).replace(/\/$/, "");
 
 const nextConfig: NextConfig = {

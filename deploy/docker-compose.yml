@@ -1,0 +1,74 @@
+# Virtus Core — VPS stack: API + public storefront (Next.js) + nginx.
+# No PostgreSQL / Redis. One genesis instance (in-process Country Desk threads).
+#
+# Stage 2 smoke (no DNS):
+#   cd deploy && docker compose up -d --build
+#   curl -fsS http://VPS_IP/health
+#   curl -fsS http://VPS_IP/site
+#
+# Stage 3: switch DNS only after storefront smoke PASS + CEO OK.
+
+services:
+  genesis:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: virtus-genesis
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8000"
+      GENESIS_ENV: production
+      GENESIS_MEMORY_DIR: /data
+    volumes:
+      - /srv/genesis/data:/data
+    # Direct API smoke; prefer nginx :80 in production.
+    ports:
+      - "8000:8000"
+    networks:
+      - virtus
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.frontend
+      args:
+        # Empty → browser uses same-origin /api (nginx → genesis).
+        NEXT_PUBLIC_API_URL: ""
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://beta.genesis-ai-engine.com}
+        INTERNAL_API_URL: http://genesis:8000
+    container_name: virtus-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # Optional remote owner cookie unlock (never commit real value).
+      GENESIS_OWNER_GATE_SECRET: ${GENESIS_OWNER_GATE_SECRET:-}
+      NEXT_PUBLIC_OWNER_GATE_SECRET: ${NEXT_PUBLIC_OWNER_GATE_SECRET:-}
+    depends_on:
+      - genesis
+    networks:
+      - virtus
+    # No host publish — only via nginx (vitrine on :80).
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: virtus-nginx
+    restart: unless-stopped
+    depends_on:
+      - genesis
+      - frontend
+    ports:
+      - "80:80"
+      # Stage 3 TLS:
+      # - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # - /etc/letsencrypt:/etc/letsencrypt:ro
+    networks:
+      - virtus
+
+networks:
+  virtus:
+    driver: bridge
