@@ -33,6 +33,7 @@ INTENT_SPEED = "speed"
 INTENT_SECURITY = "security"
 INTENT_GBP = "google_business"
 INTENT_MIGRATION = "migration"
+INTENT_PRIVACY = "privacy"
 
 _PACKAGE_LABELS = {
     "basic": ("Basic", 350, "готовый лендинг + ZIP + гайд публикации"),
@@ -73,15 +74,21 @@ def try_product_consultant_reply(
     last_user: str,
     messages: list[dict[str, str]] | None,
     state: ConversationState,
+    *,
+    public_rails: bool = False,
 ) -> ConsultantReply | None:
-    """Return a consultant-style reply when the turn is about Virtus Core products."""
+    """Return a consultant-style reply when the turn is about Virtus Core products.
+
+    public_rails=True (public /site chat): never fall through to slow LLM —
+    always answer as consultant with form/support links only.
+    """
     text = (last_user or "").strip()
     if not text:
         return None
 
     _absorb_turn(state, text)
     intent = state.consultant_intent
-    if not intent and not _looks_like_product_turn(text):
+    if not intent and not _looks_like_product_turn(text) and not public_rails:
         return None
 
     if _is_short_affirmation(text) and (intent or state.needs_website or state.package_choice):
@@ -131,6 +138,8 @@ def try_product_consultant_reply(
             "website_migration",
             from_price=True,
         )
+    if intent == INTENT_PRIVACY:
+        return _reply_privacy()
     if intent == INTENT_SUPPORT:
         return _reply_support()
     if intent == INTENT_AUTOMATION:
@@ -145,7 +154,11 @@ def try_product_consultant_reply(
     detected = _detect_intent(text)
     if detected:
         state.consultant_intent = detected
-        return try_product_consultant_reply(last_user, messages, state)
+        return try_product_consultant_reply(
+            last_user, messages, state, public_rails=public_rails
+        )
+    if public_rails:
+        return _reply_public_rails_default()
     return None
 
 
@@ -250,11 +263,18 @@ def _detect_intent(low: str) -> str | None:
     if re.search(
         r"что\s+такое\s+(virtus|genesis)|чем\s+занимается\s+virtus|"
         r"who\s+are\s+you|what\s+is\s+virtus|was\s+ist\s+virtus|"
-        r"расскажи\s+о\s+(компании|virtus|себе)",
+        r"расскажи\s+о\s+(компании|virtus|себе)|какие\s+услуг|что\s+вы\s+предлага",
         low,
     ):
         return INTENT_ABOUT
-    if re.search(r"поддержк\w+|support|обслуживан\w+\s+сайт", low):
+    if re.search(
+        r"защит\w*\s+данн|персональн\w*\s+данн|privacy|datenschutz|gdpr|dsgvo|"
+        r"не\s+переда|переда[её]те\s+\w*\s*данн|переда\w*.{0,24}данн|данн\w*.{0,24}переда|"
+        r"кому\s+отда|конфиденц|шифрован|data\s+protection|do\s+you\s+share",
+        low,
+    ):
+        return INTENT_PRIVACY
+    if re.search(r"поддержк\w+|support|обслуживан\w+\s+сайт|контакт|связ\w+\s+с\s+вам", low):
         return INTENT_SUPPORT
     if re.search(r"автоматизац|automation|crm\b|интеграц", low) and not re.search(
         r"хочу\s+сайт", low
@@ -537,7 +557,7 @@ def _reply_sales_recommend(state: ConversationState) -> ConsultantReply:
             f"{desc}.\n\n"
             f"Почему:\n{why}"
             f"{extra_block}\n\n"
-            "Можно сразу оформить заказ — в форме укажете компанию и контакты."
+            "Можно сразу открыть форму заказа — сначала данные, потом оплата."
         ),
         cta_href=f"/order?package={pkg}",
         cta_label="Оформить заказ",
@@ -664,7 +684,7 @@ def _reply_repair(state: ConversationState) -> ConsultantReply:
             "• работу выполняет команда Virtus Core, статус — в кабинете\n\n"
             "Можно сразу оформить ремонт или сначала бесплатно/платно проанализировать сайт."
         ),
-        cta_href="/order?package=website_repair",
+        cta_href="/order/service/website_repair",
         cta_label="Оформить заказ",
     )
 
@@ -676,7 +696,7 @@ def _reply_analysis() -> ConsultantReply:
             "скорости и приоритетам улучшений. Рекомендуем ремонт или новый сайт.\n\n"
             "Услуга продаётся отдельно — сайт покупать не обязательно."
         ),
-        cta_href="/order?package=ai_website_analysis",
+        cta_href="/order/service/ai_website_analysis",
         cta_label="Оформить заказ",
     )
 
@@ -733,9 +753,38 @@ def _reply_about() -> ConsultantReply:
         answer=(
             f"**{BRAND_NAME}** — цифровая компания: сайты, AI-боты, анализ и ремонт сайтов, "
             "SEO, скорость, безопасность, Google Business, миграция.\n\n"
-            f"Я **{ASSISTANT_NAME}** — консультант: помогаю выбрать услугу и оформить заказ "
-            "без возврата на главную «искать самому».\n\n"
+            f"Я **{ASSISTANT_NAME}** — консультант: объясняю продукты и даю ссылки на "
+            "форму заказа или поддержку. Сам файлы, код и готовые сайты в чате не выдаю.\n\n"
+            "Данные диалога и заказа **не передаём** третьим лицам.\n\n"
             "Что нужно: сайт, AI Bot, ремонт, SEO или другое?"
+        ),
+        cta_href="/products",
+        cta_label="Каталог услуг",
+    )
+
+
+def _reply_privacy() -> ConsultantReply:
+    return ConsultantReply(
+        answer=(
+            "**Защита данных:** сообщения в чате и данные заказа используются только "
+            f"для консультации и выполнения услуги **{BRAND_NAME}**. "
+            "Мы **не продаём** и **не передаём** персональные данные третьим лицам "
+            "для рекламы или рассылок.\n\n"
+            "Подробности — в Datenschutz. "
+            "Чтобы заказать услугу — форма заказа; вопрос человеку — контакт."
+        ),
+        cta_href="/datenschutz",
+        cta_label="Datenschutz",
+    )
+
+
+def _reply_public_rails_default() -> ConsultantReply:
+    return ConsultantReply(
+        answer=(
+            f"Я **{ASSISTANT_NAME}**, консультант **{BRAND_NAME}** — отвечаю быстро: "
+            "продукты, цены, защита данных. "
+            "Готовые файлы и сайты в чате не выдаю — только ссылки на форму или поддержку.\n\n"
+            "Напишите: «сайт», «AI Bot», «цены», «защита данных» — или откройте каталог."
         ),
         cta_href="/products",
         cta_label="Каталог услуг",
@@ -817,16 +866,28 @@ def _reply_chatbot(state: ConversationState, text: str) -> ConsultantReply:
     )
 
 
+_COMING_SOON_SERVICE_IDS = frozenset(
+    {
+        "seo_audit",
+        "speed_optimization",
+        "security_check",
+        "google_business_setup",
+        "website_migration",
+    }
+)
+
+
 def _reply_seo() -> ConsultantReply:
     return ConsultantReply(
         answer=(
-            "**SEO Audit** — **249 €**, продаётся отдельно от сайта.\n\n"
-            "Входит: технический SEO-чек, мета/заголовки/структура, план приоритетных правок "
-            "для локального бизнеса.\n\n"
-            "Можно заказать без покупки лендинга."
+            "**SEO Audit** — **249 €**, отдельная услуга (сайт покупать не нужно).\n\n"
+            "Сейчас онлайн-оплата ещё в подготовке. "
+            "Откройте форму интереса — укажите сайт и цель, мы свяжемся, "
+            "когда доставка будет готова. "
+            "Уже можно заказать **AI Website Analysis** или **Website Repair**."
         ),
-        cta_href="/order?package=seo_audit",
-        cta_label="Оформить заказ",
+        cta_href="/order/service/seo_audit",
+        cta_label="Открыть форму интереса",
     )
 
 
@@ -839,26 +900,39 @@ def _reply_addon(
     from_price: bool = False,
 ) -> ConsultantReply:
     price_s = f"от {price} €" if from_price else f"{price} €"
+    soon = package_id in _COMING_SOON_SERVICE_IDS
+    if soon:
+        return ConsultantReply(
+            answer=(
+                f"**{name}** — **{price_s}**. {blurb}.\n\n"
+                "Онлайн-оплата пока в подготовке (Coming Soon). "
+                "Откройте форму — укажите, что нужно, и мы вернёмся, когда услуга будет готова. "
+                "Уже доступны: сайт, AI Bot, анализ сайта, ремонт сайта."
+            ),
+            cta_href=f"/order/service/{package_id}",
+            cta_label="Открыть форму интереса",
+        )
     return ConsultantReply(
         answer=(
             f"**{name}** — **{price_s}**. {blurb}.\n\n"
             "Услуга самостоятельная: сайт Virtus Core покупать не обязательно.\n"
-            "Оформите заказ — укажете сайт и контакты."
+            "Сначала форма заказа (что именно нужно) — потом безопасная оплата."
         ),
-        cta_href=f"/order?package={package_id}",
-        cta_label="Оформить заказ",
+        cta_href=f"/order/service/{package_id}",
+        cta_label="Открыть форму заказа",
     )
 
 
 def _reply_support() -> ConsultantReply:
     return ConsultantReply(
         answer=(
-            "Поддержка — через заказ и кабинет после оплаты.\n\n"
+            "Поддержка: откройте форму контакта — команда ответит.\n\n"
             "Сайт «ломается» → **Website Repair** или **Analysis**. "
-            "Нужен новый → пакеты сайта. Нужен бот → AI Bot."
+            "Нужен новый → пакеты сайта. Нужен бот → AI Bot.\n\n"
+            "Данные заявки не передаём третьим лицам."
         ),
-        cta_href="/products",
-        cta_label="Каталог услуг",
+        cta_href="/kontakt",
+        cta_label="Связаться",
     )
 
 

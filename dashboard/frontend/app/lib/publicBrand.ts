@@ -8,10 +8,10 @@ export const ASSISTANT_TAGLINE = "Digital Company";
 export const STUDIO_NAME = "Virtus Studio";
 export const CHAT_FEATURE = ASSISTANT_NAME;
 
-export const PUBLIC_WELCOME = `Здравствуйте! Я ${ASSISTANT_NAME} — ваш цифровой сотрудник в ${BRAND_NAME}.\n\nРасскажите идею, вопрос по бизнесу или задачу — обсудим свободно, как в обычном чате. Когда понадобится хранить материалы, я сам предложу оформить это как проект.`;
+export const PUBLIC_WELCOME = `Здравствуйте! Я ${ASSISTANT_NAME} — консультант ${BRAND_NAME}.\n\nРасскажу о продуктах и услугах, ценах и защите данных (мы никому не передаём ваши данные). Сам файлы и сайты не выдаю — только ссылки на форму заказа или поддержку.\n\nСпросите, например: «какие услуги», «хочу сайт», «AI Bot», «защита данных».`;
 
 /** /site hub — ownership first, project second. */
-export const PUBLIC_SITE_WELCOME = `Здравствуйте! Я ${ASSISTANT_NAME}.\n\nЯ цифровой менеджер ${BRAND_NAME}: сайты (Basic / Business / Premium), анализ и ремонт, автоматизация.\n\nНапишите задачу — например «хочу сайт» или «отремонтировать сайт» — и я сразу предложу следующий шаг.`;
+export const PUBLIC_SITE_WELCOME = `Здравствуйте! Я ${ASSISTANT_NAME} — консультант ${BRAND_NAME}.\n\nСайты (Basic / Business / Premium), AI Bot, анализ и ремонт. Данные не передаём третьим лицам.\n\nНапишите задачу — сразу дам ссылку на форму. Кнопка «Новый чат» сбрасывает диалог.`;
 
 export function publicLeadCaptureWelcome(nicheLabel: string): string {
   return (

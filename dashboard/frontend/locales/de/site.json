@@ -886,5 +886,145 @@
         "placeholder": "Leer lassen, wenn wir beraten sollen"
       }
     }
+  },
+  "appStore": {
+    "live": {
+      "toasts": {
+        "lead": "📨 Neue Anfrage",
+        "replied": "🤖 KI hat geantwortet",
+        "booking": "📅 Termin bestätigt",
+        "published": "🌐 Website veröffentlicht",
+        "order": "💶 Neue Bestellung"
+      }
+    },
+    "hero": {
+      "line1": "Ihr Unternehmen.",
+      "line2": "Neue Generation.",
+      "sub": "Eine KI. Websites. Chatbots. Automatisierung. Analytics.",
+      "pillAi": "Eine KI",
+      "pillSites": "Websites",
+      "pillBots": "Chatbots",
+      "pillAuto": "Automatisierung",
+      "pillAnalytics": "Analytics",
+      "emotion": "KI ist bereit, für Ihr Unternehmen zu arbeiten."
+    },
+    "cta": {
+      "tryFree": "🚀 KI kostenlos testen",
+      "watchDemo": "Demo ansehen",
+      "contact": "Kontakt"
+    },
+    "ki": {
+      "short": "Inhalte und Lieferungen werden KI-gestützt erstellt. Nach dem Kauf können Sie Änderungen anfordern.",
+      "link": "KI-Hinweis"
+    },
+    "story": {
+      "title": "Geschäft in Deutschland eröffnet?",
+      "subtitle": "Wir helfen beim nächsten Schritt — kein generisches Agentur-Pitch.",
+      "problem1": "Wo Website bestellen? Impressum? Datenschutz?",
+      "problem2": "Wer antwortet nachts den Kunden?",
+      "problem3": "Instagram · WhatsApp · Telegram Überlastung?",
+      "resolve": "Module verbinden. KI übernimmt Routine. Sie machen Ihr Handwerk."
+    },
+    "modules": {
+      "title": "Was möchten Sie verbinden?",
+      "subtitle": "Keine Service-Liste — Apps für Ihr Business.",
+      "live": "Live",
+      "soon": "Coming Soon",
+      "try": "Testen",
+      "notify": "Coming Soon",
+      "website": {
+        "name": "Website Builder",
+        "blurb": "Moderne Business-Website mit Impressum-Pfad und buchungsbereitem Layout."
+      },
+      "receptionist": {
+        "name": "AI Receptionist",
+        "blurb": "Beantwortet Leads und bucht Termine über Ihre Kanäle."
+      },
+      "chatbot": {
+        "name": "AI Chatbot",
+        "blurb": "24/7 Assistent für Website und Messaging."
+      },
+      "audit": {
+        "name": "Website Audit",
+        "blurb": "Kostenlos prüfen — dann Reparatur oder neue Website."
+      },
+      "instagram": {
+        "name": "Instagram Assistant",
+        "blurb": "DMs und Buchungen — in Entwicklung."
+      },
+      "whatsapp": {
+        "name": "WhatsApp Assistant",
+        "blurb": "Business-WhatsApp — in Entwicklung."
+      },
+      "telegram": {
+        "name": "Telegram Assistant",
+        "blurb": "Telegram-Bot — in Entwicklung."
+      },
+      "booking": {
+        "name": "Buchungssystem",
+        "blurb": "Kalender und Slots — in Entwicklung."
+      },
+      "crm": {
+        "name": "CRM",
+        "blurb": "Leads und Kunden — in Entwicklung."
+      },
+      "analytics": {
+        "name": "Analytics",
+        "blurb": "Nachrichten, Buchungen, Wachstum — in Entwicklung."
+      },
+      "badgePopular": "🔥 Beliebt",
+      "badgeNew": "🆕 Neu",
+      "badgeChoice": "⭐ Kundenwahl"
+    },
+    "trial": {
+      "title": "Kostenlos testen — sprechen Sie mit Vector",
+      "body": "Fragen Sie {{assistant}} auf dieser Seite vor der Registrierung. Ein 3-Tage-Chatbot-Trial kommt als Nächstes — heute erleben Sie bereits die KI.",
+      "cta": "🚀 KI kostenlos starten",
+      "note": "Keine Karte für diesen On-Page-Chat."
+    },
+    "pricing": {
+      "title": "Preise",
+      "subtitle": "Klare Pakete. EUR. Gleiche Preise in allen Sprachen.",
+      "websites": "Website",
+      "chatbots": "AI Chatbot",
+      "order": "Bestellen",
+      "perMonth": "/ Mon.",
+      "seeBotPackages": "Live-Pakete ansehen",
+      "botDisclaimer": "Anzeigepläne — Checkout heute nutzt Setup + Monatspakete. AI Employee öffnen zum Bestellen.",
+      "webBasic": "Basic",
+      "webBasicBlurb": "Für den Start online.",
+      "webBusiness": "Business",
+      "webBusinessBlurb": "Mehr Seiten, Vertrauen, stärkere Conversion.",
+      "webPremium": "Premium",
+      "webPremiumBlurb": "Volle Markenpräsenz.",
+      "botStarter": "Starter",
+      "botStarterBlurb": "Einstiegsplan (Anzeige).",
+      "botBusiness": "Business",
+      "botBusinessBlurb": "Wachstumsplan (Anzeige).",
+      "botPro": "Pro",
+      "botProBlurb": "Höheres Volumen (Anzeige)."
+    },
+    "why": {
+      "title": "Warum Unternehmer Virtus Core wählen",
+      "statModules": "Module",
+      "statModulesValue": "10+",
+      "statMarkets": "Märkte",
+      "statMarketsValue": "EU+",
+      "statSupport": "Support",
+      "statSupportValue": "24/7 KI",
+      "statAi": "Lieferung",
+      "statAiValue": "KI + Team",
+      "illustrative": "Plattform-Fähigkeiten — keine erfundenen Kundenumsätze."
+    },
+    "reviews": {
+      "leave": "Bewertung hinterlassen"
+    },
+    "vector": {
+      "title": "Live-Demo — schreiben Sie {{assistant}}",
+      "body": "Sagen Sie Hallo. {{assistant}} antwortet auf dieser Seite — kostenlos vor der Registrierung.",
+      "cta": "{{assistant}} öffnen"
+    },
+    "edits": "Nach dem Kauf können Sie Änderungen an Websites, Bots und Modulen über Ihr Kundenbüro anfordern.",
+    "marketNote": "Markt"
   }
 }

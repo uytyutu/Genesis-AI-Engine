@@ -155,7 +155,12 @@ class GenesisBrain:
             try_product_consultant_reply,
         )
 
-        consultant = try_product_consultant_reply(last_user, messages, conv_state)
+        consultant = try_product_consultant_reply(
+            last_user,
+            messages,
+            conv_state,
+            public_rails=(personality_mode == "public"),
+        )
         if consultant and (consultant.answer or "").strip():
             self._conv_state.persist(visitor_id, conv_state, session_id=session_id)
             shaped = personality.finalize(
@@ -828,7 +833,12 @@ class GenesisBrain:
             try_product_consultant_reply,
         )
 
-        consultant = try_product_consultant_reply(last_user, messages, conv_state)
+        consultant = try_product_consultant_reply(
+            last_user,
+            messages,
+            conv_state,
+            public_rails=(personality_mode == "public"),
+        )
         if consultant and (consultant.answer or "").strip():
             self._conv_state.persist(visitor_id, conv_state, session_id=session_id)
             effective_style = resolve_effective_style(

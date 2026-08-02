@@ -21,12 +21,7 @@ import { logCommerceEvent } from "../lib/commerceFunnel";
 import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
 import { filterPublicPackages } from "../lib/showSmokePackage";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
-import { ServiceCatalogGrid } from "../components/ServiceCatalogCards";
-import {
-  composeHubCardPriceLabels,
-  type HubCardPrices,
-} from "../lib/marketCardPrices";
-import { BotChannelIconRow } from "../components/ChannelBrandIcons";
+import { AppStoreHub } from "../components/storefront/AppStoreHub";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
 
@@ -166,7 +161,6 @@ export function SitePage() {
   const [analyzeUrl, setAnalyzeUrl] = useState("");
   const [serviceView, setServiceView] = useState<ServiceView>("hub");
   const [botPackages, setBotPackages] = useState<BotPackageCard[]>([]);
-  const [hubCardPrices, setHubCardPrices] = useState<HubCardPrices | null>(null);
   const localeTag = (i18n.language || "de").replace("_", "-");
   const CHAT_POS_KEY = "vector-chat-panel-pos";
 
@@ -441,7 +435,6 @@ export function SitePage() {
 
     const loadPackagesAndMarkets = () => {
       if (cancelled) return;
-      setHubCardPrices(null);
       fetch(`${api}/api/sales/packages${qs}`)
         .then((res) => (res.ok ? res.json() : null))
         .then((body) => {
@@ -478,10 +471,6 @@ export function SitePage() {
                 basic_price_label: m.basic_price_label,
               })),
             );
-          }
-          const hub = body?.hub_card_prices;
-          if (hub && typeof hub === "object" && hub.landing_website) {
-            setHubCardPrices(hub as HubCardPrices);
           }
         })
         .catch(() => undefined);
@@ -557,11 +546,6 @@ export function SitePage() {
   const orderLabel = t("pathA.cta");
   const detailsLabel = t("s0.details", { defaultValue: "Details" });
   const backLabel = t("s0.backToServices", { defaultValue: "← All services" });
-  const hubPriceOverrides = composeHubCardPriceLabels(hubCardPrices, {
-    priceFrom: t("s0.priceFrom", { defaultValue: "from" }),
-    monthly: t("catalog.monthlySuffix", { defaultValue: "monthly" }),
-    free: t("catalog.website_check.price", { defaultValue: "Free" }),
-  });
   const botOrderHref = (packageId: string) =>
     `/order/bot?market=${encodeURIComponent(market)}&package=${encodeURIComponent(packageId)}`;
 
@@ -592,95 +576,23 @@ export function SitePage() {
 
   return (
     <PublicPageShell>
-      <div className="relative mx-auto max-w-4xl space-y-12 py-6 pb-28 animate-fade-up">
+      <div
+        className={`relative mx-auto space-y-12 py-6 pb-28 animate-fade-up ${
+          serviceView === "hub" ? "max-w-6xl" : "max-w-4xl"
+        }`}
+      >
         {serviceView === "hub" ? (
-          <>
-            <header className="space-y-4 text-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/90">
-                {BRAND_NAME}
-              </p>
-              <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                {t("s0.hubTitle", {
-                  defaultValue: "What do you want to do?",
-                })}
-              </h1>
-              <p className="mx-auto max-w-2xl text-base text-genesis-muted sm:text-lg">
-                {t("s0.hubSubtitle", {
-                  defaultValue:
-                    "Choose a service and order directly — no account required. Register only if you want a personal office for your business.",
-                  brand: BRAND_NAME,
-                })}
-              </p>
-              {marketSelect}
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-                <a
-                  href="#services"
-                  className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black hover:brightness-110"
-                >
-                  {t("s0.chooseService", {
-                    defaultValue: "Choose a service",
-                  })}
-                </a>
-                <Link
-                  href="/client/login"
-                  className="inline-flex text-sm font-medium text-zinc-400 hover:text-white"
-                >
-                  {t("s0.signIn", { defaultValue: "Sign in" })}
-                </Link>
-                <Link
-                  href="/client/register"
-                  className="inline-flex text-sm font-medium text-zinc-500 hover:text-zinc-300"
-                >
-                  {t("s0.createAccount", {
-                    defaultValue: "Create personal account",
-                  })}
-                </Link>
-              </div>
-            </header>
-
-            <section
-              id="services"
-              className="space-y-4"
-              aria-label={t("s0.servicesLabel", { defaultValue: "Services" })}
-            >
-              <ServiceCatalogGrid
-                mode="hub"
-                market={market}
-                priceOverrides={hubPriceOverrides}
-                onOpenLocal={(id) => {
-                  if (id === "website_check") openService("analysis");
-                }}
-              />
-              <button
-                type="button"
-                onClick={openChat}
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-white/25 hover:bg-white/[0.05]"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-400">
-                  {ASSISTANT_NAME}
-                </p>
-                <h2 className="mt-2 text-lg font-semibold text-white">
-                  {t("pathA.cardVectorTitle")}
-                </h2>
-                <p className="mt-2 text-sm text-zinc-300">
-                  {t("s0.vectorAsk", {
-                    defaultValue:
-                      "Not sure what fits? Ask Vector — he links you to the right order form.",
-                  })}
-                </p>
-                <span className="mt-3 inline-flex text-sm font-semibold text-zinc-200">
-                  {t("pathA.meetVectorCta")} →
-                </span>
-              </button>
-            </section>
-
-            <p className="text-center text-xs text-zinc-500">
-              {t("s0.hubAccountHint", {
-                defaultValue:
-                  "Each card opens the right form. Payment only after your details. Free website check has no checkout. AI Digital Employee: register Workspace, then pay and connect channels.",
-              })}
-            </p>
-          </>
+          <AppStoreHub
+            market={market}
+            localeTag={localeTag}
+            marketSelect={marketSelect}
+            reviews={reviews}
+            onOpenVector={openChat}
+            onOpenWebsites={() => openService("websites")}
+            onOpenBots={() => openService("bots")}
+            onOpenAnalysis={() => openService("analysis")}
+            orderHrefFor={orderHrefFor}
+          />
         ) : null}
 
         {serviceView === "websites" ? (
@@ -919,80 +831,8 @@ export function SitePage() {
           </section>
         ) : null}
 
-        {serviceView === "hub" ? (
-        <section
-          id="reviews"
-          className="rounded-2xl border border-amber-500/25 bg-gradient-to-br from-amber-950/25 via-black/20 to-genesis-panel p-6 sm:p-8"
-        >
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-lg font-semibold text-white sm:text-xl">
-              {t("reviews.title")}
-            </h2>
-            {reviews?.has_reviews && reviews.average_stars != null ? (
-              <p className="text-xs text-amber-200/90">
-                ★ {reviews.average_stars} · {reviews.count}{" "}
-                {t("reviews.verifiedHint", {
-                  defaultValue: "client reviews",
-                })}
-              </p>
-            ) : null}
-          </div>
-          {!reviews?.has_reviews ? (
-            <p className="mt-3 text-sm text-genesis-muted">
-              {reviews?.empty_message || t("reviews.empty")}
-            </p>
-          ) : (
-            <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {reviews.reviews.slice(0, 6).map((r) => (
-                <li
-                  key={r.review_id || r.text.slice(0, 24)}
-                  className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-amber-300">
-                      {"★".repeat(Math.max(1, Math.min(5, r.stars)))}
-                    </p>
-                    {r.verified_purchase ? (
-                      <span className="rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2 py-0.5 text-[10px] text-emerald-200">
-                        {t("reviews.verifiedPurchase", {
-                          defaultValue: "Verified purchase",
-                        })}
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-2 text-white/85">«{r.text}»</p>
-                  <p className="mt-2 text-[11px] text-genesis-muted">
-                    {[r.company_display_name, r.service_label].filter(Boolean).join(" · ") ||
-                      t("reviews.client", { defaultValue: "Client" })}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-        ) : null}
-
-        {serviceView === "hub" ? (
-        <section className="space-y-4" aria-labelledby="auto-heading">
-          <h2 id="auto-heading" className="text-2xl font-semibold text-white">
-            {t("s0.automationTitle", { defaultValue: "Automation & CRM" })}
-          </h2>
-          <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="text-lg font-semibold text-white">
-              {t("pathA.cardAutomationTitle")}
-            </h3>
-            <p className="mt-2 text-sm text-zinc-400">
-              {t("pathA.cardAutomationBody")}
-            </p>
-            <p className="mt-2 text-xs text-zinc-500">CRM · Email · Leads · Workflows</p>
-            <span className="mt-4 inline-flex rounded-lg border border-amber-500/30 bg-amber-950/30 px-3 py-1.5 text-xs font-semibold text-amber-100/90">
-              {comingSoon}
-            </span>
-          </article>
-        </section>
-        ) : null}
-
-        {/* Process + trust (below fold) */}
+        {/* Process + trust (below fold on product views; hub has its own story) */}
+        {serviceView !== "hub" ? (
         <section className="rounded-2xl border border-emerald-500/25 bg-emerald-950/20 p-6">
           <h2 className="text-lg font-semibold text-white">{t("pathA.whatTitle")}</h2>
           <ul className="mt-3 space-y-2 text-sm text-white/80">
@@ -1019,10 +859,13 @@ export function SitePage() {
             </a>
           </div>
         </section>
+        ) : null}
 
+        {serviceView !== "hub" ? (
         <p className="text-center text-xs text-white/40">
           {t("pathA.foot", { brand: BRAND_NAME })}
         </p>
+        ) : null}
 
         {/* Vector chat — mobile full sheet; desktop floating card */}
         {chatOpen ? (
@@ -1073,20 +916,33 @@ export function SitePage() {
                   </p>
                   <p className="truncate text-xs text-zinc-400">
                     {t("s0.chatHint", {
-                      defaultValue: "Consultant — ask anything about packages",
+                      defaultValue: "Consultant — products, privacy, order links",
                     })}
                   </p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setChatOpen(false)}
-                onPointerDown={(e) => e.stopPropagation()}
-                className="rounded-lg px-3 py-2 text-sm text-zinc-400 hover:bg-white/5 hover:text-white"
-                aria-label="Close"
-              >
-                ✕
-              </button>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.dispatchEvent(new Event("genesis:new-chat"));
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="rounded-lg px-2.5 py-2 text-xs font-semibold text-sky-200 hover:bg-white/5"
+                  aria-label={t("s0.newChat", { defaultValue: "New chat" })}
+                >
+                  + {t("s0.newChat", { defaultValue: "New chat" })}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChatOpen(false)}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="rounded-lg px-3 py-2 text-sm text-zinc-400 hover:bg-white/5 hover:text-white"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden [&_#genesis-chat]:h-full [&_#genesis-chat]:max-h-none [&_#genesis-chat]:min-h-0 [&_#genesis-chat]:rounded-none [&_#genesis-chat]:border-0 [&_#genesis-chat]:shadow-none">
               <GenesisConcierge scope="public" />

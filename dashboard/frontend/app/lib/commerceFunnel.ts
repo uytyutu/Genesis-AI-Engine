@@ -8,6 +8,7 @@ export type FunnelEvent =
   | "tier_page_view"
   | "tier_page_cta"
   | "tier_select"
+  | "module_try"
   | "premium_preview_view"
   | "upgrade_click"
   | "checkout_start"

@@ -877,5 +877,145 @@
         "placeholder": "Оставьте пустым — подскажем"
       }
     }
+  },
+  "appStore": {
+    "live": {
+      "toasts": {
+        "lead": "📨 Новая заявка",
+        "replied": "🤖 AI ответил клиенту",
+        "booking": "📅 Запись подтверждена",
+        "published": "🌐 Website Published",
+        "order": "💶 Новый заказ"
+      }
+    },
+    "hero": {
+      "line1": "Ваш бизнес.",
+      "line2": "Новое поколение.",
+      "sub": "Один AI. Сайты. Чат-боты. Автоматизация. Аналитика.",
+      "pillAi": "Один AI",
+      "pillSites": "Сайты",
+      "pillBots": "Чат-боты",
+      "pillAuto": "Автоматизация",
+      "pillAnalytics": "Аналитика",
+      "emotion": "AI уже готов работать для вашего бизнеса."
+    },
+    "cta": {
+      "tryFree": "🚀 Попробовать AI бесплатно",
+      "watchDemo": "Смотреть демо",
+      "contact": "Связаться"
+    },
+    "ki": {
+      "short": "Контент и поставка создаются с помощью ИИ. После покупки можно запросить правки.",
+      "link": "Уведомление об ИИ"
+    },
+    "story": {
+      "title": "Открыли бизнес в Германии?",
+      "subtitle": "Поможем со следующим шагом — не очередной шаблонный питч агентства.",
+      "problem1": "Где заказать сайт? Impressum? Datenschutz?",
+      "problem2": "Кто ответит клиентам ночью?",
+      "problem3": "Instagram · WhatsApp · Telegram — перегруз?",
+      "resolve": "Подключайте модули. AI берёт рутину. Вы занимаетесь ремеслом."
+    },
+    "modules": {
+      "title": "Что хотите подключить?",
+      "subtitle": "Не список услуг — приложения для бизнеса.",
+      "live": "Live",
+      "soon": "Скоро",
+      "try": "Попробовать",
+      "notify": "Скоро",
+      "website": {
+        "name": "Website Builder",
+        "blurb": "Современный сайт с путём к Impressum и записью."
+      },
+      "receptionist": {
+        "name": "AI Receptionist",
+        "blurb": "Отвечает на заявки и записывает клиентов."
+      },
+      "chatbot": {
+        "name": "AI Chatbot",
+        "blurb": "Ассистент 24/7 для сайта и мессенджеров."
+      },
+      "audit": {
+        "name": "Website Audit",
+        "blurb": "Бесплатная проверка — затем ремонт или новый сайт."
+      },
+      "instagram": {
+        "name": "Instagram Assistant",
+        "blurb": "DM и запись — в разработке."
+      },
+      "whatsapp": {
+        "name": "WhatsApp Assistant",
+        "blurb": "Ответы в WhatsApp — в разработке."
+      },
+      "telegram": {
+        "name": "Telegram Assistant",
+        "blurb": "Бот Telegram — в разработке."
+      },
+      "booking": {
+        "name": "Booking System",
+        "blurb": "Календарь и слоты — в разработке."
+      },
+      "crm": {
+        "name": "CRM",
+        "blurb": "Лиды и клиенты — в разработке."
+      },
+      "analytics": {
+        "name": "Analytics",
+        "blurb": "Сообщения, записи, рост — в разработке."
+      },
+      "badgePopular": "🔥 Популярно",
+      "badgeNew": "🆕 Новинка",
+      "badgeChoice": "⭐ Выбор клиентов"
+    },
+    "trial": {
+      "title": "Попробуйте бесплатно — напишите Vector",
+      "body": "Спросите {{assistant}} на этой странице до регистрации. Пробный чат-бот на 3 дня — следующий этап; сегодня уже можно почувствовать AI.",
+      "cta": "🚀 Запустить бесплатно",
+      "note": "Карта не нужна для чата на странице."
+    },
+    "pricing": {
+      "title": "Цены",
+      "subtitle": "Понятные пакеты. EUR. Одинаковые цены на всех языках.",
+      "websites": "Сайт",
+      "chatbots": "AI Chatbot",
+      "order": "Заказать",
+      "perMonth": "/ мес",
+      "seeBotPackages": "Смотреть живые пакеты",
+      "botDisclaimer": "Отображаемые планы — оплата сегодня через setup + месяц. Откройте AI Employee для заказа.",
+      "webBasic": "Basic",
+      "webBasicBlurb": "Для старта бизнеса онлайн.",
+      "webBusiness": "Business",
+      "webBusinessBlurb": "Больше страниц, доверия, конверсии.",
+      "webPremium": "Premium",
+      "webPremiumBlurb": "Полное присутствие бренда.",
+      "botStarter": "Starter",
+      "botStarterBlurb": "Входной план (витрина).",
+      "botBusiness": "Business",
+      "botBusinessBlurb": "План роста (витрина).",
+      "botPro": "Pro",
+      "botProBlurb": "Больший объём (витрина)."
+    },
+    "why": {
+      "title": "Почему предприниматели выбирают Virtus Core",
+      "statModules": "Модули",
+      "statModulesValue": "10+",
+      "statMarkets": "Рынки",
+      "statMarketsValue": "EU+",
+      "statSupport": "Поддержка",
+      "statSupportValue": "AI 24/7",
+      "statAi": "Поставка",
+      "statAiValue": "AI + команда",
+      "illustrative": "Возможности платформы — не выдуманная выручка клиентов."
+    },
+    "reviews": {
+      "leave": "Оставить отзыв"
+    },
+    "vector": {
+      "title": "Живое демо — напишите {{assistant}}",
+      "body": "Скажите «Здравствуйте». {{assistant}} отвечает на сайте — бесплатно до регистрации.",
+      "cta": "Открыть {{assistant}}"
+    },
+    "edits": "После покупки можно запросить правки сайтов, ботов и модулей через личный кабинет.",
+    "marketNote": "Рынок"
   }
 }

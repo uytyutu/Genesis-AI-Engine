@@ -464,5 +464,145 @@
       "timeline": "po analýze",
       "support": "Tým + Vector"
     }
+  },
+  "appStore": {
+    "hero": {
+      "line1": "Your business.",
+      "line2": "Next generation.",
+      "sub": "One AI. Websites. Chatbots. Automation. Analytics.",
+      "pillAi": "One AI",
+      "pillSites": "Websites",
+      "pillBots": "Chatbots",
+      "pillAuto": "Automation",
+      "pillAnalytics": "Analytics",
+      "emotion": "AI is ready to work for your business."
+    },
+    "cta": {
+      "tryFree": "🚀 Try AI free",
+      "watchDemo": "Watch demo",
+      "contact": "Contact"
+    },
+    "ki": {
+      "short": "Content and deliverables are AI-assisted. You can request edits after purchase.",
+      "link": "AI notice"
+    },
+    "story": {
+      "title": "Opened a business in Germany?",
+      "subtitle": "We help with the next step — not another generic agency pitch.",
+      "problem1": "Where to order a site? Impressum? Datenschutz?",
+      "problem2": "Who answers clients at night?",
+      "problem3": "Instagram · WhatsApp · Telegram overload?",
+      "resolve": "Connect modules. AI handles the routine. You run the craft."
+    },
+    "modules": {
+      "title": "What do you want to connect?",
+      "subtitle": "Not a service list — apps for your business.",
+      "live": "Live",
+      "soon": "Coming Soon",
+      "try": "Try",
+      "notify": "Coming Soon",
+      "website": {
+        "name": "Website Builder",
+        "blurb": "Modern business site with Impressum path and booking-ready layout."
+      },
+      "receptionist": {
+        "name": "AI Receptionist",
+        "blurb": "Answers leads and books appointments across your channels."
+      },
+      "chatbot": {
+        "name": "AI Chatbot",
+        "blurb": "24/7 assistant for website and messaging."
+      },
+      "audit": {
+        "name": "Website Audit",
+        "blurb": "Free check — then repair or a new site."
+      },
+      "instagram": {
+        "name": "Instagram Assistant",
+        "blurb": "DMs and booking prompts — in development."
+      },
+      "whatsapp": {
+        "name": "WhatsApp Assistant",
+        "blurb": "Business WhatsApp replies — in development."
+      },
+      "telegram": {
+        "name": "Telegram Assistant",
+        "blurb": "Telegram channel bot — in development."
+      },
+      "booking": {
+        "name": "Booking System",
+        "blurb": "Calendar and slots — in development."
+      },
+      "crm": {
+        "name": "CRM",
+        "blurb": "Leads and clients in one place — in development."
+      },
+      "analytics": {
+        "name": "Analytics",
+        "blurb": "Messages, bookings, growth — in development."
+      },
+      "badgePopular": "🔥 Popular",
+      "badgeNew": "🆕 New",
+      "badgeChoice": "⭐ Client pick"
+    },
+    "trial": {
+      "title": "Try free — talk to Vector",
+      "body": "Ask {{assistant}} on this page before you register. A timed 3-day chatbot product trial is next — today you can already experience the AI.",
+      "cta": "🚀 Launch AI free",
+      "note": "No card required for this on-page chat."
+    },
+    "pricing": {
+      "title": "Pricing",
+      "subtitle": "Clear packages. EUR. Same prices across languages.",
+      "websites": "Website",
+      "chatbots": "AI Chatbot",
+      "order": "Order",
+      "perMonth": "/ mo",
+      "seeBotPackages": "See live packages",
+      "botDisclaimer": "Display plans — checkout today uses setup + monthly packages. Open AI Employee to order.",
+      "webBasic": "Basic",
+      "webBasicBlurb": "For starting a business online.",
+      "webBusiness": "Business",
+      "webBusinessBlurb": "More pages, trust, stronger conversion.",
+      "webPremium": "Premium",
+      "webPremiumBlurb": "Full brand presence and polish.",
+      "botStarter": "Starter",
+      "botStarterBlurb": "Entry chatbot plan (display).",
+      "botBusiness": "Business",
+      "botBusinessBlurb": "Growing team plan (display).",
+      "botPro": "Pro",
+      "botProBlurb": "Higher volume plan (display)."
+    },
+    "why": {
+      "title": "Why entrepreneurs choose Virtus Core",
+      "statModules": "Modules",
+      "statModulesValue": "10+",
+      "statMarkets": "Markets",
+      "statMarketsValue": "EU+",
+      "statSupport": "Support",
+      "statSupportValue": "24/7 AI",
+      "statAi": "Delivery",
+      "statAiValue": "AI + humans",
+      "illustrative": "Platform capabilities — not invented client revenue."
+    },
+    "reviews": {
+      "leave": "Leave a review"
+    },
+    "vector": {
+      "title": "Live demo — write to {{assistant}}",
+      "body": "Say hello. {{assistant}} answers on this page — free before registration.",
+      "cta": "Open {{assistant}}"
+    },
+    "edits": "After purchase you can request edits to sites, bots and other modules via your client office.",
+    "marketNote": "Market",
+    "live": {
+      "toasts": {
+        "lead": "📨 New lead",
+        "replied": "🤖 AI replied",
+        "booking": "📅 Booking confirmed",
+        "published": "🌐 Website published",
+        "order": "💶 New order"
+      }
+    }
   }
 }

@@ -647,6 +647,15 @@ export function GenesisConcierge({
     saveSessionsStore(scope, store);
   }, [visitorId, welcomeText, scope, resetToWelcome]);
 
+  useEffect(() => {
+    if (!isPublic) return;
+    const onNewChat = () => {
+      void handleNewChat();
+    };
+    window.addEventListener("genesis:new-chat", onNewChat);
+    return () => window.removeEventListener("genesis:new-chat", onNewChat);
+  }, [isPublic, handleNewChat]);
+
   const handleSelectSession = useCallback(
     async (sessionId: string) => {
       setActiveSessionId(sessionId);
@@ -1614,8 +1623,18 @@ export function GenesisConcierge({
             + {t("newChat")}
           </button>
         ) : isPublic && !hubMode ? (
-          <div className="flex min-w-0 flex-1 items-center">
-            <p className="truncate text-sm font-medium text-white/90">{ASSISTANT_NAME}</p>
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void handleNewChat()}
+              className="shrink-0 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
+              aria-label={t("newChat")}
+            >
+              + {t("newChat")}
+            </button>
+            <p className="truncate text-sm font-medium text-white/90 max-sm:hidden">
+              {ASSISTANT_NAME}
+            </p>
           </div>
         ) : (
           <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-1.5">
@@ -1628,16 +1647,6 @@ export function GenesisConcierge({
             >
               ☰
             </button>
-            {isPublic && !hubMode ? (
-              <button
-                type="button"
-                onClick={() => setSidebarOpen((o) => !o)}
-                className="hidden rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-genesis-muted transition hover:bg-white/5 hover:text-white sm:inline-flex"
-                aria-expanded={sidebarOpen}
-              >
-                {sidebarOpen ? "Скрыть историю" : "История"}
-              </button>
-            ) : null}
             {showLiveStatus ? (
               <VoiceStatusPulse
                 status={voiceUiStatus}
@@ -1665,7 +1674,9 @@ export function GenesisConcierge({
         )}
         <div className="flex items-center gap-2">
           {isPublic && !hubMode ? (
-            <span className="text-[10px] text-genesis-muted max-sm:hidden">консультант</span>
+            <span className="rounded-full border border-sky-400/30 bg-sky-500/10 px-2 py-0.5 text-[10px] font-medium text-sky-200">
+              консультант
+            </span>
           ) : isPublic ? (
             <button
               type="button"

@@ -78,7 +78,7 @@ def test_repair_is_orderable():
     reply = _turn(state, "Что такое Website Repair?")
     assert reply is not None
     assert "199" in reply.answer
-    assert reply.cta_href == "/order?package=website_repair"
+    assert reply.cta_href == "/order/service/website_repair"
     assert reply.cta_label == "Оформить заказ"
 
 
@@ -136,8 +136,30 @@ def test_seo_order_cta():
     reply = _turn(state, "Как заказать SEO?")
     assert reply is not None
     assert "249" in reply.answer
-    assert reply.cta_href == "/order?package=seo_audit"
-    assert reply.cta_label == "Оформить заказ"
+    assert reply.cta_href == "/order/service/seo_audit"
+    assert reply.cta_label in ("Оформить заказ", "Открыть форму интереса")
+
+
+def test_privacy_data_protection():
+    state = ConversationState()
+    reply = _turn(state, "Вы передаёте мои данные кому-то?")
+    assert reply is not None
+    assert "не" in reply.answer.lower()
+    assert "переда" in reply.answer.lower()
+    assert reply.cta_href == "/datenschutz"
+
+
+def test_public_rails_always_answers():
+    state = ConversationState()
+    reply = try_product_consultant_reply(
+        "привет, как дела?",
+        [{"role": "user", "content": "привет, как дела?"}],
+        state,
+        public_rails=True,
+    )
+    assert reply is not None
+    assert "консультант" in reply.answer.lower() or "услуг" in reply.answer.lower()
+    assert reply.cta_href in ("/products", "/kontakt", "/order")
 
 
 def test_business_vs_premium_explained():
