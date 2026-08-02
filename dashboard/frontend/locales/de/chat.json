@@ -38,8 +38,12 @@
     "details": "Kläre Projektdetails…"
   },
   "newChat": "Neuer Chat",
+  "clearChat": "Chat löschen",
+  "clearChatConfirm": "Diesen Dialog löschen?",
   "back": "← Zurück",
-  "backHome": "← Startseite",
+  "backHome": "← Start",
+  "placeholderPublic": "Fragen zu Leistungen, Preisen oder Datenschutz…",
+  "consultantBadge": "Berater",
   "workspaceTitle": "Meine Projekte",
   "workspaceEmpty": "Noch keine Projekte.",
   "workspaceEmptyHint": "Geben Sie Vector den ersten Auftrag — Website, Businessplan oder Dokument.",

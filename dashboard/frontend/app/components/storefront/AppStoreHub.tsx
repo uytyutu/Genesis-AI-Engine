@@ -8,7 +8,7 @@ import { formatLocalizedMoney } from "../../lib/formatEur";
 import { logCommerceEvent } from "../../lib/commerceFunnel";
 import { LiveActivityCanvas } from "./LiveActivityCanvas";
 import {
-  CHATBOT_DISPLAY_TIERS,
+  CHATBOT_PRICE_TIERS,
   STORE_MODULES,
   WEBSITE_PRICE_TIERS,
   type StoreModule,
@@ -29,16 +29,35 @@ type PublicReviews = {
   }[];
 };
 
+type HubPackage = {
+  id: string;
+  name: string;
+  price_eur: number;
+  currency?: string;
+  price_label?: string;
+};
+
+type HubBotPackage = {
+  package_id: string;
+  name: string;
+  setup_label: string;
+  monthly_label: string;
+  price_label: string;
+};
+
 type Props = {
   market: string;
   localeTag: string;
   marketSelect: ReactNode;
   reviews: PublicReviews | null;
+  packages?: HubPackage[];
+  botPackages?: HubBotPackage[];
   onOpenVector: () => void;
   onOpenWebsites: () => void;
   onOpenBots: () => void;
   onOpenAnalysis: () => void;
   orderHrefFor: (packageId: string) => string;
+  botOrderHrefFor?: (packageId: string) => string;
 };
 
 function stars(n: number) {
@@ -75,16 +94,58 @@ export function AppStoreHub({
   localeTag,
   marketSelect,
   reviews,
+  packages,
+  botPackages,
   onOpenVector,
   onOpenWebsites,
   onOpenBots,
   onOpenAnalysis,
   orderHrefFor,
+  botOrderHrefFor,
 }: Props) {
   const { t } = useTranslation("site");
   const ns = "appStore";
 
   const handlers = { onOpenVector, onOpenWebsites, onOpenBots, onOpenAnalysis };
+
+  const websiteTiers =
+    packages && packages.length > 0
+      ? packages.map((p) => ({
+          id: p.id,
+          priceLabel:
+            p.price_label ||
+            formatLocalizedMoney(p.price_eur, p.currency || "EUR", localeTag),
+          name: p.name,
+          featured: p.id === "business",
+        }))
+      : WEBSITE_PRICE_TIERS.map((tier) => ({
+          id: tier.id,
+          priceLabel: formatLocalizedMoney(tier.priceEur, "EUR", localeTag),
+          name: t(`${ns}.${tier.nameKey}`),
+          featured: "featured" in tier && Boolean(tier.featured),
+          blurbKey: tier.blurbKey,
+        }));
+
+  const botTiers =
+    botPackages && botPackages.length > 0
+      ? botPackages.map((p) => ({
+          id: p.package_id,
+          name: p.name,
+          setupLabel: p.setup_label || p.price_label,
+          monthlyLabel: p.monthly_label || "",
+          featured: p.package_id.includes("business"),
+        }))
+      : CHATBOT_PRICE_TIERS.map((tier) => ({
+          id: tier.id,
+          name: t(`${ns}.${tier.nameKey}`),
+          setupLabel: formatLocalizedMoney(tier.setupEur, "EUR", localeTag),
+          monthlyLabel: formatLocalizedMoney(tier.monthlyEur, "EUR", localeTag),
+          featured: "featured" in tier && Boolean(tier.featured),
+          blurbKey: tier.blurbKey,
+        }));
+
+  const botHref = (id: string) =>
+    botOrderHrefFor?.(id) || `/order/bot?package=${encodeURIComponent(id)}`;
 
   return (
     <div className="storefront space-y-16 sm:space-y-20">
@@ -315,7 +376,7 @@ export function AppStoreHub({
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Pricing — same EUR as /order checkout (no showcase/test figures) */}
       <section id="pricing" className="scroll-mt-24 space-y-8">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-semibold text-white sm:text-3xl">
@@ -323,7 +384,7 @@ export function AppStoreHub({
           </h2>
           <p className="text-sm text-genesis-muted">
             {t(`${ns}.pricing.subtitle`, {
-              defaultValue: "Clear packages. EUR. Same prices across languages.",
+              defaultValue: "Live checkout prices in EUR — same on the order page.",
             })}
           </p>
         </div>
@@ -333,22 +394,28 @@ export function AppStoreHub({
             {t(`${ns}.pricing.websites`, { defaultValue: "Website" })}
           </h3>
           <div className="grid gap-3 sm:grid-cols-3">
-            {WEBSITE_PRICE_TIERS.map((tier) => (
+            {websiteTiers.map((tier) => (
               <article
                 key={tier.id}
                 className={`flex flex-col rounded-3xl border p-5 ${
-                  "featured" in tier && tier.featured
+                  tier.featured
                     ? "border-genesis-purple/50 bg-genesis-purple/10"
                     : "border-white/10 bg-white/[0.03]"
                 }`}
               >
-                <p className="text-sm text-zinc-300">{t(`${ns}.${tier.nameKey}`)}</p>
-                <p className="mt-2 text-3xl font-semibold text-white">
-                  {formatLocalizedMoney(tier.priceEur, "EUR", localeTag)}
-                </p>
-                <p className="mt-2 flex-1 text-sm text-genesis-muted">
-                  {t(`${ns}.${tier.blurbKey}`)}
-                </p>
+                <p className="text-sm text-zinc-300">{tier.name}</p>
+                <p className="mt-2 text-3xl font-semibold text-white">{tier.priceLabel}</p>
+                {"blurbKey" in tier && tier.blurbKey ? (
+                  <p className="mt-2 flex-1 text-sm text-genesis-muted">
+                    {t(`${ns}.${tier.blurbKey}`)}
+                  </p>
+                ) : (
+                  <p className="mt-2 flex-1 text-sm text-genesis-muted">
+                    {t(`${ns}.pricing.webCheckoutNote`, {
+                      defaultValue: "One-time · same price at checkout.",
+                    })}
+                  </p>
+                )}
                 <Link
                   href={orderHrefFor(tier.id)}
                   onClick={() => logCommerceEvent("tier_select", tier.id, "site")}
@@ -365,40 +432,49 @@ export function AppStoreHub({
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-genesis-purple">
             {t(`${ns}.pricing.chatbots`, { defaultValue: "AI Chatbot" })}
           </h3>
-          <p className="mb-3 text-xs text-amber-200/80">
+          <p className="mb-3 text-xs text-zinc-400">
             {t(`${ns}.pricing.botDisclaimer`, {
-              defaultValue:
-                "Display plans — current checkout uses setup + monthly packages. Open AI Employee to order today.",
+              defaultValue: "Setup fee + monthly — identical to the order form.",
             })}
           </p>
           <div className="grid gap-3 sm:grid-cols-3">
-            {CHATBOT_DISPLAY_TIERS.map((tier) => (
+            {botTiers.map((tier) => (
               <article
                 key={tier.id}
                 className={`flex flex-col rounded-3xl border p-5 ${
-                  "featured" in tier && tier.featured
+                  tier.featured
                     ? "border-genesis-purple/50 bg-genesis-purple/10"
                     : "border-white/10 bg-white/[0.03]"
                 }`}
               >
-                <p className="text-sm text-zinc-300">{t(`${ns}.${tier.nameKey}`)}</p>
-                <p className="mt-2 text-3xl font-semibold text-white">
-                  {formatLocalizedMoney(tier.priceEur, "EUR", localeTag)}
-                  <span className="text-sm font-normal text-genesis-muted">
-                    {" "}
-                    {t(`${ns}.pricing.perMonth`, { defaultValue: "/ mo" })}
-                  </span>
-                </p>
-                <p className="mt-2 flex-1 text-sm text-genesis-muted">
-                  {t(`${ns}.${tier.blurbKey}`)}
-                </p>
-                <button
-                  type="button"
-                  onClick={onOpenBots}
-                  className="mt-4 inline-flex items-center justify-center rounded-xl border border-genesis-purple/40 px-4 py-2.5 text-sm font-semibold text-white hover:bg-genesis-purple/15"
+                <p className="text-sm text-zinc-300">{tier.name}</p>
+                <p className="mt-2 text-3xl font-semibold text-white">{tier.setupLabel}</p>
+                {tier.monthlyLabel ? (
+                  <p className="mt-1 text-sm text-emerald-300/90">
+                    {t(`${ns}.pricing.thenMonthly`, {
+                      defaultValue: "then {{monthly}}/mo",
+                      monthly: tier.monthlyLabel,
+                    })}
+                  </p>
+                ) : null}
+                {"blurbKey" in tier && tier.blurbKey ? (
+                  <p className="mt-2 flex-1 text-sm text-genesis-muted">
+                    {t(`${ns}.${tier.blurbKey}`)}
+                  </p>
+                ) : (
+                  <p className="mt-2 flex-1 text-sm text-genesis-muted">
+                    {t(`${ns}.pricing.botCheckoutNote`, {
+                      defaultValue: "Website Chat · Telegram after payment.",
+                    })}
+                  </p>
+                )}
+                <Link
+                  href={botHref(tier.id)}
+                  onClick={() => logCommerceEvent("tier_select", tier.id, "site")}
+                  className="mt-4 inline-flex items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110"
                 >
-                  {t(`${ns}.pricing.seeBotPackages`, { defaultValue: "See live packages" })}
-                </button>
+                  {t(`${ns}.pricing.order`, { defaultValue: "Order" })}
+                </Link>
               </article>
             ))}
           </div>

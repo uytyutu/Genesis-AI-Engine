@@ -38,8 +38,12 @@
     "details": "Clarifying project details…"
   },
   "newChat": "New chat",
+  "clearChat": "Delete chat",
+  "clearChatConfirm": "Delete this conversation?",
   "back": "← Back",
   "backHome": "← Home",
+  "placeholderPublic": "Ask about services, prices, or data protection…",
+  "consultantBadge": "consultant",
   "workspaceTitle": "My projects",
   "workspaceEmpty": "No projects yet.",
   "workspaceEmptyHint": "Assign Vector a first task — website, business plan, or document.",

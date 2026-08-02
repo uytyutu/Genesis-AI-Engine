@@ -38,8 +38,12 @@
     "details": "Уточняю детали проекта…"
   },
   "newChat": "Новый чат",
+  "clearChat": "Удалить чат",
+  "clearChatConfirm": "Удалить этот диалог?",
   "back": "← Назад",
   "backHome": "← На главную",
+  "placeholderPublic": "Спросите про услуги, цены или защиту данных…",
+  "consultantBadge": "консультант",
   "workspaceTitle": "Мои проекты",
   "workspaceEmpty": "Пока нет проектов.",
   "workspaceEmptyHint": "Поручите Vector первую задачу — сайт, бизнес-план или документ.",

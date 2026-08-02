@@ -587,11 +587,14 @@ export function SitePage() {
             localeTag={localeTag}
             marketSelect={marketSelect}
             reviews={reviews}
+            packages={packages}
+            botPackages={botPackages}
             onOpenVector={openChat}
             onOpenWebsites={() => openService("websites")}
             onOpenBots={() => openService("bots")}
             onOpenAnalysis={() => openService("analysis")}
             orderHrefFor={orderHrefFor}
+            botOrderHrefFor={botOrderHref}
           />
         ) : null}
 
@@ -884,14 +887,14 @@ export function SitePage() {
                   }
                 : undefined
             }
-            className={`fixed inset-0 z-[60] flex h-dvh max-h-dvh w-full flex-col overflow-hidden border-0 border-sky-400/30 bg-genesis-bg shadow-2xl sm:inset-auto sm:bottom-6 sm:right-6 sm:left-auto sm:h-[min(78dvh,720px)] sm:max-h-[min(78dvh,720px)] sm:w-[min(720px,calc(100vw-3rem))] sm:rounded-2xl sm:border ${
+            className={`fixed inset-0 z-[60] flex h-dvh max-h-dvh w-full flex-col overflow-hidden border-0 bg-[#0a0a0f] shadow-2xl sm:inset-auto sm:bottom-5 sm:right-5 sm:left-auto sm:h-[min(82dvh,740px)] sm:max-h-[min(82dvh,740px)] sm:w-[min(420px,calc(100vw-1.5rem))] sm:rounded-3xl sm:border sm:border-white/10 ${
               chatPos
                 ? "max-sm:!inset-0 max-sm:!left-0 max-sm:!top-0 max-sm:!right-0 max-sm:!bottom-0 max-sm:!max-h-none"
                 : ""
             }`}
           >
             <div
-              className="flex shrink-0 touch-none items-center justify-between gap-2 border-b border-white/10 px-3 py-2.5 sm:cursor-grab sm:active:cursor-grabbing sm:px-4"
+              className="flex shrink-0 touch-none items-center justify-between gap-2 border-b border-white/8 bg-gradient-to-r from-sky-950/40 to-transparent px-3 py-3 sm:cursor-grab sm:active:cursor-grabbing sm:px-4"
               onPointerDown={(e) => {
                 if (typeof window !== "undefined" && window.innerWidth < 640) return;
                 onChatDragStart(e);
@@ -903,41 +906,58 @@ export function SitePage() {
                 defaultValue: "Drag to move",
               })}
             >
-              <div className="flex min-w-0 items-center gap-2">
-                <span
-                  className="hidden select-none text-zinc-500 sm:inline"
-                  aria-hidden
-                >
-                  ⠿
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-500/20 text-sm font-bold text-sky-200 ring-1 ring-sky-400/30">
+                  V
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-white">
                     {ASSISTANT_NAME}
                   </p>
-                  <p className="truncate text-xs text-zinc-400">
+                  <p className="truncate text-[11px] text-sky-200/70">
                     {t("s0.chatHint", {
-                      defaultValue: "Consultant — products, privacy, order links",
+                      defaultValue: "Consultant · fast answers",
                     })}
                   </p>
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-1">
+              <div className="flex shrink-0 items-center gap-0.5">
                 <button
                   type="button"
                   onClick={() => {
                     window.dispatchEvent(new Event("genesis:new-chat"));
                   }}
                   onPointerDown={(e) => e.stopPropagation()}
-                  className="rounded-lg px-2.5 py-2 text-xs font-semibold text-sky-200 hover:bg-white/5"
+                  className="rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/8"
                   aria-label={t("s0.newChat", { defaultValue: "New chat" })}
                 >
-                  + {t("s0.newChat", { defaultValue: "New chat" })}
+                  +
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (
+                      typeof window !== "undefined" &&
+                      window.confirm(
+                        t("s0.deleteChatConfirm", {
+                          defaultValue: "Delete this conversation?",
+                        }),
+                      )
+                    ) {
+                      window.dispatchEvent(new Event("genesis:delete-chat"));
+                    }
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="rounded-xl px-2.5 py-2 text-xs font-medium text-zinc-400 hover:bg-rose-500/15 hover:text-rose-200"
+                  aria-label={t("s0.deleteChat", { defaultValue: "Delete chat" })}
+                >
+                  ⌫
                 </button>
                 <button
                   type="button"
                   onClick={() => setChatOpen(false)}
                   onPointerDown={(e) => e.stopPropagation()}
-                  className="rounded-lg px-3 py-2 text-sm text-zinc-400 hover:bg-white/5 hover:text-white"
+                  className="rounded-xl px-2.5 py-2 text-sm text-zinc-400 hover:bg-white/8 hover:text-white"
                   aria-label="Close"
                 >
                   ✕
@@ -954,13 +974,16 @@ export function SitePage() {
           <button
             type="button"
             onClick={() => openChat()}
-            className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full border border-sky-400/40 bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:brightness-110"
+            className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-sky-500 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_12px_40px_-8px_rgba(14,165,233,0.65)] hover:brightness-110"
             style={
               vvLayout.keyboard > 0
                 ? { bottom: `max(1.25rem, ${vvLayout.keyboard + 12}px)` }
                 : undefined
             }
           >
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
+              V
+            </span>
             {t("s0.askVector", { defaultValue: "Ask Vector" })}
           </button>
         ) : null}

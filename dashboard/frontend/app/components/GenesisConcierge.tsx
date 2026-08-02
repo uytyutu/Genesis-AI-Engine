@@ -269,6 +269,8 @@ export function GenesisConcierge({
   const isPublic = scope === "public";
   const isLeadCapture = isPublic && Boolean(leadCapture);
   const isPublicHub = isPublic && hubMode && !isLeadCapture;
+  /** Floating /site consultant widget — modern messenger chrome lives in SitePage. */
+  const isPublicConsultant = isPublic && !hubMode && !isLeadCapture;
   const fallbackWelcome = isPublic
     ? isLeadCapture
       ? publicLeadCaptureWelcome(leadNicheLabel(leadCapture!.niche))
@@ -647,15 +649,6 @@ export function GenesisConcierge({
     saveSessionsStore(scope, store);
   }, [visitorId, welcomeText, scope, resetToWelcome]);
 
-  useEffect(() => {
-    if (!isPublic) return;
-    const onNewChat = () => {
-      void handleNewChat();
-    };
-    window.addEventListener("genesis:new-chat", onNewChat);
-    return () => window.removeEventListener("genesis:new-chat", onNewChat);
-  }, [isPublic, handleNewChat]);
-
   const handleSelectSession = useCallback(
     async (sessionId: string) => {
       setActiveSessionId(sessionId);
@@ -687,6 +680,30 @@ export function GenesisConcierge({
     },
     [visitorId, scope, activeSessionId, resetToWelcome],
   );
+
+  const handleClearCurrentChat = useCallback(async () => {
+    if (activeSessionId) {
+      await handleDeleteSession(activeSessionId);
+      return;
+    }
+    resetToWelcome();
+  }, [activeSessionId, handleDeleteSession, resetToWelcome]);
+
+  useEffect(() => {
+    if (!isPublic) return;
+    const onNewChat = () => {
+      void handleNewChat();
+    };
+    const onDeleteChat = () => {
+      void handleClearCurrentChat();
+    };
+    window.addEventListener("genesis:new-chat", onNewChat);
+    window.addEventListener("genesis:delete-chat", onDeleteChat);
+    return () => {
+      window.removeEventListener("genesis:new-chat", onNewChat);
+      window.removeEventListener("genesis:delete-chat", onDeleteChat);
+    };
+  }, [isPublic, handleNewChat, handleClearCurrentChat]);
 
   const handlePinSession = useCallback(
     async (sessionId: string, pinned: boolean) => {
@@ -1525,6 +1542,7 @@ export function GenesisConcierge({
         onSend={() => void sendMessage(input, pendingFiles)}
         busy={busy}
         generating={busy}
+        placeholder={isPublicConsultant ? t("placeholderPublic") : undefined}
         attachments={pendingFiles ?? []}
         onPickFiles={(files) => void uploadFiles(files)}
         onRemoveAttachment={removeAttachment}
@@ -1580,19 +1598,24 @@ export function GenesisConcierge({
       ) : null}
     <section
       id="genesis-chat"
-      className={`flex min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow ${
-        isPublicHub
-          ? "h-full min-h-[min(48dvh,30rem)] max-sm:rounded-2xl"
+      className={`flex min-w-0 flex-1 flex-col overflow-hidden ${
+        isPublicConsultant
+          ? "h-full min-h-0 max-h-none rounded-none border-0 bg-transparent shadow-none"
+          : isPublicHub
+          ? "h-full min-h-[min(48dvh,30rem)] max-sm:rounded-2xl rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow"
           : isPublic
-          ? "h-full min-h-0 max-h-none rounded-2xl"
-          : showThread
-            ? composerFocused
-              ? "min-h-[min(92dvh,52rem)] max-h-[min(96dvh,56rem)]"
-              : "min-h-[min(72vh,40rem)] max-h-[min(85vh,48rem)]"
-            : ""
+          ? "h-full min-h-0 max-h-none rounded-2xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow"
+          : `rounded-3xl border border-genesis-accent/25 bg-gradient-to-b from-indigo-950/40 via-genesis-panel to-genesis-bg shadow-glow ${
+              showThread
+                ? composerFocused
+                  ? "min-h-[min(92dvh,52rem)] max-h-[min(96dvh,56rem)]"
+                  : "min-h-[min(72vh,40rem)] max-h-[min(85vh,48rem)]"
+                : ""
+            }`
       }`}
       aria-label={`${ASSISTANT_NAME} — поручения`}
     >
+      {!isPublicConsultant ? (
       <header
         className={`flex shrink-0 items-center justify-between border-b border-white/5 transition-all duration-300 ${
           isPublic
@@ -1706,6 +1729,7 @@ export function GenesisConcierge({
           )}
         </div>
       </header>
+      ) : null}
 
       {showLiveStatus ? (
         <div className="shrink-0 border-b border-white/5 px-3 py-1.5 sm:hidden">
@@ -1726,7 +1750,7 @@ export function GenesisConcierge({
         </div>
       )}
 
-      {isPublic && !hasConversation && !hubMode && (
+      {isPublic && !hasConversation && !hubMode && !isPublicConsultant && (
         <div className="shrink-0 border-b border-white/5 px-4 py-4 sm:px-6">
           <div className="mx-auto w-full max-w-3xl rounded-2xl border border-dashed border-genesis-accent/25 bg-genesis-panel/40 px-4 py-4 sm:px-5 sm:py-5">
             <p className="text-[10px] font-bold tracking-[0.22em] text-genesis-accent uppercase">
@@ -1738,6 +1762,31 @@ export function GenesisConcierge({
         </div>
       )}
 
+      {isPublicConsultant && !hasConversation ? (
+        <div className="shrink-0 px-4 pb-1 pt-3">
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                ["Сайт", "Хочу сайт"],
+                ["AI Bot", "Хочу AI Bot"],
+                ["Цены", "Сколько стоит?"],
+                ["Данные", "Защита данных"],
+              ] as const
+            ).map(([label, msg]) => (
+              <button
+                key={label}
+                type="button"
+                disabled={busy}
+                onClick={() => void sendMessage(msg)}
+                className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:border-sky-400/40 hover:bg-sky-500/10 hover:text-white disabled:opacity-40"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <div className={`relative min-h-0 flex-1 ${showThread ? "" : "max-h-0"}`}>
         <div
           ref={messagesRef}
@@ -1746,7 +1795,7 @@ export function GenesisConcierge({
             showThread ? "py-3 pb-4 opacity-100 sm:py-4" : "max-h-0 py-0 opacity-0"
           }`}
         >
-          <ul className="mx-auto w-full max-w-3xl space-y-3 sm:space-y-4">
+          <ul className={`mx-auto w-full space-y-3 sm:space-y-4 ${isPublicConsultant ? "max-w-none" : "max-w-3xl"}`}>
           {thread.map((m, i) => {
             const isWelcomeBubble = i === 0 && m.role === "assistant" && !hasConversation;
             return (
@@ -1757,7 +1806,17 @@ export function GenesisConcierge({
             >
               <div
                 className={`whitespace-pre-wrap ${
-                  isWelcomeBubble
+                  isPublicConsultant
+                    ? `max-w-[92%] sm:max-w-[85%] ${
+                        m.role === "user" ? "ml-auto" : "mr-auto"
+                      } ${
+                        isWelcomeBubble
+                          ? "rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-[14px] leading-relaxed text-zinc-300"
+                          : m.role === "user"
+                            ? "rounded-2xl rounded-br-md bg-sky-500 px-4 py-2.5 text-[14px] leading-relaxed text-white"
+                            : "rounded-2xl rounded-bl-md border border-white/10 bg-[#16161f] px-4 py-2.5 text-[14px] leading-relaxed text-zinc-100"
+                      }`
+                    : isWelcomeBubble
                     ? "px-1 py-1 text-[15px] leading-snug text-genesis-muted"
                     : `rounded-3xl px-4 py-3 text-[15px] leading-relaxed ${
                         m.role === "user"
@@ -1766,13 +1825,19 @@ export function GenesisConcierge({
                       }`
                 }`}
               >
-                {m.role === "assistant" && !isWelcomeBubble && (
+                {m.role === "assistant" && !isWelcomeBubble && !isPublicConsultant && (
                   <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-genesis-accent">
                     {assistantLabel}
                   </p>
                 )}
                 {m.generating && !m.text?.trim() ? (
-                  isPublicHub ? (
+                  isPublicConsultant ? (
+                    <span className="inline-flex gap-1 py-0.5">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-300" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-300 [animation-delay:150ms]" />
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-300 [animation-delay:300ms]" />
+                    </span>
+                  ) : isPublicHub ? (
                     <div className="space-y-1 text-sm leading-relaxed">
                       {lifeSignSteps.map((label, stepIdx) => {
                         const done = lifeSignPhase > stepIdx + 1;
@@ -1855,7 +1920,11 @@ export function GenesisConcierge({
                         href={cta.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-3 mr-2 inline-block rounded-xl bg-gradient-to-r from-genesis-accent to-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
+                        className={`mt-3 mr-2 inline-block rounded-xl px-4 py-2 text-xs font-semibold text-white hover:opacity-90 ${
+                          isPublicConsultant
+                            ? "bg-sky-500"
+                            : "bg-gradient-to-r from-genesis-accent to-indigo-600"
+                        }`}
                       >
                         {cta.label}
                       </Link>
@@ -2016,7 +2085,11 @@ export function GenesisConcierge({
       )}
 
       <footer
-        className="shrink-0 border-t border-white/5 px-1 pb-1 pt-2 sm:px-2"
+        className={`shrink-0 ${
+          isPublicConsultant
+            ? "border-t border-white/8 bg-[#0c0c12]/90 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md sm:px-3"
+            : "border-t border-white/5 px-1 pb-1 pt-2 sm:px-2"
+        }`}
       >
         {composer}
       </footer>
