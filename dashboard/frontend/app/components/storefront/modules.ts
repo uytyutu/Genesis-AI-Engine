@@ -126,9 +126,28 @@ export const WEBSITE_PRICE_TIERS = [
   { id: "premium", priceEur: 1200, nameKey: "pricing.webPremium", blurbKey: "pricing.webPremiumBlurb" },
 ] as const;
 
-/** Display-only until Stage 2 SKUs — do not claim checkout at these prices. */
-export const CHATBOT_DISPLAY_TIERS = [
-  { id: "starter", priceEur: 29, nameKey: "pricing.botStarter", blurbKey: "pricing.botStarterBlurb" },
-  { id: "business", priceEur: 59, nameKey: "pricing.botBusiness", blurbKey: "pricing.botBusinessBlurb", featured: true },
-  { id: "pro", priceEur: 99, nameKey: "pricing.botPro", blurbKey: "pricing.botProBlurb" },
+/** DE anchors — must match pricing_engine BOT_DE_ANCHORS (setup + monthly). */
+export const CHATBOT_PRICE_TIERS = [
+  {
+    id: "bot_starter",
+    setupEur: 499,
+    monthlyEur: 99,
+    nameKey: "pricing.botStarter",
+    blurbKey: "pricing.botStarterBlurb",
+  },
+  {
+    id: "bot_business",
+    setupEur: 999,
+    monthlyEur: 199,
+    nameKey: "pricing.botBusiness",
+    blurbKey: "pricing.botBusinessBlurb",
+    featured: true,
+  },
+  {
+    id: "bot_professional",
+    setupEur: 1499,
+    monthlyEur: 349,
+    nameKey: "pricing.botPro",
+    blurbKey: "pricing.botProBlurb",
+  },
 ] as const;

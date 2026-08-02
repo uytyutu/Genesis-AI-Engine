@@ -12,21 +12,21 @@ type Props = {
 
 export function ChatMessageSpring({ role, children, contentKey }: Props) {
   const reduce = useReducedMotion();
-  const fromX = role === "user" ? 10 : -10;
+  const fromX = role === "user" ? 14 : -14;
 
   return (
     <motion.li
       className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}
-      initial={reduce ? false : { opacity: 0, y: 14, x: fromX }}
-      animate={{ opacity: 1, y: 0, x: 0 }}
+      initial={reduce ? false : { opacity: 0, y: 16, x: fromX, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
       transition={springs.gentle}
     >
       <motion.div
         key={contentKey}
         className="max-w-[min(92%,36rem)]"
-        initial={reduce ? false : { opacity: 0, y: 10, filter: "blur(6px)" }}
+        initial={reduce ? false : { opacity: 0, y: 10, filter: "blur(8px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        transition={{ ...springs.soft, delay: role === "assistant" ? 0.04 : 0 }}
+        transition={{ ...springs.soft, delay: role === "assistant" ? 0.05 : 0 }}
       >
         {children}
       </motion.div>

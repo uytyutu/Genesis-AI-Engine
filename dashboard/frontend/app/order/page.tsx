@@ -685,6 +685,18 @@ export default function OrderSitePage() {
     return list;
   }, [packages, packageId]);
   const selected = displayPackages.find((p) => p.id === packageId) ?? displayPackages[0];
+  const packagePriceBullet = useMemo(() => {
+    const tiers = ["basic", "business", "premium"]
+      .map((id) => packages.find((p) => p.id === id))
+      .filter(Boolean) as Package[];
+    if (tiers.length === 0) return t("order.bulletPkg");
+    return tiers
+      .map((p) => {
+        const label = (p.name || p.id).replace(/^Landing\s+/i, "");
+        return `${label} ${p.price_label || formatPrice(p.price_eur, p)}`;
+      })
+      .join(" · ");
+  }, [packages, commerce.currency, t]);
   const coachHints = useMemo(
     () =>
       resolveOrderCoachHints({
@@ -1055,7 +1067,7 @@ export default function OrderSitePage() {
           </p>
           {!launch ? (
             <ul className="mx-auto mt-4 max-w-lg space-y-1 text-left text-sm text-white/75">
-              <li>• {t("order.bulletPkg")}</li>
+              <li>• {packagePriceBullet}</li>
               <li>• {t("order.bulletAfterPay")}</li>
               <li>• {t("order.bulletSorglos")}</li>
             </ul>
