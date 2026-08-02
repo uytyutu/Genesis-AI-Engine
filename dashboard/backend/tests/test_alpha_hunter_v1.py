@@ -210,3 +210,18 @@ def test_approve_micro_test_dry_run_no_invented_profit(tmp_path: Path):
     assert out["experiment"]["test_cost_eur"] <= 0.40 + 1e-9
     assert out["experiment"]["mode"] == "prepare_dry_run"
     assert out["lab"]["lab"]["active_experiments"] >= 1
+
+
+def test_scan_intervals_and_go_live_gate(tmp_path: Path):
+    lab = AlphaHunterLab(_Mem(tmp_path))
+    assert lab.go_live()["ok"] is False
+    bad = lab.set_scan_interval(999)
+    assert bad["ok"] is False
+    ok = lab.set_scan_interval(120)
+    assert ok["ok"] is True
+    assert ok["scan_interval_sec"] == 120
+    lab.run_paper_day(bank_eur=20.0, opportunities_target=20)
+    assert lab._load_lab()["analysis_ready"] is True
+    assert lab._load_lab()["lab_mode"] == "analysis"
+    assert lab.go_live()["ok"] is True
+    assert lab._load_lab()["lab_mode"] == "live"

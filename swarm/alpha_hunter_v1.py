@@ -1280,18 +1280,25 @@ class AlphaHunterLab:
             ),
         )
         found_n = len(ranked)
-        # Director: drop penny deals
-        eligible = [
-            s
-            for s in ranked
-            if _safe_float(s.get("modeled_roi")) > 0
-            and passes_director_threshold(
-                expected_profit_eur=_safe_float(s.get("expected_profit_eur")),
+        # Director: drop penny deals (use range low — never single promised €)
+        eligible = []
+        for s in ranked:
+            if _safe_float(s.get("modeled_roi")) <= 0:
+                continue
+            profit = s.get("expected_profit") or expected_profit_range(
+                modeled_roi=_safe_float(s.get("modeled_roi")),
+                family=str(s.get("family") or ""),
+            )
+            s["expected_profit"] = profit
+            s["expected_profit_eur"] = profit["mid_eur"]
+            if passes_director_threshold(
+                expected_profit_eur=profit["mid_eur"],
                 modeled_roi=_safe_float(s.get("modeled_roi")),
                 min_profit_eur=dcfg["min_expected_profit_eur"],
                 min_roi_pct=dcfg["min_roi_pct"],
-            )
-        ]
+                expected_low_eur=profit["low_eur"],
+            ):
+                eligible.append(s)
         rejected_n = found_n - len(eligible)
         shortlist = eligible[:n]
         quote = micro_test_quote_eur(bank)

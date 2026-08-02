@@ -508,8 +508,8 @@ export default function IncomeLabPage() {
             <p className="text-xs text-zinc-400">
               Найдено: {liveBrief.found ?? "—"} · Отклонено: {liveBrief.rejected ?? "—"} ·
               Оставлено: {liveBrief.kept ?? "—"}
-              {liveBrief.expected_profit_eur != null
-                ? ` · Ожид. прибыль (модель): ${fmtEur(liveBrief.expected_profit_eur)}`
+              {liveBrief.expected_profit?.display_ru
+                ? ` · Expected Profit ${liveBrief.expected_profit.display_ru} (Confidence ${liveBrief.expected_profit.confidence_pct ?? "—"}%)`
                 : ""}
             </p>
             <p className="text-[11px] text-zinc-500">{director?.edge_ru}</p>
