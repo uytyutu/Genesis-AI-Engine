@@ -570,70 +570,234 @@
   }
 
   /* Ambient page wash behind App Store hub */
+  html.has-storefront-atmosphere body {
+    background-color: #050508 !important;
+  }
   .storefront-page-bg {
     pointer-events: none;
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: -1;
     overflow: hidden;
+  }
+  .storefront-page-bg__base {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(76, 29, 149, 0.45), transparent 55%),
+      linear-gradient(165deg, #050508 0%, #0a0614 38%, #06080f 72%, #040406 100%);
   }
   .storefront-page-bg__mesh {
     position: absolute;
-    inset: -20%;
+    inset: -25%;
     background:
-      radial-gradient(ellipse 55% 40% at 15% 10%, rgba(124, 58, 237, 0.28), transparent 55%),
-      radial-gradient(ellipse 45% 35% at 90% 20%, rgba(14, 165, 233, 0.22), transparent 50%),
-      radial-gradient(ellipse 50% 40% at 50% 90%, rgba(232, 121, 249, 0.12), transparent 55%),
-      linear-gradient(180deg, #07070c 0%, #0c0a14 45%, #07070c 100%);
-    animation: storefrontMeshDrift 22s ease-in-out infinite alternate;
+      radial-gradient(ellipse 50% 38% at 12% 18%, rgba(124, 58, 237, 0.42), transparent 58%),
+      radial-gradient(ellipse 42% 32% at 88% 22%, rgba(14, 165, 233, 0.32), transparent 52%),
+      radial-gradient(ellipse 48% 36% at 48% 88%, rgba(232, 121, 249, 0.18), transparent 55%),
+      radial-gradient(ellipse 30% 24% at 70% 60%, rgba(56, 189, 248, 0.12), transparent 60%);
+    animation: storefrontMeshDrift 20s ease-in-out infinite alternate;
+  }
+  .storefront-page-bg__aurora {
+    position: absolute;
+    width: 55vmax;
+    height: 55vmax;
+    border-radius: 40%;
+    filter: blur(80px);
+    opacity: 0.35;
+    mix-blend-mode: screen;
+  }
+  .storefront-page-bg__aurora--a {
+    left: -18%;
+    top: -10%;
+    background: conic-gradient(from 120deg, rgba(124, 58, 237, 0.55), transparent 55%, rgba(56, 189, 248, 0.35));
+    animation: storefrontAuroraSpin 28s linear infinite;
+  }
+  .storefront-page-bg__aurora--b {
+    right: -22%;
+    top: 20%;
+    background: conic-gradient(from 240deg, rgba(14, 165, 233, 0.45), transparent 50%, rgba(167, 139, 250, 0.4));
+    animation: storefrontAuroraSpin 36s linear infinite reverse;
+    opacity: 0.28;
+  }
+  .storefront-page-bg__aurora--c {
+    left: 20%;
+    bottom: -30%;
+    width: 70vmax;
+    height: 40vmax;
+    background: radial-gradient(ellipse at center, rgba(91, 141, 239, 0.28), transparent 65%);
+    animation: storefrontAuroraDrift 24s ease-in-out infinite alternate;
+    opacity: 0.4;
   }
   .storefront-page-bg__grid {
     position: absolute;
     inset: 0;
-    opacity: 0.22;
+    opacity: 0.28;
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent);
+      linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 75% 65% at 50% 28%, black, transparent 78%);
+    animation: storefrontGridDrift 40s linear infinite;
   }
   .storefront-page-bg__orb {
     position: absolute;
     border-radius: 9999px;
     filter: blur(64px);
-    opacity: 0.55;
+    opacity: 0.6;
     animation: storefrontOrb 16s ease-in-out infinite;
   }
   .storefront-page-bg__orb--a {
-    width: 22rem;
-    height: 22rem;
-    left: -6%;
-    top: 8%;
-    background: rgba(91, 141, 239, 0.35);
+    width: 24rem;
+    height: 24rem;
+    left: -8%;
+    top: 6%;
+    background: rgba(91, 141, 239, 0.42);
   }
   .storefront-page-bg__orb--b {
-    width: 18rem;
-    height: 18rem;
-    right: -4%;
-    top: 42%;
-    background: rgba(167, 139, 250, 0.3);
+    width: 20rem;
+    height: 20rem;
+    right: -6%;
+    top: 38%;
+    background: rgba(167, 139, 250, 0.38);
     animation-delay: -6s;
   }
   .storefront-page-bg__orb--c {
-    width: 16rem;
-    height: 16rem;
-    left: 35%;
-    bottom: 5%;
-    background: rgba(14, 165, 233, 0.22);
+    width: 18rem;
+    height: 18rem;
+    left: 32%;
+    bottom: 2%;
+    background: rgba(14, 165, 233, 0.28);
     animation-delay: -11s;
+  }
+  .storefront-page-bg__orb--d {
+    width: 14rem;
+    height: 14rem;
+    left: 55%;
+    top: 12%;
+    background: rgba(232, 121, 249, 0.22);
+    animation-delay: -3s;
+    animation-duration: 19s;
+  }
+  .storefront-page-bg__particles {
+    position: absolute;
+    inset: 0;
+  }
+  .storefront-page-bg__particle {
+    position: absolute;
+    left: var(--sx);
+    top: var(--sy);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 9999px;
+    background: rgba(226, 232, 255, 0.75);
+    box-shadow: 0 0 8px rgba(125, 211, 252, 0.55);
+    animation: storefrontParticle var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+    opacity: 0.35;
+  }
+  .storefront-page-bg__vignette {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 40%, transparent 35%, rgba(0, 0, 0, 0.45) 100%),
+      linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.35) 100%);
   }
   @keyframes storefrontMeshDrift {
     0% {
       transform: translate(0, 0) scale(1);
     }
     100% {
-      transform: translate(-2%, 1.5%) scale(1.04);
+      transform: translate(-2.5%, 2%) scale(1.06);
     }
+  }
+  @keyframes storefrontAuroraSpin {
+    from {
+      transform: rotate(0deg) scale(1);
+    }
+    to {
+      transform: rotate(360deg) scale(1.08);
+    }
+  }
+  @keyframes storefrontAuroraDrift {
+    0% {
+      transform: translate(-4%, 0) scale(1);
+    }
+    100% {
+      transform: translate(5%, -3%) scale(1.12);
+    }
+  }
+  @keyframes storefrontGridDrift {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 56px 56px;
+    }
+  }
+  @keyframes storefrontParticle {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.2;
+    }
+    50% {
+      transform: translate(12px, -28px) scale(1.35);
+      opacity: 0.75;
+    }
+  }
+
+  /* Section reveal on hub */
+  .storefront section {
+    animation: storefrontSectionIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .storefront > section:nth-child(1) {
+    animation-delay: 0.02s;
+  }
+  .storefront > section:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+  .storefront > section:nth-child(3) {
+    animation-delay: 0.14s;
+  }
+  .storefront > section:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+  .storefront > section:nth-child(5) {
+    animation-delay: 0.26s;
+  }
+  .storefront > section:nth-child(6) {
+    animation-delay: 0.32s;
+  }
+  .storefront > section:nth-child(7) {
+    animation-delay: 0.38s;
+  }
+  .storefront > section:nth-child(8) {
+    animation-delay: 0.44s;
+  }
+  .storefront > section:nth-child(9) {
+    animation-delay: 0.5s;
+  }
+  @keyframes storefrontSectionIn {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .storefront-module-card {
+    transition:
+      transform 0.25s ease,
+      border-color 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+  .storefront-module-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(167, 139, 250, 0.45);
+    box-shadow: 0 16px 40px -20px rgba(124, 58, 237, 0.55);
   }
 
   /* Vector floating chat — atmospheric panel */
@@ -738,7 +902,11 @@
     .storefront-orb,
     .storefront-page-bg__mesh,
     .storefront-page-bg__orb,
+    .storefront-page-bg__aurora,
+    .storefront-page-bg__grid,
+    .storefront-page-bg__particle,
     .storefront-toast,
+    .storefront section,
     .vector-chat-panel,
     .vector-chat-panel__mesh,
     .vector-chat-panel__orb,

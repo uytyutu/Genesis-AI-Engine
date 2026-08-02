@@ -154,9 +154,9 @@ export function AppStoreHub({
   return (
     <div className="storefront relative space-y-16 sm:space-y-20">
       {/* Hero — mobile-first: readable first screen without toast clutter */}
-      <section className="relative overflow-hidden rounded-2xl border border-genesis-purple/25 bg-black/20 px-4 py-10 shadow-[0_0_80px_-24px_rgba(124,58,237,0.45)] backdrop-blur-sm sm:rounded-[2rem] sm:px-10 sm:py-16">
+      <section className="relative overflow-hidden rounded-2xl border border-genesis-purple/30 bg-black/15 px-4 py-10 shadow-[0_0_80px_-24px_rgba(124,58,237,0.55)] backdrop-blur-md sm:rounded-[2rem] sm:px-10 sm:py-16">
         <LiveActivityCanvas />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/35" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-violet-950/20 via-transparent to-black/40" aria-hidden />
         <div className="relative z-10 mx-auto max-w-3xl space-y-5 text-center sm:space-y-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-genesis-purple">
             {BRAND_NAME}
