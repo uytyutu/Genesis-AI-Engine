@@ -576,8 +576,17 @@ export function SitePage() {
 
   return (
     <PublicPageShell>
+      {serviceView === "hub" ? (
+        <div className="storefront-page-bg" aria-hidden>
+          <div className="storefront-page-bg__mesh" />
+          <div className="storefront-page-bg__grid" />
+          <div className="storefront-page-bg__orb storefront-page-bg__orb--a" />
+          <div className="storefront-page-bg__orb storefront-page-bg__orb--b" />
+          <div className="storefront-page-bg__orb storefront-page-bg__orb--c" />
+        </div>
+      ) : null}
       <div
-        className={`relative mx-auto space-y-12 py-6 pb-28 animate-fade-up ${
+        className={`relative z-[1] mx-auto space-y-12 py-6 pb-28 animate-fade-up ${
           serviceView === "hub" ? "max-w-6xl" : "max-w-4xl"
         }`}
       >
@@ -887,14 +896,21 @@ export function SitePage() {
                   }
                 : undefined
             }
-            className={`fixed inset-0 z-[60] flex h-dvh max-h-dvh w-full flex-col overflow-hidden border-0 bg-[#0a0a0f] shadow-2xl sm:inset-auto sm:bottom-5 sm:right-5 sm:left-auto sm:h-[min(82dvh,740px)] sm:max-h-[min(82dvh,740px)] sm:w-[min(420px,calc(100vw-1.5rem))] sm:rounded-3xl sm:border sm:border-white/10 ${
+            className={`vector-chat-panel fixed inset-0 z-[60] flex h-dvh max-h-dvh w-full flex-col overflow-hidden border-0 sm:inset-auto sm:bottom-5 sm:right-5 sm:left-auto sm:h-[min(82dvh,740px)] sm:max-h-[min(82dvh,740px)] sm:w-[min(420px,calc(100vw-1.5rem))] sm:rounded-3xl sm:border sm:border-white/10 ${
               chatPos
                 ? "max-sm:!inset-0 max-sm:!left-0 max-sm:!top-0 max-sm:!right-0 max-sm:!bottom-0 max-sm:!max-h-none"
                 : ""
             }`}
           >
+            <div className="vector-chat-panel__bg" aria-hidden>
+              <div className="vector-chat-panel__mesh" />
+              <div className="vector-chat-panel__orb vector-chat-panel__orb--a" />
+              <div className="vector-chat-panel__orb vector-chat-panel__orb--b" />
+              <div className="vector-chat-panel__noise" />
+            </div>
+            <div className="vector-chat-panel__content">
             <div
-              className="flex shrink-0 touch-none items-center justify-between gap-2 border-b border-white/8 bg-gradient-to-r from-sky-950/40 to-transparent px-3 py-3 sm:cursor-grab sm:active:cursor-grabbing sm:px-4"
+              className="flex shrink-0 touch-none items-center justify-between gap-2 border-b border-white/10 bg-black/20 px-3 py-3 backdrop-blur-md sm:cursor-grab sm:active:cursor-grabbing sm:px-4"
               onPointerDown={(e) => {
                 if (typeof window !== "undefined" && window.innerWidth < 640) return;
                 onChatDragStart(e);
@@ -907,8 +923,9 @@ export function SitePage() {
               })}
             >
               <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-500/20 text-sm font-bold text-sky-200 ring-1 ring-sky-400/30">
-                  V
+                <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-500/25 text-sm font-bold text-sky-100 ring-1 ring-sky-300/40">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-sky-400/20 [animation-duration:2.4s]" />
+                  <span className="relative">V</span>
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-white">
@@ -921,7 +938,7 @@ export function SitePage() {
                   </p>
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-0.5">
+              <div className="flex shrink-0 items-center gap-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -931,7 +948,7 @@ export function SitePage() {
                   className="rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/8"
                   aria-label={t("s0.newChat", { defaultValue: "New chat" })}
                 >
-                  +
+                  {t("s0.newChat", { defaultValue: "New" })}
                 </button>
                 <button
                   type="button"
@@ -948,10 +965,10 @@ export function SitePage() {
                     }
                   }}
                   onPointerDown={(e) => e.stopPropagation()}
-                  className="rounded-xl px-2.5 py-2 text-xs font-medium text-zinc-400 hover:bg-rose-500/15 hover:text-rose-200"
+                  className="rounded-xl px-2.5 py-2 text-xs font-medium text-rose-300/90 hover:bg-rose-500/15 hover:text-rose-200"
                   aria-label={t("s0.deleteChat", { defaultValue: "Delete chat" })}
                 >
-                  ⌫
+                  {t("s0.deleteChat", { defaultValue: "Delete" })}
                 </button>
                 <button
                   type="button"
@@ -964,8 +981,9 @@ export function SitePage() {
                 </button>
               </div>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden [&_#genesis-chat]:h-full [&_#genesis-chat]:max-h-none [&_#genesis-chat]:min-h-0 [&_#genesis-chat]:rounded-none [&_#genesis-chat]:border-0 [&_#genesis-chat]:shadow-none">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden [&_#genesis-chat]:h-full [&_#genesis-chat]:max-h-none [&_#genesis-chat]:min-h-0 [&_#genesis-chat]:rounded-none [&_#genesis-chat]:border-0 [&_#genesis-chat]:bg-transparent [&_#genesis-chat]:shadow-none">
               <GenesisConcierge scope="public" />
+            </div>
             </div>
           </div>
         ) : null}
@@ -974,7 +992,7 @@ export function SitePage() {
           <button
             type="button"
             onClick={() => openChat()}
-            className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-sky-500 px-4 py-3.5 text-sm font-semibold text-white shadow-[0_12px_40px_-8px_rgba(14,165,233,0.65)] hover:brightness-110"
+            className="vector-chat-fab fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-sky-500 px-4 py-3.5 text-sm font-semibold text-white hover:brightness-110"
             style={
               vvLayout.keyboard > 0
                 ? { bottom: `max(1.25rem, ${vvLayout.keyboard + 12}px)` }

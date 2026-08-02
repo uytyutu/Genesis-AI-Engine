@@ -110,14 +110,16 @@ export function AppStoreHub({
 
   const websiteTiers =
     packages && packages.length > 0
-      ? packages.map((p) => ({
-          id: p.id,
-          priceLabel:
-            p.price_label ||
-            formatLocalizedMoney(p.price_eur, p.currency || "EUR", localeTag),
-          name: p.name,
-          featured: p.id === "business",
-        }))
+      ? packages
+          .filter((p) => ["basic", "business", "premium"].includes(String(p.id)))
+          .map((p) => ({
+            id: p.id,
+            priceLabel:
+              p.price_label ||
+              formatLocalizedMoney(p.price_eur, p.currency || "EUR", localeTag),
+            name: p.name,
+            featured: p.id === "business",
+          }))
       : WEBSITE_PRICE_TIERS.map((tier) => ({
           id: tier.id,
           priceLabel: formatLocalizedMoney(tier.priceEur, "EUR", localeTag),
@@ -128,13 +130,15 @@ export function AppStoreHub({
 
   const botTiers =
     botPackages && botPackages.length > 0
-      ? botPackages.map((p) => ({
-          id: p.package_id,
-          name: p.name,
-          setupLabel: p.setup_label || p.price_label,
-          monthlyLabel: p.monthly_label || "",
-          featured: p.package_id.includes("business"),
-        }))
+      ? botPackages
+          .filter((p) => String(p.package_id || "").startsWith("bot_"))
+          .map((p) => ({
+            id: p.package_id,
+            name: p.name,
+            setupLabel: p.setup_label || p.price_label,
+            monthlyLabel: p.monthly_label || "",
+            featured: p.package_id.includes("business"),
+          }))
       : CHATBOT_PRICE_TIERS.map((tier) => ({
           id: tier.id,
           name: t(`${ns}.${tier.nameKey}`),
@@ -148,10 +152,11 @@ export function AppStoreHub({
     botOrderHrefFor?.(id) || `/order/bot?package=${encodeURIComponent(id)}`;
 
   return (
-    <div className="storefront space-y-16 sm:space-y-20">
+    <div className="storefront relative space-y-16 sm:space-y-20">
       {/* Hero — mobile-first: readable first screen without toast clutter */}
-      <section className="relative overflow-hidden rounded-2xl border border-genesis-purple/25 bg-gradient-to-b from-[#12081c] via-genesis-bg to-genesis-bg px-4 py-10 sm:rounded-[2rem] sm:px-10 sm:py-16">
+      <section className="relative overflow-hidden rounded-2xl border border-genesis-purple/25 bg-black/20 px-4 py-10 shadow-[0_0_80px_-24px_rgba(124,58,237,0.45)] backdrop-blur-sm sm:rounded-[2rem] sm:px-10 sm:py-16">
         <LiveActivityCanvas />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/35" aria-hidden />
         <div className="relative z-10 mx-auto max-w-3xl space-y-5 text-center sm:space-y-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-genesis-purple">
             {BRAND_NAME}
@@ -345,20 +350,20 @@ export function AppStoreHub({
         </div>
       </section>
 
-      {/* Free try Vector */}
+      {/* Free chat with Vector — not a free product */}
       <section
         id="try-free"
         className="scroll-mt-24 rounded-[2rem] border border-genesis-purple/35 bg-gradient-to-br from-[#1a0b2e] to-genesis-panel p-6 sm:p-10"
       >
         <div className="mx-auto max-w-2xl space-y-4 text-center">
           <h2 className="text-2xl font-semibold text-white sm:text-3xl">
-            {t(`${ns}.trial.title`, { defaultValue: "Try free — talk to Vector" })}
+            {t(`${ns}.trial.title`, { defaultValue: "Free chat with Vector" })}
           </h2>
           <p className="text-sm text-genesis-muted sm:text-base">
             {t(`${ns}.trial.body`, {
               assistant: ASSISTANT_NAME,
               defaultValue:
-                "Ask {{assistant}} on this page before you register. Timed 3-day chatbot product trial comes next — today you can already experience the AI.",
+                "Ask {{assistant}} about products and prices — free. Ordering a website or AI Bot is a separate paid checkout.",
             })}
           </p>
           <button
@@ -366,17 +371,17 @@ export function AppStoreHub({
             onClick={onOpenVector}
             className="storefront-cta-primary inline-flex rounded-2xl bg-white px-8 py-3.5 text-sm font-bold text-black hover:brightness-95"
           >
-            {t(`${ns}.trial.cta`, { defaultValue: "Try AI free" })}
+            {t(`${ns}.trial.cta`, { defaultValue: "Open free chat" })}
           </button>
           <p className="text-[11px] text-zinc-500">
             {t(`${ns}.trial.note`, {
-              defaultValue: "No card required for this on-page chat.",
+              defaultValue: "Chat is free. Packages below are paid — same prices as on the order form.",
             })}
           </p>
         </div>
       </section>
 
-      {/* Pricing — same EUR as /order checkout (no showcase/test figures) */}
+      {/* Pricing — same EUR as /order checkout */}
       <section id="pricing" className="scroll-mt-24 space-y-8">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-semibold text-white sm:text-3xl">
@@ -384,7 +389,12 @@ export function AppStoreHub({
           </h2>
           <p className="text-sm text-genesis-muted">
             {t(`${ns}.pricing.subtitle`, {
-              defaultValue: "Live checkout prices in EUR — same on the order page.",
+              defaultValue: "Paid packages — identical amounts on the order page.",
+            })}
+          </p>
+          <p className="text-[11px] font-medium uppercase tracking-wider text-emerald-300/90">
+            {t(`${ns}.pricing.paidBadge`, {
+              defaultValue: "Real checkout prices · not a demo",
             })}
           </p>
         </div>
@@ -405,6 +415,9 @@ export function AppStoreHub({
               >
                 <p className="text-sm text-zinc-300">{tier.name}</p>
                 <p className="mt-2 text-3xl font-semibold text-white">{tier.priceLabel}</p>
+                <p className="mt-0.5 text-[11px] text-zinc-500">
+                  {t(`${ns}.pricing.oneTime`, { defaultValue: "One-time · paid checkout" })}
+                </p>
                 {"blurbKey" in tier && tier.blurbKey ? (
                   <p className="mt-2 flex-1 text-sm text-genesis-muted">
                     {t(`${ns}.${tier.blurbKey}`)}
@@ -457,6 +470,11 @@ export function AppStoreHub({
                     })}
                   </p>
                 ) : null}
+                <p className="mt-0.5 text-[11px] text-zinc-500">
+                  {t(`${ns}.pricing.setupPlusMonthly`, {
+                    defaultValue: "Setup + monthly · paid checkout",
+                  })}
+                </p>
                 {"blurbKey" in tier && tier.blurbKey ? (
                   <p className="mt-2 flex-1 text-sm text-genesis-muted">
                     {t(`${ns}.${tier.blurbKey}`)}

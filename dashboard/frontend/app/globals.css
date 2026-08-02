@@ -568,4 +568,182 @@
       transform: translateY(-8px);
     }
   }
+
+  /* Ambient page wash behind App Store hub */
+  .storefront-page-bg {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .storefront-page-bg__mesh {
+    position: absolute;
+    inset: -20%;
+    background:
+      radial-gradient(ellipse 55% 40% at 15% 10%, rgba(124, 58, 237, 0.28), transparent 55%),
+      radial-gradient(ellipse 45% 35% at 90% 20%, rgba(14, 165, 233, 0.22), transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 90%, rgba(232, 121, 249, 0.12), transparent 55%),
+      linear-gradient(180deg, #07070c 0%, #0c0a14 45%, #07070c 100%);
+    animation: storefrontMeshDrift 22s ease-in-out infinite alternate;
+  }
+  .storefront-page-bg__grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.22;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black, transparent);
+  }
+  .storefront-page-bg__orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(64px);
+    opacity: 0.55;
+    animation: storefrontOrb 16s ease-in-out infinite;
+  }
+  .storefront-page-bg__orb--a {
+    width: 22rem;
+    height: 22rem;
+    left: -6%;
+    top: 8%;
+    background: rgba(91, 141, 239, 0.35);
+  }
+  .storefront-page-bg__orb--b {
+    width: 18rem;
+    height: 18rem;
+    right: -4%;
+    top: 42%;
+    background: rgba(167, 139, 250, 0.3);
+    animation-delay: -6s;
+  }
+  .storefront-page-bg__orb--c {
+    width: 16rem;
+    height: 16rem;
+    left: 35%;
+    bottom: 5%;
+    background: rgba(14, 165, 233, 0.22);
+    animation-delay: -11s;
+  }
+  @keyframes storefrontMeshDrift {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      transform: translate(-2%, 1.5%) scale(1.04);
+    }
+  }
+
+  /* Vector floating chat — atmospheric panel */
+  .vector-chat-panel {
+    isolation: isolate;
+    background: #08080e;
+    animation: vectorChatIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 28px 80px -20px rgba(0, 0, 0, 0.85),
+      0 0 60px -20px rgba(14, 165, 233, 0.35);
+  }
+  .vector-chat-panel__bg {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+  .vector-chat-panel__mesh {
+    position: absolute;
+    inset: -30%;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(56, 189, 248, 0.28), transparent 42%),
+      radial-gradient(circle at 90% 20%, rgba(139, 92, 246, 0.22), transparent 40%),
+      radial-gradient(circle at 40% 100%, rgba(14, 165, 233, 0.14), transparent 45%),
+      linear-gradient(165deg, #0b1020 0%, #0a0a12 48%, #0c0818 100%);
+    animation: vectorChatMesh 18s ease-in-out infinite alternate;
+  }
+  .vector-chat-panel__noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+  .vector-chat-panel__orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(40px);
+    opacity: 0.5;
+    animation: storefrontOrb 12s ease-in-out infinite;
+  }
+  .vector-chat-panel__orb--a {
+    width: 11rem;
+    height: 11rem;
+    top: -2rem;
+    left: -2rem;
+    background: rgba(56, 189, 248, 0.45);
+  }
+  .vector-chat-panel__orb--b {
+    width: 9rem;
+    height: 9rem;
+    right: -1.5rem;
+    bottom: 30%;
+    background: rgba(167, 139, 250, 0.4);
+    animation-delay: -5s;
+  }
+  .vector-chat-panel__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+  }
+  @keyframes vectorChatIn {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  @keyframes vectorChatMesh {
+    0% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    100% {
+      transform: translate(-3%, 2%) rotate(1.5deg);
+    }
+  }
+  .vector-chat-fab {
+    animation: vectorFabPulse 2.8s ease-in-out infinite;
+  }
+  @keyframes vectorFabPulse {
+    0%,
+    100% {
+      box-shadow: 0 12px 40px -8px rgba(14, 165, 233, 0.65);
+    }
+    50% {
+      box-shadow:
+        0 12px 40px -8px rgba(14, 165, 233, 0.85),
+        0 0 0 8px rgba(14, 165, 233, 0.12);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .storefront-orb,
+    .storefront-page-bg__mesh,
+    .storefront-page-bg__orb,
+    .storefront-toast,
+    .vector-chat-panel,
+    .vector-chat-panel__mesh,
+    .vector-chat-panel__orb,
+    .vector-chat-fab {
+      animation: none !important;
+    }
+  }
 }

@@ -2024,9 +2024,23 @@ export function GenesisConcierge({
             );
           })}
           {busy && !messages.some((m) => m.generating) && (
-            <li className="flex justify-start">
-              <div className="rounded-3xl border border-white/5 bg-genesis-panel/60 px-4 py-3 text-sm text-genesis-muted">
-                {ASSISTANT_NAME} работает…
+            <li className={`flex ${isPublicConsultant ? "justify-start" : ""}`}>
+              <div
+                className={
+                  isPublicConsultant
+                    ? "inline-flex items-center gap-1.5 rounded-2xl rounded-bl-md border border-white/10 bg-[#16161f] px-4 py-2.5"
+                    : "rounded-3xl border border-white/5 bg-genesis-panel/60 px-4 py-3 text-sm text-genesis-muted"
+                }
+              >
+                {isPublicConsultant ? (
+                  <>
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-300" />
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-300 [animation-delay:150ms]" />
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-300 [animation-delay:300ms]" />
+                  </>
+                ) : (
+                  <>{ASSISTANT_NAME} работает…</>
+                )}
               </div>
             </li>
           )}

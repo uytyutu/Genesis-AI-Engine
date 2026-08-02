@@ -45,7 +45,10 @@
     "vectorAsk": "Unsicher, was passt?",
     "askVector": "Vector fragen",
     "closeChat": "Schließen",
-    "chatHint": "Berater — hilft bei der Paketwahl",
+    "chatHint": "Berater · schnelle Antworten",
+    "newChat": "Neu",
+    "deleteChat": "Löschen",
+    "deleteChatConfirm": "Diesen Dialog löschen?",
     "honestNote": "Coming Soon ≠ Kaufen. Wir verkaufen nur fertige Lieferpfade.",
     "marketLabel": "Markt / Preise",
     "repairMvpTitle": "Website-Reparatur — was Sie erwarten können",
@@ -977,17 +980,20 @@
       "badgeChoice": "⭐ Kundenwahl"
     },
     "trial": {
-      "title": "Kostenlos testen — sprechen Sie mit Vector",
-      "body": "Fragen Sie {{assistant}} auf dieser Seite vor der Registrierung. Ein 3-Tage-Chatbot-Trial kommt als Nächstes — heute erleben Sie bereits die KI.",
-      "cta": "🚀 KI kostenlos starten",
-      "note": "Keine Karte für diesen On-Page-Chat."
+      "title": "Kostenloser Chat mit Vector",
+      "body": "Fragen Sie {{assistant}} zu Produkten und Preisen — kostenlos. Website oder AI Bot werden separat im Checkout bezahlt.",
+      "cta": "Kostenlosen Chat öffnen",
+      "note": "Der Chat ist kostenlos. Die Pakete unten sind kostenpflichtig — gleiche Beträge wie im Bestellformular."
     },
     "pricing": {
       "title": "Preise",
-      "subtitle": "Live-Checkout-Preise in EUR — wie auf der Bestellseite.",
+      "subtitle": "Kostenpflichtige Pakete — gleiche Beträge wie auf der Bestellseite.",
+      "paidBadge": "Echte Checkout-Preise · kein Demo",
       "websites": "Website",
       "chatbots": "AI Chatbot",
       "order": "Bestellen",
+      "oneTime": "Einmalig · Checkout",
+      "setupPlusMonthly": "Setup + monatlich · Checkout",
       "perMonth": "/ Mon.",
       "thenMonthly": "danach {{monthly}}/Mon.",
       "seeBotPackages": "Pakete ansehen",
