@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { MoneyMonitorPanel, type MoneyMonitorData } from "./MoneyMonitorPanel";
+import { FarmMaturityBoard } from "./FarmMaturityBoard";
+import { PayoutManagerPanel, type PayoutManagerData } from "./PayoutManagerPanel";
 import { formatEur } from "../lib/formatEur";
 import { fetchApi } from "../lib/fetchApi";
 import {
@@ -83,6 +85,7 @@ type FarmDash = {
   sandbox: boolean;
   balance_label: string;
   money_monitor?: MoneyMonitorData;
+  payout_manager?: PayoutManagerData;
   combiners: Combiner[];
   worker_flow?: { step: number; id: string; title: string; detail: string }[];
   primary_combiner?: string;
@@ -914,6 +917,9 @@ export function FarmDashboard() {
             <Link href="/finance" className="rounded-lg border border-genesis-border px-3 py-1.5 hover:bg-genesis-elevated/40">
               Деньги
             </Link>
+            <Link href="/payout" className="rounded-lg border border-emerald-500/40 px-3 py-1.5 text-emerald-100 hover:bg-emerald-950/30">
+              Вывод
+            </Link>
             <a
               href={`${API}/api/farm/export/labels`}
               className="rounded-lg border border-violet-500/40 px-3 py-1.5 text-violet-200 hover:bg-violet-950/30"
@@ -957,7 +963,16 @@ export function FarmDashboard() {
 
         {dash?.revenue_lab ? <RevenueLabCeoPanel data={dash.revenue_lab} /> : null}
 
+        <FarmMaturityBoard autoFetch compact />
+
         {dash?.money_monitor ? <MoneyMonitorPanel data={dash.money_monitor} /> : null}
+
+        {(dash?.money_monitor?.payout_manager || dash?.payout_manager) ? (
+          <PayoutManagerPanel
+            data={(dash.money_monitor?.payout_manager || dash.payout_manager) as PayoutManagerData}
+            onWithdrawDone={() => void refresh()}
+          />
+        ) : null}
 
         {productionPlatform?.b2b_brief ? (
           <section className="genesis-card border-sky-500/30 bg-sky-950/10 p-5 space-y-4">

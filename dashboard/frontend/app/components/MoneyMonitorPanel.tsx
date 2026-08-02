@@ -94,6 +94,7 @@ export type MoneyMonitorData = {
   subtitle_ru: string;
   money_truth?: MoneyTruth | null;
   channel_board?: ChannelBoard | null;
+  payout_manager?: import("./PayoutManagerPanel").PayoutManagerData | null;
   actual_revenue?: {
     paid_by_client_eur: number;
     pending_settlement_eur: number;
@@ -355,6 +356,12 @@ export function MoneyMonitorPanel({ data, compact }: Props) {
         <p className="font-medium text-white">{alert.title_ru}</p>
         <p className="mt-1 text-sm text-genesis-muted">{alert.message_ru}</p>
         <p className="mt-2 text-xs text-emerald-200/90">→ {alert.ceo_action_ru}</p>
+        <Link
+          href="/payout"
+          className="mt-3 inline-flex text-sm font-medium text-emerald-300 hover:underline"
+        >
+          Открыть Вывод · Payout Manager →
+        </Link>
       </div>
 
       {data.toloka_role_ru && !compact ? (

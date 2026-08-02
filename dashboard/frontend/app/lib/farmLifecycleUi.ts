@@ -26,6 +26,7 @@ export type PayoutGuide = {
 const STAGE_STYLES: Record<string, string> = {
   task_accepted: "border-sky-500/40 bg-sky-950/20",
   task_completed: "border-emerald-500/35 bg-emerald-950/15",
+  spend_accepted: "border-sky-500/35 bg-sky-950/20",
   reward_estimate: "border-zinc-500/35 bg-zinc-900/40",
   payment_pending: "border-amber-500/35 bg-amber-950/15",
   payment_confirmed: "border-violet-500/35 bg-violet-950/15",
@@ -42,10 +43,17 @@ export function lifecycleRowClass(stage?: string): string {
 
 export function lifecycleTitle(event: FarmTaskEvent): string {
   if (event.title_ru) return event.title_ru;
-  if (event.lifecycle_stage === "balance_increased") return "Баланс биржи обновился";
-  if (event.lifecycle_stage === "reward_estimate") return "Оценка вознаграждения";
-  if (event.lifecycle_stage === "cycle_accounted") return "Расчётный учёт цикла";
-  if (event.lifecycle_stage === "payment_pending") return "Ожидает подтверждения платформой";
+  if (event.lifecycle_stage === "spend_accepted") {
+    return "Spend OK · dataset/pipeline принят (не выплата Virtus)";
+  }
+  if (event.lifecycle_stage === "balance_increased") return "Баланс Earn-платформы обновился";
+  if (event.lifecycle_stage === "reward_estimate") {
+    return "Оценка вознаграждения (моделирование)";
+  }
+  if (event.lifecycle_stage === "cycle_accounted") return "Расчётный учёт цикла (не REAL)";
+  if (event.lifecycle_stage === "payment_pending") {
+    return "Ожидает выплаты Earn Connector (не Spend)";
+  }
   if (event.ok) return "Задача обработана";
   return "Событие фермы";
 }

@@ -1792,6 +1792,38 @@ def farm_payment_monitor() -> dict:
     return _ctx().micro_farm.payment_monitor_status()
 
 
+@app.get("/api/farm/payout-manager")
+def farm_payout_manager() -> dict:
+    """Payout Manager — where REAL sits and official withdraw paths (not Earn)."""
+    return _ctx().micro_farm.payout_manager_panel()
+
+
+@app.get("/api/farm/engine/v1")
+def farm_engine_v1() -> dict:
+    """Farm Engine v1 — Opportunity Scanner · Legal · ROI · Queue · Ledger (not Path A)."""
+    return _ctx().micro_farm.farm_engine_v1()
+
+
+@app.post("/api/farm/engine/v1/decide")
+def farm_engine_v1_decide(opportunity_id: str, decision: str, note: str = "") -> dict:
+    """CEO: go | reject | hold | research on a scanned opportunity."""
+    return _ctx().micro_farm.farm_engine_v1_decide(opportunity_id, decision, note=note)
+
+
+@app.post("/api/farm/engine/v1/enqueue")
+def farm_engine_v1_enqueue(opportunity_id: str, note: str = "") -> dict:
+    """Enqueue CEO-GO opportunity into dry_run execution queue."""
+    return _ctx().micro_farm.farm_engine_v1_enqueue(opportunity_id, note=note)
+
+
+@app.post("/api/farm/engine/v1/register-platform")
+def farm_engine_v1_register_platform(body: dict) -> dict:
+    """Direction B — add Earn platform research passport (not Live Earn)."""
+    return _ctx().micro_farm.farm_engine_v1_register_platform(
+        body if isinstance(body, dict) else {}
+    )
+
+
 @app.post("/api/farm/real-payout")
 def farm_real_payout(
     amount_eur: float,

@@ -62,6 +62,8 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
   if (pathname === "/products") return "public";
   const mc = [
     "/finance",
+    "/payout",
+    "/farm-engine",
     "/company",
     "/ai",
     "/cursor",
@@ -163,9 +165,11 @@ export const CEO_PRIMARY_LINKS = [
   { href: "/client/bots", label: "Боты", hint: "AI bots · цены по странам · отдельный продукт" },
   { href: "/support", label: "Поддержка", hint: "Inbox · автоответы · шаблоны" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
-  { href: "/", label: "Ферма", hint: "Разметка · Toloka (не Desk)" },
+  { href: "/", label: "Ферма", hint: "Разметка · Toloka Spend (не Desk)" },
+  { href: "/farm-engine", label: "Farm Engine", hint: "Scanner · Legal · ROI · Queue · Ledger" },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
   { href: "/revenue", label: "Доход", hint: "Lab · Work Farm · ключи · API" },
+  { href: "/payout", label: "Вывод", hint: "Payout Manager · REAL → банк" },
   { href: "/finance", label: "Финансы и налоги", hint: "Доходы · чеки · экспорт" },
 ] as const;
 

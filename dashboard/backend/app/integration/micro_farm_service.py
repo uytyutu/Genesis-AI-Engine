@@ -190,12 +190,18 @@ class MicroFarmService:
         from app.integration.swarm_bridge import ensure_swarm_importable
 
         ensure_swarm_importable()
-        from swarm.farm_lifecycle_ru import STAGE_ACCEPTED, lifecycle_chain
+        from swarm.farm_lifecycle_ru import (
+            STAGE_ACCEPTED,
+            STAGE_SPEND_ACCEPTED,
+            lifecycle_chain,
+            money_direction_for_adapter,
+        )
 
-        vault = self._priority_manager().vault
-        live_ex = vault.is_live() and not vault.is_dry_run()
-        # Local adapter table amounts are estimates — never "confirmed platform pay"
+        direction = money_direction_for_adapter(adapter)
+        # Local adapter table amounts are estimates — never "confirmed platform pay".
+        # Spend (Toloka Requester): Pipeline OK ≠ Earn estimate / pending payout.
         confirmed = bool(real_payout and payout_id and pay_eur > 0)
+        staged_pay = 0.0 if direction == "spend" else pay_eur
         self._log_lifecycle_event(
             stage=STAGE_ACCEPTED,
             adapter=adapter,
@@ -206,9 +212,10 @@ class MicroFarmService:
         for stage in lifecycle_chain(
             ok=ok,
             sandbox=self._business_mode.is_sandbox(),
-            live_exchange=live_ex,
-            pay_eur=pay_eur,
+            money_direction=direction,
+            pay_eur=staged_pay,
             real_payout=confirmed,
+            earn_payout_awaited=False,
         ):
             if stage == STAGE_ACCEPTED:
                 continue
@@ -216,7 +223,7 @@ class MicroFarmService:
                 stage=stage,
                 adapter=adapter,
                 task_id=task_id,
-                pay_eur=pay_eur,
+                pay_eur=0.0 if stage == STAGE_SPEND_ACCEPTED else staged_pay,
                 ok=ok,
                 payout_id=payout_id if confirmed else "",
                 real_payout=confirmed,
@@ -409,6 +416,8 @@ class MicroFarmService:
         pending = sum(1 for r in opps if r.get("outreach_status") == "pending_approval")
         finance = FinanceService(self._memory)
         finance_inputs = finance.real_money_inputs()
+        finance_inputs["sandbox"] = self._business_mode.is_sandbox()
+        finance_inputs["system_mode"] = "sandbox" if finance_inputs["sandbox"] else "live"
         revenue_forecast = None if lite else self.revenue_forecast(labeling_nodes=10)
 
         if lite:
@@ -434,6 +443,60 @@ class MicroFarmService:
             finance_inputs=finance_inputs,
             revenue_forecast=revenue_forecast,
         )
+
+    def payout_manager_panel(self) -> dict[str, Any]:
+        """CEO Payout Manager — official withdraw paths per Earn source."""
+        from app.integration.finance_service import FinanceService
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.payout_manager import build_payout_manager
+
+        ensure_swarm_importable()
+        finance = FinanceService(self._memory)
+        fin = finance.real_money_inputs()
+        return build_payout_manager(
+            finance_snapshot=fin.get("finance_snapshot") or {},
+            payout_history=fin.get("payout_history") or [],
+            payment_connected=bool(fin.get("payment_connected")),
+            demo_mode=bool(fin.get("demo_mode")),
+            sandbox=self._business_mode.is_sandbox(),
+            farm_state=self._load_state(),
+        )
+
+    def farm_engine_v1(self) -> dict[str, Any]:
+        """Farm Engine v1 panel — legal digital work OS (separate from Path A)."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.farm_engine_v1 import FarmEngineV1
+
+        ensure_swarm_importable()
+        return FarmEngineV1(self._memory).panel()
+
+    def farm_engine_v1_decide(
+        self, opportunity_id: str, decision: str, *, note: str = ""
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.farm_engine_v1 import FarmEngineV1
+
+        ensure_swarm_importable()
+        return FarmEngineV1(self._memory).decide(opportunity_id, decision, note=note)
+
+    def farm_engine_v1_enqueue(
+        self, opportunity_id: str, *, note: str = ""
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.farm_engine_v1 import FarmEngineV1
+
+        ensure_swarm_importable()
+        return FarmEngineV1(self._memory).enqueue(opportunity_id, note=note)
+
+    def farm_engine_v1_register_platform(
+        self, passport: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Direction B — register Earn platform research passport."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.farm_engine_v1 import FarmEngineV1
+
+        ensure_swarm_importable()
+        return FarmEngineV1(self._memory).register_earn_platform_research(passport)
 
     def dashboard_lite(self, owner_name: str = "Владелец") -> dict[str, Any]:
         """Fast journal payload — no Toloka live probe, no heavy discovery scan."""

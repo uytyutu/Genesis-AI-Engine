@@ -23,7 +23,11 @@ def build_money_monitor(
     revenue_forecast: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Genesis = приборная панель. Earn OFF сегодня · Spend = requester · B2B = Stripe."""
+    from app.integration.swarm_bridge import ensure_swarm_importable
+
+    ensure_swarm_importable()
     from swarm.farm_channel_board import build_farm_channel_board, build_money_truth
+    from swarm.payout_manager import build_payout_manager
 
     pm = payment_monitor or {}
     monitor = pm.get("monitor") or {}
@@ -67,6 +71,15 @@ def build_money_monitor(
     )
     earn_on = int(channel_board["summary"]["earn_on_count"])
 
+    sandbox = bool(fin.get("sandbox")) or str(fin.get("system_mode") or "").lower() == "sandbox"
+    payout_manager = build_payout_manager(
+        finance_snapshot=fin.get("finance_snapshot") or {},
+        payout_history=fin.get("payout_history") or [],
+        payment_connected=bool(fin.get("payment_connected")),
+        demo_mode=bool(fin.get("demo_mode")),
+        sandbox=sandbox,
+        farm_state=farm_state,
+    )
     pending_proposals = sum(
         1 for r in opps if r.get("outreach_status") == "pending_approval"
     )
@@ -211,6 +224,7 @@ def build_money_monitor(
         "subtitle_ru": "REAL / SPENT / PREDICTION · Earn OFF пока нет performer-адаптера",
         "money_truth": money_truth,
         "channel_board": channel_board,
+        "payout_manager": payout_manager,
         "actual_revenue": actual_revenue,
         "farm_potential": farm_potential,
         "real_money": real_money,
@@ -227,8 +241,8 @@ def build_money_monitor(
             else "Модель не доказана — нужна хотя бы 1 успешная B2B-сделка с оплатой."
         ),
         "toloka_role_ru": (
-            "Toloka сейчас: Spend / Requester. "
+            "Toloka сейчас: Execution + Spend / Requester. "
             f"{toloka_submit_count} submit · LLM/API SPENT={spent_eur:.2f} €. "
-            "Earn (performer → Withdraw → Stripe) в коде не подключён."
+            "Не источник вывода. ROI — по операции с клиентом."
         ),
     }
