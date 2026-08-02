@@ -83,11 +83,13 @@ from app.schemas import (
     PublishStatusRequest,
     NextOfferInterestRequest,
     ClientReviewSubmitRequest,
+    ClientReviewGuestSubmitRequest,
     ClientReviewSubmitResponse,
     ClientReviewsPublicResponse,
     ClientReviewModerateRequest,
     ClientReviewModerationItem,
     ClientReviewsPendingResponse,
+    ClientReviewsOwnerListResponse,
     ClientReviewOwnerPublishRequest,
     PaymentStatusResponse,
     PricingEventRequest,
@@ -1218,6 +1220,145 @@ def get_system_check() -> SystemCheckResponse:
     return SystemCheckResponse(**data)
 
 
+@app.get("/api/owner/income-engine")
+def owner_income_engine() -> dict:
+    """Owner-only Income Engine — Opportunity Optimizer (not a commercial product)."""
+    return _ctx().micro_farm.income_engine_v1()
+
+
+@app.post("/api/owner/income-engine/start")
+def owner_income_engine_start(body: dict) -> dict:
+    """START INCOME ENGINE — swarm mission (expected ROI, not guaranteed profit)."""
+    bal = float((body or {}).get("balance_eur") or 0)
+    limit_raw = (body or {}).get("auto_approve_limit_eur")
+    limit = float(limit_raw) if limit_raw is not None else None
+    simulate_fast = bool((body or {}).get("simulate_fast", True))
+    return _ctx().micro_farm.income_engine_v1_start(
+        balance_eur=bal,
+        auto_approve_limit_eur=limit,
+        simulate_fast=simulate_fast,
+    )
+
+
+@app.post("/api/owner/income-engine/approve")
+def owner_income_engine_approve(body: dict) -> dict:
+    """Approve once | batch_limit (all deals up to auto-approve €X)."""
+    oid = str((body or {}).get("opportunity_id") or "").strip()
+    if not oid:
+        raise HTTPException(status_code=400, detail="opportunity_id_required")
+    mode = str((body or {}).get("mode") or "once").strip() or "once"
+    note = str((body or {}).get("note") or "")
+    return _ctx().micro_farm.income_engine_v1_approve(oid, mode=mode, note=note)
+
+
+@app.post("/api/owner/income-engine/reject")
+def owner_income_engine_reject(body: dict) -> dict:
+    oid = str((body or {}).get("opportunity_id") or "").strip()
+    if not oid:
+        raise HTTPException(status_code=400, detail="opportunity_id_required")
+    note = str((body or {}).get("note") or "")
+    return _ctx().micro_farm.income_engine_v1_reject(oid, note=note)
+
+
+@app.post("/api/owner/income-engine/auto-limit")
+def owner_income_engine_auto_limit(body: dict) -> dict:
+    limit = float((body or {}).get("auto_approve_limit_eur") or 0)
+    return _ctx().micro_farm.income_engine_v1_set_auto_limit(limit)
+
+
+@app.post("/api/owner/income-engine/reinvest")
+def owner_income_engine_reinvest(body: dict) -> dict:
+    enabled = bool((body or {}).get("enabled"))
+    return _ctx().micro_farm.income_engine_v1_set_reinvest(enabled)
+
+
+@app.post("/api/owner/income-engine/record-outcome")
+def owner_income_engine_record_outcome(body: dict) -> dict:
+    """Record realized payout only — never estimates as profit."""
+    oid = str((body or {}).get("opportunity_id") or "").strip()
+    if not oid:
+        raise HTTPException(status_code=400, detail="opportunity_id_required")
+    profit = float((body or {}).get("profit_eur") or 0)
+    success = bool((body or {}).get("success"))
+    return _ctx().micro_farm.income_engine_v1_record_outcome(
+        oid, profit_eur=profit, success=success
+    )
+
+
+@app.post("/api/owner/income-engine/stage")
+def owner_income_engine_stage(body: dict) -> dict:
+    """paper | propose | micro_spend — Alpha Hunter stages."""
+    stage = str((body or {}).get("stage") or "").strip()
+    return _ctx().micro_farm.income_engine_v1_set_stage(stage)
+
+
+@app.post("/api/owner/income-engine/paper-day")
+def owner_income_engine_paper_day(body: dict) -> dict:
+    """Stage 1 — model opportunities, spend €0 on search."""
+    bal = float((body or {}).get("balance_eur") or 20)
+    target = int((body or {}).get("opportunities_target") or 100)
+    return _ctx().micro_farm.income_engine_v1_paper_day(
+        balance_eur=bal, opportunities_target=target
+    )
+
+
+@app.post("/api/owner/income-engine/propose-top")
+def owner_income_engine_propose_top(body: dict) -> dict:
+    """Stage 2 — top strategies + micro-test quote for Approve."""
+    raw = (body or {}).get("balance_eur")
+    bal = float(raw) if raw is not None else None
+    n = int((body or {}).get("n") or 3)
+    return _ctx().micro_farm.income_engine_v1_propose_top(balance_eur=bal, n=n)
+
+
+@app.post("/api/owner/income-engine/approve-micro-test")
+def owner_income_engine_approve_micro_test(body: dict) -> dict:
+    """Approve one strategy micro-test (≤2% bank). Search remains €0."""
+    sid = str((body or {}).get("strategy_id") or "").strip()
+    if not sid:
+        raise HTTPException(status_code=400, detail="strategy_id_required")
+    raw = (body or {}).get("balance_eur")
+    bal = float(raw) if raw is not None else None
+    return _ctx().micro_farm.income_engine_v1_approve_micro_test(
+        sid, balance_eur=bal
+    )
+
+
+@app.post("/api/owner/income-engine/director-thresholds")
+def owner_income_engine_director_thresholds(body: dict) -> dict:
+    """Investment director: min expected profit € and/or min ROI %."""
+    profit = (body or {}).get("min_expected_profit_eur")
+    roi = (body or {}).get("min_roi_pct")
+    return _ctx().micro_farm.income_engine_v1_set_director_thresholds(
+        min_expected_profit_eur=float(profit) if profit is not None else None,
+        min_roi_pct=float(roi) if roi is not None else None,
+    )
+
+
+@app.post("/api/owner/income-engine/withdraw")
+def owner_income_engine_withdraw(body: dict) -> dict:
+    """Payout desk — withdraw realized available to Stripe queue (confirm required)."""
+    raw = (body or {}).get("amount_eur")
+    amount = float(raw) if raw is not None else None
+    confirm = bool((body or {}).get("confirm", True))
+    return _ctx().micro_farm.income_engine_v1_withdraw(
+        amount_eur=amount, confirm=confirm
+    )
+
+
+@app.post("/api/owner/income-engine/scan-interval")
+def owner_income_engine_scan_interval(body: dict) -> dict:
+    """Fast cadences: 2m / 5m / 10m / 15m / 30m."""
+    sec = int((body or {}).get("interval_sec") or 300)
+    return _ctx().micro_farm.income_engine_v1_set_scan_interval(sec)
+
+
+@app.post("/api/owner/income-engine/go-live")
+def owner_income_engine_go_live() -> dict:
+    """After analysis ready — switch Income Lab to LIVE (then Approve)."""
+    return _ctx().micro_farm.income_engine_v1_go_live()
+
+
 @app.get("/api/owner/public-launch", response_model=PublicLaunchChecklist)
 def get_public_launch_checklist() -> PublicLaunchChecklist:
     return PublicLaunchChecklist(**_ctx().public_launch.run())
@@ -1822,6 +1963,24 @@ def farm_engine_v1_register_platform(body: dict) -> dict:
     return _ctx().micro_farm.farm_engine_v1_register_platform(
         body if isinstance(body, dict) else {}
     )
+
+
+@app.post("/api/farm/engine/v1/run-plan")
+def farm_engine_v1_run_plan(opportunity_id: str) -> dict:
+    """Re-run Execution Plan (checklist + auto tasks) after CEO GO."""
+    return _ctx().micro_farm.farm_engine_v1_run_plan(opportunity_id)
+
+
+@app.get("/api/farm/engine/v1/market-monitor")
+def farm_engine_v1_market_monitor_get() -> dict:
+    """Latest Farm Market Scanner digest (cache OK)."""
+    return _ctx().micro_farm.farm_engine_v1_market_monitor(force=False)
+
+
+@app.post("/api/farm/engine/v1/market-monitor")
+def farm_engine_v1_market_monitor_run() -> dict:
+    """Run Farm Market Scanner now — Reject / Research / GO digest for CEO."""
+    return _ctx().micro_farm.farm_engine_v1_market_monitor(force=True)
 
 
 @app.post("/api/farm/real-payout")
@@ -4420,26 +4579,84 @@ def public_client_reviews(lang: str = "de") -> ClientReviewsPublicResponse:
     return ClientReviewsPublicResponse(**data)
 
 
+@app.post("/api/public/reviews/submit", response_model=ClientReviewSubmitResponse)
+def public_guest_review_submit(
+    request: ClientReviewGuestSubmitRequest,
+    req: Request,
+) -> ClientReviewSubmitResponse:
+    """Open storefront guest review — pending until CEO approve."""
+    ip = ""
+    try:
+        ip = (req.client.host if req.client else "") or ""
+        forwarded = (req.headers.get("x-forwarded-for") or "").split(",")[0].strip()
+        if forwarded:
+            ip = forwarded
+    except Exception:
+        ip = ""
+    try:
+        result = _ctx().reviews.submit_guest(
+            author_name=request.author_name,
+            company=request.company,
+            email=request.email,
+            stars=request.stars,
+            text=request.text,
+            honeypot=request.website,
+            client_ip=ip,
+        )
+    except ValueError as exc:
+        code = str(exc)
+        mapping = {
+            "spam": (400, "Anfrage abgelehnt"),
+            "bad_name": (400, "Name erforderlich"),
+            "bad_email": (400, "Gültige E-Mail erforderlich"),
+            "bad_stars": (400, "Sterne: 1–5"),
+            "too_short": (400, "Text zu kurz (min. 20 Zeichen)"),
+            "too_long": (400, "Text zu lang (max. 1000 Zeichen)"),
+            "rate_limited": (429, "Zu viele Anfragen — bitte später erneut versuchen"),
+        }
+        status, detail = mapping.get(code, (400, "Bewertung abgelehnt"))
+        raise HTTPException(status_code=status, detail=detail) from None
+    return ClientReviewSubmitResponse(**result)
+
+
+def _review_moderation_item(r: dict) -> ClientReviewModerationItem:
+    return ClientReviewModerationItem(
+        review_id=str(r.get("review_id") or ""),
+        order_id=str(r.get("order_id") or ""),
+        stars=int(r.get("stars") or 0),
+        text=str(r.get("text") or ""),
+        status=str(r.get("status") or ""),
+        flags=list(r.get("flags") or []),
+        author_name=r.get("author_name"),
+        author_email=r.get("author_email"),
+        company_display_name=r.get("company_display_name"),
+        created_at=r.get("created_at"),
+        published_at=r.get("published_at"),
+        show_company_name=bool(r.get("show_company_name")),
+        show_logo=bool(r.get("show_logo")),
+        verified_purchase=bool(r.get("verified_purchase", True)),
+        source=r.get("source"),
+    )
+
+
 @app.get("/api/owner/reviews/pending", response_model=ClientReviewsPendingResponse)
 def owner_reviews_pending() -> ClientReviewsPendingResponse:
     pending = _ctx().reviews.list_pending()
-    items = [
-        ClientReviewModerationItem(
-            review_id=str(r.get("review_id") or ""),
-            order_id=str(r.get("order_id") or ""),
-            stars=int(r.get("stars") or 0),
-            text=str(r.get("text") or ""),
-            status=str(r.get("status") or ""),
-            flags=list(r.get("flags") or []),
-            company_display_name=r.get("company_display_name"),
-            created_at=r.get("created_at"),
-            show_company_name=bool(r.get("show_company_name")),
-            show_logo=bool(r.get("show_logo")),
-            verified_purchase=bool(r.get("verified_purchase", True)),
-        )
-        for r in pending
-    ]
+    items = [_review_moderation_item(r) for r in pending]
     return ClientReviewsPendingResponse(pending=items, count=len(items))
+
+
+@app.get("/api/owner/reviews", response_model=ClientReviewsOwnerListResponse)
+def owner_reviews_list(status: str | None = None) -> ClientReviewsOwnerListResponse:
+    rows = _ctx().reviews.list_all(status=status)
+    all_rows = _ctx().reviews.list_all()
+    return ClientReviewsOwnerListResponse(
+        reviews=[_review_moderation_item(r) for r in rows],
+        count=len(rows),
+        pending_count=sum(1 for r in all_rows if r.get("status") == "pending"),
+        published_count=sum(1 for r in all_rows if r.get("status") == "published"),
+        rejected_count=sum(1 for r in all_rows if r.get("status") == "rejected"),
+    )
 
 
 @app.post("/api/owner/reviews/{review_id}/moderate")

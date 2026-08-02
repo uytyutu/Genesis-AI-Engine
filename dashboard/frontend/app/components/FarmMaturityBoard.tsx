@@ -138,12 +138,20 @@ export function FarmMaturityBoard({ data: initial, autoFetch = false, compact }:
           </h2>
           <p className="mt-1 text-xs text-genesis-muted">{data.law_ru}</p>
         </div>
-        <Link
-          href="/farm-engine"
-          className="rounded-lg border border-violet-400/30 px-2.5 py-1 text-[11px] text-violet-100 hover:bg-violet-950/40"
-        >
-          Farm Engine →
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/farm-engine"
+            className="rounded-lg border border-violet-400/30 px-2.5 py-1 text-[11px] text-violet-100 hover:bg-violet-950/40"
+          >
+            Farm Engine →
+          </Link>
+          <Link
+            href="/income-engine"
+            className="rounded-lg border border-amber-400/30 px-2.5 py-1 text-[11px] text-amber-100 hover:bg-amber-950/40"
+          >
+            Income Lab →
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-2 md:grid-cols-3">

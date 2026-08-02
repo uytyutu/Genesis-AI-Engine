@@ -498,6 +498,179 @@ class MicroFarmService:
         ensure_swarm_importable()
         return FarmEngineV1(self._memory).register_earn_platform_research(passport)
 
+    def farm_engine_v1_run_plan(self, opportunity_id: str) -> dict[str, Any]:
+        """Re-run Execution Plan after GO."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.farm_engine_v1 import FarmEngineV1
+
+        ensure_swarm_importable()
+        return FarmEngineV1(self._memory).run_plan(opportunity_id)
+
+    def farm_engine_v1_market_monitor(self, *, force: bool = True) -> dict[str, Any]:
+        """Farm Market Scanner daily digest."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.farm_engine_v1 import FarmEngineV1
+
+        ensure_swarm_importable()
+        return FarmEngineV1(self._memory).market_monitor(force=force)
+
+    def income_engine_v1(self) -> dict[str, Any]:
+        """Owner-only Income Engine panel (not a commercial Virtus product)."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).panel()
+
+    def income_engine_v1_start(
+        self,
+        *,
+        balance_eur: float,
+        auto_approve_limit_eur: float | None = None,
+        simulate_fast: bool = True,
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).start_mission(
+            balance_eur=balance_eur,
+            auto_approve_limit_eur=auto_approve_limit_eur,
+            simulate_fast=simulate_fast,
+        )
+
+    def income_engine_v1_approve(
+        self,
+        opportunity_id: str,
+        *,
+        mode: str = "once",
+        note: str = "",
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).approve(
+            opportunity_id, mode=mode, note=note
+        )
+
+    def income_engine_v1_reject(
+        self, opportunity_id: str, *, note: str = ""
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).reject(opportunity_id, note=note)
+
+    def income_engine_v1_set_auto_limit(self, limit_eur: float) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).set_auto_approve_limit(limit_eur)
+
+    def income_engine_v1_set_reinvest(self, enabled: bool) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).set_reinvest(enabled)
+
+    def income_engine_v1_record_outcome(
+        self,
+        opportunity_id: str,
+        *,
+        profit_eur: float,
+        success: bool,
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).record_realized_outcome(
+            opportunity_id, profit_eur=profit_eur, success=success
+        )
+
+    def income_engine_v1_set_stage(self, stage: str) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).set_stage(stage)
+
+    def income_engine_v1_paper_day(
+        self, *, balance_eur: float = 20.0, opportunities_target: int = 100
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).paper_day(
+            balance_eur=balance_eur,
+            opportunities_target=opportunities_target,
+        )
+
+    def income_engine_v1_propose_top(
+        self, *, balance_eur: float | None = None, n: int = 3
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).propose_top(balance_eur=balance_eur, n=n)
+
+    def income_engine_v1_approve_micro_test(
+        self, strategy_id: str, *, balance_eur: float | None = None
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).approve_micro_test(
+            strategy_id, balance_eur=balance_eur
+        )
+
+    def income_engine_v1_set_director_thresholds(
+        self,
+        *,
+        min_expected_profit_eur: float | None = None,
+        min_roi_pct: float | None = None,
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).set_director_thresholds(
+            min_expected_profit_eur=min_expected_profit_eur,
+            min_roi_pct=min_roi_pct,
+        )
+
+    def income_engine_v1_withdraw(
+        self, *, amount_eur: float | None = None, confirm: bool = True
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).request_withdraw(
+            amount_eur=amount_eur, confirm=confirm
+        )
+
+    def income_engine_v1_set_scan_interval(self, interval_sec: int) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).set_scan_interval(interval_sec)
+
+    def income_engine_v1_go_live(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).go_live()
+
     def dashboard_lite(self, owner_name: str = "Владелец") -> dict[str, Any]:
         """Fast journal payload — no Toloka live probe, no heavy discovery scan."""
         from app.env_loader import load_local_env
