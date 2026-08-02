@@ -82,6 +82,13 @@ class LabCandidateBody(BaseModel):
     source_type: str = Field(default="Affiliate", max_length=40)
 
 
+class CheckoutBody(BaseModel):
+    package_id: str = Field(default="micro", min_length=2, max_length=40)
+    customer_email: str = Field(..., min_length=5, max_length=160)
+    success_url: str = Field(default="", max_length=500)
+    cancel_url: str = Field(default="", max_length=500)
+
+
 @router.get("")
 @router.get("/")
 def v1_root() -> dict:
@@ -106,11 +113,61 @@ def v1_pricing(request: Request) -> dict:
 
 @router.get("/packages")
 def v1_packages(request: Request) -> dict:
+    from app.commercial_api.platform_billing import PlatformApiBilling
+
+    billing = PlatformApiBilling(_memory(request))
     return {
         "ok": True,
-        "packages": list_packages(_memory(request)),
-        "note_ru": "Пакеты prepaid: scopes + баланс. Оплата пакета клиентом → CEO выдаёт ключ.",
+        "packages": billing.packages_public(),
+        "note_ru": (
+            "Пакеты prepaid Platform API. Micro 5 € — первый покупатель; "
+            "после Stripe ключ приходит на email и на /api-access."
+        ),
+        "checkout": "POST /api/v1/checkout",
+        "docs": "/api-access",
     }
+
+
+@router.post("/checkout")
+def v1_checkout(body: CheckoutBody, request: Request) -> dict:
+    """Public Platform API purchase — Micro/Starter/… → Stripe (or sandbox)."""
+    from app.commercial_api.platform_billing import PlatformApiBilling
+
+    result = PlatformApiBilling(_memory(request)).create_checkout(
+        package_id=(body.package_id or "micro").strip(),
+        customer_email=body.customer_email,
+        success_url=body.success_url or None,
+        cancel_url=body.cancel_url or None,
+    )
+    if not result.get("ok"):
+        raise HTTPException(
+            status_code=int(result.get("http_status") or 400),
+            detail=result,
+        )
+    return result
+
+
+@router.get("/checkout/confirm")
+def v1_checkout_confirm(request: Request, session_id: str = "") -> dict:
+    """After Stripe redirect — issue key if webhook was delayed."""
+    from app.commercial_api.platform_billing import PlatformApiBilling
+
+    result = PlatformApiBilling(_memory(request)).confirm_paid_session(session_id)
+    if not result.get("ok"):
+        raise HTTPException(
+            status_code=int(result.get("http_status") or 400),
+            detail=result,
+        )
+    return result
+
+
+@router.get("/admin/analytics")
+def v1_admin_analytics(request: Request) -> dict:
+    """CEO Usage Analytics — gated until first paid API buyer."""
+    _require_owner(request)
+    from app.commercial_api.platform_billing import PlatformApiBilling
+
+    return {"ok": True, **PlatformApiBilling(_memory(request)).analytics()}
 
 
 @router.get("/catalog")

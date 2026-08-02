@@ -55,8 +55,12 @@ class CommercialApiKeyStore:
         scopes: list[str] | None = None,
         rate_limit_per_min: int = DEFAULT_RATE_LIMIT,
         package_id: str | None = None,
+        prefix: str = "vc_",
     ) -> dict[str, Any]:
-        raw = f"vc_{secrets.token_urlsafe(24)}"
+        pref = (prefix or "vc_").strip() or "vc_"
+        if not pref.endswith("_"):
+            pref = f"{pref}_"
+        raw = f"{pref}{secrets.token_urlsafe(24)}"
         scope_list = [str(s).strip() for s in (scopes or list(DEFAULT_SCOPES)) if str(s).strip()]
         if not scope_list:
             scope_list = list(DEFAULT_SCOPES)
@@ -65,7 +69,7 @@ class CommercialApiKeyStore:
             "label": (label or "client")[:80],
             "customer_email": (customer_email or "")[:160],
             "key_hash": _hash_key(raw),
-            "key_prefix": raw[:10],
+            "key_prefix": raw[:12],
             "balance_eur": round(float(balance_eur or 0), 4),
             "scopes": scope_list,
             "package_id": package_id,
@@ -89,6 +93,7 @@ class CommercialApiKeyStore:
         package: dict[str, Any],
         label: str = "",
         customer_email: str = "",
+        prefix: str = "vk_live_",
     ) -> dict[str, Any]:
         scopes = list(package.get("scopes") or DEFAULT_SCOPES)
         balance = float(package.get("balance_eur") or package.get("price_eur") or 0)
@@ -99,10 +104,29 @@ class CommercialApiKeyStore:
             scopes=scopes,
             rate_limit_per_min=200 if "enterprise" in str(package.get("id")) else 100,
             package_id=str(package.get("id") or ""),
+            prefix=prefix,
         )
+
+    def reissue_with_prefix(self, key_id: str, *, prefix: str = "vk_live_") -> str | None:
+        """Rotate secret for an existing key id; keep balance/scopes. Returns new raw key."""
+        pref = (prefix or "vk_live_").strip() or "vk_live_"
+        if not pref.endswith("_"):
+            pref = f"{pref}_"
+        data = self._load()
+        for row in data["keys"]:
+            if row.get("id") != key_id or not row.get("active"):
+                continue
+            raw = f"{pref}{secrets.token_urlsafe(24)}"
+            row["key_hash"] = _hash_key(raw)
+            row["key_prefix"] = raw[:12]
+            row["rotated_at"] = _now()
+            self._save(data)
+            return raw
+        return None
+
     def resolve(self, raw_key: str) -> dict[str, Any] | None:
         raw = (raw_key or "").strip()
-        if not raw.startswith("vc_"):
+        if not (raw.startswith("vc_") or raw.startswith("vk_live_") or raw.startswith("vk_")):
             return None
         digest = _hash_key(raw)
         for row in self._load().get("keys", []):

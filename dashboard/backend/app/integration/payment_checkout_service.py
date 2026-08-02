@@ -93,6 +93,7 @@ class PaymentCheckoutService:
         currency: str = "eur",
         motion_level: str = "none",
         market_code: str = "DE",
+        extra_metadata: dict[str, str] | None = None,
     ) -> dict:
         from app.factory.motion_brief import normalize_motion_level
 
@@ -117,6 +118,7 @@ class PaymentCheckoutService:
                 cancel_url=cancel_url,
                 motion_level=motion,
                 market_code=market,
+                extra_metadata=extra_metadata,
             )
         if provider == "sandbox":
             # Production must never send buyers to a legacy host via sandbox pay page.
@@ -146,6 +148,7 @@ class PaymentCheckoutService:
         cancel_url: str,
         motion_level: str = "none",
         market_code: str = "DE",
+        extra_metadata: dict[str, str] | None = None,
     ) -> dict:
         secret = _resolve_stripe_secret()
         if not secret:
@@ -162,6 +165,9 @@ class PaymentCheckoutService:
         if "paid=" not in success:
             joiner = "&" if "?" in success else "?"
             success = f"{success}{joiner}paid=1"
+        if "{CHECKOUT_SESSION_ID}" not in success and "session_id=" not in success:
+            joiner = "&" if "?" in success else "?"
+            success = f"{success}{joiner}session_id={{CHECKOUT_SESSION_ID}}"
         data = {
             "mode": "payment",
             "success_url": success,
@@ -176,6 +182,11 @@ class PaymentCheckoutService:
             "metadata[motion_level]": motion_level or "none",
             "metadata[market_code]": market_code or "DE",
         }
+        for key, val in (extra_metadata or {}).items():
+            k = str(key or "").strip()
+            if not k or k in ("order_id", "motion_level", "market_code"):
+                continue
+            data[f"metadata[{k}]"] = str(val)[:500]
         with httpx.Client(timeout=30.0) as client:
             res = client.post(
                 "https://api.stripe.com/v1/checkout/sessions",
@@ -225,13 +236,23 @@ class PaymentCheckoutService:
         )
         if not order_id or amount <= 0:
             return None
+        meta = dict(session.get("metadata") or {})
         return {
             "order_id": order_id,
             "amount_eur": amount,
             "currency": str(session.get("currency") or "eur").strip().lower() or "eur",
             "provider": "stripe",
             "session_id": session.get("id"),
+            "payment_intent": str(session.get("payment_intent") or ""),
             "sender": str(session.get("customer_details", {}).get("email") or ""),
+            "metadata": meta,
+            "product": str(meta.get("product") or ""),
+            "package_id": str(meta.get("package_id") or ""),
+            "customer_email": str(
+                meta.get("customer_email")
+                or (session.get("customer_details") or {}).get("email")
+                or ""
+            ),
         }
 
     def _verify_stripe_signature(self, payload: bytes, header: str, secret: str) -> bool:

@@ -10,6 +10,16 @@ PACKAGES_FILE = "commercial_api_packages.json"
 
 # Editable defaults — override via memory JSON
 DEFAULT_PACKAGES: dict[str, dict[str, Any]] = {
+    "micro": {
+        "id": "micro",
+        "name": "Micro",
+        "price_eur": 5.0,
+        "balance_eur": 5.0,
+        "scopes": ["audit"],
+        "included": {"audit": 8},
+        "note_ru": "Первый API-покупатель · ~8 audit prepaid",
+        "best_for_ru": "Психологически лёгкий вход (5 € вместо 350 € сайта)",
+    },
     "starter": {
         "id": "starter",
         "name": "Starter",
@@ -18,7 +28,7 @@ DEFAULT_PACKAGES: dict[str, dict[str, Any]] = {
         "scopes": ["audit"],
         "included": {"audit": 50},
         "note_ru": "Audit · ~50 запросов prepaid",
-        "best_for_ru": "Первый тестовый клиент API",
+        "best_for_ru": "Регулярный тестовый клиент API",
     },
     "pro": {
         "id": "pro",

@@ -90,11 +90,131 @@ def test_leads_scope_denied(tmp_path: Path):
     assert result["reason"] == "scope_denied"
 
 
+def test_offer_scores_pick_max_not_hard_saas_rule():
+    from app.commercial_api.platform_billing import (
+        resolve_offer_lane,
+        score_commercial_offers,
+    )
+
+    restaurant = score_commercial_offers(
+        {"company_name": "Pizzeria Roma", "niche": "restaurant", "meta": {}}
+    )
+    by_id = {p["id"]: p["score"] for p in restaurant["products"]}
+    assert by_id["website"] > by_id["platform_api"]
+    assert restaurant["selected_lane"] == "website"
+
+    saas = score_commercial_offers(
+        {"company_name": "CloudCRM GmbH", "niche": "SaaS CRM software", "meta": {}}
+    )
+    assert saas["selected_id"] == "platform_api"
+    assert saas["selected_lane"] == "api"
+    assert resolve_offer_lane(saas) == "api" or resolve_offer_lane(
+        {"company_name": "CloudCRM", "niche": "saas crm"}
+    ) == "api"
+
+    # Website rejected → API can still win (dual product, one Hunt)
+    healthy = score_commercial_offers(
+        {
+            "company_name": "DevTools AI",
+            "niche": "devtools platform",
+            "meta": {"website_offer": "rejected"},
+        }
+    )
+    assert healthy["selected_lane"] == "api"
+    assert next(p["score"] for p in healthy["products"] if p["id"] == "website") == 0
+
+
+def test_usage_analytics_gated_before_first_buyer(tmp_path: Path):
+    from app.commercial_api.platform_billing import PlatformApiBilling
+
+    panel = PlatformApiBilling(tmp_path).analytics()
+    assert panel["phase"] == "awaiting_first_buyer"
+    assert panel["keys"] == []
+    assert "перв" in panel["gate_ru"].lower() or "1" in panel["gate_ru"]
+
+
+def test_sandbox_checkout_fulfills_micro_key(monkeypatch, tmp_path: Path):
+    monkeypatch.setenv("GENESIS_PAYMENT_SANDBOX", "1")
+    monkeypatch.delenv("STRIPE_SECRET_KEY", raising=False)
+    monkeypatch.delenv("STRIPE_SECRET_KEY_LIVE", raising=False)
+
+    from app.commercial_api.platform_billing import PlatformApiBilling
+
+    billing = PlatformApiBilling(tmp_path)
+    result = billing.create_checkout(
+        package_id="micro",
+        customer_email="buyer@example.com",
+    )
+    assert result["ok"] is True
+    assert result["sandbox"] is True
+    fulfilled = result["fulfilled"]
+    assert fulfilled["ok"] is True
+    assert str(fulfilled.get("api_key") or "").startswith("vk_live_")
+    assert float(fulfilled.get("balance_eur") or 0) == 5.0
+
+
+def test_webhook_branches_to_platform_api_fulfill(monkeypatch, tmp_path: Path):
+    import json
+
+    import app.services.finance_center as finance_center
+    from app.commercial_api.platform_billing import PlatformApiBilling
+    from app.services.finance_center import handle_stripe_webhook_event
+
+    class FakeRevenue:
+        def __init__(self) -> None:
+            self._memory = tmp_path
+
+        def apply_stripe_checkout_payment(self, **_kwargs):
+            raise AssertionError("website order path must not run for Platform API")
+
+    event = {
+        "type": "checkout.session.completed",
+        "data": {
+            "object": {
+                "id": "cs_test_api_1",
+                "payment_intent": "pi_test_1",
+                "amount_total": 500,
+                "currency": "eur",
+                "customer_details": {"email": "api@example.com"},
+                "metadata": {
+                    "order_id": "api_micro_api",
+                    "product": "commercial_api_package",
+                    "package_id": "micro",
+                    "customer_email": "api@example.com",
+                },
+            }
+        },
+    }
+
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_test")
+    monkeypatch.setattr(
+        finance_center.stripe.Webhook,
+        "construct_event",
+        lambda payload, signature, secret: json.loads(payload.decode("utf-8")),
+    )
+
+    out = handle_stripe_webhook_event(
+        json.dumps(event).encode("utf-8"),
+        "t=1,v1=x",
+        FakeRevenue(),
+    )
+    assert out["status"] == "success"
+    assert out["product"] == "commercial_api_package"
+    assert out["package_id"] == "micro"
+    row = PlatformApiBilling(tmp_path).already_fulfilled("cs_test_api_1")
+    assert row is not None
+    assert row["package_id"] == "micro"
+
+
 def test_packages_and_lab_ceo_actions(tmp_path: Path):
     from app.commercial_api.packages import get_package, list_packages
     from app.commercial_api.revenue_lab import RevenueLab
 
     pkgs = list_packages()
+    assert any(p["id"] == "micro" for p in pkgs)
+    micro = get_package("micro")
+    assert micro is not None
+    assert float(micro["price_eur"]) == 5.0
     assert any(p["id"] == "starter" for p in pkgs)
     starter = get_package("starter")
     assert starter is not None
