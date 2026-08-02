@@ -446,12 +446,15 @@ _SEED_EARN_PLATFORMS: list[dict[str, Any]] = [
         "track": "B",
         "first_payout_score": 4,
         "autonomy_score": 4,
-        "opinion_ru": "Хороший второй канал после первого Confirmed €.",
+        "opinion_ru": (
+            "Авто-публикация при Stripe Live + RAPIDAPI_KEY + "
+            "GENESIS_OWNER_AUTO_PUBLISH=1. Иначе — Owner Gate, не вечный pause."
+        ),
         "automation_officially_allowed": True,
         "has_api": True,
         "pays_providers": True,
         "no_forbidden_human_judgment": True,
-        "evidence_status": "research_hypothesis",
+        "evidence_status": "auto_when_armed",
         "hard_reject": False,
         "opportunity_id": "earn-rapidapi-provider",
     },
@@ -504,53 +507,102 @@ _SEED_EARN_PLATFORMS: list[dict[str, Any]] = [
 
 
 def dual_track_strategy() -> dict[str, Any]:
-    """A = commercial first € · B = continuous Earn-market discovery."""
+    """NOW = Commercial Micro/Stripe · Farm Scanner = unfinished north-star loop."""
     return {
         "ok": True,
         "architecture_ready_ru": (
-            "Архитектура Farm Engine / Finance Reality почти готова; "
-            "бизнес (Live Earn + Confirmed €) ещё нет."
+            "Commercial Engine умеет продавать, если есть лиды. "
+            "Farm Engine ещё не умеет сам найти рынок с уже оплачиваемой работой — "
+            "это главный незавершённый элемент исходной идеи. "
+            "Ограничение часто задаёт рынок (мало платформ: автомат + платят), не код."
         ),
-        "strategic_question_ru": "Какой будет первый Live Earn Connector?",
+        "strategic_question_ru": (
+            "Сейчас: как получить 1 API-покупателя (Micro 5 €)? "
+            "Параллельно: какие легальные Earn-платформы Scanner нашёл?"
+        ),
+        "priority_now_ru": (
+            "/api-access → Micro 5 € → Stripe → API Key → 1 покупатель → REAL > 0. "
+            "RapidAPI: авто при Stripe Live + token + GENESIS_OWNER_AUTO_PUBLISH=1."
+        ),
         "first_live_earn_id": FIRST_LIVE_EARN_ID,
-        "first_live_earn_choice_ru": "Свой API + Stripe (Направление A)",
+        "first_live_earn_choice_ru": "Virtus API + Stripe Micro 5 € (короткий путь)",
+        "farm_loop_ru": [
+            "Интернет",
+            "искать легальные источники оплачиваемой цифровой работы",
+            "проверить ToS",
+            "проверить автоматизацию",
+            "проверить API",
+            "если подходит → предложить Earn Connector",
+            "заказ → выполнить → External Payout ID → REAL",
+        ],
+        "commercial_loop_ru": [
+            "Virtus API",
+            "Stripe",
+            "Micro 5 €",
+            "Country Desk / /api-access",
+            "первые продажи",
+            "Hard REAL",
+        ],
+        "farm_may_ru": [
+            "искать официальные платформы и маркетплейсы",
+            "отслеживать заказы на уже подключённых платформах",
+            "оценивать ROI задачи",
+            "выполнять работу, если платформа разрешает автоматизацию",
+            "фиксировать подтверждённые выплаты (Hard REAL)",
+        ],
+        "farm_must_not_ru": [
+            "обходить правила платформ",
+            "регистрировать аккаунты за владельца",
+            "human-only микрозадачи ботом",
+            "мультиаккаунты / обход антифрода",
+        ],
         "tracks": [
             {
-                "id": "A",
-                "title_ru": "Направление A — коммерческое (самое быстрое)",
+                "id": "commercial_now",
+                "title_ru": "Вариант B — Commercial NOW (короткий путь)",
                 "goal_ru": (
-                    "Первый Confirmed € через собственный продукт (API/Stripe). "
-                    "Доказать, что Finance Reality Law, Ledger и Payout Manager "
-                    "работают на реальных деньгах."
+                    "Первый подтверждённый платёж: Micro 5 € → Stripe → API key. "
+                    "Доказать Finance Reality / Ledger на реальных деньгах."
                 ),
-                "focus_ru": "Свой Digital Product → Stripe → External Payout ID → REAL",
-                "not_ru": "Не путать с «ферма сама находит работу в интернете».",
+                "focus_ru": "/api-access · Country Desk dual offer · не ждать Farm Earn",
+                "not_ru": "Не Toloka cents. RapidAPI — только с Owner Auto Mode.",
                 "status": "primary",
             },
             {
-                "id": "B",
-                "title_ru": "Направление B — исследовательское (исходная идея)",
+                "id": "farm_scanner",
+                "title_ru": "Farm Opportunity Scanner — исходная мечта (незавершено)",
                 "goal_ru": (
-                    "Opportunity / Earn Platform Scanner постоянно ищет новые легальные "
-                    "Earn-платформы: автоматизация разрешена · API · платит поставщикам · "
-                    "есть внешний payout_id. Подключение без перестройки архитектуры."
+                    "Не ждать клиента: искать легальные оплачиваемые цифровые задания, "
+                    "которые разрешено выполнять автоматически; после Earn Connector — "
+                    "брать заказы сама."
                 ),
                 "focus_ru": (
-                    "Искать рынки, где машина может работать сама — "
-                    "не писать ещё OCR/анализатор."
+                    "Интернет → ToS → automation → API → предложить Connector. "
+                    "Главная сложность — есть ли такие платформы на рынке."
                 ),
-                "not_ru": "Не ручной поиск клиентов и не Toloka Performer.",
-                "status": "parallel_research",
+                "not_ru": "Не продажа Website/API через Country Desk (это Commercial).",
+                "status": "research_gap",
             },
         ],
         "do_not_ru": [
-            "Ещё один AI-модуль ради модуля",
-            "Ещё один OCR / анализатор без Earn-канала",
+            "RapidAPI без Owner Auto Mode / без Live Stripe (вечный ceo_required)",
+            "Ждать € от Toloka Pipeline (это Spend)",
             "Toloka Performer / капчи / human-bot",
+            "Путать Commercial dual-offer с Farm Earn",
         ],
         "north_star_ru": (
-            "A даёт первый € и проверяет деньги. "
-            "B приближает «ферма сама находит легальную работу»."
+            "Ферма не ждёт клиента — ищет легальную оплачиваемую авто-работу. "
+            "Пока таких Connectors нет, короткий путь к REAL = Micro 5 € + Stripe."
+        ),
+        "gap_ru": (
+            "Farm Market Scanner мониторит рынки (Reject/Research/GO) и честно говорит, "
+            "когда подходящих Earn-платформ нет. Он не создаёт рынок. "
+            "Commercial закрывает продажи своим лидам (Micro/Stripe)."
+        ),
+        "scanner_goal_ru": (
+            "Ферма должна сама искать новые легальные цифровые рынки, на которых "
+            "разрешено автоматическое выполнение работы, и предлагать подключить их "
+            "как Earn Connector."
         ),
     }
 
@@ -639,16 +691,21 @@ _SEED_OPPORTUNITIES: list[dict[str, Any]] = [
         "track": "B",
         "first_live_earn": False,
         "description_ru": (
-            "Опубликовать metered API (OCR/анализ/классификация) на RapidAPI Hub; "
-            "официальный payout провайдера. Второй канал после первого Confirmed €."
+            "RapidAPI Provider: после Stripe Live + RAPIDAPI_KEY + "
+            "GENESIS_OWNER_AUTO_PUBLISH=1 публикация идёт автоматически "
+            "(не вечный ceo_required). Иначе — Owner Gate."
         ),
         "tos_automation": "allowed",
-        "legal_notes_ru": "Serving own API is the product. Marketplace fee + payout lag.",
+        "legal_notes_ru": (
+            "Auto-publish when Owner Auto Mode armed. "
+            "First-time ToS / payouts may still need owner once."
+        ),
         "est_revenue_eur_per_job": 0.15,
         "est_cost_eur_per_job": 0.03,
         "payout_path": "rapidapi_paypal",
         "capabilities": ["api", "ocr", "classification"],
-        "rank_hint": 2,
+        "rank_hint": 40,
+        "ceo_priority": "auto_when_armed",
     },
     {
         "id": "work-document-extract",
@@ -801,6 +858,7 @@ class FarmEngineV1:
             "version": 1,
             "mode": "research_dry_run",
             "decisions": {},  # opportunity_id → go|reject|hold|research
+            "execution_plans": {},  # opportunity_id → plan snapshot
             "updated_at": None,
         }
         path = self._state_path()
@@ -813,6 +871,7 @@ class FarmEngineV1:
         if not isinstance(data, dict):
             return empty
         data.setdefault("decisions", {})
+        data.setdefault("execution_plans", {})
         data.setdefault("mode", "research_dry_run")
         data.setdefault("version", 1)
         return data
@@ -837,18 +896,34 @@ class FarmEngineV1:
         """Opportunity Scanner — legal + ROI scored research candidates."""
         state = self._load_state()
         decisions = state.get("decisions") if isinstance(state.get("decisions"), dict) else {}
+        plans = (
+            state.get("execution_plans")
+            if isinstance(state.get("execution_plans"), dict)
+            else {}
+        )
         items: list[dict[str, Any]] = []
         for raw in _SEED_OPPORTUNITIES:
             opp = dict(raw)
             legal = legal_check(opp)
             roi = roi_check(opp)
             ceo = str(decisions.get(opp["id"]) or "research")
+            plan = plans.get(opp["id"]) if isinstance(plans.get(opp["id"]), dict) else None
             pipeline_ok = bool(legal["ok"] and roi["ok"])
             stage = "rejected"
             if not legal["ok"]:
                 stage = "legal_reject"
             elif not roi["ok"]:
                 stage = "roi_reject"
+            elif ceo == "go" and plan:
+                st = str(plan.get("stage") or "")
+                if st == "blocked":
+                    stage = "execution_blocked"
+                elif st == "waiting_for_ceo":
+                    stage = "waiting_for_ceo"
+                elif st == "ready_for_production":
+                    stage = "production_ready"
+                else:
+                    stage = "execution_plan"
             elif ceo == "go":
                 stage = "execution_ready"
             elif ceo == "reject":
@@ -865,6 +940,7 @@ class FarmEngineV1:
                     "ceo_decision": ceo,
                     "pipeline_stage": stage,
                     "can_enqueue": pipeline_ok and ceo == "go",
+                    "execution_plan": plan,
                 }
             )
         items.sort(
@@ -948,7 +1024,10 @@ class FarmEngineV1:
         }
 
     def decide(self, opportunity_id: str, decision: str, *, note: str = "") -> dict[str, Any]:
-        """CEO: go | reject | hold | research."""
+        """CEO: go | reject | hold | research.
+
+        GO runs Execution Plan (checklist + auto tasks) — not «money starts».
+        """
         decision = str(decision or "").strip().lower()
         if decision not in ("go", "reject", "hold", "research"):
             return {"ok": False, "error": "invalid_decision", "allowed": ["go", "reject", "hold", "research"]}
@@ -969,6 +1048,32 @@ class FarmEngineV1:
         decisions = dict(state.get("decisions") or {})
         decisions[opportunity_id] = decision
         state["decisions"] = decisions
+        plan: dict[str, Any] | None = None
+        job: dict[str, Any] | None = None
+        if decision == "go":
+            from swarm.farm_execution_plan import run_execution_plan
+
+            plan = run_execution_plan(opp, memory_dir=self._memory)
+            plans = dict(state.get("execution_plans") or {})
+            plans[opportunity_id] = plan
+            state["execution_plans"] = plans
+            # Auto-queue so GO is visibly more than a status flip
+            job = {
+                "job_id": f"fj-{uuid.uuid4().hex[:12]}",
+                "at": _utc_now(),
+                "opportunity_id": opportunity_id,
+                "title": opp.get("title"),
+                "status": str(plan.get("stage") or "execution_plan"),
+                "mode": "execution_plan",
+                "note": str(note or "auto after GO")[:300],
+                "plan_id": plan.get("plan_id"),
+                "est_profit_eur": roi.get("est_profit_eur"),
+            }
+            self._append_jsonl(QUEUE_FILE, job)
+        elif decision in ("reject", "research", "hold"):
+            plans = dict(state.get("execution_plans") or {})
+            plans.pop(opportunity_id, None)
+            state["execution_plans"] = plans
         self._save_state(state)
         event = {
             "at": _utc_now(),
@@ -977,10 +1082,58 @@ class FarmEngineV1:
             "note": str(note or "")[:300],
         }
         self._append_jsonl(DECISIONS_FILE, event)
-        return {"ok": True, **event, "scan": self.scan()}
+        out: dict[str, Any] = {"ok": True, **event, "scan": self.scan()}
+        if plan is not None:
+            out["execution_plan"] = plan
+            out["message_ru"] = (
+                f"GO → Execution Plan ({plan.get('stage')}). "
+                f"{plan.get('why_no_eur_ru') or ''}"
+            ).strip()
+        if job is not None:
+            out["job"] = job
+        return out
+
+    def run_plan(self, opportunity_id: str) -> dict[str, Any]:
+        """Re-run Execution Plan for an opportunity already on GO."""
+        state = self._load_state()
+        if str((state.get("decisions") or {}).get(opportunity_id) or "") != "go":
+            return {
+                "ok": False,
+                "error": "need_go",
+                "message_ru": "Сначала CEO GO — затем Execution Plan",
+            }
+        opp = next((x for x in _SEED_OPPORTUNITIES if x["id"] == opportunity_id), None)
+        if not opp:
+            return {"ok": False, "error": "unknown_opportunity"}
+        from swarm.farm_execution_plan import run_execution_plan
+
+        plan = run_execution_plan(opp, memory_dir=self._memory)
+        plans = dict(state.get("execution_plans") or {})
+        plans[opportunity_id] = plan
+        state["execution_plans"] = plans
+        self._save_state(state)
+        return {"ok": True, "execution_plan": plan, "scan": self.scan()}
+
+    def market_monitor(self, *, force: bool = False) -> dict[str, Any]:
+        """Daily Farm Market Scanner digest (honest empty market OK)."""
+        from swarm.farm_market_scanner import load_latest_digest, run_market_monitor
+
+        state = self._load_state()
+        extra = (
+            list(state.get("extra_earn_platforms") or [])
+            if isinstance(state.get("extra_earn_platforms"), list)
+            else []
+        )
+        if not force:
+            cached = load_latest_digest(self._memory)
+            if cached and cached.get("ok"):
+                return {**cached, "from_cache": True}
+        digest = run_market_monitor(self._memory, extra_platforms=extra)
+        digest["from_cache"] = False
+        return digest
 
     def enqueue(self, opportunity_id: str, *, note: str = "") -> dict[str, Any]:
-        """Put CEO-GO opportunity on dry_run execution queue."""
+        """Queue after GO — prefers Execution Plan stage over empty dry_run."""
         scan = self.scan()
         item = next(
             (x for x in scan["opportunities"] if x["id"] == opportunity_id),
@@ -995,18 +1148,29 @@ class FarmEngineV1:
                 "message_ru": "Нужны Legal PASS + ROI PASS + CEO GO",
                 "pipeline_stage": item.get("pipeline_stage"),
             }
+        plan = item.get("execution_plan") if isinstance(item.get("execution_plan"), dict) else None
+        if not plan:
+            from swarm.farm_execution_plan import run_execution_plan
+
+            plan = run_execution_plan(item, memory_dir=self._memory)
+            state = self._load_state()
+            plans = dict(state.get("execution_plans") or {})
+            plans[opportunity_id] = plan
+            state["execution_plans"] = plans
+            self._save_state(state)
         job = {
             "job_id": f"fj-{uuid.uuid4().hex[:12]}",
             "at": _utc_now(),
             "opportunity_id": opportunity_id,
             "title": item.get("title"),
-            "status": "queued_dry_run",
-            "mode": "dry_run",
+            "status": str(plan.get("stage") or "execution_plan"),
+            "mode": "execution_plan",
             "note": str(note or "")[:300],
+            "plan_id": plan.get("plan_id"),
             "est_profit_eur": (item.get("roi") or {}).get("est_profit_eur"),
         }
         self._append_jsonl(QUEUE_FILE, job)
-        return {"ok": True, "job": job}
+        return {"ok": True, "job": job, "execution_plan": plan}
 
     def queue(self, *, limit: int = 40) -> dict[str, Any]:
         rows: list[dict[str, Any]] = []
@@ -1026,7 +1190,10 @@ class FarmEngineV1:
             "ok": True,
             "jobs": list(reversed(rows)),
             "count": len(rows),
-            "note_ru": "v1 = dry_run очередь. Live execution — Farm v2 после Legal Review.",
+            "note_ru": (
+                "Очередь = Execution Plan после GO (checklist / auto tasks). "
+                "Не Confirmed €. Live Earn / Owner Gate — отдельно."
+            ),
         }
 
     def ledger_snapshot(self) -> dict[str, Any]:
@@ -1192,27 +1359,36 @@ class FarmEngineV1:
                 ),
             }
 
-        # Why REAL=0 — farm is before Law №3 step 1 (not a Toloka payout bug)
+        # Why REAL=0 — farm is before Law №3; Commercial NOW = Micro path
         commercial_blocker = {
             "ok": True,
             "question_wrong_ru": "Почему REAL = 0?",
             "question_right_ru": (
-                "Какой первый Live Earn Connector мы можем легально подключить, "
-                "чтобы появился первый External Payout ID?"
+                "Как провести 1 покупателя Micro 5 € через /api-access + Stripe "
+                "(и параллельно — какие Earn-платформы Scanner нашёл)?"
             ),
             "why_real_zero_ru": (
-                "Toloka Pipeline API = Requester/Spend: dataset принят ≠ «вот тебе 0.05 €». "
-                "Интеграция успешна как Spend; шага «платформа начислила выплату» нет — "
-                "подтверждать нечего. Live Earn Connector отсутствует → REAL остаётся 0."
+                "Нет ни первого Stripe Micro платежа, ни Live Earn Connector с payout. "
+                "Toloka Pipeline = Spend. Farm Scanner ещё не нашёл чужой рынок "
+                "«уже платят за авто-работу». RapidAPI — на паузе."
             ),
             "checklist": [
                 {"id": "legal", "title_ru": "Legal PASS", "ok": True},
                 {"id": "roi", "title_ru": "ROI PASS", "ok": True},
-                {"id": "scanner", "title_ru": "Scanner", "ok": True},
-                {"id": "execution_dry_run", "title_ru": "Execution (dry_run)", "ok": True},
+                {"id": "scanner", "title_ru": "Earn Platform Scanner", "ok": True},
+                {
+                    "id": "execution_plan",
+                    "title_ru": "Execution Plan после GO",
+                    "ok": True,
+                },
+                {
+                    "id": "micro_stripe_buyer",
+                    "title_ru": "1× Micro 5 € покупатель",
+                    "ok": False,
+                },
                 {
                     "id": "live_earn_connector",
-                    "title_ru": "Live Earn Connector",
+                    "title_ru": "Live Earn Connector (чужой рынок)",
                     "ok": False,
                 },
                 {
@@ -1233,49 +1409,47 @@ class FarmEngineV1:
                     "title_ru": "Toloka Pipeline API v2",
                     "role": "requester_spend",
                     "note_ru": (
-                        "Pipeline OK = dataset принят. Нет endpoint «earnings/payout» "
-                        "для Virtus-исполнителя. Не Live Earn Connector."
+                        "Pipeline OK = dataset принят. Не Live Earn. "
+                        "Не источник центов/евро для Virtus."
                     ),
+                },
+                {
+                    "id": "rapidapi_now",
+                    "title_ru": "RapidAPI (сейчас)",
+                    "role": "paused",
+                    "note_ru": "Не приоритет до первого Micro/Stripe Confirmed €.",
                 },
             ],
             "first_live_earn_candidates": [
                 {
                     "id": "earn-own-api-stripe",
-                    "title_ru": "Свой Digital Product API + Stripe",
+                    "title_ru": "Virtus API + Stripe Micro 5 €",
                     "why_ru": (
-                        "Первый Live Earn (A): merchant → Stripe → External Payout ID. "
-                        "Path A Stripe уже частично готов."
+                        "Короткий путь NOW: /api-access → оплата → key → REAL. "
+                        "Country Desk может слать API-оффер."
                     ),
                     "status": "first_pick",
                     "first_payout_score": 5,
                     "autonomy_score": 5,
                 },
-                {
-                    "id": "earn-rapidapi-provider",
-                    "title_ru": "RapidAPI Hub — API Provider",
-                    "why_ru": "Второй канал (B) после первого Confirmed €.",
-                    "status": "research",
-                    "first_payout_score": 4,
-                    "autonomy_score": 4,
-                },
             ],
             "next_ru": (
-                "A: довести свой API+Stripe до первого Hard REAL payout. "
-                "B: крутить Earn Platform Scanner — искать новые легальные рынки. "
-                "Не писать ещё OCR/AI без Earn-канала."
+                "NOW: довести Micro 5 € до первого Hard REAL. "
+                "Параллельно: Farm Scanner ищет легальные Earn-платформы (не RapidAPI). "
+                "Не ждать, что GO по каталогу сам принесёт центы с интернета."
             ),
         }
 
         strategy = dual_track_strategy()
         platforms = scan_earn_platforms()
+        market = self.market_monitor(force=False)
         return {
             "ok": True,
             "title_ru": "Зрелость · Commercial vs Farm vs Earn",
             "law_ru": (
-                "Архитектура готова · бизнес ещё нет. "
-                "A: первый Confirmed € = свой API+Stripe. "
-                "B: Scanner ищет новые легальные Earn-платформы. "
-                "Toloka Requester ≠ Earn."
+                "Два проекта: Commercial (лиды→Stripe) работает; "
+                "Farm Scanner ищет легальные Earn-рынки и честно говорит, когда их нет. "
+                "NOW: Micro 5 €. RapidAPI на паузе."
             ),
             "levels": levels,
             "live_gates": live_gates,
@@ -1285,6 +1459,7 @@ class FarmEngineV1:
             "distribution": distribution,
             "strategy": strategy,
             "earn_platforms": platforms,
+            "market_digest": market,
             "income_phase": phase,
             "commercial_blocker": commercial_blocker,
             "estimate_vs_real_ru": (
@@ -1308,13 +1483,13 @@ class FarmEngineV1:
             "engine": "farm_v1",
             "pipeline_ru": [
                 "Opportunity Scanner",
-                "Earn Platform Scanner (B)",
-                "Legal Check",
-                "Profit Check",
-                "Execution Queue",
-                "Live Earn (A: API+Stripe)",
-                "Finance Reality",
-                "Ledger",
+                "Legal / ROI",
+                "CEO GO",
+                "Execution Plan",
+                "Checklist / Auto Tasks",
+                "Waiting for CEO",
+                "Production-ready",
+                "Confirmed € (Hard REAL)",
             ],
             "factory_layers_ru": [
                 "Capabilities",
@@ -1330,6 +1505,7 @@ class FarmEngineV1:
             "maturity": maturity,
             "scan": scan,
             "earn_platforms": scan.get("earn_platforms") or scan_earn_platforms(),
+            "market_digest": self.market_monitor(force=False),
             "queue": q,
             "ledger": led,
             "forbidden_ru": [

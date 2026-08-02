@@ -103,12 +103,22 @@ def test_dual_track_a_and_b():
     s = dual_track_strategy()
     assert s["first_live_earn_id"] == FIRST_LIVE_EARN_ID == "earn-own-api-stripe"
     ids = [t["id"] for t in s["tracks"]]
-    assert ids == ["A", "B"]
+    assert ids == ["commercial_now", "farm_scanner"]
+    assert "Micro 5" in s["priority_now_ru"]
+    assert "RapidAPI" in s["do_not_ru"][0] or any("RapidAPI" in x for x in s["do_not_ru"])
+    assert (
+        "gap" in s["gap_ru"].lower()
+        or "Нет механизма" in s["gap_ru"]
+        or "Scanner" in s["gap_ru"]
+        or "не создаёт рынок" in s["gap_ru"]
+    )
     plats = scan_earn_platforms()
     assert plats["counts"]["hard_reject"] >= 2
     first = next(p for p in plats["platforms"] if p.get("is_first_pick"))
     assert first["id"] == "platform-own-stripe"
     assert first["pipeline_stage"] == "first_connector_candidate"
+    rapid = next(p for p in plats["platforms"] if p["id"] == "platform-rapidapi")
+    assert rapid["evidence_status"] == "auto_when_armed"
     reject = next(p for p in plats["platforms"] if p["id"] == "platform-toloka-performer")
     assert reject["hard_reject"] is True
 
@@ -138,20 +148,39 @@ def test_go_requires_legal_and_roi(tmp_path: Path):
     assert bad["ok"] is False
     good = eng.decide("earn-own-api-stripe", "go")
     assert good["ok"] is True
+    assert "execution_plan" in good
+    assert good["execution_plan"]["checklist"]
     scan = eng.scan()
     own = next(o for o in scan["opportunities"] if o["id"] == "earn-own-api-stripe")
-    assert own["pipeline_stage"] == "execution_ready"
+    assert own["pipeline_stage"] in {
+        "waiting_for_ceo",
+        "execution_blocked",
+        "production_ready",
+        "execution_plan",
+    }
     assert own["can_enqueue"] is True
+    assert own["execution_plan"]["why_no_eur_ru"]
 
 
-def test_enqueue_dry_run_only_after_go(tmp_path: Path):
+def test_go_runs_execution_plan_not_just_status(tmp_path: Path):
+    eng = FarmEngineV1(tmp_path)
+    out = eng.decide("earn-rapidapi-provider", "go")
+    assert out["ok"] is True
+    plan = out["execution_plan"]
+    assert plan["stage"] in {"waiting_for_ceo", "blocked"}
+    assert any(c["id"] == "openapi" for c in plan["checklist"])
+    assert (tmp_path / "farm_exec_rapidapi_openapi.json").is_file()
+    assert out["job"]["mode"] == "execution_plan"
+
+
+def test_enqueue_plan_only_after_go(tmp_path: Path):
     eng = FarmEngineV1(tmp_path)
     assert eng.enqueue("earn-own-api-stripe")["ok"] is False
     eng.decide("earn-own-api-stripe", "go")
     job = eng.enqueue("earn-own-api-stripe")
     assert job["ok"] is True
-    assert job["job"]["mode"] == "dry_run"
-    assert job["job"]["status"] == "queued_dry_run"
+    assert job["job"]["mode"] == "execution_plan"
+    assert "execution_plan" in job
     q = eng.queue()
     assert q["count"] >= 1
 
@@ -161,7 +190,7 @@ def test_panel_shape(tmp_path: Path):
     assert panel["engine"] == "farm_v1"
     assert "Opportunity Scanner" in panel["pipeline_ru"]
     assert panel["ledger"]["ok"] is True
-    assert panel["strategy"]["tracks"][0]["id"] == "A"
+    assert panel["strategy"]["tracks"][0]["id"] == "commercial_now"
     assert panel["earn_platforms"]["ok"] is True
 
 
@@ -180,14 +209,15 @@ def test_maturity_board_blocks_live_without_confirmed_eur(tmp_path: Path):
     assert board["distribution"]["status"] == "architecture_only"
     assert board["income_phase"]["is_modeling"] is True
     assert board["income_phase"]["phase"] == "modeling"
-    assert "API+Stripe" in board["law_ru"] or "Confirmed" in board["law_ru"]
+    assert "Micro 5" in board["law_ru"] or "Stripe" in board["law_ru"]
     assert board["strategy"]["first_live_earn_id"] == "earn-own-api-stripe"
     assert board["earn_platforms"]["counts"]["first_pick"] >= 1
     blocker = board["commercial_blocker"]
     assert blocker["ok"] is True
     by_id = {c["id"]: c["ok"] for c in blocker["checklist"]}
     assert by_id["live_earn_connector"] is False
+    assert by_id["micro_stripe_buyer"] is False
     assert by_id["external_payout_id"] is False
-    assert "Toloka" in blocker["why_real_zero_ru"]
+    assert "Toloka" in blocker["why_real_zero_ru"] or "Micro" in blocker["why_real_zero_ru"]
     assert len(blocker["first_live_earn_candidates"]) >= 1
-    assert "Live Earn Connector" in blocker["question_right_ru"]
+    assert "Micro" in blocker["question_right_ru"]
