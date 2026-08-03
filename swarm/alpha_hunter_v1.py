@@ -647,6 +647,7 @@ class AlphaHunterLab:
         # Migrate old strict defaults (500/30) → discovery defaults unless owner set a flag
         min_p = d.get("min_expected_profit_eur")
         min_r = d.get("min_roi_pct")
+        migrated = False
         if not d.get("thresholds_locked") and (
             min_p is None
             or (
@@ -656,7 +657,8 @@ class AlphaHunterLab:
         ):
             min_p = DEFAULT_MIN_EXPECTED_PROFIT_EUR
             min_r = DEFAULT_MIN_ROI_PCT
-        return {
+            migrated = True
+        cfg = {
             "min_expected_profit_eur": _safe_float(
                 min_p, DEFAULT_MIN_EXPECTED_PROFIT_EUR
             ),
@@ -668,7 +670,43 @@ class AlphaHunterLab:
                 if _safe_float(min_p, DEFAULT_MIN_EXPECTED_PROFIT_EUR) < 400
                 else "Strict director (€500 / 30%)"
             ),
+            "_migrated": migrated,
         }
+        return cfg
+
+    def heal_director_defaults(self) -> bool:
+        """Persist Discovery defaults + drop stale «0 kept / €500» briefs from old builds."""
+        lab = self._load_lab()
+        d = lab.get("director") if isinstance(lab.get("director"), dict) else {}
+        changed = False
+        cfg = self._director_cfg(lab)
+        if cfg.pop("_migrated", False):
+            d["min_expected_profit_eur"] = DEFAULT_MIN_EXPECTED_PROFIT_EUR
+            d["min_roi_pct"] = DEFAULT_MIN_ROI_PCT
+            changed = True
+        brief = d.get("last_brief") if isinstance(d.get("last_brief"), dict) else None
+        if brief is not None:
+            msg = str(brief.get("message_ru") or "")
+            stale_empty = (
+                int(brief.get("kept") or 0) == 0
+                and int(brief.get("found") or 0) >= 50
+                and (
+                    "мелочь не показываю" in msg
+                    or "Ни одной выше порога" in msg
+                    or "€500" in msg
+                )
+            )
+            if stale_empty:
+                d["last_brief"] = None
+                changed = True
+                if not d.get("thresholds_locked"):
+                    d["min_expected_profit_eur"] = DEFAULT_MIN_EXPECTED_PROFIT_EUR
+                    d["min_roi_pct"] = DEFAULT_MIN_ROI_PCT
+        if changed:
+            lab["director"] = d
+            lab["updated_at"] = _utc_now()
+            self._save_lab(lab)
+        return changed
 
     def set_director_thresholds(
         self,
@@ -688,7 +726,9 @@ class AlphaHunterLab:
         lab["director"] = d
         lab["updated_at"] = _utc_now()
         self._save_lab(lab)
-        return {"ok": True, "director": self._director_cfg(lab), "lab": self.panel()}
+        dcfg = self._director_cfg(lab)
+        dcfg.pop("_migrated", None)
+        return {"ok": True, "director": dcfg, "lab": self.panel()}
 
     def heal_active_experiments(self) -> None:
         """Stuck counter at max (e.g. 10 active, €0 spent, 0 lifetime) → reset."""
@@ -880,6 +920,7 @@ class AlphaHunterLab:
 
     def panel(self, *, bank_eur: float | None = None) -> dict[str, Any]:
         self.heal_active_experiments()
+        self.heal_director_defaults()
         lab = self._roll_today(self._load_lab())
         if bank_eur is not None:
             lab["bank_eur"] = max(0.0, _safe_float(bank_eur))
@@ -896,6 +937,7 @@ class AlphaHunterLab:
         )[:12]
         stage = str(lab.get("stage") or STAGE_PAPER)
         dcfg = self._director_cfg(lab)
+        dcfg.pop("_migrated", None)
         pay = lab.get("payout") if isinstance(lab.get("payout"), dict) else {}
         available = _safe_float(pay.get("available_eur"))
         import os
@@ -908,6 +950,33 @@ class AlphaHunterLab:
         director_brief = (lab.get("director") or {}).get("last_brief")
         scan_sec = int(lab.get("scan_interval_sec") or DEFAULT_SCAN_INTERVAL_SEC)
         opps = self.list_opportunities(limit=30)
+        lab_mode = str(lab.get("lab_mode") or LAB_MODE_ANALYSIS)
+        analysis_ready = bool(lab.get("analysis_ready"))
+        proposals_waiting = any(
+            str(o.get("lifecycle") or "") == LC_WAITING_APPROVAL for o in opps
+        )
+        if not analysis_ready:
+            next_action_ru = (
+                "Сейчас: Paper day (или Scan Income Sources) — €0. "
+                "Потом Propose top 3 → «→ LIVE» → Одобрить."
+            )
+            next_step = "paper"
+        elif lab_mode != LAB_MODE_LIVE and not proposals_waiting:
+            next_action_ru = (
+                "Анализ готов. Нажмите «Propose top 3», затем «→ LIVE Income Lab», "
+                "потом «Одобрить» на предложении."
+            )
+            next_step = "propose"
+        elif lab_mode != LAB_MODE_LIVE:
+            next_action_ru = (
+                "Есть предложения. Нажмите «→ LIVE Income Lab» — тогда появится «Одобрить»."
+            )
+            next_step = "go_live"
+        else:
+            next_action_ru = (
+                "LIVE. Нажмите «Одобрить» на карточке предложения (микро-тест ≤2% банка)."
+            )
+            next_step = "approve"
         return {
             "ok": True,
             "product_name": "Virtus Core Alpha Hunter",
@@ -922,8 +991,10 @@ class AlphaHunterLab:
             "law_ru": LAW_RU,
             "search_law_ru": SEARCH_SPEND_FORBIDDEN_RU,
             "bank_pitch_ru": BANK_PITCH_RU,
-            "lab_mode": str(lab.get("lab_mode") or LAB_MODE_ANALYSIS),
-            "analysis_ready": bool(lab.get("analysis_ready")),
+            "lab_mode": lab_mode,
+            "analysis_ready": analysis_ready,
+            "next_step": next_step,
+            "next_action_ru": next_action_ru,
             "scan": {
                 "interval_sec": scan_sec,
                 "interval_label": f"{scan_sec // 60}m",

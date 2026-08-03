@@ -44,6 +44,31 @@ def test_paper_day_keeps_candidates_under_discovery_threshold(tmp_path: Path):
     assert lab.panel()["lab"]["active_experiments"] == 0
 
 
+def test_heal_stale_strict_brief(tmp_path: Path):
+    lab = AlphaHunterLab(_Mem(tmp_path))
+    state = lab._load_lab()
+    state["director"] = {
+        "min_expected_profit_eur": 500.0,
+        "min_roi_pct": 30.0,
+        "thresholds_locked": False,
+        "last_brief": {
+            "found": 100,
+            "rejected": 100,
+            "kept": 0,
+            "message_ru": (
+                "Анализ: нашёл 100 возможностей. 100 отклонил "
+                "(порог €500 / ROI 30%). Ни одной выше порога — мелочь не показываю."
+            ),
+        },
+    }
+    lab._save_lab(state)
+    panel = lab.panel()
+    assert panel["director"]["min_expected_profit_eur"] == pytest.approx(100.0)
+    assert panel["director"]["last_brief"] is None
+    assert panel["next_step"] == "paper"
+    assert "Paper day" in panel["next_action_ru"]
+
+
 def test_heal_stuck_active_experiments(tmp_path: Path):
     lab = AlphaHunterLab(_Mem(tmp_path))
     state = lab._load_lab()
