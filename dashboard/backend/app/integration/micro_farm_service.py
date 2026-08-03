@@ -514,6 +514,48 @@ class MicroFarmService:
         ensure_swarm_importable()
         return FarmEngineV1(self._memory).market_monitor(force=force)
 
+    def opire_farm_panel(self, *, force_scan: bool = True) -> dict[str, Any]:
+        """Opire Semi-Auto bounty panel (owner Farm — not Commercial Engine)."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.opire_farm import OpireFarmEngine
+
+        ensure_swarm_importable()
+        return OpireFarmEngine(self._memory).panel(force_scan=force_scan)
+
+    def opire_farm_decide(
+        self, reward_id: str, decision: str, *, note: str = ""
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.opire_farm import OpireFarmEngine
+
+        ensure_swarm_importable()
+        return OpireFarmEngine(self._memory).decide(reward_id, decision, note=note)
+
+    def opire_farm_advance(
+        self,
+        reward_id: str,
+        status: str,
+        *,
+        pr_id: str | None = None,
+        pr_url: str | None = None,
+        payment_confirmation_id: str | None = None,
+        payout_usd: float | None = None,
+        note: str = "",
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.opire_farm import OpireFarmEngine
+
+        ensure_swarm_importable()
+        return OpireFarmEngine(self._memory).advance(
+            reward_id,
+            status,
+            pr_id=pr_id,
+            pr_url=pr_url,
+            payment_confirmation_id=payment_confirmation_id,
+            payout_usd=payout_usd,
+            note=note,
+        )
+
     def income_engine_v1(self) -> dict[str, Any]:
         """Owner-only Income Engine panel (not a commercial Virtus product)."""
         from app.integration.swarm_bridge import ensure_swarm_importable

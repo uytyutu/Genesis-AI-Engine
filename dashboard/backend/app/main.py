@@ -2013,6 +2013,40 @@ def farm_engine_v1_market_monitor_run() -> dict:
     return _ctx().micro_farm.farm_engine_v1_market_monitor(force=True)
 
 
+@app.get("/api/farm/opire")
+def farm_opire_panel() -> dict:
+    """Opire Semi-Auto Farm — scan + confidence + Approve (Reward Protection)."""
+    return _ctx().micro_farm.opire_farm_panel(force_scan=True)
+
+
+@app.post("/api/farm/opire/decide")
+def farm_opire_decide(reward_id: str, decision: str, note: str = "") -> dict:
+    """CEO: approve | skip Opire bounty candidate."""
+    return _ctx().micro_farm.opire_farm_decide(reward_id, decision, note=note)
+
+
+@app.post("/api/farm/opire/advance")
+def farm_opire_advance(
+    reward_id: str,
+    status: str,
+    pr_id: str = "",
+    pr_url: str = "",
+    payment_confirmation_id: str = "",
+    payout_usd: float | None = None,
+    note: str = "",
+) -> dict:
+    """Advance bounty state machine. REAL requires payment_confirmation_id."""
+    return _ctx().micro_farm.opire_farm_advance(
+        reward_id,
+        status,
+        pr_id=pr_id or None,
+        pr_url=pr_url or None,
+        payment_confirmation_id=payment_confirmation_id or None,
+        payout_usd=payout_usd,
+        note=note,
+    )
+
+
 @app.post("/api/farm/real-payout")
 def farm_real_payout(
     amount_eur: float,
@@ -4087,6 +4121,26 @@ def client_me(request: Request) -> dict:
     return _customer_identity().me(str(payload["sub"]))
 
 
+@app.get("/api/client/orders")
+def client_orders_list(request: Request) -> dict:
+    """Cabinet: orders owned by the logged-in customer (by customer_id / email)."""
+    from app.integration.customer_identity.auth import require_client
+
+    payload = require_client(request)
+    customer_id = str(payload["sub"])
+    email = str(payload.get("email") or "").strip()
+    if not email:
+        try:
+            me = _customer_identity().me(customer_id)
+            email = str((me.get("account") or {}).get("email") or "")
+        except Exception:
+            email = ""
+    orders = _ctx().sales.list_orders_for_customer(
+        customer_id=customer_id, email=email or None, limit=50
+    )
+    return {"ok": True, "orders": orders}
+
+
 @app.get("/api/client/welcome")
 def client_welcome(request: Request) -> dict:
     from app.integration.customer_identity.auth import require_client
@@ -4743,7 +4797,17 @@ def sales_order_client_download(order_id: str) -> StreamingResponse:
             ) from None
         if code == "factory_unavailable":
             raise HTTPException(status_code=503, detail="Factory nicht verfügbar") from None
-        raise HTTPException(status_code=404, detail="Produkt nicht gefunden") from None
+        if code == "product_not_found":
+            raise HTTPException(status_code=404, detail="Produkt nicht gefunden") from None
+        if code.startswith("quality_gate_failed") or "Compliance" in type(exc).__name__:
+            raise HTTPException(
+                status_code=422,
+                detail="Website-Archiv noch nicht freigegeben (Qualitätsprüfung). Produktion erneut starten.",
+            ) from None
+        raise HTTPException(
+            status_code=422,
+            detail="Website-Archiv konnte nicht erstellt werden. Bitte Support mit Bestellnummer kontaktieren.",
+        ) from None
     return StreamingResponse(
         io.BytesIO(data),
         media_type="application/zip",

@@ -98,9 +98,15 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
   return "public";
 }
 
-/** Rule A — Customer Decision Engine: deprecated public purchase paths (Ramiš scanner mode). */
+/** Purchase / intake paths — storefront look + quieter public chrome. */
 export function isCustomerPurchasePath(pathname: string): boolean {
-  return false;
+  const p = (pathname || "").split("?")[0] || "";
+  return (
+    p === "/order" ||
+    p.startsWith("/order/") ||
+    p === "/products" ||
+    p.startsWith("/products/")
+  );
 }
 
 export type PublicNavLink = {
@@ -168,7 +174,7 @@ export const CEO_PRIMARY_LINKS = [
   { href: "/support", label: "Поддержка", hint: "Inbox · автоответы · шаблоны" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
   { href: "/", label: "Ферма", hint: "Разметка · Toloka Spend (не Desk)" },
-  { href: "/farm-engine", label: "Farm Engine", hint: "Scanner · Legal · ROI · Queue · Ledger" },
+  { href: "/farm-engine", label: "Farm Engine", hint: "Opire · Approve · Reward Protection" },
   {
     href: "/income-engine",
     label: "Alpha Hunter",
