@@ -646,6 +646,13 @@ class MicroFarmService:
             min_roi_pct=min_roi_pct,
         )
 
+    def income_engine_v1_set_search_mode(self, mode_id: str) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).set_search_mode(mode_id)
+
     def income_engine_v1_withdraw(
         self, *, amount_eur: float | None = None, confirm: bool = True
     ) -> dict[str, Any]:

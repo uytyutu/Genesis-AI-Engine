@@ -63,10 +63,44 @@ def test_heal_stale_strict_brief(tmp_path: Path):
     }
     lab._save_lab(state)
     panel = lab.panel()
-    assert panel["director"]["min_expected_profit_eur"] == pytest.approx(100.0)
+    assert panel["director"]["min_expected_profit_eur"] == pytest.approx(50.0)
+    assert panel["director"]["search_mode"] == "newbie"
     assert panel["director"]["last_brief"] is None
     assert panel["next_step"] == "paper"
     assert "Paper day" in panel["next_action_ru"]
+
+
+def test_search_modes_and_honest_empty_conservative(tmp_path: Path):
+    lab = AlphaHunterLab(_Mem(tmp_path))
+    assert lab.set_search_mode("conservative")["ok"] is True
+    out = lab.run_paper_day(bank_eur=20.0, opportunities_target=100)
+    brief = out["director_brief"]
+    assert "rejection_breakdown" in brief
+    assert brief.get("coverage", {}).get("sources_checked", 0) >= 1
+    # Conservative may keep 0 — that must be empty_ok, not an error
+    if brief["kept"] == 0:
+        assert brief.get("empty_ok") is True
+        assert "нормальный результат" in brief["message_ru"].lower() or "критериям" in brief["message_ru"]
+        soft = lab.set_search_mode("explorer")
+        assert soft["ok"] is True
+        again = lab.run_paper_day(bank_eur=20.0, opportunities_target=100)
+        assert again["director_brief"]["kept"] >= 1
+
+
+def test_adaptive_suggestion_after_100_experiments(tmp_path: Path):
+    lab = AlphaHunterLab(_Mem(tmp_path))
+    lab.set_search_mode("newbie")
+    state = lab._load_lab()
+    state["lifetime"] = {
+        "experiments": 100,
+        "success": 40,
+        "failed": 60,
+        "avg_realized_roi": 0.15,
+    }
+    lab._save_lab(state)
+    sug = lab.adaptive_threshold_suggestion(lab._load_lab())
+    assert sug["ready"] is True
+    assert sug.get("suggest_mode") == "balanced"
 
 
 def test_heal_stuck_active_experiments(tmp_path: Path):

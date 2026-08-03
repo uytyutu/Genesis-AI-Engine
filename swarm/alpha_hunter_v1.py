@@ -78,12 +78,63 @@ STAGE_PAPER = "paper"  # Stage 1 — no spend
 STAGE_PROPOSE = "propose"  # Stage 2 — ask owner
 STAGE_MICRO = "micro_spend"  # Stage 3 — tiny spend after approve
 
-# Investment director — hide penny deals (€2), but Discovery must surface prepare candidates.
-# Strict investment-fund mode: €500 / 30% (optional preset). Default = discovery-friendly.
-DEFAULT_MIN_EXPECTED_PROFIT_EUR = 100.0
-DEFAULT_MIN_ROI_PCT = 12.0
+# Investment director — hide penny deals (€2), but learning must accumulate stats.
+# Modes (owner picks style). Adaptive: after N experiments, lab may suggest raising floors.
+DEFAULT_MIN_EXPECTED_PROFIT_EUR = 50.0
+DEFAULT_MIN_ROI_PCT = 10.0
 STRICT_MIN_EXPECTED_PROFIT_EUR = 500.0
 STRICT_MIN_ROI_PCT = 30.0
+ADAPTIVE_EXPERIMENT_GATE = 100
+DEFAULT_SEARCH_MODE = "newbie"
+
+SEARCH_MODES: dict[str, dict[str, Any]] = {
+    "newbie": {
+        "id": "newbie",
+        "title": "Newbie",
+        "title_ru": "Новичок — быстрее накопить статистику",
+        "min_expected_profit_eur": 50.0,
+        "min_roi_pct": 10.0,
+        "rank_all_positive": False,
+        "pitch_ru": "€50 / ROI ≥ 10%. Цель — опыт, не идеальный фильтр.",
+    },
+    "explorer": {
+        "id": "explorer",
+        "title": "Explorer",
+        "title_ru": "Explorer — любые идеи, потом ранжирование",
+        "min_expected_profit_eur": 0.0,
+        "min_roi_pct": 0.0,
+        "rank_all_positive": True,
+        "pitch_ru": "Без жёсткого порога: ранжируем всё положительное по Discovery Score.",
+    },
+    "balanced": {
+        "id": "balanced",
+        "title": "Balanced",
+        "title_ru": "Balanced — рабочий режим",
+        "min_expected_profit_eur": 100.0,
+        "min_roi_pct": 15.0,
+        "rank_all_positive": False,
+        "pitch_ru": "€100 / ROI ≥ 15%.",
+    },
+    "conservative": {
+        "id": "conservative",
+        "title": "Conservative",
+        "title_ru": "Conservative — фонд",
+        "min_expected_profit_eur": 500.0,
+        "min_roi_pct": 30.0,
+        "rank_all_positive": False,
+        "pitch_ru": "€500 / ROI ≥ 30%. Мелочь не показываем.",
+    },
+}
+
+REJECTION_REASON_LABELS_RU: dict[str, str] = {
+    "insufficient_roi": "Недостаточный ROI / прибыль ниже порога",
+    "no_tos_confirmation": "Нет подтверждения правил (ToS)",
+    "no_automation": "Нет способа автоматизации",
+    "no_browser": "Нет Browser (Playwright)",
+    "manual_registration": "Требуется ручная регистрация",
+    "no_venue": "Нет легальной площадки в whitelist",
+}
+
 # Scale paper unit (€1 model) → director expected-profit view for market deals
 DIRECTOR_DEAL_SCALE_EUR = 2000.0
 
@@ -260,6 +311,99 @@ def passes_director_threshold(
     profit_ok = ref >= _safe_float(min_profit_eur)
     roi_ok = (_safe_float(modeled_roi) * 100.0) >= _safe_float(min_roi_pct)
     return profit_ok or roi_ok
+
+
+def classify_rejection_reason(
+    *,
+    modeled_roi: float,
+    expected_profit_mid: float,
+    min_profit_eur: float,
+    min_roi_pct: float,
+    evidence: dict[str, Any] | None,
+    has_browser: bool,
+    no_venue: bool = False,
+) -> str:
+    """Primary reason a candidate did not pass — for honest «why empty» breakdown."""
+    if no_venue:
+        return "no_venue"
+    sig = (evidence or {}).get("signals") if isinstance(evidence, dict) else {}
+    if not isinstance(sig, dict):
+        sig = {}
+    roi_pct = _safe_float(modeled_roi) * 100.0
+    profit_ok = _safe_float(expected_profit_mid) >= _safe_float(min_profit_eur)
+    roi_ok = roi_pct >= _safe_float(min_roi_pct)
+    if not profit_ok and not roi_ok:
+        return "insufficient_roi"
+    if not sig.get("tos_auto_publish_ok", True):
+        return "no_tos_confirmation"
+    if not has_browser and not sig.get("has_api", False):
+        return "no_browser"
+    if not sig.get("has_api", False):
+        return "no_automation"
+    # Residual gate: still not kept → treat as needing human signup
+    return "manual_registration"
+
+
+def build_rejection_breakdown(
+    reasons: list[str],
+) -> list[dict[str, Any]]:
+    counts: dict[str, int] = {}
+    for r in reasons:
+        key = str(r or "insufficient_roi")
+        counts[key] = counts.get(key, 0) + 1
+    rows = []
+    for key, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
+        rows.append(
+            {
+                "id": key,
+                "count": n,
+                "label_ru": REJECTION_REASON_LABELS_RU.get(key, key),
+            }
+        )
+    return rows
+
+
+def honest_empty_brief(
+    *,
+    coverage: dict[str, Any],
+    mode: dict[str, Any],
+    rejection_breakdown: list[dict[str, Any]],
+    found: int,
+    rejected: int,
+) -> dict[str, Any]:
+    """Empty result is a normal outcome — not a product error."""
+    lines = [
+        "Сегодня проверено",
+        f"{int(coverage.get('sources_checked') or 0)} источников",
+        f"{int(coverage.get('strategies_modeled') or 0)} стратегий",
+        f"{int(coverage.get('markets_checked') or 0)} рынков",
+        "",
+        "Причина отсутствия предложений:",
+        "Не найдено ни одной возможности, которая соответствует вашим критериям "
+        f"(режим {mode.get('title')}: €{mode.get('min_expected_profit_eur'):.0f} / "
+        f"ROI ≥ {mode.get('min_roi_pct'):.0f}%).",
+        "",
+        "Это нормальный результат поиска, не сбой.",
+        "Хотите: ослабить фильтр (Explorer) или продолжить поиск (Paper day).",
+    ]
+    return {
+        "found": found,
+        "rejected": rejected,
+        "kept": 0,
+        "empty_ok": True,
+        "coverage": coverage,
+        "rejection_breakdown": rejection_breakdown,
+        "message_ru": "\n".join(lines),
+        "actions": [
+            {"id": "soften", "label_ru": "Ослабить фильтр", "mode": "explorer"},
+            {"id": "continue", "label_ru": "Продолжить поиск", "action": "paper_day"},
+            {
+                "id": "why",
+                "label_ru": "Почему ничего не найдено?",
+                "action": "show_breakdown",
+            },
+        ],
+    }
 
 
 def director_expected_profit_eur(
@@ -612,6 +756,7 @@ class AlphaHunterLab:
             "next_scan_at": None,
             "analysis_ready": False,
             "director": {
+                "search_mode": DEFAULT_SEARCH_MODE,
                 "min_expected_profit_eur": DEFAULT_MIN_EXPECTED_PROFIT_EUR,
                 "min_roi_pct": DEFAULT_MIN_ROI_PCT,
                 "last_brief": None,
@@ -642,47 +787,88 @@ class AlphaHunterLab:
             "updated_at": _utc_now(),
         }
 
-    def _director_cfg(self, lab: dict[str, Any]) -> dict[str, float]:
+    def _search_mode_id(self, lab: dict[str, Any]) -> str:
         d = lab.get("director") if isinstance(lab.get("director"), dict) else {}
-        # Migrate old strict defaults (500/30) → discovery defaults unless owner set a flag
+        mid = str(d.get("search_mode") or "").strip().lower()
+        if mid in SEARCH_MODES:
+            return mid
+        # Infer from thresholds
+        min_p = _safe_float(d.get("min_expected_profit_eur"), DEFAULT_MIN_EXPECTED_PROFIT_EUR)
+        min_r = _safe_float(d.get("min_roi_pct"), DEFAULT_MIN_ROI_PCT)
+        if min_p >= 400 and min_r >= 25:
+            return "conservative"
+        if min_p <= 0 and min_r <= 0:
+            return "explorer"
+        if min_p <= 60 and min_r <= 12:
+            return "newbie"
+        if min_p <= 120 and min_r <= 18:
+            return "balanced"
+        return DEFAULT_SEARCH_MODE
+
+    def _director_cfg(self, lab: dict[str, Any]) -> dict[str, Any]:
+        d = lab.get("director") if isinstance(lab.get("director"), dict) else {}
+        mode_id = self._search_mode_id(lab)
+        mode = SEARCH_MODES[mode_id]
         min_p = d.get("min_expected_profit_eur")
         min_r = d.get("min_roi_pct")
         migrated = False
+        # Unlocked legacy strict (€500/30) or missing → Newbie learning defaults
         if not d.get("thresholds_locked") and (
             min_p is None
+            or d.get("search_mode") is None
             or (
                 float(min_p) == 500.0
                 and (min_r is None or float(min_r) == 30.0)
             )
+            or (
+                float(min_p) == 100.0
+                and min_r is not None
+                and float(min_r) == 12.0
+            )
         ):
-            min_p = DEFAULT_MIN_EXPECTED_PROFIT_EUR
-            min_r = DEFAULT_MIN_ROI_PCT
+            mode_id = DEFAULT_SEARCH_MODE
+            mode = SEARCH_MODES[mode_id]
+            min_p = mode["min_expected_profit_eur"]
+            min_r = mode["min_roi_pct"]
             migrated = True
+        else:
+            min_p = _safe_float(min_p, mode["min_expected_profit_eur"])
+            min_r = _safe_float(min_r, mode["min_roi_pct"])
         cfg = {
-            "min_expected_profit_eur": _safe_float(
-                min_p, DEFAULT_MIN_EXPECTED_PROFIT_EUR
-            ),
-            "min_roi_pct": _safe_float(min_r, DEFAULT_MIN_ROI_PCT),
+            "search_mode": mode_id,
+            "search_mode_ru": mode["title_ru"],
+            "search_modes": [
+                {
+                    "id": m["id"],
+                    "title": m["title"],
+                    "title_ru": m["title_ru"],
+                    "pitch_ru": m["pitch_ru"],
+                    "min_expected_profit_eur": m["min_expected_profit_eur"],
+                    "min_roi_pct": m["min_roi_pct"],
+                }
+                for m in SEARCH_MODES.values()
+            ],
+            "min_expected_profit_eur": float(min_p),
+            "min_roi_pct": float(min_r),
             "strict_preset_eur": STRICT_MIN_EXPECTED_PROFIT_EUR,
             "strict_preset_roi_pct": STRICT_MIN_ROI_PCT,
-            "mode_ru": (
-                "Discovery (prepare-friendly)"
-                if _safe_float(min_p, DEFAULT_MIN_EXPECTED_PROFIT_EUR) < 400
-                else "Strict director (€500 / 30%)"
-            ),
+            "rank_all_positive": bool(mode.get("rank_all_positive")),
+            "mode_ru": mode["title_ru"],
             "_migrated": migrated,
         }
         return cfg
 
     def heal_director_defaults(self) -> bool:
-        """Persist Discovery defaults + drop stale «0 kept / €500» briefs from old builds."""
+        """Persist Newbie defaults + drop stale «0 kept / €500» briefs from old builds."""
         lab = self._load_lab()
         d = lab.get("director") if isinstance(lab.get("director"), dict) else {}
         changed = False
         cfg = self._director_cfg(lab)
         if cfg.pop("_migrated", False):
-            d["min_expected_profit_eur"] = DEFAULT_MIN_EXPECTED_PROFIT_EUR
-            d["min_roi_pct"] = DEFAULT_MIN_ROI_PCT
+            mode = SEARCH_MODES[DEFAULT_SEARCH_MODE]
+            d["search_mode"] = DEFAULT_SEARCH_MODE
+            d["min_expected_profit_eur"] = mode["min_expected_profit_eur"]
+            d["min_roi_pct"] = mode["min_roi_pct"]
             changed = True
         brief = d.get("last_brief") if isinstance(d.get("last_brief"), dict) else None
         if brief is not None:
@@ -700,13 +886,47 @@ class AlphaHunterLab:
                 d["last_brief"] = None
                 changed = True
                 if not d.get("thresholds_locked"):
-                    d["min_expected_profit_eur"] = DEFAULT_MIN_EXPECTED_PROFIT_EUR
-                    d["min_roi_pct"] = DEFAULT_MIN_ROI_PCT
+                    mode = SEARCH_MODES[DEFAULT_SEARCH_MODE]
+                    d["search_mode"] = DEFAULT_SEARCH_MODE
+                    d["min_expected_profit_eur"] = mode["min_expected_profit_eur"]
+                    d["min_roi_pct"] = mode["min_roi_pct"]
         if changed:
             lab["director"] = d
             lab["updated_at"] = _utc_now()
             self._save_lab(lab)
         return changed
+
+    def set_search_mode(self, mode_id: str) -> dict[str, Any]:
+        """Owner picks search style: Newbie / Explorer / Balanced / Conservative."""
+        mid = str(mode_id or "").strip().lower()
+        if mid not in SEARCH_MODES:
+            return {
+                "ok": False,
+                "error": "unknown_mode",
+                "allowed": list(SEARCH_MODES.keys()),
+            }
+        mode = SEARCH_MODES[mid]
+        lab = self._roll_today(self._load_lab())
+        d = lab.setdefault("director", {})
+        d["search_mode"] = mid
+        d["min_expected_profit_eur"] = mode["min_expected_profit_eur"]
+        d["min_roi_pct"] = mode["min_roi_pct"]
+        d["thresholds_locked"] = True
+        lab["director"] = d
+        lab["updated_at"] = _utc_now()
+        self._save_lab(lab)
+        dcfg = self._director_cfg(lab)
+        dcfg.pop("_migrated", None)
+        return {
+            "ok": True,
+            "search_mode": mid,
+            "director": dcfg,
+            "message_ru": (
+                f"Режим {mode['title']}: {mode['pitch_ru']} "
+                "Снова Paper day / Propose."
+            ),
+            "lab": self.panel(),
+        }
 
     def set_director_thresholds(
         self,
@@ -714,7 +934,10 @@ class AlphaHunterLab:
         min_expected_profit_eur: float | None = None,
         min_roi_pct: float | None = None,
         lock: bool = True,
+        search_mode: str | None = None,
     ) -> dict[str, Any]:
+        if search_mode:
+            return self.set_search_mode(search_mode)
         lab = self._roll_today(self._load_lab())
         d = lab.setdefault("director", {})
         if min_expected_profit_eur is not None:
@@ -723,12 +946,64 @@ class AlphaHunterLab:
             d["min_roi_pct"] = max(0.0, _safe_float(min_roi_pct))
         if lock:
             d["thresholds_locked"] = True
+        # Keep mode label coherent with floors
+        d["search_mode"] = self._search_mode_id({"director": d})
         lab["director"] = d
         lab["updated_at"] = _utc_now()
         self._save_lab(lab)
         dcfg = self._director_cfg(lab)
         dcfg.pop("_migrated", None)
         return {"ok": True, "director": dcfg, "lab": self.panel()}
+
+    def adaptive_threshold_suggestion(self, lab: dict[str, Any]) -> dict[str, Any] | None:
+        """After enough real experiments, suggest raising floors — never force."""
+        life = lab.get("lifetime") if isinstance(lab.get("lifetime"), dict) else {}
+        experiments = int(life.get("experiments") or 0)
+        if experiments < ADAPTIVE_EXPERIMENT_GATE:
+            return {
+                "ready": False,
+                "experiments": experiments,
+                "gate": ADAPTIVE_EXPERIMENT_GATE,
+                "message_ru": (
+                    f"До предложения повысить порог: {experiments}/{ADAPTIVE_EXPERIMENT_GATE} "
+                    "реальных экспериментов (Newbie копит статистику)."
+                ),
+            }
+        mode_id = self._search_mode_id(lab)
+        avg_roi = life.get("avg_realized_roi")
+        success = int(life.get("success") or 0)
+        failed = int(life.get("failed") or 0)
+        win_rate = success / max(1, success + failed)
+        suggest_mode = None
+        if mode_id == "newbie" and (win_rate >= 0.35 or _safe_float(avg_roi) >= 0.12):
+            suggest_mode = "balanced"
+        elif mode_id == "balanced" and win_rate >= 0.45 and _safe_float(avg_roi) >= 0.2:
+            suggest_mode = "conservative"
+        elif mode_id == "explorer" and experiments >= ADAPTIVE_EXPERIMENT_GATE:
+            suggest_mode = "newbie"
+        if not suggest_mode:
+            return {
+                "ready": True,
+                "experiments": experiments,
+                "gate": ADAPTIVE_EXPERIMENT_GATE,
+                "suggest_mode": None,
+                "message_ru": (
+                    f"После {experiments} экспериментов порог можно оставить "
+                    f"({SEARCH_MODES[mode_id]['title']}) — данных пока мало для ужесточения."
+                ),
+            }
+        sm = SEARCH_MODES[suggest_mode]
+        return {
+            "ready": True,
+            "experiments": experiments,
+            "gate": ADAPTIVE_EXPERIMENT_GATE,
+            "suggest_mode": suggest_mode,
+            "message_ru": (
+                f"После {experiments} реальных экспериментов (win-rate {win_rate:.0%}) "
+                f"система предлагает перейти на {sm['title']}: {sm['pitch_ru']} "
+                "Подтвердите сменой режима — автоматически не повышаем."
+            ),
+        }
 
     def heal_active_experiments(self) -> None:
         """Stuck counter at max (e.g. 10 active, €0 spent, 0 lifetime) → reset."""
@@ -1020,6 +1295,7 @@ class AlphaHunterLab:
                 **dcfg,
                 "role_ru": "Инвестиционный директор: мелкие €2 не показывает",
                 "last_brief": director_brief,
+                "adaptive": self.adaptive_threshold_suggestion(lab),
                 "edge_ru": (
                     "Настоящее преимущество — ранний поиск новых рынков/площадок, "
                     "подготовка публикации продукта и Approve — не автоматическое создание денег."
@@ -1130,12 +1406,22 @@ class AlphaHunterLab:
 
         modeled: list[dict[str, Any]] = []
         rejects = 0
+        rejection_reasons: list[str] = []
+        dcfg_pre = self._director_cfg(lab)
+        dcfg_pre.pop("_migrated", None)
+        try:
+            import importlib.util as _ilu
+
+            has_browser = _ilu.find_spec("playwright") is not None
+        except Exception:
+            has_browser = False
         for i, h in enumerate(hunters):
             if len(modeled) >= opportunities_target:
                 break
             venue = venue_for_hunter(h["family"])
             if venue is None:
                 rejects += 1
+                rejection_reasons.append("no_venue")
                 continue
             # Deterministic paper model from hunter id (no invented confirmed €)
             digest = hashlib.sha256(
@@ -1185,6 +1471,25 @@ class AlphaHunterLab:
             row["evidence"] = evidence
             row["expected_profit"] = profit
             row["expected_profit_eur"] = profit["mid_eur"]
+            # Classify early if already fails floors (primary reason for breakdown)
+            if not passes_director_threshold(
+                expected_profit_eur=profit["mid_eur"],
+                modeled_roi=modeled_roi,
+                min_profit_eur=dcfg_pre["min_expected_profit_eur"],
+                min_roi_pct=dcfg_pre["min_roi_pct"],
+            ):
+                row["reject_reason"] = classify_rejection_reason(
+                    modeled_roi=modeled_roi,
+                    expected_profit_mid=profit["mid_eur"],
+                    min_profit_eur=dcfg_pre["min_expected_profit_eur"],
+                    min_roi_pct=dcfg_pre["min_roi_pct"],
+                    evidence=evidence,
+                    has_browser=has_browser,
+                )
+            elif not evidence.get("signals", {}).get("tos_auto_publish_ok"):
+                # Passes €/ROI but blocked on evidence gates in conservative review
+                if dcfg_pre["min_expected_profit_eur"] >= 400:
+                    row["reject_reason"] = "no_tos_confirmation"
             modeled.append(row)
 
         # Update strategy scores (paper only)
@@ -1330,6 +1635,8 @@ class AlphaHunterLab:
         life["new_markets_found"] = int(life.get("new_markets_found") or 0) + new_markets
         lab["search_spend_eur"] = 0.0
         dcfg = self._director_cfg(lab)
+        dcfg.pop("_migrated", None)
+        mode_meta = SEARCH_MODES.get(str(dcfg.get("search_mode")), SEARCH_MODES[DEFAULT_SEARCH_MODE])
         kept_dir = []
         for s in ranked:
             profit = expected_profit_range(
@@ -1338,16 +1645,35 @@ class AlphaHunterLab:
             )
             s["expected_profit"] = profit
             s["expected_profit_eur"] = profit["mid_eur"]
-            if passes_director_threshold(
+            if bool(dcfg.get("rank_all_positive")):
+                if _safe_float(s.get("modeled_roi")) > 0:
+                    kept_dir.append(s)
+            elif passes_director_threshold(
                 expected_profit_eur=profit["mid_eur"],
                 modeled_roi=_safe_float(s.get("modeled_roi")),
                 min_profit_eur=dcfg["min_expected_profit_eur"],
                 min_roi_pct=dcfg["min_roi_pct"],
             ):
                 kept_dir.append(s)
+        # Explorer ranks by discovery score; others keep ROI order
+        if bool(dcfg.get("rank_all_positive")) and kept_dir:
+            kept_dir = sorted(
+                kept_dir,
+                key=lambda s: -int(
+                    opportunity_discovery_score(
+                        modeled_roi=_safe_float(s.get("modeled_roi")),
+                        novelty=0.55 if s.get("market_discovery") else 0.35,
+                    ).get("total")
+                    or 0
+                ),
+            )
         discovery_fallback = False
-        if not kept_dir and dcfg["min_expected_profit_eur"] < 400:
-            # Discovery mode: always surface best positive models for prepare
+        # Newbie/Balanced: soft surface best positives so Approve path exists while learning
+        if (
+            not kept_dir
+            and dcfg["min_expected_profit_eur"] < 400
+            and not bool(dcfg.get("rank_all_positive"))
+        ):
             positive = [s for s in ranked if _safe_float(s.get("modeled_roi")) > 0][:5]
             if not positive and ranked:
                 positive = ranked[:3]
@@ -1359,30 +1685,80 @@ class AlphaHunterLab:
                         self._advance_lifecycle(card, LC_PREPARED)
             opp_store["items"] = list(by_id.values())
             self._save_opportunities(opp_store)
-        brief = {
-            "found": len(modeled),
-            "rejected": max(0, len(modeled) - len(kept_dir)) + rejects,
-            "kept": len(kept_dir),
-            "discovery_fallback": discovery_fallback,
-            "message_ru": (
-                (
-                    f"Анализ: нашёл {len(modeled)}. Строгий отбор пуст — "
-                    f"показываю {len(kept_dir)} лучших для prepare "
-                    f"(порог сейчас €{dcfg['min_expected_profit_eur']:.0f} / "
-                    f"ROI {dcfg['min_roi_pct']:.0f}%). "
-                    "Дальше: Propose top 3 → LIVE → Одобрить."
+
+        for row in modeled:
+            reason = row.get("reject_reason")
+            if reason:
+                rejection_reasons.append(str(reason))
+            elif not any(s.get("id") == f"strat_{row['hunter_family']}_{row['venue_id']}" for s in kept_dir):
+                # Strategy not in kept — count as filter reject if not already tagged
+                rejection_reasons.append(
+                    classify_rejection_reason(
+                        modeled_roi=_safe_float(row.get("modeled_roi")),
+                        expected_profit_mid=_safe_float(
+                            (row.get("expected_profit") or {}).get("mid_eur")
+                        ),
+                        min_profit_eur=dcfg["min_expected_profit_eur"],
+                        min_roi_pct=dcfg["min_roi_pct"],
+                        evidence=row.get("evidence") if isinstance(row.get("evidence"), dict) else {},
+                        has_browser=has_browser,
+                    )
                 )
-                if discovery_fallback
-                else (
-                    f"Анализ: нашёл {len(modeled)} возможностей. "
-                    f"{max(0, len(modeled) - len(kept_dir)) + rejects} отклонил "
-                    f"(порог €{dcfg['min_expected_profit_eur']:.0f} / "
-                    f"ROI {dcfg['min_roi_pct']:.0f}%). "
-                    f"{len(kept_dir)} подготовлено с Evidence. "
-                    "Дальше: Propose top 3 → кнопка «→ LIVE» → Одобрить."
-                )
-            ),
+
+        # Cap breakdown length to modeled+rejects for honesty
+        rejection_breakdown = build_rejection_breakdown(rejection_reasons)
+        markets_checked = len({str(r.get("venue_id")) for r in modeled if r.get("venue_id")})
+        coverage = {
+            "sources_checked": len(FREE_SOURCES) + len(LEGAL_VENUES) + len(hunters),
+            "strategies_modeled": len(ranked),
+            "markets_checked": max(markets_checked, len(LEGAL_VENUES)),
+            "hunters_sampled": len(hunters),
+            "opportunities_modeled": len(modeled),
         }
+        rejected_n = max(0, len(modeled) - len(kept_dir)) + rejects
+        if not kept_dir:
+            brief = honest_empty_brief(
+                coverage=coverage,
+                mode=mode_meta,
+                rejection_breakdown=rejection_breakdown,
+                found=len(modeled),
+                rejected=rejected_n,
+            )
+        else:
+            brief = {
+                "found": len(modeled),
+                "rejected": rejected_n,
+                "kept": len(kept_dir),
+                "empty_ok": False,
+                "discovery_fallback": discovery_fallback,
+                "coverage": coverage,
+                "rejection_breakdown": rejection_breakdown,
+                "search_mode": dcfg.get("search_mode"),
+                "message_ru": (
+                    (
+                        f"Анализ: нашёл {len(modeled)}. Строгий отбор пуст — "
+                        f"показываю {len(kept_dir)} лучших для prepare "
+                        f"(режим {mode_meta.get('title')}: "
+                        f"€{dcfg['min_expected_profit_eur']:.0f} / "
+                        f"ROI {dcfg['min_roi_pct']:.0f}%). "
+                        "Дальше: Propose top 3 → LIVE → Одобрить."
+                    )
+                    if discovery_fallback
+                    else (
+                        f"Анализ: нашёл {len(modeled)} возможностей. "
+                        f"{rejected_n} отклонил "
+                        f"(режим {mode_meta.get('title')}: "
+                        f"€{dcfg['min_expected_profit_eur']:.0f} / "
+                        f"ROI {dcfg['min_roi_pct']:.0f}%). "
+                        f"{len(kept_dir)} подготовлено с Evidence. "
+                        "Дальше: Propose top 3 → кнопка «→ LIVE» → Одобрить."
+                    )
+                ),
+                "actions": [
+                    {"id": "why", "label_ru": "Почему ничего не найдено?", "action": "show_breakdown"},
+                    {"id": "continue", "label_ru": "Продолжить поиск", "action": "paper_day"},
+                ],
+            }
         from datetime import timedelta
 
         scan_sec = int(lab.get("scan_interval_sec") or DEFAULT_SCAN_INTERVAL_SEC)

@@ -1327,12 +1327,24 @@ def owner_income_engine_approve_micro_test(body: dict) -> dict:
 @app.post("/api/owner/income-engine/director-thresholds")
 def owner_income_engine_director_thresholds(body: dict) -> dict:
     """Investment director: min expected profit € and/or min ROI %."""
+    mode = (body or {}).get("search_mode") or (body or {}).get("mode")
+    if mode:
+        return _ctx().micro_farm.income_engine_v1_set_search_mode(str(mode))
     profit = (body or {}).get("min_expected_profit_eur")
     roi = (body or {}).get("min_roi_pct")
     return _ctx().micro_farm.income_engine_v1_set_director_thresholds(
         min_expected_profit_eur=float(profit) if profit is not None else None,
         min_roi_pct=float(roi) if roi is not None else None,
     )
+
+
+@app.post("/api/owner/income-engine/search-mode")
+def owner_income_engine_search_mode(body: dict) -> dict:
+    """Newbie / Explorer / Balanced / Conservative search style."""
+    mode = str((body or {}).get("mode") or (body or {}).get("search_mode") or "").strip()
+    if not mode:
+        raise HTTPException(status_code=400, detail="mode_required")
+    return _ctx().micro_farm.income_engine_v1_set_search_mode(mode)
 
 
 @app.post("/api/owner/income-engine/withdraw")

@@ -70,8 +70,18 @@ type DirectorBrief = {
   found?: number;
   rejected?: number;
   kept?: number;
+  empty_ok?: boolean;
   expected_profit?: ProfitRange;
   message_ru?: string;
+  coverage?: {
+    sources_checked?: number;
+    strategies_modeled?: number;
+    markets_checked?: number;
+    hunters_sampled?: number;
+    opportunities_modeled?: number;
+  };
+  rejection_breakdown?: { id?: string; count?: number; label_ru?: string }[];
+  actions?: { id?: string; label_ru?: string; mode?: string; action?: string }[];
 };
 
 type LabBlock = {
@@ -146,7 +156,24 @@ type Panel = {
     director?: {
       min_expected_profit_eur?: number;
       min_roi_pct?: number;
+      search_mode?: string;
+      search_mode_ru?: string;
+      search_modes?: {
+        id?: string;
+        title?: string;
+        title_ru?: string;
+        pitch_ru?: string;
+        min_expected_profit_eur?: number;
+        min_roi_pct?: number;
+      }[];
       last_brief?: DirectorBrief | null;
+      adaptive?: {
+        ready?: boolean;
+        experiments?: number;
+        gate?: number;
+        suggest_mode?: string | null;
+        message_ru?: string;
+      };
       edge_ru?: string;
       role_ru?: string;
     };
@@ -204,10 +231,11 @@ export default function IncomeLabPage() {
   const [busy, setBusy] = useState("");
   const [balance, setBalance] = useState("20");
   const [autoLimit, setAutoLimit] = useState("0.40");
-  const [minProfit, setMinProfit] = useState("100");
-  const [minRoi, setMinRoi] = useState("12");
+  const [minProfit, setMinProfit] = useState("50");
+  const [minRoi, setMinRoi] = useState("10");
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [brief, setBrief] = useState<DirectorBrief | null>(null);
+  const [showWhy, setShowWhy] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -677,18 +705,90 @@ export default function IncomeLabPage() {
         </section>
 
         {liveBrief ? (
-          <section className="rounded-xl border border-emerald-500/25 bg-emerald-950/15 p-4 space-y-2">
+          <section
+            className={`rounded-xl p-4 space-y-3 ${
+              liveBrief.empty_ok || liveBrief.kept === 0
+                ? "border border-zinc-500/30 bg-zinc-900/40"
+                : "border border-emerald-500/25 bg-emerald-950/15"
+            }`}
+          >
             <h2 className="text-sm font-medium text-emerald-100">
               Инвестиционный директор
+              {liveBrief.empty_ok ? " · честный пустой результат" : ""}
             </h2>
-            <p className="text-sm">{liveBrief.message_ru}</p>
+            <pre className="whitespace-pre-wrap text-sm font-sans text-zinc-100">
+              {liveBrief.message_ru}
+            </pre>
+            {liveBrief.coverage ? (
+              <p className="text-xs text-zinc-400">
+                Покрытие: {liveBrief.coverage.sources_checked ?? "—"} источников ·{" "}
+                {liveBrief.coverage.strategies_modeled ?? "—"} стратегий ·{" "}
+                {liveBrief.coverage.markets_checked ?? "—"} рынков
+              </p>
+            ) : null}
             <p className="text-xs text-zinc-400">
               Найдено: {liveBrief.found ?? "—"} · Отклонено: {liveBrief.rejected ?? "—"} ·
               Оставлено: {liveBrief.kept ?? "—"}
-              {liveBrief.expected_profit?.display_ru
-                ? ` · Expected Profit ${liveBrief.expected_profit.display_ru} (Confidence ${liveBrief.expected_profit.confidence_pct ?? "—"}%)`
-                : ""}
             </p>
+            <div className="flex flex-wrap gap-2">
+              {(liveBrief.kept === 0 || liveBrief.empty_ok) && (
+                <>
+                  <button
+                    type="button"
+                    disabled={!!busy}
+                    onClick={() => {
+                      void (async () => {
+                        setBusy("soften");
+                        try {
+                          await fetch(`${API}/api/owner/income-engine/search-mode`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ mode: "explorer" }),
+                          });
+                          setInfo("Фильтр ослаблен → Explorer. Запускаю Paper day…");
+                          await paperDay();
+                        } finally {
+                          setBusy("");
+                          void refresh();
+                        }
+                      })();
+                    }}
+                    className="rounded-md border border-amber-400/50 px-3 py-1.5 text-xs hover:bg-amber-950/40"
+                  >
+                    Ослабить фильтр
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!!busy}
+                    onClick={() => void paperDay()}
+                    className="rounded-md border border-white/20 px-3 py-1.5 text-xs hover:bg-white/5"
+                  >
+                    Продолжить поиск
+                  </button>
+                </>
+              )}
+              <button
+                type="button"
+                disabled={!!busy}
+                onClick={() => setShowWhy((v) => !v)}
+                className="rounded-md border border-sky-400/40 px-3 py-1.5 text-xs hover:bg-sky-950/40"
+              >
+                {showWhy ? "Скрыть разбор" : "Почему ничего не найдено?"}
+              </button>
+            </div>
+            {showWhy && (liveBrief.rejection_breakdown?.length ?? 0) > 0 ? (
+              <ul className="text-sm space-y-1 border-t border-white/10 pt-2">
+                <li className="text-xs text-zinc-500">
+                  Из {liveBrief.found ?? liveBrief.rejected ?? "—"} возможностей:
+                </li>
+                {liveBrief.rejection_breakdown!.map((r) => (
+                  <li key={r.id || r.label_ru} className="flex justify-between gap-4">
+                    <span>{r.label_ru}</span>
+                    <span className="tabular-nums text-zinc-300">{r.count}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             <p className="text-[11px] text-zinc-500">{director?.edge_ru}</p>
           </section>
         ) : null}
@@ -734,71 +834,94 @@ export default function IncomeLabPage() {
           <p className="text-xs text-zinc-400">{data?.alpha_hunter?.honesty_ru}</p>
         </section>
 
-        {/* Director thresholds + Stripe desk */}
+        {/* Search modes + Stripe desk */}
         <section className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
-          <h2 className="text-sm font-medium">Порог директора · Stripe</h2>
+          <h2 className="text-sm font-medium">Режим поиска · Stripe</h2>
           <p className="text-xs text-zinc-500">
-            Discovery по умолчанию: €100 / 12% (мелочь €2 всё равно скрыта). Строгий фонд: €500 / 30%.
-            Кнопка «Одобрить» появляется после: Paper/Propose → LIVE.
+            Новичок €50/10% копит статистику. После 100 реальных экспериментов система может
+            предложить повысить порог — не навязывает. «Одобрить» = Paper → Propose → LIVE.
           </p>
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={!!busy}
-              onClick={() => {
-                setMinProfit("100");
-                setMinRoi("12");
-                void (async () => {
-                  setBusy("thr");
-                  try {
-                    await fetch(`${API}/api/owner/income-engine/director-thresholds`, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        min_expected_profit_eur: 100,
-                        min_roi_pct: 12,
-                      }),
-                    });
-                    setInfo("Порог Discovery: €100 / 12% — снова Paper day");
-                  } finally {
-                    setBusy("");
-                    void refresh();
-                  }
-                })();
-              }}
-              className="rounded-md border border-emerald-500/40 px-2 py-1 text-[11px] hover:bg-emerald-950/40"
-            >
-              Discovery €100 / 12%
-            </button>
-            <button
-              type="button"
-              disabled={!!busy}
-              onClick={() => {
-                setMinProfit("500");
-                setMinRoi("30");
-                void (async () => {
-                  setBusy("thr");
-                  try {
-                    await fetch(`${API}/api/owner/income-engine/director-thresholds`, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        min_expected_profit_eur: 500,
-                        min_roi_pct: 30,
-                      }),
-                    });
-                    setInfo("Строгий порог €500 / 30%");
-                  } finally {
-                    setBusy("");
-                    void refresh();
-                  }
-                })();
-              }}
-              className="rounded-md border border-amber-500/40 px-2 py-1 text-[11px] hover:bg-amber-950/40"
-            >
-              Strict €500 / 30%
-            </button>
+            {(director?.search_modes?.length
+              ? director.search_modes
+              : [
+                  { id: "newbie", title: "Newbie", min_expected_profit_eur: 50, min_roi_pct: 10 },
+                  { id: "explorer", title: "Explorer", min_expected_profit_eur: 0, min_roi_pct: 0 },
+                  { id: "balanced", title: "Balanced", min_expected_profit_eur: 100, min_roi_pct: 15 },
+                  {
+                    id: "conservative",
+                    title: "Conservative",
+                    min_expected_profit_eur: 500,
+                    min_roi_pct: 30,
+                  },
+                ]
+            ).map((m) => (
+              <button
+                key={m.id || m.title}
+                type="button"
+                disabled={!!busy}
+                onClick={() => {
+                  const id = m.id || "newbie";
+                  setMinProfit(String(m.min_expected_profit_eur ?? 50));
+                  setMinRoi(String(m.min_roi_pct ?? 10));
+                  void (async () => {
+                    setBusy("mode");
+                    try {
+                      await fetch(`${API}/api/owner/income-engine/search-mode`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ mode: id }),
+                      });
+                      setInfo(`Режим ${m.title}: снова Paper day`);
+                    } finally {
+                      setBusy("");
+                      void refresh();
+                    }
+                  })();
+                }}
+                className={`rounded-md px-2 py-1 text-[11px] border ${
+                  director?.search_mode === m.id
+                    ? "border-emerald-400/70 bg-emerald-950/50 text-emerald-50"
+                    : "border-white/15 hover:bg-white/5"
+                }`}
+              >
+                {m.title}
+                {m.min_expected_profit_eur != null
+                  ? ` · €${m.min_expected_profit_eur}/${m.min_roi_pct ?? 0}%`
+                  : ""}
+              </button>
+            ))}
           </div>
+          {director?.adaptive?.message_ru ? (
+            <p className="text-[11px] text-sky-200/80">{director.adaptive.message_ru}</p>
+          ) : null}
+          {director?.adaptive?.suggest_mode ? (
+            <button
+              type="button"
+              disabled={!!busy}
+              onClick={() => {
+                const id = director.adaptive?.suggest_mode;
+                if (!id) return;
+                void (async () => {
+                  setBusy("adapt");
+                  try {
+                    await fetch(`${API}/api/owner/income-engine/search-mode`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ mode: id }),
+                    });
+                    setInfo(`Принят совет: ${id}`);
+                  } finally {
+                    setBusy("");
+                    void refresh();
+                  }
+                })();
+              }}
+              className="rounded-md border border-sky-400/50 px-2 py-1 text-[11px] hover:bg-sky-950/40"
+            >
+              Принять совет: {director.adaptive.suggest_mode}
+            </button>
+          ) : null}
           <div className="flex flex-wrap gap-3 items-end">
             <label className="text-xs text-zinc-400 space-y-1">
               <span>Мин. ожидаемая прибыль (€)</span>

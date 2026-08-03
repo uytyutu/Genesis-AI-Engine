@@ -561,6 +561,9 @@ class IncomeEngineV1:
             min_roi_pct=min_roi_pct,
         )
 
+    def set_search_mode(self, mode_id: str) -> dict[str, Any]:
+        return self._lab.set_search_mode(mode_id)
+
     def request_withdraw(
         self, *, amount_eur: float | None = None, confirm: bool = True
     ) -> dict[str, Any]:
