@@ -202,8 +202,8 @@ export default function IncomeLabPage() {
   const [busy, setBusy] = useState("");
   const [balance, setBalance] = useState("20");
   const [autoLimit, setAutoLimit] = useState("0.40");
-  const [minProfit, setMinProfit] = useState("500");
-  const [minRoi, setMinRoi] = useState("30");
+  const [minProfit, setMinProfit] = useState("100");
+  const [minRoi, setMinRoi] = useState("12");
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [brief, setBrief] = useState<DirectorBrief | null>(null);
 
@@ -340,8 +340,8 @@ export default function IncomeLabPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          min_expected_profit_eur: Number(minProfit) || 500,
-          min_roi_pct: Number(minRoi) || 30,
+          min_expected_profit_eur: Number(minProfit) || 100,
+          min_roi_pct: Number(minRoi) || 12,
         }),
       });
       setInfo(`Порог директора: ≥ €${minProfit} или ROI ≥ ${minRoi}%`);
@@ -722,8 +722,67 @@ export default function IncomeLabPage() {
         <section className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
           <h2 className="text-sm font-medium">Порог директора · Stripe</h2>
           <p className="text-xs text-zinc-500">
-            Мелочь (€2) не показываем. Только ≥ порога прибыли или ROI.
+            Discovery по умолчанию: €100 / 12% (мелочь €2 всё равно скрыта). Строгий фонд: €500 / 30%.
+            Кнопка «Одобрить» появляется после: Paper/Propose → LIVE.
           </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={!!busy}
+              onClick={() => {
+                setMinProfit("100");
+                setMinRoi("12");
+                void (async () => {
+                  setBusy("thr");
+                  try {
+                    await fetch(`${API}/api/owner/income-engine/director-thresholds`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        min_expected_profit_eur: 100,
+                        min_roi_pct: 12,
+                      }),
+                    });
+                    setInfo("Порог Discovery: €100 / 12% — снова Paper day");
+                  } finally {
+                    setBusy("");
+                    void refresh();
+                  }
+                })();
+              }}
+              className="rounded-md border border-emerald-500/40 px-2 py-1 text-[11px] hover:bg-emerald-950/40"
+            >
+              Discovery €100 / 12%
+            </button>
+            <button
+              type="button"
+              disabled={!!busy}
+              onClick={() => {
+                setMinProfit("500");
+                setMinRoi("30");
+                void (async () => {
+                  setBusy("thr");
+                  try {
+                    await fetch(`${API}/api/owner/income-engine/director-thresholds`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        min_expected_profit_eur: 500,
+                        min_roi_pct: 30,
+                      }),
+                    });
+                    setInfo("Строгий порог €500 / 30%");
+                  } finally {
+                    setBusy("");
+                    void refresh();
+                  }
+                })();
+              }}
+              className="rounded-md border border-amber-500/40 px-2 py-1 text-[11px] hover:bg-amber-950/40"
+            >
+              Strict €500 / 30%
+            </button>
+          </div>
           <div className="flex flex-wrap gap-3 items-end">
             <label className="text-xs text-zinc-400 space-y-1">
               <span>Мин. ожидаемая прибыль (€)</span>
@@ -885,9 +944,12 @@ export default function IncomeLabPage() {
             <h2 className="text-sm font-medium">Предложения (после анализа)</h2>
             {labMode !== "live" ? (
               <p className="text-xs text-amber-200/80">
-                Сначала «→ LIVE Income Lab», потом Одобрить.
+                Чтобы появилась кнопка «Одобрить»: нажмите «→ LIVE Income Lab» выше (после
+                анализа). Сейчас режим: {labMode}.
               </p>
-            ) : null}
+            ) : (
+              <p className="text-xs text-emerald-200/80">LIVE — можно одобрять микро-тест.</p>
+            )}
             {proposals.map((p) => (
               <article
                 key={p.strategy_id || String(p.rank)}

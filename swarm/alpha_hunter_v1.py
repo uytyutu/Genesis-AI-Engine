@@ -78,9 +78,12 @@ STAGE_PAPER = "paper"  # Stage 1 — no spend
 STAGE_PROPOSE = "propose"  # Stage 2 — ask owner
 STAGE_MICRO = "micro_spend"  # Stage 3 — tiny spend after approve
 
-# Investment director — hide penny deals (not micro-test bank)
-DEFAULT_MIN_EXPECTED_PROFIT_EUR = 500.0
-DEFAULT_MIN_ROI_PCT = 30.0
+# Investment director — hide penny deals (€2), but Discovery must surface prepare candidates.
+# Strict investment-fund mode: €500 / 30% (optional preset). Default = discovery-friendly.
+DEFAULT_MIN_EXPECTED_PROFIT_EUR = 100.0
+DEFAULT_MIN_ROI_PCT = 12.0
+STRICT_MIN_EXPECTED_PROFIT_EUR = 500.0
+STRICT_MIN_ROI_PCT = 30.0
 # Scale paper unit (€1 model) → director expected-profit view for market deals
 DIRECTOR_DEAL_SCALE_EUR = 2000.0
 
@@ -242,14 +245,18 @@ def passes_director_threshold(
     min_profit_eur: float,
     min_roi_pct: float,
     expected_low_eur: float | None = None,
+    strict_low: bool = False,
 ) -> bool:
-    """Keep deal if low/mid expected profit ≥ floor OR modeled ROI ≥ floor. Else hide."""
-    # Prefer range low for honesty — don't pass on optimistic mid alone
-    ref = (
-        _safe_float(expected_low_eur)
-        if expected_low_eur is not None
-        else _safe_float(expected_profit_eur)
-    )
+    """Keep deal if mid (or low if strict) expected profit ≥ floor OR ROI ≥ floor.
+
+    Discovery uses mid — otherwise almost everything fails and Approve never appears.
+    Strict mode may require expected_low_eur ≥ floor (investment-fund caution).
+    Still hides true meloche (€2) when floors are ≥ ~€50–100.
+    """
+    if strict_low and expected_low_eur is not None:
+        ref = _safe_float(expected_low_eur)
+    else:
+        ref = _safe_float(expected_profit_eur)
     profit_ok = ref >= _safe_float(min_profit_eur)
     roi_ok = (_safe_float(modeled_roi) * 100.0) >= _safe_float(min_roi_pct)
     return profit_ok or roi_ok
@@ -637,11 +644,30 @@ class AlphaHunterLab:
 
     def _director_cfg(self, lab: dict[str, Any]) -> dict[str, float]:
         d = lab.get("director") if isinstance(lab.get("director"), dict) else {}
+        # Migrate old strict defaults (500/30) → discovery defaults unless owner set a flag
+        min_p = d.get("min_expected_profit_eur")
+        min_r = d.get("min_roi_pct")
+        if not d.get("thresholds_locked") and (
+            min_p is None
+            or (
+                float(min_p) == 500.0
+                and (min_r is None or float(min_r) == 30.0)
+            )
+        ):
+            min_p = DEFAULT_MIN_EXPECTED_PROFIT_EUR
+            min_r = DEFAULT_MIN_ROI_PCT
         return {
             "min_expected_profit_eur": _safe_float(
-                d.get("min_expected_profit_eur"), DEFAULT_MIN_EXPECTED_PROFIT_EUR
+                min_p, DEFAULT_MIN_EXPECTED_PROFIT_EUR
             ),
-            "min_roi_pct": _safe_float(d.get("min_roi_pct"), DEFAULT_MIN_ROI_PCT),
+            "min_roi_pct": _safe_float(min_r, DEFAULT_MIN_ROI_PCT),
+            "strict_preset_eur": STRICT_MIN_EXPECTED_PROFIT_EUR,
+            "strict_preset_roi_pct": STRICT_MIN_ROI_PCT,
+            "mode_ru": (
+                "Discovery (prepare-friendly)"
+                if _safe_float(min_p, DEFAULT_MIN_EXPECTED_PROFIT_EUR) < 400
+                else "Strict director (€500 / 30%)"
+            ),
         }
 
     def set_director_thresholds(
@@ -649,6 +675,7 @@ class AlphaHunterLab:
         *,
         min_expected_profit_eur: float | None = None,
         min_roi_pct: float | None = None,
+        lock: bool = True,
     ) -> dict[str, Any]:
         lab = self._roll_today(self._load_lab())
         d = lab.setdefault("director", {})
@@ -656,10 +683,26 @@ class AlphaHunterLab:
             d["min_expected_profit_eur"] = max(0.0, _safe_float(min_expected_profit_eur))
         if min_roi_pct is not None:
             d["min_roi_pct"] = max(0.0, _safe_float(min_roi_pct))
+        if lock:
+            d["thresholds_locked"] = True
         lab["director"] = d
         lab["updated_at"] = _utc_now()
         self._save_lab(lab)
         return {"ok": True, "director": self._director_cfg(lab), "lab": self.panel()}
+
+    def heal_active_experiments(self) -> None:
+        """Stuck counter at max (e.g. 10 active, €0 spent, 0 lifetime) → reset."""
+        lab = self._load_lab()
+        life = lab.get("lifetime") or {}
+        today = lab.get("today") or {}
+        active = int(lab.get("active_experiments") or 0)
+        if (
+            active >= MAX_CONCURRENT_EXPERIMENTS
+            and int(life.get("experiments") or 0) == 0
+            and _safe_float(today.get("spent_eur")) <= 0
+        ):
+            lab["active_experiments"] = 0
+            self._save_lab(lab)
 
     def set_scan_interval(self, interval_sec: int) -> dict[str, Any]:
         sec = int(interval_sec)
@@ -836,6 +879,7 @@ class AlphaHunterLab:
         }
 
     def panel(self, *, bank_eur: float | None = None) -> dict[str, Any]:
+        self.heal_active_experiments()
         lab = self._roll_today(self._load_lab())
         if bank_eur is not None:
             lab["bank_eur"] = max(0.0, _safe_float(bank_eur))
@@ -1228,22 +1272,43 @@ class AlphaHunterLab:
                 modeled_roi=_safe_float(s.get("modeled_roi")),
                 min_profit_eur=dcfg["min_expected_profit_eur"],
                 min_roi_pct=dcfg["min_roi_pct"],
-                expected_low_eur=profit["low_eur"],
             ):
                 kept_dir.append(s)
+        discovery_fallback = False
+        if not kept_dir and dcfg["min_expected_profit_eur"] < 400:
+            # Discovery mode: always surface best positive models for prepare
+            positive = [s for s in ranked if _safe_float(s.get("modeled_roi")) > 0][:5]
+            if not positive and ranked:
+                positive = ranked[:3]
+            kept_dir = positive
+            discovery_fallback = bool(kept_dir)
+            for s in kept_dir:
+                for card in by_id.values():
+                    if card.get("strategy_id") == s.get("id"):
+                        self._advance_lifecycle(card, LC_PREPARED)
+            opp_store["items"] = list(by_id.values())
+            self._save_opportunities(opp_store)
         brief = {
             "found": len(modeled),
             "rejected": max(0, len(modeled) - len(kept_dir)) + rejects,
             "kept": len(kept_dir),
+            "discovery_fallback": discovery_fallback,
             "message_ru": (
-                f"Анализ: нашёл {len(modeled)} возможностей. "
-                f"{max(0, len(modeled) - len(kept_dir)) + rejects} отклонил "
-                f"(порог €{dcfg['min_expected_profit_eur']:.0f} / ROI {dcfg['min_roi_pct']:.0f}%). "
-                + (
+                (
+                    f"Анализ: нашёл {len(modeled)}. Строгий отбор пуст — "
+                    f"показываю {len(kept_dir)} лучших для prepare "
+                    f"(порог сейчас €{dcfg['min_expected_profit_eur']:.0f} / "
+                    f"ROI {dcfg['min_roi_pct']:.0f}%). "
+                    "Дальше: Propose top 3 → LIVE → Одобрить."
+                )
+                if discovery_fallback
+                else (
+                    f"Анализ: нашёл {len(modeled)} возможностей. "
+                    f"{max(0, len(modeled) - len(kept_dir)) + rejects} отклонил "
+                    f"(порог €{dcfg['min_expected_profit_eur']:.0f} / "
+                    f"ROI {dcfg['min_roi_pct']:.0f}%). "
                     f"{len(kept_dir)} подготовлено с Evidence. "
-                    "Сначала анализ — затем Propose / LIVE."
-                    if kept_dir
-                    else "Ни одной выше порога — мелочь не показываю."
+                    "Дальше: Propose top 3 → кнопка «→ LIVE» → Одобрить."
                 )
             ),
         }
@@ -1348,11 +1413,26 @@ class AlphaHunterLab:
                 modeled_roi=_safe_float(s.get("modeled_roi")),
                 min_profit_eur=dcfg["min_expected_profit_eur"],
                 min_roi_pct=dcfg["min_roi_pct"],
-                expected_low_eur=profit["low_eur"],
             ):
                 eligible.append(s)
         rejected_n = found_n - len(eligible)
         shortlist = eligible[:n]
+        # Discovery fallback (not in strict €500+ mode)
+        if not shortlist and dcfg["min_expected_profit_eur"] < 400:
+            shortlist = [
+                s
+                for s in ranked
+                if _safe_float(s.get("modeled_roi")) > 0
+            ][:n]
+            if not shortlist:
+                shortlist = ranked[:n]
+            for s in shortlist:
+                profit = expected_profit_range(
+                    modeled_roi=_safe_float(s.get("modeled_roi")),
+                    family=str(s.get("family") or ""),
+                )
+                s["expected_profit"] = profit
+                s["expected_profit_eur"] = profit["mid_eur"]
         quote = micro_test_quote_eur(bank)
         if not shortlist:
             brief = {
@@ -1363,7 +1443,8 @@ class AlphaHunterLab:
                     f"Я нашёл {found_n} возможностей. {rejected_n} отклонил. "
                     "0 оставил — нет сделок выше порога директора "
                     f"(мин. €{dcfg['min_expected_profit_eur']:.0f} или ROI "
-                    f"{dcfg['min_roi_pct']:.0f}%). Мелочь не показываю."
+                    f"{dcfg['min_roi_pct']:.0f}%). Нажмите Paper day снова "
+                    "или смягчите порог (Discovery €100 / 12%)."
                 ),
             }
             lab.setdefault("director", {})["last_brief"] = brief

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from datetime import datetime, timezone
+
 import pytest
 
 from swarm.alpha_hunter_v1 import (
@@ -32,14 +34,30 @@ def test_experiment_cap_2pct():
     assert micro_test_quote_eur(20.0) == pytest.approx(0.40)
 
 
-def test_paper_day_spends_zero(tmp_path: Path):
+def test_paper_day_keeps_candidates_under_discovery_threshold(tmp_path: Path):
     lab = AlphaHunterLab(_Mem(tmp_path))
     out = lab.run_paper_day(bank_eur=20.0, opportunities_target=100)
     assert out["ok"] is True
-    assert out["spend_eur"] == 0.0
-    assert out["modeled_count"] >= 1
-    assert out["lab"]["lab"]["search_spend_eur"] == 0.0
-    assert out["lab"]["stage"] == STAGE_PAPER
+    brief = out["director_brief"]
+    assert brief["kept"] >= 1
+    assert out.get("top_strategies")
+    assert lab.panel()["lab"]["active_experiments"] == 0
+
+
+def test_heal_stuck_active_experiments(tmp_path: Path):
+    lab = AlphaHunterLab(_Mem(tmp_path))
+    state = lab._load_lab()
+    state["active_experiments"] = 10
+    state["lifetime"] = {"experiments": 0}
+    state["today"] = {
+        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "spent_eur": 0,
+        "returned_eur": 0,
+        "paper_modeled": 0,
+    }
+    lab._save_lab(state)
+    lab.panel()
+    assert lab._load_lab()["active_experiments"] == 0
 
 
 def test_propose_after_paper(tmp_path: Path):
