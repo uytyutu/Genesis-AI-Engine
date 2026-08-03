@@ -125,6 +125,8 @@ type Panel = {
     stage_ru?: string;
     lab_mode?: string;
     analysis_ready?: boolean;
+    engine?: string;
+    engine_law_ru?: string;
     lab?: LabBlock;
     honesty_ru?: string;
     pipeline?: { id?: string; title_ru?: string }[];
@@ -156,6 +158,34 @@ type Panel = {
     venues?: { id?: string; title_ru?: string }[];
     free_sources?: { id?: string; title?: string }[];
     hunters?: { new_market_ru?: string };
+    income_layer?: {
+      engine?: string;
+      engine_law_ru?: string;
+      next_r2_ru?: string;
+      adapters?: { source_id?: string; name?: string; questions?: Record<string, unknown> }[];
+      question_ru?: string;
+      money_hunters?: { id?: string; title?: string; title_ru?: string; question_ru?: string }[];
+      income_sources?: {
+        items?: {
+          id: string;
+          title: string;
+          category: string;
+          active?: boolean;
+          money_path?: string;
+        }[];
+        active_count?: number;
+        total?: number;
+        last_scan?: { message_ru?: string; checked?: number; hits?: number } | null;
+      };
+      tool_belt?: {
+        north_star_ru?: string;
+        law_ru?: string;
+        counts?: { ready?: number; partial?: number; missing?: number; total?: number };
+        checklist?: { id: string; label: string; ok?: boolean }[];
+        gaps_ru?: string[];
+        tools?: { id: string; title: string; belt: string; status?: string; detail_ru?: string }[];
+      };
+    };
   };
   safety_ru?: string[];
 };
@@ -263,6 +293,40 @@ export default function IncomeLabPage() {
       const json = await res.json();
       if (json.ok === false) setError(json.detail_ru || json.error);
       else setInfo(json.message_ru || "LIVE");
+    } finally {
+      setBusy("");
+      void refresh();
+    }
+  }
+
+  async function scanIncomeSources() {
+    setBusy("sources");
+    setInfo("");
+    try {
+      const res = await fetch(`${API}/api/owner/income-engine/income-sources/scan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ balance_eur: Number(balance) || 20 }),
+      });
+      const json = await res.json();
+      setInfo(json.message_ru || "Income Sources scanned");
+      setBrief(json.director_brief || null);
+    } catch {
+      setError("Income Sources scan failed");
+    } finally {
+      setBusy("");
+      void refresh();
+    }
+  }
+
+  async function toggleSource(sourceId: string, active: boolean) {
+    setBusy("tog:" + sourceId);
+    try {
+      await fetch(`${API}/api/owner/income-engine/income-sources/toggle`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source_id: sourceId, active }),
+      });
     } finally {
       setBusy("");
       void refresh();
@@ -408,6 +472,9 @@ export default function IncomeLabPage() {
   const labMode = data?.alpha_hunter?.lab_mode || "analysis";
   const analysisReady = !!data?.alpha_hunter?.analysis_ready;
   const labOpps = data?.alpha_hunter?.opportunities ?? [];
+  const incomeLayer = data?.alpha_hunter?.income_layer;
+  const sources = incomeLayer?.income_sources;
+  const toolBelt = incomeLayer?.tool_belt;
   const liveBrief = brief || director?.last_brief || null;
   const avgRoi =
     life?.avg_realized_roi != null
@@ -419,10 +486,10 @@ export default function IncomeLabPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <header className="space-y-2">
           <p className="text-[11px] uppercase tracking-wider text-amber-400/90">
-            Owner only · Virtus Core Alpha Hunter · не коммерческий продукт
+            Owner only · Alpha Hunter — Opportunity Discovery Engine
           </p>
           <h1 className="text-2xl font-semibold tracking-tight">
-            {data?.section ?? "Income Lab"}
+            {data?.alpha_hunter?.engine ?? data?.section ?? "Opportunity Discovery"}
           </h1>
           <p className="text-sm text-zinc-400 max-w-2xl">
             {data?.bank_pitch_ru ??
@@ -455,7 +522,7 @@ export default function IncomeLabPage() {
         {/* Realistic pipeline + scan cadence */}
         <section className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-2">
           <div className="flex flex-wrap justify-between gap-2">
-            <h2 className="text-sm font-medium">Income Engine · пайплайн</h2>
+            <h2 className="text-sm font-medium">Opportunity Discovery · пайплайн</h2>
             <span className="text-[11px] text-amber-200/90">
               Режим: {labMode.toUpperCase()}
               {analysisReady ? " · analysis ready" : " · ждёт анализ"}
@@ -497,6 +564,100 @@ export default function IncomeLabPage() {
             {data?.alpha_hunter?.hunters?.new_market_ru ||
               "New Market Hunter: искать новые площадки раньше конкурентов."}
           </p>
+        </section>
+
+        {/* Income Sources — where money lives */}
+        <section className="rounded-xl border border-sky-500/25 bg-sky-950/15 p-4 space-y-3">
+          <h2 className="text-sm font-medium text-sky-100">Income Sources</h2>
+          <p className="text-xs text-zinc-400">
+            {incomeLayer?.question_ru ||
+              "Где сегодня лежат деньги, которые можно заработать законным способом?"}
+          </p>
+          <div className="flex flex-wrap gap-2 text-[11px] text-zinc-500">
+            {(incomeLayer?.money_hunters ?? []).map((h) => (
+              <span
+                key={h.id}
+                className="rounded border border-white/10 px-2 py-1"
+                title={h.question_ru}
+              >
+                {h.title}
+              </span>
+            ))}
+          </div>
+          <p className="text-xs text-zinc-400">
+            Active: {sources?.active_count ?? 0}/{sources?.total ?? 0}
+            {sources?.last_scan?.message_ru
+              ? ` · ${sources.last_scan.message_ru}`
+              : ""}
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 text-xs max-h-48 overflow-y-auto">
+            {(sources?.items ?? []).map((s) => (
+              <label
+                key={s.id}
+                className="flex items-center gap-2 rounded border border-white/10 px-2 py-1.5 cursor-pointer hover:bg-white/5"
+              >
+                <input
+                  type="checkbox"
+                  checked={!!s.active}
+                  disabled={!!busy}
+                  onChange={(e) => void toggleSource(s.id, e.target.checked)}
+                />
+                <span>
+                  {s.title}
+                  <span className="block text-[10px] text-zinc-600">{s.category}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+          <button
+            type="button"
+            disabled={!!busy}
+            onClick={() => void scanIncomeSources()}
+            className="rounded-md bg-sky-600/90 px-3 py-2 text-xs font-medium hover:bg-sky-500 disabled:opacity-40"
+          >
+            Сканировать Income Sources (€0)
+          </button>
+        </section>
+
+        {/* Tool Belt + Capability Registry */}
+        <section className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-3">
+          <h2 className="text-sm font-medium">Tool Belt · Capability Registry</h2>
+          <p className="text-xs text-zinc-400">{toolBelt?.law_ru}</p>
+          <p className="text-xs text-zinc-500">
+            Ready {toolBelt?.counts?.ready ?? 0} · Partial {toolBelt?.counts?.partial ?? 0} ·
+            Missing {toolBelt?.counts?.missing ?? 0}
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-1 text-[11px]">
+            {(toolBelt?.checklist ?? []).map((c) => (
+              <div
+                key={c.id}
+                className={`rounded border px-2 py-1 ${
+                  c.ok ? "border-emerald-500/30 text-emerald-100/90" : "border-red-500/30 text-red-200/80"
+                }`}
+              >
+                {c.ok ? "✓" : "✗"} {c.label}
+              </div>
+            ))}
+          </div>
+          {(toolBelt?.gaps_ru?.length ?? 0) > 0 ? (
+            <ul className="text-[11px] text-amber-200/80 space-y-1">
+              {(toolBelt?.gaps_ru ?? []).slice(0, 5).map((g) => (
+                <li key={g}>· {g}</li>
+              ))}
+            </ul>
+          ) : null}
+          {(incomeLayer?.adapters?.length ?? 0) > 0 ? (
+            <p className="text-[11px] text-zinc-500">
+              Adapters:{" "}
+              {(incomeLayer?.adapters ?? []).map((a) => a.name).join(" · ")}
+              {incomeLayer?.next_r2_ru ? ` · ${incomeLayer.next_r2_ru}` : ""}
+            </p>
+          ) : null}
+          {data?.alpha_hunter?.engine_law_ru || incomeLayer?.engine_law_ru ? (
+            <p className="text-[11px] text-zinc-600">
+              {data?.alpha_hunter?.engine_law_ru || incomeLayer?.engine_law_ru}
+            </p>
+          ) : null}
         </section>
 
         {liveBrief ? (

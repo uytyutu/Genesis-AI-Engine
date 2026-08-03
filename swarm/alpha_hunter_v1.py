@@ -110,9 +110,10 @@ NAV_TABS = (
 )
 
 LAW_RU = (
-    "Virtus Core Alpha Hunter — поиск новых рынков и крупных возможностей. "
-    "Не «ИИ сам заработал €500», а: нашёл → подготовил → спросил → получил → вывел. "
-    "Мелочь ниже порога директора не показывается. Прибыль не гарантируется."
+    "Virtus Core Alpha Hunter — поиск рынков с деньгами, не новостной ленты. "
+    "Вопрос: где сегодня лежат деньги законным способом? "
+    "Income Sources + Tool Belt; если инструмента нет — говорим прямо. "
+    "Прибыль не гарантируется."
 )
 
 BANK_PITCH_RU = (
@@ -587,7 +588,12 @@ class AlphaHunterLab:
     def _default_lab(self) -> dict[str, Any]:
         return {
             "product_name": "Virtus Core Alpha Hunter",
-            "section": "Income Lab",
+            "section": "Opportunity Discovery",
+            "engine": "Alpha Hunter — Opportunity Discovery Engine",
+            "engine_law_ru": (
+                "Не движок гарантированного заработка. "
+                "Поиск рынков → evidence → prepare → Approve → realized only."
+            ),
             "owner_only": True,
             "commercial_product": False,
             "stage": STAGE_PAPER,
@@ -696,6 +702,46 @@ class AlphaHunterLab:
             "message_ru": "Income Lab → LIVE. Можно одобрять подготовленные возможности.",
             "lab": self.panel(),
         }
+
+    def income_sources_panel(self) -> dict[str, Any]:
+        from swarm.alpha_hunter_income_layer import income_layer_panel
+
+        return income_layer_panel(self._root)
+
+    def set_income_source(self, source_id: str, *, active: bool) -> dict[str, Any]:
+        from swarm.alpha_hunter_income_layer import IncomeSourcesStore
+
+        return IncomeSourcesStore(self._root).set_active(source_id, active)
+
+    def scan_income_sources(self, *, bank_eur: float | None = None) -> dict[str, Any]:
+        """Watch money platforms (Income Sources) — €0. Not a news crawl."""
+        from swarm.alpha_hunter_income_layer import IncomeSourcesStore
+
+        lab = self._roll_today(self._load_lab())
+        if bank_eur is not None:
+            lab["bank_eur"] = max(0.0, _safe_float(bank_eur))
+            self._save_lab(lab)
+        bank = _safe_float(lab.get("bank_eur"), 20.0)
+        out = IncomeSourcesStore(self._root).scan_active_sources(bank_eur=bank)
+        # Mark analysis ready so owner can go LIVE after money-source scan
+        lab = self._roll_today(self._load_lab())
+        lab["analysis_ready"] = True
+        lab["lab_mode"] = LAB_MODE_ANALYSIS
+        lab["last_scan_at"] = _utc_now()
+        brief = {
+            "found": int(out.get("checked") or 0),
+            "rejected": max(
+                0, int(out.get("checked") or 0) - int(out.get("hits_count") or 0)
+            ),
+            "kept": int(out.get("hits_count") or 0),
+            "message_ru": out.get("message_ru"),
+        }
+        lab.setdefault("director", {})["last_brief"] = brief
+        lab["updated_at"] = _utc_now()
+        self._save_lab(lab)
+        out["lab"] = self.panel(bank_eur=bank)
+        out["director_brief"] = brief
+        return out
 
     def _load_opportunities(self) -> dict[str, Any]:
         path = self._path(OPPORTUNITIES_FILE)
@@ -821,7 +867,12 @@ class AlphaHunterLab:
         return {
             "ok": True,
             "product_name": "Virtus Core Alpha Hunter",
-            "section": "Income Lab",
+            "section": "Opportunity Discovery",
+            "engine": "Alpha Hunter — Opportunity Discovery Engine",
+            "engine_law_ru": (
+                "Не движок гарантированного заработка. "
+                "Поиск рынков → evidence → prepare → Approve → realized only."
+            ),
             "owner_only": True,
             "commercial_product": False,
             "law_ru": LAW_RU,
@@ -927,9 +978,10 @@ class AlphaHunterLab:
             ],
             "honesty_ru": (
                 "Нет легального рынка, где стабильно €0.50→€0.70 за минуты по кнопке. "
-                "Alpha Hunter ищет новые рынки и крупные возможности раньше конкурентов — "
-                "не «волшебную кнопку»."
+                "Alpha Hunter ищет рынки с деньгами (Income Sources) и готовит действия — "
+                "не новостную ленту и не «волшебную кнопку»."
             ),
+            "income_layer": self.income_sources_panel(),
         }
 
     def _load_strategies(self) -> dict[str, Any]:

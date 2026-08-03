@@ -171,8 +171,8 @@ export const CEO_PRIMARY_LINKS = [
   { href: "/farm-engine", label: "Farm Engine", hint: "Scanner · Legal · ROI · Queue · Ledger" },
   {
     href: "/income-engine",
-    label: "Income Lab",
-    hint: "Alpha Hunter · paper → микро-тест ≤2% · OWNER",
+    label: "Alpha Hunter",
+    hint: "Opportunity Discovery Engine · рынки · adapters · OWNER",
   },
   { href: "/journal", label: "Журнал", hint: "Доход · задачи" },
   { href: "/revenue", label: "Доход", hint: "Lab · Work Farm · ключи · API" },

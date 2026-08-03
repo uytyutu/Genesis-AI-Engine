@@ -671,6 +671,28 @@ class MicroFarmService:
         ensure_swarm_importable()
         return IncomeEngineV1(self._memory).go_live()
 
+    def income_engine_v1_set_income_source(
+        self, source_id: str, *, active: bool
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).set_income_source(
+            source_id, active=active
+        )
+
+    def income_engine_v1_scan_income_sources(
+        self, *, balance_eur: float | None = None
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.income_engine_v1 import IncomeEngineV1
+
+        ensure_swarm_importable()
+        return IncomeEngineV1(self._memory).scan_income_sources(
+            balance_eur=balance_eur
+        )
+
     def dashboard_lite(self, owner_name: str = "Владелец") -> dict[str, Any]:
         """Fast journal payload — no Toloka live probe, no heavy discovery scan."""
         from app.env_loader import load_local_env

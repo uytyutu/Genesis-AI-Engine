@@ -1359,6 +1359,24 @@ def owner_income_engine_go_live() -> dict:
     return _ctx().micro_farm.income_engine_v1_go_live()
 
 
+@app.post("/api/owner/income-engine/income-sources/toggle")
+def owner_income_engine_income_source_toggle(body: dict) -> dict:
+    """Enable/disable a money platform in Income Sources catalog."""
+    sid = str((body or {}).get("source_id") or "").strip()
+    if not sid:
+        raise HTTPException(status_code=400, detail="source_id_required")
+    active = bool((body or {}).get("active", True))
+    return _ctx().micro_farm.income_engine_v1_set_income_source(sid, active=active)
+
+
+@app.post("/api/owner/income-engine/income-sources/scan")
+def owner_income_engine_income_sources_scan(body: dict) -> dict:
+    """Scan active Income Sources — where money lives (spend €0)."""
+    raw = (body or {}).get("balance_eur")
+    bal = float(raw) if raw is not None else None
+    return _ctx().micro_farm.income_engine_v1_scan_income_sources(balance_eur=bal)
+
+
 @app.get("/api/owner/public-launch", response_model=PublicLaunchChecklist)
 def get_public_launch_checklist() -> PublicLaunchChecklist:
     return PublicLaunchChecklist(**_ctx().public_launch.run())

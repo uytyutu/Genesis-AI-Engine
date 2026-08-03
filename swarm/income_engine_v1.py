@@ -572,6 +572,17 @@ class IncomeEngineV1:
     def go_live(self) -> dict[str, Any]:
         return self._lab.go_live()
 
+    def set_income_source(self, source_id: str, *, active: bool) -> dict[str, Any]:
+        return self._lab.set_income_source(source_id, active=active)
+
+    def scan_income_sources(
+        self, *, balance_eur: float | None = None
+    ) -> dict[str, Any]:
+        return self._lab.scan_income_sources(bank_eur=balance_eur)
+
+    def income_sources_panel(self) -> dict[str, Any]:
+        return self._lab.income_sources_panel()
+
     # ----- mission -----
 
     def start_mission(
