@@ -24,6 +24,7 @@ import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePack
 import { parseClientServices } from "../lib/packagePreviewGallery";
 import { resolveOrderCoachHints } from "../lib/orderFormCoach";
 import { getVisitorId } from "../lib/visitorId";
+import { clientAuthHeaders, getClientToken } from "../lib/clientAuth";
 import {
   clearOrderDraft,
   createDebouncedOrderDraftSaver,
@@ -142,6 +143,19 @@ export default function OrderSitePage() {
   const { applyUiLocale } = useLocale();
   const [marketParam, setMarketParam] = useState("");
   const [marketReady, setMarketReady] = useState(false);
+  useEffect(() => {
+    try {
+      if (!getClientToken()) {
+        const next = `${window.location.pathname}${window.location.search || ""}`;
+        window.location.replace(
+          `/client/register?next=${encodeURIComponent(next || "/order")}`,
+        );
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
   useEffect(() => {
     try {
       const p = new URLSearchParams(window.location.search);
@@ -883,9 +897,23 @@ export default function OrderSitePage() {
     setBusy(true);
     setError("");
     try {
+      let customerId: string | null = null;
+      try {
+        const meRes = await fetch(`${API}/api/client/me`, {
+          headers: { ...clientAuthHeaders() },
+          cache: "no-store",
+        });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          customerId =
+            String(me?.customer_id || me?.account?.customer_id || "").trim() || null;
+        }
+      } catch {
+        /* guest fallback — register gate should already run */
+      }
       const res = await fetch(`${API}/api/sales/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...clientAuthHeaders() },
         body: JSON.stringify({
           business_name: businessName.trim() || launch?.company || "Projekt",
           description: description.trim() || launch?.projectLabel || "Landing Launch",
@@ -893,6 +921,7 @@ export default function OrderSitePage() {
           phone: phone.trim() || null,
           whatsapp: whatsapp.trim() || null,
           email: email.trim() || null,
+          customer_id: customerId,
           needs_logo: needsLogo,
           needs_domain: needsDomain || domainStatus === "need_help",
           domain_status: domainStatus,
@@ -905,14 +934,7 @@ export default function OrderSitePage() {
           youtube: youtube.trim() || null,
           telegram: telegram.trim() || null,
           material_ids: materials.map((m) => m.id),
-          extra_wishes: [
-            extraWishes.trim(),
-            packageId === "premium" && parseClientServices(serviceList).length
-              ? `Services: ${parseClientServices(serviceList).join(", ")}`
-              : "",
-          ]
-            .filter(Boolean)
-            .join("\n") || null,
+          extra_wishes: extraWishes.trim() || null,
           company_website: companyWebsite.trim() || null,
           client_legal: {
             owner_name: legalOwner.trim() || businessName.trim() || null,
@@ -1053,9 +1075,9 @@ export default function OrderSitePage() {
 
   return (
     <PublicPageShell>
-      <main className="mx-auto max-w-4xl py-2">
+      <main className="storefront relative z-[1] mx-auto max-w-4xl space-y-6 py-2">
         <OrderSteps current={1} launch={Boolean(launch)} />
-        <div className="mb-8 text-center animate-fade-up">
+        <div className="mb-2 text-center animate-fade-up">
           <Badge variant="accent" className="tracking-[0.2em]">
             {t("order.badge")}
           </Badge>
@@ -1078,7 +1100,7 @@ export default function OrderSitePage() {
                 (label) => (
                   <li
                     key={label}
-                    className="rounded-full border border-emerald-500/30 bg-emerald-950/30 px-3 py-1 text-emerald-100/90"
+                    className="rounded-full border border-violet-400/35 bg-violet-950/35 px-3 py-1 text-violet-100/90"
                   >
                     ✓ {label}
                   </li>
@@ -1096,7 +1118,15 @@ export default function OrderSitePage() {
         ) : null}
 
         <form onSubmit={submit} className={`grid gap-6 lg:grid-cols-5 ${launch ? "mt-6" : ""}`}>
-          <div className="space-y-4 lg:col-span-3">
+          <div className="storefront-module-card space-y-4 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 lg:col-span-3">
+            <div className="rounded-2xl border border-emerald-400/25 bg-emerald-950/25 px-3.5 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200/90">
+                {t("order.whyFormBadge")}
+              </p>
+              <p className="mt-1.5 text-sm leading-relaxed text-white/85">
+                {t("order.whyFormBody")}
+              </p>
+            </div>
             {!launch ? (
               <>
                 <FormStepBar
@@ -1106,7 +1136,7 @@ export default function OrderSitePage() {
                 />
                 {draftBanner ? (
                   <div
-                    className="flex flex-col gap-2 rounded-xl border border-genesis-border/80 bg-genesis-surface/80 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-2 rounded-2xl border border-violet-400/25 bg-violet-950/20 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
                     role="status"
                   >
                     <div className="min-w-0">
@@ -1493,7 +1523,7 @@ export default function OrderSitePage() {
                   </>
                 )}
 
-                <div className="sticky bottom-0 z-20 -mx-1 mt-3 border-t border-genesis-border/60 bg-[rgba(8,12,20,0.92)] px-1 py-3 backdrop-blur-md">
+                <div className="sticky bottom-0 z-20 -mx-1 mt-3 border-t border-white/10 bg-[rgba(8,12,20,0.88)] px-1 py-3 backdrop-blur-md">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <Button
                       type="button"
@@ -1511,7 +1541,13 @@ export default function OrderSitePage() {
                       })}
                     </p>
                     {formStep < 4 ? (
-                      <Button type="button" variant="primary" size="md" onClick={() => void goNext()}>
+                      <Button
+                        type="button"
+                        variant="primary"
+                        size="md"
+                        className="storefront-cta-primary !rounded-2xl !bg-genesis-purple-soft !shadow-[0_0_40px_-6px_rgba(167,139,250,0.7)]"
+                        onClick={() => void goNext()}
+                      >
                         {t("order.next")} →
                       </Button>
                     ) : (
@@ -1554,7 +1590,12 @@ export default function OrderSitePage() {
           </div>
 
           <aside className="lg:col-span-2">
-            <Card glow className="sticky top-4" padding="md">
+            <Card
+              glow
+              hover={false}
+              className="storefront-module-card sticky top-4 !rounded-3xl border-white/10 bg-white/[0.03]"
+              padding="md"
+            >
               <p className="genesis-label">
                 {launch ? t("order.launchTitle") : t("order.packageAndPrice")}
               </p>
@@ -1615,27 +1656,23 @@ export default function OrderSitePage() {
               )}
               {!launch && (
                 <>
-                  {packageId === "premium" ? (
-                    <div className="mt-3">
-                      <Field label={t("order.premiumServicesLabel")}>
-                        <Textarea
-                          value={serviceList}
-                          onChange={(e) => setServiceList(e.target.value)}
-                          placeholder={t("order.premiumServicesPh")}
-                          rows={3}
-                        />
-                      </Field>
-                      <p className="mt-1 text-[11px] text-genesis-muted">
-                        {t("order.premiumServicesHint")}
-                      </p>
-                    </div>
-                  ) : null}
+                  <div className="mt-3">
+                    <Field label={t("order.premiumServicesLabel")}>
+                      <Textarea
+                        value={serviceList}
+                        onChange={(e) => setServiceList(e.target.value)}
+                        placeholder={t("order.premiumServicesPh")}
+                        rows={3}
+                      />
+                    </Field>
+                    <p className="mt-1 text-[11px] text-genesis-muted">
+                      {t("order.premiumServicesHint")}
+                    </p>
+                  </div>
                   <PackagePreviewCarousel
                     packageId={packageId}
                     niche={niche}
-                    services={
-                      packageId === "premium" ? parseClientServices(serviceList) : undefined
-                    }
+                    services={parseClientServices(serviceList)}
                   />
                   {packageId !== "premium" ? (
                     <button
@@ -1670,8 +1707,14 @@ export default function OrderSitePage() {
                   </ul>
                 </>
               )}
-              <Button type="submit" variant="primary" size="lg" fullWidth loading={busy} className="mt-4">
-                {busy
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                loading={busy}
+                className="storefront-cta-primary mt-4 !rounded-2xl !bg-genesis-purple-soft !shadow-[0_0_40px_-6px_rgba(167,139,250,0.7)]"
+              >                {busy
                   ? t("order.submitBusy")
                   : launch
                     ? t("order.submitLaunch", {
@@ -1862,22 +1905,27 @@ function OrderSteps({ current, launch = false }: { current: number; launch?: boo
         { n: 3, label: t("order.stepPay") },
       ];
   return (
-    <ol className="mb-8 flex justify-center gap-2 sm:gap-4" aria-label={t("order.stepsAria")}>
+    <ol
+      className="mb-2 flex justify-center gap-2 sm:gap-3"
+      aria-label={t("order.stepsAria")}
+    >
       {steps.map((s) => (
         <li
           key={s.n}
-          className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs transition-smooth sm:text-sm ${
+          className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-smooth sm:text-sm ${
             s.n === current
-              ? "bg-genesis-accent/20 text-white"
+              ? "border-violet-400/50 bg-violet-500/20 text-white shadow-[0_0_24px_-8px_rgba(167,139,250,0.8)]"
               : s.n < current
-                ? "text-emerald-400"
-                : "text-genesis-muted"
+                ? "border-emerald-400/30 text-emerald-300"
+                : "border-white/10 text-genesis-muted"
           }`}
           aria-current={s.n === current ? "step" : undefined}
         >
           <span
             className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold ${
-              s.n === current ? "bg-genesis-accent text-white" : "bg-white/5"
+              s.n === current
+                ? "bg-genesis-purple-soft text-white"
+                : "bg-white/5"
             }`}
           >
             {s.n}

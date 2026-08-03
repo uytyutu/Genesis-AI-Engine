@@ -1,10 +1,10 @@
 {
   "aboutTitle": "Kurz: {{brand}}",
-  "aboutBody": "{{brand}} ist eine Plattform digitaler Services — Websites, AI-Chatbots und Vector, Ihr AI Business Employee. Landing Website ist das erste Produkt, das Sie heute bestellen können.",
+  "aboutBody": "{{brand}} ist eine AI Business Platform — digitale Infrastruktur für Unternehmen: Website, AI-Bots, Automatisierung und Wachstum in einem Projekt. Die Website ist das erste Produkt, das Sie heute bestellen können.",
   "s0": {
-    "heroTitle": "Digitales Ökosystem für Unternehmen",
-    "heroSubtitle": "Websites, KI-Assistenten, Automatisierung und Analyse — klare Pakete, ehrliche Preise.",
-    "heroHint": "Start mit einer Website — heute bestellbar.",
+    "heroTitle": "AI Business Platform für Unternehmen",
+    "heroSubtitle": "Website, KI-Assistenten, Automatisierung und Analyse — ein Projekt, das mit Ihrem Business wächst. Klare Pakete, ehrliche Preise.",
+    "heroHint": "Start mit der Website — danach Bots und weitere Module im selben Projekt.",
     "hubTitle": "Was möchten Sie tun?",
     "hubSubtitle": "Service wählen und direkt bestellen — kein Konto nötig. Registrieren nur für Ihr persönliches Büro.",
     "hubAccountHint": "Jede Karte öffnet das passende Formular. Zahlung erst nach Ihren Angaben. Kostenlose Website-Prüfung ohne Checkout. AI Digital Employee: Workspace registrieren, dann zahlen und Kanäle verbinden.",
@@ -25,12 +25,12 @@
     "startAnalysis": "Kostenlos prüfen →",
     "backToServices": "← Alle Services",
     "botsTitle": "AI Digital Employee",
-    "botsIntro": "Ein Produkt — AI Sales Assistant für Ihr Unternehmen. Workspace vor der Zahlung anlegen, dann eigene Kanäle verbinden.",
+    "botsIntro": "Digitaler Mitarbeiter mit Einführung: antwortet 24/7 und sammelt Anfragen sowie Kontakte. Sie zahlen für Ergebnis — nicht für Messenger-Logos.",
     "botsLoading": "Pakete werden geladen…",
     "botsMonthly": "Setup · danach {{monthly}}/Monat",
     "botsCta": "Paket wählen →",
-    "botsChannelsHint": "Website Chat · Telegram · WhatsApp · Instagram · Messenger — eigene Konten nach der Zahlung.",
-    "botsChannelsNote": "Kanäle: Website Chat · Telegram · WhatsApp · Instagram · Messenger (eigene Konten nach der Zahlung).",
+    "botsChannelsHint": "Live jetzt: Website-Chat + Telegram. WhatsApp / Instagram — nach Meta OAuth.",
+    "botsChannelsNote": "Live jetzt: Website-Chat + Telegram. WhatsApp / Instagram — nach Meta OAuth (nicht als fertig verkauft).",
     "needAccount": "Büro für späteres Management?",
     "seeWebsites": "Website-Pakete ansehen",
     "websitesTitle": "Websites",
@@ -74,7 +74,7 @@
     "benefitSeo": "Klarer Weg zum Kunden",
     "benefitSpeed": "Oft fertig in ca. 15 Minuten",
     "platformTitle": "Was {{brand}} für Sie tut",
-    "platformIntro": "Kein Technik-Katalog — konkrete Hilfe für Ihren Alltag. Landing Website bleibt das erste Produkt, das Sie heute bestellen können.",
+    "platformIntro": "Keine Technik-Sammlung — eine AI Business Platform. Die Website ist das erste Modul; Bots und weitere Funktionen wachsen im selben Projekt.",
     "cardWebsiteTitle": "Website",
     "cardWebsiteBody": "Wir erstellen eine moderne Landing Page, die Kunden anruft oder anfragt.",
     "cardChatbotTitle": "AI Chatbot — separates Add-on",
@@ -180,6 +180,8 @@
     "formStep2": "Analyse",
     "formStep3": "Personalisierung",
     "formStep4": "Bestätigung",
+    "whyFormBadge": "Warum diese Angaben?",
+    "whyFormBody": "Damit Vector die Landing und den Assistenten für Ihr Unternehmen baut — nicht eine leere Vorlage. Nach der Zahlung: Status und Dateien auf der Bestellseite.",
     "journeyAria": "Projektpfad",
     "journeyWelcome": "Start",
     "journeyBusiness": "Unternehmen",
@@ -200,9 +202,9 @@
     "previewExamplesTitle": "Mögliches Ergebnis",
     "previewExamplesHint": "Beispiel-Websites dieses Pakets — so kann Ihre Seite aussehen, nicht Ihre fertige Website eins zu eins.",
     "previewPremiumBadge": "Jedes Premium-Projekt wird individuell gestaltet",
-    "premiumServicesLabel": "Ihre Leistungen (Premium-Block)",
+    "premiumServicesLabel": "Ihre Leistungen (für die Website)",
     "premiumServicesPh": "Eine Leistung pro Zeile, z. B.\nDiagnose\nInspektion\nBremsen",
-    "premiumServicesHint": "Tragen Sie Leistungen ein — sie erscheinen im Premium-Block der Vorschau.",
+    "premiumServicesHint": "Diese Leistungen erscheinen auf Ihrer Website — je nach Branche, nicht als generischer Platzhalter.",
     "premiumServicesClientTitle": "Ihre Leistungen auf der Seite",
     "premiumServicesClientCite": "aus Ihrer Bestellung",
     "previewOpenDemo": "Vollständiges Demo öffnen",
@@ -459,7 +461,7 @@
     "heading": "Bestellung bezahlen",
     "fallbackBusiness": "Ihre Bestellung",
     "fallbackPackage": "Landing",
-    "sandboxNote": "Testmodus (Sandbox). Es wird kein Geld abgebucht.",
+    "sandboxNote": "Zahlungsprüfung ohne Abbuchung (Sandbox). Kein echtes Geld — die Paketpreise sind keine Demo-/Testpreise.",
     "payCta": "{{price}} bezahlen",
     "processing": "Wird verarbeitet…",
     "loading": "Laden…",
@@ -511,18 +513,18 @@
     "ai_business_bot": {
       "name": "AI Digital Employee",
       "price": "ab 499 € + monatlich",
-      "blurb": "AI Sales Assistant für Ihr Unternehmen — Website-Chat, Telegram, WhatsApp, Instagram, Messenger.",
+      "blurb": "Digitaler Mitarbeiter mit Einführung: antwortet 24/7, sammelt Anfragen und entlastet die First Line.",
       "highlights": [
         "Antwortet Kunden 24/7",
-        "Erfasst Anfragen automatisch",
-        "Spricht mehrere Sprachen"
+        "Sammelt Anfragen ohne Manager in der Schicht",
+        "Spart täglich Stunden an Chat-Arbeit"
       ],
       "includes": [
-        "Ein AI-Mitarbeiter für Ihre Marke",
-        "Kanäle nach Ihrer Wahl",
-        "Workspace nach Zahlung"
+        "Einführung für Ihr Geschäft (Setup + Wissensbasis)",
+        "Live heute: Website-Chat + Telegram",
+        "Workspace und Kabinett nach Zahlung"
       ],
-      "timeline": "Kanäle direkt nach der Zahlung verbinden",
+      "timeline": "Website-Chat und Telegram direkt nach Zahlung; WhatsApp/Instagram nach Meta",
       "support": "Kabinett + Hilfe von Vector"
     },
     "website_check": {
@@ -774,31 +776,29 @@
     "packages": {
       "bot_starter": {
         "includes": [
-          "1 AI-Bot (digitaler Mitarbeiter)",
-          "Jeder Kanal: Website Chat, Telegram, WhatsApp, Instagram, Messenger",
-          "Knowledge Base: bis 1 Quelle",
-          "1 Sprache",
-          "Basis-Szenarien + Übergabe an Operator"
+          "Antwortet Kunden 24/7 — ohne Warten auf den Manager",
+          "Sammelt Anfragen und Kontakte automatisch",
+          "Entlastet Empfang / First Line",
+          "Live heute: Website-Chat + Telegram",
+          "1 Sprache · Basis-Szenarien · Übergabe an Operator"
         ]
       },
       "bot_business": {
         "includes": [
-          "Bis zu 3 unabhängige AI-Bots",
-          "Jeder Bot — jeder unterstützte Kanal",
-          "Knowledge Base: bis 5 Quellen",
-          "Bis zu 3 Sprachen",
-          "Erweiterte Szenarien + AI-Analyse",
-          "Regelmäßiges Training"
+          "Nimmt Terminwünsche entgegen und leitet sie an Sie weiter",
+          "Bis zu 3 digitale Mitarbeiter für verschiedene Aufgaben",
+          "Spart täglich Stunden an Chat-Arbeit",
+          "AI-Analyse der Gespräche + regelmäßiges Training",
+          "Live heute: Website-Chat + Telegram"
         ]
       },
       "bot_professional": {
         "includes": [
-          "Unbegrenzte AI-Bots (Fair Use)",
-          "Alle Kanäle sobald verfügbar",
-          "Knowledge Base ohne Quellenlimit",
-          "Unbegrenzte Sprachen",
-          "Vollständige Szenarien + volle Analytik",
-          "VIP-Support"
+          "Deckt Routine einer ganzen Support-/Sales-Linie ab",
+          "Rechnet sich durch Nacht- und Wochenend-Antworten ohne Personal",
+          "VIP-Einführung und priorisierte Anpassungen an Ihren Prozess",
+          "Fair Use — ohne künstliches „pro Bot“-Limit",
+          "Volle Analytik: woher Anfragen kommen und wo Kunden abbrechen"
         ]
       }
     }
@@ -912,7 +912,7 @@
       "emotion": "KI ist bereit, für Ihr Unternehmen zu arbeiten."
     },
     "cta": {
-      "tryFree": "🚀 KI kostenlos testen",
+      "tryFree": "🚀 Katalog öffnen",
       "watchDemo": "Demo ansehen",
       "contact": "Kontakt"
     },
@@ -933,7 +933,7 @@
       "subtitle": "Keine Service-Liste — Apps für Ihr Business.",
       "live": "Live",
       "soon": "Coming Soon",
-      "try": "Testen",
+      "try": "Öffnen",
       "notify": "Coming Soon",
       "website": {
         "name": "Website Builder",
@@ -941,11 +941,11 @@
       },
       "receptionist": {
         "name": "AI Receptionist",
-        "blurb": "Beantwortet Leads und bucht Termine über Ihre Kanäle."
+        "blurb": "Beantwortet Leads 24/7 und sammelt Kontakte — ohne Warteschlange am Empfang."
       },
       "chatbot": {
         "name": "AI Chatbot",
-        "blurb": "24/7 Assistent für Website und Messaging."
+        "blurb": "Sammelt Anfragen und antwortet rund um die Uhr — wie ein digitaler Mitarbeiter."
       },
       "audit": {
         "name": "Website Audit",
@@ -961,7 +961,7 @@
       },
       "telegram": {
         "name": "Telegram Assistant",
-        "blurb": "Telegram-Bot — in Entwicklung."
+        "blurb": "Live: Antworten und Leads in Telegram nach dem Checkout."
       },
       "booking": {
         "name": "Buchungssystem",
@@ -997,9 +997,20 @@
       "perMonth": "/ Mon.",
       "thenMonthly": "danach {{monthly}}/Mon.",
       "seeBotPackages": "Pakete ansehen",
-      "botDisclaimer": "Setup + Monatlich — identisch zum Bestellformular.",
+      "botDisclaimer": "Setup + Monatlich. Sie zahlen für Ergebnis: Antworten, Leads, weniger Routine — nicht für eine App-Liste.",
       "webCheckoutNote": "Einmalig · gleicher Preis beim Checkout.",
-      "botCheckoutNote": "Website Chat · Telegram nach Zahlung.",
+      "botCheckoutNote": "Antwortet 24/7 und sammelt Anfragen ohne Manager in der Schicht.",
+      "botChannelsHonest": "Live jetzt: Website-Chat + Telegram. WhatsApp / Instagram — nach Meta OAuth (nicht als fertig verkauft).",
+      "botOutcome24": "Antwortet Kunden 24/7",
+      "botOutcomeLeads": "Sammelt Anfragen ohne Manager",
+      "botOutcomeNoManager": "Entlastet Empfang / First Line",
+      "botOutcomeBooking": "Nimmt Terminwünsche entgegen und leitet sie an Sie weiter",
+      "botOutcomeMulti": "Mehrere digitale Mitarbeiter für verschiedene Aufgaben",
+      "botOutcomeHours": "Spart täglich Stunden an Chat-Arbeit",
+      "botOutcomeTeam": "Deckt Routine einer ganzen Support-/Sales-Linie ab",
+      "botOutcomeRoi": "Rechnet sich durch Nacht- und Wochenend-Antworten ohne Personal",
+      "botOutcomeVip": "VIP-Einführung und priorisierte Anpassungen an Ihren Prozess",
+      "botOutcomeScale": "Fair Use — Skalierung ohne künstliches „pro Bot“-Limit",
       "webBasic": "Basic",
       "webBasicBlurb": "Für den Start online.",
       "webBusiness": "Business",
@@ -1007,11 +1018,11 @@
       "webPremium": "Premium",
       "webPremiumBlurb": "Volle Markenpräsenz.",
       "botStarter": "Starter",
-      "botStarterBlurb": "1 Wissensquelle · Website Chat + Telegram.",
+      "botStarterBlurb": "Einstieg: ein digitaler Mitarbeiter für Anfragen und Antworten.",
       "botBusiness": "Business",
-      "botBusinessBlurb": "Bis 5 Quellen · bis 3 Sprachen.",
+      "botBusinessBlurb": "Wachstum: Leads, Terminwünsche und mehrere Kontaktpunkte.",
       "botPro": "Professional",
-      "botProBlurb": "Unbegrenzte KB · Prioritäts-Support."
+      "botProBlurb": "Premium: KI-Team wie Personal — mit klarer ROI-Begründung."
     },
     "why": {
       "title": "Warum Unternehmer Virtus Core wählen",

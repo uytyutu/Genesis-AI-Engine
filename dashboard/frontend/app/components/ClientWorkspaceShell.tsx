@@ -3,9 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
+import { StorefrontAtmosphere } from "./storefront/StorefrontAtmosphere";
 
 export const CLIENT_WORKSPACE_LINKS = [
   { href: "/client", label: "Dashboard", match: (p: string) => p === "/client" },
+  {
+    href: "/client/onboarding",
+    label: "Профиль",
+    match: (p: string) => p.startsWith("/client/onboarding"),
+  },
+  {
+    href: "/client/shop",
+    label: "Магазин",
+    match: (p: string) => p.startsWith("/client/shop"),
+  },
   {
     href: "/client/products",
     label: "My Products",
@@ -70,42 +81,45 @@ export function ClientWorkspaceShell({
   const pathname = usePathname() ?? "/client";
 
   return (
-    <div className="mx-auto min-h-screen max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
-      <header className="border-b border-white/10 pb-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300/90">
-          {BRAND_NAME} · Client
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-          {title}
-        </h1>
-        {subtitle ? (
-          <p className="mt-2 max-w-2xl text-sm text-zinc-400">{subtitle}</p>
-        ) : null}
-        <nav
-          className="mt-5 flex flex-wrap gap-2"
-          aria-label="Client workspace"
-        >
-          {CLIENT_WORKSPACE_LINKS.map((link) => {
-            const active = link.match(pathname);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`rounded-lg px-3 py-1.5 text-sm ${
-                  active
-                    ? "bg-emerald-500/20 text-emerald-100"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </header>
-      <main id="main-content" className="py-6">
-        {children}
-      </main>
+    <div className="storefront relative isolate min-h-screen overflow-x-hidden">
+      <StorefrontAtmosphere />
+      <div className="relative z-10 mx-auto min-h-screen max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+        <header className="border-b border-white/10 pb-5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-genesis-accent">
+            {BRAND_NAME} · AI Business Platform · Client
+          </p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            {title}
+          </h1>
+          {subtitle ? (
+            <p className="mt-2 max-w-2xl text-sm text-zinc-400">{subtitle}</p>
+          ) : null}
+          <nav
+            className="mt-5 flex flex-wrap gap-2"
+            aria-label="Client workspace"
+          >
+            {CLIENT_WORKSPACE_LINKS.map((link) => {
+              const active = link.match(pathname);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`rounded-lg px-3 py-1.5 text-sm transition ${
+                    active
+                      ? "border border-genesis-accent/40 bg-genesis-accent/15 text-white"
+                      : "border border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </header>
+        <main id="main-content" className="py-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

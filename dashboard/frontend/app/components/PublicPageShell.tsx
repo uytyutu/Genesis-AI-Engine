@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { PublicSiteFooter } from "./PublicSiteFooter";
 import { PublicSiteHeader } from "./PublicSiteHeader";
+import { StorefrontAtmosphere } from "./storefront/StorefrontAtmosphere";
 import { isCustomerPurchasePath } from "../lib/surfaceNavConfig";
 
 export function PublicPageShell({
@@ -23,34 +24,46 @@ export function PublicPageShell({
   const { t } = useTranslation("common");
   const pathname = usePathname() ?? "";
   const customerFlow = customerDecisionFlow ?? isCustomerPurchasePath(pathname);
+  const storefrontLook = customerFlow && !hideChrome;
   return (
     <div
       className={
         hideChrome
           ? "h-[100dvh] overflow-hidden bg-genesis-bg"
-          : "mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
+          : storefrontLook
+            ? "storefront relative isolate min-h-screen overflow-x-hidden"
+            : "mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
       }
     >
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-genesis-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
-        suppressHydrationWarning
-      >
-        {t("skipToContent")}
-      </a>
-      {!hideChrome && (
-        <Suspense fallback={null}>
-          <PublicSiteHeader customerDecisionFlow={customerFlow} />
-        </Suspense>
-      )}
+      {storefrontLook ? <StorefrontAtmosphere /> : null}
       <div
-        id="main-content"
-        className={hideChrome ? "h-full" : "animate-fade-up"}
-        role="main"
+        className={
+          storefrontLook
+            ? "relative z-10 mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
+            : undefined
+        }
       >
-        {children}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-genesis-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+          suppressHydrationWarning
+        >
+          {t("skipToContent")}
+        </a>
+        {!hideChrome && (
+          <Suspense fallback={null}>
+            <PublicSiteHeader customerDecisionFlow={customerFlow} />
+          </Suspense>
+        )}
+        <div
+          id="main-content"
+          className={hideChrome ? "h-full" : "animate-fade-up"}
+          role="main"
+        >
+          {children}
+        </div>
+        {!hideChrome && !minimal && <PublicSiteFooter />}
       </div>
-      {!hideChrome && !minimal && <PublicSiteFooter />}
     </div>
   );
 }

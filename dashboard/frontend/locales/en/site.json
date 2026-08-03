@@ -1,10 +1,10 @@
 {
   "aboutTitle": "About {{brand}}",
-  "aboutBody": "{{brand}} is a digital services platform — websites, AI chatbots, and Vector, your AI Business Employee. Landing Website is the first product you can buy today.",
+  "aboutBody": "{{brand}} is an AI Business Platform — digital infrastructure for companies: website, AI bots, automation and growth in one project. The website is the first product you can buy today.",
   "s0": {
-    "heroTitle": "Digital ecosystem for business",
-    "heroSubtitle": "Websites, AI assistants, automation and analysis — clear packages, honest prices.",
-    "heroHint": "Start with a website — ready to order today.",
+    "heroTitle": "AI Business Platform for companies",
+    "heroSubtitle": "Website, AI assistants, automation and analytics — one project that grows with your business. Clear packages, honest prices.",
+    "heroHint": "Start with the website — then bots and more modules in the same project.",
     "hubTitle": "What do you want to do?",
     "hubSubtitle": "Choose a service and order directly — no account required. Register only if you want a personal office for your business.",
     "hubAccountHint": "No account needed to buy. Register only for your personal office — run projects, bots, automation, upgrades.",
@@ -24,11 +24,12 @@
     "seePackages": "See packages",
     "startAnalysis": "Start analysis",
     "backToServices": "← All services",
-    "botsTitle": "AI bots",
-    "botsIntro": "Separate from websites. Order a package directly — no registration required.",
+    "botsTitle": "AI Digital Employee",
+    "botsIntro": "A digital employee with onboarding: answers 24/7 and captures leads and contacts. You pay for outcomes — not a messenger logo list.",
     "botsLoading": "Loading bot packages…",
     "botsMonthly": "setup · then {{monthly}}/mo",
     "botsCta": "Order without account",
+    "botsChannelsNote": "Live now: Website Chat + Telegram. WhatsApp / Instagram — after Meta OAuth (not sold as ready).",
     "needAccount": "Want an office to manage this later?",
     "seeWebsites": "See website packages",
     "websitesTitle": "Websites",
@@ -72,7 +73,7 @@
     "benefitSeo": "Clear path to the customer",
     "benefitSpeed": "Often ready in about 15 minutes",
     "platformTitle": "What {{brand}} does for you",
-    "platformIntro": "Not a tech list — practical help for your day. Landing Website remains the first product you can order today.",
+    "platformIntro": "Not a tech catalogue — an AI Business Platform. The website is the first module; bots and more grow in the same project.",
     "cardWebsiteTitle": "Website",
     "cardWebsiteBody": "We build a modern landing page that gets customers to call or inquire.",
     "cardChatbotTitle": "AI Chatbot — separate add-on",
@@ -178,6 +179,8 @@
     "formStep2": "Analysis",
     "formStep3": "Personalization",
     "formStep4": "Confirm",
+    "whyFormBadge": "Why these fields?",
+    "whyFormBody": "So Vector can build the landing and assistant for your business — not an empty template. After payment: status and files on the order page.",
     "journeyAria": "Project path",
     "journeyWelcome": "Welcome",
     "journeyBusiness": "Business",
@@ -198,9 +201,9 @@
     "previewExamplesTitle": "Possible result",
     "previewExamplesHint": "Sample websites for this package — how your site can look, not the exact final page.",
     "previewPremiumBadge": "Every Premium project is customized",
-    "premiumServicesLabel": "Your services (Premium block)",
+    "premiumServicesLabel": "Your services (for the website)",
     "premiumServicesPh": "One service per line, e.g.\nDiagnostics\nInspection\nBrakes",
-    "premiumServicesHint": "Enter your services — they appear in the Premium preview block.",
+    "premiumServicesHint": "These services appear on your website — niche-specific, not generic placeholders.",
     "premiumServicesClientTitle": "Your services on the site",
     "premiumServicesClientCite": "from your order",
     "previewOpenDemo": "Open full demo",
@@ -457,7 +460,7 @@
     "heading": "Order payment",
     "fallbackBusiness": "Your order",
     "fallbackPackage": "Landing",
-    "sandboxNote": "Test mode (Sandbox). No real charge.",
+    "sandboxNote": "Payment check without charging (Sandbox). No real money is taken — package prices are not demo/test prices.",
     "payCta": "Pay {{price}}",
     "processing": "Processing…",
     "loading": "Loading…",
@@ -509,18 +512,18 @@
     "ai_business_bot": {
       "name": "AI Digital Employee",
       "price": "from 499 € + monthly",
-      "blurb": "AI Sales Assistant for your company — Website Chat, Telegram, WhatsApp, Instagram, Messenger.",
+      "blurb": "A digital employee with onboarding: answers 24/7, captures leads, and takes routine off your first line.",
       "highlights": [
         "Answers customers 24/7",
-        "Captures leads automatically",
-        "Speaks multiple languages"
+        "Captures leads without a manager on shift",
+        "Saves hours of chat work every day"
       ],
       "includes": [
-        "One AI employee for your brand",
-        "Channels you choose",
-        "Workspace after payment"
+        "Onboarding for your business (setup + knowledge base)",
+        "Live today: website chat + Telegram",
+        "Workspace and cabinet after payment"
       ],
-      "timeline": "connect channels right after payment",
+      "timeline": "website chat and Telegram right after pay; WhatsApp/Instagram after Meta",
       "support": "Cabinet + Vector setup help"
     },
     "website_check": {
@@ -772,31 +775,29 @@
     "packages": {
       "bot_starter": {
         "includes": [
-          "1 AI bot (digital employee)",
-          "Any channel: Website Chat, Telegram, WhatsApp, Instagram, Messenger",
-          "Knowledge Base: up to 1 source",
-          "1 language",
-          "Basic scenarios + handoff to operator"
+          "Answers clients 24/7 — no waiting for a manager",
+          "Captures leads and contacts automatically",
+          "Takes routine off reception / first line",
+          "Live today: website chat + Telegram",
+          "1 language · basic scenarios · handoff to operator"
         ]
       },
       "bot_business": {
         "includes": [
-          "Up to 3 independent AI bots",
-          "Each bot — any supported channel",
-          "Knowledge Base: up to 5 sources",
-          "Up to 3 languages",
-          "Advanced scenarios + AI analysis",
-          "Regular training"
+          "Takes booking requests and hands them to you",
+          "Up to 3 digital employees for different jobs",
+          "Saves hours of chat work every day",
+          "AI analysis of conversations + regular training",
+          "Live today: website chat + Telegram"
         ]
       },
       "bot_professional": {
         "includes": [
-          "Unlimited AI bots (Fair Use)",
-          "All channels as they become available",
-          "Knowledge Base without source limit",
-          "Unlimited languages",
-          "Full scenarios + full analytics",
-          "VIP support"
+          "Covers routine for a whole support / sales line",
+          "Pays for itself via night and weekend replies without payroll",
+          "VIP onboarding and priority tweaks for your process",
+          "Fair Use — no artificial per-bot cap",
+          "Full analytics: where leads come from and where clients drop"
         ]
       }
     }
@@ -906,7 +907,7 @@
       "emotion": "AI is ready to work for your business."
     },
     "cta": {
-      "tryFree": "🚀 Try AI free",
+      "tryFree": "🚀 Open catalog",
       "watchDemo": "Watch demo",
       "contact": "Contact"
     },
@@ -927,7 +928,7 @@
       "subtitle": "Not a service list — apps for your business.",
       "live": "Live",
       "soon": "Coming Soon",
-      "try": "Try",
+      "try": "Open",
       "notify": "Coming Soon",
       "website": {
         "name": "Website Builder",
@@ -935,11 +936,11 @@
       },
       "receptionist": {
         "name": "AI Receptionist",
-        "blurb": "Answers leads and books appointments across your channels."
+        "blurb": "Answers leads 24/7 and captures contacts — no front-desk queue."
       },
       "chatbot": {
         "name": "AI Chatbot",
-        "blurb": "24/7 assistant for website and messaging."
+        "blurb": "Captures leads and replies around the clock — like a digital employee."
       },
       "audit": {
         "name": "Website Audit",
@@ -955,7 +956,7 @@
       },
       "telegram": {
         "name": "Telegram Assistant",
-        "blurb": "Telegram channel bot — in development."
+        "blurb": "Live: replies and leads in Telegram after checkout."
       },
       "booking": {
         "name": "Booking System",
@@ -991,9 +992,20 @@
       "perMonth": "/ mo",
       "thenMonthly": "then {{monthly}}/mo",
       "seeBotPackages": "See packages",
-      "botDisclaimer": "Setup fee + monthly — identical to the order form.",
+      "botDisclaimer": "Setup + monthly. You pay for outcomes: replies, leads, less routine — not an app list.",
       "webCheckoutNote": "One-time · same price at checkout.",
-      "botCheckoutNote": "Website Chat · Telegram after payment.",
+      "botCheckoutNote": "Replies 24/7 and captures leads with no manager on shift.",
+      "botChannelsHonest": "Live now: website chat + Telegram. WhatsApp / Instagram — after Meta OAuth (not sold as ready).",
+      "botOutcome24": "Answers clients 24/7",
+      "botOutcomeLeads": "Captures leads without a manager",
+      "botOutcomeNoManager": "Takes routine off reception / first line",
+      "botOutcomeBooking": "Takes booking requests and hands them to you",
+      "botOutcomeMulti": "Several digital employees for different jobs",
+      "botOutcomeHours": "Saves hours of chat work every day",
+      "botOutcomeTeam": "Covers routine for a whole support / sales line",
+      "botOutcomeRoi": "Pays for itself via night and weekend replies without payroll",
+      "botOutcomeVip": "VIP onboarding and priority tweaks for your process",
+      "botOutcomeScale": "Fair Use — scale without an artificial per-bot cap",
       "webBasic": "Basic",
       "webBasicBlurb": "For starting a business online.",
       "webBusiness": "Business",
@@ -1001,11 +1013,11 @@
       "webPremium": "Premium",
       "webPremiumBlurb": "Full brand presence and polish.",
       "botStarter": "Starter",
-      "botStarterBlurb": "1 knowledge source · Website Chat + Telegram.",
+      "botStarterBlurb": "Entry: one digital employee for leads and replies.",
       "botBusiness": "Business",
-      "botBusinessBlurb": "Up to 5 sources · up to 3 languages.",
+      "botBusinessBlurb": "Growth: leads, booking requests, and more contact points.",
       "botPro": "Professional",
-      "botProBlurb": "Unlimited KB · priority support."
+      "botProBlurb": "Premium: an AI team like staff — with clear ROI justification."
     },
     "why": {
       "title": "Why entrepreneurs choose Virtus Core",

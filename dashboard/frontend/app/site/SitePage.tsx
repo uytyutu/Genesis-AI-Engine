@@ -22,6 +22,7 @@ import { canonicalMarketForLang, uiLangForMarket } from "../lib/marketLang";
 import { filterPublicPackages } from "../lib/showSmokePackage";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
 import { AppStoreHub } from "../components/storefront/AppStoreHub";
+import { CHATBOT_PRICE_TIERS } from "../components/storefront/modules";
 import { StorefrontAtmosphere } from "../components/storefront/StorefrontAtmosphere";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
@@ -715,7 +716,7 @@ export function SitePage() {
               <p className="mt-1 text-sm text-genesis-muted">
                 {t("s0.botsIntro", {
                   defaultValue:
-                    "One product — an AI Sales Assistant for your company. Packages by capacity (1 / up to 3 / Fair Use). Register your Workspace before payment, then connect your own channels.",
+                    "A digital employee with onboarding: answers clients, captures leads, books services. You pay for outcomes — not a messenger logo list.",
                 })}
               </p>
             </div>
@@ -726,7 +727,10 @@ export function SitePage() {
                   {t("s0.botsLoading", { defaultValue: "Loading bot packages…" })}
                 </p>
               ) : (
-                botPackages.map((pkg) => (
+                botPackages.map((pkg) => {
+                  const tier = CHATBOT_PRICE_TIERS.find((x) => x.id === pkg.package_id);
+                  const isRu = (i18n.language || "").startsWith("ru");
+                  return (
                   <article
                     key={pkg.package_id}
                     className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
@@ -743,27 +747,38 @@ export function SitePage() {
                         })}
                       </p>
                     ) : null}
-                    {pkg.tagline_ru && (i18n.language || "").startsWith("ru") ? (
+                    {pkg.tagline_ru && isRu ? (
                       <p className="mt-3 text-sm leading-relaxed text-zinc-300">{pkg.tagline_ru}</p>
+                    ) : tier?.blurbKey ? (
+                      <p className="mt-3 text-sm leading-relaxed text-zinc-300">
+                        {t(`appStore.${tier.blurbKey}`, {
+                          defaultValue: "",
+                        })}
+                      </p>
                     ) : null}
-                    <ul className="mt-3 flex-1 space-y-1 text-xs leading-relaxed text-zinc-500">
-                      {(i18n.language || "").startsWith("ru") && pkg.includes_ru?.length
-                        ? pkg.includes_ru.slice(0, 6).map((line) => (
-                            <li key={line}>• {line}</li>
-                          ))
-                        : (
-                            <li>
-                              {t("s0.botsChannelsHint", {
-                                defaultValue:
-                                  "Website Chat · Telegram · WhatsApp · Instagram · Messenger — connect your own accounts after payment.",
-                              })}
+                    <ul className="mt-3 flex-1 space-y-1.5 text-xs leading-relaxed text-zinc-400">
+                      {isRu && pkg.includes_ru?.length
+                        ? pkg.includes_ru.slice(0, 5).map((line) => (
+                            <li key={line} className="flex gap-2">
+                              <span className="text-emerald-400" aria-hidden>
+                                ✓
+                              </span>
+                              <span>{line}</span>
                             </li>
-                          )}
+                          ))
+                        : (tier?.outcomeKeys ?? []).map((key) => (
+                            <li key={key} className="flex gap-2">
+                              <span className="text-emerald-400" aria-hidden>
+                                ✓
+                              </span>
+                              <span>{t(`appStore.${key}`)}</span>
+                            </li>
+                          ))}
                     </ul>
                     <p className="mt-3 text-[11px] text-zinc-600">
                       {t("s0.botsChannelsNote", {
                         defaultValue:
-                          "Channels: Website Chat · Telegram · WhatsApp · Instagram · Messenger (own accounts after payment).",
+                          "Live now: Website Chat + Telegram. WhatsApp / Instagram — after Meta OAuth (not sold as ready).",
                       })}
                     </p>
                     <Link
@@ -775,7 +790,8 @@ export function SitePage() {
                       })}
                     </Link>
                   </article>
-                ))
+                  );
+                })
               )}
             </div>
           </section>
