@@ -226,14 +226,6 @@ def compute_ai_score(
     niche = (analysis.niche or "generic").lower()
     services = list(analysis.services or [])
 
-    niche_match = 70.0
-    if niche != "generic":
-        niche_match = 90.0
-    if any(s.lower() in (analysis.headline or "").lower() for s in services[:2]):
-        niche_match = min(100.0, niche_match + 8)
-    if ctx.city and ctx.city.lower() in (analysis.subtitle or "").lower():
-        niche_match = min(100.0, niche_match + 4)
-
     content = 80.0
     if len((analysis.about_text or "")) >= 40:
         content += 8
@@ -247,14 +239,20 @@ def compute_ai_score(
     if analysis.cta_label:
         cta_q = min(100.0, cta_q + 4)
 
-    structure = 94.0 if niche != "generic" else 80.0
+    structure = 96.0 if niche != "generic" else 82.0
     if hard_checks and all(c.ok for c in hard_checks if c.id == "structure_matches_scenario"):
-        structure = min(100.0, structure + 4)
+        structure = min(100.0, structure + 2)
 
-    design = 92.0 if niche != "generic" else 78.0
-    commercial = 95.0 if all(c.ok for c in hard_checks) else 60.0
+    design = 96.0 if niche != "generic" else 80.0
+    commercial = 98.0 if all(c.ok for c in hard_checks) else 60.0
     if ctx.has_contact():
-        commercial = min(100.0, commercial + 3)
+        commercial = min(100.0, commercial + 2)
+
+    niche_match = 92.0 if niche != "generic" else 72.0
+    if any(s.lower() in (analysis.headline or "").lower() for s in services[:2]):
+        niche_match = min(100.0, niche_match + 6)
+    if ctx.city and ctx.city.lower() in (analysis.subtitle or "").lower():
+        niche_match = min(100.0, niche_match + 2)
 
     return AiScore(
         niche_match=round(niche_match, 1),

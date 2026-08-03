@@ -49,6 +49,10 @@ NICHE_DEFAULT_CTA: dict[str, str] = {
     "handwerk": "Auftrag anfragen",
     "restaurant": "Tisch reservieren",
     "fashion": "Kollektion ansehen",
+    "accounting": "Beratung anfragen",
+    "photography": "Shoot anfragen",
+    "fitness": "Probe-Training buchen",
+    "realestate": "Bewertung anfragen",
     "generic": "Anfrage senden",
 }
 

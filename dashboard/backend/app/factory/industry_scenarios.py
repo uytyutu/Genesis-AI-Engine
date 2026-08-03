@@ -95,6 +95,58 @@ _SCENARIOS: dict[str, IndustryScenario] = {
         "editorial_bold",
         "Kollektion ansehen",
     ),
+    "accounting": IndustryScenario(
+        "accounting",
+        "consult",
+        ("L2", "L1", "L6"),
+        (
+            ("Was kostet die Erstberatung?", "Wir nennen das Honorar vorab — transparent."),
+            ("Arbeiten Sie digital?", "Ja — Belege und Austausch auch digital möglich."),
+            ("Welche Fristen gelten?", "Wir erinnern Sie rechtzeitig an wichtige Termine."),
+        ),
+        ("Kontakt", "Unterlagen", "Umsetzung", "Fristen"),
+        "calm_trust",
+        "Beratung anfragen",
+    ),
+    "photography": IndustryScenario(
+        "photography",
+        "booking",
+        ("L3", "L6", "L1"),
+        (
+            ("Wie läuft ein Shooting ab?", "Briefing, Shoot, Auswahl — klar und ruhig."),
+            ("Wann bekomme ich die Bilder?", "Nach dem Shoot mit vereinbartem Zeitfenster."),
+            ("Gibt es Pakete?", "Ja — feste Pakete ohne Überraschungen."),
+        ),
+        ("Anfrage", "Briefing", "Shoot", "Galerie"),
+        "editorial_bold",
+        "Shoot anfragen",
+    ),
+    "fitness": IndustryScenario(
+        "fitness",
+        "booking",
+        ("L5", "L1", "L4"),
+        (
+            ("Kann ich Probe trainieren?", "Ja — Probe-Training vor dem Abo."),
+            ("Brauche ich Vorkenntnisse?", "Nein — wir starten auf Ihrem Niveau."),
+            ("Welche Kurszeiten gibt es?", "Siehe Kursplan und Kontakt."),
+        ),
+        ("Probe", "Plan", "Training", "Fortschritt"),
+        "industrial_confident",
+        "Probe-Training buchen",
+    ),
+    "realestate": IndustryScenario(
+        "realestate",
+        "consult",
+        ("L2", "L5", "L1"),
+        (
+            ("Was kostet eine Bewertung?", "Ersteinschätzung klar kommuniziert — ohne Druck."),
+            ("Wie lange dauert ein Verkauf?", "Abhängig vom Objekt — mit Meilensteinplan."),
+            ("Betreuen Sie auch Vermietung?", "Ja — Exposé und Interessentenfilter inklusive."),
+        ),
+        ("Bewertung", "Exposé", "Besichtigung", "Abschluss"),
+        "strict_premium",
+        "Bewertung anfragen",
+    ),
 }
 
 

@@ -255,7 +255,11 @@ NICHE_LAYOUT_POOL: dict[str, tuple[str, ...]] = {
     "handwerk": ("L4", "L5", "L1"),
     "cleaning": ("L1", "L6", "L5"),
     "auto_ankauf": ("L4", "L5", "L1"),
-    "restaurant": ("L5", "L3", "L6"),  # contact + visual menu feel
+    "restaurant": ("L5", "L3", "L6"),
+    "accounting": ("L2", "L1", "L6"),
+    "photography": ("L3", "L6", "L1"),
+    "fitness": ("L5", "L1", "L4"),
+    "realestate": ("L2", "L5", "L1"),
     "generic": ("L1", "L2", "L3", "L5"),
 }
 

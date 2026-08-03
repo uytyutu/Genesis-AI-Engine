@@ -107,6 +107,9 @@ _NICHE_KEYWORDS = {
         "стиральн",
     ),
     "handwerk": (
+        "elektriker",
+        "elektroinstallation",
+        "elektro ",
         "handwerker",
         "hausmeister",
         "allrounder",
@@ -147,14 +150,53 @@ _NICHE_KEYWORDS = {
         "семейн",
         "family law",
         "business law",
+        "anwalt",
+    ),
+    "accounting": (
         "steuerberater",
         "steuerberatung",
         "steuerkanzlei",
+        "steuerbüro",
+        "steuerbuero",
         "buchhaltung",
         "lohnbuchhaltung",
         "tax advisor",
         "бухгалтер",
         "налогов",
+        "jahresabschluss",
+        "lohnabrechnung",
+    ),
+    "photography": (
+        "fotograf",
+        "fotografin",
+        "photography",
+        "photographer",
+        "portrait",
+        "hochzeitsfoto",
+        "фотограф",
+        "фотостуд",
+        "studio licht",
+    ),
+    "fitness": (
+        "fitness",
+        "fitnessstudio",
+        "gym",
+        "personal training",
+        "personaltrainer",
+        "фитнес",
+        "трениров",
+        "sportstudio",
+    ),
+    "realestate": (
+        "immobilien",
+        "immobilienmakler",
+        "makler",
+        "vermietung",
+        "hausverkauf",
+        "недвижим",
+        "риелтор",
+        "real estate",
+        "realtor",
     ),
     "beauty": (
         "салон",
@@ -258,6 +300,10 @@ def analyze(description: str, *, niche_hint: str | None = None) -> AnalysisResul
         "handwerk": _preset_handwerk(business_name, template_id, cta_label, text),
         "auto": _preset_auto(business_name, template_id, cta_label, text),
         "law": _preset_law(business_name, template_id, cta_label, text),
+        "accounting": _preset_accounting(business_name, template_id, cta_label, text),
+        "photography": _preset_photography(business_name, template_id, cta_label, text),
+        "fitness": _preset_fitness(business_name, template_id, cta_label, text),
+        "realestate": _preset_realestate(business_name, template_id, cta_label, text),
         "beauty": _preset_beauty(business_name, template_id, cta_label, text),
         "fashion": _preset_fashion(business_name, template_id, cta_label, text),
         "energy": _preset_energy(business_name, template_id, cta_label, text),
@@ -594,41 +640,8 @@ def _preset_law(
         )
     )
     if steuer:
-        cta = "Beratung anfragen" if cta_label == "Kontakt aufnehmen" else cta_label
-        return AnalysisResult(
-            niche="law",
-            template_id=template_id,
-            business_name=business_name,
-            headline=f"{business_name} — Steuerberatung mit klaren Zahlen",
-            subtitle="Buchhaltung, Jahresabschluss und Beratung — verständlich und termintreu.",
-            services=[
-                "Steuererklärung",
-                "Buchhaltung",
-                "Jahresabschluss",
-                "Lohnbuchhaltung",
-            ],
-            service_descriptions=(
-                "Privat und Gewerbe — fristgerecht und nachvollziehbar.",
-                "Laufende Buchführung ohne Chaos in den Belegen.",
-                "Abschluss mit Erläuterung der Kennzahlen.",
-                "Lohnabrechnung und Meldungen an Behörden.",
-            ),
-            cta_label=cta,
-            trust_points=("Vertraulich", "Digitale Belege", "Feste Ansprechpartner"),
-            about_text=(
-                f"{business_name} begleitet Mandanten bei Steuern und Finanzen — "
-                "ohne Fachchinesisch, mit klaren nächsten Schritten."
-            ),
-            benefits=(
-                "Unverbindliches Erstgespräch",
-                "Transparente Honorare",
-                "Erinnerung an Fristen",
-            ),
-            hours="Mo–Fr 9:00–17:30 · Termine nach Vereinbarung",
-            phone=phone,
-            email=email,
-        )
-    focus = "Migrations- und Wirtschaftsrecht"
+        return _preset_accounting(business_name, template_id, cta_label, raw)
+    focus = "Wirtschaftsrecht"
     if re.search(r"семейн|family", raw, re.I):
         focus = "Familienrecht"
     elif re.search(r"immigration|миграц", raw, re.I):
@@ -663,6 +676,125 @@ def _preset_law(
             "Digitale Dokumentenablage für schnelle Rückfragen",
         ),
         hours="Mo–Fr 9:00–18:00 · Termine nach Vereinbarung",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_accounting(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "steuer")
+    cta = "Beratung anfragen" if cta_label == "Kontakt aufnehmen" else cta_label
+    return AnalysisResult(
+        niche="accounting",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Steuerberatung mit klaren Zahlen",
+        subtitle="Buchhaltung, Jahresabschluss und Fristen — verständlich und termintreu.",
+        services=["Steuererklärung", "Buchhaltung", "Jahresabschluss", "Lohnabrechnung"],
+        service_descriptions=(
+            "Privat und Gewerbe — fristgerecht.",
+            "Laufende Buchführung ohne Chaos.",
+            "Abschluss mit Erklärung der Kennzahlen.",
+            "Lohnabrechnung und Meldungen.",
+        ),
+        cta_label=cta,
+        trust_points=("Vertraulich", "Digitale Belege", "Feste Ansprechpartner"),
+        about_text=(
+            f"{business_name} begleitet Mandanten bei Steuern und Finanzen — "
+            "ohne Fachchinesisch, mit klaren nächsten Schritten."
+        ),
+        benefits=("Unverbindliches Erstgespräch", "Transparente Honorare", "Erinnerung an Fristen"),
+        hours="Mo–Fr 9:00–17:30",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_photography(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "foto")
+    cta = (
+        "Shoot anfragen"
+        if cta_label in ("Kontakt aufnehmen", "Kollektion ansehen")
+        else cta_label
+    )
+    return AnalysisResult(
+        niche="photography",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Fotografie mit Haltung",
+        subtitle="Portraits, Hochzeit und Business — natürliche Bilder, klare Absprache.",
+        services=["Portraits", "Hochzeitsfotografie", "Business-Portraits", "Studio"],
+        service_descriptions=(
+            "Authentische Portraits ohne Stress.",
+            "Hochzeitstage dokumentiert.",
+            "Bilder für Website und LinkedIn.",
+            "Studio oder Outdoor — je nach Konzept.",
+        ),
+        cta_label=cta,
+        trust_points=("Echte Referenzen", "Klare Pakete", "Schnelle Auswahl"),
+        about_text=f"{business_name} fotografiert Menschen und Momente — mit ruhigem Ablauf.",
+        benefits=("Probe-Shoot möglich", "Digitale Galerie", "Nutzungsrechte klar"),
+        hours="Termine nach Vereinbarung",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_fitness(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "fit")
+    cta = "Probe-Training buchen" if cta_label == "Kontakt aufnehmen" else cta_label
+    return AnalysisResult(
+        niche="fitness",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Training mit Plan",
+        subtitle="Personal Training, Kurse und Fortschritt — ohne leere Versprechen.",
+        services=["Personal Training", "Gruppenskurse", "Probe-Training", "Ernährungscoaching"],
+        service_descriptions=(
+            "Individuelle Pläne nach Ziel.",
+            "Kleine Gruppen mit klarer Anleitung.",
+            "Unverbindlich testen — vor dem Abo.",
+            "Alltagsnahe Tipps.",
+        ),
+        cta_label=cta,
+        trust_points=("Trainer vor Ort", "Klare Mitgliedschaft", "Flexible Zeiten"),
+        about_text=f"{business_name} ist Ihr Studio für nachhaltiges Training.",
+        benefits=("Probe-Training", "Flexible Zeiten", "Transparente Preise"),
+        hours="Mo–Fr 6:00–22:00",
+        phone=phone,
+        email=email,
+    )
+
+
+def _preset_realestate(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "immo")
+    cta = "Bewertung anfragen" if cta_label == "Kontakt aufnehmen" else cta_label
+    return AnalysisResult(
+        niche="realestate",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Immobilien mit klarer Beratung",
+        subtitle="Verkauf, Vermietung und Bewertung — lokal, transparent, ohne Druck.",
+        services=["Immobilienbewertung", "Verkauf", "Vermietung", "Besichtigung"],
+        service_descriptions=(
+            "Marktgerechte Einschätzung.",
+            "Verkaufsprozess mit klaren Meilensteinen.",
+            "Vermietung inkl. Exposé.",
+            "Termin für Besichtigung.",
+        ),
+        cta_label=cta,
+        trust_points=("Lokale Marktkenntnis", "Transparente Provision", "Schnelle Rückmeldung"),
+        about_text=f"{business_name} begleitet Eigentümer und Suchende — ehrliche Einschätzung.",
+        benefits=("Kostenlose Ersteinschätzung", "Digitale Exposés", "Begleitung bis Übergabe"),
+        hours="Mo–Fr 9:00–18:00",
         phone=phone,
         email=email,
     )

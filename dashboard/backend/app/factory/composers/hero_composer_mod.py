@@ -24,6 +24,10 @@ def compose_hero(analysis: AnalysisResult, ctx: QuestionnaireContext) -> Analysi
         headline = f"{name} — {tail}"
     elif name and " — " in headline:
         _, rest = headline.split(" — ", 1)
+        rest = rest.strip()
+        # Avoid "Name — Name — …" when analyzer already embedded the business name.
+        if rest.lower().startswith(name.lower()):
+            rest = services[0] if services else (ctx.primary_service() or "klare Leistungen")
         headline = f"{name} — {rest}"
 
     subtitle = (analysis.subtitle or "").strip()
