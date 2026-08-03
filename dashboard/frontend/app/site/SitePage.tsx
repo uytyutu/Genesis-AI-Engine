@@ -24,6 +24,7 @@ import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
 import { AppStoreHub } from "../components/storefront/AppStoreHub";
 import { CHATBOT_PRICE_TIERS } from "../components/storefront/modules";
 import { StorefrontAtmosphere } from "../components/storefront/StorefrontAtmosphere";
+import { VectorAvatarStage, VectorChatIcon } from "../components/VectorAvatar";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
 
@@ -888,7 +889,7 @@ export function SitePage() {
         </p>
         ) : null}
 
-        {/* Vector chat — mobile full sheet; desktop floating card */}
+        {/* Vector chat — ChatGPT-like panel + MP4 avatar (storefront) */}
         {chatOpen ? (
           <div
             id="vector-chat-panel"
@@ -900,12 +901,12 @@ export function SitePage() {
                     right: "auto",
                     bottom: "auto",
                     maxHeight: vvLayout.height
-                      ? `${Math.max(280, vvLayout.height - 16)}px`
+                      ? `${Math.max(320, vvLayout.height - 16)}px`
                       : undefined,
                   }
                 : undefined
             }
-            className={`vector-chat-panel fixed inset-0 z-[60] flex h-dvh max-h-dvh w-full flex-col overflow-hidden border-0 sm:inset-auto sm:bottom-5 sm:right-5 sm:left-auto sm:h-[min(82dvh,740px)] sm:max-h-[min(82dvh,740px)] sm:w-[min(420px,calc(100vw-1.5rem))] sm:rounded-3xl sm:border sm:border-white/10 ${
+            className={`vector-chat-panel fixed inset-0 z-[60] flex h-dvh max-h-dvh w-full flex-col overflow-hidden border-0 sm:inset-auto sm:bottom-4 sm:right-4 sm:left-auto sm:h-[min(88dvh,820px)] sm:max-h-[min(88dvh,820px)] sm:w-[min(980px,calc(100vw-1.5rem))] sm:rounded-3xl sm:border sm:border-white/10 ${
               chatPos
                 ? "max-sm:!inset-0 max-sm:!left-0 max-sm:!top-0 max-sm:!right-0 max-sm:!bottom-0 max-sm:!max-h-none"
                 : ""
@@ -919,7 +920,7 @@ export function SitePage() {
             </div>
             <div className="vector-chat-panel__content">
             <div
-              className="flex shrink-0 touch-none items-center justify-between gap-2 border-b border-white/10 bg-black/20 px-3 py-3 backdrop-blur-md sm:cursor-grab sm:active:cursor-grabbing sm:px-4"
+              className="flex shrink-0 touch-none items-center justify-between gap-2 border-b border-white/10 bg-black/25 px-3 py-2.5 backdrop-blur-md sm:cursor-grab sm:active:cursor-grabbing sm:px-4"
               onPointerDown={(e) => {
                 if (typeof window !== "undefined" && window.innerWidth < 640) return;
                 onChatDragStart(e);
@@ -932,17 +933,25 @@ export function SitePage() {
               })}
             >
               <div className="flex min-w-0 items-center gap-3">
-                <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-500/25 text-sm font-bold text-sky-100 ring-1 ring-sky-300/40">
-                  <span className="absolute inset-0 animate-ping rounded-full bg-sky-400/20 [animation-duration:2.4s]" />
-                  <span className="relative">V</span>
-                </span>
+                <button
+                  type="button"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-300 transition hover:bg-white/8 hover:text-white md:hidden"
+                  aria-label="История чатов"
+                  onClick={() => {
+                    window.dispatchEvent(new Event("genesis:toggle-history"));
+                  }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
+                  ☰
+                </button>
+                <VectorChatIcon size="sm" />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-white">
                     {ASSISTANT_NAME}
                   </p>
                   <p className="truncate text-[11px] text-sky-200/70">
                     {t("s0.chatHint", {
-                      defaultValue: "Consultant · fast answers",
+                      defaultValue: "Ниша · пакет услуг",
                     })}
                   </p>
                 </div>
@@ -961,26 +970,6 @@ export function SitePage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (
-                      typeof window !== "undefined" &&
-                      window.confirm(
-                        t("s0.deleteChatConfirm", {
-                          defaultValue: "Delete this conversation?",
-                        }),
-                      )
-                    ) {
-                      window.dispatchEvent(new Event("genesis:delete-chat"));
-                    }
-                  }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  className="rounded-xl px-2.5 py-2 text-xs font-medium text-rose-300/90 hover:bg-rose-500/15 hover:text-rose-200"
-                  aria-label={t("s0.deleteChat", { defaultValue: "Delete chat" })}
-                >
-                  {t("s0.deleteChat", { defaultValue: "Delete" })}
-                </button>
-                <button
-                  type="button"
                   onClick={() => setChatOpen(false)}
                   onPointerDown={(e) => e.stopPropagation()}
                   className="rounded-xl px-2.5 py-2 text-sm text-zinc-400 hover:bg-white/8 hover:text-white"
@@ -990,8 +979,11 @@ export function SitePage() {
                 </button>
               </div>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden [&_#genesis-chat]:h-full [&_#genesis-chat]:max-h-none [&_#genesis-chat]:min-h-0 [&_#genesis-chat]:rounded-none [&_#genesis-chat]:border-0 [&_#genesis-chat]:bg-transparent [&_#genesis-chat]:shadow-none">
-              <GenesisConcierge scope="public" />
+            <div className="flex min-h-0 flex-1 overflow-hidden">
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden [&_#genesis-chat]:h-full [&_#genesis-chat]:max-h-none [&_#genesis-chat]:min-h-0 [&_#genesis-chat]:rounded-none [&_#genesis-chat]:border-0 [&_#genesis-chat]:bg-transparent [&_#genesis-chat]:shadow-none">
+                <GenesisConcierge scope="public" />
+              </div>
+              <VectorAvatarStage className="hidden w-[min(15rem,28%)] lg:flex" />
             </div>
             </div>
           </div>
@@ -1001,16 +993,14 @@ export function SitePage() {
           <button
             type="button"
             onClick={() => openChat()}
-            className="vector-chat-fab fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-sky-500 px-4 py-3.5 text-sm font-semibold text-white hover:brightness-110"
+            className="vector-chat-fab fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full border border-sky-300/30 bg-sky-500/95 px-3.5 py-2.5 text-sm font-semibold text-white shadow-lg hover:brightness-110"
             style={
               vvLayout.keyboard > 0
                 ? { bottom: `max(1.25rem, ${vvLayout.keyboard + 12}px)` }
                 : undefined
             }
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
-              V
-            </span>
+            <VectorChatIcon size="xs" className="ring-white/40" />
             {t("s0.askVector", { defaultValue: "Ask Vector" })}
           </button>
         ) : null}

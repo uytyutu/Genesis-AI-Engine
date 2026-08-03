@@ -29,6 +29,7 @@ import {
   publicLeadCaptureWelcome,
 } from "../lib/publicBrand";
 import { VectorBrandSignature } from "./VectorBrandSignature";
+import { VectorChatIcon } from "./VectorAvatar";
 import { Badge } from "./ui/Badge";
 import {
   loadVoiceSettings,
@@ -214,17 +215,17 @@ type ChatApiResponse = {
   session_id?: string | null;
 };
 
-/** Public /site starters — visitor journey. */
+/** Public /site starters — niche analysis + package fit only. */
 const STARTERS_VISIBLE_PUBLIC = [
-  { label: "💇 Сайт салона", message: "Хочу сайт для салона красоты" },
-  { label: "🍽️ Сайт кафе", message: "Мне нужен сайт для кафе" },
-  { label: "🚗 Автосервис", message: "Мне нужен сайт для автосервиса" },
+  { label: "📋 Бизнес-план", message: "Вот краткий бизнес-план — проанализируй нишу и предложи пакет" },
+  { label: "🦷 Стоматология", message: "Ниша: стоматология. Какой пакет Virtus Core подойдёт?" },
+  { label: "💇 Красота", message: "Ниша: салон красоты. Какой пакет услуг выбрать?" },
 ];
 
 const STARTERS_MORE_PUBLIC = [
-  { label: "🏪 Интернет-магазин", message: "Мне нужен интернет-магазин" },
-  { label: "✈️ Telegram-бот", message: "Мне нужен Telegram-бот для бизнеса" },
-  { label: "🤖 AI на сайте", message: "Хочу AI-консультанта на сайте" },
+  { label: "🚗 Автосервис", message: "Ниша: автосервис. Проанализируй и предложи пакет" },
+  { label: "🍽️ Ресторан", message: "Ниша: ресторан / кафе. Какой пакет подойдёт?" },
+  { label: "📦 Пакеты", message: "Чем отличаются Basic, Business и Premium?" },
 ];
 
 /** CEO / Mission Control — Country Desk, not consumer «купить сайт». */
@@ -697,11 +698,16 @@ export function GenesisConcierge({
     const onDeleteChat = () => {
       void handleClearCurrentChat();
     };
+    const onToggleHistory = () => {
+      setSidebarOpen((o) => !o);
+    };
     window.addEventListener("genesis:new-chat", onNewChat);
     window.addEventListener("genesis:delete-chat", onDeleteChat);
+    window.addEventListener("genesis:toggle-history", onToggleHistory);
     return () => {
       window.removeEventListener("genesis:new-chat", onNewChat);
       window.removeEventListener("genesis:delete-chat", onDeleteChat);
+      window.removeEventListener("genesis:toggle-history", onToggleHistory);
     };
   }, [isPublic, handleNewChat, handleClearCurrentChat]);
 
@@ -1579,8 +1585,18 @@ export function GenesisConcierge({
   const thread = messages ?? [];
 
   return (
-    <div className={`flex flex-col gap-2 ${isPublic && !hubMode ? "" : "md:flex-row md:items-stretch"} ${isPublic && !hubMode ? "h-full min-h-0" : isPublicHub ? "h-full min-h-0" : ""}`}>
-      {!(isPublic && !hubMode) ? (
+    <div
+      className={`flex min-h-0 ${
+        isPublicConsultant
+          ? "h-full flex-row items-stretch gap-0"
+          : isPublic && !hubMode
+            ? "h-full flex-col gap-2"
+            : isPublicHub
+              ? "h-full min-h-0 flex-col gap-2 md:flex-row md:items-stretch"
+              : "flex-col gap-2 md:flex-row md:items-stretch"
+      }`}
+    >
+      {isPublicConsultant || !(isPublic && !hubMode) ? (
       <ChatHistorySidebar
         sessions={sessionList}
         activeSessionId={activeSessionId}
@@ -1591,9 +1607,10 @@ export function GenesisConcierge({
         onSelect={(id) => void handleSelectSession(id)}
         onDelete={(id) => void handleDeleteSession(id)}
         onPin={(id, pinned) => void handlePinSession(id, pinned)}
-        hideMobileToggle={isPublicHub}
-        overlayOnly={isPublicHub}
-        onGoHome={isPublic && !hubMode ? handlePublicMenuHome : isPublicHub ? handlePublicMenuHome : undefined}
+        hideMobileToggle={isPublicConsultant || isPublicHub}
+        overlayOnly={isPublicConsultant || isPublicHub}
+        storefrontStyle={isPublicConsultant}
+        onGoHome={isPublicConsultant || isPublicHub ? handlePublicMenuHome : undefined}
       />
       ) : null}
     <section
@@ -1767,10 +1784,10 @@ export function GenesisConcierge({
           <div className="flex flex-wrap gap-2">
             {(
               [
-                ["Сайт", "Хочу сайт"],
-                ["AI Bot", "Хочу AI Bot"],
-                ["Цены", "Сколько стоит?"],
-                ["Данные", "Защита данных"],
+                ["Бизнес-план", "Прикрепил бизнес-план — проанализируй нишу и предложи пакет"],
+                ["Ниша", "Опишу нишу — какой пакет Virtus Core подойдёт?"],
+                ["Пакеты", "Чем отличаются Basic, Business и Premium?"],
+                ["AI Bot", "Нужен ли AI Bot для моей ниши?"],
               ] as const
             ).map(([label, msg]) => (
               <button
@@ -1798,6 +1815,26 @@ export function GenesisConcierge({
           <ul className={`mx-auto w-full space-y-3 sm:space-y-4 ${isPublicConsultant ? "max-w-none" : "max-w-3xl"}`}>
           {thread.map((m, i) => {
             const isWelcomeBubble = i === 0 && m.role === "assistant" && !hasConversation;
+            let bubbleClass = "whitespace-pre-wrap";
+            if (isPublicConsultant) {
+              const shell =
+                isWelcomeBubble
+                  ? "rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-[14px] leading-relaxed text-zinc-300"
+                  : m.role === "user"
+                    ? "rounded-2xl rounded-br-md bg-sky-500 px-4 py-2.5 text-[14px] leading-relaxed text-white"
+                    : "rounded-2xl rounded-bl-md border border-white/10 bg-[#16161f] px-4 py-2.5 text-[14px] leading-relaxed text-zinc-100";
+              bubbleClass +=
+                m.role === "assistant"
+                  ? ` min-w-0 flex-1 ${shell}`
+                  : ` ml-auto max-w-[92%] sm:max-w-[85%] ${shell}`;
+            } else if (isWelcomeBubble) {
+              bubbleClass += " px-1 py-1 text-[15px] leading-snug text-genesis-muted";
+            } else {
+              bubbleClass +=
+                m.role === "user"
+                  ? " rounded-3xl bg-genesis-accent/20 px-4 py-3 text-[15px] leading-relaxed text-white"
+                  : " rounded-3xl border border-white/5 bg-genesis-panel/60 px-4 py-3 text-[15px] leading-relaxed text-genesis-text backdrop-blur-sm";
+            }
             return (
             <ChatMessageSpring
               key={`${m.role}-${i}`}
@@ -1805,31 +1842,26 @@ export function GenesisConcierge({
               contentKey={m.generating ? `gen-${i}` : `${i}-${m.text?.length ?? 0}`}
             >
               <div
-                className={`whitespace-pre-wrap ${
-                  isPublicConsultant
-                    ? `max-w-[92%] sm:max-w-[85%] ${
-                        m.role === "user" ? "ml-auto" : "mr-auto"
-                      } ${
-                        isWelcomeBubble
-                          ? "rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-[14px] leading-relaxed text-zinc-300"
-                          : m.role === "user"
-                            ? "rounded-2xl rounded-br-md bg-sky-500 px-4 py-2.5 text-[14px] leading-relaxed text-white"
-                            : "rounded-2xl rounded-bl-md border border-white/10 bg-[#16161f] px-4 py-2.5 text-[14px] leading-relaxed text-zinc-100"
-                      }`
-                    : isWelcomeBubble
-                    ? "px-1 py-1 text-[15px] leading-snug text-genesis-muted"
-                    : `rounded-3xl px-4 py-3 text-[15px] leading-relaxed ${
-                        m.role === "user"
-                          ? "bg-genesis-accent/20 text-white"
-                          : "border border-white/5 bg-genesis-panel/60 text-genesis-text backdrop-blur-sm"
-                      }`
-                }`}
+                className={
+                  isPublicConsultant && m.role === "assistant"
+                    ? "mr-auto flex max-w-[92%] items-start gap-2.5 sm:max-w-[85%]"
+                    : undefined
+                }
               >
+              {isPublicConsultant && m.role === "assistant" ? (
+                <VectorChatIcon size="xs" className="mt-0.5 shrink-0" />
+              ) : null}
+              <div className={bubbleClass}>
                 {m.role === "assistant" && !isWelcomeBubble && !isPublicConsultant && (
                   <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-genesis-accent">
                     {assistantLabel}
                   </p>
                 )}
+                {isPublicConsultant && m.role === "assistant" && !isWelcomeBubble ? (
+                  <p className="mb-1 text-[10px] font-semibold tracking-wide text-sky-300/80">
+                    {assistantLabel}
+                  </p>
+                ) : null}
                 {m.generating && !m.text?.trim() ? (
                   isPublicConsultant ? (
                     <span className="inline-flex gap-1 py-0.5">
@@ -1888,7 +1920,7 @@ export function GenesisConcierge({
                     />
                   ) : null,
                 )}
-                {m.role === "assistant" && m.concept_preview_url ? (
+                {m.role === "assistant" && m.concept_preview_url && !isPublicConsultant ? (
                   <div className="mt-3 overflow-hidden rounded-xl border border-emerald-500/25 bg-black/30">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -2020,6 +2052,7 @@ export function GenesisConcierge({
                   </div>
                 ) : null}
               </div>
+              </div>
             </ChatMessageSpring>
             );
           })}
@@ -2032,6 +2065,7 @@ export function GenesisConcierge({
                     : "rounded-3xl border border-white/5 bg-genesis-panel/60 px-4 py-3 text-sm text-genesis-muted"
                 }
               >
+                {isPublicConsultant ? <VectorChatIcon size="xs" /> : null}
                 {isPublicConsultant ? (
                   <>
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-300" />

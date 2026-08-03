@@ -34,6 +34,8 @@ type Props = {
   overlayOnly?: boolean;
   /** Public /site — return to landing welcome */
   onGoHome?: () => void;
+  /** Storefront Vector chat — aurora chrome */
+  storefrontStyle?: boolean;
 };
 
 export function ChatHistorySidebar({
@@ -49,6 +51,7 @@ export function ChatHistorySidebar({
   hideMobileToggle = false,
   overlayOnly = false,
   onGoHome,
+  storefrontStyle = false,
 }: Props) {
   const grouped = useMemo(() => groupSessionsByDate(sessions), [sessions]);
   const reduce = useReducedMotion();
@@ -94,20 +97,31 @@ export function ChatHistorySidebar({
                 <button
                   type="button"
                   onClick={() => handleSelect(s.session_id)}
-                  className={`w-full rounded-lg px-2 py-2 text-left text-sm transition ${
+                  className={`w-full rounded-lg py-2 text-left text-sm transition ${
+                    storefrontStyle ? "pr-9 pl-2" : "px-2"
+                  } ${
                     active
-                      ? "bg-genesis-accent/20 text-white"
+                      ? storefrontStyle
+                        ? "bg-sky-500/20 text-white"
+                        : "bg-genesis-accent/20 text-white"
                       : "text-genesis-text hover:bg-white/5"
                   }`}
                 >
-                  <span className="line-clamp-1 font-medium">{s.title || "Новое поручение"}</span>
+                  <span className="line-clamp-1 font-medium">
+                    {s.title || (storefrontStyle ? "Новый чат" : "Новое поручение")}
+                  </span>
                   {s.preview ? (
                     <span className="line-clamp-1 text-[11px] text-genesis-muted">
                       {s.preview}
                     </span>
                   ) : null}
                 </button>
-                <div className="absolute right-1 top-1 hidden gap-0.5 group-hover:flex">
+                <div
+                  className={`absolute right-1 top-1 gap-0.5 ${
+                    storefrontStyle ? "flex" : "hidden group-hover:flex"
+                  }`}
+                >
+                  {!storefrontStyle ? (
                   <button
                     type="button"
                     title={s.pinned ? "Открепить" : "Закрепить"}
@@ -119,6 +133,7 @@ export function ChatHistorySidebar({
                   >
                     {s.pinned ? "📌" : "📍"}
                   </button>
+                  ) : null}
                   <button
                     type="button"
                     title="Удалить"
@@ -126,9 +141,9 @@ export function ChatHistorySidebar({
                       e.stopPropagation();
                       onDelete(s.session_id);
                     }}
-                    className="rounded px-1 text-[10px] text-rose-300/80 hover:bg-rose-500/20"
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-sm text-rose-300/90 hover:bg-rose-500/20 hover:text-rose-200"
                   >
-                    ✕
+                    ×
                   </button>
                 </div>
               </li>
@@ -162,11 +177,15 @@ export function ChatHistorySidebar({
                   animate={{ x: 0 }}
                   exit={reduce ? undefined : { x: "-100%" }}
                   transition={springs.gentle}
-                  className="fixed inset-y-0 left-0 z-[60] flex w-[min(85vw,18rem)] flex-col overflow-hidden border-r border-white/10 bg-genesis-panel shadow-2xl md:hidden"
-                  aria-label="История поручений"
+                  className={`fixed inset-y-0 left-0 z-[60] flex w-[min(85vw,18rem)] flex-col overflow-hidden border-r border-white/10 shadow-2xl md:hidden ${
+                    storefrontStyle ? "bg-[#0c0c14]/98 backdrop-blur-xl" : "bg-genesis-panel"
+                  }`}
+                  aria-label="История чатов"
                 >
                   <div className="flex items-center justify-between border-b border-white/5 px-3 py-2">
-                    <p className="text-sm font-semibold text-white">Меню</p>
+                    <p className="text-sm font-semibold text-white">
+                      {storefrontStyle ? "История" : "Меню"}
+                    </p>
                     <button
                       type="button"
                       onClick={closeSidebar}
@@ -183,7 +202,8 @@ export function ChatHistorySidebar({
                     onSelect={handleSelect}
                     onDelete={onDelete}
                     onPin={onPin}
-                    onGoHome={onGoHome}
+                    onGoHome={storefrontStyle ? undefined : onGoHome}
+                    storefrontStyle={storefrontStyle}
                     renderGroup={renderGroup}
                   />
                 </motion.aside>
@@ -226,6 +246,7 @@ export function ChatHistorySidebar({
                 onSelect={onSelect}
                 onDelete={onDelete}
                 onPin={onPin}
+                storefrontStyle={storefrontStyle}
                 renderGroup={renderGroup}
               />
             </motion.aside>
@@ -236,8 +257,12 @@ export function ChatHistorySidebar({
       )}
 
       <aside
-        className={`${overlayOnly ? "hidden" : "hidden shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-genesis-panel/50 md:flex md:w-56 lg:w-64"}`}
-        aria-label="История поручений"
+        className={`${
+          overlayOnly && !storefrontStyle
+            ? "hidden"
+            : "hidden shrink-0 flex-col overflow-hidden border-r border-white/10 md:flex md:w-52 lg:w-56"
+        } ${storefrontStyle ? "bg-black/25" : "rounded-2xl border border-white/10 bg-genesis-panel/50"}`}
+        aria-label="История чатов"
       >
         <SidebarNav
           sessions={sessions}
@@ -246,6 +271,8 @@ export function ChatHistorySidebar({
           onSelect={onSelect}
           onDelete={onDelete}
           onPin={onPin}
+          onGoHome={storefrontStyle ? undefined : onGoHome}
+          storefrontStyle={storefrontStyle}
           renderGroup={renderGroup}
         />
       </aside>
@@ -261,6 +288,7 @@ function SidebarNav({
   onDelete,
   onPin,
   onGoHome,
+  storefrontStyle = false,
   renderGroup,
 }: {
   sessions: ChatSessionMeta[];
@@ -270,8 +298,12 @@ function SidebarNav({
   onDelete: (sessionId: string) => void;
   onPin: (sessionId: string, pinned: boolean) => void;
   onGoHome?: () => void;
+  storefrontStyle?: boolean;
   renderGroup: (key: DateGroup) => ReactNode;
 }) {
+  const emptyHint = storefrontStyle
+    ? "Пока нет чатов.\nОпишите нишу — Vector подскажет пакет."
+    : "Пока нет сохранённых поручений.\nПоручите Vector первую задачу.";
   return (
     <>
       {onGoHome ? (
@@ -301,10 +333,14 @@ function SidebarNav({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           transition={springs.snappy}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-genesis-accent/25 px-3 py-2.5 text-sm font-semibold text-white hover:bg-genesis-accent/35"
+          className={`flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-white ${
+            storefrontStyle
+              ? "bg-sky-500/30 hover:bg-sky-500/40"
+              : "bg-genesis-accent/25 hover:bg-genesis-accent/35"
+          }`}
         >
           <span className="text-lg leading-none">+</span>
-          Новое поручение
+          {storefrontStyle ? "Новый чат" : "Новое поручение"}
         </motion.button>
       </div>
       {onGoHome ? (
@@ -314,10 +350,8 @@ function SidebarNav({
       ) : null}
       <nav className="min-h-0 flex-1 overflow-y-auto p-2">
         {sessions.length === 0 ? (
-          <p className="px-2 py-4 text-center text-xs text-genesis-muted">
-            Пока нет сохранённых поручений.
-            <br />
-            Поручите Vector первую задачу.
+          <p className="whitespace-pre-line px-2 py-4 text-center text-xs text-genesis-muted">
+            {emptyHint}
           </p>
         ) : (
           (["pinned", "today", "yesterday", "week", "older"] as DateGroup[]).map(renderGroup)
