@@ -36,7 +36,8 @@ _HEAVY_LIBS = (
 )
 
 _BRAND_LEAK = re.compile(
-    r"Virtus(\s+Core)?|"
+    r"Virtus\s+Core|"
+    r"\bVirtus\b|"
     r"\bResearch\b|"
     r"tier-switch|"
     r"Demo-Tarif|"
@@ -406,7 +407,15 @@ def run_quality_gate(
         add("media", "cls_safe", True, "assets_not_checked")
 
     # --- Brand ---
-    brand_hit = _BRAND_LEAK.search(html)
+    # Scrub contact emails / mailto so client domains like *@virtus.local
+    # do not false-positive as platform chrome.
+    brand_surface = re.sub(r"(?i)mailto:[^\s\"'<>]+", " ", html)
+    brand_surface = re.sub(
+        r"(?i)\b[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}\b",
+        " ",
+        brand_surface,
+    )
+    brand_hit = _BRAND_LEAK.search(brand_surface)
     add(
         "brand",
         "no_platform_chrome",

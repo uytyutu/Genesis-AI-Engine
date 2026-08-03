@@ -322,6 +322,23 @@ class RevenuePipelineService:
         )
         self._sales._save_order(order)
 
+        # Link Path A website orders to Workspace when customer_id known or email matches.
+        try:
+            from app.integration.customer_identity.store import CustomerIdentityStore
+
+            mem = getattr(self._sales, "_memory", None)
+            if mem is not None and not order.get("customer_id"):
+                store = CustomerIdentityStore(Path(mem) if not isinstance(mem, Path) else mem)
+                em = str(order.get("email") or "").strip().lower()
+                if em:
+                    found = store.find_customer_by_email(em)
+                    if found:
+                        order["customer_id"] = found
+                        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+                        self._sales._save_order(order)
+        except Exception:
+            logger.exception("order_customer_link_failed order=%s", order_id)
+
         # AI Business Bot: attach entitlements + first digital employee to Workspace
         if str(order.get("product_kind") or "") == "bot" and order.get("customer_id"):
             try:

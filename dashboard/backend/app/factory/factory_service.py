@@ -50,7 +50,9 @@ class FactoryService:
         motion_level: str | None = None,
     ) -> dict:
         from app.factory.package_features import (
+            apply_order_advantages,
             apply_order_contacts,
+            apply_order_services,
             delivery_meta,
             resolve_package_features,
         )
@@ -60,8 +62,11 @@ class FactoryService:
         from app.factory.ux_polish import write_ux_polish_assets
 
         product_id = intent_id or str(uuid.uuid4())
-        analysis = analyze(description)
         contacts = contacts if isinstance(contacts, dict) else {}
+        analysis = analyze(
+            description,
+            niche_hint=str(contacts.get("niche") or "") or None,
+        )
         market = normalize_market(
             market_code
             or contacts.get("market_code")
@@ -88,10 +93,35 @@ class FactoryService:
             phone=str(contacts.get("phone") or "") or None,
             email=str(contacts.get("email") or "") or None,
         )
+        analysis = apply_order_services(analysis, contacts.get("services_list"))
+        analysis = apply_order_advantages(analysis, contacts.get("advantages"))
+
+        from app.factory.composers import run_composers
+        from app.factory.content_gate import run_content_gate
+
+        commercial_meta: dict = {}
+        for _attempt in range(3):
+            analysis, commercial = run_composers(
+                analysis,
+                contacts=contacts,
+                package_id=package_id or contacts.get("package_id"),
+                scenario_id=analysis.niche,
+            )
+            commercial_meta = commercial.as_dict()
+            if commercial.hard_passed:
+                break
+            # Auto-rebuild: sanitize analysis and re-compose (Hard Gate recovery).
+            _, repaired = run_content_gate(analysis=analysis, auto_repair=True)
+            if repaired is None:
+                break
+            analysis = repaired
         features = resolve_package_features(package_id or contacts.get("package_id"))
         city = str(contacts.get("city") or "").strip()
         street = str(contacts.get("street") or "").strip()
         whatsapp = str(contacts.get("whatsapp") or contacts.get("phone") or "").strip()
+        # Ensure contacts dict carries city for composers on rebuild paths
+        if city and not contacts.get("city"):
+            contacts = {**contacts, "city": city}
 
         product_dir = self._sandbox / product_id
         product_dir.mkdir(parents=True, exist_ok=True)
@@ -158,9 +188,22 @@ class FactoryService:
         media_plan = composed.media_plan
         content_gate = composed.content_gate
 
+        # Final Commercial Gate on HTML (Hard Gate + AI Score). Rule №1 > score.
+        from app.factory.composers import run_composers as _run_cg
+
+        analysis, commercial_final = _run_cg(
+            analysis,
+            contacts=contacts,
+            package_id=package_id or contacts.get("package_id"),
+            html=html,
+            scenario_id=analysis.niche,
+        )
+        commercial_meta = commercial_final.as_dict()
+
         gate_meta = plan.gate_meta()
         gate_meta["niche"] = analysis.niche
         gate_meta["content_gate"] = content_gate
+        gate_meta["commercial_gate"] = commercial_meta
         validation = validate_landing(
             html,
             meta=gate_meta,
@@ -231,9 +274,10 @@ class FactoryService:
             "trust_template": plan.trust_template,
             "media_plan": media_plan,
             "content_gate": content_gate,
-            "status": "completed",
+            "commercial_gate": commercial_meta,
+            "status": "completed" if commercial_meta.get("hard_passed", True) else "needs_rebuild",
             "quality_percent": validation.quality_percent,
-            "validation_passed": validation.passed,
+            "validation_passed": validation.passed and bool(commercial_meta.get("hard_passed", True)),
             "technical_checks": validation.technical_checks,
             "quality_gate": validation.quality_gate,
             "compliance": validation.compliance,

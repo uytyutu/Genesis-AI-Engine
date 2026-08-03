@@ -45,6 +45,26 @@ def test_quality_gate_fails_on_platform_chrome():
     assert any("brand" in f for f in result.failures)
 
 
+def test_quality_gate_allows_virtus_substring_in_client_email():
+    """Client contact email must not block ZIP (Commercial Blocker #001)."""
+    html = build_landing_html(
+        analyze("Autowerkstatt Mueller in Koeln. Inspektion."),
+        features=resolve_package_features("basic"),
+        market_code="DE",
+    )
+    with_email = html.replace(
+        "</body>",
+        '<p><a href="mailto:owner@virtus.local">owner@virtus.local</a></p></body>',
+    )
+    result = run_quality_gate(
+        with_email,
+        meta={"market_code": "DE", "package_delivery": {"package_id": "basic"}},
+    )
+    assert result.passed, result.failures
+    brand = next(c for c in result.checks if c.id == "no_platform_chrome")
+    assert brand.ok
+
+
 def test_quality_gate_fails_on_lorem():
     html = build_landing_html(
         analyze("Autowerkstatt Schmidt in Berlin. Inspektion."),

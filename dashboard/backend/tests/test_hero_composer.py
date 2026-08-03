@@ -21,13 +21,14 @@ def _hero_layout(html: str) -> str:
 
 
 def _hero_markers(html: str) -> set[str]:
+    # Match structural HTML only (not R3.1 CSS selectors that mention other layouts).
     markers = {
-        "A": "hero-A-grid",
-        "B": "hero-B-kpis",
-        "C": "hero-C-portrait",
-        "D": "hero-D-float",
-        "E": "hero-E-orb",
-        "F": "hero-F-rail",
+        "A": 'class="hero-A-grid"',
+        "B": 'class="hero-B-stage"',
+        "C": 'class="hero-C-wrap"',
+        "D": 'class="hero-D-panel"',
+        "E": 'class="hero-E-stage"',
+        "F": 'class="hero-F-banner"',
     }
     return {k for k, needle in markers.items() if needle in html}
 

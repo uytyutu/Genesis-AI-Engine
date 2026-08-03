@@ -830,6 +830,12 @@ class SalesOrderService:
         setup_amount = package.get("setup_amount")
         customer_id = (payload.get("customer_id") or "").strip()[:80] or None
         workspace_id = (payload.get("workspace_id") or "").strip()[:80] or None
+        # Architecture lock: one lifetime project — upgrades unlock features on same workspace.
+        if customer_id and not workspace_id:
+            workspace_id = customer_id
+        interest_only = bool(payload.get("interest_only")) or str(
+            payload.get("description") or ""
+        ).lstrip().startswith("[interest]")
         if product_kind == "bot" or str(package_id).startswith("bot_"):
             product_kind = "bot"
             if not customer_id:
@@ -850,11 +856,48 @@ class SalesOrderService:
                         f"{price_eur:g} {sym} + {package['monthly_amount']} {sym}/mo"
                     )
 
+        if interest_only:
+            listed_price_label = price_label
+            price_eur = 0.0
+            price_label = {
+                "de": "Interesse — keine Zahlung",
+                "en": "Interest — no payment",
+                "ru": "Интерес — без оплаты",
+                "uk": "Інтерес — без оплати",
+            }.get(ui_lang) or "Interest — no payment"
+            status = "interest"
+            client_message = {
+                "de": (
+                    f"Interesse für {package['name']} ist gespeichert "
+                    f"(Richtpreis {listed_price_label}). Keine Zahlung — "
+                    "wir melden uns, wenn die Leistung live ist."
+                ),
+                "en": (
+                    f"Interest in {package['name']} is saved "
+                    f"(guide price {listed_price_label}). No payment — "
+                    "we will contact you when the service goes live."
+                ),
+                "ru": (
+                    f"Интерес к {package['name']} сохранён "
+                    f"(ориентир {listed_price_label}). Оплаты нет — "
+                    "свяжемся, когда услуга станет доступна."
+                ),
+                "uk": (
+                    f"Інтерес до {package['name']} збережено "
+                    f"(орієнтир {listed_price_label}). Оплати немає — "
+                    "напишемо, коли послуга стане доступною."
+                ),
+            }.get(ui_lang) or (
+                f"Interest in {package['name']} is saved. No payment taken."
+            )
+        else:
+            status = "awaiting_payment"
+
         order = {
             "order_id": order_id,
-            "status": "awaiting_payment",
+            "status": status,
             "status_label": client_status_label(
-                "awaiting_payment", market_code, ui_lang=ui_lang
+                status, market_code, ui_lang=ui_lang
             ),
             "package_id": package_id,
             "package_name": package["name"],
@@ -879,6 +922,7 @@ class SalesOrderService:
             "locale": locale_ctx["locale"],
             "factory_context": locale_ctx,
             "price_label": price_label,
+            "interest_only": interest_only,
             "motion_level": motion,
             "brand_style": _normalize_order_brand_style(payload.get("brand_style")),
             "deliverables": (
@@ -901,6 +945,10 @@ class SalesOrderService:
             "company_website": company_website,
             "niche": (payload.get("niche") or "").strip() or None,
             "specialization": (payload.get("specialization") or "").strip() or None,
+            "services_list": self._normalize_services_list(payload.get("services_list")),
+            "advantages": self._normalize_services_list(
+                payload.get("advantages") or payload.get("benefits")
+            ),
             "social_links": social_links,
             "materials": materials_bundle,
             "buyer_insights": buyer_insights,
@@ -910,7 +958,7 @@ class SalesOrderService:
                 "analysis": buyer_insights,
                 "documents": [],
                 "invoices": [],
-                "status": "awaiting_payment",
+                "status": status,
             },
             "client_legal": self._client_legal_payload(payload),
             "visitor_id": (payload.get("visitor_id") or "").strip()[:64] or None,
@@ -962,6 +1010,60 @@ class SalesOrderService:
         orders.sort(key=lambda o: o.get("created_at", ""), reverse=True)
         return [self._summary(o) for o in orders[:limit]]
 
+    def attach_customer_by_email(self, *, customer_id: str, email: str) -> int:
+        """Link guest website orders to a customer account (email match)."""
+        cid = str(customer_id or "").strip()
+        em = str(email or "").strip().lower()
+        if not cid or not em or "@" not in em:
+            return 0
+        linked = 0
+        for order in self._load_all():
+            order_email = str(order.get("email") or "").strip().lower()
+            if order_email != em:
+                continue
+            if str(order.get("customer_id") or "").strip() == cid:
+                continue
+            order["customer_id"] = cid
+            order["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_order(order)
+            linked += 1
+        return linked
+
+    def list_orders_for_customer(
+        self, *, customer_id: str, email: str | None = None, limit: int = 50
+    ) -> list[dict]:
+        """Cabinet orders: by customer_id and/or matching email."""
+        cid = str(customer_id or "").strip()
+        em = str(email or "").strip().lower()
+        if not cid and not em:
+            return []
+        matched: list[dict] = []
+        for order in self._load_all():
+            oid_cid = str(order.get("customer_id") or "").strip()
+            oid_email = str(order.get("email") or "").strip().lower()
+            if cid and oid_cid == cid:
+                matched.append(order)
+            elif em and oid_email == em:
+                matched.append(order)
+        # de-dupe by order_id
+        seen: set[str] = set()
+        unique: list[dict] = []
+        for o in matched:
+            oid = str(o.get("order_id") or "")
+            if not oid or oid in seen:
+                continue
+            seen.add(oid)
+            unique.append(o)
+        unique.sort(key=lambda o: o.get("created_at", ""), reverse=True)
+        out: list[dict] = []
+        for order in unique[:limit]:
+            try:
+                status = self.public_status(str(order["order_id"]))
+            except Exception:
+                status = self._summary(order)
+            out.append(status)
+        return out
+
     def list_pending(self) -> list[dict]:
         return [o for o in self.list_orders(50) if o["status"] == "pending_confirmation"]
 
@@ -987,7 +1089,15 @@ class SalesOrderService:
         order = self.get_order(order_id)
         if not order:
             raise ValueError("order_not_found")
-        if order["status"] not in ("pending_confirmation", "confirmed", "awaiting_payment", "paid"):
+        # ready/in_production allowed to rebuild when ZIP is not packable (legacy gate drift).
+        if order["status"] not in (
+            "pending_confirmation",
+            "confirmed",
+            "awaiting_payment",
+            "paid",
+            "ready",
+            "in_production",
+        ):
             raise ValueError("invalid_status")
 
         package_id = str(order.get("package_id") or "basic").strip().lower()
@@ -1017,20 +1127,25 @@ class SalesOrderService:
             product = self._factory_intent._factory.get_product(existing_product_id)
             if not product:
                 raise ValueError("product_not_found")
-            from app.factory.market_delivery import client_status_label
+            # Reuse draft only when it can actually become a client ZIP.
+            if self._product_packable(existing_product_id):
+                from app.factory.market_delivery import client_status_label
 
-            market = str(order.get("market_code") or "DE")
-            order["status"] = "in_production"
-            order["status_label"] = client_status_label("in_production", market)
-            order["product_id"] = existing_product_id
-            order["updated_at"] = datetime.now(timezone.utc).isoformat()
-            self._save_order(order)
-            return {
-                "ok": True,
-                "order": self._summary(order),
-                "product_id": existing_product_id,
-                "message": "Zahlung erhalten. Produktion läuft mit dem bestehenden Entwurf.",
-            }
+                market = str(order.get("market_code") or "DE")
+                order["status"] = "ready"
+                order["status_label"] = client_status_label("ready", market)
+                order["product_id"] = existing_product_id
+                order["updated_at"] = datetime.now(timezone.utc).isoformat()
+                self._save_order(order)
+                return {
+                    "ok": True,
+                    "order": self._summary(order),
+                    "product_id": existing_product_id,
+                    "message": "Zahlung erhalten. Download ist bereit.",
+                }
+            # Legacy / non-compliant artifact → rebuild Path A landing.
+            order["product_id"] = ""
+            existing_product_id = ""
 
         brief = self._factory_brief(order)
         legal = order.get("client_legal") if isinstance(order.get("client_legal"), dict) else {}
@@ -1063,6 +1178,9 @@ class SalesOrderService:
             "price_label": order.get("price_label"),
             "price_eur": order.get("price_eur"),
             "amount": order.get("price_eur"),
+            "niche": order.get("niche"),
+            "services_list": order.get("services_list") or [],
+            "advantages": order.get("advantages") or [],
         }
         mats = order.get("materials")
         if isinstance(mats, dict) and isinstance(mats.get("files"), list):
@@ -1129,6 +1247,18 @@ class SalesOrderService:
             f"Paket: {order['package_name']} ({order.get('price_label') or order['price_eur']})",
             f"Brand Style: {order.get('brand_style') or 'auto'}",
         ]
+        niche = (order.get("niche") or "").strip()
+        if niche:
+            lines.append(f"Branche / Niche: {niche}")
+        specialization = (order.get("specialization") or "").strip()
+        if specialization:
+            lines.append(f"Spezialisierung: {specialization}")
+        services = self._normalize_services_list(order.get("services_list"))
+        if services:
+            lines.append("Leistungen des Kunden: " + ", ".join(services))
+        advantages = self._normalize_services_list(order.get("advantages"))
+        if advantages:
+            lines.append("Vorteile / USPs: " + ", ".join(advantages))
         website = (order.get("company_website") or "").strip()
         if website:
             lines.append(f"Bestehende Website: {website}")
@@ -1185,6 +1315,24 @@ class SalesOrderService:
                 if val:
                     lines.append(f"  {key}: {val}")
         return "\n".join(lines)
+
+    @staticmethod
+    def _normalize_services_list(raw: object) -> list[str]:
+        items: list[str] = []
+        if isinstance(raw, list):
+            items = [str(x).strip() for x in raw]
+        elif isinstance(raw, str):
+            text = raw.replace(";", "\n").replace("|", "\n")
+            items = [ln.strip(" •-\t") for ln in text.splitlines()]
+        out: list[str] = []
+        for item in items:
+            if not item or len(item) > 80:
+                continue
+            if item not in out:
+                out.append(item)
+            if len(out) >= 12:
+                break
+        return out
 
     @staticmethod
     def _client_legal_payload(payload: dict) -> dict:
@@ -1388,6 +1536,18 @@ class SalesOrderService:
             order["status"] = "ready"
             order["status_label"] = client_status_label("ready", market, ui_lang=ui_lang)
             order["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_order(order)
+        # Never expose Ready when ZIP cannot be packed (blocks Ready → 404).
+        elif status == "ready" and not download_ready:
+            status = "in_production"
+            order["status"] = "in_production"
+            order["status_label"] = client_status_label(
+                "in_production", market, ui_lang=ui_lang
+            )
+            order["updated_at"] = datetime.now(timezone.utc).isoformat()
+            order["client_status_message"] = client_post_pay_message(
+                "in_production", market, download_ready=False, ui_lang=ui_lang
+            )
             self._save_order(order)
         download_bytes, generated_at = self._client_download_meta(
             order, download_ready=download_ready
@@ -1743,16 +1903,46 @@ class SalesOrderService:
         self._save_order(order)
         return data, filename
 
+    def _product_packable(self, product_id: str) -> bool:
+        """True only when index.html exists and passes Compliance (ZIP packable)."""
+        from app.factory.compliance_engine import assert_compliance
+
+        factory = getattr(self._factory_intent, "_factory", None)
+        if factory is None or not hasattr(factory, "get_product"):
+            return False
+        if not factory.get_product(product_id):
+            return False
+        try:
+            product_dir = factory._sandbox / product_id  # type: ignore[attr-defined]
+            html_path = product_dir / "index.html"
+            if not html_path.is_file():
+                return False
+            meta = factory._load_meta(product_id)  # type: ignore[attr-defined]
+            if not isinstance(meta, dict):
+                meta = {}
+            cg = meta.get("commercial_gate") if isinstance(meta.get("commercial_gate"), dict) else {}
+            # Hard Gate FAIL → never pack. Score FAIL after Hard Gate also blocks ZIP.
+            if cg:
+                if cg.get("hard_passed") is False:
+                    return False
+                if cg.get("score_passed") is False:
+                    return False
+            assert_compliance(
+                html_path.read_text(encoding="utf-8"),
+                meta=meta,
+                assets_dir=product_dir / "assets",
+            )
+            return True
+        except Exception:
+            return False
+
     def _client_download_ready(self, order: dict) -> bool:
         if order.get("status") not in ("paid", "in_production", "ready", "delivered"):
             return False
         product_id = str(order.get("product_id") or "").strip()
         if not product_id:
             return False
-        factory = getattr(self._factory_intent, "_factory", None)
-        if factory is None or not hasattr(factory, "get_product"):
-            return False
-        return bool(factory.get_product(product_id))
+        return self._product_packable(product_id)
 
     def _client_download_meta(
         self, order: dict, *, download_ready: bool

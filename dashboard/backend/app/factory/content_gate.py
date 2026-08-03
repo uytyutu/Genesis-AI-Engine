@@ -59,6 +59,20 @@ _NAV_MARKETING_FORBIDDEN = frozenset(
     }
 )
 
+# Universal marketing chrome — never ship as hero headline for any niche.
+_GENERIC_HERO_BANNED = frozenset(
+    {
+        "ihr partner vor ort",
+        "partner vor ort",
+        "wir helfen ihrem unternehmen",
+        "wir helfen ihrem business",
+        "partner für ihren erfolg",
+        "ihre digitale zukunft",
+        "lösungen für ihr unternehmen",
+        "losungen fur ihr unternehmen",
+    }
+)
+
 # Phrases that must not appear in benefits/trust for a niche (deny lists).
 _BENEFIT_DENY: dict[str, frozenset[str]] = {
     "beauty": frozenset(
@@ -99,6 +113,7 @@ _NICHE_SERVICES: dict[str, list[str]] = {
     "appliance": ["Reparatur", "Ersatzteile", "Wartung", "Notdienst"],
     "cleaning": ["Unterhaltsreinigung", "Büroreinigung", "Grundreinigung", "Fenster"],
     "auto_ankauf": ["Kostenlose Bewertung", "Sofortankauf", "Abholung", "Vertragsabwicklung"],
+    "fashion": ["Neue Kollektionen", "Kuratierte Auswahl", "Styling-Beratung", "Click & Collect"],
 }
 
 _NICHE_TRUST: dict[str, tuple[str, ...]] = {
@@ -114,6 +129,7 @@ _NICHE_TRUST: dict[str, tuple[str, ...]] = {
     "appliance": ("Schneller Einsatz", "Originalteile", "Garantie"),
     "cleaning": ("Versichert", "Geprüftes Personal", "Flexible Termine"),
     "auto_ankauf": ("Faire Preise", "Schnelle Abwicklung", "Ohne Verpflichtung"),
+    "fashion": ("Echte Fotos der Ware", "Klare Größeninfos", "Schnelle Antwort"),
 }
 
 _NICHE_BENEFITS: dict[str, tuple[str, ...]] = {
@@ -166,6 +182,11 @@ _NICHE_BENEFITS: dict[str, tuple[str, ...]] = {
         "Bewertung in Minuten",
         "Auch Unfallfahrzeuge",
         "Bar oder Überweisung",
+    ),
+    "fashion": (
+        "Instagram-ready Looks",
+        "Persönliche Beratung",
+        "Lokale Abholung",
     ),
 }
 
@@ -293,18 +314,19 @@ def evaluate_analysis(analysis: AnalysisResult) -> ContentGateResult:
             detail="missing_fields" if not hero_ok else "ok",
         )
     )
-    # Generic partner headline or multi-filler voice for known niches = weak
+    # Banned universal marketing chrome — any niche including generic.
     filler_bits = ("beratung", "umsetzung", "support", "lösungen", "losungen", "loesungen")
     hero_blob = f"{headline} {subtitle} {cta}"
     hero_norm = _norm(hero_blob)
     filler_hits = sum(1 for t in filler_bits if t in hero_norm)
-    if niche != "generic" and _norm(headline).endswith("ihr partner vor ort"):
+    banned_hit = next((b for b in _GENERIC_HERO_BANNED if b in _norm(headline)), None)
+    if banned_hit:
         checks.append(
             ContentGateCheck(
                 id="hero_niche_voice",
                 section="hero",
                 ok=False,
-                detail="generic_partner_headline",
+                detail=f"generic_partner_headline:{banned_hit}",
             )
         )
     elif niche in _NICHE_SERVICES and filler_hits >= 2:
@@ -325,7 +347,11 @@ def evaluate_analysis(analysis: AnalysisResult) -> ContentGateResult:
     services = list(analysis.services or [])
     generic_hits = [s for s in services if _is_generic_service_title(s)]
     # Craft niches: any universal filler title (Beratung/Umsetzung/…) is a FAIL.
+    # Generic niche: filler-only service lists also FAIL (no "Beratung/Support" sites).
     if niche in _NICHE_SERVICES and generic_hits:
+        svc_ok = False
+        detail = "generic_services:" + ",".join(generic_hits[:4])
+    elif niche == "generic" and services and len(generic_hits) >= max(2, (len(services) + 1) // 2):
         svc_ok = False
         detail = "generic_services:" + ",".join(generic_hits[:4])
     elif niche != "generic" and services and len(generic_hits) >= max(2, len(services) // 2):
@@ -397,16 +423,38 @@ def sanitize_analysis(analysis: AnalysisResult) -> tuple[AnalysisResult, list[st
     headline = analysis.headline
     subtitle = analysis.subtitle
     cta_label = analysis.cta_label
-    if any(c.id == "hero_fields" and not c.ok for c in result.checks):
+    if any(c.id == "hero_fields" and not c.ok for c in result.checks) or any(
+        c.id == "hero_niche_voice" and not c.ok for c in result.checks
+    ):
         from app.factory.hero_integrity import ensure_analysis_hero
 
-        filled = ensure_analysis_hero(analysis)
+        filled = ensure_analysis_hero(
+            replace(
+                analysis,
+                headline="" if any(
+                    c.id == "hero_niche_voice" and not c.ok for c in result.checks
+                )
+                else analysis.headline,
+                services=services or list(analysis.services or []),
+            )
+        )
         headline = filled.headline
         subtitle = filled.subtitle
         cta_label = filled.cta_label
         if not services:
             services = list(filled.services)
         repairs.append("hero→niche_defaults")
+
+    # Generic niche with filler services → soft craft titles (not Beratung/Support).
+    if any(c.id == "services_niche" and not c.ok for c in result.checks):
+        if niche not in _NICHE_SERVICES and any(_is_generic_service_title(s) for s in services):
+            services = [
+                "Erstgespräch",
+                "Leistungsangebot",
+                "Umsetzung vor Ort",
+                "Nachbetreuung",
+            ]
+            repairs.append("services→generic_craft")
 
     fixed = replace(
         analysis,

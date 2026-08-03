@@ -247,11 +247,17 @@ def build_landing_html(
     # design-alias id (e.g. PL→DE). Composer plan uses the same seed inputs;
     # mismatch here fails quality meta_hero on ZIP pack.
     layout_market = (market_code or market_design.market_id or "DE").strip().upper()
-    layout_profile = resolve_layout_profile(
-        business_name=analysis.business_name,
-        package_id=tier,
-        market_code=layout_market,
-        niche_id=niche_profile.niche_id,
+    from app.factory.composers.layout_composer import compose_layout_profile
+    from app.factory.composers.context import QuestionnaireContext
+
+    layout_profile = compose_layout_profile(
+        QuestionnaireContext(
+            business_name=analysis.business_name,
+            niche=niche_profile.niche_id,
+            package_id=tier,
+            market_code=layout_market,
+            country=layout_market,
+        )
     )
     hero_layout_id = resolve_hero_for_layout(
         layout_profile,

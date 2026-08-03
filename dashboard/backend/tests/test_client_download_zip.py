@@ -74,3 +74,64 @@ def test_client_download_zip_after_sandbox_payment(tmp_path: Path, monkeypatch):
 
     after = sales.public_status(order_id)
     assert after["status"] == "ready"
+
+
+def test_ready_without_packable_zip_is_demoted(tmp_path: Path, monkeypatch):
+    """Commercial Blocker #001 — never Ready when ZIP cannot be packed."""
+    monkeypatch.delenv("STRIPE_SECRET_KEY", raising=False)
+    monkeypatch.setenv("GENESIS_PAYMENT_SANDBOX", "1")
+
+    factory = FactoryService(memory_dir=tmp_path, sandbox_dir=tmp_path / "sandbox")
+    intent = FactoryIntentService(memory_dir=tmp_path, factory=factory)
+    sales = SalesOrderService(tmp_path, intent)
+    revenue = RevenuePipelineService(
+        sales,
+        FinanceService(tmp_path),
+        PaymentCheckoutService(tmp_path),
+        OwnerNotificationService(tmp_path),
+    )
+
+    created = sales.create_order(
+        {
+            "business_name": "Werkstatt Gate",
+            "description": "Autowerkstatt Berlin Inspektion Bremsen",
+            "email": "gate@b.de",
+            "package_id": "basic",
+            "city": "Berlin",
+            "client_legal": {
+                "owner_name": "Herr Test",
+                "street": "Teststr. 1",
+                "zip": "10115",
+                "city": "Berlin",
+                "email": "gate@b.de",
+            },
+        }
+    )
+    order_id = created["order_id"]
+    revenue.begin_checkout(
+        order_id,
+        success_url="http://localhost:3000/ok",
+        cancel_url="http://localhost:3000/cancel",
+    )
+    revenue.complete_sandbox_payment(order_id)
+
+    ready = sales.public_status(order_id)
+    assert ready["download_ready"] is True
+    product_id = str(ready["product_id"])
+
+    index = tmp_path / "sandbox" / product_id / "index.html"
+    text = index.read_text(encoding="utf-8")
+    index.write_text(
+        text.replace("</body>", "<div>Virtus Core Preview</div></body>"),
+        encoding="utf-8",
+    )
+
+    order = sales.get_order(order_id)
+    assert order is not None
+    order["status"] = "ready"
+    sales._save_order(order)
+
+    status = sales.public_status(order_id)
+    assert status["download_ready"] is False
+    assert status["download_url"] is None
+    assert status["status"] == "in_production"

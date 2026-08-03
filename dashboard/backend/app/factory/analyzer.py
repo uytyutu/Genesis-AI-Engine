@@ -177,6 +177,26 @@ _NICHE_KEYWORDS = {
         "brow",
         "kosmetik",
     ),
+    "fashion": (
+        "одежд",
+        "бутик",
+        "мода",
+        "fashion",
+        "kleidung",
+        "boutique",
+        "mode",
+        "atelier",
+        "second hand",
+        "комисси",
+        "wardrobe",
+        "streetwear",
+        "коллекц",
+        "collection",
+        "магазин одежды",
+        "bekleidung",
+        "damenmode",
+        "herrenmode",
+    ),
     "energy": ("солнечн", "solar", "панел", "фотоэлект", "энерг", "photovolta"),
     "green": (
         "озеленен",
@@ -210,7 +230,7 @@ _NICHE_KEYWORDS = {
 }
 
 
-def analyze(description: str) -> AnalysisResult:
+def analyze(description: str, *, niche_hint: str | None = None) -> AnalysisResult:
     text = description.strip()
     lower = text.lower()
 
@@ -219,6 +239,11 @@ def analyze(description: str) -> AnalysisResult:
         if any(w in lower for w in words):
             niche = name
             break
+
+    hint = (niche_hint or "").strip().lower()
+    # Questionnaire niche wins only when description did not resolve a craft niche.
+    if niche == "generic" and hint and hint != "generic":
+        niche = hint
 
     business_name = _extract_business_name(text, niche)
     template_id = f"landing-{niche}-v1"
@@ -234,6 +259,7 @@ def analyze(description: str) -> AnalysisResult:
         "auto": _preset_auto(business_name, template_id, cta_label, text),
         "law": _preset_law(business_name, template_id, cta_label, text),
         "beauty": _preset_beauty(business_name, template_id, cta_label, text),
+        "fashion": _preset_fashion(business_name, template_id, cta_label, text),
         "energy": _preset_energy(business_name, template_id, cta_label, text),
         "green": _preset_green(business_name, template_id, cta_label, text),
         "restaurant": _preset_restaurant(business_name, template_id, cta_label, text),
@@ -642,6 +668,44 @@ def _preset_law(
     )
 
 
+def _preset_fashion(
+    business_name: str, template_id: str, cta_label: str, raw: str
+) -> AnalysisResult:
+    phone, email = _contact_defaults(business_name, "mode")
+    return AnalysisResult(
+        niche="fashion",
+        template_id=template_id,
+        business_name=business_name,
+        headline=f"{business_name} — Mode mit Charakter",
+        subtitle=(
+            "Neue Kollektionen, ausgewählte Stücke und Looks für den Alltag — "
+            "kein generisches Agentur-Template."
+        ),
+        services=[
+            "Neue Kollektionen",
+            "Kuratierte Auswahl",
+            "Styling-Beratung",
+            "Click & Collect / Versand",
+        ],
+        service_descriptions=(
+            "Aktuelle Drops und saisonale Capsule-Looks.",
+            "Weniger, aber besser — Stücke mit Wiedererkennungswert.",
+            "Passform und Stil in wenigen Minuten klären.",
+            "Abholung vor Ort oder Lieferung nach Hause.",
+        ),
+        cta_label=cta_label if cta_label != "Kontakt aufnehmen" else "Kollektion ansehen",
+        trust_points=("Echte Fotos der Ware", "Klare Größeninfos", "Schnelle Antwort"),
+        about_text=(
+            f"{business_name} ist Ihr Mode-Atelier / Boutique — "
+            "Atmosphäre und Auswahl statt leerer Schaufenster-Vorlage."
+        ),
+        benefits=("Instagram-ready Looks", "Persönliche Beratung", "Lokale Abholung"),
+        hours="Mo–Sa 10:00–19:00",
+        phone=phone,
+        email=email,
+    )
+
+
 def _preset_beauty(
     business_name: str, template_id: str, cta_label: str, raw: str
 ) -> AnalysisResult:
@@ -802,25 +866,34 @@ def _preset_restaurant(
 def _preset_generic(business_name: str, cta_label: str, raw: str) -> AnalysisResult:
     phone, email = _contact_defaults(business_name, "info")
     brief = business_brief_for_site(raw)
-    subtitle = brief or "Professioneller Auftritt — klar, vertrauenswürdig und mobil optimiert."
     services, descriptions = _generic_services(raw)
+    headline_tail = _headline_tail_from_services(services, brief)
+    subtitle = brief or (
+        f"{services[0]} · {services[1]} · {services[2]}"
+        if len(services) >= 3
+        else "Konkrete Leistungen, klare Ansprechpartner, schnelle Rückmeldung."
+    )
     return AnalysisResult(
         niche="generic",
         template_id="landing-generic-v1",
         business_name=business_name,
-        headline=f"{business_name} — Ihr Partner vor Ort",
+        headline=f"{business_name} — {headline_tail}",
         subtitle=subtitle[:160],
         services=services,
         service_descriptions=descriptions,
-        cta_label=cta_label,
+        cta_label=cta_label if cta_label != "Kontakt aufnehmen" else "Anfrage senden",
         trust_points=("Schnelle Antwort", "Faire Preise", "Persönlicher Service"),
         about_text=(
-            f"{business_name} unterstützt Kunden mit klaren Angeboten und erreichbaren Ansprechpartnern. "
-            "Wir melden uns zeitnah und halten Zusagen ein."
+            f"{business_name} arbeitet mit klaren Leistungen und erreichbaren Ansprechpartnern. "
+            + (
+                f"Schwerpunkt: {', '.join(services[:3])}."
+                if services
+                else "Wir melden uns zeitnah und halten Zusagen ein."
+            )
         ),
         benefits=(
-            "Verständliche Kommunikation ohne Fachchinesisch",
-            "Angebote mit klaren Leistungen",
+            f"Fokus auf {services[0]}" if services else "Klare Leistungspakete",
+            "Angebote mit nachvollziehbaren Positionen",
             "Erreichbarkeit in der Kernzeit",
         ),
         hours="Mo–Fr 9:00–18:00",
@@ -829,21 +902,29 @@ def _preset_generic(business_name: str, cta_label: str, raw: str) -> AnalysisRes
     )
 
 
+def _headline_tail_from_services(services: list[str], brief: str) -> str:
+    if services:
+        return services[0][:48]
+    if brief:
+        return brief.split(".")[0][:48].strip() or "klare Leistungen vor Ort"
+    return "klare Leistungen vor Ort"
+
+
 def _generic_services(raw: str) -> tuple[list[str], tuple[str, ...]]:
     lower = raw.lower()
     if any(w in lower for w in ("солнечн", "solar", "панел")):
         return (
-            ["PV-Planung", "Montage", "Service", "Beratung"],
+            ["PV-Planung", "Montage", "Ertragscheck", "Wartung"],
             (
                 "Auslegung nach Verbrauch und Dach.",
                 "Montage durch zertifiziertes Team.",
-                "Wartung und Monitoring.",
-                "Förder- und Wirtschaftlichkeitscheck.",
+                "Wirtschaftlichkeit und Fördercheck.",
+                "Monitoring und Service nach Inbetriebnahme.",
             ),
         )
     if any(w in lower for w in ("озеленен", "ландшафт", "garten")):
         return (
-            ["Planung", "Pflanzung", "Pflege", "Beratung vor Ort"],
+            ["Gartenplanung", "Pflanzung", "Saisonpflege", "Erstbegehung"],
             (
                 "Konzept für Ihr Grundstück.",
                 "Lieferung und Pflanzung.",
@@ -851,13 +932,49 @@ def _generic_services(raw: str) -> tuple[list[str], tuple[str, ...]]:
                 "Kostenlose Erstbegehung.",
             ),
         )
+    # Never ship universal filler (Beratung / Umsetzung / Support) — derive from brief tokens.
+    tokens = [
+        t.strip(" .,;:")
+        for t in re.split(r"[,;\n/|·•]+", raw)
+        if 2 < len(t.strip(" .,;:")) < 40
+    ]
+    skip = {
+        "website",
+        "landing",
+        "сайт",
+        "лендинг",
+        "für",
+        "для",
+        "und",
+        "and",
+        "the",
+        "mit",
+        "von",
+    }
+    crafted: list[str] = []
+    for tok in tokens:
+        low = tok.lower()
+        if low in skip or low.startswith("http"):
+            continue
+        if any(w in low for w in ("gmbh", "ug ", "ltd", "@", "http")):
+            continue
+        if tok[:1].islower() and " " not in tok:
+            continue
+        title = tok[0].upper() + tok[1:] if tok else tok
+        if title not in crafted:
+            crafted.append(title)
+        if len(crafted) >= 4:
+            break
+    if len(crafted) >= 2:
+        descs = tuple(f"{s} — auf Anfrage detailliert." for s in crafted)
+        return crafted, descs
     return (
-        ["Beratung", "Umsetzung", "Support", "Angebot anfordern"],
+        ["Erstgespräch", "Leistungsangebot", "Umsetzung vor Ort", "Nachbetreuung"],
         (
-            "Wir klären Ziele und nächste Schritte in einem Gespräch.",
-            "Umsetzung mit festen Meilensteinen.",
-            "Erreichbar, wenn Fragen auftauchen.",
-            "Unverbindliches Angebot innerhalb von 48 Stunden.",
+            "Ziele und Rahmen in einem kurzen Gespräch klären.",
+            "Schriftliches Angebot mit klaren Positionen.",
+            "Umsetzung mit vereinbarten Meilensteinen.",
+            "Erreichbar für Rückfragen nach Abschluss.",
         ),
     )
 

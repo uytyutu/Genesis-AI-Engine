@@ -126,6 +126,19 @@ class CustomerIdentityService:
         self._store.save_account(account)
         delete_pending(self._memory, normalized_email)
         token = issue_client_token(customer_id=account.customer_id, email=account.email)
+        try:
+            from app.integration.sales_order_service import SalesOrderService
+            from app.integration.factory_intent_service import FactoryIntentService
+            from app.factory.factory_service import FactoryService
+
+            factory = FactoryService(memory_dir=self._memory)
+            intent = FactoryIntentService(memory_dir=self._memory, factory=factory)
+            sales = SalesOrderService(self._memory, intent)
+            sales.attach_customer_by_email(
+                customer_id=account.customer_id, email=account.email
+            )
+        except Exception:
+            pass
         return self._session_response(
             token=token,
             account=account,
@@ -188,6 +201,19 @@ class CustomerIdentityService:
             card.last_activity_at = _utc_now()
             self._store.save_card(card)
         token = issue_client_token(customer_id=account.customer_id, email=account.email)
+        try:
+            from app.integration.sales_order_service import SalesOrderService
+            from app.integration.factory_intent_service import FactoryIntentService
+            from app.factory.factory_service import FactoryService
+
+            factory = FactoryService(memory_dir=self._memory)
+            intent = FactoryIntentService(memory_dir=self._memory, factory=factory)
+            sales = SalesOrderService(self._memory, intent)
+            sales.attach_customer_by_email(
+                customer_id=account.customer_id, email=account.email
+            )
+        except Exception:
+            pass
         return self._session_response(
             token=token,
             account=account,
@@ -205,6 +231,7 @@ class CustomerIdentityService:
         welcome = self._store.load_welcome(customer_id)
         return {
             "version": IDENTITY_VERSION,
+            "customer_id": account.customer_id,
             "name": account.name,
             "email": account.email,
             "email_verified": account.email_verified,

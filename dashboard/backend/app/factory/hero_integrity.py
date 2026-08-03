@@ -48,6 +48,7 @@ NICHE_DEFAULT_CTA: dict[str, str] = {
     "appliance": "Reparatur anfragen",
     "handwerk": "Auftrag anfragen",
     "restaurant": "Tisch reservieren",
+    "fashion": "Kollektion ansehen",
     "generic": "Anfrage senden",
 }
 
@@ -67,7 +68,8 @@ _NICHE_SERVICE_FALLBACK: dict[str, tuple[str, ...]] = {
     "appliance": ("Reparatur", "Ersatzteile", "Wartung", "Notdienst"),
     "handwerk": ("Rohbau", "Sanierung", "Ausbau", "Renovierung"),
     "restaurant": ("Mittagstisch", "Abendkarte", "Events", "Takeaway"),
-    "generic": ("Beratung", "Umsetzung", "Support", "Angebot"),
+    "fashion": ("Neue Kollektionen", "Kuratierte Auswahl", "Styling-Beratung", "Click & Collect"),
+    "generic": ("Erstgespräch", "Leistungsangebot", "Umsetzung vor Ort", "Nachbetreuung"),
 }
 
 _NICHE_HERO_FALLBACK: dict[str, tuple[str, str]] = {
@@ -119,9 +121,13 @@ _NICHE_HERO_FALLBACK: dict[str, tuple[str, str]] = {
         "{name} — Küche mit Charakter",
         "Frische Gerichte und Reservierung ohne Umwege.",
     ),
+    "fashion": (
+        "{name} — Mode mit Charakter",
+        "Kuratierte Stücke und Looks — kein generisches Agentur-Template.",
+    ),
     "generic": (
-        "{name} — lokal und erreichbar",
-        "Klares Angebot, schneller Kontakt, professionelle Umsetzung.",
+        "{name} — klare Leistungen vor Ort",
+        "Konkrete Angebote, schneller Kontakt, nachvollziehbare nächste Schritte.",
     ),
 }
 

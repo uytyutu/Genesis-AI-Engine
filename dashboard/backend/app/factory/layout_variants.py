@@ -243,17 +243,19 @@ LAYOUT_PROFILES: dict[str, LayoutProfile] = {
 }
 
 NICHE_LAYOUT_POOL: dict[str, tuple[str, ...]] = {
-    "dental": ("L1", "L2", "L6"),
-    "auto": ("L4", "L5", "L1"),
-    "law": ("L2", "L6", "L1"),
+    "dental": ("L2", "L6", "L1"),  # trust-first professional
+    "auto": ("L4", "L5", "L1"),  # dense industrial / contact-forward
+    "law": ("L2", "L6", "L1"),  # editorial trust
     "energy": ("L1", "L4", "L5"),
-    "beauty": ("L3", "L6", "L1"),
+    "beauty": ("L3", "L6", "L1"),  # visual portfolio (gallery early)
+    "fashion": ("L3", "L6", "L1"),  # visual / editorial
     "green": ("L1", "L6", "L3"),
     "computer": ("L1", "L5", "L4"),
     "appliance": ("L5", "L4", "L1"),
     "handwerk": ("L4", "L5", "L1"),
-    "cleaning": ("L1", "L6", "L3"),
+    "cleaning": ("L1", "L6", "L5"),
     "auto_ankauf": ("L4", "L5", "L1"),
+    "restaurant": ("L5", "L3", "L6"),  # contact + visual menu feel
     "generic": ("L1", "L2", "L3", "L5"),
 }
 

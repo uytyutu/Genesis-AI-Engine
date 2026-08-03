@@ -103,6 +103,64 @@ def apply_order_contacts(
     return replace(analysis, **updates)
 
 
+def normalize_services_list(raw: object) -> list[str]:
+    """Client questionnaire services → clean titles for Factory."""
+    items: list[str] = []
+    if isinstance(raw, list):
+        items = [str(x).strip() for x in raw]
+    elif isinstance(raw, str):
+        text = raw.replace(";", "\n").replace("|", "\n")
+        items = [ln.strip(" •-\t") for ln in text.splitlines()]
+    out: list[str] = []
+    for item in items:
+        if not item or len(item) > 80:
+            continue
+        if item not in out:
+            out.append(item)
+        if len(out) >= 8:
+            break
+    return out
+
+
+def apply_order_services(
+    analysis: AnalysisResult,
+    services: object = None,
+) -> AnalysisResult:
+    """Override analyzer service titles with the client's questionnaire list."""
+    cleaned = normalize_services_list(services)
+    if len(cleaned) < 2:
+        return analysis
+    prev_desc = list(analysis.service_descriptions or ())
+    descriptions: list[str] = []
+    for i, title in enumerate(cleaned):
+        if i < len(prev_desc) and str(prev_desc[i]).strip():
+            descriptions.append(str(prev_desc[i]).strip())
+        else:
+            descriptions.append(f"{title} — Details auf Anfrage.")
+    updates: dict = {
+        "services": cleaned,
+        "service_descriptions": tuple(descriptions),
+    }
+    # If hero still used a banned partner phrase, retitle from first service.
+    hl = (analysis.headline or "").lower()
+    if "partner vor ort" in hl or "helfen ihrem" in hl:
+        name = analysis.business_name
+        updates["headline"] = f"{name} — {cleaned[0]}"
+        updates["subtitle"] = " · ".join(cleaned[:3])
+    return replace(analysis, **updates)
+
+
+def apply_order_advantages(
+    analysis: AnalysisResult,
+    advantages: object = None,
+) -> AnalysisResult:
+    """Map client advantages into benefits when at least two are provided."""
+    items = normalize_services_list(advantages)
+    if len(items) < 2:
+        return analysis
+    return replace(analysis, benefits=tuple(items[:4]))
+
+
 def normalize_whatsapp_digits(raw: str) -> str:
     digits = re.sub(r"\D", "", (raw or "").strip())
     if digits.startswith("00"):
