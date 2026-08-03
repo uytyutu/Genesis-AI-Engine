@@ -1,0 +1,24 @@
+{
+  "golden": true,
+  "captured_at": "2026-08-03T19:37:51.596062+00:00",
+  "package_id": "basic",
+  "market_code": "DE",
+  "language": "de",
+  "niche": "restaurant",
+  "business_name": "Trattoria Luna",
+  "city": "Köln",
+  "description": "Trattoria Luna Köln — Restaurant, Mittagstisch, Abendkarte, Reservierung, Events",
+  "services_list": [
+    "Mittagstisch",
+    "Abendkarte",
+    "Reservierung",
+    "Events"
+  ],
+  "phone": "+49 221 4445566",
+  "email": "kontakt@trattorialuna-golden.example.de",
+  "advantages": [
+    "Frische Zutaten",
+    "Reservierung mit Bestätigung",
+    "Allergene klar"
+  ]
+}

@@ -69,10 +69,9 @@ scripts/brand_renderer/node_modules/
 .genesis-run/
 dashboard/backend/app/memory/
 
-# Gate / probe run outputs (regenerate locally; never commit)
-scripts/*_results.json
-scripts/groq_cloud_proof_last.json
-scripts/_genesis_*.txt
+# Factory Golden Demo ZIPs — regenerate locally (large binaries)
+dashboard/backend/app/factory/golden_demos/**/delivery.zip
+dashboard/backend/app/factory/golden_demos/_sandbox_build/
 
 # Internal ops journal (CEO soak / stability — local only)
 docs/STABILITY_HISTORY.md

@@ -1,0 +1,24 @@
+{
+  "golden": true,
+  "captured_at": "2026-08-03T19:37:49.176911+00:00",
+  "package_id": "basic",
+  "market_code": "DE",
+  "language": "de",
+  "niche": "dental",
+  "business_name": "SmileCare Praxis",
+  "city": "München",
+  "description": "SmileCare Praxis München — Zahnarztpraxis, Prophylaxe, Implantate, Ästhetik, schmerzarme Behandlung",
+  "services_list": [
+    "Prophylaxe",
+    "Implantate",
+    "Bleaching",
+    "Füllungen"
+  ],
+  "phone": "+49 89 1234567",
+  "email": "kontakt@smilecare-golden.example.de",
+  "advantages": [
+    "Schmerzarme Behandlung",
+    "Klare Kostenpläne",
+    "Moderne Praxis"
+  ]
+}

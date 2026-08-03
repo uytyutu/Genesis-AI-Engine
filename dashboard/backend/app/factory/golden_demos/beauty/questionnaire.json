@@ -1,0 +1,24 @@
+{
+  "golden": true,
+  "captured_at": "2026-08-03T19:37:50.268171+00:00",
+  "package_id": "basic",
+  "market_code": "DE",
+  "language": "de",
+  "niche": "beauty",
+  "business_name": "Salon Mira",
+  "city": "Berlin",
+  "description": "Salon Mira Berlin — Friseursalon, Haarschnitt, Coloration, Balayage, Pflege",
+  "services_list": [
+    "Balayage",
+    "Damenhaarschnitt",
+    "Pflege",
+    "Styling"
+  ],
+  "phone": "+49 30 9876543",
+  "email": "kontakt@salonmira-golden.example.de",
+  "advantages": [
+    "Online-Termine",
+    "Premium-Produkte",
+    "Erfahrene Stylisten"
+  ]
+}

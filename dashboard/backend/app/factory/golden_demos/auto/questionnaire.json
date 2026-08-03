@@ -1,0 +1,24 @@
+{
+  "golden": true,
+  "captured_at": "2026-08-03T19:37:50.948024+00:00",
+  "package_id": "basic",
+  "market_code": "DE",
+  "language": "de",
+  "niche": "auto",
+  "business_name": "Autowerkstatt Nord",
+  "city": "Hamburg",
+  "description": "Autowerkstatt Nord Hamburg — Autowerkstatt, Diagnose, Inspektion, Reifen, Ölwechsel",
+  "services_list": [
+    "Diagnose",
+    "Inspektion",
+    "Reifen",
+    "Ölwechsel"
+  ],
+  "phone": "+49 40 5551212",
+  "email": "kontakt@autownord-golden.example.de",
+  "advantages": [
+    "Schriftliche Diagnose",
+    "Keine versteckten Posten",
+    "Garantie"
+  ]
+}

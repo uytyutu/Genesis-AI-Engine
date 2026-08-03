@@ -1,0 +1,15 @@
+{
+  "niche": "beauty",
+  "business_name": "Salon Mira",
+  "product_id": "889d071f-1275-4c8b-8ba2-2cf7e24bbd08",
+  "headline": "Salon Mira",
+  "preview_note": "Open local index.html in browser for visual review",
+  "local_index": "dashboard/backend/app/factory/golden_demos/beauty/index.html",
+  "zip_bytes": 3901873,
+  "zip_name": "Salon_Mira_fallback.zip",
+  "hard_passed": true,
+  "score_passed": true,
+  "ai_score": 96.7,
+  "brand_leak": "PASS",
+  "failures": []
+}
