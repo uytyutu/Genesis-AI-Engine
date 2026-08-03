@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
   useTransition,
-  type PointerEvent as ReactPointerEvent,
 } from "react";
 import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
@@ -147,19 +146,11 @@ export function SitePage() {
   const [market, setMarket] = useState("DE");
   const [markets, setMarkets] = useState<MarketOption[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
-  const [chatPos, setChatPos] = useState<{ x: number; y: number } | null>(null);
   const [vvLayout, setVvLayout] = useState<{ height: number; offsetTop: number; keyboard: number }>({
     height: 0,
     offsetTop: 0,
     keyboard: 0,
   });
-  const chatDragRef = useRef<{
-    pointerId: number;
-    startX: number;
-    startY: number;
-    originX: number;
-    originY: number;
-  } | null>(null);
   const [detailId, setDetailId] = useState<string | null>("business");
   const [analyzeUrl, setAnalyzeUrl] = useState("");
   const [serviceView, setServiceView] = useState<ServiceView>("hub");
@@ -236,18 +227,13 @@ export function SitePage() {
   }, []);
 
   useEffect(() => {
+    // Clear legacy free-drag coordinates — Vector stays docked bottom-right while browsing.
     try {
-      if (typeof window !== "undefined" && window.innerWidth < 640) return;
-      const raw = sessionStorage.getItem(CHAT_POS_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as { x?: unknown; y?: unknown };
-      if (typeof parsed.x === "number" && typeof parsed.y === "number") {
-        setChatPos({ x: parsed.x, y: parsed.y });
-      }
+      sessionStorage.removeItem(CHAT_POS_KEY);
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [CHAT_POS_KEY]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.visualViewport) return;
@@ -265,87 +251,9 @@ export function SitePage() {
     };
   }, []);
 
-  const clampChatPos = useCallback((x: number, y: number) => {
-    if (typeof window === "undefined") return { x, y };
-    const margin = 8;
-    const w = Math.min(720, window.innerWidth - margin * 2);
-    const h = Math.min(720, window.innerHeight * 0.78, window.innerHeight - 88);
-    return {
-      x: Math.max(margin, Math.min(x, window.innerWidth - w - margin)),
-      y: Math.max(margin, Math.min(y, window.innerHeight - h - margin)),
-    };
-  }, []);
-
   const openChat = useCallback(() => {
-    // Mobile: always full-sheet — ignore stale drag coordinates that push the panel off-screen.
-    try {
-      if (typeof window !== "undefined" && window.innerWidth < 640) {
-        setChatPos(null);
-        sessionStorage.removeItem(CHAT_POS_KEY);
-      }
-    } catch {
-      /* ignore */
-    }
     setChatOpen(true);
-  }, [CHAT_POS_KEY]);
-
-  const onChatDragStart = useCallback(
-    (e: ReactPointerEvent<HTMLDivElement>) => {
-      if (e.button !== 0) return;
-      const panel = document.getElementById("vector-chat-panel");
-      if (!panel) return;
-      const rect = panel.getBoundingClientRect();
-      const origin = chatPos ?? { x: rect.left, y: rect.top };
-      if (!chatPos) setChatPos(origin);
-      chatDragRef.current = {
-        pointerId: e.pointerId,
-        startX: e.clientX,
-        startY: e.clientY,
-        originX: origin.x,
-        originY: origin.y,
-      };
-      e.currentTarget.setPointerCapture(e.pointerId);
-    },
-    [chatPos],
-  );
-
-  const onChatDragMove = useCallback(
-    (e: ReactPointerEvent<HTMLDivElement>) => {
-      const drag = chatDragRef.current;
-      if (!drag || drag.pointerId !== e.pointerId) return;
-      setChatPos(
-        clampChatPos(
-          drag.originX + (e.clientX - drag.startX),
-          drag.originY + (e.clientY - drag.startY),
-        ),
-      );
-    },
-    [clampChatPos],
-  );
-
-  const onChatDragEnd = useCallback(
-    (e: ReactPointerEvent<HTMLDivElement>) => {
-      const drag = chatDragRef.current;
-      if (!drag || drag.pointerId !== e.pointerId) return;
-      chatDragRef.current = null;
-      try {
-        e.currentTarget.releasePointerCapture(e.pointerId);
-      } catch {
-        /* ignore */
-      }
-      setChatPos((prev) => {
-        if (!prev) return prev;
-        const next = clampChatPos(prev.x, prev.y);
-        try {
-          sessionStorage.setItem(CHAT_POS_KEY, JSON.stringify(next));
-        } catch {
-          /* ignore */
-        }
-        return next;
-      });
-    },
-    [clampChatPos],
-  );
+  }, []);
 
   function packageDiffLines(packageId: string): string[] {
     const keys = PACKAGE_DIFF_KEYS[packageId] || PACKAGE_DIFF_KEYS.basic!;
@@ -399,14 +307,6 @@ export function SitePage() {
       }
       const view = (p.get("view") || "").toLowerCase();
       if (view === "vector" || window.location.hash.includes("vector")) {
-        try {
-          if (window.innerWidth < 640) {
-            setChatPos(null);
-            sessionStorage.removeItem(CHAT_POS_KEY);
-          }
-        } catch {
-          /* ignore */
-        }
         setChatOpen(true);
       }
     } catch {
@@ -889,28 +789,18 @@ export function SitePage() {
         </p>
         ) : null}
 
-        {/* Vector chat — ChatGPT-like panel + MP4 avatar (storefront) */}
+        {/* Vector chat — docked ChatGPT-like panel + MP4 (stays while browsing) */}
         {chatOpen ? (
           <div
             id="vector-chat-panel"
             style={
-              chatPos
+              vvLayout.height
                 ? {
-                    left: chatPos.x,
-                    top: chatPos.y,
-                    right: "auto",
-                    bottom: "auto",
-                    maxHeight: vvLayout.height
-                      ? `${Math.max(320, vvLayout.height - 16)}px`
-                      : undefined,
+                    maxHeight: `${Math.max(320, vvLayout.height - 16)}px`,
                   }
                 : undefined
             }
-            className={`vector-chat-panel fixed inset-0 z-[60] flex h-dvh max-h-dvh w-full flex-col overflow-hidden border-0 sm:inset-auto sm:bottom-4 sm:right-4 sm:left-auto sm:h-[min(88dvh,820px)] sm:max-h-[min(88dvh,820px)] sm:w-[min(980px,calc(100vw-1.5rem))] sm:rounded-3xl sm:border sm:border-white/10 ${
-              chatPos
-                ? "max-sm:!inset-0 max-sm:!left-0 max-sm:!top-0 max-sm:!right-0 max-sm:!bottom-0 max-sm:!max-h-none"
-                : ""
-            }`}
+            className="vector-chat-panel fixed inset-0 z-[60] flex h-dvh max-h-dvh w-full flex-col overflow-hidden border-0 sm:inset-auto sm:bottom-4 sm:right-4 sm:left-auto sm:h-[min(88dvh,820px)] sm:max-h-[min(88dvh,820px)] sm:w-[min(980px,calc(100vw-1.5rem))] sm:rounded-3xl sm:border sm:border-white/10"
           >
             <div className="vector-chat-panel__bg" aria-hidden>
               <div className="vector-chat-panel__mesh" />
@@ -919,19 +809,7 @@ export function SitePage() {
               <div className="vector-chat-panel__noise" />
             </div>
             <div className="vector-chat-panel__content">
-            <div
-              className="flex shrink-0 touch-none items-center justify-between gap-2 border-b border-white/10 bg-black/25 px-3 py-2.5 backdrop-blur-md sm:cursor-grab sm:active:cursor-grabbing sm:px-4"
-              onPointerDown={(e) => {
-                if (typeof window !== "undefined" && window.innerWidth < 640) return;
-                onChatDragStart(e);
-              }}
-              onPointerMove={onChatDragMove}
-              onPointerUp={onChatDragEnd}
-              onPointerCancel={onChatDragEnd}
-              title={t("s0.dragChat", {
-                defaultValue: "Drag to move",
-              })}
-            >
+            <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/10 bg-black/25 px-3 py-2.5 backdrop-blur-md sm:px-4">
               <div className="flex min-w-0 items-center gap-3">
                 <button
                   type="button"
@@ -940,7 +818,6 @@ export function SitePage() {
                   onClick={() => {
                     window.dispatchEvent(new Event("genesis:toggle-history"));
                   }}
-                  onPointerDown={(e) => e.stopPropagation()}
                 >
                   ☰
                 </button>
@@ -951,7 +828,7 @@ export function SitePage() {
                   </p>
                   <p className="truncate text-[11px] text-sky-200/70">
                     {t("s0.chatHint", {
-                      defaultValue: "Ниша · пакет услуг",
+                      defaultValue: "Berater · Produkte & Pakete",
                     })}
                   </p>
                 </div>
@@ -962,7 +839,6 @@ export function SitePage() {
                   onClick={() => {
                     window.dispatchEvent(new Event("genesis:new-chat"));
                   }}
-                  onPointerDown={(e) => e.stopPropagation()}
                   className="rounded-xl px-2.5 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/8"
                   aria-label={t("s0.newChat", { defaultValue: "New chat" })}
                 >
@@ -971,7 +847,6 @@ export function SitePage() {
                 <button
                   type="button"
                   onClick={() => setChatOpen(false)}
-                  onPointerDown={(e) => e.stopPropagation()}
                   className="rounded-xl px-2.5 py-2 text-sm text-zinc-400 hover:bg-white/8 hover:text-white"
                   aria-label="Close"
                 >

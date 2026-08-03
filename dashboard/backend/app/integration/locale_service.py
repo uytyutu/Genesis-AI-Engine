@@ -170,7 +170,8 @@ def resolve_assistant_locale(
         return resolve_locale(legacy_locale)
     if ui_locale:
         return resolve_locale(ui_locale)
-    return DEFAULT_LOCALE
+    # Public storefront default is German market — not Russian.
+    return "de"
 
 
 def assistant_llm_language_hint(locale: str, assistant_name: str, brand_name: str) -> str:

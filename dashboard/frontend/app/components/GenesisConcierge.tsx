@@ -25,8 +25,9 @@ import {
   ASSISTANT_NAME,
   BRAND_NAME,
   PUBLIC_WELCOME,
-  PUBLIC_SITE_WELCOME,
   publicLeadCaptureWelcome,
+  publicWelcomeForLocale,
+  vectorFaqForLocale,
 } from "../lib/publicBrand";
 import { VectorBrandSignature } from "./VectorBrandSignature";
 import { VectorChatIcon } from "./VectorAvatar";
@@ -217,15 +218,15 @@ type ChatApiResponse = {
 
 /** Public /site starters — niche analysis + package fit only. */
 const STARTERS_VISIBLE_PUBLIC = [
-  { label: "📋 Бизнес-план", message: "Вот краткий бизнес-план — проанализируй нишу и предложи пакет" },
-  { label: "🦷 Стоматология", message: "Ниша: стоматология. Какой пакет Virtus Core подойдёт?" },
-  { label: "💇 Красота", message: "Ниша: салон красоты. Какой пакет услуг выбрать?" },
+  { label: "📋 Businessplan", message: "Bitte analysieren Sie meinen Businessplan und empfehlen Sie ein Paket" },
+  { label: "🦷 Zahnarzt", message: "Branche: Zahnarztpraxis. Welches Paket passt?" },
+  { label: "💇 Beauty", message: "Branche: Beauty-Salon. Welches Paket soll ich wählen?" },
 ];
 
 const STARTERS_MORE_PUBLIC = [
-  { label: "🚗 Автосервис", message: "Ниша: автосервис. Проанализируй и предложи пакет" },
-  { label: "🍽️ Ресторан", message: "Ниша: ресторан / кафе. Какой пакет подойдёт?" },
-  { label: "📦 Пакеты", message: "Чем отличаются Basic, Business и Premium?" },
+  { label: "🚗 Werkstatt", message: "Branche: Autowerkstatt. Analyse und Paket-Empfehlung" },
+  { label: "🍽️ Restaurant", message: "Branche: Restaurant / Café. Welches Paket passt?" },
+  { label: "📦 Pakete", message: "Was ist der Unterschied zwischen Basic, Business und Premium?" },
 ];
 
 /** CEO / Mission Control — Country Desk, not consumer «купить сайт». */
@@ -243,10 +244,6 @@ const STARTERS_MORE_OWNER = [
 
 const STARTERS_VISIBLE = STARTERS_VISIBLE_PUBLIC;
 const STARTERS_MORE = STARTERS_MORE_PUBLIC;
-
-const FALLBACK_WELCOME_PUBLIC = PUBLIC_WELCOME;
-
-const FALLBACK_WELCOME_OWNER = PUBLIC_WELCOME;
 
 type Props = {
   onConversationActive?: (active: boolean) => void;
@@ -276,9 +273,9 @@ export function GenesisConcierge({
     ? isLeadCapture
       ? publicLeadCaptureWelcome(leadNicheLabel(leadCapture!.niche))
       : isPublicHub
-        ? PUBLIC_SITE_WELCOME
-        : FALLBACK_WELCOME_PUBLIC
-    : FALLBACK_WELCOME_OWNER;
+        ? publicWelcomeForLocale(uiLocale)
+        : publicWelcomeForLocale(uiLocale)
+    : PUBLIC_WELCOME;
   const assistantLabel = ASSISTANT_NAME;
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -514,16 +511,17 @@ export function GenesisConcierge({
   }, [visitorId, t, isPublicHub]);
 
   useEffect(() => {
-    if (!isPublicHub) return;
-    setWelcomeText(PUBLIC_SITE_WELCOME);
+    if (!isPublic || isLeadCapture) return;
+    const welcome = publicWelcomeForLocale(uiLocale);
+    setWelcomeText(welcome);
     setMessages((prev) => {
       if (prev.some((m) => m.role === "user")) return prev;
       if (prev.length === 1 && prev[0]?.role === "assistant") {
-        return [{ ...prev[0], text: PUBLIC_SITE_WELCOME }];
+        return [{ ...prev[0], text: welcome }];
       }
       return prev;
     });
-  }, [isPublicHub]);
+  }, [isPublic, isLeadCapture, uiLocale]);
 
   useEffect(() => {
     if (!isLeadCapture || !leadCapture) return;
@@ -576,7 +574,7 @@ export function GenesisConcierge({
       store.activeSessionId = null;
       saveSessionsStore(scope, store);
     },
-    [scope, welcomeText],
+    [scope, welcomeText, fallbackWelcome],
   );
 
   const handlePublicHome = useCallback(() => {
@@ -1781,23 +1779,19 @@ export function GenesisConcierge({
 
       {isPublicConsultant && !hasConversation ? (
         <div className="shrink-0 px-4 pb-1 pt-3">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-sky-200/60">
+            FAQ
+          </p>
           <div className="flex flex-wrap gap-2">
-            {(
-              [
-                ["Бизнес-план", "Прикрепил бизнес-план — проанализируй нишу и предложи пакет"],
-                ["Ниша", "Опишу нишу — какой пакет Virtus Core подойдёт?"],
-                ["Пакеты", "Чем отличаются Basic, Business и Premium?"],
-                ["AI Bot", "Нужен ли AI Bot для моей ниши?"],
-              ] as const
-            ).map(([label, msg]) => (
+            {vectorFaqForLocale(uiLocale).map((item) => (
               <button
-                key={label}
+                key={item.label}
                 type="button"
                 disabled={busy}
-                onClick={() => void sendMessage(msg)}
+                onClick={() => void sendMessage(item.message)}
                 className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:border-sky-400/40 hover:bg-sky-500/10 hover:text-white disabled:opacity-40"
               >
-                {label}
+                {item.label}
               </button>
             ))}
           </div>

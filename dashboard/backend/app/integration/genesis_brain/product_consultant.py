@@ -1,8 +1,9 @@
-"""Product Consultant — Vector as Virtus Core sales consultant (Mission 1 / G2.X).
+"""Product Consultant — Vector consults; checkout lives on order forms.
 
 Knows the live commercial catalog: websites, AI bots, website services.
-Every product reply ends with Order CTA (not a link back to the homepage).
+Every product reply ends with a form CTA (заявка /order…), not a hard sell in chat.
 Does not rewrite Conversation Pipeline — early deterministic path before LLM.
+Chat must not close the deal — it explains and leads to the intake form.
 """
 
 from __future__ import annotations
@@ -16,6 +17,12 @@ from app.integration.genesis_brain.public_brand import ASSISTANT_NAME, BRAND_NAM
 from app.integration.public_truth_catalog import MISSION1_LANDING_TIMELINE, min_landing_price_eur
 
 _MIN = min_landing_price_eur()
+
+# Unified CTA — consult → form (not «buy in chat»)
+_CTA_FORM = "Открыть форму заявки"
+_CTA_FORM_BOTS = "Открыть форму AI-сотрудника"
+_CTA_FORM_SERVICE = "Открыть форму услуги"
+_CTA_CATALOG = "Смотреть каталог"
 
 INTENT_WEBSITE = "website"
 INTENT_REPAIR = "repair"
@@ -46,19 +53,19 @@ _BOT_LABELS = {
         "AI Bot Starter",
         499,
         99,
-        "1 источник знаний · 1 язык · базовые сценарии · Website Chat + Telegram",
+        "Отвечает 24/7 · собирает заявки · внедрение · live: сайт-чат + Telegram",
     ),
     "bot_business": (
         "AI Bot Business",
         999,
         199,
-        "до 5 источников · до 3 языков · AI-анализ · расширенные сценарии",
+        "Запись и лиды без менеджера · до 3 сотрудников · AI-анализ · live: сайт-чат + Telegram",
     ),
     "bot_professional": (
         "AI Bot Professional",
         1499,
         349,
-        "без лимита KB/языков · индивидуальные сценарии · приоритет поддержки",
+        "Команда ИИ как штат · Fair Use · VIP-внедрение · окупаемость без ночного ФОТ",
     ),
 }
 
@@ -76,12 +83,17 @@ def try_product_consultant_reply(
     state: ConversationState,
     *,
     public_rails: bool = False,
+    locale: str | None = None,
 ) -> ConsultantReply | None:
     """Return a consultant-style reply when the turn is about Virtus Core products.
 
     public_rails=True (public /site chat): never fall through to slow LLM —
     always answer as consultant with form/support links only.
     """
+    from app.integration.genesis_brain.product_consultant_i18n import copy as pc_copy
+    from app.integration.genesis_brain.product_consultant_i18n import pc_locale
+
+    loc = pc_locale(locale)
     text = (last_user or "").strip()
     if not text:
         return None
@@ -96,16 +108,38 @@ def try_product_consultant_reply(
 
     if intent == INTENT_WEBSITE or (state.needs_website and not intent):
         state.consultant_intent = INTENT_WEBSITE
+        if loc != "ru":
+            return ConsultantReply(
+                answer=pc_copy(loc, "website"),
+                cta_href="/order?form=1",
+                cta_label=pc_copy(loc, "cta_form"),
+            )
         return _reply_website(state, text)
     if intent == INTENT_REPAIR:
         return _reply_repair(state)
     if intent == INTENT_ANALYSIS:
         return _reply_analysis()
     if intent == INTENT_PRICING:
+        if loc != "ru":
+            return ConsultantReply(
+                answer=pc_copy(loc, "pricing"),
+                cta_href="/order?form=1",
+                cta_label=pc_copy(loc, "cta_form"),
+            )
         return _reply_pricing(state, text)
     if intent == INTENT_ABOUT:
-        return _reply_about()
+        return ConsultantReply(
+            answer=pc_copy(loc, "about"),
+            cta_href="/products",
+            cta_label=pc_copy(loc, "cta_catalog"),
+        )
     if intent == INTENT_CHATBOT:
+        if loc != "ru":
+            return ConsultantReply(
+                answer=pc_copy(loc, "chatbot"),
+                cta_href="/order/bot",
+                cta_label=pc_copy(loc, "cta_form_bots"),
+            )
         return _reply_chatbot(state, text)
     if intent == INTENT_SEO:
         return _reply_seo()
@@ -139,7 +173,11 @@ def try_product_consultant_reply(
             from_price=True,
         )
     if intent == INTENT_PRIVACY:
-        return _reply_privacy()
+        return ConsultantReply(
+            answer=pc_copy(loc, "privacy"),
+            cta_href="/datenschutz",
+            cta_label=pc_copy(loc, "cta_privacy"),
+        )
     if intent == INTENT_SUPPORT:
         return _reply_support()
     if intent == INTENT_AUTOMATION:
@@ -155,10 +193,10 @@ def try_product_consultant_reply(
     if detected:
         state.consultant_intent = detected
         return try_product_consultant_reply(
-            last_user, messages, state, public_rails=public_rails
+            last_user, messages, state, public_rails=public_rails, locale=loc
         )
     if public_rails:
-        return _reply_public_rails_default()
+        return _reply_public_rails_default(loc)
     return None
 
 
@@ -254,16 +292,18 @@ def _detect_intent(low: str) -> str | None:
     if re.search(r"миграц\w+\s+сайт|website\s+migration|перенос\s+сайт", low):
         return INTENT_MIGRATION
     if re.search(
-        r"сколько\s+стоит|какая\s+цена|прайс|pricing|preis|стоимость|"
-        r"пакет\w*\s*(basic|business|premium|starter|professional)?|"
-        r"чем\s+отличается|что\s+входит\s+в",
+        r"сколько\s+стоит|какая\s+цена|прайс|pricing|preis|preise|kosten|"
+        r"paket|pakete|пакет\w*\s*(basic|business|premium|starter|professional)?|"
+        r"чем\s+отличается|was\s+unterscheidet|unterschied\s+zwischen|"
+        r"что\s+входит\s+в|was\s+ist\s+enthalten",
         low,
     ):
         return INTENT_PRICING
     if re.search(
         r"что\s+такое\s+(virtus|genesis)|чем\s+занимается\s+virtus|"
         r"who\s+are\s+you|what\s+is\s+virtus|was\s+ist\s+virtus|"
-        r"расскажи\s+о\s+(компании|virtus|себе)|какие\s+услуг|что\s+вы\s+предлага",
+        r"wer\s+bist\s+du|erzähl\s+über|расскажи\s+о\s+(компании|virtus|себе)|"
+        r"какие\s+услуг|что\s+вы\s+предлага|welche\s+leistungen",
         low,
     ):
         return INTENT_ABOUT
@@ -280,7 +320,7 @@ def _detect_intent(low: str) -> str | None:
         r"хочу\s+сайт", low
     ):
         return INTENT_AUTOMATION
-    if re.search(r"как\s+заказать|оформить\s+заказ|хочу\s+заказать", low):
+    if re.search(r"как\s+заказать|оформить\s+заказ|хочу\s+заказать|wie\s+bestell", low):
         return INTENT_ORDER
     if re.search(r"как\s+оплат|оплата|payment|stripe|после\s+оплат", low):
         return INTENT_PAYMENT
@@ -288,7 +328,9 @@ def _detect_intent(low: str) -> str | None:
         return INTENT_TIMELINE
     if re.search(
         r"хочу\s+сайт|нужен\s+сайт|нужна\s+сайт|сделать\s+сайт|создать\s+сайт|"
-        r"сайт\s+для|landing\s+page|website|webseite",
+        r"сайт\s+для|landing\s+page|website|webseite|"
+        r"brauche\s+(eine\s+)?website|website\s+erstellen|landingpage|"
+        r"businessplan|branche|nische",
         low,
     ):
         return INTENT_WEBSITE
@@ -553,14 +595,15 @@ def _reply_sales_recommend(state: ConversationState) -> ConsultantReply:
         )
     return ConsultantReply(
         answer=(
-            f"Я рекомендую пакет **{label}** — **{price} €**.\n"
-            f"{desc}.\n\n"
-            f"Почему:\n{why}"
+            f"По тому, что вы описали, чаще всего смотрят пакет **{label}** "
+            f"({price} €) — {desc}.\n\n"
+            f"Ориентиры:\n{why}"
             f"{extra_block}\n\n"
-            "Можно сразу открыть форму заказа — сначала данные, потом оплата."
+            "Я не оформляю покупку в чате. Если подходит — откройте форму заявки: "
+            "там данные компании и оплата. Если нет — напишите, что важно, подстроим."
         ),
         cta_href=f"/order?package={pkg}",
-        cta_label="Оформить заказ",
+        cta_label=_CTA_FORM,
     )
 
 
@@ -617,12 +660,13 @@ def _reply_website(state: ConversationState, text: str) -> ConsultantReply:
             niche_note = f" Учту нишу ({niche}).\n\n"
         return ConsultantReply(
             answer=(
-                f"Отлично — пакет **{label}** ({desc}, **{price} €**)."
+                f"По сути это **{label}** ({desc}, ориентир **{price} €**)."
                 f"{niche_note}"
-                "Следующий шаг — оформить заказ. В форме укажете компанию и контакты."
+                "Дальше — форма заявки: компания и контакты. В чате я только консультирую, "
+                "оформление — на странице формы."
             ),
             cta_href=f"/order?package={pkg}",
-            cta_label="Оформить заказ",
+            cta_label=_CTA_FORM,
         )
 
     # Escape hatch: show all packages without discovery
@@ -634,10 +678,10 @@ def _reply_website(state: ConversationState, text: str) -> ConsultantReply:
             answer=(
                 f"Пакеты сайта {BRAND_NAME}:\n\n"
                 f"{_packages_block()}\n\n"
-                "Напишите Basic / Business / Premium — или оформите заказ."
+                "Напишите Basic / Business / Premium — или откройте форму заявки."
             ),
             cta_href="/order",
-            cta_label="Оформить заказ",
+            cta_label=_CTA_FORM,
         )
 
     sd = _sales_sd(state)
@@ -685,7 +729,7 @@ def _reply_repair(state: ConversationState) -> ConsultantReply:
             "Можно сразу оформить ремонт или сначала бесплатно/платно проанализировать сайт."
         ),
         cta_href="/order/service/website_repair",
-        cta_label="Оформить заказ",
+        cta_label=_CTA_FORM,
     )
 
 
@@ -697,7 +741,7 @@ def _reply_analysis() -> ConsultantReply:
             "Услуга продаётся отдельно — сайт покупать не обязательно."
         ),
         cta_href="/order/service/ai_website_analysis",
-        cta_label="Оформить заказ",
+        cta_label=_CTA_FORM,
     )
 
 
@@ -715,10 +759,10 @@ def _reply_pricing(state: ConversationState, text: str) -> ConsultantReply:
                 f"**{label}** — **{price} €**: {desc}.\n\n"
                 f"**Basic** vs **Business**: Business добавляет помощь с публикацией, Maps/FAQ и 1 правку.\n"
                 f"**Premium**: exclusive design + assisted go-live + 14 дней поддержки.\n\n"
-                "Можно оформить этот пакет сейчас."
+                "Когда будете готовы — откройте форму заявки: там укажете детали компании."
             ),
             cta_href=f"/order?package={pkg}",
-            cta_label="Оформить заказ",
+            cta_label=_CTA_FORM,
         )
 
     if re.search(r"что\s+входит|чем\s+отличается|professional|premium|business", low):
@@ -731,7 +775,7 @@ def _reply_pricing(state: ConversationState, text: str) -> ConsultantReply:
                 "(Тариф **Professional** относится к **AI Bot**, не к сайту.)"
             ),
             cta_href="/order?package=business",
-            cta_label="Оформить заказ",
+            cta_label=_CTA_FORM,
         )
 
     return ConsultantReply(
@@ -778,16 +822,13 @@ def _reply_privacy() -> ConsultantReply:
     )
 
 
-def _reply_public_rails_default() -> ConsultantReply:
+def _reply_public_rails_default(locale: str | None = None) -> ConsultantReply:
+    from app.integration.genesis_brain.product_consultant_i18n import copy as pc_copy
+
     return ConsultantReply(
-        answer=(
-            f"Я **{ASSISTANT_NAME}**, консультант **{BRAND_NAME}** — отвечаю быстро: "
-            "продукты, цены, защита данных. "
-            "Готовые файлы и сайты в чате не выдаю — только ссылки на форму или поддержку.\n\n"
-            "Напишите: «сайт», «AI Bot», «цены», «защита данных» — или откройте каталог."
-        ),
+        answer=pc_copy(locale, "default"),
         cta_href="/products",
-        cta_label="Каталог услуг",
+        cta_label=pc_copy(locale, "cta_catalog"),
     )
 
 
@@ -805,11 +846,11 @@ def _reply_chatbot(state: ConversationState, text: str) -> ConsultantReply:
                 f"{desc}.\n\n"
                 "Каналы сейчас: **Website chat** и **Telegram**. "
                 "WhatsApp и Instagram — в разработке (не продаём как готовые).\n\n"
-                "Нажмите «Оформить заказ»: укажете компанию, сайт и задачи бота — "
+                "Нажмите «Открыть форму заявки»: укажете компанию, сайт и задачи бота — "
                 "настроим под ваш бизнес."
             ),
             cta_href=_bot_order_href(pkg),
-            cta_label="Оформить заказ",
+            cta_label=_CTA_FORM,
         )
 
     if re.search(
@@ -828,7 +869,7 @@ def _reply_chatbot(state: ConversationState, text: str) -> ConsultantReply:
                 "По ответам предложу Starter / Business / Professional."
             ),
             cta_href=_bot_order_href(),
-            cta_label="Смотреть пакеты ботов",
+            cta_label=_CTA_FORM_BOTS,
         )
 
     # Light recommend from signals without full questionnaire
@@ -848,7 +889,7 @@ def _reply_chatbot(state: ConversationState, text: str) -> ConsultantReply:
                 "Можно оформить этот тариф или сказать Starter / Business / Professional."
             ),
             cta_href=_bot_order_href(rec),
-            cta_label="Оформить заказ",
+            cta_label=_CTA_FORM,
         )
 
     return ConsultantReply(
@@ -857,12 +898,12 @@ def _reply_chatbot(state: ConversationState, text: str) -> ConsultantReply:
             f"{_bots_block()}\n\n"
             "Каналы в продаже: Website chat + Telegram. "
             "WhatsApp / Instagram — Coming Soon.\n\n"
-            "Для оформления нажмите «Оформить заказ» — откроется форма о компании, "
+            "Для оформления нажмите «Открыть форму заявки» — откроется форма о компании, "
             "и мы настроим бота под ваш бизнес. "
             "Если не уверены в тарифе — спросите «какой бот мне выбрать?»."
         ),
         cta_href=_bot_order_href("bot_starter"),
-        cta_label="Оформить заказ",
+        cta_label=_CTA_FORM,
     )
 
 
@@ -966,23 +1007,23 @@ def _reply_order(state: ConversationState) -> ConsultantReply:
     label, price, _ = _PACKAGE_LABELS[pkg]
     return ConsultantReply(
         answer=(
-            f"Оформление: пакет **{label}** · **{price} €**.\n\n"
-            "Откройте форму заказа — укажете компанию и контакты. Я рядом в чате, если нужна помощь."
+            f"Если подходит **{label}** (ориентир **{price} €**) — откройте форму заявки: "
+            "компания и контакты. В чате помогу с вопросами; заявка и оплата — только на форме."
         ),
         cta_href=f"/order?package={pkg}",
-        cta_label="Оформить заказ",
+        cta_label=_CTA_FORM,
     )
 
 
 def _reply_payment() -> ConsultantReply:
     return ConsultantReply(
         answer=(
-            "Оплата — на странице заказа (безопасный checkout). "
+            "Оплата — на странице заявки (безопасный checkout), не в этом чате. "
             "После оплаты — подтверждение на email и статус в кабинете (если есть аккаунт).\n\n"
-            "Аккаунт для покупки **не обязателен** — можно купить как гость."
+            "Аккаунт **не обязателен** — заявку можно заполнить как гость."
         ),
         cta_href="/order",
-        cta_label="Оформить заказ",
+        cta_label=_CTA_FORM,
     )
 
 
@@ -995,7 +1036,7 @@ def _reply_timeline() -> ConsultantReply:
             "AI Bot: настройка после оплаты по анкете."
         ),
         cta_href="/order",
-        cta_label="Оформить заказ",
+        cta_label=_CTA_FORM,
     )
 
 

@@ -129,7 +129,9 @@ class GenesisBrain:
     ) -> ChatResult:
         last_user_raw = self._last_user_text(messages)
         messages = clean_user_messages(messages)
-        personality = GenesisPersonalityLayer(mode=personality_mode)
+        personality = GenesisPersonalityLayer(
+            mode=personality_mode, ui_locale=assistant_locale
+        )
         memory_data = self._memory.observe_messages(visitor_id, messages)
         inferences = self._memory.get_inferences(visitor_id)
         conv_state = self._conv_state.process(
@@ -160,6 +162,7 @@ class GenesisBrain:
             messages,
             conv_state,
             public_rails=(personality_mode == "public"),
+            locale=assistant_locale,
         )
         if consultant and (consultant.answer or "").strip():
             self._conv_state.persist(visitor_id, conv_state, session_id=session_id)
@@ -824,7 +827,9 @@ class GenesisBrain:
         last_user_raw = self._last_user_text(messages)
         last_user = last_user_raw
 
-        personality = GenesisPersonalityLayer(mode=personality_mode)
+        personality = GenesisPersonalityLayer(
+            mode=personality_mode, ui_locale=assistant_locale
+        )
         memory_data = self._memory.observe_messages(visitor_id, messages)
         inferences = self._memory.get_inferences(visitor_id)
         conv_state = self._conv_state.process(visitor_id, messages, session_id=session_id)
@@ -838,6 +843,7 @@ class GenesisBrain:
             messages,
             conv_state,
             public_rails=(personality_mode == "public"),
+            locale=assistant_locale,
         )
         if consultant and (consultant.answer or "").strip():
             self._conv_state.persist(visitor_id, conv_state, session_id=session_id)

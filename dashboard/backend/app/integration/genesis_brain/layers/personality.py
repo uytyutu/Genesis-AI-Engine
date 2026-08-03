@@ -53,8 +53,14 @@ class PublicProfile:
 class GenesisPersonalityLayer:
     """Public tone/style + CEO owner mode; finalize pipeline for language polish."""
 
-    def __init__(self, mode: PersonalityMode = "public") -> None:
+    def __init__(
+        self,
+        mode: PersonalityMode = "public",
+        *,
+        ui_locale: str | None = None,
+    ) -> None:
         self._mode = mode
+        self._ui_locale = ui_locale or "de"
         self._style = ConversationStyleEngine()
 
     @property
@@ -153,7 +159,7 @@ class GenesisPersonalityLayer:
             turn_index = sum(1 for m in (messages or []) if m.get("role") == "user")
             if turn_index > 0 and last_user and not self._style.is_greeting_message(last_user):
                 text = self._suppress_repeat_intro(text)
-            user_locale = effective_chat_locale("ru", last_user or "")
+            user_locale = effective_chat_locale(self._ui_locale, last_user or "")
             text = scrub_identity_violations(text)
             text = apply_language_constitution(
                 text, user_message=last_user or "", ui_locale=user_locale
@@ -171,7 +177,7 @@ class GenesisPersonalityLayer:
                 text = text[0].upper() + text[1:]
             text = self._enforce_vy(text, user_uses_ty)
             text = self._strip_questionnaire(text)
-            user_locale = effective_chat_locale("ru", last_user or "")
+            user_locale = effective_chat_locale(self._ui_locale, last_user or "")
             text = scrub_identity_violations(text)
             text = apply_language_constitution(
                 text, user_message=last_user or "", ui_locale=user_locale
