@@ -32,14 +32,14 @@ SHOP_PIPELINE_LABELS = {
         "ru": "Подготовка",
     },
     SHOP_PIPELINE_FACTORY_QUEUE: {
-        "en": "In Factory queue",
-        "de": "In Factory-Warteschlange",
-        "ru": "В очереди Factory",
+        "en": "In preparation queue",
+        "de": "In der Vorbereitungswarteschlange",
+        "ru": "В очереди на подготовку",
     },
     SHOP_PIPELINE_GENERATING: {
-        "en": "Generating",
-        "de": "Generierung",
-        "ru": "Генерация",
+        "en": "Creating your shop",
+        "de": "Shop wird erstellt",
+        "ru": "Создаём ваш магазин",
     },
     SHOP_PIPELINE_QUALITY: {
         "en": "Quality check",
@@ -59,9 +59,9 @@ SHOP_PIPELINE_LABELS = {
     # legacy keys still stored on old orders
     "creating": {"en": "Accepted", "de": "Angenommen", "ru": "Принят"},
     "ready_for_factory": {
-        "en": "In Factory queue",
-        "de": "In Factory-Warteschlange",
-        "ru": "В очереди Factory",
+        "en": "In preparation queue",
+        "de": "In der Vorbereitungswarteschlange",
+        "ru": "В очереди на подготовку",
     },
 }
 

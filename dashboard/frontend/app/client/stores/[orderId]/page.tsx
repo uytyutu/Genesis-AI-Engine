@@ -125,7 +125,7 @@ export default function ClientStorePage() {
   return (
     <ClientWorkspaceShell
       title={data?.store_name || "Мой интернет-магазин"}
-      subtitle="AI Store — магазин под вашу нишу (Factory)"
+      subtitle="AI Store — professional online shop for your business"
     >
       {error ? (
         <p className="text-sm text-rose-300" role="alert">
@@ -179,6 +179,12 @@ export default function ClientStorePage() {
                   Открыть магазин
                 </a>
               ) : null}
+              <Link
+                href={`/client/stores/${orderId}/admin`}
+                className="inline-flex items-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-zinc-100"
+              >
+                Open Store Admin
+              </Link>
               <button
                 type="button"
                 disabled={Boolean(busy)}
@@ -197,8 +203,8 @@ export default function ClientStorePage() {
               </button>
             </div>
             <p className="mt-3 text-xs text-zinc-500">
-              Статический витринный магазин по брифу. CMS каталога и заказы — в следующих
-              релизах.
+              Store Admin is the control panel for this shop — separate from Virtus Core
+              Client Workspace. Product catalog tools arrive next.
             </p>
           </div>
 
@@ -229,7 +235,7 @@ export default function ClientStorePage() {
 
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-              Factory log
+              Activity log
             </p>
             <p className="mt-2 text-sm text-zinc-300">
               status: {data.factory_hook?.status || "—"}

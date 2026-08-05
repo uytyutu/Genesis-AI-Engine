@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import shutil
 import uuid
 from pathlib import Path
@@ -161,6 +162,23 @@ class StoreFactoryService:
         )
 
         written = write_storefront(product_dir, brief=brief, resolved=resolved)
+
+        # User Data Protection Rule: Factory never wipes owner design/catalog.
+        # Re-apply Store Admin Design overlay onto freshly generated HTML.
+        try:
+            from app.integration.store_admin.design_apply import (
+                apply_design_to_product_dir,
+            )
+
+            apply_design_to_product_dir(
+                self._memory,
+                order_id,
+                product_dir,
+                store_name=str(brief.get("store_name") or ""),
+            )
+        except Exception:
+            pass
+
         quality = run_shop_quality_gate(
             product_dir, brief=brief, colors=resolved.colors
         )
@@ -231,6 +249,15 @@ class StoreFactoryService:
         meta = load_json(product_dir / "meta.json")
         store_meta = self.load_store_meta(product_id) or {}
         oid = str(order_id or store_meta.get("order_id") or meta.get("order_id") or "")
+        if oid:
+            try:
+                from app.integration.store_admin.design_apply import (
+                    apply_design_to_product_dir,
+                )
+
+                apply_design_to_product_dir(self._memory, oid, product_dir)
+            except Exception:
+                pass
         published_url = self.live_url(oid) if oid else self.preview_url(product_id)
         now = utc_now()
 
@@ -290,6 +317,17 @@ class StoreFactoryService:
             raise ValueError("version_not_found")
 
         self._restore_version(product_dir, ver)
+        # Re-apply owner design after snapshot restore (User Data Protection).
+        try:
+            from app.integration.store_admin.design_apply import (
+                apply_design_to_product_dir,
+            )
+
+            oid = str(order_id or store_meta.get("order_id") or "")
+            if oid:
+                apply_design_to_product_dir(self._memory, oid, product_dir)
+        except Exception:
+            pass
         store_meta["current_version"] = ver
         store_meta["updated_at"] = utc_now()
         store_meta["pipeline"] = "ready_to_publish"
@@ -333,6 +371,19 @@ class StoreFactoryService:
         import re
 
         base = f"/api/client/stores/{order_id}/live"
+        boot = (
+            "<script>"
+            f"window.__VIRTUS_STORE__={{orderId:{json.dumps(order_id)},"
+            f"apiBase:'/api/store/{order_id}',accountPath:'account.html'}};"
+            "</script>"
+        )
+        if "__VIRTUS_STORE__" not in html:
+            if re.search(r"</head>", html, flags=re.I):
+                html = re.sub(
+                    r"</head>", f"  {boot}\n</head>", html, count=1, flags=re.I
+                )
+            else:
+                html = boot + html
 
         def _href(match: re.Match[str]) -> str:
             attr, quote, target = match.group(1), match.group(2), match.group(3)

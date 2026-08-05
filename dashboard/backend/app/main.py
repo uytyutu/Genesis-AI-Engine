@@ -4463,9 +4463,34 @@ def _client_store_http_error(exc: ValueError) -> HTTPException:
     msg = str(exc)
     if msg == "forbidden":
         return HTTPException(status_code=403, detail=msg)
-    if msg in ("order_not_found", "product_not_found", "version_not_found"):
+    if msg in (
+        "order_not_found",
+        "product_not_found",
+        "version_not_found",
+        "catalog_product_not_found",
+        "image_not_found",
+    ):
         return HTTPException(status_code=404, detail=msg)
     return HTTPException(status_code=400, detail=msg)
+
+
+def _store_catalog():
+    from app.integration.store_admin import StoreCatalogService
+
+    return StoreCatalogService(_memory_dir())
+
+
+def _store_design():
+    from app.integration.store_admin import StoreDesignService
+
+    return StoreDesignService(_memory_dir())
+
+
+def _assert_store_admin_access(request: Request, order_id: str) -> dict:
+    customer_id, email = _client_store_identity(request)
+    return _ctx().sales.get_store_for_customer(
+        order_id, customer_id=customer_id, email=email
+    )
 
 
 @app.get("/api/client/stores/{order_id}")
@@ -4593,6 +4618,532 @@ def client_store_enqueue_factory(request: Request, order_id: str) -> dict:
             order_id, customer_id=customer_id, email=email
         )
         return _ctx().sales.enqueue_shop_factory(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+# --- Store Admin R3.1.2 — Product Management (merchant catalog) ---
+
+
+@app.get("/api/client/stores/{order_id}/admin/products")
+def store_admin_list_products(
+    request: Request, order_id: str, status: str | None = None, q: str | None = None
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        return _store_catalog().list_products(order_id, status=status, q=q)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/products")
+async def store_admin_create_product(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_catalog().create_product(order_id, payload)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/products/{product_id}")
+def store_admin_get_product(request: Request, order_id: str, product_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        return _store_catalog().get_product(order_id, product_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.patch("/api/client/stores/{order_id}/admin/products/{product_id}")
+async def store_admin_update_product(
+    request: Request, order_id: str, product_id: str
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_catalog().update_product(order_id, product_id, payload)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.delete("/api/client/stores/{order_id}/admin/products/{product_id}")
+def store_admin_delete_product(
+    request: Request, order_id: str, product_id: str
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        return _store_catalog().delete_product(order_id, product_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/products/bulk")
+async def store_admin_bulk_products(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_catalog().bulk(order_id, payload)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/products/ai-generate")
+async def store_admin_ai_generate(request: Request, order_id: str) -> dict:
+    try:
+        store = _assert_store_admin_access(request, order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        brief = store.get("shop_brief") if isinstance(store.get("shop_brief"), dict) else {}
+        return _store_catalog().ai_generate(
+            order_id,
+            payload,
+            store_name=str(store.get("store_name") or brief.get("store_name") or ""),
+            store_category=str(brief.get("category") or ""),
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/products/{product_id}/media")
+async def store_admin_upload_media(
+    request: Request,
+    order_id: str,
+    product_id: str,
+    files: list[UploadFile] = File(...),
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        if not files:
+            raise ValueError("files_required")
+        return _store_catalog().add_images(order_id, product_id, list(files))
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.patch("/api/client/stores/{order_id}/admin/products/{product_id}/media")
+async def store_admin_update_media(
+    request: Request, order_id: str, product_id: str
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_catalog().update_images(order_id, product_id, payload)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.delete(
+    "/api/client/stores/{order_id}/admin/products/{product_id}/media/{image_id}"
+)
+def store_admin_delete_media(
+    request: Request, order_id: str, product_id: str, image_id: str
+) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        return _store_catalog().delete_image(order_id, product_id, image_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/media/{image_id}")
+def store_admin_serve_media(
+    request: Request,
+    order_id: str,
+    image_id: str,
+    access_token: str | None = None,
+):
+    """Serve catalog image. Auth via Bearer header or access_token query (for <img>)."""
+    try:
+        if access_token:
+            from app.integration.customer_identity.auth import decode_client_token
+
+            payload = decode_client_token(access_token)
+            if not payload or not payload.get("sub"):
+                raise HTTPException(status_code=401, detail="client_auth_required")
+            customer_id = str(payload["sub"])
+            email = str(payload.get("email") or "").strip() or None
+            _ctx().sales.get_store_for_customer(
+                order_id, customer_id=customer_id, email=email
+            )
+        else:
+            _assert_store_admin_access(request, order_id)
+        path = _store_catalog().resolve_media(order_id, image_id)
+        media = {
+            ".webp": "image/webp",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".gif": "image/gif",
+        }.get(path.suffix.lower(), "application/octet-stream")
+        return FileResponse(path, media_type=media)
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+def _reapply_design_to_live(order_id: str, store: dict) -> None:
+    """Push owner design into sandbox/published HTML after Design save."""
+    product_id = str(store.get("product_id") or "").strip()
+    if not product_id:
+        return
+    try:
+        from app.factory.store_factory import StoreFactoryService
+        from app.integration.store_admin.design_apply import apply_design_to_product_dir
+
+        factory = StoreFactoryService(_memory_dir())
+        apply_design_to_product_dir(
+            _memory_dir(),
+            order_id,
+            factory.product_dir(product_id),
+            store_name=str(store.get("store_name") or ""),
+        )
+        # Keep published copy in sync when already live
+        if store.get("shop_pipeline") == "published" or store.get("published_url"):
+            factory.publish(product_id, order_id=order_id)
+    except Exception:
+        pass
+
+
+@app.get("/api/client/stores/{order_id}/admin/design")
+def store_admin_get_design(request: Request, order_id: str) -> dict:
+    try:
+        store = _assert_store_admin_access(request, order_id)
+        return _store_design().get_design(
+            order_id, store_name=str(store.get("store_name") or "")
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.put("/api/client/stores/{order_id}/admin/design")
+@app.patch("/api/client/stores/{order_id}/admin/design")
+async def store_admin_update_design(request: Request, order_id: str) -> dict:
+    try:
+        store = _assert_store_admin_access(request, order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        result = _store_design().update_design(
+            order_id,
+            payload,
+            store_name=str(store.get("store_name") or ""),
+        )
+        _reapply_design_to_live(order_id, store)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/design/undo")
+def store_admin_design_undo(request: Request, order_id: str) -> dict:
+    try:
+        store = _assert_store_admin_access(request, order_id)
+        result = _store_design().undo(
+            order_id, store_name=str(store.get("store_name") or "")
+        )
+        _reapply_design_to_live(order_id, store)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/design/redo")
+def store_admin_design_redo(request: Request, order_id: str) -> dict:
+    try:
+        store = _assert_store_admin_access(request, order_id)
+        result = _store_design().redo(
+            order_id, store_name=str(store.get("store_name") or "")
+        )
+        _reapply_design_to_live(order_id, store)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/design/restore-defaults")
+def store_admin_design_restore(request: Request, order_id: str) -> dict:
+    try:
+        store = _assert_store_admin_access(request, order_id)
+        result = _store_design().restore_defaults(
+            order_id, store_name=str(store.get("store_name") or "")
+        )
+        _reapply_design_to_live(order_id, store)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/design/assets")
+async def store_admin_design_upload_asset(
+    request: Request,
+    order_id: str,
+    kind: str = "logo",
+    file: UploadFile = File(...),
+) -> dict:
+    try:
+        store = _assert_store_admin_access(request, order_id)
+        result = _store_design().upload_asset(
+            order_id,
+            file,
+            kind=kind,
+            store_name=str(store.get("store_name") or ""),
+        )
+        _reapply_design_to_live(order_id, store)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/design/media/{image_id}")
+def store_admin_design_serve_media(
+    request: Request,
+    order_id: str,
+    image_id: str,
+    access_token: str | None = None,
+):
+    try:
+        if access_token:
+            from app.integration.customer_identity.auth import decode_client_token
+
+            payload = decode_client_token(access_token)
+            if not payload or not payload.get("sub"):
+                raise HTTPException(status_code=401, detail="client_auth_required")
+            customer_id = str(payload["sub"])
+            email = str(payload.get("email") or "").strip() or None
+            _ctx().sales.get_store_for_customer(
+                order_id, customer_id=customer_id, email=email
+            )
+        else:
+            _assert_store_admin_access(request, order_id)
+        path = _store_design().resolve_media(order_id, image_id)
+        media = {
+            ".webp": "image/webp",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".gif": "image/gif",
+            ".ico": "image/x-icon",
+        }.get(path.suffix.lower(), "application/octet-stream")
+        return FileResponse(path, media_type=media)
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+def _store_customers():
+    from app.integration.store_customer import StoreCustomerService
+
+    return StoreCustomerService(_memory_dir())
+
+
+def _assert_shop_order_public(order_id: str) -> dict:
+    order = _ctx().sales.get_order(order_id)
+    if not order:
+        raise ValueError("order_not_found")
+    if str(order.get("package_id") or "").strip().lower() != "ecommerce_shop":
+        raise ValueError("not_a_shop_order")
+    return order
+
+
+def _store_buyer_http_error(exc: ValueError) -> HTTPException:
+    msg = str(exc)
+    if msg in ("buyer_not_found", "order_not_found"):
+        return HTTPException(status_code=404, detail=msg)
+    if msg == "wrong_store":
+        return HTTPException(status_code=403, detail=msg)
+    return HTTPException(status_code=400, detail=msg)
+
+
+@app.post("/api/store/{order_id}/account/register")
+async def store_buyer_register(request: Request, order_id: str) -> dict:
+    try:
+        _assert_shop_order_public(order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_customers().register(order_id, payload)
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/store/{order_id}/account/login")
+async def store_buyer_login(request: Request, order_id: str) -> dict:
+    try:
+        _assert_shop_order_public(order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_customers().login(order_id, payload)
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/store/{order_id}/account/forgot-password")
+async def store_buyer_forgot(request: Request, order_id: str) -> dict:
+    try:
+        _assert_shop_order_public(order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_customers().request_password_reset(order_id, payload)
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.post("/api/store/{order_id}/account/reset-password")
+async def store_buyer_reset(request: Request, order_id: str) -> dict:
+    try:
+        _assert_shop_order_public(order_id)
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_customers().reset_password(order_id, payload)
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/api/store/{order_id}/account/me")
+def store_buyer_me(request: Request, order_id: str) -> dict:
+    from app.integration.store_customer.auth import require_store_buyer
+
+    buyer = require_store_buyer(request, order_id)
+    try:
+        return _store_customers().me(order_id, str(buyer["sub"]))
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.patch("/api/store/{order_id}/account/me")
+async def store_buyer_update_me(request: Request, order_id: str) -> dict:
+    from app.integration.store_customer.auth import require_store_buyer
+
+    buyer = require_store_buyer(request, order_id)
+    try:
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_customers().update_profile(
+            order_id, str(buyer["sub"]), payload
+        )
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.get("/api/store/{order_id}/account/addresses")
+def store_buyer_list_addresses(request: Request, order_id: str) -> dict:
+    from app.integration.store_customer.auth import require_store_buyer
+
+    buyer = require_store_buyer(request, order_id)
+    try:
+        return _store_customers().list_addresses(order_id, str(buyer["sub"]))
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.post("/api/store/{order_id}/account/addresses")
+async def store_buyer_save_address(request: Request, order_id: str) -> dict:
+    from app.integration.store_customer.auth import require_store_buyer
+
+    buyer = require_store_buyer(request, order_id)
+    try:
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise ValueError("invalid_payload")
+        return _store_customers().save_address(
+            order_id, str(buyer["sub"]), payload
+        )
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.delete("/api/store/{order_id}/account/addresses/{address_id}")
+def store_buyer_delete_address(
+    request: Request, order_id: str, address_id: str
+) -> dict:
+    from app.integration.store_customer.auth import require_store_buyer
+
+    buyer = require_store_buyer(request, order_id)
+    try:
+        return _store_customers().delete_address(
+            order_id, str(buyer["sub"]), address_id
+        )
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.get("/api/store/{order_id}/account/wishlist")
+def store_buyer_get_wishlist(request: Request, order_id: str) -> dict:
+    from app.integration.store_customer.auth import require_store_buyer
+
+    buyer = require_store_buyer(request, order_id)
+    try:
+        return _store_customers().get_wishlist(order_id, str(buyer["sub"]))
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.put("/api/store/{order_id}/account/wishlist")
+async def store_buyer_set_wishlist(request: Request, order_id: str) -> dict:
+    from app.integration.store_customer.auth import require_store_buyer
+
+    buyer = require_store_buyer(request, order_id)
+    try:
+        payload = await request.json()
+        items = payload.get("items") if isinstance(payload, dict) else None
+        if not isinstance(items, list):
+            raise ValueError("items_required")
+        return _store_customers().set_wishlist(
+            order_id, str(buyer["sub"]), items
+        )
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.get("/api/store/{order_id}/account/orders")
+def store_buyer_orders(request: Request, order_id: str) -> dict:
+    from app.integration.store_customer.auth import require_store_buyer
+
+    buyer = require_store_buyer(request, order_id)
+    try:
+        return _store_customers().get_orders(order_id, str(buyer["sub"]))
+    except ValueError as exc:
+        raise _store_buyer_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/customers")
+def store_admin_list_customers(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        return _store_customers().admin_list_customers(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/admin/commerce")
+def store_admin_commerce_settings(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        from app.integration.store_admin import StoreCommerceSettingsService
+
+        return StoreCommerceSettingsService(_memory_dir()).ensure_saved(order_id)
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 

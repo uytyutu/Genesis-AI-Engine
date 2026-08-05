@@ -1722,7 +1722,7 @@ class SalesOrderService:
                 "published",
             ],
             "r3_sections": [
-                {"id": "catalog", "label": "Catalog", "available": False},
+                {"id": "catalog", "label": "Catalog", "available": True},
                 {"id": "pages", "label": "Pages", "available": False},
                 {"id": "design", "label": "Design", "available": False},
                 {"id": "seo", "label": "SEO", "available": False},
