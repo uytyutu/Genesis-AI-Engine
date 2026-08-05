@@ -23,12 +23,20 @@ type ClientOrder = {
   order_id: string;
   business_name?: string;
   package_name?: string;
+  service_name?: string;
   status_label?: string;
   status?: string;
   download_ready?: boolean;
   download_url?: string | null;
+  download_label?: string | null;
   product_kind?: string;
   product_id?: string | null;
+  eta_label?: string | null;
+  billing?: string;
+  shop_pipeline?: string | null;
+  shop_pipeline_label?: string | null;
+  store_url?: string | null;
+  package_id?: string;
 };
 
 export default function ClientProductsPage() {
@@ -57,10 +65,10 @@ export default function ClientProductsPage() {
         const body = await res.json().catch(() => ({}));
         if (res.ok && Array.isArray(body.orders)) {
           setOrders(
-            body.orders.filter(
-              (o: ClientOrder) =>
-                !o.product_kind || o.product_kind === "website" || !String(o.product_kind).startsWith("bot"),
-            ),
+            body.orders.filter((o: ClientOrder) => {
+              const kind = String(o.product_kind || "");
+              return !kind.startsWith("bot");
+            }),
           );
         }
       }
@@ -84,7 +92,7 @@ export default function ClientProductsPage() {
   return (
     <ClientWorkspaceShell
       title="Мои продукты"
-      subtitle="Сайты и услуги в вашем кабинете. ZIP — один из способов получить результат."
+      subtitle="Сайты и Website Services в кабинете. Скачивание — когда результат готов."
     >
       {error ? <p className="mb-4 text-sm text-rose-200">{error}</p> : null}
       {products === null ? (
@@ -116,24 +124,45 @@ export default function ClientProductsPage() {
               className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"
             >
               <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-                Мой сайт
+                {o.product_kind === "shop" || o.package_id === "ecommerce_shop"
+                  ? "AI Store"
+                  : o.product_kind === "addon" || o.product_kind === "repair"
+                    ? "Website Service"
+                    : "Мой сайт"}
               </p>
               <p className="mt-1 text-lg font-semibold text-white">
-                {o.business_name || "Landing"}
+                {o.product_kind === "shop"
+                  ? o.service_name || o.package_name || "Мой интернет-магазин"
+                  : o.service_name || o.package_name || o.business_name || "Заказ"}
               </p>
               <p className="mt-1 text-xs font-medium uppercase tracking-wide text-emerald-300">
-                {o.status_label || o.status || "Active"}
+                {o.shop_pipeline_label ||
+                  o.status_label ||
+                  o.status ||
+                  "Active"}
               </p>
               <p className="mt-2 flex-1 text-sm text-zinc-500">
-                {o.package_name || "Website"} · заказ {o.order_id}
+                {o.business_name ? `${o.business_name} · ` : ""}
+                заказ {o.order_id}
+                {o.eta_label ? ` · ETA ${o.eta_label}` : ""}
+                {o.billing === "monthly" ? " · первый месяц" : ""}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                  href={`/order/status/${o.order_id}`}
-                  className="rounded-xl border border-white/15 px-3 py-2 text-sm text-white hover:bg-white/5"
-                >
-                  Открыть
-                </Link>
+                {o.product_kind === "shop" || o.package_id === "ecommerce_shop" ? (
+                  <Link
+                    href={o.store_url || `/client/stores/${o.order_id}`}
+                    className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
+                  >
+                    Открыть магазин
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/order/status/${o.order_id}`}
+                    className="rounded-xl border border-white/15 px-3 py-2 text-sm text-white hover:bg-white/5"
+                  >
+                    Открыть
+                  </Link>
+                )}
                 {o.product_id ? (
                   <a
                     href={`${API}/api/factory/products/${o.product_id}/preview`}
@@ -149,11 +178,16 @@ export default function ClientProductsPage() {
                     href={`${API}${o.download_url}`}
                     className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
                   >
-                    Скачать ZIP
+                    Скачать
                   </a>
+                ) : o.product_kind !== "shop" ? (
+                  <span className="rounded-xl border border-white/10 px-3 py-2 text-sm text-zinc-500">
+                    {o.download_label || "В работе…"}
+                    {o.eta_label ? ` · ${o.eta_label}` : ""}
+                  </span>
                 ) : (
                   <span className="rounded-xl border border-white/10 px-3 py-2 text-sm text-zinc-500">
-                    ZIP готовится…
+                    {o.shop_pipeline_label || o.download_label || "В работе…"}
                   </span>
                 )}
               </div>

@@ -37,9 +37,10 @@ def _normalize_order_brand_style(raw: object) -> str:
     return normalize_brand_style(str(raw or ""))
 
 
-_BOT_CHANNELS_AVAILABLE = frozenset({"telegram", "website_chat"})
+# Ads-ready: Telegram replies are live; website chat embed comes later.
+_BOT_CHANNELS_AVAILABLE = frozenset({"telegram"})
 _BOT_CHANNELS_COMING_SOON = frozenset(
-    {"whatsapp", "instagram", "facebook_messenger"}
+    {"website_chat", "whatsapp", "instagram", "facebook_messenger"}
 )
 _BOT_CAPABILITIES = frozenset(
     {
@@ -364,6 +365,7 @@ _PACKAGES = {
             "Приоритетный список улучшений",
             "Рекомендация: ремонт vs новый сайт",
         ],
+        "eta_days": "1–3",
     },
     "seo_audit": {
         "id": "seo_audit",
@@ -377,6 +379,7 @@ _PACKAGES = {
             "Мета / заголовки / структура",
             "План приоритетных правок",
         ],
+        "eta_days": "2–4",
     },
     "speed_optimization": {
         "id": "speed_optimization",
@@ -390,6 +393,7 @@ _PACKAGES = {
             "Оптимизация изображений и базового кэша",
             "Список остаточных улучшений",
         ],
+        "eta_days": "2–5",
     },
     "security_check": {
         "id": "security_check",
@@ -403,6 +407,7 @@ _PACKAGES = {
             "Проверка форм и контактов",
             "Отчёт с приоритетами",
         ],
+        "eta_days": "1–3",
     },
     "google_business_setup": {
         "id": "google_business_setup",
@@ -416,6 +421,7 @@ _PACKAGES = {
             "Категории, часы, контакты, фото",
             "Краткая инструкция для владельца",
         ],
+        "eta_days": "3–7",
     },
     "website_migration": {
         "id": "website_migration",
@@ -429,6 +435,8 @@ _PACKAGES = {
             "Перенос и проверка доступности",
             "Краткий отчёт после переноса",
         ],
+        "eta_days": "3–10",
+        "from_price": True,
     },
     "website_repair": {
         "id": "website_repair",
@@ -442,6 +450,115 @@ _PACKAGES = {
             "Статус в кабинете",
             "Сопровождение Vector",
         ],
+        "eta_days": "2–5",
+    },
+    "reputation_audit": {
+        "id": "reputation_audit",
+        "name": "Reputation Audit",
+        "price_eur": 149,
+        "product_kind": "addon",
+        "tagline": "Аудит репутации в интернете",
+        "included_summary": "Google Reviews, карты, упоминания, рекомендации",
+        "deliverables": [
+            "Обзор отзывов и карт",
+            "Список упоминаний",
+            "План улучшений репутации",
+        ],
+        "eta_days": "1–2",
+    },
+    "ecommerce_shop": {
+        "id": "ecommerce_shop",
+        "name": "AI Store by Virtus Core",
+        "price_eur": 799,
+        "product_kind": "shop",
+        "tagline": "AI Store — интернет-магазин под ваш бизнес",
+        "included_summary": "анкета, кабинет, очередь Factory — от 799 €",
+        "deliverables": [
+            "Бриф магазина в кабинете",
+            "Статусы Создаётся → Генерируется → Готов",
+            "Хуки Factory (сборка магазина — R2)",
+        ],
+        "eta_days": "7–21",
+        "billing": "one_time",
+        "from_price": True,
+    },
+    "ai_chatbot": {
+        "id": "ai_chatbot",
+        "name": "AI Chatbot",
+        "price_eur": 499,
+        "product_kind": "addon",
+        "tagline": "AI чат-бот для сайта и мессенджеров",
+        "included_summary": "настройка AI-сотрудника — от 499 €",
+        "deliverables": [
+            "Конфигурация бота",
+            "Подключение каналов",
+            "Кабинет + статус",
+        ],
+        "eta_days": "3–10",
+        "from_price": True,
+    },
+    "business_automation": {
+        "id": "business_automation",
+        "name": "Business Automation",
+        "price_eur": 399,
+        "product_kind": "addon",
+        "tagline": "Автоматизация бизнес-процессов",
+        "included_summary": "workflow для малого бизнеса — от 399 €",
+        "deliverables": [
+            "Карта процессов",
+            "Автоматизации под задачу",
+            "Статус в кабинете",
+        ],
+        "eta_days": "5–14",
+        "from_price": True,
+    },
+    "ai_social_content": {
+        "id": "ai_social_content",
+        "name": "AI Social Content",
+        "price_eur": 199,
+        "product_kind": "addon",
+        "tagline": "AI-контент для соцсетей (месяц)",
+        "included_summary": "Reels, TikTok, Instagram, Facebook — первый месяц",
+        "deliverables": [
+            "Пакет контента за месяц",
+            "AI-озвучка / дизайн по плану",
+            "Статус в кабинете",
+        ],
+        "eta_days": "ongoing",
+        "billing": "monthly",
+        "from_price": True,
+    },
+    "site_maintenance": {
+        "id": "site_maintenance",
+        "name": "Website Maintenance",
+        "price_eur": 49,
+        "product_kind": "addon",
+        "tagline": "Ежемесячная поддержка сайта",
+        "included_summary": "обновления, бэкапы, мониторинг — первый месяц",
+        "deliverables": [
+            "План поддержки",
+            "Резервные копии / мониторинг",
+            "Статус в кабинете",
+        ],
+        "eta_days": "ongoing",
+        "billing": "monthly",
+        "from_price": True,
+    },
+    "ai_seo_monitoring": {
+        "id": "ai_seo_monitoring",
+        "name": "AI SEO Monitoring",
+        "price_eur": 29,
+        "product_kind": "addon",
+        "tagline": "Мониторинг SEO (месяц)",
+        "included_summary": "позиции и рекомендации — первый месяц",
+        "deliverables": [
+            "Снимок позиций",
+            "Рекомендации улучшений",
+            "Статус в кабинете",
+        ],
+        "eta_days": "ongoing",
+        "billing": "monthly",
+        "from_price": True,
     },
 }
 
@@ -455,6 +572,13 @@ _ADDON_PACKAGE_IDS = frozenset(
         "google_business_setup",
         "website_migration",
         "website_repair",
+        "reputation_audit",
+        "ecommerce_shop",
+        "ai_chatbot",
+        "business_automation",
+        "ai_social_content",
+        "site_maintenance",
+        "ai_seo_monitoring",
     }
 )
 
@@ -856,6 +980,37 @@ class SalesOrderService:
                         f"{price_eur:g} {sym} + {package['monthly_amount']} {sym}/mo"
                     )
 
+        shop_brief: dict | None = None
+        if str(package_id).strip().lower() == "ecommerce_shop" or product_kind == "shop":
+            from app.integration.shop_brief import (
+                SHOP_PACKAGE_ID,
+                brief_summary_line,
+                validate_shop_brief,
+            )
+
+            product_kind = "shop"
+            package_id = SHOP_PACKAGE_ID
+            if not interest_only and not customer_id:
+                raise ValueError("customer_id_required_for_shop")
+            workspace_id = workspace_id or customer_id
+            shop_brief = validate_shop_brief(
+                payload.get("shop_brief")
+                or {
+                    "company_name": payload.get("business_name"),
+                    "store_name": payload.get("business_name"),
+                    "what_is_sold": payload.get("description"),
+                    "wishes": payload.get("extra_wishes"),
+                }
+            )
+            # Prefer store name for display when provided.
+            if shop_brief.get("store_name"):
+                payload = {**payload, "business_name": shop_brief["store_name"]}
+            if not str(payload.get("description") or "").strip():
+                payload = {
+                    **payload,
+                    "description": brief_summary_line(shop_brief),
+                }
+
         if interest_only:
             listed_price_label = price_label
             price_eur = 0.0
@@ -908,6 +1063,9 @@ class SalesOrderService:
                 or "one_time"
             ),
             "bot_config": bot_config,
+            "shop_brief": shop_brief,
+            "shop_pipeline": None,
+            "factory_hook": None,
             "setup_amount": setup_amount,
             "monthly_amount": package.get("monthly_amount"),
             "analysis_case_id": (payload.get("analysis_case_id") or "").strip() or None,
@@ -1073,6 +1231,506 @@ class SalesOrderService:
                 return order
         return None
 
+    def _store_factory(self):
+        from app.factory.store_factory import StoreFactoryService
+
+        return StoreFactoryService(self._memory)
+
+    def _assert_shop_owner(
+        self, order_id: str, *, customer_id: str, email: str | None = None
+    ) -> dict:
+        order = self.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if str(order.get("package_id") or "").strip().lower() != "ecommerce_shop":
+            raise ValueError("not_a_shop_order")
+        cid = str(customer_id or "").strip()
+        em = str(email or "").strip().lower()
+        oid_cid = str(order.get("customer_id") or "").strip()
+        oid_email = str(order.get("email") or "").strip().lower()
+        if not ((cid and oid_cid == cid) or (em and oid_email == em)):
+            raise ValueError("forbidden")
+        return order
+
+    def start_shop_pipeline(self, order_id: str) -> dict:
+        """AI Store: accepted → preparing → factory generate → published."""
+        from app.integration.shop_brief import (
+            SHOP_PIPELINE_ACCEPTED,
+            SHOP_PIPELINE_PREPARING,
+            brief_summary_line,
+            shop_pipeline_label,
+            validate_shop_brief,
+        )
+        from app.factory.market_delivery import client_status_label
+
+        order = self.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if str(order.get("package_id") or "").strip().lower() != "ecommerce_shop":
+            raise ValueError("not_a_shop_order")
+
+        market = str(order.get("market_code") or "DE")
+        ui_lang = str(order.get("ui_lang") or "en")
+        now = datetime.now(timezone.utc).isoformat()
+
+        brief_raw = order.get("shop_brief")
+        try:
+            brief = validate_shop_brief(
+                brief_raw
+                if isinstance(brief_raw, dict)
+                else {
+                    "company_name": order.get("business_name"),
+                    "store_name": order.get("business_name"),
+                    "what_is_sold": order.get("description"),
+                }
+            )
+        except ValueError as exc:
+            raise ValueError("shop_brief_invalid") from exc
+
+        order["product_kind"] = "shop"
+        order["shop_brief"] = brief
+        order["shop_pipeline"] = SHOP_PIPELINE_ACCEPTED
+        order["status"] = "paid"
+        order["status_label"] = client_status_label("paid", market, ui_lang=ui_lang)
+        order["client_status_message"] = (
+            f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_ACCEPTED, ui_lang)}. "
+            f"{brief_summary_line(brief)}"
+        )
+        order["updated_at"] = now
+        self._save_order(order)
+
+        order["shop_pipeline"] = SHOP_PIPELINE_PREPARING
+        order["status"] = "in_production"
+        order["status_label"] = client_status_label(
+            "in_production", market, ui_lang=ui_lang
+        )
+        order["factory_hook"] = {
+            "status": "queued",
+            "queued_at": now,
+            "note": "Factory will build your niche storefront from the brief.",
+        }
+        order["client_status_message"] = (
+            f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_PREPARING, ui_lang)}."
+        )
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save_order(order)
+
+        return self.enqueue_shop_factory(order_id)
+
+    def enqueue_shop_factory(self, order_id: str) -> dict:
+        """Generate storefront → quality gate → auto-publish (R2). Idempotent if published."""
+        from app.integration.shop_brief import (
+            SHOP_PIPELINE_FACTORY_QUEUE,
+            SHOP_PIPELINE_GENERATING,
+            SHOP_PIPELINE_PUBLISHED,
+            SHOP_PIPELINE_QUALITY,
+            SHOP_PIPELINE_READY_PUBLISH,
+            shop_pipeline_label,
+        )
+        from app.factory.market_delivery import client_status_label
+
+        order = self.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if str(order.get("package_id") or "").strip().lower() != "ecommerce_shop":
+            raise ValueError("not_a_shop_order")
+
+        market = str(order.get("market_code") or "DE")
+        ui_lang = str(order.get("ui_lang") or "en")
+        now = datetime.now(timezone.utc).isoformat()
+        hook = (
+            dict(order.get("factory_hook") or {})
+            if isinstance(order.get("factory_hook"), dict)
+            else {}
+        )
+        current = str(order.get("shop_pipeline") or "")
+        if (
+            current == SHOP_PIPELINE_PUBLISHED
+            and order.get("product_id")
+            and hook.get("status") == "completed"
+        ):
+            return {
+                "ok": True,
+                "order": self._summary(order),
+                "product_id": order.get("product_id"),
+                "shop_pipeline": SHOP_PIPELINE_PUBLISHED,
+                "factory_hook": hook,
+                "published_url": order.get("published_url"),
+                "message": order.get("client_status_message"),
+            }
+
+        factory = self._store_factory()
+
+        order["shop_pipeline"] = SHOP_PIPELINE_FACTORY_QUEUE
+        order["product_kind"] = "shop"
+        order["status"] = "in_production"
+        order["status_label"] = client_status_label(
+            "in_production", market, ui_lang=ui_lang
+        )
+        hook.update(
+            {
+                "status": "running",
+                "queued_at": hook.get("queued_at") or now,
+                "updated_at": now,
+                "note": "Building niche storefront from brief.",
+            }
+        )
+        order["factory_hook"] = hook
+        order["client_status_message"] = (
+            f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_FACTORY_QUEUE, ui_lang)}."
+        )
+        order["updated_at"] = now
+        self._save_order(order)
+
+        order["shop_pipeline"] = SHOP_PIPELINE_GENERATING
+        order["client_status_message"] = (
+            f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_GENERATING, ui_lang)}."
+        )
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save_order(order)
+
+        gen = factory.generate_from_order(order, product_id=order.get("product_id"))
+        product_id = str(gen["product_id"])
+        order["product_id"] = product_id
+
+        order["shop_pipeline"] = SHOP_PIPELINE_QUALITY
+        order["client_status_message"] = (
+            f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_QUALITY, ui_lang)}."
+        )
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save_order(order)
+
+        if not gen.get("ok"):
+            hook.update(
+                {
+                    "status": "quality_failed",
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                    "note": "Quality gate failed — brief returned to Factory queue.",
+                    "quality": gen.get("quality"),
+                }
+            )
+            order["factory_hook"] = hook
+            order["shop_pipeline"] = SHOP_PIPELINE_FACTORY_QUEUE
+            order["client_status_message"] = (
+                f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_FACTORY_QUEUE, ui_lang)}. "
+                "Quality check failed — generation will retry."
+            )
+            order["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_order(order)
+            return {
+                "ok": False,
+                "order": self._summary(order),
+                "product_id": product_id,
+                "shop_pipeline": SHOP_PIPELINE_FACTORY_QUEUE,
+                "factory_hook": hook,
+                "quality": gen.get("quality"),
+                "message": order["client_status_message"],
+            }
+
+        order["shop_pipeline"] = SHOP_PIPELINE_READY_PUBLISH
+        order["client_status_message"] = (
+            f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_READY_PUBLISH, ui_lang)}."
+        )
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save_order(order)
+
+        pub = factory.publish(product_id, order_id=order_id)
+        published_url = str(pub.get("published_url") or factory.live_url(order_id))
+        order["shop_pipeline"] = SHOP_PIPELINE_PUBLISHED
+        order["published_url"] = published_url
+        order["published_at"] = datetime.now(timezone.utc).isoformat()
+        order["status"] = "delivered"
+        order["status_label"] = client_status_label(
+            "delivered", market, ui_lang=ui_lang
+        )
+        hook.update(
+            {
+                "status": "completed",
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "product_id": product_id,
+                "version": gen.get("version"),
+                "note": "Storefront generated and published.",
+            }
+        )
+        order["factory_hook"] = hook
+        order["client_status_message"] = (
+            f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_PUBLISHED, ui_lang)}. "
+            "Open your niche storefront from the cabinet."
+        )
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save_order(order)
+        return {
+            "ok": True,
+            "order": self._summary(order),
+            "product_id": product_id,
+            "version": gen.get("version"),
+            "shop_pipeline": SHOP_PIPELINE_PUBLISHED,
+            "factory_hook": hook,
+            "published_url": published_url,
+            "message": order["client_status_message"],
+        }
+
+    def regenerate_shop_store(
+        self, order_id: str, *, customer_id: str, email: str | None = None
+    ) -> dict:
+        """Rebuild storefront from latest brief as a new version and publish."""
+        from app.integration.shop_brief import (
+            SHOP_PIPELINE_PUBLISHED,
+            shop_pipeline_label,
+        )
+        from app.factory.market_delivery import client_status_label
+
+        order = self._assert_shop_owner(
+            order_id, customer_id=customer_id, email=email
+        )
+        market = str(order.get("market_code") or "DE")
+        ui_lang = str(order.get("ui_lang") or "en")
+        factory = self._store_factory()
+        result = factory.regenerate(order)
+        if not result.get("ok"):
+            raise ValueError("quality_gate_failed")
+        product_id = str(result["product_id"])
+        published_url = str(
+            result.get("published_url") or factory.live_url(order_id)
+        )
+        order["product_id"] = product_id
+        order["shop_pipeline"] = SHOP_PIPELINE_PUBLISHED
+        order["published_url"] = published_url
+        order["published_at"] = datetime.now(timezone.utc).isoformat()
+        order["status"] = "delivered"
+        order["status_label"] = client_status_label(
+            "delivered", market, ui_lang=ui_lang
+        )
+        order["factory_hook"] = {
+            "status": "completed",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "product_id": product_id,
+            "version": result.get("version"),
+            "note": "Regenerated and published.",
+        }
+        order["client_status_message"] = (
+            f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_PUBLISHED, ui_lang)}. "
+            f"Version {result.get('version')}."
+        )
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save_order(order)
+        return {
+            "ok": True,
+            "product_id": product_id,
+            "version": result.get("version"),
+            "published_url": published_url,
+            "shop_pipeline": SHOP_PIPELINE_PUBLISHED,
+            "store": self.get_store_for_customer(
+                order_id, customer_id=customer_id, email=email
+            ),
+        }
+
+    def publish_shop_store(
+        self, order_id: str, *, customer_id: str, email: str | None = None
+    ) -> dict:
+        from app.integration.shop_brief import (
+            SHOP_PIPELINE_PUBLISHED,
+            shop_pipeline_label,
+        )
+        from app.factory.market_delivery import client_status_label
+
+        order = self._assert_shop_owner(
+            order_id, customer_id=customer_id, email=email
+        )
+        product_id = str(order.get("product_id") or "").strip()
+        if not product_id:
+            raise ValueError("product_not_found")
+        factory = self._store_factory()
+        pub = factory.publish(product_id, order_id=order_id)
+        market = str(order.get("market_code") or "DE")
+        ui_lang = str(order.get("ui_lang") or "en")
+        published_url = str(pub.get("published_url") or factory.live_url(order_id))
+        order["shop_pipeline"] = SHOP_PIPELINE_PUBLISHED
+        order["published_url"] = published_url
+        order["published_at"] = datetime.now(timezone.utc).isoformat()
+        order["status"] = "delivered"
+        order["status_label"] = client_status_label(
+            "delivered", market, ui_lang=ui_lang
+        )
+        order["client_status_message"] = (
+            f"AI Store: {shop_pipeline_label(SHOP_PIPELINE_PUBLISHED, ui_lang)}."
+        )
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        self._save_order(order)
+        return {
+            "ok": True,
+            "product_id": product_id,
+            "published_url": published_url,
+            "version": pub.get("version"),
+            "shop_pipeline": SHOP_PIPELINE_PUBLISHED,
+        }
+
+    def rollback_shop_store(
+        self,
+        order_id: str,
+        *,
+        version: int,
+        customer_id: str,
+        email: str | None = None,
+    ) -> dict:
+        from app.integration.shop_brief import SHOP_PIPELINE_PUBLISHED
+
+        order = self._assert_shop_owner(
+            order_id, customer_id=customer_id, email=email
+        )
+        product_id = str(order.get("product_id") or "").strip()
+        if not product_id:
+            raise ValueError("product_not_found")
+        factory = self._store_factory()
+        result = factory.rollback(product_id, int(version), order_id=order_id)
+        published_url = str(result.get("published_url") or factory.live_url(order_id))
+        order["shop_pipeline"] = SHOP_PIPELINE_PUBLISHED
+        order["published_url"] = published_url
+        order["published_at"] = datetime.now(timezone.utc).isoformat()
+        order["updated_at"] = datetime.now(timezone.utc).isoformat()
+        hook = (
+            dict(order.get("factory_hook") or {})
+            if isinstance(order.get("factory_hook"), dict)
+            else {}
+        )
+        hook.update(
+            {
+                "status": "completed",
+                "version": result.get("version"),
+                "note": f"Rolled back to version {result.get('version')}.",
+                "updated_at": order["updated_at"],
+            }
+        )
+        order["factory_hook"] = hook
+        self._save_order(order)
+        return {
+            "ok": True,
+            "product_id": product_id,
+            "version": result.get("version"),
+            "published_url": published_url,
+            "shop_pipeline": SHOP_PIPELINE_PUBLISHED,
+        }
+
+    def get_store_status_for_customer(
+        self, order_id: str, *, customer_id: str, email: str | None = None
+    ) -> dict:
+        order = self._assert_shop_owner(
+            order_id, customer_id=customer_id, email=email
+        )
+        from app.integration.shop_brief import shop_pipeline_label
+
+        ui_lang = str(order.get("ui_lang") or "en")
+        pipeline = str(order.get("shop_pipeline") or "")
+        factory = self._store_factory()
+        product_id = str(order.get("product_id") or "").strip() or None
+        extra = factory.status_payload(product_id)
+        return {
+            "ok": True,
+            "order_id": order_id,
+            "shop_pipeline": pipeline,
+            "shop_pipeline_label": shop_pipeline_label(pipeline, ui_lang),
+            "product_id": product_id,
+            "published_url": order.get("published_url") or extra.get("published_url"),
+            "version": extra.get("version"),
+            "versions": extra.get("versions") or [],
+            "published": pipeline == "published" or bool(extra.get("published")),
+            "factory_hook": order.get("factory_hook"),
+        }
+
+    def get_store_log_for_customer(
+        self,
+        order_id: str,
+        *,
+        customer_id: str,
+        email: str | None = None,
+        limit: int = 80,
+    ) -> dict:
+        order = self._assert_shop_owner(
+            order_id, customer_id=customer_id, email=email
+        )
+        product_id = str(order.get("product_id") or "").strip()
+        lines = (
+            self._store_factory().generation_log(product_id, limit=limit)
+            if product_id
+            else []
+        )
+        return {"ok": True, "order_id": order_id, "product_id": product_id, "log": lines}
+
+    def get_store_live_html(
+        self, order_id: str, *, page: str = "index.html"
+    ) -> tuple[str, dict]:
+        order = self.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if str(order.get("package_id") or "").strip().lower() != "ecommerce_shop":
+            raise ValueError("not_a_shop_order")
+        product_id = str(order.get("product_id") or "").strip()
+        if not product_id:
+            raise ValueError("product_not_found")
+        html = self._store_factory().read_live_html(product_id, page=page)
+        return html, order
+
+    def get_store_for_customer(
+        self, order_id: str, *, customer_id: str, email: str | None = None
+    ) -> dict:
+        """Cabinet AI Store shell payload — ownership by customer_id or email."""
+        from app.integration.shop_brief import brief_summary_line, shop_pipeline_label
+
+        order = self._assert_shop_owner(
+            order_id, customer_id=customer_id, email=email
+        )
+        status = self.public_status(order_id)
+        brief = order.get("shop_brief") if isinstance(order.get("shop_brief"), dict) else {}
+        pipeline = str(order.get("shop_pipeline") or status.get("shop_pipeline") or "")
+        ui_lang = str(order.get("ui_lang") or "en")
+        product_id = str(order.get("product_id") or "").strip() or None
+        factory = self._store_factory()
+        extra = factory.status_payload(product_id)
+        log_tail = (
+            factory.generation_log(product_id, limit=20) if product_id else []
+        )
+        published_url = order.get("published_url") or extra.get("published_url")
+        return {
+            "ok": True,
+            "order_id": order_id,
+            "product_kind": "shop",
+            "package_id": "ecommerce_shop",
+            "package_name": order.get("package_name") or "AI Store by Virtus Core",
+            "store_name": (brief.get("store_name") if brief else None)
+            or order.get("business_name"),
+            "shop_pipeline": pipeline,
+            "shop_pipeline_label": shop_pipeline_label(pipeline, ui_lang),
+            "factory_hook": order.get("factory_hook"),
+            "shop_brief": brief,
+            "brief_summary": brief_summary_line(brief) if brief else "",
+            "paid": bool(status.get("paid")),
+            "status": status.get("status"),
+            "product_id": product_id,
+            "version": extra.get("version"),
+            "versions": extra.get("versions") or [],
+            "published_url": published_url,
+            "preview_url": factory.preview_url(product_id) if product_id else None,
+            "live_url": factory.live_url(order_id),
+            "generation_log": log_tail,
+            "pipeline_stages": [
+                "accepted",
+                "preparing",
+                "factory_queue",
+                "generating",
+                "quality_check",
+                "ready_to_publish",
+                "published",
+            ],
+            "r3_sections": [
+                {"id": "catalog", "label": "Catalog", "available": False},
+                {"id": "pages", "label": "Pages", "available": False},
+                {"id": "design", "label": "Design", "available": False},
+                {"id": "seo", "label": "SEO", "available": False},
+                {"id": "orders", "label": "Orders", "available": False},
+                {"id": "settings", "label": "Settings", "available": False},
+            ],
+        }
+
     def confirm_order(self, order_id: str) -> dict:
         order = self.get_order(order_id)
         if not order:
@@ -1115,6 +1773,44 @@ class SalesOrderService:
             )
             order["updated_at"] = datetime.now(timezone.utc).isoformat()
             self._save_order(order)
+            return {
+                "ok": True,
+                "order": self._summary(order),
+                "product_id": None,
+                "message": order["client_status_message"],
+            }
+
+        if package_id == "ecommerce_shop" or order.get("product_kind") == "shop":
+            return self.start_shop_pipeline(order_id)
+
+        if (
+            str(order.get("product_kind") or "") == "bot"
+            or package_id.startswith("bot_")
+            or package_id == "ai_chatbot"
+        ):
+            from app.factory.market_delivery import client_status_label
+
+            market = str(order.get("market_code") or "DE")
+            ui_lang = str(order.get("ui_lang") or "en")
+            order["product_kind"] = "bot"
+            order["status"] = "ready"
+            order["delivery_mode"] = "workspace_bot"
+            order["status_label"] = client_status_label("ready", market, ui_lang=ui_lang)
+            order["client_status_message"] = (
+                "Payment received. Connect Telegram in Client Workspace — "
+                "your digital employee answers from your bot brief (FAQ/instructions)."
+            )
+            order["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_order(order)
+            if order.get("customer_id"):
+                try:
+                    from app.integration.workspace_ai_bots import provision_from_paid_order
+
+                    provision_from_paid_order(
+                        self._memory, str(order["customer_id"]), order
+                    )
+                except Exception:
+                    pass
             return {
                 "ok": True,
                 "order": self._summary(order),
@@ -1530,31 +2226,38 @@ class SalesOrderService:
         launch_mode = bool(order.get("launch_mode"))
         download_ready = self._client_download_ready(order)
         status = str(order.get("status") or "")
+        product_kind_early = str(order.get("product_kind") or "website")
+        if str(order.get("package_id") or "") == "ecommerce_shop":
+            product_kind_early = "shop"
         # Promote to ready as soon as ZIP can be served (honest cabinet UX).
-        if download_ready and status in ("paid", "in_production"):
-            status = "ready"
-            order["status"] = "ready"
-            order["status_label"] = client_status_label("ready", market, ui_lang=ui_lang)
-            order["updated_at"] = datetime.now(timezone.utc).isoformat()
-            self._save_order(order)
-        # Never expose Ready when ZIP cannot be packed (blocks Ready → 404).
-        elif status == "ready" and not download_ready:
-            status = "in_production"
-            order["status"] = "in_production"
-            order["status_label"] = client_status_label(
-                "in_production", market, ui_lang=ui_lang
-            )
-            order["updated_at"] = datetime.now(timezone.utc).isoformat()
-            order["client_status_message"] = client_post_pay_message(
-                "in_production", market, download_ready=False, ui_lang=ui_lang
-            )
-            self._save_order(order)
+        # AI Store uses shop_pipeline — never fake Ready via ZIP.
+        if product_kind_early != "shop":
+            if download_ready and status in ("paid", "in_production"):
+                status = "ready"
+                order["status"] = "ready"
+                order["status_label"] = client_status_label("ready", market, ui_lang=ui_lang)
+                order["updated_at"] = datetime.now(timezone.utc).isoformat()
+                self._save_order(order)
+            # Never expose Ready when ZIP cannot be packed (blocks Ready → 404).
+            elif status == "ready" and not download_ready:
+                status = "in_production"
+                order["status"] = "in_production"
+                order["status_label"] = client_status_label(
+                    "in_production", market, ui_lang=ui_lang
+                )
+                order["updated_at"] = datetime.now(timezone.utc).isoformat()
+                order["client_status_message"] = client_post_pay_message(
+                    "in_production", market, download_ready=False, ui_lang=ui_lang
+                )
+                self._save_order(order)
         download_bytes, generated_at = self._client_download_meta(
             order, download_ready=download_ready
         )
         product_kind = str(order.get("product_kind") or "website")
         if str(order.get("package_id") or "") in _REPAIR_PACKAGE_IDS:
             product_kind = "repair"
+        if str(order.get("package_id") or "") == "ecommerce_shop":
+            product_kind = "shop"
         submitted = bool(order.get("review_submitted"))
         eligible = (
             bool(order.get("review_eligible"))
@@ -1572,6 +2275,30 @@ class SalesOrderService:
             )
             or self._default_client_message(order)
         )
+        shop_pipeline = (
+            (str(order.get("shop_pipeline") or "") or None)
+            if product_kind == "shop"
+            else None
+        )
+        shop_pipeline_label = None
+        if product_kind == "shop" and shop_pipeline:
+            from app.integration.shop_brief import shop_pipeline_label as _spl
+
+            shop_pipeline_label = _spl(shop_pipeline, ui_lang)
+        download_label = None
+        if download_ready:
+            download_label = "Ready for download"
+        elif product_kind == "shop" and shop_pipeline_label:
+            download_label = shop_pipeline_label
+        elif status in ("paid", "in_production", "ready") and product_kind in (
+            "addon",
+            "repair",
+            "shop",
+        ):
+            download_label = "In progress"
+        elif status in ("paid", "in_production") and product_kind not in ("repair", "shop"):
+            download_label = "generating..."
+
         return {
             "order_id": order["order_id"],
             "business_name": order["business_name"],
@@ -1613,16 +2340,25 @@ class SalesOrderService:
             "download_url": f"/api/sales/orders/{order_id}/download" if download_ready else None,
             "download_bytes": download_bytes,
             "generated_at": generated_at,
-            "download_label": (
-                "Ready for download"
-                if download_ready
-                else (
-                    "generating..."
-                    if status in ("paid", "in_production") and product_kind != "repair"
-                    else None
-                )
-            ),
+            "download_label": download_label,
             "service_id": service_id,
+            "service_name": order.get("package_name") or package_display_name(order.get("package_id")),
+            "eta_label": (
+                str((_PACKAGES.get(str(order.get("package_id") or "").strip().lower()) or {}).get("eta_days") or "")
+                or None
+            ),
+            "billing": str(
+                (_PACKAGES.get(str(order.get("package_id") or "").strip().lower()) or {}).get(
+                    "billing"
+                )
+                or "one_time"
+            ),
+            "shop_pipeline": shop_pipeline,
+            "shop_pipeline_label": shop_pipeline_label,
+            "factory_hook": order.get("factory_hook") if product_kind == "shop" else None,
+            "store_url": (
+                f"/client/stores/{order_id}" if product_kind == "shop" else None
+            ),
             "launch_mode": launch_mode,
             "review_eligible": eligible,
             "review_submitted": submitted,
@@ -1937,6 +2673,11 @@ class SalesOrderService:
             return False
 
     def _client_download_ready(self, order: dict) -> bool:
+        # AI Store uses published_url / Open Store — not Path A ZIP download.
+        if str(order.get("package_id") or "").strip().lower() == "ecommerce_shop":
+            return False
+        if str(order.get("product_kind") or "") == "shop":
+            return False
         if order.get("status") not in ("paid", "in_production", "ready", "delivered"):
             return False
         product_id = str(order.get("product_id") or "").strip()

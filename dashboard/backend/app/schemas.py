@@ -314,9 +314,13 @@ class SalesOrderCreateRequest(BaseModel):
     product_kind: str | None = Field(
         default=None,
         max_length=32,
-        description="website | bot | repair | addon",
+        description="website | bot | repair | addon | shop",
     )
     bot_config: dict | None = None
+    shop_brief: dict | None = Field(
+        default=None,
+        description="AI Store questionnaire payload (ecommerce_shop)",
+    )
     customer_id: str | None = Field(default=None, max_length=80)
     workspace_id: str | None = Field(default=None, max_length=80)
     visitor_id: str | None = Field(default=None, max_length=64)
@@ -1636,6 +1640,7 @@ class AcquisitionStudioStatus(BaseModel):
     lead_sending_health: dict | None = None
     email_providers: dict | None = None
     ready_send_diagnostics: dict | None = None
+    places_quota: dict | None = None
 
     model_config = {"extra": "ignore"}
 

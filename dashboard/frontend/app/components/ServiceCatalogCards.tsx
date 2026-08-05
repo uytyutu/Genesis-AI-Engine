@@ -2,6 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 import {
+  HUB_AGENCY_SERVICE_IDS,
   HUB_MORE_SERVICE_IDS,
   HUB_PRIMARY_SERVICE_IDS,
   SERVICE_SPECS,
@@ -62,15 +63,19 @@ function ServiceCard({
     spec.id === "website_check" && typeof onOpenLocal === "function";
 
   const href = (() => {
-    if (!market || !spec.href.startsWith("/")) return spec.href;
+    let base = spec.href;
+    if (live && base.includes("/order/service/") && !base.includes("form=")) {
+      base = `${base}${base.includes("?") ? "&" : "?"}form=1`;
+    }
+    if (!market || !base.startsWith("/")) return base;
     try {
-      const u = new URL(spec.href, "https://virtus.local");
+      const u = new URL(base, "https://virtus.local");
       if (!u.searchParams.has("market")) {
         u.searchParams.set("market", market);
       }
       return `${u.pathname}${u.search}${u.hash}`;
     } catch {
-      return spec.href;
+      return base;
     }
   })();
 
@@ -120,7 +125,7 @@ function ServiceCard({
         </div>
       ) : null}
       <ul className="mt-3 space-y-1 text-xs text-zinc-400">
-        {copy.includes.slice(0, 3).map((line) => (
+        {copy.includes.slice(0, featured || spec.agencySection ? 6 : 3).map((line) => (
           <li key={line} className="flex gap-2">
             <span className="text-emerald-400/80" aria-hidden>
               ✓
@@ -193,7 +198,7 @@ export function ServiceCatalogGrid({
   priceOverrides,
   market,
 }: {
-  mode?: "hub" | "all";
+  mode?: "hub" | "all" | "agency";
   /** Hub: free website check stays on /site without full navigation. */
   onOpenLocal?: (serviceId: string) => void;
   /** Market-resolved price labels (from resolve_hub_catalog_prices). */
@@ -207,6 +212,9 @@ export function ServiceCatalogGrid({
   // Hub primary: website · AI employee · free check · repair.
   // Paid written AI report is not listed next to free check (avoids price confusion).
   const more = HUB_MORE_SERVICE_IDS.map(
+    (id) => SERVICE_SPECS.find((s) => s.id === id)!,
+  ).filter(Boolean);
+  const agency = HUB_AGENCY_SERVICE_IDS.map(
     (id) => SERVICE_SPECS.find((s) => s.id === id)!,
   ).filter(Boolean);
 
@@ -228,6 +236,35 @@ export function ServiceCatalogGrid({
     );
   }
 
+  const agencyBlock = (specs: ServiceSpec[]) => (
+    <div>
+      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200/80">
+        {t("catalog.agencyTitle", { defaultValue: "Additional services" })}
+      </p>
+      <p className="mb-3 text-sm text-zinc-400">
+        {t("catalog.agencySubtitle", {
+          defaultValue:
+            "For companies that already have a website — repair, SEO, speed, security, migration.",
+        })}
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {specs.map((spec) => (
+          <ServiceCard
+            key={spec.id}
+            spec={spec}
+            featured={spec.agencySection}
+            priceOverrides={priceOverrides}
+            market={market}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
+  if (mode === "agency") {
+    return agencyBlock(agency);
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -242,21 +279,7 @@ export function ServiceCatalogGrid({
           />
         ))}
       </div>
-      <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-          {t("catalog.moreTitle", { defaultValue: "More website services" })}
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {more.map((spec) => (
-            <ServiceCard
-              key={spec.id}
-              spec={spec}
-              priceOverrides={priceOverrides}
-              market={market}
-            />
-          ))}
-        </div>
-      </div>
+      {agencyBlock(more)}
     </div>
   );
 }

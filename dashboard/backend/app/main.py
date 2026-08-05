@@ -2014,9 +2014,15 @@ def farm_engine_v1_market_monitor_run() -> dict:
 
 
 @app.get("/api/farm/opire")
-def farm_opire_panel() -> dict:
-    """Opire Semi-Auto Farm — scan + confidence + Approve (Reward Protection)."""
-    return _ctx().micro_farm.opire_farm_panel(force_scan=True)
+def farm_opire_panel(force_scan: bool = True, enrich_top: int = 0) -> dict:
+    """Opire Semi-Auto Farm — scan + confidence + Approve (Reward Protection).
+
+    enrich_top=0 by default so Mission Control buttons stay responsive.
+    Pass enrich_top=5 for deeper Issue body analysis when CEO asks.
+    """
+    return _ctx().micro_farm.opire_farm_panel(
+        force_scan=force_scan, enrich_top=max(0, min(12, enrich_top))
+    )
 
 
 @app.post("/api/farm/opire/decide")
@@ -2045,6 +2051,31 @@ def farm_opire_advance(
         payout_usd=payout_usd,
         note=note,
     )
+
+
+@app.post("/api/farm/opire/execute")
+def farm_opire_execute(reward_id: str, clone: bool = True) -> dict:
+    """CEO: start Execution Engine Stages 1–5 after Approve. Never submits PR."""
+    return _ctx().micro_farm.opire_farm_start_execution(reward_id, clone=clone)
+
+
+@app.post("/api/farm/opire/submit")
+def farm_opire_submit(
+    reward_id: str, pr_id: str = "", pr_url: str = "", note: str = ""
+) -> dict:
+    """CEO Submit — live GitHub Draft PR (IDs from API, not manual entry)."""
+    return _ctx().micro_farm.opire_farm_ceo_submit(
+        reward_id,
+        pr_id=pr_id or None,
+        pr_url=pr_url or None,
+        note=note,
+    )
+
+
+@app.post("/api/farm/opire/sync")
+def farm_opire_sync(reward_id: str, confirm_real: bool = False) -> dict:
+    """Sync merge/reward from GitHub+Opire. confirm_real → REAL without typed IDs."""
+    return _ctx().micro_farm.opire_farm_sync(reward_id, confirm_real=confirm_real)
 
 
 @app.post("/api/farm/real-payout")
@@ -4245,6 +4276,44 @@ def client_bots_order_draft_put(request: Request, body: ClientBotOrderDraftReque
     return wab.save_order_draft(_memory_dir(), str(payload["sub"]), body.draft)
 
 
+@app.post("/api/webhooks/telegram/{bot_id}")
+async def telegram_bot_webhook(bot_id: str, request: Request) -> dict:
+    """Inbound Telegram updates for paid AI Business Bots."""
+    from app.integration.workspace_bot_runtime import handle_telegram_update
+
+    try:
+        update = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="invalid_json") from None
+    if not isinstance(update, dict):
+        raise HTTPException(status_code=400, detail="invalid_update")
+    result = handle_telegram_update(_memory_dir(), bot_id, update)
+    if result.get("reason") == "bot_not_found":
+        raise HTTPException(status_code=404, detail="bot_not_found")
+    # Always 200 to Telegram when bot exists but message ignored
+    return {"ok": True, **{k: v for k, v in result.items() if k != "reply_text"}}
+
+
+@app.post("/api/client/bots/{bot_id}/chat")
+def client_bot_chat_preview(request: Request, bot_id: str, body: dict | None = None) -> dict:
+    """Cabinet test chat — same reply core as Telegram (no channel send)."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_ai_bots as wab
+    from app.integration.workspace_bot_runtime import generate_bot_reply
+
+    payload = require_client(request)
+    cid = str(payload["sub"])
+    bot = wab.get_bot(_memory_dir(), cid, bot_id)
+    if not bot:
+        raise HTTPException(status_code=404, detail="bot_not_found")
+    data = body if isinstance(body, dict) else {}
+    message = str(data.get("message") or data.get("text") or "").strip()
+    if not message:
+        raise HTTPException(status_code=400, detail="message_required")
+    reply = generate_bot_reply(bot, message)
+    return {"ok": True, "bot_id": bot_id, "reply": reply.get("text"), "source": reply.get("source")}
+
+
 @app.post("/api/client/bots/telegram/connect")
 def client_bots_telegram_connect(
     request: Request, body: ClientBotTelegramConnectRequest
@@ -4354,17 +4423,178 @@ def create_sales_order(request: Request, body: SalesOrderCreateRequest) -> Sales
         data["customer_id"] = str(payload["sub"])
         data["workspace_id"] = str(data.get("workspace_id") or payload["sub"])
         data["product_kind"] = "bot"
+    if product_kind == "shop" or package_id == "ecommerce_shop":
+        from app.integration.customer_identity.auth import require_client
+
+        payload = require_client(request)
+        data["customer_id"] = str(payload["sub"])
+        data["workspace_id"] = str(data.get("workspace_id") or payload["sub"])
+        data["product_kind"] = "shop"
+        data["package_id"] = "ecommerce_shop"
     try:
         result = _ctx().sales.create_order(data)
     except ValueError as exc:
         msg = str(exc)
-        if msg == "customer_id_required_for_bot":
+        if msg in ("customer_id_required_for_bot", "customer_id_required_for_shop"):
             raise HTTPException(status_code=401, detail=msg) from exc
         raise HTTPException(status_code=400, detail=msg) from exc
     order = _ctx().sales.get_order(result["order_id"])
     if order and order.get("email"):
         ReceiptEmailService().send_order_received(order=order)
     return SalesOrderCreatedResponse(**result)
+
+
+def _client_store_identity(request: Request) -> tuple[str, str | None]:
+    from app.integration.customer_identity.auth import require_client
+
+    payload = require_client(request)
+    customer_id = str(payload["sub"])
+    email = str(payload.get("email") or "").strip()
+    if not email:
+        try:
+            me = _customer_identity().me(customer_id)
+            email = str((me.get("account") or {}).get("email") or "")
+        except Exception:
+            email = ""
+    return customer_id, email or None
+
+
+def _client_store_http_error(exc: ValueError) -> HTTPException:
+    msg = str(exc)
+    if msg == "forbidden":
+        return HTTPException(status_code=403, detail=msg)
+    if msg in ("order_not_found", "product_not_found", "version_not_found"):
+        return HTTPException(status_code=404, detail=msg)
+    return HTTPException(status_code=400, detail=msg)
+
+
+@app.get("/api/client/stores/{order_id}")
+def client_store_get(request: Request, order_id: str) -> dict:
+    """AI Store cabinet shell — brief + pipeline + publish metadata."""
+    customer_id, email = _client_store_identity(request)
+    try:
+        return _ctx().sales.get_store_for_customer(
+            order_id, customer_id=customer_id, email=email
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/status")
+def client_store_status(request: Request, order_id: str) -> dict:
+    customer_id, email = _client_store_identity(request)
+    try:
+        return _ctx().sales.get_store_status_for_customer(
+            order_id, customer_id=customer_id, email=email
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/log")
+def client_store_log(request: Request, order_id: str) -> dict:
+    customer_id, email = _client_store_identity(request)
+    try:
+        return _ctx().sales.get_store_log_for_customer(
+            order_id, customer_id=customer_id, email=email
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/regenerate")
+def client_store_regenerate(request: Request, order_id: str) -> dict:
+    customer_id, email = _client_store_identity(request)
+    try:
+        return _ctx().sales.regenerate_shop_store(
+            order_id, customer_id=customer_id, email=email
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/publish")
+def client_store_publish(request: Request, order_id: str) -> dict:
+    customer_id, email = _client_store_identity(request)
+    try:
+        return _ctx().sales.publish_shop_store(
+            order_id, customer_id=customer_id, email=email
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/rollback")
+async def client_store_rollback(request: Request, order_id: str) -> dict:
+    customer_id, email = _client_store_identity(request)
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    try:
+        version = int(payload.get("version"))
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="version_required") from exc
+    try:
+        return _ctx().sales.rollback_shop_store(
+            order_id, version=version, customer_id=customer_id, email=email
+        )
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/stores/{order_id}/live")
+@app.get("/api/client/stores/{order_id}/live/{asset_path:path}")
+def client_store_live(order_id: str, asset_path: str = "index.html"):
+    """Public Open Store — published HTML + assets (no CMS)."""
+    from app.factory.store_factory import StoreFactoryService
+
+    try:
+        order = _ctx().sales.get_order(order_id)
+        if not order:
+            raise ValueError("order_not_found")
+        if str(order.get("package_id") or "").strip().lower() != "ecommerce_shop":
+            raise ValueError("not_a_shop_order")
+        product_id = str(order.get("product_id") or "").strip()
+        if not product_id:
+            raise ValueError("product_not_found")
+        factory = StoreFactoryService(_memory_dir())
+        rel = (asset_path or "index.html").strip() or "index.html"
+        path = factory.resolve_live_file(product_id, rel)
+        if path.suffix.lower() in (".html", ".htm"):
+            html = factory.rewrite_live_html(
+                path.read_text(encoding="utf-8"), order_id
+            )
+            return HTMLResponse(content=html)
+        media = {
+            ".css": "text/css; charset=utf-8",
+            ".js": "application/javascript; charset=utf-8",
+            ".json": "application/json; charset=utf-8",
+            ".svg": "image/svg+xml",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".webp": "image/webp",
+            ".ico": "image/x-icon",
+        }.get(path.suffix.lower(), "application/octet-stream")
+        return FileResponse(path, media_type=media)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/enqueue-factory")
+def client_store_enqueue_factory(request: Request, order_id: str) -> dict:
+    """Run / re-check AI Store factory pipeline (idempotent when published)."""
+    customer_id, email = _client_store_identity(request)
+    try:
+        _ctx().sales.get_store_for_customer(
+            order_id, customer_id=customer_id, email=email
+        )
+        return _ctx().sales.enqueue_shop_factory(order_id)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
 
 
 @app.post("/api/sales/order-materials", response_model=OrderMaterialUploadResponse)

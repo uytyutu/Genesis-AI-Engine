@@ -29,7 +29,7 @@
     "botsLoading": "Loading bot packages…",
     "botsMonthly": "setup · then {{monthly}}/mo",
     "botsCta": "Order without account",
-    "botsChannelsNote": "Live now: Website Chat + Telegram. WhatsApp / Instagram — after Meta OAuth (not sold as ready).",
+    "botsChannelsNote": "Live now: Telegram. Website Chat / WhatsApp / Instagram — coming soon (not sold as ready).",
     "needAccount": "Want an office to manage this later?",
     "seeWebsites": "See website packages",
     "websitesTitle": "Websites",
@@ -327,7 +327,7 @@
       "afterPayStarts": "Project work starts after we confirm scope (and access, when needed).",
       "building": "Preparing your website…",
       "serviceInProgress": "We are working on your order — no website ZIP is needed.",
-      "botInProgress": "After payment, set up the bot in Workspace and connect your channels.",
+      "botInProgress": "Payment received. Open Client Workspace → Bots → paste your Telegram bot token. The bot answers from your brief (FAQ/instructions).",
       "etaMinutes": "about {{minutes}} minutes",
       "downloadSoon": "Download unlocks when the ZIP is ready",
       "noZipForService": "This service has no website ZIP — delivery is via status and support.",
@@ -495,6 +495,8 @@
     "openForm": "Open order form →",
     "interestForm": "Interest form →",
     "moreTitle": "More website services",
+    "agencyTitle": "Website Services",
+    "agencySubtitle": "Repair, audit, SEO, speed, security — for companies that already have a site.",
     "stagesLine": "{{count}} stages · {{timeline}}",
     "supportLine": "Support: {{support}}",
     "landing_website": {
@@ -510,13 +512,13 @@
       "support": "Vector + cabinet status"
     },
     "ai_business_bot": {
-      "name": "AI Digital Employee",
+      "name": "AI Business Assistant",
       "price": "from 499 € + monthly",
-      "blurb": "A digital employee with onboarding: answers 24/7, captures leads, and takes routine off your first line.",
+      "blurb": "One digital employee — live on Telegram today; more channels coming soon.",
       "highlights": [
-        "Answers customers 24/7",
+        "Answers customers 24/7 on Telegram",
         "Captures leads without a manager on shift",
-        "Saves hours of chat work every day"
+        "Website Chat / WhatsApp / Instagram — coming soon"
       ],
       "includes": [
         "Onboarding for your business (setup + knowledge base)",
@@ -579,15 +581,15 @@
     "seo_audit": {
       "name": "SEO Audit",
       "price": "249 €",
-      "blurb": "Technical + local SEO plan.",
+      "blurb": "Technical + local SEO plan for your site.",
       "includes": [
         "Technical SEO check",
         "Meta / structure",
         "Action plan"
       ],
-      "timeline": "2–4 days when live",
-      "support": "Vector waitlist",
-      "deliveryNote": "Interest form open — checkout when delivery is live."
+      "timeline": "2–4 days",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "Audit in progress after payment — report in your cabinet when ready."
     },
     "speed_optimization": {
       "name": "Speed Optimization",
@@ -598,9 +600,9 @@
         "Image & cache focus",
         "Residual list"
       ],
-      "timeline": "2–5 days when live",
-      "support": "Vector waitlist",
-      "deliveryNote": "Interest form open — checkout when delivery is live."
+      "timeline": "2–5 days",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "Optimization after payment — status in your cabinet."
     },
     "security_check": {
       "name": "Security Check",
@@ -611,9 +613,9 @@
         "Priority report",
         "No fake pen-test claims"
       ],
-      "timeline": "1–3 days when live",
-      "support": "Vector waitlist",
-      "deliveryNote": "Interest form open — checkout when delivery is live."
+      "timeline": "1–3 days",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "Security review after payment — report in cabinet when ready."
     },
     "google_business_setup": {
       "name": "Google Business Profile",
@@ -624,22 +626,114 @@
         "Hours & contacts",
         "Owner checklist"
       ],
-      "timeline": "3–7 days when live",
-      "support": "Vector waitlist",
-      "deliveryNote": "Form ready — checkout opens when delivery is live."
+      "timeline": "3–7 days",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "Profile work after payment — checklist in your cabinet."
     },
     "website_migration": {
       "name": "Website Migration",
       "price": "from 299 €",
-      "blurb": "Move your site to new hosting.",
+      "blurb": "Move your site to new hosting or a new design.",
       "includes": [
         "Migration plan",
         "Cutover check",
         "Post-move report"
       ],
-      "timeline": "3–10 days when live",
-      "support": "Vector waitlist",
-      "deliveryNote": "Interest form open — checkout when delivery is live."
+      "timeline": "3–10 days",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "Migration project after payment — status in your cabinet."
+    },
+    "reputation_audit": {
+      "name": "Reputation Audit",
+      "price": "149 €",
+      "blurb": "Reviews, Maps, and online presence — clear recommendations.",
+      "includes": [
+        "Google Reviews",
+        "Maps",
+        "Mentions",
+        "Recommendations"
+      ],
+      "timeline": "1–2 days",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "Reputation report in your cabinet when ready."
+    },
+    "ecommerce_shop": {
+      "name": "Online Store",
+      "price": "from 799 €",
+      "blurb": "After payment we automatically create a professional online store for your business. It appears in your client cabinet.",
+      "includes": [
+        "Shop questionnaire",
+        "Published niche storefront",
+        "Open Store + versions"
+      ],
+      "timeline": "7–21 days",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "After payment: Creating → Generating → Ready for Factory."
+    },
+    "ai_chatbot": {
+      "name": "AI Chatbot",
+      "price": "from 499 €",
+      "blurb": "AI chat employee for your site and messengers.",
+      "includes": [
+        "Bot setup",
+        "Channels",
+        "Cabinet access"
+      ],
+      "timeline": "after brief and payment",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "Bot project after payment — status in your cabinet."
+    },
+    "business_automation": {
+      "name": "Business Automation",
+      "price": "from 399 €",
+      "blurb": "Workflow automation for small business routines.",
+      "includes": [
+        "Process map",
+        "Automations",
+        "Cabinet status"
+      ],
+      "timeline": "after brief and payment",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "Automation project after payment — status in your cabinet."
+    },
+    "ai_social_content": {
+      "name": "AI Social Content",
+      "price": "from 199 €/mo",
+      "blurb": "Monthly Reels / TikTok / Instagram content with AI voice and design.",
+      "includes": [
+        "Content pack",
+        "AI voice / design",
+        "Cabinet status"
+      ],
+      "timeline": "first month after payment",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "First month billed now — recurring Stripe later."
+    },
+    "site_maintenance": {
+      "name": "Website Maintenance",
+      "price": "from 49 €/mo",
+      "blurb": "Updates, backups, monitoring, and light support.",
+      "includes": [
+        "Updates",
+        "Backups",
+        "Monitoring"
+      ],
+      "timeline": "first month after payment",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "First month billed now — recurring Stripe later."
+    },
+    "ai_seo_monitoring": {
+      "name": "AI SEO Monitoring",
+      "price": "from 29 €/mo",
+      "blurb": "Rank tracking and improvement tips each month.",
+      "includes": [
+        "Rank snapshot",
+        "Tips",
+        "Cabinet status"
+      ],
+      "timeline": "first month after payment",
+      "support": "Cabinet + Vector",
+      "deliveryNote": "First month billed now — recurring Stripe later."
     }
   },
   "analysis": {
@@ -769,7 +863,7 @@
     "errPay": "Payment error",
     "servicesPrefix": "Services: {{text}}",
     "tasksPrefix": "Bot tasks: {{text}}",
-    "channelNoteLive": "Connect after pay",
+    "channelNoteLive": "Coming soon — interest noted, not live yet",
     "channelNoteMeta": "Meta OAuth after pay",
     "channelNoteToken": "Own bot token after pay",
     "packages": {
@@ -802,6 +896,50 @@
       }
     }
   },
+  "aiStore": {
+    "badge": "Online Store",
+    "landingTitle": "Professional online shop for your business",
+    "landingBody": "After payment we automatically create a professional online store for your niche. The finished project appears in your client cabinet — open it, regenerate, or roll back versions. From 799 €.",
+    "benefit1": "Brief tailored to your catalog & shipping",
+    "benefit2": "Published storefront in your cabinet after pay",
+    "benefit3": "Open Store — real HTML for your niche, not a fake demo",
+    "benefit4": "Regenerate and rollback versions when you need",
+    "cta": "Create online shop →",
+    "title": "Create an online shop",
+    "intro": "From 799 € · after payment your shop is built and published to the cabinet.",
+    "back": "← {{brand}} storefront",
+    "stepBrief": "Business",
+    "stepCatalog": "Catalog",
+    "stepCommerce": "Commerce",
+    "stepDesign": "Design",
+    "stepPay": "Pay",
+    "next": "Next →",
+    "company": "Company name",
+    "storeName": "Store name",
+    "description": "Business description",
+    "whatSold": "What do you sell?",
+    "category": "Category",
+    "catalogSize": "Approx. products",
+    "languages": "Languages (comma-separated)",
+    "currency": "Currency",
+    "payments": "Payments",
+    "shipping": "Shipping",
+    "pages": "Pages needed",
+    "style": "Style",
+    "color": "Color scheme (optional)",
+    "logoUrl": "Logo URL (optional)",
+    "wishes": "Extra wishes",
+    "readyPay": "Ready for payment — from 799 €",
+    "products": "products",
+    "honestNote": "After payment you get a published niche storefront in the cabinet (Open Store). Product CMS and orders come in later releases.",
+    "needAccount": "Create an account before payment.",
+    "register": "Register →",
+    "optional": "optional",
+    "openingPay": "Opening payment…",
+    "pay": "Pay securely →",
+    "fillRequired": "Please complete required fields.",
+    "orderFailed": "Could not create order"
+  },
   "serviceForm": {
     "backStorefront": "← {{brand}} storefront",
     "backSite": "← Back to storefront",
@@ -830,6 +968,7 @@
     "fillRequired": "Please fill: {{field}}",
     "emailRequired": "Valid email required",
     "orderFailed": "Order failed",
+    "monthlyFirstPay": "This is the first month payment. Recurring Stripe subscription comes later — you are not billed monthly automatically yet.",
     "fields": {
       "email": {
         "label": "Email",
@@ -924,26 +1063,29 @@
       "resolve": "Connect modules. AI handles the routine. You run the craft."
     },
     "modules": {
-      "title": "What do you want to connect?",
-      "subtitle": "Not a service list — apps for your business.",
+      "title": "What do you need for your business?",
+      "subtitle": "Four clear products. No duplicate AI cards.",
+      "soonTitle": "Coming soon",
       "live": "Live",
       "soon": "Coming Soon",
       "try": "Open",
       "notify": "Coming Soon",
       "website": {
-        "name": "Website Builder",
+        "name": "Business Website",
         "blurb": "Modern business site with Impressum path and booking-ready layout."
       },
-      "receptionist": {
-        "name": "AI Receptionist",
-        "blurb": "Answers leads 24/7 and captures contacts — no front-desk queue."
+      "store": {
+        "name": "Online Store",
+        "blurb": "After payment we automatically create a professional shop for your niche — it appears in your cabinet."
       },
-      "chatbot": {
-        "name": "AI Chatbot",
-        "blurb": "Captures leads and replies around the clock — like a digital employee."
+      "assistant": {
+        "name": "AI Business Assistant",
+        "blurb": "One digital employee for your company — answers clients and captures leads.",
+        "availableToday": "Available today: Telegram",
+        "comingSoon": "Coming soon: Website Chat · WhatsApp · Instagram · Messenger"
       },
       "audit": {
-        "name": "Website Audit",
+        "name": "Free Website Audit",
         "blurb": "Free check — then repair or a new site."
       },
       "instagram": {
@@ -953,10 +1095,6 @@
       "whatsapp": {
         "name": "WhatsApp Assistant",
         "blurb": "Business WhatsApp replies — in development."
-      },
-      "telegram": {
-        "name": "Telegram Assistant",
-        "blurb": "Live: replies and leads in Telegram after checkout."
       },
       "booking": {
         "name": "Booking System",
@@ -985,7 +1123,7 @@
       "subtitle": "Paid packages — identical amounts on the order page.",
       "paidBadge": "Real checkout prices · not a demo",
       "websites": "Website",
-      "chatbots": "AI Chatbot",
+      "chatbots": "AI Business Assistant",
       "order": "Order",
       "oneTime": "One-time · paid checkout",
       "setupPlusMonthly": "Setup + monthly · paid checkout",
@@ -995,7 +1133,7 @@
       "botDisclaimer": "Setup + monthly. You pay for outcomes: replies, leads, less routine — not an app list.",
       "webCheckoutNote": "One-time · same price at checkout.",
       "botCheckoutNote": "Replies 24/7 and captures leads with no manager on shift.",
-      "botChannelsHonest": "Live now: website chat + Telegram. WhatsApp / Instagram — after Meta OAuth (not sold as ready).",
+      "botChannelsHonest": "Live now: Telegram (connect token after pay). Website Chat / WhatsApp / Instagram — coming soon.",
       "botOutcome24": "Answers clients 24/7",
       "botOutcomeLeads": "Captures leads without a manager",
       "botOutcomeNoManager": "Takes routine off reception / first line",

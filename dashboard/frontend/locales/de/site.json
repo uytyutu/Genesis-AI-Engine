@@ -29,8 +29,8 @@
     "botsLoading": "Pakete werden geladen…",
     "botsMonthly": "Setup · danach {{monthly}}/Monat",
     "botsCta": "Paket wählen →",
-    "botsChannelsHint": "Live jetzt: Website-Chat + Telegram. WhatsApp / Instagram — nach Meta OAuth.",
-    "botsChannelsNote": "Live jetzt: Website-Chat + Telegram. WhatsApp / Instagram — nach Meta OAuth (nicht als fertig verkauft).",
+    "botsChannelsHint": "Live jetzt: Telegram. Website-Chat / WhatsApp / Instagram — demnächst.",
+    "botsChannelsNote": "Live jetzt: Telegram. Website-Chat / WhatsApp / Instagram — demnächst (nicht als fertig verkauft).",
     "needAccount": "Büro für späteres Management?",
     "seeWebsites": "Website-Pakete ansehen",
     "websitesTitle": "Websites",
@@ -496,6 +496,8 @@
     "openForm": "Zum Formular →",
     "interestForm": "Interesse melden →",
     "moreTitle": "Weitere Website-Services",
+    "agencyTitle": "Website Services",
+    "agencySubtitle": "Reparatur, Audit, SEO, Tempo, Sicherheit — für Unternehmen mit bestehender Website.",
     "stagesLine": "{{count}} Schritte · {{timeline}}",
     "supportLine": "Support: {{support}}",
     "landing_website": {
@@ -580,15 +582,15 @@
     "seo_audit": {
       "name": "SEO-Audit",
       "price": "249 €",
-      "blurb": "Technisches und lokales SEO-Konzept.",
+      "blurb": "Technisches und lokales SEO-Konzept für Ihre Website.",
       "includes": [
         "Technisches SEO",
         "Meta / Struktur",
         "Maßnahmenplan"
       ],
-      "timeline": "2–4 Tage wenn live",
-      "support": "Vector-Warteliste",
-      "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
+      "timeline": "2–4 Tage",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Audit nach Zahlung — Bericht im Kabinett, wenn bereit."
     },
     "speed_optimization": {
       "name": "Geschwindigkeits-Optimierung",
@@ -599,9 +601,9 @@
         "Bilder & Cache",
         "Restliste"
       ],
-      "timeline": "2–5 Tage wenn live",
-      "support": "Vector-Warteliste",
-      "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
+      "timeline": "2–5 Tage",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Optimierung nach Zahlung — Status im Kabinett."
     },
     "security_check": {
       "name": "Sicherheits-Check",
@@ -612,9 +614,9 @@
         "Prioritätenbericht",
         "Keine Fake-Pen-Tests"
       ],
-      "timeline": "1–3 Tage wenn live",
-      "support": "Vector-Warteliste",
-      "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
+      "timeline": "1–3 Tage",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Sicherheitsprüfung nach Zahlung — Bericht im Kabinett."
     },
     "google_business_setup": {
       "name": "Google Unternehmensprofil",
@@ -625,22 +627,114 @@
         "Zeiten & Kontakte",
         "Owner-Checkliste"
       ],
-      "timeline": "3–7 Tage wenn live",
-      "support": "Vector-Warteliste",
-      "deliveryNote": "Formular bereit — Checkout wenn Lieferung startet."
+      "timeline": "3–7 Tage",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Profilarbeit nach Zahlung — Checkliste im Kabinett."
     },
     "website_migration": {
       "name": "Website-Migration",
       "price": "ab 299 €",
-      "blurb": "Umzug Ihrer Website auf neues Hosting.",
+      "blurb": "Umzug Ihrer Website auf neues Hosting oder neues Design.",
       "includes": [
         "Migrationsplan",
         "Cutover-Check",
         "Bericht nach dem Umzug"
       ],
-      "timeline": "3–10 Tage wenn live",
-      "support": "Vector-Warteliste",
-      "deliveryNote": "Interesse möglich — Checkout wenn Lieferung startet."
+      "timeline": "3–10 Tage",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Migrationsprojekt nach Zahlung — Status im Kabinett."
+    },
+    "reputation_audit": {
+      "name": "Reputations-Audit",
+      "price": "149 €",
+      "blurb": "Bewertungen, Maps und Online-Präsenz — klare Empfehlungen.",
+      "includes": [
+        "Google Reviews",
+        "Maps",
+        "Erwähnungen",
+        "Empfehlungen"
+      ],
+      "timeline": "1–2 Tage",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Reputationsbericht im Kabinett, wenn bereit."
+    },
+    "ecommerce_shop": {
+      "name": "AI Store by Virtus Core",
+      "price": "ab 799 €",
+      "blurb": "Shop-Briefing → Kabinett → Factory-Warteschlange. ab 799 €.",
+      "includes": [
+        "Shop-Fragebogen",
+        "Produkt im Kabinett",
+        "Factory-Hooks (R2)"
+      ],
+      "timeline": "7–21 Tage",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Nach Zahlung: Wird erstellt → Generiert → Bereit für Factory."
+    },
+    "ai_chatbot": {
+      "name": "AI-Chatbot",
+      "price": "ab 499 €",
+      "blurb": "AI-Chat-Mitarbeiter für Website und Messenger.",
+      "includes": [
+        "Bot-Setup",
+        "Kanäle",
+        "Kabinett-Zugang"
+      ],
+      "timeline": "nach Briefing und Zahlung",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Bot-Projekt nach Zahlung — Status im Kabinett."
+    },
+    "business_automation": {
+      "name": "Business-Automation",
+      "price": "ab 399 €",
+      "blurb": "Workflow-Automatisierung für KMU-Routinen.",
+      "includes": [
+        "Prozesskarte",
+        "Automatisierungen",
+        "Status im Kabinett"
+      ],
+      "timeline": "nach Briefing und Zahlung",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Automationsprojekt nach Zahlung — Status im Kabinett."
+    },
+    "ai_social_content": {
+      "name": "AI Social Content",
+      "price": "ab 199 €/Monat",
+      "blurb": "Monatliche Reels / TikTok / Instagram-Inhalte mit AI-Stimme und Design.",
+      "includes": [
+        "Content-Paket",
+        "AI-Stimme / Design",
+        "Status im Kabinett"
+      ],
+      "timeline": "erster Monat nach Zahlung",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Erster Monat jetzt — wiederkehrendes Stripe später."
+    },
+    "site_maintenance": {
+      "name": "Website-Wartung",
+      "price": "ab 49 €/Monat",
+      "blurb": "Updates, Backups, Monitoring und leichter Support.",
+      "includes": [
+        "Updates",
+        "Backups",
+        "Monitoring"
+      ],
+      "timeline": "erster Monat nach Zahlung",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Erster Monat jetzt — wiederkehrendes Stripe später."
+    },
+    "ai_seo_monitoring": {
+      "name": "AI SEO-Monitoring",
+      "price": "ab 29 €/Monat",
+      "blurb": "Ranking-Tracking und Verbesserungstipps jeden Monat.",
+      "includes": [
+        "Ranking-Snapshot",
+        "Tipps",
+        "Status im Kabinett"
+      ],
+      "timeline": "erster Monat nach Zahlung",
+      "support": "Kabinett + Vector",
+      "deliveryNote": "Erster Monat jetzt — wiederkehrendes Stripe später."
     }
   },
   "analysis": {
@@ -770,7 +864,7 @@
     "errPay": "Zahlungsfehler",
     "servicesPrefix": "Leistungen: {{text}}",
     "tasksPrefix": "Bot-Aufgaben: {{text}}",
-    "channelNoteLive": "Nach Zahlung verbinden",
+    "channelNoteLive": "Demnächst — Interesse notiert, noch nicht live",
     "channelNoteMeta": "Meta-OAuth nach Zahlung",
     "channelNoteToken": "Eigener Bot-Token nach Zahlung",
     "packages": {
@@ -803,6 +897,50 @@
       }
     }
   },
+  "aiStore": {
+    "badge": "AI Store by Virtus Core",
+    "landingTitle": "Online-Shop erstellen",
+    "landingBody": "Für lokale Unternehmen mit Produktverkauf. Fragebogen → Konto → Zahlung → Kabinett (Erstellt → Generiert → Bereit). Shop-Generierung ist Factory R2. ab 799 € · typisch 7–21 Tage.",
+    "benefit1": "Briefing zu Katalog und Versand",
+    "benefit2": "Produkt im Client Workspace nach Zahlung",
+    "benefit3": "Ehrliche Pipeline — noch kein Fake-Live-Shop",
+    "benefit4": "Fester Einstiegspreis, Studio-Pfad später",
+    "cta": "Online-Shop erstellen →",
+    "title": "Online-Shop erstellen",
+    "intro": "ab 799 € · 7–21 Tage · Nach Zahlung: Erstellt → Generiert → Bereit für Factory.",
+    "back": "← {{brand}} Storefront",
+    "stepBrief": "Business",
+    "stepCatalog": "Katalog",
+    "stepCommerce": "Commerce",
+    "stepDesign": "Design",
+    "stepPay": "Zahlen",
+    "next": "Weiter →",
+    "company": "Firmenname",
+    "storeName": "Shop-Name",
+    "description": "Geschäftsbeschreibung",
+    "whatSold": "Was verkaufen Sie?",
+    "category": "Kategorie",
+    "catalogSize": "Ca. Produkte",
+    "languages": "Sprachen (kommagetrennt)",
+    "currency": "Währung",
+    "payments": "Zahlungen",
+    "shipping": "Versand",
+    "pages": "Benötigte Seiten",
+    "style": "Stil",
+    "color": "Farbschema (optional)",
+    "logoUrl": "Logo-URL (optional)",
+    "wishes": "Weitere Wünsche",
+    "readyPay": "Bereit zur Zahlung — ab 799 €",
+    "products": "Produkte",
+    "honestNote": "R1: nach Zahlung Kabinett-Status + Factory-Warteschlange. Volle Shop-Generierung kommt in R2.",
+    "needAccount": "Bitte Konto vor der Zahlung anlegen.",
+    "register": "Registrieren →",
+    "optional": "optional",
+    "openingPay": "Zahlung wird geöffnet…",
+    "pay": "Sicher zahlen →",
+    "fillRequired": "Bitte Pflichtfelder ausfüllen.",
+    "orderFailed": "Bestellung fehlgeschlagen"
+  },
   "serviceForm": {
     "backStorefront": "← {{brand}}-Storefront",
     "backSite": "← Zurück zum Storefront",
@@ -831,6 +969,7 @@
     "fillRequired": "Bitte ausfüllen: {{field}}",
     "emailRequired": "Gültige E-Mail erforderlich",
     "orderFailed": "Bestellung fehlgeschlagen",
+    "monthlyFirstPay": "Das ist die Zahlung für den ersten Monat. Wiederkehrendes Stripe-Abo kommt später — Sie werden noch nicht automatisch monatlich belastet.",
     "fields": {
       "email": {
         "label": "E-Mail",
@@ -929,26 +1068,29 @@
       "resolve": "Module verbinden. KI übernimmt Routine. Sie machen Ihr Handwerk."
     },
     "modules": {
-      "title": "Was möchten Sie verbinden?",
-      "subtitle": "Keine Service-Liste — Apps für Ihr Business.",
+      "title": "Was braucht Ihr Unternehmen?",
+      "subtitle": "Vier klare Produkte. Keine doppelten AI-Karten.",
+      "soonTitle": "Demnächst",
       "live": "Live",
       "soon": "Coming Soon",
       "try": "Öffnen",
       "notify": "Coming Soon",
       "website": {
-        "name": "Website Builder",
+        "name": "Business Website",
         "blurb": "Moderne Business-Website mit Impressum-Pfad und buchungsbereitem Layout."
       },
-      "receptionist": {
-        "name": "AI Receptionist",
-        "blurb": "Beantwortet Leads 24/7 und sammelt Kontakte — ohne Warteschlange am Empfang."
+      "store": {
+        "name": "Online-Shop",
+        "blurb": "Nach der Zahlung erstellen wir automatisch einen professionellen Shop für Ihre Nische — im Kundenkabinett."
       },
-      "chatbot": {
-        "name": "AI Chatbot",
-        "blurb": "Sammelt Anfragen und antwortet rund um die Uhr — wie ein digitaler Mitarbeiter."
+      "assistant": {
+        "name": "AI Business Assistant",
+        "blurb": "Ein digitaler Mitarbeiter für Ihr Unternehmen — antwortet Kunden und sammelt Leads.",
+        "availableToday": "Heute verfügbar: Telegram",
+        "comingSoon": "Demnächst: Website-Chat · WhatsApp · Instagram · Messenger"
       },
       "audit": {
-        "name": "Website Audit",
+        "name": "Kostenloses Website-Audit",
         "blurb": "Kostenlos prüfen — dann Reparatur oder neue Website."
       },
       "instagram": {
@@ -958,10 +1100,6 @@
       "whatsapp": {
         "name": "WhatsApp Assistant",
         "blurb": "Business-WhatsApp — in Entwicklung."
-      },
-      "telegram": {
-        "name": "Telegram Assistant",
-        "blurb": "Live: Antworten und Leads in Telegram nach dem Checkout."
       },
       "booking": {
         "name": "Buchungssystem",
@@ -1000,7 +1138,7 @@
       "botDisclaimer": "Setup + Monatlich. Sie zahlen für Ergebnis: Antworten, Leads, weniger Routine — nicht für eine App-Liste.",
       "webCheckoutNote": "Einmalig · gleicher Preis beim Checkout.",
       "botCheckoutNote": "Antwortet 24/7 und sammelt Anfragen ohne Manager in der Schicht.",
-      "botChannelsHonest": "Live jetzt: Website-Chat + Telegram. WhatsApp / Instagram — nach Meta OAuth (nicht als fertig verkauft).",
+      "botChannelsHonest": "Live jetzt: Telegram (Token nach Zahlung). Website-Chat / WhatsApp / Instagram — demnächst.",
       "botOutcome24": "Antwortet Kunden 24/7",
       "botOutcomeLeads": "Sammelt Anfragen ohne Manager",
       "botOutcomeNoManager": "Entlastet Empfang / First Line",

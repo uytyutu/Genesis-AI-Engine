@@ -29,7 +29,7 @@
     "botsLoading": "Загрузка пакетов ботов…",
     "botsMonthly": "настройка · затем {{monthly}}/мес",
     "botsCta": "Заказать без аккаунта",
-    "botsChannelsNote": "Сейчас live: чат на сайте + Telegram. WhatsApp / Instagram — после Meta OAuth (не продаём как готовые).",
+    "botsChannelsNote": "Сейчас live: Telegram. Чат на сайте / WhatsApp / Instagram — скоро (не продаём как готовые).",
     "needAccount": "Нужен кабинет, чтобы управлять позже?",
     "seeWebsites": "Смотреть пакеты сайтов",
     "websitesTitle": "Websites",
@@ -492,6 +492,8 @@
     "openForm": "К форме →",
     "interestForm": "Оставить интерес →",
     "moreTitle": "Другие услуги для сайта",
+    "agencyTitle": "Website Services",
+    "agencySubtitle": "Ремонт, аудит, SEO, скорость, безопасность — для компаний с уже существующим сайтом.",
     "stagesLine": "{{count}} этапа · {{timeline}}",
     "supportLine": "Поддержка: {{support}}",
     "landing_website": {
@@ -576,15 +578,15 @@
     "seo_audit": {
       "name": "SEO-аудит",
       "price": "249 €",
-      "blurb": "Технический и локальный SEO-план.",
+      "blurb": "Технический и локальный SEO-план для вашего сайта.",
       "includes": [
         "Техническое SEO",
         "Meta / структура",
         "План действий"
       ],
-      "timeline": "2–4 дня когда услуга live",
-      "support": "Лист ожидания Vector",
-      "deliveryNote": "Можно оставить интерес — оплата когда доставка готова."
+      "timeline": "2–4 дня",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Аудит после оплаты — отчёт в кабинете, когда готов."
     },
     "speed_optimization": {
       "name": "Ускорение сайта",
@@ -595,9 +597,9 @@
         "Картинки и кэш",
         "Остаточный список"
       ],
-      "timeline": "2–5 дней когда live",
-      "support": "Лист ожидания Vector",
-      "deliveryNote": "Можно оставить интерес — оплата когда доставка готова."
+      "timeline": "2–5 дней",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Оптимизация после оплаты — статус в кабинете."
     },
     "security_check": {
       "name": "Проверка безопасности",
@@ -608,9 +610,9 @@
         "Приоритетный отчёт",
         "Без фейковых pen-test"
       ],
-      "timeline": "1–3 дня когда live",
-      "support": "Лист ожидания Vector",
-      "deliveryNote": "Можно оставить интерес — оплата когда доставка готова."
+      "timeline": "1–3 дня",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Проверка после оплаты — отчёт в кабинете."
     },
     "google_business_setup": {
       "name": "Google Business Profile",
@@ -621,22 +623,114 @@
         "Часы и контакты",
         "Чеклист владельца"
       ],
-      "timeline": "3–7 дней когда live",
-      "support": "Лист ожидания Vector",
-      "deliveryNote": "Форма готова — оплата когда доставка live."
+      "timeline": "3–7 дней",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Работа с профилем после оплаты — чеклист в кабинете."
     },
     "website_migration": {
       "name": "Миграция сайта",
       "price": "от 299 €",
-      "blurb": "Перенос сайта на новый хостинг.",
+      "blurb": "Перенос сайта на новый хостинг или новый дизайн.",
       "includes": [
         "План миграции",
         "Проверка cutover",
         "Отчёт после переноса"
       ],
-      "timeline": "3–10 дней когда live",
-      "support": "Лист ожидания Vector",
-      "deliveryNote": "Можно оставить интерес — оплата когда доставка готова."
+      "timeline": "3–10 дней",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Проект миграции после оплаты — статус в кабинете."
+    },
+    "reputation_audit": {
+      "name": "Аудит репутации",
+      "price": "149 €",
+      "blurb": "Отзывы, Maps и присутствие в сети — понятные рекомендации.",
+      "includes": [
+        "Google Reviews",
+        "Maps",
+        "Упоминания",
+        "Рекомендации"
+      ],
+      "timeline": "1–2 дня",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Отчёт по репутации в кабинете, когда готов."
+    },
+    "ecommerce_shop": {
+      "name": "AI Store by Virtus Core",
+      "price": "от 799 €",
+      "blurb": "Бриф магазина → кабинет → очередь Factory. от 799 €.",
+      "includes": [
+        "Анкета магазина",
+        "Продукт в кабинете",
+        "Хуки Factory (R2)"
+      ],
+      "timeline": "7–21 дней",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "После оплаты: Создаётся → Генерируется → Готов к Factory."
+    },
+    "ai_chatbot": {
+      "name": "AI-чатбот",
+      "price": "от 499 €",
+      "blurb": "AI-сотрудник для сайта и мессенджеров.",
+      "includes": [
+        "Настройка бота",
+        "Каналы",
+        "Доступ в кабинет"
+      ],
+      "timeline": "после брифа и оплаты",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Проект бота после оплаты — статус в кабинете."
+    },
+    "business_automation": {
+      "name": "Автоматизация бизнеса",
+      "price": "от 399 €",
+      "blurb": "Автоматизация рутинных процессов малого бизнеса.",
+      "includes": [
+        "Карта процессов",
+        "Автоматизации",
+        "Статус в кабинете"
+      ],
+      "timeline": "после брифа и оплаты",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Проект автоматизации после оплаты — статус в кабинете."
+    },
+    "ai_social_content": {
+      "name": "AI Social Content",
+      "price": "от 199 €/мес",
+      "blurb": "Ежемесячный контент для Reels / TikTok / Instagram с AI-голосом и дизайном.",
+      "includes": [
+        "Пакет контента",
+        "AI-голос / дизайн",
+        "Статус в кабинете"
+      ],
+      "timeline": "первый месяц после оплаты",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Оплачивается первый месяц — автосписание Stripe позже."
+    },
+    "site_maintenance": {
+      "name": "Обслуживание сайта",
+      "price": "от 49 €/мес",
+      "blurb": "Обновления, бэкапы, мониторинг и лёгкая поддержка.",
+      "includes": [
+        "Обновления",
+        "Бэкапы",
+        "Мониторинг"
+      ],
+      "timeline": "первый месяц после оплаты",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Оплачивается первый месяц — автосписание Stripe позже."
+    },
+    "ai_seo_monitoring": {
+      "name": "AI SEO-мониторинг",
+      "price": "от 29 €/мес",
+      "blurb": "Отслеживание позиций и советы по улучшению каждый месяц.",
+      "includes": [
+        "Снимок позиций",
+        "Советы",
+        "Статус в кабинете"
+      ],
+      "timeline": "первый месяц после оплаты",
+      "support": "Кабинет + Vector",
+      "deliveryNote": "Оплачивается первый месяц — автосписание Stripe позже."
     }
   },
   "analysis": {
@@ -766,7 +860,7 @@
     "errPay": "Ошибка оплаты",
     "servicesPrefix": "Услуги: {{text}}",
     "tasksPrefix": "Задачи бота: {{text}}",
-    "channelNoteLive": "Подключить после оплаты",
+    "channelNoteLive": "Скоро — интерес учтён, пока не live",
     "channelNoteMeta": "Meta OAuth после оплаты",
     "channelNoteToken": "Свой токен бота после оплаты",
     "packages": {
@@ -799,6 +893,50 @@
       }
     }
   },
+  "aiStore": {
+    "badge": "AI Store by Virtus Core",
+    "landingTitle": "Создать интернет-магазин",
+    "landingBody": "Для локального бизнеса с товарами. Анкета → аккаунт → оплата → кабинет (Создаётся → Генерируется → Готов). Сборка витрины — Factory R2. от 799 € · обычно 7–21 день.",
+    "benefit1": "Бриф под каталог и доставку",
+    "benefit2": "Продукт в Client Workspace после оплаты",
+    "benefit3": "Честный pipeline — без фейкового «уже онлайн»",
+    "benefit4": "Фиксированный вход, студийный уровень дальше",
+    "cta": "Создать интернет-магазин →",
+    "title": "Создать интернет-магазин",
+    "intro": "от 799 € · 7–21 дней · После оплаты: Создаётся → Генерируется → Готов к Factory.",
+    "back": "← {{brand}} витрина",
+    "stepBrief": "Бизнес",
+    "stepCatalog": "Каталог",
+    "stepCommerce": "Коммерция",
+    "stepDesign": "Дизайн",
+    "stepPay": "Оплата",
+    "next": "Далее →",
+    "company": "Название компании",
+    "storeName": "Название магазина",
+    "description": "Описание бизнеса",
+    "whatSold": "Что продаёте?",
+    "category": "Категория",
+    "catalogSize": "Примерно товаров",
+    "languages": "Языки (через запятую)",
+    "currency": "Валюта",
+    "payments": "Оплата",
+    "shipping": "Доставка",
+    "pages": "Нужные страницы",
+    "style": "Стиль",
+    "color": "Цветовая схема (опционально)",
+    "logoUrl": "URL логотипа (опционально)",
+    "wishes": "Дополнительные пожелания",
+    "readyPay": "Готово к оплате — от 799 €",
+    "products": "товаров",
+    "honestNote": "R1: после оплаты — статус в кабинете + очередь Factory. Полная генерация витрины — в R2.",
+    "needAccount": "Перед оплатой нужен аккаунт.",
+    "register": "Регистрация →",
+    "optional": "необязательно",
+    "openingPay": "Открываем оплату…",
+    "pay": "Оплатить безопасно →",
+    "fillRequired": "Заполните обязательные поля.",
+    "orderFailed": "Не удалось создать заказ"
+  },
   "serviceForm": {
     "backStorefront": "← Витрина {{brand}}",
     "backSite": "← Назад на витрину",
@@ -827,6 +965,7 @@
     "fillRequired": "Заполните: {{field}}",
     "emailRequired": "Нужен корректный email",
     "orderFailed": "Не удалось оформить заказ",
+    "monthlyFirstPay": "Это оплата за первый месяц. Автосписание Stripe позже — сейчас вы не подписываетесь на ежемесячное списание.",
     "fields": {
       "email": {
         "label": "Email",
@@ -921,26 +1060,29 @@
       "resolve": "Подключайте модули. AI берёт рутину. Вы занимаетесь ремеслом."
     },
     "modules": {
-      "title": "Что хотите подключить?",
-      "subtitle": "Не список услуг — приложения для бизнеса.",
+      "title": "Что нужно вашему бизнесу?",
+      "subtitle": "Четыре понятных продукта. Без дублей AI-карточек.",
+      "soonTitle": "Скоро",
       "live": "Live",
       "soon": "Скоро",
       "try": "Открыть",
       "notify": "Скоро",
       "website": {
-        "name": "Website Builder",
+        "name": "Business Website",
         "blurb": "Современный сайт с путём к Impressum и записью."
       },
-      "receptionist": {
-        "name": "AI Receptionist",
-        "blurb": "Отвечает на заявки 24/7 и собирает контакты — без очереди на ресепшене."
+      "store": {
+        "name": "Online Store",
+        "blurb": "После оплаты автоматически создаём профессиональный магазин под вашу нишу — он появляется в кабинете."
       },
-      "chatbot": {
-        "name": "AI Chatbot",
-        "blurb": "Собирает заявки и отвечает круглосуточно — как цифровой сотрудник."
+      "assistant": {
+        "name": "AI Business Assistant",
+        "blurb": "Один цифровой сотрудник для компании — отвечает клиентам и собирает заявки.",
+        "availableToday": "Доступно сегодня: Telegram",
+        "comingSoon": "Скоро: чат на сайте · WhatsApp · Instagram · Messenger"
       },
       "audit": {
-        "name": "Website Audit",
+        "name": "Бесплатный Website Audit",
         "blurb": "Бесплатная проверка — затем ремонт или новый сайт."
       },
       "instagram": {
@@ -950,10 +1092,6 @@
       "whatsapp": {
         "name": "WhatsApp Assistant",
         "blurb": "Ответы в WhatsApp — в разработке."
-      },
-      "telegram": {
-        "name": "Telegram Assistant",
-        "blurb": "Live: ответы и заявки в Telegram после оплаты."
       },
       "booking": {
         "name": "Booking System",
@@ -992,7 +1130,7 @@
       "botDisclaimer": "Настройка + ежемесячно. Платите за результат: ответы, заявки, меньше рутины — не за список приложений.",
       "webCheckoutNote": "Разово · та же сумма при оплате.",
       "botCheckoutNote": "Отвечает 24/7 и собирает заявки без менеджера в смене.",
-      "botChannelsHonest": "Сейчас live: чат на сайте + Telegram. WhatsApp / Instagram — после Meta OAuth (не продаём как готовые).",
+      "botChannelsHonest": "Сейчас live: Telegram (токен после оплаты). Чат на сайте / WhatsApp / Instagram — скоро.",
       "botOutcome24": "Отвечает клиентам 24/7",
       "botOutcomeLeads": "Собирает заявки без участия менеджера",
       "botOutcomeNoManager": "Снимает рутину с ресепшена / первой линии",

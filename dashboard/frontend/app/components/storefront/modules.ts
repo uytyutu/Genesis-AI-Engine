@@ -14,10 +14,14 @@ export type StoreModule = {
   blurbKey: string;
   rating: number;
   /** Primary action when live */
-  action: "websites" | "bots" | "analysis" | "vector" | "order" | "orderBot" | null;
+  action: "websites" | "bots" | "analysis" | "vector" | "order" | "orderBot" | "store" | null;
+  /** Optional channel honesty lines (assistant card) */
+  availableChannelsKey?: string;
+  comingSoonChannelsKey?: string;
 };
 
-export const STORE_MODULES: StoreModule[] = [
+/** First row — core offer (Website · Store · Assistant · Audit). */
+export const STORE_MODULES_PRIMARY: StoreModule[] = [
   {
     id: "website",
     icon: "🌐",
@@ -29,24 +33,26 @@ export const STORE_MODULES: StoreModule[] = [
     action: "websites",
   },
   {
-    id: "receptionist",
+    id: "store",
+    icon: "🛒",
+    status: "live",
+    badge: "new",
+    nameKey: "modules.store.name",
+    blurbKey: "modules.store.blurb",
+    rating: 5,
+    action: "store",
+  },
+  {
+    id: "assistant",
     icon: "🤖",
     status: "live",
     badge: "choice",
-    nameKey: "modules.receptionist.name",
-    blurbKey: "modules.receptionist.blurb",
+    nameKey: "modules.assistant.name",
+    blurbKey: "modules.assistant.blurb",
     rating: 5,
     action: "bots",
-  },
-  {
-    id: "chatbot",
-    icon: "💬",
-    status: "live",
-    badge: "new",
-    nameKey: "modules.chatbot.name",
-    blurbKey: "modules.chatbot.blurb",
-    rating: 5,
-    action: "bots",
+    availableChannelsKey: "modules.assistant.availableToday",
+    comingSoonChannelsKey: "modules.assistant.comingSoon",
   },
   {
     id: "audit",
@@ -58,6 +64,10 @@ export const STORE_MODULES: StoreModule[] = [
     rating: 5,
     action: "analysis",
   },
+];
+
+/** Secondary — not the main purchase decision. */
+export const STORE_MODULES_SOON: StoreModule[] = [
   {
     id: "instagram",
     icon: "📸",
@@ -75,16 +85,6 @@ export const STORE_MODULES: StoreModule[] = [
     badge: null,
     nameKey: "modules.whatsapp.name",
     blurbKey: "modules.whatsapp.blurb",
-    rating: 0,
-    action: null,
-  },
-  {
-    id: "telegram",
-    icon: "✈️",
-    status: "soon",
-    badge: null,
-    nameKey: "modules.telegram.name",
-    blurbKey: "modules.telegram.blurb",
     rating: 0,
     action: null,
   },
@@ -120,6 +120,12 @@ export const STORE_MODULES: StoreModule[] = [
   },
 ];
 
+/** @deprecated use STORE_MODULES_PRIMARY + STORE_MODULES_SOON */
+export const STORE_MODULES: StoreModule[] = [
+  ...STORE_MODULES_PRIMARY,
+  ...STORE_MODULES_SOON,
+];
+
 export const WEBSITE_PRICE_TIERS = [
   { id: "basic", priceEur: 350, nameKey: "pricing.webBasic", blurbKey: "pricing.webBasicBlurb" },
   { id: "business", priceEur: 650, nameKey: "pricing.webBusiness", blurbKey: "pricing.webBusinessBlurb", featured: true },
@@ -134,6 +140,11 @@ export const CHATBOT_PRICE_TIERS = [
     monthlyEur: 99,
     nameKey: "pricing.botStarter",
     blurbKey: "pricing.botStarterBlurb",
+    outcomeKeys: [
+      "pricing.botOutcome24",
+      "pricing.botOutcomeLeads",
+      "pricing.botOutcomeNoManager",
+    ] as const,
   },
   {
     id: "bot_business",
@@ -142,6 +153,12 @@ export const CHATBOT_PRICE_TIERS = [
     nameKey: "pricing.botBusiness",
     blurbKey: "pricing.botBusinessBlurb",
     featured: true,
+    outcomeKeys: [
+      "pricing.botOutcome24",
+      "pricing.botOutcomeBooking",
+      "pricing.botOutcomeMulti",
+      "pricing.botOutcomeHours",
+    ] as const,
   },
   {
     id: "bot_professional",
@@ -149,5 +166,11 @@ export const CHATBOT_PRICE_TIERS = [
     monthlyEur: 349,
     nameKey: "pricing.botPro",
     blurbKey: "pricing.botProBlurb",
+    outcomeKeys: [
+      "pricing.botOutcomeTeam",
+      "pricing.botOutcomeRoi",
+      "pricing.botOutcomeVip",
+      "pricing.botOutcomeScale",
+    ] as const,
   },
 ] as const;

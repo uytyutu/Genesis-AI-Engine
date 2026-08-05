@@ -1,7 +1,7 @@
 """G2.X — Commercial catalog (DE market · honest sellability).
 
-Active: Landing, AI Digital Employee (one product), live website services + interest forms.
-Coming Soon: CRM/automation modules not yet deliverable.
+Active: Landing, AI Digital Employee, full Website Services agency catalog.
+Coming Soon: legacy CRM/automation module SKUs not yet deliverable as products.
 """
 
 from __future__ import annotations
@@ -37,9 +37,106 @@ AUTOMATION_MONTHLY_EUR: dict[str, int] = {
     "business": 99,
 }
 
+# Website Services — agency catalog (EUR anchors, DE)
+WEBSITE_SERVICE_PRICES_EUR: dict[str, int] = {
+    "ai_website_analysis": 149,
+    "website_repair": 199,
+    "seo_audit": 249,
+    "speed_optimization": 199,
+    "security_check": 299,
+    "google_business_setup": 149,
+    "website_migration": 299,
+    "reputation_audit": 149,
+    "ecommerce_shop": 799,
+    "ai_chatbot": 499,
+    "business_automation": 399,
+    "ai_social_content": 199,
+    "site_maintenance": 49,
+    "ai_seo_monitoring": 29,
+}
+
+_ADDON_LIVE = frozenset(WEBSITE_SERVICE_PRICES_EUR.keys())
+
+_ADDON_INCLUDES: dict[str, str] = {
+    "ai_website_analysis": (
+        "HTTPS · mobile · SEO · Open Graph · Schema · PDF report · improvement plan"
+    ),
+    "website_repair": (
+        "Bug fixes · WhatsApp button · Maps · forms · basic SEO · Open Graph · 2–5 days"
+    ),
+    "seo_audit": (
+        "Title · Description · H1–H6 · robots · sitemap · Schema · CWV · fix plan"
+    ),
+    "speed_optimization": (
+        "Core Web Vitals · images · CSS/JS · caching · lazy load · 2–5 days"
+    ),
+    "security_check": (
+        "HTTPS/SSL · security headers · forms · main risks · remediation plan"
+    ),
+    "google_business_setup": (
+        "Profile check · categories · hours · photos · links · growth plan"
+    ),
+    "website_migration": (
+        "Content move · new design · domain · launch help · 3–10 days"
+    ),
+    "reputation_audit": (
+        "Google Reviews · Maps · mentions · recommendations · 1–2 days"
+    ),
+    "ecommerce_shop": "Online store setup · catalog · checkout path · from 799 €",
+    "ai_chatbot": "AI chat employee · channels · setup from 499 €",
+    "business_automation": "Workflow automation for SMB · from 399 €",
+    "ai_social_content": (
+        "Reels · TikTok · Instagram · Facebook · AI voice · AI design · monthly"
+    ),
+    "site_maintenance": "Updates · backups · monitoring · support · monthly",
+    "ai_seo_monitoring": "Rank tracking · improvement tips · monthly",
+}
+
+_ADDON_FROM_PRICE = frozenset(
+    {
+        "website_repair",
+        "website_migration",
+        "ecommerce_shop",
+        "ai_chatbot",
+        "business_automation",
+        "ai_social_content",
+        "site_maintenance",
+        "ai_seo_monitoring",
+    }
+)
+
+_ADDON_MONTHLY = frozenset(
+    {"ai_social_content", "site_maintenance", "ai_seo_monitoring"}
+)
+
 
 def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
     """Public commercial rows for /products and readiness checks."""
+    website_rows = tuple(
+        _addon(
+            sid,
+            _addon_display_name(sid),
+            WEBSITE_SERVICE_PRICES_EUR[sid],
+            from_price=sid in _ADDON_FROM_PRICE,
+            monthly=sid in _ADDON_MONTHLY,
+        )
+        for sid in (
+            "website_repair",
+            "ai_website_analysis",
+            "seo_audit",
+            "google_business_setup",
+            "website_migration",
+            "speed_optimization",
+            "reputation_audit",
+            "security_check",
+            "ecommerce_shop",
+            "ai_chatbot",
+            "business_automation",
+            "ai_social_content",
+            "site_maintenance",
+            "ai_seo_monitoring",
+        )
+    )
     return (
         {
             "id": "landing_website",
@@ -75,29 +172,7 @@ def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
                 "Website · Telegram · WhatsApp · Instagram · Messenger"
             ),
         },
-        _addon("ai_website_analysis", "Written AI analysis report", 149),
-        _addon(
-            "website_repair",
-            "Website Repair",
-            199,
-            from_price=True,
-        ),
-        _addon("seo_audit", "SEO Audit", 249, available=False),
-        _addon("speed_optimization", "Speed Optimization", 199, available=False),
-        _addon("security_check", "Security Check", 299, available=False),
-        _addon(
-            "google_business_setup",
-            "Google Business Profile Setup",
-            149,
-            available=False,
-        ),
-        _addon(
-            "website_migration",
-            "Website Migration",
-            299,
-            from_price=True,
-            available=False,
-        ),
+        *website_rows,
         _monthly(
             "crm_starter",
             "CRM Starter",
@@ -113,8 +188,23 @@ def commercial_catalog_rows() -> tuple[dict[str, Any], ...]:
     )
 
 
-# Honest sellability: only analysis + repair have intake → pay today.
-_ADDON_LIVE = frozenset({"ai_website_analysis", "website_repair"})
+def _addon_display_name(id_: str) -> str:
+    return {
+        "ai_website_analysis": "AI Website Analysis",
+        "website_repair": "Website Repair",
+        "seo_audit": "SEO Audit",
+        "speed_optimization": "Speed Optimization",
+        "security_check": "Security Check",
+        "google_business_setup": "Google Business Profile",
+        "website_migration": "Website Migration",
+        "reputation_audit": "Reputation Audit",
+        "ecommerce_shop": "AI Store by Virtus Core",
+        "ai_chatbot": "AI Chatbot",
+        "business_automation": "Business Automation",
+        "ai_social_content": "AI Social Content",
+        "site_maintenance": "Website Maintenance",
+        "ai_seo_monitoring": "AI SEO Monitoring",
+    }.get(id_, id_.replace("_", " ").title())
 
 
 def _addon(
@@ -124,29 +214,34 @@ def _addon(
     *,
     from_price: bool = False,
     available: bool | None = None,
+    monthly: bool = False,
 ) -> dict[str, Any]:
-    label = f"from {eur} €" if from_price else f"{eur} €"
-    live = id_ in _ADDON_LIVE if available is None else available
-    if not live:
-        includes = "Opening soon — ask Vector or open the interest form"
-    elif id_ == "website_repair":
-        includes = "Broken website? Recovery target 24–48h · form first, then payment"
+    if monthly:
+        label = f"from {eur} €/mo" if from_price else f"{eur} €/mo"
     else:
-        includes = "Order form first, then payment"
-    if id_ == "ai_website_analysis" and live:
-        includes = "Free check on /site first · paid written report via form"
+        label = f"from {eur} €" if from_price else f"{eur} €"
+    live = id_ in _ADDON_LIVE if available is None else available
+    includes = _ADDON_INCLUDES.get(id_) or (
+        "Opening soon — ask Vector or open the interest form"
+        if not live
+        else "Order form first, then payment"
+    )
     return {
         "id": id_,
-        "category": "one_time",
+        "category": "monthly" if monthly else "one_time",
         "group": "website_services",
         "name": name,
         "price_label": label,
-        "billing": "one_time",
+        "billing": "monthly" if monthly else "one_time",
         "availability": "available" if live else "coming_soon",
         "cta": "order_now" if live else "coming_soon",
-        "cta_href": f"/order/service/{id_}",
-        "cta_label": "Order form" if live else "Coming Soon",
+        "cta_href": (
+            "/order/shop" if id_ == "ecommerce_shop" else f"/order/service/{id_}"
+        ),
+        "cta_label": "Order" if live else "Coming Soon",
         "includes": includes,
+        "price_eur": eur,
+        "from_price": from_price,
     }
 
 

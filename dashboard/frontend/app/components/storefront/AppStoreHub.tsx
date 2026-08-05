@@ -9,10 +9,12 @@ import { logCommerceEvent } from "../../lib/commerceFunnel";
 import { LiveActivityCanvas } from "./LiveActivityCanvas";
 import {
   CHATBOT_PRICE_TIERS,
-  STORE_MODULES,
+  STORE_MODULES_PRIMARY,
+  STORE_MODULES_SOON,
   WEBSITE_PRICE_TIERS,
   type StoreModule,
 } from "./modules";
+import { ServiceCatalogGrid } from "../ServiceCatalogCards";
 
 type PublicReviews = {
   has_reviews: boolean;
@@ -72,11 +74,14 @@ function moduleAction(
     onOpenWebsites: () => void;
     onOpenBots: () => void;
     onOpenAnalysis: () => void;
+    onOpenStore: () => void;
   },
 ) {
   switch (mod.action) {
     case "websites":
       return handlers.onOpenWebsites;
+    case "store":
+      return handlers.onOpenStore;
     case "bots":
     case "orderBot":
       return handlers.onOpenBots;
@@ -106,7 +111,104 @@ export function AppStoreHub({
   const { t } = useTranslation("site");
   const ns = "appStore";
 
-  const handlers = { onOpenVector, onOpenWebsites, onOpenBots, onOpenAnalysis };
+  const handlers = {
+    onOpenVector,
+    onOpenWebsites,
+    onOpenBots,
+    onOpenAnalysis,
+    onOpenStore: () => {
+      if (typeof window !== "undefined") {
+        window.location.href = `/order/shop?market=${encodeURIComponent(market)}`;
+      }
+    },
+  };
+
+  const renderModuleCard = (mod: StoreModule) => {
+    const go = moduleAction(mod, handlers);
+    const live = mod.status === "live";
+    const badgeKey =
+      mod.badge === "popular"
+        ? "modules.badgePopular"
+        : mod.badge === "new"
+          ? "modules.badgeNew"
+          : mod.badge === "choice"
+            ? "modules.badgeChoice"
+            : null;
+    return (
+      <article
+        key={mod.id}
+        className="storefront-module-card group flex flex-col rounded-3xl border border-white/10 bg-white/[0.03] p-5"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <span className="text-2xl transition group-hover:scale-110" aria-hidden>
+            {mod.icon}
+          </span>
+          <div className="flex flex-wrap justify-end gap-1">
+            {badgeKey ? (
+              <span className="rounded-full border border-fuchsia-400/35 bg-fuchsia-950/40 px-2 py-0.5 text-[10px] font-semibold text-fuchsia-100">
+                {t(`${ns}.${badgeKey}`)}
+              </span>
+            ) : null}
+            {live ? (
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
+                {t(`${ns}.modules.live`, { defaultValue: "Live" })}
+              </span>
+            ) : (
+              <span className="rounded-full border border-amber-500/30 bg-amber-950/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-100/90">
+                {t(`${ns}.modules.soon`, { defaultValue: "Coming Soon" })}
+              </span>
+            )}
+          </div>
+        </div>
+        <h3 className="mt-3 text-lg font-semibold text-white">
+          {t(`${ns}.${mod.nameKey}`)}
+        </h3>
+        {live ? (
+          <p className="mt-1 text-xs text-amber-200/80">{stars(mod.rating)}</p>
+        ) : null}
+        <p className="mt-2 flex-1 text-sm text-genesis-muted">
+          {t(`${ns}.${mod.blurbKey}`)}
+        </p>
+        {mod.availableChannelsKey ? (
+          <div className="mt-3 space-y-1 text-xs text-zinc-400">
+            <p className="font-semibold text-emerald-200/90">
+              {t(`${ns}.${mod.availableChannelsKey}`, {
+                defaultValue: "Available today: Telegram",
+              })}
+            </p>
+            {mod.comingSoonChannelsKey ? (
+              <p>
+                {t(`${ns}.${mod.comingSoonChannelsKey}`, {
+                  defaultValue:
+                    "Coming soon: Website Chat, WhatsApp, Instagram, Messenger",
+                })}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {live && go ? (
+          <button
+            type="button"
+            onClick={() => {
+              logCommerceEvent("module_try", mod.id, "site");
+              go();
+            }}
+            className="storefront-module-cta mt-4 inline-flex items-center justify-center rounded-xl bg-genesis-purple-soft px-4 py-2.5 text-sm font-semibold text-white"
+          >
+            {t(`${ns}.modules.try`, { defaultValue: "Open" })}
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="mt-4 inline-flex cursor-not-allowed items-center justify-center rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-zinc-500"
+          >
+            {t(`${ns}.modules.notify`, { defaultValue: "Coming Soon" })}
+          </button>
+        )}
+      </article>
+    );
+  };
 
   const websiteTiers =
     packages && packages.length > 0
@@ -132,13 +234,18 @@ export function AppStoreHub({
     botPackages && botPackages.length > 0
       ? botPackages
           .filter((p) => String(p.package_id || "").startsWith("bot_"))
-          .map((p) => ({
-            id: p.package_id,
-            name: p.name,
-            setupLabel: p.setup_label || p.price_label,
-            monthlyLabel: p.monthly_label || "",
-            featured: p.package_id.includes("business"),
-          }))
+          .map((p) => {
+            const fallback = CHATBOT_PRICE_TIERS.find((t) => t.id === p.package_id);
+            return {
+              id: p.package_id,
+              name: p.name,
+              setupLabel: p.setup_label || p.price_label,
+              monthlyLabel: p.monthly_label || "",
+              featured: p.package_id.includes("business"),
+              outcomeKeys: fallback?.outcomeKeys ?? ([] as const),
+              blurbKey: fallback?.blurbKey,
+            };
+          })
       : CHATBOT_PRICE_TIERS.map((tier) => ({
           id: tier.id,
           name: t(`${ns}.${tier.nameKey}`),
@@ -146,6 +253,7 @@ export function AppStoreHub({
           monthlyLabel: formatLocalizedMoney(tier.monthlyEur, "EUR", localeTag),
           featured: "featured" in tier && Boolean(tier.featured),
           blurbKey: tier.blurbKey,
+          outcomeKeys: tier.outcomeKeys,
         }));
 
   const botHref = (id: string) =>
@@ -189,18 +297,17 @@ export function AppStoreHub({
             ))}
           </ul>
           <div className="flex w-full flex-col items-stretch gap-3 pt-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
-            <button
-              type="button"
-              onClick={onOpenVector}
-              className="storefront-cta-primary inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-genesis-purple-soft px-7 py-3.5 text-sm font-bold text-white shadow-[0_0_40px_-6px_rgba(167,139,250,0.7)] hover:brightness-110"
-            >
-              {t(`${ns}.cta.tryFree`, { defaultValue: "Try AI free" })}
-            </button>
             <a
-              href="#vector-demo"
+              href="#ai-store"
+              className="storefront-cta-primary inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-emerald-500 px-7 py-3.5 text-sm font-bold text-black shadow-[0_0_40px_-6px_rgba(16,185,129,0.45)] hover:brightness-110"
+            >
+              {t("aiStore.cta", { defaultValue: "Create online shop →" })}
+            </a>
+            <a
+              href="#website-services"
               className="inline-flex min-h-[44px] items-center justify-center rounded-2xl border border-white/20 px-6 py-3 text-sm font-semibold text-white hover:bg-white/5"
             >
-              {t(`${ns}.cta.watchDemo`, { defaultValue: "Watch demo" })}
+              {t(`${ns}.cta.tryFree`, { defaultValue: "Open catalog" })}
             </a>
             <Link
               href="/kontakt"
@@ -265,120 +372,87 @@ export function AppStoreHub({
         </div>
       </section>
 
-      {/* Module App Store */}
+      {/* Core offer — Website · Store · Assistant · Audit */}
       <section id="modules" className="scroll-mt-24 space-y-6">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-semibold text-white sm:text-3xl">
-            {t(`${ns}.modules.title`, { defaultValue: "What do you want to connect?" })}
+            {t(`${ns}.modules.title`, { defaultValue: "What do you need for your business?" })}
           </h2>
           <p className="text-sm text-genesis-muted">
             {t(`${ns}.modules.subtitle`, {
-              defaultValue: "Not a service list — apps for your business.",
+              defaultValue: "Four clear products. No duplicate AI cards.",
             })}
           </p>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {STORE_MODULES.map((mod) => {
-            const go = moduleAction(mod, handlers);
-            const live = mod.status === "live";
-            const badgeKey =
-              mod.badge === "popular"
-                ? "modules.badgePopular"
-                : mod.badge === "new"
-                  ? "modules.badgeNew"
-                  : mod.badge === "choice"
-                    ? "modules.badgeChoice"
-                    : null;
-            return (
-              <article
-                key={mod.id}
-                className="storefront-module-card group flex flex-col rounded-3xl border border-white/10 bg-white/[0.03] p-5"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-2xl transition group-hover:scale-110" aria-hidden>
-                    {mod.icon}
-                  </span>
-                  <div className="flex flex-wrap justify-end gap-1">
-                    {badgeKey ? (
-                      <span className="rounded-full border border-fuchsia-400/35 bg-fuchsia-950/40 px-2 py-0.5 text-[10px] font-semibold text-fuchsia-100">
-                        {t(`${ns}.${badgeKey}`)}
-                      </span>
-                    ) : null}
-                    {live ? (
-                      <span className="rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
-                        {t(`${ns}.modules.live`, { defaultValue: "Live" })}
-                      </span>
-                    ) : (
-                      <span className="rounded-full border border-amber-500/30 bg-amber-950/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-100/90">
-                        {t(`${ns}.modules.soon`, { defaultValue: "Coming Soon" })}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <h3 className="mt-3 text-lg font-semibold text-white">
-                  {t(`${ns}.${mod.nameKey}`)}
-                </h3>
-                {live ? (
-                  <p className="mt-1 text-xs text-amber-200/80">{stars(mod.rating)}</p>
-                ) : null}
-                <p className="mt-2 flex-1 text-sm text-genesis-muted">
-                  {t(`${ns}.${mod.blurbKey}`)}
-                </p>
-                {live && go ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      logCommerceEvent("module_try", mod.id, "site");
-                      go();
-                    }}
-                    className="storefront-module-cta mt-4 inline-flex items-center justify-center rounded-xl bg-genesis-purple-soft px-4 py-2.5 text-sm font-semibold text-white"
-                  >
-                    {t(`${ns}.modules.try`, { defaultValue: "Try" })}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    disabled
-                    className="mt-4 inline-flex cursor-not-allowed items-center justify-center rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-zinc-500"
-                  >
-                    {t(`${ns}.modules.notify`, { defaultValue: "Notify me" })}
-                  </button>
-                )}
-              </article>
-            );
-          })}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {STORE_MODULES_PRIMARY.map(renderModuleCard)}
+        </div>
+        <div className="pt-4">
+          <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            {t(`${ns}.modules.soonTitle`, { defaultValue: "Coming soon" })}
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {STORE_MODULES_SOON.map(renderModuleCard)}
+          </div>
         </div>
       </section>
 
-      {/* Free chat with Vector — not a free product */}
+      {/* Additional services — for existing websites */}
+      <section id="website-services" className="scroll-mt-24 space-y-4">
+        <ServiceCatalogGrid mode="agency" market={market} />
+      </section>
+
+      {/* AI Store highlight — plain language */}
       <section
-        id="try-free"
-        className="scroll-mt-24 rounded-[2rem] border border-genesis-purple/35 bg-gradient-to-br from-[#1a0b2e] to-genesis-panel p-6 sm:p-10"
+        id="ai-store"
+        className="scroll-mt-24 rounded-[2rem] border border-emerald-500/30 bg-gradient-to-br from-emerald-950/40 via-black/20 to-genesis-panel p-6 sm:p-8"
       >
-        <div className="mx-auto max-w-2xl space-y-4 text-center">
-          <h2 className="text-2xl font-semibold text-white sm:text-3xl">
-            {t(`${ns}.trial.title`, { defaultValue: "Free chat with Vector" })}
-          </h2>
-          <p className="text-sm text-genesis-muted sm:text-base">
-            {t(`${ns}.trial.body`, {
-              assistant: ASSISTANT_NAME,
-              defaultValue:
-                "Ask {{assistant}} about products and prices — free. Ordering a website or AI Bot is a separate paid checkout.",
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200/80">
+          {t("aiStore.badge", { defaultValue: "Online Store" })}
+        </p>
+        <h2 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
+          {t("aiStore.landingTitle", {
+            defaultValue: "Professional online shop for your business",
+          })}
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-zinc-300">
+          {t("aiStore.landingBody", {
+            defaultValue:
+              "After payment we automatically create a professional online store for your niche. The finished project appears in your client cabinet — open it, regenerate, or roll back versions. From 799 €.",
+          })}
+        </p>
+        <ul className="mt-4 grid gap-2 text-sm text-zinc-400 sm:grid-cols-2">
+          <li>
+            ✓{" "}
+            {t("aiStore.benefit1", {
+              defaultValue: "Brief tailored to your catalog & shipping",
             })}
-          </p>
-          <button
-            type="button"
-            onClick={onOpenVector}
-            className="storefront-cta-primary inline-flex rounded-2xl bg-white px-8 py-3.5 text-sm font-bold text-black hover:brightness-95"
-          >
-            {t(`${ns}.trial.cta`, { defaultValue: "Open free chat" })}
-          </button>
-          <p className="text-[11px] text-zinc-500">
-            {t(`${ns}.trial.note`, {
-              defaultValue: "Chat is free. Packages below are paid — same prices as on the order form.",
+          </li>
+          <li>
+            ✓{" "}
+            {t("aiStore.benefit2", {
+              defaultValue: "Published storefront in your cabinet after pay",
             })}
-          </p>
-        </div>
+          </li>
+          <li>
+            ✓{" "}
+            {t("aiStore.benefit3", {
+              defaultValue: "Open Store button — real HTML, not a fake demo",
+            })}
+          </li>
+          <li>
+            ✓{" "}
+            {t("aiStore.benefit4", {
+              defaultValue: "Regenerate and rollback versions when you need",
+            })}
+          </li>
+        </ul>
+        <Link
+          href={`/order/shop?market=${encodeURIComponent(market)}`}
+          className="storefront-cta-primary mt-6 inline-flex rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-bold text-black hover:brightness-110"
+        >
+          {t("aiStore.cta", { defaultValue: "Create online shop →" })}
+        </Link>
       </section>
 
       {/* Pricing — same EUR as /order checkout */}
@@ -447,7 +521,8 @@ export function AppStoreHub({
           </h3>
           <p className="mb-3 text-xs text-zinc-400">
             {t(`${ns}.pricing.botDisclaimer`, {
-              defaultValue: "Setup fee + monthly — identical to the order form.",
+              defaultValue:
+                "Setup + monthly. You pay for results: answers, leads, bookings — not for a list of apps.",
             })}
           </p>
           <div className="grid gap-3 sm:grid-cols-3">
@@ -470,22 +545,36 @@ export function AppStoreHub({
                     })}
                   </p>
                 ) : null}
-                <p className="mt-0.5 text-[11px] text-zinc-500">
-                  {t(`${ns}.pricing.setupPlusMonthly`, {
-                    defaultValue: "Setup + monthly · paid checkout",
-                  })}
-                </p>
                 {"blurbKey" in tier && tier.blurbKey ? (
-                  <p className="mt-2 flex-1 text-sm text-genesis-muted">
+                  <p className="mt-3 text-sm font-medium text-white/90">
                     {t(`${ns}.${tier.blurbKey}`)}
                   </p>
+                ) : null}
+                {"outcomeKeys" in tier && tier.outcomeKeys?.length ? (
+                  <ul className="mt-3 flex-1 space-y-1.5 text-sm text-zinc-300">
+                    {tier.outcomeKeys.map((key) => (
+                      <li key={key} className="flex gap-2">
+                        <span className="text-emerald-400" aria-hidden>
+                          ✓
+                        </span>
+                        <span>{t(`${ns}.${key}`)}</span>
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
                   <p className="mt-2 flex-1 text-sm text-genesis-muted">
                     {t(`${ns}.pricing.botCheckoutNote`, {
-                      defaultValue: "Website Chat · Telegram after payment.",
+                      defaultValue:
+                        "Answers clients 24/7 and collects leads without a manager on shift.",
                     })}
                   </p>
                 )}
+                <p className="mt-3 text-[11px] text-zinc-500">
+                  {t(`${ns}.pricing.botChannelsHonest`, {
+                    defaultValue:
+                      "Live today: Telegram. Website Chat / WhatsApp / Instagram — coming soon.",
+                  })}
+                </p>
                 <Link
                   href={botHref(tier.id)}
                   onClick={() => logCommerceEvent("tier_select", tier.id, "site")}
@@ -572,36 +661,6 @@ export function AppStoreHub({
             ))}
           </ul>
         )}
-      </section>
-
-      {/* Live Vector promo */}
-      <section
-        id="vector-demo"
-        className="rounded-[2rem] border border-sky-500/25 bg-sky-950/20 p-6 text-center sm:p-8"
-      >
-        <h2 className="text-xl font-semibold text-white sm:text-2xl">
-          {t(`${ns}.vector.title`, {
-            assistant: ASSISTANT_NAME,
-            defaultValue: "Live demo — write to {{assistant}}",
-          })}
-        </h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm text-genesis-muted">
-          {t(`${ns}.vector.body`, {
-            assistant: ASSISTANT_NAME,
-            defaultValue:
-              "Say hello. {{assistant}} answers on this page — free before registration.",
-          })}
-        </p>
-        <button
-          type="button"
-          onClick={onOpenVector}
-          className="storefront-cta-primary mt-5 inline-flex rounded-2xl bg-sky-500 px-6 py-3 text-sm font-semibold text-black hover:brightness-110"
-        >
-          {t(`${ns}.vector.cta`, {
-            assistant: ASSISTANT_NAME,
-            defaultValue: "Open {{assistant}} — say hello",
-          })}
-        </button>
       </section>
 
       {/* Account + edits promise */}

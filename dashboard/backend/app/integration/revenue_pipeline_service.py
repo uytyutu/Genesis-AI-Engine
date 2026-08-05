@@ -354,11 +354,23 @@ class RevenuePipelineService:
             except Exception:
                 logger.exception("bot_workspace_provision_failed order=%s", order_id)
 
-        # Work Farm v0: Stripe → planner → Factory → Quality Gate (Landing primary).
-        # Falls back to direct start_production if farm not wired (tests).
+        # Shop / bot: dedicated pipelines — never Path A landing Work Farm.
         product_id = None
         work_job = None
-        if self._work_farm is not None:
+        is_shop = (
+            str(order.get("package_id") or "").strip().lower() == "ecommerce_shop"
+            or str(order.get("product_kind") or "") == "shop"
+        )
+        pkg = str(order.get("package_id") or "").strip().lower()
+        is_bot = (
+            str(order.get("product_kind") or "") == "bot"
+            or pkg.startswith("bot_")
+            or pkg == "ai_chatbot"
+        )
+        if is_shop or is_bot:
+            production = self._sales.start_production(order_id)
+            product_id = production.get("product_id")
+        elif self._work_farm is not None:
             try:
                 farm_res = self._work_farm.run_for_order(order_id)
                 work_job = farm_res.get("job") if isinstance(farm_res, dict) else None
