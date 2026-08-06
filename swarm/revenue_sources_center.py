@@ -13,6 +13,7 @@ from swarm.revenue_source import (
     CONFIDENCE_BOOKED,
     CONFIDENCE_CONFIRMED,
     CONFIDENCE_ESTIMATED,
+    CONFIDENCE_PENDING,
     CONFIDENCE_SIMULATED,
     confidence_label,
 )
@@ -59,6 +60,7 @@ def build_revenue_sources_center(
     stripe_confirmed_ops: int = 0,
     stripe_active_days: int = 0,
     keys_probe: dict[str, Any] | None = None,
+    opire: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Curated catalog — candidates added manually, never auto-scraped."""
     law = law_manifest()
@@ -72,6 +74,24 @@ def build_revenue_sources_center(
     )
     # Proven inflows → Active. Key alone ≠ Active (Reality over Simulation).
     stripe_active = stripe_amt > 0 or (stripe_connected and stripe_trial_ok)
+
+    if stripe_amt > 0:
+        stripe_stage = "PAID"
+        stripe_why_not = "Доход подтверждён (есть платежи)."
+        stripe_next = "Сверять Ledger / Stripe Dashboard."
+    elif stripe_connected and stripe_webhook:
+        stripe_stage = "WAITING_FIRST_PAYMENT"
+        stripe_why_not = "Нет оплаченных заказов в Ledger (ключ ≠ доход)."
+        stripe_next = "Найти первого клиента → Checkout → webhook → Ledger."
+    elif stripe_connected:
+        stripe_stage = "KEYS_PRESENT"
+        stripe_why_not = "Нет STRIPE_WEBHOOK_SECRET — оплаты могут не попасть в Ledger."
+        stripe_next = "Добавить STRIPE_WEBHOOK_SECRET → перезапуск → тест-оплата."
+    else:
+        stripe_stage = "NOT_CONNECTED"
+        stripe_why_not = "Нет STRIPE_SECRET_KEY."
+        stripe_next = "Добавь STRIPE_SECRET_KEY в .env.local → перезапуск Genesis."
+
     sources = [
         _row(
             source_id="stripe",
@@ -123,6 +143,10 @@ def build_revenue_sources_center(
             scalable=True,
             trial_passed_flag=bool(stripe_amt > 0 or stripe_trial_ok),
             keys_present=bool(stripe_connected),
+            stage=stripe_stage,
+            why_not_earned_ru=stripe_why_not,
+            next_step_ru=stripe_next,
+            pipeline_steps=_stripe_pipeline(stripe_amt > 0, stripe_connected, stripe_webhook),
         ),
         _row(
             source_id="awin",
@@ -150,6 +174,17 @@ def build_revenue_sources_center(
             ),
             scalable=True,
             keys_present=bool(awin_connected),
+            stage="KEYS_PRESENT" if awin_connected else "NOT_CONNECTED",
+            why_not_earned_ru=(
+                "Нет подтверждённых комиссий Awin в Ledger."
+                if awin_connected
+                else "Нет AWIN_API_TOKEN / AWIN_PUBLISHER_ID."
+            ),
+            next_step_ru=(
+                "Дописать адаптер комиссий → первая CONFIRMED выплата."
+                if awin_connected
+                else "Подключить ключи Awin (Owner Gate)."
+            ),
         ),
         _row(
             source_id="digistore24",
@@ -176,6 +211,17 @@ def build_revenue_sources_center(
             ),
             scalable=True,
             keys_present=bool(digistore_connected),
+            stage="KEYS_PRESENT" if digistore_connected else "NOT_CONNECTED",
+            why_not_earned_ru=(
+                "Нет подтверждённых комиссий Digistore в Ledger."
+                if digistore_connected
+                else "Нет DIGISTORE24_API_KEY."
+            ),
+            next_step_ru=(
+                "Ждать первую комиссию / проверить IPN → Ledger."
+                if digistore_connected
+                else "Добавить DIGISTORE24_API_KEY → перезапуск."
+            ),
         ),
         _row(
             source_id="toloka",
@@ -228,7 +274,13 @@ def build_revenue_sources_center(
             ),
             action_ru="Только обучение / оценка",
             scalable=False,
+            stage="SIMULATION",
+            why_not_earned_ru=(
+                "Это ESTIMATED / simulation — не деньги на счёте и не налоговый доход."
+            ),
+            next_step_ru="Не использовать в DATEV/EÜR. Смотреть Stripe / Opire REAL.",
         ),
+        _opire_row(opire or {}),
         _row(
             source_id="groq",
             name="Groq",
@@ -242,6 +294,9 @@ def build_revenue_sources_center(
             why_ru="LLM API — стоимость разметки/ответов. Не источник дохода.",
             action_ru="Игнорировать как доход",
             scalable=False,
+            stage="COST",
+            why_not_earned_ru="Инфраструктурный расход, не доход.",
+            next_step_ru="Игнорировать в Revenue Lab.",
         ),
         _row(
             source_id="kimi",
@@ -256,6 +311,9 @@ def build_revenue_sources_center(
             why_ru="LLM API — инфраструктурный расход. Не источник дохода.",
             action_ru="Игнорировать как доход",
             scalable=False,
+            stage="COST",
+            why_not_earned_ru="Инфраструктурный расход, не доход.",
+            next_step_ru="Игнорировать в Revenue Lab.",
         ),
     ]
 
@@ -321,6 +379,97 @@ def _money_or_dash(amount: float) -> str:
     return f"{amount:.2f} €"
 
 
+def _stripe_pipeline(paid: bool, connected: bool, webhook: bool) -> list[dict[str, Any]]:
+    return [
+        {"id": "keys", "label": "Keys", "done": connected},
+        {"id": "webhook", "label": "Webhook", "done": webhook},
+        {"id": "payment", "label": "Client payment", "done": paid},
+        {"id": "ledger", "label": "Ledger CONFIRMED", "done": paid},
+    ]
+
+
+def _opire_row(opire: dict[str, Any]) -> dict[str, Any]:
+    approved = int(opire.get("ceo_approved") or 0)
+    started = int(opire.get("execution_started") or opire.get("executed") or 0)
+    draft = int(opire.get("draft_pr") or 0)
+    failed = int(opire.get("failed") or 0)
+    skipped = int(opire.get("skipped") or 0)
+    paid = int(opire.get("paid") or 0)
+    gh = bool(opire.get("github_token"))
+    confirmed_usd = float(opire.get("confirmed_usd") or 0)
+
+    if paid > 0 or confirmed_usd > 0:
+        stage = "PAID"
+        why_not = "Есть подтверждённое вознаграждение."
+        next_step = "Сверить payout → Ledger REAL."
+        status = STATUS_ACTIVE
+        conf = CONFIDENCE_CONFIRMED
+    elif draft > 0:
+        stage = "DRAFT_PR"
+        why_not = "Draft PR готов, но Merge/Payout ещё нет (внешний maintainer)."
+        next_step = "CEO Submit (если не отправлено) → ждать Merge → Sync payout."
+        status = STATUS_CANDIDATE
+        conf = CONFIDENCE_ESTIMATED
+    elif started > 0:
+        stage = "EXECUTING"
+        why_not = "Execution идёт или застрял до Draft PR."
+        next_step = "Смотреть timeline задачи · Skip если Impossible."
+        status = STATUS_CANDIDATE
+        conf = CONFIDENCE_PENDING
+    elif approved > 0 and started == 0:
+        stage = "EXECUTION_PAUSED"
+        why_not = (
+            "Approve выполнен, но Execution Engine не стартовал "
+            "(или FARM_AUTO_EXECUTE_ON_APPROVE=0)."
+        )
+        next_step = "Повторить Execution Engine на задаче / проверить логи."
+        status = STATUS_CANDIDATE
+        conf = CONFIDENCE_PENDING
+    else:
+        stage = "WAITING_APPROVE"
+        why_not = "Нет CEO Approve на TAKE-кандидатах."
+        next_step = "Scanner → Approve (авто Execution)."
+        status = STATUS_CANDIDATE
+        conf = CONF_NOT_CONNECTED
+
+    pipeline = [
+        {"id": "found", "label": "Opportunity Found", "done": approved > 0 or started > 0},
+        {"id": "approved", "label": "CEO Approved", "done": approved > 0},
+        {"id": "started", "label": "Execution Started", "done": started > 0},
+        {"id": "draft", "label": "Draft PR", "done": draft > 0},
+        {"id": "paid", "label": "Reward Confirmed", "done": paid > 0 or confirmed_usd > 0},
+    ]
+    if not gh and stage not in {"PAID", "WAITING_APPROVE"}:
+        why_not += " · Нет GITHUB_TOKEN — Push/Draft PR live может быть заблокирован."
+
+    return _row(
+        source_id="opire",
+        name="Opire Farm",
+        status=status,
+        income_type="Bounty",
+        income_eur=confirmed_usd if confirmed_usd > 0 else None,
+        income_label=(
+            f"{confirmed_usd:.2f} $"
+            if confirmed_usd > 0
+            else f"Approved {approved} · Started {started} · Draft {draft}"
+        ),
+        roi_label="+" if confirmed_usd > 0 else "?",
+        confidence=conf,
+        automation_score=85,
+        why_ru=(
+            "Bounty конвейер: Approve → Execution → Draft PR → Merge → Payout. "
+            f"Failed {failed} · Skipped {skipped}."
+        ),
+        action_ru=next_step,
+        scalable=True,
+        keys_present=gh,
+        stage=stage,
+        why_not_earned_ru=why_not,
+        next_step_ru=next_step,
+        pipeline_steps=pipeline,
+    )
+
+
 def _row(
     *,
     source_id: str,
@@ -337,6 +486,10 @@ def _row(
     scalable: bool,
     trial_passed_flag: bool = False,
     keys_present: bool = False,
+    stage: str = "",
+    why_not_earned_ru: str = "",
+    next_step_ru: str = "",
+    pipeline_steps: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     conf_display = confidence
     if confidence in {
@@ -344,6 +497,7 @@ def _row(
         CONFIDENCE_CONFIRMED,
         CONFIDENCE_ESTIMATED,
         CONFIDENCE_SIMULATED,
+        CONFIDENCE_PENDING,
     }:
         conf_label_ru = confidence_label(confidence)
     elif confidence == CONF_KEYS_PRESENT:
@@ -378,4 +532,9 @@ def _row(
         "action_ru": action_ru,
         "scalable": scalable,
         "trial_passed": trial_passed_flag,
+        "stage": stage or status.upper(),
+        "why_not_earned_ru": why_not_earned_ru or why_ru,
+        "next_step_ru": next_step_ru or action_ru,
+        "pipeline_steps": pipeline_steps or [],
+        "why_button_label_ru": "Почему не заработало?",
     }

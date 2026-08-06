@@ -476,6 +476,44 @@ class FinanceService:
         result["system_mode"] = view["system_mode"]
         result["withdrawal_enabled"] = bool(view.get("withdraw_enabled"))
 
+        # Financial Truth — tax / Steuerberater figures from Ledger only (never demo).
+        try:
+            from swarm.finance_ledger import FinanceLedger
+            from swarm.finance_reality_law import financial_truth_manifest
+
+            led = FinanceLedger(self._memory).summary()
+            tax_eur = float(led.get("tax_report_confirmed_eur") or 0)
+            result["tax_report"] = {
+                "confirmed_eur": tax_eur,
+                "label_ru": "Подтверждённый доход (Ledger)",
+                "banner_ru": (
+                    f"Подтверждённый доход (Ledger): {tax_eur:.2f} €. "
+                    "DATEV/EÜR — только CONFIRMED|BOOKED|WITHDRAWN. "
+                    + (
+                        "Demo-цифры ниже НЕ для налогов."
+                        if demo
+                        else "Витрина/pipeline не входят в налоговый экспорт."
+                    )
+                ),
+                "financial_truth": financial_truth_manifest(),
+                "demo_excluded": bool(demo),
+            }
+            result["money_layers"] = {
+                "REAL": tax_eur,
+                "PIPELINE": float(result.get("pending_settlement_eur") or 0),
+                "COMMERCIAL": float(result.get("gross_revenue_eur") or 0) if not demo else 0.0,
+                "SIMULATION": float(result.get("revenue_today_eur") or 0) if demo else float(
+                    led.get("simulation_estimate_eur") or 0
+                ),
+            }
+        except Exception:
+            result["tax_report"] = {
+                "confirmed_eur": 0.0,
+                "label_ru": "Подтверждённый доход (Ledger)",
+                "banner_ru": "Подтверждённый доход (Ledger): 0.00 €",
+                "demo_excluded": bool(demo),
+            }
+
         return result
 
     def global_revenue_report(self, opportunities: list[dict]) -> dict:

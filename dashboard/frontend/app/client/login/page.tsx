@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
+import { ClientAuthShell } from "../../components/ClientAuthShell";
 import { publicApiBase } from "../../lib/publicApiBase";
 import {
   bridgePortalSession,
   setClientSession,
 } from "../../lib/clientAuth";
-import { BRAND_NAME } from "../../lib/publicBrand";
 
 type LoginResponse = {
   token?: string;
@@ -56,23 +56,33 @@ function LoginForm() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-10">
-      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300/90">
-        {BRAND_NAME}
-      </p>
-      <h1 className="mt-3 text-3xl font-semibold text-white">
-        Sign in to your office
-      </h1>
-      <p className="mt-2 text-sm text-zinc-400">
-        Your personal workspace for projects, bots, and automation. Buying a
-        website or bot does not require sign-in.
-      </p>
-
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
+    <ClientAuthShell
+      title="Вход в кабинет"
+      subtitle="Личный кабинет для проектов, ботов и автоматизации. Покупка сайта или AI Assistant не требует входа."
+      footer={
+        <>
+          <p>
+            Нет аккаунта?{" "}
+            <Link
+              href={`/client/register${nextPath !== "/client" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
+              className="font-semibold text-emerald-300 hover:underline"
+            >
+              Создать аккаунт
+            </Link>
+          </p>
+          <p>
+            <Link href="/site" className="text-emerald-300 hover:underline">
+              ← Купить без аккаунта
+            </Link>
+          </p>
+        </>
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4">
         <label className="block text-sm text-zinc-300">
           Email
           <input
-            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white"
+            className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white outline-none ring-emerald-400/0 transition focus:border-emerald-400/40 focus:ring-2 focus:ring-emerald-400/20"
             type="email"
             inputMode="email"
             autoComplete="username"
@@ -82,9 +92,9 @@ function LoginForm() {
           />
         </label>
         <label className="block text-sm text-zinc-300">
-          Password
+          Пароль
           <input
-            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white"
+            className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white outline-none ring-emerald-400/0 transition focus:border-emerald-400/40 focus:ring-2 focus:ring-emerald-400/20"
             type="password"
             autoComplete="current-password"
             value={password}
@@ -102,25 +112,10 @@ function LoginForm() {
           disabled={busy}
           className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
         >
-          {busy ? "Signing in…" : "Sign in"}
+          {busy ? "Вход…" : "Войти"}
         </button>
       </form>
-
-      <p className="mt-6 text-sm text-zinc-300">
-        New here?{" "}
-        <Link
-          href={`/client/register${nextPath !== "/client" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
-          className="font-semibold text-emerald-300 hover:underline"
-        >
-          Create personal account
-        </Link>
-      </p>
-      <p className="mt-4 text-sm text-zinc-400">
-        <Link href="/site" className="text-emerald-300 hover:underline">
-          ← Buy without account
-        </Link>
-      </p>
-    </div>
+    </ClientAuthShell>
   );
 }
 

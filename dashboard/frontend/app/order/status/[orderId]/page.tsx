@@ -90,6 +90,10 @@ type OrderStatus = {
   client_receipt_text: string;
   paid: boolean;
   paid_at?: string | null;
+  demo?: boolean;
+  payment_mode?: string | null;
+  demo_payment_available?: boolean;
+  demo_payment_banner?: string | null;
   download_ready?: boolean;
   download_url?: string | null;
   product_id?: string | null;
@@ -217,6 +221,21 @@ function OrderStatusContent() {
     setPayBusy(true);
     setPayError("");
     try {
+      if (data?.demo_payment_available) {
+        const res = await fetch(`${API}/api/sales/orders/${orderId}/pay-demo`, {
+          method: "POST",
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setPayError(
+            typeof body.detail === "string" ? body.detail : t("order.status.payFail"),
+          );
+          setPayBusy(false);
+          return;
+        }
+        window.location.href = `/order/status/${orderId}?paid=1&demo=1`;
+        return;
+      }
       const url = await startOrderCheckout(orderId);
       window.location.href = url;
     } catch (e) {
@@ -364,6 +383,13 @@ function OrderStatusContent() {
               </h1>
               {data.paid && (
                 <div className="mt-4 space-y-2 rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-4 text-left text-sm text-emerald-50/95">
+                  {(data.payment_mode === "demo" || data.demo) && (
+                    <p className="rounded-lg border border-amber-400/40 bg-amber-950/40 px-3 py-2 text-amber-50">
+                      {data.demo_payment_banner ||
+                        "Demo Payment — деньги не списываются."}{" "}
+                      <span className="opacity-80">(payment_mode=demo)</span>
+                    </p>
+                  )}
                   <p>
                     {t("order.status.afterPayContact", {
                       hours: data.estimated_hours || 24,
@@ -400,12 +426,20 @@ function OrderStatusContent() {
             {data.package_name} · {priceDisplay}
           </p>
 
-          {awaitingPayment && paymentReady && (
-            <div className="mt-6">
+          {awaitingPayment && (paymentReady || data.demo_payment_available) && (
+            <div className="mt-6 space-y-3">
+              {data.demo_payment_available ? (
+                <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 p-3 text-left text-xs text-amber-50">
+                  {data.demo_payment_banner ||
+                    "Demo Payment — деньги не списываются."}
+                </div>
+              ) : null}
               <Button variant="success" size="lg" fullWidth loading={payBusy} onClick={payNow}>
                 {payBusy
                   ? t("order.payBusy")
-                  : t("order.payNow", { price: priceDisplay })}
+                  : data.demo_payment_available
+                    ? "Complete Demo Payment"
+                    : t("order.payNow", { price: priceDisplay })}
               </Button>
               {payError && <p className="mt-2 text-center text-xs text-rose-300">{payError}</p>}
             </div>
@@ -487,7 +521,7 @@ function OrderStatusContent() {
 
           {/* Download — website builds only */}
           {data.paid && isWebsiteBuild && (
-            <div className="mt-5">
+            <div className="mt-5 space-y-3">
               {data.download_ready ? (
                 <a
                   href={`${API}${data.download_url || `/api/sales/orders/${orderId}/download`}`}
@@ -510,6 +544,25 @@ function OrderStatusContent() {
                   {t("order.status.downloadSoon")}
                 </p>
               )}
+              {data.download_ready &&
+              ["business", "premium"].includes(
+                String(data.package_id || "").toLowerCase(),
+              ) ? (
+                <div className="space-y-2">
+                  <a
+                    href={`/client/websites/${encodeURIComponent(orderId)}/admin`}
+                    className="flex w-full items-center justify-center rounded-xl border border-sky-400/40 bg-sky-950/40 px-4 py-3 text-sm font-semibold text-sky-100 hover:brightness-110"
+                  >
+                    Website Admin öffnen
+                  </a>
+                  <a
+                    href={`/client/register?next=${encodeURIComponent(`/client/websites/${orderId}/admin`)}`}
+                    className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-white/90 hover:bg-white/10"
+                  >
+                    Client Workspace · Konto erstellen
+                  </a>
+                </div>
+              ) : null}
             </div>
           )}
           {data.paid && !isWebsiteBuild && (

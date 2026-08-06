@@ -24,6 +24,10 @@ type PayStatus = {
   paid: boolean;
   ui_lang?: string | null;
   price_label?: string | null;
+  demo?: boolean;
+  payment_mode?: string | null;
+  demo_payment_available?: boolean;
+  demo_payment_banner?: string | null;
 };
 
 function OrderPayContent() {
@@ -80,6 +84,18 @@ function OrderPayContent() {
     setBusy(true);
     setError("");
     try {
+      if (status?.demo_payment_available) {
+        const res = await fetch(`${API}/api/sales/orders/${orderId}/pay-demo`, {
+          method: "POST",
+        });
+        const body = await res.json();
+        if (!res.ok) {
+          setError(body.detail || t("pay.payFail"));
+          return;
+        }
+        router.push(`/order/status/${orderId}?paid=1&demo=1`);
+        return;
+      }
       if (isSandbox) {
         const res = await fetch(`${API}/api/sales/orders/${orderId}/pay-sandbox`, {
           method: "POST",
@@ -130,7 +146,19 @@ function OrderPayContent() {
           </p>
           <p className="mt-1 text-center text-xs text-genesis-muted">№ {orderId}</p>
 
-          {isSandbox && (
+          {status?.demo_payment_available || status?.demo ? (
+            <div className="mt-6 rounded-xl border border-amber-500/40 bg-amber-950/30 p-4 text-sm text-amber-50">
+              <p className="font-semibold">
+                {status.demo_payment_banner ||
+                  "Demo Payment — деньги не списываются."}
+              </p>
+              <p className="mt-1 text-xs text-amber-100/80">
+                Internal Demo Payment Bridge · payment_mode=demo · not real revenue
+              </p>
+            </div>
+          ) : null}
+
+          {isSandbox && !status?.demo_payment_available && (
             <div className="mt-6 rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 text-xs text-amber-100/90">
               {t("pay.sandboxNote")}
             </div>
@@ -152,9 +180,11 @@ function OrderPayContent() {
           >
             {busy
               ? t("pay.processing")
-              : status
-                ? t("pay.payCta", { price: priceText })
-                : t("pay.loading")}
+              : status?.demo_payment_available
+                ? "Complete Demo Payment"
+                : status
+                  ? t("pay.payCta", { price: priceText })
+                  : t("pay.loading")}
           </Button>
           {error && <p className="mt-3 text-center text-xs text-rose-300">{error}</p>}
 

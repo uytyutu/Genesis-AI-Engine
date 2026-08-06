@@ -35,6 +35,12 @@ export const metadata: Metadata = {
     apple: [{ url: "/brand/apple-touch-icon.png", sizes: "180x180" }],
   },
   manifest: "/manifest.webmanifest",
+  other: {
+    "virtus-git-commit":
+      process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ||
+      process.env.NEXT_PUBLIC_GIT_COMMIT ||
+      "local",
+  },
 };
 
 function readInitialLocale(raw: string | undefined): UiLocale {

@@ -361,7 +361,7 @@ function ShopOrderInner() {
       priceLabel={t("aiStore.priceLine", { defaultValue: "from 799 €" })}
       subtitle={t("aiStore.positioning", {
         defaultValue:
-          "Virtus Core will create an online shop for your niche — not a generic template. After payment: Accepted → Preparing → In Factory queue.",
+          "Virtus Core creates a professional online shop for your business — not a generic website package. After payment your shop appears in your client cabinet.",
       })}
     >
       <nav className="mb-5 flex flex-wrap gap-2" aria-label="Steps">
@@ -503,7 +503,7 @@ function ShopOrderInner() {
           <p className="text-sm text-zinc-400">
             {t("aiStore.featuresHint", {
               defaultValue:
-                "Wishlist for Factory R2 — not built automatically in R1.",
+                "Optional extras for later — tell us what you need.",
             })}
           </p>
           {(
@@ -689,7 +689,7 @@ function ShopOrderInner() {
           <p className="text-xs text-amber-100/85">
             {t("aiStore.honestNote", {
               defaultValue:
-                "After payment: Accepted → Preparing → In Factory queue. The live storefront is built in R2 — not claimed as online yet.",
+                "After payment you receive a professional online shop in your client cabinet. You can open it right away. Connecting your own payments and deeper catalog tools come as you grow.",
             })}
           </p>
           {!loggedIn ? (

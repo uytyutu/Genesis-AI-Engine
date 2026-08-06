@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
+import { ClientAuthShell } from "../../components/ClientAuthShell";
 import { publicApiBase } from "../../lib/publicApiBase";
 import {
   bridgePortalSession,
   setClientSession,
 } from "../../lib/clientAuth";
-import { BRAND_NAME } from "../../lib/publicBrand";
 
 type StartResponse = {
   ok?: boolean;
@@ -103,26 +103,39 @@ function RegisterForm() {
     }
   }
 
-  return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-10">
-      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300/90">
-        {BRAND_NAME}
-      </p>
-      <h1 className="mt-3 text-3xl font-semibold text-white">
-        Create personal account
-      </h1>
-      <p className="mt-2 text-sm text-zinc-400">
-        Optional. You can buy a website or AI bot without an account. Register
-        only if you want your office — projects, bots, automation, package
-        upgrades.
-      </p>
+  const inputClass =
+    "mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white outline-none transition focus:border-emerald-400/40 focus:ring-2 focus:ring-emerald-400/20";
 
+  return (
+    <ClientAuthShell
+      title="Создать аккаунт"
+      subtitle="Необязательно. Сайт, магазин или AI Assistant можно купить без регистрации. Аккаунт нужен для кабинета — проекты, боты, апгрейды."
+      footer={
+        <>
+          <p>
+            Купить без аккаунта?{" "}
+            <Link href="/order" className="text-emerald-300 hover:underline">
+              Гостевой заказ
+            </Link>
+          </p>
+          <p>
+            Уже есть аккаунт?{" "}
+            <Link
+              href={`/client/login${nextPath !== "/client" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
+              className="text-emerald-300 hover:underline"
+            >
+              Войти
+            </Link>
+          </p>
+        </>
+      }
+    >
       {step === "form" ? (
-        <form onSubmit={onStart} className="mt-8 space-y-4">
+        <form onSubmit={onStart} className="space-y-4">
           <label className="block text-sm text-zinc-300">
-            Full name
+            Имя
             <input
-              className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white"
+              className={inputClass}
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoComplete="name"
@@ -134,7 +147,7 @@ function RegisterForm() {
           <label className="block text-sm text-zinc-300">
             Email
             <input
-              className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white"
+              className={inputClass}
               type="email"
               inputMode="email"
               autoComplete="email"
@@ -144,9 +157,9 @@ function RegisterForm() {
             />
           </label>
           <label className="block text-sm text-zinc-300">
-            Password (min 8 characters)
+            Пароль (мин. 8 символов)
             <input
-              className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-base text-white"
+              className={inputClass}
               type="password"
               autoComplete="new-password"
               value={password}
@@ -165,24 +178,25 @@ function RegisterForm() {
             disabled={busy}
             className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
           >
-            {busy ? "Sending code…" : "Send verification code"}
+            {busy ? "Отправка кода…" : "Получить код подтверждения"}
           </button>
         </form>
       ) : (
-        <form onSubmit={onConfirm} className="mt-8 space-y-4">
+        <form onSubmit={onConfirm} className="space-y-4">
           <p className="text-sm text-zinc-300">
-            We sent a code to <span className="text-white">{email.trim()}</span>.
-            Enter it below to finish registration.
+            Код отправлен на{" "}
+            <span className="text-white">{email.trim()}</span>. Введите его ниже.
           </p>
           {devCode ? (
             <p className="rounded-lg border border-amber-500/30 bg-amber-950/40 px-3 py-2 text-sm text-amber-100">
-              Local mode — code: <strong className="tracking-widest">{devCode}</strong>
+              Local mode — code:{" "}
+              <strong className="tracking-widest">{devCode}</strong>
             </p>
           ) : null}
           <label className="block text-sm text-zinc-300">
-            Verification code
+            Код подтверждения
             <input
-              className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-center text-xl tracking-[0.35em] text-white"
+              className={`${inputClass} text-center text-xl tracking-[0.35em]`}
               inputMode="numeric"
               autoComplete="one-time-code"
               value={code}
@@ -201,7 +215,7 @@ function RegisterForm() {
             disabled={busy}
             className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:brightness-110 disabled:opacity-50"
           >
-            {busy ? "Creating account…" : "Confirm and open office"}
+            {busy ? "Создание…" : "Подтвердить и открыть кабинет"}
           </button>
           <button
             type="button"
@@ -213,27 +227,11 @@ function RegisterForm() {
             }}
             className="w-full text-sm text-zinc-400 hover:text-white"
           >
-            ← Change email or password
+            ← Изменить email или пароль
           </button>
         </form>
       )}
-
-      <p className="mt-6 text-sm text-zinc-400">
-        Prefer to buy without an account?{" "}
-        <Link href="/site" className="text-emerald-300 hover:underline">
-          Back to services
-        </Link>
-      </p>
-      <p className="mt-3 text-sm text-zinc-400">
-        Already registered?{" "}
-        <Link
-          href={`/client/login${nextPath !== "/client" ? `?next=${encodeURIComponent(nextPath)}` : ""}`}
-          className="text-emerald-300 hover:underline"
-        >
-          Sign in
-        </Link>
-      </p>
-    </div>
+    </ClientAuthShell>
   );
 }
 

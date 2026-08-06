@@ -43,6 +43,25 @@ const legalEmbedCsp = [
   "form-action 'self'",
 ].join("; ");
 
+/**
+ * Package demos are embedded in <iframe> on /order (Live-Vorschau).
+ * Global CSP uses frame-ancestors 'none' — without this override the iframe
+ * paints a blank white box even when X-Frame-Options is SAMEORIGIN.
+ */
+const packagePreviewCsp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' http://127.0.0.1:* http://localhost:* https:",
+  "media-src 'self' blob:",
+  "frame-src 'self'",
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join("; ");
+
 const securityHeadersNoFrameDeny = securityHeaders.filter(
   (h) => h.key !== "X-Frame-Options" && h.key !== "Content-Security-Policy",
 );
@@ -72,21 +91,31 @@ const nextConfig: NextConfig = {
     // Package demo HTML is embedded in <iframe> on /site and /order.
     // Global X-Frame-Options: DENY would blank those previews (PC + mobile).
     // Later matching sources override earlier ones for the same header key.
+    // HTML shells: no-store — prevents mobile/cellular proxies serving a stale showcase
+    // while desktop already has the new build (Commercial UX / mobile parity).
+    const htmlNoStore = [
+      ...securityHeaders,
+      {
+        key: "Cache-Control",
+        value: "private, no-cache, no-store, must-revalidate",
+      },
+    ];
     return [
       // Root + everything except Privacy/Terms keep clickjacking DENY.
       {
         source: "/",
-        headers: securityHeaders,
+        headers: htmlNoStore,
       },
       {
-        source: "/((?!agb$|datenschutz$).*)",
-        headers: securityHeaders,
+        source: "/((?!agb$|datenschutz$|_next/static|_next/image).*)",
+        headers: htmlNoStore,
       },
       {
         source: "/package-previews/:path*",
         headers: [
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+          { key: "Content-Security-Policy", value: packagePreviewCsp },
+          { key: "Cache-Control", value: "public, max-age=60, must-revalidate" },
         ],
       },
       {

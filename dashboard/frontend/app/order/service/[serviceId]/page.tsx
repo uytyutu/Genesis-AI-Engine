@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
+import { OrderFormShell } from "../../../components/OrderFormShell";
 import { PublicPageShell } from "../../../components/PublicPageShell";
 import { useLocale } from "../../../context/LocaleContext";
 import { BRAND_NAME } from "../../../lib/publicBrand";
@@ -18,8 +19,8 @@ import {
   type ServiceSpec,
 } from "../../../lib/serviceOrderSpecs";
 import { getVisitorId } from "../../../lib/visitorId";
-import type { UiLocale } from "../../../lib/locale/types";
 import { uiLangForMarket } from "../../../lib/marketLang";
+import { isUiLocale } from "../../../lib/locale/types";
 
 const API = publicApiBase();
 
@@ -96,7 +97,8 @@ export default function ServiceOrderPage() {
 
   useEffect(() => {
     // German market storefront default — one language, no mixed RU/EN.
-    const lang = uiLangForMarket("DE") as UiLocale;
+    const raw = uiLangForMarket("DE");
+    const lang = isUiLocale(raw) ? raw : "de";
     applyUiLocale(lang);
     const t0 = window.setTimeout(() => applyUiLocale(lang), 0);
     const t1 = window.setTimeout(() => applyUiLocale(lang), 50);
@@ -274,25 +276,33 @@ export default function ServiceOrderPage() {
   }
 
   return (
-    <PublicPageShell>
-      <main className="mx-auto max-w-xl px-4 py-10">
-        <Link href="/site" className="text-sm text-emerald-300 hover:underline">
-          {t("serviceForm.backStorefront", {
-            brand: BRAND_NAME,
-            defaultValue: "← {{brand}} storefront",
-          })}
-        </Link>
-        <p className="mt-6 text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">
-          {step === "form"
-            ? t("serviceForm.formStep", { defaultValue: "Order form" })
-            : t("serviceForm.confirmStep", { defaultValue: "Ready for payment" })}
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">{liveCopy.name}</h1>
-        <p className="mt-1 text-lg text-emerald-200/90">{liveCopy.price_label}</p>
-        <p className="mt-3 text-sm text-zinc-400">{liveCopy.blurb}</p>
+    <OrderFormShell
+      backHref="/site#website-services"
+      backLabel={t("serviceForm.backStorefront", {
+        brand: BRAND_NAME,
+        defaultValue: "← {{brand}} storefront",
+      })}
+      eyebrow={
+        step === "form"
+          ? t("serviceForm.formStep", { defaultValue: "Order form" })
+          : t("serviceForm.confirmStep", { defaultValue: "Ready for payment" })
+      }
+      title={liveCopy.name}
+      priceLabel={liveCopy.price_label}
+      subtitle={liveCopy.blurb}
+    >
+      <div className="space-y-5">
+        {liveSpec.billing === "monthly" ? (
+          <p className="text-xs text-amber-100/85">
+            {t("serviceForm.monthlyFirstPay", {
+              defaultValue:
+                "First month billed now. Recurring subscription comes next — no auto-renew yet.",
+            })}
+          </p>
+        ) : null}
 
         {step === "confirm" ? (
-          <div className="mt-8 space-y-5 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.07] p-5">
+          <div className="space-y-5 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.07] p-5">
             <p className="text-lg font-semibold text-white">
               {t("serviceForm.confirmReady", {
                 defaultValue: "Thanks — your request is prepared.",
@@ -474,7 +484,7 @@ export default function ServiceOrderPage() {
             </button>
           </form>
         )}
-      </main>
-    </PublicPageShell>
+      </div>
+    </OrderFormShell>
   );
 }

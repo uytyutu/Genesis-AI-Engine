@@ -69,7 +69,7 @@ const CHANNEL_DEFS: {
   {
     id: "website_chat",
     label: "Website Chat",
-    available: true,
+    available: false,
     noteKey: "channelNoteLive",
     Icon: IconWebsite,
   },
@@ -119,8 +119,8 @@ function BotOrderLoadingFallback() {
 
 export default function BotOrderPage() {
   return (
-    <PublicPageShell>
-      <div className="relative mx-auto max-w-2xl space-y-8 py-8 pb-28 animate-fade-up">
+    <PublicPageShell customerDecisionFlow minimal>
+      <div className="relative mx-auto max-w-2xl space-y-8 py-6 pb-20 animate-fade-up">
         <Suspense fallback={<BotOrderLoadingFallback />}>
           <BotOrderWizard />
         </Suspense>
@@ -139,7 +139,7 @@ function BotOrderWizard() {
   const [offers, setOffers] = useState<BotOffer[]>([]);
   const [loadingOffers, setLoadingOffers] = useState(true);
 
-  const [channels, setChannels] = useState<ChannelId[]>(["telegram", "website_chat"]);
+  const [channels, setChannels] = useState<ChannelId[]>(["telegram"]);
   const [channelInterest, setChannelInterest] = useState<ChannelId[]>([]);
 
   const [businessName, setBusinessName] = useState("");

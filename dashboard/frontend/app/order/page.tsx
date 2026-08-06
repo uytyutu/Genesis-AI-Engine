@@ -24,7 +24,7 @@ import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePack
 import { parseClientServices } from "../lib/packagePreviewGallery";
 import { resolveOrderCoachHints } from "../lib/orderFormCoach";
 import { getVisitorId } from "../lib/visitorId";
-import { clientAuthHeaders, getClientToken } from "../lib/clientAuth";
+import { clientAuthHeaders } from "../lib/clientAuth";
 import {
   clearOrderDraft,
   createDebouncedOrderDraftSaver,
@@ -143,19 +143,7 @@ export default function OrderSitePage() {
   const { applyUiLocale } = useLocale();
   const [marketParam, setMarketParam] = useState("");
   const [marketReady, setMarketReady] = useState(false);
-  useEffect(() => {
-    try {
-      if (!getClientToken()) {
-        const next = `${window.location.pathname}${window.location.search || ""}`;
-        window.location.replace(
-          `/client/register?next=${encodeURIComponent(next || "/order")}`,
-        );
-        return;
-      }
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  // Guest checkout (Launch Blocker): order form is public — no register redirect.
   useEffect(() => {
     try {
       const p = new URLSearchParams(window.location.search);
@@ -213,6 +201,9 @@ export default function OrderSitePage() {
   });
   const [packagesLoading, setPackagesLoading] = useState(true);
   const [businessName, setBusinessName] = useState("");
+  const [projectType, setProjectType] = useState<"website" | "shop" | "ai" | "other">(
+    "website",
+  );
   const [description, setDescription] = useState("");
   const [companyWebsite, setCompanyWebsite] = useState("");
   const [city, setCity] = useState("");
@@ -272,6 +263,9 @@ export default function OrderSitePage() {
     currency?: string;
     price_label?: string;
     buyer_insights?: { checks?: { id: string; label_de: string; detail?: string }[]; note_de?: string } | null;
+    demo?: boolean;
+    demo_payment_available?: boolean;
+    demo_payment_banner?: string | null;
   } | null>(null);
   const [payBusy, setPayBusy] = useState(false);
   const [payError, setPayError] = useState("");
@@ -370,6 +364,11 @@ export default function OrderSitePage() {
     setPackageId(d.packageId || "basic");
     setManualPackage(Boolean(d.manualPackage));
     setBrandStyle(d.brandStyle || "auto");
+    setProjectType(
+      d.projectType === "shop" || d.projectType === "ai" || d.projectType === "other"
+        ? d.projectType
+        : "website",
+    );
     setBusinessName(d.businessName || "");
     setDescription(d.description || "");
     setCompanyWebsite(d.companyWebsite || "");
@@ -414,6 +413,7 @@ export default function OrderSitePage() {
     setDraftBanner(false);
     setFormStep(1);
     setMaxReachedStep(1);
+    setProjectType("website");
     setBusinessName("");
     setDescription("");
     setCompanyWebsite("");
@@ -462,6 +462,7 @@ export default function OrderSitePage() {
       packageId,
       manualPackage,
       brandStyle,
+      projectType,
       businessName,
       description,
       companyWebsite,
@@ -507,6 +508,7 @@ export default function OrderSitePage() {
     packageId,
     manualPackage,
     brandStyle,
+    projectType,
     businessName,
     description,
     companyWebsite,
@@ -916,7 +918,19 @@ export default function OrderSitePage() {
         headers: { "Content-Type": "application/json", ...clientAuthHeaders() },
         body: JSON.stringify({
           business_name: businessName.trim() || launch?.company || "Projekt",
-          description: description.trim() || launch?.projectLabel || "Landing Launch",
+          description: [
+            projectType === "shop"
+              ? "[Online-Shop]"
+              : projectType === "ai"
+                ? "[AI Assistant]"
+                : projectType === "other"
+                  ? "[Projekt]"
+                  : "[Website]",
+            description.trim() || launch?.projectLabel || "Website Launch",
+          ]
+            .filter(Boolean)
+            .join(" "),
+          project_type: projectType,
           city: city.trim() || null,
           phone: phone.trim() || null,
           whatsapp: whatsapp.trim() || null,
@@ -975,7 +989,18 @@ export default function OrderSitePage() {
         currency: body.currency ?? commerce.currency,
         price_label: body.price_label,
         buyer_insights: body.buyer_insights ?? insights,
+        demo: Boolean(body.demo),
+        demo_payment_available: Boolean(
+          body.demo_payment_available || (body.demo && body.payment_mode === "demo"),
+        ),
+        demo_payment_banner: body.demo_payment_banner ?? null,
       });
+      if (
+        body.demo_payment_available ||
+        (body.demo && body.payment_mode === "demo")
+      ) {
+        setPaymentReady(true);
+      }
       draftSaverRef.current.cancel();
       clearOrderDraft(
         (marketParam || commerce.market_code || "DE").toUpperCase(),
@@ -1025,6 +1050,23 @@ export default function OrderSitePage() {
     setPayBusy(true);
     setPayError("");
     try {
+      if (done.demo_payment_available) {
+        const res = await fetch(`${API}/api/sales/orders/${done.order_id}/pay-demo`, {
+          method: "POST",
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setPayError(
+            typeof body.detail === "string"
+              ? body.detail
+              : t("order.serverDown"),
+          );
+          setPayBusy(false);
+          return;
+        }
+        window.location.href = `/order/status/${done.order_id}?paid=1&demo=1`;
+        return;
+      }
       const url = await startOrderCheckout(done.order_id);
       window.location.href = url;
     } catch (e) {
@@ -1058,6 +1100,8 @@ export default function OrderSitePage() {
             payError={payError}
             onPay={() => void payNow()}
             launch={Boolean(launch)}
+            demoPaymentAvailable={Boolean(done.demo_payment_available)}
+            demoPaymentBanner={done.demo_payment_banner}
           />
           <div className="mt-4 text-center">
             <ButtonLink
@@ -1075,13 +1119,13 @@ export default function OrderSitePage() {
 
   return (
     <PublicPageShell>
-      <main className="storefront relative z-[1] mx-auto max-w-4xl space-y-6 py-2">
+      <main className="storefront relative z-[1] mx-auto max-w-4xl space-y-5 overflow-x-hidden py-2 sm:space-y-6">
         <OrderSteps current={1} launch={Boolean(launch)} />
         <div className="mb-2 text-center animate-fade-up">
           <Badge variant="accent" className="tracking-[0.2em]">
             {t("order.badge")}
           </Badge>
-          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
+          <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-4xl">
             {launch ? t("order.titleLaunch") : t("order.title")}
           </h1>
           <p className="mt-2 text-genesis-muted">
@@ -1158,6 +1202,34 @@ export default function OrderSitePage() {
                 <OrderCoachPanel hints={coachHints} />
                 {formStep === 1 && (
                   <>
+                    <div>
+                      <p className="mb-2 text-sm font-medium text-white">
+                        {t("order.projectTypeTitle")}
+                      </p>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        {(
+                          [
+                            ["website", "order.projectTypeWebsite"],
+                            ["shop", "order.projectTypeShop"],
+                            ["ai", "order.projectTypeAi"],
+                            ["other", "order.projectTypeOther"],
+                          ] as const
+                        ).map(([id, labelKey]) => (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={() => setProjectType(id)}
+                            className={
+                              projectType === id
+                                ? "rounded-xl border border-emerald-400/50 bg-emerald-500/15 px-3 py-2.5 text-sm font-medium text-emerald-100"
+                                : "rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-zinc-300 hover:border-white/25"
+                            }
+                          >
+                            {t(labelKey)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <Field label={t("order.businessName")} required>
                       <Input
                         value={businessName}
@@ -1321,6 +1393,9 @@ export default function OrderSitePage() {
                       <Field label="WhatsApp">
                         <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+49 …" />
                       </Field>
+                      <Field label="Telegram">
+                        <Input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@… / https://t.me/…" />
+                      </Field>
                       <Field label="Google Business">
                         <Input value={googleBusiness} onChange={(e) => setGoogleBusiness(e.target.value)} placeholder="https://…" />
                       </Field>
@@ -1329,6 +1404,15 @@ export default function OrderSitePage() {
                       </Field>
                       <Field label="Facebook">
                         <Input value={facebook} onChange={(e) => setFacebook(e.target.value)} placeholder="https://…" />
+                      </Field>
+                      <Field label="LinkedIn">
+                        <Input value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="https://…" />
+                      </Field>
+                      <Field label="TikTok">
+                        <Input value={tiktok} onChange={(e) => setTiktok(e.target.value)} placeholder="@… / https://…" />
+                      </Field>
+                      <Field label="YouTube">
+                        <Input value={youtube} onChange={(e) => setYoutube(e.target.value)} placeholder="https://…" />
                       </Field>
                     </div>
                     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
@@ -1813,7 +1897,7 @@ function FormStepBar({
   ];
   return (
     <div className="mb-4 space-y-3">
-      <ol className="flex flex-wrap gap-1.5" aria-label={t("order.journeyAria")}>
+      <ol className="hidden flex-wrap gap-1.5 sm:flex" aria-label={t("order.journeyAria")}>
         {journey.map((label, i) => {
           const active =
             (current === 1 && i <= 1) ||
@@ -1834,6 +1918,9 @@ function FormStepBar({
           );
         })}
       </ol>
+      <p className="text-xs text-genesis-muted sm:hidden" aria-live="polite">
+        {t("order.formStep", { defaultValue: "Step" })} {current} / 4
+      </p>
       <ol className="mb-2 flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:gap-2" aria-label={t("order.formStepsAria")}>
         {steps.map((label, idx) => {
           const n = idx + 1;
