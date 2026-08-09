@@ -107,15 +107,41 @@ def sync_task_from_platforms(task: dict[str, Any]) -> dict[str, Any]:
 def maybe_post_try(task: dict[str, Any]) -> dict[str, Any]:
     """Post official /try on Issue once after Approve/Execute (idempotent flag)."""
     if task.get("try_comment_posted"):
-        return {"ok": True, "skipped": True, "reason": "already_posted"}
+        return {
+            "ok": True,
+            "skipped": True,
+            "reason": "already_posted",
+            "comment_status": "ALREADY_POSTED",
+        }
     parsed = parse_repo(str(task.get("repository") or ""))
     issue_id = str(task.get("issue_id") or "")
     if not parsed or not issue_id:
-        return {"ok": False, "error": "missing_issue_ref"}
+        return {
+            "ok": False,
+            "error": "missing_issue_ref",
+            "comment_status": "MISSING_REF",
+        }
     owner, repo = parsed
     res = post_issue_comment(owner, repo, issue_id, "/try")
     if res.get("ok"):
         task["try_comment_posted"] = True
         task["try_comment_url"] = res.get("comment_url")
         task["try_comment_id"] = res.get("comment_id")
+        task["comment_status"] = "POSTED"
+    else:
+        status = str(res.get("comment_status") or res.get("error") or "comment_failed")
+        task["comment_status"] = status
+        # Permission denied is honest — do not fake success; PR flow may still proceed
+        if status == "PERMISSION_DENIED":
+            task["try_comment_blocked"] = True
+            res = {
+                **res,
+                "ok": False,
+                "comment_status": "PERMISSION_DENIED",
+                "message_ru": (
+                    "GitHub PAT не может писать комментарий /try (403). "
+                    "Draft PR flow продолжается отдельно; claim-комментарий — WAITING_OWNER_ACTION."
+                ),
+                "next_action": "WAITING_OWNER_ACTION",
+            }
     return res

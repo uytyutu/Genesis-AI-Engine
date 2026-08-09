@@ -189,6 +189,75 @@ def remove_path_robust(path: Path, *, attempts: int = 6) -> dict[str, Any]:
     }
 
 
+def github_slug_from_remote_url(url: str) -> str | None:
+    """owner/repo from a GitHub remote URL (https or ssh)."""
+    m = re.search(r"github\.com[/:]([^/]+)/([^/\s]+)", (url or "").strip(), re.I)
+    if not m:
+        return None
+    owner = m.group(1).strip()
+    repo = m.group(2).strip().removesuffix(".git")
+    if not owner or not repo:
+        return None
+    return f"{owner}/{repo}".lower()
+
+
+def normalize_repo_slug(repo_or_url: str) -> str:
+    raw = (repo_or_url or "").strip().removesuffix(".git")
+    if not raw:
+        return ""
+    if "github.com" in raw.lower():
+        return github_slug_from_remote_url(raw) or ""
+    parts = raw.strip("/").split("/")
+    if len(parts) >= 2:
+        return f"{parts[-2]}/{parts[-1]}".lower()
+    return raw.lower()
+
+
+def read_workspace_origin_slug(src: Path) -> str | None:
+    """Read `origin` remote and return owner/repo slug (or None)."""
+    git = resolve_git_binary() or "git"
+    root = Path(src)
+    if not root.is_dir():
+        return None
+    res = _run(
+        git_no_credential_helper_args(git, "remote", "get-url", "origin"),
+        cwd=root,
+        timeout=30,
+        env=noninteractive_git_env(),
+    )
+    if not res.get("ok"):
+        return None
+    return github_slug_from_remote_url((res.get("stdout") or "").strip())
+
+
+def workspace_matches_repository(src: Path, repository: str) -> dict[str, Any]:
+    """ALLOW reuse only when workspace origin == task.repository."""
+    expected = normalize_repo_slug(repository)
+    if not expected:
+        return {
+            "ok": False,
+            "error": "missing_repository",
+            "expected": "",
+            "actual": None,
+        }
+    actual = read_workspace_origin_slug(src)
+    if not actual:
+        return {
+            "ok": False,
+            "error": "missing_origin",
+            "expected": expected,
+            "actual": None,
+        }
+    if actual != expected:
+        return {
+            "ok": False,
+            "error": "WORKSPACE_REPOSITORY_MISMATCH",
+            "expected": expected,
+            "actual": actual,
+        }
+    return {"ok": True, "expected": expected, "actual": actual}
+
+
 def quarantine_path(path: Path) -> dict[str, Any]:
     """Move path aside (rename) so a new clone can use the original name.
 
@@ -478,6 +547,28 @@ def clone_repository(repo_url: str, dest: Path, *, timeout: int = 180) -> dict[s
             "repo_url": url,
         }
         return _fail(res)
+
+    expected_slug = ""
+    if "github.com" in (url or "").lower() or "github.com" in (repo_url or "").lower():
+        expected_slug = normalize_repo_slug(url) or normalize_repo_slug(repo_url)
+    if expected_slug:
+        identity = workspace_matches_repository(dest, expected_slug)
+        if not identity.get("ok"):
+            res = {
+                "ok": False,
+                "code": -6,
+                "stdout": "",
+                "stderr": (
+                    f"origin_mismatch after clone: expected={expected_slug} "
+                    f"actual={identity.get('actual')}"
+                ),
+                "git_binary": git,
+                "repo_url": url,
+                "error_code": "WORKSPACE_REPOSITORY_MISMATCH",
+                "identity": identity,
+            }
+            return _fail(res)
+        res["origin_slug"] = identity.get("actual")
 
     res["ok"] = True
     res["dest"] = str(dest)
@@ -882,18 +973,130 @@ class FarmExecutionEngine:
             try:
                 from swarm.farm_stabilization import is_valid_git_workspace
 
-                # Resume: valid clean src for THIS reward workspace → reuse (no re-clone)
+                # Resume: valid clean src ONLY if origin matches task.repository
+                repo_slug = normalize_repo_slug(
+                    str(task.get("repository") or "") or repo_url
+                )
                 if (
                     not force_fresh
                     and is_valid_git_workspace(src)
-                    and repo_url
+                    and repo_slug
                 ):
+                    identity = workspace_matches_repository(src, repo_slug)
+                    if identity.get("ok"):
+                        report["stages"]["repo_intelligence"] = {
+                            "ok": True,
+                            "workspace": str(src),
+                            "reused": True,
+                            "repo_url": repo_url,
+                            "origin_slug": identity.get("actual"),
+                        }
+                    else:
+                        # Wrong repo in src (e.g. Genesis-AI-Engine) → quarantine + fresh
+                        from swarm.farm_stabilization import quarantine_workspace_safe
+
+                        q = quarantine_workspace_safe(ws)
+                        report["stages"]["workspace_mismatch"] = {
+                            "ok": False,
+                            "error": "WORKSPACE_REPOSITORY_MISMATCH",
+                            "expected": identity.get("expected"),
+                            "actual": identity.get("actual"),
+                            "quarantine": q,
+                        }
+                        fresh = ensure_fresh_workspace(ws)
+                        if not fresh.get("ok"):
+                            detail = str(
+                                fresh.get("detail")
+                                or fresh.get("error")
+                                or "workspace_cleanup_failed"
+                            )
+                            report["stages"]["repo_intelligence"] = {
+                                "ok": False,
+                                "error": fresh.get("error") or "workspace_cleanup_failed",
+                                "error_detail": detail,
+                                "cleanup": fresh,
+                                "mismatch": identity,
+                            }
+                            report["stage"] = "failed"
+                            report["error"] = "WORKSPACE_REPOSITORY_MISMATCH"
+                            report["error_detail"] = (
+                                f"Workspace origin {identity.get('actual')} ≠ "
+                                f"{identity.get('expected')}; cleanup failed: {detail}"
+                            )
+                            _attach_failure_meta(
+                                "WORKSPACE_REPOSITORY_MISMATCH",
+                                report["error_detail"],
+                            )
+                            report["elapsed_sec"] = round(time.time() - started, 1)
+                            return report
+                        if not repo_url:
+                            report["stages"]["repo_intelligence"] = {
+                                "ok": False,
+                                "error": "missing_repository",
+                            }
+                            report["stage"] = "failed"
+                            report["error"] = "missing_repository"
+                            report["error_detail"] = "В задаче нет repository (owner/repo)."
+                            _attach_failure_meta(
+                                "missing_repository", report["error_detail"]
+                            )
+                            return report
+                        clone_res = clone_repository(repo_url, src, timeout=180)
+                        if not clone_res["ok"]:
+                            detail = (
+                                clone_res.get("error_detail_ru")
+                                or (clone_res.get("stderr") or clone_res.get("stdout") or "")[
+                                    :500
+                                ]
+                            )
+                            err_code = str(
+                                clone_res.get("error_code") or "clone_failed"
+                            )
+                            report["stages"]["repo_intelligence"] = {
+                                "ok": False,
+                                "clone": {
+                                    k: v
+                                    for k, v in clone_res.items()
+                                    if k != "cmd" or "x-access-token" not in str(v)
+                                },
+                                "error_detail": detail,
+                                "mismatch": identity,
+                            }
+                            report["stage"] = "failed"
+                            report["error"] = err_code
+                            report["error_detail"] = detail or "git clone failed"
+                            _attach_failure_meta(err_code, report["error_detail"])
+                            report["elapsed_sec"] = round(time.time() - started, 1)
+                            quarantine_workspace_safe(ws)
+                            return report
+                        report["stages"]["repo_intelligence"] = {
+                            "ok": True,
+                            "workspace": str(src),
+                            "reused": False,
+                            "repo_url": repo_url,
+                            "recovered_from_mismatch": True,
+                            "mismatch": identity,
+                            "origin_slug": clone_res.get("origin_slug"),
+                        }
+                elif (
+                    not force_fresh
+                    and is_valid_git_workspace(src)
+                    and repo_url
+                    and not repo_slug
+                ):
+                    # No repository slug → cannot safely reuse
                     report["stages"]["repo_intelligence"] = {
-                        "ok": True,
-                        "workspace": str(src),
-                        "reused": True,
-                        "repo_url": repo_url,
+                        "ok": False,
+                        "error": "missing_repository",
                     }
+                    report["stage"] = "failed"
+                    report["error"] = "missing_repository"
+                    report["error_detail"] = "В задаче нет repository (owner/repo)."
+                    _attach_failure_meta(
+                        "missing_repository", report["error_detail"]
+                    )
+                    report["elapsed_sec"] = round(time.time() - started, 1)
+                    return report
                 else:
                     fresh = ensure_fresh_workspace(ws)
                     if not fresh.get("ok"):
@@ -955,6 +1158,13 @@ class FarmExecutionEngine:
 
                         quarantine_workspace_safe(ws)
                         return report
+                    report["stages"]["repo_intelligence"] = {
+                        "ok": True,
+                        "workspace": str(src),
+                        "reused": False,
+                        "repo_url": repo_url,
+                        "origin_slug": clone_res.get("origin_slug"),
+                    }
             finally:
                 clone_lock.release()
         elif not src.is_dir():
