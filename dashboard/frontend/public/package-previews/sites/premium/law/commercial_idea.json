@@ -1,0 +1,26 @@
+{
+  "niche_id": "law",
+  "idea": "Stille. Ordnung. Kontrolle.",
+  "who": "Boutique-Kanzlei: präzise, vertraulich, ruhig-autoritär, klare Honorare, Orientierung vor Eskalation.",
+  "character": [
+    "Stille",
+    "Ordnung",
+    "Kontrolle",
+    "Präzision",
+    "Vertraulichkeit"
+  ],
+  "metaphor": "Ruhige Fassade, klares Licht, kein Theater",
+  "hero_concept": "quiet_authority",
+  "emotion_3s": "Hier behält jemand den Überblick",
+  "source": "premium_pack",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Stille. Ordnung. Kontrolle.",
+    "who": "Boutique-Kanzlei: präzise, vertraulich, ruhig-autoritär, klare Honorare, Orientierung vor Eskalation.",
+    "package_id": "premium",
+    "source": "premium_pack",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

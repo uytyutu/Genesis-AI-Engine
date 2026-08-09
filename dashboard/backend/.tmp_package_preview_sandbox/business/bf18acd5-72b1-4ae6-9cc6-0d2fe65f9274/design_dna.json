@@ -1,0 +1,71 @@
+{
+  "emotion": "soft_precision",
+  "style": "scandinavian_calm",
+  "palette_family": "porcelain_rose",
+  "typography_pair": "cormorant_dm_beauty",
+  "motion": "premium",
+  "hero_concept": "beauty_ritual",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "bento",
+  "package_id": "business",
+  "niche_id": "beauty",
+  "fingerprint": "43b2c1d7f610b457a5a7ad0aad1da4a2ca47d5b3d5d8bc9e013d1728b8ac43ae",
+  "section_treatments": [
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "services",
+      "tint"
+    ],
+    [
+      "stats",
+      "illustration"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "tint"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#c4787a",
+  "surface_hex": "#faf7f4",
+  "ink_hex": "#2a2420",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "e496482b509680ce0f60aa6f",
+  "border_radius_px": 8
+}

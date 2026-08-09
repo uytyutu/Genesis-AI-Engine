@@ -1,0 +1,36 @@
+{
+  "stage": "creative_identity",
+  "naming": "Creative Identity — not Concept",
+  "before_html": true,
+  "era": "Virtus Core Studio Era",
+  "sprint": "Creative Identity Generation",
+  "theme": "Atelier Night",
+  "idea": "Clothes as quiet luxury after dark.",
+  "thinking": "human_first_then_niche_then_export",
+  "reality_benchmark": "FAIL",
+  "html_export_allowed": true,
+  "brand_story": "Jonas built Zeitstück Accessoires because taste you can trust without shouting. Clients (30–50) should feel desire with dignity. Only then do we name the craft: fashion.",
+  "core_emotion": "desire with dignity",
+  "core_promise": "Clothes as quiet luxury after dark.",
+  "visual_metaphor": "one garment under a spotlight",
+  "creative_conflict": {
+    "ok": true,
+    "action": "CONTINUE",
+    "conflicts": []
+  },
+  "studio_approach": "luxury",
+  "first_screen_job": "The Hero exists to make 'Atelier Night' felt in 3 seconds: Clothes as quiet luxury after dark.",
+  "scene_sequence": [
+    "scene",
+    "interaction",
+    "story",
+    "experience",
+    "conversion",
+    "experience",
+    "emotion",
+    "interaction",
+    "conversion"
+  ],
+  "owner_review": "PENDING_OWNER",
+  "question": "Who is the human — and what idea can you feel?"
+}

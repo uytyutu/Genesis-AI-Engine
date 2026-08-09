@@ -18,7 +18,7 @@ DEFAULT_PACKAGES: dict[str, dict[str, Any]] = {
         "scopes": ["audit"],
         "included": {"audit": 8},
         "note_ru": "Первый API-покупатель · ~8 audit prepaid",
-        "best_for_ru": "Психологически лёгкий вход (5 € вместо 350 € сайта)",
+        "best_for_ru": "Психологически лёгкий вход (5 € вместо 199 € сайта)",
     },
     "starter": {
         "id": "starter",

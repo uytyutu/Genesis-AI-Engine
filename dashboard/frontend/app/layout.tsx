@@ -58,8 +58,13 @@ export default async function RootLayout({
   const initialLocale = readInitialLocale(raw);
 
   return (
-    <html lang={initialLocale}>
-      <body className="genesis-os-shell overflow-x-hidden antialiased">
+    <html
+      lang={initialLocale}
+      translate="no"
+      className="notranslate"
+      suppressHydrationWarning
+    >
+      <body className="genesis-os-shell overflow-x-hidden antialiased" suppressHydrationWarning>
         <LocaleProvider
           initialLocale={initialLocale}
           localeFromCookie={localeFromCookie}

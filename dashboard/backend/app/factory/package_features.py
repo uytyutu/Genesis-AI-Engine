@@ -1,4 +1,9 @@
-"""Path A package → Factory landing feature matrix (honest delivery)."""
+"""Path A package → Factory landing feature matrix (honest delivery).
+
+Client-facing commerce: Standalone | Connected (see commerce_model.py).
+Legacy basic/business/premium normalize to those modes.
+Both modes get full digital-company quality — Connected adds ecosystem hooks.
+"""
 
 from __future__ import annotations
 
@@ -23,12 +28,11 @@ class PackageFeatures:
     calculator: bool = False
     premium_design: bool = False
     contact_form: bool = True
-    # Tier design-system blocks (Business+)
+    # Tier design-system blocks
     faq: bool = False
     process: bool = False
     mid_cta: bool = False
     trust_bar: bool = False
-    # Premium-only impression blocks
     stats_strip: bool = False
     showcase: bool = False
     # Catalog Engine (shop niches only — applied when CatalogView exists)
@@ -37,36 +41,14 @@ class PackageFeatures:
     catalog_search_filter: bool = False
     catalog_request_cart: bool = False
     catalog_rich_cards: bool = False
+    # Ecosystem (Connected only)
+    ecosystem_connected: bool = False
 
 
-def resolve_package_features(package_id: str | None) -> PackageFeatures:
-    pid = (package_id or "basic").strip().lower()
-    if pid not in ("basic", "business", "premium"):
-        pid = "basic"
-    if pid == "basic":
-        # Lean product — still a finished landing (process / mid-CTA / trust),
-        # not a bare каркас. Maps / FAQ / logo stay Business+; Premium keeps stats/showcase.
-        return PackageFeatures(
-            package_id="basic",
-            testimonials=True,
-            process=True,
-            mid_cta=True,
-            trust_bar=True,
-        )
-    if pid == "business":
-        return PackageFeatures(
-            package_id="business",
-            maps=True,
-            testimonials=True,
-            logo_slot=True,
-            extended_seo=True,
-            faq=True,
-            process=True,
-            mid_cta=True,
-            trust_bar=True,
-        )
+def _full_digital_company(*, package_id: str, connected: bool) -> PackageFeatures:
+    """Full studio-grade product — Standalone and Connected share this floor."""
     return PackageFeatures(
-        package_id="premium",
+        package_id=package_id,
         maps=True,
         testimonials=True,
         logo_slot=True,
@@ -80,6 +62,25 @@ def resolve_package_features(package_id: str | None) -> PackageFeatures:
         trust_bar=True,
         stats_strip=True,
         showcase=True,
+        ecosystem_connected=connected,
+    )
+
+
+def resolve_package_features(package_id: str | None) -> PackageFeatures:
+    from app.factory.commerce_model import normalize_commerce_mode
+
+    resolved = normalize_commerce_mode(package_id)
+    # HTML / CSS still keyed on basic|business|premium — keep data-tier honest for demos.
+    legacy = (resolved.legacy_alias or "").strip().lower()
+    if legacy in ("basic", "business", "premium"):
+        html_tier = legacy
+    elif resolved.commerce_mode == "connected":
+        html_tier = "premium"
+    else:
+        html_tier = "business"
+    return _full_digital_company(
+        package_id=html_tier,
+        connected=resolved.ecosystem,
     )
 
 
@@ -240,4 +241,58 @@ def delivery_meta(features: PackageFeatures) -> dict:
         "catalog_search_filter": features.catalog_search_filter,
         "catalog_request_cart": features.catalog_request_cart,
         "catalog_rich_cards": features.catalog_rich_cards,
+        "ecosystem_connected": features.ecosystem_connected,
     }
+
+def maps_embed_url(
+    *,
+    business_name: str,
+    street: str = "",
+    city: str = "",
+    country: str = "Deutschland",
+) -> str:
+    """Alias for callers using the newer name; prefers street-first query order."""
+    return maps_embed_src(
+        business_name=business_name,
+        city=city,
+        street=street,
+        country=country or "Germany",
+    )
+
+
+def maps_directions_url(
+    *,
+    business_name: str,
+    street: str = "",
+    city: str = "",
+    country: str = "Deutschland",
+) -> str:
+    """Alias for maps_route_url with street-first argument style."""
+    return maps_route_url(
+        business_name=business_name,
+        city=city,
+        street=street,
+        country=country or "Germany",
+    )
+
+
+def features_as_dict(features: PackageFeatures) -> dict:
+    return delivery_meta(features)
+
+
+__all__ = [
+    "PackageFeatures",
+    "apply_order_advantages",
+    "apply_order_contacts",
+    "apply_order_services",
+    "delivery_meta",
+    "features_as_dict",
+    "maps_directions_url",
+    "maps_embed_src",
+    "maps_embed_url",
+    "maps_route_url",
+    "normalize_services_list",
+    "normalize_whatsapp_digits",
+    "resolve_package_features",
+    "whatsapp_href",
+]

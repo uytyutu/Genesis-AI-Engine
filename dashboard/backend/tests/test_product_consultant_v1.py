@@ -37,9 +37,10 @@ def test_sales_discovery_recommends_business_and_order_cta():
     _turn(state, "Да, SEO")
     reply = _turn(state, "2-5 сотрудников")
     assert reply is not None
-    assert "рекомендую" in reply.answer.lower() or "Business" in reply.answer
-    assert "почему" in reply.answer.lower()
-    assert reply.cta_label == "Оформить заказ"
+    assert "Business" in reply.answer or "business" in reply.answer.lower()
+    assert "ориентиры" in reply.answer.lower() or "чаще всего" in reply.answer.lower()
+    assert "не оформляю покупку" in reply.answer.lower()
+    assert reply.cta_label == "Открыть форму заявки"
     assert reply.cta_href and "order" in reply.cta_href
     assert state.package_choice in ("basic", "business", "premium")
 
@@ -51,7 +52,7 @@ def test_explicit_package_skips_discovery():
     assert reply is not None
     assert state.package_choice == "business"
     assert reply.cta_href and "business" in reply.cta_href
-    assert reply.cta_label == "Оформить заказ"
+    assert reply.cta_label == "Открыть форму заявки"
 
 
 def test_show_packages_escape_hatch():
@@ -79,15 +80,15 @@ def test_repair_is_orderable():
     assert reply is not None
     assert "199" in reply.answer
     assert reply.cta_href == "/order/service/website_repair"
-    assert reply.cta_label == "Оформить заказ"
+    assert reply.cta_label == "Открыть форму заявки"
 
 
 def test_pricing_has_next_action():
     state = ConversationState()
     reply = _turn(state, "Сколько стоит?")
     assert reply is not None
-    assert "350" in reply.answer or "€" in reply.answer
-    assert reply.cta_href in ("/order", "/products")
+    assert "199" in reply.answer or "€" in reply.answer
+    assert reply.cta_href in ("/order", "/products", "/order?form=1")
 
 
 def test_about_virtus_core():
@@ -115,7 +116,7 @@ def test_ai_bot_order_lists_tiers_and_order_cta():
     assert "499" in reply.answer
     assert "Starter" in reply.answer or "999" in reply.answer
     assert "Professional" in reply.answer or "1499" in reply.answer
-    assert reply.cta_label == "Оформить заказ"
+    assert reply.cta_label == "Открыть форму заявки"
     assert reply.cta_href and ("bot" in reply.cta_href or "service=bots" in reply.cta_href)
     assert reply.cta_href != "/site"
 
@@ -137,7 +138,7 @@ def test_seo_order_cta():
     assert reply is not None
     assert "249" in reply.answer
     assert reply.cta_href == "/order/service/seo_audit"
-    assert reply.cta_label in ("Оформить заказ", "Открыть форму интереса")
+    assert reply.cta_label in ("Открыть форму заявки", "Открыть форму интереса")
 
 
 def test_privacy_data_protection():

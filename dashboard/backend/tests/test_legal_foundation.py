@@ -152,7 +152,7 @@ def test_entity_store_loads_example_when_missing(tmp_path: Path):
     store = LegalEntityStore(tmp_path)
     cfg = store.load()
     assert cfg.operator.trade_name == "Virtus Core"
-    assert cfg.operator.email == "hello@genesis-ai-engine.com"
+    assert cfg.operator.email == "hello@virtuscore.com"
     assert store.status()["impressum_publishable"] is False
 
 
@@ -161,7 +161,7 @@ def test_env_overlay_makes_impressum_publishable(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_STREET", "Musterstraße 1")
     monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_ZIP", "01067")
     monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_CITY", "Dresden")
-    monkeypatch.setenv("GENESIS_LEGAL_EMAIL", "hello@genesis-ai-engine.com")
+    monkeypatch.setenv("GENESIS_LEGAL_EMAIL", "hello@virtuscore.com")
     cfg = apply_env_overlay(LegalEntityConfig())
     assert cfg.is_impressum_publishable() is True
     assert cfg.interview_completed is True
@@ -172,7 +172,7 @@ def test_env_overlay_handelsregister_optional(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_STREET", "Musterstraße 1")
     monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_ZIP", "01067")
     monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_CITY", "Dresden")
-    monkeypatch.setenv("GENESIS_LEGAL_EMAIL", "hello@genesis-ai-engine.com")
+    monkeypatch.setenv("GENESIS_LEGAL_EMAIL", "hello@virtuscore.com")
     monkeypatch.setenv("GENESIS_LEGAL_HANDELSREGISTER", "HRB 12345")
     monkeypatch.setenv("GENESIS_LEGAL_REGISTER_COURT", "Amtsgericht Dresden")
     cfg = apply_env_overlay(LegalEntityConfig())
@@ -209,7 +209,7 @@ def test_entity_store_persists_env_overlay_when_publishable(
     monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_STREET", "Teststraße 1")
     monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_ZIP", "01237")
     monkeypatch.setenv("GENESIS_LEGAL_ADDRESS_CITY", "Dresden")
-    monkeypatch.setenv("GENESIS_LEGAL_EMAIL", "hello@genesis-ai-engine.com")
+    monkeypatch.setenv("GENESIS_LEGAL_EMAIL", "hello@virtuscore.com")
     store = LegalEntityStore(tmp_path)
     cfg = store.load()
     assert cfg.is_impressum_publishable() is True

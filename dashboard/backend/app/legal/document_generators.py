@@ -302,38 +302,129 @@ def generate_cookies(cfg: LegalEntityConfig, *, locale: str = "de") -> LegalDocu
 
 
 def generate_ai_disclaimer(cfg: LegalEntityConfig, *, locale: str = "de") -> LegalDocument:
-    sections = [
-        LegalSection(
-            f"Was {ASSISTANT_NAME} tut",
-            f"{ASSISTANT_NAME} ist der digitale Assistent von {BRAND_NAME}. "
-            "Er hilft bei Projekten, erstellt Konzepte, analysiert Dokumente und bereitet Ergebnisse vor. "
-            f"{ASSISTANT_NAME} unterstützt Sie bei Entscheidungen — er trifft sie nicht für Sie.",
-        ),
-        LegalSection(
-            "Ihre Entscheidungen zählen",
-            f"{ASSISTANT_NAME} kann Vorschläge machen, Optionen vergleichen und Entwürfe vorbereiten. "
-            "**Endgültige rechtliche, finanzielle und geschäftliche Entscheidungen treffen Sie selbst.** "
-            "Prüfen Sie wichtige Schritte — besonders vor Veröffentlichung, Vertragsabschluss oder Zahlung.",
-        ),
-        LegalSection(
-            f"Was {ASSISTANT_NAME} nicht tut",
-            "• Keine Rechtsberatung — juristische Texte sind Hilfen, keine Anwaltserklärung\n"
-            "• Keine Steuer- oder Finanzberatung — Zahlen und Pläne sind Orientierung, keine Gutachten\n"
-            "• Keine automatischen Zahlungen ohne Ihre Bestätigung\n"
-            "• Keine Garantie für 100 % rechtliche Konformität ohne Ihre Prüfung\n"
-            "• Keine medizinischen Gutachten",
-        ),
-        LegalSection(
-            "Menschliche Bestätigung",
-            "Verbindliche Schritte (Freigabe, Zahlung, Veröffentlichung, Domain-Änderungen) erfolgen nur "
-            "mit Ihrer ausdrücklichen Bestätigung.",
-        ),
-    ]
+    loc = (locale or "de").strip().lower()[:2]
+    if loc == "ru":
+        sections = [
+            LegalSection(
+                "Использование искусственного интеллекта",
+                f"При разработке сайтов и цифровых продуктов {BRAND_NAME} использует инструменты "
+                "искусственного интеллекта для ускорения создания дизайна, структуры, текстов, "
+                "изображений и других элементов проекта.",
+            ),
+            LegalSection(
+                "Качество и правки",
+                "Каждый проект проходит автоматическую проверку качества. После покупки вы можете "
+                "запросить изменения, если результат не соответствует вашим ожиданиям.",
+            ),
+            LegalSection(
+                "Что делает ИИ",
+                "• анализирует требования проекта\n"
+                "• помогает подобрать дизайн и стиль\n"
+                "• генерирует первоначальную структуру\n"
+                "• создаёт тексты и изображения\n"
+                "• ускоряет разработку",
+            ),
+            LegalSection(
+                "Что ИИ не заменяет",
+                "• ваши пожелания и решения\n"
+                "• возможность внесения изменений\n"
+                "• контроль качества готового проекта\n"
+                f"• ответственность {ASSISTANT_NAME} и команды {BRAND_NAME} за результат сервиса",
+            ),
+            LegalSection(
+                "Ваши решения",
+                f"{ASSISTANT_NAME} поддерживает вас — конечные юридические, финансовые и деловые "
+                "решения принимаете вы. Проверяйте важные шаги перед публикацией, договором или оплатой.",
+            ),
+        ]
+        title = DOCUMENT_LABELS[DOCUMENT_AI_DISCLAIMER].get("ru", "Оговорка об ИИ")
+        subtitle = f"Актуально: {cfg.documents_last_review}"
+    elif loc == "en":
+        sections = [
+            LegalSection(
+                "How we use artificial intelligence",
+                f"When developing websites and digital products, {BRAND_NAME} uses artificial "
+                "intelligence tools to accelerate design, structure, copy, imagery, and other "
+                "project elements.",
+            ),
+            LegalSection(
+                "Quality and edits",
+                "Every project goes through automated quality checks. After purchase you can "
+                "request changes if the result does not match your expectations.",
+            ),
+            LegalSection(
+                "What AI helps with",
+                "• analyzing project requirements\n"
+                "• choosing design and style\n"
+                "• generating an initial structure\n"
+                "• creating copy and imagery\n"
+                "• accelerating development",
+            ),
+            LegalSection(
+                "What AI does not replace",
+                "• your preferences and decisions\n"
+                "• the ability to request changes\n"
+                "• quality control of the finished project\n"
+                f"• accountability of {ASSISTANT_NAME} and the {BRAND_NAME} team for the service outcome",
+            ),
+            LegalSection(
+                "Your decisions",
+                f"{ASSISTANT_NAME} supports you — final legal, financial, and business decisions "
+                "remain yours. Review important steps before publishing, contracting, or paying.",
+            ),
+        ]
+        title = "AI notice"
+        subtitle = f"As of: {cfg.documents_last_review}"
+    else:
+        sections = [
+            LegalSection(
+                "Einsatz künstlicher Intelligenz",
+                f"Bei der Entwicklung von Websites und digitalen Produkten setzt {BRAND_NAME} "
+                "Werkzeuge der künstlichen Intelligenz ein, um Design, Struktur, Texte, Bilder "
+                "und weitere Projektelemente schneller zu erstellen.",
+            ),
+            LegalSection(
+                "Qualität und Änderungen",
+                "Jedes Projekt durchläuft eine automatische Qualitätsprüfung. Nach dem Kauf "
+                "können Sie Änderungen anfordern, wenn das Ergebnis Ihren Erwartungen nicht entspricht.",
+            ),
+            LegalSection(
+                "Wobei KI unterstützt",
+                "• Analyse der Projektanforderungen\n"
+                "• Auswahl von Design und Stil\n"
+                "• Erstellung der ersten Struktur\n"
+                "• Erstellung von Texten und Bildern\n"
+                "• Beschleunigung der Entwicklung",
+            ),
+            LegalSection(
+                "Was KI nicht ersetzt",
+                "• Ihre Wünsche und Entscheidungen\n"
+                "• die Möglichkeit von Änderungen\n"
+                "• die Qualitätskontrolle des fertigen Projekts\n"
+                f"• die Verantwortung von {ASSISTANT_NAME} und dem Team von {BRAND_NAME} für das Service-Ergebnis",
+            ),
+            LegalSection(
+                "Ihre Entscheidungen zählen",
+                f"{ASSISTANT_NAME} kann Vorschläge machen und Entwürfe vorbereiten. "
+                "**Endgültige rechtliche, finanzielle und geschäftliche Entscheidungen treffen Sie selbst.** "
+                "Prüfen Sie wichtige Schritte — besonders vor Veröffentlichung, Vertragsabschluss oder Zahlung.",
+            ),
+            LegalSection(
+                f"Was {ASSISTANT_NAME} nicht tut",
+                "• Keine Rechtsberatung — juristische Texte sind Hilfen, keine Anwaltserklärung\n"
+                "• Keine Steuer- oder Finanzberatung — Zahlen und Pläne sind Orientierung, keine Gutachten\n"
+                "• Keine automatischen Zahlungen ohne Ihre Bestätigung\n"
+                "• Keine Garantie für 100 % rechtliche Konformität ohne Ihre Prüfung\n"
+                "• Keine medizinischen Gutachten",
+            ),
+        ]
+        title = DOCUMENT_LABELS[DOCUMENT_AI_DISCLAIMER].get(locale, "KI-Hinweis")
+        subtitle = f"Stand: {cfg.documents_last_review}"
     return LegalDocument(
         id=DOCUMENT_AI_DISCLAIMER,
-        title=DOCUMENT_LABELS[DOCUMENT_AI_DISCLAIMER].get(locale, "KI-Hinweis"),
+        title=title,
         locale=locale,
-        subtitle=f"Stand: {cfg.documents_last_review}",
+        subtitle=subtitle,
         publishable=True,
         missing_fields=[],
         sections=sections,

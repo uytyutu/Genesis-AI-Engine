@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "food",
+  "package_id": "business",
+  "category": "food",
+  "store_name": "FeinKost Food",
+  "generated_at": "2026-08-07T06:57:37.710472+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 35592,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/business/food/index.html"
+}

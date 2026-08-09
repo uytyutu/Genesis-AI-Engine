@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "auto",
+  "niche": "auto",
+  "package_id": "premium",
+  "product_id": "3be657dd-a68a-4272-a953-10527ca1bb9b",
+  "business_name": "Autowerkstatt Nord",
+  "generated_at": "2026-08-08T14:35:07.488589+00:00",
+  "engine": "FactoryService.build_landing + Design DNA + Design Engine + VIE",
+  "index_bytes": 152583,
+  "data_tier_ok": true,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/premium/auto/index.html"
+}

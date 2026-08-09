@@ -1,0 +1,20 @@
+{
+  "niche_id": "gartenpflege",
+  "idea": "",
+  "who": "Eine echte lokale Marke mit Haltung.",
+  "character": [],
+  "metaphor": "",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "missing",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": false,
+    "idea": "",
+    "who": "Eine echte lokale Marke mit Haltung.",
+    "package_id": "business",
+    "source": "missing",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

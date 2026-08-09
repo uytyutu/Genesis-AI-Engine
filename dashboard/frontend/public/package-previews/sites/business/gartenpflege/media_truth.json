@@ -1,0 +1,77 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Garden",
+      "Greenery",
+      "Tools",
+      "Outdoor work",
+      "Daylight"
+    ],
+    "preferred": [
+      "Dew",
+      "Hedge",
+      "Lawn",
+      "Beds",
+      "Morning"
+    ],
+    "forbidden": [
+      "Café",
+      "Spa stones",
+      "Tropical resort",
+      "Office",
+      "Laptop"
+    ],
+    "hero_proof": "Gardener at real outdoor work — hedge, lawn, or bed care.",
+    "profession_keywords": [
+      "garden",
+      "garten",
+      "hedge",
+      "lawn",
+      "rasen",
+      "plant",
+      "leaf"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\72413a99-0c04-492f-aed5-e2234cc95099\\assets\\hero.jpg",
+      "role": "hero"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\72413a99-0c04-492f-aed5-e2234cc95099\\assets\\background.jpg",
+      "role": "background"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\72413a99-0c04-492f-aed5-e2234cc95099\\assets\\gallery.jpg",
+      "role": "gallery"
+    }
+  ],
+  "rebuilds": [],
+  "ok": true
+}

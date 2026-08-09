@@ -1,0 +1,851 @@
+{
+  "studio_id": "digital_creative_studio_v4_studio_era",
+  "era": "Virtus Core Studio Era",
+  "product_noun": "Digital Experience Generation",
+  "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+  "digital_signature_aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+  "philosophy": "virtus_core_studio_era_digital_experience_generation",
+  "immutable_law_1": "Каждый новый проект обязан быть не хуже предыдущего лучшего проекта. Если генерация ухудшила качество — REBUILD. Если она повторила шаблон — REBUILD. Если сайт выглядит как конструктор — REBUILD. Если сайт уступает современным digital-студиям — REBUILD.",
+  "immutable_law_2": "Любая новая идея должна сначала стать заметной клиенту. Если появляется Director, Engine, Rule или Memory — ответь: «Что изменится в первом впечатлении клиента?» Если ответ: «Пока ничего, но архитектура стала лучше» — работа ещё не закончена.",
+  "pipeline": [
+    "human_first",
+    "brand_story",
+    "core_emotion",
+    "core_promise",
+    "visual_metaphor",
+    "creative_theme",
+    "scene_language",
+    "motion_language",
+    "typography_voice",
+    "color_emotion",
+    "interaction_style",
+    "creative_conflict",
+    "owner_preview"
+  ],
+  "scene_arc": [
+    "scene",
+    "story",
+    "emotion",
+    "interaction",
+    "experience",
+    "conversion"
+  ],
+  "package_id": "business",
+  "niche_id": "realestate",
+  "studio_approach": {
+    "id": "luxury",
+    "label": "Luxury",
+    "pillars": [
+      "minimalism",
+      "generous air",
+      "large photography",
+      "little text",
+      "quiet confidence"
+    ],
+    "composition_bias": [
+      "luxury_brand",
+      "cinematic",
+      "whisper",
+      "atelier_night",
+      "breath"
+    ],
+    "type_bias": [
+      "playfair_manrope",
+      "bodoni_jakarta",
+      "gloock_manrope"
+    ],
+    "color_feeling": "restrained ink + warm metal accent",
+    "motion": "slow reveal, soft parallax",
+    "niches_affinity": [
+      "fashion",
+      "beauty",
+      "jewelry",
+      "realestate",
+      "psychology"
+    ],
+    "notes": "Premium invites looking"
+  },
+  "moodboard": {
+    "niche_id": "realestate",
+    "emotion": "trust and desire to stay",
+    "keywords": [
+      "depth",
+      "rhythm",
+      "hero presence",
+      "niche truth",
+      "lived-in room"
+    ],
+    "avoid": [
+      "template ladder",
+      "flat white",
+      "metric PASS theater",
+      "tech_saas",
+      "gaming",
+      "neon",
+      "warehouse_grid"
+    ],
+    "hero_feeling": "Furniture that already belongs to a life.",
+    "atmosphere": "real rooms, soft daylight, human traces",
+    "references": [
+      "Best contemporary niche studios"
+    ]
+  },
+  "brand_dna": {
+    "business_name": "Wohnraum Furniture",
+    "niche_id": "realestate",
+    "package_id": "business",
+    "voice": "warm editorial — home story first",
+    "feeling": "trust and desire to stay",
+    "why_hero_exists": "The Hero exists to make 'Lived-In Room' felt in 3 seconds: Furniture that already belongs to a life.",
+    "color_feeling": "oak, linen, soft clay, muted green",
+    "type_voice": "warm editorial — home story first",
+    "scene_arc": "real rooms, soft daylight, human traces",
+    "avoid": [
+      "tech_saas",
+      "gaming",
+      "neon",
+      "warehouse_grid"
+    ],
+    "fingerprint": "df5372f4803eee18",
+    "brand_story": "Jonas built Wohnraum Furniture because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: realestate.",
+    "core_emotion": "trust and desire to stay",
+    "core_promise": "Furniture that already belongs to a life.",
+    "visual_metaphor": "an empty chair that still feels occupied",
+    "creative_theme": "Lived-In Room",
+    "creative_theme_id": "lived_in_room",
+    "scene_language": "real rooms, soft daylight, human traces",
+    "motion_language": "slow settle into space",
+    "interaction_style": "browse like walking through a home",
+    "photo_world": "morning living room, book on table, plant",
+    "founder_name": "Jonas"
+  },
+  "creative_identity": {
+    "title": "Lived-In Room",
+    "theme_id": "lived_in_room",
+    "idea": "Furniture that already belongs to a life.",
+    "human": {
+      "founder_name": "Jonas",
+      "founder_role": "founder",
+      "client_age_range": "30–50",
+      "why_choose_them": "They are specific — not interchangeable.",
+      "visitor_must_feel": "trust and desire to stay",
+      "niche_revealed_later": "realestate"
+    },
+    "brand_story": "Jonas built Wohnraum Furniture because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: realestate.",
+    "core_emotion": "trust and desire to stay",
+    "core_promise": "Furniture that already belongs to a life.",
+    "visual_metaphor": "an empty chair that still feels occupied",
+    "creative_theme": "Lived-In Room",
+    "scene_language": "real rooms, soft daylight, human traces",
+    "motion_language": "slow settle into space",
+    "typography_voice": "warm editorial — home story first",
+    "color_emotion": "oak, linen, soft clay, muted green",
+    "interaction_style": "browse like walking through a home",
+    "photo_world": "morning living room, book on table, plant",
+    "niche_revealed": "realestate",
+    "package_id": "business",
+    "surface": "store",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "tech_saas",
+      "gaming",
+      "neon",
+      "warehouse_grid"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": true,
+    "html_blocked_reason": "",
+    "fingerprint": "df5372f4803eee18",
+    "generated_at": "2026-08-07T06:57:32.727022+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  },
+  "observatory": {
+    "niche_id": "realestate",
+    "era": "2026+",
+    "study_sources": [
+      "European digital studio portfolios",
+      "Premium SaaS brand sites",
+      "Luxury ecommerce craft"
+    ],
+    "first_screen": [
+      "Emotional job in 3 seconds",
+      "Brand voice before feature list",
+      "One visual center"
+    ],
+    "page_rhythm": [
+      "Scene → Story → Emotion → Interaction → Experience → Conversion"
+    ],
+    "composition_depth": [
+      "Living atmosphere",
+      "Asymmetry",
+      "Depth layers"
+    ],
+    "typography": "Voice-matched display + readable body",
+    "micro_interactions": "Purposeful motion — never decoration spam",
+    "trust": "Specific proof woven into scenes",
+    "cta_craft": "One primary ask per scene",
+    "brand_feel": [
+      "modern",
+      "confident",
+      "alive"
+    ],
+    "invent": "Original Brand DNA for realestate — invent, never recycle prior sites.",
+    "never": [
+      "Constructor ladder",
+      "White empty slabs",
+      "Identical niche clones"
+    ],
+    "lenses": [
+      {
+        "id": "first_screen",
+        "question": "Why does the first screen exist?",
+        "principles": [
+          "One emotional job in 3 seconds",
+          "Visual center owns the fold",
+          "Brand voice before feature list"
+        ],
+        "anti_patterns": [
+          "Hero as feature dump",
+          "equal card grid first",
+          "logo wall as hero"
+        ]
+      },
+      {
+        "id": "rhythm",
+        "question": "How does the page breathe?",
+        "principles": [
+          "Scenes with distinct moods",
+          "Alternating density — never identical section padding",
+          "Story → emotion → interaction → conversion"
+        ],
+        "anti_patterns": [
+          "Hero→Text→Cards→Text→Cards",
+          "uniform white slabs"
+        ]
+      },
+      {
+        "id": "trust",
+        "question": "How is confidence earned?",
+        "principles": [
+          "Proof woven into scenes, not bolted as a strip",
+          "Specific over generic claims",
+          "Quiet credentials beat badge spam"
+        ],
+        "anti_patterns": [
+          "fake counters",
+          "stock handshake photos as trust"
+        ]
+      },
+      {
+        "id": "cta",
+        "question": "How does desire become action?",
+        "principles": [
+          "CTA matches emotional temperature of the scene",
+          "Secondary path without visual noise",
+          "One primary ask per scene"
+        ],
+        "anti_patterns": [
+          "identical pill buttons everywhere",
+          "three equal CTAs"
+        ]
+      }
+    ]
+  },
+  "observatory_brief": "Design Observatory · realestate · 2026+\nRule: analyze principles — invent original — never copy pixels.\nFirst screen: Emotional job in 3 seconds; Brand voice before feature list; One visual center\nRhythm: Scene → Story → Emotion → Interaction → Experience → Conversion\nDepth: Living atmosphere; Asymmetry; Depth layers\nType: V; o; i\nMotion: P; u; r\nTrust: S; p; e\nCTA: O; n; e\nInvent: Original Brand DNA for realestate — invent, never recycle prior sites.\nNever: Constructor ladder; White empty slabs; Identical niche clones",
+  "benchmark_brief": "",
+  "quality_floor": "Business ≥ Virtus Core /site quality floor (never worse than Virtus itself)",
+  "why_hero_exists": "The Hero exists to make 'Lived-In Room' felt in 3 seconds: Furniture that already belongs to a life.",
+  "scene_sequence": [
+    "scene",
+    "experience",
+    "story",
+    "conversion",
+    "experience",
+    "emotion",
+    "interaction",
+    "emotion",
+    "scene",
+    "interaction",
+    "conversion"
+  ],
+  "taste": {
+    "overall": 69.5,
+    "axes": [
+      {
+        "axis": "rhythm",
+        "score": 96.0,
+        "note": "scene arc vs ladder"
+      },
+      {
+        "axis": "emotion",
+        "score": 85.0,
+        "note": "feeling + why-hero"
+      },
+      {
+        "axis": "brand",
+        "score": 83.0,
+        "note": "approach + composition identity"
+      },
+      {
+        "axis": "beauty",
+        "score": 50.0,
+        "note": "atmosphere + media integrity"
+      },
+      {
+        "axis": "visual_value",
+        "score": 50.0,
+        "note": "worth looking at"
+      },
+      {
+        "axis": "trust",
+        "score": 55.0,
+        "note": "proof craft"
+      },
+      {
+        "axis": "modernity",
+        "score": 72.0,
+        "note": "2026 studio language"
+      },
+      {
+        "axis": "uniqueness",
+        "score": 65.0,
+        "note": "not another clone"
+      }
+    ],
+    "verdict": "PROMISING",
+    "rebuild": false,
+    "reasons": [
+      "Offer-heavy early — weak emotional lead"
+    ],
+    "philosophy": "Taste judges the whole impression — not isolated CSS rules.",
+    "owner_still_decides_pass": true
+  },
+  "law_1": {
+    "law": "Every new project must not be worse than the previous best. Quality regression → REBUILD. Template repeat → REBUILD. Constructor look → REBUILD. Below modern digital studios → REBUILD.",
+    "ok": true,
+    "action": "CONTINUE",
+    "reasons": []
+  },
+  "memory_bias": {
+    "compositions": [
+      "narrative",
+      "trust_cascade",
+      "healthcare"
+    ],
+    "approaches": [
+      "luxury"
+    ],
+    "typography": [
+      "newsreader_public"
+    ],
+    "heroes": [
+      "D",
+      "C"
+    ],
+    "prior_best_overall": 71.5,
+    "rule": "Bias principles from memory — never copy a prior site literally"
+  },
+  "agency_review": {
+    "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+    "roles": [
+      {
+        "id": "ceo",
+        "title": "CEO",
+        "question": "Does this strengthen the client's business presence — not just fill a page?"
+      },
+      {
+        "id": "creative_director",
+        "title": "Creative Director",
+        "question": "Is the creative direction clear, ownable, and non-template?"
+      },
+      {
+        "id": "brand_strategist",
+        "title": "Brand Strategist",
+        "question": "What is this brand's personality — and why does it exist?"
+      },
+      {
+        "id": "marketing_strategist",
+        "title": "Marketing Strategist",
+        "question": "What should the stranger feel in 3 seconds — and what should they do?"
+      },
+      {
+        "id": "ux_researcher",
+        "title": "UX Researcher",
+        "question": "Is the path human, calm, credible — free of constructor anxiety?"
+      },
+      {
+        "id": "art_director",
+        "title": "Art Director",
+        "question": "Does every scene have its own composition, rhythm, mood, and visual center?"
+      },
+      {
+        "id": "typography_director",
+        "title": "Typography Director",
+        "question": "Does type carry character and brand voice — not a default stack?"
+      },
+      {
+        "id": "color_director",
+        "title": "Color Director",
+        "question": "Does color create the intended emotion — not decoration?"
+      },
+      {
+        "id": "motion_director",
+        "title": "Motion Director",
+        "question": "Does every animation have meaning — or is it noise?"
+      },
+      {
+        "id": "frontend_architect",
+        "title": "Frontend Architect",
+        "question": "Is the craft export clean, resilient, and worthy of a studio?"
+      },
+      {
+        "id": "accessibility_specialist",
+        "title": "Accessibility Specialist",
+        "question": "Can everyone use this with dignity?"
+      },
+      {
+        "id": "performance_engineer",
+        "title": "Performance Engineer",
+        "question": "Does beauty stay fast on real devices?"
+      },
+      {
+        "id": "qa_designer",
+        "title": "QA Designer",
+        "question": "Would a European digital studio ship this without shame?"
+      },
+      {
+        "id": "owner_review",
+        "title": "Owner Review",
+        "question": "Has the owner said: \"Да. Я бы купил такой сайт.\"?"
+      }
+    ],
+    "digital_signature": {
+      "name": "Virtus Core Digital Signature",
+      "aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+      "craft_marks": [
+        "attention to detail",
+        "meaningful motion",
+        "strong typography",
+        "harmonious spacing",
+        "considered interactive states",
+        "coherent interaction sequences"
+      ],
+      "never": [
+        "same colors across every niche",
+        "identical compositions",
+        "constructor ladders",
+        "empty decorative zones",
+        "motion without meaning"
+      ]
+    },
+    "ecosystem_frame": {
+      "wrong": "Create a dentist website.",
+      "right": "Create the digital business of a dental clinic.",
+      "for_this_project": "Create the digital business of Wohnraum Furniture (realestate) — experience is one surface of the ecosystem, not the end product.",
+      "surfaces": [
+        {
+          "id": "experience",
+          "label": "Digital Experience (site/store)",
+          "role": "first impression & brand face"
+        },
+        {
+          "id": "booking",
+          "label": "Booking / scheduling",
+          "role": "convert intent to appointments"
+        },
+        {
+          "id": "crm",
+          "label": "CRM",
+          "role": "remember and serve the client"
+        },
+        {
+          "id": "reminders",
+          "label": "Automated reminders",
+          "role": "reduce no-shows"
+        },
+        {
+          "id": "chat",
+          "label": "Chat / assistant",
+          "role": "answer when humans sleep"
+        },
+        {
+          "id": "reviews",
+          "label": "Reviews",
+          "role": "trust at scale"
+        },
+        {
+          "id": "seo",
+          "label": "SEO",
+          "role": "be found"
+        },
+        {
+          "id": "ads",
+          "label": "Advertising",
+          "role": "reach with brand integrity"
+        },
+        {
+          "id": "analytics",
+          "label": "Analytics",
+          "role": "learn what works"
+        },
+        {
+          "id": "video",
+          "label": "Video",
+          "role": "emotion and proof"
+        },
+        {
+          "id": "social",
+          "label": "Social",
+          "role": "presence beyond the site"
+        },
+        {
+          "id": "cabinet",
+          "label": "Client cabinet",
+          "role": "ongoing relationship"
+        }
+      ],
+      "package_id": "business"
+    },
+    "owner_buy_phrase": "Да. Я бы купил такой сайт.",
+    "owner_review": "PENDING_OWNER",
+    "note": "Roles are questions every generation must face. PASS only after human approval."
+  },
+  "variants_considered": [
+    {
+      "composition_id": "solstice",
+      "composition_label": "Solstice arc",
+      "hero_layout": "D",
+      "layout_profile": "L6-solstice",
+      "dna_style": "scandinavian_calm",
+      "dna_composition": "solstice",
+      "section_order": [
+        "gallery",
+        "about",
+        "mid_cta",
+        "process",
+        "services",
+        "showcase",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "late_cta",
+        "contact"
+      ],
+      "score": 58.0,
+      "reasons": [
+        "anti-predictable composition",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": false,
+      "reject_reason": "",
+      "rhythm": "gallery>about>mid_cta>process>services>showcase>trust>benefits>faq>reviews>maps>late_cta"
+    },
+    {
+      "composition_id": "split",
+      "composition_label": "Split dialogue",
+      "hero_layout": "A",
+      "layout_profile": "L2-split",
+      "dna_style": "scandinavian_calm",
+      "dna_composition": "split",
+      "section_order": [
+        "about",
+        "services",
+        "gallery",
+        "mid_cta",
+        "trust",
+        "benefits",
+        "process",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>services>gallery>mid_cta>trust>benefits>process>showcase>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "spotlight",
+      "composition_label": "Spotlight feature",
+      "hero_layout": "E",
+      "layout_profile": "L6-spotlight",
+      "dna_style": "scandinavian_calm",
+      "dna_composition": "spotlight",
+      "section_order": [
+        "showcase",
+        "mid_cta",
+        "about",
+        "gallery",
+        "services",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>mid_cta>about>gallery>services>trust>process>benefits>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "storytelling",
+      "composition_label": "Story arc",
+      "hero_layout": "C",
+      "layout_profile": "L6-storytelling",
+      "dna_style": "scandinavian_calm",
+      "dna_composition": "storytelling",
+      "section_order": [
+        "about",
+        "process",
+        "gallery",
+        "mid_cta",
+        "services",
+        "benefits",
+        "trust",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "late_cta",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>process>gallery>mid_cta>services>benefits>trust>showcase>faq>reviews>maps>late_cta"
+    },
+    {
+      "composition_id": "tech_stack",
+      "composition_label": "Tech stack narrative",
+      "hero_layout": "B",
+      "layout_profile": "L5-tech_stack",
+      "dna_style": "modern_clinical",
+      "dna_composition": "tech_stack",
+      "section_order": [
+        "showcase",
+        "stats",
+        "services",
+        "mid_cta",
+        "process",
+        "about",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 55.0,
+      "reasons": [
+        "anti-predictable composition",
+        "benchmark hits:1"
+      ],
+      "rejected": false,
+      "reject_reason": "",
+      "rhythm": "showcase>stats>services>mid_cta>process>about>trust>benefits>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "timeline",
+      "composition_label": "Process timeline",
+      "hero_layout": "C",
+      "layout_profile": "L2-timeline",
+      "dna_style": "modern_clinical",
+      "dna_composition": "timeline",
+      "section_order": [
+        "process",
+        "about",
+        "mid_cta",
+        "services",
+        "gallery",
+        "trust",
+        "benefits",
+        "showcase",
+        "stats",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 61.0,
+      "reasons": [
+        "anti-predictable composition",
+        "benchmark hits:1",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": false,
+      "reject_reason": "",
+      "rhythm": "process>about>mid_cta>services>gallery>trust>benefits>showcase>stats>faq>reviews>maps"
+    }
+  ],
+  "chosen": {
+    "composition_id": "timeline",
+    "composition_label": "Process timeline",
+    "hero_layout": "C",
+    "layout_profile": "L2-timeline",
+    "dna_style": "modern_clinical",
+    "dna_composition": "timeline",
+    "section_order": [
+      "process",
+      "about",
+      "mid_cta",
+      "services",
+      "gallery",
+      "trust",
+      "benefits",
+      "showcase",
+      "stats",
+      "faq",
+      "reviews",
+      "maps",
+      "contact"
+    ],
+    "score": 61.0,
+    "reasons": [
+      "anti-predictable composition",
+      "benchmark hits:1",
+      "scene_arc_story_emotion_early"
+    ],
+    "rejected": false,
+    "reject_reason": "",
+    "rhythm": "process>about>mid_cta>services>gallery>trust>benefits>showcase>stats>faq>reviews>maps"
+  },
+  "dna": {
+    "emotion": "trust",
+    "style": "modern_clinical",
+    "palette_family": "sage_mist",
+    "typography_pair": "newsreader_public",
+    "motion": "business",
+    "hero_concept": "trust_panel",
+    "hero_layout": "C",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "timeline",
+    "package_id": "business",
+    "niche_id": "realestate",
+    "fingerprint": "d1a5187856bcb49d269313eb63571a4d8490a1cd5460001fc32d2d9b0b465469",
+    "section_treatments": [
+      [
+        "process",
+        "gradient"
+      ],
+      [
+        "about",
+        "illustration"
+      ],
+      [
+        "mid_cta",
+        "gradient"
+      ],
+      [
+        "services",
+        "glass"
+      ],
+      [
+        "gallery",
+        "photo_band"
+      ],
+      [
+        "trust",
+        "glass"
+      ],
+      [
+        "benefits",
+        "ink"
+      ],
+      [
+        "showcase",
+        "gradient"
+      ],
+      [
+        "stats",
+        "illustration"
+      ],
+      [
+        "faq",
+        "ink"
+      ],
+      [
+        "reviews",
+        "glass"
+      ],
+      [
+        "maps",
+        "tint"
+      ],
+      [
+        "contact",
+        "gradient"
+      ]
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#f3f6f4",
+    "ink_hex": "#243029"
+  },
+  "layout_profile_id": "L2-timeline",
+  "section_order": [
+    "process",
+    "about",
+    "mid_cta",
+    "services",
+    "gallery",
+    "trust",
+    "benefits",
+    "showcase",
+    "stats",
+    "faq",
+    "reviews",
+    "maps",
+    "contact"
+  ],
+  "hero_layout": "C",
+  "generation_status": "OK_TO_BUILD",
+  "creative_review": "PASS_INTERNAL",
+  "kpi_question": "Without Virtus Core logo — would a stranger believe a modern European digital studio built this?",
+  "owner_review": "PENDING_OWNER",
+  "owner_required": "Да, я бы без стыда продал этот сайт клиенту",
+  "optimize_for": "designer_decisions_and_taste",
+  "note": "Virtus Core Studio Era: Digital Experience Generation. Template-like = REBUILD. Agent may not PASS. Owner sell-readiness only."
+}

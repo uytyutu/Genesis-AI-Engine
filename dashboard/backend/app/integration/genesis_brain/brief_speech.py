@@ -330,7 +330,7 @@ class BriefSpeechSynthesizer:
                 return pc.answer
             return (
                 f"Сайт для {state.business_type or 'бизнеса'}.\n\n"
-                "Пакеты: **Basic · Business · Premium** (350 / 650 / 1200 €) на /order.\n\n"
+                "Пакеты: **Basic · Business · Premium** (199 / 399 / 699 €) на /order.\n\n"
                 f"Срок — {MISSION1_LANDING_TIMELINE}. Следующий шаг — выбрать пакет или оформить заказ."
             )
 

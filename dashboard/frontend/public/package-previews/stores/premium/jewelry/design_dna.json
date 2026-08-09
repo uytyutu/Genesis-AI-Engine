@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "product_first",
+  "package_id": "premium",
+  "niche_id": "fashion",
+  "fingerprint": "2ca19835ad395befd8ef2318c0eb280b7e6b69d5c9bfd3660314d0d49a089149",
+  "section_treatments": [
+    [
+      "catalog",
+      "ink"
+    ],
+    [
+      "showcase",
+      "gradient"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "faq",
+      "gradient"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#e6eaf0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "d0e9e895b45b1e972c8e27d2",
+  "border_radius_px": 12
+}

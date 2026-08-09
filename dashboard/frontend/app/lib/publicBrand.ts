@@ -1,9 +1,10 @@
-/** Public brand — Virtus Core · Vector (mirrors backend public_brand.py). */
+/** Public brand — Virtus Core · Virtus AI (mirrors backend public_brand.py). */
 
 export const BRAND_NAME = "Virtus Core";
-export const ASSISTANT_NAME = "Vector";
+/** Post-purchase + platform assistant — orchestrator, not a vendor model name. */
+export const ASSISTANT_NAME = "Virtus AI";
 export const BRAND_SIGNATURE = "by Virtus Core";
-export const ASSISTANT_TAGLINE = "Digital Company";
+export const ASSISTANT_TAGLINE = "Digital Business Partner";
 
 export const STUDIO_NAME = "Virtus Studio";
 export const CHAT_FEATURE = ASSISTANT_NAME;
@@ -15,17 +16,17 @@ const WELCOME: Record<"de" | "en" | "ru" | "uk", string> = {
 
 Ich kenne alle Produkte, die Sie hier kaufen können (Websites, AI Bot, Analyse). Beschreiben Sie Ihre Branche oder senden Sie einen Businessplan — ich empfehle das passende Paket. Im Chat baue ich keine Websites; danach führt der Link zur Anfrage.
 
-In Ihrem Virtus-Core-Projekt bleibe ich als Vector bei Ihnen und steuere die gebuchten Rollen.`,
+In Ihrem Virtus-Core-Projekt bleibe ich als Virtus AI bei Ihnen und steuere die gebuchten Produkte.`,
   en: `Hello! I'm ${ASSISTANT_NAME} — consultant at ${BRAND_NAME}.
 
 I know every product you can buy here (websites, AI Bot, analysis). Describe your niche or share a business plan — I'll recommend the right package. I don't build sites in chat; next step is the order form.
 
-Inside your Virtus Core project I stay with you as Vector and run the roles you purchased.`,
+Inside your Virtus Core project I stay with you as Virtus AI and run the products you purchased.`,
   ru: `Здравствуйте! Я ${ASSISTANT_NAME} — консультант ${BRAND_NAME}.
 
 Знаю все продукты, которые можно купить здесь (сайты, AI Bot, анализ). Опишите нишу или пришлите бизнес-план — предложу пакет. Сайты в чате не собираю — дальше форма заявки.
 
-В проекте Virtus Core я остаюсь с вами как Vector и веду купленные роли.`,
+В проекте Virtus Core я остаюсь с вами как Virtus AI и веду купленные продукты.`,
   uk: `Вітаю! Я ${ASSISTANT_NAME} — консультант ${BRAND_NAME}.
 
 Знаю всі продукти, які можна купити тут. Опишіть нішу або надішліть бізнес-план — запропоную пакет.`,

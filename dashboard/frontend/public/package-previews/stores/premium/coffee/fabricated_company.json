@@ -1,0 +1,161 @@
+{
+  "legal_name": "Röstwerk Coffee",
+  "brand_name": "Röstwerk Coffee",
+  "slogan": "Ein Abend im italienischen Hof.",
+  "mission": "Gäste in Berlin sollen den Abend länger erinnern als die Rechnung.",
+  "history": "Was als kleines Vorhaben in Berlin begann, ist über die Jahre zu einem festen Ort mit Stammgästen und klarer Handschrift geworden. Seit 2018 wächst Röstwerk Coffee bewusst — Qualität vor Tempo.",
+  "values": [
+    "Präzision",
+    "Menschlichkeit",
+    "Transparenz",
+    "Verlässlichkeit",
+    "Handwerk"
+  ],
+  "approach": "Saisonale Karte, kurze Wege zur Küche, Gast als Mensch — nicht als Ticket.",
+  "founded_year": 2018,
+  "city": "Berlin",
+  "niche_id": "restaurant",
+  "services": [
+    [
+      "Wochenkarte",
+      "Frisch geplant — jeden Montag neu",
+      "ab 18 €"
+    ],
+    [
+      "Reservierung",
+      "Tischreservierung mit Bestätigung",
+      "kostenlos"
+    ],
+    [
+      "Events",
+      "Private Tische & Firmenessen",
+      "auf Anfrage"
+    ],
+    [
+      "Weinprobe",
+      "Kuratiertes Flight mit Sommelier",
+      "ab 45 €"
+    ],
+    [
+      "Catering",
+      "Büro & Feiern — gleiche Küche",
+      "ab 22 €/Pers."
+    ],
+    [
+      "Brunch",
+      "Sonntagsbrunch mit Live-Atmosphäre",
+      "ab 29 €"
+    ],
+    [
+      "Allergene klar",
+      "Transparente Allergen-Info an jedem Gericht",
+      "inkl."
+    ],
+    [
+      "Take-away",
+      "Ausgewählte Gerichte zum Mitnehmen",
+      "ab 12 €"
+    ],
+    [
+      "Mittagstisch",
+      "Saisonaler Mittag mit klarer Karte",
+      "ab 14 €"
+    ],
+    [
+      "Abendkarte",
+      "Abendmenü mit Weinbegleitung",
+      "ab 38 €"
+    ]
+  ],
+  "advantages": [
+    "Seit 2018 in Berlin",
+    "Transparente Preise",
+    "Feste Ansprechpartner",
+    "Termine mit Bestätigung",
+    "Nachvollziehbarer Ablauf"
+  ],
+  "team": [
+    [
+      "Max Hoffmann",
+      "Küchenchef/in",
+      "Küchenchef/in bei Röstwerk Coffee — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Felix Hoffmann",
+      "Serviceleitung",
+      "Serviceleitung bei Röstwerk Coffee — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Felix Schulz",
+      "Sommelier",
+      "Sommelier bei Röstwerk Coffee — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Mila Hoffmann",
+      "Gastgeber/in",
+      "Gastgeber/in bei Röstwerk Coffee — Fokus auf Qualität und ruhige Abläufe."
+    ]
+  ],
+  "faq": [
+    [
+      "Wie vereinbare ich einen Termin bei Röstwerk Coffee?",
+      "Über das Kontaktformular, telefonisch oder per E-Mail. Sie erhalten eine Bestätigung."
+    ],
+    [
+      "Wie transparent sind die Kosten?",
+      "Vor Beginn erhalten Sie eine klare Einschätzung. Keine versteckten Positionen."
+    ],
+    [
+      "Seit wann gibt es Röstwerk Coffee?",
+      "Seit 2018 in Berlin — gewachsen mit Stammkunden und klarer Handschrift."
+    ],
+    [
+      "Gibt es Parkplätze / Anreise?",
+      "Zentral in Berlin. Details zur Anreise senden wir mit der Terminbestätigung."
+    ],
+    [
+      "Arbeitet ihr auch online / hybrid?",
+      "Wo sinnvoll ja — Details klären wir im Erstkontakt."
+    ]
+  ],
+  "reviews": [
+    [
+      "Endlich ein Abend, an den man sich erinnert — ruhig, präzise, herzlich.",
+      "Erik · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Karte kurz, Geschmack groß. Wir kommen wieder.",
+      "Anna · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Service ohne Theater. Genau richtig.",
+      "Anna · Demo-Bewertung — kein echter Kundenname"
+    ]
+  ],
+  "process_steps": [
+    "Kennenlernen & Bedarf",
+    "Klare Empfehlung & Preis",
+    "Umsetzung mit Abstimmung",
+    "Nachsorge & Feedback"
+  ],
+  "blog_titles": [
+    "Warum Röstwerk Coffee anders arbeitet",
+    "3 Dinge, die Kunden in Berlin uns am häufigsten fragen",
+    "Hinter den Kulissen: Qualität statt Tempo",
+    "So bereiten Sie Ihren ersten Termin vor"
+  ],
+  "certificates": [
+    "Hygiene-Konzept",
+    "Allergenkennzeichnung",
+    "Regionale Partner"
+  ],
+  "hours": "Mo–Fr 09:00–18:00 · Sa nach Vereinbarung",
+  "phone": "+49 89 8820430",
+  "email": "kontakt@roestwerk-coffee.example.de",
+  "social": [
+    "instagram.com/röstwerkcoffee.demo",
+    "linkedin.com/company/röstwerk-coffee-demo"
+  ],
+  "fingerprint": "a2da5fc78f1a141b",
+  "demo_content": true
+}

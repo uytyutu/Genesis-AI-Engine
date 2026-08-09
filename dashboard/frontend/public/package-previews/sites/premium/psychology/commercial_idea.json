@@ -1,0 +1,26 @@
+{
+  "niche_id": "psychology",
+  "idea": "Ein Ort, an dem es ruhiger wird.",
+  "who": "Ein geschützter Raum für das erste Gespräch — online oder vor Ort.",
+  "character": [
+    "Ruhe",
+    "Schutz",
+    "Klarheit",
+    "Tempo des Menschen",
+    "Vertrauen"
+  ],
+  "metaphor": "Weiches Morgenlicht in einem stillen Raum",
+  "hero_concept": "quiet_chamber",
+  "emotion_3s": "Atem wird tiefer — hier darf man ankommen",
+  "source": "premium_pack",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Ein Ort, an dem es ruhiger wird.",
+    "who": "Ein geschützter Raum für das erste Gespräch — online oder vor Ort.",
+    "package_id": "premium",
+    "source": "premium_pack",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "brand_name": "TeilWerk Parts",
+  "niche_id": "auto",
+  "package_id": "premium",
+  "media_mode": "industrial_craft",
+  "visual_metaphor": "Lift and precise mechanics",
+  "hero_concept": "Lift and precise mechanics | TeilWerk Parts",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": true,
+  "experience_tier": "cinematic",
+  "fingerprint": "15987336c60040b11cbf",
+  "image_prompt": "TeilWerk Parts auto brand hero, Lift and precise mechanics, European studio, media_mode=industrial_craft, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

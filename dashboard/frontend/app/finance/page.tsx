@@ -63,6 +63,18 @@ type Finance = {
   paid_by_client_eur?: number;
   pending_settlement_eur?: number;
   financial_view?: FinancialView;
+  tax_report?: {
+    confirmed_eur?: number;
+    label_ru?: string;
+    banner_ru?: string;
+    demo_excluded?: boolean;
+  };
+  money_layers?: {
+    REAL?: number;
+    PIPELINE?: number;
+    COMMERCIAL?: number;
+    SIMULATION?: number;
+  };
   global_revenue?: {
     currency: string;
     countries_active: number;
@@ -162,6 +174,29 @@ export default function FinancePage() {
         <StripeSetupPanel />
 
         <FinanceOpsCenter />
+
+        {finance?.tax_report ? (
+          <section className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-rose-200">
+              Financial Truth · налоги
+            </p>
+            <p className="mt-2 text-2xl font-bold tabular-nums text-white">
+              {finance.tax_report.label_ru || "Подтверждённый доход (Ledger)"}:{" "}
+              {formatEur(finance.tax_report.confirmed_eur ?? 0)}
+            </p>
+            <p className="mt-2 text-[11px] leading-relaxed text-rose-100/90">
+              {finance.tax_report.banner_ru}
+            </p>
+            {finance.money_layers ? (
+              <p className="mt-2 text-[10px] text-zinc-400">
+                REAL {formatEur(finance.money_layers.REAL ?? 0)} · Pipeline{" "}
+                {formatEur(finance.money_layers.PIPELINE ?? 0)} · Commercial{" "}
+                {formatEur(finance.money_layers.COMMERCIAL ?? 0)} · Simulation{" "}
+                {formatEur(finance.money_layers.SIMULATION ?? 0)} (не для DATEV)
+              </p>
+            ) : null}
+          </section>
+        ) : null}
 
         {view ? (
           <section className="genesis-card overflow-hidden border-emerald-500/25 p-0">

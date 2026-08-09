@@ -1,0 +1,128 @@
+{
+  "brand_name": "ZaunWerk Süd",
+  "niche_id": "zaunbau",
+  "package_id": "premium",
+  "positioning": "Präziser Zaunbau & Grundstücksschutz",
+  "archetype_primary": "The Builder",
+  "archetype_secondary": "The Guardian",
+  "brand_promise": "Grenzen, die Halt und Haltung geben.",
+  "core_emotion": "Stabilität",
+  "secondary_emotion": "Ordentliche Klarheit",
+  "tone": [
+    "Klar",
+    "Bodenständig",
+    "Präzise",
+    "Zuverlässig"
+  ],
+  "visual_style": "Industrial Craft",
+  "visual_metaphor": "Linie im Abendlicht entlang der Grundstückskante",
+  "photography": [
+    "Metallzäune",
+    "Holzlatten",
+    "Fundament",
+    "Werkstatt",
+    "Saubere Kanten"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "garden party stock",
+    "luxury villa only"
+  ],
+  "motion_language": "Fest · Kontrolliert · Klar",
+  "motion_token": "business",
+  "palette": {
+    "names": [
+      "Umber",
+      "Iron",
+      "Amber",
+      "Warm White",
+      "Forest Edge"
+    ],
+    "accent_hex": "#d97706",
+    "surface_hex": "#faf7f2",
+    "ink_hex": "#1c1917",
+    "secondary_hex": "#92400e",
+    "highlight_hex": "#15803d"
+  },
+  "typography_display": "Barlow Condensed",
+  "typography_body": "Source Sans 3",
+  "typography_pair_id": "barlow_source_craft",
+  "typography_emotion": "confidence",
+  "icon_style": "Outline Industrial",
+  "border_radius_px": 10,
+  "shadow_style": "Soft Deep",
+  "glass_level": "medium",
+  "texture": [
+    "Holz",
+    "Metall",
+    "Erde"
+  ],
+  "scene_language": [
+    "Edge",
+    "Line",
+    "Ground",
+    "Light"
+  ],
+  "cta_style": "Klare Buttons · Ruhiger Abstand",
+  "trust_strategy": [
+    "Referenzen",
+    "Material",
+    "Team",
+    "Garantie"
+  ],
+  "atmosphere_mode": "dusk",
+  "dna_style": "modern_clinical",
+  "dna_palette_family": "iron_umber",
+  "hero_concept": "fence_line_dusk",
+  "fingerprint": "7c5e1f91978f80868600872c",
+  "media_dna": {
+    "required": [
+      "Fence",
+      "Posts",
+      "Ground",
+      "Material",
+      "Edge",
+      "Craft"
+    ],
+    "preferred": [
+      "Dusk light",
+      "Metal",
+      "Wood grain",
+      "Gate",
+      "Workshop"
+    ],
+    "forbidden": [
+      "Café",
+      "Restaurant",
+      "Office",
+      "Beauty",
+      "Laptop",
+      "Coworking"
+    ],
+    "hero_proof": "Fence line being set or finished at property edge — craft in progress.",
+    "profession_keywords": [
+      "fence",
+      "zaun",
+      "post",
+      "gate",
+      "rail",
+      "metal",
+      "wood"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

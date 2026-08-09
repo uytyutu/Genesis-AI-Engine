@@ -1,0 +1,86 @@
+{
+  "niche_id": "photography",
+  "subniche_id": "dealership",
+  "subniche_label": "Autohaus",
+  "business_model": "dealership_editorial_small_team",
+  "city": "München",
+  "company_name": "Studio LUMIA",
+  "who": "Studio LUMIA — gegründet von Olena Melnyk aus der Ukraine. Luxury Nail, Brow, Lash & Massage Atelier in München: warme Ruhe statt Massenstudio.",
+  "trust_why": "Nachweisbare Arbeit · Autohaus · München",
+  "sells": "['Maniküre & Gel', 'Pediküre', 'Augenbrauen', 'Wimpernverlängerung', 'Entspannungsmassage']",
+  "differentiator": "Präzise Handarbeit, softes Licht, Produkte die wir selbst nutzen.",
+  "atmosphere": "editorial",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Work, place, people, proof",
+  "media_brief": {
+    "hero": "Professional photography scene — European studio 2026",
+    "gallery": "Work, place, people, proof",
+    "video": "Niche atmosphere loop if provider available",
+    "before_after": "",
+    "team": "People of the company",
+    "equipment": "",
+    "atmosphere": "editorial",
+    "subniche": "dealership",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "contact_form",
+      "label": "Contact Form",
+      "why": "Kern-CTA."
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "why": "Schneller Kanal."
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "why": "Lokalität."
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "why": "Social proof (Demo-label)."
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "why": "Einwände vor dem Anruf."
+    },
+    {
+      "id": "gallery",
+      "label": "Gallery",
+      "why": "Visueller Beweis."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "editorial",
+  "clients_who": "",
+  "fingerprint": "530669070dabdf0533a0",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

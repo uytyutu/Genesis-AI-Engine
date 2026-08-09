@@ -1,0 +1,65 @@
+{
+  "brand_name": "RebenKlar Vinothek",
+  "niche_id": "restaurant",
+  "package_id": "premium",
+  "founded_year": 2020,
+  "company_age_years": 6,
+  "mission": "Klar. Vertrauenswürdig. Vor Ort.",
+  "core_services": [
+    "Beratung",
+    "Service"
+  ],
+  "geography": "Deutschland",
+  "advantages": [
+    "Transparenz",
+    "Lokaler Service"
+  ],
+  "values": [
+    "Vertrauen",
+    "Klarheit"
+  ],
+  "client_types": [
+    "Privatkunden"
+  ],
+  "price_segment": "Mittel",
+  "brand_character": "Expert + Guide",
+  "team_size_label": "Kleinteam (Demo)",
+  "marketing_dna_stub": {
+    "audience": "Lokale Kunden",
+    "goal": "Kontakt",
+    "emotion": "Vertrauen",
+    "pacing": "ruhig",
+    "platforms": [
+      "Website"
+    ]
+  },
+  "video_dna_stub": {
+    "camera": [
+      "Static"
+    ],
+    "mood": "Clear daylight",
+    "music": "Soft ambient",
+    "pacing": "Steady",
+    "required_scenes": [
+      "Workplace",
+      "People at work"
+    ],
+    "forbidden": [
+      "Café",
+      "Coworking",
+      "Laptop stock"
+    ]
+  },
+  "fingerprint": "6c70b1ac94703b11bb01c746",
+  "demo": true,
+  "chain": [
+    "business_identity",
+    "brand_book",
+    "atmosphere",
+    "reputation",
+    "local_identity",
+    "website",
+    "store",
+    "marketing"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "gartenpflege",
+  "niche": "gartenpflege",
+  "package_id": "basic",
+  "product_id": "d581c34f-16ac-4069-8188-5ade6abe57d7",
+  "business_name": "Grünzeit Pflege",
+  "generated_at": "2026-08-07T06:57:21.014941+00:00",
+  "engine": "FactoryService.build_landing + Design DNA + Design Engine + VIE",
+  "index_bytes": 80692,
+  "data_tier_ok": true,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/basic/gartenpflege/index.html"
+}

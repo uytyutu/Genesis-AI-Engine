@@ -1,0 +1,15 @@
+{
+  "brand_name": "Meisterbau Hoffmann",
+  "niche_id": "handwerk",
+  "package_id": "premium",
+  "media_mode": "industrial_craft",
+  "visual_metaphor": "Brand character in space",
+  "hero_concept": "Brand character in space | Meisterbau Hoffmann",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "2bbf2700857ad1331607",
+  "image_prompt": "Meisterbau Hoffmann handwerk brand hero, Brand character in space, European studio, media_mode=industrial_craft, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

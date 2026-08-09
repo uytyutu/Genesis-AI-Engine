@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "handwerk",
+  "niche": "handwerk",
+  "package_id": "basic",
+  "product_id": "ef62b969-e34a-4b50-9257-a4cf05b7e4ba",
+  "business_name": "Meisterbau Hoffmann",
+  "generated_at": "2026-08-07T06:57:20.341707+00:00",
+  "engine": "FactoryService.build_landing + Design DNA + Design Engine + VIE",
+  "index_bytes": 80354,
+  "data_tier_ok": true,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/basic/handwerk/index.html"
+}

@@ -1,16 +1,837 @@
 {
-  "product_id": "c0ea80ba-90a8-426c-bc4a-beb0298ddcf7",
+  "product_id": "810ac103-286c-41f9-a88e-f44e8cfe738b",
   "intent_id": null,
-  "product_type": "Landing Page",
-  "description": "Arztpraxis Weber — Hausarztpraxis mit Prophylaxe und Impfungen in München",
+  "product_type": "Website",
+  "description": "SmileCare Praxis München — Zahnarztpraxis, Prophylaxe, Implantate, Ästhetik, schmerzarme Behandlung",
   "niche": "dental",
   "template_id": "landing-dental-v1",
-  "business_name": "Arztpraxis Weber",
+  "business_name": "SmileCare Praxis",
   "market_code": "DE",
+  "language": "de",
+  "locale": null,
+  "currency": null,
+  "ui_lang": "de",
+  "path_a_pricing": {
+    "package_id": "basic",
+    "amount": null,
+    "currency": null,
+    "price_label": null
+  },
+  "market_design": "DE",
   "motion_level": "none",
-  "status": "completed",
-  "quality_percent": 98,
-  "validation_passed": true,
+  "composer_engine": "composer_v1",
+  "composition_plan": {
+    "engine_id": "composer_v1",
+    "layout_profile": {
+      "id": "L1",
+      "label": "Classic service funnel",
+      "hero_variants": [
+        "A",
+        "C",
+        "E"
+      ],
+      "preferred_component": "A",
+      "cta_strategy": "early",
+      "services_layout": "glass",
+      "trust_position": "after_services",
+      "gallery_style": "masonry",
+      "faq_style": "rounded",
+      "footer_variant": "compact",
+      "section_order": [
+        "info",
+        "stats",
+        "catalog",
+        "services",
+        "mid_cta",
+        "benefits",
+        "trust",
+        "process",
+        "showcase",
+        "gallery",
+        "about",
+        "faq",
+        "calculator",
+        "reviews",
+        "maps",
+        "contact"
+      ]
+    },
+    "hero_layout": "A",
+    "component_profile": "A",
+    "trust_template": "A",
+    "market_code": "DE",
+    "niche_id": "dental",
+    "package_id": "basic",
+    "business_name": "SmileCare Praxis",
+    "language": "de",
+    "currency": "EUR",
+    "locale": "de_DE",
+    "default_cta": "Termin buchen"
+  },
+  "design_dna": {
+    "emotion": "warmth",
+    "style": "organic_premium",
+    "palette_family": "warm_clay",
+    "typography_pair": "cormorant_source",
+    "motion": "soft",
+    "hero_concept": "soft_orb_photo",
+    "hero_layout": "A",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "soft",
+    "package_id": "basic",
+    "niche_id": "dental",
+    "fingerprint": "6272db0de25ef23d77ca57e085359c23a9828f4f8993af79354258120d474053",
+    "section_treatments": [
+      [
+        "stats",
+        "ink"
+      ],
+      [
+        "services",
+        "gradient"
+      ],
+      [
+        "mid_cta",
+        "glass"
+      ],
+      [
+        "benefits",
+        "photo_band"
+      ],
+      [
+        "trust",
+        "ink"
+      ],
+      [
+        "process",
+        "illustration"
+      ],
+      [
+        "showcase",
+        "photo_band"
+      ],
+      [
+        "gallery",
+        "ink"
+      ],
+      [
+        "about",
+        "gradient"
+      ],
+      [
+        "faq",
+        "glass"
+      ],
+      [
+        "reviews",
+        "photo_band"
+      ],
+      [
+        "maps",
+        "ink"
+      ],
+      [
+        "contact",
+        "illustration"
+      ]
+    ],
+    "accent_hex": "#a68a6d",
+    "surface_hex": "#faf6f1",
+    "ink_hex": "#292524"
+  },
+  "hero_layout": "A",
+  "component_profile": "A",
+  "layout_profile": {
+    "id": "L1",
+    "label": "Classic service funnel",
+    "hero_variants": [
+      "A",
+      "C",
+      "E"
+    ],
+    "preferred_component": "A",
+    "cta_strategy": "early",
+    "services_layout": "glass",
+    "trust_position": "after_services",
+    "gallery_style": "masonry",
+    "faq_style": "rounded",
+    "footer_variant": "compact",
+    "section_order": [
+      "info",
+      "stats",
+      "catalog",
+      "services",
+      "mid_cta",
+      "benefits",
+      "trust",
+      "process",
+      "showcase",
+      "gallery",
+      "about",
+      "faq",
+      "calculator",
+      "reviews",
+      "maps",
+      "contact"
+    ]
+  },
+  "trust_template": "A",
+  "creative_director": {
+    "engine": "ai_creative_director_v1",
+    "role": "AI Creative Director",
+    "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+    "positioning": {
+      "ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+      "en": "Virtus Core designs the digital experience for your business.",
+      "de": "Virtus Core gestaltet die digitale Erfahrung Ihres Unternehmens."
+    },
+    "package_id": "basic",
+    "budget_eur": 199,
+    "niche": "dental",
+    "market_code": "DE",
+    "goal": "lead",
+    "industry": {
+      "theme": "premium_medical",
+      "feel_ru": "чистый Premium Medical — светлый, спокойный, доверие",
+      "hero_bias": "photo_calm"
+    },
+    "luxury_mode": false,
+    "decisions": {
+      "heavy_video": false,
+      "webgl": false,
+      "lottie_heavy": false,
+      "page_density": "light",
+      "motion_profile": "subtle_css",
+      "hero_media": "photo_or_svg",
+      "typography": "clean_system_or_one_font",
+      "goal_ru": "быстрый, чистый, современный опыт без перегрузки"
+    },
+    "forbidden_ru": [
+      "тяжёлое видео",
+      "сложный WebGL",
+      "перегруз страницы"
+    ],
+    "acceptance_5s_ru": "Без ценников за 5 секунд должно быть ясно: Starter / Business / Premium."
+  },
+  "digital_creative_studio": {
+    "engine": "digital_creative_studio_v2",
+    "product": "Digital Creative Studio",
+    "role": "AI Creative Director",
+    "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+    "positioning_ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+    "surface": "website",
+    "package_id": "basic",
+    "niche": "dental",
+    "market_code": "DE",
+    "luxury_mode": false,
+    "creative_director": {
+      "engine": "ai_creative_director_v1",
+      "role": "AI Creative Director",
+      "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+      "positioning": {
+        "ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+        "en": "Virtus Core designs the digital experience for your business.",
+        "de": "Virtus Core gestaltet die digitale Erfahrung Ihres Unternehmens."
+      },
+      "package_id": "basic",
+      "budget_eur": 199,
+      "niche": "dental",
+      "market_code": "DE",
+      "goal": "lead",
+      "industry": {
+        "theme": "premium_medical",
+        "feel_ru": "чистый Premium Medical — светлый, спокойный, доверие",
+        "hero_bias": "photo_calm"
+      },
+      "luxury_mode": false,
+      "decisions": {
+        "heavy_video": false,
+        "webgl": false,
+        "lottie_heavy": false,
+        "page_density": "light",
+        "motion_profile": "subtle_css",
+        "hero_media": "photo_or_svg",
+        "typography": "clean_system_or_one_font",
+        "goal_ru": "быстрый, чистый, современный опыт без перегрузки"
+      },
+      "forbidden_ru": [
+        "тяжёлое видео",
+        "сложный WebGL",
+        "перегруз страницы"
+      ],
+      "acceptance_5s_ru": "Без ценников за 5 секунд должно быть ясно: Starter / Business / Premium."
+    },
+    "directors": [
+      {
+        "engine": "industry_director_v1",
+        "role": "Industry Director",
+        "choice": "Medical Clean",
+        "niche": "dental",
+        "identity": {
+          "theme": "premium_medical",
+          "feel_ru": "чистый Premium Medical — светлый, спокойный, доверие",
+          "hero_bias": "photo_calm"
+        },
+        "reason_ru": "Соответствует ожиданиям аудитории (чистый Premium Medical — светлый, спокойный, доверие).",
+        "reason_en": "Matches audience expectations (Medical Clean).",
+        "apply": {
+          "industry_theme": "Medical Clean",
+          "hero_bias": "photo_calm"
+        }
+      },
+      {
+        "engine": "luxury_director_v1",
+        "role": "Luxury Director",
+        "choice": "Off",
+        "luxury_mode": false,
+        "reason_ru": "Luxury Mode только для Premium — клиент купил эмоцию дорогого бренда.",
+        "reason_en": "Luxury Mode is Premium-only — emotion of a high-end brand.",
+        "apply": {
+          "luxury_mode": false,
+          "data_luxury": "0"
+        }
+      },
+      {
+        "engine": "typography_director_v1",
+        "role": "Typography Director",
+        "choice": "Manrope",
+        "typography_key": "clean_system_or_one_font",
+        "reason_ru": "Manrope — лучшая читаемость на мобильных для медицинской ниши.",
+        "reason_en": "Manrope — лучшая читаемость на мобильных для медицинской ниши.",
+        "apply": {
+          "font_label": "Manrope",
+          "body_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+          "display_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+          "scale": {
+            "h1": "clamp(1.75rem, 4vw, 2.35rem)",
+            "lh": "1.45",
+            "section_h2": "1.55rem"
+          }
+        },
+        "font_pack": {
+          "label": "Manrope",
+          "body": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+          "display": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif"
+        }
+      },
+      {
+        "engine": "motion_director_v1",
+        "role": "Motion Director",
+        "choice": "Subtle / none",
+        "reason_ru": "Starter: быстрый опыт без тяжёлого motion.",
+        "reason_en": "Starter: быстрый опыт без тяжёлого motion.",
+        "apply": {
+          "motion_tier": "basic",
+          "motion_level": "none",
+          "reveal": "none"
+        }
+      },
+      {
+        "engine": "conversion_director_v1",
+        "role": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason_ru": "Кнопки, форма и доверие расставлены ради конверсии, не декора.",
+        "reason_en": "CTA, form and trust placed for conversion, not decoration.",
+        "apply": {
+          "require_mid_cta": true,
+          "cta_after_services": true,
+          "contact_above_fold_hint": false,
+          "faq_before_footer": true
+        }
+      },
+      {
+        "engine": "trust_director_v1",
+        "role": "Trust Director",
+        "choice": "High-trust vertical pack",
+        "reason_ru": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах.",
+        "reason_en": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах.",
+        "apply": {
+          "certs_near_hero": true,
+          "guarantees_in_benefits": true,
+          "reviews_before_contact": true,
+          "map_with_contacts": true,
+          "brands_strip": false,
+          "trust_density": "high"
+        }
+      },
+      {
+        "engine": "performance_director_v1",
+        "role": "Performance Director",
+        "choice": "Light delivery",
+        "reason_ru": "Luxury и скорость балансируются автоматически.",
+        "reason_en": "Luxury and speed are balanced automatically.",
+        "apply": {
+          "prefer_static_hero": true,
+          "lazy_images": true,
+          "forbid_heavy_video_on_mobile_fail": true,
+          "max_motion": "none"
+        }
+      },
+      {
+        "engine": "accessibility_director_v1",
+        "role": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason_ru": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта.",
+        "reason_en": "Contrast, type size, keyboard, alt and readability are product quality.",
+        "apply": {
+          "min_body_px": 16,
+          "focus_visible": true,
+          "require_alt": true,
+          "skip_link": true
+        }
+      },
+      {
+        "engine": "localization_director_v1",
+        "role": "Localization Director",
+        "choice": "Germany · DACH",
+        "market_code": "DE",
+        "reason_ru": "Impressum, Datenschutz, строгий стиль.",
+        "reason_en": "Impressum, Datenschutz, строгий стиль.",
+        "apply": {
+          "market_code": "DE",
+          "legal_pack": [
+            "impressum",
+            "datenschutz"
+          ],
+          "style": "strict",
+          "social_proof_weight": "medium",
+          "portfolio_weight": "medium",
+          "cta_tone": "formal",
+          "package_id": "basic"
+        }
+      }
+    ],
+    "apply": {
+      "industry_theme": "Medical Clean",
+      "hero_bias": "photo_calm",
+      "luxury_mode": false,
+      "data_luxury": "0",
+      "font_label": "Manrope",
+      "body_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+      "display_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+      "scale": {
+        "h1": "clamp(1.75rem, 4vw, 2.35rem)",
+        "lh": "1.45",
+        "section_h2": "1.55rem"
+      },
+      "motion_tier": "basic",
+      "motion_level": "none",
+      "reveal": "none",
+      "require_mid_cta": true,
+      "cta_after_services": true,
+      "contact_above_fold_hint": false,
+      "faq_before_footer": true,
+      "certs_near_hero": true,
+      "guarantees_in_benefits": true,
+      "reviews_before_contact": true,
+      "map_with_contacts": true,
+      "brands_strip": false,
+      "trust_density": "high",
+      "prefer_static_hero": true,
+      "lazy_images": true,
+      "forbid_heavy_video_on_mobile_fail": true,
+      "max_motion": "none",
+      "min_body_px": 16,
+      "focus_visible": true,
+      "require_alt": true,
+      "skip_link": true,
+      "market_code": "DE",
+      "legal_pack": [
+        "impressum",
+        "datenschutz"
+      ],
+      "style": "strict",
+      "social_proof_weight": "medium",
+      "portfolio_weight": "medium",
+      "cta_tone": "formal",
+      "package_id": "basic",
+      "data_studio": "digital_creative_studio_v2",
+      "hero_layout_prefer": null,
+      "font_pack": {
+        "label": "Manrope",
+        "body": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+        "display": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif"
+      },
+      "conversion": {
+        "engine": "conversion_director_v1",
+        "role": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason_ru": "Кнопки, форма и доверие расставлены ради конверсии, не декора.",
+        "reason_en": "CTA, form and trust placed for conversion, not decoration.",
+        "apply": {
+          "require_mid_cta": true,
+          "cta_after_services": true,
+          "contact_above_fold_hint": false,
+          "faq_before_footer": true
+        }
+      },
+      "trust": {
+        "engine": "trust_director_v1",
+        "role": "Trust Director",
+        "choice": "High-trust vertical pack",
+        "reason_ru": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах.",
+        "reason_en": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах.",
+        "apply": {
+          "certs_near_hero": true,
+          "guarantees_in_benefits": true,
+          "reviews_before_contact": true,
+          "map_with_contacts": true,
+          "brands_strip": false,
+          "trust_density": "high"
+        }
+      },
+      "performance": {
+        "engine": "performance_director_v1",
+        "role": "Performance Director",
+        "choice": "Light delivery",
+        "reason_ru": "Luxury и скорость балансируются автоматически.",
+        "reason_en": "Luxury and speed are balanced automatically.",
+        "apply": {
+          "prefer_static_hero": true,
+          "lazy_images": true,
+          "forbid_heavy_video_on_mobile_fail": true,
+          "max_motion": "none"
+        }
+      },
+      "accessibility": {
+        "engine": "accessibility_director_v1",
+        "role": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason_ru": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта.",
+        "reason_en": "Contrast, type size, keyboard, alt and readability are product quality.",
+        "apply": {
+          "min_body_px": 16,
+          "focus_visible": true,
+          "require_alt": true,
+          "skip_link": true
+        }
+      },
+      "localization": {
+        "engine": "localization_director_v1",
+        "role": "Localization Director",
+        "choice": "Germany · DACH",
+        "market_code": "DE",
+        "reason_ru": "Impressum, Datenschutz, строгий стиль.",
+        "reason_en": "Impressum, Datenschutz, строгий стиль.",
+        "apply": {
+          "market_code": "DE",
+          "legal_pack": [
+            "impressum",
+            "datenschutz"
+          ],
+          "style": "strict",
+          "social_proof_weight": "medium",
+          "portfolio_weight": "medium",
+          "cta_tone": "formal",
+          "package_id": "basic"
+        }
+      }
+    },
+    "css_bytes": 3293
+  },
+  "luxury_mode": false,
+  "design_director": {
+    "engine": "ai_design_director_v2",
+    "product": "Digital Experience Factory",
+    "ok": true,
+    "overall": 61,
+    "scores": {
+      "visual": 55,
+      "typography": 65,
+      "motion": 65,
+      "premium_feeling": 60,
+      "first_impression": 55,
+      "brand_emotion": 70,
+      "trust": 65,
+      "conversion_readiness": 55,
+      "mobile_experience": 80,
+      "creativity": 60
+    },
+    "threshold_premium_feeling": 80,
+    "threshold_first_impression_premium": 90,
+    "package_id": "basic",
+    "niche": "dental",
+    "luxury_mode": false,
+    "identity": {
+      "theme": "premium_medical",
+      "feel_ru": "чистый Premium Medical — светлый, спокойный, доверие",
+      "hero_bias": "photo_calm"
+    },
+    "fingerprint": "bf4c253aabbd99a4",
+    "markers": {
+      "data_tier_ok": true,
+      "hero": false,
+      "layout_profile": false,
+      "vie": false,
+      "font_signals": 0,
+      "kpi_trust_signals": 0,
+      "rich_media_signals": 0,
+      "viewport": true,
+      "responsive_css": true
+    },
+    "recommendations": [
+      "Strengthen Conversion Readiness (CTA / form / WhatsApp)"
+    ],
+    "acceptance_5s_ru": "Если показать три версии рядом без ценников, человек должен почти всегда понять, где Starter, где Business и где Premium.",
+    "rule_ru": "Клиент должен узнать Virtus Core по качеству, а не по шаблону."
+  },
+  "design_memory": {
+    "engine": "design_memory_v1",
+    "similarity_pct": 0,
+    "threshold": 92,
+    "rebuild_needed": false,
+    "match": null,
+    "action_ru": "OK — достаточно уникально"
+  },
+  "experience_director": {
+    "engine": "experience_director_v1",
+    "role": "Experience Director",
+    "choice": "First Impression 55",
+    "first_impression": 55,
+    "overall": 61,
+    "why_ru": "Hero слишком обычный.",
+    "reason_ru": "Hero слишком обычный.",
+    "reason_en": "Hero слишком обычный.",
+    "actions": [
+      "strengthen_hero_layout",
+      "clarify_cta"
+    ],
+    "rebuild_recommended": true,
+    "apply": {
+      "experience_ok": false,
+      "hero_upgrade": "hold"
+    }
+  },
+  "commercial_readiness": {
+    "engine": "commercial_readiness_v1",
+    "threshold": 90,
+    "scores": {
+      "visual": 55,
+      "trust": 65,
+      "conversion": 63,
+      "performance": 88,
+      "mobile": 80,
+      "accessibility": 82
+    },
+    "overall_commercial": 70,
+    "commercial_ready": false,
+    "label": "Not Commercial Ready",
+    "status": "FAIL",
+    "conversion_detail": {
+      "engine": "conversion_director_v1",
+      "scores": {
+        "hero": 40,
+        "cta": 55,
+        "trust": 91,
+        "contact_visibility": 70,
+        "booking_flow": 60
+      },
+      "overall": 63,
+      "hero_status": "FAIL",
+      "recommendations": [
+        "Добавить второй CTA после блока услуг.",
+        "Усилить видимость контактов / формы."
+      ],
+      "markers": {
+        "has_mid_cta": false,
+        "has_form": false,
+        "has_contact": false
+      }
+    },
+    "performance_detail": {
+      "engine": "performance_director_v1",
+      "mobile_score": 88,
+      "has_video": false,
+      "has_webgl": false,
+      "status": "PASS",
+      "action_ru": "OK — лёгкая доставка",
+      "veto_video": false
+    },
+    "accessibility_detail": {
+      "engine": "accessibility_director_v1",
+      "overall": 82,
+      "missing_alt": 0,
+      "has_skip_link": false,
+      "has_lang": true,
+      "status": "FAIL"
+    },
+    "design_director_overall": 61,
+    "ssot_ru": "Главный KPI — Commercial Readiness Score. Только при ≥ 90 Factory ставит Commercial Ready."
+  },
+  "commercial_ready": false,
+  "media_plan": {
+    "hero_src": "assets/hero.jpg",
+    "hero_from_client": false,
+    "hero_ok": true,
+    "gallery": [],
+    "background_src": "assets/background.jpg",
+    "assessments": [
+      {
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/basic/810ac103-286c-41f9-a88e-f44e8cfe738b/assets/hero.jpg",
+        "role": "hero",
+        "ok": true,
+        "width": 1400,
+        "height": 933,
+        "bytes": 165799,
+        "reason": "ok",
+        "source": "niche"
+      },
+      {
+        "path": "assets/background.jpg",
+        "role": "background",
+        "ok": true,
+        "width": 1600,
+        "height": 900,
+        "bytes": 164881,
+        "reason": "ok",
+        "source": "pack"
+      }
+    ],
+    "gate_ok": true,
+    "gate_failures": [],
+    "media_gate_ok": true,
+    "media_gate_failures": [],
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": true,
+      "failures": [],
+      "checks": [
+        {
+          "section": "hero",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/dental/hero_pack/basic/hero_1.jpg",
+          "ok": true,
+          "tags": [
+            "clinic",
+            "dental",
+            "equipment",
+            "interior",
+            "result",
+            "specialist"
+          ],
+          "detail": "ok"
+        },
+        {
+          "section": "about",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/dental/hero_pack/basic/hero_2.jpg",
+          "ok": true,
+          "tags": [
+            "clinic",
+            "dental",
+            "equipment",
+            "interior",
+            "result",
+            "specialist"
+          ],
+          "detail": "ok"
+        }
+      ]
+    }
+  },
+  "content_gate": {
+    "status": "CREATIVE_IDENTITY_ONLY",
+    "note": "Reality Benchmark FAIL — demos still read as templates without a felt idea. Sprint: Creative Identity Generation. No idea → no HTML. New features forbidden."
+  },
+  "commercial_gate": {
+    "engine_id": "commercial_gate_v1",
+    "hard_passed": false,
+    "score_passed": false,
+    "passed": false,
+    "brand_leak": "PASS",
+    "threshold": 95.0,
+    "ai_score": {
+      "niche_match": 92.0,
+      "content_quality": 98.0,
+      "cta_quality": 96.0,
+      "structure_quality": 98.0,
+      "design_quality": 96.0,
+      "commercial_readiness": 62.0,
+      "overall": 90.3
+    },
+    "hard_checks": [
+      {
+        "id": "brand_leak",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_stubs",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_generic_phrases",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "hero_matches_niche",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "services_match_questionnaire",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "cta_actionable",
+        "ok": true,
+        "detail": "Termin buchen"
+      },
+      {
+        "id": "contacts_present",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "structure_matches_scenario",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_empty_core_sections",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "pages_linked",
+        "ok": false,
+        "detail": "no_contact_path"
+      }
+    ],
+    "failures": [
+      "pages_linked:no_contact_path"
+    ],
+    "commercial_rule_1": "first_visitor_ready",
+    "design": {
+      "composer": "design",
+      "niche": "dental",
+      "emotional_tone": "calm_trust",
+      "journey": "booking",
+      "primary": "#0284c7",
+      "font_display": "\"DM Sans\", system-ui, -apple-system, sans-serif",
+      "radius": "16px",
+      "btn_radius": "999px",
+      "forbid_platform_aurora": true
+    },
+    "seo": {
+      "composer": "seo",
+      "title": "SmileCare Praxis — Prophylaxe | München",
+      "description": "Sanfte Behandlung, klare Therapiepläne und moderne Technik für Ihr Lächeln."
+    },
+    "layout_id": "L2",
+    "layout_pool": [
+      "L2",
+      "L6",
+      "L1"
+    ],
+    "max_rebuild_attempts": 2,
+    "one_lifetime_project": true
+  },
+  "status": "needs_rebuild",
+  "quality_percent": 78,
+  "validation_passed": false,
   "technical_checks": [
     {
       "id": "html",
@@ -20,19 +841,967 @@
     {
       "id": "mobile",
       "label": "Mobile",
-      "ok": true
+      "ok": false
     },
     {
       "id": "accessibility",
       "label": "Accessibility",
-      "ok": true
+      "ok": false
+    },
+    {
+      "id": "compliance",
+      "label": "Compliance Engine",
+      "ok": false
+    },
+    {
+      "id": "quality_gate",
+      "label": "Quality Gate",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:hero_layout",
+      "label": "design:hero_layout — data-hero-layout",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:component_profile",
+      "label": "design:component_profile — data-comp-profile",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:layout_profile",
+      "label": "design:layout_profile — data-layout-profile",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:footer_variant",
+      "label": "design:footer_variant — data-footer-variant",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:section_contact",
+      "label": "design:section_contact — contact section present",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:market_profile",
+      "label": "design:market_profile — data-market",
+      "ok": false
     }
   ],
+  "quality_gate": {
+    "passed": false,
+    "failures": [
+      "design:hero_layout — data-hero-layout",
+      "design:component_profile — data-comp-profile",
+      "design:layout_profile — data-layout-profile",
+      "design:footer_variant — data-footer-variant",
+      "design:section_contact — contact section present",
+      "design:market_profile — data-market",
+      "design:niche_style — data-niche + design tokens",
+      "design:meta_hero — meta hero_layout matches HTML",
+      "seo:hreflang — hreflang",
+      "seo:description — meta description",
+      "seo:canonical — canonical",
+      "accessibility:aria_or_labels — aria/summary",
+      "accessibility:contrast_tokens — --ink token",
+      "media:object_fit_css — no stretch",
+      "brand:no_platform_chrome — Virtus Core"
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "category": "design",
+        "ok": false,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "category": "design",
+        "ok": false,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "category": "design",
+        "ok": false,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "category": "design",
+        "ok": false,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "category": "design",
+        "ok": false,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "category": "design",
+        "ok": false,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "category": "design",
+        "ok": false,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "category": "design",
+        "ok": false,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "category": "localization",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "category": "localization",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "category": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "category": "seo",
+        "ok": false,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "category": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "category": "seo",
+        "ok": false,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "category": "seo",
+        "ok": false,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "category": "seo",
+        "ok": true,
+        "detail": "optional_basic"
+      },
+      {
+        "id": "og",
+        "category": "seo",
+        "ok": true,
+        "detail": "optional_basic"
+      },
+      {
+        "id": "lang_ok",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "imgs=0"
+      },
+      {
+        "id": "h1",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "category": "accessibility",
+        "ok": false,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "category": "accessibility",
+        "ok": false,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "category": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "category": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "category": "performance",
+        "ok": true,
+        "detail": "motion_none"
+      },
+      {
+        "id": "css_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "1229B"
+      },
+      {
+        "id": "motion_css_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "missing"
+      },
+      {
+        "id": "js_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "missing"
+      },
+      {
+        "id": "js_no_heavy",
+        "category": "performance",
+        "ok": true,
+        "detail": "no_js"
+      },
+      {
+        "id": "manifest",
+        "category": "media",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "category": "media",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "section_aware",
+        "category": "media",
+        "ok": true,
+        "detail": "media_gate"
+      },
+      {
+        "id": "object_fit_css",
+        "category": "media",
+        "ok": false,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "category": "media",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "category": "media",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "category": "brand",
+        "ok": false,
+        "detail": "Virtus Core"
+      },
+      {
+        "id": "no_demo_preview_words",
+        "category": "brand",
+        "ok": true,
+        "detail": "demo|preview"
+      }
+    ]
+  },
+  "compliance": {
+    "engine_id": "compliance_v1",
+    "passed": false,
+    "domains": {
+      "design": false,
+      "brand": false,
+      "performance": true,
+      "seo": false,
+      "accessibility": false,
+      "authenticity": false,
+      "market_rules": true
+    },
+    "failures": [
+      "design:hero_layout — data-hero-layout",
+      "design:component_profile — data-comp-profile",
+      "design:layout_profile — data-layout-profile",
+      "design:footer_variant — data-footer-variant",
+      "design:section_contact — contact section present",
+      "design:market_profile — data-market",
+      "design:niche_style — data-niche + design tokens",
+      "design:meta_hero — meta hero_layout matches HTML",
+      "seo:hreflang — hreflang",
+      "seo:description — meta description",
+      "seo:canonical — canonical",
+      "accessibility:aria_or_labels — aria/summary",
+      "accessibility:contrast_tokens — --ink token",
+      "authenticity:object_fit_css — no stretch",
+      "brand:no_platform_chrome — Virtus Core",
+      "design:visual_intelligence — score=87.3/90.0 · Пересобрать композицию: Hero + секции + niche Style Engine."
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "domain": "design",
+        "ok": false,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "domain": "design",
+        "ok": false,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "domain": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "domain": "seo",
+        "ok": false,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "domain": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "domain": "seo",
+        "ok": false,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "domain": "seo",
+        "ok": false,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "domain": "seo",
+        "ok": true,
+        "detail": "optional_basic"
+      },
+      {
+        "id": "og",
+        "domain": "seo",
+        "ok": true,
+        "detail": "optional_basic"
+      },
+      {
+        "id": "lang_ok",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "imgs=0"
+      },
+      {
+        "id": "h1",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "domain": "accessibility",
+        "ok": false,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "domain": "accessibility",
+        "ok": false,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "domain": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "domain": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "domain": "performance",
+        "ok": true,
+        "detail": "motion_none"
+      },
+      {
+        "id": "css_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "1229B"
+      },
+      {
+        "id": "motion_css_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "missing"
+      },
+      {
+        "id": "js_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "missing"
+      },
+      {
+        "id": "js_no_heavy",
+        "domain": "performance",
+        "ok": true,
+        "detail": "no_js"
+      },
+      {
+        "id": "manifest",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "section_aware",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "media_gate"
+      },
+      {
+        "id": "object_fit_css",
+        "domain": "authenticity",
+        "ok": false,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "domain": "brand",
+        "ok": false,
+        "detail": "Virtus Core"
+      },
+      {
+        "id": "no_demo_preview_words",
+        "domain": "brand",
+        "ok": true,
+        "detail": "demo|preview"
+      },
+      {
+        "id": "section_aware_media",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "section_aware_content",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "visual_intelligence",
+        "domain": "design",
+        "ok": false,
+        "detail": "score=87.3/90.0 · Пересобрать композицию: Hero + секции + niche Style Engine."
+      }
+    ],
+    "quality_gate": {
+      "passed": false,
+      "failures": [
+        "design:hero_layout — data-hero-layout",
+        "design:component_profile — data-comp-profile",
+        "design:layout_profile — data-layout-profile",
+        "design:footer_variant — data-footer-variant",
+        "design:section_contact — contact section present",
+        "design:market_profile — data-market",
+        "design:niche_style — data-niche + design tokens",
+        "design:meta_hero — meta hero_layout matches HTML",
+        "seo:hreflang — hreflang",
+        "seo:description — meta description",
+        "seo:canonical — canonical",
+        "accessibility:aria_or_labels — aria/summary",
+        "accessibility:contrast_tokens — --ink token",
+        "media:object_fit_css — no stretch",
+        "brand:no_platform_chrome — Virtus Core"
+      ],
+      "checks": [
+        {
+          "id": "hero_layout",
+          "category": "design",
+          "ok": false,
+          "detail": "data-hero-layout"
+        },
+        {
+          "id": "component_profile",
+          "category": "design",
+          "ok": false,
+          "detail": "data-comp-profile"
+        },
+        {
+          "id": "layout_profile",
+          "category": "design",
+          "ok": false,
+          "detail": "data-layout-profile"
+        },
+        {
+          "id": "footer_variant",
+          "category": "design",
+          "ok": false,
+          "detail": "data-footer-variant"
+        },
+        {
+          "id": "section_contact",
+          "category": "design",
+          "ok": false,
+          "detail": "contact section present"
+        },
+        {
+          "id": "market_profile",
+          "category": "design",
+          "ok": false,
+          "detail": "data-market"
+        },
+        {
+          "id": "niche_style",
+          "category": "design",
+          "ok": false,
+          "detail": "data-niche + design tokens"
+        },
+        {
+          "id": "meta_hero",
+          "category": "design",
+          "ok": false,
+          "detail": "meta hero_layout matches HTML"
+        },
+        {
+          "id": "no_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "no_mustache",
+          "category": "localization",
+          "ok": true,
+          "detail": "{{…}}"
+        },
+        {
+          "id": "no_ui_keys",
+          "category": "localization",
+          "ok": true,
+          "detail": "ui.* keys"
+        },
+        {
+          "id": "no_english_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lang",
+          "category": "seo",
+          "ok": true,
+          "detail": "html lang"
+        },
+        {
+          "id": "hreflang",
+          "category": "seo",
+          "ok": false,
+          "detail": "hreflang"
+        },
+        {
+          "id": "title",
+          "category": "seo",
+          "ok": true,
+          "detail": "title"
+        },
+        {
+          "id": "description",
+          "category": "seo",
+          "ok": false,
+          "detail": "meta description"
+        },
+        {
+          "id": "canonical",
+          "category": "seo",
+          "ok": false,
+          "detail": "canonical"
+        },
+        {
+          "id": "schema",
+          "category": "seo",
+          "ok": true,
+          "detail": "optional_basic"
+        },
+        {
+          "id": "og",
+          "category": "seo",
+          "ok": true,
+          "detail": "optional_basic"
+        },
+        {
+          "id": "lang_ok",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "supported lang"
+        },
+        {
+          "id": "img_alt",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "imgs=0"
+        },
+        {
+          "id": "h1",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 present"
+        },
+        {
+          "id": "heading_order",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 before h2/h3"
+        },
+        {
+          "id": "aria_or_labels",
+          "category": "accessibility",
+          "ok": false,
+          "detail": "aria/summary"
+        },
+        {
+          "id": "reduced_motion",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "reduced-motion support"
+        },
+        {
+          "id": "contrast_tokens",
+          "category": "accessibility",
+          "ok": false,
+          "detail": "--ink token"
+        },
+        {
+          "id": "no_heavy_libs",
+          "category": "performance",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lazy_images",
+          "category": "performance",
+          "ok": true,
+          "detail": "non-hero images"
+        },
+        {
+          "id": "motion_killswitch",
+          "category": "performance",
+          "ok": true,
+          "detail": "motion_none"
+        },
+        {
+          "id": "css_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "1229B"
+        },
+        {
+          "id": "motion_css_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "missing"
+        },
+        {
+          "id": "js_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "missing"
+        },
+        {
+          "id": "js_no_heavy",
+          "category": "performance",
+          "ok": true,
+          "detail": "no_js"
+        },
+        {
+          "id": "manifest",
+          "category": "media",
+          "ok": true,
+          "detail": "media_manifest.json"
+        },
+        {
+          "id": "hero_ok",
+          "category": "media",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "section_aware",
+          "category": "media",
+          "ok": true,
+          "detail": "media_gate"
+        },
+        {
+          "id": "object_fit_css",
+          "category": "media",
+          "ok": false,
+          "detail": "no stretch"
+        },
+        {
+          "id": "weight_ok",
+          "category": "media",
+          "ok": true,
+          "detail": "0_oversized"
+        },
+        {
+          "id": "cls_safe",
+          "category": "media",
+          "ok": true,
+          "detail": "dimensions_or_object_fit"
+        },
+        {
+          "id": "no_platform_chrome",
+          "category": "brand",
+          "ok": false,
+          "detail": "Virtus Core"
+        },
+        {
+          "id": "no_demo_preview_words",
+          "category": "brand",
+          "ok": true,
+          "detail": "demo|preview"
+        }
+      ]
+    },
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": true,
+      "failures": [],
+      "checks": []
+    },
+    "content_gate": {
+      "engine_id": "content_gate_v1",
+      "passed": true,
+      "failures": [],
+      "repairs": [],
+      "checks": []
+    },
+    "visual_quality": {
+      "engine_id": "visual_quality_v1",
+      "passed": false,
+      "score": 87.3,
+      "threshold": 90.0,
+      "checks": [
+        {
+          "id": "composition",
+          "ok": false,
+          "points": 65.0,
+          "detail": "hero=False sections=True niche=True vie=True"
+        },
+        {
+          "id": "color_harmony",
+          "ok": true,
+          "points": 88.0,
+          "detail": "#0284c7 / #e0f2fe"
+        },
+        {
+          "id": "typography",
+          "ok": true,
+          "points": 85.0,
+          "detail": "fonts/display hierarchy"
+        },
+        {
+          "id": "contrast",
+          "ok": true,
+          "points": 98.0,
+          "detail": "ratio=8.87"
+        },
+        {
+          "id": "images",
+          "ok": true,
+          "points": 78.0,
+          "detail": "no_images"
+        },
+        {
+          "id": "performance",
+          "ok": true,
+          "points": 96.0,
+          "detail": "heavy=none"
+        },
+        {
+          "id": "adaptivity",
+          "ok": true,
+          "points": 100.0,
+          "detail": "viewport=True mq=True"
+        },
+        {
+          "id": "readability",
+          "ok": true,
+          "points": 88.0,
+          "detail": "words≈251"
+        }
+      ],
+      "suggestions": [
+        "Пересобрать композицию: Hero + секции + niche Style Engine."
+      ],
+      "failures": [
+        "composition"
+      ]
+    }
+  },
   "owner_approved": false,
   "owner_approved_at": null,
   "revision": 0,
-  "created_at": "2026-07-20T11:46:37.856861+00:00",
-  "updated_at": "2026-07-20T11:46:37.856861+00:00",
+  "created_at": "2026-08-06T22:03:43.310732+00:00",
+  "updated_at": "2026-08-06T22:03:43.310732+00:00",
   "style_flags": {
     "modern": false,
     "blue_boost": false,
@@ -42,7 +1811,7 @@
   "package_delivery": {
     "package_id": "basic",
     "whatsapp": true,
-    "maps": false,
+    "maps": true,
     "testimonials": true,
     "logo_slot": false,
     "extended_seo": false,
@@ -63,22 +1832,30 @@
     "catalog_rich_cards": false
   },
   "catalog_enabled": false,
+  "client_assets": {
+    "logo": false,
+    "logo_src": "assets/logo.png",
+    "hero_from_client": false,
+    "gallery": [],
+    "used_files": []
+  },
+  "brand_style": "auto",
   "client_legal": {
-    "business_name": "Arztpraxis Weber",
+    "business_name": "SmileCare Praxis",
     "owner_name": "",
     "legal_form": "",
     "street": "",
     "zip": "",
     "city": "München",
     "country": "DE",
-    "email": "kontakt@praxis-weber.de",
-    "phone": "+49 89 555 0200",
+    "email": "kontakt@smilecare-demo.example.de",
+    "phone": "+49 89 1234567",
     "website": "",
     "managing_director": "",
     "vat_id": "",
     "handelsregister": "",
     "register_court": "",
-    "uses_maps": false,
+    "uses_maps": true,
     "uses_analytics": false,
     "uses_contact_form": true,
     "missing_impressum": [
@@ -100,5 +1877,244 @@
       "datenschutz.html"
     ]
   },
-  "publish_ready_de": false
+  "publish_ready_de": false,
+  "factory_stages": {
+    "template": 0.0026,
+    "content": 0.013,
+    "assets": 0.5828,
+    "render": 0.131,
+    "gates": 0.0118,
+    "total": 0.7413,
+    "total_e2e": 0.7413
+  },
+  "delivery_locked": false,
+  "experience_replay": {
+    "engine": "experience_replay_v1",
+    "title_ru": "Почему получился именно такой сайт?",
+    "title_en": "Why does this site look like this?",
+    "package_id": "basic",
+    "niche": "dental",
+    "luxury_mode": false,
+    "decisions": [
+      {
+        "director": "Industry Director",
+        "choice": "Medical Clean",
+        "reason": "Соответствует ожиданиям аудитории (чистый Premium Medical — светлый, спокойный, доверие)."
+      },
+      {
+        "director": "Luxury Director",
+        "choice": "Off",
+        "reason": "Luxury Mode только для Premium — клиент купил эмоцию дорогого бренда."
+      },
+      {
+        "director": "Typography Director",
+        "choice": "Manrope",
+        "reason": "Manrope — лучшая читаемость на мобильных для медицинской ниши."
+      },
+      {
+        "director": "Motion Director",
+        "choice": "Subtle / none",
+        "reason": "Starter: быстрый опыт без тяжёлого motion."
+      },
+      {
+        "director": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason": "Кнопки, форма и доверие расставлены ради конверсии, не декора."
+      },
+      {
+        "director": "Trust Director",
+        "choice": "High-trust vertical pack",
+        "reason": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах."
+      },
+      {
+        "director": "Performance Director",
+        "choice": "Light delivery",
+        "reason": "Luxury и скорость балансируются автоматически."
+      },
+      {
+        "director": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта."
+      },
+      {
+        "director": "Localization Director",
+        "choice": "Germany · DACH",
+        "reason": "Impressum, Datenschutz, строгий стиль."
+      },
+      {
+        "director": "Experience Director",
+        "choice": "First Impression 55",
+        "reason": "Hero слишком обычный."
+      },
+      {
+        "director": "Commercial Readiness",
+        "choice": "Overall Commercial 70",
+        "reason": "Visual 55 · Trust 65 · Conversion 63 · Performance 88 · Mobile 80 · A11y 82 → Not Commercial Ready"
+      },
+      {
+        "director": "Conversion Director",
+        "choice": "CTA 55",
+        "reason": "Добавить второй CTA после блока услуг."
+      }
+    ],
+    "design_director": {
+      "engine": "ai_design_director_v2",
+      "product": "Digital Experience Factory",
+      "ok": true,
+      "overall": 61,
+      "scores": {
+        "visual": 55,
+        "typography": 65,
+        "motion": 65,
+        "premium_feeling": 60,
+        "first_impression": 55,
+        "brand_emotion": 70,
+        "trust": 65,
+        "conversion_readiness": 55,
+        "mobile_experience": 80,
+        "creativity": 60
+      },
+      "threshold_premium_feeling": 80,
+      "threshold_first_impression_premium": 90,
+      "package_id": "basic",
+      "niche": "dental",
+      "luxury_mode": false,
+      "identity": {
+        "theme": "premium_medical",
+        "feel_ru": "чистый Premium Medical — светлый, спокойный, доверие",
+        "hero_bias": "photo_calm"
+      },
+      "fingerprint": "bf4c253aabbd99a4",
+      "markers": {
+        "data_tier_ok": true,
+        "hero": false,
+        "layout_profile": false,
+        "vie": false,
+        "font_signals": 0,
+        "kpi_trust_signals": 0,
+        "rich_media_signals": 0,
+        "viewport": true,
+        "responsive_css": true
+      },
+      "recommendations": [
+        "Strengthen Conversion Readiness (CTA / form / WhatsApp)"
+      ],
+      "acceptance_5s_ru": "Если показать три версии рядом без ценников, человек должен почти всегда понять, где Starter, где Business и где Premium.",
+      "rule_ru": "Клиент должен узнать Virtus Core по качеству, а не по шаблону."
+    },
+    "design_memory": {
+      "engine": "design_memory_v1",
+      "similarity_pct": 0,
+      "threshold": 92,
+      "rebuild_needed": false,
+      "match": null,
+      "action_ru": "OK — достаточно уникально"
+    },
+    "commercial_readiness": {
+      "engine": "commercial_readiness_v1",
+      "threshold": 90,
+      "scores": {
+        "visual": 55,
+        "trust": 65,
+        "conversion": 63,
+        "performance": 88,
+        "mobile": 80,
+        "accessibility": 82
+      },
+      "overall_commercial": 70,
+      "commercial_ready": false,
+      "label": "Not Commercial Ready",
+      "status": "FAIL",
+      "conversion_detail": {
+        "engine": "conversion_director_v1",
+        "scores": {
+          "hero": 40,
+          "cta": 55,
+          "trust": 91,
+          "contact_visibility": 70,
+          "booking_flow": 60
+        },
+        "overall": 63,
+        "hero_status": "FAIL",
+        "recommendations": [
+          "Добавить второй CTA после блока услуг.",
+          "Усилить видимость контактов / формы."
+        ],
+        "markers": {
+          "has_mid_cta": false,
+          "has_form": false,
+          "has_contact": false
+        }
+      },
+      "performance_detail": {
+        "engine": "performance_director_v1",
+        "mobile_score": 88,
+        "has_video": false,
+        "has_webgl": false,
+        "status": "PASS",
+        "action_ru": "OK — лёгкая доставка",
+        "veto_video": false
+      },
+      "accessibility_detail": {
+        "engine": "accessibility_director_v1",
+        "overall": 82,
+        "missing_alt": 0,
+        "has_skip_link": false,
+        "has_lang": true,
+        "status": "FAIL"
+      },
+      "design_director_overall": 61,
+      "ssot_ru": "Главный KPI — Commercial Readiness Score. Только при ≥ 90 Factory ставит Commercial Ready."
+    },
+    "studio": {
+      "engine": "digital_creative_studio_v2",
+      "apply_keys": [
+        "accessibility",
+        "body_font",
+        "brands_strip",
+        "certs_near_hero",
+        "contact_above_fold_hint",
+        "conversion",
+        "cta_after_services",
+        "cta_tone",
+        "data_luxury",
+        "data_studio",
+        "display_font",
+        "faq_before_footer",
+        "focus_visible",
+        "font_label",
+        "font_pack",
+        "forbid_heavy_video_on_mobile_fail",
+        "guarantees_in_benefits",
+        "hero_bias",
+        "hero_layout_prefer",
+        "industry_theme",
+        "lazy_images",
+        "legal_pack",
+        "localization",
+        "luxury_mode",
+        "map_with_contacts",
+        "market_code",
+        "max_motion",
+        "min_body_px",
+        "motion_level",
+        "motion_tier",
+        "package_id",
+        "performance",
+        "portfolio_weight",
+        "prefer_static_hero",
+        "require_alt",
+        "require_mid_cta",
+        "reveal",
+        "reviews_before_contact",
+        "scale",
+        "skip_link",
+        "social_proof_weight",
+        "style",
+        "trust",
+        "trust_density"
+      ]
+    },
+    "ssot_ru": "Virtus Core объясняет дизайнерские и коммерческие решения — Digital Creative Studio, не чёрный ящик."
+  }
 }

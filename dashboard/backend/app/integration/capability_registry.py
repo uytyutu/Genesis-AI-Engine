@@ -227,7 +227,7 @@ class CapabilityRegistry:
                 enabled=True,
                 tier="free",
                 source=source,
-                notes="packages=basic,business,premium; prices=350,650,1200; cta=/order",
+                notes="packages=basic,business,premium; prices=199,399,699; cta=/order",
             )
         )
         out.append(

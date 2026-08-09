@@ -1,11 +1,11 @@
 {
   "niche": "restaurant",
   "business_name": "Trattoria Luna",
-  "product_id": "8c9a4a8a-5691-4900-b000-5e1f1713ac9e",
+  "product_id": "8e64a63e-ab79-44c1-9f7d-86e4781ce644",
   "headline": "Trattoria Luna",
   "preview_note": "Open local index.html in browser for visual review",
   "local_index": "dashboard/backend/app/factory/golden_demos/restaurant/index.html",
-  "zip_bytes": 10017519,
+  "zip_bytes": 10017747,
   "zip_name": "trattoria-luna.zip",
   "hard_passed": true,
   "score_passed": true,

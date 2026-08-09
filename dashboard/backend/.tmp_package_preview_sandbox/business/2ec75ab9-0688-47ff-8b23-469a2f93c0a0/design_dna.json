@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "editorial_calm",
+  "motion": "soft",
+  "hero_concept": "quiet_chamber",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "low",
+  "composition": "gallery",
+  "package_id": "business",
+  "niche_id": "psychology",
+  "fingerprint": "2afeab8fd2f5b1805cdb2b1614a19b020d1b7383a53752f266288640b15afa55",
+  "section_treatments": [
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "about",
+      "illustration"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#1c1916",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "9dfea0dbe684fc3ac66a817c",
+  "border_radius_px": 4
+}

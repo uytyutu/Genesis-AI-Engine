@@ -1,0 +1,38 @@
+{
+  "stage": "creative_identity",
+  "naming": "Creative Identity — not Concept",
+  "before_html": true,
+  "era": "Virtus Core Studio Era",
+  "sprint": "Creative Identity Generation",
+  "theme": "Morning Light",
+  "idea": "Every day can begin again.",
+  "thinking": "human_first_then_niche_then_export",
+  "reality_benchmark": "PENDING_OWNER",
+  "html_export_allowed": true,
+  "brand_story": "Lea built MirrorCoat Care because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: generic.",
+  "core_emotion": "trust and desire to stay",
+  "core_promise": "Every day can begin again.",
+  "visual_metaphor": "first light through linen curtains",
+  "creative_conflict": {
+    "ok": true,
+    "action": "CONTINUE",
+    "conflicts": []
+  },
+  "studio_approach": "luxury",
+  "first_screen_job": "Hero exists for 'MirrorCoat Care': Offenes Licht auf ruhiger Fläche — Klar. Vertrauenswürdig. Vor Ort.",
+  "scene_sequence": [
+    "scene",
+    "interaction",
+    "story",
+    "interaction",
+    "experience",
+    "interaction",
+    "conversion",
+    "emotion",
+    "experience",
+    "interaction",
+    "conversion"
+  ],
+  "owner_review": "PENDING_OWNER",
+  "question": "Who is the human — and what idea can you feel?"
+}

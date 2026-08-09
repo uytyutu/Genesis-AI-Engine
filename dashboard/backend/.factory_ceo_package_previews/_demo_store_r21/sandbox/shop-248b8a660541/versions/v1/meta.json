@@ -1,0 +1,142 @@
+{
+  "id": "shop-248b8a660541",
+  "product_id": "shop-248b8a660541",
+  "product_kind": "shop",
+  "order_id": "demo-nordlicht-r21",
+  "business_name": "Nordlicht Boots",
+  "package_id": "ecommerce_shop",
+  "market_code": "DE",
+  "shop_brief": {
+    "company_name": "Nordlicht Handels GmbH",
+    "store_name": "Nordlicht Boots",
+    "business_description": "",
+    "what_is_sold": "Premium outdoor boots and apparel for Germany",
+    "category": "clothing",
+    "product_categories": [],
+    "catalog_size": "20",
+    "languages": [
+      "de"
+    ],
+    "currency": "EUR",
+    "payments": [
+      "stripe",
+      "paypal"
+    ],
+    "shipping": [
+      "dhl",
+      "dpd"
+    ],
+    "pages": [
+      "home",
+      "catalog",
+      "pdp",
+      "about",
+      "contact",
+      "faq",
+      "legal",
+      "returns"
+    ],
+    "wishes": "",
+    "logo_url": "",
+    "logo_need": "need_new_logo",
+    "photo_urls": [],
+    "color_scheme": "",
+    "style": "warm",
+    "need_variants": false,
+    "need_search": true,
+    "need_reviews": false,
+    "need_promo_codes": false,
+    "need_gift_cards": false,
+    "has_digital_products": false,
+    "integrations": [],
+    "market_code": "DE"
+  },
+  "template_id": "niche_clothing",
+  "version": 1,
+  "status": "ready",
+  "owner_approved": true,
+  "published": false,
+  "quality_gate": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "required_pages",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "name": "title_present",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "store_name_in_html",
+        "ok": true,
+        "detail": "Nordlicht Boots"
+      },
+      {
+        "name": "meta_description",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "navigation",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "colors_applied",
+        "ok": true,
+        "detail": "#c2410c"
+      },
+      {
+        "name": "warm_background",
+        "ok": true,
+        "detail": "non-white --store-bg"
+      },
+      {
+        "name": "store_js_cart",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "cart_page",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "demo_catalog_cards",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "wishlist_nav",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "mobile_bar",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "no_fake_header_wish",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "commerce_cta",
+        "ok": true,
+        "detail": "Add to Cart + cart badge"
+      },
+      {
+        "name": "logo_home",
+        "ok": true,
+        "detail": ""
+      }
+    ],
+    "errors": []
+  },
+  "created_at": "2026-08-05T09:10:57.159315+00:00",
+  "updated_at": "2026-08-05T09:10:57.159315+00:00"
+}

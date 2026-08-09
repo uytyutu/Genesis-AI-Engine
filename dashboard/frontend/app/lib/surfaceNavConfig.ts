@@ -83,11 +83,15 @@ export function resolveNavigationSurface(pathname: string): SurfaceTarget {
     "/opportunities",
     "/acquisition",
     "/support",
+    "/clients",
     "/scanner",
     "/growth",
     "/tasks",
     "/tiktok-horizon",
+    "/horizon",
     "/ceo-site",
+    "/global-analytics",
+    "/executive",
   ];
   if (mc.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return "ceo";
@@ -118,46 +122,19 @@ export type PublicNavLink = {
 export const PUBLIC_NAV_LINKS: readonly PublicNavLink[] = [];
 
 export const CLIENT_NAV_LINKS = [
-  { href: "/projects", label: "Проекты", hint: "Мои результаты" },
+  { href: "/client", label: "Dashboard", hint: "Сегодня · продукты · следующий шаг" },
+  { href: "/client/products", label: "Мои продукты", hint: "Сайты · AI Store · услуги" },
+  { href: "/client/orders", label: "Заказы", hint: "Статус · скачивание" },
+  { href: "/client/shop", label: "Магазин", hint: "Заказать ещё услуги" },
   {
     href: "/client/bots",
-    label: "Боты",
-    hint: "AI bots · цены по рынку · отдельно от сайта",
+    label: "Digital Employee",
+    hint: "AI bot · отдельно от сайта",
   },
   {
-    href: "/projects/chatbot",
-    label: "Vector",
-    hint: "Dashboard · состояние",
-  },
-  {
-    href: "/projects/chatbot/activity",
-    label: "Activity",
-    hint: "Что произошло сегодня",
-  },
-  {
-    href: "/projects/chatbot/inbox",
-    label: "Inbox",
-    hint: "Диалоги с клиентами",
-  },
-  {
-    href: "/projects/chatbot/queue",
-    label: "Queue",
-    hint: "Очередь на сегодня",
-  },
-  {
-    href: "/projects/chatbot/customers",
-    label: "Customers",
-    hint: "Карточки клиентов",
-  },
-  {
-    href: "/projects/chatbot/knowledge",
-    label: "Knowledge",
-    hint: "Факты о бизнесе",
-  },
-  {
-    href: "/projects/chatbot/channels",
-    label: "Channels",
-    hint: "Где работает Vector",
+    href: "/client/billing",
+    label: "Billing",
+    hint: "Оплаты · лицензии",
   },
   {
     href: "/client/privacy",
@@ -167,11 +144,13 @@ export const CLIENT_NAV_LINKS = [
 ] as const;
 
 export const CEO_PRIMARY_LINKS = [
+  { href: "/executive", label: "CEO Dashboard", hint: "Утро · Virtus + Farm · Today Focus" },
   { href: "/business", label: "Бизнес", hint: "Mission 2 · KPI" },
   { href: "/acquisition", label: "Поиск лидов", hint: "Country Desk · все рынки · Path A" },
   { href: "/opportunities", label: "Возможности", hint: "Affiliate · Report · API · ROI сегодня" },
   { href: "/client/bots", label: "Боты", hint: "AI bots · цены по странам · отдельный продукт" },
   { href: "/support", label: "Поддержка", hint: "Inbox · автоответы · шаблоны" },
+  { href: "/clients", label: "Клиенты", hint: "Business ID · Client Card · таймлайн" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Превью /site + /order" },
   { href: "/", label: "Ферма", hint: "Разметка · Toloka Spend (не Desk)" },
   { href: "/farm-engine", label: "Farm Engine", hint: "Opire · Approve · Reward Protection" },
@@ -190,8 +169,14 @@ export const CEO_STUDIO_LINKS = [
   { href: "/cursor", label: "Разработка", hint: "Cursor · код" },
   { href: "/acquisition", label: "Country Desk", hint: "Все рынки · снайпер · Outbox" },
   { href: "/support", label: "Support", hint: "Inbox · Auto Rules · Templates" },
+  { href: "/clients", label: "Clients", hint: "Business ID · Client Card · timeline" },
   { href: "/ceo-site", label: "Сайт клиентов", hint: "Как видит покупатель" },
   { href: "/tiktok-horizon", label: "TikTok Horizon", hint: "INTERNAL OWNER · OAuth · kill switch" },
+  {
+    href: "/horizon",
+    label: "Horizon Studio",
+    hint: "Media Engine · Creative Director · Internal Only",
+  },
   { href: "/#lost-archive", label: "Архив отказов", hint: "lost_reasons · не удалять" },
   { href: "/create", label: "Фабрика", hint: "Сборка Landing" },
   { href: "/ai", label: "AI Hub", hint: "Помощник CEO" },

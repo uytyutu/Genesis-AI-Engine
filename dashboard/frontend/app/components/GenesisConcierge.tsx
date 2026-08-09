@@ -1501,6 +1501,7 @@ export function GenesisConcierge({
       document.getElementById("genesis-chat-input")?.focus();
     };
     const voice = () => {
+      if (isPublic) return;
       /* Must stay tied to user gesture — do not dispatch genesis:start-voice on mount */
       void toggleVoice();
     };
@@ -1517,18 +1518,20 @@ export function GenesisConcierge({
       window.removeEventListener("genesis:start-voice", voice);
       window.removeEventListener("genesis:assign-task", onAssign);
     };
-  }, [toggleVoice, sendMessage]);
+  }, [toggleVoice, sendMessage, isPublic]);
 
   const composer = (
     <>
-      <VoiceSettingsPanel
-        open={voiceSettingsOpen}
-        onClose={() => setVoiceSettingsOpen(false)}
-        settings={voiceSettings}
-        onChange={setVoiceSettings}
-        cloudAvailable={ttsCloudAvailable}
-        preferredProvider={ttsPreferred}
-      />
+      {!isPublic ? (
+        <VoiceSettingsPanel
+          open={voiceSettingsOpen}
+          onClose={() => setVoiceSettingsOpen(false)}
+          settings={voiceSettings}
+          onChange={setVoiceSettings}
+          cloudAvailable={ttsCloudAvailable}
+          preferredProvider={ttsPreferred}
+        />
+      ) : null}
       {!isPublic ? (
         <div className={composerFocused ? "max-sm:hidden" : undefined}>
           <CommunicationStylePicker
@@ -1574,8 +1577,9 @@ export function GenesisConcierge({
         inputId="genesis-chat-input"
         onFocusChange={setComposerFocused}
         minimalMobile={isPublic}
-        clientWorkspace={isPublicHub || isPublic}
-        onSpeakAnswer={isPublicHub || isPublic ? undefined : speakLastAnswer}
+        hideVoice={isPublic}
+        clientWorkspace={false}
+        onSpeakAnswer={isPublic ? undefined : speakLastAnswer}
       />
     </>
   );

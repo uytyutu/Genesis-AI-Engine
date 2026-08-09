@@ -14,9 +14,9 @@ def test_layer_a_packages_have_value_copy() -> None:
     basic = _PACKAGES["basic"]
     business = _PACKAGES["business"]
     premium = _PACKAGES["premium"]
-    assert basic["price_eur"] == 350
-    assert business["price_eur"] == 650
-    assert premium["price_eur"] == 1200
+    assert basic["price_eur"] == 199
+    assert business["price_eur"] == 399
+    assert premium["price_eur"] == 699
     assert any("WhatsApp" in d for d in basic["deliverables"])
     assert any("Maps" in d or "Route" in d for d in business["deliverables"])
     assert any("FAQ" in d for d in business["deliverables"])

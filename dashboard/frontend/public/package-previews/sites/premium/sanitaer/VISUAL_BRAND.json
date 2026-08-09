@@ -1,0 +1,63 @@
+{
+  "brand_name": "WasserKlar Sanitär",
+  "niche_id": "sanitaer",
+  "fingerprint": "dc25c7bdd2f7e4cb45fe",
+  "color": {
+    "primary": "#0e1e28",
+    "accent": "#46b2bb",
+    "secondary": "#8c3a43",
+    "surface": "#e0f0fa",
+    "cards": "#daecf8",
+    "background": "#0e1e28",
+    "gradient": "linear-gradient(145deg,#0e1e28 0%,#23595d 48%,#46b2bb 100%)",
+    "glow": "rgba(70,178,187,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "isometric_illustration",
+    "glass_3d",
+    "abstract_gradient"
+  ],
+  "illustration_pack": "minimal line illustrations",
+  "motion_language": "editorial fade · staggered cards · calm hover",
+  "icon_style": "technical blueprint icons",
+  "scene_library": {
+    "hero": [
+      "Rohrleitung",
+      "Sanitär-Meister",
+      "moderne Badbaustelle"
+    ],
+    "gallery": [
+      "Armaturenmontage",
+      "Heizung",
+      "Wasserschaden-Diagnose"
+    ],
+    "team": [
+      "Sanitär-Team"
+    ],
+    "equipment": [
+      "Presszange",
+      "Rohrabschneider"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Rohrleitung, Sanitär-Meister, moderne Badbaustelle. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=hero_background. Medium=glass_3d. Illustration language=minimal line illustrations. Must show: Rohrleitung, Sanitär-Meister, moderne Badbaustelle. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Armaturenmontage, Heizung, Wasserschaden-Diagnose. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Armaturenmontage, Heizung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=team. Medium=isometric_illustration. Illustration language=minimal line illustrations. Must show: Sanitär-Team. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=equipment. Medium=isometric_illustration. Illustration language=minimal line illustrations. Must show: Presszange, Rohrabschneider. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Wasserschaden-Diagnose. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=illustration. Medium=isometric_illustration. Illustration language=minimal line illustrations. Must show: Rohrleitung, Sanitär-Meister. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=minimal line illustrations. Must show: technical blueprint icons. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «WasserKlar Sanitär» (sanitaer) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Rohrleitung, Sanitär-Meister, moderne Badbaustelle. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

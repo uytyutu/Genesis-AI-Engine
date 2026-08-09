@@ -125,7 +125,9 @@ def test_smart_offer_broken_repair():
     assert str(offer["recommended_package_id"]).startswith("repair")
 
 
-def test_smart_offer_healthy_skip():
+def test_smart_offer_healthy_website_ineligible_keeps_company_semantics():
+    from app.integration.lead_engine_premium import WEBSITE_OFFER_INELIGIBLE
+
     row = {
         "website_url": "https://modern.example",
         "meta": {},
@@ -138,7 +140,76 @@ def test_smart_offer_healthy_skip():
     }
     offer = select_smart_offer(row)
     assert offer["skip_outreach"] is True
-    assert offer["skip_reason"] == "healthy_site"
+    assert offer["website_offer"] == "rejected"
+    assert offer["skip_reason"] == WEBSITE_OFFER_INELIGIBLE
+    apply_premium_and_offer(row, analysis=row["site_analysis"])
+    assert row["meta"]["website_offer"] == "rejected"
+    assert row["meta"]["website_offer_reason"] == WEBSITE_OFFER_INELIGIBLE
+    assert not row["meta"].get("quality_archive")
+
+
+def test_prepare_healthy_site_rejects_offer_not_archive(tmp_path: Path):
+    """Mission 1.2: modern site → no draft/Ready path; company not quality_archive."""
+    from app.integration.lead_engine_premium import WEBSITE_OFFER_INELIGIBLE
+    from app.integration.opportunity_service import OpportunityService
+
+    class _Sales:
+        def packages(self):
+            return [
+                {"id": "basic", "name": "Landing Basic", "price_eur": 350},
+                {"id": "business", "name": "Landing Business", "price_eur": 650},
+            ]
+
+    opp = OpportunityService(tmp_path)
+    row = opp.create(
+        {
+            "source_id": "manual",
+            "company_name": "Modern Clinic",
+            "contact": "info@modern-clinic.example",
+            "website_url": "https://modern-clinic.example",
+            "fit_reason": "CEO force: сайт есть",
+            "meta": {"market": "DE", "place_id": "test-place"},
+        }
+    )
+    row["site_analysis"] = {
+        "fetch_ok": True,
+        "issues": [],
+        "issue_count": 0,
+        "improvement_score": 10,
+        "emails_found": ["info@modern-clinic.example"],
+    }
+    opp._save_rows([row])
+
+    svc = AcquisitionStudioService(opp, _Sales())
+    # Avoid live HTTP — prepare with existing analysis
+    result = svc.prepare_opportunity(
+        row["id"],
+        website_url="https://modern-clinic.example",
+        skip_site_analysis=True,
+        skip_qualification=True,
+        auto_lane=True,
+    )
+    assert result.get("skipped") is True
+    assert result.get("reason") == WEBSITE_OFFER_INELIGIBLE
+    assert result.get("website_offer") == "rejected"
+    saved = opp.get(row["id"])
+    assert saved is not None
+    meta = saved.get("meta") or {}
+    assert meta.get("website_offer") == "rejected"
+    assert meta.get("skip_reason") == WEBSITE_OFFER_INELIGIBLE
+    assert meta.get("skip_outreach") is True
+    assert not meta.get("quality_archive")
+    assert not (saved.get("proposed_message") or "").strip()
+    # Still visible in pipeline (not archived)
+    visible_ids = {r.get("id") for r in svc.pipeline_leads(limit=50)}
+    assert row["id"] in visible_ids
+    # Quality gate / Ready still blocked (Mission 1: no send)
+    gate = quality_gate_before_send(
+        {**saved, "outreach_status": "approved", "proposed_message": "x"},
+        now_utc=datetime(2026, 7, 20, 8, 0, tzinfo=timezone.utc),
+    )
+    assert gate["ok"] is False
+    assert classify_lead_queue(saved) == "skip"
 
 
 def test_quality_gate_invalid_email():
@@ -174,8 +245,9 @@ def test_fresh_archive_keeps_sent(tmp_path: Path):
         {
             "id": "a",
             "status": "new",
-            "outreach_status": "pending_approval",
-            "company_name": "Old Draft",
+            "outreach_status": "none",
+            "company_name": "Idle None",
+            "contact": "",
             "meta": {},
             "interactions": [],
         },
@@ -195,6 +267,15 @@ def test_fresh_archive_keeps_sent(tmp_path: Path):
             "meta": {},
             "interactions": [],
         },
+        {
+            "id": "d",
+            "status": "new",
+            "outreach_status": "needs_email",
+            "company_name": "Needs Email Kept",
+            "website_url": "https://ne.example",
+            "meta": {},
+            "interactions": [],
+        },
     ]
     svc = AcquisitionStudioService.__new__(AcquisitionStudioService)
     svc._memory_dir = tmp_path
@@ -211,10 +292,12 @@ def test_fresh_archive_keeps_sent(tmp_path: Path):
     svc._archive_quality = AcquisitionStudioService._archive_quality.__get__(svc)
     result = svc.archive_stale_pipeline_for_fresh_run()
     assert result["kept_sent_or_closed"] >= 2
-    saved = svc._opportunity._rows
-    assert saved[0]["meta"].get("quality_archive") is True
-    assert not saved[1]["meta"].get("quality_archive")
-    assert not saved[2]["meta"].get("quality_archive")
+    assert result.get("kept_pipeline", 0) >= 1
+    saved = {r["id"]: r for r in svc._opportunity._rows}
+    assert saved["a"]["meta"].get("quality_archive") is True
+    assert not saved["b"]["meta"].get("quality_archive")
+    assert not saved["c"]["meta"].get("quality_archive")
+    assert not saved["d"]["meta"].get("quality_archive")
 
 
 def test_dashboard_ready_waiting_split():

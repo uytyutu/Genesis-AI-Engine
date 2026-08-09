@@ -1,0 +1,72 @@
+{
+  "emotion": "warmth",
+  "style": "organic_premium",
+  "palette_family": "warm_clay",
+  "typography_pair": "cormorant_source",
+  "motion": "soft",
+  "hero_concept": "soft_orb_photo",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "soft",
+  "package_id": "basic",
+  "niche_id": "dental",
+  "fingerprint": "6272db0de25ef23d77ca57e085359c23a9828f4f8993af79354258120d474053",
+  "section_treatments": [
+    [
+      "stats",
+      "ink"
+    ],
+    [
+      "services",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "glass"
+    ],
+    [
+      "benefits",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "process",
+      "illustration"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "about",
+      "gradient"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "illustration"
+    ]
+  ],
+  "accent_hex": "#a68a6d",
+  "surface_hex": "#faf6f1",
+  "ink_hex": "#292524"
+}

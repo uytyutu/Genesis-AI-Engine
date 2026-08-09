@@ -156,12 +156,20 @@ export default function ClientProductsPage() {
                     Открыть магазин
                   </Link>
                 ) : (
-                  <Link
-                    href={`/order/status/${o.order_id}`}
-                    className="rounded-xl border border-white/15 px-3 py-2 text-sm text-white hover:bg-white/5"
-                  >
-                    Открыть
-                  </Link>
+                  <>
+                    <Link
+                      href={`/client/websites/${o.order_id}/admin`}
+                      className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-black"
+                    >
+                      Website Admin
+                    </Link>
+                    <Link
+                      href={`/order/status/${o.order_id}`}
+                      className="rounded-xl border border-white/15 px-3 py-2 text-sm text-white hover:bg-white/5"
+                    >
+                      Статус
+                    </Link>
+                  </>
                 )}
                 {o.product_id ? (
                   <a

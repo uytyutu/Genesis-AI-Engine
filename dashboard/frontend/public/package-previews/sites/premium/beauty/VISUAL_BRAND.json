@@ -1,0 +1,63 @@
+{
+  "brand_name": "Salon Mira",
+  "niche_id": "beauty",
+  "fingerprint": "830c721696469999250e",
+  "color": {
+    "primary": "#14181e",
+    "accent": "#3696a9",
+    "secondary": "#7cd231",
+    "surface": "#e6eaf0",
+    "cards": "#e0e6ee",
+    "background": "#14181e",
+    "gradient": "linear-gradient(145deg,#14181e 0%,#1b4b54 48%,#3696a9 100%)",
+    "glow": "rgba(54,150,169,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "premium_business_graphic",
+    "abstract_gradient",
+    "isometric_illustration"
+  ],
+  "illustration_pack": "isometric craft marks",
+  "motion_language": "cinematic parallax · soft reveal · magnetic CTA",
+  "icon_style": "technical blueprint icons",
+  "scene_library": {
+    "hero": [
+      "Team bei echter Arbeit",
+      "deutsche Alltagsszene",
+      "professioneller Arbeitsort"
+    ],
+    "gallery": [
+      "Detail Arbeit",
+      "Kundenmoment",
+      "Werkzeug / Material",
+      "Ergebnis"
+    ],
+    "team": [
+      "Fachkraft"
+    ],
+    "equipment": [
+      "Werkzeug der Branche"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=isometric craft marks. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Detail Arbeit, Kundenmoment. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=team. Medium=premium_business_graphic. Illustration language=isometric craft marks. Must show: Fachkraft. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=equipment. Medium=premium_business_graphic. Illustration language=isometric craft marks. Must show: Werkzeug der Branche. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=illustration. Medium=premium_business_graphic. Illustration language=isometric craft marks. Must show: Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=isometric craft marks. Must show: technical blueprint icons. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «Salon Mira» (beauty) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

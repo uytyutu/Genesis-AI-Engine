@@ -1,0 +1,26 @@
+{
+  "niche_id": "restaurant",
+  "idea": "Ein Abend im italienischen Hof.",
+  "who": "Familiäre Trattoria: Wärme, Abendlicht, ehrliche Küche, Tisch wie bei Freunden — kein Touristen-Menü.",
+  "character": [
+    "Wärme",
+    "Abendlicht",
+    "Gastfreundschaft",
+    "Produkt",
+    "Erinnerung"
+  ],
+  "metaphor": "Abendlicht über dem Hof — lange Tafel, leises Gläserklingen",
+  "hero_concept": "italian_courtyard_evening",
+  "emotion_3s": "Hunger auf den Abend — nicht auf eine Speisekarte-PDF",
+  "source": "premium_pack",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Ein Abend im italienischen Hof.",
+    "who": "Familiäre Trattoria: Wärme, Abendlicht, ehrliche Küche, Tisch wie bei Freunden — kein Touristen-Menü.",
+    "package_id": "business",
+    "source": "premium_pack",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

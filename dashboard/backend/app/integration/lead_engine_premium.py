@@ -1,12 +1,17 @@
 """Premium Scoring + Smart Offer Selection (Lead Engine v1).
 
 Separate from frozen Acquisition Scoring v1 (Lead Priority). This layer ranks
-outreach urgency and chooses Basic / Business / Repair / skip-healthy.
+outreach urgency and chooses Basic / Business / Repair / website-ineligible.
+
+Mission 1.2: healthy modern site ⇒ website offer rejected — NOT company archive.
 """
 
 from __future__ import annotations
 
 from typing import Any
+
+# Offer rejection (company kept). Distinct from quality_archive / legal blocks.
+WEBSITE_OFFER_INELIGIBLE = "website_offer_ineligible"
 
 # Point weights (plan)
 _WEIGHTS = {
@@ -131,7 +136,11 @@ def select_smart_offer(
     analysis: dict[str, Any] | None = None,
     premium: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Choose Website Basic / Business / Repair / skip healthy."""
+    """Choose Website Basic / Business / Repair / website-offer rejected.
+
+    website_offer_ineligible ≠ company unsuitable: keep the lead; do not archive.
+    Path A has no other buyable SKU today → skip_outreach blocks send (Mission 1).
+    """
     analysis = _analysis(row, analysis)
     premium = premium or compute_premium_score(row, analysis=analysis)
     score = int(premium.get("premium_score") or 0)
@@ -152,6 +161,7 @@ def select_smart_offer(
             "recommended_package_id": "basic",
             "skip_outreach": False,
             "skip_reason": None,
+            "website_offer": "eligible",
             "rationale": "No website → Website Basic",
         }
 
@@ -162,6 +172,7 @@ def select_smart_offer(
             "recommended_package_id": pkg,
             "skip_outreach": False,
             "skip_reason": None,
+            "website_offer": "eligible",
             "rationale": f"Serious site problems (score={score}) → Repair",
         }
 
@@ -171,19 +182,24 @@ def select_smart_offer(
             "recommended_package_id": "business",
             "skip_outreach": False,
             "skip_reason": None,
+            "website_offer": "eligible",
             "rationale": "Aging / weak site → Website Business redesign",
         }
 
-    # Healthy modern site — do not send template outreach
+    # Healthy modern site → website pitch ineligible; company stays for future SKUs.
     issue_count = int(analysis.get("issue_count") or len(analysis.get("issues") or []) or 0)
     imp = int(analysis.get("improvement_score") or 0)
     if score < 15 and issue_count <= 1 and imp < 40:
         return {
-            "offer_kind": "skip",
+            "offer_kind": "website_ineligible",
             "recommended_package_id": None,
             "skip_outreach": True,
-            "skip_reason": "healthy_site",
-            "rationale": "Modern healthy site — skip template outreach",
+            "skip_reason": WEBSITE_OFFER_INELIGIBLE,
+            "website_offer": "rejected",
+            "rationale": (
+                "Modern healthy site — website offer ineligible "
+                "(company kept; no other buyable SKU today)"
+            ),
         }
 
     return {
@@ -191,6 +207,7 @@ def select_smart_offer(
         "recommended_package_id": "basic",
         "skip_outreach": False,
         "skip_reason": None,
+        "website_offer": "eligible",
         "rationale": "Default Path A Basic",
     }
 
@@ -209,12 +226,21 @@ def apply_premium_and_offer(
     meta["premium_breakdown"] = premium.get("breakdown") or {}
     meta["offer_kind"] = offer["offer_kind"]
     meta["smart_offer_rationale"] = offer.get("rationale")
-    if offer.get("skip_outreach"):
-        meta["skip_reason"] = offer.get("skip_reason") or "healthy_site"
+    meta["website_offer"] = offer.get("website_offer") or "eligible"
+    if offer.get("skip_outreach") or offer.get("website_offer") == "rejected":
+        reason = str(offer.get("skip_reason") or WEBSITE_OFFER_INELIGIBLE)
+        meta["skip_reason"] = reason
         meta["skip_outreach"] = True
+        meta["website_offer"] = "rejected"
+        meta["website_offer_reason"] = reason
+        # Offer rejection only — never mark company quality_archive here.
+        meta.pop("quality_archive", None)
+        meta.pop("quality_archive_reason", None)
+        meta.pop("quality_archive_detail", None)
     else:
         meta.pop("skip_reason", None)
         meta["skip_outreach"] = False
+        meta.pop("website_offer_reason", None)
         pkg = offer.get("recommended_package_id")
         if pkg:
             row["recommended_package_id"] = pkg

@@ -1,10 +1,14 @@
-"""Opire Farm — Semi-Auto bounty scanner via official Opire public API + GitHub.
+"""Opire Farm — AUTO-RUN bounty orchestration via official Opire API + GitHub.
 
 Official flow only (docs.opire.dev):
   /try on issue → implement → PR with /claim #N → maintainer merge → Opire payout
 
-REAL income only after payout confirmation (Reward Protection).
-Never auto-submit without CEO Approve + CEO Submit PR.
+AUTO-RUN (FARM_AUTONOMOUS=1, default):
+  Scanner → Pre-flight GO≥80 → Auto-Approve → Execution → Draft PR → Auto-Submit
+  → wait Merge → Opire verify → REAL Ledger → next bounty
+
+CEO gates only for REVIEW / ToS / large scope / budget / Stop / exhausted retries.
+Estimated ≠ REAL. REAL only after confirmed payout (Reward Protection).
 """
 
 from __future__ import annotations
@@ -272,8 +276,8 @@ def farm_readiness_matrix() -> dict[str, Any]:
             },
         ],
         "next_proof_ru": (
-            "Один полный цикл: Approve → Execution → Draft PR (auto) → Merge → "
-            "Синхронизировать → REAL (auto). Без ручных ID."
+            "Один полный цикл AUTO-RUN: GO→Approve→Execution→Draft→Submit→Merge→REAL. "
+            "Без ручных ID. Estimated ≠ REAL."
         ),
         "github_token_ready": gh_ready,
     }
@@ -293,11 +297,14 @@ def _bottleneck_hint(
     if high == 0:
         return "Узкое место: Confidence — мало задач с высоким шансом."
     if approved == 0:
-        return "Узкое место: CEO Approve — кандидаты есть, одобрений нет."
+        return (
+            "Узкое место: Auto-Approve / Pre-flight GO — кандидаты есть, "
+            "в работу ещё никто не взят."
+        )
     if executed < approved:
         return "Узкое место: Execution Engine — одобрено, выполнение ещё не доведена."
     if pr_submitted < executed:
-        return "Узкое место: Draft→Submit PR (нужен CEO Submit)."
+        return "Узкое место: Draft→Submit PR (включите FARM_AUTO_SUBMIT_PR или CEO Submit)."
     if pr_merged < pr_submitted:
         return "Узкое место: Maintainer review / принятие PR."
     if paid < pr_merged:
@@ -431,9 +438,13 @@ def score_reward(
     elif n_comp <= 5:
         conf -= 4
         acceptance -= 8
+    elif n_comp <= 10:
+        # Crowded but still often claimable — REVIEW, not hard SKIP
+        conf -= 10
+        acceptance -= 12
     else:
-        conf -= 14
-        acceptance -= 18
+        conf -= 16
+        acceptance -= 20
         blockers.append("high_competition")
 
     # Reward vs complexity heuristic
@@ -443,12 +454,17 @@ def score_reward(
     elif reward < 20:
         conf += 2
         est_hours = 0.75
-    elif reward <= 1500:
+    elif reward <= 2500:
         conf -= 6
         est_hours = min(24.0, reward / 60.0)
+    elif reward <= 8000:
+        # Large but plausible — do not hard-block Money Mode solely on price
+        conf -= 12
+        est_hours = min(40.0, reward / 50.0)
     else:
-        conf -= 20
-        est_hours = 40.0
+        # Absurd Opire pendingPrice outliers ($100k+) — treat as suspect scope
+        conf -= 22
+        est_hours = 48.0
         blockers.append("reward_implies_large_scope")
 
     signals = set(text_analysis.get("signals") or [])
@@ -700,14 +716,40 @@ def scan_opire(
     out["sniper_probed"] = sniper_probed
     out["excluded_already_active"] = excluded_n
     out["pool_before_sniper"] = len(fresh)
-    # Preserve Review All from connector manager (full pool with reject reasons)
-    out.setdefault("review_all", out.get("all_preview") or [])
+    # Review All must honor the same forever/seen exclude — otherwise Skip reappears
+    raw_review = list(out.get("all_preview") or out.get("review_all") or [])
+    # Unfiltered live market snapshot (real Opire $) — Skip ledger must not hide that work exists
+    market_live = [r for r in raw_review if isinstance(r, dict) and float(r.get("reward_usd") or 0) > 0]
+    market_live.sort(
+        key=lambda x: (
+            0 if str(x.get("recommendation") or "") == "TAKE" else 1,
+            -float(x.get("overall_confidence_pct") or x.get("confidence_pct") or 0),
+            -float(x.get("reward_usd") or 0),
+        )
+    )
+    out["market_live"] = market_live[:40]
+    out["market_live_count"] = len(market_live)
+    out["market_live_note_ru"] = (
+        f"Живой рынок Opire: {len(market_live)} bounty с $ (не симуляция). "
+        "Skip ledger скрывает их из Approve — это не «работы нет»."
+    )
+    review_fresh = [r for r in raw_review if isinstance(r, dict) and not _is_excluded(r)]
+    out["review_all"] = review_fresh
+    out["review_all_excluded"] = max(0, len(raw_review) - len(review_fresh))
+    # If Skip ledger wiped TAKE, still surface best live market rows for CEO
+    if not out["candidates"] and market_live:
+        out["candidates"] = [
+            r
+            for r in market_live
+            if str(r.get("recommendation") or "") != "SKIP"
+        ][:12]
+        out["candidates_from_market_live"] = True
     out.setdefault("confidence_bands", {})
     if not out.get("analytics"):
         from swarm.farm_scan_analytics import build_scan_analytics
 
         out["analytics"] = build_scan_analytics(
-            list(out.get("review_all") or []),
+            list(out.get("market_live") or out.get("review_all") or []),
             threshold=threshold,
             supported_langs=SUPPORTED_LANGS,
         )
@@ -765,10 +807,28 @@ def _farm_auto_advance_enabled() -> bool:
     return flag not in ("0", "false", "no", "off")
 
 
+def _farm_bounty_advance_on_fail() -> bool:
+    """Only take next bounty after execution_failed when explicitly allowed."""
+    flag = (os.environ.get("FARM_BOUNTY_ADVANCE_ON_FAIL") or "0").strip().lower()
+    return flag in ("1", "true", "yes", "on")
+
+
 def _farm_auto_execute_on_approve() -> bool:
-    """CEO path: Approve must start Execution Engine automatically (default ON)."""
+    """Approve must start Execution Engine automatically (default ON)."""
     flag = (os.environ.get("FARM_AUTO_EXECUTE_ON_APPROVE") or "1").strip().lower()
     return flag not in ("0", "false", "no", "off")
+
+
+def _farm_autonomous_enabled() -> bool:
+    from swarm.farm_autonomous import farm_autonomous_enabled
+
+    return farm_autonomous_enabled()
+
+
+def _farm_auto_submit_enabled() -> bool:
+    from swarm.farm_autonomous import farm_auto_submit_enabled
+
+    return farm_auto_submit_enabled()
 
 
 def _farm_decide_async_execute() -> bool:
@@ -781,6 +841,44 @@ def _farm_decide_async_execute() -> bool:
         return False
     flag = (os.environ.get("FARM_DECIDE_ASYNC_EXECUTE") or "1").strip().lower()
     return flag not in ("0", "false", "no", "off")
+
+
+def _task_age_seconds(task: dict[str, Any]) -> float:
+    raw = str(task.get("updated_at") or task.get("approved_at") or "")
+    if not raw:
+        return 0.0
+    try:
+        from datetime import datetime, timezone
+
+        ts = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return max(0.0, (datetime.now(timezone.utc) - ts).total_seconds())
+    except Exception:
+        return 0.0
+
+
+def _is_zombie_queued_execution(task: dict[str, Any], *, max_age_s: float = 90.0) -> bool:
+    """True when Approve queued Execution but worker never progressed (restart/crash)."""
+    if str(task.get("status") or "") != "executing":
+        return False
+    pipe = str(task.get("pipeline_state") or "")
+    stage = str((task.get("execution") or {}).get("stage") or "")
+    if pipe not in ("QUEUED", "") and stage not in ("queued", ""):
+        return False
+    if pipe == "QUEUED" or stage == "queued" or not (task.get("execution") or {}).get("stages"):
+        return _task_age_seconds(task) >= max_age_s
+    return False
+
+
+def _is_recoverable_execution_error(error: Any) -> bool:
+    """Healed queue / factory clear — not a hard Execution failure."""
+    err = str(error or "").strip().lower()
+    return err.startswith("zombie_queued") or err in {
+        "factory_busy",
+        "zombie_queued_healed",
+        "zombie_queued_cleared_for_factory",
+    }
 
 
 def build_success_checklist(cand: dict[str, Any]) -> list[dict[str, Any]]:
@@ -854,8 +952,6 @@ def is_money_mode_candidate(cand: dict[str, Any]) -> bool:
     blockers = {str(b) for b in (cand.get("blockers") or [])}
     if blockers & MONEY_MODE_HARD_BLOCKERS:
         return False
-    if blockers:
-        return False
     reasons = {str(r) for r in (cand.get("reject_reasons") or [])}
     if "review_band" in reasons or str(cand.get("recommendation") or "") == "REVIEW":
         return False
@@ -874,7 +970,11 @@ def is_money_mode_candidate(cand: dict[str, Any]) -> bool:
 
 
 def apply_money_mode_to_scan(scan: dict[str, Any]) -> dict[str, Any]:
-    """Split TAKE pool into Money Mode (default Approve list) vs rest."""
+    """Split TAKE pool into Money Mode (default Approve list) vs rest.
+
+    If GO/Money Mode is empty, fall back to best TAKE so Farm never looks like
+    «no paid work» when Opire still has live USD bounties.
+    """
     from swarm.farm_preflight import run_preflight
 
     out = dict(scan)
@@ -892,6 +992,27 @@ def apply_money_mode_to_scan(scan: dict[str, Any]) -> dict[str, Any]:
         c["money_mode_eligible"] = eligible
         if eligible:
             money.append(c)
+        else:
+            # Keep enriched fields on non-money rows too
+            pass
+    # Re-attach enriched take list
+    enriched_take: list[dict[str, Any]] = []
+    money_ids = {str(c.get("id")) for c in money}
+    for row in take:
+        if str(row.get("id")) in money_ids:
+            hit = next(c for c in money if str(c.get("id")) == str(row.get("id")))
+            enriched_take.append(hit)
+        else:
+            c = dict(row)
+            if "success_checklist" not in c:
+                c["success_checklist"] = build_success_checklist(c)
+            if "preflight" not in c:
+                c["preflight"] = run_preflight(
+                    c, deep=False, min_confidence=DEFAULT_CONFIDENCE_THRESHOLD
+                )
+            c.setdefault("money_mode_eligible", False)
+            enriched_take.append(c)
+    take = enriched_take
     money.sort(
         key=lambda x: (
             0 if (x.get("preflight") or {}).get("verdict") == "GO" else 1,
@@ -900,17 +1021,70 @@ def apply_money_mode_to_scan(scan: dict[str, Any]) -> dict[str, Any]:
     )
     go_list = [c for c in money if (c.get("preflight") or {}).get("verdict") == "GO"]
     out["candidates_take_all"] = take
-    out["candidates"] = go_list if go_list else money[:8]
-    out["threshold"] = MONEY_MODE_THRESHOLD
+    fallback_note = ""
+    if go_list:
+        out["candidates"] = go_list
+        mode = "money_go"
+    elif money:
+        out["candidates"] = money[:8]
+        mode = "money_eligible"
+    elif take:
+        # Prefer TAKE, then fill from live market so CEO sees real $ work
+        merged = list(take[:12])
+        seen = {str(c.get("id")) for c in merged}
+        for r in out.get("market_live") or []:
+            if len(merged) >= 12:
+                break
+            rid = str(r.get("id") or "")
+            if not rid or rid in seen:
+                continue
+            if str(r.get("recommendation") or "") == "SKIP":
+                continue
+            merged.append(r)
+            seen.add(rid)
+        out["candidates"] = merged
+        mode = "take_fallback"
+        fallback_note = (
+            "Money Mode GO пуст — показаны TAKE + живой рынок Opire (реальные $). "
+            "Approve всё ещё ручной."
+        )
+    else:
+        # Last resort: live market preview (may include REVIEW)
+        preview = [
+            r
+            for r in (
+                out.get("market_live")
+                or out.get("review_all")
+                or out.get("all_preview")
+                or []
+            )
+            if isinstance(r, dict)
+            and float(r.get("reward_usd") or 0) > 0
+            and str(r.get("recommendation") or "") != "SKIP"
+        ]
+        preview.sort(
+            key=lambda x: -float(x.get("overall_confidence_pct") or x.get("confidence_pct") or 0)
+        )
+        out["candidates"] = preview[:12]
+        mode = "market_fallback"
+        fallback_note = (
+            "Жёсткие фильтры / Skip ledger обнулили TAKE. "
+            "Ниже — открытый рынок Opire (реальные $), не симуляция."
+        )
+    out["threshold"] = (
+        MONEY_MODE_THRESHOLD if mode.startswith("money") else DEFAULT_CONFIDENCE_THRESHOLD
+    )
     out["money_mode"] = {
         "enabled_default": True,
         "threshold": MONEY_MODE_THRESHOLD,
         "count": len(out["candidates"]),
         "hidden_count": max(0, len(take) - len(out["candidates"])),
         "go_count": len(go_list),
-        "note_ru": (
-            "Money Mode + Pre-flight: только GO (Confidence ≥80%, repo alive, "
-            "capability OK). SKIP скрыт. REVIEW — вручную через All TAKE."
+        "mode": mode,
+        "note_ru": fallback_note
+        or (
+            "Money Mode + Pre-flight: GO (Confidence ≥80%, repo alive). "
+            "Если пусто — Farm показывает TAKE/рынок с реальными $."
         ),
     }
     return out
@@ -942,6 +1116,9 @@ def _is_auto_dead_end(task: dict[str, Any]) -> bool:
     if ex.get("stage") == "awaiting_external":
         return True
     if st == "ceo_approved" and task.get("execution_error"):
+        # Zombie heal / factory_busy are recoverable — never auto-Skip forever
+        if _is_recoverable_execution_error(task.get("execution_error")):
+            return False
         return True
     return False
 
@@ -993,33 +1170,141 @@ class OpireFarmEngine:
             if native:
                 exclude.add(native)
                 exclude.add(f"opire:{native}")
-        # Also honor permanent skip registry
+        # Also honor permanent skip registry + Seen Ledger
         for sid in state.get("skipped_forever") or []:
             exclude.add(str(sid))
+        for lid, entry in (state.get("seen_ledger") or {}).items():
+            if not lid:
+                continue
+            decision = ""
+            if isinstance(entry, dict):
+                decision = str(entry.get("decision") or "")
+            if decision in (
+                "SKIPPED_PERMANENT",
+                "IMPOSSIBLE",
+                "APPROVED",
+                "PAID",
+                "MERGED",
+            ) or decision.startswith("SKIP"):
+                exclude.add(str(lid))
+                if isinstance(entry, dict):
+                    for alias in entry.get("id_aliases") or []:
+                        if alias:
+                            exclude.add(str(alias))
         scan = (
             scan_opire(
                 enrich_top=enrich_top,
-                sniper_top=12,
+                sniper_top=8,
                 exclude_ids=exclude,
                 # Pool for Money Mode filter (full TAKE band). Money Mode keeps ≥80%.
                 threshold=max(55.0, DEFAULT_CONFIDENCE_THRESHOLD - 12.0),
             )
             if force_scan
-            else {
-                "ok": True,
-                "candidates": [],
-                "scanned": 0,
-                "filtered_out": 0,
-                "threshold": MONEY_MODE_THRESHOLD,
-                "review_all": [],
-                "confidence_bands": {},
-            }
+            else None
         )
-        if force_scan:
+        if force_scan and isinstance(scan, dict):
             scan = apply_money_mode_to_scan(scan)
+            # Persist last live scan so opening Farm is not empty
+            try:
+                state["last_scan"] = {
+                    "at": scan.get("at"),
+                    "scanned": scan.get("scanned"),
+                    "candidates": scan.get("candidates") or [],
+                    "candidates_take_all": scan.get("candidates_take_all") or [],
+                    "review_all": (scan.get("review_all") or [])[:60],
+                    "market_live": (scan.get("market_live") or [])[:40],
+                    "market_live_count": scan.get("market_live_count"),
+                    "market_live_note_ru": scan.get("market_live_note_ru"),
+                    "money_mode": scan.get("money_mode"),
+                    "threshold": scan.get("threshold"),
+                    "confidence_bands": scan.get("confidence_bands"),
+                    "analytics": scan.get("analytics"),
+                    "sniper_probed": scan.get("sniper_probed"),
+                    "sniper_skipped": scan.get("sniper_skipped"),
+                    "excluded_already_active": scan.get("excluded_already_active"),
+                    "ok": scan.get("ok", True),
+                    "source": scan.get("source"),
+                    "catalog": scan.get("catalog") or scan.get("connectors"),
+                }
+                self._save(state)
+            except Exception:
+                pass
+            touched = False
+            for row in list(scan.get("candidates") or []) + list(scan.get("review_all") or []):
+                if isinstance(row, dict) and row.get("id"):
+                    if self._touch_seen_ledger_analyzed(state, row):
+                        touched = True
+            if touched:
+                self._save(state)
+        else:
+            cached = state.get("last_scan") if isinstance(state.get("last_scan"), dict) else {}
+            scan = {
+                "ok": True,
+                "candidates": list(cached.get("candidates") or []),
+                "candidates_take_all": list(cached.get("candidates_take_all") or []),
+                "scanned": int(cached.get("scanned") or 0),
+                "filtered_out": 0,
+                "threshold": cached.get("threshold") or MONEY_MODE_THRESHOLD,
+                "review_all": list(cached.get("review_all") or []),
+                "market_live": list(cached.get("market_live") or []),
+                "market_live_count": cached.get("market_live_count"),
+                "market_live_note_ru": cached.get("market_live_note_ru")
+                or (
+                    "Нет кэша скана — нажмите «Обновить Scanner» для живого api.opire.dev."
+                ),
+                "money_mode": cached.get("money_mode")
+                or {
+                    "note_ru": "Кэш. 🔍 Researching… Scanner обновит live Opire сам.",
+                },
+                "confidence_bands": cached.get("confidence_bands") or {},
+                "analytics": cached.get("analytics"),
+                "from_cache": True,
+                "at": cached.get("at"),
+                "source": cached.get("source") or "cache",
+                "catalog": cached.get("catalog") or [],
+            }
         tasks = [_normalize_stale_external_task(t) for t in tasks_map.values()]
         # Persist healed statuses so Retry button / Timeline stay consistent
         healed = False
+        # Clear legacy hard-error labels left by older zombie heal
+        for t in list(tasks_map.values()):
+            tid = str(t.get("id") or "")
+            if not tid:
+                continue
+            if _is_recoverable_execution_error(t.get("execution_error")):
+                t = dict(t)
+                t["execution_heal"] = str(t.get("execution_error") or "zombie_queued_healed")
+                t["execution_error"] = None
+                if str(t.get("status") or "") in ("ceo_approved", "executing", "queued"):
+                    t["auto_retry_execution"] = True
+                    t["status"] = "ceo_approved"
+                tasks_map[tid] = t
+                healed = True
+        # Unlock factory: zombie QUEUED after process restart blocks all Approves
+        for t in list(tasks):
+            if not _is_zombie_queued_execution(t, max_age_s=60.0):
+                continue
+            tid = str(t.get("id") or "")
+            if not tid:
+                continue
+            t = dict(tasks_map.get(tid) or t)
+            t["status"] = "ceo_approved"
+            t["pipeline_state"] = "QUEUED"
+            t["execution"] = {
+                "ok": False,
+                "stage": "queued",
+                "message_ru": (
+                    "Очередь сброшена после перезапуска. "
+                    "🧠 Thinking… агент перезапустит Execution сам."
+                ),
+            }
+            # Soft note — Timeline must not treat this as hard fail / auto-Skip
+            t["execution_error"] = None
+            t["execution_heal"] = "zombie_queued_healed"
+            t["auto_retry_execution"] = True
+            t["updated_at"] = _now()
+            tasks_map[tid] = t
+            healed = True
         for t in tasks:
             tid = str(t.get("id") or "")
             if not tid:
@@ -1036,6 +1321,17 @@ class OpireFarmEngine:
         if healed:
             state["tasks"] = tasks_map
             self._save(state)
+            # Never block status poll with Clone/Execution — resume in background
+            def _bg_retry() -> None:
+                try:
+                    self._maybe_auto_retry_healed(self._load())
+                except Exception:
+                    pass
+
+            threading.Thread(
+                target=_bg_retry, name="farm-auto-retry-heal", daemon=True
+            ).start()
+        tasks = [_normalize_stale_external_task(t) for t in (state.get("tasks") or {}).values()]
         tasks.sort(key=lambda t: str(t.get("updated_at") or ""), reverse=True)
 
         estimated = sum(float(t.get("estimated_reward_usd") or 0) for t in tasks if t.get("status") not in REAL_INCOME_STATES and t.get("status") != "skipped")
@@ -1115,7 +1411,8 @@ class OpireFarmEngine:
             "execution_failed": sum(
                 1
                 for t in tasks
-                if (t.get("execution") or {}).get("stage") == "failed"
+                if str(t.get("status") or "") == "execution_failed"
+                or (t.get("execution") or {}).get("stage") == "failed"
             ),
             "pr_submitted": pr_submitted,
             "pr_merged_first_pass": sum(
@@ -1157,7 +1454,11 @@ class OpireFarmEngine:
             round(sum(elapsed_vals) / len(elapsed_vals), 1) if elapsed_vals else None
         )
 
-        from swarm.farm_pipeline_state import attach_pipeline_state, count_execution_success
+        from swarm.farm_pipeline_state import (
+            attach_pipeline_state,
+            count_execution_success,
+            pipeline_kpi,
+        )
 
         exec_stats = count_execution_success(tasks)
         tasks = exec_stats.pop("tasks")
@@ -1166,30 +1467,68 @@ class OpireFarmEngine:
         funnel["execution_in_flight"] = int(exec_stats["execution"])
         funnel["pipeline_draft_pr"] = int(exec_stats["draft_pr"])
 
+        lifetime = state.get("pipeline_lifetime") if isinstance(state.get("pipeline_lifetime"), dict) else {}
+        pipeline = pipeline_kpi(
+            found=scanned,
+            lifetime=lifetime,
+            live=exec_stats,
+        )
+        # Prefer lifetime for CEO-facing Approved/Started so Impossible→Skip doesn't wipe the funnel
+        funnel["ceo_approved"] = max(int(funnel["ceo_approved"] or 0), int(pipeline["approved"]))
+        funnel["executed"] = max(int(funnel["executed"] or 0), int(pipeline["started"]))
+        funnel["pipeline_lifetime"] = lifetime
+
         execution_success = {
             **exec_stats,
             "avg_execution_s": avg_exec_s,
             "avg_execution_samples": len(elapsed_vals),
-            "note_ru": exec_stats.get("note_ru")
-            or (
-                "Один pipeline_state. Started ≈ Approved после auto-execute."
+            "approved": int(pipeline["approved"]),
+            "started": int(pipeline["started"]),
+            "draft_pr": int(pipeline["draft_pr"]),
+            "merged": int(pipeline["merged"]),
+            "paid": int(pipeline["paid"]),
+            "note_ru": (
+                "Pipeline KPI (lifetime). Started > 0 = Execution реально стартовал. "
+                + str(exec_stats.get("note_ru") or "")
             ),
         }
-        # legacy aliases used by UI
-        execution_success["approved"] = approved
-        if execution_success["approved"] and execution_success["started"] is not None:
+        if execution_success["approved"]:
             execution_success["start_rate"] = round(
                 execution_success["started"] / execution_success["approved"], 3
             )
             execution_success["complete_rate"] = round(
-                execution_success["completed"] / execution_success["approved"], 3
+                execution_success["completed"] / max(execution_success["approved"], 1), 3
             )
+
+        # Durable AUTO-RUN pulse on every panel poll (non-blocking outside tests)
+        autonomous: dict[str, Any]
+        if os.environ.get("PYTEST_CURRENT_TEST"):
+            autonomous = {"ok": True, "skipped": "pytest_panel", "actions": []}
+        else:
+
+            def _bg_tick() -> None:
+                try:
+                    self.autonomous_tick(max_actions=3)
+                except Exception:
+                    pass
+
+            threading.Thread(
+                target=_bg_tick, name="farm-autonomous-tick", daemon=True
+            ).start()
+            autonomous = {
+                "ok": True,
+                "queued": True,
+                "autonomous": _farm_autonomous_enabled(),
+                "auto_submit": _farm_auto_submit_enabled(),
+            }
 
         return {
             "ok": True,
             "mode": "opire_primary",
             "engine": "farm_engine",
+            "autonomous": autonomous,
             "separate_from": "commercial_engine",
+            "pipeline": pipeline,
             "north_star_ru": (
                 "Opire — первый полноценный коннектор. Mission Control = центр управления. "
                 "Сайт Opire не нужен для поиска и решений — только официальный GitHub flow "
@@ -1210,11 +1549,11 @@ class OpireFarmEngine:
             "payout_success": {
                 "found": int(scan.get("scanned") or 0),
                 **(execution_success.get("payout_success") or {}),
-                "approved": approved,
-                "executed": int(execution_success.get("started") or 0),
-                "draft_pr": int(execution_success.get("draft_pr") or 0),
-                "merged": int(execution_success.get("merged") or 0),
-                "paid": int(execution_success.get("paid") or 0),
+                "approved": int(pipeline["approved"]),
+                "executed": int(pipeline["started"]),
+                "draft_pr": int(pipeline["draft_pr"]),
+                "merged": int(pipeline["merged"]),
+                "paid": int(pipeline["paid"]),
             },
             "capability_matrix": __import__(
                 "swarm.farm_virtus_capabilities", fromlist=["capability_snapshot"]
@@ -1236,9 +1575,14 @@ class OpireFarmEngine:
                     {
                         "id": "alpha_hunter",
                         "label": "Alpha Hunter",
-                        "role_ru": "Ищет новые рынки и площадки",
+                        "role_ru": "Paper research рынков (не live scraping)",
                         "href": "/alpha-hunter",
-                        "primary_kpi": "New sources / ROI paper",
+                        "primary_kpi": "Paper ROI · не реальные $",
+                        "mode": "paper",
+                        "honesty_ru": (
+                            "Сейчас это симуляция / paper model. Живой поиск Upwork/Fiverr "
+                            "не подключён. Approve только для adapter_backed действий."
+                        ),
                     },
                     {
                         "id": "sales_farm",
@@ -1251,10 +1595,10 @@ class OpireFarmEngine:
             },
             "workflow_ru": [
                 "Opire Scanner",
-                "CEO Approve",
-                "Execution Engine (Research/Codex авто)",
-                "Draft PR Ready → CEO Submit",
-                "или Impossible → Skip → следующая bounty",
+                "Pre-flight GO≥80 → Auto-Approve (REVIEW → CEO)",
+                "AUTO-RUN Execution (Clone → … → Draft PR)",
+                "Auto-Submit PR (/claim) when policy allows",
+                "Merge → Opire verify → REAL Ledger → next bounty",
             ],
             "execution_stages": list(EXECUTION_STAGES),
             "pipeline_states": [
@@ -1273,11 +1617,67 @@ class OpireFarmEngine:
             "connectors": scan.get("catalog") or scan.get("connectors") or [],
             "funnel": funnel,
             "scan": scan,
+            "folders": {
+                "new": {
+                    "label_ru": "Новые",
+                    "count": len(scan.get("candidates") or [])
+                    + len(
+                        [
+                            r
+                            for r in (scan.get("review_all") or [])
+                            if isinstance(r, dict)
+                            and str(r.get("id") or "")
+                            not in {
+                                str(c.get("id") or "")
+                                for c in (scan.get("candidates") or [])
+                                if isinstance(c, dict)
+                            }
+                        ]
+                    ),
+                    "hint_ru": "Только bounty без постоянного решения (Skip/Approve).",
+                },
+                "active": {
+                    "label_ru": "В работе",
+                    "count": sum(
+                        1
+                        for t in tasks
+                        if t.get("status") not in ("completed", "skipped", None, "available")
+                    ),
+                    "hint_ru": "EXECUTING · DRAFT_PR · WAITING MERGE",
+                },
+                "archive": {
+                    "label_ru": "Архив",
+                    "count": sum(1 for t in tasks if t.get("status") in ("completed", "skipped"))
+                    + len(
+                        [
+                            e
+                            for e in (state.get("seen_ledger") or {}).values()
+                            if isinstance(e, dict)
+                            and str(e.get("decision") or "") == "SKIPPED_PERMANENT"
+                            and not e.get("canonical_id")
+                        ]
+                    ),
+                    "hint_ru": "PAID · MERGED · SKIPPED · IMPOSSIBLE",
+                },
+            },
+            "seen_ledger_count": len(
+                [
+                    e
+                    for e in (state.get("seen_ledger") or {}).values()
+                    if isinstance(e, dict) and not e.get("canonical_id")
+                ]
+            ),
+            "skipped_forever_count": len(state.get("skipped_forever") or []),
             "active_tasks": [
                 attach_pipeline_state(t)
                 for t in tasks
                 if t.get("status") not in ("completed", "skipped")
             ],
+            "archive_tasks": [
+                attach_pipeline_state(t)
+                for t in tasks
+                if t.get("status") in ("completed", "skipped")
+            ][:40],
             "history": [attach_pipeline_state(t) for t in tasks[:30]],
             "ledger": {
                 "estimated_usd": round(estimated, 2),
@@ -1289,7 +1689,9 @@ class OpireFarmEngine:
         }
 
     def _register_skipped_forever(self, state: dict[str, Any], task: dict[str, Any]) -> None:
+        """Permanent skip + Seen Ledger — Scanner must never re-offer this bounty."""
         forever = state.setdefault("skipped_forever", [])
+        keys: list[str] = []
         for key in (
             str(task.get("id") or ""),
             str(task.get("native_id") or ""),
@@ -1297,6 +1699,64 @@ class OpireFarmEngine:
         ):
             if key and key not in forever:
                 forever.append(key)
+            if key:
+                keys.append(key)
+        ledger = state.setdefault("seen_ledger", {})
+        if not isinstance(ledger, dict):
+            ledger = {}
+            state["seen_ledger"] = ledger
+        primary = str(task.get("id") or "") or (keys[0] if keys else "")
+        if not primary:
+            return
+        prev = ledger.get(primary) if isinstance(ledger.get(primary), dict) else {}
+        times = int(prev.get("times_shown") or 0) + 1
+        entry = {
+            "issue_id": primary,
+            "native_id": str(task.get("native_id") or "") or None,
+            "repo": str(task.get("repository") or task.get("repo") or "") or None,
+            "title": str(task.get("title") or "")[:160] or None,
+            "first_seen": prev.get("first_seen") or _now(),
+            "last_seen": _now(),
+            "times_shown": times,
+            "decision": "SKIPPED_PERMANENT",
+            "reason": str(task.get("skip_reason") or task.get("ceo_note") or "ceo_skip")[:120],
+            "id_aliases": sorted(set(keys)),
+        }
+        ledger[primary] = entry
+        for alias in keys:
+            if alias != primary and alias not in ledger:
+                ledger[alias] = {**entry, "issue_id": alias, "canonical_id": primary}
+
+    def _touch_seen_ledger_analyzed(
+        self, state: dict[str, Any], row: dict[str, Any]
+    ) -> bool:
+        """First-seen ANALYZED only. Decisions (Skip/Approve) overwrite later."""
+        rid = str(row.get("id") or "")
+        if not rid:
+            return False
+        ledger = state.setdefault("seen_ledger", {})
+        if not isinstance(ledger, dict):
+            return False
+        if rid in ledger:
+            return False
+        native = str(row.get("native_id") or "")
+        if native and native in (state.get("skipped_forever") or []):
+            return False
+        if native and f"opire:{native}" in (state.get("skipped_forever") or []):
+            return False
+        ledger[rid] = {
+            "issue_id": rid,
+            "native_id": native or None,
+            "repo": str(row.get("repository") or "") or None,
+            "title": str(row.get("title") or "")[:160] or None,
+            "first_seen": _now(),
+            "last_seen": _now(),
+            "times_shown": 1,
+            "decision": "ANALYZED",
+            "reason": None,
+            "id_aliases": [rid],
+        }
+        return True
 
     def _mark_task_skipped(
         self,
@@ -1316,6 +1776,101 @@ class OpireFarmEngine:
         ex["stage"] = "skipped_auto" if reason.startswith("not_auto") else "skipped"
         ex["patch_ready"] = False
         out["execution"] = ex
+        return out
+
+    def _mark_execution_failed(
+        self,
+        task: dict[str, Any],
+        *,
+        detail: str,
+        reason: str = "execution_failed",
+        stage: str = "failed",
+        error_code: str = "",
+    ) -> dict[str, Any]:
+        """Persist failed bounty — not completed, not masked as Impossible."""
+        from swarm.farm_stabilization import (
+            WORKSPACE_CORRUPTION,
+            build_failure_visibility,
+            max_execution_attempts,
+            quarantine_workspace_safe,
+        )
+
+        out = dict(task)
+        attempts = int(out.get("execution_attempts") or 0)
+        if attempts <= 0:
+            attempts = 1
+            out["execution_attempts"] = attempts
+        max_a = max_execution_attempts()
+        code = (error_code or reason or "").strip()
+        ws_path = ""
+        try:
+            eng = FarmExecutionEngine(self._memory)
+            ws_path = str(eng.workspace_for(str(out.get("id") or "")))
+        except Exception:
+            ws_path = ""
+        vis = build_failure_visibility(
+            job_id=str(out.get("id") or ""),
+            queue="BOUNTY_EXECUTION_QUEUE",
+            stage=stage,
+            attempt=attempts,
+            error=str(detail),
+            error_code=code,
+            workspace=ws_path,
+        )
+        out["status"] = "execution_failed"
+        out["reward_status"] = "execution_failed"
+        out["skip_reason"] = reason
+        out["ceo_note"] = (
+            f"execution_failed:{vis['error_class']}:{vis['next_action']}:{detail}"
+        )[:240]
+        out["execution_error"] = str(detail)[:800]
+        out["pending_execution"] = False
+        out["auto_retry_execution"] = bool(vis["retryable"]) and attempts < max_a
+        out["queue_id"] = "BOUNTY_EXECUTION_QUEUE"
+        out["error_class"] = vis["error_class"]
+        out["retryable"] = vis["retryable"]
+        out["next_action"] = vis["next_action"]
+        out["failure"] = vis
+        out["updated_at"] = _now()
+        if vis["error_class"] == WORKSPACE_CORRUPTION and ws_path:
+            q = quarantine_workspace_safe(Path(ws_path))
+            out["workspace_quarantine"] = q
+            out["force_fresh_workspace"] = True
+        if out.get("auto_retry_execution"):
+            from swarm.farm_autonomous import _set_retry_backoff
+
+            _set_retry_backoff(out)
+        else:
+            out["next_retry_at"] = None
+        ex = dict(out.get("execution") or {})
+        ex["ok"] = False
+        ex["stage"] = stage
+        ex["error"] = str(detail)[:800]
+        ex["error_class"] = vis["error_class"]
+        ex["retryable"] = vis["retryable"]
+        ex["next_action"] = vis["next_action"]
+        ex["patch_ready"] = False
+        ex["message_ru"] = (
+            f"EXECUTION_FAILED · {vis['error_class']} · attempt={attempts}/{max_a} · "
+            f"{vis['next_action']} · {str(detail)[:160]}"
+        )
+        out["execution"] = ex
+        return out
+
+    def _mark_task_skipped_and_count(
+        self,
+        state: dict[str, Any],
+        task: dict[str, Any],
+        *,
+        note: str,
+        reason: str = "skipped",
+    ) -> dict[str, Any]:
+        """Skip + lifetime Impossible when execution already started."""
+        from swarm.farm_pipeline_state import bump_pipeline_lifetime
+
+        out = self._mark_task_skipped(task, note=note, reason=reason)
+        if reason.startswith("not_auto") or str(note).startswith("auto_skip"):
+            bump_pipeline_lifetime(state, "impossible")
         return out
 
     def _pick_next_take_id(self, *, exclude_extra: set[str] | None = None) -> str | None:
@@ -1422,18 +1977,68 @@ class OpireFarmEngine:
 
         return OpireConnector().normalize(raw)
 
+    def _mark_pending_execution(self, task_id: str, *, reason: str = "factory_busy") -> None:
+        state = self._load()
+        task = dict((state.get("tasks") or {}).get(task_id) or {})
+        if not task:
+            return
+        task["pending_execution"] = True
+        task["auto_retry_execution"] = True
+        task["status"] = "ceo_approved"
+        task["pipeline_state"] = "QUEUED"
+        task["execution_error"] = None
+        task["execution_heal"] = reason
+        task["execution"] = {
+            "ok": False,
+            "stage": "queued",
+            "message_ru": (
+                "В очереди AUTO-RUN — Clone стартует без кнопки "
+                "«Запустить Execution», когда линия свободна."
+            ),
+        }
+        task["updated_at"] = _now()
+        state.setdefault("tasks", {})[task_id] = task
+        self._save(state)
+
     def _queue_auto_execution(self, task_id: str) -> None:
         def _run() -> None:
             try:
-                self.start_execution(task_id, clone=True)
-            except Exception:  # noqa: BLE001
-                pass
+                out = self.start_execution(task_id, clone=True)
+                if isinstance(out, dict) and out.get("error") == "factory_busy":
+                    self._mark_pending_execution(task_id, reason="factory_busy")
+            except Exception as exc:  # noqa: BLE001
+                try:
+                    state = self._load()
+                    task = (state.get("tasks") or {}).get(task_id)
+                    if isinstance(task, dict):
+                        task["execution_error"] = f"queue_crash:{exc}"[:240]
+                        task["pending_execution"] = True
+                        task["auto_retry_execution"] = True
+                        task["status"] = "ceo_approved"
+                        task["execution"] = {
+                            "ok": False,
+                            "stage": "queued",
+                            "message_ru": (
+                                f"Execution thread crash — watchdog retry: {exc}"
+                            )[:200],
+                        }
+                        task["updated_at"] = _now()
+                        state["tasks"][task_id] = task
+                        self._save(state)
+                except Exception:  # noqa: BLE001
+                    pass
 
         threading.Thread(
             target=_run,
             name=f"opire-exec-{task_id[:24]}",
             daemon=True,
         ).start()
+
+    def autonomous_tick(self, *, max_actions: int = 3) -> dict[str, Any]:
+        """Durable AUTO-RUN pulse — drain queue, auto-approve GO, auto-submit."""
+        from swarm.farm_autonomous import run_autonomous_tick
+
+        return run_autonomous_tick(self, max_actions=max_actions)
 
     def decide(self, reward_id: str, decision: str, *, note: str = "") -> dict[str, Any]:
         decision = (decision or "").strip().lower()
@@ -1505,15 +2110,37 @@ class OpireFarmEngine:
             b in (cand.get("blockers") or [])
             for b in ("repo_unreachable", "repo_auth_required", "missing_repo")
         ):
+            # Auto-Skip dead repo so Approve always advances the conveyor
+            detail = cand.get("sniper_detail_ru") or "repo_unreachable"
+            state = self._load()
+            tasks = state.setdefault("tasks", {})
+            task_id = str(cand.get("id") or reward_id)
+            stub = {
+                **cand,
+                "id": task_id,
+                "native_id": cand.get("native_id")
+                or _resolve_native_opire_id(reward_id),
+                "estimated_reward_usd": float(cand.get("reward_usd") or 0),
+            }
+            skipped = self._mark_task_skipped(
+                stub,
+                note=f"auto_skip_on_approve:{detail}"[:240],
+                reason="repo_unreachable",
+            )
+            tasks[task_id] = skipped
+            self._register_skipped_forever(state, skipped)
+            self._save(state)
+            self._record_bounty_outcome(skipped, outcome="skip")
             return {
-                "ok": False,
+                "ok": True,
+                "auto_skipped": True,
                 "error": cand.get("repo_probe", {}).get("error_code") or "repo_unreachable",
-                "message_ru": cand.get("sniper_detail_ru")
-                or (
-                    "Sniper: репозиторий недоступен на GitHub. "
-                    "Approve отклонён — выберите другой bounty."
+                "message_ru": (
+                    f"Approve → Impossible (repo мёртв): {detail[:180]}. "
+                    "Задача снята. 🔍 Researching… берём следующую карточку."
                 ),
-                "task": cand,
+                "task": skipped,
+                "next_action": "scan_next",
             }
 
         intel = fetch_issue_from_url(str(cand.get("url") or ""), timeout=8.0)
@@ -1547,17 +2174,14 @@ class OpireFarmEngine:
 
         preflight = run_preflight(cand, deep=True, min_confidence=MONEY_MODE_THRESHOLD)
         cand["preflight"] = preflight
+        # Soft gate: warn but still Approve → Execution (Impossible→Skip if truly blocked later).
+        # Hard-block only for unreachable/missing repo (already handled above).
         if not preflight.get("approve_allowed"):
-            return {
-                "ok": False,
-                "error": "preflight_skip",
-                "preflight": preflight,
-                "message_ru": (
-                    f"Pre-flight SKIP: {preflight.get('action')}. "
-                    "Approve запрещён — выберите другую bounty."
-                ),
-                "task": cand,
-            }
+            cand["preflight_soft_warn"] = True
+            cand["ceo_note"] = (
+                note
+                or f"preflight_soft:{preflight.get('action') or 'warn'}"
+            )[:240]
 
         task_id = str(cand.get("id") or reward_id)
         state = self._load()
@@ -1587,14 +2211,18 @@ class OpireFarmEngine:
             if auto_exec
             else None,
             "execution_checklist": [
-                {"id": "approve", "title": "CEO Approve", "done": True},
+                {"id": "approve", "title": "Approve (auto GO / CEO REVIEW)", "done": True},
                 {"id": "repo_intel", "title": "Stage 1 — Repository Intelligence", "done": False},
                 {"id": "planning", "title": "Stage 2 — Planning", "done": False},
                 {"id": "research", "title": "Research Agent (needs_external fork)", "done": False},
                 {"id": "implementation", "title": "Stage 3 — Implementation", "done": False},
                 {"id": "validation", "title": "Stage 4 — Validation", "done": False},
                 {"id": "pr_intelligence", "title": "Stage 5 — Draft PR package", "done": False},
-                {"id": "ceo_submit", "title": "CEO Submit PR (/claim)", "done": False},
+                {
+                    "id": "ceo_submit",
+                    "title": "Submit PR (/claim) — auto when policy allows",
+                    "done": False,
+                },
                 {"id": "review_loop", "title": "Stage 6 — Review Loop", "done": False},
             ],
             "opire_commands": {
@@ -1605,6 +2233,15 @@ class OpireFarmEngine:
         self._save(state)
         approved_task = tasks[task_id]
 
+        from swarm.farm_pipeline_state import bump_pipeline_lifetime
+
+        # Lifetime KPI: Approve always counts; Started counts when auto-exec queues.
+        bump_pipeline_lifetime(state, "approved")
+        if auto_exec:
+            bump_pipeline_lifetime(state, "started")
+        self._save(state)
+        approved_task = (self._load().get("tasks") or {}).get(task_id) or approved_task
+
         if not auto_exec:
             return {
                 "ok": True,
@@ -1613,7 +2250,7 @@ class OpireFarmEngine:
                 "auto_started_execution": False,
                 "message_ru": (
                     "Approve принят (FARM_AUTO_EXECUTE_ON_APPROVE=0). "
-                    "Нажмите «Запустить Execution Engine»."
+                    "Требуется ваше подтверждение: запустить Execution."
                 ),
             }
 
@@ -1640,16 +2277,18 @@ class OpireFarmEngine:
         st = str(task_after.get("status") or "")
 
         if exec_out.get("error") == "factory_busy":
+            self._mark_pending_execution(task_id, reason="factory_busy")
+            task_after = (self._load().get("tasks") or {}).get(task_id) or task_after
             return {
                 "ok": True,
                 "task": task_after,
                 "execution": exec_out,
-                "next_action": "start_execution",
+                "next_action": "monitor_execution",
                 "auto_started_execution": False,
+                "execution_queued": True,
                 "message_ru": (
-                    "Approve принят. Execution занят другой задачей — "
-                    "когда линия свободна, нажмите «Запустить Execution Engine» "
-                    "или Skip блокирующей."
+                    "Approve принят. Линия занята — задача в AUTO-RUN очереди. "
+                    "Watchdog сам запустит Clone без кнопки «Запустить Execution»."
                 ),
             }
 
@@ -1683,6 +2322,37 @@ class OpireFarmEngine:
             "next_execution": exec_out.get("next_execution"),
             "message_ru": msg,
         }
+
+    def _maybe_auto_retry_healed(self, state: dict[str, Any]) -> None:
+        """After zombie heal — resume one approved task without CEO button spam."""
+        tasks_map = state.get("tasks") or {}
+        if any(str(t.get("status") or "") == "executing" for t in tasks_map.values()):
+            return
+        for tid, raw in list(tasks_map.items()):
+            t = dict(raw or {})
+            if not t.get("auto_retry_execution"):
+                continue
+            if str(t.get("status") or "") not in ("ceo_approved", "executing"):
+                continue
+            if t.get("execution_error") and not _is_recoverable_execution_error(
+                t.get("execution_error")
+            ):
+                continue
+            t["auto_retry_execution"] = False
+            t["execution_heal"] = t.get("execution_heal") or "zombie_queued_healed"
+            tasks_map[tid] = t
+            state["tasks"] = tasks_map
+            self._save(state)
+            try:
+                self.start_execution(str(tid), clone=True)
+            except Exception:
+                # Keep heal flag so next status tick can try again
+                t2 = dict((self._load().get("tasks") or {}).get(tid) or t)
+                t2["auto_retry_execution"] = True
+                st = self._load()
+                st.setdefault("tasks", {})[tid] = t2
+                self._save(st)
+            return
 
     def start_execution(
         self, reward_id: str, *, clone: bool = True, _auto_depth: int = 0
@@ -1815,7 +2485,11 @@ class OpireFarmEngine:
                 state["tasks"][tid] = cleared
                 self._register_skipped_forever(state, cleared)
                 continue
-            if other.get("status") in (
+            ost = str(other.get("status") or "")
+            # Waiting CEO Submit (patch ready) must NOT block the factory line
+            if ost in ("draft_pr", "ceo_review") and _task_has_patch(other):
+                continue
+            if ost in (
                 "executing",
                 "draft_pr",
                 "ceo_review",
@@ -1823,13 +2497,30 @@ class OpireFarmEngine:
                 "maintainer_review",
                 "changes_requested",
             ):
+                # Ignore zombies — they only block the factory after backend restart
+                if _is_zombie_queued_execution(other, max_age_s=45.0):
+                    healed = dict(other)
+                    healed["status"] = "ceo_approved"
+                    healed["execution_error"] = None
+                    healed["execution_heal"] = "zombie_queued_cleared_for_factory"
+                    healed["execution"] = {
+                        "ok": False,
+                        "stage": "queued",
+                        "message_ru": "Старая очередь снята — линия свободна.",
+                    }
+                    healed["updated_at"] = _now()
+                    state["tasks"][tid] = healed
+                    continue
                 self._save(state)
+                # Keep THIS task in durable queue (no CEO Start button)
+                self._mark_pending_execution(reward_id, reason="factory_busy")
                 return {
                     "ok": False,
                     "error": "factory_busy",
                     "message_ru": (
                         f"Уже в работе: {other.get('title') or tid}. "
-                        "Дождитесь Draft PR Ready → Submit, либо Skip."
+                        "Текущая задача остаётся в AUTO-RUN очереди "
+                        "(pending_execution) — watchdog продолжит без кнопки."
                     ),
                     "blocking_task_id": tid,
                 }
@@ -1840,29 +2531,55 @@ class OpireFarmEngine:
         task["try_post"] = try_res
 
         task["status"] = "executing"
+        task["execution_error"] = None
+        task["pending_execution"] = False
+        task.pop("execution_heal", None)
+        # Ensure attempt counter visible even when Approve → start skips drain bump
+        if int(task.get("execution_attempts") or 0) <= 0:
+            task["execution_attempts"] = 1
         task["updated_at"] = _now()
+        # Heartbeat BEFORE blocking clone — UI must not stay on "waiting Clone"
+        task["pipeline_state"] = "CLONING"
+        task["execution"] = {
+            "ok": True,
+            "stage": "repo_intelligence",
+            "message_ru": "Clone репозитория…",
+            "heartbeat_at": _now(),
+        }
         state["tasks"][reward_id] = task
         self._save(state)
 
         engine = FarmExecutionEngine(self._memory)
         report = engine.run_pipeline(task, clone=clone, run_impl=True)
         task = merge_execution_into_task(task, report)
+        # Clear one-shot force-fresh after pipeline used it
+        task.pop("force_fresh_workspace", None)
 
         auto_skipped = False
         next_execution: dict[str, Any] | None = None
+        auto_submit_result: dict[str, Any] | None = None
 
         if report.get("ok") and report.get("stage") == "awaiting_ceo_submit" and _task_has_patch(task):
             task["status"] = "draft_pr"
             task["reward_status"] = "draft_pr"
-            msg = (
-                report.get("ready_for_ceo", {}).get("message_ru")
-                or (
-                    "Draft PR Ready — патч есть. Нажмите «Отправить» "
-                    "(единственное ручное действие CEO)."
+            from swarm.farm_pipeline_state import bump_pipeline_lifetime
+
+            bump_pipeline_lifetime(state, "draft_pr")
+            if _farm_auto_submit_enabled():
+                msg = (
+                    report.get("ready_for_ceo", {}).get("message_ru")
+                    or "Draft PR Ready — AUTO-RUN отправляет PR (/claim)."
                 )
-            )
+            else:
+                msg = (
+                    report.get("ready_for_ceo", {}).get("message_ru")
+                    or (
+                        "Draft PR Ready — патч есть. "
+                        "FARM_AUTO_SUBMIT_PR=0: нужно CEO Submit."
+                    )
+                )
         else:
-            # Impossible for auto factory — never hand off to Cursor
+            # Keep failed bounty durable — do not mask as "Impossible" / completed
             reason = (
                 "not_auto_executable"
                 if report.get("stage") == "awaiting_external"
@@ -1880,34 +2597,81 @@ class OpireFarmEngine:
                 or report.get("ready_for_ceo", {}).get("message_ru")
                 or "Engine не получил безопасный патч"
             )
-            task = self._mark_task_skipped(
+            task = self._mark_execution_failed(
                 task,
-                note=f"auto_skip:{reason}:{detail}"[:240],
+                detail=str(detail),
                 reason=reason,
+                stage=str(report.get("stage") or "failed"),
+                error_code=str(report.get("error") or reason),
             )
-            auto_skipped = True
+            auto_skipped = False  # not skipped_forever — stays EXECUTION_FAILED
             msg = (
-                f"Impossible — задача снята с конвейера ({reason}). "
-                "CEO не пишет код вручную. Берём следующую bounty…"
+                f"EXECUTION_FAILED · task={reward_id} · stage={task.get('execution', {}).get('stage')} · "
+                f"error={str(detail)[:180]} · retry={task.get('execution_attempts')}/3 · "
+                f"next_retry={task.get('next_retry_at') or '—'} · "
+                f"blocker={reason}. "
+                "Не считается выполненной. API Farm / Revenue Farm не затрагиваются."
             )
-            next_execution = self._auto_advance_to_next(depth=_auto_depth)
-            if next_execution and next_execution.get("message_ru"):
-                msg = f"{msg} → {next_execution['message_ru']}"
+            next_execution = None
+            if _farm_bounty_advance_on_fail():
+                next_execution = self._auto_advance_to_next(depth=_auto_depth)
+                if next_execution and next_execution.get("message_ru"):
+                    msg = (
+                        f"{msg} → FARM_BOUNTY_ADVANCE_ON_FAIL=1: "
+                        f"{next_execution['message_ru']}"
+                    )
+            else:
+                msg = (
+                    f"{msg} Следующая bounty НЕ взята "
+                    "(FARM_BOUNTY_ADVANCE_ON_FAIL=0)."
+                )
 
         state = self._load()
         state.setdefault("tasks", {})[reward_id] = task
         self._register_skipped_forever(state, task) if auto_skipped else None
         self._save(state)
+
+        # AUTO-RUN: Submit PR without CEO button when policy allows
+        if (
+            not auto_skipped
+            and _farm_auto_submit_enabled()
+            and str(task.get("status") or "") == "draft_pr"
+            and _task_has_patch(task)
+            and not task.get("auto_submit_done")
+        ):
+            try:
+                auto_submit_result = self.ceo_submit_pr(
+                    reward_id,
+                    note="auto_submit_after_draft",
+                    live=not bool(os.environ.get("PYTEST_CURRENT_TEST")),
+                )
+                if auto_submit_result.get("ok"):
+                    task = (
+                        (self._load().get("tasks") or {}).get(reward_id) or task
+                    )
+                    msg = f"{msg} → Auto-Submit PR выполнен."
+                else:
+                    msg = (
+                        f"{msg} → Auto-Submit отложен: "
+                        f"{auto_submit_result.get('error') or 'retry'}"
+                    )
+            except Exception as exc:  # noqa: BLE001
+                auto_submit_result = {"ok": False, "error": str(exc)[:160]}
+                msg = f"{msg} → Auto-Submit error (watchdog retry)."
+
         return {
             "ok": bool(report.get("ok") and _task_has_patch(task)),
-            "task": task,
+            "task": (self._load().get("tasks") or {}).get(reward_id) or task,
             "execution": report,
             "stages": list(EXECUTION_STAGES),
             "message_ru": msg,
             "auto_skipped": auto_skipped,
             "next_execution": next_execution,
-            "ceo_submit_required": bool(_task_has_patch(task)),
-            "auto_submit_forbidden": True,
+            "auto_submit": auto_submit_result,
+            "ceo_submit_required": bool(
+                _task_has_patch(task) and not _farm_auto_submit_enabled()
+            ),
+            "auto_submit_forbidden": not _farm_auto_submit_enabled(),
         }
 
     def ceo_submit_pr(
@@ -2034,7 +2798,7 @@ class OpireFarmEngine:
                     "error": "not_ready_for_real",
                     "message_ru": (
                         "REAL ещё нельзя: нужен merge PR (GitHub). "
-                        "Нажмите «Синхронизировать» после merge — ID вводить не нужно."
+                        "👀 Waiting for maintainer… после merge — Sync (ID не вводить)."
                     ),
                     "sync": synced,
                     "task": task,

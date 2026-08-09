@@ -67,7 +67,7 @@ def reasoned_business_reply(
         return (
             f"{open_} Сайт для кофейни{where}.\n\n"
             "Рекомендую: меню · заказ · галерея · отзывы · карта.\n\n"
-            f"Ориентир под ключ — **650 €** (Business) или **350 €** (Basic). "
+            f"Ориентир под ключ — **399 €** (Business) или **199 €** (Basic). "
             f"Срок — {MISSION1_LANDING_TIMELINE} после заказа."
         )
 

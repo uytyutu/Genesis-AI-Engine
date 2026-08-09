@@ -1,0 +1,72 @@
+{
+  "emotion": "trust",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "bodoni_jakarta",
+  "motion": "soft",
+  "hero_concept": "trust_panel",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "clean",
+  "package_id": "basic",
+  "niche_id": "fashion",
+  "fingerprint": "8afcd8739b58bec45596982cf0d0d4ecb7527de172e17d6cc2ccf02909b23e35",
+  "section_treatments": [
+    [
+      "stats",
+      "tint"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "trust",
+      "illustration"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f3f6f4",
+  "ink_hex": "#243029"
+}

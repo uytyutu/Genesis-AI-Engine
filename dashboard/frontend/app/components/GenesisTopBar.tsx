@@ -17,6 +17,7 @@ const TITLES: Record<string, string> = {
   "/acquisition": "Country Desk · рынки",
   "/ceo-site": "Сайт клиентов",
   "/tiktok-horizon": "TikTok Horizon",
+  "/horizon": "Horizon Studio",
   "/ai": "AI Hub",
   "/growth": "Mission 2 · Конверсия",
   "/launch": "Запуск",

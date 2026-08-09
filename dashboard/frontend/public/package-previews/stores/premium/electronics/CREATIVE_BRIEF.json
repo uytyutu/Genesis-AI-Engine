@@ -1,0 +1,15 @@
+{
+  "brand_name": "VoltHaus Electronics",
+  "niche_id": "computer",
+  "package_id": "premium",
+  "media_mode": "cinematic_photo",
+  "visual_metaphor": "Brand character in space",
+  "hero_concept": "Brand character in space | VoltHaus Electronics",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "b7a751b2906e03130206",
+  "image_prompt": "VoltHaus Electronics computer brand hero, Brand character in space, European studio, media_mode=cinematic_photo, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

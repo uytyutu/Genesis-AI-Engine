@@ -1,0 +1,68 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": "assets/background.jpg",
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/efea838e-6198-499f-a66e-1c21c8810db4/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1812269,
+      "reason": "ok",
+      "source": "niche"
+    },
+    {
+      "path": "assets/background.jpg",
+      "role": "background",
+      "ok": true,
+      "width": 1600,
+      "height": 900,
+      "bytes": 168992,
+      "reason": "ok",
+      "source": "pack"
+    }
+  ],
+  "gate_ok": true,
+  "gate_failures": [],
+  "media_gate_ok": true,
+  "media_gate_failures": [],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": true,
+    "failures": [],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/beauty/hero_pack/business/hero_1.jpg",
+        "ok": true,
+        "tags": [
+          "client",
+          "cosmetics",
+          "interior",
+          "product",
+          "salon",
+          "specialist"
+        ],
+        "detail": "client_upload"
+      },
+      {
+        "section": "about",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/beauty/hero_pack/business/hero_2.jpg",
+        "ok": true,
+        "tags": [
+          "client",
+          "cosmetics",
+          "interior",
+          "product",
+          "salon",
+          "specialist"
+        ],
+        "detail": "client_upload"
+      }
+    ]
+  }
+}

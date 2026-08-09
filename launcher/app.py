@@ -49,7 +49,7 @@ from launcher.health import (
   owner_ready_live,
 )
 from launcher.log_parse import frontend_log_path
-from launcher.log_util import append_log, read_log
+from launcher.log_util import append_log, read_log, write_crash_log
 from launcher.dogfooding import (
   begin_launch_session,
   format_dogfooding_report,
@@ -487,6 +487,9 @@ class GenesisLauncher(ctk.CTk):
     self._last_snapshot: StatusSnapshot | None = None
     self._last_error = ""
     self._launch_attempted = False
+    self._idle_fe_repair_at = 0.0
+    self._panel_hidden = False
+    self._supervisor = None
     # NEVER use self._root — shadows tkinter.Misc._root() and breaks focus/widgets.
     self._project_root = paths.find_project_root()
     ok_layout, layout_msg = paths.validate_layout(self._project_root)
@@ -526,6 +529,16 @@ class GenesisLauncher(ctk.CTk):
     try:
       write_display_payload(self._project_root)
     except OSError:
+      pass
+
+  def _schedule_ui(self, callback) -> None:
+    """Run UI work on the Tk main loop. Safe from worker threads after destroy."""
+    try:
+      self.after(0, callback)
+    except RuntimeError:
+      # main thread is not in main loop — window already torn down
+      pass
+    except Exception:
       pass
 
   def _build_ui(self) -> None:
@@ -814,7 +827,52 @@ class GenesisLauncher(ctk.CTk):
           self.status_label.configure(text="⚠ Ошибка диагностики", text_color="#ef4444")
         self.refresh_status()
 
-      self.after(0, done)
+      self._schedule_ui(done)
+
+    threading.Thread(target=work, daemon=True).start()
+
+  def _ensure_supervisor(self) -> None:
+    """RC1-D: durable FE soft-restart watchdog — survives panel hide."""
+    from launcher.service_supervisor import ServiceSupervisor
+
+    if self._supervisor is None:
+      self._supervisor = ServiceSupervisor(self.managed, self._project_root)
+    if not self._supervisor.running:
+      self._supervisor.start()
+
+  def _maybe_recover_frontend(self, health) -> None:
+    """RC1: if Frontend died while Backend is up — soft-restart FE only (no full stack)."""
+    import time as _time
+
+    if self._busy:
+      return
+    # Backend up + Frontend down is enough — do not require prior Start click.
+    if not health.backend or health.frontend:
+      return
+    self._ensure_supervisor()
+    now = _time.monotonic()
+    if now - self._idle_fe_repair_at < 45.0:
+      return
+    self._idle_fe_repair_at = now
+    append_log("Idle recovery: Frontend down — soft restart only")
+
+    def work() -> None:
+      from launcher.frontend_repair import repair_frontend
+
+      try:
+        ok, msg = repair_frontend(
+          self.managed, self._project_root, allow_rebuild=False
+        )
+        append_log(f"Idle Frontend recovery: ok={ok} {msg}")
+        if ok and self._supervisor is not None:
+          self._supervisor.note_frontend_repaired()
+      except Exception as exc:
+        append_log(f"Idle Frontend recovery failed: {exc}")
+
+      def done() -> None:
+        self.refresh_status()
+
+      self._schedule_ui(done)
 
     threading.Thread(target=work, daemon=True).start()
 
@@ -898,7 +956,18 @@ class GenesisLauncher(ctk.CTk):
     elif health.overall == "running":
       self._last_error = ""
       self.fix_btn.pack_forget()
-      self.hint_label.configure(text=f"Mission Control работает — можно закрыть пульт, {BRAND_NAME} останется в фоне")
+      be = f"{int(health.backend_ms)} ms" if getattr(health, "backend_ms", None) else "—"
+      fe = f"{int(health.frontend_ms)} ms" if getattr(health, "frontend_ms", None) else "—"
+      vec = (
+        "ready"
+        if getattr(health, "vector_ready", None) is True
+        else "warming"
+        if getattr(health, "vector_ready", None) is False
+        else "—"
+      )
+      self.hint_label.configure(
+        text=f"Backend {be} · Frontend {fe} · Vector {vec} — можно закрыть пульт"
+      )
     else:
       self.fix_btn.pack_forget()
 
@@ -915,6 +984,7 @@ class GenesisLauncher(ctk.CTk):
 
     self._apply_health_label(health)
     self._update_ceo_metrics(mc, health.overall == "running")
+    self._maybe_recover_frontend(health)
 
     if self._dev_open:
       self.dev_text.configure(state="normal")
@@ -995,7 +1065,7 @@ class GenesisLauncher(ctk.CTk):
           self._apply_status_snapshot(snapshot)
         self.after(10000, self.refresh_status)
 
-      self.after(0, done)
+      self._schedule_ui(done)
 
     threading.Thread(target=work, daemon=True).start()
 
@@ -1013,6 +1083,8 @@ class GenesisLauncher(ctk.CTk):
       return
     if reconnect_managed(self.managed, self._project_root):
       append_log("Runtime Boot: reconnected (24/7)")
+      self._launch_attempted = True
+      self._ensure_supervisor()
       self.refresh_status()
     if self.config.auto_start_on_open:
       self._trigger_runtime_boot()
@@ -1025,7 +1097,7 @@ class GenesisLauncher(ctk.CTk):
         if ready:
           self.status_label.configure(text=f"✔ {BRAND_NAME} готов", text_color="#22c55e")
 
-      self.after(0, done)
+      self._schedule_ui(done)
 
     threading.Thread(target=work, daemon=True).start()
 
@@ -1076,7 +1148,7 @@ class GenesisLauncher(ctk.CTk):
         self.status_label.configure(text="🟢 Mission Control установлен", text_color="#22c55e")
         self._on_start()
 
-      self.after(0, done)
+      self._schedule_ui(done)
 
     threading.Thread(target=work, daemon=True).start()
 
@@ -1102,8 +1174,13 @@ class GenesisLauncher(ctk.CTk):
     release_label = release_label_for_ui(self._project_root)
 
     if needs_recovery_mode(self.config.launch_mode, state):
+      from launcher.health import owner_ready_live
       from launcher.log_util import append_log
       from launcher.stable_release import release_snapshot_ready, restore_active_release
+
+      # Already healthy (typically next:dev fallback) — do not spam Auto-repair / restart loop.
+      if owner_ready_live():
+        return POLICY_DEV_SERVER
 
       if release_snapshot_ready(self._project_root):
         ok, msg = restore_active_release(self._project_root)
@@ -1131,6 +1208,13 @@ class GenesisLauncher(ctk.CTk):
       if choice == "rebuild_now":
         return POLICY_REBUILD_NOW
       return POLICY_LAUNCH_STABLE
+
+    # Quiet hint only — never a modal nag on every Start (Steam model).
+    from launcher.frontend_build_policy import stale_status_hint
+
+    hint = stale_status_hint(state)
+    if hint:
+      self.status_label.configure(text=f"ℹ {hint}", text_color="#94a3b8")
 
     return default_policy_for_launch(self.config.launch_mode, state)
 
@@ -1191,13 +1275,14 @@ class GenesisLauncher(ctk.CTk):
       def begin() -> None:
         self._start_genesis_workflow(build_policy=build_policy)
 
-      self.after(0, lambda: ensure_launcher_components(self, self._project_root, begin))
+      self._schedule_ui(lambda: ensure_launcher_components(self, self._project_root, begin))
 
     threading.Thread(target=work, daemon=True).start()
 
   def _open_when_already_ready(self) -> None:
     self._launch_attempted = True
     self._last_error = ""
+    self._ensure_supervisor()
     session_id, started = begin_launch_session(self._project_root)
 
     def open_ready() -> None:
@@ -1209,7 +1294,7 @@ class GenesisLauncher(ctk.CTk):
         record_launch_failure(session_id, started, root=self._project_root, error=err)
       self.refresh_status()
 
-    threading.Thread(target=lambda: self.after(0, open_ready), daemon=True).start()
+    threading.Thread(target=lambda: self._schedule_ui(open_ready), daemon=True).start()
 
   def _on_start(self) -> None:
     if self._busy:
@@ -1244,7 +1329,7 @@ class GenesisLauncher(ctk.CTk):
         else:
           self._schedule_boot_workflow(build_policy)
 
-      self.after(0, apply)
+      self._schedule_ui(apply)
 
     threading.Thread(target=work, daemon=True).start()
 
@@ -1270,7 +1355,7 @@ class GenesisLauncher(ctk.CTk):
           "frontend": "🟡 Запускаю интерфейс...",
         }
         label = labels.get(phase, f"🟡 Подготовка {BRAND_NAME}...")
-        self.after(0, lambda l=label: self.status_label.configure(text=l, text_color="#eab308"))
+        self._schedule_ui(lambda l=label: self.status_label.configure(text=l, text_color="#eab308"))
 
       try:
         result = run_runtime_boot(
@@ -1304,6 +1389,7 @@ class GenesisLauncher(ctk.CTk):
           self._last_error = ""
           self.config.touch_launch()
           self.fix_btn.pack_forget()
+          self._ensure_supervisor()
           record_launch_success(session_id, started, root=self._project_root)
           self._open_mission_control()
           self.status_label.configure(text="✔ Готов", text_color="#22c55e")
@@ -1322,7 +1408,7 @@ class GenesisLauncher(ctk.CTk):
           _show_boot_failure(self, result)
         self.refresh_status()
 
-      self.after(0, done)
+      self._schedule_ui(done)
 
     threading.Thread(target=work, daemon=True).start()
 
@@ -1342,7 +1428,7 @@ class GenesisLauncher(ctk.CTk):
           return
         self._run_auto_fix_workflow()
 
-      self.after(0, done)
+      self._schedule_ui(done)
 
     threading.Thread(target=precheck, daemon=True).start()
 
@@ -1380,6 +1466,7 @@ class GenesisLauncher(ctk.CTk):
         if ok and ready:
           self._last_error = ""
           self.fix_btn.pack_forget()
+          self._ensure_supervisor()
           self._open_mission_control()
           self.status_label.configure(text="✔ Готов", text_color="#22c55e")
         else:
@@ -1388,7 +1475,7 @@ class GenesisLauncher(ctk.CTk):
           _show_error(self, self._last_error)
         self.refresh_status()
 
-      self.after(0, done)
+      self._schedule_ui(done)
 
     threading.Thread(target=work, daemon=True).start()
 
@@ -1422,7 +1509,7 @@ class GenesisLauncher(ctk.CTk):
         self.status_label.configure(text="⚪ Virtus Core остановлен", text_color="#9ca3af")
         self.refresh_status()
 
-      self.after(0, done)
+      self._schedule_ui(done)
 
     threading.Thread(target=work, daemon=True).start()
 
@@ -1436,10 +1523,12 @@ class GenesisLauncher(ctk.CTk):
     webbrowser.open(CREATE_URL)
 
   def _on_exit(self) -> None:
+    from launcher.health import owner_ready_live, probe_backend_live
+
     running = (
       self._last_snapshot is not None
       and self._last_snapshot.health.overall == "running"
-    )
+    ) or owner_ready_live() or probe_backend_live(idle=True)
 
     if running and self.config.keep_running_on_close:
       keep = messagebox.askyesno(
@@ -1453,14 +1542,23 @@ class GenesisLauncher(ctk.CTk):
         from launcher.processes import _pid
 
         sync_state(_pid(self.managed.backend), _pid(self.managed.frontend), root=self._project_root)
-        append_log(f"Пульт закрыт — {BRAND_NAME} работает 24/7 в фоне")
-        self.destroy()
+        # RC1-D: hide panel — do NOT destroy process (watchdog must keep running).
+        self._ensure_supervisor()
+        self._panel_hidden = True
+        self.withdraw()
+        append_log(
+          f"Пульт скрыт — {BRAND_NAME} работает 24/7 в фоне (Supervisor active)"
+        )
       else:
+        if self._supervisor is not None:
+          self._supervisor.stop()
         stop_all(self.managed, root=self._project_root)
         self.destroy()
       return
 
     if messagebox.askyesno("Выход", f"Остановить {BRAND_NAME} и закрыть?"):
+      if self._supervisor is not None:
+        self._supervisor.stop()
       stop_all(self.managed, root=self._project_root)
       self.destroy()
 
@@ -1481,15 +1579,8 @@ def main() -> None:
         app = GenesisLauncher()
         app.mainloop()
     except Exception as exc:
-        import traceback
-
         try:
-            paths.log_dir().mkdir(parents=True, exist_ok=True)
-            log_file = paths.log_dir() / "genesis_launcher.log"
-            log_file.write_text(
-                traceback.format_exc(),
-                encoding="utf-8",
-            )
+            write_crash_log(f"Launcher fatal: {exc}", exc=exc)
         except OSError:
             pass
         messagebox.showerror(BRAND_NAME, f"Не удалось запустить {BRAND_NAME}:\n\n{exc}")

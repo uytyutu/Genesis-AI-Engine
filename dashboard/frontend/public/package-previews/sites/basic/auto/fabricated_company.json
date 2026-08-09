@@ -1,0 +1,151 @@
+{
+  "legal_name": "Nord Klar GmbH",
+  "brand_name": "Nord Klar",
+  "slogan": "Technik ohne Theater",
+  "mission": "Autobesitzer in Hamburg verdienen Diagnose ohne Verkaufsdruck.",
+  "history": "Was als kleines Vorhaben in Hamburg begann, ist über die Jahre zu einem festen Ort mit Stammgästen und klarer Handschrift geworden. Seit 2021 wächst Nord Klar bewusst — Qualität vor Tempo.",
+  "values": [
+    "Präzision",
+    "Menschlichkeit",
+    "Transparenz",
+    "Verlässlichkeit",
+    "Handwerk"
+  ],
+  "approach": "Festpreis nach Diagnose. Keine Überraschungen auf der Rechnung.",
+  "founded_year": 2021,
+  "city": "Hamburg",
+  "niche_id": "auto",
+  "services": [
+    [
+      "Reifenwechsel",
+      "Einlagerung möglich",
+      "ab 49 €"
+    ],
+    [
+      "Bremsen",
+      "Beläge & Scheiben mit Garantie",
+      "ab 129 €"
+    ],
+    [
+      "Klimaservice",
+      "Prüfung & Befüllung",
+      "ab 99 €"
+    ],
+    [
+      "HU/AU Vorbereitung",
+      "Check vor der Prüfung",
+      "ab 69 €"
+    ],
+    [
+      "Batterie",
+      "Test & Tausch",
+      "ab 119 €"
+    ],
+    [
+      "Unfallreparatur",
+      "Karosserie & Lack",
+      "auf Anfrage"
+    ],
+    [
+      "Shuttle",
+      "Abholung im Stadtgebiet",
+      "inkl. bei Auftrag"
+    ],
+    [
+      "Diagnose",
+      "Fehlerdiagnose mit Festpreis-Angebot",
+      "ab 79 €"
+    ]
+  ],
+  "advantages": [
+    "Seit 2021 in Hamburg",
+    "Transparente Preise",
+    "Feste Ansprechpartner",
+    "Termine mit Bestätigung",
+    "Nachvollziehbarer Ablauf"
+  ],
+  "team": [
+    [
+      "Max Hoffmann",
+      "Meister/in",
+      "Meister/in bei Nord Klar — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Erik Keller",
+      "Diagnose-Techniker/in",
+      "Diagnose-Techniker/in bei Nord Klar — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Erik Weber",
+      "Serviceberater/in",
+      "Serviceberater/in bei Nord Klar — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Jonas Keller",
+      "Lager",
+      "Lager bei Nord Klar — Fokus auf Qualität und ruhige Abläufe."
+    ]
+  ],
+  "faq": [
+    [
+      "Wie vereinbare ich einen Termin bei Nord Klar?",
+      "Über das Kontaktformular, telefonisch oder per E-Mail. Sie erhalten eine Bestätigung."
+    ],
+    [
+      "Wie transparent sind die Kosten?",
+      "Vor Beginn erhalten Sie eine klare Einschätzung. Keine versteckten Positionen."
+    ],
+    [
+      "Seit wann gibt es Nord Klar?",
+      "Seit 2021 in Hamburg — gewachsen mit Stammkunden und klarer Handschrift."
+    ],
+    [
+      "Gibt es Parkplätze / Anreise?",
+      "Zentral in Hamburg. Details zur Anreise senden wir mit der Terminbestätigung."
+    ],
+    [
+      "Arbeitet ihr auch online / hybrid?",
+      "Wo sinnvoll ja — Details klären wir im Erstkontakt."
+    ]
+  ],
+  "reviews": [
+    [
+      "Diagnose klar, Preis gehalten. Selten erlebt.",
+      "Max · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Keine Upselling-Show — nur das Nötige.",
+      "Mila · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Shuttle hat den Tag gerettet. Werkstatt mit Haltung.",
+      "Anna · Demo-Bewertung — kein echter Kundenname"
+    ]
+  ],
+  "process_steps": [
+    "Kennenlernen & Bedarf",
+    "Klare Empfehlung & Preis",
+    "Umsetzung mit Abstimmung",
+    "Nachsorge & Feedback"
+  ],
+  "blog_titles": [
+    "Warum Nord Klar anders arbeitet",
+    "3 Dinge, die Kunden in Hamburg uns am häufigsten fragen",
+    "Hinter den Kulissen: Qualität statt Tempo",
+    "So bereiten Sie Ihren ersten Termin vor"
+  ],
+  "certificates": [
+    "Meisterbetrieb",
+    "Diagnose-Geräte aktuell",
+    "Entsorgung zertifiziert"
+  ],
+  "hours": "Mo–Fr 09:00–18:00 · Sa nach Vereinbarung",
+  "phone": "+49 40 5551212",
+  "email": "kontakt@autownord-demo.example.de",
+  "social": [
+    "instagram.com/nordklar.demo",
+    "linkedin.com/company/nord-klar-demo"
+  ],
+  "fingerprint": "f2a5fe0b259ab6f1",
+  "demo_content": true
+}

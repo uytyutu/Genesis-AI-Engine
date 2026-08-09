@@ -154,14 +154,91 @@ class StoreFactoryService:
         if current == 0:
             version = 1
 
+        store_pkg = str(
+            order.get("package_id")
+            or brief.get("package_id")
+            or order.get("path_a_package")
+            or "business"
+        ).strip().lower() or "business"
+        if store_pkg in ("starter", "ai_store", "shop"):
+            store_pkg = "business" if store_pkg != "starter" else "basic"
+        catalog_n = brief.get("catalog_size") or brief.get("product_count")
+        try:
+            catalog_n = int(catalog_n) if catalog_n is not None else None
+        except (TypeError, ValueError):
+            catalog_n = None
+        # Resolve AFTER package/catalog are known — demo product count depends on them.
+        brief = {
+            **brief,
+            "package_id": store_pkg if store_pkg in ("basic", "business", "premium") else "business",
+            "catalog_size": catalog_n or {"basic": 12, "business": 18, "premium": 24}.get(
+                store_pkg if store_pkg in ("basic", "business", "premium") else "business",
+                18,
+            ),
+        }
+        catalog_n = int(brief["catalog_size"])
         resolved = self._registry.resolve(brief)
+        from app.factory.visual_intelligence.store_director import decide_store_experience
+        from app.factory.visual_intelligence.studio import convene_board
+
+        store_director = decide_store_experience(
+            package_id=store_pkg,
+            category=str(brief.get("category") or brief.get("what_is_sold") or "")
+            or None,
+            catalog_size=catalog_n,
+        )
+        # Store packages map to website ladder for Creative Director emotion brief.
+        creative_pkg = store_pkg if store_pkg in ("basic", "business", "premium") else "business"
+        from app.factory.visual_intelligence.studio import convene_board
+
+        studio_plan = convene_board(
+            package_id=creative_pkg,
+            niche=str(brief.get("niche") or brief.get("category") or "generic"),
+            market_code=str(brief.get("market_code") or order.get("market_code") or "DE"),
+            goal="commerce",
+            surface="store",
+            catalog_size=catalog_n,
+            category=str(brief.get("category") or "") or None,
+        )
+        creative_brief = studio_plan.creative
+        brief = {
+            **brief,
+            "package_id": creative_pkg,
+            "store_director": store_director,
+            "creative_director": creative_brief,
+            "digital_creative_studio": studio_plan.as_dict(),
+            "_studio_plan": studio_plan,
+        }
         append_generation_log(
             product_dir,
             "generating",
-            {"version": version, "template_id": resolved.template_id},
+            {
+                "version": version,
+                "template_id": resolved.template_id,
+                "store_director": store_director.get("engine"),
+                "luxury_mode": bool(creative_brief.get("luxury_mode")),
+            },
         )
 
         written = write_storefront(product_dir, brief=brief, resolved=resolved)
+
+        try:
+            from app.factory.studio_critic import run_studio_critic
+
+            critic = run_studio_critic(
+                product_dir,
+                niche_id=str(brief.get("niche_id") or brief.get("niche") or ""),
+                brand_name=str(brief.get("store_name") or brief.get("business_name") or ""),
+                package_id=str(brief.get("package_id") or creative_pkg or ""),
+            )
+            brief["studio_critic"] = critic.as_dict()
+            if critic.rebuild and str(brief.get("package_id") or "").lower() in (
+                "premium",
+                "connected",
+            ):
+                brief["studio_critic_rebuild_recommended"] = True
+        except Exception:
+            pass
 
         # User Data Protection Rule: Factory never wipes owner design/catalog.
         # Re-apply Store Admin Design overlay onto freshly generated HTML.
@@ -221,6 +298,14 @@ class StoreFactoryService:
                 "current_version": version,
                 "versions": versions,
                 "quality": quality.as_dict(),
+                "store_director": store_director,
+                "creative_director": creative_brief,
+                "digital_creative_studio": studio_plan.as_dict(),
+                "luxury_mode": bool(creative_brief.get("luxury_mode")),
+                "studio_critic": brief.get("studio_critic"),
+                "studio_critic_rebuild_recommended": brief.get(
+                    "studio_critic_rebuild_recommended"
+                ),
                 "updated_at": utc_now(),
             }
         )

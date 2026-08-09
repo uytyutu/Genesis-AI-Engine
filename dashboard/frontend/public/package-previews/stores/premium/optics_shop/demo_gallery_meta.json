@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "optics_shop",
+  "package_id": "premium",
+  "category": "electronics",
+  "store_name": "KlarBlick Optics",
+  "generated_at": "2026-08-07T19:17:56.921925+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 43377,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/optics_shop/catalog.html"
+}

@@ -1,0 +1,68 @@
+{
+  "emotion": "clarity",
+  "style": "editorial",
+  "palette_family": "paper_ink",
+  "typography_pair": "oswald_source",
+  "motion": "business",
+  "hero_concept": "magazine_bleed",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "low",
+  "composition": "bento",
+  "package_id": "business",
+  "niche_id": "handwerk",
+  "fingerprint": "78f46681a56557a854d2e44b4f70053eda121ab815320410694a87ea82e70f94",
+  "section_treatments": [
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "stats",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "photo_band"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#78716c",
+  "surface_hex": "#fafaf9",
+  "ink_hex": "#1c1917"
+}

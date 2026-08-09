@@ -1,0 +1,39 @@
+{
+  "stage": "creative_identity",
+  "naming": "Creative Identity — not Concept",
+  "before_html": true,
+  "era": "Virtus Core Studio Era",
+  "sprint": "Creative Identity Generation",
+  "theme": "Mediterranean Evening",
+  "idea": "Long table, warm night, belonging.",
+  "thinking": "human_first_then_niche_then_export",
+  "reality_benchmark": "PENDING_OWNER",
+  "html_export_allowed": true,
+  "brand_story": "Clara built Trattoria Luna because the room makes you want to stay. Clients (30–50) should feel appetite and belonging. Only then do we name the craft: restaurant.",
+  "core_emotion": "appetite and belonging",
+  "core_promise": "Long table, warm night, belonging.",
+  "visual_metaphor": "evening terrace above the sea",
+  "creative_conflict": {
+    "ok": true,
+    "action": "CONTINUE",
+    "conflicts": []
+  },
+  "studio_approach": "boutique",
+  "first_screen_job": "Hero exists for 'Trattoria Luna': Abendlicht über dem Hof — lange Tafel, leises Gläserklingen — Ein Abend im italienischen Hof.",
+  "scene_sequence": [
+    "scene",
+    "story",
+    "experience",
+    "interaction",
+    "emotion",
+    "conversion",
+    "interaction",
+    "experience",
+    "interaction",
+    "emotion",
+    "interaction",
+    "conversion"
+  ],
+  "owner_review": "PENDING_OWNER",
+  "question": "Who is the human — and what idea can you feel?"
+}

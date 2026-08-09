@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Katalog | DachKlar Shop</title>
+  <meta name="description" content="DachKlar Shop — Zubehör und Pflegeprodukte für Dachreinigung, Moosentfernung und Fassadenschutz in Deutschland" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="assets/store.css" />
+<style id="digital-creative-studio">
+
+/* Typography Director */
+body {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body .hero h1,
+body .hero .hero-title,
+body h1 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+}
+body .section h2 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: 1.55rem;
+}
+@media (max-width: 720px) {
+  body { line-height: 1.5; }
+  body .hero h1 { letter-spacing: -0.02em; }
+}
+
+
+/* Luxury Director — off */
+body[data-luxury="0"] .hero { --lux-space: 1; }
+
+
+/* Conversion Director */
+.conversion-mid-cta,
+[data-conversion-mid-cta="1"] {
+  text-align: center;
+  padding: 2.75rem 1.25rem;
+  margin: 0;
+  background: linear-gradient(180deg, rgba(15,23,42,0.04), rgba(15,23,42,0.02));
+}
+.conversion-mid-cta .btn { font-weight: 600; }
+body[data-conversion="1"] .topbar-cta { box-shadow: 0 6px 18px rgba(15,23,42,0.12); }
+
+
+/* Trust Director — density=light */
+body[data-trust-density="light"] #trust,
+body[data-trust-density="light"] .trust {
+  scroll-margin-top: 4rem;
+}
+body[data-trust-density="high"] .hero-certs,
+body[data-trust-density="high"] .trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1rem;
+}
+body[data-trust-density="high"] .hero-certs span,
+body[data-trust-density="high"] .trust-badges span {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(15,23,42,0.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+}
+body[data-trust-density="high"] #maps,
+body[data-trust-density="high"] #contact {
+  background: #f8fafc;
+}
+
+
+/* Performance Director */
+body[data-perf-hero="static"] .hero-still,
+body[data-perf-hero="static"] video.hero-media {
+  display: none !important;
+}
+img { max-width: 100%; height: auto; }
+
+
+/* Accessibility Director */
+:root { --a11y-min-size: 1rem; }
+body { font-size: max(16px, var(--a11y-min-size)); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  z-index: 10000;
+}
+.skip-link:focus { left: 0.5rem; top: 0.5rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Localization Director — DE / strict */
+body[data-locale-style="strict"] {
+  --locale-cta-weight: 600;
+}
+body[data-locale-style="strict"] .section h2 { letter-spacing: -0.02em; }
+body[data-locale-style="editorial"] #gallery,
+body[data-locale-portfolio="high"] #gallery {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+body[data-locale-social="high"] #trust,
+body[data-locale-social="high"] #testimonials {
+  padding-top: 3.5rem;
+}
+body[data-locale-style="direct"] .btn,
+body[data-locale-style="direct"] .topbar-cta {
+  font-weight: var(--locale-cta-weight);
+  text-transform: none;
+}
+body[data-locale-portfolio="medium"] { --portfolio-emphasis: medium; }
+body[data-locale-social="medium"] { --social-emphasis: medium; }
+
+</style>
+<!-- studio-fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<!-- conversion-director-note: Усилить видимость контактов / формы. -->
+</head>
+<body data-tier="basic" data-niche="generic" data-canvas="dark" data-hero-layout="editorial" data-catalog="dense" data-card="general" data-certs="0" data-vie-engine="visual_intelligence_v1" data-vie-surface="store" data-vie-niche="generic" data-vie-motion="basic" class="vie-motion-basic" data-dna-style="organic_premium" data-dna-emotion="warmth" data-dna-palette="warm_clay" data-dna-hero="soft_orb_photo" data-dna-depth="medium" data-dna-glass="medium" data-dna-composition="soft" data-dna-fp="3977bd38e27ef232" data-luxury="0" data-studio="digital_creative_studio_v2" data-industry="modern_default" data-card-style="clean" data-hero-banner="simple_image" data-first-screen-products="8" data-trust-density="light" data-trust-map="1" data-perf-hero="static" data-a11y="1" data-locale-style="strict" data-locale-portfolio="medium" data-locale-social="medium" data-locale-market="DE" data-locale-legal="impressum,datenschutz">
+
+  <div class="dna-atm" aria-hidden="true" data-dna-atmosphere="1" data-atm-mode="mist" data-atm-tier="basic">
+    <div class="dna-atm__base"></div>
+    <div class="dna-atm__mesh"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--a"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--b"></div>
+    
+    <div class="dna-atm__orb dna-atm__orb--a"></div>
+    <div class="dna-atm__orb dna-atm__orb--b"></div>
+    <div class="dna-atm__orb dna-atm__orb--c"></div>
+    <div class="dna-atm__particles">
+        <span class="dna-atm__particle" style="--sx:3%;--sy:4%;--dur:10.0s;--delay:-0.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:20%;--sy:27%;--dur:11.4s;--delay:-1.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:37%;--sy:50%;--dur:12.8s;--delay:-2.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:54%;--sy:73%;--dur:14.2s;--delay:-3.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:71%;--sy:8%;--dur:15.6s;--delay:-4.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:88%;--sy:31%;--dur:17.0s;--delay:-5.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:13%;--sy:54%;--dur:18.4s;--delay:-6.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:30%;--sy:77%;--dur:19.799999999999997s;--delay:-7.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:47%;--sy:12%;--dur:21.2s;--delay:-8.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:64%;--sy:35%;--dur:10.0s;--delay:-9.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:81%;--sy:58%;--dur:11.4s;--delay:-10.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:6%;--sy:81%;--dur:12.8s;--delay:-0.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:23%;--sy:16%;--dur:14.2s;--delay:-1.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:40%;--sy:39%;--dur:15.6s;--delay:-2.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:57%;--sy:62%;--dur:17.0s;--delay:-3.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:74%;--sy:85%;--dur:18.4s;--delay:-4.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:91%;--sy:20%;--dur:19.799999999999997s;--delay:-5.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:16%;--sy:43%;--dur:21.2s;--delay:-6.0s;--size:3px"></span>
+    </div>
+    <div class="dna-atm__vignette"></div>
+  </div>
+
+  <div class="drawer-overlay" id="drawer-overlay" data-action="drawer-close"></div>
+  <aside class="nav-drawer" id="nav-drawer" aria-label="Main">
+    <button type="button" class="icon-btn drawer-close" data-action="drawer-close" aria-label="Menü schließen">✕</button>
+    <h2>DachKlar Shop</h2>
+    <nav class="nav">
+      <p class="nav-group">Shop</p>
+      <a href="index.html">Startseite</a>
+      <a href="catalog.html">Katalog</a>
+      <a href="catalog.html#deals">Angebote</a>
+      <a href="index.html#featured">Empfohlen</a>
+      <a href="cart.html">Warenkorb</a>
+      <p class="nav-group">Konto</p>
+      <a href="account.html#login">Anmelden</a>
+      <a href="account.html#register">Registrieren</a>
+      <a href="account.html">Kundenkonto</a>
+      <a href="cart.html#wishlist">Merkliste</a>
+      <p class="nav-group">Info</p>
+      <a href="about.html">Über uns</a>
+      <a href="contact.html">Kontakt</a>
+      <p class="nav-group">Rechtliches</p>
+      <a href="returns.html">Rückgabe</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </nav>
+  </aside>
+
+  <header class="site-header">
+    <div class="wrap site-header-inner">
+      <button type="button" class="icon-btn" data-action="drawer-open" aria-label="Menü öffnen">☰</button>
+      <a class="brand brand-lockup" href="index.html" title="DachKlar Shop"><span class="brand-mark-wrap"><svg class="brand-mark" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="32" height="32" rx="4" fill="#34d399"/><rect x="8" y="8" width="20" height="20" rx="2" fill="rgba(255,255,255,0.18)"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" fill="#fafaf9" font-family="Georgia,serif" font-size="15.0" font-weight="700">DS</text></svg></span><strong class="brand-word">DachKlar Shop</strong></a>
+      <div class="header-search">
+        <input id="header-search" type="search" placeholder="Produkte suchen…" aria-label="Produkte suchen…" />
+      </div>
+      <div class="header-actions">
+        <div class="header-auth">
+          <a class="auth-login" href="account.html#login"><span class="auth-login-label">Anmelden</span></a>
+          <a class="auth-register" href="account.html#register">Registrieren</a>
+        </div>
+        <a class="icon-btn" href="account.html" aria-label="Kundenkonto" title="Kundenkonto">👤</a>
+        <a class="icon-btn" href="cart.html#wishlist" aria-label="Merkliste" title="Merkliste">♡</a>
+        <a class="icon-btn" href="cart.html" aria-label="Warenkorb" title="Warenkorb">
+          🛒
+          <span class="cart-badge" data-cart-badge data-count="0">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+  <div class="wrap">
+    <h1 class="page-title">Katalog</h1>
+    <p class="muted">Zubehör und Pflegeprodukte für Dachreinigung, Moosentfernung und Fassadenschutz in Deutschland</p>
+    <div class="grid section" id="deals">
+    <article class="card" data-product-card data-name="Starter Pack" data-id="demo-1">
+      <span class="badge">NEU</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-1" data-name="Starter Pack" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-1" class="card-media product-media-slot has-product-image"><img src="assets/images/product_1.jpg" alt="Starter Pack" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-1">Starter Pack</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(12)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€12.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-1" data-name="Starter Pack" data-price="12.9" data-price-label="€12.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-1" data-name="Starter Pack" data-price="12.9" data-price-label="€12.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Best Seller" data-id="demo-2">
+      <span class="badge sale">SALE</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-2" data-name="Best Seller" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-2" class="card-media product-media-slot has-product-image"><img src="assets/images/product_2.jpg" alt="Best Seller" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-2">Best Seller</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(19)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€19.90</p>
+          <span class="old-price">€29.90</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-2" data-name="Best Seller" data-price="19.9" data-price-label="€19.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-2" data-name="Best Seller" data-price="19.9" data-price-label="€19.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Gift Set" data-id="demo-3">
+      <span class="badge hit">HIT</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-3" data-name="Gift Set" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-3" class="card-media product-media-slot has-product-image"><img src="assets/images/product_3.jpg" alt="Gift Set" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-3">Gift Set</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(26)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€24.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-3" data-name="Gift Set" data-price="24.9" data-price-label="€24.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-3" data-name="Gift Set" data-price="24.9" data-price-label="€24.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Everyday Essential" data-id="demo-4">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-4" data-name="Everyday Essential" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-4" class="card-media product-media-slot has-product-image"><img src="assets/images/product_4.jpg" alt="Everyday Essential" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-4">Everyday Essential</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(33)</span></p>
+        <p class="stock low">Nur noch wenige</p>
+        <div class="price-row">
+          <p class="price">€29.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-4" data-name="Everyday Essential" data-price="29.9" data-price-label="€29.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-4" data-name="Everyday Essential" data-price="29.9" data-price-label="€29.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Limited Edition" data-id="demo-5">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-5" data-name="Limited Edition" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-5" class="card-media product-media-slot has-product-image"><img src="assets/images/product_5.jpg" alt="Limited Edition" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-5">Limited Edition</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(40)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€34.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-5" data-name="Limited Edition" data-price="34.9" data-price-label="€34.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-5" data-name="Limited Edition" data-price="34.9" data-price-label="€34.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Bundle Deal" data-id="demo-6">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-6" data-name="Bundle Deal" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-6" class="card-media product-media-slot has-product-image"><img src="assets/images/product_6.jpg" alt="Bundle Deal" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-6">Bundle Deal</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(47)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€39.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-6" data-name="Bundle Deal" data-price="39.9" data-price-label="€39.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-6" data-name="Bundle Deal" data-price="39.9" data-price-label="€39.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Seasonal Pick" data-id="demo-7">
+      <span class="badge sale">SALE</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-7" data-name="Seasonal Pick" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-7" class="card-media product-media-slot has-product-image"><img src="assets/images/product_7.jpg" alt="Seasonal Pick" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-7">Seasonal Pick</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(54)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€49.00</p>
+          <span class="old-price">€59.00</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-7" data-name="Seasonal Pick" data-price="49.0" data-price-label="€49.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-7" data-name="Seasonal Pick" data-price="49.0" data-price-label="€49.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Member Favorite" data-id="demo-8">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-8" data-name="Member Favorite" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-8" class="card-media product-media-slot has-product-image"><img src="assets/images/product_8.jpg" alt="Member Favorite" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-8">Member Favorite</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(61)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€59.00</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-8" data-name="Member Favorite" data-price="59.0" data-price-label="€59.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-8" data-name="Member Favorite" data-price="59.0" data-price-label="€59.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Travel Size" data-id="demo-9">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-9" data-name="Travel Size" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-9" class="card-media product-media-slot has-product-image"><img src="assets/images/product_9.jpg" alt="Travel Size" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-9">Travel Size</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(68)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€69.00</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-9" data-name="Travel Size" data-price="69.0" data-price-label="€69.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-9" data-name="Travel Size" data-price="69.0" data-price-label="€69.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Premium Edition" data-id="demo-10">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-10" data-name="Premium Edition" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-10" class="card-media product-media-slot has-product-image"><img src="assets/images/product_10.jpg" alt="Premium Edition" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-10">Premium Edition</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(75)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€79.00</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-10" data-name="Premium Edition" data-price="79.0" data-price-label="€79.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-10" data-name="Premium Edition" data-price="79.0" data-price-label="€79.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Value Multipack" data-id="demo-11">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-11" data-name="Value Multipack" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-11" class="card-media product-media-slot has-product-image"><img src="assets/images/product_11.jpg" alt="Value Multipack" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-11">Value Multipack</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(82)</span></p>
+        <p class="stock low">Nur noch wenige</p>
+        <div class="price-row">
+          <p class="price">€89.00</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-11" data-name="Value Multipack" data-price="89.0" data-price-label="€89.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-11" data-name="Value Multipack" data-price="89.0" data-price-label="€89.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Weekend Kit" data-id="demo-12">
+      <span class="badge sale">SALE</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-12" data-name="Weekend Kit" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-12" class="card-media product-media-slot has-product-image"><img src="assets/images/product_12.jpg" alt="Weekend Kit" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-12">Weekend Kit</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(89)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€99.00</p>
+          <span class="old-price">€109.00</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-12" data-name="Weekend Kit" data-price="99.0" data-price-label="€99.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-12" data-name="Weekend Kit" data-price="99.0" data-price-label="€99.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Desk Essential" data-id="demo-13">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-13" data-name="Desk Essential" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-13" class="card-media product-media-slot has-product-image"><img src="assets/images/product_13.jpg" alt="Desk Essential" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-13">Desk Essential</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(96)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€119.00</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-13" data-name="Desk Essential" data-price="119.0" data-price-label="€119.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-13" data-name="Desk Essential" data-price="119.0" data-price-label="€119.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Soft Launch" data-id="demo-14">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-14" data-name="Soft Launch" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-14" class="card-media product-media-slot has-product-image"><img src="assets/images/product_14.jpg" alt="Soft Launch" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-14">Soft Launch</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(103)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€129.00</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-14" data-name="Soft Launch" data-price="129.0" data-price-label="€129.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-14" data-name="Soft Launch" data-price="129.0" data-price-label="€129.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Archive Drop" data-id="demo-15">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-15" data-name="Archive Drop" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-15" class="card-media product-media-slot has-product-image"><img src="assets/images/product_15.jpg" alt="Archive Drop" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-15">Archive Drop</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(110)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€149.00</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-15" data-name="Archive Drop" data-price="149.0" data-price-label="€149.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-15" data-name="Archive Drop" data-price="149.0" data-price-label="€149.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Curated Trio" data-id="demo-16">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-16" data-name="Curated Trio" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-16" class="card-media product-media-slot has-product-image"><img src="assets/images/product_16.jpg" alt="Curated Trio" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-16">Curated Trio</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(117)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€159.00</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-16" data-name="Curated Trio" data-price="159.0" data-price-label="€159.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-16" data-name="Curated Trio" data-price="159.0" data-price-label="€159.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Signature Item" data-id="demo-17">
+      <span class="badge sale">SALE</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-17" data-name="Signature Item" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-17" class="card-media product-media-slot has-product-image"><img src="assets/images/product_17.jpg" alt="Signature Item" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-17">Signature Item</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(124)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€179.00</p>
+          <span class="old-price">€189.00</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-17" data-name="Signature Item" data-price="179.0" data-price-label="€179.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-17" data-name="Signature Item" data-price="179.0" data-price-label="€179.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Restock Classic" data-id="demo-18">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-18" data-name="Restock Classic" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-18" class="card-media product-media-slot has-product-image"><img src="assets/images/product_18.jpg" alt="Restock Classic" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-18">Restock Classic</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(131)</span></p>
+        <p class="stock low">Nur noch wenige</p>
+        <div class="price-row">
+          <p class="price">€199.00</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-18" data-name="Restock Classic" data-price="199.0" data-price-label="€199.00">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-18" data-name="Restock Classic" data-price="199.0" data-price-label="€199.00">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Gift Card Soft" data-id="demo-19">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-19" data-name="Gift Card Soft" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-19" class="card-media product-media-slot has-product-image"><img src="assets/images/product_19.jpg" alt="Gift Card Soft" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-19">Gift Card Soft</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(138)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€12.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-19" data-name="Gift Card Soft" data-price="12.9" data-price-label="€12.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-19" data-name="Gift Card Soft" data-price="12.9" data-price-label="€12.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Discovery Box" data-id="demo-20">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-20" data-name="Discovery Box" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-20" class="card-media product-media-slot has-product-image"><img src="assets/images/product_20.jpg" alt="Discovery Box" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-20">Discovery Box</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(145)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€19.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-20" data-name="Discovery Box" data-price="19.9" data-price-label="€19.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-20" data-name="Discovery Box" data-price="19.9" data-price-label="€19.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    </div>
+  </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <h3>Shop</h3>
+        <ul>
+          <li><a href="index.html">Startseite</a></li>
+          <li><a href="catalog.html">Katalog</a></li>
+          <li><a href="cart.html">Warenkorb</a></li>
+          <li><a href="account.html#login">Anmelden</a></li>
+          <li><a href="account.html#register">Registrieren</a></li>
+          <li><a href="account.html">Kundenkonto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Service</h3>
+        <ul>
+          <li><a href="impressum.html">Impressum</a></li>
+            <li><a href="datenschutz.html">Datenschutz</a></li>
+            <li><a href="returns.html">Rückgabe</a></li>
+            <li><a href="contact.html">Kontakt</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Zahlung &amp; Versand</h3>
+        <ul>
+          <li>stripe</li>
+          <li>dhl</li>
+        </ul>
+      </div>
+      <div>
+        <h3>DachKlar Shop</h3>
+        <ul>
+          <li>Premium-Shop von Virtus Core</li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap footer-note">
+      <p>DachKlar Shop — Virtus Core AI Store</p>
+    </div>
+  </footer>
+  <nav class="mobile-bar" aria-label="Mobile">
+    <a href="index.html"><span class="mb-ico">⌂</span>Startseite</a>
+    <a href="catalog.html"><span class="mb-ico">▦</span>Katalog</a>
+    <a href="cart.html#wishlist"><span class="mb-ico">♡</span>Merkliste</a>
+    <a href="account.html"><span class="mb-ico">👤</span>Kundenkonto</a>
+    <a href="cart.html"><span class="mb-ico">🛒</span>Warenkorb<span class="cart-badge" data-cart-badge data-count="0">0</span></a>
+  </nav>
+  <div class="toast" id="store-toast" role="status"></div>
+  <script src="assets/store.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "maler",
+  "niche": "maler",
+  "package_id": "premium",
+  "product_id": "98905cee-7cae-42ec-8b72-f4106e7245a6",
+  "business_name": "FarbRaum Malermeister",
+  "generated_at": "2026-08-08T16:19:32.732369+00:00",
+  "engine": "FactoryService.build_landing + Design DNA + Design Engine + VIE",
+  "index_bytes": 132160,
+  "data_tier_ok": true,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/premium/maler/index.html"
+}

@@ -1,0 +1,136 @@
+BRAND BOOK
+Brand Name
+Grünzeit Garten
+
+Positioning
+Sorgfältige Gartenpflege mit ruhiger Hand
+
+Brand Archetype
+The Gardener
++
+The Steward
+
+Brand Promise
+Ein Garten, der atmet — und gepflegt bleibt.
+
+Core Emotion
+Ruhe
+
+Secondary Emotion
+Lebendige Ordnung
+
+Tone of Voice
+  Warm
+  Ruhig
+  Natürlich
+  Sorgfältig
+
+Visual Style
+Organic Modern
+
+Visual Metaphor
+Morgentau auf frisch geschnittenem Grün
+
+Photography
+  Hecken
+  Rasenflächen
+  Beete
+  Werkzeug
+  Tageslicht im Garten
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+  tropical resort
+  spa stones
+
+Motion
+Weich · Atmend · Langsam
+
+Palette
+Leaf, Moss, Soil, Cream, Sky Mist
+Accent #15803d
+Surface #f4f7f1
+Ink #14532d
+
+Typography
+Fraunces
++
+Source Sans 3
+(fraunces_source_garden)
+
+Icon Style
+Soft Outline
+
+Border Radius
+14 px
+
+Shadow Style
+Soft Lift
+
+Glass Level
+medium
+
+Texture
+  Laub
+  Holz
+  Erde
+
+Scene Language
+  Garden
+  Dew
+  Light
+  Air
+
+CTA Style
+Einladende Buttons · Viel Weißraum
+
+Trust Strategy
+  Saisonarbeit
+  Vorher/Nachher
+  Team
+  Pflegepläne
+
+Atmosphere Mode
+mist
+
+MEDIA DNA
+Required
+✔ Garden
+✔ Greenery
+✔ Tools
+✔ Outdoor work
+✔ Daylight
+
+Preferred
+✔ Dew
+✔ Hedge
+✔ Lawn
+✔ Beds
+✔ Morning
+
+Forbidden
+✖ Café
+✖ Spa stones
+✖ Tropical resort
+✖ Office
+✖ Laptop
+
+Hero Proof
+Gardener at real outdoor work — hedge, lawn, or bed care.
+
+Fingerprint
+00d3f0d9f14c88bdc55c29e0
+

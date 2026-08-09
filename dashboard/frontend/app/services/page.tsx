@@ -219,6 +219,16 @@ export default function ServicesPage() {
   const markets = data?.markets || [];
   const copy = storefrontCopy(market);
 
+  const disclaimerText = (() => {
+    const d = data?.disclaimer;
+    if (!d) return null;
+    const lang = (uiLocale || "de").slice(0, 2).toLowerCase();
+    if (lang === "de" && d.de) return d.de;
+    if (lang === "en" && d.en) return d.en;
+    if (lang === "ru" && d.ru) return d.ru;
+    return d.de || d.en || d.ru || null;
+  })();
+
   return (
     <PublicPageShell>
       <PublicPageHero
@@ -267,7 +277,7 @@ export default function ServicesPage() {
             <p className="mt-2 text-xs text-genesis-muted">Preise werden geladen…</p>
           ) : (
             <p className="mt-2 text-xs text-genesis-muted">
-              {data?.disclaimer?.ru ||
+              {disclaimerText ||
                 `Aktive Preise: ${data?.market_code} · ${data?.currency}`}
             </p>
           )}
@@ -359,7 +369,7 @@ export default function ServicesPage() {
 
       <Card className="mt-12 text-center" padding="md">
         <p className="text-sm text-genesis-muted">
-          Fragen zu Bestellung oder Status? Schreiben Sie an hello@genesis-ai-engine.com — auf Deutsch.
+          Fragen zu Bestellung oder Status? Schreiben Sie an hello@virtuscore.com — auf Deutsch.
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <ButtonLink href="/order" variant="success" size="sm">

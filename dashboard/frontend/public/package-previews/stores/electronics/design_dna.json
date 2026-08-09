@@ -1,0 +1,68 @@
+{
+  "emotion": "clarity",
+  "style": "editorial",
+  "palette_family": "paper_ink",
+  "typography_pair": "space_grotesk_inter",
+  "motion": "business",
+  "hero_concept": "magazine_bleed",
+  "hero_layout": "B",
+  "depth": "high",
+  "glass": "low",
+  "composition": "tech_stack",
+  "package_id": "business",
+  "niche_id": "computer",
+  "fingerprint": "227840ac130e08548e522b7d8bddcadfb947332594041b2663fc377f22ee6e87",
+  "section_treatments": [
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "stats",
+      "gradient"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "process",
+      "tint"
+    ],
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "benefits",
+      "photo_band"
+    ],
+    [
+      "faq",
+      "gradient"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#78716c",
+  "surface_hex": "#fafaf9",
+  "ink_hex": "#1c1917"
+}

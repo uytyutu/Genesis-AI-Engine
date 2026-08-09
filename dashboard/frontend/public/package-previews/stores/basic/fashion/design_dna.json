@@ -1,0 +1,72 @@
+{
+  "emotion": "calm",
+  "style": "scandinavian_calm",
+  "palette_family": "sand",
+  "typography_pair": "playfair_manrope",
+  "motion": "soft",
+  "hero_concept": "soft_split_photo",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "low",
+  "composition": "airy",
+  "package_id": "basic",
+  "niche_id": "fashion",
+  "fingerprint": "d60f2c413a2150eeacf778c116ff6a724a745b6c4f18a60641ccd8fcc63ca178",
+  "section_treatments": [
+    [
+      "stats",
+      "tint"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "mid_cta",
+      "tint"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "about",
+      "illustration"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "contact",
+      "glass"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#2c3330"
+}

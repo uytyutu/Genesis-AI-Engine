@@ -1,0 +1,132 @@
+BRAND BOOK
+Brand Name
+Kanzlei Bergmann
+
+Positioning
+Ruhige Autorität
+
+Brand Archetype
+The Counselor
++
+The Architect
+
+Brand Promise
+Stille. Ordnung. Kontrolle.
+
+Core Emotion
+Kontrolle
+
+Secondary Emotion
+Vertrauen ohne Drama
+
+Tone of Voice
+  Präzise
+  Ruhig
+  Autorität
+  Klar
+
+Visual Style
+Quiet Authority · isometric craft marks
+
+Visual Metaphor
+Ruhige Fassade, klares Licht, kein Theater
+
+Photography
+  ruhiges Anwaltsbüro
+  Akten und Stadtblick
+  Verhandlungstisch
+  Beratung
+  Dokumente
+  Bibliothek
+  Empfang
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+  gavel stock
+  scales of justice cliché
+  angry courtroom
+
+Motion
+industrial snap · sharp transitions · tool hover
+
+Palette
+Ink, Stone, Brass, Paper
+Accent #b4975a
+Surface #f8f6f0
+Ink #0b0d10
+
+Typography
+Libre Baskerville
++
+IBM Plex Sans
+(baskerville_plex_legal)
+
+Icon Style
+technical blueprint icons
+
+Border Radius
+0 px
+
+Shadow Style
+Hairline
+
+Glass Level
+medium
+
+Texture
+  Stone
+  Paper
+  Brass
+
+Scene Language
+  ruhiges Anwaltsbüro
+  Akten und Stadtblick
+  Verhandlungstisch
+
+CTA Style
+Ein Knopf · Keine Dringlichkeit
+
+Trust Strategy
+  Honorare klar
+  Erstberatung
+  Vertraulichkeit
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Quiet facade
+✔ Order
+✔ Clear light
+✔ Architecture
+
+Preferred
+✔ Empty conference table
+✔ Paper stack neat
+✔ Stone detail
+
+Forbidden
+✖ Gavel stock
+✖ Scales of justice cliché
+✖ Angry courtroom
+
+Hero Proof
+Silence, order, control — authority without theater.
+
+Fingerprint
+d10941b80d261fd50d1f85c2
+

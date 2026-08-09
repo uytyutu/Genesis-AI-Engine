@@ -1,11 +1,19 @@
 /**
- * G2.X — Commercial catalog (keep in sync with
- * dashboard/backend/app/integration/commercial_catalog_g23.py
- * and serviceOrderSpecs.ts).
+ * Commercial catalog — Digital Business Creator.
+ * Keep in sync with dashboard/backend/app/factory/solution_catalog.py
+ * and commercial_catalog_g23.py.
  */
 
 export type CommercialCategory = "one_time" | "monthly" | "product";
 export type CommercialCta = "order_now" | "activate" | "coming_soon";
+export type CatalogGroupId =
+  | "websites"
+  | "stores"
+  | "automation"
+  | "chatbots"
+  | "marketing"
+  | "bots"
+  | "website_services";
 
 export type CommercialRow = {
   id: string;
@@ -18,56 +26,103 @@ export type CommercialRow = {
   cta_href?: string;
   cta_label: string;
   includes: string;
-  group?: "websites" | "bots" | "website_services";
+  group?: CatalogGroupId;
 };
 
+/** Standalone vs Connected — not Basic / Business / Premium. */
 export const LANDING_PACKAGES_EUR = {
-  basic: 350,
-  business: 650,
-  premium: 1200,
+  standalone: 499,
+  connected: 499,
+  connected_monthly: 99,
+  // Legacy aliases (API / unpaid demos)
+  basic: 499,
+  business: 499,
+  premium: 499,
 } as const;
 
-/** Showcase sections for /products (G2.X). */
 export const PRODUCT_SHOWCASE_GROUPS: {
-  id: "websites" | "bots" | "website_services";
+  id: CatalogGroupId;
   title: string;
   blurb: string;
 }[] = [
   {
     id: "websites",
-    title: "Websites that bring leads",
-    blurb: "Professional site for more customers — buy once, own the files.",
+    title: "Business websites",
+    blurb: "Ready digital solutions for a real company — not templates.",
   },
   {
-    id: "bots",
-    title: "AI Digital Employee",
-    blurb: "AI Sales Assistant for your company — one product, many channels.",
+    id: "stores",
+    title: "Online stores",
+    blurb: "By industry — Fashion, Beauty, Electronics, and more.",
+  },
+  {
+    id: "chatbots",
+    title: "AI chatbots",
+    blurb: "Role-based digital employees for sales, booking, support.",
+  },
+  {
+    id: "automation",
+    title: "Automation",
+    blurb: "CRM, WhatsApp, booking, invoices — Connected ecosystem.",
+  },
+  {
+    id: "marketing",
+    title: "Marketing",
+    blurb: "Coming soon — Reels, ads, SEO content.",
   },
   {
     id: "website_services",
-    title: "Website Services",
-    blurb: "Add-ons — order form first, then payment when the service is live.",
+    title: "Website services",
+    blurb: "Repair, SEO, migration — order form first.",
   },
 ];
 
 export const COMMERCIAL_CATALOG: CommercialRow[] = [
   {
-    id: "landing_website",
+    id: "digital_business_standalone",
     category: "product",
     group: "websites",
-    name: "Business Website That Brings Leads",
-    price_label: `${LANDING_PACKAGES_EUR.basic}–${LANDING_PACKAGES_EUR.premium} €`,
+    name: "Standalone — own your digital product",
+    price_label: `${LANDING_PACKAGES_EUR.standalone} €`,
     billing: "one_time",
     availability: "available",
     cta: "order_now",
-    cta_href: "/order",
-    cta_label: "Order",
-    includes: `Get more customers · Basic ${LANDING_PACKAGES_EUR.basic} € · Business ${LANDING_PACKAGES_EUR.business} € · Premium ${LANDING_PACKAGES_EUR.premium} €`,
+    cta_href: "/order?package=standalone",
+    cta_label: "Get Standalone",
+    includes:
+      "Full digital company site · panel · source · Business Interview → brand → site",
+  },
+  {
+    id: "digital_business_connected",
+    category: "product",
+    group: "websites",
+    name: "Virtus Core Connected",
+    price_label: `${LANDING_PACKAGES_EUR.connected} € + ${LANDING_PACKAGES_EUR.connected_monthly} €/mo`,
+    billing: "monthly",
+    availability: "available",
+    cta: "activate",
+    cta_href: "/order?package=connected",
+    cta_label: "Connect to Virtus Core",
+    includes:
+      "Everything in Standalone + Workspace, CRM/leads, AI, automation, platform updates",
+  },
+  {
+    id: "ai_store",
+    category: "product",
+    group: "stores",
+    name: "AI Online Store",
+    price_label: "from 799 €",
+    billing: "one_time",
+    availability: "available",
+    cta: "order_now",
+    cta_href: "/order/shop",
+    cta_label: "Order store",
+    includes: "Industry store · catalog · checkout · panel",
   },
   {
     id: "ai_business_bot",
     category: "product",
-    group: "bots",
+    group: "chatbots",
     name: "AI Digital Employee",
     price_label: "499–1499 € setup + 99–349 €/mo",
     billing: "monthly",
@@ -104,69 +159,38 @@ export const COMMERCIAL_CATALOG: CommercialRow[] = [
     cta_label: "Order form",
     includes: "Broken site? Recovery target 24–48h · form → payment",
   },
-  {
-    id: "seo_audit",
-    category: "one_time",
-    group: "website_services",
-    name: "SEO Audit",
-    price_label: "249 €",
-    billing: "one_time",
-    availability: "coming_soon",
-    cta: "coming_soon",
-    cta_href: "/order/service/seo_audit",
-    cta_label: "Interest form",
-    includes: "Technical + local SEO plan · form now, pay when live",
-  },
-  {
-    id: "speed_optimization",
-    category: "one_time",
-    group: "website_services",
-    name: "Speed Optimization",
-    price_label: "199 €",
-    billing: "one_time",
-    availability: "coming_soon",
-    cta: "coming_soon",
-    cta_href: "/order/service/speed_optimization",
-    cta_label: "Interest form",
-    includes: "Load-time improvements · form now, pay when live",
-  },
-  {
-    id: "security_check",
-    category: "one_time",
-    group: "website_services",
-    name: "Security Check",
-    price_label: "299 €",
-    billing: "one_time",
-    availability: "coming_soon",
-    cta: "coming_soon",
-    cta_href: "/order/service/security_check",
-    cta_label: "Interest form",
-    includes: "HTTPS, forms, vulnerability review · form now, pay when live",
-  },
-  {
-    id: "google_business_setup",
-    category: "one_time",
-    group: "website_services",
-    name: "Google Business Profile Setup",
-    price_label: "149 €",
-    billing: "one_time",
-    availability: "coming_soon",
-    cta: "coming_soon",
-    cta_href: "/order/service/google_business_setup",
-    cta_label: "Interest form",
-    includes: "Intake form ready · checkout when delivery is live",
-  },
-  {
-    id: "website_migration",
-    category: "one_time",
-    group: "website_services",
-    name: "Website Migration",
-    price_label: "from 299 €",
-    billing: "one_time",
-    availability: "coming_soon",
-    cta: "coming_soon",
-    cta_href: "/order/service/website_migration",
-    cta_label: "Interest form",
-    includes: "Move site to new hosting · form now, pay when live",
-  },
+];
+
+/** Niche solution chips for the vitrine (mirrors backend solution_catalog). */
+export const WEBSITE_SOLUTION_CHIPS: { id: string; label: string; niche: string }[] = [
+  { id: "kosmetikstudio", label: "Nail · Brow · Lash · Massage", niche: "beauty" },
+  { id: "friseur", label: "Friseur", niche: "beauty" },
+  { id: "reinigung", label: "Reinigung", niche: "cleaning" },
+  { id: "it_service", label: "Computer-Reparatur", niche: "computer" },
+  { id: "zahnarzt", label: "Zahnarzt", niche: "dental" },
+  { id: "restaurant", label: "Restaurant", niche: "restaurant" },
+  { id: "handwerk", label: "Handwerk & Renovierung", niche: "handwerk" },
+  { id: "elektriker", label: "Elektriker", niche: "handwerk" },
+  { id: "autowerkstatt", label: "Autowerkstatt", niche: "auto" },
+  { id: "dachreinigung", label: "Dachreinigung", niche: "dachreinigung" },
+  { id: "gartenbau", label: "Gartenbau", niche: "gartenpflege" },
+  { id: "psychologie", label: "Psychologie", niche: "psychology" },
+  { id: "pizzeria", label: "Pizzeria", niche: "restaurant" },
+  { id: "rechtsanwalt", label: "Rechtsanwalt", niche: "law" },
+  { id: "immobilienmakler", label: "Immobilienmakler", niche: "realestate" },
+  { id: "fitnessstudio", label: "Fitnessstudio", niche: "fitness" },
+  { id: "fotograf", label: "Fotograf", niche: "photography" },
+];
+
+export const STORE_SOLUTION_CHIPS: { id: string; label: string }[] = [
+  { id: "beauty_store", label: "Beauty / Pflege (LUMIA)" },
+  { id: "fashion", label: "Fashion Store" },
+  { id: "electronics", label: "Electronics" },
+  { id: "furniture", label: "Furniture" },
+  { id: "pet_shop", label: "Pet Shop" },
+  { id: "auto_parts", label: "Auto Parts" },
+  { id: "sports", label: "Sports Shop" },
+  { id: "coffee", label: "Coffee Store" },
+  { id: "jewelry", label: "Jewelry" },
+  { id: "handmade", label: "Handmade" },
 ];

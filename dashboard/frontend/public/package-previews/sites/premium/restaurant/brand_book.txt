@@ -1,0 +1,134 @@
+BRAND BOOK
+Brand Name
+Trattoria Luna
+
+Positioning
+Italienischer Abend
+
+Brand Archetype
+The Host
++
+The Craftsman
+
+Brand Promise
+Ein Abend im italienischen Hof.
+
+Core Emotion
+Wärme
+
+Secondary Emotion
+Appetit und Zugehörigkeit
+
+Tone of Voice
+  Warm
+  Sinnlich
+  Ehrlich
+  Einladend
+
+Visual Style
+Culinary Atmosphere · premium business geometry
+
+Visual Metaphor
+Abendlicht über dem Hof — lange Tafel, leises Gläserklingen
+
+Photography
+  professioneller Arbeitsort
+  Team bei echter Arbeit
+  deutsche Alltagsszene
+  Detail Arbeit
+  Kundenmoment
+  Werkzeug / Material
+  Ergebnis
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+  fast food plastic
+  neon menu board
+  stock handshake
+
+Motion
+cinematic parallax · soft reveal · magnetic CTA
+
+Palette
+Terracotta, Olive, Candle, Night Ink
+Accent #c45c26
+Surface #e6eaf0
+Ink #f4f6f8
+
+Typography
+Playfair Display
++
+Source Sans 3
+(playfair_source_culinary)
+
+Icon Style
+minimal stroke set
+
+Border Radius
+2 px
+
+Shadow Style
+Deep Warm
+
+Glass Level
+medium
+
+Texture
+  Linen
+  Wood
+  Ceramic
+
+Scene Language
+  professioneller Arbeitsort
+  Team bei echter Arbeit
+  deutsche Alltagsszene
+
+CTA Style
+Reservierung · Groß · Warm
+
+Trust Strategy
+  Allergene klar
+  Reservierung
+  Küche sichtbar
+
+Atmosphere Mode
+cinematic
+
+MEDIA DNA
+Required
+✔ Evening table
+✔ Food craft
+✔ Warm light
+✔ Courtyard or dining room
+
+Preferred
+✔ Hands plating
+✔ Steam
+✔ Wine glass
+✔ Long table
+
+Forbidden
+✖ Fast-food plastic
+✖ Neon menu
+✖ Stock handshake
+✖ Empty white plate only
+
+Hero Proof
+An Italian courtyard evening — appetite and belonging, not a PDF menu.
+
+Fingerprint
+b1dcd28b7a3caf23c67a4315
+

@@ -1,0 +1,72 @@
+{
+  "emotion": "calm",
+  "style": "scandinavian_calm",
+  "palette_family": "sand",
+  "typography_pair": "fraunces_dm",
+  "motion": "soft",
+  "hero_concept": "soft_split_photo",
+  "hero_layout": "A",
+  "depth": "medium",
+  "glass": "low",
+  "composition": "airy",
+  "package_id": "basic",
+  "niche_id": "restaurant",
+  "fingerprint": "6f8da19f71d2cefc00061451fc91a3dc824965203df743655958aff2925dabf6",
+  "section_treatments": [
+    [
+      "stats",
+      "tint"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "mid_cta",
+      "tint"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "about",
+      "illustration"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "contact",
+      "glass"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#2c3330"
+}

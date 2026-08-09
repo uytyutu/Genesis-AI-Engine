@@ -1,0 +1,118 @@
+{
+  "brand_name": "Kanzlei Bergmann",
+  "niche_id": "law",
+  "package_id": "business",
+  "positioning": "Ruhige Autorität",
+  "archetype_primary": "The Counselor",
+  "archetype_secondary": "The Architect",
+  "brand_promise": "Stille. Ordnung. Kontrolle.",
+  "core_emotion": "Kontrolle",
+  "secondary_emotion": "Vertrauen ohne Drama",
+  "tone": [
+    "Präzise",
+    "Ruhig",
+    "Autorität",
+    "Klar"
+  ],
+  "visual_style": "Quiet Authority",
+  "visual_metaphor": "Ruhige Fassade, klares Licht, kein Theater",
+  "photography": [
+    "Fassade",
+    "Aktenordnung",
+    "Klares Tageslicht",
+    "Leerer Konferenztisch",
+    "Architekturdetail"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "gavel stock",
+    "scales of justice cliché",
+    "angry courtroom"
+  ],
+  "motion_language": "Minimal · Präzise · Kein Bounce",
+  "motion_token": "business",
+  "palette": {
+    "names": [
+      "Ink",
+      "Stone",
+      "Brass",
+      "Paper"
+    ],
+    "accent_hex": "#b4975a",
+    "surface_hex": "#f4f1ea",
+    "ink_hex": "#14161c",
+    "secondary_hex": "#4a5568",
+    "highlight_hex": "#e8dcc8"
+  },
+  "typography_display": "Libre Baskerville",
+  "typography_body": "IBM Plex Sans",
+  "typography_pair_id": "baskerville_plex_legal",
+  "typography_emotion": "authority",
+  "icon_style": "Hairline",
+  "border_radius_px": 0,
+  "shadow_style": "Hairline",
+  "glass_level": "low",
+  "texture": [
+    "Stone",
+    "Paper",
+    "Brass"
+  ],
+  "scene_language": [
+    "Silence",
+    "Order",
+    "Facade",
+    "Light"
+  ],
+  "cta_style": "Ein Knopf · Keine Dringlichkeit",
+  "trust_strategy": [
+    "Honorare klar",
+    "Erstberatung",
+    "Vertraulichkeit"
+  ],
+  "atmosphere_mode": "atelier",
+  "dna_style": "modern_clinical",
+  "dna_palette_family": "ink_brass",
+  "hero_concept": "quiet_authority",
+  "fingerprint": "51fb24c829ddd0e7dc17aeaa",
+  "media_dna": {
+    "required": [
+      "Quiet facade",
+      "Order",
+      "Clear light",
+      "Architecture"
+    ],
+    "preferred": [
+      "Empty conference table",
+      "Paper stack neat",
+      "Stone detail"
+    ],
+    "forbidden": [
+      "Gavel stock",
+      "Scales of justice cliché",
+      "Angry courtroom"
+    ],
+    "hero_proof": "Silence, order, control — authority without theater.",
+    "profession_keywords": [
+      "kanzlei",
+      "recht",
+      "vertrag",
+      "beratung",
+      "ordnung"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

@@ -3,11 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Autowerkstatt Bergmann — Transparente Kostenvoranschläge, moderne Diagnose und Garant</title>
-  <meta name="description" content="Transparente Kostenvoranschläge, moderne Diagnose und Garantie auf alle Arbeiten.">
+  <title>Nord Klar — Autobesitzer in Hamburg verdienen Diagnose ohne Verkaufsdruc</title>
+  <meta name="description" content="Autobesitzer in Hamburg verdienen Diagnose ohne Verkaufsdruck.">
+    <link rel="canonical" href="./">
+  <link rel="alternate" hreflang="de-DE" href="./">
+  <link rel="alternate" hreflang="x-default" href="./">
   
-  
-  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="assets/motion_kit.css">
+
   <style>
 
     :root {
@@ -31,7 +37,7 @@
     .topbar-links a { text-decoration: none; font-weight: 600; font-size: 0.9rem; }
     .hero {
       position: relative; color: #fff; text-align: center; overflow: hidden;
-      background: linear-gradient(135deg,#0a0a0a,#b91c1c);
+      background: linear-gradient(135deg,#0a0a0a 0%,#1c1917 45%,#b91c1c 100%);
       background-size: cover; background-position: center;
     }
     .hero.has-photo {
@@ -181,6 +187,17 @@
     .showcase-panel .cap {
       position: absolute; left: 1rem; bottom: 1rem; color: #fff; font-weight: 700; font-size: 0.95rem;
     }
+    .client-gallery-grid {
+      display: grid; gap: 0.85rem;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+    .client-photo {
+      margin: 0; border-radius: 12px; overflow: hidden;
+      background: #e2e8f0; aspect-ratio: 4 / 3;
+    }
+    .client-photo img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
     footer { text-align: center; padding: 2rem; font-size: 0.875rem; background: #0f172a; color: #cbd5e1; }
     @keyframes heroIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
     .hero-anim { animation: heroIn .7s ease both; }
@@ -195,105 +212,1501 @@
       body[data-tier="premium"] .hero-inner { padding: 0 1rem; }
     }
 
-    body[data-tier="basic"] { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
     body[data-tier="basic"] .topbar {
       background: rgba(255,255,255,0.92); color: var(--ink); backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--line);
     }
     body[data-tier="basic"] .topbar a { color: var(--pd); }
-    body[data-tier="basic"] .hero {
-      min-height: 62vh; display: grid; place-items: center; padding: 4.5rem 1.5rem 5rem;
-    }
-    body[data-tier="basic"] .hero h1 { font-size: clamp(2rem, 5vw, 3.1rem); max-width: 42rem; margin-inline: auto; }
-    body[data-tier="basic"] .hero p.lead { font-size: 1.15rem; max-width: 34rem; }
-    body[data-tier="basic"] .section { padding-top: 4rem; padding-bottom: 4rem; }
-    body[data-tier="basic"] .service-card {
-      background: #fff; border-radius: 14px;
-      box-shadow: 0 10px 28px rgba(15,23,42,0.06);
-    }
-    body[data-tier="basic"] .process-card { border-radius: 14px; }
-    body[data-tier="basic"] .mid-cta { margin: 0 1rem; border-radius: 16px; }
 
+
+    /* Design Engine · Niche Design System: auto */
+    body[data-niche="auto"] {
+      --p: #b91c1c;
+      --pd: #7f1d1d;
+      --acc: #f87171;
+      --ink: #0c0a09;
+      --muted: #78716c;
+      --surface: #f5f5f4;
+      --line: #e7e5e4;
+      --radius: 6px;
+      --btn-radius: 6px;
+      --card-radius: 8px;
+      --font-body: "Outfit", "Helvetica Neue", Arial, sans-serif;
+      --font-display: "Bebas Neue", "Arial Narrow", Impact, sans-serif;
+      font-family: var(--font-body);
+      color: var(--ink);
+    }
+    body[data-niche="auto"] .hero h1,
+    body[data-niche="auto"] .section h2,
+    body[data-niche="auto"] .mid-cta h2 {
+      font-family: var(--font-display);
+      letter-spacing: -0.03em;
+    }
+    body[data-niche="auto"] .btn {
+      border-radius: var(--btn-radius);
+      font-weight: 800;
+    }
+    body[data-niche="auto"] .service-card,
+    body[data-niche="auto"] .process-card,
+    body[data-niche="auto"] .faq-item,
+    body[data-niche="auto"] .client-photo,
+    body[data-niche="auto"] .product-card,
+    body[data-niche="auto"] .mid-cta {
+      border-radius: var(--card-radius);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.14);
+    }
+    body[data-niche="auto"] .brand img,
+    body[data-niche="auto"] .brand .logo-fallback {
+      border-radius: 6px;
+    }
+    body[data-niche="auto"] .trust-pill {
+      border-radius: var(--btn-radius);
+    }
+    body[data-niche="auto"] input,
+    body[data-niche="auto"] textarea,
+    body[data-niche="auto"] select,
+    body[data-niche="auto"] .contact-form button {
+      border-radius: 6px;
+    }
+
+
+    /* International Design Engine — DE: Germany — strict trust */
+    body[data-market="DE"] {
+      --market-measure: 62ch;
+      --market-section-pad: 3.25rem;
+      --market-card-pad: 1.15rem;
+      --market-btn-pad: 0.8rem 1.65rem;
+      --market-btn-min: 9.5rem;
+      --market-gap: 0.95;
+      --market-surface: #f8fafc;
+      font-size: 1rem;
+      -webkit-hyphens: auto;
+      hyphens: auto;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+    body[data-market="DE"] .section {
+      padding-top: var(--market-section-pad);
+      padding-bottom: var(--market-section-pad);
+    }
+    body[data-market="DE"] .hero {
+      padding-block: calc(2.5rem + 0.25rem);
+    }
+    body[data-market="DE"] .hero h1 {
+      font-size: clamp(1.85rem, 3.8vw, 2.65rem);
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      max-width: var(--market-measure);
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+    body[data-market="DE"] .hero p.lead {
+      max-width: var(--market-measure);
+      overflow-wrap: break-word;
+    }
+    body[data-market="DE"] .btn {
+      padding: var(--market-btn-pad);
+      min-width: var(--market-btn-min);
+      max-width: 100%;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.25;
+      overflow-wrap: break-word;
+    }
+    body[data-market="DE"] .svc-card,
+    body[data-market="DE"] .service-card,
+    body[data-market="DE"] .faq-bubble,
+    body[data-market="DE"] .faq-panel,
+    body[data-market="DE"] .faq-item,
+    body[data-market="DE"] .process-card,
+    body[data-market="DE"] .product-card {
+      padding: var(--market-card-pad);
+    }
+    body[data-market="DE"] .services,
+    body[data-market="DE"] .services-glass,
+    body[data-market="DE"] .services-solid,
+    body[data-market="DE"] .ben-circles,
+    body[data-market="DE"] .process-grid {
+      gap: calc(1rem * var(--market-gap));
+    }
+    body[data-market="DE"] .about,
+    body[data-market="DE"] .benefits {
+      background-color: var(--market-surface);
+    }
+    body[data-market="DE"] .trust-pill,
+    body[data-market="DE"] .trust-strip {
+      font-weight: 700;
+    }
+    body[data-market="DE"] .btn,
+    body[data-market="DE"] .mid-cta {
+      filter: none;
+    }
+    body[data-market="DE"][data-density="airy"] .hero-ctas {
+      gap: 1.1rem;
+    }
+    body[data-market="DE"][data-density="compact"] .section h2 {
+      letter-spacing: -0.01em;
+    }
+
+
+    /* Hero Composer R2.2a */
+    body[data-hero-layout] .hero {
+      text-align: left;
+      display: block;
+      place-items: unset;
+      min-height: 0;
+      padding: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    body[data-hero-layout] .hero h1 { margin-inline: 0; max-width: none; }
+    body[data-hero-layout] .hero p.lead { margin-inline: 0; }
+    body[data-hero-layout] .trust-row,
+    body[data-hero-layout] .hero-ctas { justify-content: flex-start; }
+    .hero-kpi strong { display: block; font-size: clamp(1.5rem, 3vw, 2.25rem); letter-spacing: -0.03em; }
+    .hero-kpi span { font-size: 0.8rem; opacity: 0.85; }
+
+    body[data-hero-layout="A"] .hero.hero-layout-A {
+      background: var(--surface, #f0f9ff);
+      color: var(--ink, #0c4a6e);
+      padding: 2.5rem 1.25rem 3rem;
+    }
+    body[data-hero-layout="A"] .hero.hero-layout-A.has-photo {
+      background-image: none;
+      background: var(--surface, #f0f9ff);
+    }
+    .hero-A-grid {
+      max-width: 1120px; margin: 0 auto;
+      display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 2rem; align-items: center;
+    }
+    .hero-A-copy .lead { color: var(--muted, #64748b); max-width: 34rem; }
+    .hero-A-copy .trust-pill {
+      background: #fff; color: var(--pd, #0369a1); border-color: var(--line, #bae6fd);
+    }
+    .hero-adv {
+      list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem;
+    }
+    .hero-adv li {
+      background: #fff; border: 1px solid var(--line, #e2e8f0); border-radius: 999px;
+      padding: 0.4rem 0.85rem; font-size: 0.85rem; font-weight: 600; color: var(--pd);
+    }
+    .hero-A-media {
+      position: relative; margin: 0; border-radius: calc(var(--card-radius, 18px) + 4px);
+      overflow: hidden; aspect-ratio: 4 / 5; background: var(--line, #e2e8f0);
+      box-shadow: var(--shadow, 0 16px 40px rgba(15,23,42,0.12));
+    }
+    .hero-A-media img, .hero-A-media .hero-A-illu {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .hero-A-media .hero-A-illu { object-fit: contain; }
+    .hero-A-deco {
+      position: absolute; z-index: 0; width: 42%; height: 42%; right: -8%; bottom: -10%;
+      border-radius: 50%; background: var(--acc, #e0f2fe); opacity: 0.9;
+    }
+    .hero-A-kpis {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.55rem;
+      margin-top: 1.25rem;
+    }
+    .hero-A-kpis .hero-kpi {
+      background: #fff; border: 1px solid var(--line, #bae6fd); border-radius: 12px;
+      padding: 0.65rem 0.7rem;
+    }
+
+    @media (max-width: 820px) {
+      .hero-A-grid { grid-template-columns: 1fr !important; }
+    }
+
+    /* R3.2.1 UX Polish — document scroll */
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+    html, body {
+      max-width: 100%;
+      overflow-x: clip;
+    }
+    body { min-height: 100%; }
+    /* Prefer window scroll — avoid nested page shells */
+    .site-shell, .page-wrap, main.site-main {
+      overflow: visible;
+      height: auto;
+      max-height: none;
+    }
+
+
+/* Typography Director */
+body {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body .hero h1,
+body .hero .hero-title,
+body h1 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+}
+body .section h2 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: 1.55rem;
+}
+@media (max-width: 720px) {
+  body { line-height: 1.5; }
+  body .hero h1 { letter-spacing: -0.02em; }
+}
+
+
+/* Luxury Director — off */
+body[data-luxury="0"] .hero { --lux-space: 1; }
+
+
+/* Conversion Director */
+.conversion-mid-cta,
+[data-conversion-mid-cta="1"] {
+  text-align: center;
+  padding: 2.75rem 1.25rem;
+  margin: 0;
+  background: linear-gradient(180deg, rgba(15,23,42,0.04), rgba(15,23,42,0.02));
+}
+.conversion-mid-cta .btn { font-weight: 600; }
+body[data-conversion="1"] .topbar-cta { box-shadow: 0 6px 18px rgba(15,23,42,0.12); }
+
+
+/* Trust Director — density=high */
+body[data-trust-density="high"] #trust,
+body[data-trust-density="high"] .trust {
+  scroll-margin-top: 4rem;
+}
+body[data-trust-density="high"] .hero-certs,
+body[data-trust-density="high"] .trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1rem;
+}
+body[data-trust-density="high"] .hero-certs span,
+body[data-trust-density="high"] .trust-badges span {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(15,23,42,0.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+}
+body[data-trust-density="high"] #maps,
+body[data-trust-density="high"] #contact {
+  background: #f8fafc;
+}
+
+
+/* Performance Director */
+body[data-perf-hero="static"] .hero-still,
+body[data-perf-hero="static"] video.hero-media {
+  display: none !important;
+}
+img { max-width: 100%; height: auto; }
+
+
+/* Accessibility Director */
+:root { --a11y-min-size: 1rem; }
+body { font-size: max(16px, var(--a11y-min-size)); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  z-index: 10000;
+}
+.skip-link:focus { left: 0.5rem; top: 0.5rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Localization Director — DE / strict */
+body[data-locale-style="strict"] {
+  --locale-cta-weight: 600;
+}
+body[data-locale-style="strict"] .section h2 { letter-spacing: -0.02em; }
+body[data-locale-style="editorial"] #gallery,
+body[data-locale-portfolio="high"] #gallery {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+body[data-locale-social="high"] #trust,
+body[data-locale-social="high"] #testimonials {
+  padding-top: 3.5rem;
+}
+body[data-locale-style="direct"] .btn,
+body[data-locale-style="direct"] .topbar-cta {
+  font-weight: var(--locale-cta-weight);
+  text-transform: none;
+}
+body[data-locale-portfolio="medium"] { --portfolio-emphasis: medium; }
+body[data-locale-social="medium"] { --social-emphasis: medium; }
+
+
+/* Goal B · Digital Experience · organic_premium · cinematic */
+html { overflow-x: clip; scroll-behavior: smooth; }
+body[data-dna-style="organic_premium"] {
+  --dna-accent: #a68a6d;
+  --dna-surface: #faf6f1;
+  --dna-ink: #292524;
+  --dna-ar: 166; --dna-ag: 138; --dna-ab: 109;
+  --dna-glass-blur: 16px;
+  --dna-content: 72rem;
+  --ink: #fafaf9;
+  --muted: rgba(250,250,249,0.9);
+  color: #fafaf9;
+  background: rgb(8,8,10) !important;
+  min-height: 100vh;
+  overflow-x: clip;
+  position: relative;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+body[data-dna-style="organic_premium"] h1,
+body[data-dna-style="organic_premium"] h2,
+body[data-dna-style="organic_premium"] .brand-word,
+body[data-dna-style="organic_premium"] .logo-fallback {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+body[data-dna-style="organic_premium"] p,
+body[data-dna-style="organic_premium"] li,
+body[data-dna-style="organic_premium"] .lead {
+  font-weight: 500;
+  line-height: 1.65;
+}
+body[data-dna-style="organic_premium"] .brand-lockup {
+  display: inline-flex; align-items: center; gap: 0.55rem; text-decoration: none;
+  color: inherit; max-width: min(16rem, 48vw);
+}
+body[data-dna-style="organic_premium"] .brand-mark-wrap { display: inline-flex; line-height: 0; }
+body[data-dna-style="organic_premium"] .brand-word {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+body[data-dna-style="organic_premium"] .brand-logo-img {
+  max-height: 2.4rem; max-width: 7rem; width: auto; object-fit: contain;
+}
+body[data-dna-style="organic_premium"] .svc-ico {
+  width: 2.25rem; height: 2.25rem; border-radius: 0.65rem;
+  display: grid; place-items: center;
+  background: rgba(166,138,109,0.22);
+  color: #a68a6d; font-size: 1.05rem; margin-bottom: 0.65rem;
+}
+body[data-dna-style="organic_premium"] .section,
+body[data-dna-style="organic_premium"] .service-card,
+body[data-dna-style="organic_premium"] .svc-card {
+  animation: dnaReveal 0.7s ease both;
+}
+@keyframes dnaReveal {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  body[data-dna-style="organic_premium"] .section,
+  body[data-dna-style="organic_premium"] .service-card { animation: none; }
+}
+.dna-atm {
+  pointer-events: none; position: fixed; inset: 0; z-index: -1; overflow: hidden;
+  opacity: 0.88;
+}
+.dna-atm__base {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 85% 55% at 50% -8%, rgba(166,138,109,0.4), transparent 58%),
+    linear-gradient(165deg, rgb(8,8,10) 0%, color-mix(in srgb, #a68a6d 18%, rgb(8,8,10)) 45%, rgb(8,8,10) 100%);
+}
+.dna-atm__mesh {
+  position: absolute; inset: -22%;
+  background:
+    radial-gradient(ellipse 48% 36% at 14% 20%, rgba(166,138,109,0.45), transparent 58%),
+    radial-gradient(ellipse 40% 30% at 86% 24%, rgba(166,138,109,0.18), transparent 55%),
+    radial-gradient(ellipse 44% 34% at 50% 90%, rgba(166,138,109,0.14), transparent 55%);
+  animation: dnaMeshDrift 22s ease-in-out infinite alternate;
+}
+.dna-atm__aurora {
+  position: absolute; width: 50vmax; height: 50vmax; border-radius: 42%;
+  filter: blur(72px); opacity: 0.4; mix-blend-mode: screen;
+}
+.dna-atm__aurora--a {
+  left: -16%; top: -12%;
+  background: conic-gradient(from 110deg, rgba(166,138,109,0.55), transparent 55%, rgba(166,138,109,0.25));
+  animation: dnaAuroraSpin 32s linear infinite;
+}
+.dna-atm__aurora--b {
+  right: -20%; top: 28%; opacity: 0.22;
+  background: conic-gradient(from 250deg, rgba(166,138,109,0.4), transparent 50%, rgba(201,184,166,0.35));
+  animation: dnaAuroraSpin 40s linear infinite reverse;
+}
+.dna-atm__aurora--c {
+  left: 18%; bottom: -28%; width: 68vmax; height: 38vmax;
+  background: radial-gradient(ellipse at center, rgba(166,138,109,0.4), transparent 65%);
+  animation: dnaAuroraDrift 26s ease-in-out infinite alternate;
+  opacity: 0.32;
+  filter: blur(64px); mix-blend-mode: screen;
+}
+.dna-atm__grid {
+  position: absolute; inset: 0; opacity: 0.14;
+  background-image:
+    linear-gradient(rgba(41,37,36,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(41,37,36,0.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 28%, black, transparent 78%);
+  animation: dnaGridDrift 42s linear infinite;
+}
+.dna-atm__grid--soft { opacity: 0.1; background-size: 64px 64px; }
+.dna-atm__illu {
+  position: absolute; inset: -10%;
+  opacity: 0.3;
+  background:
+    radial-gradient(ellipse 28% 22% at 78% 18%, rgba(166,138,109,0.2), transparent 70%),
+    radial-gradient(ellipse 22% 30% at 12% 72%, rgba(201,184,166,0.18), transparent 68%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='48' fill='none' stroke='%235b7c6e' stroke-opacity='0.07' stroke-width='1'/%3E%3Cpath d='M20 80 Q60 20 100 80' fill='none' stroke='%23a68a6d' stroke-opacity='0.08' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-size: auto, auto, 180px 180px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  animation: dnaIlluDrift 48s ease-in-out infinite alternate;
+  mix-blend-mode: screen;
+}
+.dna-atm__orb {
+  position: absolute; border-radius: 9999px; filter: blur(56px); opacity: 0.6;
+  animation: dnaOrbFloat 18s ease-in-out infinite;
+}
+.dna-atm__orb--a { width: 20rem; height: 20rem; left: -7%; top: 8%; background: rgba(166,138,109,0.4); }
+.dna-atm__orb--b { width: 16rem; height: 16rem; right: -5%; top: 42%; background: rgba(201,184,166,0.32); animation-delay: -6s; }
+.dna-atm__orb--c { width: 14rem; height: 14rem; left: 38%; bottom: 4%; background: rgba(166,138,109,0.25); animation-delay: -11s; }
+.dna-atm__orb--d {
+  width: 22rem; height: 22rem; right: 18%; bottom: -6%;
+  background: rgba(166,138,109,0.22); animation-delay: -14s; opacity: 0.32;
+}
+.dna-atm__particles { position: absolute; inset: 0; }
+.dna-atm__particle {
+  position: absolute; left: var(--sx); top: var(--sy);
+  width: var(--size); height: var(--size); border-radius: 9999px;
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 0 10px rgba(166,138,109,0.45);
+  animation: dnaParticle var(--dur) ease-in-out infinite;
+  animation-delay: var(--delay); opacity: 0.45;
+}
+.dna-atm__vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 75% 60% at 50% 35%, transparent 40%, rgba(8,10,12,0.5) 100%);
+}
+@keyframes dnaMeshDrift {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(-2%,1.8%) scale(1.05); }
+}
+@keyframes dnaAuroraSpin {
+  from { transform: rotate(0deg) scale(1); }
+  to { transform: rotate(360deg) scale(1.06); }
+}
+@keyframes dnaAuroraDrift {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(3%,-2%) scale(1.08); }
+}
+@keyframes dnaGridDrift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(28px); }
+}
+@keyframes dnaIlluDrift {
+  0% { transform: translate(0,0) rotate(0deg); }
+  100% { transform: translate(-1.5%,1%) rotate(2deg); }
+}
+@keyframes dnaOrbFloat {
+  0%, 100% { transform: translate(0,0); }
+  50% { transform: translate(14px,-18px); }
+}
+@keyframes dnaParticle {
+  0%, 100% { transform: translate(0,0) scale(1); opacity: 0.25; }
+  50% { transform: translate(8px,-22px) scale(1.35); opacity: 0.85; }
+}
+@keyframes dnaPanelShine {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+@keyframes dnaCardLift {
+  from { transform: translateY(0); }
+  to { transform: translateY(-6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dna-atm__mesh, .dna-atm__aurora, .dna-atm__orb, .dna-atm__particle { animation: none !important; }
+}
+
+/* Scene stack — content above atmosphere, never off-screen */
+body[data-dna-style="organic_premium"] .topbar,
+body[data-dna-style="organic_premium"] .hero,
+body[data-dna-style="organic_premium"] .section,
+body[data-dna-style="organic_premium"] footer,
+body[data-dna-style="organic_premium"] .premium-signature,
+body[data-dna-style="organic_premium"] .info-bar,
+body[data-dna-style="organic_premium"] .mid-cta,
+body[data-dna-style="organic_premium"] .stats {
+  position: relative; z-index: 1; box-sizing: border-box; max-width: 100%;
+}
+body[data-dna-style="organic_premium"] .section,
+body[data-dna-style="organic_premium"] .mid-cta,
+body[data-dna-style="organic_premium"] .stats,
+body[data-dna-style="organic_premium"] .premium-signature {
+  width: 100%; max-width: none; margin-inline: 0;
+  padding-inline: max(1.25rem, calc(50vw - 36rem));
+  box-sizing: border-box;
+}
+body[data-dna-style="organic_premium"] .section > *,
+body[data-dna-style="organic_premium"] .mid-cta > *,
+body[data-dna-style="organic_premium"] .premium-signature-copy {
+  max-width: var(--dna-content); width: 100%; margin-inline: auto; box-sizing: border-box;
+}
+
+/* Navigation — glass, sticky, reacts to scroll */
+body[data-dna-style="organic_premium"] .topbar {
+  position: sticky; top: 0; z-index: 40;
+  width: 100%; max-width: none; margin-inline: 0;
+  padding-inline: max(1rem, calc(50vw - 36rem));
+  box-sizing: border-box;
+  background: rgba(8,10,12,0.45) !important;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+body[data-dna-style="organic_premium"] .topbar.is-scrolled {
+  background: rgba(8,10,12,0.78) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+}
+body[data-dna-style="organic_premium"] .topbar a {
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+body[data-dna-style="organic_premium"] .topbar a:hover {
+  color: #a68a6d !important;
+}
+/* Light glass nav must never inherit photo-hero white text */
+body[data-dna-style="organic_premium"] .topbar,
+body[data-dna-style="organic_premium"] .topbar .brand,
+body[data-dna-style="organic_premium"] .topbar .logo-fallback,
+body[data-dna-style="organic_premium"] .topbar a:not(.btn):not(.cta-button) {
+  color: #fafaf9 !important;
+}
+body[data-dna-style="organic_premium"] .topbar .btn,
+body[data-dna-style="organic_premium"] .topbar .cta-button {
+  background: #a68a6d !important;
+  color: #fafaf9 !important;
+  border-color: transparent !important;
+}
+
+/* Hero — impression first */
+body[data-dna-style="organic_premium"] .hero {
+  width: 100%; max-width: none; margin-inline: 0;
+  padding-inline: max(1.25rem, calc(50vw - 36rem));
+  box-sizing: border-box; overflow: hidden; isolation: isolate;
+  min-height: 86vh; min-height: 86dvh;
+  display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 1.25rem;
+}
+/* Heroes A/C/E: dark ink on light canvas; light ink on cinematic canvas */
+body[data-dna-style="organic_premium"] .hero.hero-layout-A,
+body[data-dna-style="organic_premium"] .hero.hero-layout-C,
+body[data-dna-style="organic_premium"] .hero.hero-layout-E {
+  color: #fafaf9 !important;
+  background-color: transparent !important;
+}
+body[data-dna-style="organic_premium"] .hero.hero-layout-A h1,
+body[data-dna-style="organic_premium"] .hero.hero-layout-A .lead,
+body[data-dna-style="organic_premium"] .hero.hero-layout-A p,
+body[data-dna-style="organic_premium"] .hero.hero-layout-C h1,
+body[data-dna-style="organic_premium"] .hero.hero-layout-C .lead,
+body[data-dna-style="organic_premium"] .hero.hero-layout-C p,
+body[data-dna-style="organic_premium"] .hero.hero-layout-E h1,
+body[data-dna-style="organic_premium"] .hero.hero-layout-E .lead,
+body[data-dna-style="organic_premium"] .hero.hero-layout-E p {
+  color: #fafaf9 !important;
+  text-shadow: 0 2px 28px rgba(0,0,0,0.4) !important;
+}
+body[data-dna-style="organic_premium"] .hero.hero-layout-A .btn,
+body[data-dna-style="organic_premium"] .hero.hero-layout-C .btn,
+body[data-dna-style="organic_premium"] .hero.hero-layout-E .btn {
+  background: #a68a6d !important;
+  color: #fafaf9 !important;
+  border-color: transparent !important;
+  box-shadow: 0 10px 28px rgba(166,138,109,0.28) !important;
+}
+/* Primary CTA wins over Component Composer .btn-outline ghosts */
+body[data-dna-style="organic_premium"] .hero.hero-layout-A a.btn.cta-button:not(.btn-wa),
+body[data-dna-style="organic_premium"] .hero.hero-layout-C a.btn.cta-button:not(.btn-wa),
+body[data-dna-style="organic_premium"] .hero.hero-layout-E a.btn.cta-button:not(.btn-wa) {
+  background: #a68a6d !important;
+  color: #fafaf9 !important;
+  border: none !important;
+}
+body[data-dna-style="organic_premium"] .hero.hero-layout-A .btn-outline.btn-wa,
+body[data-dna-style="organic_premium"] .hero.hero-layout-C .btn-outline.btn-wa,
+body[data-dna-style="organic_premium"] .hero.hero-layout-E .btn-outline.btn-wa,
+body[data-dna-style="organic_premium"] .hero.hero-layout-A .btn-wa,
+body[data-dna-style="organic_premium"] .hero.hero-layout-C .btn-wa,
+body[data-dna-style="organic_premium"] .hero.hero-layout-E .btn-wa {
+  background: #25d366 !important;
+  color: #052e16 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+body[data-dna-style="organic_premium"] .hero.hero-layout-A .btn-reviews:not(.btn-wa),
+body[data-dna-style="organic_premium"] .hero.hero-layout-C .btn-reviews:not(.btn-wa),
+body[data-dna-style="organic_premium"] .hero.hero-layout-E .btn-reviews:not(.btn-wa) {
+  color: #292524 !important;
+  border: 2px solid rgba(41,37,36,0.4) !important;
+  background: rgba(255,255,255,0.72) !important;
+  box-shadow: none !important;
+}
+/* Immersive heroes: solid primary CTA (ghost white outline fails on busy photos) */
+body[data-dna-style="organic_premium"] .hero.hero-layout-B .btn:not(.btn-wa),
+body[data-dna-style="organic_premium"] .hero.hero-layout-D .btn:not(.btn-wa),
+body[data-dna-style="organic_premium"] .hero.hero-layout-F .btn:not(.btn-wa),
+body[data-dna-style="organic_premium"] .hero.hero-layout-B a.btn.cta-button:not(.btn-wa),
+body[data-dna-style="organic_premium"] .hero.hero-layout-D a.btn.cta-button:not(.btn-wa),
+body[data-dna-style="organic_premium"] .hero.hero-layout-F a.btn.cta-button:not(.btn-wa) {
+  background: #a68a6d !important;
+  color: #fafaf9 !important;
+  border-color: transparent !important;
+}
+body[data-dna-style="organic_premium"] .hero.hero-layout-B .btn-wa,
+body[data-dna-style="organic_premium"] .hero.hero-layout-D .btn-wa,
+body[data-dna-style="organic_premium"] .hero.hero-layout-F .btn-wa {
+  background: #25d366 !important;
+  color: #052e16 !important;
+  border-color: transparent !important;
+}
+body[data-dna-style="organic_premium"] .hero.hero-layout-B h1,
+body[data-dna-style="organic_premium"] .hero.hero-layout-D h1,
+body[data-dna-style="organic_premium"] .hero.hero-layout-F h1,
+body[data-dna-style="organic_premium"] .hero.hero-layout-B .lead,
+body[data-dna-style="organic_premium"] .hero.hero-layout-D .lead,
+body[data-dna-style="organic_premium"] .hero.hero-layout-F .lead {
+  color: #fafaf9 !important;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.35);
+}
+body[data-dna-style="organic_premium"] .hero-D-panel {
+  max-width: min(40rem, 100%) !important; margin-left: 0 !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.12), rgba(8,10,12,0.2) 45%, rgba(166,138,109,0.22)),
+    rgba(8,10,12,0.55) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  box-shadow: 0 28px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.5) !important;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  overflow: hidden; position: relative;
+  color: #fafaf9 !important;
+}
+body[data-dna-style="organic_premium"] .hero-D-panel h1,
+body[data-dna-style="organic_premium"] .hero-D-panel .lead,
+body[data-dna-style="organic_premium"] .hero-D-panel p {
+  color: #fafaf9 !important;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.35) !important;
+}
+body[data-dna-style="organic_premium"] .hero.hero-layout-D .hero-D-panel h1,
+body[data-dna-style="organic_premium"] .hero.hero-layout-D .hero-D-panel .lead,
+body[data-dna-style="organic_premium"] .hero.hero-layout-D .hero-D-panel p {
+  color: #fafaf9 !important;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.35) !important;
+}
+body[data-dna-style="organic_premium"] .hero-D-panel::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.35) 50%, transparent 62%);
+  background-size: 220% 100%; animation: dnaPanelShine 5s ease-in-out infinite; opacity: 0.85;
+}
+body[data-dna-style="organic_premium"] .hero-D-panel > * { position: relative; z-index: 2; }
+/* Premium wow — first 3 seconds: full-bleed emotion, not corporate card */
+body[data-tier="premium"][data-dna-style="organic_premium"] .hero.hero-layout-D {
+  min-height: 100vh !important; min-height: 100dvh !important;
+}
+body[data-tier="premium"][data-dna-style="organic_premium"] .hero.hero-layout-D.has-photo {
+  background-image:
+    linear-gradient(115deg, rgba(8,10,12,0.78) 0%, rgba(8,10,12,0.35) 42%, rgba(166,138,109,0.28) 100%),
+    url("assets/hero.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+body[data-tier="premium"][data-dna-style="organic_premium"] .hero-D-panel {
+  max-width: min(36rem, 92vw) !important;
+  margin-left: max(1.25rem, 10vw) !important;
+  padding: 2.75rem 2.4rem !important;
+  border-radius: 28px !important;
+  background: rgba(8,10,12,0.52) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.45) !important;
+}
+body[data-tier="premium"][data-dna-style="organic_premium"] .hero-D-panel h1 {
+  font-size: clamp(2.4rem, 5.8vw, 3.85rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.03em !important;
+  color: #fafaf9 !important;
+  text-shadow: 0 4px 40px rgba(0,0,0,0.45) !important;
+  max-width: 14ch;
+}
+body[data-tier="premium"][data-dna-style="organic_premium"] .hero-D-panel .lead,
+body[data-tier="premium"][data-dna-style="organic_premium"] .hero-D-panel p {
+  color: rgba(250,250,249,0.9) !important;
+  font-size: 1.12rem !important;
+  max-width: 34ch;
+}
+body[data-dna-style="organic_premium"] .hero-D-float {
+  position: static !important; inset: auto !important;
+  width: min(40rem, 100%) !important; max-width: 100% !important;
+  display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem;
+}
+body[data-dna-style="organic_premium"] .hero-D-float .hero-kpi {
+  background: rgba(255,255,255,0.88); color: #1c1917;
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12); text-align: center;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+body[data-dna-style="organic_premium"] .hero-D-float .hero-kpi:hover {
+  transform: translateY(-4px); box-shadow: 0 18px 40px rgba(166,138,109,0.25);
+}
+
+/* Cards live — hover lift + glow */
+body[data-dna-style="organic_premium"] .service-card,
+body[data-dna-style="organic_premium"] .svc-card,
+body[data-dna-style="organic_premium"] .svc-glass,
+body[data-dna-style="organic_premium"] .process-card,
+body[data-dna-style="organic_premium"] .faq-item,
+body[data-dna-style="organic_premium"] .faq-bubble,
+body[data-dna-style="organic_premium"] .faq-panel,
+body[data-dna-style="organic_premium"] .faq-acc,
+body[data-dna-style="organic_premium"] .testimonial-card,
+body[data-dna-style="organic_premium"] .services-block li,
+body[data-dna-style="organic_premium"] .benefits li {
+  background: rgba(18,22,20,0.82) !important;
+  border: 1px solid rgba(166,138,109,0.32) !important;
+  backdrop-filter: blur(var(--dna-glass-blur));
+  -webkit-backdrop-filter: blur(var(--dna-glass-blur));
+  box-shadow: 0 14px 40px rgba(28,25,23,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+  border-radius: 1.1rem;
+  color: #fafaf9 !important;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s ease, border-color 0.35s ease;
+}
+body[data-dna-style="organic_premium"] .service-card h3,
+body[data-dna-style="organic_premium"] .svc-card h3,
+body[data-dna-style="organic_premium"] .faq-bubble h3,
+body[data-dna-style="organic_premium"] .faq-panel h3,
+body[data-dna-style="organic_premium"] .faq-acc summary,
+body[data-dna-style="organic_premium"] .testimonial-card p,
+body[data-dna-style="organic_premium"] .service-card p,
+body[data-dna-style="organic_premium"] .svc-card p,
+body[data-dna-style="organic_premium"] .faq-bubble p,
+body[data-dna-style="organic_premium"] .faq-panel p,
+body[data-dna-style="organic_premium"] .faq-acc p,
+body[data-dna-style="organic_premium"] .services-block li,
+body[data-dna-style="organic_premium"] .benefits li {
+  color: #fafaf9 !important;
+}
+body[data-dna-style="organic_premium"] .section h2,
+body[data-dna-style="organic_premium"] .section .muted,
+body[data-dna-style="organic_premium"] .about p,
+body[data-dna-style="organic_premium"] .about h2,
+body[data-dna-style="organic_premium"] footer,
+body[data-dna-style="organic_premium"] footer a,
+body[data-dna-style="organic_premium"] .contact label,
+body[data-dna-style="organic_premium"] .contact p {
+  color: #fafaf9 !important;
+}
+body[data-dna-style="organic_premium"] .section .muted,
+body[data-dna-style="organic_premium"] .muted {
+  color: rgba(250,250,249,0.82) !important;
+}
+body[data-dna-style="organic_premium"] .section {
+  background: rgba(8,10,12,0.22) !important;
+}
+body[data-dna-style="organic_premium"] .section.section-alt,
+body[data-dna-style="organic_premium"] .section-alt {
+  background: rgba(255,255,255,0.04) !important;
+}
+body[data-dna-style="organic_premium"] .contact-form input,
+body[data-dna-style="organic_premium"] .contact-form textarea,
+body[data-dna-style="organic_premium"] input,
+body[data-dna-style="organic_premium"] textarea {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fafaf9 !important;
+  border: 1px solid rgba(255,255,255,0.22) !important;
+}
+body[data-dna-style="organic_premium"] .contact-form input::placeholder,
+body[data-dna-style="organic_premium"] .contact-form textarea::placeholder {
+  color: rgba(250,250,249,0.45) !important;
+}
+body[data-dna-style="organic_premium"] .hero-D-float .hero-kpi {
+  background: rgba(8,10,12,0.72) !important;
+  color: #fafaf9 !important;
+  border: 1px solid rgba(255,255,255,0.22) !important;
+}
+body[data-dna-style="organic_premium"] .hero-D-float .hero-kpi strong,
+body[data-dna-style="organic_premium"] .hero-D-float .hero-kpi span {
+  color: inherit !important;
+}
+/* Enable Premium atmosphere layers for Business/Starter too */
+.dna-atm__illu {
+  opacity: 0.28 !important;
+}
+.dna-atm__orb--c {
+  opacity: 0.35 !important;
+}
+body[data-dna-style="organic_premium"] .service-card:hover,
+body[data-dna-style="organic_premium"] .svc-card:hover,
+body[data-dna-style="organic_premium"] .faq-item:hover,
+body[data-dna-style="organic_premium"] .services-block li:hover,
+body[data-dna-style="organic_premium"] .benefits li:hover {
+  transform: translateY(-6px);
+  border-color: rgba(166,138,109,0.45) !important;
+  box-shadow: 0 22px 56px rgba(166,138,109,0.22), inset 0 1px 0 rgba(255,255,255,0.55);
+}
+body[data-dna-style="organic_premium"] .btn {
+  background: #a68a6d; color: #fafaf9;
+  box-shadow: 0 12px 28px rgba(166,138,109,0.35);
+  transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+}
+body[data-dna-style="organic_premium"] .btn:hover {
+  filter: brightness(1.06); transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(166,138,109,0.45);
+}
+
+/* Readable cards on dark/photo scenes */
+body[data-dna-style="organic_premium"] .sec-treat-photo_band .service-card,
+body[data-dna-style="organic_premium"] .sec-treat-photo_band .svc-card,
+body[data-dna-style="organic_premium"] .sec-treat-photo_band li,
+body[data-dna-style="organic_premium"] .sec-treat-ink .service-card,
+body[data-dna-style="organic_premium"] .sec-treat-ink .svc-card,
+body[data-dna-style="organic_premium"] .sec-treat-ink li,
+body[data-dna-style="organic_premium"] .sec-treat-photo_band .faq-item,
+body[data-dna-style="organic_premium"] .sec-treat-ink .faq-item {
+  background: rgba(255,255,255,0.94) !important;
+  color: #1c1917 !important;
+  border-color: rgba(255,255,255,0.7) !important;
+}
+body[data-dna-style="organic_premium"] .sec-treat-photo_band h3,
+body[data-dna-style="organic_premium"] .sec-treat-photo_band p,
+body[data-dna-style="organic_premium"] .sec-treat-photo_band li,
+body[data-dna-style="organic_premium"] .sec-treat-ink h3,
+body[data-dna-style="organic_premium"] .sec-treat-ink .service-card p,
+body[data-dna-style="organic_premium"] .sec-treat-ink li {
+  color: #1c1917 !important;
+}
+body[data-dna-style="organic_premium"] .sec-treat-photo_band > h2,
+body[data-dna-style="organic_premium"] .sec-treat-ink > h2 {
+  color: #fafaf9 !important;
+}
+
+/* Composition modes — Digital Creative Studio library */
+body[data-dna-composition="magazine"] .services-block ul,
+body[data-dna-composition="magazine"] .services-block .svc-grid,
+body[data-dna-composition="editorial"] .services-block ul,
+body[data-dna-composition="folio"] .services-block ul {
+  display: grid !important; grid-template-columns: 1.15fr 0.85fr; gap: 1.25rem; align-items: stretch;
+}
+body[data-dna-composition="magazine"] .services-block li:first-child,
+body[data-dna-composition="editorial"] .services-block li:first-child {
+  grid-row: span 2; min-height: 16rem;
+}
+body[data-dna-composition="organic"] .benefits ul,
+body[data-dna-composition="organic"] .benefits ol,
+body[data-dna-composition="garden"] .benefits ul,
+body[data-dna-composition="sanctuary"] .benefits ul {
+  display: grid !important; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem;
+}
+body[data-dna-composition="immersive"] .about,
+body[data-dna-composition="cinematic"] .about,
+body[data-dna-composition="horizon"] .about,
+body[data-dna-composition="whisper"] .about {
+  display: grid; grid-template-columns: 1fr 1.1fr; gap: 2rem; align-items: center;
+}
+body[data-dna-composition="split"] .about,
+body[data-dna-composition="dialogue"] .about,
+body[data-dna-composition="chamber"] .about {
+  display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 2.5rem; align-items: start;
+}
+body[data-dna-composition="asymmetrical"] .services-block ul,
+body[data-dna-composition="atelier"] .services-block ul,
+body[data-dna-composition="boutique"] .services-block ul {
+  display: grid !important;
+  grid-template-columns: 1.3fr 0.7fr 1fr;
+  gap: 1rem;
+}
+body[data-dna-composition="storytelling"] .process,
+body[data-dna-composition="timeline"] .process,
+body[data-dna-composition="ritual"] .process {
+  max-width: none !important;
+}
+body[data-dna-composition="storytelling"] .process ol,
+body[data-dna-composition="timeline"] .process ol,
+body[data-dna-composition="ritual"] .process ol {
+  display: grid !important; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1.25rem;
+  counter-reset: studio-step;
+}
+body[data-dna-composition="gallery"] .gallery,
+body[data-dna-composition="folio"] .gallery,
+body[data-dna-composition="atelier"] .gallery {
+  padding-block: 4.5rem !important;
+}
+body[data-dna-composition="trust_cascade"] .trust,
+body[data-dna-composition="chamber"] .trust {
+  padding-block: 4rem !important;
+}
+body[data-dna-composition="manifesto"] .about,
+body[data-dna-composition="whisper"] .about {
+  font-size: 1.08em;
+}
+body[data-dna-composition="pulse"] .stats {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem;
+}
+body[data-dna-composition="overture"] .showcase,
+body[data-dna-composition="cinematic"] .showcase {
+  min-height: 42vh;
+}
+@media (max-width: 820px) {
+  body[data-dna-composition="magazine"] .services-block ul,
+  body[data-dna-composition="magazine"] .services-block .svc-grid,
+  body[data-dna-composition="editorial"] .services-block ul,
+  body[data-dna-composition="immersive"] .about,
+  body[data-dna-composition="cinematic"] .about,
+  body[data-dna-composition="horizon"] .about,
+  body[data-dna-composition="whisper"] .about,
+  body[data-dna-composition="split"] .about,
+  body[data-dna-composition="dialogue"] .about,
+  body[data-dna-composition="chamber"] .about,
+  body[data-dna-composition="asymmetrical"] .services-block ul,
+  body[data-dna-composition="atelier"] .services-block ul,
+  body[data-dna-composition="boutique"] .services-block ul {
+    grid-template-columns: 1fr !important;
+  }
+  body[data-dna-composition="magazine"] .services-block li:first-child,
+  body[data-dna-composition="editorial"] .services-block li:first-child { grid-row: auto; }
+  body[data-dna-composition="pulse"] .stats { grid-template-columns: 1fr; }
+}
+
+body[data-dna-style="organic_premium"] footer {
+  width: 100%; max-width: none; margin-inline: 0;
+  padding-inline: max(1rem, calc(50vw - 36rem));
+  box-sizing: border-box;
+  background: rgba(0,0,0,0.45) !important;
+  color: #e7e5e4 !important;
+}
+
+.sec-treat-glass {
+  background: rgba(255,255,255,0.05) !important;
+  backdrop-filter: blur(16px);
+  border-block: 1px solid rgba(255,255,255,0.12);
+  color: #fafaf9 !important;
+  padding-block: 3.75rem !important;
+}
+.sec-treat-glass h2, .sec-treat-glass .muted, .sec-treat-glass p, .sec-treat-glass li { color: #fafaf9 !important; }
+
+
+.sec-treat-photo_band {
+  background:
+    linear-gradient(180deg, rgba(12,10,9,0.5), rgba(12,10,9,0.72)),
+    url("assets/hero.jpg") center/cover no-repeat !important;
+  color: #fafaf9 !important;
+  padding-block: 3.75rem !important;
+}
+.sec-treat-photo_band h2, .sec-treat-photo_band .muted { color: #fafaf9 !important; }
+
+
+.sec-treat-ink {
+  background: linear-gradient(165deg, #1c1917 0%, rgba(166,138,109,0.55) 100%) !important;
+  color: #fafaf9 !important;
+  padding-block: 3.75rem !important;
+}
+.sec-treat-ink h2, .sec-treat-ink .muted, .sec-treat-ink p, .sec-treat-ink li { color: #fafaf9 !important; }
+.sec-treat-ink a { color: #a68a6d !important; }
+
+
+.sec-treat-illustration {
+  background:
+    radial-gradient(circle at 85% 20%, rgba(166,138,109,0.38), transparent 42%),
+    radial-gradient(circle at 10% 80%, rgba(201,184,166,0.22), transparent 40%),
+    linear-gradient(180deg, #121614, rgba(166,138,109,0.2)) !important;
+  color: #fafaf9 !important;
+  padding-block: 3.75rem !important;
+}
+.sec-treat-illustration h2, .sec-treat-illustration .muted, .sec-treat-illustration p, .sec-treat-illustration li { color: #fafaf9 !important; }
+
+
+.sec-treat-tint {
+  background: linear-gradient(135deg, rgba(166,138,109,0.28), rgba(12,14,13,0.88)) !important;
+  color: #fafaf9 !important;
+  padding-block: 3.75rem !important;
+}
+.sec-treat-tint h2, .sec-treat-tint .muted, .sec-treat-tint p, .sec-treat-tint li { color: #fafaf9 !important; }
+
+
+.sec-treat-gradient {
+  background: linear-gradient(160deg, rgba(166,138,109,0.35), #0c0e0d 48%, rgba(166,138,109,0.18)) !important;
+  color: #fafaf9 !important;
+  padding-block: 3.75rem !important;
+}
+.sec-treat-gradient h2, .sec-treat-gradient .muted, .sec-treat-gradient p, .sec-treat-gradient li { color: #fafaf9 !important; }
+
+
+
+    /* Component Composer R2.2b — Profile A: Glass / soft rhythm */
+    body[data-comp-profile="A"] .btn-pill { }
+    body[data-comp-profile] .btn-pill { border-radius: 999px; }
+    body[data-comp-profile] .btn-square { border-radius: 6px; }
+    body[data-comp-profile] .btn-outline {
+      background: transparent; color: inherit; border: 2px solid currentColor;
+      box-shadow: none;
+    }
+    /* Dark/full-bleed heroes only — light A/C/E handled by Design DNA quality floor */
+    body[data-comp-profile="A"] .hero.hero-layout-B .btn-outline,
+    body[data-comp-profile="A"] .hero.hero-layout-D .btn-outline,
+    body[data-comp-profile="A"] .hero.hero-layout-F .btn-outline {
+      color: #fff; border-color: rgba(255,255,255,0.9);
+    }
+
+    body[data-comp-profile="A"] .services-glass {
+      display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      list-style: none;
+    }
+    body[data-comp-profile="A"] .svc-glass {
+      background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 22px; padding: 1.5rem 1.35rem;
+      backdrop-filter: blur(10px); box-shadow: 0 16px 40px rgba(15,23,42,0.08);
+    }
+    body[data-comp-profile="A"] .ben-circles {
+      list-style: none; display: grid; gap: 1.25rem;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+    body[data-comp-profile="A"] .ben-circle {
+      text-align: center; padding: 1.25rem 1rem;
+      background: #fff; border-radius: 24px; box-shadow: 0 10px 28px rgba(15,23,42,0.06);
+    }
+    body[data-comp-profile="A"] .ben-dot {
+      display: block; width: 2.75rem; height: 2.75rem; margin: 0 auto 0.85rem;
+      border-radius: 50%; background: var(--acc); border: 3px solid var(--p);
+    }
+    body[data-comp-profile="A"] .faq-rounded { display: grid; gap: 1rem; }
+    body[data-comp-profile="A"] .faq-bubble {
+      background: #fff; border-radius: 20px; padding: 1.15rem 1.35rem;
+      border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(15,23,42,0.05);
+    }
+    body[data-comp-profile="A"] .rev-float {
+      display: grid; gap: 1.25rem; grid-template-columns: repeat(3, 1fr);
+      align-items: start; padding: 1rem 0 2rem;
+    }
+    body[data-comp-profile="A"] .rev-card {
+      background: rgba(255,255,255,0.92); border-radius: 18px; padding: 1.25rem;
+      box-shadow: 0 18px 36px rgba(15,23,42,0.12); border: 1px solid rgba(255,255,255,0.8);
+    }
+    body[data-comp-profile="A"] .rev-float-a { transform: translateY(0); }
+    body[data-comp-profile="A"] .rev-float-b { transform: translateY(1.5rem); }
+    body[data-comp-profile="A"] .rev-float-c { transform: translateY(0.5rem); }
+    body[data-comp-profile="A"] .gal-masonry {
+      column-count: 3; column-gap: 0.85rem;
+    }
+    body[data-comp-profile="A"] .gal-item {
+      break-inside: avoid; margin: 0 0 0.85rem; border-radius: 16px; overflow: hidden;
+    }
+    body[data-comp-profile="A"] .gal-item img { width: 100%; display: block; }
+    body[data-comp-profile="A"] .mid-cta-glass {
+      background: transparent; padding: 2rem 1.25rem;
+    }
+    body[data-comp-profile="A"] .mid-cta-glass .mid-cta-inner {
+      max-width: 720px; margin: 0 auto; text-align: center;
+      padding: 2.5rem 1.75rem; border-radius: 28px;
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
+      backdrop-filter: blur(12px); color: #fff;
+      background-image: linear-gradient(135deg, var(--pd), var(--p));
+    }
+    body[data-comp-profile="A"] .mid-cta-glass h2 { color: #fff; margin-bottom: 1rem; }
+    @media (max-width: 800px) {
+      body[data-comp-profile="A"] .rev-float { grid-template-columns: 1fr; }
+      body[data-comp-profile="A"] .rev-float-b { transform: none; }
+      body[data-comp-profile="A"] .gal-masonry { column-count: 2; }
+    }
+
+    /* Layout Variants R2.2f */
+    body[data-layout-profile="L4"] { --layout-cta: "dual"; }
+    .services-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.35rem; }
+    .svc-row { border-bottom:1px solid rgba(15,23,42,.08); padding:0.85rem 0; }
+    .svc-row h3 { margin:0 0 0.25rem; font-size:1.05rem; }
+    .footer-split-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start; }
+    .footer-contact-row { margin-bottom:0.75rem; }
+    @media (max-width:720px) { .footer-split-grid { grid-template-columns:1fr; } }
+
+
+    /* Trust Composer R2.2d */
+    .trust-composer .trust-stack { display: grid; gap: 2rem; }
+    .trust-block h3 { font-size: 1.15rem; margin-bottom: 0.85rem; color: var(--pd); }
+    .trust-chip-row { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+    .trust-chip {
+      border: 1px solid var(--line); background: #fff; border-radius: 999px;
+      padding: 0.4rem 0.9rem; font-size: 0.85rem; font-weight: 600; color: var(--pd);
+    }
+    .trust-chip-cert { border-color: var(--p); }
+    .trust-chip-brand { background: var(--surface); }
+    .trust-rating {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: baseline;
+      margin-bottom: 1rem;
+    }
+    .trust-rating strong {
+      font-size: clamp(1.75rem, 4vw, 2.4rem); color: var(--p); letter-spacing: -0.03em;
+    }
+    .trust-rating-count, .trust-rating-src { color: var(--muted); font-size: 0.95rem; }
+    .trust-social { display: grid; gap: 1rem; }
+    .trust-quote {
+      margin: 0; padding: 1rem 0 1rem 1rem; border-left: 3px solid var(--acc);
+      background: transparent;
+    }
+    .trust-quote cite { display: block; margin-top: 0.5rem; color: var(--muted); font-size: 0.85rem; }
+    .trust-portfolio {
+      display: grid; gap: 0.65rem; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+    .trust-photo { margin: 0; border-radius: 10px; overflow: hidden; aspect-ratio: 4/3; background: var(--surface); }
+    .trust-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .trust-guarantee-list { list-style: none; display: grid; gap: 0.55rem; }
+    .trust-guarantee-list li {
+      padding-left: 1.35rem; position: relative;
+    }
+    .trust-guarantee-list li::before {
+      content: "✓"; position: absolute; left: 0; color: var(--p); font-weight: 700;
+    }
+    .trust-block[data-trust-block="process"] .process-grid { margin-top: 0.25rem; }
+
+    /* Media Intelligence R2.2e */
+    .hero.has-photo, .hero-bleed.has-photo {
+      background-size: cover !important;
+      background-position: center center !important;
+      background-repeat: no-repeat !important;
+    }
+    .hero img, .hero-A-media img, .hero-C-portrait img, .hero-E-orb img,
+    .hero-F-banner img, .trust-photo img, .gal-item img, .gal-cell img,
+    .gal-hero img, .gal-side img, .client-photo img {
+      object-fit: cover;
+      object-position: center;
+      max-width: 100%;
+      height: 100%;
+      image-rendering: auto;
+    }
+    @media (max-width: 720px) {
+      .hero.has-photo { min-height: 52vh; }
+      .gal-masonry { column-count: 2; }
+    }
+
+  /* Client cabinet */
+  .account-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(16rem,1fr)); gap:1.25rem; margin-top:1.25rem; }
+  .account-panel { padding:1.25rem; border-radius:1rem; border:1px solid rgba(var(--dna-ar,91),var(--dna-ag,124),var(--dna-ab,110),0.25); background:rgba(255,255,255,0.06); }
+  .account-panel label { display:block; margin:0.65rem 0; font-size:0.9rem; font-weight:600; }
+  .account-panel input { display:block; width:100%; margin-top:0.35rem; padding:0.65rem 0.75rem; border-radius:0.65rem; border:1px solid rgba(255,255,255,0.18); background:rgba(0,0,0,0.15); color:inherit; font:inherit; }
+  .topbar-auth { font-weight:700; }
   </style>
+<style id="vie-motion">
+/* Visual Intelligence · Motion Engine · business · surface=website */
+body.vie-motion-business { --vie-motion-tier: 'business'; }
+
+body.vie-motion-business .hero,
+body.vie-motion-premium .hero {
+  position: relative;
+}
+body.vie-motion-business .hero-glass,
+body.vie-motion-premium .hero-glass,
+body.vie-motion-business .vie-glass,
+body.vie-motion-premium .vie-glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--surface, #fff) 72%, transparent);
+}
+body.vie-motion-business .section,
+body.vie-motion-premium .section {
+  transition: opacity .55s ease, transform .55s ease;
+}
+body.vie-motion-business [data-vie-section],
+body.vie-motion-premium [data-vie-section] {
+  view-timeline-name: --vie-section;
+}
+
+</style>
+<style id="digital-creative-studio">
+
+/* Typography Director */
+body {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body .hero h1,
+body .hero .hero-title,
+body h1 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+}
+body .section h2 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: 1.55rem;
+}
+@media (max-width: 720px) {
+  body { line-height: 1.5; }
+  body .hero h1 { letter-spacing: -0.02em; }
+}
+
+
+/* Luxury Director — off */
+body[data-luxury="0"] .hero { --lux-space: 1; }
+
+
+/* Conversion Director */
+.conversion-mid-cta,
+[data-conversion-mid-cta="1"] {
+  text-align: center;
+  padding: 2.75rem 1.25rem;
+  margin: 0;
+  background: linear-gradient(180deg, rgba(15,23,42,0.04), rgba(15,23,42,0.02));
+}
+.conversion-mid-cta .btn { font-weight: 600; }
+body[data-conversion="1"] .topbar-cta { box-shadow: 0 6px 18px rgba(15,23,42,0.12); }
+
+
+/* Trust Director — density=high */
+body[data-trust-density="high"] #trust,
+body[data-trust-density="high"] .trust {
+  scroll-margin-top: 4rem;
+}
+body[data-trust-density="high"] .hero-certs,
+body[data-trust-density="high"] .trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1rem;
+}
+body[data-trust-density="high"] .hero-certs span,
+body[data-trust-density="high"] .trust-badges span {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(15,23,42,0.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+}
+body[data-trust-density="high"] #maps,
+body[data-trust-density="high"] #contact {
+  background: #f8fafc;
+}
+
+
+/* Performance Director */
+body[data-perf-hero="static"] .hero-still,
+body[data-perf-hero="static"] video.hero-media {
+  display: none !important;
+}
+img { max-width: 100%; height: auto; }
+
+
+/* Accessibility Director */
+:root { --a11y-min-size: 1rem; }
+body { font-size: max(16px, var(--a11y-min-size)); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  z-index: 10000;
+}
+.skip-link:focus { left: 0.5rem; top: 0.5rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Localization Director — DE / strict */
+body[data-locale-style="strict"] {
+  --locale-cta-weight: 600;
+}
+body[data-locale-style="strict"] .section h2 { letter-spacing: -0.02em; }
+body[data-locale-style="editorial"] #gallery,
+body[data-locale-portfolio="high"] #gallery {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+body[data-locale-social="high"] #trust,
+body[data-locale-social="high"] #testimonials {
+  padding-top: 3.5rem;
+}
+body[data-locale-style="direct"] .btn,
+body[data-locale-style="direct"] .topbar-cta {
+  font-weight: var(--locale-cta-weight);
+  text-transform: none;
+}
+body[data-locale-portfolio="medium"] { --portfolio-emphasis: medium; }
+body[data-locale-social="medium"] { --social-emphasis: medium; }
+
+</style>
+<!-- studio-fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<!-- conversion-director-note: Hold — conversion structure OK. -->
 </head>
-<body data-tier="basic">
-  <nav class="topbar">
-    <div class="brand"><strong>Autowerkstatt Bergmann</strong></div>
+<body id="top" data-tier="basic" data-brand="auto" data-niche="auto" data-hero-layout="A" data-comp-profile="A" data-layout-profile="L4" data-footer-variant="split" data-cta-strategy="dual" data-market="DE" data-density="compact" data-motion="css" data-trust-template="A" data-media-bg="0" data-luxury="0" data-studio="digital_creative_studio_v2" data-industry="Precision Automotive" data-dna-style="organic_premium" data-dna-emotion="warmth" data-dna-palette="warm_clay" data-dna-hero="soft_orb_photo" data-dna-depth="medium" data-dna-glass="medium" data-dna-composition="soft" data-dna-fp="5245e99cb57992ce" data-vie-engine="visual_intelligence_v1" data-vie-surface="website" data-vie-niche="auto" data-vie-motion="business" data-vie-mood="dark" class="vie-motion-business" data-industry="Precision Automotive" data-trust-density="high" data-trust-certs="hero" data-trust-map="1" data-perf-hero="static" data-a11y="1" data-locale-style="strict" data-locale-portfolio="medium" data-locale-social="medium" data-locale-market="DE" data-locale-legal="impressum,datenschutz">
+
+  <div class="dna-atm" aria-hidden="true" data-dna-atmosphere="1" data-atm-mode="cinematic" data-atm-tier="basic">
+    <div class="dna-atm__base"></div>
+    <div class="dna-atm__mesh"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--a"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--b"></div>
+    
+    <div class="dna-atm__orb dna-atm__orb--a"></div>
+    <div class="dna-atm__orb dna-atm__orb--b"></div>
+    <div class="dna-atm__orb dna-atm__orb--c"></div>
+    <div class="dna-atm__particles">
+        <span class="dna-atm__particle" style="--sx:3%;--sy:4%;--dur:10.0s;--delay:-0.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:20%;--sy:27%;--dur:11.4s;--delay:-1.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:37%;--sy:50%;--dur:12.8s;--delay:-2.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:54%;--sy:73%;--dur:14.2s;--delay:-3.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:71%;--sy:8%;--dur:15.6s;--delay:-4.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:88%;--sy:31%;--dur:17.0s;--delay:-5.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:13%;--sy:54%;--dur:18.4s;--delay:-6.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:30%;--sy:77%;--dur:19.799999999999997s;--delay:-7.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:47%;--sy:12%;--dur:21.2s;--delay:-8.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:64%;--sy:35%;--dur:10.0s;--delay:-9.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:81%;--sy:58%;--dur:11.4s;--delay:-10.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:6%;--sy:81%;--dur:12.8s;--delay:-0.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:23%;--sy:16%;--dur:14.2s;--delay:-1.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:40%;--sy:39%;--dur:15.6s;--delay:-2.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:57%;--sy:62%;--dur:17.0s;--delay:-3.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:74%;--sy:85%;--dur:18.4s;--delay:-4.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:91%;--sy:20%;--dur:19.799999999999997s;--delay:-5.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:16%;--sy:43%;--dur:21.2s;--delay:-6.0s;--size:3px"></span>
+    </div>
+    <div class="dna-atm__vignette"></div>
+  </div>
+
+  <nav class="topbar" aria-label="Navigation">
+    <div class="brand"><span class="brand-lockup" title="Nord Klar"><span class="brand-mark-wrap" style="display:inline-flex"><svg class="brand-mark" width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><circle cx="20.0" cy="20.0" r="18.0" fill="rgb(46,66,96)"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" fill="#fafaf9" font-family="Georgia,serif" font-size="16.0" font-weight="700">NK</text></svg></span><strong class="brand-word">Nord Klar</strong></span></div>
     <div class="topbar-links">
-       <a href="#testimonials">Kundenstimmen</a><a href="#contact">Termin vereinbaren</a>
+       <a href="#services">Leistungen</a><a class="btn topbar-cta" href="#contact">Termin vereinbaren</a>
     </div>
   </nav>
-  <div class="trust-strip"><span>Geprüft · Lokal · Zuverlässig</span></div>
-  <header class="hero has-photo">
-    <div class="hero-inner">
-      <h1 class="hero-anim">Autowerkstatt Bergmann — Werkstatt mit Festpreis-Diagnose</h1>
-      <p class="lead hero-anim hero-anim-d1">Transparente Kostenvoranschläge, moderne Diagnose und Garantie auf alle Arbeiten.</p>
-      <div class="trust-row hero-anim hero-anim-d2"><span class="trust-pill">Meisterbetrieb</span><span class="trust-pill">Festpreis vor Start</span><span class="trust-pill">Garantie auf Arbeit</span></div>
-      <div class="hero-ctas">
-        <a class="btn" href="#contact">Termin vereinbaren</a> <a class="btn btn-wa" href="https://wa.me/491715550100" target="_blank" rel="noopener">WhatsApp</a> <a class="btn btn-reviews" href="#testimonials">Kundenstimmen</a>
+
+  <header class="hero hero-parallax hero-layout-A has-photo" data-hero-layout="A">
+    <div class="hero-A-grid">
+      <div class="hero-A-copy">
+        <h1 class="hero-text hero-anim">Nord Klar — Technik ohne Theater</h1>
+        <p class="lead hero-text hero-text-delay hero-anim hero-anim-d1">Autobesitzer in Hamburg verdienen Diagnose ohne Verkaufsdruck.</p>
+        <div class="trust-row hero-text hero-text-delay-2 hero-anim hero-anim-d2"><span class="trust-pill">Seit 2021 in Hamburg</span><span class="trust-pill">Transparente Preise</span><span class="trust-pill">Feste Ansprechpartner</span></div>
+        <div class="hero-ctas">
+          <a class="btn cta-button btn-pill" href="#contact">Termin vereinbaren</a> <a class="btn cta-button btn-pill btn-wa" href="https://wa.me/49405551212" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+        <ul class="hero-adv"><li>Seit 2021 in Hamburg</li><li>Transparente Preise</li><li>Feste Ansprechpartner</li></ul>
+        
       </div>
+      <figure class="hero-A-media">
+        <span class="hero-A-deco" aria-hidden="true"></span>
+        <img src="assets/hero.jpg" alt="Nord Klar" width="960" height="720" decoding="async" loading="lazy">
+      </figure>
     </div>
   </header>
-  <div class="info-bar"><span><strong>Telefon</strong> +49 221 555 0100</span><span><strong>Öffnungszeiten</strong> Mo–Fr 8:00–18:00 · Sa 9:00–14:00</span><span>Köln</span></div>
-  
-  
-  
-  <section class="section" id="services">
+
+<div class="info-bar"><span><strong>Telefon</strong> +49 40 5551212</span><span><strong>Öffnungszeiten</strong> Mo–Fr 09:00–18:00 · Sa nach Vereinbarung</span><span>Hamburg</span></div>
+<section class="sec-treat-photo_band section reveal services-block" id="services" data-comp-family="cards" data-comp-variant="solid">
     <h2>Leistungen</h2>
-    <ul class="services"><li class="service-card"><h3>Computer-Diagnose</h3><p class="service-desc">Fehlerspeicher auslesen und Ursache in 30 Minuten erklären.</p></li><li class="service-card"><h3>Motor &amp; Getriebe</h3><p class="service-desc">Reparatur mit schriftlicher Garantie — ohne versteckte Posten.</p></li><li class="service-card"><h3>Inspektion &amp; Ölwechsel</h3><p class="service-desc">Herstellerkonformes Service nach Plan — nur was wirklich nötig ist.</p></li><li class="service-card"><h3>Reifen &amp; Einlagerung</h3><p class="service-desc">Wechsel, Auswuchten und saisonale Einlagerung unter einem Dach.</p></li></ul>
+    <ul class="services services-solid"><li class="svc-card svc-solid"><span class="svc-accent" aria-hidden="true"></span><span class="svc-ico" aria-hidden="true">◆</span><h3>Reifenwechsel</h3><p class="service-desc">Einlagerung möglich · ab 49 €</p></li><li class="svc-card svc-solid"><span class="svc-accent" aria-hidden="true"></span><span class="svc-ico" aria-hidden="true">●</span><h3>Bremsen</h3><p class="service-desc">Beläge &amp; Scheiben mit Garantie · ab 129 €</p></li><li class="svc-card svc-solid"><span class="svc-accent" aria-hidden="true"></span><span class="svc-ico" aria-hidden="true">▲</span><h3>Klimaservice</h3><p class="service-desc">Prüfung &amp; Befüllung · ab 99 €</p></li><li class="svc-card svc-solid"><span class="svc-accent" aria-hidden="true"></span><span class="svc-ico" aria-hidden="true">◇</span><h3>HU/AU Vorbereitung</h3><p class="service-desc">Check vor der Prüfung · ab 69 €</p></li><li class="svc-card svc-solid"><span class="svc-accent" aria-hidden="true"></span><span class="svc-ico" aria-hidden="true">▣</span><h3>Batterie</h3><p class="service-desc">Test &amp; Tausch · ab 119 €</p></li><li class="svc-card svc-solid"><span class="svc-accent" aria-hidden="true"></span><span class="svc-ico" aria-hidden="true">✦</span><h3>Unfallreparatur</h3><p class="service-desc">Karosserie &amp; Lack · auf Anfrage</p></li><li class="svc-card svc-solid"><span class="svc-accent" aria-hidden="true"></span><span class="svc-ico" aria-hidden="true">◎</span><h3>Shuttle</h3><p class="service-desc">Abholung im Stadtgebiet · inkl. bei Auftrag</p></li><li class="svc-card svc-solid"><span class="svc-accent" aria-hidden="true"></span><span class="svc-ico" aria-hidden="true">▣</span><h3>Diagnose</h3><p class="service-desc">Fehlerdiagnose mit Festpreis-Angebot · ab 79 €</p></li></ul>
   </section>
-
-  
-  <section class="mid-cta" id="mid-cta">
-    <h2>Bereit für den nächsten Schritt?</h2>
-    <a class="btn" href="#contact">Jetzt anfragen</a>
-  </section>
-
-  <section class="section benefits">
-    <h2>Warum Autowerkstatt Bergmann</h2>
-    <ul><li>Kostenklarheit vor Reparaturbeginn</li><li>Ersatzwagen auf Anfrage</li><li>Digitale Servicehistorie für Ihr Fahrzeug</li></ul>
-  </section>
-  
-  <section class="section" id="process">
-    <h2>So läuft’s ab</h2>
-    <div class="process-grid">
-      <article class="process-card"><div class="n">1</div><h3>Anfrage</h3><p class="muted">Kurz Ihr Anliegen senden.</p></article>
-      <article class="process-card"><div class="n">2</div><h3>Abstimmung</h3><p class="muted">Wir klären Termin und Details.</p></article>
-      <article class="process-card"><div class="n">3</div><h3>Umsetzung</h3><p class="muted">Sie erhalten ein klares Ergebnis.</p></article>
+<section class="sec-treat-ink mid-cta mid-cta-glass reveal" id="mid-cta" data-comp-family="cta" data-comp-variant="glass">
+    <div class="mid-cta-inner">
+      <h2>Bereit für den nächsten Schritt?</h2>
+      <a class="btn cta-button btn-pill" href="#contact">Jetzt anfragen</a>
     </div>
-    <div class="cert-row"><span class="cert-badge">Meisterbetrieb</span><span class="cert-badge">Festpreis vor Start</span><span class="cert-badge">Garantie auf Arbeit</span></div>
   </section>
+<section class="sec-treat-illustration section reveal benefits" id="benefits" data-comp-family="benefits" data-comp-variant="circles">
+    <h2>Warum Nord Klar</h2>
+    <ul class="ben-circles"><li class="ben-circle"><span class="ben-dot" aria-hidden="true"></span><p>Seit 2021 in Hamburg</p></li><li class="ben-circle"><span class="ben-dot" aria-hidden="true"></span><p>Transparente Preise</p></li><li class="ben-circle"><span class="ben-dot" aria-hidden="true"></span><p>Feste Ansprechpartner</p></li><li class="ben-circle"><span class="ben-dot" aria-hidden="true"></span><p>Termine mit Bestätigung</p></li></ul>
+  </section>
+<section class="sec-treat-tint section reveal trust-composer" id="trust" data-trust-template="A">
+    <h2>Vertrauen &amp; Qualität</h2>
+    <div class="trust-stack">
 
-  
-  <section class="section about">
+      <div class="trust-block" data-trust-block="credentials">
+        <h3>Unsere Zusagen</h3>
+        <div class="trust-chip-row"><span class="trust-chip trust-chip-cert">Meisterbetrieb</span><span class="trust-chip trust-chip-cert">Diagnose-Geräte aktuell</span><span class="trust-chip trust-chip-cert">Entsorgung zertifiziert</span><span class="trust-chip">Seit 2021 in Hamburg</span><span class="trust-chip">Transparente Preise</span><span class="trust-chip">Feste Ansprechpartner</span></div>
+      </div>
+
+
+      <div class="trust-block" data-trust-block="guarantees">
+        <h3>Garantie</h3>
+        <ul class="trust-guarantee-list"><li>Transparente Preise</li><li>Terminbestätigung</li><li>Fester Ansprechpartner</li></ul>
+      </div>
+
+
+      <div class="trust-block" data-trust-block="process">
+
+        <h3>So läuft’s ab</h3>
+        <div class="process-grid">
+          <article class="process-card"><div class="n">1</div><h3>Anfrage</h3><p class="muted">Kurz Ihr Anliegen senden.</p></article>
+          <article class="process-card"><div class="n">2</div><h3>Abstimmung</h3><p class="muted">Wir klären Termin und Details.</p></article>
+          <article class="process-card"><div class="n">3</div><h3>Ergebnis</h3><p class="muted">Sie erhalten ein klares Ergebnis.</p></article>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+<section class="sec-treat-photo_band section reveal about">
     <h2>Über uns</h2>
-    <p>Autowerkstatt Bergmann ist Ihre Werkstatt für alle Marken — von der schnellen Diagnose bis zur umfassenden Reparatur. Wir erklären jeden Schritt, bevor Sie zustimmen.</p>
+    <p>Nord Klar wurde 2021 in Hamburg gegründet. Was als kleines Vorhaben in Hamburg begann, ist über die Jahre zu einem festen Ort mit Stammgästen und klarer Handschrift geworden. Seit 2021 wächst Nord Klar bewusst — Qualität vor Tempo. Unsere Mission: Autobesitzer in Hamburg verdienen Diagnose ohne Verkaufsdruck. Werte: Präzision, Menschlichkeit, Transparenz, Verlässlichkeit. Ansatz: Festpreis nach Diagnose. Keine Überraschungen auf der Rechnung. Team: Max Hoffmann (Meister/in); Erik Keller (Diagnose-Techniker/in); Eri</p>
+    <p class="muted" style="margin-top:0.75rem">Demonstrationsunternehmen für Virtus Core Preview — erfunden, um eine 5-jährige Marke zu simulieren.</p>
   </section>
-  
-  
-  
-  <section class="section testimonials" id="testimonials">
-    <h2>Kundenstimmen</h2>
-    <p class="muted">Beispieltexte — bitte durch echte Kundenstimmen ersetzen.</p>
-    <div class="testimonial-grid">
-      <blockquote class="testimonial-card"><p>«Professionell und zuverlässig — klare Empfehlung.»</p><cite>— Anna K.</cite></blockquote>
-      <blockquote class="testimonial-card"><p>«Transparente Preise und gutes Ergebnis.»</p><cite>— Michael W.</cite></blockquote>
-      <blockquote class="testimonial-card"><p>«Schnelle Terminvergabe und freundlicher Service.»</p><cite>— Familie S.</cite></blockquote>
+<section class="sec-treat-ink section reveal" id="faq" data-comp-family="faq" data-comp-variant="twocol">
+    <h2>Häufige Fragen</h2>
+    <div class="faq-twocol">
+      <article class="faq-panel"><h3>Wie vereinbare ich einen Termin bei Nord Klar?</h3><p>Über das Kontaktformular, telefonisch oder per E-Mail. Sie erhalten eine Bestätigung.</p></article><article class="faq-panel"><h3>Wie transparent sind die Kosten?</h3><p>Vor Beginn erhalten Sie eine klare Einschätzung. Keine versteckten Positionen.</p></article><article class="faq-panel faq-span"><h3>Seit wann gibt es Nord Klar?</h3><p>Seit 2021 in Hamburg — gewachsen mit Stammkunden und klarer Handschrift.</p></article><article class="faq-panel"><h3>Gibt es Parkplätze / Anreise?</h3><p>Zentral in Hamburg. Details zur Anreise senden wir mit der Terminbestätigung.</p></article><article class="faq-panel"><h3>Arbeitet ihr auch online / hybrid?</h3><p>Wo sinnvoll ja — Details klären wir im Erstkontakt.</p></article>
     </div>
   </section>
-
-  
-  <section class="section" id="contact">
+<section class="sec-treat-tint section reveal maps" id="maps">
+    <h2>Standort</h2>
+    <p class="muted">So finden Sie uns — Karte anhand Ihrer Firmendaten.</p>
+    <div class="maps-frame">
+      <iframe title="Karte" src="https://maps.google.com/maps?q=Nord+Klar+Hamburg+Germany&amp;z=14&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+    </div>
+    <div class="maps-actions">
+      <a class="btn-route" href="https://www.google.com/maps/dir/?api=1&amp;destination=Hamburg+Germany+Nord+Klar" target="_blank" rel="noopener">Route planen</a>
+      <span class="chip">Parkplätze vor Ort</span>
+      <span class="chip"><strong>Öffnungszeiten:</strong> Mo–Fr 09:00–18:00 · Sa nach Vereinbarung</span>
+    </div>
+  </section>
+<section class="late-cta mid-cta mid-cta-glass reveal" id="late-cta" data-comp-family="cta" data-comp-variant="glass">
+    <div class="mid-cta-inner">
+      <h2>Bereit für den nächsten Schritt?</h2>
+      <a class="btn cta-button btn-pill" href="#contact">Jetzt anfragen</a>
+    </div>
+  </section>
+<section class="sec-treat-ink section reveal" id="contact">
     <h2>Kontakt</h2>
     <p class="muted">Schreiben oder rufen Sie an — wir melden uns schnellstmöglich.</p>
     <div class="contact-grid">
-      <p><strong>Telefon:</strong> <a href="tel:+492215550100">+49 221 555 0100</a></p>
-      <p><strong>WhatsApp:</strong> <a class="wa-btn" href="https://wa.me/491715550100" target="_blank" rel="noopener">Nachricht senden</a></p>
-      <p><strong>E-Mail:</strong> <a href="mailto:info@auto-demo.de">info@auto-demo.de</a></p>
-      <p><strong>Öffnungszeiten:</strong> Mo–Fr 8:00–18:00 · Sa 9:00–14:00</p>
+      <p><strong>Telefon:</strong> <a href="tel:+49405551212">+49 40 5551212</a></p>
+      <p><strong>WhatsApp:</strong> <a class="wa-btn" href="https://wa.me/49405551212" target="_blank" rel="noopener">Nachricht senden</a></p>
+      <p><strong>E-Mail:</strong> <a href="mailto:kontakt@autownord-demo.example.de">kontakt@autownord-demo.example.de</a></p>
+      <p><strong>Öffnungszeiten:</strong> Mo–Fr 09:00–18:00 · Sa nach Vereinbarung</p>
     </div>
     
-    <form class="contact-form" action="mailto:info@auto-demo.de?subject=Anfrage%20Website" method="get">
+    <form class="contact-form" action="mailto:kontakt@autownord-demo.example.de?subject=Anfrage%20Website" method="get">
       <label>Name<input name="name" required placeholder="Ihr Name"></label>
       <label>Telefon<input name="phone" type="tel" placeholder="+49 …"></label>
       
@@ -302,11 +1715,21 @@
     </form>
 
   </section>
-  <footer>
-    Autowerkstatt Bergmann · © Autowerkstatt Bergmann<br>
-    <a href="impressum.html" style="color:#94a3b8;margin-right:0.75rem">Impressum</a>
-    <a href="datenschutz.html" style="color:#94a3b8">Datenschutz</a>
-  </footer>
-  <script src="/package-previews/preview-client.js" defer></script>
+  <footer class="footer-split" data-footer-variant="split" data-market="DE" data-legal-keys="impressum,datenschutz"><div class="footer-split-grid"><div><strong>Nord Klar</strong><br><span class="muted">© Nord Klar</span></div><div class="footer-legal"><a href="impressum.html" style="color:#94a3b8;margin-right:0.75rem">Impressum</a><a href="datenschutz.html" style="color:#94a3b8">Datenschutz</a></div></div></footer>
+  <script src="assets/reveal.js" defer></script>
+
+<script data-dna-experience="1">
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var bar = document.querySelector('.topbar');
+  var onScroll = function(){
+    var y = window.scrollY || 0;
+    if (bar) bar.classList.toggle('is-scrolled', y > 24);
+    document.documentElement.style.setProperty('--scroll-y', Math.min(y, 800) + 'px');
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, {passive:true});
+})();
+</script>
 </body>
 </html>

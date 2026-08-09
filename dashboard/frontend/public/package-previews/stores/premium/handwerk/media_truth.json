@@ -1,0 +1,36 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Workshop",
+      "Tools",
+      "Material",
+      "Hands at work"
+    ],
+    "preferred": [
+      "Work light",
+      "Bench",
+      "Craft detail"
+    ],
+    "forbidden": [
+      "Café",
+      "Office",
+      "Beauty",
+      "Laptop",
+      "Coworking"
+    ],
+    "hero_proof": "Craftsperson at the bench or on site with tools — daily work, not décor.",
+    "profession_keywords": [
+      "workshop",
+      "tool",
+      "craft",
+      "handwerk",
+      "bench",
+      "material"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [],
+  "rebuilds": [],
+  "ok": true
+}

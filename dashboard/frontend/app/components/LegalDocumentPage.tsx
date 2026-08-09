@@ -19,13 +19,16 @@ export async function LegalDocumentPage({
     return (
       <PublicPageShell>
         <LegalPageLayout title={fallbackTitle} subtitle={fallbackSubtitle}>
-          <Card hover={false} padding="md" className="mt-4">
+          <Card hover={false} padding="md" className="mt-4 space-y-4">
+            <p className="text-sm leading-relaxed text-genesis-muted">
+              Ausführliche Informationen zur Nutzung künstlicher Intelligenz werden in Kürze
+              veröffentlicht. Bei Fragen kontaktieren Sie uns gerne — wir erklären transparent,
+              wie KI bei der Entwicklung Ihres Projekts eingesetzt wird.
+            </p>
             <p className="text-sm text-genesis-muted">
-              Dokument vorübergehend nicht verfügbar. Bitte später erneut versuchen oder{" "}
               <a href="/kontakt" className="text-genesis-accent hover:underline">
-                Kontakt
+                Kontakt aufnehmen
               </a>
-              .
             </p>
           </Card>
         </LegalPageLayout>

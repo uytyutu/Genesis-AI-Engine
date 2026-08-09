@@ -105,7 +105,7 @@ CLIENT_PATHS: list[dict] = [
         "slug": "path_beauty_basic",
         "label": "Клиент 1 · Basic · Ресницы",
         "package_id": "basic",
-        "price": "350 €",
+        "price": "199 €",
         "description": (
             "Lash Studio Mira — Wimpernverlängerung, Volumen und Brow Lamination in Hamburg. "
             "Beauty Studio für natürliche Looks."
@@ -123,7 +123,7 @@ CLIENT_PATHS: list[dict] = [
         "slug": "path_praxis_business",
         "label": "Клиент 2 · Business · Врач / Praxis",
         "package_id": "business",
-        "price": "650 €",
+        "price": "399 €",
         "description": (
             "Arztpraxis Dr. Keller — Hausarztpraxis mit Vorsorge, Impfungen und "
             "Online-Terminen in Berlin."
@@ -141,7 +141,7 @@ CLIENT_PATHS: list[dict] = [
         "slug": "path_auto_premium",
         "label": "Клиент 3 · Premium · Крупный авторемонт",
         "package_id": "premium",
-        "price": "1 200 €",
+        "price": "699 €",
         "description": (
             "NordAuto Service Gruppe — große Autowerkstatt und Flottenservice, "
             "Diagnose, Karosserie und Garantiearbeiten in Düsseldorf."

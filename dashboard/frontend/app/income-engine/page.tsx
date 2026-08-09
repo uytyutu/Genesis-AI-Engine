@@ -50,6 +50,14 @@ type Proposal = {
   evidence?: Evidence;
   lifecycle?: string;
   market_discovery?: boolean;
+  adapter_backed?: boolean;
+  executable_action?: {
+    id?: string;
+    title_ru?: string;
+    title_en?: string;
+    verb?: string;
+  };
+  prepare?: { done_ru?: string; artifacts?: { draft_md?: string; draft_json?: string } };
   test_cost_eur?: number;
   pitch_ru?: string;
   paper_trials?: number;
@@ -144,6 +152,14 @@ type Panel = {
     pipeline?: { id?: string; title_ru?: string }[];
     lifecycle?: string[];
     opportunities?: LabOpportunity[];
+    inbox?: LabOpportunity[];
+    folders?: {
+      NEW?: number;
+      RUNNING?: number;
+      WAITING?: number;
+      DONE?: number;
+      hint_ru?: string;
+    };
     scan?: {
       interval_sec?: number;
       interval_label?: string;
@@ -251,7 +267,7 @@ export default function IncomeLabPage() {
 
   useEffect(() => {
     void refresh();
-    const t = window.setInterval(() => void refresh(), 3_000);
+    const t = window.setInterval(() => void refresh(), 15_000);
     return () => window.clearInterval(t);
   }, [refresh]);
 
@@ -339,10 +355,38 @@ export default function IncomeLabPage() {
         body: JSON.stringify({ balance_eur: Number(balance) || 20 }),
       });
       const json = await res.json();
-      setInfo(json.message_ru || "Income Sources scanned");
+      setInfo(json.message_ru || "Adapters executed");
       setBrief(json.director_brief || null);
+      if (Array.isArray(json.prepared) && json.prepared.length) {
+        setProposals(
+          json.prepared.map(
+            (
+              p: {
+                strategy_id?: string;
+                opportunity_id?: string;
+                title_ru?: string;
+                executable_action?: Proposal["executable_action"];
+                pitch_ru?: string;
+                test_cost_eur?: number;
+                lifecycle?: string;
+              },
+              i: number
+            ) => ({
+              rank: i + 1,
+              strategy_id: p.strategy_id,
+              opportunity_id: p.opportunity_id,
+              title_ru: p.title_ru,
+              executable_action: p.executable_action,
+              pitch_ru: p.pitch_ru,
+              test_cost_eur: p.test_cost_eur ?? 0,
+              lifecycle: p.lifecycle,
+              adapter_backed: true,
+            })
+          )
+        );
+      }
     } catch {
-      setError("Income Sources scan failed");
+      setError("Adapter cycle failed");
     } finally {
       setBusy("");
       void refresh();
@@ -481,11 +525,14 @@ export default function IncomeLabPage() {
   async function reject(id: string) {
     setBusy("rej" + id);
     try {
-      await fetch(`${API}/api/owner/income-engine/reject`, {
+      const res = await fetch(`${API}/api/owner/income-engine/reject`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ opportunity_id: id }),
       });
+      const json = await res.json();
+      if (json.ok === false) setError(json.detail_ru || json.error || "Reject failed");
+      else setInfo(json.detail_ru || json.message_ru || "Reject — убрано из Новых");
     } finally {
       setBusy("");
       void refresh();
@@ -502,6 +549,14 @@ export default function IncomeLabPage() {
   const labMode = data?.alpha_hunter?.lab_mode || "analysis";
   const analysisReady = !!data?.alpha_hunter?.analysis_ready;
   const labOpps = data?.alpha_hunter?.opportunities ?? [];
+  const inboxOpps = data?.alpha_hunter?.inbox ?? labOpps.filter(
+    (o) =>
+      o.lifecycle === "WAITING_APPROVAL" ||
+      o.lifecycle === "PREPARED" ||
+      o.lifecycle === "VERIFIED" ||
+      o.lifecycle === "DISCOVERED"
+  );
+  const folders = data?.alpha_hunter?.folders;
   const incomeLayer = data?.alpha_hunter?.income_layer;
   const sources = incomeLayer?.income_sources;
   const toolBelt = incomeLayer?.tool_belt;
@@ -516,11 +571,19 @@ export default function IncomeLabPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <header className="space-y-2">
           <p className="text-[11px] uppercase tracking-wider text-amber-400/90">
-            Owner only · Alpha Hunter — Opportunity Discovery Engine
+            Owner only · Alpha Hunter — PAPER / research (не live market scrape)
           </p>
           <h1 className="text-2xl font-semibold tracking-tight">
             {data?.alpha_hunter?.engine ?? data?.section ?? "Opportunity Discovery"}
           </h1>
+          <p className="rounded-lg border border-amber-400/40 bg-amber-950/40 px-3 py-2 text-sm text-amber-50">
+            Честно: Alpha Hunter сейчас <strong>симулирует / paper-моделирует</strong> ROI.
+            Это не живой поиск заказов на Upwork/Fiverr. Реальные $ bounty — в{" "}
+            <Link href="/farm-engine" className="underline text-violet-200">
+              Opire Farm
+            </Link>
+            . Approve только для adapter_backed действий после LIVE Lab.
+          </p>
           <p className="text-sm text-zinc-400 max-w-2xl">
             {data?.bank_pitch_ru ??
               "Дай банк. Беру по €0.20–€1 на эксперименты. Успех — масштабирую. Нет — прекращаю."}
@@ -554,11 +617,37 @@ export default function IncomeLabPage() {
             <h2 className="text-sm font-medium text-amber-100">Следующий шаг к «Одобрить»</h2>
             <p className="text-sm text-amber-50/90">
               {data?.alpha_hunter?.next_action_ru ||
-                "Paper day → Propose top 3 → «→ LIVE» → Одобрить. Если brief говорит €500/30% и 0 оставлено — нажмите Discovery €100/12%, потом снова Paper day."}
+                "Выполнить адаптеры → Propose → LIVE → Одобрить действие. Paper research не для Approve."
+              }
             </p>
             <p className="text-[11px] text-amber-200/70">
               Шаг: {data?.alpha_hunter?.next_step ?? "paper"} · Режим: {labMode} · Порог: €
               {director?.min_expected_profit_eur ?? "—"} / ROI {director?.min_roi_pct ?? "—"}%
+            </p>
+          </section>
+        ) : null}
+
+        {folders ? (
+          <section className="grid grid-cols-4 gap-2">
+            {(
+              [
+                ["NEW", folders.NEW],
+                ["RUNNING", folders.RUNNING],
+                ["WAITING", folders.WAITING],
+                ["DONE", folders.DONE],
+              ] as const
+            ).map(([label, n]) => (
+              <div
+                key={label}
+                className="rounded-xl border border-white/10 bg-white/[0.03] px-2 py-3 text-center"
+              >
+                <p className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</p>
+                <p className="mt-1 text-2xl font-semibold">{n ?? 0}</p>
+              </div>
+            ))}
+            <p className="col-span-4 text-[11px] text-zinc-500">
+              {folders.hint_ru ||
+                "Портфель возможностей: Reject убирает карточку из NEW навсегда (не Scanner-ферма)."}
             </p>
           </section>
         ) : null}
@@ -659,7 +748,7 @@ export default function IncomeLabPage() {
             onClick={() => void scanIncomeSources()}
             className="rounded-md bg-sky-600/90 px-3 py-2 text-xs font-medium hover:bg-sky-500 disabled:opacity-40"
           >
-            Сканировать Income Sources (€0)
+            Сканировать / выполнить адаптеры (€0)
           </button>
         </section>
 
@@ -1016,10 +1105,18 @@ export default function IncomeLabPage() {
             <button
               type="button"
               disabled={!!busy}
-              onClick={() => void paperDay()}
-              className="rounded-md bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-900 hover:bg-white disabled:opacity-40"
+              onClick={() => void scanIncomeSources()}
+              className="rounded-md bg-emerald-500/90 px-3 py-2 text-xs font-medium text-zinc-950 hover:bg-emerald-400 disabled:opacity-40"
             >
-              Paper day (100 моделей, €0)
+              Выполнить адаптеры (discover→prepare)
+            </button>
+            <button
+              type="button"
+              disabled={!!busy}
+              onClick={() => void paperDay()}
+              className="rounded-md border border-white/20 px-3 py-2 text-xs hover:bg-white/5 disabled:opacity-40"
+            >
+              Paper research only (не для Approve)
             </button>
             <button
               type="button"
@@ -1040,15 +1137,15 @@ export default function IncomeLabPage() {
           </div>
         </section>
 
-        {labOpps.length > 0 ? (
+        {inboxOpps.length > 0 ? (
           <section className="space-y-2">
             <h2 className="text-sm font-medium">
-              Opportunities · Lifecycle
+              Новые возможности · Inbox ({inboxOpps.length})
             </h2>
             <p className="text-[11px] text-zinc-500">
               {(data?.alpha_hunter?.lifecycle ?? []).join(" → ")}
             </p>
-            {labOpps.slice(0, 8).map((o) => (
+            {inboxOpps.slice(0, 8).map((o) => (
               <article
                 key={o.id}
                 className="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-xs space-y-1"
@@ -1073,6 +1170,16 @@ export default function IncomeLabPage() {
                     {o.evidence.display_ru}
                   </pre>
                 ) : null}
+                <button
+                  type="button"
+                  disabled={!!busy}
+                  onClick={() => {
+                    if (o.id) void reject(o.id);
+                  }}
+                  className="mt-1 rounded-md border border-rose-400/40 px-3 py-1.5 text-xs text-rose-100 hover:bg-rose-950/40 disabled:opacity-40"
+                >
+                  Reject · убрать из Новых
+                </button>
               </article>
             ))}
           </section>
@@ -1083,11 +1190,13 @@ export default function IncomeLabPage() {
             <h2 className="text-sm font-medium">Предложения (после анализа)</h2>
             {labMode !== "live" ? (
               <p className="text-xs text-amber-200/80">
-                Чтобы появилась кнопка «Одобрить»: нажмите «→ LIVE Income Lab» выше (после
-                анализа). Сейчас режим: {labMode}.
+                Approve только для executable_action. Сначала «→ LIVE Income Lab». Режим:{" "}
+                {labMode}.
               </p>
             ) : (
-              <p className="text-xs text-emerald-200/80">LIVE — можно одобрять микро-тест.</p>
+              <p className="text-xs text-emerald-200/80">
+                LIVE — Approve выполнит адаптер (черновик / API). Прибыль не пишется до PAID.
+              </p>
             )}
             {proposals.map((p) => (
               <article
@@ -1098,29 +1207,43 @@ export default function IncomeLabPage() {
                   #{p.rank ?? "—"} {p.title_ru}
                   {p.lifecycle ? ` · ${p.lifecycle}` : ""}
                 </p>
-                <p className="text-xs text-zinc-400">{p.pitch_ru}</p>
-                {p.expected_profit ? (
-                  <p className="text-xs">
-                    Expected Profit {p.expected_profit.display_ru} · Confidence{" "}
-                    {p.expected_profit.confidence_pct}% · Worst{" "}
-                    {fmtEur(p.expected_profit.worst_case_eur)} · Best{" "}
-                    {fmtEur(p.expected_profit.best_case_eur)}
+                {p.executable_action ? (
+                  <p className="text-xs text-emerald-200/90">
+                    Action: {p.executable_action.title_en || p.executable_action.title_ru} (
+                    {p.executable_action.id})
                   </p>
                 ) : null}
-                <p className="text-xs">Тест: {fmtEur(p.test_cost_eur)}</p>
+                <p className="text-xs text-zinc-400">{p.pitch_ru}</p>
+                {p.prepare?.done_ru ? (
+                  <p className="text-xs text-zinc-300">{p.prepare.done_ru}</p>
+                ) : null}
+                <p className="text-xs">
+                  Стоимость Approve: {fmtEur(p.test_cost_eur)} (0 = только действие, не микро-покупка)
+                </p>
                 {p.evidence?.display_ru ? (
                   <pre className="whitespace-pre-wrap text-[11px] text-zinc-500 font-sans">
                     {p.evidence.display_ru}
                   </pre>
                 ) : null}
-                <button
-                  type="button"
-                  disabled={!!busy || !p.strategy_id || labMode !== "live"}
-                  onClick={() => void approveMicroTest(p.strategy_id || "")}
-                  className="mt-1 rounded-md bg-emerald-600/90 px-3 py-1.5 text-xs font-medium hover:bg-emerald-500 disabled:opacity-40"
-                >
-                  Одобрить {fmtEur(p.test_cost_eur)}
-                </button>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={!!busy || !p.strategy_id || labMode !== "live"}
+                    onClick={() => void approveMicroTest(p.strategy_id || "")}
+                    className="rounded-md bg-emerald-600/90 px-3 py-1.5 text-xs font-medium hover:bg-emerald-500 disabled:opacity-40"
+                  >
+                    Одобрить действие
+                    {p.executable_action?.title_ru ? `: ${p.executable_action.title_ru}` : ""}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!!busy || !(p.opportunity_id || p.strategy_id)}
+                    onClick={() => void reject(p.opportunity_id || p.strategy_id || "")}
+                    className="rounded-md border border-rose-400/40 px-3 py-1.5 text-xs text-rose-100 hover:bg-rose-950/40 disabled:opacity-40"
+                  >
+                    Reject
+                  </button>
+                </div>
               </article>
             ))}
           </section>

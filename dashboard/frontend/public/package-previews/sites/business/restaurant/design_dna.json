@@ -1,0 +1,75 @@
+{
+  "emotion": "warmth",
+  "style": "organic_premium",
+  "palette_family": "terracotta_olive",
+  "typography_pair": "playfair_source_culinary",
+  "motion": "premium",
+  "hero_concept": "italian_courtyard_evening",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "timeline",
+  "package_id": "business",
+  "niche_id": "restaurant",
+  "fingerprint": "a9d6d5f009ce22fa07dfcf079ea09643427c04134f2b46b3220f45b7fddc05a0",
+  "section_treatments": [
+    [
+      "process",
+      "glass"
+    ],
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "stats",
+      "photo_band"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "illustration"
+    ],
+    [
+      "maps",
+      "tint"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#c45c26",
+  "surface_hex": "#1c1410",
+  "ink_hex": "#faf6f1",
+  "atmosphere_mode": "cinematic",
+  "brand_book_fp": "7c5ec0905ad426fa17dae99c",
+  "border_radius_px": 2
+}

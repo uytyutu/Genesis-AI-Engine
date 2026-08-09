@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "Photovoltaik auf Dach · Wechselrichter · Haus mit Solar",
+  "hero_layout": "F",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "runway",
+  "package_id": "premium",
+  "niche_id": "energy",
+  "fingerprint": "a0e63d484acdb5cb96de09799e3c49d940078ee80efd04c60474ea140c8d4545",
+  "section_treatments": [
+    [
+      "gallery",
+      "illustration"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "stats",
+      "ink"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "process",
+      "illustration"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "tint"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#daeef4",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "2930ed5d3a2c5578f4d86bd2",
+  "border_radius_px": 12
+}

@@ -1,5 +1,5 @@
 {
-  "tiktok_enabled": false,
+  "tiktok_enabled": true,
   "media_engine_enabled": false,
   "note": "Kill switches. Path A (Country Desk → Stripe → Factory) never depends on these flags.",
   "tiktok_horizon": {
@@ -9,9 +9,15 @@
   },
   "video_factory": {
     "channels": {
-      "tiktok": { "stage": "dormant" },
-      "youtube_shorts": { "stage": "dormant" },
-      "instagram_reels": { "stage": "dormant" }
+      "tiktok": {
+        "stage": "dormant"
+      },
+      "youtube_shorts": {
+        "stage": "dormant"
+      },
+      "instagram_reels": {
+        "stage": "dormant"
+      }
     },
     "capcut_connected": false,
     "payout_mode": "owner_platform_only"

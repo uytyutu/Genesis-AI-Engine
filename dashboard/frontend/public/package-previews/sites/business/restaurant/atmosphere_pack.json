@@ -1,0 +1,145 @@
+{
+  "brand_name": "Trattoria Luna",
+  "niche_id": "restaurant",
+  "package_id": "business",
+  "metaphor": "Abendlicht über dem Hof — lange Tafel, leises Gläserklingen",
+  "core_emotion": "Wärme",
+  "atmosphere_mode": "cinematic",
+  "scene_language": [
+    "Evening",
+    "Table",
+    "Courtyard",
+    "Steam"
+  ],
+  "texture_language": [
+    "Linen",
+    "Wood",
+    "Ceramic"
+  ],
+  "motion_language": "Langsam · Kerzenflackern · Dampf",
+  "camera_feeling": "courtyard evening · table height · candle warmth",
+  "scroll_feeling": "slow settle into the table",
+  "cta_feeling": "reservation · warm large · Reservierung · Groß · Warm",
+  "sound_mood": "glasses · low talk · kitchen distant",
+  "illustration_style": "long table · steam · terracotta mark",
+  "glass_level": "medium",
+  "shadow_language": "deep under eaves · soft plate lift · Deep Warm",
+  "icon_language": "Soft Line",
+  "lighting": "golden evening rim · deep warm fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "italian_courtyard_evening",
+      "must_include": [
+        "Abendlicht",
+        "Gedeckter Tisch",
+        "Frische Zutaten",
+        "Hände in der Küche",
+        "Hof / Terrasse"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "Trattoria Luna|restaurant|business|7c5ec0905ad426fa17dae99c|hero",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "role": "background",
+      "concept": "scene · Evening · Table · Courtyard",
+      "must_include": [
+        "Evening",
+        "Table",
+        "Courtyard",
+        "Steam",
+        "Linen",
+        "Wood"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "Trattoria Luna|restaurant|business|7c5ec0905ad426fa17dae99c|bg",
+      "size": [
+        1920,
+        1080
+      ]
+    },
+    {
+      "role": "gallery",
+      "concept": "proof texture · craft detail",
+      "must_include": [
+        "Frische Zutaten",
+        "Hände in der Küche",
+        "Hof / Terrasse"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "Trattoria Luna|restaurant|business|7c5ec0905ad426fa17dae99c|gal",
+      "size": [
+        1400,
+        1000
+      ]
+    }
+  ],
+  "fingerprint": "67fb838d36760acd86493083",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

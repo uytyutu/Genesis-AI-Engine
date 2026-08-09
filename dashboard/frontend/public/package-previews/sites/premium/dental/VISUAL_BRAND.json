@@ -1,0 +1,66 @@
+{
+  "brand_name": "SmileCare Praxis",
+  "niche_id": "dental",
+  "fingerprint": "bde3ae936f64c28bc028",
+  "color": {
+    "primary": "#242c30",
+    "accent": "#1d80a9",
+    "secondary": "#63bc31",
+    "surface": "#ecf4f8",
+    "cards": "#e6f0f6",
+    "background": "#ecf4f8",
+    "gradient": "linear-gradient(145deg,#242c30 0%,#0e4054 48%,#1d80a9 100%)",
+    "glow": "rgba(29,128,169,0.35)",
+    "ink": "#0b0d10",
+    "muted": "#64748b"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "premium_business_graphic",
+    "abstract_gradient",
+    "isometric_illustration"
+  ],
+  "illustration_pack": "neon line diagrams",
+  "motion_language": "industrial snap · sharp transitions · tool hover",
+  "icon_style": "minimal stroke set",
+  "scene_library": {
+    "hero": [
+      "Behandlungsstuhl",
+      "sterile Instrumente",
+      "Röntgenmonitor",
+      "helle Praxis"
+    ],
+    "gallery": [
+      "Prophylaxe",
+      "Digitale Aufnahme",
+      "Team in Praxis",
+      "Wartezimmer Ruhe"
+    ],
+    "team": [
+      "Zahnarzt mit Patient",
+      "Prophylaxe-Assistentin"
+    ],
+    "equipment": [
+      "Behandlungseinheit",
+      "Intraoralkamera"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Behandlungsstuhl, sterile Instrumente, Röntgenmonitor, helle Praxis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=neon line diagrams. Must show: Behandlungsstuhl, sterile Instrumente, Röntgenmonitor, helle Praxis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Prophylaxe, Digitale Aufnahme, Team in Praxis, Wartezimmer Ruhe. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Prophylaxe, Digitale Aufnahme. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=team. Medium=premium_business_graphic. Illustration language=neon line diagrams. Must show: Zahnarzt mit Patient, Prophylaxe-Assistentin. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=equipment. Medium=premium_business_graphic. Illustration language=neon line diagrams. Must show: Behandlungseinheit, Intraoralkamera. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Team in Praxis, Wartezimmer Ruhe. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=illustration. Medium=premium_business_graphic. Illustration language=neon line diagrams. Must show: Behandlungsstuhl, sterile Instrumente. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=neon line diagrams. Must show: minimal stroke set. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «SmileCare Praxis» (dental) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Behandlungsstuhl, sterile Instrumente, Röntgenmonitor. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

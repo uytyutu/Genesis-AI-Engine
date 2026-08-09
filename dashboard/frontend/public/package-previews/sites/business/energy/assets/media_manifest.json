@@ -1,0 +1,43 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": null,
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/492902e3-5fc3-47fb-a3c4-e48489c3984d/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 3255163,
+      "reason": "ok",
+      "source": "niche"
+    }
+  ],
+  "gate_ok": true,
+  "gate_failures": [],
+  "media_gate_ok": true,
+  "media_gate_failures": [],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": true,
+    "failures": [],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/energy/hero_pack/business/hero_1.jpg",
+        "ok": true,
+        "tags": [
+          "energy",
+          "exterior",
+          "product",
+          "result",
+          "work"
+        ],
+        "detail": "ok"
+      }
+    ]
+  }
+}

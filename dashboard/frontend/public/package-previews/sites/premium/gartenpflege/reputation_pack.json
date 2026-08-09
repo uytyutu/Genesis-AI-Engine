@@ -1,0 +1,172 @@
+{
+  "brand_name": "Grünzeit Pflege",
+  "niche_id": "gartenpflege",
+  "package_id": "premium",
+  "portfolio": [
+    {
+      "title": "Villengarten Erlangen",
+      "city": "Erlangen",
+      "task": "Hecke + Rasen in Form bringen",
+      "duration": "1 Tag",
+      "works": [
+        "Heckenschnitt",
+        "Rasenpflege",
+        "Abfuhr"
+      ],
+      "before_label": "Überwachsene Hecke",
+      "after_label": "Klare Linie",
+      "demo_label": "Demonstrationsbeispiel"
+    },
+    {
+      "title": "Reihenhausgarten Fürth",
+      "city": "Fürth",
+      "task": "Beete und Saisonschnitt",
+      "duration": "Halber Tag",
+      "works": [
+        "Beete",
+        "Schnitt",
+        "Laub"
+      ],
+      "before_label": "Unruhige Beete",
+      "after_label": "Gepflegte Struktur",
+      "demo_label": "Demonstrationsbeispiel"
+    }
+  ],
+  "team": [
+    {
+      "name": "Elena Roth",
+      "role": "Gründerin",
+      "focus": "Gartenplanung",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Tom Berger",
+      "role": "Schnitt",
+      "focus": "Hecken & Bäume",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Mia Lang",
+      "role": "Pflege",
+      "focus": "Rasen & Beete",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Paul Stein",
+      "role": "Kundenservice",
+      "focus": "Jahrespläne",
+      "demo_label": "Beispielprofil"
+    }
+  ],
+  "equipment": [
+    "Kleiner Transporter",
+    "Geräteanhänger",
+    "Profi-Schnittgeräte"
+  ],
+  "process": [
+    "Anfrage",
+    "Gartenbegehung",
+    "Pflegeplan",
+    "Termin",
+    "Durchführung",
+    "Fotodoku",
+    "Saisonpflege"
+  ],
+  "before_after": [
+    {
+      "before": "Überwachsene Hecke",
+      "after": "Klare Linie"
+    },
+    {
+      "before": "Wilder Rasen",
+      "after": "Gepflegter Rasen"
+    }
+  ],
+  "knowledge": [
+    {
+      "title": "Wann Hecke schneiden?",
+      "teaser": "Außerhalb der Brutzeiten — wir planen mit.",
+      "demo_label": "Demo-Artikel"
+    },
+    {
+      "title": "Rasenpflege im Herbst?",
+      "teaser": "Laub und Schnitt entscheiden über den Frühling.",
+      "demo_label": "Demo-Artikel"
+    }
+  ],
+  "trust": [
+    {
+      "title": "Lokaler Service",
+      "detail": "Nürnberg und Umland",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Festpreis",
+      "detail": "Pro Termin klar",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Dokumentation",
+      "detail": "Vorher/Nachher (Demo)",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Jahresplan",
+      "detail": "Demo",
+      "demo_label": "Demo-Beispiel"
+    }
+  ],
+  "timeline": [
+    {
+      "year": "2018",
+      "title": "Gegründet",
+      "detail": "Erste Gärten",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2023",
+      "title": "Jahresverträge",
+      "detail": "Demo",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2026",
+      "title": "Region aktiv",
+      "detail": "Demo",
+      "demo_label": "Demo"
+    }
+  ],
+  "gallery_roles": [
+    "Hecke",
+    "Rasen",
+    "Beete",
+    "Werkzeug"
+  ],
+  "media_truth_rule": "No media ships without profession + brand + story proof. Beauty alone is REBUILD.",
+  "disclaimer": "Demo-Inhalt · Virtus Core Preview — Projekte, Personen, Ausrüstung und Nachweise sind demonstrativ erzeugt und keine echten Referenzen.",
+  "fingerprint": "ccb6086eca37962a654cef4e",
+  "blocks": [
+    "portfolio",
+    "team",
+    "equipment",
+    "process",
+    "before_after",
+    "knowledge",
+    "trust",
+    "timeline"
+  ],
+  "media": {
+    "case_0_before": "assets/reputation/case_0_before.jpg",
+    "case_0_after": "assets/reputation/case_0_after.jpg",
+    "case_1_before": "assets/reputation/case_1_before.jpg",
+    "case_1_after": "assets/reputation/case_1_after.jpg",
+    "ba_0_before": "assets/reputation/case_0_before.jpg",
+    "ba_0_after": "assets/reputation/case_0_after.jpg",
+    "ba_1_before": "assets/reputation/case_1_before.jpg",
+    "ba_1_after": "assets/reputation/case_1_after.jpg",
+    "team_0": "assets/reputation/team_0.jpg",
+    "team_1": "assets/reputation/team_1.jpg",
+    "team_2": "assets/reputation/team_2.jpg",
+    "team_3": "assets/reputation/team_3.jpg"
+  }
+}

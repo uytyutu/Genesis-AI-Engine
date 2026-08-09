@@ -1,0 +1,71 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "moderner Gym-Floor · Hantelzone · Personal Training",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "product_first",
+  "package_id": "premium",
+  "niche_id": "fitness",
+  "fingerprint": "11f691c7b7aa782076a01fa24374bdd8543ed487ddd55304cea235ee921ab378",
+  "section_treatments": [
+    [
+      "catalog",
+      "tint"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "photo_band"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#dcdce0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "f4976e08f05e1d15d337061e",
+  "border_radius_px": 12
+}

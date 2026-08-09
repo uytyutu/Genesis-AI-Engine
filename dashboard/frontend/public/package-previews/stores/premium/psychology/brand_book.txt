@@ -1,0 +1,137 @@
+BRAND BOOK
+Brand Name
+Klarheit Digital
+
+Positioning
+Ruhiger Schutzraum
+
+Brand Archetype
+The Guide
++
+The Listener
+
+Brand Promise
+Ein Ort, an dem es ruhiger wird.
+
+Core Emotion
+Ruhe
+
+Secondary Emotion
+Sicherheit
+
+Tone of Voice
+  Leise
+  Klar
+  Warm
+  Ohne Floskeln
+
+Visual Style
+Editorial Calm · motion shape ribbons
+
+Visual Metaphor
+Weiches Morgenlicht in einem stillen Raum
+
+Photography
+  behagliches Therapiezimmer
+  Tageslicht
+  Sessel und Pflanze
+  ruhige Atmosphäre
+  Gesprächsecke
+  Notizbuch
+  Fensterlicht
+  Warteraum dezent
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+  neon spa
+  stock yoga beach
+  purple wellness
+  crystal cliché
+
+Motion
+atelier drift · glass shimmer · slow depth
+
+Palette
+Warm Paper, Sage, Stone, Ink
+Accent #5b7c6e
+Surface #f0ece4
+Ink #0b0d10
+
+Typography
+Cormorant Garamond
++
+Source Serif 4
+(editorial_calm)
+
+Icon Style
+minimal stroke set
+
+Border Radius
+4 px
+
+Shadow Style
+Barely
+
+Glass Level
+medium
+
+Texture
+  Paper
+  Linen
+  Wood grain soft
+
+Scene Language
+  behagliches Therapiezimmer
+  Tageslicht
+  Sessel und Pflanze
+  ruhige Atmosphäre
+
+CTA Style
+Ein ruhiger Link · Kein Druck
+
+Trust Strategy
+  Transparente Honorare
+  Ablauf
+  Vertraulichkeit
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Quiet room
+✔ Daylight
+✔ Soft space
+✔ Human pace
+
+Preferred
+✔ Empty chair with air
+✔ Window light
+✔ Paper
+✔ Calm hands
+
+Forbidden
+✖ Neon spa
+✖ Yoga beach stock
+✖ Purple wellness
+✖ Crystal cliché
+
+Hero Proof
+A quiet chamber where the first breath feels slower — not a spa brochure.
+
+Fingerprint
+f8fedc6b71d6046272c56e3e
+

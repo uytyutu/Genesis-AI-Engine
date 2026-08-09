@@ -790,16 +790,66 @@ def _send_ses(
         }
 
 
+def _env_first(*names: str) -> str:
+    for name in names:
+        val = os.getenv(name, "").strip()
+        if val:
+            return val
+    return ""
+
+
+def _mailgun_api_keys() -> list[str]:
+    """Primary + optional secondary key (MAILGUN_API_KEY_2 / Mailgun_2KEY aliases)."""
+    keys: list[str] = []
+    for name in (
+        "MAILGUN_API_KEY",
+        "Mailgun_KEY",
+        "MAILGUN_KEY",
+        "MAILGUN_API_KEY_2",
+        "Mailgun_2KEY",
+        "MAILGUN_2KEY",
+    ):
+        val = os.getenv(name, "").strip()
+        if val and val not in keys:
+            keys.append(val)
+    return keys
+
+
+def _mailgun_domain() -> str:
+    return _env_first("MAILGUN_DOMAIN", "Mailgun_Domain", "MAILGUN_DOMAIN_NAME")
+
+
+def _mailgun_from(from_addr: str = "") -> str:
+    return (
+        (from_addr or "").strip()
+        or _env_first("MAILGUN_FROM", "Mailgun_From")
+        or _default_from()
+    ).strip()
+
+
+def _mailgun_api_base() -> str:
+    """Normalize to …/v3 (accepts api.mailgun.net or …/v3)."""
+    raw = _env_first("MAILGUN_API_BASE", "MAILGUN_URL", "MAilgun_URL", "Mailgun_URL")
+    base = (raw or "https://api.mailgun.net/v3").rstrip("/")
+    if base.endswith("/v3"):
+        return base
+    # https://api.mailgun.net → https://api.mailgun.net/v3
+    if base.endswith("mailgun.net") or base.endswith("mailgun.net/"):
+        return f"{base.rstrip('/')}/v3"
+    return base
+
+
 def _probe_mailgun() -> dict[str, Any]:
-    key = bool(os.getenv("MAILGUN_API_KEY", "").strip())
-    domain = bool(os.getenv("MAILGUN_DOMAIN", "").strip())
-    frm = bool(os.getenv("MAILGUN_FROM", "").strip() or _default_from())
+    keys = _mailgun_api_keys()
+    domain = bool(_mailgun_domain())
+    frm = bool(_mailgun_from())
     return {
         "id": "mailgun",
         "label": "Mailgun",
-        "configured": key and domain and frm,
+        "configured": bool(keys) and domain and frm,
         "env_required": ["MAILGUN_API_KEY", "MAILGUN_DOMAIN", "MAILGUN_FROM"],
         "role": "failover",
+        "keys_configured": len(keys),
     }
 
 
@@ -814,11 +864,11 @@ def _send_mailgun(
     bcc: str,
     memory_dir: Path | None,
 ) -> dict[str, Any]:
-    api_key = os.getenv("MAILGUN_API_KEY", "").strip()
-    domain = os.getenv("MAILGUN_DOMAIN", "").strip()
-    frm = (from_addr or os.getenv("MAILGUN_FROM", "").strip() or _default_from()).strip()
-    base = os.getenv("MAILGUN_API_BASE", "https://api.mailgun.net/v3").rstrip("/")
-    if not (api_key and domain and frm):
+    api_keys = _mailgun_api_keys()
+    domain = _mailgun_domain()
+    frm = _mailgun_from(from_addr)
+    base = _mailgun_api_base()
+    if not (api_keys and domain and frm):
         return {
             "ok": False,
             "skipped": True,
@@ -844,48 +894,68 @@ def _send_mailgun(
         data["bcc"] = bcc.strip()
     if list_unsubscribe.strip():
         data["h:List-Unsubscribe"] = list_unsubscribe.strip()
-    try:
-        with httpx.Client(timeout=30.0) as client:
-            res = client.post(
-                f"{base}/{domain}/messages",
-                auth=("api", api_key),
-                data=data,
+
+    last: dict[str, Any] = {
+        "ok": False,
+        "provider": "mailgun",
+        "reason": "mailgun_error",
+    }
+    for idx, api_key in enumerate(api_keys):
+        try:
+            with httpx.Client(timeout=30.0) as client:
+                res = client.post(
+                    f"{base}/{domain}/messages",
+                    auth=("api", api_key),
+                    data=data,
+                )
+        except httpx.HTTPError as exc:
+            record_provider_result(
+                memory_dir,
+                "mailgun",
+                ok=False,
+                reason="network_error",
+                detail=str(exc)[:200],
             )
-    except httpx.HTTPError as exc:
-        record_provider_result(
-            memory_dir, "mailgun", ok=False, reason="network_error", detail=str(exc)[:200]
-        )
-        return {
+            return {
+                "ok": False,
+                "provider": "mailgun",
+                "reason": "network_error",
+                "detail": str(exc)[:160],
+            }
+        if res.status_code < 400:
+            body = res.json() if res.content else {}
+            record_provider_result(
+                memory_dir, "mailgun", ok=True, http_status=res.status_code
+            )
+            return {
+                "ok": True,
+                "provider": "mailgun",
+                "from": frm,
+                "id": body.get("id"),
+                "key_index": idx,
+            }
+        detail = (res.text or "")[:400]
+        last = {
             "ok": False,
             "provider": "mailgun",
-            "reason": "network_error",
-            "detail": str(exc)[:160],
+            "reason": f"mailgun_error:{res.status_code}",
+            "detail": detail[:200],
+            "http_status": res.status_code,
+            "key_index": idx,
         }
-    if res.status_code < 400:
-        body = res.json() if res.content else {}
-        record_provider_result(memory_dir, "mailgun", ok=True, http_status=res.status_code)
-        return {
-            "ok": True,
-            "provider": "mailgun",
-            "from": frm,
-            "id": body.get("id"),
-        }
-    detail = (res.text or "")[:400]
+        # Try secondary key only on auth failures
+        if res.status_code not in (401, 403) or idx + 1 >= len(api_keys):
+            break
+
     record_provider_result(
         memory_dir,
         "mailgun",
         ok=False,
-        reason=f"mailgun_error:{res.status_code}",
-        http_status=res.status_code,
-        detail=detail,
+        reason=str(last.get("reason") or "mailgun_error"),
+        http_status=last.get("http_status") if isinstance(last.get("http_status"), int) else None,
+        detail=str(last.get("detail") or "")[:400],
     )
-    return {
-        "ok": False,
-        "provider": "mailgun",
-        "reason": f"mailgun_error:{res.status_code}",
-        "detail": detail[:200],
-        "http_status": res.status_code,
-    }
+    return last
 
 
 _SENDERS: dict[str, Callable[..., dict[str, Any]]] = {

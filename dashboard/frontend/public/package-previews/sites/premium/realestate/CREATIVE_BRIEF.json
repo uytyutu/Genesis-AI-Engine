@@ -1,0 +1,15 @@
+{
+  "brand_name": "WohnRaum Partner",
+  "niche_id": "realestate",
+  "package_id": "premium",
+  "media_mode": "cinematic_photo",
+  "visual_metaphor": "Brand character in space",
+  "hero_concept": "Brand character in space | WohnRaum Partner",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "eaf98f12d382449b9ce8",
+  "image_prompt": "WohnRaum Partner realestate brand hero, Brand character in space, European studio, media_mode=cinematic_photo, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

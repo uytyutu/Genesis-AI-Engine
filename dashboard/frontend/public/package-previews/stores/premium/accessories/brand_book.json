@@ -1,0 +1,108 @@
+{
+  "brand_name": "Zeitstück Accessoires",
+  "niche_id": "fashion",
+  "package_id": "premium",
+  "positioning": "Klare lokale Marke",
+  "archetype_primary": "The Expert",
+  "archetype_secondary": "The Guide",
+  "brand_promise": "Klar. Vertrauenswürdig. Vor Ort.",
+  "core_emotion": "Vertrauen",
+  "secondary_emotion": "Klarheit",
+  "tone": [
+    "Klar",
+    "Freundlich",
+    "Kompetent"
+  ],
+  "visual_style": "Modern Clear",
+  "visual_metaphor": "Offenes Licht auf ruhiger Fläche",
+  "photography": [
+    "Echte Orte",
+    "Menschen bei der Arbeit",
+    "Tageslicht"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting"
+  ],
+  "motion_language": "Ruhig · Klar",
+  "motion_token": "business",
+  "palette": {
+    "names": [
+      "Slate",
+      "Sage",
+      "Warm White"
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#f7f4ef",
+    "ink_hex": "#1c1917",
+    "secondary_hex": "#64748b",
+    "highlight_hex": "#94a3b8"
+  },
+  "typography_display": "Manrope",
+  "typography_body": "IBM Plex Sans",
+  "typography_pair_id": "manrope_ibm_plex_industrial",
+  "typography_emotion": "clarity",
+  "icon_style": "Outline Soft",
+  "border_radius_px": 12,
+  "shadow_style": "Soft",
+  "glass_level": "medium",
+  "texture": [
+    "Paper",
+    "Light"
+  ],
+  "scene_language": [
+    "Light",
+    "Space",
+    "Calm"
+  ],
+  "cta_style": "Große Buttons · Ruhiger Abstand",
+  "trust_strategy": [
+    "Transparenz",
+    "Kontakt",
+    "Prozess"
+  ],
+  "atmosphere_mode": "atelier",
+  "dna_style": "modern_clinical",
+  "dna_palette_family": "sage_mist",
+  "hero_concept": "trust_panel",
+  "fingerprint": "51b6954dd41195dfe2f2ea84",
+  "media_dna": {
+    "required": [
+      "Real workplace",
+      "People at craft",
+      "Daylight"
+    ],
+    "preferred": [
+      "Local place",
+      "Honest detail"
+    ],
+    "forbidden": [
+      "Café",
+      "Coworking",
+      "Abstract business",
+      "Laptop stock",
+      "Beauty salon"
+    ],
+    "hero_proof": "A frame that answers: what does this company live every day?",
+    "profession_keywords": [
+      "work",
+      "local",
+      "craft",
+      "service"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

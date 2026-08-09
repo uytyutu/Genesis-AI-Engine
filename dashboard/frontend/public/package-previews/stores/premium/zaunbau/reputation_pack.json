@@ -1,0 +1,174 @@
+{
+  "brand_name": "ZaunWerk Material",
+  "niche_id": "zaunbau",
+  "package_id": "premium",
+  "portfolio": [
+    {
+      "title": "Grundstück Erlangen",
+      "city": "Erlangen",
+      "task": "Metallzaun mit Tor und klarer Linie",
+      "duration": "3 Tage",
+      "works": [
+        "Vermessung",
+        "Pfosten",
+        "Tor",
+        "Abnahme"
+      ],
+      "before_label": "Offene Grenze",
+      "after_label": "Klarer Zaun",
+      "demo_label": "Demonstrationsbeispiel"
+    },
+    {
+      "title": "Garten Nürnberg",
+      "city": "Nürnberg",
+      "task": "Holzlattenzaun — Sichtschutz",
+      "duration": "2 Tage",
+      "works": [
+        "Materialwahl",
+        "Montage",
+        "Tor"
+      ],
+      "before_label": "Unebene Grenze",
+      "after_label": "Saubere Lattenlinie",
+      "demo_label": "Demonstrationsbeispiel"
+    }
+  ],
+  "team": [
+    {
+      "name": "Markus Klein",
+      "role": "Gründer",
+      "focus": "Montageleitung",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Sara Vogel",
+      "role": "Planung",
+      "focus": "Aufmaß & Angebot",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Tim Braun",
+      "role": "Montage",
+      "focus": "Tore & Pfosten",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Nina Hart",
+      "role": "Kundenservice",
+      "focus": "Termine",
+      "demo_label": "Beispielprofil"
+    }
+  ],
+  "equipment": [
+    "Transporter",
+    "Anhänger",
+    "Schweißgerät",
+    "Schraubtechnik"
+  ],
+  "process": [
+    "Anfrage",
+    "Aufmaß vor Ort",
+    "Festpreis Angebot",
+    "Termin",
+    "Montage",
+    "Abnahme",
+    "Garantie"
+  ],
+  "before_after": [
+    {
+      "before": "Offene Grenze",
+      "after": "Fertiger Zaun"
+    },
+    {
+      "before": "Altes Tor",
+      "after": "Neues Tor"
+    }
+  ],
+  "knowledge": [
+    {
+      "title": "Welcher Zaun hält länger?",
+      "teaser": "Material und Untergrund entscheiden.",
+      "demo_label": "Demo-Artikel"
+    },
+    {
+      "title": "Brauche ich eine Genehmigung?",
+      "teaser": "Je nach Höhe und Lage — wir klären das.",
+      "demo_label": "Demo-Artikel"
+    }
+  ],
+  "trust": [
+    {
+      "title": "Versicherung",
+      "detail": "Demo",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Festpreis",
+      "detail": "Vor Montage",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Lokaler Service",
+      "detail": "Metropolregion Nürnberg",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Dokumentation",
+      "detail": "Abnahmeprotokoll (Demo)",
+      "demo_label": "Demo-Beispiel"
+    }
+  ],
+  "timeline": [
+    {
+      "year": "2019",
+      "title": "Gegründet",
+      "detail": "Erste Montagen",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2022",
+      "title": "Werkstatt erweitert",
+      "detail": "Demo",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2026",
+      "title": "Region aktiv",
+      "detail": "Demo",
+      "demo_label": "Demo"
+    }
+  ],
+  "gallery_roles": [
+    "Pfosten",
+    "Tor",
+    "Werkstatt",
+    "Montage"
+  ],
+  "media_truth_rule": "No media ships without profession + brand + story proof. Beauty alone is REBUILD.",
+  "disclaimer": "Demo-Inhalt · Virtus Core Preview — Projekte, Personen, Ausrüstung und Nachweise sind demonstrativ erzeugt und keine echten Referenzen.",
+  "fingerprint": "5ee0893445030836c896d0b8",
+  "blocks": [
+    "portfolio",
+    "team",
+    "equipment",
+    "process",
+    "before_after",
+    "knowledge",
+    "trust",
+    "timeline"
+  ],
+  "media": {
+    "case_0_before": "assets/reputation/case_0_before.jpg",
+    "case_0_after": "assets/reputation/case_0_after.jpg",
+    "case_1_before": "assets/reputation/case_1_before.jpg",
+    "case_1_after": "assets/reputation/case_1_after.jpg",
+    "ba_0_before": "assets/reputation/case_0_before.jpg",
+    "ba_0_after": "assets/reputation/case_0_after.jpg",
+    "ba_1_before": "assets/reputation/case_1_before.jpg",
+    "ba_1_after": "assets/reputation/case_1_after.jpg",
+    "team_0": "assets/reputation/team_0.jpg",
+    "team_1": "assets/reputation/team_1.jpg",
+    "team_2": "assets/reputation/team_2.jpg",
+    "team_3": "assets/reputation/team_3.jpg"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "niche_id": "handwerk",
+  "subniche_id": "general_craft",
+  "subniche_label": "Handwerk & Renovierung",
+  "business_model": "general_craft_craft_small_team",
+  "city": "Leipzig",
+  "company_name": "Meisterbau Hoffmann",
+  "who": "Meisterbetrieb: Festpreis, pünktlich, saubere Baustelle.",
+  "trust_why": "Nachweisbare Arbeit · Handwerk & Renovierung · Leipzig",
+  "sells": "['Renovierung', 'Trockenbau', 'Malerarbeiten', 'Badumbau']",
+  "differentiator": "Festpreis, pünktlich, sauber",
+  "atmosphere": "craft",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Projects: bathroom, kitchen, paint, floors",
+  "media_brief": {
+    "hero": "Meister on site with tools — real work, not stock smile",
+    "gallery": "Projects: bathroom, kitchen, paint, floors",
+    "video": "Timelapse renovation or drilling close-up",
+    "before_after": "Worn room → finished room",
+    "team": "Crew in workwear",
+    "equipment": "Bosch/Makita/Milwaukee + branded van",
+    "atmosphere": "craft",
+    "subniche": "general_craft",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "cost_calculator",
+      "label": "Cost Calculator",
+      "why": "Kunden wollen Orientierung vor dem Anruf."
+    },
+    {
+      "id": "before_after",
+      "label": "Before / After",
+      "why": "Beweis, dass Arbeit sichtbar ist."
+    },
+    {
+      "id": "projects",
+      "label": "Projects",
+      "why": "Konkrete Aufträge statt Wortlisten."
+    },
+    {
+      "id": "equipment",
+      "label": "Equipment Fleet",
+      "why": "Werkzeug & Fahrzeug bauen Vertrauen."
+    },
+    {
+      "id": "crew",
+      "label": "Crew",
+      "why": "Menschen hinter dem Handwerk."
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp CTA",
+      "why": "Schnelle Anfrage ohne Formular-Friction."
+    },
+    {
+      "id": "service_area",
+      "label": "Service Area Map",
+      "why": "Lokale Reichweite."
+    },
+    {
+      "id": "emergency_call",
+      "label": "Priority Call",
+      "why": "Dringende Einsätze."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "craft",
+  "clients_who": "Hausbesitzer und Bauherren in Leipzig",
+  "fingerprint": "b14b0b23c3869de86279",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

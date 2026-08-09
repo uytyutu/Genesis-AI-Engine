@@ -59,6 +59,7 @@ export default function robots(): MetadataRoute.Robots {
     "/growth",
     "/tasks",
     "/tiktok-horizon",
+    "/horizon",
     "/ceo-site",
     "/engine",
     "/reviews",

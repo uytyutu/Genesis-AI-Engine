@@ -1,0 +1,14 @@
+{
+    "market_code":  "DE",
+    "description":  "Meister vor Ort auf Abruf: Montage, Kleinreparaturen, Möbelaufbau, Lampen, Steckdosen-Check, Wasserhahn, Bilder aufhängen. Abrechnung stundenweise — klarer Festpreis nach Aufmaß. Berlin und Umland.",
+    "demo":  true,
+    "city":  "Berlin",
+    "extra_wishes":  "Hero: Meister kommt in einer Stunde. Leistungen stundenweise. CTA WhatsApp. Impressionen: Wohnung, Werkzeug, fertige Arbeit. Kein Virtus Core im Client-Text.",
+    "niche":  "handwerk",
+    "business_name":  "StundenMeister Berlin",
+    "package_id":  "premium",
+    "ui_lang":  "de",
+    "specialization":  "Hausmeister stundenweise / Meister auf Abruf",
+    "phone":  "+49 30 12345678",
+    "email":  "kontakt@stundenmeister-demo.example.de"
+}

@@ -149,5 +149,11 @@ def run_shop_quality_gate(
     if not (brand_home or 'class="brand"' in html):
         errors.append("missing_logo_home")
 
+    # Visual Intelligence Engine markers
+    vie_ok = 'data-vie-engine=' in html
+    checks.append(_check("visual_intelligence", vie_ok, "data-vie-engine on store shell"))
+    if not vie_ok:
+        errors.append("missing_visual_intelligence")
+
     passed = len(errors) == 0
     return QualityResult(passed=passed, checks=checks, errors=errors)

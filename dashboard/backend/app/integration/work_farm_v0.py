@@ -37,6 +37,18 @@ WORK_TYPES: dict[str, dict[str, Any]] = {
         "ai_share_pct": 90,
         "note_ru": "v0 primary — Factory Path A после оплаты Stripe.",
     },
+    "bot_workspace": {
+        "enabled": False,
+        "label_ru": "AI Business Bot",
+        "ai_share_pct": 0,
+        "note_ru": "Handled by workspace bot runtime — not Work Farm landing.",
+    },
+    "shop_factory": {
+        "enabled": False,
+        "label_ru": "AI Store",
+        "ai_share_pct": 0,
+        "note_ru": "Handled by StoreFactoryService — not Work Farm landing.",
+    },
     "seo_audit": {
         "enabled": False,
         "label_ru": "SEO-аудит",
@@ -116,6 +128,14 @@ def resolve_work_type(order: dict[str, Any]) -> str:
     package_id = str(order.get("package_id") or "").strip().lower()
     if package_id in ("repair", "site_repair", "fix") or order.get("product_kind") == "repair":
         return "repair_manual"
+    if (
+        order.get("product_kind") == "bot"
+        or package_id.startswith("bot_")
+        or package_id == "ai_chatbot"
+    ):
+        return "bot_workspace"
+    if package_id == "ecommerce_shop" or order.get("product_kind") == "shop":
+        return "shop_factory"
     # Path A packages = landing work
     return "landing_page"
 

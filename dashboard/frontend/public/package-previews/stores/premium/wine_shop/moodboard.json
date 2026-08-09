@@ -1,0 +1,44 @@
+{
+  "niche_id": "restaurant",
+  "emotion": "Wärme",
+  "keywords": [
+    "depth",
+    "rhythm",
+    "hero presence",
+    "niche truth",
+    "culinary atmosphere · isometric craft marks",
+    "professioneller arbeitsort",
+    "team bei echter arbeit",
+    "deutsche alltagsszene"
+  ],
+  "avoid": [
+    "template ladder",
+    "flat white",
+    "metric PASS theater",
+    "nordic_sterile",
+    "gaming",
+    "neon",
+    "tech_saas",
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "fast food plastic",
+    "neon menu board"
+  ],
+  "hero_feeling": "Abendlicht über dem Hof — lange Tafel, leises Gläserklingen",
+  "atmosphere": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "references": [
+    "Best contemporary niche studios"
+  ]
+}

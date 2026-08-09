@@ -43,7 +43,7 @@ def test_engine_and_no_fake_buy():
 
 
 def test_landing_prices_locked():
-    assert LANDING_PACKAGES_EUR == {"basic": 350, "business": 650, "premium": 1200}
+    assert LANDING_PACKAGES_EUR == {"basic": 199, "business": 399, "premium": 699}
     for pid, eur in LANDING_PACKAGES_EUR.items():
         assert _PACKAGES[pid]["price_eur"] == eur
 

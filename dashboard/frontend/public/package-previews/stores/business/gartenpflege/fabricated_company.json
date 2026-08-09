@@ -1,0 +1,151 @@
+{
+  "legal_name": "Grünzeit Garten",
+  "brand_name": "Grünzeit Garten",
+  "slogan": "Klar. Menschlich. Präzise.",
+  "mission": "Kunden in Berlin spürbar besser bedienen als gestern.",
+  "history": "Was als kleines Vorhaben in Berlin begann, ist über die Jahre zu einem festen Ort mit Stammgästen und klarer Handschrift geworden. Seit 2019 wächst Grünzeit Garten bewusst — Qualität vor Tempo.",
+  "values": [
+    "Präzision",
+    "Menschlichkeit",
+    "Transparenz",
+    "Verlässlichkeit",
+    "Handwerk"
+  ],
+  "approach": "Klarheit, Handwerk, langfristige Beziehung.",
+  "founded_year": 2019,
+  "city": "Berlin",
+  "niche_id": "other",
+  "services": [
+    [
+      "Analyse",
+      "Bestandsaufnahme & Empfehlung",
+      "ab 99 €"
+    ],
+    [
+      "Umsetzung",
+      "Umsetzung mit klaren Meilensteinen",
+      "auf Anfrage"
+    ],
+    [
+      "Betreuung",
+      "Laufende Begleitung",
+      "Monatsabo"
+    ],
+    [
+      "Workshop",
+      "Team-Workshop vor Ort",
+      "ab 490 €"
+    ],
+    [
+      "Audit",
+      "Qualitäts- & Prozesscheck",
+      "ab 290 €"
+    ],
+    [
+      "Support",
+      "Priorisierter Support",
+      "inkl."
+    ],
+    [
+      "Dokumentation",
+      "Transparente Unterlagen",
+      "inkl."
+    ],
+    [
+      "Beratung",
+      "Individuelle Erstberatung",
+      "auf Anfrage"
+    ]
+  ],
+  "advantages": [
+    "Seit 2019 in Berlin",
+    "Transparente Preise",
+    "Feste Ansprechpartner",
+    "Termine mit Bestätigung",
+    "Nachvollziehbarer Ablauf"
+  ],
+  "team": [
+    [
+      "Sofia Hoffmann",
+      "Leitung",
+      "Leitung bei Grünzeit Garten — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Max Hoffmann",
+      "Spezialist/in",
+      "Spezialist/in bei Grünzeit Garten — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Noah Becker",
+      "Beratung",
+      "Beratung bei Grünzeit Garten — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Erik Becker",
+      "Assistenz",
+      "Assistenz bei Grünzeit Garten — Fokus auf Qualität und ruhige Abläufe."
+    ]
+  ],
+  "faq": [
+    [
+      "Wie vereinbare ich einen Termin bei Grünzeit Garten?",
+      "Über das Kontaktformular, telefonisch oder per E-Mail. Sie erhalten eine Bestätigung."
+    ],
+    [
+      "Wie transparent sind die Kosten?",
+      "Vor Beginn erhalten Sie eine klare Einschätzung. Keine versteckten Positionen."
+    ],
+    [
+      "Seit wann gibt es Grünzeit Garten?",
+      "Seit 2019 in Berlin — gewachsen mit Stammkunden und klarer Handschrift."
+    ],
+    [
+      "Gibt es Parkplätze / Anreise?",
+      "Zentral in Berlin. Details zur Anreise senden wir mit der Terminbestätigung."
+    ],
+    [
+      "Arbeitet ihr auch online / hybrid?",
+      "Wo sinnvoll ja — Details klären wir im Erstkontakt."
+    ]
+  ],
+  "reviews": [
+    [
+      "Seriös, klar, ohne Show. Weiterzuempfehlen.",
+      "Felix · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Fühlt sich nach echtem Handwerk an — nicht nach Vorlage.",
+      "Erik · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Transparente Kommunikation. Genau das wollte ich.",
+      "Noah · Demo-Bewertung — kein echter Kundenname"
+    ]
+  ],
+  "process_steps": [
+    "Kennenlernen & Bedarf",
+    "Klare Empfehlung & Preis",
+    "Umsetzung mit Abstimmung",
+    "Nachsorge & Feedback"
+  ],
+  "blog_titles": [
+    "Warum Grünzeit Garten anders arbeitet",
+    "3 Dinge, die Kunden in Berlin uns am häufigsten fragen",
+    "Hinter den Kulissen: Qualität statt Tempo",
+    "So bereiten Sie Ihren ersten Termin vor"
+  ],
+  "certificates": [
+    "Qualitätsversprechen",
+    "Transparente Prozesse",
+    "Versicherungsschutz"
+  ],
+  "hours": "Mo–Fr 09:00–18:00 · Sa nach Vereinbarung",
+  "phone": "+49 40 4099449",
+  "email": "kontakt@gruenzeit-garten.example.de",
+  "social": [
+    "instagram.com/grünzeitgarten.demo",
+    "linkedin.com/company/grünzeit-garten-demo"
+  ],
+  "fingerprint": "779134e7af152bc3",
+  "demo_content": true
+}

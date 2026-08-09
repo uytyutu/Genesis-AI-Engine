@@ -1,0 +1,15 @@
+{
+  "brand_name": "Salon Mira",
+  "niche_id": "beauty",
+  "package_id": "premium",
+  "media_mode": "cinematic_photo",
+  "visual_metaphor": "Brand character in space",
+  "hero_concept": "Brand character in space | Salon Mira",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": true,
+  "experience_tier": "cinematic",
+  "fingerprint": "00fe06aa48ddf5a067a4",
+  "image_prompt": "Salon Mira beauty brand hero, Brand character in space, European studio, media_mode=cinematic_photo, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

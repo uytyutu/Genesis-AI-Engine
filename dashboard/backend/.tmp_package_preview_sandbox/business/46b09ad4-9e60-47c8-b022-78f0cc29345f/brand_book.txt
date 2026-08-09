@@ -1,0 +1,131 @@
+BRAND BOOK
+Brand Name
+Kanzlei Bergmann
+
+Positioning
+Ruhige Autorität
+
+Brand Archetype
+The Counselor
++
+The Architect
+
+Brand Promise
+Stille. Ordnung. Kontrolle.
+
+Core Emotion
+Kontrolle
+
+Secondary Emotion
+Vertrauen ohne Drama
+
+Tone of Voice
+  Präzise
+  Ruhig
+  Autorität
+  Klar
+
+Visual Style
+Quiet Authority
+
+Visual Metaphor
+Ruhige Fassade, klares Licht, kein Theater
+
+Photography
+  Fassade
+  Aktenordnung
+  Klares Tageslicht
+  Leerer Konferenztisch
+  Architekturdetail
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+  gavel stock
+  scales of justice cliché
+  angry courtroom
+
+Motion
+Minimal · Präzise · Kein Bounce
+
+Palette
+Ink, Stone, Brass, Paper
+Accent #b4975a
+Surface #f4f1ea
+Ink #14161c
+
+Typography
+Libre Baskerville
++
+IBM Plex Sans
+(baskerville_plex_legal)
+
+Icon Style
+Hairline
+
+Border Radius
+0 px
+
+Shadow Style
+Hairline
+
+Glass Level
+low
+
+Texture
+  Stone
+  Paper
+  Brass
+
+Scene Language
+  Silence
+  Order
+  Facade
+  Light
+
+CTA Style
+Ein Knopf · Keine Dringlichkeit
+
+Trust Strategy
+  Honorare klar
+  Erstberatung
+  Vertraulichkeit
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Quiet facade
+✔ Order
+✔ Clear light
+✔ Architecture
+
+Preferred
+✔ Empty conference table
+✔ Paper stack neat
+✔ Stone detail
+
+Forbidden
+✖ Gavel stock
+✖ Scales of justice cliché
+✖ Angry courtroom
+
+Hero Proof
+Silence, order, control — authority without theater.
+
+Fingerprint
+51fb24c829ddd0e7dc17aeaa
+

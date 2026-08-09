@@ -1,0 +1,68 @@
+{
+  "emotion": "clarity",
+  "style": "editorial",
+  "palette_family": "paper_ink",
+  "typography_pair": "instrument_onest",
+  "motion": "business",
+  "hero_concept": "magazine_bleed",
+  "hero_layout": "E",
+  "depth": "high",
+  "glass": "low",
+  "composition": "atelier",
+  "package_id": "business",
+  "niche_id": "generic",
+  "fingerprint": "e6d3886a8de3f4701c68f77943b5d968bedb3ced93bdbe8df6210b7d173df7be",
+  "section_treatments": [
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "process",
+      "tint"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "about",
+      "gradient"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#78716c",
+  "surface_hex": "#fafaf9",
+  "ink_hex": "#1c1917"
+}

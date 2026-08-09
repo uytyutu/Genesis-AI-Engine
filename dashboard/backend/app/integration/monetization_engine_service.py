@@ -959,8 +959,35 @@ class MonetizationEngineService:
         tech_pattern_ids: list[str] | None = None,
     ) -> dict[str, Any]:
         """Global Spider — technology-pattern targets worldwide (public URLs only)."""
+        from swarm.farm_stabilization import mark_hunt_active, mark_idle_no_work
+
         niche_key = niche if niche in _NICHE_SCAN_QUERIES else "local_service"
         batch_limit = max(1, min(_NETWORK_BATCH_MAX, int(batch_limit)))
+
+        skip, meta = self._global_spider.should_idle_skip_hunt()
+        if skip:
+            spider = self._global_spider.spider_dashboard()
+            idle = meta.get("idle") or {}
+            return {
+                "ok": True,
+                "idle": True,
+                "mode": "global_spider",
+                "status": "WAITING_FOR_INPUT",
+                "niche": niche_key,
+                "batch_limit": batch_limit,
+                "scanned": 0,
+                "passed_gate": 0,
+                "archived": 0,
+                "regions_scanned": 0,
+                "discovery": meta.get("hunt") or {},
+                "global_spider": spider,
+                "errors": [],
+                "message": (
+                    idle.get("note_ru")
+                    or "IDLE — нет новых задач (seeds/places пусты); backoff без охоты."
+                ),
+            }
+
         candidates, discovery = self._global_spider.discover_candidate_urls(
             niche=niche_key,
             batch_limit=batch_limit,
@@ -968,10 +995,13 @@ class MonetizationEngineService:
         )
 
         if not candidates:
+            idle = mark_idle_no_work(self._global_spider._memory)
             spider = self._global_spider.spider_dashboard()
             return {
                 "ok": False,
+                "idle": True,
                 "mode": "global_spider",
+                "status": "WAITING_FOR_INPUT",
                 "niche": niche_key,
                 "batch_limit": batch_limit,
                 "scanned": 0,
@@ -980,12 +1010,18 @@ class MonetizationEngineService:
                 "regions_scanned": discovery.get("regions_scanned", 0),
                 "discovery": discovery,
                 "global_spider": spider,
+                "idle_state": idle,
                 "errors": ["no_candidates_add_seed_targets_or_GOOGLE_PLACES_API_KEY"],
                 "message": (
-                    "Global Spider: нет кандидатов. Добавьте seed_targets в "
-                    "memory/global_spider_config.json или GOOGLE_PLACES_API_KEY."
+                    idle.get("note_ru")
+                    or (
+                        "Global Spider: нет кандидатов. Добавьте seed_targets в "
+                        "memory/global_spider_config.json или GOOGLE_PLACES_API_KEY."
+                    )
                 ),
             }
+
+        mark_hunt_active(self._global_spider._memory)
 
         scanned = 0
         passed = 0

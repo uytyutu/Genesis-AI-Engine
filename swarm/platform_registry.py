@@ -129,6 +129,23 @@ PLATFORM_REGISTRY: list[dict[str, Any]] = [
         ],
         "note": "Экспорт в форматах для ML training.",
     },
+    {
+        "id": "apify",
+        "label": "Apify (Virtus Core Actors)",
+        "category": "actors",
+        "status_key": "APIFY_KEY",
+        "env_var": "APIFY_KEY",
+        "pay_hint": "Website Auditor · Lead · Tech Scanner — Store revenue",
+        "signup_url": "https://console.apify.com/account#/integrations",
+        "steps": [
+            "console.apify.com → Settings → Integrations → API token.",
+            ".env.local: APIFY_KEY=apify_api_…",
+            "Опционально: APIFY_ID=ваш user id из консоли.",
+            "Перезапусти Genesis.exe — пульт покажет статус.",
+        ],
+        "note": "Owner-only. Не парсер ради парсера — линейка AI Auditor для Apify Store + Virtus Core.",
+        "client_visible": False,
+    },
 ]
 
 
@@ -137,6 +154,15 @@ def platform_status(env_var: str | None, status_key: str | None) -> tuple[str, s
     if not env_var and not status_key:
         return "active", "Работает"
     key = status_key or env_var
+    if key == "APIFY_KEY":
+        token = (
+            os.getenv("APIFY_TOKEN", "").strip()
+            or os.getenv("APIFY_KEY", "").strip()
+            or os.getenv("APIFY_API_TOKEN", "").strip()
+        )
+        if token:
+            return "active", "Ключ подключён"
+        return "needs_key", "Нужен APIFY_KEY"
     if key and os.getenv(key, "").strip():
         return "active", "Ключ подключён"
     return "needs_key", "Нужен твой API-ключ"
@@ -175,6 +201,11 @@ def list_platforms() -> list[dict[str, Any]]:
             elif toloka_live.get("configured"):
                 status, status_label = "needs_key", toloka_live.get("message", status_label)
             item["adapter_status"] = toloka_live
+        elif pid == "apify":
+            # Local key only here — live ping via /api/owner/apify/status (owner-only).
+            if status == "active":
+                status_label = "Ключ в .env.local · Actors в разработке"
+            item["client_visible"] = False
         item["status"] = status
         item["status_label"] = status_label
         if pid == "scale_ai" and scale_live:

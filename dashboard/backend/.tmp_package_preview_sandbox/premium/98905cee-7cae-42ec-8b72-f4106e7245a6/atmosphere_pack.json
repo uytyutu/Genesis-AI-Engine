@@ -1,0 +1,347 @@
+{
+  "brand_name": "FarbRaum Malermeister",
+  "niche_id": "maler",
+  "package_id": "premium",
+  "metaphor": "Offenes Licht auf ruhiger Fläche",
+  "core_emotion": "Vertrauen",
+  "atmosphere_mode": "atelier",
+  "scene_language": [
+    "professioneller Arbeitsort",
+    "Team bei echter Arbeit",
+    "deutsche Alltagsszene"
+  ],
+  "texture_language": [
+    "Paper",
+    "Light"
+  ],
+  "motion_language": "industrial snap · sharp transitions · tool hover",
+  "camera_feeling": "calm eye-level · clear space",
+  "scroll_feeling": "steady soft reveals",
+  "cta_feeling": "clear large buttons · calm spacing · Große Buttons · Ruhiger Abstand",
+  "sound_mood": "quiet professional room tone",
+  "illustration_style": "neon line diagrams",
+  "glass_level": "medium",
+  "shadow_language": "soft lift · Soft",
+  "icon_language": "filled craft glyphs",
+  "lighting": "even daylight · soft fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit",
+        "deutsche Alltagsszene",
+        "Detail Arbeit",
+        "Kundenmoment"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|hero|1999b65613f3bd120b1f",
+      "size": [
+        1600,
+        900
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=hero. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: professioneller Arbeitsort, Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "background",
+      "concept": "scene · professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit",
+        "deutsche Alltagsszene",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|bg|1999b65613f3bd120b1f",
+      "size": [
+        1920,
+        1080
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=neon line diagrams. Must show: professioneller Arbeitsort, Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Detail Arbeit",
+      "must_include": [
+        "Detail Arbeit",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|gal0|1999b65613f3bd120b1f",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Detail Arbeit."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Kundenmoment",
+      "must_include": [
+        "Kundenmoment",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|gal1|1999b65613f3bd120b1f",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Kundenmoment."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Werkzeug / Material",
+      "must_include": [
+        "Werkzeug / Material",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|gal2|1999b65613f3bd120b1f",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Werkzeug / Material."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Ergebnis",
+      "must_include": [
+        "Ergebnis",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|gal3|1999b65613f3bd120b1f",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Ergebnis."
+    },
+    {
+      "role": "before_after",
+      "concept": "before / after proof",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|before_after|1999b65613f3bd120b1f",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=before_after. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Detail Arbeit, Kundenmoment. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "team",
+      "concept": "team of this company",
+      "must_include": [
+        "Fachkraft"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|team|1999b65613f3bd120b1f",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=team. Medium=minimal_illustration. Illustration language=neon line diagrams. Must show: Fachkraft. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "equipment",
+      "concept": "tools & equipment of the trade",
+      "must_include": [
+        "Werkzeug der Branche"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|equipment|1999b65613f3bd120b1f",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=equipment. Medium=minimal_illustration. Illustration language=neon line diagrams. Must show: Werkzeug der Branche. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "illustration",
+      "concept": "neon line diagrams",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FarbRaum Malermeister|maler|premium|09f4459aa92104ca972bed95|illustration|1999b65613f3bd120b1f",
+      "size": [
+        1200,
+        1200
+      ],
+      "image_prompt": "Premium German brand visual for «FarbRaum Malermeister» (maler) in Germany. Role=illustration. Medium=minimal_illustration. Illustration language=neon line diagrams. Must show: professioneller Arbeitsort, Team bei echter Arbeit. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    }
+  ],
+  "fingerprint": "ddfcd03c724f30ace8b4f613",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

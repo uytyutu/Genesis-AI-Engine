@@ -1,8 +1,9 @@
 """
-Public brand identity — Virtus Core · Vector · by Virtus Core.
+Public brand identity — Virtus Core · Virtus AI · by Virtus Core.
 
 Canonical hierarchy for all user-facing surfaces.
 Genesis is internal only — never the public assistant name.
+Virtus AI is the orchestrator (not a single vendor model).
 """
 
 from __future__ import annotations
@@ -10,10 +11,10 @@ from __future__ import annotations
 import re
 
 BRAND_NAME = "Virtus Core"
-ASSISTANT_NAME = "Vector"
+ASSISTANT_NAME = "Virtus AI"
 INTERNAL_CORE_NAME = "Genesis"
 BRAND_SIGNATURE = "by Virtus Core"
-ASSISTANT_TAGLINE = "Digital Company"
+ASSISTANT_TAGLINE = "Digital Business Partner"
 STUDIO_NAME = "Virtus Studio"
 CHAT_FEATURE = ASSISTANT_NAME
 
@@ -35,6 +36,7 @@ _PUBLIC_BRAND_SCRUB: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"Genesis\s+AI", re.I), ASSISTANT_NAME),
     (re.compile(r"Genesis\s+OS", re.I), BRAND_NAME),
     (re.compile(r"Genesis\s+Mind", re.I), f"{ASSISTANT_NAME} Mind"),
+    (re.compile(r"\bVector\b", re.I), ASSISTANT_NAME),
     (re.compile(r"\bGenesis\b", re.I), BRAND_NAME),
     (re.compile(r"\bгенезис\b", re.I), BRAND_NAME),
     (re.compile(r"\bгенезес\b", re.I), BRAND_NAME),
@@ -42,7 +44,7 @@ _PUBLIC_BRAND_SCRUB: tuple[tuple[re.Pattern[str], str], ...] = (
 
 
 def brand_signature_lines(*, include_tagline: bool = False) -> tuple[str, ...]:
-    """Premium signature block — Vector / [tagline] / by Virtus Core."""
+    """Premium signature block — Virtus AI / [tagline] / by Virtus Core."""
     if include_tagline:
         return (ASSISTANT_NAME, ASSISTANT_TAGLINE, BRAND_SIGNATURE)
     return (ASSISTANT_NAME, BRAND_SIGNATURE)

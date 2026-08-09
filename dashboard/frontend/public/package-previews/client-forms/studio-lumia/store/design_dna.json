@@ -1,0 +1,75 @@
+{
+  "emotion": "soft_precision",
+  "style": "scandinavian_calm",
+  "palette_family": "porcelain_rose",
+  "typography_pair": "cormorant_dm_beauty",
+  "motion": "premium",
+  "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "editorial",
+  "package_id": "business",
+  "niche_id": "beauty",
+  "fingerprint": "2ad89a82f9606a370cf4b009dea847a91685ccacbd9410586c9c2975f5bb4636",
+  "section_treatments": [
+    [
+      "about",
+      "illustration"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "services",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "process",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "showcase",
+      "illustration"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "calculator",
+      "gradient"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#c4787a",
+  "surface_hex": "#e6eaf0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "f3f3cfb4f29df742b6cb471d",
+  "border_radius_px": 8
+}

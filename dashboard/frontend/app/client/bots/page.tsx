@@ -216,7 +216,7 @@ function ClientBotsDashboard() {
         },
         body: JSON.stringify({
           display_name: `AI Bot ${(ents?.bots_used || 0) + 1}`,
-          channels: ["website_chat"],
+          channels: ["telegram"],
         }),
       });
       const body = await res.json().catch(() => ({}));

@@ -20,7 +20,7 @@ class ConciergeService:
 
     def __init__(self, packages: list[dict] | None = None) -> None:
         self._packages = packages or []
-        self._min_price = min((p["price_eur"] for p in self._packages), default=350)
+        self._min_price = min((p["price_eur"] for p in self._packages), default=199)
 
     def ask(self, question: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         q = question.strip()
@@ -127,9 +127,9 @@ class ConciergeService:
         ):
             body = (
                 f"Отлично! В {BRAND_NAME} мы создаём сайты в трёх пакетах:\n\n"
-                "* **Basic** — одностраничный сайт · **350 €**\n"
-                "* **Business** — сайт компании с системой управления · **650 €**\n"
-                "* **Premium** — блог, бронирование и CRM · **1200 €**\n\n"
+                "* **Basic** — современный сайт · **199 €**\n"
+                "* **Business** — многостраничный сайт + Admin Dashboard · **399 €**\n"
+                "* **Premium** — блог, advanced SEO и приоритетная поддержка · **699 €**\n\n"
                 "Если уже знаете пакет — оформите заказ. Если нет — напишите нишу, помогу выбрать."
             )
             return self._reply(
@@ -226,12 +226,17 @@ class ConciergeService:
         )
         has_logo = self._is_yes(answers.get("logo", ""))
 
+        pkg_by_id = {str(p.get("id") or ""): p for p in self._packages}
         pkg_by_price = {p["price_eur"]: p for p in self._packages}
-        basic = pkg_by_price.get(350) or (self._packages[0] if self._packages else None)
-        business = pkg_by_price.get(650) or basic
-        premium = pkg_by_price.get(1200) or business
+        basic = (
+            pkg_by_id.get("basic")
+            or pkg_by_price.get(199)
+            or (self._packages[0] if self._packages else None)
+        )
+        business = pkg_by_id.get("business") or pkg_by_price.get(399) or basic
+        premium = pkg_by_id.get("premium") or pkg_by_price.get(699) or business
 
-        chosen = business or {"id": "business", "name": "Landing Business", "price_eur": 650}
+        chosen = business or {"id": "business", "name": "Website Business", "price_eur": 399}
         timeline = MISSION1_LANDING_TIMELINE
 
         if re.search(r"\b1\b|одн|одна|лендинг|landing", pages):
@@ -241,7 +246,7 @@ class ConciergeService:
             chosen = premium or chosen
             timeline = "около 15 минут"
 
-        if payment and chosen and chosen.get("price_eur", 0) < 650:
+        if payment and chosen and chosen.get("price_eur", 0) < 399:
             chosen = business or chosen
 
         business_name = (
@@ -258,8 +263,8 @@ class ConciergeService:
 
         return {
             "package_id": chosen.get("id", "business"),
-            "package_name": chosen.get("name", "Landing Business"),
-            "price_eur": chosen.get("price_eur", 650),
+            "package_name": chosen.get("name", "Website Business"),
+            "price_eur": chosen.get("price_eur", 399),
             "timeline": timeline,
             "summary": summary,
         }

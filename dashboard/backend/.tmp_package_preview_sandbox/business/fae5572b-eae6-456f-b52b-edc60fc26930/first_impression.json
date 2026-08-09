@@ -1,0 +1,53 @@
+{
+  "niche_id": "restaurant",
+  "problem_before": "Sie wollen nicht nur essen — Sie wollen den Abend schon spüren, bevor die Karte kommt.",
+  "story": "Hier beginnt der Abend nicht mit der Speisekarte, sondern mit dem Gefühl, schon in Italien zu sein.",
+  "emotion": "Ankommen — wie im Hof.",
+  "trust": "Frische Zutaten. Allergene klar. Reservierung mit Bestätigung.",
+  "offer": "Ein Tisch, der sich anfühlt wie bei Freunden.",
+  "idea": "Ein Abend im italienischen Hof.",
+  "source": "premium_pack",
+  "stage_name": "First Impression Generation",
+  "arc": [
+    "story",
+    "emotion",
+    "trust",
+    "offer",
+    "cta"
+  ],
+  "rule": "Not a slogan. Not a section list. What does the client feel 10 seconds before they open this site?",
+  "three_second_test": {
+    "name": "3-SECOND TEST",
+    "instructions": "Open the site. Do not read the text. After 3 seconds answer:",
+    "questions": [
+      "What does the company do?",
+      "Can I trust it?",
+      "Does it look cheap or expensive?",
+      "Do I want to look further?",
+      "Does it look like a template?"
+    ],
+    "rule": "If any answer is negative or unclear → REBUILD."
+  },
+  "gate_report": {
+    "gate": "FIRST_IMPRESSION",
+    "stage": "First Impression Generation",
+    "ok": true,
+    "story": "Hier beginnt der Abend nicht mit der Speisekarte, sondern mit dem Gefühl, schon in Italien zu sein.",
+    "problem_before": "Sie wollen nicht nur essen — Sie wollen den Abend schon spüren, bevor die Karte kommt.",
+    "package_id": "business",
+    "source": "premium_pack",
+    "three_second_test": {
+      "name": "3-SECOND TEST",
+      "instructions": "Open the site. Do not read the text. After 3 seconds answer:",
+      "questions": [
+        "What does the company do?",
+        "Can I trust it?",
+        "Does it look cheap or expensive?",
+        "Do I want to look further?",
+        "Does it look like a template?"
+      ],
+      "rule": "If any answer is negative or unclear → REBUILD."
+    },
+    "question": "What problem does the client feel 10 seconds before opening this site?"
+  }
+}

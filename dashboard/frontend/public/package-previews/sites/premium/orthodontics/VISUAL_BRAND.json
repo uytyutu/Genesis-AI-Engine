@@ -1,0 +1,63 @@
+{
+  "brand_name": "Alignum Kieferorthopädie",
+  "niche_id": "generic",
+  "fingerprint": "a48995ce12f0ac24638e",
+  "color": {
+    "primary": "#14181e",
+    "accent": "#6ab19d",
+    "secondary": "#b03925",
+    "surface": "#e6eaf0",
+    "cards": "#e0e6ee",
+    "background": "#14181e",
+    "gradient": "linear-gradient(145deg,#14181e 0%,#35584e 48%,#6ab19d 100%)",
+    "glow": "rgba(106,177,157,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "premium_business_graphic",
+    "abstract_gradient",
+    "isometric_illustration"
+  ],
+  "illustration_pack": "neon line diagrams",
+  "motion_language": "industrial snap · sharp transitions · tool hover",
+  "icon_style": "filled craft glyphs",
+  "scene_library": {
+    "hero": [
+      "professioneller Arbeitsort",
+      "Team bei echter Arbeit",
+      "deutsche Alltagsszene"
+    ],
+    "gallery": [
+      "Detail Arbeit",
+      "Kundenmoment",
+      "Werkzeug / Material",
+      "Ergebnis"
+    ],
+    "team": [
+      "Fachkraft"
+    ],
+    "equipment": [
+      "Werkzeug der Branche"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: professioneller Arbeitsort, Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=neon line diagrams. Must show: professioneller Arbeitsort, Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Detail Arbeit, Kundenmoment. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=team. Medium=premium_business_graphic. Illustration language=neon line diagrams. Must show: Fachkraft. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=equipment. Medium=premium_business_graphic. Illustration language=neon line diagrams. Must show: Werkzeug der Branche. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=illustration. Medium=premium_business_graphic. Illustration language=neon line diagrams. Must show: professioneller Arbeitsort, Team bei echter Arbeit. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=neon line diagrams. Must show: filled craft glyphs. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «Alignum Kieferorthopädie» (generic) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: professioneller Arbeitsort, Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

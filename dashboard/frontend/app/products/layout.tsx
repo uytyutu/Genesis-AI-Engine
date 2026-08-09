@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { publicPageMetadata } from "../lib/publicMetadata";
 
 export const metadata: Metadata = publicPageMetadata(
-  "Что доступно сейчас",
-  "Virtus Core Mission 1: цифровая компания с Vector и заказ лендинга 350 / 650 / 1200 €. Virtus Studio — в разработке.",
+  "Produkte & Leistungen",
+  "Virtus Core Mission 1: digitale Firma mit Vector und Website-Bestellung 199 / 399 / 699 €. Virtus Studio — in Entwicklung.",
   "/products"
 );
 

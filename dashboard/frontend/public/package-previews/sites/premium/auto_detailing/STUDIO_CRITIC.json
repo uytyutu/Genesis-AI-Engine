@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "niche_id": "auto_detailing",
+  "brand_name": "GlanzWerk Detailing",
+  "package_id": "premium",
+  "html_bytes": 141102,
+  "signals": {
+    "has_hero": true,
+    "has_tier": true,
+    "has_3d": true,
+    "has_experience_css": true,
+    "has_unique_brief": true,
+    "concept_only": false,
+    "offline_only": true,
+    "has_visual_brand": true
+  },
+  "score": {
+    "story": 92,
+    "motion": 85,
+    "atmosphere": 81,
+    "interaction": 85,
+    "media": 85,
+    "trust": 80,
+    "conversion": 90,
+    "overall": 86,
+    "portfolio_ready": true,
+    "template_like": false,
+    "euro_studio_feel": true,
+    "rebuild": false,
+    "critiques": [
+      "Premium on Studio Offline Media only"
+    ],
+    "strengths": [
+      "Creative brief present",
+      "Substantial HTML body",
+      "Experience / motion language in CSS",
+      "VISUAL_BRAND.json present",
+      "3D / WebGL accent",
+      "Contact / CTA paths present",
+      "Studio Offline Media noted honestly",
+      "Trust / legal signals",
+      "Conversion language present",
+      "Euro studio feel signals present"
+    ]
+  }
+}

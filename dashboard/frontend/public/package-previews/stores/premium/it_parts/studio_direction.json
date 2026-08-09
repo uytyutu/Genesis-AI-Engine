@@ -1,0 +1,1540 @@
+{
+  "studio_id": "digital_creative_studio_v4_studio_era",
+  "era": "Virtus Core Studio Era",
+  "product_noun": "Digital Experience Generation",
+  "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+  "digital_signature_aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+  "philosophy": "virtus_core_studio_era_digital_experience_generation",
+  "immutable_law_1": "Каждый новый проект обязан быть не хуже предыдущего лучшего проекта. Если генерация ухудшила качество — REBUILD. Если она повторила шаблон — REBUILD. Если сайт выглядит как конструктор — REBUILD. Если сайт уступает современным digital-студиям — REBUILD.",
+  "immutable_law_2": "Любая новая идея должна сначала стать заметной клиенту. Если появляется Director, Engine, Rule или Memory — ответь: «Что изменится в первом впечатлении клиента?» Если ответ: «Пока ничего, но архитектура стала лучше» — работа ещё не закончена.",
+  "pipeline": [
+    "human_first",
+    "brand_story",
+    "core_emotion",
+    "core_promise",
+    "visual_metaphor",
+    "creative_theme",
+    "scene_language",
+    "motion_language",
+    "typography_voice",
+    "color_emotion",
+    "interaction_style",
+    "creative_conflict",
+    "owner_preview"
+  ],
+  "scene_arc": [
+    "scene",
+    "story",
+    "emotion",
+    "interaction",
+    "experience",
+    "conversion"
+  ],
+  "package_id": "premium",
+  "niche_id": "generic",
+  "studio_approach": {
+    "id": "editorial",
+    "label": "Editorial",
+    "pillars": [
+      "magazine grid",
+      "unusual layout",
+      "large headlines",
+      "story first",
+      "typographic drama"
+    ],
+    "composition_bias": [
+      "magazine",
+      "editorial",
+      "folio",
+      "narrative",
+      "cascade"
+    ],
+    "type_bias": [
+      "newsreader_public",
+      "playfair_manrope",
+      "instrument_onest"
+    ],
+    "color_feeling": "ink on paper, selective accent",
+    "motion": "scroll chapters, underline craft",
+    "niches_affinity": [
+      "law",
+      "psychology",
+      "photography",
+      "creative"
+    ],
+    "notes": ""
+  },
+  "moodboard": {
+    "niche_id": "generic",
+    "emotion": "Vertrauen",
+    "keywords": [
+      "depth",
+      "rhythm",
+      "hero presence",
+      "niche truth",
+      "modern clear · premium business geometry",
+      "professioneller arbeitsort",
+      "team bei echter arbeit",
+      "deutsche alltagsszene"
+    ],
+    "avoid": [
+      "template ladder",
+      "flat white",
+      "metric PASS theater",
+      "tech_saas",
+      "gaming",
+      "neon",
+      "warehouse_grid",
+      "cafe",
+      "restaurant interior",
+      "beauty salon",
+      "spa",
+      "saas dashboard",
+      "startup office",
+      "coworking",
+      "stock handshake",
+      "generic purple gradient",
+      "luxury champagne cliché without craft proof",
+      "laptop",
+      "coffee",
+      "abstract business",
+      "office meeting"
+    ],
+    "hero_feeling": "Offenes Licht auf ruhiger Fläche",
+    "atmosphere": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+    "references": [
+      "Best contemporary niche studios"
+    ]
+  },
+  "business_identity": {
+    "brand_name": "ByteErsatz Parts",
+    "niche_id": "generic",
+    "package_id": "premium",
+    "founded_year": 2020,
+    "company_age_years": 6,
+    "mission": "Klar. Vertrauenswürdig. Vor Ort.",
+    "core_services": [
+      "Beratung",
+      "Service"
+    ],
+    "geography": "Deutschland",
+    "advantages": [
+      "Transparenz",
+      "Lokaler Service"
+    ],
+    "values": [
+      "Vertrauen",
+      "Klarheit"
+    ],
+    "client_types": [
+      "Privatkunden"
+    ],
+    "price_segment": "Mittel",
+    "brand_character": "Expert + Guide",
+    "team_size_label": "Kleinteam (Demo)",
+    "marketing_dna_stub": {
+      "audience": "Lokale Kunden",
+      "goal": "Kontakt",
+      "emotion": "Vertrauen",
+      "pacing": "ruhig",
+      "platforms": [
+        "Website"
+      ]
+    },
+    "video_dna_stub": {
+      "camera": [
+        "Static"
+      ],
+      "mood": "Clear daylight",
+      "music": "Soft ambient",
+      "pacing": "Steady",
+      "required_scenes": [
+        "Workplace",
+        "People at work"
+      ],
+      "forbidden": [
+        "Café",
+        "Coworking",
+        "Laptop stock"
+      ]
+    },
+    "fingerprint": "8cff51b823a66726e8f93327",
+    "demo": true,
+    "chain": [
+      "business_identity",
+      "brand_book",
+      "atmosphere",
+      "reputation",
+      "local_identity",
+      "website",
+      "store",
+      "marketing"
+    ]
+  },
+  "brand_book": {
+    "brand_name": "ByteErsatz Parts",
+    "niche_id": "generic",
+    "package_id": "premium",
+    "positioning": "Klare lokale Marke",
+    "archetype_primary": "The Expert",
+    "archetype_secondary": "The Guide",
+    "brand_promise": "Klar. Vertrauenswürdig. Vor Ort.",
+    "core_emotion": "Vertrauen",
+    "secondary_emotion": "Klarheit",
+    "tone": [
+      "Klar",
+      "Freundlich",
+      "Kompetent"
+    ],
+    "visual_style": "Modern Clear · premium business geometry",
+    "visual_metaphor": "Offenes Licht auf ruhiger Fläche",
+    "photography": [
+      "professioneller Arbeitsort",
+      "Team bei echter Arbeit",
+      "deutsche Alltagsszene",
+      "Detail Arbeit",
+      "Kundenmoment",
+      "Werkzeug / Material",
+      "Ergebnis"
+    ],
+    "forbidden": [
+      "cafe",
+      "restaurant interior",
+      "beauty salon",
+      "spa",
+      "saas dashboard",
+      "startup office",
+      "coworking",
+      "stock handshake",
+      "generic purple gradient",
+      "luxury champagne cliché without craft proof",
+      "laptop",
+      "coffee",
+      "abstract business",
+      "office meeting"
+    ],
+    "motion_language": "atelier drift · glass shimmer · slow depth",
+    "motion_token": "business",
+    "palette": {
+      "names": [
+        "Slate",
+        "Sage",
+        "Warm White"
+      ],
+      "accent_hex": "#5b7c6e",
+      "surface_hex": "#e6eaf0",
+      "ink_hex": "#f4f6f8",
+      "secondary_hex": "#a1b8be",
+      "highlight_hex": "#5b7c6e"
+    },
+    "typography_display": "Manrope",
+    "typography_body": "IBM Plex Sans",
+    "typography_pair_id": "manrope_ibm_plex_industrial",
+    "typography_emotion": "clarity",
+    "icon_style": "technical blueprint icons",
+    "border_radius_px": 12,
+    "shadow_style": "Soft",
+    "glass_level": "medium",
+    "texture": [
+      "Paper",
+      "Light"
+    ],
+    "scene_language": [
+      "professioneller Arbeitsort",
+      "Team bei echter Arbeit",
+      "deutsche Alltagsszene"
+    ],
+    "cta_style": "Große Buttons · Ruhiger Abstand",
+    "trust_strategy": [
+      "Transparenz",
+      "Kontakt",
+      "Prozess"
+    ],
+    "atmosphere_mode": "atelier",
+    "dna_style": "modern_clinical",
+    "dna_palette_family": "sage_mist",
+    "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+    "fingerprint": "5af6af6efdb02517b3c375c8",
+    "media_dna": {
+      "required": [
+        "Real workplace",
+        "People at craft",
+        "Daylight"
+      ],
+      "preferred": [
+        "Local place",
+        "Honest detail"
+      ],
+      "forbidden": [
+        "Café",
+        "Coworking",
+        "Abstract business",
+        "Laptop stock",
+        "Beauty salon"
+      ],
+      "hero_proof": "A frame that answers: what does this company live every day?",
+      "profession_keywords": [
+        "work",
+        "local",
+        "craft",
+        "service"
+      ],
+      "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+    },
+    "city_hint": ""
+  },
+  "atmosphere_pack": {
+    "brand_name": "ByteErsatz Parts",
+    "niche_id": "generic",
+    "package_id": "premium",
+    "metaphor": "Offenes Licht auf ruhiger Fläche",
+    "core_emotion": "Vertrauen",
+    "atmosphere_mode": "atelier",
+    "scene_language": [
+      "professioneller Arbeitsort",
+      "Team bei echter Arbeit",
+      "deutsche Alltagsszene"
+    ],
+    "texture_language": [
+      "Paper",
+      "Light"
+    ],
+    "motion_language": "industrial snap · sharp transitions · tool hover",
+    "camera_feeling": "calm eye-level · clear space",
+    "scroll_feeling": "steady soft reveals",
+    "cta_feeling": "clear large buttons · calm spacing · Große Buttons · Ruhiger Abstand",
+    "sound_mood": "quiet professional room tone",
+    "illustration_style": "premium business geometry",
+    "glass_level": "medium",
+    "shadow_language": "soft lift · Soft",
+    "icon_language": "soft rounded symbols",
+    "lighting": "even daylight · soft fill",
+    "layers": [
+      "content",
+      "atmosphere",
+      "motion",
+      "depth",
+      "identity"
+    ],
+    "media_briefs": [
+      {
+        "role": "hero",
+        "concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+        "must_include": [
+          "professioneller Arbeitsort",
+          "Team bei echter Arbeit",
+          "deutsche Alltagsszene",
+          "Detail Arbeit",
+          "Kundenmoment"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|hero|8023a34413b8cdb87e20",
+        "size": [
+          1600,
+          900
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=premium business geometry. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "background",
+        "concept": "scene · professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+        "must_include": [
+          "professioneller Arbeitsort",
+          "Team bei echter Arbeit",
+          "deutsche Alltagsszene",
+          "Paper",
+          "Light"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|bg|8023a34413b8cdb87e20",
+        "size": [
+          1920,
+          1080
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=premium business geometry. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "gallery",
+        "concept": "gallery proof · Detail Arbeit",
+        "must_include": [
+          "Detail Arbeit",
+          "Paper",
+          "Light"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|gal0|8023a34413b8cdb87e20",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=premium business geometry. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Detail Arbeit."
+      },
+      {
+        "role": "gallery",
+        "concept": "gallery proof · Kundenmoment",
+        "must_include": [
+          "Kundenmoment",
+          "Paper",
+          "Light"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|gal1|8023a34413b8cdb87e20",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=premium business geometry. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Kundenmoment."
+      },
+      {
+        "role": "gallery",
+        "concept": "gallery proof · Werkzeug / Material",
+        "must_include": [
+          "Werkzeug / Material",
+          "Paper",
+          "Light"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|gal2|8023a34413b8cdb87e20",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=premium business geometry. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Werkzeug / Material."
+      },
+      {
+        "role": "gallery",
+        "concept": "gallery proof · Ergebnis",
+        "must_include": [
+          "Ergebnis",
+          "Paper",
+          "Light"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|gal3|8023a34413b8cdb87e20",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=premium business geometry. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Ergebnis."
+      },
+      {
+        "role": "before_after",
+        "concept": "before / after proof",
+        "must_include": [
+          "professioneller Arbeitsort",
+          "Team bei echter Arbeit"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|before_after|8023a34413b8cdb87e20",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=premium business geometry. Must show: Detail Arbeit, Kundenmoment. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "team",
+        "concept": "team of this company",
+        "must_include": [
+          "Fachkraft"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|team|8023a34413b8cdb87e20",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=team. Medium=premium_business_graphic. Illustration language=premium business geometry. Must show: Fachkraft. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "equipment",
+        "concept": "tools & equipment of the trade",
+        "must_include": [
+          "Werkzeug der Branche"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|equipment|8023a34413b8cdb87e20",
+        "size": [
+          1400,
+          1000
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=equipment. Medium=premium_business_graphic. Illustration language=premium business geometry. Must show: Werkzeug der Branche. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      },
+      {
+        "role": "illustration",
+        "concept": "premium business geometry",
+        "must_include": [
+          "professioneller Arbeitsort",
+          "Team bei echter Arbeit"
+        ],
+        "must_forbid": [
+          "cafe",
+          "restaurant interior",
+          "beauty salon",
+          "spa",
+          "saas dashboard",
+          "startup office",
+          "coworking",
+          "stock handshake",
+          "generic purple gradient",
+          "luxury champagne cliché without craft proof",
+          "laptop",
+          "coffee",
+          "abstract business",
+          "office meeting"
+        ],
+        "seed": "ByteErsatz Parts|generic|premium|5af6af6efdb02517b3c375c8|illustration|8023a34413b8cdb87e20",
+        "size": [
+          1200,
+          1200
+        ],
+        "image_prompt": "Premium German brand visual for «ByteErsatz Parts» (generic) in Germany. Role=illustration. Medium=premium_business_graphic. Illustration language=premium business geometry. Must show: Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+      }
+    ],
+    "fingerprint": "feaa233aed320891ca21a5d5",
+    "director": "brand_book",
+    "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+  },
+  "brand_dna": {
+    "business_name": "ByteErsatz Parts",
+    "niche_id": "generic",
+    "package_id": "premium",
+    "voice": "Manrope + IBM Plex Sans",
+    "feeling": "Vertrauen",
+    "why_hero_exists": "The Hero exists to make 'Lived-In Room' felt in 3 seconds: Furniture that already belongs to a life.",
+    "color_feeling": "Modern Clear · premium business geometry",
+    "type_voice": "Manrope / IBM Plex Sans",
+    "scene_arc": "real rooms, soft daylight, human traces",
+    "avoid": [
+      "tech_saas",
+      "gaming",
+      "neon",
+      "warehouse_grid",
+      "cafe",
+      "restaurant interior",
+      "beauty salon",
+      "spa",
+      "saas dashboard",
+      "startup office",
+      "coworking",
+      "stock handshake",
+      "generic purple gradient",
+      "luxury champagne cliché without craft proof",
+      "laptop",
+      "coffee",
+      "abstract business",
+      "office meeting"
+    ],
+    "fingerprint": "e448fbced9847aae",
+    "brand_story": "Mila built ByteErsatz Parts because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: generic.",
+    "core_emotion": "Vertrauen",
+    "core_promise": "Klar. Vertrauenswürdig. Vor Ort.",
+    "visual_metaphor": "Offenes Licht auf ruhiger Fläche",
+    "creative_theme": "Lived-In Room",
+    "creative_theme_id": "lived_in_room",
+    "scene_language": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+    "motion_language": "atelier drift · glass shimmer · slow depth",
+    "interaction_style": "browse like walking through a home",
+    "photo_world": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene · Detail Arbeit · Kundenmoment · Werkzeug / Material · Ergebnis",
+    "founder_name": "Mila"
+  },
+  "creative_identity": {
+    "title": "Lived-In Room",
+    "theme_id": "lived_in_room",
+    "idea": "Furniture that already belongs to a life.",
+    "human": {
+      "founder_name": "Mila",
+      "founder_role": "founder",
+      "client_age_range": "30–50",
+      "why_choose_them": "They are specific — not interchangeable.",
+      "visitor_must_feel": "trust and desire to stay",
+      "niche_revealed_later": "generic"
+    },
+    "brand_story": "Mila built ByteErsatz Parts because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: generic.",
+    "core_emotion": "trust and desire to stay",
+    "core_promise": "Furniture that already belongs to a life.",
+    "visual_metaphor": "an empty chair that still feels occupied",
+    "creative_theme": "Lived-In Room",
+    "scene_language": "real rooms, soft daylight, human traces",
+    "motion_language": "slow settle into space",
+    "typography_voice": "Manrope + IBM Plex Sans",
+    "color_emotion": "oak, linen, soft clay, muted green",
+    "interaction_style": "browse like walking through a home",
+    "photo_world": "morning living room, book on table, plant",
+    "niche_revealed": "generic",
+    "package_id": "premium",
+    "surface": "store",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "tech_saas",
+      "gaming",
+      "neon",
+      "warehouse_grid"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": true,
+    "html_blocked_reason": "",
+    "fingerprint": "e448fbced9847aae",
+    "generated_at": "2026-08-07T18:30:03.270691+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  },
+  "observatory": {
+    "niche_id": "generic",
+    "era": "2026+",
+    "study_sources": [
+      "European digital studio portfolios",
+      "Premium SaaS brand sites",
+      "Luxury ecommerce craft"
+    ],
+    "first_screen": [
+      "Emotional job in 3 seconds",
+      "Brand voice before feature list",
+      "One visual center"
+    ],
+    "page_rhythm": [
+      "Scene → Story → Emotion → Interaction → Experience → Conversion"
+    ],
+    "composition_depth": [
+      "Living atmosphere",
+      "Asymmetry",
+      "Depth layers"
+    ],
+    "typography": "Voice-matched display + readable body",
+    "micro_interactions": "Purposeful motion — never decoration spam",
+    "trust": "Specific proof woven into scenes",
+    "cta_craft": "One primary ask per scene",
+    "brand_feel": [
+      "modern",
+      "confident",
+      "alive"
+    ],
+    "invent": "Original Brand DNA for generic — invent, never recycle prior sites.",
+    "never": [
+      "Constructor ladder",
+      "White empty slabs",
+      "Identical niche clones"
+    ],
+    "lenses": [
+      {
+        "id": "first_screen",
+        "question": "Why does the first screen exist?",
+        "principles": [
+          "One emotional job in 3 seconds",
+          "Visual center owns the fold",
+          "Brand voice before feature list"
+        ],
+        "anti_patterns": [
+          "Hero as feature dump",
+          "equal card grid first",
+          "logo wall as hero"
+        ]
+      },
+      {
+        "id": "rhythm",
+        "question": "How does the page breathe?",
+        "principles": [
+          "Scenes with distinct moods",
+          "Alternating density — never identical section padding",
+          "Story → emotion → interaction → conversion"
+        ],
+        "anti_patterns": [
+          "Hero→Text→Cards→Text→Cards",
+          "uniform white slabs"
+        ]
+      },
+      {
+        "id": "trust",
+        "question": "How is confidence earned?",
+        "principles": [
+          "Proof woven into scenes, not bolted as a strip",
+          "Specific over generic claims",
+          "Quiet credentials beat badge spam"
+        ],
+        "anti_patterns": [
+          "fake counters",
+          "stock handshake photos as trust"
+        ]
+      },
+      {
+        "id": "cta",
+        "question": "How does desire become action?",
+        "principles": [
+          "CTA matches emotional temperature of the scene",
+          "Secondary path without visual noise",
+          "One primary ask per scene"
+        ],
+        "anti_patterns": [
+          "identical pill buttons everywhere",
+          "three equal CTAs"
+        ]
+      }
+    ]
+  },
+  "observatory_brief": "Design Observatory · generic · 2026+\nRule: analyze principles — invent original — never copy pixels.\nFirst screen: Emotional job in 3 seconds; Brand voice before feature list; One visual center\nRhythm: Scene → Story → Emotion → Interaction → Experience → Conversion\nDepth: Living atmosphere; Asymmetry; Depth layers\nType: V; o; i\nMotion: P; u; r\nTrust: S; p; e\nCTA: O; n; e\nInvent: Original Brand DNA for generic — invent, never recycle prior sites.\nNever: Constructor ladder; White empty slabs; Identical niche clones",
+  "benchmark_brief": "Visual Benchmark · generic\nComposition: Full-bleed Hero, asymmetric next fold, no equal-card stack\nRhythm: Contrast ladder; never two open-light bands in a row\nHero: First viewport must sell the craft before any section list\nColor: Niche-true palette; no default purple mesh\nType: Expressive display + calm body\nDepth: Photo + glass + atmosphere layers\nAtmosphere: Living canvas, not flat white\nAvoid: Template ladder; Metric PASS without eye check",
+  "quality_floor": "Premium > Virtus Core /site — expensive European digital-studio impression (logo off still reads studio)",
+  "why_hero_exists": "Hero exists for 'ByteErsatz Parts': Offenes Licht auf ruhiger Fläche — Klar. Vertrauenswürdig. Vor Ort.",
+  "scene_sequence": [
+    "scene",
+    "experience",
+    "scene",
+    "experience",
+    "interaction",
+    "conversion",
+    "emotion",
+    "story",
+    "interaction",
+    "emotion",
+    "interaction",
+    "conversion"
+  ],
+  "taste": {
+    "overall": 64.12,
+    "axes": [
+      {
+        "axis": "rhythm",
+        "score": 88.0,
+        "note": "scene arc vs ladder"
+      },
+      {
+        "axis": "emotion",
+        "score": 85.0,
+        "note": "feeling + why-hero"
+      },
+      {
+        "axis": "brand",
+        "score": 83.0,
+        "note": "approach + composition identity"
+      },
+      {
+        "axis": "beauty",
+        "score": 50.0,
+        "note": "atmosphere + media integrity"
+      },
+      {
+        "axis": "visual_value",
+        "score": 50.0,
+        "note": "worth looking at"
+      },
+      {
+        "axis": "trust",
+        "score": 55.0,
+        "note": "proof craft"
+      },
+      {
+        "axis": "modernity",
+        "score": 77.0,
+        "note": "2026 studio language"
+      },
+      {
+        "axis": "uniqueness",
+        "score": 65.0,
+        "note": "not another clone"
+      }
+    ],
+    "verdict": "PROMISING",
+    "rebuild": false,
+    "reasons": [
+      "Offer-heavy early — weak emotional lead",
+      "Law #1 risk: taste 69 < prior best 72"
+    ],
+    "philosophy": "Taste judges the whole impression — not isolated CSS rules.",
+    "owner_still_decides_pass": true
+  },
+  "law_1": {
+    "law": "Every new project must not be worse than the previous best. Quality regression → REBUILD. Template repeat → REBUILD. Constructor look → REBUILD. Below modern digital studios → REBUILD.",
+    "ok": false,
+    "action": "REBUILD",
+    "reasons": [
+      "Worse than prior best (64 < 72)"
+    ]
+  },
+  "memory_bias": {
+    "compositions": [
+      "solstice",
+      "narrative",
+      "chamber"
+    ],
+    "approaches": [
+      "luxury",
+      "boutique",
+      "scandinavian"
+    ],
+    "typography": [
+      "manrope_ibm_plex_industrial",
+      "fraunces_dm",
+      "libre_source"
+    ],
+    "heroes": [
+      "D",
+      "B",
+      "C"
+    ],
+    "prior_best_overall": 72.125,
+    "rule": "Bias principles from memory — never copy a prior site literally"
+  },
+  "agency_review": {
+    "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+    "roles": [
+      {
+        "id": "ceo",
+        "title": "CEO",
+        "question": "Does this strengthen the client's business presence — not just fill a page?"
+      },
+      {
+        "id": "creative_director",
+        "title": "Creative Director",
+        "question": "Is the creative direction clear, ownable, and non-template?"
+      },
+      {
+        "id": "brand_strategist",
+        "title": "Brand Strategist",
+        "question": "What is this brand's personality — and why does it exist?"
+      },
+      {
+        "id": "marketing_strategist",
+        "title": "Marketing Strategist",
+        "question": "What should the stranger feel in 3 seconds — and what should they do?"
+      },
+      {
+        "id": "ux_researcher",
+        "title": "UX Researcher",
+        "question": "Is the path human, calm, credible — free of constructor anxiety?"
+      },
+      {
+        "id": "art_director",
+        "title": "Art Director",
+        "question": "Does every scene have its own composition, rhythm, mood, and visual center?"
+      },
+      {
+        "id": "typography_director",
+        "title": "Typography Director",
+        "question": "Does type carry character and brand voice — not a default stack?"
+      },
+      {
+        "id": "color_director",
+        "title": "Color Director",
+        "question": "Does color create the intended emotion — not decoration?"
+      },
+      {
+        "id": "motion_director",
+        "title": "Motion Director",
+        "question": "Does every animation have meaning — or is it noise?"
+      },
+      {
+        "id": "frontend_architect",
+        "title": "Frontend Architect",
+        "question": "Is the craft export clean, resilient, and worthy of a studio?"
+      },
+      {
+        "id": "accessibility_specialist",
+        "title": "Accessibility Specialist",
+        "question": "Can everyone use this with dignity?"
+      },
+      {
+        "id": "performance_engineer",
+        "title": "Performance Engineer",
+        "question": "Does beauty stay fast on real devices?"
+      },
+      {
+        "id": "qa_designer",
+        "title": "QA Designer",
+        "question": "Would a European digital studio ship this without shame?"
+      },
+      {
+        "id": "owner_review",
+        "title": "Owner Review",
+        "question": "Has the owner said: \"Да. Я бы купил такой сайт.\"?"
+      }
+    ],
+    "digital_signature": {
+      "name": "Virtus Core Digital Signature",
+      "aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+      "craft_marks": [
+        "attention to detail",
+        "meaningful motion",
+        "strong typography",
+        "harmonious spacing",
+        "considered interactive states",
+        "coherent interaction sequences"
+      ],
+      "never": [
+        "same colors across every niche",
+        "identical compositions",
+        "constructor ladders",
+        "empty decorative zones",
+        "motion without meaning"
+      ]
+    },
+    "ecosystem_frame": {
+      "wrong": "Create a dentist website.",
+      "right": "Create the digital business of a dental clinic.",
+      "for_this_project": "Create the digital business of ByteErsatz Parts (generic) — experience is one surface of the ecosystem, not the end product.",
+      "surfaces": [
+        {
+          "id": "experience",
+          "label": "Digital Experience (site/store)",
+          "role": "first impression & brand face"
+        },
+        {
+          "id": "booking",
+          "label": "Booking / scheduling",
+          "role": "convert intent to appointments"
+        },
+        {
+          "id": "crm",
+          "label": "CRM",
+          "role": "remember and serve the client"
+        },
+        {
+          "id": "reminders",
+          "label": "Automated reminders",
+          "role": "reduce no-shows"
+        },
+        {
+          "id": "chat",
+          "label": "Chat / assistant",
+          "role": "answer when humans sleep"
+        },
+        {
+          "id": "reviews",
+          "label": "Reviews",
+          "role": "trust at scale"
+        },
+        {
+          "id": "seo",
+          "label": "SEO",
+          "role": "be found"
+        },
+        {
+          "id": "ads",
+          "label": "Advertising",
+          "role": "reach with brand integrity"
+        },
+        {
+          "id": "analytics",
+          "label": "Analytics",
+          "role": "learn what works"
+        },
+        {
+          "id": "video",
+          "label": "Video",
+          "role": "emotion and proof"
+        },
+        {
+          "id": "social",
+          "label": "Social",
+          "role": "presence beyond the site"
+        },
+        {
+          "id": "cabinet",
+          "label": "Client cabinet",
+          "role": "ongoing relationship"
+        }
+      ],
+      "package_id": "premium"
+    },
+    "owner_buy_phrase": "Да. Я бы купил такой сайт.",
+    "owner_review": "PENDING_OWNER",
+    "note": "Roles are questions every generation must face. PASS only after human approval."
+  },
+  "variants_considered": [
+    {
+      "composition_id": "immersive",
+      "composition_label": "Immersive continuum",
+      "hero_layout": "F",
+      "layout_profile": "L3-immersive",
+      "dna_style": "modern_clinical",
+      "dna_composition": "immersive",
+      "section_order": [
+        "gallery",
+        "showcase",
+        "about",
+        "mid_cta",
+        "services",
+        "reputation",
+        "process",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "late_cta",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "gallery>showcase>about>mid_cta>services>reputation>process>trust>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "ledger",
+      "composition_label": "Ledger precision",
+      "hero_layout": "C",
+      "layout_profile": "L1-ledger",
+      "dna_style": "modern_clinical",
+      "dna_composition": "ledger",
+      "section_order": [
+        "about",
+        "trust",
+        "stats",
+        "services",
+        "reputation",
+        "mid_cta",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>trust>stats>services>reputation>mid_cta>process>benefits>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "luxury_brand",
+      "composition_label": "Luxury brand",
+      "hero_layout": "B",
+      "layout_profile": "L6-luxury_brand",
+      "dna_style": "modern_clinical",
+      "dna_composition": "luxury_brand",
+      "section_order": [
+        "showcase",
+        "about",
+        "gallery",
+        "mid_cta",
+        "services",
+        "reputation",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>about>gallery>mid_cta>services>reputation>trust>process>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "manifesto",
+      "composition_label": "Manifesto then craft",
+      "hero_layout": "B",
+      "layout_profile": "L6-manifesto",
+      "dna_style": "modern_clinical",
+      "dna_composition": "manifesto",
+      "section_order": [
+        "about",
+        "benefits",
+        "mid_cta",
+        "gallery",
+        "services",
+        "reputation",
+        "process",
+        "trust",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>benefits>mid_cta>gallery>services>reputation>process>trust>showcase>faq>reviews>maps"
+    },
+    {
+      "composition_id": "mirror",
+      "composition_label": "Mirror dialogue",
+      "hero_layout": "E",
+      "layout_profile": "L1-mirror",
+      "dna_style": "modern_clinical",
+      "dna_composition": "mirror",
+      "section_order": [
+        "about",
+        "gallery",
+        "services",
+        "reputation",
+        "mid_cta",
+        "trust",
+        "process",
+        "benefits",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>gallery>services>reputation>mid_cta>trust>process>benefits>showcase>faq>reviews>maps"
+    },
+    {
+      "composition_id": "modern",
+      "composition_label": "Modern precision",
+      "hero_layout": "D",
+      "layout_profile": "L5-modern",
+      "dna_style": "modern_clinical",
+      "dna_composition": "modern",
+      "section_order": [
+        "stats",
+        "services",
+        "reputation",
+        "showcase",
+        "mid_cta",
+        "about",
+        "gallery",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 5.0,
+      "reasons": [
+        "too predictable — classic section ladder"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "stats>services>reputation>showcase>mid_cta>about>gallery>trust>process>benefits>faq>reviews"
+    },
+    {
+      "composition_id": "nature",
+      "composition_label": "Nature immersion",
+      "hero_layout": "A",
+      "layout_profile": "L6-nature",
+      "dna_style": "modern_clinical",
+      "dna_composition": "nature",
+      "section_order": [
+        "gallery",
+        "about",
+        "showcase",
+        "mid_cta",
+        "services",
+        "reputation",
+        "process",
+        "benefits",
+        "trust",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "gallery>about>showcase>mid_cta>services>reputation>process>benefits>trust>faq>reviews>maps"
+    },
+    {
+      "composition_id": "orbit",
+      "composition_label": "Orbit around offer",
+      "hero_layout": "E",
+      "layout_profile": "L3-orbit",
+      "dna_style": "modern_clinical",
+      "dna_composition": "orbit",
+      "section_order": [
+        "services",
+        "reputation",
+        "gallery",
+        "about",
+        "mid_cta",
+        "showcase",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "services>reputation>gallery>about>mid_cta>showcase>trust>process>benefits>faq>reviews>maps"
+    },
+    {
+      "composition_id": "overture",
+      "composition_label": "Overture then movement",
+      "hero_layout": "B",
+      "layout_profile": "L4-overture",
+      "dna_style": "modern_clinical",
+      "dna_composition": "overture",
+      "section_order": [
+        "showcase",
+        "stats",
+        "about",
+        "gallery",
+        "mid_cta",
+        "services",
+        "reputation",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "late_cta",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>stats>about>gallery>mid_cta>services>reputation>trust>process>benefits>faq>reviews"
+    },
+    {
+      "composition_id": "product_first",
+      "composition_label": "Product first",
+      "hero_layout": "D",
+      "layout_profile": "L3-product_first",
+      "dna_style": "modern_clinical",
+      "dna_composition": "product_first",
+      "section_order": [
+        "catalog",
+        "showcase",
+        "services",
+        "reputation",
+        "mid_cta",
+        "gallery",
+        "about",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 55.0,
+      "reasons": [
+        "anti-predictable composition",
+        "benchmark hits:1"
+      ],
+      "rejected": false,
+      "reject_reason": "",
+      "rhythm": "catalog>showcase>services>reputation>mid_cta>gallery>about>trust>benefits>faq>reviews>maps"
+    }
+  ],
+  "chosen": {
+    "composition_id": "product_first",
+    "composition_label": "Product first",
+    "hero_layout": "D",
+    "layout_profile": "L3-product_first",
+    "dna_style": "modern_clinical",
+    "dna_composition": "product_first",
+    "section_order": [
+      "catalog",
+      "showcase",
+      "services",
+      "reputation",
+      "mid_cta",
+      "gallery",
+      "about",
+      "trust",
+      "benefits",
+      "faq",
+      "reviews",
+      "maps",
+      "contact"
+    ],
+    "score": 55.0,
+    "reasons": [
+      "anti-predictable composition",
+      "benchmark hits:1"
+    ],
+    "rejected": false,
+    "reject_reason": "",
+    "rhythm": "catalog>showcase>services>reputation>mid_cta>gallery>about>trust>benefits>faq>reviews>maps"
+  },
+  "dna": {
+    "emotion": "clarity",
+    "style": "modern_clinical",
+    "palette_family": "sage_mist",
+    "typography_pair": "manrope_ibm_plex_industrial",
+    "motion": "business",
+    "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+    "hero_layout": "D",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "product_first",
+    "package_id": "premium",
+    "niche_id": "generic",
+    "fingerprint": "3f066beb664434aa6b7a9bbebcfe2274200f845edde8a53720393854bb11e7d0",
+    "section_treatments": [
+      [
+        "catalog",
+        "gradient"
+      ],
+      [
+        "showcase",
+        "glass"
+      ],
+      [
+        "services",
+        "photo_band"
+      ],
+      [
+        "mid_cta",
+        "ink"
+      ],
+      [
+        "gallery",
+        "illustration"
+      ],
+      [
+        "about",
+        "tint"
+      ],
+      [
+        "trust",
+        "ink"
+      ],
+      [
+        "benefits",
+        "gradient"
+      ],
+      [
+        "faq",
+        "glass"
+      ],
+      [
+        "reviews",
+        "photo_band"
+      ],
+      [
+        "maps",
+        "tint"
+      ],
+      [
+        "contact",
+        "ink"
+      ]
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#e6eaf0",
+    "ink_hex": "#f4f6f8",
+    "atmosphere_mode": "atelier",
+    "brand_book_fp": "5af6af6efdb02517b3c375c8",
+    "border_radius_px": 12
+  },
+  "layout_profile_id": "L3-product_first",
+  "section_order": [
+    "catalog",
+    "showcase",
+    "services",
+    "reputation",
+    "mid_cta",
+    "gallery",
+    "about",
+    "trust",
+    "benefits",
+    "faq",
+    "reviews",
+    "maps",
+    "contact"
+  ],
+  "hero_layout": "D",
+  "generation_status": "REBUILD",
+  "creative_review": "FAIL_REBUILD",
+  "kpi_question": "Without Virtus Core logo — would a stranger believe a modern European digital studio built this?",
+  "owner_review": "PENDING_OWNER",
+  "owner_required": "Да, я бы без стыда продал этот сайт клиенту",
+  "optimize_for": "designer_decisions_and_taste",
+  "note": "Law #1 / Taste REBUILD: Worse than prior best (64 < 72). Agent may not PASS."
+}

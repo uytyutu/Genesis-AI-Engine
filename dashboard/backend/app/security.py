@@ -45,6 +45,8 @@ _PUBLIC_PREFIXES = (
     "/api/public/",
     "/api/client/",
     "/api/v1/",
+    # RapidAPI Hub upstream — Farm product runtimes only (not bounty / MC farm admin)
+    "/api/farm/runtime",
     "/api/sales/packages",
     "/api/sales/payment-status",
     "/api/sales/email-status",
@@ -59,6 +61,7 @@ _PUBLIC_PATTERNS: tuple[tuple[str, str], ...] = (
     (r"^/api/sales/orders/[^/]+/checkout$", "POST"),
     (r"^/api/sales/orders/[^/]+/confirm-payment$", "POST"),
     (r"^/api/sales/orders/[^/]+/pay-sandbox$", "POST"),
+    (r"^/api/sales/orders/[^/]+/pay-demo$", "POST"),
     (r"^/api/sales/orders/[^/]+/reviews$", "POST"),
     (r"^/api/factory/intent$", "POST"),
     (r"^/api/factory/products/[^/]+/preview$", "GET"),

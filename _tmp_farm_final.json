@@ -1,0 +1,22 @@
+[
+  {
+    "id": "opire:01J42C08V4J78ZAWH8JH2RQS8G",
+    "title": "research implementation for Windows",
+    "status": "executing",
+    "pipeline": "CLONING",
+    "stage": "repo_intelligence",
+    "hb": "2026-08-08T17:38:29.039036+00:00",
+    "msg": "Clone репозитория…",
+    "ok": true
+  },
+  {
+    "id": "opire:01JARC75G44M6EQCJCR1DTBHD6",
+    "title": "[BUG] Internal Server Errors still shows success toast",
+    "status": "ceo_approved",
+    "pipeline": "QUEUED",
+    "stage": "queued",
+    "hb": null,
+    "msg": "В очереди AUTO-RUN — Clone стартует без кнопки «Запустить Execution», когда линия свободна.",
+    "ok": false
+  }
+]

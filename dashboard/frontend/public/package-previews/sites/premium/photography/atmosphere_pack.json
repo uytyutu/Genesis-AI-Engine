@@ -1,0 +1,317 @@
+{
+  "brand_name": "Lichtspur Studio",
+  "niche_id": "photography",
+  "package_id": "premium",
+  "metaphor": "Offenes Licht auf ruhiger Fläche",
+  "core_emotion": "Vertrauen",
+  "atmosphere_mode": "atelier",
+  "scene_language": [
+    "Fotostudio Softbox",
+    "Porträtsession",
+    "Kamera und Lichtsetup"
+  ],
+  "texture_language": [
+    "Paper",
+    "Light"
+  ],
+  "motion_language": "atelier drift · glass shimmer · slow depth",
+  "camera_feeling": "calm eye-level · clear space",
+  "scroll_feeling": "steady soft reveals",
+  "cta_feeling": "clear large buttons · calm spacing · Große Buttons · Ruhiger Abstand",
+  "sound_mood": "quiet professional room tone",
+  "illustration_style": "neon line diagrams",
+  "glass_level": "medium",
+  "shadow_language": "soft lift · Soft",
+  "icon_language": "technical blueprint icons",
+  "lighting": "even daylight · soft fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "Fotostudio Softbox · Porträtsession · Kamera und Lichtsetup",
+      "must_include": [
+        "Fotostudio Softbox",
+        "Porträtsession",
+        "Kamera und Lichtsetup",
+        "Produktsetup",
+        "Outdoor-Session"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Lichtspur Studio|photography|premium|d74476834582c93307d29388|hero|0d54725ee6242d7fd3f5",
+      "size": [
+        1600,
+        900
+      ],
+      "image_prompt": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=hero. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Fotostudio Softbox, Porträtsession, Kamera und Lichtsetup. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "background",
+      "concept": "scene · Fotostudio Softbox · Porträtsession · Kamera und Lichtsetup",
+      "must_include": [
+        "Fotostudio Softbox",
+        "Porträtsession",
+        "Kamera und Lichtsetup",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Lichtspur Studio|photography|premium|d74476834582c93307d29388|bg|0d54725ee6242d7fd3f5",
+      "size": [
+        1920,
+        1080
+      ],
+      "image_prompt": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=hero_background. Medium=glass_3d. Illustration language=neon line diagrams. Must show: Fotostudio Softbox, Porträtsession, Kamera und Lichtsetup. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Produktsetup",
+      "must_include": [
+        "Produktsetup",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Lichtspur Studio|photography|premium|d74476834582c93307d29388|gal0|0d54725ee6242d7fd3f5",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Produktsetup, Outdoor-Session, Retusche-Arbeitsplatz. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Produktsetup."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Outdoor-Session",
+      "must_include": [
+        "Outdoor-Session",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Lichtspur Studio|photography|premium|d74476834582c93307d29388|gal1|0d54725ee6242d7fd3f5",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Produktsetup, Outdoor-Session, Retusche-Arbeitsplatz. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Outdoor-Session."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Retusche-Arbeitsplatz",
+      "must_include": [
+        "Retusche-Arbeitsplatz",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Lichtspur Studio|photography|premium|d74476834582c93307d29388|gal2|0d54725ee6242d7fd3f5",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Produktsetup, Outdoor-Session, Retusche-Arbeitsplatz. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Retusche-Arbeitsplatz."
+    },
+    {
+      "role": "before_after",
+      "concept": "before / after proof",
+      "must_include": [
+        "Fotostudio Softbox",
+        "Porträtsession"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Lichtspur Studio|photography|premium|d74476834582c93307d29388|before_after|0d54725ee6242d7fd3f5",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=before_after. Medium=editorial_photo. Illustration language=neon line diagrams. Must show: Produktsetup, Outdoor-Session. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "team",
+      "concept": "team of this company",
+      "must_include": [
+        "Fotograf hinter Kamera"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Lichtspur Studio|photography|premium|d74476834582c93307d29388|team|0d54725ee6242d7fd3f5",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=team. Medium=neon_line. Illustration language=neon line diagrams. Must show: Fotograf hinter Kamera. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "equipment",
+      "concept": "tools & equipment of the trade",
+      "must_include": [
+        "Softbox",
+        "Blitzanlage"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Lichtspur Studio|photography|premium|d74476834582c93307d29388|equipment|0d54725ee6242d7fd3f5",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=equipment. Medium=neon_line. Illustration language=neon line diagrams. Must show: Softbox, Blitzanlage. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "illustration",
+      "concept": "neon line diagrams",
+      "must_include": [
+        "Fotostudio Softbox",
+        "Porträtsession"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "Lichtspur Studio|photography|premium|d74476834582c93307d29388|illustration|0d54725ee6242d7fd3f5",
+      "size": [
+        1200,
+        1200
+      ],
+      "image_prompt": "Premium German brand visual for «Lichtspur Studio» (photography) in Germany. Role=illustration. Medium=neon_line. Illustration language=neon line diagrams. Must show: Fotostudio Softbox, Porträtsession. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    }
+  ],
+  "fingerprint": "44dd38146059e24626b9c870",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

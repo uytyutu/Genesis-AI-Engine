@@ -14,9 +14,11 @@ Category = Literal["one_time", "monthly", "product"]
 Availability = Literal["available", "coming_soon"]
 
 LANDING_PACKAGES_EUR: dict[str, int] = {
-    "basic": 350,
-    "business": 650,
-    "premium": 1200,
+    "standalone": 499,
+    "connected": 499,
+    "basic": 499,
+    "business": 499,
+    "premium": 499,
 }
 
 VECTOR_SETUP_FROM_EUR = 499
@@ -82,7 +84,7 @@ _ADDON_INCLUDES: dict[str, str] = {
     "reputation_audit": (
         "Google Reviews · Maps · mentions · recommendations · 1–2 days"
     ),
-    "ecommerce_shop": "Online store setup · catalog · checkout path · from 799 €",
+    "ecommerce_shop": "Professional online shop for your business · catalog · cart · German legal pages · from 799 €",
     "ai_chatbot": "AI chat employee · channels · setup from 499 €",
     "business_automation": "Workflow automation for SMB · from 399 €",
     "ai_social_content": (

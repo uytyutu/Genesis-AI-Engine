@@ -1,0 +1,15 @@
+{
+  "brand_name": "StromWerk Meisterbetrieb",
+  "niche_id": "elektro",
+  "package_id": "premium",
+  "media_mode": "industrial_craft",
+  "visual_metaphor": "Clean electrical install",
+  "hero_concept": "Clean electrical install | StromWerk Meisterbetrieb",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "550d19e473f24ebcd9b5",
+  "image_prompt": "StromWerk Meisterbetrieb elektro brand hero, Clean electrical install, European studio, media_mode=industrial_craft, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

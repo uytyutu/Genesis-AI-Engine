@@ -37,7 +37,7 @@
     "faq1q": "Do you fix our old website?",
     "faq1a": "No. We deliver a new modern landing restart — no dependency on your old CMS.",
     "faq2q": "What does it cost?",
-    "faq2a": "Basic €350 · Business €650 · Premium €1,200 — one-time. Domain and hosting stay your ongoing costs.",
+    "faq2a": "Basic €199 · Business €399 · Premium €699 — one-time. Domain and hosting stay your ongoing costs.",
     "faq3q": "How do I reach support?",
     "faq3a": "Order, payment, ZIP and publish questions: email {{email}} — we reply in German for DE. The chat on this page is for trying the assistant, not order helpdesk.",
     "faq4q": "Is hosting included in the price?",
@@ -55,7 +55,7 @@
     "titleLaunch": "Launch your ready project",
     "subtitle": "A new fast landing page often in about 15 minutes (HTML, mobile, clear booking path). Not WordPress patchwork — an honest restart.",
     "subtitleLaunch": "Your site is prepared with Vector — finish launch and publish",
-    "bulletPkg": "Basic €350 · Business €650 · Premium €1,200",
+    "bulletPkg": "Basic €199 · Business €399 · Premium €699",
     "bulletAfterPay": "After payment — we produce your landing and deliver the files",
     "bulletSorglos": "Optional: upload to your domain (hands-off) — domain/hosting paid by customer",
     "businessName": "Business name",
@@ -355,7 +355,7 @@
   },
   "faqTitle": "FAQ",
   "servicesTitle": "Services",
-  "servicesIntro": "{{brand}}: Landing Page restart (350 / 650 / 1200 €) for local businesses.",
+  "servicesIntro": "{{brand}}: Landing Page restart (199 / 399 / 699 €) for local businesses.",
   "s0": {
     "marketLabel": "Trh / ceny",
     "analysisTitle": "Analýza a oprava webu",
@@ -413,7 +413,7 @@
     "supportLine": "Podpora: {{support}}",
     "landing_website": {
       "name": "Firemní web, který přivádí poptávky",
-      "price": "350–1200 €",
+      "price": "199–699 €",
       "blurb": "Více zákazníků s profesionálním webem — balíčky Basic, Business, Premium.",
       "includes": [
         "Mobilní landing",

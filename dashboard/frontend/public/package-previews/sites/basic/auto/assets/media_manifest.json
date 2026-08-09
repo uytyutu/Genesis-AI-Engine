@@ -1,0 +1,44 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": null,
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/basic/966f2b6f-1ec5-493f-9657-1291d9b8588a/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2496332,
+      "reason": "ok",
+      "source": "niche"
+    }
+  ],
+  "gate_ok": true,
+  "gate_failures": [],
+  "media_gate_ok": true,
+  "media_gate_failures": [],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": true,
+    "failures": [],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/auto/hero_pack/basic/hero_1.jpg",
+        "ok": true,
+        "tags": [
+          "auto",
+          "equipment",
+          "process",
+          "repair",
+          "tools",
+          "workshop"
+        ],
+        "detail": "ok"
+      }
+    ]
+  }
+}

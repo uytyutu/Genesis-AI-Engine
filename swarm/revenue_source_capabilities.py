@@ -21,6 +21,7 @@ def audit_sources() -> list[dict[str, Any]]:
         _toloka_pipeline(),
         _scale_ai(),
         _stripe_b2b(),
+        _rapidapi_provider(),
         _registry_stub("appen", "Appen Connect", "APPEN_API_KEY"),
         _registry_stub("mturk", "Amazon MTurk", "MTURK_AWS_SECRET_ACCESS_KEY"),
         _registry_stub(
@@ -234,6 +235,34 @@ def _stripe_b2b() -> dict[str, Any]:
         note_ru=(
             "Подтверждённый денежный вход: клиент → Stripe webhook → settlement. "
             "Вывод на банк — через Stripe (настройка аккаунта / Dashboard)."
+        ),
+    )
+
+
+def _rapidapi_provider() -> dict[str, Any]:
+    return _base(
+        source_id="rapidapi",
+        name="RapidAPI (API Farm)",
+        role="marketplace_provider",
+        fetch_tasks=PARTIAL,
+        submit_results=PARTIAL,
+        balance_api=NO,
+        payout_history=PARTIAL,
+        webhook=NO,
+        auto_withdraw=NO,
+        manual_withdraw=YES,
+        can_earn_via_virtus=False,
+        adapter_implemented=True,
+        registry_only=False,
+        env_var="RAPIDAPI_KEY",
+        evidence=[
+            "swarm/farm_channels/rapidapi/",
+            "swarm/farm_execution_plan.py::plan_rapidapi_provider",
+            "FinanceLedger source_id=rapidapi only on PAID_OUT Hard REAL",
+        ],
+        note_ru=(
+            "API Farm channel: discover→build→quality gate→CEO approve→publish. "
+            "Payout: RapidAPI → PayPal (не Stripe). Actual Revenue только после PAID_OUT."
         ),
     )
 

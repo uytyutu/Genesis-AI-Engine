@@ -1,0 +1,63 @@
+/* Virtus Core Studio Renderer 2.0 — section media */
+html.studio-v2 {
+  scroll-behavior: auto;
+}
+.studio-v2 body {
+  background: #0a0a0b;
+}
+.studio-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.studio-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--studio-bg, url('assets/background.jpg'));
+  background-size: cover;
+  background-position: center;
+  opacity: var(--studio-bg-opacity, 0.22);
+  transform: scale(1.04);
+  pointer-events: none;
+}
+.studio-band > * {
+  position: relative;
+  z-index: 1;
+}
+.studio-band--story { --studio-bg: url('assets/section_story.jpg'); --studio-bg-opacity: 0.28; }
+.studio-band--services { --studio-bg: url('assets/section_services.jpg'); --studio-bg-opacity: 0.18; }
+.studio-band--gallery { --studio-bg: url('assets/background.jpg'); --studio-bg-opacity: 0.12; }
+.studio-band--team { --studio-bg: url('assets/section_team.jpg'); --studio-bg-opacity: 0.26; }
+.studio-band--process { --studio-bg: url('assets/section_process.jpg'); --studio-bg-opacity: 0.2; }
+.studio-band--contact { --studio-bg: url('assets/section_contact.jpg'); --studio-bg-opacity: 0.3; }
+.studio-band--reviews { --studio-bg: url('assets/gallery_8.jpg'); --studio-bg-opacity: 0.16; }
+.studio-mouse-light {
+  position: fixed;
+  width: 42vmax;
+  height: 42vmax;
+  margin: -21vmax 0 0 -21vmax;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3;
+  background: radial-gradient(circle, color-mix(in srgb, var(--acc, #c5a572) 22%, transparent) 0%, transparent 68%);
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+  transition: opacity .35s ease;
+}
+.studio-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 0.75rem;
+}
+.studio-gallery-grid img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-mouse-light { display: none !important; }
+}

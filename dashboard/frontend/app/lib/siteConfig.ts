@@ -1,9 +1,13 @@
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://beta.genesis-ai-engine.com";
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://virtuscore.com";
 
 export const SITE_NAME = "Virtus Core";
 export const SITE_TAGLINE = "Vector · Digital Company";
-export const CONTACT_EMAIL = "hello@genesis-ai-engine.com";
+/** Public contact — override via NEXT_PUBLIC_SUPPORT_EMAIL when DNS is ready. */
+export const CONTACT_EMAIL =
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() ||
+  process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() ||
+  "hello@virtuscore.com";
 
 /** Filled via env after Gewerbeanmeldung — DOB must never be published */
 export const LEGAL = {

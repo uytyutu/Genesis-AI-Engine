@@ -18,7 +18,7 @@ from swarm.revenue_sources_center import build_revenue_sources_center
 def test_finance_reality_law_ladder():
     law = law_manifest()
     assert law["id"] == "FINANCE_REALITY_OVER_SIMULATION"
-    assert law["version"] == "1.4"
+    assert law["version"] == "1.5"
     assert "Estimate ≠ Revenue" in law["inequalities_ru"]
     assert "Modeling ≠ REAL income" in law["inequalities_ru"]
     assert len(law["real_required_fields"]) == 5

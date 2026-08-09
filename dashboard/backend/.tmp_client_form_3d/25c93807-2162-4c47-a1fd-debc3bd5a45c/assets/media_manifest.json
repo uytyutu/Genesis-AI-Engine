@@ -1,0 +1,67 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": "assets/background.jpg",
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_client_form_3d/25c93807-2162-4c47-a1fd-debc3bd5a45c/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2578666,
+      "reason": "ok",
+      "source": "niche"
+    },
+    {
+      "path": "assets/background.jpg",
+      "role": "background",
+      "ok": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2578666,
+      "reason": "ok",
+      "source": "pack"
+    }
+  ],
+  "gate_ok": false,
+  "gate_failures": [
+    "media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_client_form_3d/25c93807-2162-4c47-a1fd-debc3bd5a45c/assets/background.jpg — untagged_media"
+  ],
+  "media_gate_ok": false,
+  "media_gate_failures": [
+    "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_client_form_3d/25c93807-2162-4c47-a1fd-debc3bd5a45c/assets/background.jpg — untagged_media"
+  ],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": false,
+    "failures": [
+      "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_client_form_3d/25c93807-2162-4c47-a1fd-debc3bd5a45c/assets/background.jpg — untagged_media"
+    ],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/generic/preview.jpg",
+        "ok": true,
+        "tags": [
+          "boutique",
+          "interior",
+          "restaurant",
+          "retail"
+        ],
+        "detail": "ok"
+      },
+      {
+        "section": "about",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_client_form_3d/25c93807-2162-4c47-a1fd-debc3bd5a45c/assets/background.jpg",
+        "ok": false,
+        "tags": [
+          "untagged"
+        ],
+        "detail": "untagged_media"
+      }
+    ]
+  }
+}

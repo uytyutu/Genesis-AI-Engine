@@ -1,0 +1,847 @@
+{
+  "studio_id": "digital_creative_studio_v4_studio_era",
+  "era": "Virtus Core Studio Era",
+  "product_noun": "Digital Experience Generation",
+  "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+  "digital_signature_aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+  "philosophy": "virtus_core_studio_era_digital_experience_generation",
+  "immutable_law_1": "Каждый новый проект обязан быть не хуже предыдущего лучшего проекта. Если генерация ухудшила качество — REBUILD. Если она повторила шаблон — REBUILD. Если сайт выглядит как конструктор — REBUILD. Если сайт уступает современным digital-студиям — REBUILD.",
+  "immutable_law_2": "Любая новая идея должна сначала стать заметной клиенту. Если появляется Director, Engine, Rule или Memory — ответь: «Что изменится в первом впечатлении клиента?» Если ответ: «Пока ничего, но архитектура стала лучше» — работа ещё не закончена.",
+  "pipeline": [
+    "human_first",
+    "brand_story",
+    "core_emotion",
+    "core_promise",
+    "visual_metaphor",
+    "creative_theme",
+    "scene_language",
+    "motion_language",
+    "typography_voice",
+    "color_emotion",
+    "interaction_style",
+    "creative_conflict",
+    "owner_preview"
+  ],
+  "scene_arc": [
+    "scene",
+    "story",
+    "emotion",
+    "interaction",
+    "experience",
+    "conversion"
+  ],
+  "package_id": "business",
+  "niche_id": "beauty",
+  "studio_approach": {
+    "id": "boutique",
+    "label": "Boutique",
+    "pillars": [
+      "emotional photography",
+      "storytelling",
+      "atmosphere",
+      "curated offer",
+      "intimate brand"
+    ],
+    "composition_bias": [
+      "boutique",
+      "spotlight",
+      "runway",
+      "visual_first",
+      "floating"
+    ],
+    "type_bias": [
+      "fraunces_dm",
+      "bodoni_jakarta",
+      "gloock_manrope"
+    ],
+    "color_feeling": "tactile warm + soft contrast",
+    "motion": "lifestyle hover, gallery breath",
+    "niches_affinity": [
+      "beauty",
+      "fashion",
+      "restaurant",
+      "psychology"
+    ],
+    "notes": ""
+  },
+  "moodboard": {
+    "niche_id": "beauty",
+    "emotion": "trust and desire to stay",
+    "keywords": [
+      "depth",
+      "rhythm",
+      "hero presence",
+      "niche truth",
+      "atelier night"
+    ],
+    "avoid": [
+      "template ladder",
+      "flat white",
+      "metric PASS theater",
+      "family_care",
+      "gaming",
+      "neon_sale",
+      "grid_amazon"
+    ],
+    "hero_feeling": "Clothes as quiet luxury after dark.",
+    "atmosphere": "black room, single garment light, runway hush",
+    "references": [
+      "Best contemporary niche studios"
+    ]
+  },
+  "brand_dna": {
+    "business_name": "Glow Lab Beauty",
+    "niche_id": "beauty",
+    "package_id": "business",
+    "voice": "high-fashion display — sparse words",
+    "feeling": "trust and desire to stay",
+    "why_hero_exists": "The Hero exists to make 'Atelier Night' felt in 3 seconds: Clothes as quiet luxury after dark.",
+    "color_feeling": "ink black, champagne, skin tone warmth",
+    "type_voice": "high-fashion display — sparse words",
+    "scene_arc": "black room, single garment light, runway hush",
+    "avoid": [
+      "family_care",
+      "gaming",
+      "neon_sale",
+      "grid_amazon"
+    ],
+    "fingerprint": "88a09c1b4c41983d",
+    "brand_story": "Noah built Glow Lab Beauty because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: beauty.",
+    "core_emotion": "trust and desire to stay",
+    "core_promise": "Clothes as quiet luxury after dark.",
+    "visual_metaphor": "one garment under a spotlight",
+    "creative_theme": "Atelier Night",
+    "creative_theme_id": "atelier_night",
+    "scene_language": "black room, single garment light, runway hush",
+    "motion_language": "slow pan, fabric breath",
+    "interaction_style": "lookbook desire — add with restraint",
+    "photo_world": "editorial model, fabric detail, night studio",
+    "founder_name": "Noah"
+  },
+  "creative_identity": {
+    "title": "Atelier Night",
+    "theme_id": "atelier_night",
+    "idea": "Clothes as quiet luxury after dark.",
+    "human": {
+      "founder_name": "Noah",
+      "founder_role": "founder",
+      "client_age_range": "30–50",
+      "why_choose_them": "They are specific — not interchangeable.",
+      "visitor_must_feel": "trust and desire to stay",
+      "niche_revealed_later": "beauty"
+    },
+    "brand_story": "Noah built Glow Lab Beauty because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: beauty.",
+    "core_emotion": "trust and desire to stay",
+    "core_promise": "Clothes as quiet luxury after dark.",
+    "visual_metaphor": "one garment under a spotlight",
+    "creative_theme": "Atelier Night",
+    "scene_language": "black room, single garment light, runway hush",
+    "motion_language": "slow pan, fabric breath",
+    "typography_voice": "high-fashion display — sparse words",
+    "color_emotion": "ink black, champagne, skin tone warmth",
+    "interaction_style": "lookbook desire — add with restraint",
+    "photo_world": "editorial model, fabric detail, night studio",
+    "niche_revealed": "beauty",
+    "package_id": "business",
+    "surface": "store",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "family_care",
+      "gaming",
+      "neon_sale",
+      "grid_amazon"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": true,
+    "html_blocked_reason": "",
+    "fingerprint": "88a09c1b4c41983d",
+    "generated_at": "2026-08-07T06:57:32.233812+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  },
+  "observatory": {
+    "niche_id": "beauty",
+    "era": "2026+",
+    "study_sources": [
+      "European digital studio portfolios",
+      "Premium SaaS brand sites",
+      "Luxury ecommerce craft"
+    ],
+    "first_screen": [
+      "Emotional job in 3 seconds",
+      "Brand voice before feature list",
+      "One visual center"
+    ],
+    "page_rhythm": [
+      "Scene → Story → Emotion → Interaction → Experience → Conversion"
+    ],
+    "composition_depth": [
+      "Living atmosphere",
+      "Asymmetry",
+      "Depth layers"
+    ],
+    "typography": "Voice-matched display + readable body",
+    "micro_interactions": "Purposeful motion — never decoration spam",
+    "trust": "Specific proof woven into scenes",
+    "cta_craft": "One primary ask per scene",
+    "brand_feel": [
+      "modern",
+      "confident",
+      "alive"
+    ],
+    "invent": "Original Brand DNA for beauty — invent, never recycle prior sites.",
+    "never": [
+      "Constructor ladder",
+      "White empty slabs",
+      "Identical niche clones"
+    ],
+    "lenses": [
+      {
+        "id": "first_screen",
+        "question": "Why does the first screen exist?",
+        "principles": [
+          "One emotional job in 3 seconds",
+          "Visual center owns the fold",
+          "Brand voice before feature list"
+        ],
+        "anti_patterns": [
+          "Hero as feature dump",
+          "equal card grid first",
+          "logo wall as hero"
+        ]
+      },
+      {
+        "id": "rhythm",
+        "question": "How does the page breathe?",
+        "principles": [
+          "Scenes with distinct moods",
+          "Alternating density — never identical section padding",
+          "Story → emotion → interaction → conversion"
+        ],
+        "anti_patterns": [
+          "Hero→Text→Cards→Text→Cards",
+          "uniform white slabs"
+        ]
+      },
+      {
+        "id": "trust",
+        "question": "How is confidence earned?",
+        "principles": [
+          "Proof woven into scenes, not bolted as a strip",
+          "Specific over generic claims",
+          "Quiet credentials beat badge spam"
+        ],
+        "anti_patterns": [
+          "fake counters",
+          "stock handshake photos as trust"
+        ]
+      },
+      {
+        "id": "cta",
+        "question": "How does desire become action?",
+        "principles": [
+          "CTA matches emotional temperature of the scene",
+          "Secondary path without visual noise",
+          "One primary ask per scene"
+        ],
+        "anti_patterns": [
+          "identical pill buttons everywhere",
+          "three equal CTAs"
+        ]
+      }
+    ]
+  },
+  "observatory_brief": "Design Observatory · beauty · 2026+\nRule: analyze principles — invent original — never copy pixels.\nFirst screen: Emotional job in 3 seconds; Brand voice before feature list; One visual center\nRhythm: Scene → Story → Emotion → Interaction → Experience → Conversion\nDepth: Living atmosphere; Asymmetry; Depth layers\nType: V; o; i\nMotion: P; u; r\nTrust: S; p; e\nCTA: O; n; e\nInvent: Original Brand DNA for beauty — invent, never recycle prior sites.\nNever: Constructor ladder; White empty slabs; Identical niche clones",
+  "benchmark_brief": "",
+  "quality_floor": "Business ≥ Virtus Core /site quality floor (never worse than Virtus itself)",
+  "why_hero_exists": "The Hero exists to make 'Atelier Night' felt in 3 seconds: Clothes as quiet luxury after dark.",
+  "scene_sequence": [
+    "scene",
+    "story",
+    "emotion",
+    "conversion",
+    "experience",
+    "interaction",
+    "experience",
+    "scene",
+    "interaction",
+    "conversion"
+  ],
+  "taste": {
+    "overall": 51.0,
+    "axes": [
+      {
+        "axis": "rhythm",
+        "score": 18.0,
+        "note": "scene arc vs ladder"
+      },
+      {
+        "axis": "emotion",
+        "score": 85.0,
+        "note": "feeling + why-hero"
+      },
+      {
+        "axis": "brand",
+        "score": 83.0,
+        "note": "approach + composition identity"
+      },
+      {
+        "axis": "beauty",
+        "score": 50.0,
+        "note": "atmosphere + media integrity"
+      },
+      {
+        "axis": "visual_value",
+        "score": 50.0,
+        "note": "worth looking at"
+      },
+      {
+        "axis": "trust",
+        "score": 55.0,
+        "note": "proof craft"
+      },
+      {
+        "axis": "modernity",
+        "score": 42.0,
+        "note": "2026 studio language"
+      },
+      {
+        "axis": "uniqueness",
+        "score": 65.0,
+        "note": "not another clone"
+      }
+    ],
+    "verdict": "FAIL_TASTE",
+    "rebuild": true,
+    "reasons": [
+      "Constructor ladder / FAIL_TEMPLATE kills rhythm",
+      "Law #1 risk: taste 56 < prior best 72"
+    ],
+    "philosophy": "Taste judges the whole impression — not isolated CSS rules.",
+    "owner_still_decides_pass": true
+  },
+  "law_1": {
+    "law": "Every new project must not be worse than the previous best. Quality regression → REBUILD. Template repeat → REBUILD. Constructor look → REBUILD. Below modern digital studios → REBUILD.",
+    "ok": false,
+    "action": "REBUILD",
+    "reasons": [
+      "Template repeat",
+      "Constructor look",
+      "Worse than prior best (51 < 72)"
+    ]
+  },
+  "memory_bias": {
+    "compositions": [
+      "chamber",
+      "narrative",
+      "solstice"
+    ],
+    "approaches": [
+      "luxury",
+      "boutique"
+    ],
+    "typography": [
+      "cormorant_source",
+      "fraunces_dm",
+      "gloock_manrope"
+    ],
+    "heroes": [
+      "D",
+      "B",
+      "F"
+    ],
+    "prior_best_overall": 72.125,
+    "rule": "Bias principles from memory — never copy a prior site literally"
+  },
+  "agency_review": {
+    "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+    "roles": [
+      {
+        "id": "ceo",
+        "title": "CEO",
+        "question": "Does this strengthen the client's business presence — not just fill a page?"
+      },
+      {
+        "id": "creative_director",
+        "title": "Creative Director",
+        "question": "Is the creative direction clear, ownable, and non-template?"
+      },
+      {
+        "id": "brand_strategist",
+        "title": "Brand Strategist",
+        "question": "What is this brand's personality — and why does it exist?"
+      },
+      {
+        "id": "marketing_strategist",
+        "title": "Marketing Strategist",
+        "question": "What should the stranger feel in 3 seconds — and what should they do?"
+      },
+      {
+        "id": "ux_researcher",
+        "title": "UX Researcher",
+        "question": "Is the path human, calm, credible — free of constructor anxiety?"
+      },
+      {
+        "id": "art_director",
+        "title": "Art Director",
+        "question": "Does every scene have its own composition, rhythm, mood, and visual center?"
+      },
+      {
+        "id": "typography_director",
+        "title": "Typography Director",
+        "question": "Does type carry character and brand voice — not a default stack?"
+      },
+      {
+        "id": "color_director",
+        "title": "Color Director",
+        "question": "Does color create the intended emotion — not decoration?"
+      },
+      {
+        "id": "motion_director",
+        "title": "Motion Director",
+        "question": "Does every animation have meaning — or is it noise?"
+      },
+      {
+        "id": "frontend_architect",
+        "title": "Frontend Architect",
+        "question": "Is the craft export clean, resilient, and worthy of a studio?"
+      },
+      {
+        "id": "accessibility_specialist",
+        "title": "Accessibility Specialist",
+        "question": "Can everyone use this with dignity?"
+      },
+      {
+        "id": "performance_engineer",
+        "title": "Performance Engineer",
+        "question": "Does beauty stay fast on real devices?"
+      },
+      {
+        "id": "qa_designer",
+        "title": "QA Designer",
+        "question": "Would a European digital studio ship this without shame?"
+      },
+      {
+        "id": "owner_review",
+        "title": "Owner Review",
+        "question": "Has the owner said: \"Да. Я бы купил такой сайт.\"?"
+      }
+    ],
+    "digital_signature": {
+      "name": "Virtus Core Digital Signature",
+      "aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+      "craft_marks": [
+        "attention to detail",
+        "meaningful motion",
+        "strong typography",
+        "harmonious spacing",
+        "considered interactive states",
+        "coherent interaction sequences"
+      ],
+      "never": [
+        "same colors across every niche",
+        "identical compositions",
+        "constructor ladders",
+        "empty decorative zones",
+        "motion without meaning"
+      ]
+    },
+    "ecosystem_frame": {
+      "wrong": "Create a dentist website.",
+      "right": "Create the digital business of a dental clinic.",
+      "for_this_project": "Create the digital business of Glow Lab Beauty (beauty) — experience is one surface of the ecosystem, not the end product.",
+      "surfaces": [
+        {
+          "id": "experience",
+          "label": "Digital Experience (site/store)",
+          "role": "first impression & brand face"
+        },
+        {
+          "id": "booking",
+          "label": "Booking / scheduling",
+          "role": "convert intent to appointments"
+        },
+        {
+          "id": "crm",
+          "label": "CRM",
+          "role": "remember and serve the client"
+        },
+        {
+          "id": "reminders",
+          "label": "Automated reminders",
+          "role": "reduce no-shows"
+        },
+        {
+          "id": "chat",
+          "label": "Chat / assistant",
+          "role": "answer when humans sleep"
+        },
+        {
+          "id": "reviews",
+          "label": "Reviews",
+          "role": "trust at scale"
+        },
+        {
+          "id": "seo",
+          "label": "SEO",
+          "role": "be found"
+        },
+        {
+          "id": "ads",
+          "label": "Advertising",
+          "role": "reach with brand integrity"
+        },
+        {
+          "id": "analytics",
+          "label": "Analytics",
+          "role": "learn what works"
+        },
+        {
+          "id": "video",
+          "label": "Video",
+          "role": "emotion and proof"
+        },
+        {
+          "id": "social",
+          "label": "Social",
+          "role": "presence beyond the site"
+        },
+        {
+          "id": "cabinet",
+          "label": "Client cabinet",
+          "role": "ongoing relationship"
+        }
+      ],
+      "package_id": "business"
+    },
+    "owner_buy_phrase": "Да. Я бы купил такой сайт.",
+    "owner_review": "PENDING_OWNER",
+    "note": "Roles are questions every generation must face. PASS only after human approval."
+  },
+  "variants_considered": [
+    {
+      "composition_id": "hearth",
+      "composition_label": "Hearth & home",
+      "hero_layout": "E",
+      "layout_profile": "L1-hearth",
+      "dna_style": "modern_clinical",
+      "dna_composition": "hearth",
+      "section_order": [
+        "about",
+        "gallery",
+        "benefits",
+        "mid_cta",
+        "services",
+        "trust",
+        "process",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>gallery>benefits>mid_cta>services>trust>process>showcase>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "horizon",
+      "composition_label": "Horizon reveal",
+      "hero_layout": "D",
+      "layout_profile": "L3-horizon",
+      "dna_style": "organic_premium",
+      "dna_composition": "horizon",
+      "section_order": [
+        "showcase",
+        "about",
+        "gallery",
+        "mid_cta",
+        "services",
+        "benefits",
+        "trust",
+        "process",
+        "faq",
+        "reviews",
+        "maps",
+        "late_cta",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>about>gallery>mid_cta>services>benefits>trust>process>faq>reviews>maps>late_cta"
+    },
+    {
+      "composition_id": "ledger",
+      "composition_label": "Ledger precision",
+      "hero_layout": "C",
+      "layout_profile": "L1-ledger",
+      "dna_style": "editorial",
+      "dna_composition": "ledger",
+      "section_order": [
+        "about",
+        "trust",
+        "stats",
+        "services",
+        "mid_cta",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>trust>stats>services>mid_cta>process>benefits>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "manifesto",
+      "composition_label": "Manifesto then craft",
+      "hero_layout": "C",
+      "layout_profile": "L6-manifesto",
+      "dna_style": "scandinavian_calm",
+      "dna_composition": "manifesto",
+      "section_order": [
+        "about",
+        "benefits",
+        "mid_cta",
+        "gallery",
+        "services",
+        "process",
+        "trust",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>benefits>mid_cta>gallery>services>process>trust>showcase>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "mirror",
+      "composition_label": "Mirror dialogue",
+      "hero_layout": "E",
+      "layout_profile": "L1-mirror",
+      "dna_style": "editorial",
+      "dna_composition": "mirror",
+      "section_order": [
+        "about",
+        "gallery",
+        "services",
+        "mid_cta",
+        "trust",
+        "process",
+        "benefits",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>gallery>services>mid_cta>trust>process>benefits>showcase>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "modern",
+      "composition_label": "Modern precision",
+      "hero_layout": "D",
+      "layout_profile": "L5-modern",
+      "dna_style": "scandinavian_calm",
+      "dna_composition": "modern",
+      "section_order": [
+        "stats",
+        "services",
+        "showcase",
+        "mid_cta",
+        "about",
+        "gallery",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 5.0,
+      "reasons": [
+        "too predictable — classic section ladder"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "stats>services>showcase>mid_cta>about>gallery>trust>process>benefits>faq>reviews>maps"
+    }
+  ],
+  "chosen": {
+    "composition_id": "hearth",
+    "composition_label": "Hearth & home",
+    "hero_layout": "E",
+    "layout_profile": "L1-hearth",
+    "dna_style": "modern_clinical",
+    "dna_composition": "hearth",
+    "section_order": [
+      "about",
+      "gallery",
+      "benefits",
+      "mid_cta",
+      "services",
+      "trust",
+      "process",
+      "showcase",
+      "faq",
+      "reviews",
+      "maps",
+      "contact"
+    ],
+    "score": 11.0,
+    "reasons": [
+      "too predictable — classic section ladder",
+      "scene_arc_story_emotion_early"
+    ],
+    "rejected": true,
+    "reject_reason": "predictable_funnel",
+    "rhythm": "about>gallery>benefits>mid_cta>services>trust>process>showcase>faq>reviews>maps>contact"
+  },
+  "dna": {
+    "emotion": "trust",
+    "style": "modern_clinical",
+    "palette_family": "sage_mist",
+    "typography_pair": "cormorant_source",
+    "motion": "business",
+    "hero_concept": "trust_panel",
+    "hero_layout": "E",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "hearth",
+    "package_id": "business",
+    "niche_id": "beauty",
+    "fingerprint": "3f81f95139ce48cfaed375303a5d8ce3c89ce596da571168439a35996a208aa9",
+    "section_treatments": [
+      [
+        "about",
+        "tint"
+      ],
+      [
+        "gallery",
+        "glass"
+      ],
+      [
+        "benefits",
+        "ink"
+      ],
+      [
+        "mid_cta",
+        "gradient"
+      ],
+      [
+        "services",
+        "illustration"
+      ],
+      [
+        "trust",
+        "ink"
+      ],
+      [
+        "process",
+        "glass"
+      ],
+      [
+        "showcase",
+        "photo_band"
+      ],
+      [
+        "faq",
+        "glass"
+      ],
+      [
+        "reviews",
+        "ink"
+      ],
+      [
+        "maps",
+        "gradient"
+      ],
+      [
+        "contact",
+        "gradient"
+      ]
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#f3f6f4",
+    "ink_hex": "#243029"
+  },
+  "layout_profile_id": "L1-hearth",
+  "section_order": [
+    "about",
+    "gallery",
+    "benefits",
+    "mid_cta",
+    "services",
+    "trust",
+    "process",
+    "showcase",
+    "faq",
+    "reviews",
+    "maps",
+    "contact"
+  ],
+  "hero_layout": "E",
+  "generation_status": "REBUILD",
+  "creative_review": "FAIL_REBUILD",
+  "kpi_question": "Without Virtus Core logo — would a stranger believe a modern European digital studio built this?",
+  "owner_review": "PENDING_OWNER",
+  "owner_required": "Да, я бы без стыда продал этот сайт клиенту",
+  "optimize_for": "designer_decisions_and_taste",
+  "note": "Law #1 / Taste REBUILD: Template repeat; Constructor look; Worse than prior best (51 < 72). Agent may not PASS."
+}

@@ -1,0 +1,68 @@
+{
+  "gate": "studio_acceptance",
+  "status": "PENDING_OWNER",
+  "rule": "No internal PASS. Only owner sell-without-shame counts.",
+  "optimize_for": "first visual effect — not internal metrics",
+  "quality_floors": {
+    "starter": "not below modern small business",
+    "business": "not worse than Virtus Core /site",
+    "premium": "ABOVE Virtus Core — expensive European digital studio"
+  },
+  "checks": [
+    {
+      "id": "hero",
+      "question": "Hero creates the impression of an expensive product?",
+      "verdict": "PARTIAL",
+      "note": "Cinematic dark Hero D shipped; owner still has not said wow — not sellable yet"
+    },
+    {
+      "id": "composition",
+      "question": "Does it feel like a template / section stack?",
+      "verdict": "PARTIAL",
+      "note": "chamber vs editorial ladder exists; eye-proof of art-director diversity still weak"
+    },
+    {
+      "id": "atmosphere",
+      "question": "Is there life (air, depth, motion) — not flat wallpaper?",
+      "verdict": "PARTIAL",
+      "note": "depth layers present; Premium must still clear studio bar by eye"
+    },
+    {
+      "id": "white_space",
+      "question": "No ladder of empty/white sections?",
+      "verdict": "PARTIAL",
+      "note": "Rhythm improved; owner eye decides"
+    },
+    {
+      "id": "store",
+      "question": "Does the store read as modern brand e-commerce?",
+      "verdict": "PARTIAL",
+      "note": "Premium brand fold (story + collections) added; still not €699–1200 proof"
+    },
+    {
+      "id": "premium_studio_test",
+      "question": "Logo off — still a costly European digital studio?",
+      "verdict": "FAIL",
+      "note": "Owner: would not sell Premium at €699–1200 yet; prior screenshots not at bar"
+    },
+    {
+      "id": "template_like",
+      "question": "Would a stranger say 'constructor template'? If yes → FAIL/REBUILD",
+      "verdict": "PENDING_OWNER",
+      "note": ""
+    }
+  ],
+  "demos": {
+    "starter_site": "http://127.0.0.1:3001/package-previews/sites/basic/psychology/index.html",
+    "business_site": "http://127.0.0.1:3001/package-previews/sites/business/psychology/index.html",
+    "premium_site": "http://127.0.0.1:3001/package-previews/sites/premium/psychology/index.html",
+    "starter_store": "http://127.0.0.1:3001/package-previews/stores/basic/psychology/index.html",
+    "business_store": "http://127.0.0.1:3001/package-previews/stores/business/psychology/index.html",
+    "premium_store": "http://127.0.0.1:3001/package-previews/stores/premium/psychology/index.html"
+  },
+  "base_url": "http://127.0.0.1:3001",
+  "owner_required": "Да, я бы без стыда продал этот сайт клиенту",
+  "agent_may_not_pass": true,
+  "updated_at": "2026-08-08T16:20:08.621275+00:00",
+  "freeze": "No new niches / Directors until Premium Psychology site+store sell without shame"
+}

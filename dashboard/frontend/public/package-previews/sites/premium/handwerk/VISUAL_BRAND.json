@@ -1,0 +1,64 @@
+{
+  "brand_name": "Meisterbau Hoffmann",
+  "niche_id": "handwerk",
+  "fingerprint": "f962e7fb102150adfea0",
+  "color": {
+    "primary": "#1c120a",
+    "accent": "#06942d",
+    "secondary": "#4cd07d",
+    "surface": "#eee4dc",
+    "cards": "#e8e0da",
+    "background": "#1c120a",
+    "gradient": "linear-gradient(145deg,#1c120a 0%,#034a16 48%,#06942d 100%)",
+    "glow": "rgba(6,148,45,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "premium_business_graphic",
+    "abstract_gradient",
+    "isometric_illustration"
+  ],
+  "illustration_pack": "neon line diagrams",
+  "motion_language": "editorial fade · staggered cards · calm hover",
+  "icon_style": "filled craft glyphs",
+  "scene_library": {
+    "hero": [
+      "Fliesenverlegung",
+      "Handwerker in Arbeitskleidung",
+      "Baustelle innen"
+    ],
+    "gallery": [
+      "Bodenverlegung",
+      "Küchenmontage",
+      "Treppenbau",
+      "Werkzeugwand"
+    ],
+    "team": [
+      "Meister und Geselle"
+    ],
+    "equipment": [
+      "Laser-Nivelliergerät",
+      "Werkzeugkoffer"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Fliesenverlegung, Handwerker in Arbeitskleidung, Baustelle innen. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=neon line diagrams. Must show: Fliesenverlegung, Handwerker in Arbeitskleidung, Baustelle innen. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Bodenverlegung, Küchenmontage, Treppenbau, Werkzeugwand. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Bodenverlegung, Küchenmontage. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=team. Medium=premium_business_graphic. Illustration language=neon line diagrams. Must show: Meister und Geselle. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=equipment. Medium=premium_business_graphic. Illustration language=neon line diagrams. Must show: Laser-Nivelliergerät, Werkzeugkoffer. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Treppenbau, Werkzeugwand. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=illustration. Medium=premium_business_graphic. Illustration language=neon line diagrams. Must show: Fliesenverlegung, Handwerker in Arbeitskleidung. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=neon line diagrams. Must show: filled craft glyphs. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «Meisterbau Hoffmann» (handwerk) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=neon line diagrams. Must show: Fliesenverlegung, Handwerker in Arbeitskleidung, Baustelle innen. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

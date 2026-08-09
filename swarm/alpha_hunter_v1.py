@@ -45,6 +45,10 @@ LC_RUNNING = "RUNNING"
 LC_WAITING_PAYMENT = "WAITING_PAYMENT"
 LC_PAID = "PAID"
 LC_WITHDRAWN = "WITHDRAWN"
+# Terminal owner decisions — never re-offer in NEW inbox
+LC_REJECTED = "REJECTED"
+LC_ARCHIVED = "ARCHIVED"
+LC_FAILED = "FAILED"
 OPPORTUNITY_LIFECYCLE: tuple[str, ...] = (
     LC_DISCOVERED,
     LC_VERIFIED,
@@ -55,6 +59,13 @@ OPPORTUNITY_LIFECYCLE: tuple[str, ...] = (
     LC_PAID,
     LC_WITHDRAWN,
 )
+TERMINAL_LIFECYCLES: frozenset[str] = frozenset(
+    {LC_PAID, LC_WITHDRAWN, LC_REJECTED, LC_ARCHIVED, LC_FAILED}
+)
+FOLDER_NEW = frozenset({LC_DISCOVERED, LC_VERIFIED, LC_PREPARED, LC_WAITING_APPROVAL})
+FOLDER_RUNNING = frozenset({LC_RUNNING})
+FOLDER_WAITING = frozenset({LC_WAITING_PAYMENT})
+FOLDER_DONE = frozenset({LC_PAID, LC_WITHDRAWN, LC_FAILED, LC_REJECTED, LC_ARCHIVED})
 
 LAB_MODE_ANALYSIS = "analysis"  # scan + evidence only; no spend proposals until ready
 LAB_MODE_LIVE = "live"  # Income Lab live after analysis ready
@@ -1072,34 +1083,252 @@ class AlphaHunterLab:
         return IncomeSourcesStore(self._root).set_active(source_id, active)
 
     def scan_income_sources(self, *, bank_eur: float | None = None) -> dict[str, Any]:
-        """Watch money platforms (Income Sources) — €0. Not a news crawl."""
-        from swarm.alpha_hunter_income_layer import IncomeSourcesStore
+        """Run real adapters: discover → prepare drafts. No synthetic cards for Approve."""
+        return self.run_adapter_execution_cycle(bank_eur=bank_eur)
+
+    def run_adapter_execution_cycle(
+        self, *, bank_eur: float | None = None
+    ) -> dict[str, Any]:
+        """Discover → evidence → prepare (real files) → WAITING_APPROVAL.
+
+        Synthetic paper hunters are NOT used here. Empty = honest NO_OPPORTUNITY.
+        """
+        from dataclasses import asdict
+
+        from swarm.alpha_hunter_adapter_sdk import (
+            ADAPTER_REGISTRY,
+            NO_OPPORTUNITY,
+        )
 
         lab = self._roll_today(self._load_lab())
         if bank_eur is not None:
             lab["bank_eur"] = max(0.0, _safe_float(bank_eur))
             self._save_lab(lab)
         bank = _safe_float(lab.get("bank_eur"), 20.0)
-        out = IncomeSourcesStore(self._root).scan_active_sources(bank_eur=bank)
-        # Mark analysis ready so owner can go LIVE after money-source scan
+        draft_root = self._path("alpha_hunter_drafts")
+        draft_root.mkdir(parents=True, exist_ok=True)
+
+        prepared: list[dict[str, Any]] = []
+        no_ops: list[dict[str, Any]] = []
+        adapter_results: list[dict[str, Any]] = []
+
+        opp_store = self._load_opportunities()
+        by_id = {
+            str(o.get("id")): o
+            for o in (opp_store.get("items") or [])
+            if isinstance(o, dict) and o.get("id")
+        }
+        strategies = self._load_strategies()
+        strat_items = {
+            str(s.get("id")): s
+            for s in (strategies.get("items") or [])
+            if isinstance(s, dict) and s.get("id")
+        }
+
+        for sid, cls in ADAPTER_REGISTRY.items():
+            adapter = cls()
+            adapter.draft_root = draft_root
+            disc = adapter.discover()
+            adapter_results.append(disc.to_dict())
+            if disc.status == NO_OPPORTUNITY or not disc.opportunities:
+                no_ops.append(
+                    {
+                        "source_id": sid,
+                        "status": NO_OPPORTUNITY,
+                        "message_ru": disc.message_ru,
+                        "missing": [asdict(g) for g in disc.missing_capabilities]
+                        if disc.missing_capabilities
+                        else [],
+                    }
+                )
+                continue
+            for raw in disc.opportunities:
+                action = raw.get("executable_action") if isinstance(raw, dict) else None
+                if not isinstance(action, dict) or not action.get("id"):
+                    no_ops.append(
+                        {
+                            "source_id": sid,
+                            "status": NO_OPPORTUNITY,
+                            "message_ru": "Пропуск: нет executable_action.",
+                        }
+                    )
+                    continue
+                ev = adapter.evidence(raw)
+                prep = adapter.prepare(raw)
+                if not prep.get("ok"):
+                    no_ops.append(
+                        {
+                            "source_id": sid,
+                            "status": NO_OPPORTUNITY,
+                            "message_ru": prep.get("detail_ru") or "prepare failed",
+                        }
+                    )
+                    continue
+                oid = f"opp_adapter_{sid}_{raw.get('id')}"
+                sid_strategy = f"strat_adapter_{sid}_{action.get('id')}"
+                existing = by_id.get(oid) or {}
+                existing_lc = str(existing.get("lifecycle") or "")
+                owner_decision = str(
+                    (existing.get("owner_decision") or {}).get("action")
+                    if isinstance(existing.get("owner_decision"), dict)
+                    else existing.get("owner_decision") or ""
+                ).lower()
+                # Mail-client rule: decided / terminal cards stay decided — no inbox reset
+                if (
+                    existing_lc in TERMINAL_LIFECYCLES
+                    or existing_lc == LC_RUNNING
+                    or existing_lc == LC_WAITING_PAYMENT
+                    or owner_decision in ("reject", "archive", "rejected", "archived")
+                ):
+                    # Refresh artifacts only; keep lifecycle + decision
+                    if existing:
+                        existing = dict(existing)
+                        existing["evidence"] = ev
+                        existing["prepare"] = {
+                            "done_ru": prep.get("done_ru"),
+                            "artifacts": prep.get("artifacts"),
+                            "spend_eur": 0.0,
+                        }
+                        existing["updated_at"] = _utc_now()
+                        by_id[oid] = existing
+                    continue
+                card = dict(existing) if existing else {"id": oid, "lifecycle_history": []}
+                card.update(
+                    {
+                        "id": oid,
+                        "number": abs(hash(oid)) % 900 + 100,
+                        "title_ru": str(
+                            action.get("title_ru") or raw.get("title_ru") or sid
+                        ),
+                        "family": sid,
+                        "venue_id": sid,
+                        "strategy_id": sid_strategy,
+                        "source_id": sid,
+                        "adapter_backed": True,
+                        "executable_action": action,
+                        "evidence": ev,
+                        "prepare": {
+                            "done_ru": prep.get("done_ru"),
+                            "artifacts": prep.get("artifacts"),
+                            "spend_eur": 0.0,
+                        },
+                        "expected_profit": {
+                            "low_eur": 0,
+                            "mid_eur": 0,
+                            "high_eur": 0,
+                            "worst_case_eur": 0,
+                            "best_case_eur": 0,
+                            "confidence_pct": 0,
+                            "display_ru": "ниже порога / ждём realized",
+                            "disclaimer_ru": (
+                                "До PAID нет обещанной прибыли. Approve = выполнить действие, "
+                                "не «купить +EV»."
+                            ),
+                        },
+                        "modeled_roi": 0.0,
+                        "approvable": True,
+                        "research_only": False,
+                        "updated_at": _utc_now(),
+                    }
+                )
+                card = self._advance_lifecycle(card, LC_VERIFIED)
+                card = self._advance_lifecycle(card, LC_PREPARED)
+                card = self._advance_lifecycle(card, LC_WAITING_APPROVAL)
+                by_id[oid] = card
+
+                strat_items[sid_strategy] = {
+                    "id": sid_strategy,
+                    "family": sid,
+                    "venue_id": sid,
+                    "title_ru": card["title_ru"],
+                    "adapter_backed": True,
+                    "executable_action": action,
+                    "opportunity_id": oid,
+                    "source_id": sid,
+                    "modeled_roi": 0.0,
+                    "expected_profit_eur": 0.0,
+                    "trials": int((strat_items.get(sid_strategy) or {}).get("trials") or 0)
+                    + 1,
+                    "approvable": True,
+                    "research_only": False,
+                }
+                prepared.append(
+                    {
+                        "opportunity_id": oid,
+                        "strategy_id": sid_strategy,
+                        "source_id": sid,
+                        "title_ru": card["title_ru"],
+                        "executable_action": action,
+                        "artifacts": (prep.get("artifacts") or {}),
+                        "lifecycle": LC_WAITING_APPROVAL,
+                        "test_cost_eur": 0.0,
+                        "pitch_ru": (
+                            f"Действие: {action.get('title_ru')}. "
+                            f"{prep.get('done_ru') or 'Черновик готов'}. "
+                            "Approve выполнит adapter.execute (€0 profit until paid)."
+                        ),
+                    }
+                )
+
+        opp_store["items"] = list(by_id.values())
+        opp_store["updated_at"] = _utc_now()
+        self._save_opportunities(opp_store)
+        strategies["items"] = list(strat_items.values())
+        strategies["updated_at"] = _utc_now()
+        self._save_strategies(strategies)
+
         lab = self._roll_today(self._load_lab())
         lab["analysis_ready"] = True
         lab["lab_mode"] = LAB_MODE_ANALYSIS
         lab["last_scan_at"] = _utc_now()
-        brief = {
-            "found": int(out.get("checked") or 0),
-            "rejected": max(
-                0, int(out.get("checked") or 0) - int(out.get("hits_count") or 0)
-            ),
-            "kept": int(out.get("hits_count") or 0),
-            "message_ru": out.get("message_ru"),
-        }
+        lab["stage"] = STAGE_PROPOSE if prepared else STAGE_PAPER
+        if prepared:
+            brief = {
+                "found": len(prepared) + len(no_ops),
+                "rejected": len(no_ops),
+                "kept": len(prepared),
+                "empty_ok": False,
+                "adapter_cycle": True,
+                "message_ru": (
+                    f"Адаптеры: подготовлено {len(prepared)} реальных действий "
+                    f"(черновики на диске). NO_OPPORTUNITY: {len(no_ops)}. "
+                    "Дальше: Propose / LIVE → Одобрить действие (не синтетику)."
+                ),
+            }
+        else:
+            brief = {
+                "found": len(no_ops),
+                "rejected": len(no_ops),
+                "kept": 0,
+                "empty_ok": True,
+                "adapter_cycle": True,
+                "message_ru": (
+                    "NO_OPPORTUNITY по всем адаптерам — фейковых карточек нет. "
+                    "Нужны ключи (GUMROAD_ACCESS_TOKEN / RAPIDAPI_KEY) или "
+                    "оставьте Product Hunt / PartnerStack (локальные черновики)."
+                ),
+                "actions": [
+                    {"id": "continue", "label_ru": "Продолжить поиск", "action": "adapter_cycle"},
+                ],
+            }
         lab.setdefault("director", {})["last_brief"] = brief
         lab["updated_at"] = _utc_now()
         self._save_lab(lab)
-        out["lab"] = self.panel(bank_eur=bank)
-        out["director_brief"] = brief
-        return out
+
+        return {
+            "ok": True,
+            "adapter_cycle": True,
+            "spend_eur": 0.0,
+            "checked": len(ADAPTER_REGISTRY),
+            "hits_count": len(prepared),
+            "prepared": prepared,
+            "no_opportunity": no_ops,
+            "adapter_results": adapter_results,
+            "director_brief": brief,
+            "message_ru": brief["message_ru"],
+            "analysis_ready": True,
+            "lab": self.panel(bank_eur=bank),
+        }
 
     def _load_opportunities(self) -> dict[str, Any]:
         path = self._path(OPPORTUNITIES_FILE)
@@ -1117,9 +1346,18 @@ class AlphaHunterLab:
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def _advance_lifecycle(self, opp: dict[str, Any], target: str) -> dict[str, Any]:
+        # Terminal states are sticky — never demote back to WAITING_APPROVAL
+        cur = str(opp.get("lifecycle") or LC_DISCOVERED)
+        if cur in TERMINAL_LIFECYCLES and target not in TERMINAL_LIFECYCLES:
+            return opp
+        if target in (LC_REJECTED, LC_ARCHIVED, LC_FAILED):
+            opp["lifecycle"] = target
+            hist = list(opp.get("lifecycle_history") or [])
+            hist.append({"at": _utc_now(), "to": target})
+            opp["lifecycle_history"] = hist[-20:]
+            return opp
         if target not in OPPORTUNITY_LIFECYCLE:
             return opp
-        cur = str(opp.get("lifecycle") or LC_DISCOVERED)
         try:
             if OPPORTUNITY_LIFECYCLE.index(target) >= OPPORTUNITY_LIFECYCLE.index(cur):
                 opp["lifecycle"] = target
@@ -1130,9 +1368,69 @@ class AlphaHunterLab:
             opp["lifecycle"] = target
         return opp
 
-    def list_opportunities(self, *, limit: int = 40) -> list[dict[str, Any]]:
+    def reject_opportunity(
+        self, opportunity_id: str, *, note: str = "", archive: bool = False
+    ) -> dict[str, Any]:
+        """Owner Reject/Archive — card leaves NEW forever (mail-client rule)."""
+        oid = str(opportunity_id or "").strip()
+        if not oid:
+            return {"ok": False, "error": "opportunity_id_required"}
+        store = self._load_opportunities()
+        items = list(store.get("items") or [])
+        target = next(
+            (o for o in items if isinstance(o, dict) and str(o.get("id")) == oid),
+            None,
+        )
+        if not target:
+            # Also match by strategy_id for proposal cards
+            target = next(
+                (
+                    o
+                    for o in items
+                    if isinstance(o, dict) and str(o.get("strategy_id") or "") == oid
+                ),
+                None,
+            )
+        if not target:
+            return {"ok": False, "error": "opportunity_not_found"}
+        action = "archive" if archive else "reject"
+        target = dict(target)
+        target["owner_decision"] = {
+            "action": action,
+            "at": _utc_now(),
+            "note": (note or "")[:240],
+        }
+        target = self._advance_lifecycle(
+            target, LC_ARCHIVED if archive else LC_REJECTED
+        )
+        target["approvable"] = False
+        target["updated_at"] = _utc_now()
+        new_items = []
+        for o in items:
+            if not isinstance(o, dict):
+                continue
+            if str(o.get("id")) == str(target.get("id")):
+                new_items.append(target)
+            else:
+                new_items.append(o)
+        store["items"] = new_items
+        store["updated_at"] = _utc_now()
+        self._save_opportunities(store)
+        return {
+            "ok": True,
+            "opportunity": target,
+            "folder": "archive",
+            "detail_ru": (
+                "Архив — больше не показывается в Новых."
+                if archive
+                else "Reject — карточка убрана из Новых навсегда."
+            ),
+        }
+
+    def list_opportunities(
+        self, *, limit: int = 40, folder: str | None = None
+    ) -> list[dict[str, Any]]:
         items = self._load_opportunities().get("items") or []
-        # Active first
         order = {s: i for i, s in enumerate(OPPORTUNITY_LIFECYCLE)}
         ranked = sorted(
             [x for x in items if isinstance(x, dict)],
@@ -1141,7 +1439,50 @@ class AlphaHunterLab:
                 -_safe_float((o.get("expected_profit") or {}).get("mid_eur")),
             ),
         )
+        folder_key = (folder or "").strip().lower()
+        if folder_key in ("new", "inbox"):
+            ranked = [
+                o
+                for o in ranked
+                if str(o.get("lifecycle") or "") in FOLDER_NEW
+                and str(
+                    (o.get("owner_decision") or {}).get("action")
+                    if isinstance(o.get("owner_decision"), dict)
+                    else ""
+                )
+                not in ("reject", "archive")
+            ]
+        elif folder_key == "running":
+            ranked = [o for o in ranked if str(o.get("lifecycle") or "") in FOLDER_RUNNING]
+        elif folder_key == "waiting":
+            ranked = [o for o in ranked if str(o.get("lifecycle") or "") in FOLDER_WAITING]
+        elif folder_key in ("done", "archive", "completed"):
+            ranked = [
+                o
+                for o in ranked
+                if str(o.get("lifecycle") or "") in FOLDER_DONE
+                or str(o.get("lifecycle") or "") in TERMINAL_LIFECYCLES
+            ]
         return ranked[:limit]
+
+    def _folder_counts(self, opps: list[dict[str, Any]] | None = None) -> dict[str, int]:
+        items = opps if opps is not None else (
+            self._load_opportunities().get("items") or []
+        )
+        counts = {"NEW": 0, "RUNNING": 0, "WAITING": 0, "DONE": 0}
+        for o in items:
+            if not isinstance(o, dict):
+                continue
+            lc = str(o.get("lifecycle") or "")
+            if lc in FOLDER_NEW and lc not in TERMINAL_LIFECYCLES:
+                counts["NEW"] += 1
+            elif lc in FOLDER_RUNNING:
+                counts["RUNNING"] += 1
+            elif lc in FOLDER_WAITING:
+                counts["WAITING"] += 1
+            elif lc in FOLDER_DONE or lc in TERMINAL_LIFECYCLES:
+                counts["DONE"] += 1
+        return counts
 
     def _roll_today(self, lab: dict[str, Any]) -> dict[str, Any]:
         today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -1224,22 +1565,23 @@ class AlphaHunterLab:
         )
         director_brief = (lab.get("director") or {}).get("last_brief")
         scan_sec = int(lab.get("scan_interval_sec") or DEFAULT_SCAN_INTERVAL_SEC)
-        opps = self.list_opportunities(limit=30)
+        opps = self.list_opportunities(limit=40)
+        folder_counts = self._folder_counts()
+        inbox = self.list_opportunities(limit=20, folder="new")
         lab_mode = str(lab.get("lab_mode") or LAB_MODE_ANALYSIS)
         analysis_ready = bool(lab.get("analysis_ready"))
         proposals_waiting = any(
-            str(o.get("lifecycle") or "") == LC_WAITING_APPROVAL for o in opps
+            str(o.get("lifecycle") or "") == LC_WAITING_APPROVAL for o in inbox
         )
         if not analysis_ready:
             next_action_ru = (
-                "Сейчас: Paper day (или Scan Income Sources) — €0. "
-                "Потом Propose top 3 → «→ LIVE» → Одобрить."
+                "Сейчас: «Выполнить адаптеры» (discover→prepare, €0). "
+                "Paper research — не для Approve. Потом Propose → LIVE → Одобрить действие."
             )
-            next_step = "paper"
+            next_step = "adapters"
         elif lab_mode != LAB_MODE_LIVE and not proposals_waiting:
             next_action_ru = (
-                "Анализ готов. Нажмите «Propose top 3», затем «→ LIVE Income Lab», "
-                "потом «Одобрить» на предложении."
+                "Адаптеры готовы. «Propose top 3» → «→ LIVE» → «Одобрить действие»."
             )
             next_step = "propose"
         elif lab_mode != LAB_MODE_LIVE:
@@ -1259,7 +1601,8 @@ class AlphaHunterLab:
             "engine": "Alpha Hunter — Opportunity Discovery Engine",
             "engine_law_ru": (
                 "Не движок гарантированного заработка. "
-                "Поиск рынков → evidence → prepare → Approve → realized only."
+                "Поиск рынков → evidence → prepare → Approve → realized only. "
+                "Reject/Archive — карточка больше не возвращается в Новые."
             ),
             "owner_only": True,
             "commercial_product": False,
@@ -1270,6 +1613,16 @@ class AlphaHunterLab:
             "analysis_ready": analysis_ready,
             "next_step": next_step,
             "next_action_ru": next_action_ru,
+            "folders": {
+                "NEW": folder_counts["NEW"],
+                "RUNNING": folder_counts["RUNNING"],
+                "WAITING": folder_counts["WAITING"],
+                "DONE": folder_counts["DONE"],
+                "hint_ru": (
+                    "Как почта: Новые → В работе → Ожидание → Архив. "
+                    "Reject убирает карточку из NEW навсегда."
+                ),
+            },
             "scan": {
                 "interval_sec": scan_sec,
                 "interval_label": f"{scan_sec // 60}m",
@@ -1282,8 +1635,10 @@ class AlphaHunterLab:
                     "Сначала анализ, потом предложения, потом LIVE."
                 ),
             },
-            "lifecycle": list(OPPORTUNITY_LIFECYCLE),
+            "lifecycle": list(OPPORTUNITY_LIFECYCLE)
+            + [LC_REJECTED, LC_ARCHIVED, LC_FAILED],
             "opportunities": opps,
+            "inbox": inbox,
             "stage": stage,
             "stage_ru": {
                 STAGE_PAPER: "Stage 1 — без риска: только моделирование, €0",
@@ -1525,6 +1880,9 @@ class AlphaHunterLab:
                 modeled_roi=cur["modeled_roi"],
                 family=str(row["hunter_family"]),
             )
+            cur["research_only"] = True
+            cur["adapter_backed"] = False
+            cur["approvable"] = False
             if row.get("market_discovery"):
                 cur["market_discovery"] = True
                 new_markets += 1
@@ -1820,78 +2178,48 @@ class AlphaHunterLab:
         }
 
     def propose_top(self, *, bank_eur: float | None = None, n: int = 3) -> dict[str, Any]:
-        """Stage 2 — after analysis: shortlist with Evidence + ranges (no single €)."""
+        """Stage 2 — only adapter-backed opportunities with executable_action."""
         lab = self._roll_today(self._load_lab())
         if not lab.get("analysis_ready"):
             return {
                 "ok": False,
                 "error": "analysis_not_ready",
-                "detail_ru": "Сначала анализ (Paper / скан). Предложения — только когда готово.",
+                "detail_ru": (
+                    "Сначала «Выполнить адаптеры» (Scan). "
+                    "Paper day больше не создаёт Approve-карточки."
+                ),
                 "lab": self.panel(),
             }
         if bank_eur is not None:
             lab["bank_eur"] = max(0.0, _safe_float(bank_eur))
             self._save_lab(lab)
         bank = _safe_float(lab.get("bank_eur"), 20)
-        dcfg = self._director_cfg(lab)
-        strategies = self._load_strategies()
-        ranked = sorted(
-            strategies.get("items") or [],
-            key=lambda s: (
-                -_safe_float(s.get("expected_profit_eur")),
-                -_safe_float(s.get("modeled_roi")),
-                -int(s.get("trials") or 0),
-            ),
-        )
-        found_n = len(ranked)
-        # Director: drop penny deals (use range low — never single promised €)
-        eligible = []
-        for s in ranked:
-            if _safe_float(s.get("modeled_roi")) <= 0:
-                continue
-            profit = s.get("expected_profit") or expected_profit_range(
-                modeled_roi=_safe_float(s.get("modeled_roi")),
-                family=str(s.get("family") or ""),
+        opps = [
+            o
+            for o in self.list_opportunities(limit=80)
+            if o.get("adapter_backed")
+            and isinstance(o.get("executable_action"), dict)
+            and o.get("executable_action", {}).get("id")
+            and str(o.get("lifecycle"))
+            in (LC_PREPARED, LC_WAITING_APPROVAL, LC_VERIFIED)
+        ]
+        opps.sort(
+            key=lambda o: (
+                0 if o.get("lifecycle") == LC_WAITING_APPROVAL else 1,
+                str(o.get("title_ru") or ""),
             )
-            s["expected_profit"] = profit
-            s["expected_profit_eur"] = profit["mid_eur"]
-            if passes_director_threshold(
-                expected_profit_eur=profit["mid_eur"],
-                modeled_roi=_safe_float(s.get("modeled_roi")),
-                min_profit_eur=dcfg["min_expected_profit_eur"],
-                min_roi_pct=dcfg["min_roi_pct"],
-            ):
-                eligible.append(s)
-        rejected_n = found_n - len(eligible)
-        shortlist = eligible[:n]
-        # Discovery fallback (not in strict €500+ mode)
-        if not shortlist and dcfg["min_expected_profit_eur"] < 400:
-            shortlist = [
-                s
-                for s in ranked
-                if _safe_float(s.get("modeled_roi")) > 0
-            ][:n]
-            if not shortlist:
-                shortlist = ranked[:n]
-            for s in shortlist:
-                profit = expected_profit_range(
-                    modeled_roi=_safe_float(s.get("modeled_roi")),
-                    family=str(s.get("family") or ""),
-                )
-                s["expected_profit"] = profit
-                s["expected_profit_eur"] = profit["mid_eur"]
-        quote = micro_test_quote_eur(bank)
+        )
+        shortlist = opps[:n]
         if not shortlist:
             brief = {
-                "found": found_n,
-                "rejected": rejected_n,
+                "found": 0,
+                "rejected": 0,
                 "kept": 0,
+                "empty_ok": True,
                 "message_ru": (
-                    f"Я нашёл {found_n} возможностей. {rejected_n} отклонил. "
-                    "0 оставил — нет сделок выше порога директора "
-                    f"(мин. €{dcfg['min_expected_profit_eur']:.0f} или ROI "
-                    f"{dcfg['min_roi_pct']:.0f}%). Нажмите Paper day снова "
-                    "или смягчите порог (Discovery €100 / 12%)."
+                    "NO_OPPORTUNITY для Approve: нет адаптерных действий. "
+                    "Запустите «Выполнить адаптеры». Синтетический Paper day "
+                    "в Approve не попадает."
                 ),
             }
             lab.setdefault("director", {})["last_brief"] = brief
@@ -1899,86 +2227,76 @@ class AlphaHunterLab:
             return {
                 "ok": True,
                 "found": False,
+                "proposals": [],
                 "director_brief": brief,
                 "message_ru": brief["message_ru"],
-                "proposals": [],
-                "lab": self.panel(bank_eur=bank),
+                "lab": self.panel(),
             }
+
         proposals = []
-        opp_store = self._load_opportunities()
-        opp_items = list(opp_store.get("items") or [])
-        for idx, s in enumerate(shortlist, start=1):
-            profit = expected_profit_range(
-                modeled_roi=_safe_float(s.get("modeled_roi")),
-                family=str(s.get("family") or ""),
-            )
-            roi_pct = round(_safe_float(s.get("modeled_roi")) * 100, 1)
-            ev = s.get("evidence")
-            opp_id = None
-            for i, o in enumerate(opp_items):
-                if not isinstance(o, dict):
-                    continue
-                if o.get("strategy_id") == s.get("id"):
-                    ev = o.get("evidence") or ev
-                    o = self._advance_lifecycle(o, LC_WAITING_APPROVAL)
-                    opp_items[i] = o
-                    opp_id = o.get("id")
-                    break
+        for i, o in enumerate(shortlist, start=1):
+            action = o.get("executable_action") or {}
+            spend = float(action.get("spend_eur") or 0.0)
+            if action.get("allows_micro_spend") and spend <= 0:
+                spend = micro_test_quote_eur(bank)
+            if _safe_float((o.get("expected_profit") or {}).get("mid_eur")) <= 0:
+                spend = 0.0
+            done = (o.get("prepare") or {}).get("done_ru") or "Черновик готов"
             proposals.append(
                 {
-                    "rank": idx,
-                    "opportunity_id": opp_id,
-                    "strategy_id": s.get("id"),
-                    "title_ru": s.get("title_ru"),
-                    "modeled_roi_pct": roi_pct,
-                    "expected_profit": profit,
-                    "evidence": ev,
+                    "rank": i,
+                    "opportunity_id": o.get("id"),
+                    "strategy_id": o.get("strategy_id"),
+                    "title_ru": o.get("title_ru"),
                     "lifecycle": LC_WAITING_APPROVAL,
-                    "market_discovery": bool(s.get("market_discovery")),
-                    "paper_trials": s.get("trials"),
-                    "test_cost_eur": quote,
-                    "venue_id": s.get("venue_id"),
-                    "pipeline_ready_ru": (
-                        "DISCOVERED→VERIFIED→PREPARED→WAITING APPROVAL · "
-                        "затем RUNNING→PAYMENT→PAID→WITHDRAWN"
-                    ),
+                    "adapter_backed": True,
+                    "executable_action": action,
+                    "evidence": o.get("evidence"),
+                    "expected_profit": o.get("expected_profit"),
+                    "prepare": o.get("prepare"),
+                    "test_cost_eur": spend,
                     "pitch_ru": (
-                        f"✅ Opportunity #{idx}"
-                        + (" · new market" if s.get("market_discovery") else "")
-                        + f". Expected Profit {profit['display_ru']}. "
-                        f"Confidence {profit['confidence_pct']}%. "
-                        f"Worst €{profit['worst_case_eur']:,.0f} · "
-                        f"Best €{profit['best_case_eur']:,.0f}. "
-                        f"Микро-тест {quote}€. Одобрить?"
+                        f"Действие: {action.get('title_ru') or action.get('title_en')}. "
+                        f"{done}."
                     ),
                 }
             )
-        opp_store["items"] = opp_items
-        self._save_opportunities(opp_store)
-        best = proposals[0]["expected_profit"]
+
+        store = self._load_opportunities()
+        by_id = {
+            str(x.get("id")): x
+            for x in (store.get("items") or [])
+            if isinstance(x, dict)
+        }
+        for o in shortlist:
+            oid = str(o.get("id"))
+            if oid in by_id:
+                by_id[oid] = self._advance_lifecycle(by_id[oid], LC_WAITING_APPROVAL)
+        store["items"] = list(by_id.values())
+        self._save_opportunities(store)
+
+        lab["stage"] = STAGE_PROPOSE
         brief = {
-            "found": found_n,
-            "rejected": rejected_n,
-            "kept": len(shortlist),
-            "expected_profit": best,
+            "found": len(opps),
+            "rejected": 0,
+            "kept": len(proposals),
+            "adapter_cycle": True,
             "message_ru": (
-                f"Я нашёл {found_n} возможностей. {rejected_n} отклонил. "
-                f"{len(shortlist)} оставил. "
-                f"Expected Profit {best['display_ru']} "
-                f"(Confidence {best['confidence_pct']}%). "
-                "Нужно ваше одобрение. Переведите Lab в LIVE, затем Approve."
+                f"{len(proposals)} действий готовы к Approve. "
+                "Каждое — конкретный executable_action, не «Hunter #6»."
             ),
         }
-        lab["stage"] = STAGE_PROPOSE
         lab.setdefault("director", {})["last_brief"] = brief
         lab["updated_at"] = _utc_now()
         self._save_lab(lab)
         return {
             "ok": True,
             "found": True,
-            "director_brief": brief,
-            "message_ru": brief["message_ru"],
             "proposals": proposals,
+            "director_brief": brief,
+            "message_ru": (
+                "Нужно ваше одобрение. Переведите Lab в LIVE, затем Approve действия."
+            ),
             "opportunities": self.list_opportunities(limit=20),
             "lab": self.panel(bank_eur=bank),
         }
@@ -2172,12 +2490,8 @@ class AlphaHunterLab:
         *,
         bank_eur: float | None = None,
     ) -> dict[str, Any]:
-        """Stage 2→3: owner approves one micro-test (≤2%). Search still €0.
-
-        Default execution is prepare_dry_run — profit never invented.
-        Live spend only if GENESIS_INCOME_ENGINE_LIVE=1 and stage is micro_spend.
-        """
-        import os
+        """Approve a concrete adapter action — execute prepare/API, never invent profit."""
+        from swarm.alpha_hunter_adapter_sdk import get_adapter
 
         lab = self._roll_today(self._load_lab())
         if bank_eur is not None:
@@ -2196,71 +2510,121 @@ class AlphaHunterLab:
         if not item:
             return {"ok": False, "error": "strategy_not_found"}
 
+        if not item.get("adapter_backed"):
+            return {
+                "ok": False,
+                "error": "synthetic_not_approvable",
+                "detail_ru": (
+                    "Синтетические Paper-карточки нельзя одобрять. "
+                    "Сначала «Выполнить адаптеры»."
+                ),
+            }
+
+        action = item.get("executable_action") if isinstance(item.get("executable_action"), dict) else {}
+        if not action.get("id"):
+            return {
+                "ok": False,
+                "error": "no_executable_action",
+                "detail_ru": "Нет executable_action — Approve запрещён.",
+            }
+
         if str(lab.get("lab_mode") or LAB_MODE_ANALYSIS) != LAB_MODE_LIVE:
             return {
                 "ok": False,
                 "error": "not_live",
                 "detail_ru": (
-                    "Сначала анализ → Propose → кнопка «В LIVE Income Lab», "
-                    "потом Approve."
+                    "Сначала адаптеры → Propose → «→ LIVE», потом Approve действия."
                 ),
             }
 
-        quote = micro_test_quote_eur(bank)
+        # Action Approve is €0 unless action explicitly allows micro-spend AND EV positive
+        spend = float(action.get("spend_eur") or 0.0)
+        if action.get("allows_micro_spend") and _safe_float(item.get("modeled_roi")) > 0:
+            spend = max(spend, micro_test_quote_eur(bank))
+        else:
+            spend = 0.0
+
         active = int(lab.get("active_experiments") or 0)
         stage = str(lab.get("stage") or STAGE_PAPER)
         if stage == STAGE_PAPER:
-            # Approving a proposal implies move to propose gate, then prepare
             lab["stage"] = STAGE_PROPOSE
             self._save_lab(lab)
             stage = STAGE_PROPOSE
 
-        gate = self.assert_experiment_allowed(
-            bank_eur=bank, cost_eur=quote, active=active
-        )
-        if not gate.get("ok"):
-            return gate
-
-        venue = venue_for_hunter(str(item.get("family") or ""))
-        if venue and not venue.get("spend_allowed_after_approve", True):
+        if spend > 0:
+            gate = self.assert_experiment_allowed(
+                bank_eur=bank, cost_eur=spend, active=active
+            )
+            if not gate.get("ok"):
+                return gate
+        elif stage == STAGE_PAPER:
             return {
                 "ok": False,
-                "error": "venue_research_only",
-                "detail_ru": (
-                    f"Площадка «{venue.get('title_ru')}» — только research. "
-                    "Spend запрещён, пока нет явного whitelist на оплату."
-                ),
+                "error": "stage_paper",
+                "detail_ru": "Сначала Propose / адаптеры.",
             }
 
-        live = os.environ.get("GENESIS_INCOME_ENGINE_LIVE", "").strip().lower() in (
-            "1",
-            "true",
-            "yes",
-        )
-        # Micro spend stage required for live; propose = prepare only
-        mode = (
-            "live_micro"
-            if live and stage == STAGE_MICRO and quote > 0
-            else "prepare_dry_run"
-        )
-        spent_now = quote if mode == "live_micro" else 0.0
+        source_id = str(item.get("source_id") or item.get("family") or "")
+        adapter = get_adapter(source_id)
+        if adapter is None:
+            return {
+                "ok": False,
+                "error": "adapter_missing",
+                "detail_ru": f"Нет адаптера для «{source_id}».",
+            }
+        adapter.draft_root = self._path("alpha_hunter_drafts")
 
-        exp_id = f"exp_{sid}_{hashlib.sha256(f'{sid}:{_utc_now()}'.encode()).hexdigest()[:8]}"
+        opp_store = self._load_opportunities()
+        opp = next(
+            (
+                o
+                for o in (opp_store.get("items") or [])
+                if isinstance(o, dict) and o.get("strategy_id") == sid
+            ),
+            None,
+        )
+        payload = {
+            "id": (opp or {}).get("id") or item.get("opportunity_id") or sid,
+            "title_ru": item.get("title_ru"),
+            "executable_action": action,
+            "adapter_backed": True,
+        }
+        exec_out = adapter.execute(payload, owner_approved=True)
+        if not exec_out.get("ok"):
+            return {
+                "ok": False,
+                "error": exec_out.get("error") or "execute_failed",
+                "detail_ru": exec_out.get("detail_ru") or "adapter.execute failed",
+                "execution": exec_out,
+            }
+
+        hint = str(exec_out.get("lifecycle_hint") or LC_RUNNING)
+        spent_now = spend
+        exp_id = (
+            f"exp_{sid}_{hashlib.sha256(f'{sid}:{_utc_now()}'.encode()).hexdigest()[:8]}"
+        )
         row = {
             "at": _utc_now(),
             "experiment_id": exp_id,
             "strategy_id": sid,
             "title_ru": item.get("title_ru"),
-            "test_cost_eur": quote,
+            "executable_action": action,
+            "test_cost_eur": spend,
             "spent_eur": spent_now,
             "returned_eur": 0.0,
             "profit_recorded_eur": 0.0,
-            "mode": mode,
+            "mode": exec_out.get("mode") or "adapter_execute",
             "search_spend_eur": 0.0,
-            "status": "running" if mode == "live_micro" else "prepared",
+            "status": "running",
+            "artifacts": ((exec_out.get("prepare") or {}).get("artifacts") or {}),
+            "execution": {
+                "ok": True,
+                "detail_ru": exec_out.get("detail_ru"),
+                "api_response": exec_out.get("api_response"),
+            },
             "pitch_ru": (
-                f"Микро-тест стратегии «{item.get('title_ru')}» за {quote}€. "
-                "Это проверка гипотезы, не гарантия прибыли."
+                f"Approve: {action.get('title_ru')}. "
+                f"{exec_out.get('detail_ru') or 'Действие выполнено'}."
             ),
         }
         hist = self._path(HISTORY_FILE)
@@ -2275,30 +2639,32 @@ class AlphaHunterLab:
                 _safe_float(today.get("spent_eur")) + spent_now, 2
             )
             lab["bank_eur"] = round(max(0.0, bank - spent_now), 2)
-        # Promote to micro_spend after first approve so kill-switch / tracking apply
-        if lab.get("stage") == STAGE_PROPOSE:
-            lab["stage"] = STAGE_MICRO
+        lab["stage"] = STAGE_MICRO
         lab["updated_at"] = _utc_now()
         self._save_lab(lab)
 
-        # Strategy card: mark a check started (not a win)
         item["runs"] = int(item.get("runs") or 0) + 1
-        item["capital_needed_eur"] = quote
         item["status"] = STATUS_LEARNING
-        items = [
+        item["last_execution"] = {
+            "at": row["at"],
+            "mode": row["mode"],
+            "detail_ru": exec_out.get("detail_ru"),
+        }
+        strategies["items"] = [
             item if str(s.get("id")) == sid else s
             for s in (strategies.get("items") or [])
             if isinstance(s, dict)
         ]
-        strategies["items"] = items
         self._save_strategies(strategies)
 
-        # Lifecycle: WAITING_APPROVAL → RUNNING
-        opp_store = self._load_opportunities()
         items = []
         for o in opp_store.get("items") or []:
             if isinstance(o, dict) and o.get("strategy_id") == sid:
                 o = self._advance_lifecycle(o, LC_RUNNING)
+                if hint == LC_WAITING_PAYMENT:
+                    o = self._advance_lifecycle(o, LC_WAITING_PAYMENT)
+                o["last_execution"] = row["execution"]
+                o["prepare"] = exec_out.get("prepare") or o.get("prepare")
             items.append(o)
         opp_store["items"] = items
         self._save_opportunities(opp_store)
@@ -2306,14 +2672,12 @@ class AlphaHunterLab:
         return {
             "ok": True,
             "experiment": row,
+            "execution": exec_out,
             "message_ru": (
-                f"Одобрено. Микро-тест {quote}€ подготовлен"
-                + (
-                    f", списано {spent_now}€ с банка."
-                    if spent_now
-                    else " (dry-run: банк не тронут, пока нет LIVE)."
-                )
-                + " Прибыль не записывается, пока не будет реального возврата."
+                f"Одобрено и выполнено: {action.get('title_ru')}. "
+                f"{exec_out.get('detail_ru') or ''} "
+                "Прибыль не записывается до реального PAID."
             ),
             "lab": self.panel(bank_eur=lab.get("bank_eur")),
         }
+

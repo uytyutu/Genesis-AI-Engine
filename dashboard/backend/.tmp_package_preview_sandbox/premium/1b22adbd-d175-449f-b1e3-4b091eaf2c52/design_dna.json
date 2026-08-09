@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "Professionelles Reinigungsteam · Fensterputz an Glasfassade · Wohnung nach Pflege",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "narrative",
+  "package_id": "premium",
+  "niche_id": "cleaning",
+  "fingerprint": "cfc27e57748bcc0458114fba29cec86045e4b7dfdc842ed909f1f12701cb8f5c",
+  "section_treatments": [
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "process",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "tint"
+    ],
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "late_cta",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#ecf4fa",
+  "ink_hex": "#0b0d10",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "78afc39e512d58d32cd265c5",
+  "border_radius_px": 12
+}

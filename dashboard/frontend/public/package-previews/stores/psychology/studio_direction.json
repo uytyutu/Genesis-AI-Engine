@@ -1,0 +1,874 @@
+{
+  "studio_id": "digital_creative_studio_v4_studio_era",
+  "era": "Virtus Core Studio Era",
+  "product_noun": "Digital Experience Generation",
+  "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+  "digital_signature_aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+  "philosophy": "virtus_core_studio_era_digital_experience_generation",
+  "immutable_law_1": "Каждый новый проект обязан быть не хуже предыдущего лучшего проекта. Если генерация ухудшила качество — REBUILD. Если она повторила шаблон — REBUILD. Если сайт выглядит как конструктор — REBUILD. Если сайт уступает современным digital-студиям — REBUILD.",
+  "immutable_law_2": "Любая новая идея должна сначала стать заметной клиенту. Если появляется Director, Engine, Rule или Memory — ответь: «Что изменится в первом впечатлении клиента?» Если ответ: «Пока ничего, но архитектура стала лучше» — работа ещё не закончена.",
+  "pipeline": [
+    "human_first",
+    "brand_story",
+    "core_emotion",
+    "core_promise",
+    "visual_metaphor",
+    "creative_theme",
+    "scene_language",
+    "motion_language",
+    "typography_voice",
+    "color_emotion",
+    "interaction_style",
+    "creative_conflict",
+    "owner_preview"
+  ],
+  "scene_arc": [
+    "scene",
+    "story",
+    "emotion",
+    "interaction",
+    "experience",
+    "conversion"
+  ],
+  "package_id": "business",
+  "niche_id": "psychology",
+  "studio_approach": {
+    "id": "luxury",
+    "label": "Luxury",
+    "pillars": [
+      "minimalism",
+      "generous air",
+      "large photography",
+      "little text",
+      "quiet confidence"
+    ],
+    "composition_bias": [
+      "luxury_brand",
+      "cinematic",
+      "whisper",
+      "atelier_night",
+      "breath"
+    ],
+    "type_bias": [
+      "playfair_manrope",
+      "bodoni_jakarta",
+      "gloock_manrope"
+    ],
+    "color_feeling": "restrained ink + warm metal accent",
+    "motion": "slow reveal, soft parallax",
+    "niches_affinity": [
+      "fashion",
+      "beauty",
+      "jewelry",
+      "realestate",
+      "psychology"
+    ],
+    "notes": "Premium invites looking"
+  },
+  "moodboard": {
+    "niche_id": "psychology",
+    "emotion": "relief",
+    "keywords": [
+      "quiet luxury",
+      "nature path",
+      "editorial stillness",
+      "glass soft light",
+      "breathing space",
+      "morning light"
+    ],
+    "avoid": [
+      "salon glam",
+      "clinic fluorescent",
+      "equal card grid first",
+      "purple mesh clone",
+      "Hero→cards→text ladder",
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate"
+    ],
+    "hero_feeling": "Every day can begin again.",
+    "atmosphere": "dawn windows, soft gold, open horizon",
+    "references": [
+      "European private therapy studios",
+      "Nordic wellness editorial sites"
+    ]
+  },
+  "brand_dna": {
+    "business_name": "Klarheit Digital",
+    "niche_id": "psychology",
+    "package_id": "business",
+    "voice": "optimistic editorial — clear, warm, awake",
+    "feeling": "relief",
+    "why_hero_exists": "The Hero exists to make 'Morning Light' felt in 3 seconds: Every day can begin again.",
+    "color_feeling": "cream, pale gold, sky blue breath",
+    "type_voice": "optimistic editorial — clear, warm, awake",
+    "scene_arc": "dawn windows, soft gold, open horizon",
+    "avoid": [
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate"
+    ],
+    "fingerprint": "2d84f07c141d750f",
+    "brand_story": "Max built Klarheit Digital because she knows how to listen — really listen. Clients (30–50) should feel relief. Only then do we name the craft: psychology.",
+    "core_emotion": "relief",
+    "core_promise": "Every day can begin again.",
+    "visual_metaphor": "first light through linen curtains",
+    "creative_theme": "Morning Light",
+    "creative_theme_id": "morning_light",
+    "scene_language": "dawn windows, soft gold, open horizon",
+    "motion_language": "soft rise — light enters the frame",
+    "interaction_style": "inviting, hopeful, one clear next step",
+    "photo_world": "morning desk, coffee steam, open notebook",
+    "founder_name": "Max"
+  },
+  "creative_identity": {
+    "title": "Morning Light",
+    "theme_id": "morning_light",
+    "idea": "Every day can begin again.",
+    "human": {
+      "founder_name": "Max",
+      "founder_role": "founder of the practice",
+      "client_age_range": "30–50",
+      "why_choose_them": "She knows how to listen — really listen.",
+      "visitor_must_feel": "relief",
+      "niche_revealed_later": "psychology"
+    },
+    "brand_story": "Max built Klarheit Digital because she knows how to listen — really listen. Clients (30–50) should feel relief. Only then do we name the craft: psychology.",
+    "core_emotion": "relief",
+    "core_promise": "Every day can begin again.",
+    "visual_metaphor": "first light through linen curtains",
+    "creative_theme": "Morning Light",
+    "scene_language": "dawn windows, soft gold, open horizon",
+    "motion_language": "soft rise — light enters the frame",
+    "typography_voice": "optimistic editorial — clear, warm, awake",
+    "color_emotion": "cream, pale gold, sky blue breath",
+    "interaction_style": "inviting, hopeful, one clear next step",
+    "photo_world": "morning desk, coffee steam, open notebook",
+    "niche_revealed": "psychology",
+    "package_id": "business",
+    "surface": "store",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": true,
+    "html_blocked_reason": "",
+    "fingerprint": "2d84f07c141d750f",
+    "generated_at": "2026-08-07T06:57:41.145076+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  },
+  "observatory": {
+    "niche_id": "psychology",
+    "era": "2026+",
+    "study_sources": [
+      "European private therapy practices",
+      "Nordic wellness editorials",
+      "Quiet luxury hospitality brands",
+      "Premium mental-health SaaS landing craft"
+    ],
+    "first_screen": [
+      "Full-bleed calm photography or cinematic still",
+      "Serif display voice — hush, not clinic",
+      "One clear next step (Erstgespräch) without urgency theater",
+      "Negative space that feels intentional, not empty"
+    ],
+    "page_rhythm": [
+      "Story before service grid",
+      "Trust as intimacy, not badge strip first",
+      "Gallery / atmosphere mid-page as emotional reset",
+      "Late conversion after understanding"
+    ],
+    "composition_depth": [
+      "Layered atmosphere (air, soft mesh) in niche sage/sand — not purple clone",
+      "Glass only where it earns emotion",
+      "Asymmetry over equal cards"
+    ],
+    "typography": [
+      "Display serif for brand voice",
+      "Humanist sans for body calm",
+      "Generous line-height; short measure on hero"
+    ],
+    "micro_interactions": [
+      "Soft reveal on scroll",
+      "Hover that breathes — no neon bounce",
+      "Sticky nav that gains weight, not noise"
+    ],
+    "trust": [
+      "Schweigepflicht / confidentiality as craft, not legal dump",
+      "Process as reassurance scenes",
+      "Real location / hours without template chrome"
+    ],
+    "cta_craft": [
+      "Erstgespräch as invitation",
+      "Secondary WhatsApp only if it fits calm brand",
+      "No countdown or scarcity theater"
+    ],
+    "brand_feel": [
+      "calm",
+      "expensive quiet",
+      "natural",
+      "confident",
+      "alive"
+    ],
+    "invent": "Original Brand DNA for THIS practice: unique emotion, type voice, scene sequence, and why the Hero exists — never a recycled prior site.",
+    "never": [
+      "Salon glam stock",
+      "Clinic fluorescent white",
+      "Constructor card ladder",
+      "Identical Business/Premium clones",
+      "Purple Virtus App Store atmosphere"
+    ],
+    "lenses": [
+      {
+        "id": "first_screen",
+        "question": "Why does the first screen exist?",
+        "principles": [
+          "One emotional job in 3 seconds",
+          "Visual center owns the fold",
+          "Brand voice before feature list"
+        ],
+        "anti_patterns": [
+          "Hero as feature dump",
+          "equal card grid first",
+          "logo wall as hero"
+        ]
+      },
+      {
+        "id": "rhythm",
+        "question": "How does the page breathe?",
+        "principles": [
+          "Scenes with distinct moods",
+          "Alternating density — never identical section padding",
+          "Story → emotion → interaction → conversion"
+        ],
+        "anti_patterns": [
+          "Hero→Text→Cards→Text→Cards",
+          "uniform white slabs"
+        ]
+      },
+      {
+        "id": "trust",
+        "question": "How is confidence earned?",
+        "principles": [
+          "Proof woven into scenes, not bolted as a strip",
+          "Specific over generic claims",
+          "Quiet credentials beat badge spam"
+        ],
+        "anti_patterns": [
+          "fake counters",
+          "stock handshake photos as trust"
+        ]
+      },
+      {
+        "id": "cta",
+        "question": "How does desire become action?",
+        "principles": [
+          "CTA matches emotional temperature of the scene",
+          "Secondary path without visual noise",
+          "One primary ask per scene"
+        ],
+        "anti_patterns": [
+          "identical pill buttons everywhere",
+          "three equal CTAs"
+        ]
+      }
+    ]
+  },
+  "observatory_brief": "Design Observatory · psychology · 2026+\nRule: analyze principles — invent original — never copy pixels.\nFirst screen: Full-bleed calm photography or cinematic still; Serif display voice — hush, not clinic; One clear next step (Erstgespräch) without urgency theater; Negative space that feels intentional, not empty\nRhythm: Story before service grid; Trust as intimacy, not badge strip first; Gallery / atmosphere mid-page as emotional reset\nDepth: Layered atmosphere (air, soft mesh) in niche sage/sand — not purple clone; Glass only where it earns emotion; Asymmetry over equal cards\nType: Display serif for brand voice; Humanist sans for body calm; Generous line-height; short measure on hero\nMotion: Soft reveal on scroll; Hover that breathes — no neon bounce; Sticky nav that gains weight, not noise\nTrust: Schweigepflicht / confidentiality as craft, not legal dump; Process as reassurance scenes; Real location / hours without template chrome\nCTA: Erstgespräch as invitation; Secondary WhatsApp only if it fits calm brand; No countdown or scarcity theater\nInvent: Original Brand DNA for THIS practice: unique emotion, type voice, scene sequence, and why the Hero exists — never a recycled prior site.\nNever: Salon glam stock; Clinic fluorescent white; Constructor card ladder; Identical Business/Premium clones; Purple Virtus App Store atmosphere",
+  "benchmark_brief": "Visual Benchmark · psychology\nComposition: One full-bleed Hero scene, then alternating depth bands — never a stack of equal white cards\nRhythm: Slow inhale: dark/photo → soft open → ink CTA. Max one consecutive light band\nHero: Cinematic stillness: nature path, greenhouse light, or intimate therapy room — readable type in first viewport, expensive quiet\nColor: Sage, sand, warm stone, soft ink — no salon pink-gold glam\nType: Editorial display + calm body; generous leading; few words in Hero\nDepth: Glass panels, soft mesh, vignette, real photo grain — not flat #fff slabs\nAtmosphere: Living air: particles, aurora wash, scroll glass nav — life, not wallpaper\nAvoid: Beauty salon / spa glam interiors; White section ladder; Generic stock smile headshots as Hero; Template feature-grid as first impression",
+  "quality_floor": "Business ≥ Virtus Core /site quality floor (never worse than Virtus itself)",
+  "why_hero_exists": "The Hero exists to make 'Morning Light' felt in 3 seconds: Every day can begin again.",
+  "scene_sequence": [
+    "scene",
+    "interaction",
+    "experience",
+    "conversion",
+    "experience",
+    "story",
+    "interaction",
+    "emotion",
+    "interaction",
+    "conversion"
+  ],
+  "taste": {
+    "overall": 65.0,
+    "axes": [
+      {
+        "axis": "rhythm",
+        "score": 100.0,
+        "note": "scene arc vs ladder"
+      },
+      {
+        "axis": "emotion",
+        "score": 85.0,
+        "note": "feeling + why-hero"
+      },
+      {
+        "axis": "brand",
+        "score": 83.0,
+        "note": "approach + composition identity"
+      },
+      {
+        "axis": "beauty",
+        "score": 50.0,
+        "note": "atmosphere + media integrity"
+      },
+      {
+        "axis": "visual_value",
+        "score": 50.0,
+        "note": "worth looking at"
+      },
+      {
+        "axis": "trust",
+        "score": 55.0,
+        "note": "proof craft"
+      },
+      {
+        "axis": "modernity",
+        "score": 72.0,
+        "note": "2026 studio language"
+      },
+      {
+        "axis": "uniqueness",
+        "score": 65.0,
+        "note": "not another clone"
+      }
+    ],
+    "verdict": "PROMISING",
+    "rebuild": false,
+    "reasons": [
+      "Law #1 risk: taste 70 < prior best 73"
+    ],
+    "philosophy": "Taste judges the whole impression — not isolated CSS rules.",
+    "owner_still_decides_pass": true
+  },
+  "law_1": {
+    "law": "Every new project must not be worse than the previous best. Quality regression → REBUILD. Template repeat → REBUILD. Constructor look → REBUILD. Below modern digital studios → REBUILD.",
+    "ok": false,
+    "action": "REBUILD",
+    "reasons": [
+      "Worse than prior best (65 < 73)"
+    ]
+  },
+  "memory_bias": {
+    "compositions": [
+      "chamber",
+      "tech_stack",
+      "cascade"
+    ],
+    "approaches": [
+      "scandinavian",
+      "editorial",
+      "luxury"
+    ],
+    "typography": [
+      "cormorant_source",
+      "newsreader_public",
+      "instrument_onest"
+    ],
+    "heroes": [
+      "D",
+      "B"
+    ],
+    "prior_best_overall": 72.75,
+    "rule": "Bias principles from memory — never copy a prior site literally"
+  },
+  "agency_review": {
+    "manifest_id": "virtus_core_studio_era_manifest_2026_2030",
+    "roles": [
+      {
+        "id": "ceo",
+        "title": "CEO",
+        "question": "Does this strengthen the client's business presence — not just fill a page?"
+      },
+      {
+        "id": "creative_director",
+        "title": "Creative Director",
+        "question": "Is the creative direction clear, ownable, and non-template?"
+      },
+      {
+        "id": "brand_strategist",
+        "title": "Brand Strategist",
+        "question": "What is this brand's personality — and why does it exist?"
+      },
+      {
+        "id": "marketing_strategist",
+        "title": "Marketing Strategist",
+        "question": "What should the stranger feel in 3 seconds — and what should they do?"
+      },
+      {
+        "id": "ux_researcher",
+        "title": "UX Researcher",
+        "question": "Is the path human, calm, credible — free of constructor anxiety?"
+      },
+      {
+        "id": "art_director",
+        "title": "Art Director",
+        "question": "Does every scene have its own composition, rhythm, mood, and visual center?"
+      },
+      {
+        "id": "typography_director",
+        "title": "Typography Director",
+        "question": "Does type carry character and brand voice — not a default stack?"
+      },
+      {
+        "id": "color_director",
+        "title": "Color Director",
+        "question": "Does color create the intended emotion — not decoration?"
+      },
+      {
+        "id": "motion_director",
+        "title": "Motion Director",
+        "question": "Does every animation have meaning — or is it noise?"
+      },
+      {
+        "id": "frontend_architect",
+        "title": "Frontend Architect",
+        "question": "Is the craft export clean, resilient, and worthy of a studio?"
+      },
+      {
+        "id": "accessibility_specialist",
+        "title": "Accessibility Specialist",
+        "question": "Can everyone use this with dignity?"
+      },
+      {
+        "id": "performance_engineer",
+        "title": "Performance Engineer",
+        "question": "Does beauty stay fast on real devices?"
+      },
+      {
+        "id": "qa_designer",
+        "title": "QA Designer",
+        "question": "Would a European digital studio ship this without shame?"
+      },
+      {
+        "id": "owner_review",
+        "title": "Owner Review",
+        "question": "Has the owner said: \"Да. Я бы купил такой сайт.\"?"
+      }
+    ],
+    "digital_signature": {
+      "name": "Virtus Core Digital Signature",
+      "aim": "Stranger thinks: I don't know who made this — but the work is clearly strong.",
+      "craft_marks": [
+        "attention to detail",
+        "meaningful motion",
+        "strong typography",
+        "harmonious spacing",
+        "considered interactive states",
+        "coherent interaction sequences"
+      ],
+      "never": [
+        "same colors across every niche",
+        "identical compositions",
+        "constructor ladders",
+        "empty decorative zones",
+        "motion without meaning"
+      ]
+    },
+    "ecosystem_frame": {
+      "wrong": "Create a dentist website.",
+      "right": "Create the digital business of a dental clinic.",
+      "for_this_project": "Create the digital business of Klarheit Digital (psychology) — experience is one surface of the ecosystem, not the end product.",
+      "surfaces": [
+        {
+          "id": "experience",
+          "label": "Digital Experience (site/store)",
+          "role": "first impression & brand face"
+        },
+        {
+          "id": "booking",
+          "label": "Booking / scheduling",
+          "role": "convert intent to appointments"
+        },
+        {
+          "id": "crm",
+          "label": "CRM",
+          "role": "remember and serve the client"
+        },
+        {
+          "id": "reminders",
+          "label": "Automated reminders",
+          "role": "reduce no-shows"
+        },
+        {
+          "id": "chat",
+          "label": "Chat / assistant",
+          "role": "answer when humans sleep"
+        },
+        {
+          "id": "reviews",
+          "label": "Reviews",
+          "role": "trust at scale"
+        },
+        {
+          "id": "seo",
+          "label": "SEO",
+          "role": "be found"
+        },
+        {
+          "id": "ads",
+          "label": "Advertising",
+          "role": "reach with brand integrity"
+        },
+        {
+          "id": "analytics",
+          "label": "Analytics",
+          "role": "learn what works"
+        },
+        {
+          "id": "video",
+          "label": "Video",
+          "role": "emotion and proof"
+        },
+        {
+          "id": "social",
+          "label": "Social",
+          "role": "presence beyond the site"
+        },
+        {
+          "id": "cabinet",
+          "label": "Client cabinet",
+          "role": "ongoing relationship"
+        }
+      ],
+      "package_id": "business"
+    },
+    "owner_buy_phrase": "Да. Я бы купил такой сайт.",
+    "owner_review": "PENDING_OWNER",
+    "note": "Roles are questions every generation must face. PASS only after human approval."
+  },
+  "variants_considered": [
+    {
+      "composition_id": "luxury_brand",
+      "composition_label": "Luxury brand",
+      "hero_layout": "D",
+      "layout_profile": "L6-luxury_brand",
+      "dna_style": "modern_clinical",
+      "dna_composition": "luxury_brand",
+      "section_order": [
+        "showcase",
+        "about",
+        "gallery",
+        "mid_cta",
+        "services",
+        "trust",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>about>gallery>mid_cta>services>trust>process>benefits>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "tech_stack",
+      "composition_label": "Tech stack narrative",
+      "hero_layout": "A",
+      "layout_profile": "L5-tech_stack",
+      "dna_style": "modern_clinical",
+      "dna_composition": "tech_stack",
+      "section_order": [
+        "showcase",
+        "stats",
+        "services",
+        "mid_cta",
+        "process",
+        "about",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 52.0,
+      "reasons": [
+        "anti-predictable composition"
+      ],
+      "rejected": false,
+      "reject_reason": "",
+      "rhythm": "showcase>stats>services>mid_cta>process>about>trust>benefits>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "floating",
+      "composition_label": "Floating islands",
+      "hero_layout": "D",
+      "layout_profile": "L6-floating",
+      "dna_style": "editorial",
+      "dna_composition": "floating",
+      "section_order": [
+        "about",
+        "showcase",
+        "mid_cta",
+        "gallery",
+        "services",
+        "process",
+        "trust",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>showcase>mid_cta>gallery>services>process>trust>benefits>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "garden",
+      "composition_label": "Garden path",
+      "hero_layout": "D",
+      "layout_profile": "L6-garden",
+      "dna_style": "modern_clinical",
+      "dna_composition": "garden",
+      "section_order": [
+        "gallery",
+        "about",
+        "process",
+        "mid_cta",
+        "services",
+        "benefits",
+        "trust",
+        "showcase",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "gallery>about>process>mid_cta>services>benefits>trust>showcase>faq>reviews>maps>contact"
+    },
+    {
+      "composition_id": "horizon",
+      "composition_label": "Horizon reveal",
+      "hero_layout": "D",
+      "layout_profile": "L3-horizon",
+      "dna_style": "editorial",
+      "dna_composition": "horizon",
+      "section_order": [
+        "showcase",
+        "about",
+        "gallery",
+        "mid_cta",
+        "services",
+        "benefits",
+        "trust",
+        "process",
+        "faq",
+        "reviews",
+        "maps",
+        "late_cta",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "showcase>about>gallery>mid_cta>services>benefits>trust>process>faq>reviews>maps>late_cta"
+    },
+    {
+      "composition_id": "magazine",
+      "composition_label": "Magazine editorial",
+      "hero_layout": "C",
+      "layout_profile": "L6-magazine",
+      "dna_style": "organic_premium",
+      "dna_composition": "magazine",
+      "section_order": [
+        "about",
+        "gallery",
+        "services",
+        "mid_cta",
+        "showcase",
+        "benefits",
+        "trust",
+        "process",
+        "stats",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ],
+      "score": 11.0,
+      "reasons": [
+        "too predictable — classic section ladder",
+        "scene_arc_story_emotion_early"
+      ],
+      "rejected": true,
+      "reject_reason": "predictable_funnel",
+      "rhythm": "about>gallery>services>mid_cta>showcase>benefits>trust>process>stats>faq>reviews>maps"
+    }
+  ],
+  "chosen": {
+    "composition_id": "tech_stack",
+    "composition_label": "Tech stack narrative",
+    "hero_layout": "A",
+    "layout_profile": "L5-tech_stack",
+    "dna_style": "modern_clinical",
+    "dna_composition": "tech_stack",
+    "section_order": [
+      "showcase",
+      "stats",
+      "services",
+      "mid_cta",
+      "process",
+      "about",
+      "trust",
+      "benefits",
+      "faq",
+      "reviews",
+      "maps",
+      "contact"
+    ],
+    "score": 52.0,
+    "reasons": [
+      "anti-predictable composition"
+    ],
+    "rejected": false,
+    "reject_reason": "",
+    "rhythm": "showcase>stats>services>mid_cta>process>about>trust>benefits>faq>reviews>maps>contact"
+  },
+  "dna": {
+    "emotion": "trust",
+    "style": "modern_clinical",
+    "palette_family": "sage_mist",
+    "typography_pair": "cormorant_source",
+    "motion": "business",
+    "hero_concept": "trust_panel",
+    "hero_layout": "A",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "tech_stack",
+    "package_id": "business",
+    "niche_id": "psychology",
+    "fingerprint": "3ecb00cb55fd17692dcfea760967cfde166703da5679a2dcd96a2d4f0c72f1d0",
+    "section_treatments": [
+      [
+        "showcase",
+        "glass"
+      ],
+      [
+        "stats",
+        "tint"
+      ],
+      [
+        "services",
+        "glass"
+      ],
+      [
+        "mid_cta",
+        "gradient"
+      ],
+      [
+        "process",
+        "gradient"
+      ],
+      [
+        "about",
+        "illustration"
+      ],
+      [
+        "trust",
+        "ink"
+      ],
+      [
+        "benefits",
+        "glass"
+      ],
+      [
+        "faq",
+        "tint"
+      ],
+      [
+        "reviews",
+        "glass"
+      ],
+      [
+        "maps",
+        "ink"
+      ],
+      [
+        "contact",
+        "gradient"
+      ]
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#f3f6f4",
+    "ink_hex": "#243029"
+  },
+  "layout_profile_id": "L5-tech_stack",
+  "section_order": [
+    "showcase",
+    "stats",
+    "services",
+    "mid_cta",
+    "process",
+    "about",
+    "trust",
+    "benefits",
+    "faq",
+    "reviews",
+    "maps",
+    "contact"
+  ],
+  "hero_layout": "A",
+  "generation_status": "REBUILD",
+  "creative_review": "FAIL_REBUILD",
+  "kpi_question": "Without Virtus Core logo — would a stranger believe a modern European digital studio built this?",
+  "owner_review": "PENDING_OWNER",
+  "owner_required": "Да, я бы без стыда продал этот сайт клиенту",
+  "optimize_for": "designer_decisions_and_taste",
+  "note": "Law #1 / Taste REBUILD: Worse than prior best (65 < 73). Agent may not PASS."
+}

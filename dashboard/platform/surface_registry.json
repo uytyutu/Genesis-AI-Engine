@@ -239,6 +239,13 @@
       "capabilities": ["company_overview"]
     },
     {
+      "path": "/global-analytics",
+      "label": "Global Analytics",
+      "target": "ceo",
+      "current_shell": "mission_control",
+      "capabilities": ["global_analytics", "integrations_analytics", "company_dashboard"]
+    },
+    {
       "path": "/finance",
       "label": "Финансы",
       "target": "ceo",

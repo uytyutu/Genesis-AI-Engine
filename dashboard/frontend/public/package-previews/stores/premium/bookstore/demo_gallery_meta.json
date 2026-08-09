@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "bookstore",
+  "package_id": "premium",
+  "category": "books",
+  "store_name": "Seitenwerk Books",
+  "generated_at": "2026-08-08T16:20:06.692635+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 43028,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/bookstore/catalog.html"
+}

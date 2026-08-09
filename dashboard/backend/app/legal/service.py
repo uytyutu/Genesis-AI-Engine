@@ -12,7 +12,7 @@ from app.legal.handoff import one_time_purchase_handoff, subscription_handoff
 from app.integration.genesis_brain.public_brand import BRAND_NAME
 from app.legal.trust_catalog import build_trust_catalog
 
-_PUBLIC_CONTACT_EMAIL = "hello@genesis-ai-engine.com"
+_PUBLIC_CONTACT_EMAIL = "hello@virtuscore.com"
 
 
 def _public_site_base(cfg_website: str) -> str:

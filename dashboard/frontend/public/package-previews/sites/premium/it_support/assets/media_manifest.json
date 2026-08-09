@@ -1,0 +1,68 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": "assets/background.jpg",
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/df870a00-119b-49c0-957a-9fc19c881d11/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1600,
+      "height": 900,
+      "bytes": 256370,
+      "reason": "ok",
+      "source": "niche"
+    },
+    {
+      "path": "assets/background.jpg",
+      "role": "background",
+      "ok": true,
+      "width": 1600,
+      "height": 900,
+      "bytes": 264885,
+      "reason": "ok",
+      "source": "pack"
+    }
+  ],
+  "gate_ok": true,
+  "gate_failures": [],
+  "media_gate_ok": true,
+  "media_gate_failures": [],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": true,
+    "failures": [],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/computer/hero_pack/premium/hero_3.jpg",
+        "ok": true,
+        "tags": [
+          "equipment",
+          "laptop",
+          "process",
+          "repair",
+          "specialist",
+          "tools"
+        ],
+        "detail": "ok"
+      },
+      {
+        "section": "about",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/df870a00-119b-49c0-957a-9fc19c881d11/assets/background.jpg",
+        "ok": true,
+        "tags": [
+          "equipment",
+          "laptop",
+          "process",
+          "repair",
+          "specialist",
+          "tools"
+        ],
+        "detail": "ok"
+      }
+    ]
+  }
+}

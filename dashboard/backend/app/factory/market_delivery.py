@@ -76,6 +76,7 @@ DeliveryLevel = Literal[1, 2, 3]
 _STATUS_LABELS: dict[str, dict[str, str]] = {
     "de": {
         "awaiting_payment": "Wartet auf Zahlung",
+        "interest": "Interesse gemeldet",
         "pending_confirmation": "Wartet auf Bestätigung",
         "confirmed": "Bestätigt",
         "paid": "Bezahlt",
@@ -85,6 +86,7 @@ _STATUS_LABELS: dict[str, dict[str, str]] = {
     },
     "en": {
         "awaiting_payment": "Awaiting payment",
+        "interest": "Interest recorded",
         "pending_confirmation": "Awaiting confirmation",
         "confirmed": "Confirmed",
         "paid": "Paid",
@@ -94,6 +96,7 @@ _STATUS_LABELS: dict[str, dict[str, str]] = {
     },
     "uk": {
         "awaiting_payment": "Очікує оплату",
+        "interest": "Інтерес зафіксовано",
         "pending_confirmation": "Очікує підтвердження",
         "confirmed": "Підтверджено",
         "paid": "Оплачено",
@@ -103,6 +106,7 @@ _STATUS_LABELS: dict[str, dict[str, str]] = {
     },
     "ru": {
         "awaiting_payment": "Ожидает оплату",
+        "interest": "Интерес зафиксирован",
         "pending_confirmation": "Ожидает подтверждения",
         "confirmed": "Подтверждено",
         "paid": "Оплачено",
@@ -575,23 +579,90 @@ def client_post_pay_message(
 
 
 def render_client_receipt_text(*, order: dict, status_path: str, paid: float) -> str:
-    """Localized plain-text receipt for copy/email (order language)."""
+    """Localized plain-text receipt for copy/email (order language).
+
+    DE: Rechnung-lite fields (§14 UStG) — seller, buyer, Leistung, Betrag, Datum, Nr.
+    """
     lang = order_ui_lang(order)
+    market = normalize_market(order.get("market_code"))
     name = str(order.get("business_name") or "").strip() or "—"
     order_id = str(order.get("order_id") or "")
     package = str(order.get("package_name") or order.get("package_id") or "")
     amount = str(order.get("price_label") or f"{paid:.0f} {order.get('symbol') or '€'}".strip())
     paid_label = client_status_label("paid", order.get("market_code"), ui_lang=lang)
-    templates = {
-        "de": (
-            f"Virtus Core — Quittung\n\n"
-            f"Bestellnummer: {order_id}\n"
-            f"Kunde: {name}\n"
-            f"Paket: {package}\n"
-            f"Betrag: {amount}\n"
-            f"Status: {paid_label}\n\n"
+    paid_at = str(order.get("paid_at") or order.get("created_at") or "")[:10]
+    legal = order.get("client_legal") if isinstance(order.get("client_legal"), dict) else {}
+    buyer_lines = [
+        str(legal.get("owner_name") or name).strip(),
+        str(legal.get("street") or "").strip(),
+        f"{str(legal.get('zip') or '').strip()} {str(legal.get('city') or order.get('city') or '').strip()}".strip(),
+        str(legal.get("country") or market or "").strip(),
+        str(legal.get("email") or order.get("email") or "").strip(),
+    ]
+    buyer_block = "\n".join(f"  {ln}" for ln in buyer_lines if ln)
+
+    seller_name = "Virtus Core"
+    seller_addr = ""
+    seller_vat = ""
+    seller_email = "hello@virtuscore.com"
+    try:
+        from pathlib import Path
+
+        from app.legal.service import LegalFoundationService
+
+        mem = Path(__file__).resolve().parents[1] / "memory"
+        preview = LegalFoundationService(mem).operator_preview()
+        seller_name = str(
+            preview.get("trade_name") or preview.get("full_name") or seller_name
+        )
+        parts = [
+            str(preview.get("address_street") or "").strip(),
+            f"{str(preview.get('address_zip') or '').strip()} {str(preview.get('address_city') or '').strip()}".strip(),
+            str(preview.get("address_country") or "DE").strip(),
+        ]
+        seller_addr = ", ".join(p for p in parts if p)
+        seller_vat = str(preview.get("vat_id") or "").strip()
+        seller_email = str(preview.get("email") or seller_email)
+    except Exception:
+        pass
+
+    if lang == "de" or market == "DE":
+        vat_line = (
+            f"USt-IdNr.: {seller_vat}\n"
+            if seller_vat
+            else (
+                "Hinweis (§ 19 UStG): Keine Umsatzsteuer ausgewiesen "
+                "(Kleinunternehmerregelung / Demo-Beleg).\n"
+            )
+        )
+        return (
+            f"Virtus Core — Rechnung / Zahlungsbeleg\n"
+            f"(Angaben gemäß § 14 UStG — bitte prüfen)\n\n"
+            f"Rechnungsnummer: {order_id}\n"
+            f"Rechnungsdatum: {paid_at or '—'}\n"
+            f"Leistungsdatum: {paid_at or '—'}\n\n"
+            f"Verkäufer:\n"
+            f"  {seller_name}\n"
+            f"  {seller_addr or 'Adresse in Legal Entity hinterlegen'}\n"
+            f"  {seller_email}\n"
+            f"{vat_line}\n"
+            f"Kunde / Rechnungsempfänger:\n"
+            f"{buyer_block or ('  ' + name)}\n\n"
+            f"Leistungsbeschreibung:\n"
+            f"  Website-Paket: {package}\n"
+            f"  Digitales Lieferprodukt (Website-Archiv / ZIP)\n"
+            f"  Menge: 1\n\n"
+            f"Nettobetrag: {amount}\n"
+            f"MwSt.: {'0,00 € (nicht ausgewiesen)' if not seller_vat else 'siehe USt-IdNr.'}\n"
+            f"Gesamtbetrag: {amount}\n"
+            f"Zahlungsstatus: {paid_label}\n"
+            f"Zahlungsart: {str(order.get('payment_mode') or order.get('payment_provider') or '—')}\n\n"
             f"Statusseite: {status_path}\n"
-        ),
+            f"Hinweis: Demo-Zahlung ist kein finaler steuerlicher Buchungsbeleg — "
+            f"Legal Entity + Steuernummer vor Produktivbetrieb prüfen.\n"
+        )
+
+    templates = {
         "en": (
             f"Virtus Core — Receipt\n\n"
             f"Order: {order_id}\n"
@@ -611,12 +682,14 @@ def render_client_receipt_text(*, order: dict, status_path: str, paid: float) ->
             f"Сторінка статусу: {status_path}\n"
         ),
         "ru": (
-            f"Virtus Core — Чек\n\n"
+            f"Virtus Core — Чек / квитанция\n\n"
             f"Заказ: {order_id}\n"
             f"Клиент: {name}\n"
             f"Пакет: {package}\n"
             f"Сумма: {amount}\n"
-            f"Статус: {paid_label}\n\n"
+            f"Статус: {paid_label}\n"
+            f"Дата: {paid_at or '—'}\n\n"
+            f"Описание: Цифровая поставка сайта (ZIP)\n"
             f"Страница статуса: {status_path}\n"
         ),
         "fr": (

@@ -1,0 +1,149 @@
+{
+  "brand_name": "PfotenGlück Pets",
+  "niche_id": "generic",
+  "package_id": "premium",
+  "portfolio": [
+    {
+      "title": "Projekt Lokal",
+      "city": "DE",
+      "task": "Demonstrative Referenzarbeit",
+      "duration": "1–2 Tage",
+      "works": [
+        "Beratung",
+        "Umsetzung",
+        "Dokumentation"
+      ],
+      "before_label": "Ausgangslage",
+      "after_label": "Ergebnis",
+      "demo_label": "Demonstrationsbeispiel"
+    }
+  ],
+  "team": [
+    {
+      "name": "Alex Müller",
+      "role": "Leitung",
+      "focus": "Qualität",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Sam Keller",
+      "role": "Fachkraft",
+      "focus": "Umsetzung",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Lea Hoffmann",
+      "role": "Service",
+      "focus": "Kundenkontakt",
+      "demo_label": "Beispielprofil"
+    },
+    {
+      "name": "Chris Berg",
+      "role": "Organisation",
+      "focus": "Termine",
+      "demo_label": "Beispielprofil"
+    }
+  ],
+  "equipment": [
+    "Einsatzfahrzeug",
+    "Fachwerkzeug",
+    "Dokumentation"
+  ],
+  "process": [
+    "Anfrage",
+    "Beratung",
+    "Angebot",
+    "Termin",
+    "Durchführung",
+    "Dokumentation",
+    "Nachsorge"
+  ],
+  "before_after": [
+    {
+      "before": "Vorher",
+      "after": "Nachher"
+    }
+  ],
+  "knowledge": [
+    {
+      "title": "Worauf Sie achten sollten",
+      "teaser": "Kurzer Demo-Fachartikel zur Orientierung.",
+      "demo_label": "Demo-Artikel"
+    },
+    {
+      "title": "Ablauf verständlich erklärt",
+      "teaser": "So arbeiten wir — transparent und lokal.",
+      "demo_label": "Demo-Artikel"
+    }
+  ],
+  "trust": [
+    {
+      "title": "Versicherung",
+      "detail": "Demo",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Dokumentation",
+      "detail": "Demo",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Festpreis",
+      "detail": "Demo",
+      "demo_label": "Demo-Beispiel"
+    },
+    {
+      "title": "Lokaler Service",
+      "detail": "Demo",
+      "demo_label": "Demo-Beispiel"
+    }
+  ],
+  "timeline": [
+    {
+      "year": "2022",
+      "title": "Start",
+      "detail": "Demo",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2024",
+      "title": "Wachstum",
+      "detail": "Demo",
+      "demo_label": "Demo"
+    },
+    {
+      "year": "2026",
+      "title": "Region",
+      "detail": "Demo",
+      "demo_label": "Demo"
+    }
+  ],
+  "gallery_roles": [
+    "Real workplace",
+    "People at craft",
+    "Daylight"
+  ],
+  "media_truth_rule": "No media ships without profession + brand + story proof. Beauty alone is REBUILD.",
+  "disclaimer": "Demo-Inhalt · Virtus Core Preview — Projekte, Personen, Ausrüstung und Nachweise sind demonstrativ erzeugt und keine echten Referenzen.",
+  "fingerprint": "52743103586837121c3ca445",
+  "blocks": [
+    "portfolio",
+    "team",
+    "equipment",
+    "process",
+    "before_after",
+    "knowledge",
+    "trust",
+    "timeline"
+  ],
+  "media": {
+    "case_0_before": "assets/reputation/case_0_before.jpg",
+    "case_0_after": "assets/reputation/case_0_after.jpg",
+    "ba_0_before": "assets/reputation/case_0_before.jpg",
+    "ba_0_after": "assets/reputation/case_0_after.jpg",
+    "team_0": "assets/reputation/team_0.jpg",
+    "team_1": "assets/reputation/team_1.jpg",
+    "team_2": "assets/reputation/team_2.jpg",
+    "team_3": "assets/reputation/team_3.jpg"
+  }
+}

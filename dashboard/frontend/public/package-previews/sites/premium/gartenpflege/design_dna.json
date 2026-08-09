@@ -1,0 +1,71 @@
+{
+  "emotion": "organic",
+  "style": "nature_therapy",
+  "palette_family": "leaf_moss",
+  "typography_pair": "fraunces_source_garden",
+  "motion": "soft",
+  "hero_concept": "garden_morning_dew",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "gallery",
+  "package_id": "premium",
+  "niche_id": "gartenpflege",
+  "fingerprint": "824ef586cb048d43251b6c37c21ed83aeb45990f7a649501834c2d6b9fb5effb",
+  "section_treatments": [
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "showcase",
+      "glass"
+    ],
+    [
+      "services",
+      "photo_band"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "trust",
+      "glass"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#15803d",
+  "surface_hex": "#f4f7f1",
+  "ink_hex": "#14532d",
+  "atmosphere_mode": "mist",
+  "brand_book_fp": "eccd8e3ba45a360f04314b8c",
+  "border_radius_px": 14
+}

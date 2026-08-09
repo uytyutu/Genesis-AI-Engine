@@ -1,10 +1,58 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FarmExecutionTimeline } from "../components/FarmExecutionTimeline";
+import {
+  isGithubAuthPath,
+  isGithubHost,
+  isGithubOpenArmed,
+  disarmGithubOpen,
+  onGithubLinkClick,
+} from "../lib/farmGithubGate";
+import { loadFarmAccounts, type FarmAccountState } from "../lib/farmAccountPermissions";
+import { FarmAccountPermissions } from "../components/FarmAccountPermissions";
+import {
+  getBackendApiBase,
+  probeBackendReachability,
+} from "../lib/backendApiBase";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API = getBackendApiBase();
+
+function ExternalOpenButton({
+  href,
+  children,
+  className,
+  title,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  title?: string;
+}) {
+  if (!href) return null;
+  if (!isGithubHost(href)) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={className} title={title}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <button
+      type="button"
+      title={title || "Открыть только после вашего клика (не OAuth Farm)"}
+      className={className}
+      onClick={() =>
+        onGithubLinkClick(href, (reason) => {
+          console.warn("[farm-engine] github open blocked", reason, href);
+        })
+      }
+    >
+      {children}
+    </button>
+  );
+}
 
 type Candidate = {
   id: string;
@@ -81,6 +129,8 @@ type Task = Candidate & {
   estimated_reward_usd?: number;
   payout_confirmed_usd?: number;
   execution_error?: string;
+  execution_heal?: string;
+  auto_retry_execution?: boolean;
   execution_estimate?: {
     success_probability_pct?: number;
     estimated_hours?: number;
@@ -141,6 +191,14 @@ type Panel = {
     message_ru?: string;
   };
   connectors?: ConnectorInfo[];
+  folders?: {
+    new?: { label_ru?: string; count?: number; hint_ru?: string };
+    active?: { label_ru?: string; count?: number; hint_ru?: string };
+    archive?: { label_ru?: string; count?: number; hint_ru?: string };
+  };
+  seen_ledger_count?: number;
+  skipped_forever_count?: number;
+  archive_tasks?: Task[];
   funnel?: {
     found?: number;
     analyzed?: number;
@@ -167,10 +225,23 @@ type Panel = {
     failed?: number;
     skipped?: number;
     draft_pr?: number;
+    merged?: number;
+    paid?: number;
     start_rate?: number | null;
     complete_rate?: number | null;
     avg_execution_s?: number | null;
     avg_execution_samples?: number;
+    note_ru?: string;
+  };
+  pipeline?: {
+    found?: number;
+    approved?: number;
+    started?: number;
+    draft_pr?: number;
+    merged?: number;
+    paid?: number;
+    impossible?: number;
+    blocker_ru?: string | null;
     note_ru?: string;
   };
   scan?: {
@@ -179,8 +250,13 @@ type Panel = {
     scanned?: number;
     filtered_out?: number;
     threshold?: number;
+    from_cache?: boolean;
     candidates?: Candidate[];
+    candidates_take_all?: Candidate[];
     review_all?: Candidate[];
+    market_live?: Candidate[];
+    market_live_count?: number;
+    market_live_note_ru?: string;
     confidence_bands?: Record<string, number>;
     analytics?: {
       languages?: { name: string; count: number }[];
@@ -213,18 +289,19 @@ type Panel = {
         roi_usd_per_hour?: number;
       }[];
     };
-    sniper_skipped?: number;
-    sniper_probed?: number;
-    excluded_already_active?: number;
-    pool_before_sniper?: number;
-    candidates_take_all?: Candidate[];
     money_mode?: {
       enabled_default?: boolean;
       threshold?: number;
       count?: number;
       hidden_count?: number;
+      go_count?: number;
+      mode?: string;
       note_ru?: string;
     };
+    sniper_skipped?: number;
+    sniper_probed?: number;
+    excluded_already_active?: number;
+    pool_before_sniper?: number;
     finance_law_ru?: string;
     official_flow?: string;
     architecture_ru?: string;
@@ -275,7 +352,15 @@ type Panel = {
   income_contours?: {
     title_ru?: string;
     note_ru?: string;
-    farms?: { id: string; label: string; role_ru?: string; href?: string; primary_kpi?: string }[];
+    farms?: {
+      id: string;
+      label: string;
+      role_ru?: string;
+      href?: string;
+      primary_kpi?: string;
+      mode?: string;
+      honesty_ru?: string;
+    }[];
   };
   capability_matrix?: {
     matrix?: { id: string; label: string; auto?: string; note_ru?: string }[];
@@ -310,16 +395,27 @@ export default function FarmEnginePage() {
   const [reviewBand, setReviewBand] = useState<"all" | "80+" | "60+" | "40+" | "20+">("all");
   const [moneyMode, setMoneyMode] = useState(true);
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set());
+  const [accounts, setAccounts] = useState<FarmAccountState[]>([]);
+  const autoLiveScanDone = useRef(false);
+
+  useEffect(() => {
+    setAccounts(loadFarmAccounts());
+  }, []);
 
   const refresh = useCallback(async (opts?: { enrich?: boolean; forceScan?: boolean }) => {
     const enrich = opts?.enrich === true;
-    const forceScan = opts?.forceScan !== false;
+    // Default: cached panel (fast). Sniper/git only when user clicks «Обновить Scanner».
+    const forceScan = opts?.forceScan === true;
+    if (forceScan) setBusy("Scanner…");
     try {
       const q = new URLSearchParams({
         force_scan: forceScan ? "true" : "false",
         enrich_top: enrich ? "5" : "0",
       });
-      const res = await fetch(`${API}/api/farm/opire?${q}`);
+      const ctrl = new AbortController();
+      const kill = window.setTimeout(() => ctrl.abort(), forceScan ? 120_000 : 20_000);
+      const res = await fetch(`${API}/api/farm/opire?${q}`, { signal: ctrl.signal });
+      window.clearTimeout(kill);
       if (!res.ok) throw new Error("opire_farm");
       const body = (await res.json()) as Panel;
       setData(body);
@@ -340,18 +436,102 @@ export default function FarmEnginePage() {
             : "") +
           ` (порог ${body.scan?.threshold ?? mm?.threshold ?? 80}%+)`,
       );
-    } catch {
-      setError("Backend недоступен — запустите Genesis.exe (кнопки ходят на :8000)");
-      setOpireLink("Opire: нет связи с backend");
-      setData(null);
+    } catch (e) {
+      const aborted = e instanceof DOMException && e.name === "AbortError";
+      if (aborted) {
+        setError(
+          "Scanner слишком долго отвечает — нажмите «Обновить Scanner» ещё раз.",
+        );
+        setOpireLink("Opire: timeout");
+      } else {
+        const probe = await probeBackendReachability(API);
+        setError(
+          probe.ok
+            ? `Farm API ошибка при живом Backend (${API}/api/farm/opire). Обновите панель.`
+            : probe.detail,
+        );
+        setOpireLink(
+          probe.ok
+            ? "Opire: backend жив, farm endpoint failed"
+            : `Opire: ${probe.reason} · ${API}`,
+        );
+        if (!probe.ok) setData(null);
+      }
+    } finally {
+      if (forceScan) setBusy("");
     }
   }, []);
 
   useEffect(() => {
-    void refresh({ enrich: false, forceScan: true });
-    const t = window.setInterval(() => void refresh({ enrich: false, forceScan: true }), 60_000);
+    // Fast cache first; if empty — one live scan so Opire $ work appears.
+    (async () => {
+      await refresh({ enrich: false, forceScan: false });
+    })();
+    const t = window.setInterval(() => void refresh({ enrich: false, forceScan: false }), 90_000);
     return () => window.clearInterval(t);
   }, [refresh]);
+
+  // If cache was empty after first paint, show cached empty state.
+  // Never auto force_scan — Sniper/git ls-remote freezes the пульт (user clicks Scanner).
+  useEffect(() => {
+    if (!data || autoLiveScanDone.current) return;
+    autoLiveScanDone.current = true;
+  }, [data]);
+
+  // Block accidental github.com opens from Farm JS. Do NOT patch Location.assign/
+  // replace/href — Chrome marks them read-only and throws (crashes the page).
+  useEffect(() => {
+    const report = (source: string, url: string, block: boolean) => {
+      console.warn("[farm-engine][github-nav]", { source, url, block });
+      if (block) {
+        setInfo(
+          `Заблокирован авто-переход на GitHub (${source}). ` +
+            "Открывайте Issue/Repo только кнопкой «Открыть».",
+        );
+      }
+    };
+
+    const onClickCapture = (ev: MouseEvent) => {
+      const t = ev.target;
+      if (!(t instanceof Element)) return;
+      const a = t.closest("a");
+      if (!a) return;
+      const href = a.getAttribute("href") || "";
+      if (!href || !isGithubHost(href)) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      report(`blocked bare <a href>`, href, true);
+    };
+
+    const origOpen = window.open.bind(window);
+    try {
+      window.open = ((url?: string | URL, ...rest: unknown[]) => {
+        const s = String(url ?? "");
+        if (s && isGithubHost(s)) {
+          const armed = isGithubOpenArmed();
+          if (!armed || isGithubAuthPath(s)) {
+            report("window.open", s, true);
+            return null;
+          }
+          disarmGithubOpen();
+          report("window.open (armed user click)", s, false);
+        }
+        return origOpen(url as string | URL | undefined, ...(rest as [string?, string?]));
+      }) as typeof window.open;
+    } catch (e) {
+      console.warn("[farm-engine] window.open patch skipped", e);
+    }
+
+    document.addEventListener("click", onClickCapture, true);
+    return () => {
+      document.removeEventListener("click", onClickCapture, true);
+      try {
+        window.open = origOpen;
+      } catch {
+        /* ignore */
+      }
+    };
+  }, []);
 
   async function decide(id: string, decision: "approve" | "skip") {
     setBusy(decision === "approve" ? "Approve…" : "Skip…");
@@ -376,7 +556,16 @@ export default function FarmEnginePage() {
       const q = new URLSearchParams({ reward_id: id, decision });
       const res = await fetch(`${API}/api/farm/opire/decide?${q}`, { method: "POST" });
       const body = await res.json().catch(() => ({}));
-      if (!res.ok || body.ok === false) {
+      if (body.auto_skipped) {
+        setError("");
+        setInfo(
+          String(
+            body.message_ru ||
+              "Approve → Impossible (repo). Задача снята — берите следующую карточку.",
+          ),
+        );
+        await refresh({ enrich: false, forceScan: false });
+      } else if (!res.ok || body.ok === false) {
         setError(String(body.message_ru || body.error || `decide HTTP ${res.status}`));
         setInfo("");
         setHiddenIds((prev) => {
@@ -384,7 +573,7 @@ export default function FarmEnginePage() {
           n.delete(id);
           return n;
         });
-        await refresh({ enrich: false, forceScan: true });
+        await refresh({ enrich: false, forceScan: false });
       } else {
         const auto = body.auto_started_execution === true;
         const queued = body.execution_queued === true;
@@ -394,13 +583,18 @@ export default function FarmEnginePage() {
               (decision === "skip"
                 ? "Skip — снято навсегда"
                 : queued
-                  ? "Approve → Execution в фоне"
-                  : auto
-                    ? "Approve → Execution запущен"
-                    : "Approve — в Active"),
+                  ? "Approve → Execution в фоне. Смотрите «Активные bounty» ниже."
+                    : auto
+                    ? "Approve → 💻 Coding… Execution уже идёт. Смотрите Активные."
+                    : "Approve → 🧠 Thinking… агент ставит Execution в очередь."),
           ),
         );
-        await refresh({ enrich: false, forceScan: true });
+        await refresh({ enrich: false, forceScan: false });
+        // If queued in background, poll once so timeline moves past QUEUED
+        if (queued || auto) {
+          window.setTimeout(() => void refresh({ enrich: false, forceScan: false }), 4000);
+          window.setTimeout(() => void refresh({ enrich: false, forceScan: false }), 12000);
+        }
       }
     } catch (e) {
       setError(`decide failed: ${e instanceof Error ? e.message : "network"}`);
@@ -410,7 +604,7 @@ export default function FarmEnginePage() {
         n.delete(id);
         return n;
       });
-      await refresh({ enrich: false, forceScan: true });
+      await refresh({ enrich: false, forceScan: false });
     } finally {
       setBusy("");
     }
@@ -463,14 +657,14 @@ export default function FarmEnginePage() {
       if (body.auto_skipped) {
         setInfo(msg || "Impossible → Skip → следующая");
         setError("");
-        await refresh({ enrich: false, forceScan: true });
+        await refresh({ enrich: false, forceScan: false });
       } else if (!res.ok || body.ok === false) {
         setError(msg || "execution failed");
         setInfo("");
-        await refresh({ enrich: false, forceScan: true });
+        await refresh({ enrich: false, forceScan: false });
       } else {
         setInfo(msg || "Draft PR Ready — нажмите Отправить");
-        await refresh({ enrich: false, forceScan: true });
+        await refresh({ enrich: false, forceScan: false });
       }
     } catch (e) {
       setError(`execution failed: ${e instanceof Error ? e.message : "network"}`);
@@ -541,6 +735,11 @@ export default function FarmEnginePage() {
   const bands = data?.scan?.confidence_bands || data?.funnel?.confidence_bands || {};
   const active = data?.active_tasks || [];
   const mmMeta = data?.scan?.money_mode;
+  const marketNote =
+    data?.scan?.market_live_note_ru ||
+    (data?.scan?.market_live_count
+      ? `Живой рынок Opire: ${data.scan.market_live_count} bounty с $`
+      : "");
 
   const reviewFiltered = reviewAll.filter((c) => {
     const pct = Number(c.overall_confidence_pct || c.confidence_pct || 0);
@@ -589,7 +788,36 @@ export default function FarmEnginePage() {
             Opire Commands ↗
           </a>
         </div>
+        <div
+          className={`mx-auto mt-4 max-w-2xl rounded-xl border px-3 py-2 text-left text-[11px] leading-relaxed ${
+            data?.readiness?.github_token_ready
+              ? "border-emerald-500/30 bg-emerald-950/30 text-emerald-100"
+              : "border-amber-500/35 bg-amber-950/30 text-amber-100"
+          }`}
+          data-farm-auth-mode="pat"
+        >
+          <p className="font-semibold tracking-wide">
+            GitHub auth · PAT mode (не OAuth) · без окон GCM
+          </p>
+          <p className="mt-1 opacity-90">
+            Farm Engine <strong>не</strong> вызывает GitHub OAuth в браузере. API — через{" "}
+            <code className="rounded bg-black/30 px-1">GITHUB_TOKEN</code> в{" "}
+            <code className="rounded bg-black/30 px-1">.env.local</code>.
+            {data?.readiness?.github_token_ready
+              ? " Токен на месте — Approve → Execute → Draft PR без окна GitHub."
+              : " Токен не найден — добавьте GITHUB_TOKEN и перезапустите Genesis.exe."}
+          </p>
+          <p className="mt-1 opacity-80">
+            Окно <strong>Select an account</strong> / аккаунт <code className="rounded bg-black/30 px-1">x-access-token</code>{" "}
+            открывал Windows <strong>Git Credential Manager</strong> при скане Farm (
+            <code className="rounded bg-black/30 px-1">git ls-remote</code>
+            ). Это исправлено: Farm git больше не вызывает интерактивный GCM. Перезапустите
+            backend/Genesis.exe, закройте старые окна GitHub, снова откройте Farm.
+          </p>
+        </div>
       </header>
+
+      <FarmAccountPermissions accounts={accounts} onChange={setAccounts} />
 
       {opireLink ? (
         <p className="rounded-lg border border-sky-500/25 bg-sky-950/20 px-3 py-2 text-xs text-sky-100">
@@ -612,6 +840,39 @@ export default function FarmEnginePage() {
         </p>
       ) : null}
 
+      {data?.folders ? (
+        <section className="grid grid-cols-3 gap-2">
+          {(
+            [
+              ["new", data.folders.new],
+              ["active", data.folders.active],
+              ["archive", data.folders.archive],
+            ] as const
+          ).map(([key, folder]) => (
+            <div
+              key={key}
+              className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-center"
+            >
+              <p className="text-[10px] uppercase tracking-wider text-zinc-500">
+                {folder?.label_ru || key}
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-white">{folder?.count ?? 0}</p>
+              <p className="mt-1 text-[10px] text-zinc-500">{folder?.hint_ru}</p>
+            </div>
+          ))}
+          {(data.skipped_forever_count ?? 0) > 0 ? (
+            <p className="col-span-3 text-[11px] text-zinc-500">
+              Seen Ledger: {data.seen_ledger_count ?? 0} · Skip навсегда:{" "}
+              {data.skipped_forever_count} (не вернутся в Scanner / Review All)
+            </p>
+          ) : (
+            <p className="col-span-3 text-[11px] text-zinc-500">
+              Skip = SKIPPED_PERMANENT. Scanner показывает только новые / нерешённые bounty.
+            </p>
+          )}
+        </section>
+      ) : null}
+
       {data?.income_contours ? (
         <section className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
           <h2 className="text-sm font-semibold text-white">
@@ -628,13 +889,23 @@ export default function FarmEnginePage() {
                 className={`rounded-lg border px-3 py-2 text-left text-xs hover:bg-white/5 ${
                   f.id === "opire_farm"
                     ? "border-sky-400/40 bg-sky-950/30"
-                    : "border-white/10"
+                    : f.mode === "paper"
+                      ? "border-amber-400/35 bg-amber-950/20"
+                      : "border-white/10"
                 }`}
               >
-                <p className="font-semibold text-white">{f.label}</p>
+                <p className="font-semibold text-white">
+                  {f.label}
+                  {f.mode === "paper" ? (
+                    <span className="ml-1 text-[10px] font-normal text-amber-200">· PAPER</span>
+                  ) : null}
+                </p>
                 <p className="mt-1 text-[10px] text-zinc-400">{f.role_ru}</p>
                 {f.primary_kpi ? (
                   <p className="mt-1 text-[10px] text-amber-100/80">KPI: {f.primary_kpi}</p>
+                ) : null}
+                {f.honesty_ru ? (
+                  <p className="mt-1 text-[10px] leading-snug text-amber-100/70">{f.honesty_ru}</p>
                 ) : null}
               </Link>
             ))}
@@ -642,34 +913,46 @@ export default function FarmEnginePage() {
         </section>
       ) : null}
 
-      {data?.payout_success ? (
-        <section className="rounded-xl border border-emerald-500/25 bg-emerald-950/15 p-4">
-          <h2 className="text-sm font-semibold text-white">Payout Success</h2>
-          <p className="mt-1 text-[11px] text-emerald-100/80">
-            {data.payout_success.note_ru ||
-              "Главная метрика Opire Farm — Paid / Merged, не Found."}
+      {data?.pipeline || data?.payout_success ? (
+        <section className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4">
+          <h2 className="text-sm font-semibold text-emerald-100">Pipeline · единственный KPI</h2>
+          <p className="mt-1 text-[11px] text-emerald-100/70">
+            {data.pipeline?.note_ru ||
+              "Found → Approved → Started → Draft PR → Merged → Paid. Пока Started=0 — Execution не запущен."}
           </p>
+          {Number(data.pipeline?.started ?? data.payout_success?.executed ?? 0) === 0 ? (
+            <p className="mt-2 rounded border border-amber-400/40 bg-amber-950/30 px-2 py-1.5 text-[11px] text-amber-100">
+              {data.pipeline?.blocker_ru ||
+                "Started = 0 — нажмите Approve (не Skip). Skip не запускает Execution."}
+            </p>
+          ) : null}
           <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
             {(
               [
-                ["Found", data.payout_success.found],
-                ["Approved", data.payout_success.approved],
-                ["Executed", data.payout_success.executed],
-                ["Draft PR", data.payout_success.draft_pr],
-                ["Merged", data.payout_success.merged],
-                ["Paid", data.payout_success.paid],
+                ["Found", data.pipeline?.found ?? data.payout_success?.found],
+                ["Approved", data.pipeline?.approved ?? data.payout_success?.approved],
+                ["Started", data.pipeline?.started ?? data.payout_success?.executed],
+                ["Draft PR", data.pipeline?.draft_pr ?? data.payout_success?.draft_pr],
+                ["Merged", data.pipeline?.merged ?? data.payout_success?.merged],
+                ["Paid", data.pipeline?.paid ?? data.payout_success?.paid],
               ] as const
             ).map(([label, val]) => (
               <div
                 key={label}
-                className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5"
+                className={`rounded-lg border px-2 py-1.5 ${
+                  label === "Started" && Number(val ?? 0) === 0
+                    ? "border-amber-400/40 bg-amber-950/20"
+                    : "border-white/10 bg-black/20"
+                }`}
               >
                 <p className="text-[10px] uppercase tracking-wide text-zinc-500">{label}</p>
                 <p
                   className={`text-sm font-semibold tabular-nums ${
                     label === "Paid" || label === "Merged"
                       ? "text-emerald-200"
-                      : "text-white"
+                      : label === "Started"
+                        ? "text-sky-200"
+                        : "text-white"
                   }`}
                 >
                   {val ?? 0}
@@ -1147,6 +1430,14 @@ export default function FarmEnginePage() {
               {mmMeta?.note_ru ||
                 "Только bounty с высоким шансом довести до Draft PR / Merge."}
             </p>
+            {marketNote ? (
+              <p className="mt-1 text-[11px] text-emerald-200/85">{marketNote}</p>
+            ) : null}
+            {data?.scan?.from_cache ? (
+              <p className="mt-1 text-[11px] text-zinc-500">
+                Кэш последнего скана · «Обновить Scanner» = live api.opire.dev
+              </p>
+            ) : null}
           </div>
           <button
             type="button"
@@ -1171,7 +1462,7 @@ export default function FarmEnginePage() {
             {(data?.scan?.sniper_skipped ?? 0) > 0
               ? ` Sniper отсеял мёртвые repo: ${data?.scan?.sniper_skipped}.`
               : ""}{" "}
-            Нажмите «Обновить Scanner» или Skip активные задачи с 404 — появятся другие Opire bounty.
+            🔍 Researching… Scanner сам подтянет другие Opire bounty (или Skip активные с 404).
           </p>
         ) : (
           <ul className="space-y-3">
@@ -1182,14 +1473,12 @@ export default function FarmEnginePage() {
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <a
-                      href={c.url}
-                      target="_blank"
-                      rel="noreferrer"
+                    <ExternalOpenButton
+                      href={c.url || ""}
                       className="font-medium text-white hover:underline"
                     >
                       {c.title}
-                    </a>
+                    </ExternalOpenButton>
                     <p className="mt-0.5 text-[11px] text-genesis-muted">
                       <span className="text-sky-200">{c.platform || "opire"}</span>
                       {(c.also_on || []).length
@@ -1339,24 +1628,22 @@ export default function FarmEnginePage() {
                 ) : null}
                 <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
                   {c.ceo_action_links?.issue ? (
-                    <a
+                    <ExternalOpenButton
                       href={c.ceo_action_links.issue}
-                      target="_blank"
-                      rel="noreferrer"
+                      title="Открывает github.com только после клика — не вход в Farm"
                       className="rounded border border-white/15 px-2 py-0.5 text-sky-200 hover:bg-white/5"
                     >
-                      Issue
-                    </a>
+                      Issue ↗
+                    </ExternalOpenButton>
                   ) : null}
                   {c.ceo_action_links?.repository ? (
-                    <a
+                    <ExternalOpenButton
                       href={c.ceo_action_links.repository}
-                      target="_blank"
-                      rel="noreferrer"
+                      title="Открывает github.com только после клика — не OAuth Farm"
                       className="rounded border border-white/15 px-2 py-0.5 text-sky-200 hover:bg-white/5"
                     >
-                      Repo
-                    </a>
+                      Repo ↗
+                    </ExternalOpenButton>
                   ) : null}
                   <button
                     type="button"
@@ -1391,10 +1678,14 @@ export default function FarmEnginePage() {
                       Boolean(busy) ||
                       c.repo_status === "unreachable" ||
                       (c.blockers || []).includes("repo_unreachable") ||
-                      (c.blockers || []).includes("missing_repo") ||
-                      (moneyMode && c.money_mode_eligible === false) ||
-                      c.preflight?.approve_allowed === false ||
-                      c.preflight?.verdict === "SKIP"
+                      (c.blockers || []).includes("missing_repo")
+                    }
+                    title={
+                      moneyMode && c.money_mode_eligible === false
+                        ? "Money Mode soft-warn: Approve всё равно запускает Execution"
+                        : c.preflight?.approve_allowed === false
+                          ? "Preflight soft-warn — backend может отклонить"
+                          : "Approve → lock → Execution Engine"
                     }
                     onClick={() => void decide(c.id, "approve")}
                     className="rounded-lg bg-emerald-500/90 px-3 py-1.5 text-xs font-semibold text-black disabled:opacity-40"
@@ -1460,14 +1751,12 @@ export default function FarmEnginePage() {
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <a
-                        href={c.url}
-                        target="_blank"
-                        rel="noreferrer"
+                      <ExternalOpenButton
+                        href={c.url || ""}
                         className="font-medium text-white hover:underline"
                       >
                         {c.title || c.id}
-                      </a>
+                      </ExternalOpenButton>
                       <p className="mt-0.5 text-[11px] text-genesis-muted">
                         {pct}% · ROI {c.roi_label || "—"} · {c.recommendation || "?"} · $
                         {Number(c.reward_usd || 0).toFixed(0)} ·{" "}
@@ -1552,14 +1841,12 @@ export default function FarmEnginePage() {
                       </p>
                     ) : null}
                   </div>
-                  <a
-                    href={t.url}
-                    target="_blank"
-                    rel="noreferrer"
+                  <ExternalOpenButton
+                    href={t.url || ""}
                     className="text-xs text-sky-300 hover:underline"
                   >
                     Issue ↗
-                  </a>
+                  </ExternalOpenButton>
                 </div>
                 <FarmExecutionTimeline
                   task={t}
@@ -1581,9 +1868,18 @@ export default function FarmEnginePage() {
                     {t.execution_estimate.reward_usd} (estimated)
                   </p>
                 ) : null}
-                {t.execution_error ? (
+                {t.execution_error &&
+                !String(t.execution_error).startsWith("zombie_queued") &&
+                t.execution_error !== "factory_busy" ? (
                   <p className="mt-2 text-[11px] text-rose-200">
                     Execution error: {t.execution_error}
+                  </p>
+                ) : null}
+                {t.execution_heal && !t.execution_error ? (
+                  <p className="mt-2 text-[11px] text-amber-100/90">
+                    Очередь сброшена ({t.execution_heal}). 🧠 Thinking… агент
+                    перезапускает Execution сам
+                    {t.auto_retry_execution ? " (в фоне)" : ""}.
                   </p>
                 ) : null}
                 {t.execution?.error_detail && !t.execution_error ? (
@@ -1594,24 +1890,20 @@ export default function FarmEnginePage() {
                 {t.ceo_action_links ? (
                   <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
                     {t.ceo_action_links.issue ? (
-                      <a
+                      <ExternalOpenButton
                         href={t.ceo_action_links.issue}
-                        target="_blank"
-                        rel="noreferrer"
                         className="rounded border border-white/15 px-2 py-0.5 text-sky-200"
                       >
                         Issue
-                      </a>
+                      </ExternalOpenButton>
                     ) : null}
                     {t.ceo_action_links.repository ? (
-                      <a
+                      <ExternalOpenButton
                         href={t.ceo_action_links.repository}
-                        target="_blank"
-                        rel="noreferrer"
                         className="rounded border border-white/15 px-2 py-0.5 text-sky-200"
                       >
                         Repo
-                      </a>
+                      </ExternalOpenButton>
                     ) : null}
                     <button
                       type="button"
@@ -1664,10 +1956,12 @@ export default function FarmEnginePage() {
                       }
                     >
                       {taskNeedsResearchRetry(t)
-                        ? "Run снова / взять следующую"
+                        ? "🔄 Fixing… Run снова"
                         : t.status === "ceo_approved"
-                          ? "Повторить Execution Engine"
-                          : "Запустить Execution Engine"}
+                          ? t.execution_heal || t.auto_retry_execution
+                            ? "🧠 Thinking… (авто-повтор)"
+                            : "💻 Coding… (если не стартовал — повторить)"
+                          : "💻 Coding… Запустить Execution"}
                     </button>
                   ) : null}
                   {t.status === "ceo_approved" ||
@@ -1729,19 +2023,21 @@ export default function FarmEnginePage() {
                     </button>
                   ) : null}
                   {t.pr_url ? (
-                    <a
+                    <ExternalOpenButton
                       href={t.pr_url}
-                      target="_blank"
-                      rel="noreferrer"
                       className="rounded-lg border border-white/15 px-2.5 py-1 text-[10px] text-sky-200"
                     >
                       Open PR ↗
-                    </a>
+                    </ExternalOpenButton>
                   ) : null}
                 </div>
                 <p className="mt-2 text-[10px] text-genesis-muted">
                   ID вручную не вводятся. PR number / merge SHA / confirmation собирает Farm из
-                  GitHub + Opire. Для live push нужен GITHUB_TOKEN в .env.local (один раз).
+                  GitHub + Opire. Для live push нужен GITHUB_TOKEN в{" "}
+                  <code className="text-[10px]">dashboard/backend/.env.local</code>{" "}
+                  (один раз). Submit сам делает fork, если нет push в upstream — classic PAT
+                  с <code className="text-[10px]">public_repo</code>, либо fine-grained с
+                  правом создавать репозитории.
                 </p>
               </li>
             ))}

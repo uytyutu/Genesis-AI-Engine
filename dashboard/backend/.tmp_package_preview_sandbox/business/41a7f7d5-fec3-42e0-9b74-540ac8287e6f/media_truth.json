@@ -1,0 +1,79 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Fence",
+      "Posts",
+      "Ground",
+      "Material",
+      "Edge",
+      "Craft"
+    ],
+    "preferred": [
+      "Dusk light",
+      "Metal",
+      "Wood grain",
+      "Gate",
+      "Workshop"
+    ],
+    "forbidden": [
+      "Café",
+      "Restaurant",
+      "Office",
+      "Beauty",
+      "Laptop",
+      "Coworking"
+    ],
+    "hero_proof": "Fence line being set or finished at property edge — craft in progress.",
+    "profession_keywords": [
+      "fence",
+      "zaun",
+      "post",
+      "gate",
+      "rail",
+      "metal",
+      "wood"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\41a7f7d5-fec3-42e0-9b74-540ac8287e6f\\assets\\hero.jpg",
+      "role": "hero"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\41a7f7d5-fec3-42e0-9b74-540ac8287e6f\\assets\\background.jpg",
+      "role": "background"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\41a7f7d5-fec3-42e0-9b74-540ac8287e6f\\assets\\gallery.jpg",
+      "role": "gallery"
+    }
+  ],
+  "rebuilds": [],
+  "ok": true
+}

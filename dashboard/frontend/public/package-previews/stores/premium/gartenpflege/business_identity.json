@@ -1,0 +1,74 @@
+{
+  "brand_name": "Grünzeit Garten",
+  "niche_id": "gartenpflege",
+  "package_id": "premium",
+  "founded_year": 2018,
+  "company_age_years": 8,
+  "mission": "Ein Garten, der atmet — und gepflegt bleibt.",
+  "core_services": [
+    "Rasenpflege",
+    "Heckenschnitt",
+    "Beete",
+    "Jahrespflege"
+  ],
+  "geography": "Nürnberg und Umland",
+  "advantages": [
+    "Saisonpläne",
+    "Sorgfältige Arbeit",
+    "Vorher/Nachher"
+  ],
+  "values": [
+    "Ruhe",
+    "Natur",
+    "Sorgfalt"
+  ],
+  "client_types": [
+    "Familien",
+    "Hausbesitzer"
+  ],
+  "price_segment": "Mittel",
+  "brand_character": "Gardener + Steward",
+  "team_size_label": "3–4 Personen (Demo)",
+  "marketing_dna_stub": {
+    "audience": "Gartenbesitzer",
+    "goal": "Pflegevertrag / Termin",
+    "emotion": "Lebendige Ordnung",
+    "pacing": "weich · atmend",
+    "platforms": [
+      "Meta",
+      "Website"
+    ]
+  },
+  "video_dna_stub": {
+    "camera": [
+      "Static",
+      "Macro"
+    ],
+    "mood": "Morning dew",
+    "music": "Soft nature ambient",
+    "pacing": "Gentle",
+    "required_scenes": [
+      "Garden",
+      "Tools",
+      "Hedge",
+      "Lawn"
+    ],
+    "forbidden": [
+      "Spa stock",
+      "Café",
+      "Office"
+    ]
+  },
+  "fingerprint": "3ce69583271a76d3df824e27",
+  "demo": true,
+  "chain": [
+    "business_identity",
+    "brand_book",
+    "atmosphere",
+    "reputation",
+    "local_identity",
+    "website",
+    "store",
+    "marketing"
+  ]
+}

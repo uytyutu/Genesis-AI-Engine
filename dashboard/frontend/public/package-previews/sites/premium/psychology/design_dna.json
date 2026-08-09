@@ -1,0 +1,67 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "editorial_calm",
+  "motion": "soft",
+  "hero_concept": "quiet_chamber",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "chamber",
+  "package_id": "premium",
+  "niche_id": "psychology",
+  "fingerprint": "e1d97a95c5a70163d88f7f253167a185b4d055c7421854835efed1b7a23d4105",
+  "section_treatments": [
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "gallery",
+      "photo_band"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#1c1916",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "2c2cabafd10e7597d6ca50b8",
+  "border_radius_px": 4
+}

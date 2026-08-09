@@ -1,0 +1,42 @@
+{
+  "niche_id": "car_dealership",
+  "emotion": "Vertrauen",
+  "keywords": [
+    "depth",
+    "rhythm",
+    "hero presence",
+    "niche truth",
+    "modern clear · minimal line illustrations",
+    "heller autosalon",
+    "neuwagen ausstellung",
+    "schlüsselübergabe"
+  ],
+  "avoid": [
+    "template ladder",
+    "flat white",
+    "metric PASS theater",
+    "tech_saas",
+    "gaming",
+    "neon",
+    "warehouse_grid",
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting"
+  ],
+  "hero_feeling": "Offenes Licht auf ruhiger Fläche",
+  "atmosphere": "heller Autosalon · Neuwagen Ausstellung · Schlüsselübergabe",
+  "references": [
+    "Best contemporary niche studios"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "niche_id": "photography",
+  "emotion": "Vertrauen",
+  "keywords": [
+    "depth",
+    "rhythm",
+    "hero presence",
+    "niche truth",
+    "modern clear · motion shape ribbons",
+    "fotostudio softbox",
+    "porträtsession",
+    "kamera und lichtsetup"
+  ],
+  "avoid": [
+    "template ladder",
+    "flat white",
+    "metric PASS theater",
+    "tech_saas",
+    "gaming",
+    "flash_sale",
+    "stock_teeth_smile",
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting"
+  ],
+  "hero_feeling": "Offenes Licht auf ruhiger Fläche",
+  "atmosphere": "Fotostudio Softbox · Porträtsession · Kamera und Lichtsetup",
+  "references": [
+    "Best contemporary niche studios"
+  ]
+}

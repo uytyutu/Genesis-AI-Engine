@@ -43,9 +43,9 @@ INTENT_MIGRATION = "migration"
 INTENT_PRIVACY = "privacy"
 
 _PACKAGE_LABELS = {
-    "basic": ("Basic", 350, "готовый лендинг + ZIP + гайд публикации"),
-    "business": ("Business", 650, "лендинг + помощь с публикацией + 1 правка"),
-    "premium": ("Premium", 1200, "премиум-дизайн + assisted go-live + 14 дней поддержки"),
+    "basic": ("Basic", 199, "modern website + landing + form + Impressum/Datenschutz"),
+    "business": ("Business", 399, "multi-page + Admin Dashboard (CMS) + analytics"),
+    "premium": ("Premium", 699, "blog + advanced SEO + premium design + priority support"),
 }
 
 _BOT_LABELS = {

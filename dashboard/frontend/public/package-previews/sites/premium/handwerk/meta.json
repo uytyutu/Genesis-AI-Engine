@@ -1,0 +1,2273 @@
+{
+  "product_id": "5f4570aa-094a-40b9-b18d-a4548f7a821d",
+  "intent_id": null,
+  "product_type": "Website",
+  "description": "Meisterbau Hoffmann Leipzig — Handwerksbetrieb, Renovierung, Trockenbau, Malerarbeiten, Badumbau",
+  "niche": "handwerk",
+  "template_id": "landing-handwerk-v1",
+  "business_name": "Meisterbau Hoffmann",
+  "market_code": "DE",
+  "language": "de",
+  "locale": null,
+  "currency": null,
+  "ui_lang": "de",
+  "path_a_pricing": {
+    "package_id": "connected",
+    "amount": null,
+    "currency": null,
+    "price_label": null
+  },
+  "market_design": "DE",
+  "motion_level": "css",
+  "composer_engine": "composer_v1",
+  "composition_plan": {
+    "engine_id": "composer_v1",
+    "layout_profile": {
+      "id": "L2-chamber",
+      "label": "Trust-first professional · Private chamber",
+      "hero_variants": [
+        "D",
+        "C",
+        "B"
+      ],
+      "preferred_component": "C",
+      "cta_strategy": "mid",
+      "services_layout": "minimal",
+      "trust_position": "after_benefits",
+      "gallery_style": "feature_first",
+      "faq_style": "accordion",
+      "footer_variant": "legal",
+      "section_order": [
+        "about",
+        "trust",
+        "mid_cta",
+        "services",
+        "reputation",
+        "gallery",
+        "process",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ]
+    },
+    "hero_layout": "D",
+    "component_profile": "C",
+    "trust_template": "D",
+    "market_code": "DE",
+    "niche_id": "handwerk",
+    "package_id": "premium",
+    "business_name": "Meisterbau Hoffmann",
+    "language": "de",
+    "currency": "EUR",
+    "locale": "de_DE",
+    "default_cta": "Termin buchen"
+  },
+  "design_dna": {
+    "emotion": "confidence",
+    "style": "modern_clinical",
+    "palette_family": "charcoal_ochre",
+    "typography_pair": "oswald_figtree_craft",
+    "motion": "business",
+    "hero_concept": "Baustelle innen · Fliesenverlegung · Handwerker in Arbeitskleidung",
+    "hero_layout": "D",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "chamber",
+    "package_id": "premium",
+    "niche_id": "handwerk",
+    "fingerprint": "0d3587f3871f348d6ac721e4a09ad68c5680f85523754db0942d7a9bca7f34ab",
+    "section_treatments": [
+      [
+        "about",
+        "photo_band"
+      ],
+      [
+        "trust",
+        "ink"
+      ],
+      [
+        "mid_cta",
+        "ink"
+      ],
+      [
+        "services",
+        "tint"
+      ],
+      [
+        "gallery",
+        "ink"
+      ],
+      [
+        "process",
+        "gradient"
+      ],
+      [
+        "benefits",
+        "glass"
+      ],
+      [
+        "faq",
+        "photo_band"
+      ],
+      [
+        "reviews",
+        "ink"
+      ],
+      [
+        "maps",
+        "illustration"
+      ],
+      [
+        "contact",
+        "ink"
+      ]
+    ],
+    "accent_hex": "#b45309",
+    "surface_hex": "#eee4dc",
+    "ink_hex": "#f4f6f8",
+    "atmosphere_mode": "dusk",
+    "brand_book_fp": "0d7088f6e3ae02825242e95e",
+    "border_radius_px": 10
+  },
+  "hero_layout": "D",
+  "component_profile": "C",
+  "layout_profile": {
+    "id": "L2-chamber",
+    "label": "Trust-first professional · Private chamber",
+    "hero_variants": [
+      "D",
+      "C",
+      "B"
+    ],
+    "preferred_component": "C",
+    "cta_strategy": "mid",
+    "services_layout": "minimal",
+    "trust_position": "after_benefits",
+    "gallery_style": "feature_first",
+    "faq_style": "accordion",
+    "footer_variant": "legal",
+    "section_order": [
+      "about",
+      "trust",
+      "mid_cta",
+      "services",
+      "reputation",
+      "gallery",
+      "process",
+      "benefits",
+      "faq",
+      "reviews",
+      "maps",
+      "contact"
+    ]
+  },
+  "trust_template": "D",
+  "creative_director": {
+    "engine": "ai_creative_director_v1",
+    "role": "AI Creative Director",
+    "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+    "positioning": {
+      "ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+      "en": "Virtus Core designs the digital experience for your business.",
+      "de": "Virtus Core gestaltet die digitale Erfahrung Ihres Unternehmens."
+    },
+    "package_id": "premium",
+    "budget_eur": 699,
+    "niche": "handwerk",
+    "market_code": "DE",
+    "goal": "lead",
+    "industry": {
+      "theme": "industrial",
+      "feel_ru": "индустриальный — сила, материал, ясность",
+      "hero_bias": "photo_large"
+    },
+    "luxury_mode": true,
+    "decisions": {
+      "heavy_video": "if_niche_helps",
+      "webgl": "if_niche_helps",
+      "lottie_heavy": "if_niche_helps",
+      "page_density": "cinematic",
+      "motion_profile": "premium_motion",
+      "hero_media": "cinematic_photo_or_video_or_3d",
+      "typography": "luxury_pair",
+      "visual_pack": true,
+      "luxury_mode": true,
+      "interactive": "if_improves_experience",
+      "goal_ru": "эмоция дорогого бренда (Luxury Mode), не галочка Premium"
+    },
+    "forbidden_ru": [],
+    "acceptance_5s_ru": "Без ценников за 5 секунд должно быть ясно: Starter / Business / Premium."
+  },
+  "digital_creative_studio": {
+    "engine": "digital_creative_studio_v2",
+    "product": "Digital Creative Studio",
+    "role": "AI Creative Director",
+    "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+    "positioning_ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+    "surface": "website",
+    "package_id": "premium",
+    "niche": "handwerk",
+    "market_code": "DE",
+    "luxury_mode": true,
+    "creative_director": {
+      "engine": "ai_creative_director_v1",
+      "role": "AI Creative Director",
+      "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+      "positioning": {
+        "ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+        "en": "Virtus Core designs the digital experience for your business.",
+        "de": "Virtus Core gestaltet die digitale Erfahrung Ihres Unternehmens."
+      },
+      "package_id": "premium",
+      "budget_eur": 699,
+      "niche": "handwerk",
+      "market_code": "DE",
+      "goal": "lead",
+      "industry": {
+        "theme": "industrial",
+        "feel_ru": "индустриальный — сила, материал, ясность",
+        "hero_bias": "photo_large"
+      },
+      "luxury_mode": true,
+      "decisions": {
+        "heavy_video": "if_niche_helps",
+        "webgl": "if_niche_helps",
+        "lottie_heavy": "if_niche_helps",
+        "page_density": "cinematic",
+        "motion_profile": "premium_motion",
+        "hero_media": "cinematic_photo_or_video_or_3d",
+        "typography": "luxury_pair",
+        "visual_pack": true,
+        "luxury_mode": true,
+        "interactive": "if_improves_experience",
+        "goal_ru": "эмоция дорогого бренда (Luxury Mode), не галочка Premium"
+      },
+      "forbidden_ru": [],
+      "acceptance_5s_ru": "Без ценников за 5 секунд должно быть ясно: Starter / Business / Premium."
+    },
+    "directors": [
+      {
+        "engine": "industry_director_v1",
+        "role": "Industry Director",
+        "choice": "industrial",
+        "niche": "handwerk",
+        "identity": {
+          "theme": "industrial",
+          "feel_ru": "индустриальный — сила, материал, ясность",
+          "hero_bias": "photo_large"
+        },
+        "reason_ru": "Соответствует ожиданиям аудитории (индустриальный — сила, материал, ясность).",
+        "reason_en": "Matches audience expectations (industrial).",
+        "apply": {
+          "industry_theme": "industrial",
+          "hero_bias": "photo_large"
+        }
+      },
+      {
+        "engine": "luxury_director_v1",
+        "role": "Luxury Director",
+        "choice": "Hero №7 · Cinematic Default",
+        "hero_layout_prefer": "B",
+        "luxury_mode": true,
+        "reason_ru": "Лучше подходит нише «handwerk» — кинематографичный Hero и богатая композиция.",
+        "reason_en": "Best fit for niche «handwerk» — cinematic hero and rich composition.",
+        "apply": {
+          "luxury_mode": true,
+          "data_luxury": "1",
+          "density": "cinematic",
+          "hero_class_extra": "hero-luxury vie-cinematic",
+          "section_gap_scale": 1.35,
+          "cta_style": "premium_glow"
+        }
+      },
+      {
+        "engine": "typography_director_v2",
+        "role": "Typography Director",
+        "choice": "barlow_source_craft",
+        "typography_key": "barlow_source_craft",
+        "reason_ru": "Typography Studio · confidence → barlow_source_craft (LH 1.55, tracking 0).",
+        "reason_en": "Typography Studio · confidence → barlow_source_craft (LH 1.55, tracking 0).",
+        "studio": {
+          "engine": "typography_studio_v1",
+          "brand_personality": "confidence",
+          "typography_style": "compact",
+          "pair": {
+            "id": "barlow_source_craft",
+            "display": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+            "body": "\"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif",
+            "google_css_url": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap",
+            "niches": [
+              "handwerk",
+              "dachreinigung",
+              "zaunbau",
+              "auto"
+            ],
+            "emotions": [
+              "confidence",
+              "energy",
+              "clarity"
+            ],
+            "scale": "compact",
+            "notes": "Craft B — workboard"
+          },
+          "pair_id": "barlow_source_craft",
+          "headline": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "body": "\"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif",
+          "buttons_weight": "700",
+          "line_height": "1.55",
+          "letter_spacing": "0",
+          "metrics": {
+            "h1": "clamp(1.85rem, 3.8vw, 2.65rem)",
+            "h2": "clamp(1.3rem, 2vw, 1.65rem)",
+            "body_lh": "1.55",
+            "headline_lh": "1.15",
+            "tracking_display": "-0.01em",
+            "tracking_body": "0",
+            "btn_weight": "700",
+            "body_weight": "400",
+            "display_weight": "700",
+            "mobile_h1": "clamp(1.6rem, 5.5vw, 2.05rem)",
+            "mobile_lh": "1.45"
+          },
+          "google_css_url": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap",
+          "catalog_fonts": 153,
+          "pairs_available": 33,
+          "notes": "Craft B — workboard"
+        },
+        "apply": {
+          "font_label": "barlow_source_craft",
+          "body_font": "\"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif",
+          "display_font": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+          "scale": {
+            "h1": "clamp(1.85rem, 3.8vw, 2.65rem)",
+            "lh": "1.55",
+            "section_h2": "clamp(1.3rem, 2vw, 1.65rem)"
+          },
+          "studio_css": "\n/* Typography Studio · personality=confidence · pair=barlow_source_craft · ssot */\n:root {\n  --font-display: \"Barlow Condensed\", \"Arial Narrow\", sans-serif;\n  --font-body: \"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif;\n  --font-sans: \"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif;\n  --type-body-lh: 1.55;\n  --type-headline-lh: 1.15;\n  --type-track-display: -0.01em;\n  --type-track-body: 0;\n  --type-btn-weight: 700;\n}\nbody {\n  font-family: var(--font-body);\n  font-weight: 400;\n  line-height: var(--type-body-lh);\n  letter-spacing: var(--type-track-body);\n  -webkit-font-smoothing: antialiased;\n  text-rendering: optimizeLegibility;\n  overflow-wrap: anywhere;\n  word-break: normal;\n}\nbody .hero h1,\nbody .hero .hero-title,\nbody h1,\nbody .page-title,\nbody .section h2,\nbody h2,\nbody h3 {\n  font-family: var(--font-display);\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  word-break: break-word;\n  hyphens: auto;\n  white-space: normal;\n}\nbody .hero h1,\nbody .hero .hero-title,\nbody h1,\nbody .page-title {\n  font-weight: 700;\n  font-size: clamp(1.85rem, 3.8vw, 2.65rem);\n  line-height: var(--type-headline-lh);\n  letter-spacing: var(--type-track-display);\n}\nbody .section h2,\nbody h2 {\n  font-weight: 700;\n  font-size: clamp(1.3rem, 2vw, 1.65rem);\n  line-height: 1.22;\n  letter-spacing: var(--type-track-display);\n}\nbody .btn,\nbody button.btn,\nbody a.btn {\n  font-family: var(--font-body);\n  font-weight: var(--type-btn-weight);\n  letter-spacing: 0.02em;\n  white-space: normal;\n  max-width: 100%;\n}\n@media (max-width: 720px) {\n  body { line-height: 1.45; }\n  body .hero h1,\n  body .hero .hero-title,\n  body h1 {\n    font-size: clamp(1.6rem, 5.5vw, 2.05rem);\n    letter-spacing: -0.015em;\n    max-width: 100%;\n  }\n}\n"
+        },
+        "font_pack": {
+          "label": "barlow_source_craft",
+          "body": "\"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif",
+          "display": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif"
+        }
+      },
+      {
+        "engine": "motion_director_v1",
+        "role": "Motion Director",
+        "choice": "Premium Reveal",
+        "reason_ru": "Luxury Mode: premium motion только если усиливает эмоцию.",
+        "reason_en": "Luxury Mode: premium motion только если усиливает эмоцию.",
+        "apply": {
+          "motion_tier": "premium",
+          "motion_level": "css",
+          "reveal": "premium"
+        }
+      },
+      {
+        "engine": "conversion_director_v1",
+        "role": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason_ru": "Кнопки, форма и доверие расставлены ради конверсии, не декора.",
+        "reason_en": "CTA, form and trust placed for conversion, not decoration.",
+        "apply": {
+          "require_mid_cta": true,
+          "cta_after_services": true,
+          "contact_above_fold_hint": true,
+          "faq_before_footer": true
+        }
+      },
+      {
+        "engine": "trust_director_v1",
+        "role": "Trust Director",
+        "choice": "High-trust vertical pack",
+        "reason_ru": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах.",
+        "reason_en": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах.",
+        "apply": {
+          "certs_near_hero": true,
+          "guarantees_in_benefits": true,
+          "reviews_before_contact": true,
+          "map_with_contacts": true,
+          "brands_strip": true,
+          "trust_density": "high"
+        }
+      },
+      {
+        "engine": "performance_director_v1",
+        "role": "Performance Director",
+        "choice": "Speed-balanced Luxury",
+        "reason_ru": "Luxury и скорость балансируются автоматически.",
+        "reason_en": "Luxury and speed are balanced automatically.",
+        "apply": {
+          "prefer_static_hero": false,
+          "lazy_images": true,
+          "forbid_heavy_video_on_mobile_fail": true,
+          "max_motion": "css"
+        }
+      },
+      {
+        "engine": "accessibility_director_v1",
+        "role": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason_ru": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта.",
+        "reason_en": "Contrast, type size, keyboard, alt and readability are product quality.",
+        "apply": {
+          "min_body_px": 16,
+          "focus_visible": true,
+          "require_alt": true,
+          "skip_link": true
+        }
+      },
+      {
+        "engine": "localization_director_v1",
+        "role": "Localization Director",
+        "choice": "Germany · DACH",
+        "market_code": "DE",
+        "reason_ru": "Impressum, Datenschutz, строгий стиль.",
+        "reason_en": "Impressum, Datenschutz, строгий стиль.",
+        "apply": {
+          "market_code": "DE",
+          "legal_pack": [
+            "impressum",
+            "datenschutz"
+          ],
+          "style": "strict",
+          "social_proof_weight": "medium",
+          "portfolio_weight": "medium",
+          "cta_tone": "formal",
+          "package_id": "premium"
+        }
+      }
+    ],
+    "apply": {
+      "industry_theme": "industrial",
+      "hero_bias": "photo_large",
+      "luxury_mode": true,
+      "data_luxury": "1",
+      "density": "cinematic",
+      "hero_class_extra": "hero-luxury vie-cinematic",
+      "section_gap_scale": 1.35,
+      "cta_style": "premium_glow",
+      "font_label": "barlow_source_craft",
+      "body_font": "\"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif",
+      "display_font": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif",
+      "scale": {
+        "h1": "clamp(1.85rem, 3.8vw, 2.65rem)",
+        "lh": "1.55",
+        "section_h2": "clamp(1.3rem, 2vw, 1.65rem)"
+      },
+      "studio_css": "\n/* Typography Studio · personality=confidence · pair=barlow_source_craft · ssot */\n:root {\n  --font-display: \"Barlow Condensed\", \"Arial Narrow\", sans-serif;\n  --font-body: \"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif;\n  --font-sans: \"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif;\n  --type-body-lh: 1.55;\n  --type-headline-lh: 1.15;\n  --type-track-display: -0.01em;\n  --type-track-body: 0;\n  --type-btn-weight: 700;\n}\nbody {\n  font-family: var(--font-body);\n  font-weight: 400;\n  line-height: var(--type-body-lh);\n  letter-spacing: var(--type-track-body);\n  -webkit-font-smoothing: antialiased;\n  text-rendering: optimizeLegibility;\n  overflow-wrap: anywhere;\n  word-break: normal;\n}\nbody .hero h1,\nbody .hero .hero-title,\nbody h1,\nbody .page-title,\nbody .section h2,\nbody h2,\nbody h3 {\n  font-family: var(--font-display);\n  max-width: 100%;\n  overflow-wrap: anywhere;\n  word-break: break-word;\n  hyphens: auto;\n  white-space: normal;\n}\nbody .hero h1,\nbody .hero .hero-title,\nbody h1,\nbody .page-title {\n  font-weight: 700;\n  font-size: clamp(1.85rem, 3.8vw, 2.65rem);\n  line-height: var(--type-headline-lh);\n  letter-spacing: var(--type-track-display);\n}\nbody .section h2,\nbody h2 {\n  font-weight: 700;\n  font-size: clamp(1.3rem, 2vw, 1.65rem);\n  line-height: 1.22;\n  letter-spacing: var(--type-track-display);\n}\nbody .btn,\nbody button.btn,\nbody a.btn {\n  font-family: var(--font-body);\n  font-weight: var(--type-btn-weight);\n  letter-spacing: 0.02em;\n  white-space: normal;\n  max-width: 100%;\n}\n@media (max-width: 720px) {\n  body { line-height: 1.45; }\n  body .hero h1,\n  body .hero .hero-title,\n  body h1 {\n    font-size: clamp(1.6rem, 5.5vw, 2.05rem);\n    letter-spacing: -0.015em;\n    max-width: 100%;\n  }\n}\n",
+      "motion_tier": "premium",
+      "motion_level": "css",
+      "reveal": "premium",
+      "require_mid_cta": true,
+      "cta_after_services": true,
+      "contact_above_fold_hint": true,
+      "faq_before_footer": true,
+      "certs_near_hero": true,
+      "guarantees_in_benefits": true,
+      "reviews_before_contact": true,
+      "map_with_contacts": true,
+      "brands_strip": true,
+      "trust_density": "high",
+      "prefer_static_hero": false,
+      "lazy_images": true,
+      "forbid_heavy_video_on_mobile_fail": true,
+      "max_motion": "css",
+      "min_body_px": 16,
+      "focus_visible": true,
+      "require_alt": true,
+      "skip_link": true,
+      "market_code": "DE",
+      "legal_pack": [
+        "impressum",
+        "datenschutz"
+      ],
+      "style": "strict",
+      "social_proof_weight": "medium",
+      "portfolio_weight": "medium",
+      "cta_tone": "formal",
+      "package_id": "premium",
+      "data_studio": "digital_creative_studio_v2",
+      "hero_layout_prefer": "B",
+      "font_pack": {
+        "label": "barlow_source_craft",
+        "body": "\"Source Sans 3\", \"Segoe UI\", system-ui, sans-serif",
+        "display": "\"Barlow Condensed\", \"Arial Narrow\", sans-serif"
+      },
+      "conversion": {
+        "engine": "conversion_director_v1",
+        "role": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason_ru": "Кнопки, форма и доверие расставлены ради конверсии, не декора.",
+        "reason_en": "CTA, form and trust placed for conversion, not decoration.",
+        "apply": {
+          "require_mid_cta": true,
+          "cta_after_services": true,
+          "contact_above_fold_hint": true,
+          "faq_before_footer": true
+        }
+      },
+      "trust": {
+        "engine": "trust_director_v1",
+        "role": "Trust Director",
+        "choice": "High-trust vertical pack",
+        "reason_ru": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах.",
+        "reason_en": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах.",
+        "apply": {
+          "certs_near_hero": true,
+          "guarantees_in_benefits": true,
+          "reviews_before_contact": true,
+          "map_with_contacts": true,
+          "brands_strip": true,
+          "trust_density": "high"
+        }
+      },
+      "performance": {
+        "engine": "performance_director_v1",
+        "role": "Performance Director",
+        "choice": "Speed-balanced Luxury",
+        "reason_ru": "Luxury и скорость балансируются автоматически.",
+        "reason_en": "Luxury and speed are balanced automatically.",
+        "apply": {
+          "prefer_static_hero": false,
+          "lazy_images": true,
+          "forbid_heavy_video_on_mobile_fail": true,
+          "max_motion": "css"
+        }
+      },
+      "accessibility": {
+        "engine": "accessibility_director_v1",
+        "role": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason_ru": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта.",
+        "reason_en": "Contrast, type size, keyboard, alt and readability are product quality.",
+        "apply": {
+          "min_body_px": 16,
+          "focus_visible": true,
+          "require_alt": true,
+          "skip_link": true
+        }
+      },
+      "localization": {
+        "engine": "localization_director_v1",
+        "role": "Localization Director",
+        "choice": "Germany · DACH",
+        "market_code": "DE",
+        "reason_ru": "Impressum, Datenschutz, строгий стиль.",
+        "reason_en": "Impressum, Datenschutz, строгий стиль.",
+        "apply": {
+          "market_code": "DE",
+          "legal_pack": [
+            "impressum",
+            "datenschutz"
+          ],
+          "style": "strict",
+          "social_proof_weight": "medium",
+          "portfolio_weight": "medium",
+          "cta_tone": "formal",
+          "package_id": "premium"
+        }
+      }
+    },
+    "css_bytes": 7372
+  },
+  "luxury_mode": true,
+  "design_director": {
+    "engine": "ai_design_director_v2",
+    "product": "Digital Experience Factory",
+    "ok": true,
+    "overall": 95,
+    "scores": {
+      "visual": 98,
+      "typography": 100,
+      "motion": 87,
+      "premium_feeling": 100,
+      "first_impression": 95,
+      "brand_emotion": 90,
+      "trust": 90,
+      "conversion_readiness": 90,
+      "mobile_experience": 100,
+      "creativity": 86
+    },
+    "threshold_premium_feeling": 80,
+    "threshold_first_impression_premium": 90,
+    "package_id": "premium",
+    "niche": "handwerk",
+    "luxury_mode": true,
+    "identity": {
+      "theme": "industrial",
+      "feel_ru": "индустриальный — сила, материал, ясность",
+      "hero_bias": "photo_large"
+    },
+    "fingerprint": "b836446c9c8489db",
+    "markers": {
+      "data_tier_ok": true,
+      "hero": true,
+      "layout_profile": true,
+      "vie": true,
+      "font_signals": 4,
+      "kpi_trust_signals": 18,
+      "rich_media_signals": 4,
+      "viewport": true,
+      "responsive_css": true
+    },
+    "recommendations": [
+      "Hold — candidate for 5-second blind tier test"
+    ],
+    "acceptance_5s_ru": "Если показать три версии рядом без ценников, человек должен почти всегда понять, где Starter, где Business и где Premium.",
+    "rule_ru": "Клиент должен узнать Virtus Core по качеству, а не по шаблону."
+  },
+  "design_memory": {
+    "engine": "design_memory_v1",
+    "law": "Law №4 — No Repeated Companies",
+    "similarity_pct": 0,
+    "cross_niche_similarity_pct": 0,
+    "threshold": 88,
+    "cross_threshold": 94,
+    "rebuild_needed": false,
+    "law4_violation": false,
+    "match": null,
+    "cross_match": null,
+    "action_ru": "OK — достаточно уникально (Law №4)"
+  },
+  "experience_director": {
+    "engine": "experience_director_v1",
+    "role": "Experience Director",
+    "choice": "First Impression 95",
+    "first_impression": 95,
+    "overall": 95,
+    "why_ru": "Первое впечатление в норме для пакета.",
+    "reason_ru": "Первое впечатление в норме для пакета.",
+    "reason_en": "Первое впечатление в норме для пакета.",
+    "actions": [],
+    "rebuild_recommended": false,
+    "apply": {
+      "experience_ok": true,
+      "hero_upgrade": "hold"
+    }
+  },
+  "commercial_readiness": {
+    "engine": "commercial_readiness_v1",
+    "threshold": 90,
+    "scores": {
+      "visual": 98,
+      "trust": 92,
+      "conversion": 93,
+      "performance": 87,
+      "mobile": 100,
+      "accessibility": 72
+    },
+    "overall_commercial": 92,
+    "commercial_ready": true,
+    "label": "Commercial Ready",
+    "status": "PASS",
+    "conversion_detail": {
+      "engine": "conversion_director_v1",
+      "scores": {
+        "hero": 92,
+        "cta": 100,
+        "trust": 91,
+        "contact_visibility": 83,
+        "booking_flow": 98
+      },
+      "overall": 93,
+      "hero_status": "PASS",
+      "recommendations": [
+        "Усилить видимость контактов / формы."
+      ],
+      "markers": {
+        "has_mid_cta": true,
+        "has_form": true,
+        "has_contact": false
+      }
+    },
+    "performance_detail": {
+      "engine": "performance_director_v1",
+      "mobile_score": 87,
+      "has_video": false,
+      "has_webgl": false,
+      "status": "PASS",
+      "action_ru": "OK — баланс Luxury/скорость",
+      "veto_video": false
+    },
+    "accessibility_detail": {
+      "engine": "accessibility_director_v1",
+      "overall": 72,
+      "missing_alt": 4,
+      "has_skip_link": true,
+      "has_lang": true,
+      "status": "FAIL"
+    },
+    "design_director_overall": 95,
+    "ssot_ru": "Главный KPI — Commercial Readiness Score. Только при ≥ 90 Factory ставит Commercial Ready."
+  },
+  "commercial_ready": true,
+  "media_plan": {
+    "hero_src": "assets/hero.jpg",
+    "hero_from_client": false,
+    "hero_ok": true,
+    "gallery": [],
+    "background_src": "assets/background.jpg",
+    "assessments": [
+      {
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/hero.jpg",
+        "role": "hero",
+        "ok": true,
+        "width": 1600,
+        "height": 900,
+        "bytes": 33935,
+        "reason": "ok",
+        "source": "brand_book"
+      },
+      {
+        "path": "assets/background.jpg",
+        "role": "background",
+        "ok": true,
+        "width": 1920,
+        "height": 1080,
+        "bytes": 42921,
+        "reason": "ok",
+        "source": "brand_book"
+      }
+    ],
+    "gate_ok": false,
+    "gate_failures": [
+      "media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch"
+    ],
+    "media_gate_ok": false,
+    "media_gate_failures": [
+      "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch"
+    ],
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": false,
+      "failures": [
+        "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch"
+      ],
+      "checks": [
+        {
+          "section": "hero",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/hero.jpg",
+          "ok": true,
+          "tags": [
+            "craft",
+            "process",
+            "result",
+            "tools",
+            "work",
+            "workshop"
+          ],
+          "detail": "ok"
+        },
+        {
+          "section": "about",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg",
+          "ok": false,
+          "tags": [
+            "craft",
+            "process",
+            "result",
+            "tools",
+            "work",
+            "workshop"
+          ],
+          "detail": "section_mismatch"
+        }
+      ]
+    }
+  },
+  "content_gate": {
+    "engine_id": "content_gate_v1",
+    "passed": true,
+    "failures": [],
+    "repairs": [],
+    "checks": [
+      {
+        "id": "hero_fields",
+        "section": "hero",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "hero_niche_voice",
+        "section": "hero",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "services_niche",
+        "section": "services",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "benefits_niche",
+        "section": "benefits",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "nav_no_marketing",
+        "section": "navigation",
+        "ok": true,
+        "detail": "links=10"
+      },
+      {
+        "id": "legal_profile_hook",
+        "section": "legal",
+        "ok": true,
+        "detail": "deferred_r34:DE"
+      }
+    ]
+  },
+  "commercial_gate": {
+    "engine_id": "commercial_gate_v1",
+    "hard_passed": true,
+    "score_passed": true,
+    "passed": true,
+    "brand_leak": "PASS",
+    "threshold": 95.0,
+    "ai_score": {
+      "niche_match": 92.0,
+      "content_quality": 98.0,
+      "cta_quality": 96.0,
+      "structure_quality": 98.0,
+      "design_quality": 96.0,
+      "commercial_readiness": 100.0,
+      "overall": 96.7
+    },
+    "hard_checks": [
+      {
+        "id": "brand_leak",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_stubs",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_generic_phrases",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "hero_matches_niche",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "services_match_questionnaire",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "cta_actionable",
+        "ok": true,
+        "detail": "Auftrag anfragen"
+      },
+      {
+        "id": "contacts_present",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "structure_matches_scenario",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_empty_core_sections",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "pages_linked",
+        "ok": true,
+        "detail": "ok"
+      }
+    ],
+    "failures": [],
+    "commercial_rule_1": "first_visitor_ready",
+    "design": {
+      "composer": "design",
+      "niche": "handwerk",
+      "emotional_tone": "neutral",
+      "journey": "service",
+      "primary": "#b45309",
+      "font_display": "\"Oswald\", \"Arial Narrow\", Impact, sans-serif",
+      "radius": "4px",
+      "btn_radius": "4px",
+      "forbid_platform_aurora": true
+    },
+    "seo": {
+      "composer": "seo",
+      "title": "Meisterbau Hoffmann — Workshop | Leipzig",
+      "description": "Entlastung: jemand übernimmt den Haushalt-Job. Montage, Reparatur, IKEA-Aufbau, Streichen — ab einer Stunde."
+    },
+    "layout_id": "L5",
+    "layout_pool": [
+      "L4",
+      "L5",
+      "L1"
+    ],
+    "max_rebuild_attempts": 2,
+    "one_lifetime_project": true
+  },
+  "status": "commercial_ready",
+  "quality_percent": 98,
+  "validation_passed": false,
+  "technical_checks": [
+    {
+      "id": "html",
+      "label": "HTML",
+      "ok": true
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile",
+      "ok": true
+    },
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "ok": true
+    },
+    {
+      "id": "compliance",
+      "label": "Compliance Engine",
+      "ok": false
+    },
+    {
+      "id": "quality_gate",
+      "label": "Quality Gate",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:hero_layout",
+      "label": "design:hero_layout — data-hero-layout",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:component_profile",
+      "label": "design:component_profile — data-comp-profile",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:layout_profile",
+      "label": "design:layout_profile — data-layout-profile",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:section_contact",
+      "label": "design:section_contact — contact section present",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:meta_hero",
+      "label": "design:meta_hero — meta hero_layout matches HTML",
+      "ok": false
+    },
+    {
+      "id": "compliance:authenticity:hero_ok",
+      "label": "authenticity:hero_ok — ['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/b",
+      "ok": false
+    }
+  ],
+  "quality_gate": {
+    "passed": false,
+    "failures": [
+      "design:hero_layout — data-hero-layout",
+      "design:component_profile — data-comp-profile",
+      "design:layout_profile — data-layout-profile",
+      "design:section_contact — contact section present",
+      "design:meta_hero — meta hero_layout matches HTML",
+      "media:hero_ok — ['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch']",
+      "media:section_aware — about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch",
+      "brand:no_platform_chrome — Virtus Core",
+      "brand:no_demo_preview_words — demo|preview"
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "category": "design",
+        "ok": false,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "category": "design",
+        "ok": false,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "category": "design",
+        "ok": false,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "category": "design",
+        "ok": true,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "category": "design",
+        "ok": false,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "category": "design",
+        "ok": true,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "category": "design",
+        "ok": true,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "category": "design",
+        "ok": false,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "category": "localization",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "category": "localization",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "category": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "category": "seo",
+        "ok": true,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "category": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "category": "seo",
+        "ok": true,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "category": "seo",
+        "ok": true,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "category": "seo",
+        "ok": true,
+        "detail": "JSON-LD"
+      },
+      {
+        "id": "og",
+        "category": "seo",
+        "ok": true,
+        "detail": "Open Graph"
+      },
+      {
+        "id": "lang_ok",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "imgs=6"
+      },
+      {
+        "id": "h1",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "category": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "category": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "category": "performance",
+        "ok": true,
+        "detail": "motion css/js"
+      },
+      {
+        "id": "css_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "107949B"
+      },
+      {
+        "id": "motion_css_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "4047B"
+      },
+      {
+        "id": "js_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "3016B"
+      },
+      {
+        "id": "js_no_heavy",
+        "category": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "manifest",
+        "category": "media",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "category": "media",
+        "ok": false,
+        "detail": "['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch']"
+      },
+      {
+        "id": "section_aware",
+        "category": "media",
+        "ok": false,
+        "detail": "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch"
+      },
+      {
+        "id": "object_fit_css",
+        "category": "media",
+        "ok": true,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "category": "media",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "category": "media",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "category": "brand",
+        "ok": false,
+        "detail": "Virtus Core"
+      },
+      {
+        "id": "no_demo_preview_words",
+        "category": "brand",
+        "ok": false,
+        "detail": "demo|preview"
+      }
+    ]
+  },
+  "compliance": {
+    "engine_id": "compliance_v1",
+    "passed": false,
+    "domains": {
+      "design": false,
+      "brand": false,
+      "performance": true,
+      "seo": true,
+      "accessibility": true,
+      "authenticity": false,
+      "market_rules": true
+    },
+    "failures": [
+      "design:hero_layout — data-hero-layout",
+      "design:component_profile — data-comp-profile",
+      "design:layout_profile — data-layout-profile",
+      "design:section_contact — contact section present",
+      "design:meta_hero — meta hero_layout matches HTML",
+      "authenticity:hero_ok — ['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch']",
+      "authenticity:section_aware — about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch",
+      "brand:no_platform_chrome — Virtus Core",
+      "brand:no_demo_preview_words — demo|preview",
+      "authenticity:section_aware_media — about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch"
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "domain": "design",
+        "ok": false,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "domain": "design",
+        "ok": false,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "domain": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "domain": "seo",
+        "ok": true,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "domain": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "domain": "seo",
+        "ok": true,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "domain": "seo",
+        "ok": true,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "domain": "seo",
+        "ok": true,
+        "detail": "JSON-LD"
+      },
+      {
+        "id": "og",
+        "domain": "seo",
+        "ok": true,
+        "detail": "Open Graph"
+      },
+      {
+        "id": "lang_ok",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "imgs=6"
+      },
+      {
+        "id": "h1",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "domain": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "domain": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "domain": "performance",
+        "ok": true,
+        "detail": "motion css/js"
+      },
+      {
+        "id": "css_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "107949B"
+      },
+      {
+        "id": "motion_css_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "4047B"
+      },
+      {
+        "id": "js_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "3016B"
+      },
+      {
+        "id": "js_no_heavy",
+        "domain": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "manifest",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "domain": "authenticity",
+        "ok": false,
+        "detail": "['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch']"
+      },
+      {
+        "id": "section_aware",
+        "domain": "authenticity",
+        "ok": false,
+        "detail": "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch"
+      },
+      {
+        "id": "object_fit_css",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "domain": "brand",
+        "ok": false,
+        "detail": "Virtus Core"
+      },
+      {
+        "id": "no_demo_preview_words",
+        "domain": "brand",
+        "ok": false,
+        "detail": "demo|preview"
+      },
+      {
+        "id": "section_aware_media",
+        "domain": "authenticity",
+        "ok": false,
+        "detail": "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch"
+      },
+      {
+        "id": "section_aware_content",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "visual_intelligence",
+        "domain": "design",
+        "ok": true,
+        "detail": "score=96.0/90.0"
+      }
+    ],
+    "quality_gate": {
+      "passed": false,
+      "failures": [
+        "design:hero_layout — data-hero-layout",
+        "design:component_profile — data-comp-profile",
+        "design:layout_profile — data-layout-profile",
+        "design:section_contact — contact section present",
+        "design:meta_hero — meta hero_layout matches HTML",
+        "media:hero_ok — ['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch']",
+        "media:section_aware — about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch",
+        "brand:no_platform_chrome — Virtus Core",
+        "brand:no_demo_preview_words — demo|preview"
+      ],
+      "checks": [
+        {
+          "id": "hero_layout",
+          "category": "design",
+          "ok": false,
+          "detail": "data-hero-layout"
+        },
+        {
+          "id": "component_profile",
+          "category": "design",
+          "ok": false,
+          "detail": "data-comp-profile"
+        },
+        {
+          "id": "layout_profile",
+          "category": "design",
+          "ok": false,
+          "detail": "data-layout-profile"
+        },
+        {
+          "id": "footer_variant",
+          "category": "design",
+          "ok": true,
+          "detail": "data-footer-variant"
+        },
+        {
+          "id": "section_contact",
+          "category": "design",
+          "ok": false,
+          "detail": "contact section present"
+        },
+        {
+          "id": "market_profile",
+          "category": "design",
+          "ok": true,
+          "detail": "data-market"
+        },
+        {
+          "id": "niche_style",
+          "category": "design",
+          "ok": true,
+          "detail": "data-niche + design tokens"
+        },
+        {
+          "id": "meta_hero",
+          "category": "design",
+          "ok": false,
+          "detail": "meta hero_layout matches HTML"
+        },
+        {
+          "id": "no_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "no_mustache",
+          "category": "localization",
+          "ok": true,
+          "detail": "{{…}}"
+        },
+        {
+          "id": "no_ui_keys",
+          "category": "localization",
+          "ok": true,
+          "detail": "ui.* keys"
+        },
+        {
+          "id": "no_english_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lang",
+          "category": "seo",
+          "ok": true,
+          "detail": "html lang"
+        },
+        {
+          "id": "hreflang",
+          "category": "seo",
+          "ok": true,
+          "detail": "hreflang"
+        },
+        {
+          "id": "title",
+          "category": "seo",
+          "ok": true,
+          "detail": "title"
+        },
+        {
+          "id": "description",
+          "category": "seo",
+          "ok": true,
+          "detail": "meta description"
+        },
+        {
+          "id": "canonical",
+          "category": "seo",
+          "ok": true,
+          "detail": "canonical"
+        },
+        {
+          "id": "schema",
+          "category": "seo",
+          "ok": true,
+          "detail": "JSON-LD"
+        },
+        {
+          "id": "og",
+          "category": "seo",
+          "ok": true,
+          "detail": "Open Graph"
+        },
+        {
+          "id": "lang_ok",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "supported lang"
+        },
+        {
+          "id": "img_alt",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "imgs=6"
+        },
+        {
+          "id": "h1",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 present"
+        },
+        {
+          "id": "heading_order",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 before h2/h3"
+        },
+        {
+          "id": "aria_or_labels",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "aria/summary"
+        },
+        {
+          "id": "reduced_motion",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "reduced-motion support"
+        },
+        {
+          "id": "contrast_tokens",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "--ink token"
+        },
+        {
+          "id": "no_heavy_libs",
+          "category": "performance",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lazy_images",
+          "category": "performance",
+          "ok": true,
+          "detail": "non-hero images"
+        },
+        {
+          "id": "motion_killswitch",
+          "category": "performance",
+          "ok": true,
+          "detail": "motion css/js"
+        },
+        {
+          "id": "css_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "107949B"
+        },
+        {
+          "id": "motion_css_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "4047B"
+        },
+        {
+          "id": "js_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "3016B"
+        },
+        {
+          "id": "js_no_heavy",
+          "category": "performance",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "manifest",
+          "category": "media",
+          "ok": true,
+          "detail": "media_manifest.json"
+        },
+        {
+          "id": "hero_ok",
+          "category": "media",
+          "ok": false,
+          "detail": "['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch']"
+        },
+        {
+          "id": "section_aware",
+          "category": "media",
+          "ok": false,
+          "detail": "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/premium/5f4570aa-094a-40b9-b18d-a4548f7a821d/assets/background.jpg — section_mismatch"
+        },
+        {
+          "id": "object_fit_css",
+          "category": "media",
+          "ok": true,
+          "detail": "no stretch"
+        },
+        {
+          "id": "weight_ok",
+          "category": "media",
+          "ok": true,
+          "detail": "0_oversized"
+        },
+        {
+          "id": "cls_safe",
+          "category": "media",
+          "ok": true,
+          "detail": "dimensions_or_object_fit"
+        },
+        {
+          "id": "no_platform_chrome",
+          "category": "brand",
+          "ok": false,
+          "detail": "Virtus Core"
+        },
+        {
+          "id": "no_demo_preview_words",
+          "category": "brand",
+          "ok": false,
+          "detail": "demo|preview"
+        }
+      ]
+    },
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": false,
+      "failures": [],
+      "checks": []
+    },
+    "content_gate": {
+      "engine_id": "content_gate_v1",
+      "passed": true,
+      "failures": [],
+      "repairs": [],
+      "checks": []
+    },
+    "visual_quality": {
+      "engine_id": "visual_quality_v1",
+      "passed": true,
+      "score": 96.0,
+      "threshold": 90.0,
+      "checks": [
+        {
+          "id": "composition",
+          "ok": true,
+          "points": 100.0,
+          "detail": "hero=True sections=True niche=True vie=True"
+        },
+        {
+          "id": "color_harmony",
+          "ok": true,
+          "points": 88.0,
+          "detail": "#b45309 / #fbbf24"
+        },
+        {
+          "id": "typography",
+          "ok": true,
+          "points": 100.0,
+          "detail": "fonts/display hierarchy"
+        },
+        {
+          "id": "contrast",
+          "ok": true,
+          "points": 98.0,
+          "detail": "ratio=16.74"
+        },
+        {
+          "id": "images",
+          "ok": true,
+          "points": 100.0,
+          "detail": "n=6 alt=100% lazy=100%"
+        },
+        {
+          "id": "performance",
+          "ok": true,
+          "points": 98.0,
+          "detail": "heavy=none"
+        },
+        {
+          "id": "adaptivity",
+          "ok": true,
+          "points": 100.0,
+          "detail": "viewport=True mq=True"
+        },
+        {
+          "id": "readability",
+          "ok": true,
+          "points": 78.0,
+          "detail": "words≈9223"
+        }
+      ],
+      "suggestions": [],
+      "failures": []
+    }
+  },
+  "owner_approved": false,
+  "owner_approved_at": null,
+  "revision": 0,
+  "created_at": "2026-08-08T14:35:36.329496+00:00",
+  "updated_at": "2026-08-08T14:35:36.329496+00:00",
+  "style_flags": {
+    "modern": true,
+    "blue_boost": false,
+    "calculator": true,
+    "testimonials": true
+  },
+  "package_delivery": {
+    "package_id": "premium",
+    "whatsapp": true,
+    "maps": true,
+    "testimonials": true,
+    "logo_slot": true,
+    "extended_seo": true,
+    "analytics": true,
+    "calculator": true,
+    "premium_design": true,
+    "contact_form": true,
+    "faq": true,
+    "process": true,
+    "mid_cta": true,
+    "trust_bar": true,
+    "stats_strip": true,
+    "showcase": true,
+    "catalog_grid": false,
+    "catalog_categories": false,
+    "catalog_search_filter": false,
+    "catalog_request_cart": false,
+    "catalog_rich_cards": false,
+    "ecosystem_connected": true
+  },
+  "catalog_enabled": false,
+  "client_assets": {
+    "logo": false,
+    "logo_src": "assets/logo.png",
+    "hero_from_client": false,
+    "gallery": [],
+    "used_files": []
+  },
+  "brand_style": "auto",
+  "client_legal": {
+    "business_name": "Meisterbau Hoffmann",
+    "owner_name": "",
+    "legal_form": "",
+    "street": "",
+    "zip": "",
+    "city": "Leipzig",
+    "country": "DE",
+    "email": "kontakt@meisterbau-demo.example.de",
+    "phone": "+49 341 8887766",
+    "website": "",
+    "managing_director": "",
+    "vat_id": "",
+    "handelsregister": "",
+    "register_court": "",
+    "uses_maps": true,
+    "uses_analytics": true,
+    "uses_contact_form": true,
+    "missing_impressum": [
+      "street",
+      "zip"
+    ],
+    "impressum_ready": false
+  },
+  "legal_pages": {
+    "pack": "de_impressum",
+    "market_code": "DE",
+    "impressum_ready": false,
+    "missing_impressum": [
+      "street",
+      "zip"
+    ],
+    "files": [
+      "impressum.html",
+      "datenschutz.html"
+    ]
+  },
+  "publish_ready_de": false,
+  "factory_stages": {
+    "template": 0.0012,
+    "content": 0.0011,
+    "assets": 12.2106,
+    "render": 2.8217,
+    "gates": 1.093,
+    "total": 16.1277,
+    "total_e2e": 16.1277
+  },
+  "delivery_locked": false,
+  "studio_collection": {
+    "engine": "studio_collection_v1",
+    "bucket": "handwerk",
+    "peers": 0,
+    "verdict": "no_etalon_yet",
+    "export_allowed": true,
+    "message": "Studio Collection empty for this bucket — build etalons via Reality PASS.",
+    "law": "Better than our best — or do not export"
+  },
+  "law4": {
+    "violation": false,
+    "similarity_pct": 0,
+    "cross_niche_similarity_pct": 0,
+    "action": "OK — достаточно уникально (Law №4)"
+  },
+  "commercial_review": "PENDING_OWNER",
+  "reality_sprint": "PENDING_OWNER",
+  "experience_replay": {
+    "engine": "experience_replay_v1",
+    "title_ru": "Почему получился именно такой сайт?",
+    "title_en": "Why does this site look like this?",
+    "package_id": "premium",
+    "niche": "handwerk",
+    "luxury_mode": true,
+    "decisions": [
+      {
+        "director": "Industry Director",
+        "choice": "industrial",
+        "reason": "Соответствует ожиданиям аудитории (индустриальный — сила, материал, ясность)."
+      },
+      {
+        "director": "Luxury Director",
+        "choice": "Hero №7 · Cinematic Default",
+        "reason": "Лучше подходит нише «handwerk» — кинематографичный Hero и богатая композиция."
+      },
+      {
+        "director": "Typography Director",
+        "choice": "barlow_source_craft",
+        "reason": "Typography Studio · confidence → barlow_source_craft (LH 1.55, tracking 0)."
+      },
+      {
+        "director": "Motion Director",
+        "choice": "Premium Reveal",
+        "reason": "Luxury Mode: premium motion только если усиливает эмоцию."
+      },
+      {
+        "director": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason": "Кнопки, форма и доверие расставлены ради конверсии, не декора."
+      },
+      {
+        "director": "Trust Director",
+        "choice": "High-trust vertical pack",
+        "reason": "Для стоматологий / юристов / авто / стройки доверие важнее декора: сертификаты, гарантии, отзывы, карта и контакты на видных местах."
+      },
+      {
+        "director": "Performance Director",
+        "choice": "Speed-balanced Luxury",
+        "reason": "Luxury и скорость балансируются автоматически."
+      },
+      {
+        "director": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта."
+      },
+      {
+        "director": "Localization Director",
+        "choice": "Germany · DACH",
+        "reason": "Impressum, Datenschutz, строгий стиль."
+      },
+      {
+        "director": "Experience Director",
+        "choice": "First Impression 95",
+        "reason": "Первое впечатление в норме для пакета."
+      },
+      {
+        "director": "Commercial Readiness",
+        "choice": "Overall Commercial 92",
+        "reason": "Visual 98 · Trust 92 · Conversion 93 · Performance 87 · Mobile 100 · A11y 72 → Commercial Ready"
+      },
+      {
+        "director": "Conversion Director",
+        "choice": "CTA 100",
+        "reason": "Усилить видимость контактов / формы."
+      }
+    ],
+    "design_director": {
+      "engine": "ai_design_director_v2",
+      "product": "Digital Experience Factory",
+      "ok": true,
+      "overall": 95,
+      "scores": {
+        "visual": 98,
+        "typography": 100,
+        "motion": 87,
+        "premium_feeling": 100,
+        "first_impression": 95,
+        "brand_emotion": 90,
+        "trust": 90,
+        "conversion_readiness": 90,
+        "mobile_experience": 100,
+        "creativity": 86
+      },
+      "threshold_premium_feeling": 80,
+      "threshold_first_impression_premium": 90,
+      "package_id": "premium",
+      "niche": "handwerk",
+      "luxury_mode": true,
+      "identity": {
+        "theme": "industrial",
+        "feel_ru": "индустриальный — сила, материал, ясность",
+        "hero_bias": "photo_large"
+      },
+      "fingerprint": "b836446c9c8489db",
+      "markers": {
+        "data_tier_ok": true,
+        "hero": true,
+        "layout_profile": true,
+        "vie": true,
+        "font_signals": 4,
+        "kpi_trust_signals": 18,
+        "rich_media_signals": 4,
+        "viewport": true,
+        "responsive_css": true
+      },
+      "recommendations": [
+        "Hold — candidate for 5-second blind tier test"
+      ],
+      "acceptance_5s_ru": "Если показать три версии рядом без ценников, человек должен почти всегда понять, где Starter, где Business и где Premium.",
+      "rule_ru": "Клиент должен узнать Virtus Core по качеству, а не по шаблону."
+    },
+    "design_memory": {
+      "engine": "design_memory_v1",
+      "law": "Law №4 — No Repeated Companies",
+      "similarity_pct": 0,
+      "cross_niche_similarity_pct": 0,
+      "threshold": 88,
+      "cross_threshold": 94,
+      "rebuild_needed": false,
+      "law4_violation": false,
+      "match": null,
+      "cross_match": null,
+      "action_ru": "OK — достаточно уникально (Law №4)"
+    },
+    "commercial_readiness": {
+      "engine": "commercial_readiness_v1",
+      "threshold": 90,
+      "scores": {
+        "visual": 98,
+        "trust": 92,
+        "conversion": 93,
+        "performance": 87,
+        "mobile": 100,
+        "accessibility": 72
+      },
+      "overall_commercial": 92,
+      "commercial_ready": true,
+      "label": "Commercial Ready",
+      "status": "PASS",
+      "conversion_detail": {
+        "engine": "conversion_director_v1",
+        "scores": {
+          "hero": 92,
+          "cta": 100,
+          "trust": 91,
+          "contact_visibility": 83,
+          "booking_flow": 98
+        },
+        "overall": 93,
+        "hero_status": "PASS",
+        "recommendations": [
+          "Усилить видимость контактов / формы."
+        ],
+        "markers": {
+          "has_mid_cta": true,
+          "has_form": true,
+          "has_contact": false
+        }
+      },
+      "performance_detail": {
+        "engine": "performance_director_v1",
+        "mobile_score": 87,
+        "has_video": false,
+        "has_webgl": false,
+        "status": "PASS",
+        "action_ru": "OK — баланс Luxury/скорость",
+        "veto_video": false
+      },
+      "accessibility_detail": {
+        "engine": "accessibility_director_v1",
+        "overall": 72,
+        "missing_alt": 4,
+        "has_skip_link": true,
+        "has_lang": true,
+        "status": "FAIL"
+      },
+      "design_director_overall": 95,
+      "ssot_ru": "Главный KPI — Commercial Readiness Score. Только при ≥ 90 Factory ставит Commercial Ready."
+    },
+    "studio": {
+      "engine": "digital_creative_studio_v2",
+      "apply_keys": [
+        "accessibility",
+        "body_font",
+        "brands_strip",
+        "certs_near_hero",
+        "contact_above_fold_hint",
+        "conversion",
+        "cta_after_services",
+        "cta_style",
+        "cta_tone",
+        "data_luxury",
+        "data_studio",
+        "density",
+        "display_font",
+        "faq_before_footer",
+        "focus_visible",
+        "font_label",
+        "font_pack",
+        "forbid_heavy_video_on_mobile_fail",
+        "guarantees_in_benefits",
+        "hero_bias",
+        "hero_class_extra",
+        "hero_layout_prefer",
+        "industry_theme",
+        "lazy_images",
+        "legal_pack",
+        "localization",
+        "luxury_mode",
+        "map_with_contacts",
+        "market_code",
+        "max_motion",
+        "min_body_px",
+        "motion_level",
+        "motion_tier",
+        "package_id",
+        "performance",
+        "portfolio_weight",
+        "prefer_static_hero",
+        "require_alt",
+        "require_mid_cta",
+        "reveal",
+        "reviews_before_contact",
+        "scale",
+        "section_gap_scale",
+        "skip_link",
+        "social_proof_weight",
+        "studio_css",
+        "style",
+        "trust",
+        "trust_density"
+      ]
+    },
+    "ssot_ru": "Virtus Core объясняет дизайнерские и коммерческие решения — Digital Creative Studio, не чёрный ящик."
+  },
+  "business_generation": true,
+  "demo_content": true,
+  "studio_critic": {
+    "story": 100,
+    "motion": 85,
+    "atmosphere": 66,
+    "interaction": 85,
+    "media": 85,
+    "trust": 80,
+    "conversion": 90,
+    "overall": 84,
+    "portfolio_ready": true,
+    "template_like": false,
+    "euro_studio_feel": true,
+    "rebuild": false,
+    "critiques": [
+      "No virtus-3d / WebGL accent on premium",
+      "Premium on Studio Offline Media only"
+    ],
+    "strengths": [
+      "Creative brief present",
+      "Substantial HTML body",
+      "Experience / motion language in CSS",
+      "VISUAL_BRAND.json present",
+      "Contact / CTA paths present",
+      "Studio Offline Media noted honestly",
+      "Trust / legal signals",
+      "Conversion language present",
+      "Euro studio feel signals present"
+    ]
+  },
+  "experience_score": {
+    "story": 100,
+    "motion": 85,
+    "atmosphere": 66,
+    "interaction": 85,
+    "media": 85,
+    "trust": 80,
+    "conversion": 90,
+    "overall": 84,
+    "portfolio_ready": true,
+    "template_like": false,
+    "euro_studio_feel": true,
+    "rebuild": false,
+    "critiques": [
+      "No virtus-3d / WebGL accent on premium",
+      "Premium on Studio Offline Media only"
+    ],
+    "strengths": [
+      "Creative brief present",
+      "Substantial HTML body",
+      "Experience / motion language in CSS",
+      "VISUAL_BRAND.json present",
+      "Contact / CTA paths present",
+      "Studio Offline Media noted honestly",
+      "Trust / legal signals",
+      "Conversion language present",
+      "Euro studio feel signals present"
+    ]
+  }
+}

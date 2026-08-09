@@ -1,0 +1,71 @@
+{
+  "store_name": "Nordlicht Boots",
+  "products": [
+    {
+      "id": "demo-1",
+      "name": "Classic Tee",
+      "price": 29.9,
+      "price_label": "€29.90",
+      "old_price": null,
+      "old_price_label": "",
+      "badge": "NEW",
+      "rating": 4.2,
+      "reviews": 12,
+      "stock": "In stock",
+      "category": "clothing"
+    },
+    {
+      "id": "demo-2",
+      "name": "Linen Shirt",
+      "price": 49.0,
+      "price_label": "€49.00",
+      "old_price": 69.0,
+      "old_price_label": "€69.00",
+      "badge": "SALE",
+      "rating": 4.4,
+      "reviews": 19,
+      "stock": "In stock",
+      "category": "clothing"
+    },
+    {
+      "id": "demo-3",
+      "name": "City Jacket",
+      "price": 79.0,
+      "price_label": "€79.00",
+      "old_price": null,
+      "old_price_label": "",
+      "badge": "",
+      "rating": 4.6000000000000005,
+      "reviews": 26,
+      "stock": "In stock",
+      "category": "clothing"
+    },
+    {
+      "id": "demo-4",
+      "name": "Everyday Trousers",
+      "price": 99.0,
+      "price_label": "€99.00",
+      "old_price": 129.0,
+      "old_price_label": "€129.00",
+      "badge": "SALE",
+      "rating": 4.800000000000001,
+      "reviews": 33,
+      "stock": "Few left",
+      "category": "clothing"
+    },
+    {
+      "id": "demo-5",
+      "name": "Canvas Tote",
+      "price": 129.0,
+      "price_label": "€129.00",
+      "old_price": null,
+      "old_price_label": "",
+      "badge": "",
+      "rating": 4.2,
+      "reviews": 40,
+      "stock": "In stock",
+      "category": "clothing"
+    }
+  ],
+  "ui_lang": "de"
+}

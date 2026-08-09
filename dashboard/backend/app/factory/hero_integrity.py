@@ -40,6 +40,7 @@ NICHE_DEFAULT_CTA: dict[str, str] = {
     "auto_ankauf": "Kostenlose Bewertung",
     "auto": "Termin vereinbaren",
     "dental": "Termin buchen",
+    "psychology": "Erstgespräch buchen",
     "beauty": "Termin buchen",
     "law": "Beratung anfragen",
     "energy": "Angebot anfordern",
@@ -57,7 +58,7 @@ NICHE_DEFAULT_CTA: dict[str, str] = {
 }
 
 # Niches where market "Termin buchen" is acceptable if analyzer left a weak CTA.
-_APPOINTMENT_OK_NICHES = frozenset({"dental", "beauty", "restaurant"})
+_APPOINTMENT_OK_NICHES = frozenset({"dental", "beauty", "restaurant", "psychology"})
 
 _NICHE_SERVICE_FALLBACK: dict[str, tuple[str, ...]] = {
     "cleaning": ("Unterhaltsreinigung", "Büroreinigung", "Grundreinigung", "Fenster"),
@@ -67,6 +68,14 @@ _NICHE_SERVICE_FALLBACK: dict[str, tuple[str, ...]] = {
     "energy": ("PV-Planung", "Montage", "Service", "Monitoring"),
     "green": ("Gartenpflege", "Heckenschnitt", "Rasensanierung", "Saisonpflege"),
     "dental": ("Prophylaxe", "Füllungen", "Implantate", "Ästhetik"),
+    "psychology": (
+        "Einzeltherapie",
+        "Erstgespräch",
+        "Online-Beratung",
+        "Paartherapie",
+        "Burnout-Prävention",
+        "Achtsamkeit",
+    ),
     "beauty": ("Schnitt & Styling", "Coloration", "Maniküre", "Gesichtsbehandlung"),
     "computer": ("PC-Reparatur", "Notebook-Service", "Datenrettung", "Netzwerk"),
     "appliance": ("Reparatur", "Ersatzteile", "Wartung", "Notdienst"),
@@ -104,6 +113,10 @@ _NICHE_HERO_FALLBACK: dict[str, tuple[str, str]] = {
     "dental": (
         "{name} — moderne Zahnmedizin",
         "Klare Therapiepläne und ruhige Betreuung.",
+    ),
+    "psychology": (
+        "{name} — Raum für Klarheit und Vertrauen",
+        "Ruhige Gespräche, transparente Honorare, online und vor Ort.",
     ),
     "beauty": (
         "{name} — Stil, der zu Ihnen passt",

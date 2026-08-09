@@ -1,0 +1,134 @@
+BRAND BOOK
+Brand Name
+Praxis Klarheit
+
+Positioning
+Ruhiger Schutzraum
+
+Brand Archetype
+The Guide
++
+The Listener
+
+Brand Promise
+Ein Ort, an dem es ruhiger wird.
+
+Core Emotion
+Ruhe
+
+Secondary Emotion
+Sicherheit
+
+Tone of Voice
+  Leise
+  Klar
+  Warm
+  Ohne Floskeln
+
+Visual Style
+Editorial Calm
+
+Visual Metaphor
+Weiches Morgenlicht in einem stillen Raum
+
+Photography
+  Stillleben Raum
+  Tageslicht
+  Leere Stühle mit Abstand
+  Papier und Stift
+  Fensterlicht
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+  neon spa
+  stock yoga beach
+  purple wellness
+  crystal cliché
+
+Motion
+Sehr langsam · Atmung · Wenig Bewegung
+
+Palette
+Warm Paper, Sage, Stone, Ink
+Accent #5b7c6e
+Surface #f7f4ef
+Ink #1c1916
+
+Typography
+Cormorant Garamond
++
+Source Serif 4
+(editorial_calm)
+
+Icon Style
+Outline Soft
+
+Border Radius
+4 px
+
+Shadow Style
+Barely
+
+Glass Level
+low
+
+Texture
+  Paper
+  Linen
+  Wood grain soft
+
+Scene Language
+  Light
+  Space
+  Silence
+  Breath
+
+CTA Style
+Ein ruhiger Link · Kein Druck
+
+Trust Strategy
+  Transparente Honorare
+  Ablauf
+  Vertraulichkeit
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Quiet room
+✔ Daylight
+✔ Soft space
+✔ Human pace
+
+Preferred
+✔ Empty chair with air
+✔ Window light
+✔ Paper
+✔ Calm hands
+
+Forbidden
+✖ Neon spa
+✖ Yoga beach stock
+✖ Purple wellness
+✖ Crystal cliché
+
+Hero Proof
+A quiet chamber where the first breath feels slower — not a spa brochure.
+
+Fingerprint
+9dfea0dbe684fc3ac66a817c
+

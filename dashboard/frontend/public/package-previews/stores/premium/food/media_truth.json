@@ -1,0 +1,36 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Evening table",
+      "Food craft",
+      "Warm light",
+      "Courtyard or dining room"
+    ],
+    "preferred": [
+      "Hands plating",
+      "Steam",
+      "Wine glass",
+      "Long table"
+    ],
+    "forbidden": [
+      "Fast-food plastic",
+      "Neon menu",
+      "Stock handshake",
+      "Empty white plate only"
+    ],
+    "hero_proof": "An Italian courtyard evening — appetite and belonging, not a PDF menu.",
+    "profession_keywords": [
+      "küche",
+      "tisch",
+      "abend",
+      "hof",
+      "pasta",
+      "reservierung"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [],
+  "rebuilds": [],
+  "ok": true
+}

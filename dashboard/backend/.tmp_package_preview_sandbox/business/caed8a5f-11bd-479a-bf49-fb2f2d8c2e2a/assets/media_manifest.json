@@ -1,0 +1,68 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": "assets/background.jpg",
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/caed8a5f-11bd-479a-bf49-fb2f2d8c2e2a/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 1827260,
+      "reason": "ok",
+      "source": "niche"
+    },
+    {
+      "path": "assets/background.jpg",
+      "role": "background",
+      "ok": true,
+      "width": 1400,
+      "height": 933,
+      "bytes": 165799,
+      "reason": "ok",
+      "source": "pack"
+    }
+  ],
+  "gate_ok": true,
+  "gate_failures": [],
+  "media_gate_ok": true,
+  "media_gate_failures": [],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": true,
+    "failures": [],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/dental/hero_pack/business/hero_1.jpg",
+        "ok": true,
+        "tags": [
+          "clinic",
+          "dental",
+          "equipment",
+          "interior",
+          "result",
+          "specialist"
+        ],
+        "detail": "ok"
+      },
+      {
+        "section": "about",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/caed8a5f-11bd-479a-bf49-fb2f2d8c2e2a/assets/background.jpg",
+        "ok": true,
+        "tags": [
+          "clinic",
+          "dental",
+          "equipment",
+          "interior",
+          "result",
+          "specialist"
+        ],
+        "detail": "ok"
+      }
+    ]
+  }
+}

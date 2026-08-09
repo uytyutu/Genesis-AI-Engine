@@ -1,0 +1,24 @@
+[
+  {
+    "id": "opire:01J42C08V4J78ZAWH8JH2RQS8G",
+    "title": "research implementation for Windows",
+    "status": "executing",
+    "pipeline_state": "QUEUED",
+    "stage": "queued",
+    "heartbeat_at": null,
+    "message_ru": "Очередь Execution Engine…",
+    "ok": true,
+    "updated_at": "2026-08-08T17:34:03.801296+00:00"
+  },
+  {
+    "id": "opire:01JARC75G44M6EQCJCR1DTBHD6",
+    "title": "[BUG] Internal Server Errors still shows success toast",
+    "status": "ceo_approved",
+    "pipeline_state": "QUEUED",
+    "stage": "queued",
+    "heartbeat_at": null,
+    "message_ru": "В очереди AUTO-RUN — Clone стартует без кнопки «Запустить Execution», когда линия свободна.",
+    "ok": false,
+    "updated_at": "2026-08-08T17:26:12.431839+00:00"
+  }
+]

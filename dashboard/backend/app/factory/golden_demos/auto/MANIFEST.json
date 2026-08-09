@@ -1,11 +1,11 @@
 {
   "niche": "auto",
   "business_name": "Autowerkstatt Nord",
-  "product_id": "01fecc76-d1e1-44ea-9ffb-908fe973533c",
+  "product_id": "a3c52e26-766c-4c7e-9208-96543d5657f6",
   "headline": "Autowerkstatt Nord",
   "preview_note": "Open local index.html in browser for visual review",
   "local_index": "dashboard/backend/app/factory/golden_demos/auto/index.html",
-  "zip_bytes": 5112184,
+  "zip_bytes": 5112370,
   "zip_name": "Autowerkstatt_Nord_fallback.zip",
   "hard_passed": true,
   "score_passed": true,

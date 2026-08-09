@@ -136,15 +136,15 @@ def diagnose_frontend(
                 "Mission Control не собран: отсутствует .next/routes-manifest.json.\n"
                 "Virtus Core выполнит npm run build автоматически."
             )
-        elif not frontend_build_integrity(root):
+        elif frontend_build_ready(root) and not frontend_build_integrity(root):
             msg = (
-                "Сборка Mission Control неполная (повреждён .next).\n"
+                "Production .next неполный (есть BUILD_ID, но не хватает файлов).\n"
                 "Virtus Core пересоберёт интерфейс перед запуском."
             )
         else:
             msg = (
-                "Mission Control ещё не собран (нет папки .next).\n"
-                "Virtus Core выполнит сборку перед запуском."
+                "Production отсутствует (нет .next/BUILD_ID — часто после next:dev).\n"
+                "CEO path: Mission Control через next:dev; полная сборка — Development Update."
             )
         return FrontendDiagnosis(
             issue="missing_build",
@@ -321,8 +321,14 @@ def _try_free_port(port: int = 3000) -> tuple[bool, str]:
 def repair_frontend(
     managed: ManagedProcesses,
     root: Path | None = None,
+    *,
+    allow_rebuild: bool = True,
 ) -> tuple[bool, str]:
-    """Kill frontend, rebuild .next if needed, restart production server (next start)."""
+    """Kill frontend, optionally rebuild .next, restart production server (next start).
+
+    Auto-repair during cold boot must use allow_rebuild=False — never npm run build
+    mid-start (CEO path hang: Repair → Repair → Crash).
+    """
     from launcher.health import owner_ready_live, probe_frontend_live
     from launcher.processes import _kill_tree, start_frontend
 
@@ -367,7 +373,13 @@ def repair_frontend(
         if not ok:
             return False, f"{diag.message}\n\n{msg}"
 
-    if root is not None and _needs_frontend_rebuild(root, diag):
+    from launcher.frontend_build_policy import POLICY_DEV_SERVER, POLICY_LAUNCH_STABLE
+
+    if (
+        allow_rebuild
+        and root is not None
+        and _needs_frontend_rebuild(root, diag)
+    ):
         _clear_next_cache(root, managed)
         ok, msg = build_frontend(root, managed=managed)
         steps.append(msg)
@@ -379,19 +391,37 @@ def repair_frontend(
                 "Сборка Mission Control не завершилась — .next всё ещё неполный.\n"
                 "См. launcher/logs/frontend_build.log"
             )
+    elif not allow_rebuild and root is not None and _needs_frontend_rebuild(root, diag):
+        steps.append(
+            "Пропуск npm run build (soft restart) — Mission Control via next:dev"
+        )
 
-    ok, msg = ensure_frontend_ready(root, for_production=True, managed=managed)
+    # Soft restart must not require a production BUILD_ID — that caused RC1-D FAIL
+    # (Supervisor detected FE DOWN, then ensure_frontend_ready(for_production=True) aborted).
+    use_dev = not frontend_build_integrity(root)
+    if use_dev:
+        ok, msg = ensure_frontend_ready(root, for_production=False, managed=managed)
+        policy = POLICY_DEV_SERVER
+    else:
+        ok, msg = ensure_frontend_ready(
+            root,
+            for_production=True,
+            managed=managed,
+            build_policy=POLICY_LAUNCH_STABLE,
+        )
+        policy = POLICY_LAUNCH_STABLE
     steps.append(msg)
     if not ok:
         return False, f"{diag.message}\n\n{msg}"
 
-    ok, msg, proc = start_frontend(root, managed=managed)
+    ok, msg, proc = start_frontend(root, managed=managed, build_policy=policy)
     steps.append(msg)
     if not ok:
         return False, f"{diag.message}\n\n{msg}"
 
     managed.frontend = proc
-    append_log("Frontend repair: restarted production server (next start)")
+    mode = "next:dev" if policy == POLICY_DEV_SERVER else "next start"
+    append_log(f"Frontend repair: restarted ({mode}) — backend untouched")
     time.sleep(2)
     return True, "\n".join(steps)
 

@@ -27,6 +27,10 @@ from app.factory.quality_gate import (
     assert_quality_gate,
     run_quality_gate,
 )
+from app.factory.visual_intelligence.quality_gate import (
+    VisualQualityResult,
+    run_visual_quality_gate,
+)
 
 ENGINE_ID = "compliance_v1"
 
@@ -68,6 +72,7 @@ class ComplianceResult:
     quality_gate: QualityGateResult | None = None
     media_gate: MediaGateResult | None = None
     content_gate: ContentGateResult | None = None
+    visual_quality: VisualQualityResult | None = None
 
     @property
     def failures(self) -> list[str]:
@@ -98,6 +103,7 @@ class ComplianceResult:
             "quality_gate": self.quality_gate.as_dict() if self.quality_gate else None,
             "media_gate": self.media_gate.as_dict() if self.media_gate else None,
             "content_gate": self.content_gate.as_dict() if self.content_gate else None,
+            "visual_quality": self.visual_quality.as_dict() if self.visual_quality else None,
         }
 
 
@@ -164,8 +170,29 @@ def run_compliance(
     meta: dict | None = None,
     assets_dir: Path | None = None,
 ) -> ComplianceResult:
-    """Evaluate deliverable: Quality → Media → Content Gate."""
-    meta = meta or {}
+    """Evaluate deliverable: Quality → Media → Content → Visual Intelligence Gate."""
+    meta = dict(meta or {})
+    # Enrich color/contrast tokens from Design Engine when missing
+    if not meta.get("ink") or not meta.get("primary"):
+        try:
+            import re as _re
+
+            from app.factory.design_engine import resolve_for_niche
+
+            niche = str(meta.get("niche") or meta.get("niche_id") or "")
+            if not niche:
+                m = _re.search(r'data-niche="([^"]+)"', html or "")
+                niche = m.group(1) if m else "generic"
+            tokens = resolve_for_niche(niche)
+            meta.setdefault("niche", tokens.niche_id)
+            meta.setdefault("primary", tokens.primary)
+            meta.setdefault("accent", tokens.accent)
+            meta.setdefault("ink", tokens.ink)
+            meta.setdefault("surface_token", tokens.surface)
+            meta.setdefault("visual_plan", True)
+        except Exception:
+            pass
+
     gate = run_quality_gate(html, meta=meta, assets_dir=assets_dir)
     checks = [_map_check(c) for c in gate.checks]
 
@@ -227,6 +254,36 @@ def run_compliance(
     content_check, content_result = _content_gate_from_meta(meta, html)
     checks.append(content_check)
 
+    # Visual Intelligence — Quality Gate ≥ 90 (composition · contrast · perf · …)
+    skip_visual = bool(meta.get("skip_visual_quality"))
+    visual_result: VisualQualityResult | None = None
+    if skip_visual:
+        checks.append(
+            ComplianceCheck(
+                id="visual_intelligence",
+                domain="design",
+                ok=True,
+                detail="skipped",
+            )
+        )
+    else:
+        visual_result = run_visual_quality_gate(html, meta=meta)
+        checks.append(
+            ComplianceCheck(
+                id="visual_intelligence",
+                domain="design",
+                ok=visual_result.passed,
+                detail=(
+                    f"score={visual_result.score}/{visual_result.threshold}"
+                    + (
+                        f" · {'; '.join(visual_result.suggestions[:2])}"
+                        if not visual_result.passed
+                        else ""
+                    )
+                ),
+            )
+        )
+
     passed = all(c.ok for c in checks)
     return ComplianceResult(
         passed=passed,
@@ -234,6 +291,7 @@ def run_compliance(
         quality_gate=gate,
         media_gate=media_result,
         content_gate=content_result,
+        visual_quality=visual_result,
     )
 
 

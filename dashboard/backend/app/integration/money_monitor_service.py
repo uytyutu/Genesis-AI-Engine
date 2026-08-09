@@ -101,15 +101,94 @@ def build_money_monitor(
     if withdraw_ready and payout.get("pending_alerts"):
         alert_message = str(payout["pending_alerts"][0].get("message") or "")
 
+    api_farm_block: dict[str, Any] = {}
+    rapidapi_actual = 0.0
+    rapidapi_pending = 0.0
+    rapidapi_gross = 0.0
+    rapidapi_fee = 0.0
+    try:
+        from swarm.farm_channels.rapidapi.monitor import portfolio_metrics
+        from swarm.farm_channels.rapidapi.revenue import revenue_summary
+        from swarm.farm_channels.rapidapi.store import ApiFarmStore
+        from swarm.farm_channels.rapidapi.worker import status_payload as api_farm_status
+
+        _afs = ApiFarmStore()
+        port = portfolio_metrics(_afs)
+        rev = revenue_summary(_afs)
+        rapidapi_actual = float(rev.get("actual_revenue") or 0)
+        rapidapi_pending = float(rev.get("pending_payout") or 0)
+        rapidapi_gross = float(rev.get("gross_revenue") or 0)
+        rapidapi_fee = float(rev.get("marketplace_fee") or 0)
+        st = api_farm_status(_afs)
+        api_farm_block = {
+            **port,
+            "revenue": rev,
+            "status": st,
+            "ceo_action": st.get("ceo_action") or [],
+            "requires_ceo_action": bool(st.get("requires_ceo_action")),
+            "paypal_payout_confirmed": bool(st.get("paypal_payout_confirmed")),
+            "public_api": st.get("public_api") or {},
+            "best_candidate": st.get("best_candidate"),
+            "payout_path_ru": "RapidAPI → PayPal",
+            "not_stripe": True,
+            "actual_only_paid_out": True,
+        }
+    except Exception:
+        api_farm_block = {
+            "candidates": 0,
+            "building": 0,
+            "testing": 0,
+            "ready": 0,
+            "published": 0,
+            "active": 0,
+            "failed": 0,
+            "api_calls": 0,
+            "subscribers": 0,
+            "revenue": {
+                "actual_revenue": 0,
+                "pending_payout": 0,
+                "gross_revenue": 0,
+                "marketplace_fee": 0,
+                "paid_out": 0,
+                "net_earned": 0,
+                "potential_not_real": 0,
+            },
+        }
+
+    total_actual = round(paid_by_client_eur + rapidapi_actual, 2)
+    real_revenue_hero = {
+        "title_ru": "REAL REVENUE",
+        "stripe_gross_eur": paid_by_client_eur,
+        "stripe_net_eur": received_eur,
+        "stripe_pending_eur": pending_eur,
+        "rapidapi_gross": rapidapi_gross,
+        "rapidapi_fee": rapidapi_fee,
+        "rapidapi_net_earned": float(
+            (api_farm_block.get("revenue") or {}).get("net_earned") or 0
+        ),
+        "rapidapi_pending_payout": rapidapi_pending,
+        "rapidapi_paid_out": rapidapi_actual,
+        "b2b_eur": paid_by_client_eur,
+        "api_farm_eur": rapidapi_actual,
+        "total_actual_eur": total_actual,
+        "total_actual_label_ru": f"{total_actual:.2f} €",
+        "farm_potential_not_real_eur": float(farm_potential["farm_journal_eur"]),
+        "training_ledger_not_real_eur": training_eur,
+        "legend_ru": {
+            "actual": "Только подтверждённые Stripe settlements + RapidAPI PAID_OUT",
+            "potential": "Farm Potential / Training Ledger — НЕ деньги",
+        },
+    }
+
     lanes = [
         {
             "id": "training_ledger",
             "icon": "📊",
-            "label_ru": "Журнал фермы (estimate)",
+            "label_ru": "Журнал фермы (estimate) — НЕ деньги",
             "amount_eur": farm_potential["farm_journal_eur"],
             "amount_label_ru": farm_potential["amount_label_ru"],
             "status": "simulation",
-            "status_ru": "Учебный · не REAL и не SPENT",
+            "status_ru": "NOT REAL MONEY · не Actual Revenue",
             "detail_ru": farm_potential["detail_ru"],
         },
         {
@@ -139,7 +218,7 @@ def build_money_monitor(
         {
             "id": "b2b_client",
             "icon": "💶",
-            "label_ru": "B2B / Path A — REAL",
+            "label_ru": "Stripe / B2B — REAL",
             "amount_eur": paid_by_client_eur,
             "amount_label_ru": f"{paid_by_client_eur:.2f} € оплачено",
             "status": "primary" if paid_by_client_eur > 0 else "waiting",
@@ -149,6 +228,25 @@ def build_money_monitor(
             "detail_ru": (
                 f"Доступно к выводу: {received_eur:.2f} € · Settlement: {pending_eur:.2f} € · "
                 f"Outbox: {outbox_pending or pending_proposals} · разговоров: {contacted}."
+            ),
+        },
+        {
+            "id": "rapidapi_api_farm",
+            "icon": "🔌",
+            "label_ru": "RapidAPI / API Farm — REAL only PAID_OUT",
+            "amount_eur": rapidapi_actual,
+            "amount_label_ru": f"{rapidapi_actual:.2f} paid out",
+            "status": "primary" if rapidapi_actual > 0 else "waiting",
+            "status_ru": (
+                "Есть подтверждённый RapidAPI payout"
+                if rapidapi_actual > 0
+                else "Ждём 1 API → 1 user → 1 PAID_OUT (PayPal)"
+            ),
+            "detail_ru": (
+                f"Gross {rapidapi_gross:.2f} · Fee {rapidapi_fee:.2f} · "
+                f"Pending {rapidapi_pending:.2f} · Payout: RapidAPI→PayPal (не Stripe). "
+                f"Candidates {api_farm_block.get('candidates', 0)} · "
+                f"Active {api_farm_block.get('active', 0)}."
             ),
         },
     ]
@@ -221,24 +319,33 @@ def build_money_monitor(
 
     return {
         "title_ru": "Приборная панель — деньги",
-        "subtitle_ru": "REAL / SPENT / PREDICTION · Earn OFF пока нет performer-адаптера",
+        "subtitle_ru": (
+            "REAL REVENUE = Stripe + RapidAPI PAID_OUT · "
+            "Farm Potential / Training — NOT REAL MONEY"
+        ),
         "money_truth": money_truth,
         "channel_board": channel_board,
         "payout_manager": payout_manager,
         "actual_revenue": actual_revenue,
-        "farm_potential": farm_potential,
+        "farm_potential": {
+            **farm_potential,
+            "label_ru": "Farm Potential — NOT REAL MONEY",
+            "not_real_money": True,
+        },
         "real_money": real_money,
+        "real_revenue_hero": real_revenue_hero,
+        "api_farm": api_farm_block,
         "sales_funnel": sales_funnel,
         "path_a_funnel": path_a_funnel,
         "mission2_kpi": mission2_kpi,
         "lanes": lanes,
         "withdraw_alert": withdraw_alert,
         "pipeline": pipeline,
-        "model_proven": model_proven,
+        "model_proven": model_proven or rapidapi_actual > 0,
         "model_verdict_ru": (
             "Модель доказана — деньги поступили на подключённый счёт."
-            if model_proven
-            else "Модель не доказана — нужна хотя бы 1 успешная B2B-сделка с оплатой."
+            if model_proven or rapidapi_actual > 0
+            else "Модель не доказана — нужна 1 B2B Stripe оплата или 1 RapidAPI PAID_OUT."
         ),
         "toloka_role_ru": (
             "Toloka сейчас: Execution + Spend / Requester. "

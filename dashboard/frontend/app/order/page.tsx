@@ -32,6 +32,12 @@ import {
   loadOrderDraft,
   type OrderDraftPayload,
 } from "../lib/orderDraft";
+import {
+  BusinessInterviewPanel,
+  emptyInterview,
+  interviewOrderFields,
+  type InterviewState,
+} from "../components/BusinessInterviewPanel";
 
 const API = publicApiBase();
 
@@ -248,7 +254,10 @@ export default function OrderSitePage() {
   const [specOptions, setSpecOptions] = useState<{ id: string; niche?: string; label: string }[]>(
     [],
   );
-  const [packageId, setPackageId] = useState("basic");
+  const [packageId, setPackageId] = useState("standalone");
+  const [cinematicEnabled, setCinematicEnabled] = useState(false);
+  const [cinematicPriceEur, setCinematicPriceEur] = useState(99);
+  const [interview, setInterview] = useState<InterviewState>(() => emptyInterview());
   const [serviceList, setServiceList] = useState("");
   const [brandStyle, setBrandStyle] = useState("auto");
   const [manualPackage, setManualPackage] = useState(false);
@@ -284,6 +293,28 @@ export default function OrderSitePage() {
   const orderStartedRef = useRef(false);
   const checkoutSummaryViewedRef = useRef(false);
   const checkoutConfirmedLoggedRef = useRef(false);
+  const [ownerDemo, setOwnerDemo] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const lang = (i18n.language || "de").slice(0, 2);
+        const res = await fetch(
+          `${API}/api/commerce/cinematic-experience?lang=${encodeURIComponent(lang)}`,
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const price = Number(data?.product?.price_eur);
+        if (!cancelled && Number.isFinite(price) && price > 0) setCinematicPriceEur(price);
+      } catch {
+        /* keep default */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [i18n.language]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -297,13 +328,26 @@ export default function OrderSitePage() {
     }
     if (
       pkg &&
-      ["basic", "business", "premium", "repair_lite", "repair_standard", "repair_complete"].includes(
-        pkg
-      )
+      [
+        "standalone",
+        "connected",
+        "basic",
+        "business",
+        "premium",
+        "repair_lite",
+        "repair_standard",
+        "repair_complete",
+      ].includes(pkg)
     ) {
-      setPackageId(pkg);
+      const mapped =
+        pkg === "basic" || pkg === "business"
+          ? "standalone"
+          : pkg === "premium"
+            ? "connected"
+            : pkg;
+      setPackageId(mapped);
       setManualPackage(true);
-      urlPackageRef.current = pkg;
+      urlPackageRef.current = mapped;
     } else if (pkg === "smoke" && showSmokePackageInUi()) {
       setPackageId("smoke");
       setManualPackage(true);
@@ -319,6 +363,21 @@ export default function OrderSitePage() {
     setPurchaseType(parseOrderPurchaseType(params.get("purchase_type")));
     const vid = params.get("visitor_id")?.trim();
     setVisitorId(vid || getVisitorId("public"));
+    // Owner walkthrough: ?demo=1 → skip real pay, Factory generates after Demo Payment
+    const demoFlag =
+      params.get("demo") === "1" ||
+      params.get("owner_demo") === "1" ||
+      params.get("payment") === "demo";
+    if (demoFlag) {
+      setOwnerDemo(true);
+      // Prefill so tag works even if bridge needs name/email cues
+      setBusinessName((prev) => prev || "Golden Website Test Nordlicht");
+      setEmail((prev) => prev || "golden.owner@example.com");
+      if (!params.get("package")) {
+        setPackageId("premium");
+        setManualPackage(true);
+      }
+    }
     logCommerceEvent("tier_page_view", pkg, "order");
     if (!orderStartedRef.current) {
       orderStartedRef.current = true;
@@ -332,6 +391,11 @@ export default function OrderSitePage() {
   // Restore Path A order draft once visitor + market URL are known (URL package/niche win).
   useEffect(() => {
     if (!visitorId || !marketReady || draftReady) return;
+    // Owner demo walkthrough: do not overwrite demo prefill with an old draft
+    if (ownerDemo) {
+      setDraftReady(true);
+      return;
+    }
     const market = (marketParam || commerce.market_code || "DE").toUpperCase();
     const draft = loadOrderDraft(market, visitorId);
     if (isMeaningfulOrderDraft(draft) && draft) {
@@ -351,7 +415,7 @@ export default function OrderSitePage() {
     }
     setDraftReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate once per visitor/market
-  }, [visitorId, marketReady, marketParam, commerce.market_code, draftReady]);
+  }, [visitorId, marketReady, marketParam, commerce.market_code, draftReady, ownerDemo]);
 
   function applyOrderDraft(d: OrderDraftPayload) {
     const step = Math.min(4, Math.max(1, Math.floor(d.formStep) || 1));
@@ -927,15 +991,29 @@ export default function OrderSitePage() {
                   ? "[Projekt]"
                   : "[Website]",
             description.trim() || launch?.projectLabel || "Website Launch",
+            interview.dialogue ? `\n\n[Owner story]\n${interview.dialogue}` : "",
           ]
             .filter(Boolean)
             .join(" "),
           project_type: projectType,
-          city: city.trim() || null,
+          city: city.trim() || interview.city || null,
           phone: phone.trim() || null,
           whatsapp: whatsapp.trim() || null,
           email: email.trim() || null,
           customer_id: customerId,
+          commerce_mode:
+            packageId === "connected" || packageId === "premium"
+              ? "connected"
+              : "standalone",
+          ...interviewOrderFields({
+            ...interview,
+            company_name: interview.company_name || businessName.trim(),
+            city: interview.city || city.trim(),
+            niche: interview.niche || niche,
+            top_services: interview.top_services || serviceList,
+            style: interview.style || brandStyle || "modern",
+            wishes: interview.wishes || extraWishes,
+          }),
           needs_logo: needsLogo,
           needs_domain: needsDomain || domainStatus === "need_help",
           domain_status: domainStatus,
@@ -965,6 +1043,7 @@ export default function OrderSitePage() {
             uses_analytics: legalAnalytics,
           },
           package_id: packageId,
+          cinematic_enabled: cinematicEnabled,
           analysis_case_id: analysisCaseRef.current || null,
           brand_style: brandStyle || "auto",
           niche: niche || null,
@@ -973,6 +1052,9 @@ export default function OrderSitePage() {
           market_code: commerce.market_code || marketParam || undefined,
           ui_lang: (i18n.language || "").slice(0, 2).toLowerCase() || undefined,
           visitor_id: visitorId,
+          ...(ownerDemo
+            ? { demo: true, payment_mode: "demo", is_demo: true }
+            : {}),
         }),
       });
       const body = await res.json();
@@ -1120,6 +1202,21 @@ export default function OrderSitePage() {
   return (
     <PublicPageShell>
       <main className="storefront relative z-[1] mx-auto max-w-4xl space-y-5 overflow-x-hidden py-2 sm:space-y-6">
+        {ownerDemo ? (
+          <div
+            className="rounded-lg border border-amber-400/40 bg-amber-500/15 px-4 py-3 text-sm text-amber-50"
+            role="status"
+          >
+            <strong className="font-semibold">Owner Demo</strong>
+            {" — "}
+            Оплата пропускается (Demo Payment). Заполните бриф как клиент → подтвердите →
+            сайт сгенерируется Factory. Сравните с{" "}
+            <Link href="/site" className="underline underline-offset-2">
+              /site
+            </Link>
+            {" "}(Virtus Core bar).
+          </div>
+        ) : null}
         <OrderSteps current={1} launch={Boolean(launch)} />
         <div className="mb-2 text-center animate-fade-up">
           <Badge variant="accent" className="tracking-[0.2em]">
@@ -1230,6 +1327,21 @@ export default function OrderSitePage() {
                         ))}
                       </div>
                     </div>
+                    <BusinessInterviewPanel
+                      value={interview}
+                      onChange={(next) => {
+                        setInterview(next);
+                        if (next.company_name) setBusinessName(next.company_name);
+                        if (next.city) setCity(next.city);
+                        if (next.niche) setNiche(next.niche);
+                        if (next.top_services) setServiceList(next.top_services);
+                        if (next.style) setBrandStyle(next.style);
+                        if (next.about || next.dialogue) {
+                          setDescription(next.about || next.dialogue);
+                        }
+                        if (next.wishes) setExtraWishes(next.wishes);
+                      }}
+                    />
                     <Field label={t("order.businessName")} required>
                       <Input
                         value={businessName}
@@ -1693,7 +1805,10 @@ export default function OrderSitePage() {
                     {launch.projectLabel} {launch.company}
                   </p>
                   <p className="mt-2 text-3xl font-bold tabular-nums">
-                    {formatPrice(selected.price_eur, selected)}
+                    {formatPrice(
+                      selected.price_eur + (cinematicEnabled ? cinematicPriceEur : 0),
+                      selected,
+                    )}
                   </p>
                   <p className="mt-2 text-xs text-genesis-muted leading-relaxed">
                     {t("order.launchFixed")}
@@ -1737,6 +1852,24 @@ export default function OrderSitePage() {
                     </label>
                   ))}
                 </div>
+              )}
+              {!launch && (
+                <label className="mt-3 flex cursor-pointer items-start gap-2 rounded-xl border border-violet-500/25 bg-violet-950/20 px-3 py-2.5 text-sm">
+                  <input
+                    type="checkbox"
+                    className="mt-1 accent-violet-400"
+                    checked={cinematicEnabled}
+                    onChange={(e) => setCinematicEnabled(e.target.checked)}
+                  />
+                  <span>
+                    <span className="font-medium text-violet-100">
+                      Cinematic AI Experience +{cinematicPriceEur} €
+                    </span>
+                    <span className="mt-1 block text-xs text-genesis-muted">
+                      Уникальная кинематографическая сцена специально для вашего бизнеса.
+                    </span>
+                  </span>
+                </label>
               )}
               {!launch && (
                 <>

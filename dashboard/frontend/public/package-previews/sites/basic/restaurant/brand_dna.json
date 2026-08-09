@@ -1,0 +1,29 @@
+{
+  "business_name": "Küche Luna",
+  "niche_id": "restaurant",
+  "package_id": "basic",
+  "voice": "bold condensed display + honest body",
+  "feeling": "appetite and belonging",
+  "why_hero_exists": "The Hero exists to make 'Fire & Smoke' felt in 3 seconds: Appetite born from heat and craft.",
+  "color_feeling": "charcoal, ember orange, smoke grey",
+  "type_voice": "bold condensed display + honest body",
+  "scene_arc": "ember glow, close heat, dark atmosphere with life",
+  "avoid": [
+    "silent_forest",
+    "tech_saas",
+    "pastel_clinic",
+    "corporate_office"
+  ],
+  "fingerprint": "1ed10fbd68a24e32",
+  "brand_story": "Felix built Küche Luna because the room makes you want to stay. Clients (30–50) should feel appetite and belonging. Only then do we name the craft: restaurant.",
+  "core_emotion": "appetite and belonging",
+  "core_promise": "Appetite born from heat and craft.",
+  "visual_metaphor": "flame under the plate",
+  "creative_theme": "Fire & Smoke",
+  "creative_theme_id": "fire_smoke",
+  "scene_language": "ember glow, close heat, dark atmosphere with life",
+  "motion_language": "flicker and rise — heat language",
+  "interaction_style": "urgent desire — reserve now",
+  "photo_world": "grill glow, hands plating, steam",
+  "founder_name": "Felix"
+}

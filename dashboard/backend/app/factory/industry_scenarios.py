@@ -43,6 +43,20 @@ _SCENARIOS: dict[str, IndustryScenario] = {
         "calm_trust",
         "Termin buchen",
     ),
+    "psychology": IndustryScenario(
+        "psychology",
+        "consult",
+        ("L2", "L6", "L1"),
+        (
+            ("Wie läuft das Erstgespräch ab?", "In Ruhe — wir klären Anliegen, Rahmen und nächste Schritte."),
+            ("Bieten Sie Online-Termine an?", "Ja — online und vor Ort, je nach Ihrem Bedarf."),
+            ("Ist alles vertraulich?", "Ja — Schweigepflicht und sicherer Umgang mit Ihren Daten."),
+            ("Was kostet eine Sitzung?", "Transparente Honorare — wir nennen den Rahmen vorab."),
+        ),
+        ("Kontakt", "Erstgespräch", "Therapieprozess", "Begleitung"),
+        "calm_trust",
+        "Erstgespräch buchen",
+    ),
     "auto": IndustryScenario(
         "auto",
         "repair",

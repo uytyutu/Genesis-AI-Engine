@@ -30,16 +30,25 @@ def frontend_deps_ready(root: Path | None = None) -> bool:
 
 
 def frontend_build_marker(root: Path | None = None) -> Path:
-    return frontend_dir(root) / ".next" / "routes-manifest.json"
+    """Production marker — BUILD_ID exists only after `next build`, not after `next dev`."""
+    return frontend_dir(root) / ".next" / "BUILD_ID"
 
 
 def frontend_build_ready(root: Path | None = None) -> bool:
-    """Production build exists — required for `next start` and stable Genesis.exe launches."""
-    return frontend_build_marker(root).is_file()
+    """Production build exists — required for `next start` and stable Genesis.exe launches.
+
+    A `next dev` cache may have routes-manifest.json without BUILD_ID — that is NOT ready.
+    """
+    nxt = frontend_dir(root) / ".next"
+    return (nxt / "BUILD_ID").is_file() and (nxt / "routes-manifest.json").is_file()
 
 
 def frontend_build_integrity(root: Path | None = None) -> bool:
-    """True when .next is a complete production build, not a stale/partial cache."""
+    """True when .next is a complete production build, not a stale/partial cache.
+
+    Missing BUILD_ID → not ready (assessed as missing), not falsely "corrupt".
+    Corrupt = BUILD_ID present but required production artifacts incomplete.
+    """
     if not frontend_build_ready(root):
         return False
     nxt = frontend_dir(root) / ".next"

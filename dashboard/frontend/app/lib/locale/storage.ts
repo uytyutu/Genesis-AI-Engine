@@ -14,7 +14,7 @@ const ASSISTANT_KEY = "virtus_assistant_locale";
 export const UI_LOCALE_COOKIE = "virtus_ui_locale";
 
 function readAuto(): boolean {
-  if (typeof window === "undefined") return true;
+  if (typeof window === "undefined") return false;
   try {
     const raw = localStorage.getItem(AUTO_KEY);
     if (raw === "0") return false;
@@ -22,7 +22,9 @@ function readAuto(): boolean {
   } catch {
     /* private mode */
   }
-  return true;
+  // Prefer German storefront until the visitor explicitly enables auto-detect
+  // or picks another language (uk / ru / en / EU+CIS list).
+  return false;
 }
 
 function readStoredUi(): UiLocale | null {

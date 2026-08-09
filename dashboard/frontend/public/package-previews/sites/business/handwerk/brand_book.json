@@ -1,0 +1,116 @@
+{
+  "brand_name": "Meisterbau Hoffmann",
+  "niche_id": "handwerk",
+  "package_id": "business",
+  "positioning": "Solides Handwerk mit klarer Haltung",
+  "archetype_primary": "The Craftsman",
+  "archetype_secondary": "The Expert",
+  "brand_promise": "Arbeit, die hält — und sich sehen lassen kann.",
+  "core_emotion": "Vertrauen",
+  "secondary_emotion": "Handwerklicher Stolz",
+  "tone": [
+    "Direkt",
+    "Ehrlich",
+    "Kompetent",
+    "Bodenständig"
+  ],
+  "visual_style": "Craft Modern",
+  "visual_metaphor": "Werkstattlicht auf sauberem Werkzeug",
+  "photography": [
+    "Werkstatt",
+    "Material",
+    "Hände bei der Arbeit",
+    "Baustelle"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting"
+  ],
+  "motion_language": "Ruhig · Präzise",
+  "motion_token": "business",
+  "palette": {
+    "names": [
+      "Charcoal",
+      "Steel",
+      "Ochre",
+      "Warm White"
+    ],
+    "accent_hex": "#b45309",
+    "surface_hex": "#fafaf9",
+    "ink_hex": "#1c1917",
+    "secondary_hex": "#44403c",
+    "highlight_hex": "#f59e0b"
+  },
+  "typography_display": "Oswald",
+  "typography_body": "Figtree",
+  "typography_pair_id": "oswald_figtree_craft",
+  "typography_emotion": "confidence",
+  "icon_style": "Outline Industrial",
+  "border_radius_px": 10,
+  "shadow_style": "Soft Deep",
+  "glass_level": "low",
+  "texture": [
+    "Holz",
+    "Metall",
+    "Beton"
+  ],
+  "scene_language": [
+    "Workshop",
+    "Material",
+    "Light"
+  ],
+  "cta_style": "Klare Buttons · Keine Hektik",
+  "trust_strategy": [
+    "Meister",
+    "Referenzen",
+    "Garantie"
+  ],
+  "atmosphere_mode": "atelier",
+  "dna_style": "modern_clinical",
+  "dna_palette_family": "charcoal_ochre",
+  "hero_concept": "workshop_precision",
+  "fingerprint": "7350933bc43e42d1bb282ee2",
+  "media_dna": {
+    "required": [
+      "Workshop",
+      "Tools",
+      "Material",
+      "Hands at work"
+    ],
+    "preferred": [
+      "Work light",
+      "Bench",
+      "Craft detail"
+    ],
+    "forbidden": [
+      "Café",
+      "Office",
+      "Beauty",
+      "Laptop",
+      "Coworking"
+    ],
+    "hero_proof": "Craftsperson at the bench or on site with tools — daily work, not décor.",
+    "profession_keywords": [
+      "workshop",
+      "tool",
+      "craft",
+      "handwerk",
+      "bench",
+      "material"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

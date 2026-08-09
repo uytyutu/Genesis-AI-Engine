@@ -810,6 +810,28 @@
       0 28px 80px -20px rgba(0, 0, 0, 0.85),
       0 0 60px -20px rgba(14, 165, 233, 0.35);
   }
+  /* Storefront consultant — same palette as /site, not a separate “voice app” */
+  .vector-chat-panel--storefront {
+    background: rgba(8, 8, 14, 0.92);
+    backdrop-filter: blur(18px);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.08),
+      0 20px 48px -24px rgba(0, 0, 0, 0.75);
+  }
+  .vector-chat-panel--storefront .vector-chat-panel__mesh {
+    background:
+      radial-gradient(circle at 18% 0%, rgba(124, 58, 237, 0.18), transparent 42%),
+      radial-gradient(circle at 88% 18%, rgba(91, 141, 239, 0.12), transparent 40%),
+      linear-gradient(165deg, rgba(12, 10, 24, 0.9) 0%, rgba(8, 8, 14, 0.95) 100%);
+    animation: none;
+  }
+  .vector-chat-panel--storefront .vector-chat-panel__orb {
+    opacity: 0.28;
+    filter: blur(48px);
+  }
+  .vector-chat-panel--storefront .vector-chat-panel__noise {
+    opacity: 0.04;
+  }
   .vector-chat-panel__bg {
     pointer-events: none;
     position: absolute;
@@ -884,7 +906,7 @@
     }
   }
   .vector-chat-fab {
-    animation: vectorFabPulse 2.8s ease-in-out infinite;
+    animation: none;
   }
   .vector-avatar-stage {
     background:
@@ -921,5 +943,28 @@
     .vector-chat-fab {
       animation: none !important;
     }
+  }
+}
+
+/* Visual Intelligence Engine — Virtus Core platform showcase (Premium) */
+[data-vie-surface="platform"].vie-motion-premium {
+  --vie-motion-tier: "premium";
+}
+[data-vie-surface="platform"].vie-motion-premium #main-content {
+  animation: viePlatformIn 0.7s ease both;
+}
+@keyframes viePlatformIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-vie-surface="platform"].vie-motion-premium #main-content {
+    animation: none !important;
   }
 }

@@ -1,0 +1,15 @@
+{
+  "brand_name": "Autowerkstatt Nord",
+  "niche_id": "auto",
+  "package_id": "premium",
+  "media_mode": "industrial_craft",
+  "visual_metaphor": "Lift and precise mechanics",
+  "hero_concept": "Lift and precise mechanics | Autowerkstatt Nord",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": true,
+  "experience_tier": "cinematic",
+  "fingerprint": "cf228be51b1074600769",
+  "image_prompt": "Autowerkstatt Nord auto brand hero, Lift and precise mechanics, European studio, media_mode=industrial_craft, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

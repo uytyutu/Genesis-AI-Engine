@@ -1,0 +1,75 @@
+{
+  "emotion": "warmth",
+  "style": "organic_premium",
+  "palette_family": "terracotta_olive",
+  "typography_pair": "playfair_source_culinary",
+  "motion": "premium",
+  "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "solstice",
+  "package_id": "premium",
+  "niche_id": "restaurant",
+  "fingerprint": "3bf0f1feed054047c1c96d44d2c1843e8fe543a639ac665433d6167d5cb7059b",
+  "section_treatments": [
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "services",
+      "illustration"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "benefits",
+      "gradient"
+    ],
+    [
+      "faq",
+      "glass"
+    ],
+    [
+      "reviews",
+      "photo_band"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "late_cta",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#c45c26",
+  "surface_hex": "#e6eaf0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "cinematic",
+  "brand_book_fp": "423a833d839805c8da5f8fd6",
+  "border_radius_px": 2
+}

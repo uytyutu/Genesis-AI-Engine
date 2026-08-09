@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { onGithubLinkClick } from "../lib/farmGithubGate";
 
 /** Honest Execution Timeline — states, not fake checkmarks. */
 
@@ -12,6 +13,7 @@ export type TimelineTask = {
   real_income?: boolean;
   merge_status?: string;
   execution_error?: string;
+  execution_heal?: string;
   execution_checklist?: { id: string; title: string; done?: boolean }[];
   execution?: {
     stage?: string;
@@ -139,6 +141,14 @@ export function buildExecutionTimeline(
       "completed",
     ].includes(String(t.status || ""));
   const refused = route === "refuse" || t.execution?.stage === "failed";
+  const healOnly =
+    Boolean(t.execution_heal) ||
+    String(t.execution_error || "").startsWith("zombie_queued") ||
+    t.execution_error === "factory_busy";
+  const hardFail =
+    refused ||
+    t.execution?.stage === "failed" ||
+    (Boolean(t.execution_error) && !healOnly);
   const impl = t.execution?.stages?.implementation;
   const research = t.execution?.stages?.research;
   const validation = t.execution?.stages?.validation;
@@ -164,7 +174,7 @@ export function buildExecutionTimeline(
   const researchDone = Boolean(research?.ok) || checklistDone(t, "research");
 
   let branch: TimelineModel["branch"] = "not_started";
-  if (refused || t.execution_error || t.execution?.stage === "failed") {
+  if (hardFail) {
     branch = "failed";
   } else if (hasPr || submitted) {
     branch = "submitted";
@@ -388,8 +398,8 @@ export function buildExecutionTimeline(
           ? String(t.pr_url)
           : ranEngine && patchReady
             ? githubTokenReady === false
-              ? "Needs GITHUB_TOKEN · then Submit Draft PR"
-              : "Local package ready · press Submit Draft PR"
+              ? "Требуется подтверждение: GITHUB_TOKEN · затем Draft PR"
+              : "📤 Publishing… ждёт подтверждения Draft PR"
             : undefined,
       },
     );
@@ -436,35 +446,60 @@ export function buildExecutionTimeline(
 
   if (!ranEngine) {
     headline = "Ожидает Execution Engine — работа ещё не начиналась";
-    nextAction =
-      "Approve должен запустить Execution автоматически. Если статус завис — «Повторить Execution Engine».";
+    nextAction = "🧠 Thinking… Approve должен запустить Execution автоматически";
   } else if (branch === "failed") {
     headline = "Execution остановлен с ошибкой";
     nextAction = String(
       t.execution_error || t.execution?.error_detail || "Смотрите лог",
     );
+  } else if (healOnly && !patchReady && !hasPr && !activelyRunning) {
+    headline =
+      "Очередь сброшена после перезапуска — Execution ещё не шёл";
+    nextAction = "🧠 Thinking… агент перезапустит Execution сам";
   } else if (pausedExternal) {
     headline =
       "Impossible в авто-режиме — патча нет (задача должна уйти в Skip)";
     nextAction =
-      "Engine снимет задачу сам и возьмёт следующую TAKE. CEO не открывает Cursor.";
+      "🔍 Researching… Engine снимет задачу сам и возьмёт следующую TAKE";
   } else if (hasPr) {
     headline = "Отправлено на GitHub — Draft PR открыт";
-    nextAction = "Ждите review maintainer · Sync после merge";
+    nextAction = "👀 Waiting for maintainer… · Sync после merge";
   } else if (patchReady) {
     headline =
       branch === "research_patch"
         ? "Research Agent + Codex: патч готов — на GitHub ещё НЕ отправлено"
         : "Локальный патч готов — на GitHub ещё НЕ отправлено";
     nextAction = githubTokenReady
-      ? "Нажмите «Отправить Draft PR (auto)» — push + Draft PR"
-      : "Добавьте GITHUB_TOKEN в .env.local, перезапустите Genesis.exe, затем Submit";
+      ? "Требуется ваше подтверждение: отправить Draft PR"
+      : "Требуется ваше подтверждение: добавить GITHUB_TOKEN, затем отправить Draft PR";
   } else if (onlyQueued) {
     headline = `Pipeline: QUEUED — Execution стартовал, ждёт Clone`;
-    nextAction = "Дождитесь Clone → Analysis → Implementation";
+    nextAction = "🔍 Researching… Clone → Analysis → Implementation";
+  } else if (
+    ["TESTING", "validation"].includes(pipeline) ||
+    engineStage === "validation"
+  ) {
+    headline = `Pipeline: ${pipeline || "RUNNING"} — Validation`;
+    nextAction = "🧪 Testing…";
+  } else if (
+    ["COMMITTING", "PATCHING"].includes(pipeline) ||
+    ["implementation", "commit", "patching"].includes(engineStage)
+  ) {
+    headline = `Pipeline: ${pipeline || "RUNNING"} — Implementation`;
+    nextAction =
+      pipeline === "COMMITTING" || engineStage === "commit"
+        ? "📤 Publishing…"
+        : "💻 Coding…";
+  } else if (
+    String(t.status || "") === "payment_available" ||
+    String(t.status || "") === "withdraw" ||
+    String(t.status || "") === "payout_confirmed"
+  ) {
+    headline = "Payout path";
+    nextAction = "💰 Waiting for payout…";
   } else {
     headline = `Pipeline: ${pipeline || "RUNNING"} — Execution в процессе`;
-    nextAction = "Дождитесь завершения или перезапустите Execution";
+    nextAction = "💻 Coding…";
   }
 
   return {
@@ -541,14 +576,13 @@ export function FarmExecutionTimeline({
         {task.pr_url ? (
           <>
             {" · "}
-            <a
-              href={task.pr_url}
-              target="_blank"
-              rel="noreferrer"
+            <button
+              type="button"
+              onClick={() => onGithubLinkClick(String(task.pr_url))}
               className="text-sky-300 hover:underline"
             >
               Open PR ↗
-            </a>
+            </button>
           </>
         ) : null}
       </p>

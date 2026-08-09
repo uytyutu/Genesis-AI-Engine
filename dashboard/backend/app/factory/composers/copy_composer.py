@@ -12,16 +12,28 @@ def compose_copy(analysis: AnalysisResult, ctx: QuestionnaireContext) -> Analysi
     name = ctx.business_name or analysis.business_name
     services = list(analysis.services or [])
     about = (analysis.about_text or "").strip()
-    # Do not invent biography — keep niche about, inject city/services only from data.
-    if ctx.city and name and name not in about:
-        about = (
-            f"{name} in {ctx.city}"
-            + (f" — Fokus: {', '.join(services[:3])}." if services else ".")
-        )
-    elif services and name:
-        about = f"{name} — {', '.join(services[:3])}. Erreichbar für Anfragen und Termine."
-    elif not about:
-        about = f"{name} — klare Leistungen und schnelle Rückmeldung."
+    # Keep niche/preset about when it already has substance — never replace with a stub.
+    thin = len(about) < 60 or "Erreichbar für Anfragen" in about
+    if thin:
+        if ctx.city and name:
+            focus = f" — Fokus: {', '.join(services[:3])}." if services else "."
+            about = f"{name} in {ctx.city}{focus}"
+            if analysis.about_text and len((analysis.about_text or "").strip()) >= 40:
+                # Prefer richer preset + soft city anchor
+                base = (analysis.about_text or "").strip()
+                if ctx.city and ctx.city not in base:
+                    about = f"{base} Standort: {ctx.city}."
+                else:
+                    about = base
+        elif about:
+            pass
+        elif services and name:
+            about = (
+                f"{name} begleitet Sie mit {', '.join(services[:3])} — "
+                "klar im Ablauf, erreichbar und auf Ihre Situation abgestimmt."
+            )
+        else:
+            about = f"{name} — klare Leistungen und schnelle Rückmeldung."
 
     benefits = list(analysis.benefits or ())
     if len(ctx.advantages) >= 2:
@@ -32,4 +44,4 @@ def compose_copy(analysis: AnalysisResult, ctx: QuestionnaireContext) -> Analysi
         if not any(ctx.city.lower() in b.lower() for b in benefits):
             benefits[0] = f"Vor Ort in {ctx.city}" if benefits else f"Lokal in {ctx.city}"
 
-    return replace(analysis, about_text=about[:400], benefits=tuple(benefits[:4]))
+    return replace(analysis, about_text=about[:520], benefits=tuple(benefits[:4]))

@@ -1,0 +1,73 @@
+{
+  "brand_name": "Autowerkstatt Nord",
+  "niche_id": "auto",
+  "fingerprint": "ce853db8a302520d66de",
+  "color": {
+    "primary": "#12161c",
+    "accent": "#d82524",
+    "secondary": "#566174",
+    "surface": "#e4e8ee",
+    "cards": "#dee4ec",
+    "background": "#12161c",
+    "gradient": "linear-gradient(145deg,#12161c 0%,#6c1212 48%,#d82524 100%)",
+    "glow": "rgba(216,37,36,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "premium_business_graphic",
+    "abstract_gradient",
+    "isometric_illustration"
+  ],
+  "illustration_pack": "minimal line illustrations",
+  "motion_language": "cinematic parallax · soft reveal · magnetic CTA",
+  "icon_style": "minimal stroke set",
+  "scene_library": {
+    "hero": [
+      "moderne Kfz-Werkstatt abends",
+      "Mechaniker an BMW / Audi / Mercedes",
+      "Diagnosegerät und Hebebühne",
+      "Werkzeuge und Funken, warmes Arbeitslicht"
+    ],
+    "gallery": [
+      "Motorwechsel",
+      "Computerdiagnose",
+      "Bremsenreparatur",
+      "Fahrzeugelektrik",
+      "Reifenwechsel",
+      "Fahrzeugübergabe an Kunden"
+    ],
+    "before_after": [
+      "verschmutzter Motorraum",
+      "sauber diagnostizierter Motorraum"
+    ],
+    "team": [
+      "Meister in Overall",
+      "Diagnose-Techniker"
+    ],
+    "equipment": [
+      "Hebebühne",
+      "OBD-Diagnose",
+      "Drehmomentschlüssel"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: moderne Kfz-Werkstatt abends, Mechaniker an BMW / Audi / Mercedes, Diagnosegerät und Hebebühne, Werkzeuge und Funken, warmes Arbeitslicht. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=minimal line illustrations. Must show: moderne Kfz-Werkstatt abends, Mechaniker an BMW / Audi / Mercedes, Diagnosegerät und Hebebühne, Werkzeuge und Funken, warmes Arbeitslicht. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Motorwechsel, Computerdiagnose, Bremsenreparatur, Fahrzeugelektrik. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: verschmutzter Motorraum, sauber diagnostizierter Motorraum. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=team. Medium=premium_business_graphic. Illustration language=minimal line illustrations. Must show: Meister in Overall, Diagnose-Techniker. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=equipment. Medium=premium_business_graphic. Illustration language=minimal line illustrations. Must show: Hebebühne, OBD-Diagnose, Drehmomentschlüssel. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: Bremsenreparatur, Fahrzeugelektrik, Reifenwechsel, Fahrzeugübergabe an Kunden. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=illustration. Medium=premium_business_graphic. Illustration language=minimal line illustrations. Must show: moderne Kfz-Werkstatt abends, Mechaniker an BMW / Audi / Mercedes. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=minimal line illustrations. Must show: minimal stroke set. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «Autowerkstatt Nord» (auto) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=minimal line illustrations. Must show: moderne Kfz-Werkstatt abends, Mechaniker an BMW / Audi / Mercedes, Diagnosegerät und Hebebühne. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

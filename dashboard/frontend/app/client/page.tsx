@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ClientWorkspaceShell } from "../components/ClientWorkspaceShell";
+import { VectorDialogDock } from "../components/VectorDialogDock";
+import { BusinessSetupPanel } from "../components/BusinessSetupPanel";
+import { AiHealthPanel } from "../components/AiHealthPanel";
 import {
   PortalApiError,
   portalFetch,
@@ -77,34 +80,40 @@ export default function ClientDashboardPage() {
     month: "short",
   });
 
-  const recommendation = !hasVector
+  const recommendation = !hasWebsite
     ? {
-        text: `Add ${ASSISTANT_NAME} — answer customers 24/7`,
-        href: "/projects/chatbot/setup",
-        cta: `Activate ${ASSISTANT_NAME}`,
+        text: "Order a website — first step for your business online",
+        href: "/order",
+        cta: "Order website",
       }
-    : openConversations > 0
+    : !hasVector
       ? {
-          text: "Review open conversations in Inbox",
-          href: "/projects/chatbot/inbox",
-          cta: "Open Inbox",
+          text: `Add ${ASSISTANT_NAME} (Digital Employee) when you are ready for 24/7 replies`,
+          href: "/client/bots",
+          cta: "View Digital Employee",
         }
-      : !hasWebsite
+      : openConversations > 0
         ? {
-            text: "Order a Landing Website for your business",
-            href: "/order",
-            cta: "Order Landing",
+            text: "Review open conversations in Inbox",
+            href: "/projects/chatbot/inbox",
+            cta: "Open Inbox",
           }
         : {
-            text: "Ask Vector what to improve next",
-            href: "/projects/chatbot",
-            cta: `Open ${ASSISTANT_NAME}`,
+            text: "Open your products — websites, AI Store, next upgrades",
+            href: "/client/products",
+            cta: "My products",
           };
 
   return (
     <ClientWorkspaceShell
-      title={`Welcome to ${BRAND_NAME}`}
-      subtitle={`What is happening with your business today · ${todayLabel}`}
+      title={`Virtus AI Workspace`}
+      subtitle={`Поздравляю — проект готов. Давайте превратим его в работающий бизнес · ${todayLabel}`}
+      hasStore={(products ?? []).some(
+        (p) =>
+          p.product_type === "store" ||
+          p.product_id === "prod_store" ||
+          p.product_type === "shop",
+      )}
     >
       {error ? (
         <p className="mb-4 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
@@ -112,12 +121,17 @@ export default function ClientDashboardPage() {
         </p>
       ) : null}
 
+      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+        <BusinessSetupPanel dark />
+        <AiHealthPanel dark />
+      </div>
+
       {products !== null && products.length === 0 ? (
         <section className="mb-6 rounded-2xl border border-sky-400/25 bg-sky-500/[0.07] p-5">
           <h2 className="text-lg font-semibold text-white">Your office is ready</h2>
           <p className="mt-2 text-sm text-zinc-300">
-            No products yet. Order a website or AI bot anytime — you can also buy
-            from the public site without signing in.
+            No products yet. Start with a website or AI Store — Digital Employee
+            is optional after that.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
@@ -127,10 +141,10 @@ export default function ClientDashboardPage() {
               Order a website
             </Link>
             <Link
-              href="/order/bot?package=bot_business"
+              href="/order/shop"
               className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/5"
             >
-              Order an AI bot
+              Order AI Store
             </Link>
             <Link
               href="/products"
@@ -335,6 +349,17 @@ export default function ClientDashboardPage() {
           </ul>
         )}
       </section>
+      <VectorDialogDock
+        surface="platform"
+        dark
+        dock="right"
+        hasStore={(products ?? []).some(
+          (p) =>
+            p.product_type === "store" ||
+            p.product_id === "prod_store" ||
+            p.product_type === "shop",
+        )}
+      />
     </ClientWorkspaceShell>
   );
 }

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wohnraum Furniture | Startseite</title>
+  <meta name="description" content="Wohnraum Furniture — Möbel und Einrichtung für moderne Wohnungen" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="assets/store.css" />
+<style id="digital-creative-studio">
+
+/* Typography Director */
+body {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body .hero h1,
+body .hero .hero-title,
+body h1 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+}
+body .section h2 {
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-size: 1.55rem;
+}
+@media (max-width: 720px) {
+  body { line-height: 1.5; }
+  body .hero h1 { letter-spacing: -0.02em; }
+}
+
+
+/* Luxury Director — off */
+body[data-luxury="0"] .hero { --lux-space: 1; }
+
+
+/* Conversion Director */
+.conversion-mid-cta,
+[data-conversion-mid-cta="1"] {
+  text-align: center;
+  padding: 2.75rem 1.25rem;
+  margin: 0;
+  background: linear-gradient(180deg, rgba(15,23,42,0.04), rgba(15,23,42,0.02));
+}
+.conversion-mid-cta .btn { font-weight: 600; }
+body[data-conversion="1"] .topbar-cta { box-shadow: 0 6px 18px rgba(15,23,42,0.12); }
+
+
+/* Trust Director — density=light */
+body[data-trust-density="light"] #trust,
+body[data-trust-density="light"] .trust {
+  scroll-margin-top: 4rem;
+}
+body[data-trust-density="high"] .hero-certs,
+body[data-trust-density="high"] .trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: 1rem;
+}
+body[data-trust-density="high"] .hero-certs span,
+body[data-trust-density="high"] .trust-badges span {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(15,23,42,0.12);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+}
+body[data-trust-density="high"] #maps,
+body[data-trust-density="high"] #contact {
+  background: #f8fafc;
+}
+
+
+/* Performance Director */
+body[data-perf-hero="static"] .hero-still,
+body[data-perf-hero="static"] video.hero-media {
+  display: none !important;
+}
+img { max-width: 100%; height: auto; }
+
+
+/* Accessibility Director */
+:root { --a11y-min-size: 1rem; }
+body { font-size: max(16px, var(--a11y-min-size)); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  z-index: 10000;
+}
+.skip-link:focus { left: 0.5rem; top: 0.5rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* Localization Director — DE / strict */
+body[data-locale-style="strict"] {
+  --locale-cta-weight: 600;
+}
+body[data-locale-style="strict"] .section h2 { letter-spacing: -0.02em; }
+body[data-locale-style="editorial"] #gallery,
+body[data-locale-portfolio="high"] #gallery {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+body[data-locale-social="high"] #trust,
+body[data-locale-social="high"] #testimonials {
+  padding-top: 3.5rem;
+}
+body[data-locale-style="direct"] .btn,
+body[data-locale-style="direct"] .topbar-cta {
+  font-weight: var(--locale-cta-weight);
+  text-transform: none;
+}
+body[data-locale-portfolio="medium"] { --portfolio-emphasis: medium; }
+body[data-locale-social="medium"] { --social-emphasis: medium; }
+
+</style>
+<!-- studio-fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<!-- conversion-director-note: Усилить видимость контактов / формы. -->
+</head>
+<body data-tier="basic" data-niche="realestate" data-canvas="dark" data-hero-layout="editorial" data-catalog="large" data-card="furniture" data-certs="0" data-vie-engine="visual_intelligence_v1" data-vie-surface="store" data-vie-niche="realestate" data-vie-motion="basic" class="vie-motion-basic" data-dna-style="modern_clinical" data-dna-emotion="trust" data-dna-palette="sage_mist" data-dna-hero="trust_panel" data-dna-depth="medium" data-dna-glass="medium" data-dna-composition="clean" data-dna-fp="457332d936fb2add" data-luxury="0" data-studio="digital_creative_studio_v2" data-industry="modern_default" data-card-style="clean" data-hero-banner="simple_image" data-first-screen-products="8" data-trust-density="light" data-trust-map="1" data-perf-hero="static" data-a11y="1" data-locale-style="strict" data-locale-portfolio="medium" data-locale-social="medium" data-locale-market="DE" data-locale-legal="impressum,datenschutz">
+
+  <div class="dna-atm" aria-hidden="true" data-dna-atmosphere="1" data-atm-mode="atelier" data-atm-tier="basic">
+    <div class="dna-atm__base"></div>
+    <div class="dna-atm__mesh"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--a"></div>
+    <div class="dna-atm__aurora dna-atm__aurora--b"></div>
+    
+    <div class="dna-atm__orb dna-atm__orb--a"></div>
+    <div class="dna-atm__orb dna-atm__orb--b"></div>
+    <div class="dna-atm__orb dna-atm__orb--c"></div>
+    <div class="dna-atm__particles">
+        <span class="dna-atm__particle" style="--sx:3%;--sy:4%;--dur:10.0s;--delay:-0.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:20%;--sy:27%;--dur:11.4s;--delay:-1.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:37%;--sy:50%;--dur:12.8s;--delay:-2.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:54%;--sy:73%;--dur:14.2s;--delay:-3.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:71%;--sy:8%;--dur:15.6s;--delay:-4.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:88%;--sy:31%;--dur:17.0s;--delay:-5.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:13%;--sy:54%;--dur:18.4s;--delay:-6.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:30%;--sy:77%;--dur:19.799999999999997s;--delay:-7.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:47%;--sy:12%;--dur:21.2s;--delay:-8.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:64%;--sy:35%;--dur:10.0s;--delay:-9.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:81%;--sy:58%;--dur:11.4s;--delay:-10.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:6%;--sy:81%;--dur:12.8s;--delay:-0.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:23%;--sy:16%;--dur:14.2s;--delay:-1.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:40%;--sy:39%;--dur:15.6s;--delay:-2.0s;--size:3px"></span>
+        <span class="dna-atm__particle" style="--sx:57%;--sy:62%;--dur:17.0s;--delay:-3.0s;--size:4px"></span>
+        <span class="dna-atm__particle" style="--sx:74%;--sy:85%;--dur:18.4s;--delay:-4.0s;--size:5px"></span>
+        <span class="dna-atm__particle" style="--sx:91%;--sy:20%;--dur:19.799999999999997s;--delay:-5.0s;--size:2px"></span>
+        <span class="dna-atm__particle" style="--sx:16%;--sy:43%;--dur:21.2s;--delay:-6.0s;--size:3px"></span>
+    </div>
+    <div class="dna-atm__vignette"></div>
+  </div>
+
+  <div class="drawer-overlay" id="drawer-overlay" data-action="drawer-close"></div>
+  <aside class="nav-drawer" id="nav-drawer" aria-label="Main">
+    <button type="button" class="icon-btn drawer-close" data-action="drawer-close" aria-label="Menü schließen">✕</button>
+    <h2>Wohnraum Furniture</h2>
+    <nav class="nav">
+      <p class="nav-group">Shop</p>
+      <a href="index.html">Startseite</a>
+      <a href="catalog.html">Katalog</a>
+      <a href="catalog.html#deals">Angebote</a>
+      <a href="index.html#featured">Empfohlen</a>
+      <a href="cart.html">Warenkorb</a>
+      <p class="nav-group">Konto</p>
+      <a href="account.html#login">Anmelden</a>
+      <a href="account.html#register">Registrieren</a>
+      <a href="account.html">Kundenkonto</a>
+      <a href="cart.html#wishlist">Merkliste</a>
+      <p class="nav-group">Info</p>
+      <a href="about.html">Über uns</a>
+      <a href="contact.html">Kontakt</a>
+      <p class="nav-group">Rechtliches</p>
+      <a href="returns.html">Rückgabe</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="datenschutz.html">Datenschutz</a>
+    </nav>
+  </aside>
+
+  <header class="site-header">
+    <div class="wrap site-header-inner">
+      <button type="button" class="icon-btn" data-action="drawer-open" aria-label="Menü öffnen">☰</button>
+      <a class="brand brand-lockup" href="index.html" title="Wohnraum Furniture"><span class="brand-mark-wrap"><svg class="brand-mark" width="36" height="36" viewBox="0 0 36 36" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M18.0 2 L34 28.080000000000002 L2 28.080000000000002 Z" fill="#c2783a"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" fill="#fafaf9" font-family="Georgia,serif" font-size="15.0" font-weight="700">WF</text></svg></span><strong class="brand-word">Wohnraum Furniture</strong></a>
+      <div class="header-search">
+        <input id="header-search" type="search" placeholder="Produkte suchen…" aria-label="Produkte suchen…" />
+      </div>
+      <div class="header-actions">
+        <div class="header-auth">
+          <a class="auth-login" href="account.html#login"><span class="auth-login-label">Anmelden</span></a>
+          <a class="auth-register" href="account.html#register">Registrieren</a>
+        </div>
+        <a class="icon-btn" href="account.html" aria-label="Kundenkonto" title="Kundenkonto">👤</a>
+        <a class="icon-btn" href="cart.html#wishlist" aria-label="Merkliste" title="Merkliste">♡</a>
+        <a class="icon-btn" href="cart.html" aria-label="Warenkorb" title="Warenkorb">
+          🛒
+          <span class="cart-badge" data-cart-badge data-count="0">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+  <section class="hero hero-media has-hero-image" data-image-slot="hero" data-hero-banner="simple_image">
+    <img class="hero-photo" src="assets/images/hero.jpg" alt="Wohnraum Furniture" width="1600" height="900" decoding="async" loading="lazy" />
+    <div class="wrap hero-offer">
+      <p class="hero-eyebrow">Home &amp; living</p>
+      <h1>Wohnraum Furniture</h1>
+      <p class="hero-offer-line"><strong>Möbel und Einrichtung für moderne Wohnungen</strong></p>
+      <p class="hero-why">Warum hier kaufen: Kuratiert für furniture — modernes Einkaufen mit Premium-Gefühl.</p>
+      <ul class="hero-benefits">
+        <li>Kostenloser Versand ab 49 €</li>
+        <li>14 Tage Rückgabe</li>
+        <li>Sichere Zahlung (Stripe)</li>
+        <li>Geprüfte Qualität</li>
+      </ul>
+      <div class="hero-cta-row">
+        <a class="btn" href="catalog.html">Zum Katalog</a>
+        <a class="btn btn-ghost hero-cta-secondary" href="catalog.html">Jetzt kaufen</a>
+      </div>
+    </div>
+  </section>
+  <section class="trust-bar" id="trust" aria-label="Warum bei uns kaufen">
+    <div class="wrap trust-bar-grid">
+      <div class="trust-bar-item">
+        <strong>Schnelle Lieferung</strong>
+        <span>DHL · Tracking inklusive</span>
+      </div>
+      <div class="trust-bar-item">
+        <strong>Einfache Rückgabe</strong>
+        <span>14 Tage · unkompliziert</span>
+      </div>
+      <div class="trust-bar-item">
+        <strong>Sichere Zahlung</strong>
+        <span>Stripe · SSL</span>
+      </div>
+      <div class="trust-bar-item">
+        <strong>Zufriedenheitsgarantie</strong>
+        <span>Qualität, die hält</span>
+      </div>
+      <div class="trust-bar-item">
+        <strong>Direkter Kontakt</strong>
+        <span>Support in Deutsch</span>
+      </div>
+    </div>
+  </section>
+  <section class="wrap section" id="promo-banner" data-image-slot="banner">
+    <div class="promo-banner">
+      <img src="assets/images/banner.jpg" alt="" width="1600" height="600" loading="lazy" decoding="async" />
+      <div class="promo-inner">
+        <h2>Neuheiten</h2>
+        <p>Möbel und Einrichtung für moderne Wohnungen</p>
+        <p><a class="btn" href="catalog.html">Zum Katalog</a></p>
+      </div>
+    </div>
+  </section>
+  <section class="wrap section" id="categories">
+    <h2>Kategorien</h2>
+    <div class="cat-strip">
+      <a class="cat-chip" href="catalog.html">Tables</a>
+      <a class="cat-chip" href="catalog.html">Lighting</a>
+      <a class="cat-chip" href="catalog.html">Textiles</a>
+      <a class="cat-chip" href="catalog.html">Decor</a>
+    </div>
+  </section>
+  <section class="section section-alt" id="featured" data-first-screen-products="8">
+    <div class="wrap">
+      <h2>Empfohlen</h2>
+      <div class="grid">
+    <article class="card" data-product-card data-name="Linen Cushion" data-id="demo-2">
+      <span class="badge sale">SALE</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-2" data-name="Linen Cushion" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-2" class="card-media product-media-slot has-product-image"><img src="assets/images/product_2.jpg" alt="Linen Cushion" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-2">Linen Cushion</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(19)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€19.90</p>
+          <span class="old-price">€29.90</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-2" data-name="Linen Cushion" data-price="19.9" data-price-label="€19.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-2" data-name="Linen Cushion" data-price="19.9" data-price-label="€19.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Floor Lamp" data-id="demo-3">
+      <span class="badge hit">HIT</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-3" data-name="Floor Lamp" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-3" class="card-media product-media-slot has-product-image"><img src="assets/images/product_3.jpg" alt="Floor Lamp" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-3">Floor Lamp</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(26)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€24.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-3" data-name="Floor Lamp" data-price="24.9" data-price-label="€24.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-3" data-name="Floor Lamp" data-price="24.9" data-price-label="€24.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Storage Shelf" data-id="demo-4">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-4" data-name="Storage Shelf" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-4" class="card-media product-media-slot has-product-image"><img src="assets/images/product_4.jpg" alt="Storage Shelf" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-4">Storage Shelf</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(33)</span></p>
+        <p class="stock low">Nur noch wenige</p>
+        <div class="price-row">
+          <p class="price">€29.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-4" data-name="Storage Shelf" data-price="29.9" data-price-label="€29.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-4" data-name="Storage Shelf" data-price="29.9" data-price-label="€29.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+      </div>
+    </div>
+  </section>
+  <section class="wrap section" id="new-arrivals">
+    <h2>Neuheiten</h2>
+    <div class="grid">
+    <article class="card" data-product-card data-name="Oak Side Table" data-id="demo-1">
+      <span class="badge">NEU</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-1" data-name="Oak Side Table" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-1" class="card-media product-media-slot has-product-image"><img src="assets/images/product_1.jpg" alt="Oak Side Table" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-1">Oak Side Table</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(12)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€12.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-1" data-name="Oak Side Table" data-price="12.9" data-price-label="€12.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-1" data-name="Oak Side Table" data-price="12.9" data-price-label="€12.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Linen Cushion" data-id="demo-2">
+      <span class="badge sale">SALE</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-2" data-name="Linen Cushion" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-2" class="card-media product-media-slot has-product-image"><img src="assets/images/product_2.jpg" alt="Linen Cushion" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-2">Linen Cushion</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(19)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€19.90</p>
+          <span class="old-price">€29.90</span>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-2" data-name="Linen Cushion" data-price="19.9" data-price-label="€19.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-2" data-name="Linen Cushion" data-price="19.9" data-price-label="€19.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Floor Lamp" data-id="demo-3">
+      <span class="badge hit">HIT</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-3" data-name="Floor Lamp" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-3" class="card-media product-media-slot has-product-image"><img src="assets/images/product_3.jpg" alt="Floor Lamp" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-3">Floor Lamp</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(26)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€24.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-3" data-name="Floor Lamp" data-price="24.9" data-price-label="€24.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-3" data-name="Floor Lamp" data-price="24.9" data-price-label="€24.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    </div>
+  </section>
+  <section class="section section-alt" id="bestsellers">
+    <div class="wrap">
+      <h2>Bestseller</h2>
+      <div class="grid">
+    <article class="card" data-product-card data-name="Floor Lamp" data-id="demo-3">
+      <span class="badge hit">HIT</span>
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-3" data-name="Floor Lamp" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-3" class="card-media product-media-slot has-product-image"><img src="assets/images/product_3.jpg" alt="Floor Lamp" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-3">Floor Lamp</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(26)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€24.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-3" data-name="Floor Lamp" data-price="24.9" data-price-label="€24.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-3" data-name="Floor Lamp" data-price="24.9" data-price-label="€24.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Storage Shelf" data-id="demo-4">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-4" data-name="Storage Shelf" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-4" class="card-media product-media-slot has-product-image"><img src="assets/images/product_4.jpg" alt="Storage Shelf" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-4">Storage Shelf</a></h3>
+        
+        <p class="rating">★★★★★ <span class="muted">(33)</span></p>
+        <p class="stock low">Nur noch wenige</p>
+        <div class="price-row">
+          <p class="price">€29.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-4" data-name="Storage Shelf" data-price="29.9" data-price-label="€29.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-4" data-name="Storage Shelf" data-price="29.9" data-price-label="€29.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-product-card data-name="Ceramic Vase" data-id="demo-5">
+      
+      <button type="button" class="wish-btn" data-action="wish" data-id="demo-5" data-name="Ceramic Vase" aria-label="Merkliste">♡</button>
+      <a href="product.html?id=demo-5" class="card-media product-media-slot has-product-image"><img src="assets/images/product_5.jpg" alt="Ceramic Vase" width="800" height="1000" loading="eager" decoding="async" onerror="this.onerror=null;this.src='assets/images/product.jpg'" /></a>
+      <div class="card-body">
+        <h3><a href="product.html?id=demo-5">Ceramic Vase</a></h3>
+        
+        <p class="rating">★★★★☆ <span class="muted">(40)</span></p>
+        <p class="stock">Auf Lager</p>
+        <div class="price-row">
+          <p class="price">€34.90</p>
+          
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-sm" data-action="add-cart" data-id="demo-5" data-name="Ceramic Vase" data-price="34.9" data-price-label="€34.90">In den Warenkorb</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="buy-now" data-id="demo-5" data-name="Ceramic Vase" data-price="34.9" data-price-label="€34.90">Jetzt kaufen</button>
+        </div>
+      </div>
+    </article>
+      </div>
+    </div>
+  </section>
+  <section class="section section-alt" id="reviews">
+    <div class="wrap">
+      <h2>Kundenstimmen</h2>
+      <div class="reviews-grid">
+      <blockquote class="review-card">
+        <p class="rating">★★★★★</p>
+        <p>Seriös, klar, ohne Show. Weiterzuempfehlen.</p>
+        <cite>Sofia · Demo-Bewertung — kein echter Kundenname</cite>
+      </blockquote>
+      <blockquote class="review-card">
+        <p class="rating">★★★★★</p>
+        <p>Fühlt sich nach echtem Handwerk an — nicht nach Vorlage.</p>
+        <cite>Noah · Demo-Bewertung — kein echter Kundenname</cite>
+      </blockquote>
+      <blockquote class="review-card">
+        <p class="rating">★★★★★</p>
+        <p>Transparente Kommunikation. Genau das wollte ich.</p>
+        <cite>Max · Demo-Bewertung — kein echter Kundenname</cite>
+      </blockquote>
+      </div>
+    </div>
+  </section>
+  <section class="wrap section" id="why-us">
+    <h2>Warum bei uns kaufen</h2>
+    <div class="trust">
+      <div class="trust-item"><strong>Sichere Zahlung</strong><span class="muted">stripe</span></div>
+      <div class="trust-item"><strong>Versand</strong><span class="muted">dhl</span></div>
+      <div class="trust-item"><strong>Einfache Rückgabe</strong><span class="muted"><a href="returns.html">14 Tage · unkompliziert</a></span></div>
+      <div class="trust-item"><strong>Direkter Kontakt</strong><span class="muted"><a href="contact.html">Support in Deutsch</a></span></div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="newsletter">
+      <h2>Bleiben Sie informiert</h2>
+      <p>Neuheiten und saisonale Angebote — kein Spam.</p>
+      <form class="newsletter-form" onsubmit="return false;">
+        <input type="email" placeholder="E-Mail-Adresse" aria-label="E-Mail-Adresse" />
+        <button type="button" class="btn">Abonnieren</button>
+      </form>
+    </div>
+  </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <h3>Shop</h3>
+        <ul>
+          <li><a href="index.html">Startseite</a></li>
+          <li><a href="catalog.html">Katalog</a></li>
+          <li><a href="cart.html">Warenkorb</a></li>
+          <li><a href="account.html#login">Anmelden</a></li>
+          <li><a href="account.html#register">Registrieren</a></li>
+          <li><a href="account.html">Kundenkonto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Service</h3>
+        <ul>
+          <li><a href="impressum.html">Impressum</a></li>
+            <li><a href="datenschutz.html">Datenschutz</a></li>
+            <li><a href="returns.html">Rückgabe</a></li>
+            <li><a href="contact.html">Kontakt</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Zahlung &amp; Versand</h3>
+        <ul>
+          <li>stripe</li>
+          <li>dhl</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Wohnraum Furniture</h3>
+        <ul>
+          <li>Premium-Shop von Virtus Core</li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap footer-note">
+      <p>Wohnraum Furniture — Virtus Core AI Store</p>
+    </div>
+  </footer>
+  <nav class="mobile-bar" aria-label="Mobile">
+    <a href="index.html"><span class="mb-ico">⌂</span>Startseite</a>
+    <a href="catalog.html"><span class="mb-ico">▦</span>Katalog</a>
+    <a href="cart.html#wishlist"><span class="mb-ico">♡</span>Merkliste</a>
+    <a href="account.html"><span class="mb-ico">👤</span>Kundenkonto</a>
+    <a href="cart.html"><span class="mb-ico">🛒</span>Warenkorb<span class="cart-badge" data-cart-badge data-count="0">0</span></a>
+  </nav>
+  <div class="toast" id="store-toast" role="status"></div>
+  <script src="assets/store.js"></script>
+</body>
+</html>

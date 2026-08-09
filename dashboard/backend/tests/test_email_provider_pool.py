@@ -171,3 +171,34 @@ def test_health_board_shows_gmail_429_detail(tmp_path: Path):
     assert "User-rate limit" in (gmail["last_detail"] or "")
     assert board["quota_today"]["gmail"]["status"] == "429"
     assert board["order"][:3] == ["resend", "gmail", "mailbox"]
+
+
+def test_mailgun_alias_env_and_base(monkeypatch: pytest.MonkeyPatch):
+    from app.integration.email_provider_pool import (
+        _mailgun_api_base,
+        _mailgun_api_keys,
+        _probe_mailgun,
+    )
+
+    monkeypatch.delenv("MAILGUN_API_KEY", raising=False)
+    monkeypatch.delenv("MAILGUN_API_KEY_2", raising=False)
+    monkeypatch.delenv("MAILGUN_DOMAIN", raising=False)
+    monkeypatch.delenv("MAILGUN_FROM", raising=False)
+    monkeypatch.delenv("MAILGUN_API_BASE", raising=False)
+    monkeypatch.setenv("Mailgun_KEY", "key-one")
+    monkeypatch.setenv("Mailgun_2KEY", "key-two")
+    monkeypatch.setenv("Mailgun_Domain", "sandbox.example.mailgun.org")
+    monkeypatch.setenv("MAILGUN_FROM", "Mailgun <postmaster@sandbox.example.mailgun.org>")
+    monkeypatch.setenv("MAilgun_URL", "https://api.mailgun.net")
+
+    keys = _mailgun_api_keys()
+    assert keys == ["key-one", "key-two"]
+    assert _mailgun_api_base() == "https://api.mailgun.net/v3"
+    probe = _probe_mailgun()
+    assert probe["configured"] is True
+    assert probe["keys_configured"] == 2
+
+
+def test_provider_order_can_include_mailgun(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("EMAIL_PROVIDER_ORDER", "resend,gmail,mailbox,mailgun")
+    assert provider_order() == ["resend", "gmail", "mailbox", "mailgun"]

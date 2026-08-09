@@ -1,0 +1,20 @@
+{
+  "niche_id": "photography",
+  "idea": "Präzise Handarbeit, softes Licht, Produkte die wir selbst nutzen.",
+  "who": "Studio LUMIA — gegründet von Olena Melnyk aus der Ukraine. Luxury Nail, Brow, Lash & Massage Atelier in München: warme Ruhe statt Massenstudio.",
+  "character": [],
+  "metaphor": "editorial",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Präzise Handarbeit, softes Licht, Produkte die wir selbst nutzen.",
+    "who": "Studio LUMIA — gegründet von Olena Melnyk aus der Ukraine. Luxury Nail, Brow, Lash & Massage Atelier in München: warme Ruhe statt Massenstudio.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

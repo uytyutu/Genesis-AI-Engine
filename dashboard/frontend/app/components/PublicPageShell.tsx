@@ -24,14 +24,20 @@ export function PublicPageShell({
   const { t } = useTranslation("common");
   const pathname = usePathname() ?? "";
   const customerFlow = customerDecisionFlow ?? isCustomerPurchasePath(pathname);
-  const storefrontLook = customerFlow && !hideChrome;
+  const sitePath =
+    pathname === "/site" || pathname.startsWith("/site/");
+  const storefrontLook = (customerFlow || sitePath) && !hideChrome;
   return (
     <div
+      data-vie-engine={sitePath ? "visual_intelligence_v1" : undefined}
+      data-vie-surface={sitePath ? "platform" : undefined}
+      data-vie-niche={sitePath ? "computer" : undefined}
+      data-vie-motion={sitePath ? "premium" : undefined}
       className={
         hideChrome
           ? "h-[100dvh] overflow-hidden bg-genesis-bg"
           : storefrontLook
-            ? "storefront relative isolate min-h-screen overflow-x-hidden"
+            ? "storefront relative isolate min-h-screen overflow-x-hidden vie-motion-premium"
             : "mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
       }
     >

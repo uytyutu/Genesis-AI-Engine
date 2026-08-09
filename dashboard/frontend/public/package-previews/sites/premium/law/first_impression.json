@@ -1,0 +1,53 @@
+{
+  "niche_id": "law",
+  "problem_before": "Die Lage wird unübersichtlich. Sie brauchen keinen Theatersaal — Sie brauchen einen Weg.",
+  "story": "Wenn die Lage schwierig wird, zählt, dass jemand den Weg zur Lösung schon kennt.",
+  "emotion": "Kontrolle kehrt zurück.",
+  "trust": "Ruhig. Präzise. Vertraulich.",
+  "offer": "Erste Orientierung in der Erstberatung — ohne Nebel.",
+  "idea": "Stille. Ordnung. Kontrolle.",
+  "source": "premium_pack",
+  "stage_name": "First Impression Generation",
+  "arc": [
+    "story",
+    "emotion",
+    "trust",
+    "offer",
+    "cta"
+  ],
+  "rule": "Not a slogan. Not a section list. What does the client feel 10 seconds before they open this site?",
+  "three_second_test": {
+    "name": "3-SECOND TEST",
+    "instructions": "Open the site. Do not read the text. After 3 seconds answer:",
+    "questions": [
+      "What does the company do?",
+      "Can I trust it?",
+      "Does it look cheap or expensive?",
+      "Do I want to look further?",
+      "Does it look like a template?"
+    ],
+    "rule": "If any answer is negative or unclear → REBUILD."
+  },
+  "gate_report": {
+    "gate": "FIRST_IMPRESSION",
+    "stage": "First Impression Generation",
+    "ok": true,
+    "story": "Wenn die Lage schwierig wird, zählt, dass jemand den Weg zur Lösung schon kennt.",
+    "problem_before": "Die Lage wird unübersichtlich. Sie brauchen keinen Theatersaal — Sie brauchen einen Weg.",
+    "package_id": "premium",
+    "source": "premium_pack",
+    "three_second_test": {
+      "name": "3-SECOND TEST",
+      "instructions": "Open the site. Do not read the text. After 3 seconds answer:",
+      "questions": [
+        "What does the company do?",
+        "Can I trust it?",
+        "Does it look cheap or expensive?",
+        "Do I want to look further?",
+        "Does it look like a template?"
+      ],
+      "rule": "If any answer is negative or unclear → REBUILD."
+    },
+    "question": "What problem does the client feel 10 seconds before opening this site?"
+  }
+}

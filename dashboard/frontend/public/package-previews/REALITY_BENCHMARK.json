@@ -1,0 +1,385 @@
+{
+  "sprint": "Creative Identity Generation",
+  "law": "Law #2 — Reality Over Architecture · No idea → no HTML",
+  "generated_at": "2026-08-06T22:03:45.917280+00:00",
+  "demo_count": 18,
+  "gate_ru": "Нет Creative Identity (идеи, которую можно почувствовать) — HTML запрещён. Если демо читаются как шаблон ниши — FAIL. Новые функции запрещены.",
+  "gate_en": "No felt Creative Identity → no HTML. Niche-template demos → FAIL. New features forbidden.",
+  "question_ru": "Чувствуется ли идея бренда (Silent Forest / Fire & Smoke…), а не просто «сайт психолога»?",
+  "owner_review": "PENDING_OWNER",
+  "reality_benchmark": "FAIL",
+  "reality_note": "Owner: template feel / missing artistic concept. Marketing HTML frozen — Creative Identity Owner Preview only.",
+  "template_like_count": null,
+  "check_axes": [
+    "first_screen",
+    "brand",
+    "composition",
+    "typography",
+    "atmosphere",
+    "business_vs_virtus",
+    "premium_studio",
+    "store_want_to_buy"
+  ],
+  "demos": [
+    {
+      "id": "site:basic:psychology",
+      "kind": "site",
+      "tier": "basic",
+      "tier_label": "Starter",
+      "niche": "psychology",
+      "url": "http://127.0.0.1:3001/package-previews/sites/basic/psychology/index.html",
+      "path": "sites/basic/psychology/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "business_vs_virtus": null,
+        "premium_studio": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "site:basic:dental",
+      "kind": "site",
+      "tier": "basic",
+      "tier_label": "Starter",
+      "niche": "dental",
+      "url": "http://127.0.0.1:3001/package-previews/sites/basic/dental/index.html",
+      "path": "sites/basic/dental/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "business_vs_virtus": null,
+        "premium_studio": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "site:basic:law",
+      "kind": "site",
+      "tier": "basic",
+      "tier_label": "Starter",
+      "niche": "law",
+      "url": "http://127.0.0.1:3001/package-previews/sites/basic/law/index.html",
+      "path": "sites/basic/law/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "business_vs_virtus": null,
+        "premium_studio": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "site:business:psychology",
+      "kind": "site",
+      "tier": "business",
+      "tier_label": "Business",
+      "niche": "psychology",
+      "url": "http://127.0.0.1:3001/package-previews/sites/business/psychology/index.html",
+      "path": "sites/business/psychology/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "business_vs_virtus": null,
+        "premium_studio": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "site:business:dental",
+      "kind": "site",
+      "tier": "business",
+      "tier_label": "Business",
+      "niche": "dental",
+      "url": "http://127.0.0.1:3001/package-previews/sites/business/dental/index.html",
+      "path": "sites/business/dental/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "business_vs_virtus": null,
+        "premium_studio": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "site:business:law",
+      "kind": "site",
+      "tier": "business",
+      "tier_label": "Business",
+      "niche": "law",
+      "url": "http://127.0.0.1:3001/package-previews/sites/business/law/index.html",
+      "path": "sites/business/law/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "business_vs_virtus": null,
+        "premium_studio": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "site:premium:psychology",
+      "kind": "site",
+      "tier": "premium",
+      "tier_label": "Premium",
+      "niche": "psychology",
+      "url": "http://127.0.0.1:3001/package-previews/sites/premium/psychology/index.html",
+      "path": "sites/premium/psychology/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "business_vs_virtus": null,
+        "premium_studio": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "site:premium:dental",
+      "kind": "site",
+      "tier": "premium",
+      "tier_label": "Premium",
+      "niche": "dental",
+      "url": "http://127.0.0.1:3001/package-previews/sites/premium/dental/index.html",
+      "path": "sites/premium/dental/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "business_vs_virtus": null,
+        "premium_studio": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "site:premium:law",
+      "kind": "site",
+      "tier": "premium",
+      "tier_label": "Premium",
+      "niche": "law",
+      "url": "http://127.0.0.1:3001/package-previews/sites/premium/law/index.html",
+      "path": "sites/premium/law/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "business_vs_virtus": null,
+        "premium_studio": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "store:basic:fashion",
+      "kind": "store",
+      "tier": "basic",
+      "tier_label": "Starter",
+      "niche": "fashion",
+      "url": "http://127.0.0.1:3001/package-previews/stores/basic/fashion/index.html",
+      "path": "stores/basic/fashion/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "premium_studio": null,
+        "store_want_to_buy": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "store:basic:electronics",
+      "kind": "store",
+      "tier": "basic",
+      "tier_label": "Starter",
+      "niche": "electronics",
+      "url": "http://127.0.0.1:3001/package-previews/stores/basic/electronics/index.html",
+      "path": "stores/basic/electronics/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "premium_studio": null,
+        "store_want_to_buy": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "store:basic:furniture",
+      "kind": "store",
+      "tier": "basic",
+      "tier_label": "Starter",
+      "niche": "furniture",
+      "url": "http://127.0.0.1:3001/package-previews/stores/basic/furniture/index.html",
+      "path": "stores/basic/furniture/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "premium_studio": null,
+        "store_want_to_buy": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "store:business:fashion",
+      "kind": "store",
+      "tier": "business",
+      "tier_label": "Business",
+      "niche": "fashion",
+      "url": "http://127.0.0.1:3001/package-previews/stores/business/fashion/index.html",
+      "path": "stores/business/fashion/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "premium_studio": null,
+        "store_want_to_buy": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "store:business:electronics",
+      "kind": "store",
+      "tier": "business",
+      "tier_label": "Business",
+      "niche": "electronics",
+      "url": "http://127.0.0.1:3001/package-previews/stores/business/electronics/index.html",
+      "path": "stores/business/electronics/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "premium_studio": null,
+        "store_want_to_buy": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "store:business:furniture",
+      "kind": "store",
+      "tier": "business",
+      "tier_label": "Business",
+      "niche": "furniture",
+      "url": "http://127.0.0.1:3001/package-previews/stores/business/furniture/index.html",
+      "path": "stores/business/furniture/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "premium_studio": null,
+        "store_want_to_buy": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "store:premium:fashion",
+      "kind": "store",
+      "tier": "premium",
+      "tier_label": "Premium",
+      "niche": "fashion",
+      "url": "http://127.0.0.1:3001/package-previews/stores/premium/fashion/index.html",
+      "path": "stores/premium/fashion/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "premium_studio": null,
+        "store_want_to_buy": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "store:premium:electronics",
+      "kind": "store",
+      "tier": "premium",
+      "tier_label": "Premium",
+      "niche": "electronics",
+      "url": "http://127.0.0.1:3001/package-previews/stores/premium/electronics/index.html",
+      "path": "stores/premium/electronics/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "premium_studio": null,
+        "store_want_to_buy": null
+      },
+      "notes": ""
+    },
+    {
+      "id": "store:premium:furniture",
+      "kind": "store",
+      "tier": "premium",
+      "tier_label": "Premium",
+      "niche": "furniture",
+      "url": "http://127.0.0.1:3001/package-previews/stores/premium/furniture/index.html",
+      "path": "stores/premium/furniture/index.html",
+      "template_like": null,
+      "scores": {
+        "first_screen": null,
+        "brand": null,
+        "composition": null,
+        "typography": null,
+        "atmosphere": null,
+        "premium_studio": null,
+        "store_want_to_buy": null
+      },
+      "notes": ""
+    }
+  ]
+}

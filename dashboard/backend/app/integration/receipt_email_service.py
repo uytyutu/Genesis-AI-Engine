@@ -139,6 +139,11 @@ def _html_email(
             f"{html.escape(cta_label)}</a></p>"
         )
     html_lang = (lang or "en").split("-")[0]
+    support = (
+        os.getenv("VIRTUS_SUPPORT_EMAIL", "").strip()
+        or os.getenv("GENESIS_SUPPORT_EMAIL", "").strip()
+        or "hello@virtuscore.com"
+    )
     return f"""<!DOCTYPE html>
 <html lang="{html.escape(html_lang)}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -154,7 +159,7 @@ color:#fff;font-weight:700;font-size:16px;line-height:40px;text-align:center">V<
 <table style="margin:24px 0 0;width:100%;font-size:14px">{row_html}</table>
 {cta}
 {footer_html}
-<p style="margin:32px 0 0;font-size:12px;color:#52525b">{BRAND_NAME} · hello@genesis-ai-engine.com</p>
+<p style="margin:32px 0 0;font-size:12px;color:#52525b">{html.escape(BRAND_NAME)} · {html.escape(support)}</p>
 </td></tr></table>
 </td></tr></table>
 </body></html>"""
@@ -237,7 +242,7 @@ class ReceiptEmailService:
         bcc = (
             os.getenv("GENESIS_SUPPORT_EMAIL", "").strip()
             or os.getenv("GENESIS_OWNER_NOTIFY_EMAIL", "").strip()
-            or "hello@genesis-ai-engine.com"
+            or "hello@virtuscore.com"
         )
 
         eta = order.get("estimated_hours")
@@ -273,7 +278,7 @@ class ReceiptEmailService:
         """Direct alert to CEO inbox when a Landing order is paid."""
         from app.integration.locale_service import resolve_generation_language
 
-        to = (support_email or "").strip() or "hello@genesis-ai-engine.com"
+        to = (support_email or "").strip() or "hello@virtuscore.com"
         order_id = str(order.get("order_id") or "")
         business = str(order.get("business_name") or "")
         package = str(order.get("package_name") or "")

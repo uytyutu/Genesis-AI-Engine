@@ -23,7 +23,7 @@ SPIDER_SIGNAL_TO_SERVICES: dict[str, tuple[str, ...]] = {
     "outdated_design": ("business", "website_migration"),
 }
 
-_SUPPORT_MAIL = "hello@genesis-ai-engine.com"
+_SUPPORT_MAIL = "hello@virtuscore.com"
 
 
 def _mailto(subject: str) -> str:

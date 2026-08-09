@@ -1,0 +1,75 @@
+{
+  "emotion": "confidence",
+  "style": "modern_clinical",
+  "palette_family": "iron_umber",
+  "typography_pair": "barlow_source_craft",
+  "motion": "business",
+  "hero_concept": "fence_line_dusk",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "low",
+  "composition": "horizon",
+  "package_id": "business",
+  "niche_id": "zaunbau",
+  "fingerprint": "4a3ff3bb8495536c2116b98844f089ea0463bd602f5d5b4beb3f15bdd9a1d725",
+  "section_treatments": [
+    [
+      "showcase",
+      "ink"
+    ],
+    [
+      "about",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "trust",
+      "photo_band"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "late_cta",
+      "gradient"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#d97706",
+  "surface_hex": "#faf7f2",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "971eed1f3273cfa6ad086f2b",
+  "border_radius_px": 10
+}

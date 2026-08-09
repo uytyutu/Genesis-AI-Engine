@@ -1,0 +1,91 @@
+{
+  "niche_id": "restaurant",
+  "subniche_id": "italian",
+  "subniche_label": "Italienisches Restaurant",
+  "business_model": "italian_immersive_small_team",
+  "city": "Köln",
+  "company_name": "Trattoria Luna",
+  "who": "Familiäre Trattoria: Wärme, Abendlicht, ehrliche Küche, Tisch wie bei Freunden — kein Touristen-Menü.",
+  "trust_why": "Nachweisbare Arbeit · Italienisches Restaurant · Köln",
+  "sells": "['Mittagstisch', 'Abendkarte', 'Reservierung', 'Events']",
+  "differentiator": "Frische Zutaten, klare Allergene, Reservierung mit Bestätigung",
+  "atmosphere": "immersive",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Plates, kitchen, guests, interior",
+  "media_brief": {
+    "hero": "Signature dish or dining room evening light",
+    "gallery": "Plates, kitchen, guests, interior",
+    "video": "Plating or open kitchen",
+    "before_after": "",
+    "team": "Chef / front of house",
+    "equipment": "Pass, wine, table setting",
+    "atmosphere": "immersive",
+    "subniche": "italian",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "reservation",
+      "label": "Online Reservation",
+      "why": "Tisch ohne Telefonwarteschleife."
+    },
+    {
+      "id": "menu",
+      "label": "Menu",
+      "why": "Heute essen — nicht nur lesen."
+    },
+    {
+      "id": "chef",
+      "label": "Chef / Kitchen",
+      "why": "Gesicht hinter dem Teller."
+    },
+    {
+      "id": "gallery",
+      "label": "Gallery",
+      "why": "Essen, Raum, Abendstimmung."
+    },
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "why": "Live-Atmosphäre."
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "why": "Social proof."
+    },
+    {
+      "id": "events",
+      "label": "Events",
+      "why": "Private Abende / Groups."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services"
+  ],
+  "style": "immersive",
+  "clients_who": "Gäste, die in Köln ehrlich italienisch essen wollen",
+  "fingerprint": "1bd48871b8442fbcccb9",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

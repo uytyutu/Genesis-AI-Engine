@@ -1,0 +1,95 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Quiet facade",
+      "Order",
+      "Clear light",
+      "Architecture"
+    ],
+    "preferred": [
+      "Empty conference table",
+      "Paper stack neat",
+      "Stone detail"
+    ],
+    "forbidden": [
+      "Gavel stock",
+      "Scales of justice cliché",
+      "Angry courtroom"
+    ],
+    "hero_proof": "Silence, order, control — authority without theater.",
+    "profession_keywords": [
+      "kanzlei",
+      "recht",
+      "vertrag",
+      "beratung",
+      "ordnung"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [
+    {
+      "ok": false,
+      "beautiful": true,
+      "brand_fit": false,
+      "profession_fit": false,
+      "action": "REBUILD",
+      "reasons": [
+        "forbidden_tokens:dashboard",
+        "missing_profession_proof",
+        "brand_mismatch"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\46b09ad4-9e60-47c8-b022-78f0cc29345f\\assets\\hero.jpg",
+      "role": "hero"
+    },
+    {
+      "ok": true,
+      "action": "REBUILT",
+      "role": "hero",
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\46b09ad4-9e60-47c8-b022-78f0cc29345f\\assets\\hero.jpg",
+      "reasons": [
+        "rebuilt_from_media_dna"
+      ]
+    },
+    {
+      "ok": false,
+      "beautiful": true,
+      "brand_fit": false,
+      "profession_fit": false,
+      "action": "REBUILD",
+      "reasons": [
+        "forbidden_tokens:dashboard",
+        "missing_profession_proof",
+        "brand_mismatch"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\46b09ad4-9e60-47c8-b022-78f0cc29345f\\assets\\background.jpg",
+      "role": "background"
+    },
+    {
+      "ok": true,
+      "action": "REBUILT",
+      "role": "background",
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\46b09ad4-9e60-47c8-b022-78f0cc29345f\\assets\\background.jpg",
+      "reasons": [
+        "rebuilt_from_media_dna"
+      ]
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\business\\46b09ad4-9e60-47c8-b022-78f0cc29345f\\assets\\gallery.jpg",
+      "role": "gallery"
+    }
+  ],
+  "rebuilds": [
+    "hero",
+    "background"
+  ],
+  "ok": false
+}

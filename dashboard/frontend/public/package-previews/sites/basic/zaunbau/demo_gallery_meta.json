@@ -1,0 +1,16 @@
+{
+  "kind": "website",
+  "folder": "zaunbau",
+  "niche": "zaunbau",
+  "package_id": "basic",
+  "product_id": "3d21f402-3411-489b-b7c8-e2464f2f2085",
+  "business_name": "ZaunWerk Süd",
+  "generated_at": "2026-08-07T06:57:20.793644+00:00",
+  "engine": "FactoryService.build_landing + Design DNA + Design Engine + VIE",
+  "index_bytes": 80772,
+  "data_tier_ok": true,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "gallery_schema": "tier_v2",
+  "public_url": "/package-previews/sites/basic/zaunbau/index.html"
+}

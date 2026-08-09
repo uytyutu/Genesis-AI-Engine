@@ -1,0 +1,122 @@
+{
+  "brand_name": "FeinKost Food",
+  "niche_id": "restaurant",
+  "package_id": "premium",
+  "positioning": "Italienischer Abend",
+  "archetype_primary": "The Host",
+  "archetype_secondary": "The Craftsman",
+  "brand_promise": "Ein Abend im italienischen Hof.",
+  "core_emotion": "Wärme",
+  "secondary_emotion": "Appetit und Zugehörigkeit",
+  "tone": [
+    "Warm",
+    "Sinnlich",
+    "Ehrlich",
+    "Einladend"
+  ],
+  "visual_style": "Culinary Atmosphere · neon line diagrams",
+  "visual_metaphor": "Abendlicht über dem Hof — lange Tafel, leises Gläserklingen",
+  "photography": [
+    "professioneller Arbeitsort",
+    "Team bei echter Arbeit",
+    "deutsche Alltagsszene",
+    "Detail Arbeit",
+    "Kundenmoment",
+    "Werkzeug / Material",
+    "Ergebnis"
+  ],
+  "forbidden": [
+    "cafe",
+    "restaurant interior",
+    "beauty salon",
+    "spa",
+    "saas dashboard",
+    "startup office",
+    "coworking",
+    "stock handshake",
+    "generic purple gradient",
+    "luxury champagne cliché without craft proof",
+    "laptop",
+    "coffee",
+    "abstract business",
+    "office meeting",
+    "fast food plastic",
+    "neon menu board",
+    "stock handshake"
+  ],
+  "motion_language": "kinetic micro-motion · glow pulse · scroll scenes",
+  "motion_token": "premium",
+  "palette": {
+    "names": [
+      "Terracotta",
+      "Olive",
+      "Candle",
+      "Night Ink"
+    ],
+    "accent_hex": "#c45c26",
+    "surface_hex": "#e6eaf0",
+    "ink_hex": "#f4f6f8",
+    "secondary_hex": "#429876",
+    "highlight_hex": "#c45c26"
+  },
+  "typography_display": "Playfair Display",
+  "typography_body": "Source Sans 3",
+  "typography_pair_id": "playfair_source_culinary",
+  "typography_emotion": "warmth",
+  "icon_style": "line geometric marks",
+  "border_radius_px": 2,
+  "shadow_style": "Deep Warm",
+  "glass_level": "medium",
+  "texture": [
+    "Linen",
+    "Wood",
+    "Ceramic"
+  ],
+  "scene_language": [
+    "professioneller Arbeitsort",
+    "Team bei echter Arbeit",
+    "deutsche Alltagsszene"
+  ],
+  "cta_style": "Reservierung · Groß · Warm",
+  "trust_strategy": [
+    "Allergene klar",
+    "Reservierung",
+    "Küche sichtbar"
+  ],
+  "atmosphere_mode": "cinematic",
+  "dna_style": "warm_craft",
+  "dna_palette_family": "terracotta_olive",
+  "hero_concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+  "fingerprint": "423a833d839805c8da5f8fd6",
+  "media_dna": {
+    "required": [
+      "Evening table",
+      "Food craft",
+      "Warm light",
+      "Courtyard or dining room"
+    ],
+    "preferred": [
+      "Hands plating",
+      "Steam",
+      "Wine glass",
+      "Long table"
+    ],
+    "forbidden": [
+      "Fast-food plastic",
+      "Neon menu",
+      "Stock handshake",
+      "Empty white plate only"
+    ],
+    "hero_proof": "An Italian courtyard evening — appetite and belonging, not a PDF menu.",
+    "profession_keywords": [
+      "küche",
+      "tisch",
+      "abend",
+      "hof",
+      "pasta",
+      "reservierung"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "city_hint": ""
+}

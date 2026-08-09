@@ -1,0 +1,42 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Fence",
+      "Posts",
+      "Ground",
+      "Material",
+      "Edge",
+      "Craft"
+    ],
+    "preferred": [
+      "Dusk light",
+      "Metal",
+      "Wood grain",
+      "Gate",
+      "Workshop"
+    ],
+    "forbidden": [
+      "Café",
+      "Restaurant",
+      "Office",
+      "Beauty",
+      "Laptop",
+      "Coworking"
+    ],
+    "hero_proof": "Fence line being set or finished at property edge — craft in progress.",
+    "profession_keywords": [
+      "fence",
+      "zaun",
+      "post",
+      "gate",
+      "rail",
+      "metal",
+      "wood"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [],
+  "rebuilds": [],
+  "ok": true
+}

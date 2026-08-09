@@ -1,0 +1,132 @@
+BRAND BOOK
+Brand Name
+LUMIA Care Shop
+
+Positioning
+Beauty Ritual Atelier
+
+Brand Archetype
+The Artist
++
+The Host
+
+Brand Promise
+Ein Ritual der Schönheit — kein Salon.
+
+Core Emotion
+Ruhe
+
+Secondary Emotion
+Selbstachtung
+
+Tone of Voice
+  Ruhig
+  Präzise
+  Warm
+  Ohne Hype
+
+Visual Style
+Atelier Light · abstract gradient orbs
+
+Visual Metaphor
+Helles Atelierlicht — ruhige Hände, kein Neon-Salon
+
+Photography
+  professioneller Arbeitsort
+  Team bei echter Arbeit
+  deutsche Alltagsszene
+  Detail Arbeit
+  Kundenmoment
+  Werkzeug / Material
+  Ergebnis
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+  neon salon
+  pink glitter stock
+  waiting room chairs row
+
+Motion
+editorial fade · staggered cards · calm hover
+
+Palette
+Porcelain, Rose Clay, Soft Ink, Champagne
+Accent #c4787a
+Surface #e6eaf0
+Ink #f4f6f8
+
+Typography
+Cormorant
++
+DM Sans
+(cormorant_dm_beauty)
+
+Icon Style
+minimal stroke set
+
+Border Radius
+8 px
+
+Shadow Style
+Soft Lift
+
+Glass Level
+medium
+
+Texture
+  Porcelain
+  Linen
+  Soft metal
+
+Scene Language
+  professioneller Arbeitsort
+  Team bei echter Arbeit
+  deutsche Alltagsszene
+
+CTA Style
+Termin · Ruhig · Klar
+
+Trust Strategy
+  Beratung zuerst
+  Preise
+  Portfolio
+
+Atmosphere Mode
+atelier
+
+MEDIA DNA
+Required
+✔ Atelier light
+✔ Hands at work
+✔ Quiet mirror
+✔ Ritual space
+
+Preferred
+✔ Product detail
+✔ Soft tools
+✔ Calm before appointment
+
+Forbidden
+✖ Neon salon
+✖ Pink glitter stock
+✖ Waiting-room chair row
+
+Hero Proof
+A beauty ritual room — not a noisy salon corridor.
+
+Fingerprint
+f3f3cfb4f29df742b6cb471d
+

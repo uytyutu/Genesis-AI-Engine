@@ -1,0 +1,1 @@
+{"engine_id": "factory_metrics_v1", "at": "2026-08-08T09:56:54.081680+00:00", "order_id": null, "product_id": "8b6c57bb-451a-4d51-ad7b-41529f56f37c", "kind": "build", "stages": {"template": 0.0329, "content": 0.0276, "assets": 7.3007, "render": 1.292, "gates": 0.3916, "total": 9.0765}, "zip_bytes": null, "cached_zip": false}

@@ -1,0 +1,347 @@
+{
+  "brand_name": "MirrorCoat Care",
+  "niche_id": "generic",
+  "package_id": "premium",
+  "metaphor": "Offenes Licht auf ruhiger Fläche",
+  "core_emotion": "Vertrauen",
+  "atmosphere_mode": "atelier",
+  "scene_language": [
+    "professioneller Arbeitsort",
+    "Team bei echter Arbeit",
+    "deutsche Alltagsszene"
+  ],
+  "texture_language": [
+    "Paper",
+    "Light"
+  ],
+  "motion_language": "atelier drift · glass shimmer · slow depth",
+  "camera_feeling": "calm eye-level · clear space",
+  "scroll_feeling": "steady soft reveals",
+  "cta_feeling": "clear large buttons · calm spacing · Große Buttons · Ruhiger Abstand",
+  "sound_mood": "quiet professional room tone",
+  "illustration_style": "soft 3D product icons",
+  "glass_level": "medium",
+  "shadow_language": "soft lift · Soft",
+  "icon_language": "filled craft glyphs",
+  "lighting": "even daylight · soft fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit",
+        "deutsche Alltagsszene",
+        "Detail Arbeit",
+        "Kundenmoment"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|hero|8342910ba1e68ab7581c",
+      "size": [
+        1600,
+        900
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "background",
+      "concept": "scene · professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit",
+        "deutsche Alltagsszene",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|bg|8342910ba1e68ab7581c",
+      "size": [
+        1920,
+        1080
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=hero_background. Medium=glass_3d. Illustration language=soft 3D product icons. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Detail Arbeit",
+      "must_include": [
+        "Detail Arbeit",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|gal0|8342910ba1e68ab7581c",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Detail Arbeit."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Kundenmoment",
+      "must_include": [
+        "Kundenmoment",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|gal1|8342910ba1e68ab7581c",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Kundenmoment."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Werkzeug / Material",
+      "must_include": [
+        "Werkzeug / Material",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|gal2|8342910ba1e68ab7581c",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Werkzeug / Material."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Ergebnis",
+      "must_include": [
+        "Ergebnis",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|gal3|8342910ba1e68ab7581c",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Ergebnis."
+    },
+    {
+      "role": "before_after",
+      "concept": "before / after proof",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|before_after|8342910ba1e68ab7581c",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=soft 3D product icons. Must show: Detail Arbeit, Kundenmoment. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "team",
+      "concept": "team of this company",
+      "must_include": [
+        "Fachkraft"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|team|8342910ba1e68ab7581c",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=team. Medium=isometric_illustration. Illustration language=soft 3D product icons. Must show: Fachkraft. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "equipment",
+      "concept": "tools & equipment of the trade",
+      "must_include": [
+        "Werkzeug der Branche"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|equipment|8342910ba1e68ab7581c",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=equipment. Medium=isometric_illustration. Illustration language=soft 3D product icons. Must show: Werkzeug der Branche. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "illustration",
+      "concept": "soft 3D product icons",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "MirrorCoat Care|generic|premium|342c0805eb34a8f141e7368a|illustration|8342910ba1e68ab7581c",
+      "size": [
+        1200,
+        1200
+      ],
+      "image_prompt": "Premium German brand visual for «MirrorCoat Care» (generic) in Germany. Role=illustration. Medium=isometric_illustration. Illustration language=soft 3D product icons. Must show: Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    }
+  ],
+  "fingerprint": "2a5c4c0e878d971ccff6cf5a",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

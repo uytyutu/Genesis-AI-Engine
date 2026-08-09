@@ -44,6 +44,35 @@ class ServiceHealth:
     overall: str = "stopped"  # stopped | starting_backend | starting_frontend | running | error
     error_message: str = ""
     details: list[str] = field(default_factory=list)
+    backend_ms: float | None = None
+    frontend_ms: float | None = None
+    vector_ready: bool | None = None
+
+
+def _probe_url_rtt(
+    url: str, timeout: float = BACKEND_PROBE_TIMEOUT, *, require_ok: bool = False
+) -> tuple[bool, float | None]:
+    started = time.perf_counter()
+    try:
+        with urlopen(url, timeout=timeout) as response:
+            ok = response.status == 200 if require_ok else response.status < 500
+            ms = (time.perf_counter() - started) * 1000.0
+            return ok, round(ms, 1)
+    except (URLError, OSError, TimeoutError):
+        return False, None
+
+
+def _get_json_rtt(
+    url: str, timeout: float = BACKEND_PROBE_TIMEOUT
+) -> tuple[dict | None, float | None]:
+    started = time.perf_counter()
+    try:
+        with urlopen(url, timeout=timeout) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            ms = (time.perf_counter() - started) * 1000.0
+            return data, round(ms, 1)
+    except (URLError, OSError, json.JSONDecodeError, TimeoutError):
+        return None, None
 
 
 def _get_json(url: str, timeout: float = BACKEND_PROBE_TIMEOUT) -> dict | None:
@@ -361,16 +390,61 @@ def check_services_fast(
             frontend_up = probed_frontend
 
     health.backend = bool(backend_up)
-    if health.backend:
-        lines.append("✔ Backend работает (/api/status)")
-    else:
-        lines.append("✘ Backend не отвечает на /api/status")
-
     health.frontend = bool(frontend_up)
-    if health.frontend:
-        lines.append("✔ Frontend работает (HTTP 200)")
+
+    # RTT for Health Monitor (Owner: show ms, not only Loading…)
+    if health.backend:
+        _payload, be_ms = _get_json_rtt(
+            f"{BACKEND_URL}/api/status",
+            timeout=IDLE_BACKEND_TIMEOUT if launcher_idle else BACKEND_PROBE_TIMEOUT,
+        )
+        health.backend_ms = be_ms
+        if isinstance(_payload, dict) and "vector_chat_ready" in _payload:
+            health.vector_ready = bool(_payload.get("vector_chat_ready"))
+        lines.append(
+            f"🟢 Backend     {int(be_ms) if be_ms is not None else '—'} ms"
+        )
     else:
-        lines.append("✘ Frontend не отвечает на :3000")
+        lines.append("🔴 Backend     down")
+
+    if health.frontend:
+        ok_fe, fe_ms = _probe_url_rtt(
+            FRONTEND_URL,
+            timeout=IDLE_FRONTEND_TIMEOUT if launcher_idle else FRONTEND_PROBE_TIMEOUT,
+            require_ok=True,
+        )
+        health.frontend_ms = fe_ms if ok_fe else None
+        lines.append(
+            f"🟢 Frontend    {int(fe_ms) if fe_ms is not None else '—'} ms"
+        )
+    else:
+        lines.append("🔴 Frontend    down")
+
+    if health.vector_ready is True:
+        lines.append("🟢 Vector      ready")
+    elif health.backend and health.vector_ready is False:
+        lines.append("🟡 Vector      warming")
+    elif health.backend:
+        lines.append("🟡 Vector      —")
+
+    try:
+        from launcher.health_center import build_health_center_rows
+
+        for row in build_health_center_rows(
+            backend=health.backend,
+            frontend=health.frontend,
+            backend_ms=health.backend_ms,
+            frontend_ms=health.frontend_ms,
+            vector_ready=health.vector_ready,
+            root=root,
+        ):
+            if row.get("id") in ("backend", "frontend", "vector"):
+                continue  # already shown with RTT
+            lines.append(
+                f"{row.get('mark', '·')} {row.get('label', ''):<10} {row.get('detail', '')}"
+            )
+    except Exception:
+        pass
 
     health.details = lines
 

@@ -10,7 +10,7 @@ import {
 
 const AUTO_MS = 4500;
 /** Bust phone/CDN cache of previous 404 responses for gallery.jpg */
-const GALLERY_CACHE = "g5";
+const GALLERY_CACHE = "g7";
 
 type Props = {
   packageId: string;
@@ -21,14 +21,24 @@ type Props = {
 };
 
 function slideUrl(slide: PackagePreviewSlide): string {
-  const path = slide.src.replace(/^\/+/, "");
-  // Always a site-root public URL — never a filesystem path.
+  const raw = (slide.src || "").trim();
+  // Vitrine SSOT thumbs are already absolute public URLs (/vitrine/...).
+  if (raw.startsWith("/vitrine/") || raw.startsWith("http://") || raw.startsWith("https://")) {
+    return raw;
+  }
+  const path = raw.replace(/^\/+/, "");
+  // Legacy thumbs under /package-previews/
+  if (path.startsWith("package-previews/")) return `/${path}?v=${GALLERY_CACHE}`;
   return `/package-previews/${path}?v=${GALLERY_CACHE}`;
 }
 
 function siteDemoUrl(slide: PackagePreviewSlide): string | null {
   if (!slide.siteSrc) return null;
-  const path = slide.siteSrc.replace(/^\/+/, "");
+  const raw = slide.siteSrc.trim();
+  if (raw.startsWith("/package-previews/") || raw.startsWith("http://") || raw.startsWith("https://")) {
+    return raw;
+  }
+  const path = raw.replace(/^\/+/, "");
   return `/package-previews/${path}`;
 }
 
@@ -46,6 +56,7 @@ export function PackagePreviewCarousel({
   );
   const [index, setIndex] = useState(0);
   const [mode, setMode] = useState<"site" | "gallery">("site");
+  const [iframeFailed, setIframeFailed] = useState(false);
   const premiumServices = useMemo(
     () =>
       isPremium
@@ -60,7 +71,12 @@ export function PackagePreviewCarousel({
   useEffect(() => {
     setIndex(0);
     setMode("site");
+    setIframeFailed(false);
   }, [packageId, niche, slides.length]);
+
+  useEffect(() => {
+    setIframeFailed(false);
+  }, [index, mode]);
 
   useEffect(() => {
     if (mode !== "gallery" || slides.length <= 1) return;
@@ -181,13 +197,38 @@ export function PackagePreviewCarousel({
                 )}
               </div>
             ) : null}
-            <iframe
-              title={current.alt}
-              src={demoHref}
-              className="h-[min(70vh,520px)] w-full border-0 bg-white"
-              loading="lazy"
-              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-            />
+            {iframeFailed ? (
+              <div className="flex h-[min(70vh,520px)] w-full flex-col items-center justify-center gap-3 bg-slate-950 px-6 text-center">
+                <p className="text-sm font-medium text-white/90">
+                  {t("order.previewUnavailableTitle", {
+                    defaultValue: "Demo-Vorschau wird aktualisiert",
+                  })}
+                </p>
+                <p className="max-w-sm text-[11px] text-genesis-muted">
+                  {t("order.previewUnavailableHint", {
+                    defaultValue:
+                      "Die Live-Vorschau ist gerade nicht verfügbar. Nach der Bestellung erhalten Sie eine Website der aktuellen Generation (Design Engine).",
+                  })}
+                </p>
+                <a
+                  href={demoHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-emerald-500/20 px-3 py-2 text-[11px] font-semibold text-emerald-200 hover:bg-emerald-500/30"
+                >
+                  {t("order.previewOpenDemo", { defaultValue: "Open full demo" })}
+                </a>
+              </div>
+            ) : (
+              <iframe
+                title={current.alt}
+                src={demoHref}
+                className="h-[min(70vh,520px)] w-full border-0 bg-white"
+                loading="lazy"
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                onError={() => setIframeFailed(true)}
+              />
+            )}
           </div>
         ) : (
           <div className="relative h-[220px] w-full overflow-hidden bg-slate-900 sm:h-[280px] lg:h-[260px]">

@@ -71,7 +71,8 @@ class CustomerAccount:
 
 @dataclass
 class CustomerCard:
-    """CRM record — not exposed to client under this name."""
+    """Internal support record — client UI never uses this class name."""
+
     customer_id: str
     name: str
     email: str
@@ -89,6 +90,11 @@ class CustomerCard:
     gdpr_service_consent: bool = True
     marketing: MarketingConsent = field(default_factory=MarketingConsent)
     devices: list[dict[str, str]] = field(default_factory=list)
+    # Public support key — assigned on registration (never expose DB UUID to clients).
+    business_id: str = ""
+    account_status: str = "active"
+    company_display_name: str = ""
+    support_notes: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)

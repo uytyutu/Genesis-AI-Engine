@@ -6,15 +6,22 @@ Creates Draft PR, reads merge state, posts /try comment when requested.
 
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
 
-from swarm.farm_execution_engine import _run, resolve_git_binary
+from swarm.farm_execution_engine import (
+    _run,
+    git_no_credential_helper_args,
+    noninteractive_git_env,
+    resolve_git_binary,
+)
 
 
 def _github_token() -> str:
@@ -77,23 +84,111 @@ def detect_default_branch(owner: str, repo: str) -> str:
     return "main"
 
 
-def push_branch(src: Path, branch: str) -> dict[str, Any]:
+def github_login() -> str | None:
+    res = _api("GET", "https://api.github.com/user")
+    if not res.get("ok"):
+        return None
+    login = str((res.get("data") or {}).get("login") or "").strip()
+    return login or None
+
+
+def repo_can_push(owner: str, repo: str) -> bool:
+    res = _api("GET", f"https://api.github.com/repos/{owner}/{repo}")
+    if not res.get("ok"):
+        return False
+    perms = (res.get("data") or {}).get("permissions") or {}
+    return bool(perms.get("push") or perms.get("admin") or perms.get("maintain"))
+
+
+def ensure_user_fork(owner: str, repo: str) -> dict[str, Any]:
+    """Ensure authenticated user has a fork of owner/repo. Creates if missing."""
+    login = github_login()
+    if not login:
+        return {
+            "ok": False,
+            "error": "github_user_required",
+            "message_ru": "GITHUB_TOKEN не даёт доступ к /user — проверьте права токена.",
+        }
+    existing = _api("GET", f"https://api.github.com/repos/{login}/{repo}")
+    if existing.get("ok"):
+        data = existing.get("data") or {}
+        parent = data.get("parent") or {}
+        parent_full = str(parent.get("full_name") or "")
+        if parent_full.lower() == f"{owner}/{repo}".lower() or data.get("fork"):
+            return {
+                "ok": True,
+                "fork_owner": login,
+                "fork_full": str(data.get("full_name") or f"{login}/{repo}"),
+                "created": False,
+            }
+        # Same-name non-fork — cannot safely reuse
+        return {
+            "ok": False,
+            "error": "fork_name_collision",
+            "message_ru": (
+                f"У {login} уже есть репозиторий {login}/{repo}, но это не fork "
+                f"{owner}/{repo}. Переименуйте его или удалите, затем Submit снова."
+            ),
+        }
+
+    created = _api(
+        "POST",
+        f"https://api.github.com/repos/{owner}/{repo}/forks",
+        {},
+    )
+    if not created.get("ok"):
+        detail = str(created.get("detail") or "")
+        scope_hint = ""
+        if "Resource not accessible" in detail or created.get("status") == 403:
+            scope_hint = (
+                " Токену не хватает права создать fork: для classic PAT — scope "
+                "`public_repo` (или `repo`); для fine-grained — Permission "
+                "«Administration: Read and write» на создание репозиториев "
+                "в аккаунте + доступ к публичным репозиториям. "
+                "Обновите GITHUB_TOKEN в dashboard/backend/.env.local и "
+                "перезапустите backend."
+            )
+        return {
+            "ok": False,
+            "error": created.get("error") or "fork_failed",
+            "message_ru": (
+                f"Не удалось создать fork {owner}/{repo}: "
+                f"{detail[:220]}{scope_hint}"
+            ),
+            "detail": created.get("detail"),
+        }
+    data = created.get("data") or {}
+    fork_full = str(data.get("full_name") or f"{login}/{repo}")
+    # Forks are async — poll until ready (or accept 202 + short wait)
+    for _ in range(12):
+        probe = _api("GET", f"https://api.github.com/repos/{fork_full}")
+        if probe.get("ok"):
+            break
+        time.sleep(1.5)
+    return {
+        "ok": True,
+        "fork_owner": login,
+        "fork_full": fork_full,
+        "created": True,
+    }
+
+
+def _push_to_remote(
+    src: Path,
+    branch: str,
+    *,
+    remote_owner: str,
+    remote_repo: str,
+    remote_name: str = "origin",
+) -> dict[str, Any]:
+    """Push branch to github remote_owner/remote_repo (token auth, no token left in config)."""
+    import base64
+
     git = resolve_git_binary() or "git"
-    # Ensure upstream remote uses HTTPS (token via env GIT_ASKPASS / credential helper if set)
-    env = os.environ.copy()
+    env = noninteractive_git_env()
     token = _github_token()
     if token:
-        # Prefer x-access-token for GitHub HTTPS push without interactive prompt
         env["GIT_TERMINAL_PROMPT"] = "0"
-    push = _run(
-        [git, "push", "-u", "origin", branch],
-        cwd=src,
-        timeout=180,
-        env=env,
-    )
-    if push["ok"]:
-        return {"ok": True, "push": push}
-    # Retry rewriting origin to token URL (scoped to this push only)
     if not token:
         return {
             "ok": False,
@@ -102,32 +197,141 @@ def push_branch(src: Path, branch: str) -> dict[str, Any]:
                 "Для live push/PR нужен GITHUB_TOKEN (или GH_TOKEN) в окружении Genesis. "
                 "ID вручную вводить не нужно — настройте токен один раз."
             ),
-            "push": push,
         }
-    remote = _run([git, "remote", "get-url", "origin"], cwd=src, timeout=30)
-    url = (remote.get("stdout") or "").strip()
-    m = re.search(r"github\.com[/:]([^/]+)/([^/.]+)", url)
-    if not m:
-        return {"ok": False, "error": "bad_remote", "push": push, "remote": url}
-    owner, repo = m.group(1), m.group(2).removesuffix(".git")
-    authed = f"https://x-access-token:{token}@github.com/{owner}/{repo}.git"
-    _run([git, "remote", "set-url", "origin", authed], cwd=src, timeout=30)
-    try:
-        push2 = _run([git, "push", "-u", "origin", branch], cwd=src, timeout=180, env=env)
-    finally:
-        # Restore clean remote URL (no token in config)
-        clean = f"https://github.com/{owner}/{repo}.git"
-        _run([git, "remote", "set-url", "origin", clean], cwd=src, timeout=30)
-    if not push2["ok"]:
+
+    clean = f"https://github.com/{remote_owner}/{remote_repo}.git"
+    have = _run(
+        git_no_credential_helper_args(git, "remote", "get-url", remote_name),
+        cwd=src,
+        timeout=15,
+        env=env,
+    )
+    if have.get("ok"):
+        _run(
+            git_no_credential_helper_args(git, "remote", "set-url", remote_name, clean),
+            cwd=src,
+            timeout=15,
+            env=env,
+        )
+    else:
+        _run(
+            git_no_credential_helper_args(git, "remote", "add", remote_name, clean),
+            cwd=src,
+            timeout=15,
+            env=env,
+        )
+
+    basic = base64.b64encode(f"x-access-token:{token}".encode()).decode()
+    push = _run(
+        git_no_credential_helper_args(
+            git,
+            "-c",
+            f"http.extraHeader=Authorization: Basic {basic}",
+            "push",
+            "-u",
+            remote_name,
+            branch,
+        ),
+        cwd=src,
+        timeout=180,
+        env=env,
+    )
+    if not push.get("ok"):
+        authed = f"https://x-access-token:{token}@github.com/{remote_owner}/{remote_repo}.git"
+        _run(
+            git_no_credential_helper_args(git, "remote", "set-url", remote_name, authed),
+            cwd=src,
+            timeout=30,
+            env=env,
+        )
+        try:
+            push = _run(
+                git_no_credential_helper_args(git, "push", "-u", remote_name, branch),
+                cwd=src,
+                timeout=180,
+                env=env,
+            )
+        finally:
+            _run(
+                git_no_credential_helper_args(git, "remote", "set-url", remote_name, clean),
+                cwd=src,
+                timeout=30,
+                env=env,
+            )
+    if not push.get("ok"):
         return {
             "ok": False,
             "error": "push_failed",
-            "message_ru": (push2.get("stderr") or push2.get("stdout") or "git push failed")[
+            "message_ru": (push.get("stderr") or push.get("stdout") or "git push failed")[
                 :400
             ],
-            "push": push2,
+            "push": push,
+            "remote": f"{remote_owner}/{remote_repo}",
         }
-    return {"ok": True, "push": push2}
+    return {
+        "ok": True,
+        "push": push,
+        "remote": f"{remote_owner}/{remote_repo}",
+        "head_owner": remote_owner,
+    }
+
+
+def push_branch(src: Path, branch: str) -> dict[str, Any]:
+    """Push to origin; if no write access, fork under the token user and push there."""
+    git = resolve_git_binary() or "git"
+    env = noninteractive_git_env()
+    token = _github_token()
+    if token:
+        env["GIT_TERMINAL_PROMPT"] = "0"
+    if not token:
+        return {
+            "ok": False,
+            "error": "github_token_required",
+            "message_ru": (
+                "Для live push/PR нужен GITHUB_TOKEN (или GH_TOKEN) в окружении Genesis. "
+                "ID вручную вводить не нужно — настройте токен один раз."
+            ),
+        }
+
+    remote = _run(
+        git_no_credential_helper_args(git, "remote", "get-url", "origin"),
+        cwd=src,
+        timeout=30,
+        env=env,
+    )
+    url = (remote.get("stdout") or "").strip()
+    m = re.search(r"github\.com[/:]([^/]+)/([^/.]+)", url)
+    if not m:
+        return {"ok": False, "error": "bad_remote", "remote": url}
+    owner, repo = m.group(1), m.group(2).removesuffix(".git")
+
+    # Prefer direct push when token has write access
+    if repo_can_push(owner, repo):
+        direct = _push_to_remote(
+            src, branch, remote_owner=owner, remote_repo=repo, remote_name="origin"
+        )
+        if direct.get("ok"):
+            direct["head"] = branch  # same-repo PR head
+            return direct
+
+    # Bounty repos are almost never writable — fork then push
+    fork = ensure_user_fork(owner, repo)
+    if not fork.get("ok"):
+        return fork
+    fork_owner = str(fork.get("fork_owner") or "")
+    pushed = _push_to_remote(
+        src,
+        branch,
+        remote_owner=fork_owner,
+        remote_repo=repo,
+        remote_name="origin",
+    )
+    if not pushed.get("ok"):
+        return pushed
+    pushed["head"] = f"{fork_owner}:{branch}"
+    pushed["fork"] = fork
+    pushed["upstream"] = f"{owner}/{repo}"
+    return pushed
 
 
 def create_draft_pr(
@@ -276,11 +480,20 @@ def live_submit_draft_pr(task: dict[str, Any], workspace: Path) -> dict[str, Any
     if not pushed.get("ok"):
         return pushed
 
+    # Fork flow returns head as "user:branch"; same-repo push uses bare branch
+    head = str(pushed.get("head") or branch)
     created = create_draft_pr(
         owner=owner,
         repo=repo,
-        head=branch,
+        head=head,
         title=title,
         body=body,
     )
+    if created.get("ok"):
+        created["push"] = {
+            "remote": pushed.get("remote"),
+            "head": head,
+            "fork": pushed.get("fork"),
+            "upstream": pushed.get("upstream"),
+        }
     return created

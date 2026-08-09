@@ -1,0 +1,147 @@
+BRAND BOOK
+Brand Name
+DachKlar Service
+
+Positioning
+Premium Roof Care
+
+Brand Archetype
+The Craftsman
++
+The Guardian
+
+Brand Promise
+Nach dem Regen sieht das Dach wieder neu aus.
+
+Core Emotion
+Erleichterung
+
+Secondary Emotion
+Stolz auf das eigene Zuhause
+
+Tone of Voice
+  Ruhig
+  Präzise
+  Ehrlich
+  Kompetent
+
+Visual Style
+Industrial Modern
+
+Visual Metaphor
+Frischer Regen nach dem Sturm — nasse Ziegel, klarer Himmel
+
+Photography
+  Echte Dächer
+  Morgensonne nach Regen
+  Wassertropfen
+  Arbeiter in Schutzkleidung
+  Luftaufnahmen
+
+Forbidden (never generate)
+  cafe
+  restaurant interior
+  beauty salon
+  spa
+  saas dashboard
+  startup office
+  coworking
+  stock handshake
+  generic purple gradient
+  luxury champagne cliché without craft proof
+  laptop
+  coffee
+  abstract business
+  office meeting
+  nail salon
+  coffee shop
+  yoga studio
+  tech landing
+
+Motion
+Langsam · Flüssig · Präzise
+
+Palette
+Slate, Steel, Sky Blue, Warm White, Safety Orange
+Accent #3b82c4
+Surface #f8fafc
+Ink #0f172a
+
+Typography
+Manrope
++
+IBM Plex Sans
+(manrope_ibm_plex_industrial)
+
+Icon Style
+Outline Industrial
+
+Border Radius
+12 px
+
+Shadow Style
+Soft Deep
+
+Glass Level
+medium
+
+Texture
+  Beton
+  Schiefer
+  Wasser
+
+Scene Language
+  Sky
+  Height
+  Light
+  Wind
+  Rain
+
+CTA Style
+Große Buttons · Viel Abstand · Keine Aggressivität
+
+Trust Strategy
+  Vorher/Nachher
+  Zertifikate
+  Fahrzeuge
+  Team
+  Versicherung
+  Garantie
+
+Atmosphere Mode
+cinematic
+
+MEDIA DNA
+Required
+✔ Roof
+✔ Water
+✔ Sky
+✔ Drone
+✔ Height
+✔ Worker
+✔ Equipment
+
+Preferred
+✔ Morning light
+✔ Clouds
+✔ Wet tiles
+✔ Family house
+✔ Gutter
+✔ Safety harness
+
+Forbidden
+✖ Café
+✖ Restaurant
+✖ Office
+✖ Beauty
+✖ Laptop
+✖ Coworking
+✖ Abstract business
+✖ Coffee smile stock
+
+Hero Proof
+Worker in safety harness cleaning a wet roof after rain — not a pretty empty roof, not a café.
+
+Fingerprint
+6e28c9061198371726de8dc2
+

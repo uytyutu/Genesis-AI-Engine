@@ -80,7 +80,7 @@ export type PricingDisplay = {
     symbol?: string;
     basic_price_label?: string;
   }[];
-  disclaimer?: { ru?: string; de?: string };
+  disclaimer?: { ru?: string; de?: string; en?: string };
   platform_status?: Record<string, string>;
   capabilities?: {
     headline: string;

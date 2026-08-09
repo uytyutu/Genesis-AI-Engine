@@ -89,6 +89,52 @@ export type ChannelBoard = {
   };
 };
 
+export type RealRevenueHero = {
+  title_ru?: string;
+  stripe_gross_eur?: number;
+  stripe_net_eur?: number;
+  stripe_pending_eur?: number;
+  rapidapi_gross?: number;
+  rapidapi_fee?: number;
+  rapidapi_net_earned?: number;
+  rapidapi_pending_payout?: number;
+  rapidapi_paid_out?: number;
+  b2b_eur?: number;
+  api_farm_eur?: number;
+  total_actual_eur?: number;
+  total_actual_label_ru?: string;
+  farm_potential_not_real_eur?: number;
+  training_ledger_not_real_eur?: number;
+  legend_ru?: { actual?: string; potential?: string };
+};
+
+export type ApiFarmBlock = {
+  candidates?: number;
+  building?: number;
+  testing?: number;
+  ready?: number;
+  published?: number;
+  active?: number;
+  failed?: number;
+  api_calls?: number;
+  subscribers?: number;
+  revenue?: {
+    gross_revenue?: number;
+    marketplace_fee?: number;
+    net_earned?: number;
+    pending_payout?: number;
+    paid_out?: number;
+    actual_revenue?: number;
+    potential_not_real?: number;
+  };
+  payout_path_ru?: string;
+  ceo_action?: string[];
+  requires_ceo_action?: boolean;
+  paypal_payout_confirmed?: boolean;
+  public_api?: { ok?: boolean; base?: string; detail?: string };
+  best_candidate?: { id?: string; name?: string; status?: string } | null;
+};
+
 export type MoneyMonitorData = {
   title_ru: string;
   subtitle_ru: string;
@@ -110,8 +156,11 @@ export type MoneyMonitorData = {
     amount_label_ru: string;
     label_ru: string;
     detail_ru: string;
+    not_real_money?: boolean;
   } | null;
   real_money?: RealMoneyData | null;
+  real_revenue_hero?: RealRevenueHero | null;
+  api_farm?: ApiFarmBlock | null;
   sales_funnel?: SalesFunnelData | null;
   path_a_funnel?: import("./PathAFunnelPanel").PathAFunnelData | null;
   lanes: MoneyMonitorLane[];
@@ -193,12 +242,14 @@ function RealMoneyHero({
   actual,
   farm,
   truth,
+  hero,
   compact,
 }: {
   rm: RealMoneyData;
   actual?: MoneyMonitorData["actual_revenue"];
   farm?: MoneyMonitorData["farm_potential"];
   truth?: MoneyTruth | null;
+  hero?: RealRevenueHero | null;
   compact?: boolean;
 }) {
   const withdrawable =
@@ -207,49 +258,71 @@ function RealMoneyHero({
     actual?.paid_by_client_label_ru ?? rm.paid_by_client?.amount_label_ru ?? "0,00 €";
   const settling =
     actual?.pending_settlement_label_ru ?? rm.pending?.amount_label_ru ?? "0,00 €";
+  const totalActual =
+    hero?.total_actual_label_ru ??
+    `${Number(hero?.total_actual_eur ?? actual?.paid_by_client_eur ?? 0).toFixed(2)} €`;
 
   return (
     <div className="mt-4 space-y-4">
       {truth ? <MoneyTruthStrip truth={truth} compact={compact} /> : null}
 
       <div className="rounded-2xl border border-emerald-500/50 bg-gradient-to-br from-emerald-950/50 to-genesis-bg/60 p-5 sm:p-6">
-        <p className="text-xs uppercase tracking-widest text-emerald-300/90">Выручка к выводу (Stripe)</p>
+        <p className="text-xs uppercase tracking-widest text-emerald-300/90">
+          {hero?.title_ru ?? "REAL REVENUE"}
+        </p>
         <p className="mt-2 text-xs text-genesis-muted">
-          {actual?.source_ru ?? rm.rule_ru}
+          {hero?.legend_ru?.actual ?? actual?.source_ru ?? rm.rule_ru}
         </p>
         <p
           className={`mt-3 font-bold tabular-nums tracking-tight text-emerald-100 ${
             compact ? "text-4xl" : "text-5xl sm:text-6xl"
           }`}
         >
-          {withdrawable}
+          {totalActual}
         </p>
-        {!compact ? (
-          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            <div>
-              <p className="text-genesis-muted">Оплачено клиентом (REAL)</p>
-              <p className="font-semibold tabular-nums text-sky-100">{paid}</p>
-            </div>
-            <div>
-              <p className="text-genesis-muted">Settling (DE ~3 дня)</p>
-              <p className="font-semibold tabular-nums text-amber-100">{settling}</p>
-            </div>
+        <div className={`mt-4 grid gap-3 ${compact ? "grid-cols-1" : "sm:grid-cols-3"}`}>
+          <div className="rounded-lg border border-white/10 bg-black/20 p-3">
+            <p className="text-[10px] uppercase tracking-wide text-genesis-muted">Stripe / B2B</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-sky-100">{paid}</p>
+            <p className="text-[11px] text-genesis-muted">Net / withdrawable: {withdrawable}</p>
+            <p className="text-[11px] text-genesis-muted">Settling: {settling}</p>
           </div>
-        ) : (
-          <p className="mt-3 text-xs text-genesis-muted">
-            Оплачено: {paid} · Settling: {settling}
-          </p>
-        )}
-        {actual && actual.payment_count === 0 ? (
+          <div className="rounded-lg border border-white/10 bg-black/20 p-3">
+            <p className="text-[10px] uppercase tracking-wide text-genesis-muted">RapidAPI / API Farm</p>
+            <p className="mt-1 text-lg font-semibold tabular-nums text-violet-100">
+              {Number(hero?.rapidapi_paid_out ?? 0).toFixed(2)} paid out
+            </p>
+            <p className="text-[11px] text-genesis-muted">
+              Gross {Number(hero?.rapidapi_gross ?? 0).toFixed(2)} · Fee{" "}
+              {Number(hero?.rapidapi_fee ?? 0).toFixed(2)}
+            </p>
+            <p className="text-[11px] text-genesis-muted">
+              Pending {Number(hero?.rapidapi_pending_payout ?? 0).toFixed(2)} · PayPal path
+            </p>
+          </div>
+          <div className="rounded-lg border border-amber-500/25 bg-amber-950/20 p-3">
+            <p className="text-[10px] uppercase tracking-wide text-amber-200/80">NOT REAL MONEY</p>
+            <p className="mt-1 text-sm text-amber-100/90">
+              Farm Potential: {Number(hero?.farm_potential_not_real_eur ?? 0).toFixed(2)}
+            </p>
+            <p className="text-sm text-amber-100/90">
+              Training Ledger: {Number(hero?.training_ledger_not_real_eur ?? 0).toFixed(2)}
+            </p>
+            <p className="mt-1 text-[11px] text-genesis-muted">
+              {hero?.legend_ru?.potential ?? "Не входит в Actual Revenue"}
+            </p>
+          </div>
+        </div>
+        {actual && actual.payment_count === 0 && !(hero?.rapidapi_paid_out) ? (
           <p className="mt-3 rounded-lg border border-amber-500/25 bg-amber-950/20 px-3 py-2 text-xs text-amber-100/90">
-            Stripe пуст — REAL = 0 € до первого webhook. PREDICTION и журнал фермы не смешиваются с выручкой.
+            Stripe пуст и RapidAPI PAID_OUT = 0 — Actual Revenue пока 0. Potential не смешивается.
           </p>
         ) : null}
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-genesis-bg/40 p-4">
-        <p className="text-xs uppercase tracking-wide text-genesis-muted">
-          {farm?.label_ru ?? rm.training?.label_ru} · estimate, не REAL
+      <div className="rounded-xl border border-amber-500/20 bg-amber-950/10 p-4">
+        <p className="text-xs uppercase tracking-wide text-amber-200/80">
+          {farm?.label_ru ?? rm.training?.label_ru ?? "Farm Potential"} — NOT REAL MONEY
         </p>
         <p className="mt-1 text-xl font-semibold tabular-nums text-white/70">
           {farm?.amount_label_ru ?? rm.training?.amount_label_ru}
@@ -321,10 +394,53 @@ export function MoneyMonitorPanel({ data, compact }: Props) {
           actual={data.actual_revenue}
           farm={data.farm_potential}
           truth={data.money_truth}
+          hero={data.real_revenue_hero}
           compact={compact}
         />
       ) : data.money_truth ? (
         <MoneyTruthStrip truth={data.money_truth} compact={compact} />
+      ) : null}
+
+      {data.api_farm ? (
+        <div className="mt-4 rounded-xl border border-violet-500/30 bg-violet-950/20 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-medium text-violet-100">API Farm</p>
+            <Link href="/farm/rapidapi" className="text-xs text-emerald-300 hover:underline">
+              Open API Farm →
+            </Link>
+          </div>
+          <div className={`mt-3 grid gap-2 text-xs ${compact ? "grid-cols-2" : "grid-cols-3 sm:grid-cols-6"}`}>
+            {[
+              ["Candidates", data.api_farm.candidates],
+              ["Building", data.api_farm.building],
+              ["Testing", data.api_farm.testing],
+              ["Ready", data.api_farm.ready],
+              ["Published", data.api_farm.published],
+              ["Active", data.api_farm.active],
+            ].map(([label, val]) => (
+              <div key={String(label)} className="rounded-lg border border-white/10 bg-black/20 px-2 py-2">
+                <p className="text-[10px] uppercase tracking-wide text-genesis-muted">{label}</p>
+                <p className="mt-1 font-semibold tabular-nums text-white">{Number(val ?? 0)}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] text-genesis-muted">
+            Calls {Number(data.api_farm.api_calls ?? 0)} · Subscribers{" "}
+            {Number(data.api_farm.subscribers ?? 0)} · Actual{" "}
+            {Number(data.api_farm.revenue?.actual_revenue ?? 0).toFixed(2)} ·{" "}
+            {data.api_farm.payout_path_ru ?? "RapidAPI → PayPal"}
+            {data.api_farm.paypal_payout_confirmed === false
+              ? " · PayPal CEO ACTION"
+              : ""}
+          </p>
+          {Array.isArray(data.api_farm.ceo_action) && data.api_farm.ceo_action.length ? (
+            <ul className="mt-2 list-disc space-y-0.5 pl-4 text-[11px] text-amber-100/90">
+              {data.api_farm.ceo_action.slice(0, 4).map((line: string) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       ) : null}
 
       {data.channel_board && !compact ? (

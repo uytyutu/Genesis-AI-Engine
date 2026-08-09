@@ -1,0 +1,63 @@
+{
+  "brand_name": "WohnRaum Partner",
+  "niche_id": "realestate",
+  "fingerprint": "560f17b6e66e6e1e979e",
+  "color": {
+    "primary": "#14181e",
+    "accent": "#65cdba",
+    "secondary": "#ab5542",
+    "surface": "#e6eaf0",
+    "cards": "#e0e6ee",
+    "background": "#14181e",
+    "gradient": "linear-gradient(145deg,#14181e 0%,#32665d 48%,#65cdba 100%)",
+    "glow": "rgba(101,205,186,0.35)",
+    "ink": "#f4f6f8",
+    "muted": "#94a3b8"
+  },
+  "media_mix": [
+    "cinematic_photo",
+    "isometric_illustration",
+    "glass_3d",
+    "abstract_gradient"
+  ],
+  "illustration_pack": "isometric craft marks",
+  "motion_language": "editorial fade · staggered cards · calm hover",
+  "icon_style": "soft rounded symbols",
+  "scene_library": {
+    "hero": [
+      "Team bei echter Arbeit",
+      "deutsche Alltagsszene",
+      "professioneller Arbeitsort"
+    ],
+    "gallery": [
+      "Detail Arbeit",
+      "Kundenmoment",
+      "Werkzeug / Material",
+      "Ergebnis"
+    ],
+    "team": [
+      "Fachkraft"
+    ],
+    "equipment": [
+      "Werkzeug der Branche"
+    ]
+  },
+  "prompts": {
+    "hero": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=hero. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "hero_background": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=hero_background. Medium=glass_3d. Illustration language=isometric craft marks. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "gallery": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=gallery. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "before_after": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=before_after. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Detail Arbeit, Kundenmoment. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "team": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=team. Medium=isometric_illustration. Illustration language=isometric craft marks. Must show: Fachkraft. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "equipment": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=equipment. Medium=isometric_illustration. Illustration language=isometric craft marks. Must show: Werkzeug der Branche. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "projects": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=projects. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "illustration": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=illustration. Medium=isometric_illustration. Illustration language=isometric craft marks. Must show: Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "icon": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=icon. Medium=minimal_illustration. Illustration language=isometric craft marks. Must show: soft rounded symbols. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays.",
+    "video_storyboard": "Premium German brand visual for «WohnRaum Partner» (realestate) in Germany. Role=video_storyboard. Medium=cinematic_photo. Illustration language=isometric craft marks. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+  },
+  "uniqueness_rules": [
+    "No repeated Hero across companies",
+    "No stock café/salon plates",
+    "Gallery proves this profession only",
+    "Colors + motion + illustration unique to this brand"
+  ]
+}

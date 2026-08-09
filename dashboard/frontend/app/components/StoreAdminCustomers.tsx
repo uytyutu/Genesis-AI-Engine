@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { clientAuthHeaders } from "../../lib/clientAuth";
-import { formatApiDetail } from "../../lib/formatApiError";
-import { publicApiBase } from "../../lib/publicApiBase";
+import { clientAuthHeaders } from "../lib/clientAuth";
+import { formatApiDetail } from "../lib/formatApiError";
+import { publicApiBase } from "../lib/publicApiBase";
 
 const API = publicApiBase();
 

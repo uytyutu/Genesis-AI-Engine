@@ -29,6 +29,9 @@ export type CheckoutSummaryProps = {
   payError: string;
   onPay: () => void;
   launch?: boolean;
+  /** Golden / internal Demo Payment — never for ordinary customers */
+  demoPaymentAvailable?: boolean;
+  demoPaymentBanner?: string | null;
 };
 
 export function OrderCheckoutSummary({
@@ -49,6 +52,8 @@ export function OrderCheckoutSummary({
   payError,
   onPay,
   launch = false,
+  demoPaymentAvailable = false,
+  demoPaymentBanner = null,
 }: CheckoutSummaryProps) {
   const { t } = useTranslation("site");
   const market = (marketCode || "DE").toUpperCase();
@@ -142,6 +147,16 @@ export function OrderCheckoutSummary({
         <p className="text-sm text-genesis-muted">{packageName}</p>
         <p className="mt-1 text-3xl font-bold tabular-nums text-white sm:text-4xl">{priceLabel}</p>
 
+        {demoPaymentAvailable ? (
+          <div
+            className="mt-4 rounded-xl border border-amber-400/40 bg-amber-950/30 px-3 py-2.5 text-left text-xs text-amber-100"
+            role="status"
+          >
+            {demoPaymentBanner ||
+              "Demo Payment — es wird kein Geld abgebucht. Nur für interne Tests und Demo-Bestellungen."}
+          </div>
+        ) : null}
+
         <label className="mt-5 flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-left text-sm">
           <input
             type="checkbox"
@@ -152,9 +167,9 @@ export function OrderCheckoutSummary({
           <span>{t("order.checkoutConfirmLabel")}</span>
         </label>
 
-        {paymentReady ? (
+        {paymentReady || demoPaymentAvailable ? (
           <div className="mt-4 space-y-3">
-            <OrderTrustCard purchaseType={purchaseType} />
+            {!demoPaymentAvailable ? <OrderTrustCard purchaseType={purchaseType} /> : null}
             <Button
               variant="success"
               size="lg"
@@ -163,7 +178,11 @@ export function OrderCheckoutSummary({
               disabled={!confirmed || payBusy}
               onClick={onPay}
             >
-              {payBusy ? t("order.payBusy") : t("order.checkoutPayCta", { price: priceLabel })}
+              {payBusy
+                ? t("order.payBusy")
+                : demoPaymentAvailable
+                  ? "Complete Demo Payment"
+                  : t("order.checkoutPayCta", { price: priceLabel })}
             </Button>
             {payError ? (
               <p className="text-xs text-rose-300" role="alert">

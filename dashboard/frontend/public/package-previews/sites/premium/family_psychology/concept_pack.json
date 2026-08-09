@@ -1,0 +1,68 @@
+{
+  "renamed_to": "creative_identity.json",
+  "sprint": "Creative Identity Generation",
+  "identity": {
+    "title": "Morning Light",
+    "theme_id": "morning_light",
+    "idea": "Every day can begin again.",
+    "human": {
+      "founder_name": "Noah",
+      "founder_role": "founder",
+      "client_age_range": "30–50",
+      "why_choose_them": "They are specific — not interchangeable.",
+      "visitor_must_feel": "trust and desire to stay",
+      "niche_revealed_later": "family_psychology"
+    },
+    "brand_story": "Noah built NestKlar Familienpraxis because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: family_psychology.",
+    "core_emotion": "trust and desire to stay",
+    "core_promise": "Every day can begin again.",
+    "visual_metaphor": "first light through linen curtains",
+    "creative_theme": "Morning Light",
+    "scene_language": "dawn windows, soft gold, open horizon",
+    "motion_language": "soft rise — light enters the frame",
+    "typography_voice": "Manrope + IBM Plex Sans",
+    "color_emotion": "cream, pale gold, sky blue breath",
+    "interaction_style": "inviting, hopeful, one clear next step",
+    "photo_world": "morning desk, coffee steam, open notebook",
+    "niche_revealed": "family_psychology",
+    "package_id": "premium",
+    "surface": "site",
+    "conflict": {
+      "ok": true,
+      "action": "CONTINUE",
+      "conflicts": []
+    },
+    "forbidden": [
+      "noir_club",
+      "gaming",
+      "aggressive_sale",
+      "dark_corporate"
+    ],
+    "owner_preview": "PENDING_OWNER",
+    "html_export_allowed": true,
+    "html_blocked_reason": "",
+    "fingerprint": "07e6efd0ac50ddcd",
+    "generated_at": "2026-08-07T19:52:29.774708+00:00",
+    "sprint": "Creative Identity Generation",
+    "agency_note": "Think like a creative agency director on a €50,000 brief. No idea → no HTML. Creative Identity becomes site, store, social, video, ads.",
+    "pipeline": [
+      "human_first",
+      "brand_story",
+      "core_emotion",
+      "core_promise",
+      "visual_metaphor",
+      "creative_theme",
+      "scene_language",
+      "motion_language",
+      "typography_voice",
+      "color_emotion",
+      "interaction_style",
+      "creative_conflict",
+      "owner_preview"
+    ],
+    "before_html": true,
+    "naming": "Creative Identity — not Concept",
+    "question": "Who is the human — and what idea can you feel?",
+    "not_question": "How do we assemble a psychologist website?"
+  }
+}

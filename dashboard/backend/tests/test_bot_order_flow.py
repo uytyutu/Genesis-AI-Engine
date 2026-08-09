@@ -57,7 +57,8 @@ def test_bot_business_order_is_not_website_package(tmp_path: Path):
     assert order.get("monthly_amount") == 199
     cfg = order.get("bot_config") or {}
     assert "telegram" in cfg["channels"]
-    assert "website_chat" in cfg["channels"]
+    assert "website_chat" not in cfg["channels"]
+    assert "website_chat" in cfg.get("channels_coming_soon_requested", [])
     assert "whatsapp" in cfg.get("channels_coming_soon_requested", [])
     assert "whatsapp" not in cfg["channels"]
     assert cfg["channel_pricing"]["addon_setup_total_eur"] == 0

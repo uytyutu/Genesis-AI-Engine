@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
+import {
+  filterWorkspaceNav,
+  lockedConnectedTeasers,
+  type CommerceMode,
+} from "../lib/workspaceNav";
 import { StorefrontAtmosphere } from "./storefront/StorefrontAtmosphere";
 
 const THEME_KEY = "virtus_client_theme_v1";
 const BG_KEY = "virtus_client_bg_v1";
+const MODE_KEY = "virtus_client_commerce_mode_v1";
 
 export type ClientThemeId = "virtus_dark" | "storefront_light" | "graphite";
 
@@ -52,70 +58,12 @@ const THEMES: {
   },
 ];
 
-export const CLIENT_WORKSPACE_LINKS = [
-  { href: "/client", label: "Dashboard", match: (p: string) => p === "/client" },
-  {
-    href: "/client/onboarding",
-    label: "Профиль",
-    match: (p: string) => p.startsWith("/client/onboarding"),
-  },
-  {
-    href: "/client/shop",
-    label: "Магазин",
-    match: (p: string) => p.startsWith("/client/shop"),
-  },
-  {
-    href: "/client/products",
-    label: "My Products",
-    match: (p: string) =>
-      p.startsWith("/client/products") || p.startsWith("/client/stores"),
-  },
-  {
-    href: "/client/bots",
-    label: "Боты",
-    match: (p: string) => p.startsWith("/client/bots"),
-  },
-  {
-    href: "/client/orders",
-    label: "Orders",
-    match: (p: string) => p.startsWith("/client/orders"),
-  },
-  {
-    href: "/client/licenses",
-    label: "Licenses",
-    match: (p: string) => p.startsWith("/client/licenses"),
-  },
-  {
-    href: "/client/billing",
-    label: "Billing",
-    match: (p: string) => p.startsWith("/client/billing"),
-  },
-  {
-    href: "/client/analyses",
-    label: "Analyses",
-    match: (p: string) => p.startsWith("/client/analyses"),
-  },
-  {
-    href: "/client/downloads",
-    label: "Downloads",
-    match: (p: string) => p.startsWith("/client/downloads"),
-  },
-  {
-    href: "/client/support",
-    label: "Support",
-    match: (p: string) => p.startsWith("/client/support"),
-  },
-  {
-    href: "/client/privacy",
-    label: "Privacy & Cookies",
-    match: (p: string) => p.startsWith("/client/privacy"),
-  },
-  {
-    href: "/projects/chatbot",
-    label: ASSISTANT_NAME,
-    match: (p: string) => p.startsWith("/projects/chatbot"),
-  },
-] as const;
+/** @deprecated use WORKSPACE_NAV / filterWorkspaceNav — kept for older imports */
+export const CLIENT_WORKSPACE_LINKS = filterWorkspaceNav({
+  commerceMode: "connected",
+  hasStore: true,
+  ecosystem: true,
+}).map((i) => ({ href: i.href, label: i.label, match: i.match }));
 
 function readTheme(): ClientThemeId {
   if (typeof window === "undefined") return "virtus_dark";
@@ -129,24 +77,53 @@ function readBg(): string {
   return window.localStorage.getItem(BG_KEY) || "";
 }
 
+function readMode(): CommerceMode {
+  if (typeof window === "undefined") return "standalone";
+  const v = window.localStorage.getItem(MODE_KEY);
+  return v === "connected" ? "connected" : "standalone";
+}
+
 export function ClientWorkspaceShell({
   children,
   title,
   subtitle,
+  commerceMode,
+  hasStore,
+  ecosystem,
 }: {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
+  commerceMode?: CommerceMode | string | null;
+  hasStore?: boolean;
+  ecosystem?: boolean;
 }) {
   const pathname = usePathname() ?? "/client";
   const [themeId, setThemeId] = useState<ClientThemeId>("virtus_dark");
   const [bgUrl, setBgUrl] = useState("");
   const [prefsOpen, setPrefsOpen] = useState(false);
+  const [localMode, setLocalMode] = useState<CommerceMode>("standalone");
 
   useEffect(() => {
     setThemeId(readTheme());
     setBgUrl(readBg());
+    setLocalMode(readMode());
   }, []);
+
+  const mode = (commerceMode as CommerceMode) || localMode;
+  const eco = ecosystem ?? mode === "connected";
+
+  const links = useMemo(
+    () =>
+      filterWorkspaceNav({
+        commerceMode: mode,
+        hasStore: hasStore ?? true,
+        ecosystem: eco,
+      }),
+    [mode, hasStore, eco],
+  );
+
+  const locked = !eco ? lockedConnectedTeasers() : [];
 
   const theme = THEMES.find((t) => t.id === themeId) || THEMES[0];
 
@@ -165,6 +142,11 @@ export function ClientWorkspaceShell({
     setBgUrl(next);
     if (next) window.localStorage.setItem(BG_KEY, next);
     else window.localStorage.removeItem(BG_KEY);
+  }
+
+  function applyMode(m: CommerceMode) {
+    setLocalMode(m);
+    window.localStorage.setItem(MODE_KEY, m);
   }
 
   return (
@@ -186,7 +168,8 @@ export function ClientWorkspaceShell({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-genesis-accent">
-                {BRAND_NAME} · AI Business Platform · Client
+                {BRAND_NAME} · Virtus AI Workspace ·{" "}
+                {eco ? "Connected" : "Standalone"}
               </p>
               <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                 {title}
@@ -200,12 +183,31 @@ export function ClientWorkspaceShell({
               onClick={() => setPrefsOpen((v) => !v)}
               className="rounded-xl border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5"
             >
-              Theme / фон
+              Theme / режим
             </button>
           </div>
           {prefsOpen ? (
             <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-4">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                Режим Workspace (превью)
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {(["standalone", "connected"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => applyMode(m)}
+                    className={`rounded-lg px-3 py-1.5 text-sm capitalize ${
+                      mode === m
+                        ? "border border-emerald-400/40 bg-emerald-500/15 text-white"
+                        : "border border-white/10 text-zinc-400 hover:bg-white/5"
+                    }`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
                 Тема кабинета
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -254,13 +256,13 @@ export function ClientWorkspaceShell({
           ) : null}
           <nav
             className="mt-5 flex flex-wrap gap-2"
-            aria-label="Client workspace"
+            aria-label="Virtus AI Workspace"
           >
-            {CLIENT_WORKSPACE_LINKS.map((link) => {
+            {links.map((link) => {
               const active = link.match(pathname);
               return (
                 <Link
-                  key={link.href}
+                  key={link.id}
                   href={link.href}
                   className={`rounded-lg px-3 py-1.5 text-sm transition ${
                     active
@@ -269,10 +271,25 @@ export function ClientWorkspaceShell({
                   }`}
                 >
                   {link.label}
+                  {link.comingSoon ? (
+                    <span className="ml-1 text-[10px] text-zinc-500">soon</span>
+                  ) : null}
                 </Link>
               );
             })}
           </nav>
+          {locked.length ? (
+            <p className="mt-3 text-xs text-zinc-500">
+              Connected:{" "}
+              {locked.map((l) => l.label).join(" · ")} —{" "}
+              <Link href="/client/shop" className="text-emerald-300/90 underline">
+                открыть в Marketplace
+              </Link>
+            </p>
+          ) : null}
+          <p className="mt-2 text-[11px] text-zinc-600">
+            {ASSISTANT_NAME} управляет только купленными продуктами · одна панель
+          </p>
         </header>
         <main id="main-content" className="py-6">
           {children}

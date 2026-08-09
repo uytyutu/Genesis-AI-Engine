@@ -1,0 +1,39 @@
+{
+  "stage": "creative_identity",
+  "naming": "Creative Identity — not Concept",
+  "before_html": true,
+  "era": "Virtus Core Studio Era",
+  "sprint": "Creative Identity Generation",
+  "theme": "Lived-In Room",
+  "idea": "Furniture that already belongs to a life.",
+  "thinking": "human_first_then_niche_then_export",
+  "reality_benchmark": "FAIL",
+  "html_export_allowed": true,
+  "brand_story": "Clara built Grünzeit Garten because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: gartenpflege.",
+  "core_emotion": "trust and desire to stay",
+  "core_promise": "Furniture that already belongs to a life.",
+  "visual_metaphor": "an empty chair that still feels occupied",
+  "creative_conflict": {
+    "ok": true,
+    "action": "CONTINUE",
+    "conflicts": []
+  },
+  "studio_approach": "luxury",
+  "first_screen_job": "Hero exists for 'Grünzeit Garten': Morgentau auf frisch geschnittenem Grün — Ein Garten, der atmet — und gepflegt bleibt.",
+  "scene_sequence": [
+    "scene",
+    "experience",
+    "emotion",
+    "experience",
+    "interaction",
+    "conversion",
+    "story",
+    "interaction",
+    "emotion",
+    "scene",
+    "interaction",
+    "conversion"
+  ],
+  "owner_review": "PENDING_OWNER",
+  "question": "Who is the human — and what idea can you feel?"
+}

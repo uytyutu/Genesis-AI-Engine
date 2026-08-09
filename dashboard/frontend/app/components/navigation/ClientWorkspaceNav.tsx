@@ -46,7 +46,7 @@ export function ClientWorkspaceNav() {
         </div>
       </nav>
 
-      <p className="genesis-sidebar__footer">{CLIENT_NAV_LINKS[0].label} ведёт процесс</p>
+      <p className="genesis-sidebar__footer">Virtus Core · ваш кабинет</p>
     </aside>
   );
 }

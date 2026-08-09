@@ -1,16 +1,871 @@
 {
-  "product_id": "607b9bd4-e8f8-47b9-833d-4914847da3ec",
+  "product_id": "00f13c1e-aff2-4f29-8753-0e7acc4163f4",
   "intent_id": null,
-  "product_type": "Landing Page",
-  "description": "Lash Studio Mira — Wimpernverlängerung, Volumen und Brow Lamination in Hamburg. Beauty Studio für natürliche Looks.",
+  "product_type": "Website",
+  "description": "Salon Mira Berlin — Friseursalon, Haarschnitt, Coloration, Balayage, Pflege",
   "niche": "beauty",
   "template_id": "landing-beauty-v1",
-  "business_name": "Lash Studio Mira",
+  "business_name": "Salon Mira",
   "market_code": "DE",
+  "language": "de",
+  "locale": null,
+  "currency": null,
+  "ui_lang": "de",
+  "path_a_pricing": {
+    "package_id": "basic",
+    "amount": null,
+    "currency": null,
+    "price_label": null
+  },
+  "market_design": "DE",
   "motion_level": "none",
-  "status": "completed",
+  "composer_engine": "composer_v1",
+  "composition_plan": {
+    "engine_id": "composer_v1",
+    "layout_profile": {
+      "id": "L3",
+      "label": "Visual portfolio lead",
+      "hero_variants": [
+        "E",
+        "A",
+        "C"
+      ],
+      "preferred_component": "A",
+      "cta_strategy": "late",
+      "services_layout": "glass",
+      "trust_position": "after_gallery",
+      "gallery_style": "masonry",
+      "faq_style": "twocol",
+      "footer_variant": "contact",
+      "section_order": [
+        "info",
+        "stats",
+        "gallery",
+        "showcase",
+        "services",
+        "benefits",
+        "trust",
+        "process",
+        "catalog",
+        "about",
+        "faq",
+        "reviews",
+        "calculator",
+        "maps",
+        "late_cta",
+        "contact"
+      ]
+    },
+    "hero_layout": "C",
+    "component_profile": "A",
+    "trust_template": "A",
+    "market_code": "DE",
+    "niche_id": "beauty",
+    "package_id": "basic",
+    "business_name": "Salon Mira",
+    "language": "de",
+    "currency": "EUR",
+    "locale": "de_DE",
+    "default_cta": "Termin buchen"
+  },
+  "design_dna": {
+    "emotion": "trust",
+    "style": "modern_clinical",
+    "palette_family": "sage_mist",
+    "typography_pair": "cormorant_source",
+    "motion": "soft",
+    "hero_concept": "trust_panel",
+    "hero_layout": "C",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "clean",
+    "package_id": "basic",
+    "niche_id": "beauty",
+    "fingerprint": "ab8d4a5a1e401016f7df9ebe0da02ce540595b6e5b07f60d9caefc169d51ae03",
+    "section_treatments": [
+      [
+        "stats",
+        "ink"
+      ],
+      [
+        "services",
+        "glass"
+      ],
+      [
+        "mid_cta",
+        "tint"
+      ],
+      [
+        "benefits",
+        "glass"
+      ],
+      [
+        "trust",
+        "ink"
+      ],
+      [
+        "process",
+        "gradient"
+      ],
+      [
+        "showcase",
+        "illustration"
+      ],
+      [
+        "gallery",
+        "ink"
+      ],
+      [
+        "about",
+        "glass"
+      ],
+      [
+        "faq",
+        "tint"
+      ],
+      [
+        "reviews",
+        "glass"
+      ],
+      [
+        "maps",
+        "ink"
+      ],
+      [
+        "contact",
+        "gradient"
+      ]
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#f3f6f4",
+    "ink_hex": "#243029"
+  },
+  "hero_layout": "C",
+  "component_profile": "A",
+  "layout_profile": {
+    "id": "L3",
+    "label": "Visual portfolio lead",
+    "hero_variants": [
+      "E",
+      "A",
+      "C"
+    ],
+    "preferred_component": "A",
+    "cta_strategy": "late",
+    "services_layout": "glass",
+    "trust_position": "after_gallery",
+    "gallery_style": "masonry",
+    "faq_style": "twocol",
+    "footer_variant": "contact",
+    "section_order": [
+      "info",
+      "stats",
+      "gallery",
+      "showcase",
+      "services",
+      "benefits",
+      "trust",
+      "process",
+      "catalog",
+      "about",
+      "faq",
+      "reviews",
+      "calculator",
+      "maps",
+      "late_cta",
+      "contact"
+    ]
+  },
+  "trust_template": "A",
+  "creative_director": {
+    "engine": "ai_creative_director_v1",
+    "role": "AI Creative Director",
+    "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+    "positioning": {
+      "ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+      "en": "Virtus Core designs the digital experience for your business.",
+      "de": "Virtus Core gestaltet die digitale Erfahrung Ihres Unternehmens."
+    },
+    "package_id": "basic",
+    "budget_eur": 199,
+    "niche": "beauty",
+    "market_code": "DE",
+    "goal": "lead",
+    "industry": {
+      "theme": "luxury",
+      "feel_ru": "Luxury — мягкий свет, премиальная типографика",
+      "hero_bias": "photo_luxury"
+    },
+    "luxury_mode": false,
+    "decisions": {
+      "heavy_video": false,
+      "webgl": false,
+      "lottie_heavy": false,
+      "page_density": "light",
+      "motion_profile": "subtle_css",
+      "hero_media": "photo_or_svg",
+      "typography": "clean_system_or_one_font",
+      "goal_ru": "быстрый, чистый, современный опыт без перегрузки"
+    },
+    "forbidden_ru": [
+      "тяжёлое видео",
+      "сложный WebGL",
+      "перегруз страницы"
+    ],
+    "acceptance_5s_ru": "Без ценников за 5 секунд должно быть ясно: Starter / Business / Premium."
+  },
+  "digital_creative_studio": {
+    "engine": "digital_creative_studio_v2",
+    "product": "Digital Creative Studio",
+    "role": "AI Creative Director",
+    "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+    "positioning_ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+    "surface": "website",
+    "package_id": "basic",
+    "niche": "beauty",
+    "market_code": "DE",
+    "luxury_mode": false,
+    "creative_director": {
+      "engine": "ai_creative_director_v1",
+      "role": "AI Creative Director",
+      "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+      "positioning": {
+        "ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+        "en": "Virtus Core designs the digital experience for your business.",
+        "de": "Virtus Core gestaltet die digitale Erfahrung Ihres Unternehmens."
+      },
+      "package_id": "basic",
+      "budget_eur": 199,
+      "niche": "beauty",
+      "market_code": "DE",
+      "goal": "lead",
+      "industry": {
+        "theme": "luxury",
+        "feel_ru": "Luxury — мягкий свет, премиальная типографика",
+        "hero_bias": "photo_luxury"
+      },
+      "luxury_mode": false,
+      "decisions": {
+        "heavy_video": false,
+        "webgl": false,
+        "lottie_heavy": false,
+        "page_density": "light",
+        "motion_profile": "subtle_css",
+        "hero_media": "photo_or_svg",
+        "typography": "clean_system_or_one_font",
+        "goal_ru": "быстрый, чистый, современный опыт без перегрузки"
+      },
+      "forbidden_ru": [
+        "тяжёлое видео",
+        "сложный WebGL",
+        "перегруз страницы"
+      ],
+      "acceptance_5s_ru": "Без ценников за 5 секунд должно быть ясно: Starter / Business / Premium."
+    },
+    "directors": [
+      {
+        "engine": "industry_director_v1",
+        "role": "Industry Director",
+        "choice": "Beauty Studio",
+        "niche": "beauty",
+        "identity": {
+          "theme": "luxury",
+          "feel_ru": "Luxury — мягкий свет, премиальная типографика",
+          "hero_bias": "photo_luxury"
+        },
+        "reason_ru": "Соответствует ожиданиям аудитории (Luxury — мягкий свет, премиальная типографика).",
+        "reason_en": "Matches audience expectations (Beauty Studio).",
+        "apply": {
+          "industry_theme": "Beauty Studio",
+          "hero_bias": "photo_luxury"
+        }
+      },
+      {
+        "engine": "luxury_director_v1",
+        "role": "Luxury Director",
+        "choice": "Off",
+        "luxury_mode": false,
+        "reason_ru": "Luxury Mode только для Premium — клиент купил эмоцию дорогого бренда.",
+        "reason_en": "Luxury Mode is Premium-only — emotion of a high-end brand.",
+        "apply": {
+          "luxury_mode": false,
+          "data_luxury": "0"
+        }
+      },
+      {
+        "engine": "typography_director_v1",
+        "role": "Typography Director",
+        "choice": "Manrope",
+        "typography_key": "clean_system_or_one_font",
+        "reason_ru": "Лучше читается на мобильных устройствах.",
+        "reason_en": "Лучше читается на мобильных устройствах.",
+        "apply": {
+          "font_label": "Manrope",
+          "body_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+          "display_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+          "scale": {
+            "h1": "clamp(1.75rem, 4vw, 2.35rem)",
+            "lh": "1.45",
+            "section_h2": "1.55rem"
+          }
+        },
+        "font_pack": {
+          "label": "Manrope",
+          "body": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+          "display": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif"
+        }
+      },
+      {
+        "engine": "motion_director_v1",
+        "role": "Motion Director",
+        "choice": "Subtle / none",
+        "reason_ru": "Starter: быстрый опыт без тяжёлого motion.",
+        "reason_en": "Starter: быстрый опыт без тяжёлого motion.",
+        "apply": {
+          "motion_tier": "basic",
+          "motion_level": "none",
+          "reveal": "none"
+        }
+      },
+      {
+        "engine": "conversion_director_v1",
+        "role": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason_ru": "Кнопки, форма и доверие расставлены ради конверсии, не декора.",
+        "reason_en": "CTA, form and trust placed for conversion, not decoration.",
+        "apply": {
+          "require_mid_cta": false,
+          "cta_after_services": true,
+          "contact_above_fold_hint": false,
+          "faq_before_footer": true
+        }
+      },
+      {
+        "engine": "trust_director_v1",
+        "role": "Trust Director",
+        "choice": "Clean trust basics",
+        "reason_ru": "Базовые контакты и доверие без перегруза.",
+        "reason_en": "Базовые контакты и доверие без перегруза.",
+        "apply": {
+          "certs_near_hero": false,
+          "guarantees_in_benefits": false,
+          "reviews_before_contact": false,
+          "map_with_contacts": true,
+          "brands_strip": false,
+          "trust_density": "light"
+        }
+      },
+      {
+        "engine": "performance_director_v1",
+        "role": "Performance Director",
+        "choice": "Light delivery",
+        "reason_ru": "Luxury и скорость балансируются автоматически.",
+        "reason_en": "Luxury and speed are balanced automatically.",
+        "apply": {
+          "prefer_static_hero": true,
+          "lazy_images": true,
+          "forbid_heavy_video_on_mobile_fail": true,
+          "max_motion": "none"
+        }
+      },
+      {
+        "engine": "accessibility_director_v1",
+        "role": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason_ru": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта.",
+        "reason_en": "Contrast, type size, keyboard, alt and readability are product quality.",
+        "apply": {
+          "min_body_px": 16,
+          "focus_visible": true,
+          "require_alt": true,
+          "skip_link": true
+        }
+      },
+      {
+        "engine": "localization_director_v1",
+        "role": "Localization Director",
+        "choice": "Germany · DACH",
+        "market_code": "DE",
+        "reason_ru": "Impressum, Datenschutz, строгий стиль.",
+        "reason_en": "Impressum, Datenschutz, строгий стиль.",
+        "apply": {
+          "market_code": "DE",
+          "legal_pack": [
+            "impressum",
+            "datenschutz"
+          ],
+          "style": "strict",
+          "social_proof_weight": "medium",
+          "portfolio_weight": "medium",
+          "cta_tone": "formal",
+          "package_id": "basic"
+        }
+      }
+    ],
+    "apply": {
+      "industry_theme": "Beauty Studio",
+      "hero_bias": "photo_luxury",
+      "luxury_mode": false,
+      "data_luxury": "0",
+      "font_label": "Manrope",
+      "body_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+      "display_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+      "scale": {
+        "h1": "clamp(1.75rem, 4vw, 2.35rem)",
+        "lh": "1.45",
+        "section_h2": "1.55rem"
+      },
+      "motion_tier": "basic",
+      "motion_level": "none",
+      "reveal": "none",
+      "require_mid_cta": false,
+      "cta_after_services": true,
+      "contact_above_fold_hint": false,
+      "faq_before_footer": true,
+      "certs_near_hero": false,
+      "guarantees_in_benefits": false,
+      "reviews_before_contact": false,
+      "map_with_contacts": true,
+      "brands_strip": false,
+      "trust_density": "light",
+      "prefer_static_hero": true,
+      "lazy_images": true,
+      "forbid_heavy_video_on_mobile_fail": true,
+      "max_motion": "none",
+      "min_body_px": 16,
+      "focus_visible": true,
+      "require_alt": true,
+      "skip_link": true,
+      "market_code": "DE",
+      "legal_pack": [
+        "impressum",
+        "datenschutz"
+      ],
+      "style": "strict",
+      "social_proof_weight": "medium",
+      "portfolio_weight": "medium",
+      "cta_tone": "formal",
+      "package_id": "basic",
+      "data_studio": "digital_creative_studio_v2",
+      "hero_layout_prefer": null,
+      "font_pack": {
+        "label": "Manrope",
+        "body": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+        "display": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif"
+      },
+      "conversion": {
+        "engine": "conversion_director_v1",
+        "role": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason_ru": "Кнопки, форма и доверие расставлены ради конверсии, не декора.",
+        "reason_en": "CTA, form and trust placed for conversion, not decoration.",
+        "apply": {
+          "require_mid_cta": false,
+          "cta_after_services": true,
+          "contact_above_fold_hint": false,
+          "faq_before_footer": true
+        }
+      },
+      "trust": {
+        "engine": "trust_director_v1",
+        "role": "Trust Director",
+        "choice": "Clean trust basics",
+        "reason_ru": "Базовые контакты и доверие без перегруза.",
+        "reason_en": "Базовые контакты и доверие без перегруза.",
+        "apply": {
+          "certs_near_hero": false,
+          "guarantees_in_benefits": false,
+          "reviews_before_contact": false,
+          "map_with_contacts": true,
+          "brands_strip": false,
+          "trust_density": "light"
+        }
+      },
+      "performance": {
+        "engine": "performance_director_v1",
+        "role": "Performance Director",
+        "choice": "Light delivery",
+        "reason_ru": "Luxury и скорость балансируются автоматически.",
+        "reason_en": "Luxury and speed are balanced automatically.",
+        "apply": {
+          "prefer_static_hero": true,
+          "lazy_images": true,
+          "forbid_heavy_video_on_mobile_fail": true,
+          "max_motion": "none"
+        }
+      },
+      "accessibility": {
+        "engine": "accessibility_director_v1",
+        "role": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason_ru": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта.",
+        "reason_en": "Contrast, type size, keyboard, alt and readability are product quality.",
+        "apply": {
+          "min_body_px": 16,
+          "focus_visible": true,
+          "require_alt": true,
+          "skip_link": true
+        }
+      },
+      "localization": {
+        "engine": "localization_director_v1",
+        "role": "Localization Director",
+        "choice": "Germany · DACH",
+        "market_code": "DE",
+        "reason_ru": "Impressum, Datenschutz, строгий стиль.",
+        "reason_en": "Impressum, Datenschutz, строгий стиль.",
+        "apply": {
+          "market_code": "DE",
+          "legal_pack": [
+            "impressum",
+            "datenschutz"
+          ],
+          "style": "strict",
+          "social_proof_weight": "medium",
+          "portfolio_weight": "medium",
+          "cta_tone": "formal",
+          "package_id": "basic"
+        }
+      }
+    },
+    "css_bytes": 3296
+  },
+  "luxury_mode": false,
+  "design_director": {
+    "engine": "ai_design_director_v2",
+    "product": "Digital Experience Factory",
+    "ok": true,
+    "overall": 87,
+    "scores": {
+      "visual": 90,
+      "typography": 100,
+      "motion": 65,
+      "premium_feeling": 72,
+      "first_impression": 88,
+      "brand_emotion": 80,
+      "trust": 90,
+      "conversion_readiness": 90,
+      "mobile_experience": 100,
+      "creativity": 90
+    },
+    "threshold_premium_feeling": 80,
+    "threshold_first_impression_premium": 90,
+    "package_id": "basic",
+    "niche": "beauty",
+    "luxury_mode": false,
+    "identity": {
+      "theme": "luxury",
+      "feel_ru": "Luxury — мягкий свет, премиальная типографика",
+      "hero_bias": "photo_luxury"
+    },
+    "fingerprint": "69d70d3f590cc016",
+    "markers": {
+      "data_tier_ok": true,
+      "hero": true,
+      "layout_profile": true,
+      "vie": true,
+      "font_signals": 4,
+      "kpi_trust_signals": 19,
+      "rich_media_signals": 4,
+      "viewport": true,
+      "responsive_css": true
+    },
+    "recommendations": [
+      "Hold — candidate for 5-second blind tier test"
+    ],
+    "acceptance_5s_ru": "Если показать три версии рядом без ценников, человек должен почти всегда понять, где Starter, где Business и где Premium.",
+    "rule_ru": "Клиент должен узнать Virtus Core по качеству, а не по шаблону."
+  },
+  "design_memory": {
+    "engine": "design_memory_v1",
+    "similarity_pct": 0,
+    "threshold": 92,
+    "rebuild_needed": false,
+    "match": null,
+    "action_ru": "OK — достаточно уникально"
+  },
+  "experience_director": {
+    "engine": "experience_director_v1",
+    "role": "Experience Director",
+    "choice": "First Impression 88",
+    "first_impression": 88,
+    "overall": 87,
+    "why_ru": "Первое впечатление в норме для пакета.",
+    "reason_ru": "Первое впечатление в норме для пакета.",
+    "reason_en": "Первое впечатление в норме для пакета.",
+    "actions": [],
+    "rebuild_recommended": false,
+    "apply": {
+      "experience_ok": true,
+      "hero_upgrade": "hold"
+    }
+  },
+  "commercial_readiness": {
+    "engine": "commercial_readiness_v1",
+    "threshold": 90,
+    "scores": {
+      "visual": 90,
+      "trust": 92,
+      "conversion": 96,
+      "performance": 88,
+      "mobile": 100,
+      "accessibility": 98
+    },
+    "overall_commercial": 94,
+    "commercial_ready": true,
+    "label": "Commercial Ready",
+    "status": "PASS",
+    "conversion_detail": {
+      "engine": "conversion_director_v1",
+      "scores": {
+        "hero": 92,
+        "cta": 100,
+        "trust": 91,
+        "contact_visibility": 98,
+        "booking_flow": 98
+      },
+      "overall": 96,
+      "hero_status": "PASS",
+      "recommendations": [
+        "Hold — conversion structure OK."
+      ],
+      "markers": {
+        "has_mid_cta": true,
+        "has_form": true,
+        "has_contact": true
+      }
+    },
+    "performance_detail": {
+      "engine": "performance_director_v1",
+      "mobile_score": 88,
+      "has_video": false,
+      "has_webgl": false,
+      "status": "PASS",
+      "action_ru": "OK — лёгкая доставка",
+      "veto_video": false
+    },
+    "accessibility_detail": {
+      "engine": "accessibility_director_v1",
+      "overall": 98,
+      "missing_alt": 0,
+      "has_skip_link": true,
+      "has_lang": true,
+      "status": "PASS"
+    },
+    "design_director_overall": 87,
+    "ssot_ru": "Главный KPI — Commercial Readiness Score. Только при ≥ 90 Factory ставит Commercial Ready."
+  },
+  "commercial_ready": true,
+  "media_plan": {
+    "hero_src": "assets/hero.jpg",
+    "hero_from_client": false,
+    "hero_ok": true,
+    "gallery": [],
+    "background_src": "assets/background.jpg",
+    "assessments": [
+      {
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/basic/00f13c1e-aff2-4f29-8753-0e7acc4163f4/assets/hero.jpg",
+        "role": "hero",
+        "ok": true,
+        "width": 1536,
+        "height": 1024,
+        "bytes": 1912252,
+        "reason": "ok",
+        "source": "niche"
+      },
+      {
+        "path": "assets/background.jpg",
+        "role": "background",
+        "ok": true,
+        "width": 1600,
+        "height": 900,
+        "bytes": 186386,
+        "reason": "ok",
+        "source": "pack"
+      }
+    ],
+    "gate_ok": true,
+    "gate_failures": [],
+    "media_gate_ok": true,
+    "media_gate_failures": [],
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": true,
+      "failures": [],
+      "checks": [
+        {
+          "section": "hero",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/beauty/hero_pack/basic/hero_1.jpg",
+          "ok": true,
+          "tags": [
+            "client",
+            "cosmetics",
+            "interior",
+            "product",
+            "salon",
+            "specialist"
+          ],
+          "detail": "ok"
+        },
+        {
+          "section": "about",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/beauty/hero_pack/basic/hero_2.jpg",
+          "ok": true,
+          "tags": [
+            "client",
+            "cosmetics",
+            "interior",
+            "product",
+            "salon",
+            "specialist"
+          ],
+          "detail": "ok"
+        }
+      ]
+    }
+  },
+  "content_gate": {
+    "engine_id": "content_gate_v1",
+    "passed": true,
+    "failures": [],
+    "repairs": [],
+    "checks": [
+      {
+        "id": "hero_fields",
+        "section": "hero",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "hero_niche_voice",
+        "section": "hero",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "services_niche",
+        "section": "services",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "benefits_niche",
+        "section": "benefits",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "nav_no_marketing",
+        "section": "navigation",
+        "ok": true,
+        "detail": "links=2"
+      },
+      {
+        "id": "legal_profile_hook",
+        "section": "legal",
+        "ok": true,
+        "detail": "deferred_r34:DE"
+      }
+    ]
+  },
+  "commercial_gate": {
+    "engine_id": "commercial_gate_v1",
+    "hard_passed": true,
+    "score_passed": true,
+    "passed": true,
+    "brand_leak": "PASS",
+    "threshold": 95.0,
+    "ai_score": {
+      "niche_match": 94.0,
+      "content_quality": 98.0,
+      "cta_quality": 96.0,
+      "structure_quality": 98.0,
+      "design_quality": 96.0,
+      "commercial_readiness": 100.0,
+      "overall": 97.0
+    },
+    "hard_checks": [
+      {
+        "id": "brand_leak",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_stubs",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_generic_phrases",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "hero_matches_niche",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "services_match_questionnaire",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "cta_actionable",
+        "ok": true,
+        "detail": "Termin buchen"
+      },
+      {
+        "id": "contacts_present",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "structure_matches_scenario",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_empty_core_sections",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "pages_linked",
+        "ok": true,
+        "detail": "ok"
+      }
+    ],
+    "failures": [],
+    "commercial_rule_1": "first_visitor_ready",
+    "design": {
+      "composer": "design",
+      "niche": "beauty",
+      "emotional_tone": "elegant_warm",
+      "journey": "booking",
+      "primary": "#be185d",
+      "font_display": "\"Cormorant Garamond\", Georgia, Palatino, serif",
+      "radius": "14px",
+      "btn_radius": "999px",
+      "forbid_platform_aurora": true
+    },
+    "seo": {
+      "composer": "seo",
+      "title": "Salon Mira — Balayage | Berlin",
+      "description": "Jeder Look soll im Alltag von Berlin funktionieren — nicht nur im Spiegel."
+    },
+    "layout_id": "L3",
+    "layout_pool": [
+      "L3",
+      "L6",
+      "L1"
+    ],
+    "max_rebuild_attempts": 2,
+    "one_lifetime_project": true
+  },
+  "status": "commercial_ready",
   "quality_percent": 98,
-  "validation_passed": true,
+  "validation_passed": false,
   "technical_checks": [
     {
       "id": "html",
@@ -26,13 +881,913 @@
       "id": "accessibility",
       "label": "Accessibility",
       "ok": true
+    },
+    {
+      "id": "compliance",
+      "label": "Compliance Engine",
+      "ok": false
+    },
+    {
+      "id": "quality_gate",
+      "label": "Quality Gate",
+      "ok": false
+    },
+    {
+      "id": "compliance:performance:motion_css_budget",
+      "label": "performance:motion_css_budget — missing",
+      "ok": false
+    },
+    {
+      "id": "compliance:performance:js_budget",
+      "label": "performance:js_budget — missing",
+      "ok": false
+    },
+    {
+      "id": "compliance:brand:no_platform_chrome",
+      "label": "brand:no_platform_chrome — Demonstration",
+      "ok": false
+    },
+    {
+      "id": "compliance:brand:no_demo_preview_words",
+      "label": "brand:no_demo_preview_words — demo|preview",
+      "ok": false
     }
   ],
+  "quality_gate": {
+    "passed": false,
+    "failures": [
+      "performance:motion_css_budget — missing",
+      "performance:js_budget — missing",
+      "brand:no_platform_chrome — Demonstration",
+      "brand:no_demo_preview_words — demo|preview"
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "category": "design",
+        "ok": true,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "category": "design",
+        "ok": true,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "category": "design",
+        "ok": true,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "category": "design",
+        "ok": true,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "category": "design",
+        "ok": true,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "category": "design",
+        "ok": true,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "category": "design",
+        "ok": true,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "category": "design",
+        "ok": true,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "category": "localization",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "category": "localization",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "category": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "category": "seo",
+        "ok": true,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "category": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "category": "seo",
+        "ok": true,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "category": "seo",
+        "ok": true,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "category": "seo",
+        "ok": true,
+        "detail": "optional_basic"
+      },
+      {
+        "id": "og",
+        "category": "seo",
+        "ok": true,
+        "detail": "optional_basic"
+      },
+      {
+        "id": "lang_ok",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "imgs=1"
+      },
+      {
+        "id": "h1",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "category": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "category": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "category": "performance",
+        "ok": true,
+        "detail": "motion css/js"
+      },
+      {
+        "id": "css_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "63131B"
+      },
+      {
+        "id": "motion_css_budget",
+        "category": "performance",
+        "ok": false,
+        "detail": "missing"
+      },
+      {
+        "id": "js_budget",
+        "category": "performance",
+        "ok": false,
+        "detail": "missing"
+      },
+      {
+        "id": "js_no_heavy",
+        "category": "performance",
+        "ok": true,
+        "detail": "no_js"
+      },
+      {
+        "id": "manifest",
+        "category": "media",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "category": "media",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "section_aware",
+        "category": "media",
+        "ok": true,
+        "detail": "media_gate"
+      },
+      {
+        "id": "object_fit_css",
+        "category": "media",
+        "ok": true,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "category": "media",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "category": "media",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "category": "brand",
+        "ok": false,
+        "detail": "Demonstration"
+      },
+      {
+        "id": "no_demo_preview_words",
+        "category": "brand",
+        "ok": false,
+        "detail": "demo|preview"
+      }
+    ]
+  },
+  "compliance": {
+    "engine_id": "compliance_v1",
+    "passed": false,
+    "domains": {
+      "design": true,
+      "brand": false,
+      "performance": false,
+      "seo": true,
+      "accessibility": true,
+      "authenticity": true,
+      "market_rules": true
+    },
+    "failures": [
+      "performance:motion_css_budget — missing",
+      "performance:js_budget — missing",
+      "brand:no_platform_chrome — Demonstration",
+      "brand:no_demo_preview_words — demo|preview"
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "domain": "design",
+        "ok": true,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "domain": "design",
+        "ok": true,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "domain": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "domain": "seo",
+        "ok": true,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "domain": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "domain": "seo",
+        "ok": true,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "domain": "seo",
+        "ok": true,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "domain": "seo",
+        "ok": true,
+        "detail": "optional_basic"
+      },
+      {
+        "id": "og",
+        "domain": "seo",
+        "ok": true,
+        "detail": "optional_basic"
+      },
+      {
+        "id": "lang_ok",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "imgs=1"
+      },
+      {
+        "id": "h1",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "domain": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "domain": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "domain": "performance",
+        "ok": true,
+        "detail": "motion css/js"
+      },
+      {
+        "id": "css_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "63131B"
+      },
+      {
+        "id": "motion_css_budget",
+        "domain": "performance",
+        "ok": false,
+        "detail": "missing"
+      },
+      {
+        "id": "js_budget",
+        "domain": "performance",
+        "ok": false,
+        "detail": "missing"
+      },
+      {
+        "id": "js_no_heavy",
+        "domain": "performance",
+        "ok": true,
+        "detail": "no_js"
+      },
+      {
+        "id": "manifest",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "section_aware",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "media_gate"
+      },
+      {
+        "id": "object_fit_css",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "domain": "brand",
+        "ok": false,
+        "detail": "Demonstration"
+      },
+      {
+        "id": "no_demo_preview_words",
+        "domain": "brand",
+        "ok": false,
+        "detail": "demo|preview"
+      },
+      {
+        "id": "section_aware_media",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "section_aware_content",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "visual_intelligence",
+        "domain": "design",
+        "ok": true,
+        "detail": "score=96.0/90.0"
+      }
+    ],
+    "quality_gate": {
+      "passed": false,
+      "failures": [
+        "performance:motion_css_budget — missing",
+        "performance:js_budget — missing",
+        "brand:no_platform_chrome — Demonstration",
+        "brand:no_demo_preview_words — demo|preview"
+      ],
+      "checks": [
+        {
+          "id": "hero_layout",
+          "category": "design",
+          "ok": true,
+          "detail": "data-hero-layout"
+        },
+        {
+          "id": "component_profile",
+          "category": "design",
+          "ok": true,
+          "detail": "data-comp-profile"
+        },
+        {
+          "id": "layout_profile",
+          "category": "design",
+          "ok": true,
+          "detail": "data-layout-profile"
+        },
+        {
+          "id": "footer_variant",
+          "category": "design",
+          "ok": true,
+          "detail": "data-footer-variant"
+        },
+        {
+          "id": "section_contact",
+          "category": "design",
+          "ok": true,
+          "detail": "contact section present"
+        },
+        {
+          "id": "market_profile",
+          "category": "design",
+          "ok": true,
+          "detail": "data-market"
+        },
+        {
+          "id": "niche_style",
+          "category": "design",
+          "ok": true,
+          "detail": "data-niche + design tokens"
+        },
+        {
+          "id": "meta_hero",
+          "category": "design",
+          "ok": true,
+          "detail": "meta hero_layout matches HTML"
+        },
+        {
+          "id": "no_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "no_mustache",
+          "category": "localization",
+          "ok": true,
+          "detail": "{{…}}"
+        },
+        {
+          "id": "no_ui_keys",
+          "category": "localization",
+          "ok": true,
+          "detail": "ui.* keys"
+        },
+        {
+          "id": "no_english_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lang",
+          "category": "seo",
+          "ok": true,
+          "detail": "html lang"
+        },
+        {
+          "id": "hreflang",
+          "category": "seo",
+          "ok": true,
+          "detail": "hreflang"
+        },
+        {
+          "id": "title",
+          "category": "seo",
+          "ok": true,
+          "detail": "title"
+        },
+        {
+          "id": "description",
+          "category": "seo",
+          "ok": true,
+          "detail": "meta description"
+        },
+        {
+          "id": "canonical",
+          "category": "seo",
+          "ok": true,
+          "detail": "canonical"
+        },
+        {
+          "id": "schema",
+          "category": "seo",
+          "ok": true,
+          "detail": "optional_basic"
+        },
+        {
+          "id": "og",
+          "category": "seo",
+          "ok": true,
+          "detail": "optional_basic"
+        },
+        {
+          "id": "lang_ok",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "supported lang"
+        },
+        {
+          "id": "img_alt",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "imgs=1"
+        },
+        {
+          "id": "h1",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 present"
+        },
+        {
+          "id": "heading_order",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 before h2/h3"
+        },
+        {
+          "id": "aria_or_labels",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "aria/summary"
+        },
+        {
+          "id": "reduced_motion",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "reduced-motion support"
+        },
+        {
+          "id": "contrast_tokens",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "--ink token"
+        },
+        {
+          "id": "no_heavy_libs",
+          "category": "performance",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lazy_images",
+          "category": "performance",
+          "ok": true,
+          "detail": "non-hero images"
+        },
+        {
+          "id": "motion_killswitch",
+          "category": "performance",
+          "ok": true,
+          "detail": "motion css/js"
+        },
+        {
+          "id": "css_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "63131B"
+        },
+        {
+          "id": "motion_css_budget",
+          "category": "performance",
+          "ok": false,
+          "detail": "missing"
+        },
+        {
+          "id": "js_budget",
+          "category": "performance",
+          "ok": false,
+          "detail": "missing"
+        },
+        {
+          "id": "js_no_heavy",
+          "category": "performance",
+          "ok": true,
+          "detail": "no_js"
+        },
+        {
+          "id": "manifest",
+          "category": "media",
+          "ok": true,
+          "detail": "media_manifest.json"
+        },
+        {
+          "id": "hero_ok",
+          "category": "media",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "section_aware",
+          "category": "media",
+          "ok": true,
+          "detail": "media_gate"
+        },
+        {
+          "id": "object_fit_css",
+          "category": "media",
+          "ok": true,
+          "detail": "no stretch"
+        },
+        {
+          "id": "weight_ok",
+          "category": "media",
+          "ok": true,
+          "detail": "0_oversized"
+        },
+        {
+          "id": "cls_safe",
+          "category": "media",
+          "ok": true,
+          "detail": "dimensions_or_object_fit"
+        },
+        {
+          "id": "no_platform_chrome",
+          "category": "brand",
+          "ok": false,
+          "detail": "Demonstration"
+        },
+        {
+          "id": "no_demo_preview_words",
+          "category": "brand",
+          "ok": false,
+          "detail": "demo|preview"
+        }
+      ]
+    },
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": true,
+      "failures": [],
+      "checks": []
+    },
+    "content_gate": {
+      "engine_id": "content_gate_v1",
+      "passed": true,
+      "failures": [],
+      "repairs": [],
+      "checks": []
+    },
+    "visual_quality": {
+      "engine_id": "visual_quality_v1",
+      "passed": true,
+      "score": 96.0,
+      "threshold": 90.0,
+      "checks": [
+        {
+          "id": "composition",
+          "ok": true,
+          "points": 100.0,
+          "detail": "hero=True sections=True niche=True vie=True"
+        },
+        {
+          "id": "color_harmony",
+          "ok": true,
+          "points": 88.0,
+          "detail": "#be185d / #fbcfe8"
+        },
+        {
+          "id": "typography",
+          "ok": true,
+          "points": 100.0,
+          "detail": "fonts/display hierarchy"
+        },
+        {
+          "id": "contrast",
+          "ok": true,
+          "points": 98.0,
+          "detail": "ratio=13.77"
+        },
+        {
+          "id": "images",
+          "ok": true,
+          "points": 100.0,
+          "detail": "n=1 alt=100% lazy=100%"
+        },
+        {
+          "id": "performance",
+          "ok": true,
+          "points": 98.0,
+          "detail": "heavy=none"
+        },
+        {
+          "id": "adaptivity",
+          "ok": true,
+          "points": 100.0,
+          "detail": "viewport=True mq=True"
+        },
+        {
+          "id": "readability",
+          "ok": true,
+          "points": 78.0,
+          "detail": "words≈4914"
+        }
+      ],
+      "suggestions": [],
+      "failures": []
+    }
+  },
   "owner_approved": false,
   "owner_approved_at": null,
   "revision": 0,
-  "created_at": "2026-07-20T11:46:39.262977+00:00",
-  "updated_at": "2026-07-20T11:46:39.262977+00:00",
+  "created_at": "2026-08-07T05:57:36.830608+00:00",
+  "updated_at": "2026-08-07T05:57:36.830608+00:00",
   "style_flags": {
     "modern": false,
     "blue_boost": false,
@@ -42,7 +1797,7 @@
   "package_delivery": {
     "package_id": "basic",
     "whatsapp": true,
-    "maps": false,
+    "maps": true,
     "testimonials": true,
     "logo_slot": false,
     "extended_seo": false,
@@ -63,22 +1818,30 @@
     "catalog_rich_cards": false
   },
   "catalog_enabled": false,
+  "client_assets": {
+    "logo": false,
+    "logo_src": "assets/logo.png",
+    "hero_from_client": false,
+    "gallery": [],
+    "used_files": []
+  },
+  "brand_style": "auto",
   "client_legal": {
-    "business_name": "Lash Studio Mira",
+    "business_name": "Salon Mira",
     "owner_name": "",
     "legal_form": "",
     "street": "",
     "zip": "",
-    "city": "Hamburg",
+    "city": "Berlin",
     "country": "DE",
-    "email": "hello@lash-mira.de",
-    "phone": "+49 40 555 0300",
+    "email": "kontakt@salonmira-demo.example.de",
+    "phone": "+49 30 9876543",
     "website": "",
     "managing_director": "",
     "vat_id": "",
     "handelsregister": "",
     "register_court": "",
-    "uses_maps": false,
+    "uses_maps": true,
     "uses_analytics": false,
     "uses_contact_form": true,
     "missing_impressum": [
@@ -100,5 +1863,246 @@
       "datenschutz.html"
     ]
   },
-  "publish_ready_de": false
+  "publish_ready_de": false,
+  "factory_stages": {
+    "template": 0.0004,
+    "content": 0.0004,
+    "assets": 0.4736,
+    "render": 0.0612,
+    "gates": 0.0547,
+    "total": 0.5904,
+    "total_e2e": 0.5904
+  },
+  "delivery_locked": false,
+  "experience_replay": {
+    "engine": "experience_replay_v1",
+    "title_ru": "Почему получился именно такой сайт?",
+    "title_en": "Why does this site look like this?",
+    "package_id": "basic",
+    "niche": "beauty",
+    "luxury_mode": false,
+    "decisions": [
+      {
+        "director": "Industry Director",
+        "choice": "Beauty Studio",
+        "reason": "Соответствует ожиданиям аудитории (Luxury — мягкий свет, премиальная типографика)."
+      },
+      {
+        "director": "Luxury Director",
+        "choice": "Off",
+        "reason": "Luxury Mode только для Premium — клиент купил эмоцию дорогого бренда."
+      },
+      {
+        "director": "Typography Director",
+        "choice": "Manrope",
+        "reason": "Лучше читается на мобильных устройствах."
+      },
+      {
+        "director": "Motion Director",
+        "choice": "Subtle / none",
+        "reason": "Starter: быстрый опыт без тяжёлого motion."
+      },
+      {
+        "director": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason": "Кнопки, форма и доверие расставлены ради конверсии, не декора."
+      },
+      {
+        "director": "Trust Director",
+        "choice": "Clean trust basics",
+        "reason": "Базовые контакты и доверие без перегруза."
+      },
+      {
+        "director": "Performance Director",
+        "choice": "Light delivery",
+        "reason": "Luxury и скорость балансируются автоматически."
+      },
+      {
+        "director": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта."
+      },
+      {
+        "director": "Localization Director",
+        "choice": "Germany · DACH",
+        "reason": "Impressum, Datenschutz, строгий стиль."
+      },
+      {
+        "director": "Experience Director",
+        "choice": "First Impression 88",
+        "reason": "Первое впечатление в норме для пакета."
+      },
+      {
+        "director": "Commercial Readiness",
+        "choice": "Overall Commercial 94",
+        "reason": "Visual 90 · Trust 92 · Conversion 96 · Performance 88 · Mobile 100 · A11y 98 → Commercial Ready"
+      },
+      {
+        "director": "Conversion Director",
+        "choice": "CTA 100",
+        "reason": "Hold — conversion structure OK."
+      }
+    ],
+    "design_director": {
+      "engine": "ai_design_director_v2",
+      "product": "Digital Experience Factory",
+      "ok": true,
+      "overall": 87,
+      "scores": {
+        "visual": 90,
+        "typography": 100,
+        "motion": 65,
+        "premium_feeling": 72,
+        "first_impression": 88,
+        "brand_emotion": 80,
+        "trust": 90,
+        "conversion_readiness": 90,
+        "mobile_experience": 100,
+        "creativity": 90
+      },
+      "threshold_premium_feeling": 80,
+      "threshold_first_impression_premium": 90,
+      "package_id": "basic",
+      "niche": "beauty",
+      "luxury_mode": false,
+      "identity": {
+        "theme": "luxury",
+        "feel_ru": "Luxury — мягкий свет, премиальная типографика",
+        "hero_bias": "photo_luxury"
+      },
+      "fingerprint": "69d70d3f590cc016",
+      "markers": {
+        "data_tier_ok": true,
+        "hero": true,
+        "layout_profile": true,
+        "vie": true,
+        "font_signals": 4,
+        "kpi_trust_signals": 19,
+        "rich_media_signals": 4,
+        "viewport": true,
+        "responsive_css": true
+      },
+      "recommendations": [
+        "Hold — candidate for 5-second blind tier test"
+      ],
+      "acceptance_5s_ru": "Если показать три версии рядом без ценников, человек должен почти всегда понять, где Starter, где Business и где Premium.",
+      "rule_ru": "Клиент должен узнать Virtus Core по качеству, а не по шаблону."
+    },
+    "design_memory": {
+      "engine": "design_memory_v1",
+      "similarity_pct": 0,
+      "threshold": 92,
+      "rebuild_needed": false,
+      "match": null,
+      "action_ru": "OK — достаточно уникально"
+    },
+    "commercial_readiness": {
+      "engine": "commercial_readiness_v1",
+      "threshold": 90,
+      "scores": {
+        "visual": 90,
+        "trust": 92,
+        "conversion": 96,
+        "performance": 88,
+        "mobile": 100,
+        "accessibility": 98
+      },
+      "overall_commercial": 94,
+      "commercial_ready": true,
+      "label": "Commercial Ready",
+      "status": "PASS",
+      "conversion_detail": {
+        "engine": "conversion_director_v1",
+        "scores": {
+          "hero": 92,
+          "cta": 100,
+          "trust": 91,
+          "contact_visibility": 98,
+          "booking_flow": 98
+        },
+        "overall": 96,
+        "hero_status": "PASS",
+        "recommendations": [
+          "Hold — conversion structure OK."
+        ],
+        "markers": {
+          "has_mid_cta": true,
+          "has_form": true,
+          "has_contact": true
+        }
+      },
+      "performance_detail": {
+        "engine": "performance_director_v1",
+        "mobile_score": 88,
+        "has_video": false,
+        "has_webgl": false,
+        "status": "PASS",
+        "action_ru": "OK — лёгкая доставка",
+        "veto_video": false
+      },
+      "accessibility_detail": {
+        "engine": "accessibility_director_v1",
+        "overall": 98,
+        "missing_alt": 0,
+        "has_skip_link": true,
+        "has_lang": true,
+        "status": "PASS"
+      },
+      "design_director_overall": 87,
+      "ssot_ru": "Главный KPI — Commercial Readiness Score. Только при ≥ 90 Factory ставит Commercial Ready."
+    },
+    "studio": {
+      "engine": "digital_creative_studio_v2",
+      "apply_keys": [
+        "accessibility",
+        "body_font",
+        "brands_strip",
+        "certs_near_hero",
+        "contact_above_fold_hint",
+        "conversion",
+        "cta_after_services",
+        "cta_tone",
+        "data_luxury",
+        "data_studio",
+        "display_font",
+        "faq_before_footer",
+        "focus_visible",
+        "font_label",
+        "font_pack",
+        "forbid_heavy_video_on_mobile_fail",
+        "guarantees_in_benefits",
+        "hero_bias",
+        "hero_layout_prefer",
+        "industry_theme",
+        "lazy_images",
+        "legal_pack",
+        "localization",
+        "luxury_mode",
+        "map_with_contacts",
+        "market_code",
+        "max_motion",
+        "min_body_px",
+        "motion_level",
+        "motion_tier",
+        "package_id",
+        "performance",
+        "portfolio_weight",
+        "prefer_static_hero",
+        "require_alt",
+        "require_mid_cta",
+        "reveal",
+        "reviews_before_contact",
+        "scale",
+        "skip_link",
+        "social_proof_weight",
+        "style",
+        "trust",
+        "trust_density"
+      ]
+    },
+    "ssot_ru": "Virtus Core объясняет дизайнерские и коммерческие решения — Digital Creative Studio, не чёрный ящик."
+  },
+  "commercial_review": "PENDING_OWNER",
+  "business_generation": true,
+  "demo_content": true
 }

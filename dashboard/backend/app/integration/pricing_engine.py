@@ -17,6 +17,8 @@ from typing import Any
 ZERO_DECIMAL_CURRENCIES: frozenset[str] = frozenset({"JPY", "KRW"})
 
 PACKAGE_IDS: tuple[str, ...] = (
+    "standalone",
+    "connected",
     "basic",
     "business",
     "premium",
@@ -25,7 +27,8 @@ PACKAGE_IDS: tuple[str, ...] = (
     "repair_complete",
 )
 
-WEBSITE_PACKAGE_IDS: tuple[str, ...] = ("basic", "business", "premium")
+# Public catalog: Standalone | Connected (Digital Business Creator)
+WEBSITE_PACKAGE_IDS: tuple[str, ...] = ("standalone", "connected")
 REPAIR_PACKAGE_IDS: tuple[str, ...] = (
     "repair_lite",
     "repair_standard",
@@ -34,9 +37,11 @@ REPAIR_PACKAGE_IDS: tuple[str, ...] = (
 
 # DE anchors — also used as fallback scale base.
 _DE_SKUS: dict[str, int] = {
-    "basic": 350,
-    "business": 650,
-    "premium": 1200,
+    "standalone": 499,
+    "connected": 499,
+    "basic": 499,  # legacy → Standalone
+    "business": 499,  # legacy → Standalone
+    "premium": 499,  # legacy → Connected (setup; monthly separate)
     "repair_lite": 199,
     "repair_standard": 349,
     "repair_complete": 499,
@@ -48,165 +53,165 @@ _PATH_A_SKUS: dict[str, dict[str, int]] = {
     "DE": dict(_DE_SKUS),
     "AT": dict(_DE_SKUS),
     "CH": {
-        "basic": 390,
-        "business": 720,
-        "premium": 1350,
+        "basic": 222,
+        "business": 442,
+        "premium": 786,
         "repair_lite": 229,
         "repair_standard": 399,
         "repair_complete": 569,
     },
     "US": {
-        "basic": 399,
-        "business": 749,
-        "premium": 1399,
+        "basic": 227,
+        "business": 460,
+        "premium": 815,
         "repair_lite": 229,
         "repair_standard": 399,
         "repair_complete": 569,
     },
     "CA": {
-        "basic": 399,
-        "business": 749,
-        "premium": 1399,
+        "basic": 227,
+        "business": 460,
+        "premium": 815,
         "repair_lite": 229,
         "repair_standard": 399,
         "repair_complete": 569,
     },
     "GB": {
-        "basic": 299,
-        "business": 549,
-        "premium": 999,
+        "basic": 170,
+        "business": 337,
+        "premium": 582,
         "repair_lite": 179,
         "repair_standard": 299,
         "repair_complete": 429,
     },
     # APAC
     "AU": {
-        "basic": 549,
-        "business": 999,
-        "premium": 1899,
+        "basic": 312,
+        "business": 613,
+        "premium": 1106,
         "repair_lite": 299,
         "repair_standard": 549,
         "repair_complete": 799,
     },
     "NZ": {
-        "basic": 549,
-        "business": 999,
-        "premium": 1899,
+        "basic": 312,
+        "business": 613,
+        "premium": 1106,
         "repair_lite": 299,
         "repair_standard": 549,
         "repair_complete": 799,
     },
     "JP": {
-        "basic": 55000,
-        "business": 98000,
-        "premium": 180000,
+        "basic": 31271,
+        "business": 60157,
+        "premium": 104850,
         "repair_lite": 35000,
         "repair_standard": 55000,
         "repair_complete": 78000,
     },
     "KR": {
-        "basic": 490000,
-        "business": 890000,
-        "premium": 1600000,
+        "basic": 278600,
+        "business": 546323,
+        "premium": 932000,
         "repair_lite": 290000,
         "repair_standard": 490000,
         "repair_complete": 690000,
     },
     "SG": {
-        "basic": 499,
-        "business": 899,
-        "premium": 1699,
+        "basic": 284,
+        "business": 552,
+        "premium": 990,
         "repair_lite": 279,
         "repair_standard": 479,
         "repair_complete": 699,
     },
     # Active EU / CIS desk — Basic anchors from Country Desk; tiers from DE ratio.
     "PL": {
-        "basic": 1200,
-        "business": 2200,
-        "premium": 4100,
+        "basic": 682,
+        "business": 1350,
+        "premium": 2388,
         "repair_lite": 700,
         "repair_standard": 1200,
         "repair_complete": 1700,
     },
     "CZ": {
-        "basic": 15000,
-        "business": 28000,
-        "premium": 51000,
+        "basic": 8529,
+        "business": 17188,
+        "premium": 29708,
         "repair_lite": 8500,
         "repair_standard": 15000,
         "repair_complete": 21000,
     },
     # Active EU / CIS desk — Basic anchors from Country Desk; tiers from DE ratio.
     "FR": {
-        "basic": 330,
-        "business": 610,
-        "premium": 1130,
+        "basic": 188,
+        "business": 374,
+        "premium": 658,
         "repair_lite": 189,
         "repair_standard": 329,
         "repair_complete": 469,
     },
     "IT": {
-        "basic": 320,
-        "business": 595,
-        "premium": 1100,
+        "basic": 182,
+        "business": 365,
+        "premium": 641,
         "repair_lite": 182,
         "repair_standard": 319,
         "repair_complete": 456,
     },
     "ES": {
-        "basic": 300,
-        "business": 560,
-        "premium": 1030,
+        "basic": 171,
+        "business": 344,
+        "premium": 600,
         "repair_lite": 170,
         "repair_standard": 299,
         "repair_complete": 428,
     },
     "NL": {
-        "basic": 370,
-        "business": 685,
-        "premium": 1270,
+        "basic": 210,
+        "business": 420,
+        "premium": 740,
         "repair_lite": 210,
         "repair_standard": 369,
         "repair_complete": 528,
     },
     "BE": dict(_DE_SKUS),
     "PT": {
-        "basic": 270,
-        "business": 500,
-        "premium": 925,
+        "basic": 154,
+        "business": 307,
+        "premium": 539,
         "repair_lite": 154,
         "repair_standard": 269,
         "repair_complete": 385,
     },
     "RO": {
-        "basic": 200,
-        "business": 370,
-        "premium": 685,
+        "basic": 114,
+        "business": 227,
+        "premium": 399,
         "repair_lite": 114,
         "repair_standard": 199,
         "repair_complete": 285,
     },
     "SK": {
-        "basic": 220,
-        "business": 410,
-        "premium": 755,
+        "basic": 125,
+        "business": 252,
+        "premium": 440,
         "repair_lite": 125,
         "repair_standard": 219,
         "repair_complete": 314,
     },
     "UA": {
-        "basic": 8000,
-        "business": 14900,
-        "premium": 27400,
+        "basic": 4549,
+        "business": 9146,
+        "premium": 15960,
         "repair_lite": 4550,
         "repair_standard": 8000,
         "repair_complete": 11400,
     },
     "RU": {
-        "basic": 180,
-        "business": 335,
-        "premium": 615,
+        "basic": 102,
+        "business": 206,
+        "premium": 358,
         "repair_lite": 102,
         "repair_standard": 179,
         "repair_complete": 257,
@@ -235,10 +240,10 @@ class FinalOffer:
 
 
 def normalize_package_id(package_id: str | None) -> str:
-    pid = str(package_id or "basic").strip().lower()
+    pid = str(package_id or "standalone").strip().lower()
     if pid in PACKAGE_IDS:
         return pid
-    return "basic"
+    return "standalone"
 
 
 def is_zero_decimal_currency(currency: str | None) -> bool:
@@ -268,7 +273,7 @@ def format_path_a_price(amount: int, symbol: str) -> str:
 
 
 def format_path_a_range(lo: int, hi: int, symbol: str) -> str:
-    """Single-symbol range for hub cards (e.g. ``350–1200 €``, ``15 000–… Kč``)."""
+    """Single-symbol range for hub cards (e.g. ``199–699 €``, ``15 000–… Kč``)."""
     lo_s = f"{int(lo):,}".replace(",", " ")
     hi_s = f"{int(hi):,}".replace(",", " ")
     return f"{lo_s}–{hi_s} {symbol}"
@@ -280,25 +285,30 @@ def resolve_hub_catalog_prices(market_code: str) -> dict[str, Any]:
     Currency, symbol, and formatted amounts come only from Path A + bot offers.
     UI composes localized ``from`` / ``monthly`` / ``Free`` prefixes around these.
     """
-    from app.integration.market_registry import get_market
+    from app.integration.commercial_catalog_g23 import WEBSITE_SERVICE_PRICES_EUR
+    from app.integration.market_registry import format_amount, get_market
 
     market = get_market(market_code)
-    basic = resolve_path_a_offer("basic", market.code)
-    premium = resolve_path_a_offer("premium", market.code)
+    standalone = resolve_path_a_offer("standalone", market.code)
+    connected = resolve_path_a_offer("connected", market.code)
     repair = resolve_path_a_offer("repair_lite", market.code)
     bot = resolve_bot_offer("bot_starter", market.code)
-    return {
+    out: dict[str, Any] = {
         "market_code": market.code,
         "currency": market.currency,
         "symbol": market.symbol,
         "landing_website": {
             "range_label": format_path_a_range(
-                basic.amount, premium.amount, market.symbol
+                standalone.amount, connected.amount, market.symbol
             ),
-            "basic_label": basic.price_label,
-            "premium_label": premium.price_label,
-            "basic_amount": basic.amount,
-            "premium_amount": premium.amount,
+            "basic_label": standalone.price_label,  # legacy key
+            "premium_label": connected.price_label,  # legacy key
+            "standalone_label": standalone.price_label,
+            "connected_label": connected.price_label,
+            "basic_amount": standalone.amount,
+            "premium_amount": connected.amount,
+            "standalone_amount": standalone.amount,
+            "connected_amount": connected.amount,
         },
         "ai_business_bot": {
             "setup_label": bot.setup_label,
@@ -314,6 +324,32 @@ def resolve_hub_catalog_prices(market_code: str) -> dict[str, Any]:
             "free": True,
         },
     }
+    monthly_ids = {"ai_social_content", "site_maintenance", "ai_seo_monitoring"}
+    from_ids = {
+        "website_repair",
+        "website_migration",
+        "ecommerce_shop",
+        "ai_chatbot",
+        "business_automation",
+        "ai_social_content",
+        "site_maintenance",
+        "ai_seo_monitoring",
+    }
+    for sid, eur in WEBSITE_SERVICE_PRICES_EUR.items():
+        label = format_amount(eur, market.symbol)
+        if sid in monthly_ids:
+            label = f"{label}/mo"
+        if sid in from_ids:
+            label = f"from {label}"
+        out[sid] = {"label": label, "amount": eur}
+    # Keep hub card contract for website_repair (from_label used by storefront).
+    repair_svc = out.get("website_repair") or {}
+    out["website_repair"] = {
+        "from_label": repair_svc.get("label") or repair.price_label,
+        "amount": int(repair_svc.get("amount") or repair.amount),
+        "label": repair_svc.get("label") or repair.price_label,
+    }
+    return out
 
 
 def _sku_amount(market_code: str, package_id: str) -> int:
@@ -385,9 +421,11 @@ def list_path_a_packages(
 
 def _default_name(tier: str) -> str:
     return {
-        "basic": "Landing Basic",
-        "business": "Landing Business",
-        "premium": "Landing Premium",
+        "standalone": "Standalone",
+        "connected": "Virtus Core Connected",
+        "basic": "Standalone (legacy)",
+        "business": "Standalone (legacy)",
+        "premium": "Connected (legacy)",
         "repair_lite": "Website Repair Lite",
         "repair_standard": "Website Repair Standard",
         "repair_complete": "Website Repair Complete",
@@ -611,7 +649,10 @@ def bot_package_max_bots(package_id: str) -> int | None:
 
 _BOT_PACKAGE_FEATURES: dict[str, dict[str, Any]] = {
     "bot_starter": {
-        "tagline_ru": "Один цифровой сотрудник — отвечает на вопросы и принимает заявки.",
+        "tagline_ru": (
+            "Цифровой сотрудник на входе: отвечает 24/7 и собирает заявки, "
+            "пока вы заняты клиентами."
+        ),
         "max_bots": 1,
         "max_bots_label": "1 AI-бот",
         "knowledge_sources": "До 1 источника",
@@ -620,18 +661,21 @@ _BOT_PACKAGE_FEATURES: dict[str, dict[str, Any]] = {
         "dialog_history": "Базовая",
         "ai_analysis": False,
         "training": "Базовое",
-        "extra_channels": "Любой канал",
+        "extra_channels": "Website Chat + Telegram (live)",
         "support": "Стандарт",
         "includes_ru": [
-            "1 AI-бот (цифровой сотрудник)",
-            "Любой канал: Website Chat, Telegram, WhatsApp, Instagram, Messenger",
-            "Knowledge Base: до 1 источника",
-            "1 язык",
-            "Базовые сценарии + передача оператору",
+            "Отвечает клиентам 24/7 — без ожидания менеджера",
+            "Собирает заявки и контакты автоматически",
+            "Снимает рутину с первого сотрудника на ресепшене",
+            "Внедрение под ваш бизнес (настройка + обучение базе)",
+            "Live сегодня: сайт-чат и Telegram (WhatsApp/Instagram — после Meta)",
         ],
     },
     "bot_business": {
-        "tagline_ru": "До трёх цифровых сотрудников — для разных каналов и задач.",
+        "tagline_ru": (
+            "Несколько цифровых сотрудников: запись, заявки и ответы в разных точках "
+            "контакта — экономия часов каждый день."
+        ),
         "max_bots": 3,
         "max_bots_label": "До 3 AI-ботов",
         "knowledge_sources": "До 5 источников",
@@ -640,19 +684,22 @@ _BOT_PACKAGE_FEATURES: dict[str, dict[str, Any]] = {
         "dialog_history": "Расширенная",
         "ai_analysis": True,
         "training": "Регулярное",
-        "extra_channels": "Любой канал",
+        "extra_channels": "Website Chat + Telegram (live)",
         "support": "Стандарт",
         "includes_ru": [
-            "До 3 независимых AI-ботов",
-            "Каждый бот — любой поддерживаемый канал",
-            "Knowledge Base: до 5 источников",
-            "До 3 языков",
-            "Расширенные сценарии + AI-анализ обращений",
-            "Регулярное обучение",
+            "Принимает запросы на запись и передаёт вам (календарь-модуль — скоро)",
+            "Собирает лиды без участия менеджера в смене",
+            "До 3 независимых сотрудников под разные задачи/локации",
+            "Экономит часы на переписке — команда фокусируется на оплачиваемой работе",
+            "AI-анализ обращений + регулярное обучение",
+            "Live сегодня: сайт-чат и Telegram",
         ],
     },
     "bot_professional": {
-        "tagline_ru": "Команда цифровых сотрудников — Fair Use, полная аналитика, VIP-поддержка.",
+        "tagline_ru": (
+            "Премиум-внедрение: команда цифровых сотрудников, Fair Use и VIP — "
+            "когда ИИ должен окупаться как штат, а не как виджет."
+        ),
         "max_bots": None,
         "max_bots_label": "Fair Use (без жёсткого лимита)",
         "knowledge_sources": "Неограниченно",
@@ -661,15 +708,15 @@ _BOT_PACKAGE_FEATURES: dict[str, dict[str, Any]] = {
         "dialog_history": "Полная аналитика",
         "ai_analysis": True,
         "training": "Приоритетное",
-        "extra_channels": "Любой канал",
+        "extra_channels": "Website Chat + Telegram (live)",
         "support": "VIP",
         "includes_ru": [
-            "Неограниченное число AI-ботов (Fair Use)",
-            "Все каналы по мере появления",
-            "Knowledge Base без лимита источников",
-            "Неограниченно языков",
-            "Индивидуальные сценарии + полная аналитика",
-            "VIP-поддержка",
+            "Заменяет рутину целой линии поддержки / продаж",
+            "Индивидуальные сценарии под ваш процесс (не шаблон из коробки)",
+            "Полная аналитика: откуда заявки и где теряются клиенты",
+            "Fair Use — масштаб без искусственного лимита «на бота»",
+            "VIP-поддержка внедрения и приоритетные правки",
+            "Окупаемость: меньше ФОТ на ночные/выходные ответы",
         ],
     },
 }
@@ -734,14 +781,14 @@ def list_bot_packages(market_code: str) -> dict[str, Any]:
         "channels_available": ["Website Chat", "Telegram"],
         "channels_coming_soon": ["WhatsApp", "Instagram", "Facebook Messenger"],
         "channels_note_ru": (
-            "Один продукт — AI Digital Employee (AI Sales Assistant). "
-            "Каналы не ограничивают тариф: лимит — число независимых AI-сотрудников. "
-            "Сейчас подключение: Website Chat, Telegram. "
-            "WhatsApp, Instagram, Messenger — после OAuth Meta."
+            "Вы платите за результат (ответы, заявки, меньше рутины), не за список приложений. "
+            "Сейчас live: Website Chat и Telegram. "
+            "WhatsApp / Instagram / Messenger — после OAuth Meta, не продаём как готовые. "
+            "Календарь записи / CRM — модули «Скоро», не входят в live как готовый продукт."
         ),
         "comparison_note_ru": (
-            "Разница тарифов — в числе AI-сотрудников (1 / до 3 / Fair Use) и уровне AI: "
-            "база знаний, языки, сценарии, аналитика, поддержка. Не в количестве мессенджеров."
+            "Разница тарифов — во внедрении и мощности: сколько цифровых сотрудников, "
+            "глубина сценариев, аналитика, VIP. Не в количестве логотипов мессенджеров."
         ),
         "note": "Digital employee product — not included in Landing Website packages.",
     }

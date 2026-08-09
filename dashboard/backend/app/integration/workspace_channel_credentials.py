@@ -289,7 +289,26 @@ def save_telegram_token(
         conn_id,
         tg_username,
     )
-    return {"ok": True, "connection": _public_view(record)}
+    webhook: dict[str, Any] = {"ok": True, "webhook_registered": False}
+    try:
+        from app.integration.workspace_bot_runtime import register_telegram_webhook
+
+        webhook = register_telegram_webhook(raw_token, bid)
+        record["webhook"] = {
+            "registered": bool(webhook.get("webhook_registered")),
+            "url": webhook.get("webhook_url"),
+            "reason": webhook.get("reason"),
+            "updated_at": _utc_now_iso(),
+        }
+        _write_json(_connection_path(memory_dir, customer_id, conn_id), record)
+        _upsert_index(memory_dir, customer_id, record)
+    except Exception:
+        logger.exception(
+            "telegram_setWebhook_failed customer=%s bot=%s", customer_id, bid
+        )
+        webhook = {"ok": False, "webhook_registered": False, "reason": "setWebhook_error"}
+    out = {"ok": True, "connection": _public_view(record), "webhook": webhook}
+    return out
 
 
 def test_connection(

@@ -1,0 +1,74 @@
+{
+  "hero_src": "assets/hero.jpg",
+  "hero_from_client": false,
+  "hero_ok": true,
+  "gallery": [],
+  "background_src": "assets/background.jpg",
+  "assessments": [
+    {
+      "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/d3a5dc8f-19a7-4b0d-84a7-1eab02d0a294/assets/hero.jpg",
+      "role": "hero",
+      "ok": true,
+      "width": 1600,
+      "height": 900,
+      "bytes": 30873,
+      "reason": "ok",
+      "source": "brand_book"
+    },
+    {
+      "path": "assets/background.jpg",
+      "role": "background",
+      "ok": true,
+      "width": 1920,
+      "height": 1080,
+      "bytes": 41192,
+      "reason": "ok",
+      "source": "brand_book"
+    }
+  ],
+  "gate_ok": false,
+  "gate_failures": [
+    "media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/d3a5dc8f-19a7-4b0d-84a7-1eab02d0a294/assets/background.jpg — section_mismatch"
+  ],
+  "media_gate_ok": false,
+  "media_gate_failures": [
+    "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/d3a5dc8f-19a7-4b0d-84a7-1eab02d0a294/assets/background.jpg — section_mismatch"
+  ],
+  "media_gate": {
+    "engine_id": "media_gate_v1",
+    "passed": false,
+    "failures": [
+      "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/d3a5dc8f-19a7-4b0d-84a7-1eab02d0a294/assets/background.jpg — section_mismatch"
+    ],
+    "checks": [
+      {
+        "section": "hero",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/d3a5dc8f-19a7-4b0d-84a7-1eab02d0a294/assets/hero.jpg",
+        "ok": true,
+        "tags": [
+          "craft",
+          "process",
+          "result",
+          "tools",
+          "work",
+          "workshop"
+        ],
+        "detail": "ok"
+      },
+      {
+        "section": "about",
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/d3a5dc8f-19a7-4b0d-84a7-1eab02d0a294/assets/background.jpg",
+        "ok": false,
+        "tags": [
+          "craft",
+          "process",
+          "result",
+          "tools",
+          "work",
+          "workshop"
+        ],
+        "detail": "section_mismatch"
+      }
+    ]
+  }
+}

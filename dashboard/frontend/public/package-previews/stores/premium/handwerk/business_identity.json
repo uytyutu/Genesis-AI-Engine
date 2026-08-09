@@ -1,0 +1,82 @@
+{
+  "brand_name": "Werkstatt Direkt",
+  "niche_id": "handwerk",
+  "package_id": "premium",
+  "founded_year": 2019,
+  "company_age_years": 7,
+  "mission": "Haushalte entlasten — Montage und Reparatur ohne Chaos.",
+  "core_services": [
+    "Kleinreparaturen",
+    "Möbel- / IKEA-Montage",
+    "Lampen & Steckdosen-Check",
+    "Streichen / Tapezieren",
+    "Boden verlegen",
+    "Sanitär-Kleinigkeiten",
+    "Stundenweise Einsätze"
+  ],
+  "geography": "Berlin und Umland (Demo)",
+  "advantages": [
+    "Festpreis nach Aufmaß",
+    "Termin oft innerhalb 24–48h",
+    "Saubere Übergabe mit Fotodoku",
+    "WhatsApp-Koordination"
+  ],
+  "values": [
+    "Pünktlichkeit",
+    "Transparenz",
+    "Sorgfalt",
+    "Respekt vor Wohnung"
+  ],
+  "client_types": [
+    "Mieter",
+    "Eigentümer",
+    "Büros",
+    "Airbnbs"
+  ],
+  "price_segment": "Mittel — stundenweise / Festpreis",
+  "brand_character": "Reliable craftsman on call",
+  "team_size_label": "Meister + 2–4 Monteure (Demo)",
+  "marketing_dna_stub": {
+    "audience": "Berliner Haushalte mit Sofortbedarf",
+    "goal": "WhatsApp / Anruf → Termin",
+    "emotion": "Entlastung",
+    "pacing": "direkt",
+    "platforms": [
+      "Website",
+      "Google",
+      "WhatsApp"
+    ]
+  },
+  "video_dna_stub": {
+    "camera": [
+      "Handheld on site",
+      "Detail tool shots"
+    ],
+    "mood": "Warm daylight · work in progress",
+    "music": "Soft pulse, no stock pep",
+    "pacing": "Short cuts of real tasks",
+    "required_scenes": [
+      "Meister drilling",
+      "Kitchen assembly",
+      "Paint roller",
+      "Finished room"
+    ],
+    "forbidden": [
+      "Café",
+      "Laptop stock",
+      "Abstract gradients only"
+    ]
+  },
+  "fingerprint": "1246412c475556b3fda84ddb",
+  "demo": true,
+  "chain": [
+    "business_identity",
+    "brand_book",
+    "atmosphere",
+    "reputation",
+    "local_identity",
+    "website",
+    "store",
+    "marketing"
+  ]
+}

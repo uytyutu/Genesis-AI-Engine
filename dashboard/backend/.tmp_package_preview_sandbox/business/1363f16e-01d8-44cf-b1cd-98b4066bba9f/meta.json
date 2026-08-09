@@ -1,0 +1,2162 @@
+{
+  "product_id": "1363f16e-01d8-44cf-b1cd-98b4066bba9f",
+  "intent_id": null,
+  "product_type": "Website",
+  "description": "WohnRaum Partner München — Immobilienmakler, Verkauf, Vermietung, Bewertung, Begleitung bis Notar",
+  "niche": "realestate",
+  "template_id": "landing-realestate-v1",
+  "business_name": "WohnRaum Partner",
+  "market_code": "DE",
+  "language": "de",
+  "locale": null,
+  "currency": null,
+  "ui_lang": "de",
+  "path_a_pricing": {
+    "package_id": "business",
+    "amount": null,
+    "currency": null,
+    "price_label": null
+  },
+  "market_design": "DE",
+  "motion_level": "css",
+  "composer_engine": "composer_v1",
+  "composition_plan": {
+    "engine_id": "composer_v1",
+    "layout_profile": {
+      "id": "L2-healthcare",
+      "label": "Trust-first professional · Healthcare calm",
+      "hero_variants": [
+        "C",
+        "A",
+        "D"
+      ],
+      "preferred_component": "C",
+      "cta_strategy": "mid",
+      "services_layout": "minimal",
+      "trust_position": "after_benefits",
+      "gallery_style": "feature_first",
+      "faq_style": "accordion",
+      "footer_variant": "legal",
+      "section_order": [
+        "trust",
+        "about",
+        "services",
+        "reputation",
+        "mid_cta",
+        "process",
+        "gallery",
+        "benefits",
+        "faq",
+        "reviews",
+        "maps",
+        "contact"
+      ]
+    },
+    "hero_layout": "A",
+    "component_profile": "C",
+    "trust_template": "D",
+    "market_code": "DE",
+    "niche_id": "realestate",
+    "package_id": "business",
+    "business_name": "WohnRaum Partner",
+    "language": "de",
+    "currency": "EUR",
+    "locale": "de_DE",
+    "default_cta": "Termin buchen"
+  },
+  "design_dna": {
+    "emotion": "clarity",
+    "style": "modern_clinical",
+    "palette_family": "sage_mist",
+    "typography_pair": "manrope_ibm_plex_industrial",
+    "motion": "business",
+    "hero_concept": "trust_panel",
+    "hero_layout": "A",
+    "depth": "medium",
+    "glass": "medium",
+    "composition": "healthcare",
+    "package_id": "business",
+    "niche_id": "realestate",
+    "fingerprint": "c1d60faf85c2c259d0451ec4e312ee5c11c02b58a15280e33a911c3c6dff1c55",
+    "section_treatments": [
+      [
+        "trust",
+        "gradient"
+      ],
+      [
+        "about",
+        "glass"
+      ],
+      [
+        "services",
+        "photo_band"
+      ],
+      [
+        "mid_cta",
+        "gradient"
+      ],
+      [
+        "process",
+        "illustration"
+      ],
+      [
+        "gallery",
+        "photo_band"
+      ],
+      [
+        "benefits",
+        "ink"
+      ],
+      [
+        "faq",
+        "gradient"
+      ],
+      [
+        "reviews",
+        "glass"
+      ],
+      [
+        "maps",
+        "photo_band"
+      ],
+      [
+        "contact",
+        "gradient"
+      ]
+    ],
+    "accent_hex": "#5b7c6e",
+    "surface_hex": "#f7f4ef",
+    "ink_hex": "#1c1917",
+    "atmosphere_mode": "atelier",
+    "brand_book_fp": "b871ec20c7ea9b16c6b7d198",
+    "border_radius_px": 12
+  },
+  "hero_layout": "A",
+  "component_profile": "C",
+  "layout_profile": {
+    "id": "L2-healthcare",
+    "label": "Trust-first professional · Healthcare calm",
+    "hero_variants": [
+      "C",
+      "A",
+      "D"
+    ],
+    "preferred_component": "C",
+    "cta_strategy": "mid",
+    "services_layout": "minimal",
+    "trust_position": "after_benefits",
+    "gallery_style": "feature_first",
+    "faq_style": "accordion",
+    "footer_variant": "legal",
+    "section_order": [
+      "trust",
+      "about",
+      "services",
+      "reputation",
+      "mid_cta",
+      "process",
+      "gallery",
+      "benefits",
+      "faq",
+      "reviews",
+      "maps",
+      "contact"
+    ]
+  },
+  "trust_template": "D",
+  "creative_director": {
+    "engine": "ai_creative_director_v1",
+    "role": "AI Creative Director",
+    "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+    "positioning": {
+      "ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+      "en": "Virtus Core designs the digital experience for your business.",
+      "de": "Virtus Core gestaltet die digitale Erfahrung Ihres Unternehmens."
+    },
+    "package_id": "business",
+    "budget_eur": 399,
+    "niche": "realestate",
+    "market_code": "DE",
+    "goal": "lead",
+    "industry": {
+      "theme": "modern_default",
+      "feel_ru": "современный нейтральный",
+      "hero_bias": "photo"
+    },
+    "luxury_mode": false,
+    "decisions": {
+      "heavy_video": false,
+      "webgl": false,
+      "lottie_heavy": false,
+      "page_density": "rich",
+      "motion_profile": "business_motion",
+      "hero_media": "photo_svg_quality_assets",
+      "typography": "brand_pair",
+      "visual_pack": true,
+      "goal_ru": "качественные ассеты, SVG, motion, современные карточки, своя схема"
+    },
+    "forbidden_ru": [],
+    "acceptance_5s_ru": "Без ценников за 5 секунд должно быть ясно: Starter / Business / Premium."
+  },
+  "digital_creative_studio": {
+    "engine": "digital_creative_studio_v2",
+    "product": "Digital Creative Studio",
+    "role": "AI Creative Director",
+    "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+    "positioning_ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+    "surface": "website",
+    "package_id": "business",
+    "niche": "realestate",
+    "market_code": "DE",
+    "luxury_mode": false,
+    "creative_director": {
+      "engine": "ai_creative_director_v1",
+      "role": "AI Creative Director",
+      "mission_ru": "Создай лучший цифровой опыт для этой ниши и этого бюджета.",
+      "positioning": {
+        "ru": "Virtus Core проектирует цифровой опыт вашего бизнеса.",
+        "en": "Virtus Core designs the digital experience for your business.",
+        "de": "Virtus Core gestaltet die digitale Erfahrung Ihres Unternehmens."
+      },
+      "package_id": "business",
+      "budget_eur": 399,
+      "niche": "realestate",
+      "market_code": "DE",
+      "goal": "lead",
+      "industry": {
+        "theme": "modern_default",
+        "feel_ru": "современный нейтральный",
+        "hero_bias": "photo"
+      },
+      "luxury_mode": false,
+      "decisions": {
+        "heavy_video": false,
+        "webgl": false,
+        "lottie_heavy": false,
+        "page_density": "rich",
+        "motion_profile": "business_motion",
+        "hero_media": "photo_svg_quality_assets",
+        "typography": "brand_pair",
+        "visual_pack": true,
+        "goal_ru": "качественные ассеты, SVG, motion, современные карточки, своя схема"
+      },
+      "forbidden_ru": [],
+      "acceptance_5s_ru": "Без ценников за 5 секунд должно быть ясно: Starter / Business / Premium."
+    },
+    "directors": [
+      {
+        "engine": "industry_director_v1",
+        "role": "Industry Director",
+        "choice": "modern_default",
+        "niche": "realestate",
+        "identity": {
+          "theme": "modern_default",
+          "feel_ru": "современный нейтральный",
+          "hero_bias": "photo"
+        },
+        "reason_ru": "Соответствует ожиданиям аудитории (современный нейтральный).",
+        "reason_en": "Matches audience expectations (modern_default).",
+        "apply": {
+          "industry_theme": "modern_default",
+          "hero_bias": "photo"
+        }
+      },
+      {
+        "engine": "luxury_director_v1",
+        "role": "Luxury Director",
+        "choice": "Off",
+        "luxury_mode": false,
+        "reason_ru": "Luxury Mode только для Premium — клиент купил эмоцию дорогого бренда.",
+        "reason_en": "Luxury Mode is Premium-only — emotion of a high-end brand.",
+        "apply": {
+          "luxury_mode": false,
+          "data_luxury": "0"
+        }
+      },
+      {
+        "engine": "typography_director_v2",
+        "role": "Typography Director",
+        "choice": "playfair_manrope",
+        "typography_key": "playfair_manrope",
+        "reason_ru": "Typography Studio · prestige → playfair_manrope (LH 1.75, tracking 0.015em).",
+        "reason_en": "Typography Studio · prestige → playfair_manrope (LH 1.75, tracking 0.015em).",
+        "studio": {
+          "engine": "typography_studio_v1",
+          "brand_personality": "prestige",
+          "typography_style": "luxury",
+          "pair": {
+            "id": "playfair_manrope",
+            "display": "\"Playfair Display\", Georgia, serif",
+            "body": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+            "google_css_url": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap",
+            "niches": [
+              "law",
+              "realestate",
+              "fashion",
+              "psychology"
+            ],
+            "emotions": [
+              "prestige",
+              "luxury",
+              "confidence",
+              "editorial"
+            ],
+            "scale": "luxury",
+            "notes": ""
+          },
+          "pair_id": "playfair_manrope",
+          "headline": "\"Playfair Display\", Georgia, serif",
+          "body": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+          "buttons_weight": "500",
+          "line_height": "1.75",
+          "letter_spacing": "0.015em",
+          "metrics": {
+            "h1": "clamp(2.5rem, 5.5vw, 4.1rem)",
+            "h2": "clamp(1.55rem, 2.6vw, 2.2rem)",
+            "body_lh": "1.75",
+            "headline_lh": "1.08",
+            "tracking_display": "-0.03em",
+            "tracking_body": "0.015em",
+            "btn_weight": "500",
+            "body_weight": "400",
+            "display_weight": "500",
+            "mobile_h1": "clamp(2rem, 8vw, 2.6rem)",
+            "mobile_lh": "1.6"
+          },
+          "google_css_url": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap",
+          "catalog_fonts": 153,
+          "pairs_available": 33,
+          "notes": ""
+        },
+        "apply": {
+          "font_label": "playfair_manrope",
+          "body_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+          "display_font": "\"Playfair Display\", Georgia, serif",
+          "scale": {
+            "h1": "clamp(2.5rem, 5.5vw, 4.1rem)",
+            "lh": "1.75",
+            "section_h2": "clamp(1.55rem, 2.6vw, 2.2rem)"
+          },
+          "studio_css": "\n/* Typography Studio · personality=prestige · pair=playfair_manrope */\n:root {\n  --font-display: \"Playfair Display\", Georgia, serif;\n  --font-body: \"Manrope\", \"Segoe UI\", system-ui, sans-serif;\n  --font-sans: \"Manrope\", \"Segoe UI\", system-ui, sans-serif;\n  --type-body-lh: 1.75;\n  --type-headline-lh: 1.08;\n  --type-track-display: -0.03em;\n  --type-track-body: 0.015em;\n  --type-btn-weight: 500;\n}\nbody {\n  font-family: var(--font-body);\n  font-weight: 400;\n  line-height: var(--type-body-lh);\n  letter-spacing: var(--type-track-body);\n  -webkit-font-smoothing: antialiased;\n  text-rendering: optimizeLegibility;\n}\nbody .hero h1,\nbody .hero .hero-title,\nbody h1,\nbody .page-title {\n  font-family: var(--font-display);\n  font-weight: 500;\n  font-size: clamp(2.5rem, 5.5vw, 4.1rem);\n  line-height: var(--type-headline-lh);\n  letter-spacing: var(--type-track-display);\n}\nbody .section h2,\nbody h2 {\n  font-family: var(--font-display);\n  font-weight: 500;\n  font-size: clamp(1.55rem, 2.6vw, 2.2rem);\n  line-height: 1.2;\n  letter-spacing: var(--type-track-display);\n}\nbody .btn,\nbody button.btn,\nbody a.btn {\n  font-family: var(--font-body);\n  font-weight: var(--type-btn-weight);\n  letter-spacing: 0.02em;\n}\n@media (max-width: 720px) {\n  body { line-height: 1.6; }\n  body .hero h1,\n  body .hero .hero-title,\n  body h1 {\n    font-size: clamp(2rem, 8vw, 2.6rem);\n    letter-spacing: -0.015em;\n  }\n}\n"
+        },
+        "font_pack": {
+          "label": "playfair_manrope",
+          "body": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+          "display": "\"Playfair Display\", Georgia, serif"
+        }
+      },
+      {
+        "engine": "motion_director_v1",
+        "role": "Motion Director",
+        "choice": "Reveal Medium",
+        "reason_ru": "Business motion усиливает Visual Pack без перегруза.",
+        "reason_en": "Business motion усиливает Visual Pack без перегруза.",
+        "apply": {
+          "motion_tier": "business",
+          "motion_level": "css",
+          "reveal": "medium"
+        }
+      },
+      {
+        "engine": "conversion_director_v1",
+        "role": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason_ru": "Кнопки, форма и доверие расставлены ради конверсии, не декора.",
+        "reason_en": "CTA, form and trust placed for conversion, not decoration.",
+        "apply": {
+          "require_mid_cta": true,
+          "cta_after_services": true,
+          "contact_above_fold_hint": true,
+          "faq_before_footer": true
+        }
+      },
+      {
+        "engine": "trust_director_v1",
+        "role": "Trust Director",
+        "choice": "Clean trust basics",
+        "reason_ru": "Базовые контакты и доверие без перегруза.",
+        "reason_en": "Базовые контакты и доверие без перегруза.",
+        "apply": {
+          "certs_near_hero": false,
+          "guarantees_in_benefits": false,
+          "reviews_before_contact": false,
+          "map_with_contacts": true,
+          "brands_strip": false,
+          "trust_density": "light"
+        }
+      },
+      {
+        "engine": "performance_director_v1",
+        "role": "Performance Director",
+        "choice": "Light delivery",
+        "reason_ru": "Luxury и скорость балансируются автоматически.",
+        "reason_en": "Luxury and speed are balanced automatically.",
+        "apply": {
+          "prefer_static_hero": true,
+          "lazy_images": true,
+          "forbid_heavy_video_on_mobile_fail": true,
+          "max_motion": "css"
+        }
+      },
+      {
+        "engine": "accessibility_director_v1",
+        "role": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason_ru": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта.",
+        "reason_en": "Contrast, type size, keyboard, alt and readability are product quality.",
+        "apply": {
+          "min_body_px": 16,
+          "focus_visible": true,
+          "require_alt": true,
+          "skip_link": true
+        }
+      },
+      {
+        "engine": "localization_director_v1",
+        "role": "Localization Director",
+        "choice": "Germany · DACH",
+        "market_code": "DE",
+        "reason_ru": "Impressum, Datenschutz, строгий стиль.",
+        "reason_en": "Impressum, Datenschutz, строгий стиль.",
+        "apply": {
+          "market_code": "DE",
+          "legal_pack": [
+            "impressum",
+            "datenschutz"
+          ],
+          "style": "strict",
+          "social_proof_weight": "medium",
+          "portfolio_weight": "medium",
+          "cta_tone": "formal",
+          "package_id": "business"
+        }
+      }
+    ],
+    "apply": {
+      "industry_theme": "modern_default",
+      "hero_bias": "photo",
+      "luxury_mode": false,
+      "data_luxury": "0",
+      "font_label": "playfair_manrope",
+      "body_font": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+      "display_font": "\"Playfair Display\", Georgia, serif",
+      "scale": {
+        "h1": "clamp(2.5rem, 5.5vw, 4.1rem)",
+        "lh": "1.75",
+        "section_h2": "clamp(1.55rem, 2.6vw, 2.2rem)"
+      },
+      "studio_css": "\n/* Typography Studio · personality=prestige · pair=playfair_manrope */\n:root {\n  --font-display: \"Playfair Display\", Georgia, serif;\n  --font-body: \"Manrope\", \"Segoe UI\", system-ui, sans-serif;\n  --font-sans: \"Manrope\", \"Segoe UI\", system-ui, sans-serif;\n  --type-body-lh: 1.75;\n  --type-headline-lh: 1.08;\n  --type-track-display: -0.03em;\n  --type-track-body: 0.015em;\n  --type-btn-weight: 500;\n}\nbody {\n  font-family: var(--font-body);\n  font-weight: 400;\n  line-height: var(--type-body-lh);\n  letter-spacing: var(--type-track-body);\n  -webkit-font-smoothing: antialiased;\n  text-rendering: optimizeLegibility;\n}\nbody .hero h1,\nbody .hero .hero-title,\nbody h1,\nbody .page-title {\n  font-family: var(--font-display);\n  font-weight: 500;\n  font-size: clamp(2.5rem, 5.5vw, 4.1rem);\n  line-height: var(--type-headline-lh);\n  letter-spacing: var(--type-track-display);\n}\nbody .section h2,\nbody h2 {\n  font-family: var(--font-display);\n  font-weight: 500;\n  font-size: clamp(1.55rem, 2.6vw, 2.2rem);\n  line-height: 1.2;\n  letter-spacing: var(--type-track-display);\n}\nbody .btn,\nbody button.btn,\nbody a.btn {\n  font-family: var(--font-body);\n  font-weight: var(--type-btn-weight);\n  letter-spacing: 0.02em;\n}\n@media (max-width: 720px) {\n  body { line-height: 1.6; }\n  body .hero h1,\n  body .hero .hero-title,\n  body h1 {\n    font-size: clamp(2rem, 8vw, 2.6rem);\n    letter-spacing: -0.015em;\n  }\n}\n",
+      "motion_tier": "business",
+      "motion_level": "css",
+      "reveal": "medium",
+      "require_mid_cta": true,
+      "cta_after_services": true,
+      "contact_above_fold_hint": true,
+      "faq_before_footer": true,
+      "certs_near_hero": false,
+      "guarantees_in_benefits": false,
+      "reviews_before_contact": false,
+      "map_with_contacts": true,
+      "brands_strip": false,
+      "trust_density": "light",
+      "prefer_static_hero": true,
+      "lazy_images": true,
+      "forbid_heavy_video_on_mobile_fail": true,
+      "max_motion": "css",
+      "min_body_px": 16,
+      "focus_visible": true,
+      "require_alt": true,
+      "skip_link": true,
+      "market_code": "DE",
+      "legal_pack": [
+        "impressum",
+        "datenschutz"
+      ],
+      "style": "strict",
+      "social_proof_weight": "medium",
+      "portfolio_weight": "medium",
+      "cta_tone": "formal",
+      "package_id": "business",
+      "data_studio": "digital_creative_studio_v2",
+      "hero_layout_prefer": null,
+      "font_pack": {
+        "label": "playfair_manrope",
+        "body": "\"Manrope\", \"Segoe UI\", system-ui, sans-serif",
+        "display": "\"Playfair Display\", Georgia, serif"
+      },
+      "conversion": {
+        "engine": "conversion_director_v1",
+        "role": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason_ru": "Кнопки, форма и доверие расставлены ради конверсии, не декора.",
+        "reason_en": "CTA, form and trust placed for conversion, not decoration.",
+        "apply": {
+          "require_mid_cta": true,
+          "cta_after_services": true,
+          "contact_above_fold_hint": true,
+          "faq_before_footer": true
+        }
+      },
+      "trust": {
+        "engine": "trust_director_v1",
+        "role": "Trust Director",
+        "choice": "Clean trust basics",
+        "reason_ru": "Базовые контакты и доверие без перегруза.",
+        "reason_en": "Базовые контакты и доверие без перегруза.",
+        "apply": {
+          "certs_near_hero": false,
+          "guarantees_in_benefits": false,
+          "reviews_before_contact": false,
+          "map_with_contacts": true,
+          "brands_strip": false,
+          "trust_density": "light"
+        }
+      },
+      "performance": {
+        "engine": "performance_director_v1",
+        "role": "Performance Director",
+        "choice": "Light delivery",
+        "reason_ru": "Luxury и скорость балансируются автоматически.",
+        "reason_en": "Luxury and speed are balanced automatically.",
+        "apply": {
+          "prefer_static_hero": true,
+          "lazy_images": true,
+          "forbid_heavy_video_on_mobile_fail": true,
+          "max_motion": "css"
+        }
+      },
+      "accessibility": {
+        "engine": "accessibility_director_v1",
+        "role": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason_ru": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта.",
+        "reason_en": "Contrast, type size, keyboard, alt and readability are product quality.",
+        "apply": {
+          "min_body_px": 16,
+          "focus_visible": true,
+          "require_alt": true,
+          "skip_link": true
+        }
+      },
+      "localization": {
+        "engine": "localization_director_v1",
+        "role": "Localization Director",
+        "choice": "Germany · DACH",
+        "market_code": "DE",
+        "reason_ru": "Impressum, Datenschutz, строгий стиль.",
+        "reason_en": "Impressum, Datenschutz, строгий стиль.",
+        "apply": {
+          "market_code": "DE",
+          "legal_pack": [
+            "impressum",
+            "datenschutz"
+          ],
+          "style": "strict",
+          "social_proof_weight": "medium",
+          "portfolio_weight": "medium",
+          "cta_tone": "formal",
+          "package_id": "business"
+        }
+      }
+    },
+    "css_bytes": 4134
+  },
+  "luxury_mode": false,
+  "design_director": {
+    "engine": "ai_design_director_v2",
+    "product": "Digital Experience Factory",
+    "ok": true,
+    "overall": 91,
+    "scores": {
+      "visual": 90,
+      "typography": 100,
+      "motion": 75,
+      "premium_feeling": 95,
+      "first_impression": 85,
+      "brand_emotion": 70,
+      "trust": 90,
+      "conversion_readiness": 90,
+      "mobile_experience": 100,
+      "creativity": 92
+    },
+    "threshold_premium_feeling": 80,
+    "threshold_first_impression_premium": 90,
+    "package_id": "business",
+    "niche": "realestate",
+    "luxury_mode": false,
+    "identity": {
+      "theme": "modern_default",
+      "feel_ru": "современный нейтральный",
+      "hero_bias": "photo"
+    },
+    "fingerprint": "a1e7f9fa443bc6f1",
+    "markers": {
+      "data_tier_ok": true,
+      "hero": true,
+      "layout_profile": true,
+      "vie": true,
+      "font_signals": 4,
+      "kpi_trust_signals": 16,
+      "rich_media_signals": 4,
+      "viewport": true,
+      "responsive_css": true
+    },
+    "recommendations": [
+      "Hold — candidate for 5-second blind tier test"
+    ],
+    "acceptance_5s_ru": "Если показать три версии рядом без ценников, человек должен почти всегда понять, где Starter, где Business и где Premium.",
+    "rule_ru": "Клиент должен узнать Virtus Core по качеству, а не по шаблону."
+  },
+  "design_memory": {
+    "engine": "design_memory_v1",
+    "similarity_pct": 0,
+    "threshold": 92,
+    "rebuild_needed": false,
+    "match": null,
+    "action_ru": "OK — достаточно уникально"
+  },
+  "experience_director": {
+    "engine": "experience_director_v1",
+    "role": "Experience Director",
+    "choice": "First Impression 85",
+    "first_impression": 85,
+    "overall": 91,
+    "why_ru": "Первое впечатление в норме для пакета.",
+    "reason_ru": "Первое впечатление в норме для пакета.",
+    "reason_en": "Первое впечатление в норме для пакета.",
+    "actions": [],
+    "rebuild_recommended": false,
+    "apply": {
+      "experience_ok": true,
+      "hero_upgrade": "hold"
+    }
+  },
+  "commercial_readiness": {
+    "engine": "commercial_readiness_v1",
+    "threshold": 90,
+    "scores": {
+      "visual": 90,
+      "trust": 92,
+      "conversion": 93,
+      "performance": 88,
+      "mobile": 100,
+      "accessibility": 98
+    },
+    "overall_commercial": 93,
+    "commercial_ready": true,
+    "label": "Commercial Ready",
+    "status": "PASS",
+    "conversion_detail": {
+      "engine": "conversion_director_v1",
+      "scores": {
+        "hero": 92,
+        "cta": 99,
+        "trust": 91,
+        "contact_visibility": 83,
+        "booking_flow": 98
+      },
+      "overall": 93,
+      "hero_status": "PASS",
+      "recommendations": [
+        "Усилить видимость контактов / формы."
+      ],
+      "markers": {
+        "has_mid_cta": true,
+        "has_form": true,
+        "has_contact": false
+      }
+    },
+    "performance_detail": {
+      "engine": "performance_director_v1",
+      "mobile_score": 88,
+      "has_video": false,
+      "has_webgl": false,
+      "status": "PASS",
+      "action_ru": "OK — лёгкая доставка",
+      "veto_video": false
+    },
+    "accessibility_detail": {
+      "engine": "accessibility_director_v1",
+      "overall": 98,
+      "missing_alt": 0,
+      "has_skip_link": true,
+      "has_lang": true,
+      "status": "PASS"
+    },
+    "design_director_overall": 91,
+    "ssot_ru": "Главный KPI — Commercial Readiness Score. Только при ≥ 90 Factory ставит Commercial Ready."
+  },
+  "commercial_ready": true,
+  "media_plan": {
+    "hero_src": "assets/hero.jpg",
+    "hero_from_client": false,
+    "hero_ok": true,
+    "gallery": [],
+    "background_src": "assets/background.jpg",
+    "assessments": [
+      {
+        "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/hero.jpg",
+        "role": "hero",
+        "ok": true,
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2578666,
+        "reason": "ok",
+        "source": "niche"
+      },
+      {
+        "path": "assets/background.jpg",
+        "role": "background",
+        "ok": true,
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2578666,
+        "reason": "ok",
+        "source": "pack"
+      }
+    ],
+    "gate_ok": false,
+    "gate_failures": [
+      "media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media"
+    ],
+    "media_gate_ok": false,
+    "media_gate_failures": [
+      "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media"
+    ],
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": false,
+      "failures": [
+        "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media"
+      ],
+      "checks": [
+        {
+          "section": "hero",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/_research_3d/showcases/generic/preview.jpg",
+          "ok": true,
+          "tags": [
+            "boutique",
+            "interior",
+            "restaurant",
+            "retail"
+          ],
+          "detail": "ok"
+        },
+        {
+          "section": "about",
+          "path": "D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg",
+          "ok": false,
+          "tags": [
+            "untagged"
+          ],
+          "detail": "untagged_media"
+        }
+      ]
+    }
+  },
+  "content_gate": {
+    "engine_id": "content_gate_v1",
+    "passed": true,
+    "failures": [],
+    "repairs": [],
+    "checks": [
+      {
+        "id": "hero_fields",
+        "section": "hero",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "hero_niche_voice",
+        "section": "hero",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "services_niche",
+        "section": "services",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "benefits_niche",
+        "section": "benefits",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "nav_no_marketing",
+        "section": "navigation",
+        "ok": true,
+        "detail": "links=7"
+      },
+      {
+        "id": "legal_profile_hook",
+        "section": "legal",
+        "ok": true,
+        "detail": "deferred_r34:DE"
+      }
+    ]
+  },
+  "commercial_gate": {
+    "engine_id": "commercial_gate_v1",
+    "hard_passed": true,
+    "score_passed": true,
+    "passed": true,
+    "brand_leak": "PASS",
+    "threshold": 95.0,
+    "ai_score": {
+      "niche_match": 92.0,
+      "content_quality": 98.0,
+      "cta_quality": 96.0,
+      "structure_quality": 98.0,
+      "design_quality": 96.0,
+      "commercial_readiness": 100.0,
+      "overall": 96.7
+    },
+    "hard_checks": [
+      {
+        "id": "brand_leak",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_stubs",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_generic_phrases",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "hero_matches_niche",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "services_match_questionnaire",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "cta_actionable",
+        "ok": true,
+        "detail": "Bewertung anfragen"
+      },
+      {
+        "id": "contacts_present",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "structure_matches_scenario",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "no_empty_core_sections",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "pages_linked",
+        "ok": true,
+        "detail": "ok"
+      }
+    ],
+    "failures": [],
+    "commercial_rule_1": "first_visitor_ready",
+    "design": {
+      "composer": "design",
+      "niche": "realestate",
+      "emotional_tone": "strict_premium",
+      "journey": "consult",
+      "primary": "#1d4ed8",
+      "font_display": "\"Libre Baskerville\", Georgia, serif",
+      "radius": "8px",
+      "btn_radius": "6px",
+      "forbid_platform_aurora": true
+    },
+    "seo": {
+      "composer": "seo",
+      "title": "WohnRaum Partner — Umsetzung | München",
+      "description": "Überblick statt Marktdruck. Bewertung, Exposé, Begleitung bis Notar."
+    },
+    "layout_id": "L2",
+    "layout_pool": [
+      "L2",
+      "L5",
+      "L1"
+    ],
+    "max_rebuild_attempts": 2,
+    "one_lifetime_project": true
+  },
+  "status": "commercial_ready",
+  "quality_percent": 98,
+  "validation_passed": false,
+  "technical_checks": [
+    {
+      "id": "html",
+      "label": "HTML",
+      "ok": true
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile",
+      "ok": true
+    },
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "ok": true
+    },
+    {
+      "id": "compliance",
+      "label": "Compliance Engine",
+      "ok": false
+    },
+    {
+      "id": "quality_gate",
+      "label": "Quality Gate",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:hero_layout",
+      "label": "design:hero_layout — data-hero-layout",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:component_profile",
+      "label": "design:component_profile — data-comp-profile",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:layout_profile",
+      "label": "design:layout_profile — data-layout-profile",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:section_contact",
+      "label": "design:section_contact — contact section present",
+      "ok": false
+    },
+    {
+      "id": "compliance:design:meta_hero",
+      "label": "design:meta_hero — meta hero_layout matches HTML",
+      "ok": false
+    },
+    {
+      "id": "compliance:authenticity:hero_ok",
+      "label": "authenticity:hero_ok — ['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/b",
+      "ok": false
+    }
+  ],
+  "quality_gate": {
+    "passed": false,
+    "failures": [
+      "design:hero_layout — data-hero-layout",
+      "design:component_profile — data-comp-profile",
+      "design:layout_profile — data-layout-profile",
+      "design:section_contact — contact section present",
+      "design:meta_hero — meta hero_layout matches HTML",
+      "media:hero_ok — ['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media']",
+      "media:section_aware — about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media",
+      "brand:no_demo_preview_words — demo|preview"
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "category": "design",
+        "ok": false,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "category": "design",
+        "ok": false,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "category": "design",
+        "ok": false,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "category": "design",
+        "ok": true,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "category": "design",
+        "ok": false,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "category": "design",
+        "ok": true,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "category": "design",
+        "ok": true,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "category": "design",
+        "ok": false,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "category": "localization",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "category": "localization",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "category": "localization",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "category": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "category": "seo",
+        "ok": true,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "category": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "category": "seo",
+        "ok": true,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "category": "seo",
+        "ok": true,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "category": "seo",
+        "ok": true,
+        "detail": "JSON-LD"
+      },
+      {
+        "id": "og",
+        "category": "seo",
+        "ok": true,
+        "detail": "Open Graph"
+      },
+      {
+        "id": "lang_ok",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "imgs=1"
+      },
+      {
+        "id": "h1",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "category": "accessibility",
+        "ok": true,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "category": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "category": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "category": "performance",
+        "ok": true,
+        "detail": "motion css/js"
+      },
+      {
+        "id": "css_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "77630B"
+      },
+      {
+        "id": "motion_css_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "4047B"
+      },
+      {
+        "id": "js_budget",
+        "category": "performance",
+        "ok": true,
+        "detail": "3016B"
+      },
+      {
+        "id": "js_no_heavy",
+        "category": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "manifest",
+        "category": "media",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "category": "media",
+        "ok": false,
+        "detail": "['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media']"
+      },
+      {
+        "id": "section_aware",
+        "category": "media",
+        "ok": false,
+        "detail": "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media"
+      },
+      {
+        "id": "object_fit_css",
+        "category": "media",
+        "ok": true,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "category": "media",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "category": "media",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "category": "brand",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_demo_preview_words",
+        "category": "brand",
+        "ok": false,
+        "detail": "demo|preview"
+      }
+    ]
+  },
+  "compliance": {
+    "engine_id": "compliance_v1",
+    "passed": false,
+    "domains": {
+      "design": false,
+      "brand": false,
+      "performance": true,
+      "seo": true,
+      "accessibility": true,
+      "authenticity": false,
+      "market_rules": true
+    },
+    "failures": [
+      "design:hero_layout — data-hero-layout",
+      "design:component_profile — data-comp-profile",
+      "design:layout_profile — data-layout-profile",
+      "design:section_contact — contact section present",
+      "design:meta_hero — meta hero_layout matches HTML",
+      "authenticity:hero_ok — ['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media']",
+      "authenticity:section_aware — about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media",
+      "brand:no_demo_preview_words — demo|preview",
+      "authenticity:section_aware_media — about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media"
+    ],
+    "checks": [
+      {
+        "id": "hero_layout",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-hero-layout"
+      },
+      {
+        "id": "component_profile",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-comp-profile"
+      },
+      {
+        "id": "layout_profile",
+        "domain": "design",
+        "ok": false,
+        "detail": "data-layout-profile"
+      },
+      {
+        "id": "footer_variant",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-footer-variant"
+      },
+      {
+        "id": "section_contact",
+        "domain": "design",
+        "ok": false,
+        "detail": "contact section present"
+      },
+      {
+        "id": "market_profile",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-market"
+      },
+      {
+        "id": "niche_style",
+        "domain": "design",
+        "ok": true,
+        "detail": "data-niche + design tokens"
+      },
+      {
+        "id": "meta_hero",
+        "domain": "design",
+        "ok": false,
+        "detail": "meta hero_layout matches HTML"
+      },
+      {
+        "id": "no_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_mustache",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "{{…}}"
+      },
+      {
+        "id": "no_ui_keys",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": "ui.* keys"
+      },
+      {
+        "id": "no_english_stubs",
+        "domain": "market_rules",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lang",
+        "domain": "seo",
+        "ok": true,
+        "detail": "html lang"
+      },
+      {
+        "id": "hreflang",
+        "domain": "seo",
+        "ok": true,
+        "detail": "hreflang"
+      },
+      {
+        "id": "title",
+        "domain": "seo",
+        "ok": true,
+        "detail": "title"
+      },
+      {
+        "id": "description",
+        "domain": "seo",
+        "ok": true,
+        "detail": "meta description"
+      },
+      {
+        "id": "canonical",
+        "domain": "seo",
+        "ok": true,
+        "detail": "canonical"
+      },
+      {
+        "id": "schema",
+        "domain": "seo",
+        "ok": true,
+        "detail": "JSON-LD"
+      },
+      {
+        "id": "og",
+        "domain": "seo",
+        "ok": true,
+        "detail": "Open Graph"
+      },
+      {
+        "id": "lang_ok",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "supported lang"
+      },
+      {
+        "id": "img_alt",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "imgs=1"
+      },
+      {
+        "id": "h1",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 present"
+      },
+      {
+        "id": "heading_order",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "h1 before h2/h3"
+      },
+      {
+        "id": "aria_or_labels",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "aria/summary"
+      },
+      {
+        "id": "reduced_motion",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "reduced-motion support"
+      },
+      {
+        "id": "contrast_tokens",
+        "domain": "accessibility",
+        "ok": true,
+        "detail": "--ink token"
+      },
+      {
+        "id": "no_heavy_libs",
+        "domain": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "lazy_images",
+        "domain": "performance",
+        "ok": true,
+        "detail": "non-hero images"
+      },
+      {
+        "id": "motion_killswitch",
+        "domain": "performance",
+        "ok": true,
+        "detail": "motion css/js"
+      },
+      {
+        "id": "css_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "77630B"
+      },
+      {
+        "id": "motion_css_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "4047B"
+      },
+      {
+        "id": "js_budget",
+        "domain": "performance",
+        "ok": true,
+        "detail": "3016B"
+      },
+      {
+        "id": "js_no_heavy",
+        "domain": "performance",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "manifest",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "media_manifest.json"
+      },
+      {
+        "id": "hero_ok",
+        "domain": "authenticity",
+        "ok": false,
+        "detail": "['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media']"
+      },
+      {
+        "id": "section_aware",
+        "domain": "authenticity",
+        "ok": false,
+        "detail": "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media"
+      },
+      {
+        "id": "object_fit_css",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "no stretch"
+      },
+      {
+        "id": "weight_ok",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "0_oversized"
+      },
+      {
+        "id": "cls_safe",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "dimensions_or_object_fit"
+      },
+      {
+        "id": "no_platform_chrome",
+        "domain": "brand",
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "id": "no_demo_preview_words",
+        "domain": "brand",
+        "ok": false,
+        "detail": "demo|preview"
+      },
+      {
+        "id": "section_aware_media",
+        "domain": "authenticity",
+        "ok": false,
+        "detail": "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media"
+      },
+      {
+        "id": "section_aware_content",
+        "domain": "authenticity",
+        "ok": true,
+        "detail": "ok"
+      },
+      {
+        "id": "visual_intelligence",
+        "domain": "design",
+        "ok": true,
+        "detail": "score=96.0/90.0"
+      }
+    ],
+    "quality_gate": {
+      "passed": false,
+      "failures": [
+        "design:hero_layout — data-hero-layout",
+        "design:component_profile — data-comp-profile",
+        "design:layout_profile — data-layout-profile",
+        "design:section_contact — contact section present",
+        "design:meta_hero — meta hero_layout matches HTML",
+        "media:hero_ok — ['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media']",
+        "media:section_aware — about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media",
+        "brand:no_demo_preview_words — demo|preview"
+      ],
+      "checks": [
+        {
+          "id": "hero_layout",
+          "category": "design",
+          "ok": false,
+          "detail": "data-hero-layout"
+        },
+        {
+          "id": "component_profile",
+          "category": "design",
+          "ok": false,
+          "detail": "data-comp-profile"
+        },
+        {
+          "id": "layout_profile",
+          "category": "design",
+          "ok": false,
+          "detail": "data-layout-profile"
+        },
+        {
+          "id": "footer_variant",
+          "category": "design",
+          "ok": true,
+          "detail": "data-footer-variant"
+        },
+        {
+          "id": "section_contact",
+          "category": "design",
+          "ok": false,
+          "detail": "contact section present"
+        },
+        {
+          "id": "market_profile",
+          "category": "design",
+          "ok": true,
+          "detail": "data-market"
+        },
+        {
+          "id": "niche_style",
+          "category": "design",
+          "ok": true,
+          "detail": "data-niche + design tokens"
+        },
+        {
+          "id": "meta_hero",
+          "category": "design",
+          "ok": false,
+          "detail": "meta hero_layout matches HTML"
+        },
+        {
+          "id": "no_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "no_mustache",
+          "category": "localization",
+          "ok": true,
+          "detail": "{{…}}"
+        },
+        {
+          "id": "no_ui_keys",
+          "category": "localization",
+          "ok": true,
+          "detail": "ui.* keys"
+        },
+        {
+          "id": "no_english_stubs",
+          "category": "localization",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lang",
+          "category": "seo",
+          "ok": true,
+          "detail": "html lang"
+        },
+        {
+          "id": "hreflang",
+          "category": "seo",
+          "ok": true,
+          "detail": "hreflang"
+        },
+        {
+          "id": "title",
+          "category": "seo",
+          "ok": true,
+          "detail": "title"
+        },
+        {
+          "id": "description",
+          "category": "seo",
+          "ok": true,
+          "detail": "meta description"
+        },
+        {
+          "id": "canonical",
+          "category": "seo",
+          "ok": true,
+          "detail": "canonical"
+        },
+        {
+          "id": "schema",
+          "category": "seo",
+          "ok": true,
+          "detail": "JSON-LD"
+        },
+        {
+          "id": "og",
+          "category": "seo",
+          "ok": true,
+          "detail": "Open Graph"
+        },
+        {
+          "id": "lang_ok",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "supported lang"
+        },
+        {
+          "id": "img_alt",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "imgs=1"
+        },
+        {
+          "id": "h1",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 present"
+        },
+        {
+          "id": "heading_order",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "h1 before h2/h3"
+        },
+        {
+          "id": "aria_or_labels",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "aria/summary"
+        },
+        {
+          "id": "reduced_motion",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "reduced-motion support"
+        },
+        {
+          "id": "contrast_tokens",
+          "category": "accessibility",
+          "ok": true,
+          "detail": "--ink token"
+        },
+        {
+          "id": "no_heavy_libs",
+          "category": "performance",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "lazy_images",
+          "category": "performance",
+          "ok": true,
+          "detail": "non-hero images"
+        },
+        {
+          "id": "motion_killswitch",
+          "category": "performance",
+          "ok": true,
+          "detail": "motion css/js"
+        },
+        {
+          "id": "css_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "77630B"
+        },
+        {
+          "id": "motion_css_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "4047B"
+        },
+        {
+          "id": "js_budget",
+          "category": "performance",
+          "ok": true,
+          "detail": "3016B"
+        },
+        {
+          "id": "js_no_heavy",
+          "category": "performance",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "manifest",
+          "category": "media",
+          "ok": true,
+          "detail": "media_manifest.json"
+        },
+        {
+          "id": "hero_ok",
+          "category": "media",
+          "ok": false,
+          "detail": "['media_gate:about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media']"
+        },
+        {
+          "id": "section_aware",
+          "category": "media",
+          "ok": false,
+          "detail": "about:D:/Games/Genesis-AI-Engine/dashboard/backend/.tmp_package_preview_sandbox/business/1363f16e-01d8-44cf-b1cd-98b4066bba9f/assets/background.jpg — untagged_media"
+        },
+        {
+          "id": "object_fit_css",
+          "category": "media",
+          "ok": true,
+          "detail": "no stretch"
+        },
+        {
+          "id": "weight_ok",
+          "category": "media",
+          "ok": true,
+          "detail": "0_oversized"
+        },
+        {
+          "id": "cls_safe",
+          "category": "media",
+          "ok": true,
+          "detail": "dimensions_or_object_fit"
+        },
+        {
+          "id": "no_platform_chrome",
+          "category": "brand",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "id": "no_demo_preview_words",
+          "category": "brand",
+          "ok": false,
+          "detail": "demo|preview"
+        }
+      ]
+    },
+    "media_gate": {
+      "engine_id": "media_gate_v1",
+      "passed": false,
+      "failures": [],
+      "checks": []
+    },
+    "content_gate": {
+      "engine_id": "content_gate_v1",
+      "passed": true,
+      "failures": [],
+      "repairs": [],
+      "checks": []
+    },
+    "visual_quality": {
+      "engine_id": "visual_quality_v1",
+      "passed": true,
+      "score": 96.0,
+      "threshold": 90.0,
+      "checks": [
+        {
+          "id": "composition",
+          "ok": true,
+          "points": 100.0,
+          "detail": "hero=True sections=True niche=True vie=True"
+        },
+        {
+          "id": "color_harmony",
+          "ok": true,
+          "points": 88.0,
+          "detail": "#1d4ed8 / #93c5fd"
+        },
+        {
+          "id": "typography",
+          "ok": true,
+          "points": 100.0,
+          "detail": "fonts/display hierarchy"
+        },
+        {
+          "id": "contrast",
+          "ok": true,
+          "points": 98.0,
+          "detail": "ratio=17.06"
+        },
+        {
+          "id": "images",
+          "ok": true,
+          "points": 100.0,
+          "detail": "n=1 alt=100% lazy=100%"
+        },
+        {
+          "id": "performance",
+          "ok": true,
+          "points": 98.0,
+          "detail": "heavy=none"
+        },
+        {
+          "id": "adaptivity",
+          "ok": true,
+          "points": 100.0,
+          "detail": "viewport=True mq=True"
+        },
+        {
+          "id": "readability",
+          "ok": true,
+          "points": 78.0,
+          "detail": "words≈5950"
+        }
+      ],
+      "suggestions": [],
+      "failures": []
+    }
+  },
+  "owner_approved": false,
+  "owner_approved_at": null,
+  "revision": 0,
+  "created_at": "2026-08-07T10:56:33.335565+00:00",
+  "updated_at": "2026-08-07T10:56:33.335565+00:00",
+  "style_flags": {
+    "modern": false,
+    "blue_boost": false,
+    "calculator": false,
+    "testimonials": true
+  },
+  "package_delivery": {
+    "package_id": "business",
+    "whatsapp": true,
+    "maps": true,
+    "testimonials": true,
+    "logo_slot": true,
+    "extended_seo": true,
+    "analytics": false,
+    "calculator": false,
+    "premium_design": false,
+    "contact_form": true,
+    "faq": true,
+    "process": true,
+    "mid_cta": true,
+    "trust_bar": true,
+    "stats_strip": false,
+    "showcase": false,
+    "catalog_grid": false,
+    "catalog_categories": false,
+    "catalog_search_filter": false,
+    "catalog_request_cart": false,
+    "catalog_rich_cards": false
+  },
+  "catalog_enabled": false,
+  "client_assets": {
+    "logo": false,
+    "logo_src": "assets/logo.png",
+    "hero_from_client": false,
+    "gallery": [],
+    "used_files": []
+  },
+  "brand_style": "premium",
+  "client_legal": {
+    "business_name": "WohnRaum Partner",
+    "owner_name": "",
+    "legal_form": "",
+    "street": "",
+    "zip": "",
+    "city": "München",
+    "country": "DE",
+    "email": "kontakt@wohnraum-demo.example.de",
+    "phone": "+49 89 4443322",
+    "website": "",
+    "managing_director": "",
+    "vat_id": "",
+    "handelsregister": "",
+    "register_court": "",
+    "uses_maps": true,
+    "uses_analytics": false,
+    "uses_contact_form": true,
+    "missing_impressum": [
+      "street",
+      "zip"
+    ],
+    "impressum_ready": false
+  },
+  "legal_pages": {
+    "pack": "de_impressum",
+    "market_code": "DE",
+    "impressum_ready": false,
+    "missing_impressum": [
+      "street",
+      "zip"
+    ],
+    "files": [
+      "impressum.html",
+      "datenschutz.html"
+    ]
+  },
+  "publish_ready_de": false,
+  "factory_stages": {
+    "template": 0.0008,
+    "content": 0.0011,
+    "assets": 2.7084,
+    "render": 0.6298,
+    "gates": 0.1534,
+    "total": 3.4935,
+    "total_e2e": 3.4935
+  },
+  "delivery_locked": false,
+  "experience_replay": {
+    "engine": "experience_replay_v1",
+    "title_ru": "Почему получился именно такой сайт?",
+    "title_en": "Why does this site look like this?",
+    "package_id": "business",
+    "niche": "realestate",
+    "luxury_mode": false,
+    "decisions": [
+      {
+        "director": "Industry Director",
+        "choice": "modern_default",
+        "reason": "Соответствует ожиданиям аудитории (современный нейтральный)."
+      },
+      {
+        "director": "Luxury Director",
+        "choice": "Off",
+        "reason": "Luxury Mode только для Premium — клиент купил эмоцию дорогого бренда."
+      },
+      {
+        "director": "Typography Director",
+        "choice": "playfair_manrope",
+        "reason": "Typography Studio · prestige → playfair_manrope (LH 1.75, tracking 0.015em)."
+      },
+      {
+        "director": "Motion Director",
+        "choice": "Reveal Medium",
+        "reason": "Business motion усиливает Visual Pack без перегруза."
+      },
+      {
+        "director": "Conversion Director",
+        "choice": "Sell-first layout",
+        "reason": "Кнопки, форма и доверие расставлены ради конверсии, не декора."
+      },
+      {
+        "director": "Trust Director",
+        "choice": "Clean trust basics",
+        "reason": "Базовые контакты и доверие без перегруза."
+      },
+      {
+        "director": "Performance Director",
+        "choice": "Light delivery",
+        "reason": "Luxury и скорость балансируются автоматически."
+      },
+      {
+        "director": "Accessibility Director",
+        "choice": "Inclusive baseline",
+        "reason": "Контраст, размер текста, клавиатура, alt и читаемость — часть качества продукта."
+      },
+      {
+        "director": "Localization Director",
+        "choice": "Germany · DACH",
+        "reason": "Impressum, Datenschutz, строгий стиль."
+      },
+      {
+        "director": "Experience Director",
+        "choice": "First Impression 85",
+        "reason": "Первое впечатление в норме для пакета."
+      },
+      {
+        "director": "Commercial Readiness",
+        "choice": "Overall Commercial 93",
+        "reason": "Visual 90 · Trust 92 · Conversion 93 · Performance 88 · Mobile 100 · A11y 98 → Commercial Ready"
+      },
+      {
+        "director": "Conversion Director",
+        "choice": "CTA 99",
+        "reason": "Усилить видимость контактов / формы."
+      }
+    ],
+    "design_director": {
+      "engine": "ai_design_director_v2",
+      "product": "Digital Experience Factory",
+      "ok": true,
+      "overall": 91,
+      "scores": {
+        "visual": 90,
+        "typography": 100,
+        "motion": 75,
+        "premium_feeling": 95,
+        "first_impression": 85,
+        "brand_emotion": 70,
+        "trust": 90,
+        "conversion_readiness": 90,
+        "mobile_experience": 100,
+        "creativity": 92
+      },
+      "threshold_premium_feeling": 80,
+      "threshold_first_impression_premium": 90,
+      "package_id": "business",
+      "niche": "realestate",
+      "luxury_mode": false,
+      "identity": {
+        "theme": "modern_default",
+        "feel_ru": "современный нейтральный",
+        "hero_bias": "photo"
+      },
+      "fingerprint": "a1e7f9fa443bc6f1",
+      "markers": {
+        "data_tier_ok": true,
+        "hero": true,
+        "layout_profile": true,
+        "vie": true,
+        "font_signals": 4,
+        "kpi_trust_signals": 16,
+        "rich_media_signals": 4,
+        "viewport": true,
+        "responsive_css": true
+      },
+      "recommendations": [
+        "Hold — candidate for 5-second blind tier test"
+      ],
+      "acceptance_5s_ru": "Если показать три версии рядом без ценников, человек должен почти всегда понять, где Starter, где Business и где Premium.",
+      "rule_ru": "Клиент должен узнать Virtus Core по качеству, а не по шаблону."
+    },
+    "design_memory": {
+      "engine": "design_memory_v1",
+      "similarity_pct": 0,
+      "threshold": 92,
+      "rebuild_needed": false,
+      "match": null,
+      "action_ru": "OK — достаточно уникально"
+    },
+    "commercial_readiness": {
+      "engine": "commercial_readiness_v1",
+      "threshold": 90,
+      "scores": {
+        "visual": 90,
+        "trust": 92,
+        "conversion": 93,
+        "performance": 88,
+        "mobile": 100,
+        "accessibility": 98
+      },
+      "overall_commercial": 93,
+      "commercial_ready": true,
+      "label": "Commercial Ready",
+      "status": "PASS",
+      "conversion_detail": {
+        "engine": "conversion_director_v1",
+        "scores": {
+          "hero": 92,
+          "cta": 99,
+          "trust": 91,
+          "contact_visibility": 83,
+          "booking_flow": 98
+        },
+        "overall": 93,
+        "hero_status": "PASS",
+        "recommendations": [
+          "Усилить видимость контактов / формы."
+        ],
+        "markers": {
+          "has_mid_cta": true,
+          "has_form": true,
+          "has_contact": false
+        }
+      },
+      "performance_detail": {
+        "engine": "performance_director_v1",
+        "mobile_score": 88,
+        "has_video": false,
+        "has_webgl": false,
+        "status": "PASS",
+        "action_ru": "OK — лёгкая доставка",
+        "veto_video": false
+      },
+      "accessibility_detail": {
+        "engine": "accessibility_director_v1",
+        "overall": 98,
+        "missing_alt": 0,
+        "has_skip_link": true,
+        "has_lang": true,
+        "status": "PASS"
+      },
+      "design_director_overall": 91,
+      "ssot_ru": "Главный KPI — Commercial Readiness Score. Только при ≥ 90 Factory ставит Commercial Ready."
+    },
+    "studio": {
+      "engine": "digital_creative_studio_v2",
+      "apply_keys": [
+        "accessibility",
+        "body_font",
+        "brands_strip",
+        "certs_near_hero",
+        "contact_above_fold_hint",
+        "conversion",
+        "cta_after_services",
+        "cta_tone",
+        "data_luxury",
+        "data_studio",
+        "display_font",
+        "faq_before_footer",
+        "focus_visible",
+        "font_label",
+        "font_pack",
+        "forbid_heavy_video_on_mobile_fail",
+        "guarantees_in_benefits",
+        "hero_bias",
+        "hero_layout_prefer",
+        "industry_theme",
+        "lazy_images",
+        "legal_pack",
+        "localization",
+        "luxury_mode",
+        "map_with_contacts",
+        "market_code",
+        "max_motion",
+        "min_body_px",
+        "motion_level",
+        "motion_tier",
+        "package_id",
+        "performance",
+        "portfolio_weight",
+        "prefer_static_hero",
+        "require_alt",
+        "require_mid_cta",
+        "reveal",
+        "reviews_before_contact",
+        "scale",
+        "skip_link",
+        "social_proof_weight",
+        "studio_css",
+        "style",
+        "trust",
+        "trust_density"
+      ]
+    },
+    "ssot_ru": "Virtus Core объясняет дизайнерские и коммерческие решения — Digital Creative Studio, не чёрный ящик."
+  },
+  "commercial_review": "PENDING_OWNER",
+  "business_generation": true,
+  "demo_content": true
+}

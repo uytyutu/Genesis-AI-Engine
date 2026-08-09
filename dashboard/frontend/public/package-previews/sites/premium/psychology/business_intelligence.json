@@ -1,0 +1,88 @@
+{
+  "niche_id": "psychology",
+  "subniche_id": "family",
+  "subniche_label": "Familien- / Paartherapie",
+  "business_model": "family_warm_family_small_team",
+  "city": "Hamburg",
+  "company_name": "Praxis Klarheit",
+  "who": "Ein geschützter Raum für das erste Gespräch — online oder vor Ort.",
+  "trust_why": "Nachweisbare Arbeit · Familien- / Paartherapie · Hamburg",
+  "sells": "['Einzeltherapie', 'Erstgespräch', 'Online-Beratung', 'Paartherapie', 'Burnout-Prävention']",
+  "differentiator": "Qualität, Verlässlichkeit, lokale Präsenz",
+  "atmosphere": "warm_family",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Chair, window light, quiet details",
+  "media_brief": {
+    "hero": "Calm practice room, soft daylight",
+    "gallery": "Chair, window light, quiet details",
+    "video": "Slow ambient room (no clinical coldness)",
+    "before_after": "",
+    "team": "Therapist portrait — trustworthy, warm",
+    "equipment": "",
+    "atmosphere": "warm_family",
+    "subniche": "family",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "first_consultation",
+      "label": "First Consultation",
+      "why": "Niedrige Einstiegshürde."
+    },
+    {
+      "id": "session_calendar",
+      "label": "Session Calendar",
+      "why": "Online- oder Praxis-Termin."
+    },
+    {
+      "id": "directions",
+      "label": "Therapy Directions",
+      "why": "Klarheit über Methode."
+    },
+    {
+      "id": "emergency_contact",
+      "label": "Emergency Contact",
+      "why": "Verantwortung & Grenzen."
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "why": "Ablauf, Kosten, Schweigepflicht."
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "why": "Vertrauen — Demo-gekennzeichnet."
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "why": "Praxis finden."
+    }
+  ],
+  "site_jobs": [],
+  "style": "warm_family",
+  "clients_who": "",
+  "fingerprint": "256b68aa0ad0dd5a5ce1",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "landing",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

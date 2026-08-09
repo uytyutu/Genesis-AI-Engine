@@ -1,0 +1,74 @@
+{
+  "brand_name": "ZaunWerk Material",
+  "niche_id": "zaunbau",
+  "package_id": "premium",
+  "founded_year": 2019,
+  "company_age_years": 7,
+  "mission": "Grenzen, die Halt und Haltung geben.",
+  "core_services": [
+    "Zaunbau",
+    "Tore",
+    "Reparatur",
+    "Beratung"
+  ],
+  "geography": "Metropolregion Nürnberg",
+  "advantages": [
+    "Präzise Montage",
+    "Klare Materialien",
+    "Terminplanung"
+  ],
+  "values": [
+    "Stabilität",
+    "Klarheit",
+    "Handwerk"
+  ],
+  "client_types": [
+    "Privathaushalte",
+    "Gewerbe"
+  ],
+  "price_segment": "Mittel",
+  "brand_character": "Builder + Guardian",
+  "team_size_label": "3–5 Personen (Demo)",
+  "marketing_dna_stub": {
+    "audience": "Grundstücksbesitzer",
+    "goal": "Angebot anfordern",
+    "emotion": "Ordentliche Klarheit",
+    "pacing": "fest · klar",
+    "platforms": [
+      "Meta",
+      "Website"
+    ]
+  },
+  "video_dna_stub": {
+    "camera": [
+      "Static",
+      "Handheld"
+    ],
+    "mood": "Craft dusk",
+    "music": "Minimal acoustic",
+    "pacing": "Measured",
+    "required_scenes": [
+      "Fence line",
+      "Posts",
+      "Gate",
+      "Workshop"
+    ],
+    "forbidden": [
+      "Café",
+      "Office",
+      "Laptop"
+    ]
+  },
+  "fingerprint": "660dd30f9cd18efe00c69413",
+  "demo": true,
+  "chain": [
+    "business_identity",
+    "brand_book",
+    "atmosphere",
+    "reputation",
+    "local_identity",
+    "website",
+    "store",
+    "marketing"
+  ]
+}

@@ -69,16 +69,26 @@ def _is_github_rate_limit(exc: urllib.error.HTTPError, body: str = "") -> bool:
 
 
 def _git_ls_remote_probe(owner: str, repo: str, *, timeout: float = 20.0) -> dict[str, Any]:
-    """Anonymous HTTPS ls-remote — works for public repos when API is rate-limited."""
+    """Anonymous HTTPS ls-remote — works for public repos when API is rate-limited.
+
+    Must never trigger Git Credential Manager browser OAuth (Select an account).
+    """
     try:
-        from swarm.farm_execution_engine import _run, resolve_git_binary
+        from swarm.farm_execution_engine import (
+            _run,
+            git_no_credential_helper_args,
+            resolve_git_binary,
+        )
     except Exception as exc:  # noqa: BLE001
         return {"ok": False, "error_code": "git_unavailable", "detail": str(exc)}
     git = resolve_git_binary()
     if not git:
         return {"ok": False, "error_code": "git_missing", "detail": "git not found"}
     url = f"https://github.com/{owner}/{repo}.git"
-    res = _run([git, "ls-remote", "--heads", url], timeout=int(timeout))
+    res = _run(
+        git_no_credential_helper_args(git, "ls-remote", "--heads", url),
+        timeout=int(timeout),
+    )
     err = (res.get("stderr") or res.get("stdout") or "").lower()
     if res.get("ok"):
         return {"ok": True, "error_code": None, "detail": "ls-remote ok"}

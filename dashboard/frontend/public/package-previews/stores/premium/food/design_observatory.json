@@ -1,0 +1,92 @@
+{
+  "niche_id": "restaurant",
+  "era": "2026+",
+  "study_sources": [
+    "Independent fine-casual brands",
+    "Editorial food magazines",
+    "Hospitality brand sites"
+  ],
+  "first_screen": [
+    "Appetite image owns the fold",
+    "Reservation CTA as invitation",
+    "Atmosphere before menu dump"
+  ],
+  "page_rhythm": "Gallery hunger → story → menu → book",
+  "composition_depth": [
+    "Full-bleed food/lifestyle",
+    "Warm surfaces",
+    "Sparse type"
+  ],
+  "typography": "Character display + soft sans",
+  "micro_interactions": [
+    "Parallax soft",
+    "Menu hover taste"
+  ],
+  "trust": [
+    "Real kitchen / team photos",
+    "Hours & map clear"
+  ],
+  "cta_craft": "Reserve — one primary",
+  "brand_feel": [
+    "warmth",
+    "appetite",
+    "alive"
+  ],
+  "invent": "A restaurant brand scene sequence — not a delivery-app clone.",
+  "never": "Generic pizza stock for every cuisine",
+  "lenses": [
+    {
+      "id": "first_screen",
+      "question": "Why does the first screen exist?",
+      "principles": [
+        "One emotional job in 3 seconds",
+        "Visual center owns the fold",
+        "Brand voice before feature list"
+      ],
+      "anti_patterns": [
+        "Hero as feature dump",
+        "equal card grid first",
+        "logo wall as hero"
+      ]
+    },
+    {
+      "id": "rhythm",
+      "question": "How does the page breathe?",
+      "principles": [
+        "Scenes with distinct moods",
+        "Alternating density — never identical section padding",
+        "Story → emotion → interaction → conversion"
+      ],
+      "anti_patterns": [
+        "Hero→Text→Cards→Text→Cards",
+        "uniform white slabs"
+      ]
+    },
+    {
+      "id": "trust",
+      "question": "How is confidence earned?",
+      "principles": [
+        "Proof woven into scenes, not bolted as a strip",
+        "Specific over generic claims",
+        "Quiet credentials beat badge spam"
+      ],
+      "anti_patterns": [
+        "fake counters",
+        "stock handshake photos as trust"
+      ]
+    },
+    {
+      "id": "cta",
+      "question": "How does desire become action?",
+      "principles": [
+        "CTA matches emotional temperature of the scene",
+        "Secondary path without visual noise",
+        "One primary ask per scene"
+      ],
+      "anti_patterns": [
+        "identical pill buttons everywhere",
+        "three equal CTAs"
+      ]
+    }
+  ]
+}

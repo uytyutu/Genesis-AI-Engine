@@ -53,13 +53,13 @@ _COPY: dict[str, dict[str, str]] = {
             "oder beschreiben Sie Ihre Nische."
         ),
         "pricing": (
-            "Website-Pakete: **Basic 350 €** · **Business 650 €** · **Premium 1.200 €**.\n"
+            "Website-Pakete: **Basic 199 €** · **Business 399 €** · **Premium 699 €**.\n"
             "AI Bot: Setup + Monat — Starter / Business / Professional.\n\n"
             "Nennen Sie Ihre Branche — ich empfehle das passende Paket."
         ),
         "website": (
             "Für eine Website empfehle ich eines der Pakete:\n"
-            "**Basic 350 €** · **Business 650 €** · **Premium 1.200 €**.\n\n"
+            "**Basic 199 €** · **Business 399 €** · **Premium 699 €**.\n\n"
             "Beschreiben Sie Branche und Ziel — ich wähle mit Ihnen das passende Paket. "
             "Danach öffnen wir die Anfrage; gebaut wird nach Bestellung in Virtus Core."
         ),
@@ -108,13 +108,13 @@ _COPY: dict[str, dict[str, str]] = {
             "or describe your niche."
         ),
         "pricing": (
-            "Website packages: **Basic €350** · **Business €650** · **Premium €1,200**.\n"
+            "Website packages: **Basic €199** · **Business €399** · **Premium €699**.\n"
             "AI Bot: setup + monthly — Starter / Business / Professional.\n\n"
             "Tell me your niche — I'll recommend a fit."
         ),
         "website": (
             "For a website I recommend one of these packages:\n"
-            "**Basic €350** · **Business €650** · **Premium €1,200**.\n\n"
+            "**Basic €199** · **Business €399** · **Premium €699**.\n\n"
             "Describe your niche and goal — I'll help pick the fit. "
             "Then we open the order form; delivery happens in Virtus Core after purchase."
         ),
@@ -159,13 +159,13 @@ _COPY: dict[str, dict[str, str]] = {
             "или опишите нишу."
         ),
         "pricing": (
-            "Сайты: **Basic 350 €** · **Business 650 €** · **Premium 1 200 €**.\n"
+            "Сайты: **Basic 199 €** · **Business 399 €** · **Premium 699 €**.\n"
             "AI Bot: настройка + месяц — Starter / Business / Professional.\n\n"
             "Назовите нишу — подскажу пакет."
         ),
         "website": (
             "Для сайта подойдёт один из пакетов:\n"
-            "**Basic 350 €** · **Business 650 €** · **Premium 1 200 €**.\n\n"
+            "**Basic 199 €** · **Business 399 €** · **Premium 699 €**.\n\n"
             "Опишите нишу и цель — подберём пакет. Дальше форма заявки; "
             "сборка — после покупки в Virtus Core."
         ),
@@ -203,7 +203,7 @@ _COPY: dict[str, dict[str, str]] = {
         ),
         "welcome_hint": "Часті питання: пакети, ціни, AI Bot — або опишіть нішу.",
         "pricing": (
-            "Сайти: **Basic 350 €** · **Business 650 €** · **Premium 1 200 €**.\n"
+            "Сайти: **Basic 199 €** · **Business 399 €** · **Premium 699 €**.\n"
             "Назвіть нішу — підкажу пакет."
         ),
         "website": (

@@ -1,0 +1,154 @@
+{
+  "ok": true,
+  "passed": true,
+  "gate": "MEDIA_INTEGRITY",
+  "action": "PASS",
+  "checks": [
+    {
+      "id": "no_absolute_paths",
+      "slot": "all_refs",
+      "ok": true,
+      "detail": "relative_ok"
+    },
+    {
+      "id": "no_empty_img",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "id": "lazy_loading",
+      "slot": "lazy",
+      "ok": true,
+      "detail": "lazy_ok"
+    },
+    {
+      "id": "file:assets/motion_kit.css",
+      "slot": "other",
+      "ok": true,
+      "detail": "4047B"
+    },
+    {
+      "id": "file:assets/hero.jpg",
+      "slot": "hero",
+      "ok": true,
+      "detail": "1600x900:28823B"
+    },
+    {
+      "id": "file:assets/hero_pack/services.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1600x900:360142B"
+    },
+    {
+      "id": "file:assets/hero_pack/cta.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1600x900:360142B"
+    },
+    {
+      "id": "file:assets/background.jpg",
+      "slot": "background",
+      "ok": true,
+      "detail": "1920x1080:31983B"
+    },
+    {
+      "id": "file:assets/logo.png",
+      "slot": "logo",
+      "ok": true,
+      "detail": "640x640:589853B"
+    },
+    {
+      "id": "file:assets/gallery_1.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1200x800:21893B"
+    },
+    {
+      "id": "file:assets/gallery_2.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1200x800:23926B"
+    },
+    {
+      "id": "file:assets/gallery_3.jpg",
+      "slot": "gallery",
+      "ok": true,
+      "detail": "1200x800:24040B"
+    },
+    {
+      "id": "file:assets/reveal.js",
+      "slot": "other",
+      "ok": true,
+      "detail": "3016B"
+    },
+    {
+      "id": "file:assets/ux_polish.js",
+      "slot": "other",
+      "ok": true,
+      "detail": "960B"
+    },
+    {
+      "id": "hero_required",
+      "slot": "hero",
+      "ok": true,
+      "detail": "1600x900:28823B"
+    },
+    {
+      "id": "logo_required",
+      "slot": "logo",
+      "ok": true,
+      "detail": "640x640:589853B"
+    },
+    {
+      "id": "background_required",
+      "slot": "background",
+      "ok": true,
+      "detail": "1920x1080:31983B"
+    },
+    {
+      "id": "svg_icons",
+      "slot": "svg",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "id": "local_fonts",
+      "slot": "fonts",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "id": "favicon",
+      "slot": "favicon",
+      "ok": true,
+      "detail": "not_referenced"
+    }
+  ],
+  "referenced": [
+    "assets/motion_kit.css",
+    "assets/hero.jpg",
+    "assets/hero_pack/services.jpg",
+    "assets/hero_pack/cta.jpg",
+    "assets/background.jpg",
+    "assets/logo.png",
+    "assets/gallery_1.jpg",
+    "assets/gallery_2.jpg",
+    "assets/gallery_3.jpg",
+    "assets/reveal.js",
+    "assets/ux_polish.js"
+  ],
+  "missing": [],
+  "summary": {
+    "all_refs": "PASS",
+    "gallery": "PASS",
+    "lazy": "PASS",
+    "hero": "PASS",
+    "background": "PASS",
+    "logo": "PASS",
+    "svg": "PASS",
+    "fonts": "PASS",
+    "favicon": "PASS"
+  },
+  "manifest_path": "assets/asset_manifest.json"
+}

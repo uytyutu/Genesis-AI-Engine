@@ -1,0 +1,29 @@
+{
+  "business_name": "Wohnraum Furniture",
+  "niche_id": "realestate",
+  "package_id": "business",
+  "voice": "warm editorial — home story first",
+  "feeling": "trust and desire to stay",
+  "why_hero_exists": "The Hero exists to make 'Lived-In Room' felt in 3 seconds: Furniture that already belongs to a life.",
+  "color_feeling": "oak, linen, soft clay, muted green",
+  "type_voice": "warm editorial — home story first",
+  "scene_arc": "real rooms, soft daylight, human traces",
+  "avoid": [
+    "tech_saas",
+    "gaming",
+    "neon",
+    "warehouse_grid"
+  ],
+  "fingerprint": "df5372f4803eee18",
+  "brand_story": "Jonas built Wohnraum Furniture because they are specific — not interchangeable. Clients (30–50) should feel trust and desire to stay. Only then do we name the craft: realestate.",
+  "core_emotion": "trust and desire to stay",
+  "core_promise": "Furniture that already belongs to a life.",
+  "visual_metaphor": "an empty chair that still feels occupied",
+  "creative_theme": "Lived-In Room",
+  "creative_theme_id": "lived_in_room",
+  "scene_language": "real rooms, soft daylight, human traces",
+  "motion_language": "slow settle into space",
+  "interaction_style": "browse like walking through a home",
+  "photo_world": "morning living room, book on table, plant",
+  "founder_name": "Jonas"
+}

@@ -1,0 +1,27 @@
+﻿SHOWCASE_ROOT D:\Games\Genesis-AI-Engine\dashboard\backend\_research_3d\showcases exists True
+SHOWCASE_NICHES ['appliance', 'auto', 'beauty', 'computer', 'dental', 'energy', 'generic', 'green', 'handwerk', 'law', 'psychology']
+WEBSITE_CASES 24
+STORE_CASES 25
+WEB_FOLDERS ['dental', 'psychology', 'law', 'restaurant', 'beauty', 'auto', 'fitness', 'handwerk', 'dachreinigung', 'zaunbau', 'gartenpflege', 'it', 'realestate', 'energy', 'cleaning', 'orthodontics', 'auto_detailing', 'photography', 'it_support', 'elektro', 'sanitaer', 'maler', 'family_psychology', 'car_dealership']
+STORE_FOLDERS ['fashion', 'beauty', 'electronics', 'furniture', 'accessories', 'food', 'handwerk', 'dachreinigung', 'zaunbau', 'gartenpflege', 'psychology', 'sports', 'pets', 'coffee', 'jewelry', 'cleaning_shop', 'detailing_shop', 'ortho_care', 'bookstore', 'it_parts', 'solar_shop', 'auto_parts', 'paint_shop', 'wine_shop', 'optics_shop']
+{
+  "website_count": 24,
+  "store_count": 25,
+  "issues": [
+    "website niche 'restaurant' has no showcase dir (mapped=restaurant)",
+    "website niche 'fitness' has no showcase dir (mapped=fitness)",
+    "website niche 'realestate' has no showcase dir (mapped=realestate)",
+    "website niche 'cleaning' has no showcase dir (mapped=cleaning)",
+    "website niche 'orthodontics' has no showcase dir (mapped=orthodontics)",
+    "website niche 'auto_detailing' has no showcase dir (mapped=auto_detailing)",
+    "website niche 'photography' has no showcase dir (mapped=photography)",
+    "website niche 'it_support' has no showcase dir (mapped=it_support)",
+    "website niche 'elektro' has no showcase dir (mapped=elektro)",
+    "website niche 'sanitaer' has no showcase dir (mapped=sanitaer)",
+    "website niche 'maler' has no showcase dir (mapped=maler)",
+    "website niche 'family_psychology' has no showcase dir (mapped=family_psychology)",
+    "website niche 'car_dealership' has no showcase dir (mapped=car_dealership)"
+  ],
+  "empty_or_tiny_public_heroes": [],
+  "empty_count": 0
+}

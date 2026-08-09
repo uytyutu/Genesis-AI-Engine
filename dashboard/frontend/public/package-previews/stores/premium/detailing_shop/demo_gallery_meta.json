@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "detailing_shop",
+  "package_id": "premium",
+  "category": "auto_detailing",
+  "store_name": "MirrorCoat Care",
+  "generated_at": "2026-08-08T16:20:05.901307+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 43080,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/detailing_shop/catalog.html"
+}

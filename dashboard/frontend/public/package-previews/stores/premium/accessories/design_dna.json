@@ -1,0 +1,67 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "trust_panel",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "trust_cascade",
+  "package_id": "premium",
+  "niche_id": "fashion",
+  "fingerprint": "229c3e93e737f229aada42108333b58e1e67c8fe69ae724cdec434d0a4feb591",
+  "section_treatments": [
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "about",
+      "illustration"
+    ],
+    [
+      "reviews",
+      "tint"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "gallery",
+      "glass"
+    ],
+    [
+      "benefits",
+      "photo_band"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "faq",
+      "illustration"
+    ],
+    [
+      "maps",
+      "tint"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f7f4ef",
+  "ink_hex": "#1c1917",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "51b6954dd41195dfe2f2ea84",
+  "border_radius_px": 12
+}

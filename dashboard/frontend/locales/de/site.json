@@ -1154,9 +1154,15 @@
       "subtitle": "Demo-Projekte aus der AI Factory. Echte Kundenprojekte erscheinen später als «Zuletzt veröffentlicht».",
       "view": "Ansehen →",
       "dental": "Zahnarztpraxis",
+      "law": "Law office",
+      "restaurant": "Restaurant",
       "auto": "Handwerk / Auto",
       "beauty": "Beauty / Fashion",
-      "store": "AI Store Demo"
+      "fitness": "Fitness club",
+      "handwerk": "Handwerk",
+      "it": "IT company",
+      "store": "AI Store Demo",
+      "storeElectronics": "AI Store · Electronics"
     },
     "how": {
       "title": "So läuft die Arbeit",

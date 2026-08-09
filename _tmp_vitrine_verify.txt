@@ -1,0 +1,9 @@
+﻿premium sites 23
+['auto', 'auto_detailing', 'beauty', 'car_dealership', 'cleaning', 'dachreinigung', 'dental', 'elektro', 'energy', 'family_psychology', 'fitness', 'gartenpflege', 'handwerk', 'it_support', 'law', 'maler', 'orthodontics', 'photography', 'psychology', 'realestate', 'restaurant', 'sanitaer', 'zaunbau']
+premium stores 25
+['accessories', 'auto_parts', 'beauty', 'bookstore', 'cleaning_shop', 'coffee', 'dachreinigung', 'detailing_shop', 'electronics', 'fashion', 'food', 'furniture', 'gartenpflege', 'handwerk', 'it_parts', 'jewelry', 'optics_shop', 'ortho_care', 'paint_shop', 'pets', 'psychology', 'solar_shop', 'sports', 'wine_shop', 'zaunbau']
+tiny [] count 0
+missing_hero []
+3d_markers ['auto', 'auto_detailing', 'beauty', 'car_dealership', 'energy', 'family_psychology', 'sanitaer', 'auto_parts', 'beauty', 'detailing_shop', 'paint_shop', 'solar_shop']
+catalog keys ['name', 'generated_at', 'gallery_schema', 'tier_policy', 'websites_goal', 'stores_goal', 'websites_pass', 'stores_pass', 'tiers_synced', 'items']
+websites_pass 15 stores_pass 11

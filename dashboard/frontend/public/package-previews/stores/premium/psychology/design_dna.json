@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "editorial_calm",
+  "motion": "soft",
+  "hero_concept": "behagliches Therapiezimmer · Tageslicht · Sessel und Pflanze",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "timeline",
+  "package_id": "premium",
+  "niche_id": "psychology",
+  "fingerprint": "036fb9ef0fe281cb14a6c8dc611d0822096f8c22132450cece11cbc1e13c2aaa",
+  "section_treatments": [
+    [
+      "process",
+      "photo_band"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "gradient"
+    ],
+    [
+      "gallery",
+      "glass"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "benefits",
+      "tint"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "stats",
+      "ink"
+    ],
+    [
+      "faq",
+      "photo_band"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "maps",
+      "glass"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f0ece4",
+  "ink_hex": "#0b0d10",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "f8fedc6b71d6046272c56e3e",
+  "border_radius_px": 4
+}

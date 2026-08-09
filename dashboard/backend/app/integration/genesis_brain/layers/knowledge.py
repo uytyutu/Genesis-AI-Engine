@@ -85,7 +85,7 @@ class GenesisKnowledgeLayer:
             deliverables = p.get("deliverables") or []
             d = "; ".join(deliverables[:4]) if deliverables else ""
             pkg_lines.append(f"- {p['name']} ({p['id']}): {p['price_eur']} € — {d}")
-        packages_block = "\n".join(pkg_lines) if pkg_lines else "- Landing (basic): 350 € — онлайн-заказ"
+        packages_block = "\n".join(pkg_lines) if pkg_lines else "- Landing (basic): 199 € — онлайн-заказ"
 
         svp = self._pricing.get("service_vs_product") or {}
         anti = self._pricing.get("anti_cannibalization") or {}

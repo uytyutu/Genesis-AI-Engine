@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "auto_parts",
+  "package_id": "premium",
+  "category": "auto_parts",
+  "store_name": "TeilWerk Parts",
+  "generated_at": "2026-08-08T16:20:08.028247+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 42958,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/auto_parts/catalog.html"
+}

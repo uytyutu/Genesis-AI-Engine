@@ -1,0 +1,53 @@
+{
+  "niche_id": "dental",
+  "problem_before": "Zahnarztangst und unklare Kosten — Sie wollen wissen, was passiert.",
+  "story": "Zähne ohne Angst — und Kosten, die Sie vorher kennen.",
+  "emotion": "Ruhe im Behandlungsstuhl.",
+  "trust": "Aufklärung vor Behandlung. Moderne Praxis.",
+  "offer": "Prophylaxe bis Implantat — klar erklärt.",
+  "idea": "Präzision, die Ruhe gibt.",
+  "source": "premium_pack",
+  "stage_name": "First Impression Generation",
+  "arc": [
+    "story",
+    "emotion",
+    "trust",
+    "offer",
+    "cta"
+  ],
+  "rule": "Not a slogan. Not a section list. What does the client feel 10 seconds before they open this site?",
+  "three_second_test": {
+    "name": "3-SECOND TEST",
+    "instructions": "Open the site. Do not read the text. After 3 seconds answer:",
+    "questions": [
+      "What does the company do?",
+      "Can I trust it?",
+      "Does it look cheap or expensive?",
+      "Do I want to look further?",
+      "Does it look like a template?"
+    ],
+    "rule": "If any answer is negative or unclear → REBUILD."
+  },
+  "gate_report": {
+    "gate": "FIRST_IMPRESSION",
+    "stage": "First Impression Generation",
+    "ok": true,
+    "story": "Zähne ohne Angst — und Kosten, die Sie vorher kennen.",
+    "problem_before": "Zahnarztangst und unklare Kosten — Sie wollen wissen, was passiert.",
+    "package_id": "premium",
+    "source": "premium_pack",
+    "three_second_test": {
+      "name": "3-SECOND TEST",
+      "instructions": "Open the site. Do not read the text. After 3 seconds answer:",
+      "questions": [
+        "What does the company do?",
+        "Can I trust it?",
+        "Does it look cheap or expensive?",
+        "Do I want to look further?",
+        "Does it look like a template?"
+      ],
+      "rule": "If any answer is negative or unclear → REBUILD."
+    },
+    "question": "What problem does the client feel 10 seconds before opening this site?"
+  }
+}

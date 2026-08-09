@@ -1,0 +1,15 @@
+{
+  "brand_name": "Klarheit Digital",
+  "niche_id": "psychology",
+  "package_id": "premium",
+  "media_mode": "editorial_soft",
+  "visual_metaphor": "Still and safe",
+  "hero_concept": "Still and safe | Klarheit Digital",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "2de41d93c8be33c7ae97",
+  "image_prompt": "Klarheit Digital psychology brand hero, Still and safe, European studio, media_mode=editorial_soft, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

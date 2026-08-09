@@ -19,6 +19,7 @@ export function PublicSiteFooter() {
   const { t } = useTranslation("common");
   const mainLinks = [
     { href: "/trust", label: t("footer.about") },
+    { href: "/why", label: t("footer.why", { defaultValue: "Warum Virtus Core" }) },
     { href: "/datenschutz", label: t("footer.privacy") },
     { href: "/faq", label: t("footer.support") },
     { href: "/kontakt", label: t("footer.contact") },

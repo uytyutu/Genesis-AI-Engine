@@ -9,11 +9,14 @@
   <link rel="alternate" hreflang="de-DE" href="./">
   <link rel="alternate" hreflang="x-default" href="./">
   
-  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap">
+
   <style>
 
     :root {
-      --p: #334155; --pd: #0f172a; --acc: #38bdf8;
+      --p: #c2410c; --pd: #7c2d12; --acc: #fdba74;
       --ink: #0f172a; --muted: #64748b; --line: #e2e8f0; --surface: #f8fafc;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,7 +36,7 @@
     .topbar-links a { text-decoration: none; font-weight: 600; font-size: 0.9rem; }
     .hero {
       position: relative; color: #fff; text-align: center; overflow: hidden;
-      background: linear-gradient(135deg,#0f172a,#334155);
+      background: linear-gradient(155deg,#1c1917 0%,#7c2d12 48%,#c2410c 100%);
       background-size: cover; background-position: center;
     }
     .hero.has-photo {
@@ -215,51 +218,54 @@
     body[data-tier="basic"] .topbar a { color: var(--pd); }
 
 
-    /* Niche Design System: generic */
-    body[data-niche="generic"] {
-      --p: #334155;
-      --pd: #0f172a;
-      --acc: #38bdf8;
-      --ink: #0f172a;
-      --muted: #64748b;
-      --surface: #f8fafc;
-      --line: #e2e8f0;
-      --radius: 12px;
+    /* Design Engine · Niche Design System: restaurant */
+    body[data-niche="restaurant"] {
+      --p: #c2410c;
+      --pd: #7c2d12;
+      --acc: #fdba74;
+      --ink: #1c1917;
+      --muted: #78716c;
+      --surface: #faf6f1;
+      --line: #e7e0d5;
+      --radius: 10px;
       --btn-radius: 999px;
-      --card-radius: 12px;
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      --card-radius: 14px;
+      --font-body: "DM Sans", "Segoe UI", system-ui, sans-serif;
+      --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+      font-family: var(--font-body);
       color: var(--ink);
     }
-    body[data-niche="generic"] .hero h1,
-    body[data-niche="generic"] .section h2 {
-      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-      letter-spacing: -0.02em;
+    body[data-niche="restaurant"] .hero h1,
+    body[data-niche="restaurant"] .section h2,
+    body[data-niche="restaurant"] .mid-cta h2 {
+      font-family: var(--font-display);
+      letter-spacing: 0.01em;
     }
-    body[data-niche="generic"] .btn {
+    body[data-niche="restaurant"] .btn {
       border-radius: var(--btn-radius);
-      font-weight: 700;
+      font-weight: 600;
     }
-    body[data-niche="generic"] .service-card,
-    body[data-niche="generic"] .process-card,
-    body[data-niche="generic"] .faq-item,
-    body[data-niche="generic"] .client-photo,
-    body[data-niche="generic"] .product-card,
-    body[data-niche="generic"] .mid-cta {
+    body[data-niche="restaurant"] .service-card,
+    body[data-niche="restaurant"] .process-card,
+    body[data-niche="restaurant"] .faq-item,
+    body[data-niche="restaurant"] .client-photo,
+    body[data-niche="restaurant"] .product-card,
+    body[data-niche="restaurant"] .mid-cta {
       border-radius: var(--card-radius);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+      box-shadow: 0 18px 40px rgba(124,45,18,0.12);
     }
-    body[data-niche="generic"] .brand img,
-    body[data-niche="generic"] .brand .logo-fallback {
-      border-radius: 12px;
+    body[data-niche="restaurant"] .brand img,
+    body[data-niche="restaurant"] .brand .logo-fallback {
+      border-radius: 10px;
     }
-    body[data-niche="generic"] .trust-pill {
+    body[data-niche="restaurant"] .trust-pill {
       border-radius: var(--btn-radius);
     }
-    body[data-niche="generic"] input,
-    body[data-niche="generic"] textarea,
-    body[data-niche="generic"] select,
-    body[data-niche="generic"] .contact-form button {
-      border-radius: 12px;
+    body[data-niche="restaurant"] input,
+    body[data-niche="restaurant"] textarea,
+    body[data-niche="restaurant"] select,
+    body[data-niche="restaurant"] .contact-form button {
+      border-radius: 10px;
     }
 
 
@@ -485,7 +491,7 @@
     }
 
     /* Layout Variants R2.2f */
-    body[data-layout-profile="L3"] { --layout-cta: "late"; }
+    body[data-layout-profile="L5"] { --layout-cta: "early"; }
     .services-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.35rem; }
     .svc-row { border-bottom:1px solid rgba(15,23,42,.08); padding:0.85rem 0; }
     .svc-row h3 { margin:0 0 0.25rem; font-size:1.05rem; }
@@ -555,7 +561,7 @@
 
   </style>
 </head>
-<body id="top" data-tier="basic" data-brand="auto" data-niche="generic" data-hero-layout="C" data-comp-profile="A" data-layout-profile="L3" data-footer-variant="contact" data-cta-strategy="late" data-market="DE" data-density="compact" data-motion="none" data-trust-template="D" data-media-bg="1">
+<body id="top" data-tier="basic" data-brand="auto" data-niche="restaurant" data-hero-layout="C" data-comp-profile="A" data-layout-profile="L5" data-footer-variant="contact" data-cta-strategy="early" data-market="DE" data-density="compact" data-motion="none" data-trust-template="A" data-media-bg="1">
   <nav class="topbar" aria-label="Navigation">
     <div class="brand"><strong>Trattoria Luna</strong></div>
     <div class="topbar-links">
@@ -579,17 +585,33 @@
   </header>
 
 <div class="info-bar"><span><strong>Telefon</strong> +49 221 4445566</span><span><strong>Öffnungszeiten</strong> Di–So 11:30–14:00 · 17:30–22:00</span><span>Köln</span></div>
-<section class="section services-block" id="services" data-comp-family="cards" data-comp-variant="glass">
+<section class="section services-block" id="services" data-comp-family="cards" data-comp-variant="list">
     <h2>Leistungen</h2>
-    <ul class="services services-glass"><li class="svc-card svc-glass"><h3>Mittagstisch</h3><p class="service-desc">Saisonale Gerichte — klar kalkuliert und gut erklärt.</p></li><li class="svc-card svc-glass"><h3>Abendkarte</h3><p class="service-desc">Abendkarte mit Fokus auf Qualität statt Masse.</p></li><li class="svc-card svc-glass"><h3>Reservierung</h3><p class="service-desc">Private Feiern und Firmenevents nach Absprache.</p></li><li class="svc-card svc-glass"><h3>Events</h3><p class="service-desc">Abholung und Lieferung in der Nachbarschaft.</p></li></ul>
+    <ul class="services services-list"><li class="svc-row"><h3>Mittagstisch</h3><p class="service-desc">Saisonale Gerichte — klar kalkuliert und gut erklärt.</p></li><li class="svc-row"><h3>Abendkarte</h3><p class="service-desc">Abendkarte mit Fokus auf Qualität statt Masse.</p></li><li class="svc-row"><h3>Reservierung</h3><p class="service-desc">Private Feiern und Firmenevents nach Absprache.</p></li><li class="svc-row"><h3>Events</h3><p class="service-desc">Abholung und Lieferung in der Nachbarschaft.</p></li></ul>
+  </section>
+<section class="mid-cta mid-cta-glass" id="mid-cta" data-comp-family="cta" data-comp-variant="glass">
+    <div class="mid-cta-inner">
+      <h2>Bereit für den nächsten Schritt?</h2>
+      <a class="btn btn-pill" href="#contact">Jetzt anfragen</a>
+    </div>
   </section>
 <section class="section benefits" id="benefits" data-comp-family="benefits" data-comp-variant="circles">
     <h2>Warum Trattoria Luna</h2>
     <ul class="ben-circles"><li class="ben-circle"><span class="ben-dot" aria-hidden="true"></span><p>Frische Zutaten</p></li><li class="ben-circle"><span class="ben-dot" aria-hidden="true"></span><p>Reservierung mit Bestätigung</p></li><li class="ben-circle"><span class="ben-dot" aria-hidden="true"></span><p>Allergene klar</p></li></ul>
   </section>
-<section class="section trust-composer" id="trust" data-trust-template="D">
+<section class="section about">
+    <h2>Über uns</h2>
+    <p>Trattoria Luna — Mittagstisch, Abendkarte, Reservierung. Erreichbar für Anfragen und Termine.</p>
+  </section>
+<section class="section trust-composer" id="trust" data-trust-template="A">
     <h2>Vertrauen &amp; Qualität</h2>
     <div class="trust-stack">
+
+      <div class="trust-block" data-trust-block="credentials">
+        <h3>Unsere Zusagen</h3>
+        <div class="trust-chip-row"><span class="trust-chip">Köln</span><span class="trust-chip">Frische Zutaten</span><span class="trust-chip">Lokale Gäste</span></div>
+      </div>
+
 
       <div class="trust-block" data-trust-block="process">
 
@@ -602,22 +624,6 @@
 
       </div>
 
-
-      <div class="trust-block" data-trust-block="credentials">
-        <h3>Unsere Zusagen</h3>
-        <div class="trust-chip-row"><span class="trust-chip">Köln</span><span class="trust-chip">Frische Zutaten</span><span class="trust-chip">Lokale Gäste</span></div>
-      </div>
-
-    </div>
-  </section>
-<section class="section about">
-    <h2>Über uns</h2>
-    <p>Trattoria Luna — Mittagstisch, Abendkarte, Reservierung. Erreichbar für Anfragen und Termine.</p>
-  </section>
-<section class="late-cta mid-cta mid-cta-glass" id="late-cta" data-comp-family="cta" data-comp-variant="glass">
-    <div class="mid-cta-inner">
-      <h2>Bereit für den nächsten Schritt?</h2>
-      <a class="btn btn-pill" href="#contact">Jetzt anfragen</a>
     </div>
   </section>
 <section class="section" id="contact">

@@ -1,0 +1,4593 @@
+{
+  "autonomous": {
+    "ok": true,
+    "queued": true,
+    "autonomous": true,
+    "auto_submit": true
+  },
+  "funnel": {
+    "found": 51,
+    "analyzed": 51,
+    "high_confidence": 3,
+    "review_all_count": 5,
+    "confidence_bands": {
+      "80+": 5,
+      "60+": 40,
+      "40+": 49,
+      "20+": 51,
+      "all": 51
+    },
+    "analytics": {
+      "ok": true,
+      "pool_size": 51,
+      "languages": [
+        {
+          "name": "typescript",
+          "count": 13
+        },
+        {
+          "name": "(unspecified)",
+          "count": 9
+        },
+        {
+          "name": "python",
+          "count": 9
+        },
+        {
+          "name": "rust",
+          "count": 6
+        },
+        {
+          "name": "javascript",
+          "count": 6
+        },
+        {
+          "name": "java",
+          "count": 3
+        },
+        {
+          "name": "c++",
+          "count": 3
+        },
+        {
+          "name": "c",
+          "count": 3
+        },
+        {
+          "name": "php",
+          "count": 2
+        },
+        {
+          "name": "go",
+          "count": 2
+        },
+        {
+          "name": "mdx",
+          "count": 2
+        },
+        {
+          "name": "css",
+          "count": 2
+        },
+        {
+          "name": "makefile",
+          "count": 2
+        },
+        {
+          "name": "kotlin",
+          "count": 1
+        },
+        {
+          "name": "html",
+          "count": 1
+        },
+        {
+          "name": "glsl",
+          "count": 1
+        }
+      ],
+      "reject_reasons": [
+        {
+          "reason": "review_band",
+          "count": 18
+        },
+        {
+          "reason": "confidence_low",
+          "count": 11
+        },
+        {
+          "reason": "high_competition",
+          "count": 9
+        },
+        {
+          "reason": "large_feature_risk",
+          "count": 4
+        },
+        {
+          "reason": "reward_implies_large_scope",
+          "count": 3
+        }
+      ],
+      "potential_reward": {
+        "high": {
+          "label": "High confidence",
+          "usd": 6428.22,
+          "count": 36
+        },
+        "medium": {
+          "label": "Medium",
+          "usd": 1366064.0,
+          "count": 13
+        },
+        "low": {
+          "label": "Low",
+          "usd": 155460.0,
+          "count": 2
+        },
+        "total_usd": 1527952.22,
+        "note_ru": "Potential ≠ REAL. Это рынок в скане, не подтверждённый доход."
+      },
+      "capability_coverage": {
+        "rows": [
+          {
+            "capability": "typescript",
+            "demand": 13,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "python",
+            "demand": 9,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "rust",
+            "demand": 6,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "javascript",
+            "demand": 6,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "java",
+            "demand": 3,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "c++",
+            "demand": 3,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "c",
+            "demand": 3,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "php",
+            "demand": 2,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "go",
+            "demand": 2,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "mdx",
+            "demand": 2,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "css",
+            "demand": 2,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "makefile",
+            "demand": 2,
+            "covered": false,
+            "coverage_pct": 0,
+            "lost_bounties": 2
+          },
+          {
+            "capability": "kotlin",
+            "demand": 1,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "html",
+            "demand": 1,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "glsl",
+            "demand": 1,
+            "covered": false,
+            "coverage_pct": 0,
+            "lost_bounties": 1
+          }
+        ],
+        "coverage_pct": 95,
+        "supported": [
+          "bash",
+          "c",
+          "c#",
+          "c++",
+          "csharp",
+          "css",
+          "docker",
+          "fastapi",
+          "go",
+          "html",
+          "java",
+          "javascript",
+          "kotlin",
+          "markdown",
+          "mdx",
+          "next.js",
+          "nextjs",
+          "php",
+          "pytest",
+          "python",
+          "react",
+          "ruby",
+          "rust",
+          "shell",
+          "tailwind",
+          "typescript"
+        ],
+        "note_ru": "Какие bounty теряем из‑за пробелов в capability."
+      },
+      "top_roi": [
+        {
+          "title": "c1work",
+          "reward_usd": 1260948.0,
+          "estimated_minutes": 2880.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 26269.75
+        },
+        {
+          "title": "[BOUNTY] Kickama #304 - deterministic data seed ($50)",
+          "reward_usd": 100100.0,
+          "estimated_minutes": 2880.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 2085.42
+        },
+        {
+          "title": "[BOUNTY] RCS Support [14999$]",
+          "reward_usd": 152180.0,
+          "estimated_minutes": 5184.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 1761.34
+        },
+        {
+          "title": "[BUG] Internal Server Errors still shows success toast",
+          "reward_usd": 60.0,
+          "estimated_minutes": 36.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 100.0
+        },
+        {
+          "title": "Improve error when configured code coverage file list is empty",
+          "reward_usd": 50.0,
+          "estimated_minutes": 30.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 100.0
+        },
+        {
+          "title": "research implementation for Windows",
+          "reward_usd": 42.0,
+          "estimated_minutes": 30.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 84.0
+        },
+        {
+          "title": "Tray icon should have an orange dot indicator",
+          "reward_usd": 100.0,
+          "estimated_minutes": 72.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 83.33
+        },
+        {
+          "title": "Request to execute qtop across two HPC clusters and apply first step of differen",
+          "reward_usd": 117.0,
+          "estimated_minutes": 72.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 97.5
+        }
+      ],
+      "north_star_ru": "Цель Farm: первый подтверждённый payout — не новые фичи."
+    },
+    "ceo_approved": 506,
+    "executed": 506,
+    "execution_ready_for_submit": 0,
+    "execution_failed": 0,
+    "pr_submitted": 0,
+    "pr_merged_first_pass": 0,
+    "pr_changes_requested": 0,
+    "pr_merged": 0,
+    "paid": 0,
+    "total_confirmed_usd": 0,
+    "bottleneck_hint_ru": "Узкое место: Execution Engine — одобрено, выполнение ещё не доведена.",
+    "execution_in_flight": 2,
+    "pipeline_draft_pr": 0,
+    "pipeline_lifetime": {
+      "approved": 506,
+      "started": 506,
+      "draft_pr": 0,
+      "merged": 0,
+      "paid": 0,
+      "impossible": 0
+    }
+  },
+  "scan": {
+    "ok": true,
+    "candidates": [
+      {
+        "id": "opire:01J42C08V4J78ZAWH8JH2RQS8G",
+        "title": "research implementation for Windows",
+        "url": "https://github.com/radumarias/rencfs/issues/3",
+        "platform": "opire",
+        "repository": "radumarias/rencfs",
+        "issue_id": "3",
+        "issue_url": "https://github.com/radumarias/rencfs/issues/3",
+        "languages": [
+          "rust"
+        ],
+        "supported_languages": [
+          "rust"
+        ],
+        "task_type": "research",
+        "capability_auto": "✅",
+        "reward_usd": 42.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 42.0,
+        "bot_installed": false,
+        "competitors": 0,
+        "team_available": false,
+        "confidence_pct": 95.0,
+        "acceptance_pct": 77.0,
+        "overall_confidence_pct": 86.9,
+        "estimated_hours": 0.5,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 84.0,
+        "roi_effective_usd_per_hour": 73.0,
+        "roi_rank_score": 73.0,
+        "estimated_minutes": 30.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "low",
+        "required_capabilities": [
+          "rust"
+        ],
+        "tests_available": "unknown",
+        "risk": "low",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 86.9,
+        "acceptance_probability_pct": 77.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/radumarias/rencfs/issues/3",
+          "repository": "https://github.com/radumarias/rencfs",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #3",
+          "new_pr_hint": "https://github.com/radumarias/rencfs/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01J42C08V4J78ZAWH8JH2RQS8G",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": true
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": true
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "overall_success_probability_pct": 86.9,
+        "preflight": {
+          "ok": true,
+          "verdict": "GO",
+          "go": true,
+          "approve_allowed": true,
+          "auto_execute_allowed": true,
+          "action": "GO — Pre-flight passed",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "rust",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: research",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~0.5h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": true,
+              "critical": false,
+              "detail": "competitors=0",
+              "mark": "✅"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 80%",
+              "ok": true,
+              "critical": false,
+              "detail": "87%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "research",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "research",
+            "label": "Research",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 80.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": true
+      },
+      {
+        "id": "opire:01K6K4YTSWT7XF53GM3KCTBG7S",
+        "title": "Tray icon should have an orange dot indicator",
+        "url": "https://github.com/aueangpanit/electron-template/issues/1",
+        "platform": "opire",
+        "repository": "aueangpanit/electron-template",
+        "issue_id": "1",
+        "issue_url": "https://github.com/aueangpanit/electron-template/issues/1",
+        "languages": [
+          "typescript"
+        ],
+        "supported_languages": [
+          "typescript"
+        ],
+        "task_type": "frontend",
+        "capability_auto": "✅",
+        "reward_usd": 100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100.0,
+        "bot_installed": false,
+        "competitors": 2,
+        "team_available": false,
+        "confidence_pct": 97.0,
+        "acceptance_pct": 73.0,
+        "overall_confidence_pct": 86.2,
+        "estimated_hours": 1.2,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 83.33,
+        "roi_effective_usd_per_hour": 71.83,
+        "roi_rank_score": 71.83,
+        "estimated_minutes": 72.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "low",
+        "required_capabilities": [
+          "typescript"
+        ],
+        "tests_available": "unknown",
+        "risk": "low",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 86.2,
+        "acceptance_probability_pct": 73.0,
+        "issue_analysis": {
+          "signals": [
+            "has_acceptance_criteria"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Есть критерии приёмки в описании."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/aueangpanit/electron-template/issues/1",
+          "repository": "https://github.com/aueangpanit/electron-template",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #1",
+          "new_pr_hint": "https://github.com/aueangpanit/electron-template/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01K6K4YTSWT7XF53GM3KCTBG7S",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": true
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": true
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "overall_success_probability_pct": 86.2,
+        "preflight": {
+          "ok": true,
+          "verdict": "GO",
+          "go": true,
+          "approve_allowed": true,
+          "auto_execute_allowed": true,
+          "action": "GO — Pre-flight passed",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "typescript",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: frontend",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~1.2h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": true,
+              "critical": false,
+              "detail": "competitors=2",
+              "mark": "✅"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 80%",
+              "ok": true,
+              "critical": false,
+              "detail": "86%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "frontend",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "frontend",
+            "label": "Frontend (HTML/CSS/React)",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 80.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": true
+      },
+      {
+        "id": "opire:01K9AEB05K6XCMKMAVNB0P0FQ8",
+        "title": "Image resize",
+        "url": "https://github.com/ArcaneCircle/pixelsocial/issues/3",
+        "platform": "opire",
+        "repository": "ArcaneCircle/pixelsocial",
+        "issue_id": "3",
+        "issue_url": "https://github.com/ArcaneCircle/pixelsocial/issues/3",
+        "languages": [
+          "javascript"
+        ],
+        "supported_languages": [
+          "javascript"
+        ],
+        "task_type": "frontend",
+        "capability_auto": "✅",
+        "reward_usd": 70.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 70.0,
+        "bot_installed": false,
+        "competitors": 2,
+        "team_available": false,
+        "confidence_pct": 93.0,
+        "acceptance_pct": 69.0,
+        "overall_confidence_pct": 82.2,
+        "estimated_hours": 0.9,
+        "roi_stars": 4,
+        "roi_label": "⭐⭐⭐⭐",
+        "roi_usd_per_hour": 77.78,
+        "roi_effective_usd_per_hour": 63.94,
+        "roi_rank_score": 63.94,
+        "estimated_minutes": 54.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "javascript"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 82.2,
+        "acceptance_probability_pct": 69.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/ArcaneCircle/pixelsocial/issues/3",
+          "repository": "https://github.com/ArcaneCircle/pixelsocial",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #3",
+          "new_pr_hint": "https://github.com/ArcaneCircle/pixelsocial/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01K9AEB05K6XCMKMAVNB0P0FQ8",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": true
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": true
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "overall_success_probability_pct": 82.2,
+        "preflight": {
+          "ok": true,
+          "verdict": "GO",
+          "go": true,
+          "approve_allowed": true,
+          "auto_execute_allowed": true,
+          "action": "GO — Pre-flight passed",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "javascript",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: frontend",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~0.9h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": true,
+              "critical": false,
+              "detail": "competitors=2",
+              "mark": "✅"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 80%",
+              "ok": true,
+              "critical": false,
+              "detail": "82%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "frontend",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "frontend",
+            "label": "Frontend (HTML/CSS/React)",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 80.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": true
+      }
+    ],
+    "candidates_take_all": [
+      {
+        "id": "opire:01J42C08V4J78ZAWH8JH2RQS8G",
+        "title": "research implementation for Windows",
+        "url": "https://github.com/radumarias/rencfs/issues/3",
+        "platform": "opire",
+        "repository": "radumarias/rencfs",
+        "issue_id": "3",
+        "issue_url": "https://github.com/radumarias/rencfs/issues/3",
+        "languages": [
+          "rust"
+        ],
+        "supported_languages": [
+          "rust"
+        ],
+        "task_type": "research",
+        "capability_auto": "✅",
+        "reward_usd": 42.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 42.0,
+        "bot_installed": false,
+        "competitors": 0,
+        "team_available": false,
+        "confidence_pct": 95.0,
+        "acceptance_pct": 77.0,
+        "overall_confidence_pct": 86.9,
+        "estimated_hours": 0.5,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 84.0,
+        "roi_effective_usd_per_hour": 73.0,
+        "roi_rank_score": 73.0,
+        "estimated_minutes": 30.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "low",
+        "required_capabilities": [
+          "rust"
+        ],
+        "tests_available": "unknown",
+        "risk": "low",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 86.9,
+        "acceptance_probability_pct": 77.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/radumarias/rencfs/issues/3",
+          "repository": "https://github.com/radumarias/rencfs",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #3",
+          "new_pr_hint": "https://github.com/radumarias/rencfs/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01J42C08V4J78ZAWH8JH2RQS8G",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": true
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": true
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "overall_success_probability_pct": 86.9,
+        "preflight": {
+          "ok": true,
+          "verdict": "GO",
+          "go": true,
+          "approve_allowed": true,
+          "auto_execute_allowed": true,
+          "action": "GO — Pre-flight passed",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "rust",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: research",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~0.5h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": true,
+              "critical": false,
+              "detail": "competitors=0",
+              "mark": "✅"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 80%",
+              "ok": true,
+              "critical": false,
+              "detail": "87%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "research",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "research",
+            "label": "Research",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 80.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": true
+      },
+      {
+        "id": "opire:01K6K4YTSWT7XF53GM3KCTBG7S",
+        "title": "Tray icon should have an orange dot indicator",
+        "url": "https://github.com/aueangpanit/electron-template/issues/1",
+        "platform": "opire",
+        "repository": "aueangpanit/electron-template",
+        "issue_id": "1",
+        "issue_url": "https://github.com/aueangpanit/electron-template/issues/1",
+        "languages": [
+          "typescript"
+        ],
+        "supported_languages": [
+          "typescript"
+        ],
+        "task_type": "frontend",
+        "capability_auto": "✅",
+        "reward_usd": 100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100.0,
+        "bot_installed": false,
+        "competitors": 2,
+        "team_available": false,
+        "confidence_pct": 97.0,
+        "acceptance_pct": 73.0,
+        "overall_confidence_pct": 86.2,
+        "estimated_hours": 1.2,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 83.33,
+        "roi_effective_usd_per_hour": 71.83,
+        "roi_rank_score": 71.83,
+        "estimated_minutes": 72.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "low",
+        "required_capabilities": [
+          "typescript"
+        ],
+        "tests_available": "unknown",
+        "risk": "low",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 86.2,
+        "acceptance_probability_pct": 73.0,
+        "issue_analysis": {
+          "signals": [
+            "has_acceptance_criteria"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Есть критерии приёмки в описании."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/aueangpanit/electron-template/issues/1",
+          "repository": "https://github.com/aueangpanit/electron-template",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #1",
+          "new_pr_hint": "https://github.com/aueangpanit/electron-template/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01K6K4YTSWT7XF53GM3KCTBG7S",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": true
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": true
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "overall_success_probability_pct": 86.2,
+        "preflight": {
+          "ok": true,
+          "verdict": "GO",
+          "go": true,
+          "approve_allowed": true,
+          "auto_execute_allowed": true,
+          "action": "GO — Pre-flight passed",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "typescript",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: frontend",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~1.2h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": true,
+              "critical": false,
+              "detail": "competitors=2",
+              "mark": "✅"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 80%",
+              "ok": true,
+              "critical": false,
+              "detail": "86%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "frontend",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "frontend",
+            "label": "Frontend (HTML/CSS/React)",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 80.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": true
+      },
+      {
+        "id": "opire:01K9AEB05K6XCMKMAVNB0P0FQ8",
+        "title": "Image resize",
+        "url": "https://github.com/ArcaneCircle/pixelsocial/issues/3",
+        "platform": "opire",
+        "repository": "ArcaneCircle/pixelsocial",
+        "issue_id": "3",
+        "issue_url": "https://github.com/ArcaneCircle/pixelsocial/issues/3",
+        "languages": [
+          "javascript"
+        ],
+        "supported_languages": [
+          "javascript"
+        ],
+        "task_type": "frontend",
+        "capability_auto": "✅",
+        "reward_usd": 70.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 70.0,
+        "bot_installed": false,
+        "competitors": 2,
+        "team_available": false,
+        "confidence_pct": 93.0,
+        "acceptance_pct": 69.0,
+        "overall_confidence_pct": 82.2,
+        "estimated_hours": 0.9,
+        "roi_stars": 4,
+        "roi_label": "⭐⭐⭐⭐",
+        "roi_usd_per_hour": 77.78,
+        "roi_effective_usd_per_hour": 63.94,
+        "roi_rank_score": 63.94,
+        "estimated_minutes": 54.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "javascript"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 82.2,
+        "acceptance_probability_pct": 69.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/ArcaneCircle/pixelsocial/issues/3",
+          "repository": "https://github.com/ArcaneCircle/pixelsocial",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #3",
+          "new_pr_hint": "https://github.com/ArcaneCircle/pixelsocial/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01K9AEB05K6XCMKMAVNB0P0FQ8",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": true
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": true
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "overall_success_probability_pct": 82.2,
+        "preflight": {
+          "ok": true,
+          "verdict": "GO",
+          "go": true,
+          "approve_allowed": true,
+          "auto_execute_allowed": true,
+          "action": "GO — Pre-flight passed",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "javascript",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: frontend",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~0.9h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": true,
+              "critical": false,
+              "detail": "competitors=2",
+              "mark": "✅"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 80%",
+              "ok": true,
+              "critical": false,
+              "detail": "82%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "frontend",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "frontend",
+            "label": "Frontend (HTML/CSS/React)",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 80.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": true
+      },
+      {
+        "id": "opire:01KPXQ3E5HG0S4MDWQ33Q63KMS",
+        "title": "macOS: dialog.showOpenDialog fails to show custom macOS packages (LSTypeIsPackage) when filtered by extension in Electron 36.2.0+ (worked in 35.7.5; 36.0.0 showed all files)",
+        "url": "https://github.com/electron/electron/issues/48191",
+        "platform": "opire",
+        "repository": "electron/electron",
+        "issue_id": "48191",
+        "issue_url": "https://github.com/electron/electron/issues/48191",
+        "languages": [
+          "c++"
+        ],
+        "supported_languages": [
+          "c++"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100.0,
+        "bot_installed": false,
+        "competitors": 1,
+        "team_available": false,
+        "confidence_pct": 87.0,
+        "acceptance_pct": 69.0,
+        "overall_confidence_pct": 78.9,
+        "estimated_hours": 1.2,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 83.33,
+        "roi_effective_usd_per_hour": 65.75,
+        "roi_rank_score": 65.75,
+        "estimated_minutes": 72.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "c++"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 78.9,
+        "acceptance_probability_pct": 69.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/electron/electron/issues/48191",
+          "repository": "https://github.com/electron/electron",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #48191",
+          "new_pr_hint": "https://github.com/electron/electron/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KPXQ3E5HG0S4MDWQ33Q63KMS",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": true
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": false
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "preflight": {
+          "ok": true,
+          "verdict": "GO",
+          "go": true,
+          "approve_allowed": true,
+          "auto_execute_allowed": true,
+          "action": "GO — Pre-flight passed",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "c++",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: bug_fix",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~1.2h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": true,
+              "critical": false,
+              "detail": "competitors=1",
+              "mark": "✅"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 72%",
+              "ok": true,
+              "critical": false,
+              "detail": "79%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "bug_fix",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "bug_fix",
+            "label": "Bug Fix",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 72.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": false
+      },
+      {
+        "id": "opire:01KPXP82M5RJ9B8ENA8M3DFDRY",
+        "title": "[BOUNTY] WearOS Support [$1340]",
+        "url": "https://github.com/microg/GmsCore/issues/2843",
+        "platform": "opire",
+        "repository": "microg/GmsCore",
+        "issue_id": "2843",
+        "issue_url": "https://github.com/microg/GmsCore/issues/2843",
+        "languages": [
+          "java"
+        ],
+        "supported_languages": [
+          "java"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 50.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 50.0,
+        "bot_installed": false,
+        "competitors": 2,
+        "team_available": false,
+        "confidence_pct": 87.0,
+        "acceptance_pct": 69.0,
+        "overall_confidence_pct": 78.9,
+        "estimated_hours": 0.6,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 83.33,
+        "roi_effective_usd_per_hour": 65.75,
+        "roi_rank_score": 65.75,
+        "estimated_minutes": 36.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "java"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 78.9,
+        "acceptance_probability_pct": 69.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/microg/GmsCore/issues/2843",
+          "repository": "https://github.com/microg/GmsCore",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #2843",
+          "new_pr_hint": "https://github.com/microg/GmsCore/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KPXP82M5RJ9B8ENA8M3DFDRY",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": true
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": false
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "preflight": {
+          "ok": true,
+          "verdict": "GO",
+          "go": true,
+          "approve_allowed": true,
+          "auto_execute_allowed": true,
+          "action": "GO — Pre-flight passed",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "java",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: bug_fix",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~0.6h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": true,
+              "critical": false,
+              "detail": "competitors=2",
+              "mark": "✅"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 72%",
+              "ok": true,
+              "critical": false,
+              "detail": "79%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "bug_fix",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "bug_fix",
+            "label": "Bug Fix",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 72.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": false
+      },
+      {
+        "id": "opire:01JARC75G44M6EQCJCR1DTBHD6",
+        "title": "[BUG] Internal Server Errors still shows success toast",
+        "url": "https://github.com/formbricks/formbricks/issues/3302",
+        "platform": "opire",
+        "repository": "formbricks/formbricks",
+        "issue_id": "3302",
+        "issue_url": "https://github.com/formbricks/formbricks/issues/3302",
+        "languages": [
+          "typescript"
+        ],
+        "supported_languages": [
+          "typescript"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 60.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 60.0,
+        "bot_installed": false,
+        "competitors": 3,
+        "team_available": false,
+        "confidence_pct": 91.0,
+        "acceptance_pct": 63.0,
+        "overall_confidence_pct": 78.4,
+        "estimated_hours": 0.6,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 100.0,
+        "roi_effective_usd_per_hour": 78.4,
+        "roi_rank_score": 78.4,
+        "estimated_minutes": 36.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "typescript"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 78.4,
+        "acceptance_probability_pct": 63.0,
+        "issue_analysis": {
+          "signals": [
+            "bugfix"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/formbricks/formbricks/issues/3302",
+          "repository": "https://github.com/formbricks/formbricks",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #3302",
+          "new_pr_hint": "https://github.com/formbricks/formbricks/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01JARC75G44M6EQCJCR1DTBHD6",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": false
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": false
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "preflight": {
+          "ok": true,
+          "verdict": "REVIEW",
+          "go": false,
+          "approve_allowed": true,
+          "auto_execute_allowed": false,
+          "action": "REVIEW — low_competition",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "typescript",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: bug_fix",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~0.6h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": false,
+              "critical": false,
+              "detail": "competitors=3",
+              "mark": "⚠"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 72%",
+              "ok": true,
+              "critical": false,
+              "detail": "78%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "bug_fix",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "bug_fix",
+            "label": "Bug Fix",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 72.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": false
+      },
+      {
+        "id": "opire:01HWX4P9F1935V3ZXN4TY7VDEQ",
+        "title": "Improve error when configured code coverage file list is empty",
+        "url": "https://github.com/sebastianbergmann/phpunit/issues/4440",
+        "platform": "opire",
+        "repository": "sebastianbergmann/phpunit",
+        "issue_id": "4440",
+        "issue_url": "https://github.com/sebastianbergmann/phpunit/issues/4440",
+        "languages": [
+          "php"
+        ],
+        "supported_languages": [
+          "php"
+        ],
+        "task_type": "unit_tests",
+        "capability_auto": "✅",
+        "reward_usd": 50.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 50.0,
+        "bot_installed": false,
+        "competitors": 3,
+        "team_available": false,
+        "confidence_pct": 85.0,
+        "acceptance_pct": 63.0,
+        "overall_confidence_pct": 75.1,
+        "estimated_hours": 0.5,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 100.0,
+        "roi_effective_usd_per_hour": 75.1,
+        "roi_rank_score": 75.1,
+        "estimated_minutes": 30.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "php"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 75.1,
+        "acceptance_probability_pct": 63.0,
+        "issue_analysis": {
+          "signals": [
+            "bugfix"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/sebastianbergmann/phpunit/issues/4440",
+          "repository": "https://github.com/sebastianbergmann/phpunit",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #4440",
+          "new_pr_hint": "https://github.com/sebastianbergmann/phpunit/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01HWX4P9F1935V3ZXN4TY7VDEQ",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": false
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": false
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "preflight": {
+          "ok": true,
+          "verdict": "REVIEW",
+          "go": false,
+          "approve_allowed": true,
+          "auto_execute_allowed": false,
+          "action": "REVIEW — low_competition",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "php",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: unit_tests",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~0.5h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": false,
+              "critical": false,
+              "detail": "competitors=3",
+              "mark": "⚠"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 72%",
+              "ok": true,
+              "critical": false,
+              "detail": "75%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "unit_tests",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "unit_tests",
+            "label": "Unit Tests",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 72.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": false
+      },
+      {
+        "id": "opire:01KEWXJ6FH5C2Z7XZVSG7TACJE",
+        "title": "Request to execute qtop across two HPC clusters and apply first step of differential debugging",
+        "url": "https://github.com/qtop/qtop/issues/337",
+        "platform": "opire",
+        "repository": "qtop/qtop",
+        "issue_id": "337",
+        "issue_url": "https://github.com/qtop/qtop/issues/337",
+        "languages": [
+          "python"
+        ],
+        "supported_languages": [
+          "python"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 117.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 117.0,
+        "bot_installed": false,
+        "competitors": 6,
+        "team_available": false,
+        "confidence_pct": 85.0,
+        "acceptance_pct": 59.0,
+        "overall_confidence_pct": 73.3,
+        "estimated_hours": 1.2,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 97.5,
+        "roi_effective_usd_per_hour": 71.47,
+        "roi_rank_score": 71.47,
+        "estimated_minutes": 72.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "python"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 73.3,
+        "acceptance_probability_pct": 59.0,
+        "issue_analysis": {
+          "signals": [
+            "bugfix"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/qtop/qtop/issues/337",
+          "repository": "https://github.com/qtop/qtop",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #337",
+          "new_pr_hint": "https://github.com/qtop/qtop/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KEWXJ6FH5C2Z7XZVSG7TACJE",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take",
+        "success_checklist": [
+          {
+            "id": "repo_alive",
+            "label": "Repository alive",
+            "ok": true
+          },
+          {
+            "id": "language",
+            "label": "Language supported",
+            "ok": true
+          },
+          {
+            "id": "tests",
+            "label": "Tests available",
+            "ok": false
+          },
+          {
+            "id": "small_scope",
+            "label": "Small scope",
+            "ok": true
+          },
+          {
+            "id": "low_competition",
+            "label": "Low competition",
+            "ok": false
+          },
+          {
+            "id": "capability",
+            "label": "High capability match",
+            "ok": false
+          },
+          {
+            "id": "roi",
+            "label": "Good ROI",
+            "ok": true
+          }
+        ],
+        "preflight": {
+          "ok": true,
+          "verdict": "REVIEW",
+          "go": false,
+          "approve_allowed": true,
+          "auto_execute_allowed": false,
+          "action": "REVIEW — low_competition",
+          "checks": [
+            {
+              "id": "repo_alive",
+              "label": "Repository доступен",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "issue_open",
+              "label": "Issue открыта / URL есть",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "no_forbidden",
+              "label": "Нет forbidden / ToS evasion",
+              "ok": true,
+              "critical": true,
+              "detail": "",
+              "mark": "✅"
+            },
+            {
+              "id": "language",
+              "label": "Language / capability supported",
+              "ok": true,
+              "critical": true,
+              "detail": "python",
+              "mark": "✅"
+            },
+            {
+              "id": "task_type",
+              "label": "Task type: bug_fix",
+              "ok": true,
+              "critical": false,
+              "detail": "Автоматически",
+              "mark": "✅"
+            },
+            {
+              "id": "small_patch",
+              "label": "Estimated patch small",
+              "ok": true,
+              "critical": false,
+              "detail": "~1.2h",
+              "mark": "✅"
+            },
+            {
+              "id": "low_competition",
+              "label": "Нет высокой конкуренции",
+              "ok": false,
+              "critical": false,
+              "detail": "competitors=6",
+              "mark": "⚠"
+            },
+            {
+              "id": "confidence",
+              "label": "Confidence ≥ 72%",
+              "ok": true,
+              "critical": false,
+              "detail": "73%",
+              "mark": "✅"
+            },
+            {
+              "id": "no_conflicting_pr",
+              "label": "Нет конкурирующего PR",
+              "ok": true,
+              "critical": false,
+              "detail": "probe on Approve",
+              "mark": "✅"
+            }
+          ],
+          "task_type": "bug_fix",
+          "capability": {
+            "ok": true,
+            "severity": "✅",
+            "task_type": "bug_fix",
+            "label": "Bug Fix",
+            "note_ru": "Автоматически"
+          },
+          "min_confidence": 72.0,
+          "note_ru": "Pre-flight до Approve: GO → можно Execution; SKIP → Approve запрещён; REVIEW → только ручной риск CEO."
+        },
+        "money_mode_eligible": false
+      }
+    ],
+    "scanned": 51,
+    "filtered_out": 0,
+    "threshold": 80.0,
+    "review_all": [
+      {
+        "id": "opire:01KSXXX60RR76RSSXZXD0F4AGF",
+        "title": "c1work",
+        "url": "https://github.com/rodrigompy/bugb/issues/1",
+        "platform": "opire",
+        "repository": "rodrigompy/bugb",
+        "issue_id": "1",
+        "issue_url": "https://github.com/rodrigompy/bugb/issues/1",
+        "languages": [],
+        "supported_languages": [],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 1260948.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 1260948.0,
+        "bot_installed": false,
+        "competitors": 0,
+        "team_available": false,
+        "confidence_pct": 39.0,
+        "acceptance_pct": 62.0,
+        "overall_confidence_pct": 49.4,
+        "estimated_hours": 48.0,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 26269.75,
+        "roi_effective_usd_per_hour": 12977.26,
+        "roi_rank_score": 12977.26,
+        "estimated_minutes": 2880.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "high",
+        "required_capabilities": [
+          "manual_review"
+        ],
+        "tests_available": "unknown",
+        "risk": "high",
+        "recommendation": "SKIP",
+        "blockers": [
+          "reward_implies_large_scope"
+        ],
+        "success_probability_pct": 49.4,
+        "acceptance_probability_pct": 62.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/rodrigompy/bugb/issues/1",
+          "repository": "https://github.com/rodrigompy/bugb",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #1",
+          "new_pr_hint": "https://github.com/rodrigompy/bugb/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KSXXX60RR76RSSXZXD0F4AGF",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [
+          "reward_implies_large_scope",
+          "below_threshold_60"
+        ],
+        "band": "review"
+      },
+      {
+        "id": "opire:01KWQ0VT1N2TKGCY1CK9T61C1Z",
+        "title": "[BOUNTY] Kickama #304 - deterministic data seed ($50)",
+        "url": "https://github.com/lb1192176991-lab/zeroeye/issues/2",
+        "platform": "opire",
+        "repository": "lb1192176991-lab/zeroeye",
+        "issue_id": "2",
+        "issue_url": "https://github.com/lb1192176991-lab/zeroeye/issues/2",
+        "languages": [
+          "typescript",
+          "rust",
+          "python"
+        ],
+        "supported_languages": [
+          "python",
+          "rust",
+          "typescript"
+        ],
+        "task_type": "frontend",
+        "capability_auto": "✅",
+        "reward_usd": 100100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100100.0,
+        "bot_installed": true,
+        "competitors": 9,
+        "team_available": false,
+        "confidence_pct": 53.0,
+        "acceptance_pct": 61.0,
+        "overall_confidence_pct": 56.6,
+        "estimated_hours": 48.0,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 2085.42,
+        "roi_effective_usd_per_hour": 1180.35,
+        "roi_rank_score": 1180.35,
+        "estimated_minutes": 2880.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "high",
+        "required_capabilities": [
+          "python",
+          "rust",
+          "typescript"
+        ],
+        "tests_available": "unknown",
+        "risk": "high",
+        "recommendation": "SKIP",
+        "blockers": [
+          "reward_implies_large_scope"
+        ],
+        "success_probability_pct": 56.6,
+        "acceptance_probability_pct": 61.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/lb1192176991-lab/zeroeye/issues/2",
+          "repository": "https://github.com/lb1192176991-lab/zeroeye",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #2",
+          "new_pr_hint": "https://github.com/lb1192176991-lab/zeroeye/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KWQ0VT1N2TKGCY1CK9T61C1Z",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [
+          "reward_implies_large_scope",
+          "below_threshold_60"
+        ],
+        "band": "review"
+      },
+      {
+        "id": "opire:01KPXMGCQ9ZBFBJV1E6RXM7W58",
+        "title": "[BOUNTY] RCS Support [14999$]",
+        "url": "https://github.com/microg/GmsCore/issues/2994",
+        "platform": "opire",
+        "repository": "microg/GmsCore",
+        "issue_id": "2994",
+        "issue_url": "https://github.com/microg/GmsCore/issues/2994",
+        "languages": [
+          "java"
+        ],
+        "supported_languages": [
+          "java"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 152180.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 152180.0,
+        "bot_installed": false,
+        "competitors": 4,
+        "team_available": false,
+        "confidence_pct": 29.0,
+        "acceptance_pct": 45.0,
+        "overall_confidence_pct": 36.2,
+        "estimated_hours": 86.4,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 1761.34,
+        "roi_effective_usd_per_hour": 637.61,
+        "roi_rank_score": 637.61,
+        "estimated_minutes": 5184.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "high",
+        "required_capabilities": [
+          "java"
+        ],
+        "tests_available": "unknown",
+        "risk": "high",
+        "recommendation": "SKIP",
+        "blockers": [
+          "large_feature_risk",
+          "reward_implies_large_scope"
+        ],
+        "success_probability_pct": 36.2,
+        "acceptance_probability_pct": 45.0,
+        "issue_analysis": {
+          "signals": [
+            "large_feature"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/microg/GmsCore/issues/2994",
+          "repository": "https://github.com/microg/GmsCore",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #2994",
+          "new_pr_hint": "https://github.com/microg/GmsCore/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KPXMGCQ9ZBFBJV1E6RXM7W58",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [
+          "large_feature_risk",
+          "reward_implies_large_scope",
+          "below_threshold_60"
+        ],
+        "band": "skip"
+      },
+      {
+        "id": "opire:01K6K4YTSWT7XF53GM3KCTBG7S",
+        "title": "Tray icon should have an orange dot indicator",
+        "url": "https://github.com/aueangpanit/electron-template/issues/1",
+        "platform": "opire",
+        "repository": "aueangpanit/electron-template",
+        "issue_id": "1",
+        "issue_url": "https://github.com/aueangpanit/electron-template/issues/1",
+        "languages": [
+          "typescript"
+        ],
+        "supported_languages": [
+          "typescript"
+        ],
+        "task_type": "frontend",
+        "capability_auto": "✅",
+        "reward_usd": 100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100.0,
+        "bot_installed": false,
+        "competitors": 2,
+        "team_available": false,
+        "confidence_pct": 97.0,
+        "acceptance_pct": 73.0,
+        "overall_confidence_pct": 86.2,
+        "estimated_hours": 1.2,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 83.33,
+        "roi_effective_usd_per_hour": 71.83,
+        "roi_rank_score": 71.83,
+        "estimated_minutes": 72.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "low",
+        "required_capabilities": [
+          "typescript"
+        ],
+        "tests_available": "unknown",
+        "risk": "low",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 86.2,
+        "acceptance_probability_pct": 73.0,
+        "issue_analysis": {
+          "signals": [
+            "has_acceptance_criteria"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Есть критерии приёмки в описании."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/aueangpanit/electron-template/issues/1",
+          "repository": "https://github.com/aueangpanit/electron-template",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #1",
+          "new_pr_hint": "https://github.com/aueangpanit/electron-template/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01K6K4YTSWT7XF53GM3KCTBG7S",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take"
+      },
+      {
+        "id": "opire:01HW8CK374Y67WDDZG22BYVZQ4",
+        "title": "500 Server Error - Auto Solve hcapcha",
+        "url": "https://github.com/flowese/UdioWrapper/issues/7",
+        "platform": "opire",
+        "repository": "flowese/UdioWrapper",
+        "issue_id": "7",
+        "issue_url": "https://github.com/flowese/UdioWrapper/issues/7",
+        "languages": [
+          "python"
+        ],
+        "supported_languages": [
+          "python"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100.0,
+        "bot_installed": true,
+        "competitors": 21,
+        "team_available": false,
+        "confidence_pct": 85.0,
+        "acceptance_pct": 59.0,
+        "overall_confidence_pct": 73.3,
+        "estimated_hours": 1.1,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 90.91,
+        "roi_effective_usd_per_hour": 66.64,
+        "roi_rank_score": 66.64,
+        "estimated_minutes": 66.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "python"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "SKIP",
+        "blockers": [
+          "high_competition"
+        ],
+        "success_probability_pct": 73.3,
+        "acceptance_probability_pct": 59.0,
+        "issue_analysis": {
+          "signals": [
+            "bugfix"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/flowese/UdioWrapper/issues/7",
+          "repository": "https://github.com/flowese/UdioWrapper",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #7",
+          "new_pr_hint": "https://github.com/flowese/UdioWrapper/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01HW8CK374Y67WDDZG22BYVZQ4",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [
+          "high_competition"
+        ],
+        "band": "review"
+      }
+    ],
+    "market_live": [
+      {
+        "id": "opire:01J42C08V4J78ZAWH8JH2RQS8G",
+        "title": "research implementation for Windows",
+        "url": "https://github.com/radumarias/rencfs/issues/3",
+        "platform": "opire",
+        "repository": "radumarias/rencfs",
+        "issue_id": "3",
+        "issue_url": "https://github.com/radumarias/rencfs/issues/3",
+        "languages": [
+          "rust"
+        ],
+        "supported_languages": [
+          "rust"
+        ],
+        "task_type": "research",
+        "capability_auto": "✅",
+        "reward_usd": 42.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 42.0,
+        "bot_installed": false,
+        "competitors": 0,
+        "team_available": false,
+        "confidence_pct": 95.0,
+        "acceptance_pct": 77.0,
+        "overall_confidence_pct": 86.9,
+        "estimated_hours": 0.5,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 84.0,
+        "roi_effective_usd_per_hour": 73.0,
+        "roi_rank_score": 73.0,
+        "estimated_minutes": 30.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "low",
+        "required_capabilities": [
+          "rust"
+        ],
+        "tests_available": "unknown",
+        "risk": "low",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 86.9,
+        "acceptance_probability_pct": 77.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/radumarias/rencfs/issues/3",
+          "repository": "https://github.com/radumarias/rencfs",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #3",
+          "new_pr_hint": "https://github.com/radumarias/rencfs/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01J42C08V4J78ZAWH8JH2RQS8G",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take"
+      },
+      {
+        "id": "opire:01K6K4YTSWT7XF53GM3KCTBG7S",
+        "title": "Tray icon should have an orange dot indicator",
+        "url": "https://github.com/aueangpanit/electron-template/issues/1",
+        "platform": "opire",
+        "repository": "aueangpanit/electron-template",
+        "issue_id": "1",
+        "issue_url": "https://github.com/aueangpanit/electron-template/issues/1",
+        "languages": [
+          "typescript"
+        ],
+        "supported_languages": [
+          "typescript"
+        ],
+        "task_type": "frontend",
+        "capability_auto": "✅",
+        "reward_usd": 100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100.0,
+        "bot_installed": false,
+        "competitors": 2,
+        "team_available": false,
+        "confidence_pct": 97.0,
+        "acceptance_pct": 73.0,
+        "overall_confidence_pct": 86.2,
+        "estimated_hours": 1.2,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 83.33,
+        "roi_effective_usd_per_hour": 71.83,
+        "roi_rank_score": 71.83,
+        "estimated_minutes": 72.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "low",
+        "required_capabilities": [
+          "typescript"
+        ],
+        "tests_available": "unknown",
+        "risk": "low",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 86.2,
+        "acceptance_probability_pct": 73.0,
+        "issue_analysis": {
+          "signals": [
+            "has_acceptance_criteria"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Есть критерии приёмки в описании."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/aueangpanit/electron-template/issues/1",
+          "repository": "https://github.com/aueangpanit/electron-template",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #1",
+          "new_pr_hint": "https://github.com/aueangpanit/electron-template/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01K6K4YTSWT7XF53GM3KCTBG7S",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take"
+      },
+      {
+        "id": "opire:01K9AEB05K6XCMKMAVNB0P0FQ8",
+        "title": "Image resize",
+        "url": "https://github.com/ArcaneCircle/pixelsocial/issues/3",
+        "platform": "opire",
+        "repository": "ArcaneCircle/pixelsocial",
+        "issue_id": "3",
+        "issue_url": "https://github.com/ArcaneCircle/pixelsocial/issues/3",
+        "languages": [
+          "javascript"
+        ],
+        "supported_languages": [
+          "javascript"
+        ],
+        "task_type": "frontend",
+        "capability_auto": "✅",
+        "reward_usd": 70.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 70.0,
+        "bot_installed": false,
+        "competitors": 2,
+        "team_available": false,
+        "confidence_pct": 93.0,
+        "acceptance_pct": 69.0,
+        "overall_confidence_pct": 82.2,
+        "estimated_hours": 0.9,
+        "roi_stars": 4,
+        "roi_label": "⭐⭐⭐⭐",
+        "roi_usd_per_hour": 77.78,
+        "roi_effective_usd_per_hour": 63.94,
+        "roi_rank_score": 63.94,
+        "estimated_minutes": 54.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "javascript"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 82.2,
+        "acceptance_probability_pct": 69.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/ArcaneCircle/pixelsocial/issues/3",
+          "repository": "https://github.com/ArcaneCircle/pixelsocial",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #3",
+          "new_pr_hint": "https://github.com/ArcaneCircle/pixelsocial/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01K9AEB05K6XCMKMAVNB0P0FQ8",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take"
+      },
+      {
+        "id": "opire:01KPXQ3E5HG0S4MDWQ33Q63KMS",
+        "title": "macOS: dialog.showOpenDialog fails to show custom macOS packages (LSTypeIsPackage) when filtered by extension in Electron 36.2.0+ (worked in 35.7.5; 36.0.0 showed all files)",
+        "url": "https://github.com/electron/electron/issues/48191",
+        "platform": "opire",
+        "repository": "electron/electron",
+        "issue_id": "48191",
+        "issue_url": "https://github.com/electron/electron/issues/48191",
+        "languages": [
+          "c++"
+        ],
+        "supported_languages": [
+          "c++"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100.0,
+        "bot_installed": false,
+        "competitors": 1,
+        "team_available": false,
+        "confidence_pct": 87.0,
+        "acceptance_pct": 69.0,
+        "overall_confidence_pct": 78.9,
+        "estimated_hours": 1.2,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 83.33,
+        "roi_effective_usd_per_hour": 65.75,
+        "roi_rank_score": 65.75,
+        "estimated_minutes": 72.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "c++"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 78.9,
+        "acceptance_probability_pct": 69.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/electron/electron/issues/48191",
+          "repository": "https://github.com/electron/electron",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #48191",
+          "new_pr_hint": "https://github.com/electron/electron/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KPXQ3E5HG0S4MDWQ33Q63KMS",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take"
+      },
+      {
+        "id": "opire:01KPXP82M5RJ9B8ENA8M3DFDRY",
+        "title": "[BOUNTY] WearOS Support [$1340]",
+        "url": "https://github.com/microg/GmsCore/issues/2843",
+        "platform": "opire",
+        "repository": "microg/GmsCore",
+        "issue_id": "2843",
+        "issue_url": "https://github.com/microg/GmsCore/issues/2843",
+        "languages": [
+          "java"
+        ],
+        "supported_languages": [
+          "java"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 50.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 50.0,
+        "bot_installed": false,
+        "competitors": 2,
+        "team_available": false,
+        "confidence_pct": 87.0,
+        "acceptance_pct": 69.0,
+        "overall_confidence_pct": 78.9,
+        "estimated_hours": 0.6,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 83.33,
+        "roi_effective_usd_per_hour": 65.75,
+        "roi_rank_score": 65.75,
+        "estimated_minutes": 36.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "java"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 78.9,
+        "acceptance_probability_pct": 69.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/microg/GmsCore/issues/2843",
+          "repository": "https://github.com/microg/GmsCore",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #2843",
+          "new_pr_hint": "https://github.com/microg/GmsCore/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KPXP82M5RJ9B8ENA8M3DFDRY",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take"
+      },
+      {
+        "id": "opire:01JARC75G44M6EQCJCR1DTBHD6",
+        "title": "[BUG] Internal Server Errors still shows success toast",
+        "url": "https://github.com/formbricks/formbricks/issues/3302",
+        "platform": "opire",
+        "repository": "formbricks/formbricks",
+        "issue_id": "3302",
+        "issue_url": "https://github.com/formbricks/formbricks/issues/3302",
+        "languages": [
+          "typescript"
+        ],
+        "supported_languages": [
+          "typescript"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 60.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 60.0,
+        "bot_installed": false,
+        "competitors": 3,
+        "team_available": false,
+        "confidence_pct": 91.0,
+        "acceptance_pct": 63.0,
+        "overall_confidence_pct": 78.4,
+        "estimated_hours": 0.6,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 100.0,
+        "roi_effective_usd_per_hour": 78.4,
+        "roi_rank_score": 78.4,
+        "estimated_minutes": 36.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "typescript"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 78.4,
+        "acceptance_probability_pct": 63.0,
+        "issue_analysis": {
+          "signals": [
+            "bugfix"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/formbricks/formbricks/issues/3302",
+          "repository": "https://github.com/formbricks/formbricks",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #3302",
+          "new_pr_hint": "https://github.com/formbricks/formbricks/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01JARC75G44M6EQCJCR1DTBHD6",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take"
+      },
+      {
+        "id": "opire:01HWX4P9F1935V3ZXN4TY7VDEQ",
+        "title": "Improve error when configured code coverage file list is empty",
+        "url": "https://github.com/sebastianbergmann/phpunit/issues/4440",
+        "platform": "opire",
+        "repository": "sebastianbergmann/phpunit",
+        "issue_id": "4440",
+        "issue_url": "https://github.com/sebastianbergmann/phpunit/issues/4440",
+        "languages": [
+          "php"
+        ],
+        "supported_languages": [
+          "php"
+        ],
+        "task_type": "unit_tests",
+        "capability_auto": "✅",
+        "reward_usd": 50.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 50.0,
+        "bot_installed": false,
+        "competitors": 3,
+        "team_available": false,
+        "confidence_pct": 85.0,
+        "acceptance_pct": 63.0,
+        "overall_confidence_pct": 75.1,
+        "estimated_hours": 0.5,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 100.0,
+        "roi_effective_usd_per_hour": 75.1,
+        "roi_rank_score": 75.1,
+        "estimated_minutes": 30.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "php"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 75.1,
+        "acceptance_probability_pct": 63.0,
+        "issue_analysis": {
+          "signals": [
+            "bugfix"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/sebastianbergmann/phpunit/issues/4440",
+          "repository": "https://github.com/sebastianbergmann/phpunit",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #4440",
+          "new_pr_hint": "https://github.com/sebastianbergmann/phpunit/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01HWX4P9F1935V3ZXN4TY7VDEQ",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take"
+      },
+      {
+        "id": "opire:01KEWXJ6FH5C2Z7XZVSG7TACJE",
+        "title": "Request to execute qtop across two HPC clusters and apply first step of differential debugging",
+        "url": "https://github.com/qtop/qtop/issues/337",
+        "platform": "opire",
+        "repository": "qtop/qtop",
+        "issue_id": "337",
+        "issue_url": "https://github.com/qtop/qtop/issues/337",
+        "languages": [
+          "python"
+        ],
+        "supported_languages": [
+          "python"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 117.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 117.0,
+        "bot_installed": false,
+        "competitors": 6,
+        "team_available": false,
+        "confidence_pct": 85.0,
+        "acceptance_pct": 59.0,
+        "overall_confidence_pct": 73.3,
+        "estimated_hours": 1.2,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 97.5,
+        "roi_effective_usd_per_hour": 71.47,
+        "roi_rank_score": 71.47,
+        "estimated_minutes": 72.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "python"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "TAKE",
+        "blockers": [],
+        "success_probability_pct": 73.3,
+        "acceptance_probability_pct": 59.0,
+        "issue_analysis": {
+          "signals": [
+            "bugfix"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/qtop/qtop/issues/337",
+          "repository": "https://github.com/qtop/qtop",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #337",
+          "new_pr_hint": "https://github.com/qtop/qtop/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KEWXJ6FH5C2Z7XZVSG7TACJE",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [],
+        "band": "take"
+      },
+      {
+        "id": "opire:01HW8CK374Y67WDDZG22BYVZQ4",
+        "title": "500 Server Error - Auto Solve hcapcha",
+        "url": "https://github.com/flowese/UdioWrapper/issues/7",
+        "platform": "opire",
+        "repository": "flowese/UdioWrapper",
+        "issue_id": "7",
+        "issue_url": "https://github.com/flowese/UdioWrapper/issues/7",
+        "languages": [
+          "python"
+        ],
+        "supported_languages": [
+          "python"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100.0,
+        "bot_installed": true,
+        "competitors": 21,
+        "team_available": false,
+        "confidence_pct": 85.0,
+        "acceptance_pct": 59.0,
+        "overall_confidence_pct": 73.3,
+        "estimated_hours": 1.1,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 90.91,
+        "roi_effective_usd_per_hour": 66.64,
+        "roi_rank_score": 66.64,
+        "estimated_minutes": 66.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "medium",
+        "required_capabilities": [
+          "python"
+        ],
+        "tests_available": "unknown",
+        "risk": "medium",
+        "recommendation": "SKIP",
+        "blockers": [
+          "high_competition"
+        ],
+        "success_probability_pct": 73.3,
+        "acceptance_probability_pct": 59.0,
+        "issue_analysis": {
+          "signals": [
+            "bugfix"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/flowese/UdioWrapper/issues/7",
+          "repository": "https://github.com/flowese/UdioWrapper",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #7",
+          "new_pr_hint": "https://github.com/flowese/UdioWrapper/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01HW8CK374Y67WDDZG22BYVZQ4",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [
+          "high_competition"
+        ],
+        "band": "review"
+      },
+      {
+        "id": "opire:01KWQ0VT1N2TKGCY1CK9T61C1Z",
+        "title": "[BOUNTY] Kickama #304 - deterministic data seed ($50)",
+        "url": "https://github.com/lb1192176991-lab/zeroeye/issues/2",
+        "platform": "opire",
+        "repository": "lb1192176991-lab/zeroeye",
+        "issue_id": "2",
+        "issue_url": "https://github.com/lb1192176991-lab/zeroeye/issues/2",
+        "languages": [
+          "typescript",
+          "rust",
+          "python"
+        ],
+        "supported_languages": [
+          "python",
+          "rust",
+          "typescript"
+        ],
+        "task_type": "frontend",
+        "capability_auto": "✅",
+        "reward_usd": 100100.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 100100.0,
+        "bot_installed": true,
+        "competitors": 9,
+        "team_available": false,
+        "confidence_pct": 53.0,
+        "acceptance_pct": 61.0,
+        "overall_confidence_pct": 56.6,
+        "estimated_hours": 48.0,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 2085.42,
+        "roi_effective_usd_per_hour": 1180.35,
+        "roi_rank_score": 1180.35,
+        "estimated_minutes": 2880.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "high",
+        "required_capabilities": [
+          "python",
+          "rust",
+          "typescript"
+        ],
+        "tests_available": "unknown",
+        "risk": "high",
+        "recommendation": "SKIP",
+        "blockers": [
+          "reward_implies_large_scope"
+        ],
+        "success_probability_pct": 56.6,
+        "acceptance_probability_pct": 61.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/lb1192176991-lab/zeroeye/issues/2",
+          "repository": "https://github.com/lb1192176991-lab/zeroeye",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #2",
+          "new_pr_hint": "https://github.com/lb1192176991-lab/zeroeye/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KWQ0VT1N2TKGCY1CK9T61C1Z",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [
+          "reward_implies_large_scope",
+          "below_threshold_60"
+        ],
+        "band": "review"
+      },
+      {
+        "id": "opire:01KSXXX60RR76RSSXZXD0F4AGF",
+        "title": "c1work",
+        "url": "https://github.com/rodrigompy/bugb/issues/1",
+        "platform": "opire",
+        "repository": "rodrigompy/bugb",
+        "issue_id": "1",
+        "issue_url": "https://github.com/rodrigompy/bugb/issues/1",
+        "languages": [],
+        "supported_languages": [],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 1260948.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 1260948.0,
+        "bot_installed": false,
+        "competitors": 0,
+        "team_available": false,
+        "confidence_pct": 39.0,
+        "acceptance_pct": 62.0,
+        "overall_confidence_pct": 49.4,
+        "estimated_hours": 48.0,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 26269.75,
+        "roi_effective_usd_per_hour": 12977.26,
+        "roi_rank_score": 12977.26,
+        "estimated_minutes": 2880.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "high",
+        "required_capabilities": [
+          "manual_review"
+        ],
+        "tests_available": "unknown",
+        "risk": "high",
+        "recommendation": "SKIP",
+        "blockers": [
+          "reward_implies_large_scope"
+        ],
+        "success_probability_pct": 49.4,
+        "acceptance_probability_pct": 62.0,
+        "issue_analysis": {
+          "signals": [],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/rodrigompy/bugb/issues/1",
+          "repository": "https://github.com/rodrigompy/bugb",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #1",
+          "new_pr_hint": "https://github.com/rodrigompy/bugb/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KSXXX60RR76RSSXZXD0F4AGF",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [
+          "reward_implies_large_scope",
+          "below_threshold_60"
+        ],
+        "band": "review"
+      },
+      {
+        "id": "opire:01KPXMGCQ9ZBFBJV1E6RXM7W58",
+        "title": "[BOUNTY] RCS Support [14999$]",
+        "url": "https://github.com/microg/GmsCore/issues/2994",
+        "platform": "opire",
+        "repository": "microg/GmsCore",
+        "issue_id": "2994",
+        "issue_url": "https://github.com/microg/GmsCore/issues/2994",
+        "languages": [
+          "java"
+        ],
+        "supported_languages": [
+          "java"
+        ],
+        "task_type": "bug_fix",
+        "capability_auto": "✅",
+        "reward_usd": 152180.0,
+        "reward_currency": "USD",
+        "estimated_reward_usd": 152180.0,
+        "bot_installed": false,
+        "competitors": 4,
+        "team_available": false,
+        "confidence_pct": 29.0,
+        "acceptance_pct": 45.0,
+        "overall_confidence_pct": 36.2,
+        "estimated_hours": 86.4,
+        "roi_stars": 5,
+        "roi_label": "⭐⭐⭐⭐⭐",
+        "roi_usd_per_hour": 1761.34,
+        "roi_effective_usd_per_hour": 637.61,
+        "roi_rank_score": 637.61,
+        "estimated_minutes": 5184.0,
+        "roi_note_ru": "ROI = reward ÷ время (с учётом confidence). Не REAL payout.",
+        "estimated_cost_note_ru": "Внутреннее время Virtus; не путать с reward USD.",
+        "difficulty": "high",
+        "required_capabilities": [
+          "java"
+        ],
+        "tests_available": "unknown",
+        "risk": "high",
+        "recommendation": "SKIP",
+        "blockers": [
+          "large_feature_risk",
+          "reward_implies_large_scope"
+        ],
+        "success_probability_pct": 36.2,
+        "acceptance_probability_pct": 45.0,
+        "issue_analysis": {
+          "signals": [
+            "large_feature"
+          ],
+          "blockers": [],
+          "checklist_items": 0,
+          "bullet_requirements": 0,
+          "body_chars": 0,
+          "summary_ru": "Описание короткое — риск недопонимания требований."
+        },
+        "issue_body_preview": "",
+        "ceo_action_links": {
+          "issue": "https://github.com/microg/GmsCore/issues/2994",
+          "repository": "https://github.com/microg/GmsCore",
+          "opire_dashboard": "https://app.opire.dev",
+          "opire_docs_commands": "https://docs.opire.dev/overview/commands",
+          "try_comment_text": "/try",
+          "claim_pr_text": "/claim #2994",
+          "new_pr_hint": "https://github.com/microg/GmsCore/compare"
+        },
+        "official_next_steps_ru": [
+          "CEO Approve в Mission Control",
+          "Официальный /try комментарием на Issue (GitHub)",
+          "Execution Engine: clone → plan → code → tests → Draft PR",
+          "CEO Submit PR с /claim #<issue>",
+          "Monitor review → payout → REAL только после confirmation"
+        ],
+        "native_id": "01KPXMGCQ9ZBFBJV1E6RXM7W58",
+        "tier": "A",
+        "connector_id": "opire",
+        "official_flow": "/try → PR /claim → merge → Opire payout",
+        "real_income": false,
+        "reject_reasons": [
+          "large_feature_risk",
+          "reward_implies_large_scope",
+          "below_threshold_60"
+        ],
+        "band": "skip"
+      }
+    ],
+    "market_live_count": 12,
+    "market_live_note_ru": "Живой рынок Opire: 12 bounty с $ (не симуляция). Skip ledger скрывает их из Approve — это не «работы нет».",
+    "money_mode": {
+      "enabled_default": true,
+      "threshold": 80.0,
+      "count": 3,
+      "hidden_count": 5,
+      "go_count": 3,
+      "mode": "money_go",
+      "note_ru": "Money Mode + Pre-flight: GO (Confidence ≥80%, repo alive). Если пусто — Farm показывает TAKE/рынок с реальными $."
+    },
+    "confidence_bands": {
+      "80+": 5,
+      "60+": 40,
+      "40+": 49,
+      "20+": 51,
+      "all": 51
+    },
+    "analytics": {
+      "ok": true,
+      "pool_size": 51,
+      "languages": [
+        {
+          "name": "typescript",
+          "count": 13
+        },
+        {
+          "name": "(unspecified)",
+          "count": 9
+        },
+        {
+          "name": "python",
+          "count": 9
+        },
+        {
+          "name": "rust",
+          "count": 6
+        },
+        {
+          "name": "javascript",
+          "count": 6
+        },
+        {
+          "name": "java",
+          "count": 3
+        },
+        {
+          "name": "c++",
+          "count": 3
+        },
+        {
+          "name": "c",
+          "count": 3
+        },
+        {
+          "name": "php",
+          "count": 2
+        },
+        {
+          "name": "go",
+          "count": 2
+        },
+        {
+          "name": "mdx",
+          "count": 2
+        },
+        {
+          "name": "css",
+          "count": 2
+        },
+        {
+          "name": "makefile",
+          "count": 2
+        },
+        {
+          "name": "kotlin",
+          "count": 1
+        },
+        {
+          "name": "html",
+          "count": 1
+        },
+        {
+          "name": "glsl",
+          "count": 1
+        }
+      ],
+      "reject_reasons": [
+        {
+          "reason": "review_band",
+          "count": 18
+        },
+        {
+          "reason": "confidence_low",
+          "count": 11
+        },
+        {
+          "reason": "high_competition",
+          "count": 9
+        },
+        {
+          "reason": "large_feature_risk",
+          "count": 4
+        },
+        {
+          "reason": "reward_implies_large_scope",
+          "count": 3
+        }
+      ],
+      "potential_reward": {
+        "high": {
+          "label": "High confidence",
+          "usd": 6428.22,
+          "count": 36
+        },
+        "medium": {
+          "label": "Medium",
+          "usd": 1366064.0,
+          "count": 13
+        },
+        "low": {
+          "label": "Low",
+          "usd": 155460.0,
+          "count": 2
+        },
+        "total_usd": 1527952.22,
+        "note_ru": "Potential ≠ REAL. Это рынок в скане, не подтверждённый доход."
+      },
+      "capability_coverage": {
+        "rows": [
+          {
+            "capability": "typescript",
+            "demand": 13,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "python",
+            "demand": 9,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "rust",
+            "demand": 6,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "javascript",
+            "demand": 6,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "java",
+            "demand": 3,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "c++",
+            "demand": 3,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "c",
+            "demand": 3,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "php",
+            "demand": 2,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "go",
+            "demand": 2,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "mdx",
+            "demand": 2,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "css",
+            "demand": 2,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "makefile",
+            "demand": 2,
+            "covered": false,
+            "coverage_pct": 0,
+            "lost_bounties": 2
+          },
+          {
+            "capability": "kotlin",
+            "demand": 1,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "html",
+            "demand": 1,
+            "covered": true,
+            "coverage_pct": 100,
+            "lost_bounties": 0
+          },
+          {
+            "capability": "glsl",
+            "demand": 1,
+            "covered": false,
+            "coverage_pct": 0,
+            "lost_bounties": 1
+          }
+        ],
+        "coverage_pct": 95,
+        "supported": [
+          "bash",
+          "c",
+          "c#",
+          "c++",
+          "csharp",
+          "css",
+          "docker",
+          "fastapi",
+          "go",
+          "html",
+          "java",
+          "javascript",
+          "kotlin",
+          "markdown",
+          "mdx",
+          "next.js",
+          "nextjs",
+          "php",
+          "pytest",
+          "python",
+          "react",
+          "ruby",
+          "rust",
+          "shell",
+          "tailwind",
+          "typescript"
+        ],
+        "note_ru": "Какие bounty теряем из‑за пробелов в capability."
+      },
+      "top_roi": [
+        {
+          "title": "c1work",
+          "reward_usd": 1260948.0,
+          "estimated_minutes": 2880.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 26269.75
+        },
+        {
+          "title": "[BOUNTY] Kickama #304 - deterministic data seed ($50)",
+          "reward_usd": 100100.0,
+          "estimated_minutes": 2880.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 2085.42
+        },
+        {
+          "title": "[BOUNTY] RCS Support [14999$]",
+          "reward_usd": 152180.0,
+          "estimated_minutes": 5184.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 1761.34
+        },
+        {
+          "title": "[BUG] Internal Server Errors still shows success toast",
+          "reward_usd": 60.0,
+          "estimated_minutes": 36.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 100.0
+        },
+        {
+          "title": "Improve error when configured code coverage file list is empty",
+          "reward_usd": 50.0,
+          "estimated_minutes": 30.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 100.0
+        },
+        {
+          "title": "research implementation for Windows",
+          "reward_usd": 42.0,
+          "estimated_minutes": 30.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 84.0
+        },
+        {
+          "title": "Tray icon should have an orange dot indicator",
+          "reward_usd": 100.0,
+          "estimated_minutes": 72.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 83.33
+        },
+        {
+          "title": "Request to execute qtop across two HPC clusters and apply first step of differen",
+          "reward_usd": 117.0,
+          "estimated_minutes": 72.0,
+          "roi_stars": 5,
+          "roi_label": "⭐⭐⭐⭐⭐",
+          "roi_usd_per_hour": 97.5
+        }
+      ],
+      "north_star_ru": "Цель Farm: первый подтверждённый payout — не новые фичи."
+    },
+    "from_cache": true,
+    "at": "2026-08-08T17:24:33.784427+00:00",
+    "source": "farm_connector_manager",
+    "catalog": [
+      {
+        "id": "opire",
+        "display_name": "Opire",
+        "tier": "A",
+        "status": "live",
+        "official_docs_url": "https://docs.opire.dev",
+        "notes_ru": "Живой коннектор. Официальный flow: /try → PR /claim → payout.",
+        "runtime_status": "live"
+      },
+      {
+        "id": "polar",
+        "display_name": "Polar.sh",
+        "tier": "A",
+        "status": "planned",
+        "official_docs_url": "https://polar.sh/docs",
+        "notes_ru": "Tier A — следующий. Только официальный API / процесс Polar.",
+        "runtime_status": "planned"
+      },
+      {
+        "id": "algora",
+        "display_name": "Algora",
+        "tier": "A",
+        "status": "planned",
+        "official_docs_url": "https://algora.io",
+        "notes_ru": "Tier A — GitHub Issues с bounty. Коннектор после изучения API.",
+        "runtime_status": "planned"
+      },
+      {
+        "id": "github_bounties",
+        "display_name": "GitHub Bounties",
+        "tier": "A",
+        "status": "planned",
+        "official_docs_url": "https://docs.github.com/en/issues",
+        "notes_ru": "Issues/Labels «Bounty: $N» + Sponsors. Scanner без обхода ToS.",
+        "runtime_status": "planned"
+      },
+      {
+        "id": "hackerone",
+        "display_name": "HackerOne",
+        "tier": "B",
+        "status": "disabled",
+        "official_docs_url": "https://docs.hackerone.com",
+        "notes_ru": "Bug bounty — не смешивать с Tier A Execution Engine.",
+        "runtime_status": "disabled"
+      },
+      {
+        "id": "bugcrowd",
+        "display_name": "Bugcrowd",
+        "tier": "B",
+        "status": "disabled",
+        "official_docs_url": "https://docs.bugcrowd.com",
+        "notes_ru": "Отдельный security-модуль, не Farm OSS pipeline.",
+        "runtime_status": "disabled"
+      },
+      {
+        "id": "intigriti",
+        "display_name": "Intigriti",
+        "tier": "B",
+        "status": "disabled",
+        "official_docs_url": "https://www.intigriti.com",
+        "notes_ru": "Tier B — disabled до security module.",
+        "runtime_status": "disabled"
+      },
+      {
+        "id": "yeswehack",
+        "display_name": "YesWeHack",
+        "tier": "B",
+        "status": "disabled",
+        "official_docs_url": "https://www.yeswehack.com",
+        "notes_ru": "Tier B — disabled.",
+        "runtime_status": "disabled"
+      },
+      {
+        "id": "immunefi",
+        "display_name": "Immunefi",
+        "tier": "B",
+        "status": "disabled",
+        "official_docs_url": "https://immunefi.com",
+        "notes_ru": "Web3 security bug bounty — не Tier A.",
+        "runtime_status": "disabled"
+      },
+      {
+        "id": "gitcoin",
+        "display_name": "Gitcoin",
+        "tier": "C",
+        "status": "research",
+        "official_docs_url": "https://gitcoin.co",
+        "notes_ru": "Исследование официального процесса — не реализовывать сейчас.",
+        "runtime_status": "research"
+      },
+      {
+        "id": "questbook",
+        "display_name": "Questbook",
+        "tier": "C",
+        "status": "research",
+        "official_docs_url": "https://questbook.app",
+        "notes_ru": "Tier C research.",
+        "runtime_status": "research"
+      },
+      {
+        "id": "dework",
+        "display_name": "Dework",
+        "tier": "C",
+        "status": "research",
+        "official_docs_url": "https://dework.xyz",
+        "notes_ru": "Tier C research.",
+        "runtime_status": "research"
+      }
+    ]
+  },
+  "proof": {
+    "tasks_analysed": 51,
+    "approved": 506,
+    "executed": 506,
+    "draft_pr": 0,
+    "submitted": 0,
+    "merged": 0,
+    "reward_confirmed": 0,
+    "payout_confirmed": 0,
+    "real_confirmed_usd": 0.0,
+    "proof_status": "PENDING_FIRST_REAL",
+    "proof_mark": "⏳ PENDING_FIRST_REAL",
+    "criterion_ru": "Proof = один полный цикл: Approve → Execution → Draft PR → Merge → REAL Ledger > 0. Estimated не считается.",
+    "message_ru": "Полный цикл Opire → Draft PR → Merge → REAL ещё не подтверждён на реальном bounty. Победа не объявляется заранее."
+  },
+  "execution_success": {
+    "approved": 506,
+    "started": 506,
+    "execution": 2,
+    "completed": 0,
+    "failed": 0,
+    "skipped": 16,
+    "draft_pr": 0,
+    "merged": 0,
+    "paid": 0,
+    "start_rate": 1.0,
+    "complete_rate": 0.0,
+    "payout_success": {
+      "found_note_ru": "Found — из Scanner (panel.scan.scanned)",
+      "approved": 2,
+      "executed": 2,
+      "draft_pr": 0,
+      "merged": 0,
+      "paid": 0,
+      "rates": {
+        "approve_to_execute": 1.0,
+        "execute_to_draft_pr": 0.0,
+        "draft_pr_to_merge": null,
+        "merge_to_paid": null
+      },
+      "note_ru": "Главная метрика Opire Farm: Paid / Merged. Пока Paid=0 — цикл не доказан. Смотри rates, где узкое место."
+    },
+    "note_ru": "Pipeline KPI (lifetime). Started > 0 = Execution реально стартовал. Live snapshot: только текущие non-skipped задачи. Lifetime KPI смотри в panel.pipeline.",
+    "avg_execution_s": 0.2,
+    "avg_execution_samples": 15
+  },
+  "payout_success": {
+    "found": 51,
+    "found_note_ru": "Found — из Scanner (panel.scan.scanned)",
+    "approved": 506,
+    "executed": 506,
+    "draft_pr": 0,
+    "merged": 0,
+    "paid": 0,
+    "rates": {
+      "approve_to_execute": 1.0,
+      "execute_to_draft_pr": 0.0,
+      "draft_pr_to_merge": null,
+      "merge_to_paid": null
+    },
+    "note_ru": "Главная метрика Opire Farm: Paid / Merged. Пока Paid=0 — цикл не доказан. Смотри rates, где узкое место."
+  },
+  "active_rows": [
+    {
+      "id": "opire:01J42C08V4J78ZAWH8JH2RQS8G",
+      "title": "research implementation for Windows",
+      "status": "executing",
+      "pipeline_state": "CLONING",
+      "reward": null,
+      "execution_keys": [
+        "heartbeat_at",
+        "message_ru",
+        "ok",
+        "stage"
+      ],
+      "execution": {
+        "ok": true,
+        "stage": "repo_intelligence",
+        "message_ru": "Clone репозитория…",
+        "heartbeat_at": "2026-08-08T17:33:26.005585+00:00"
+      },
+      "timeline": null,
+      "updated_at": "2026-08-08T17:33:26.005585+00:00",
+      "html_url": "https://github.com/radumarias/rencfs/issues/3"
+    },
+    {
+      "id": "opire:01JARC75G44M6EQCJCR1DTBHD6",
+      "title": "[BUG] Internal Server Errors still shows success toast",
+      "status": "ceo_approved",
+      "pipeline_state": "QUEUED",
+      "reward": null,
+      "execution_keys": [
+        "message_ru",
+        "ok",
+        "stage"
+      ],
+      "execution": {
+        "ok": false,
+        "stage": "queued",
+        "message_ru": "В очереди AUTO-RUN — Clone стартует без кнопки «Запустить Execution», когда линия свободна."
+      },
+      "timeline": null,
+      "updated_at": "2026-08-08T17:26:12.431839+00:00",
+      "html_url": "https://github.com/formbricks/formbricks/issues/3302"
+    }
+  ]
+}

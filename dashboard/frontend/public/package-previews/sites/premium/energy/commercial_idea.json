@@ -1,0 +1,20 @@
+{
+  "niche_id": "energy",
+  "idea": "Strom vom eigenen Dach — messbar und ruhig geplant.",
+  "who": "Photovoltaik-Team aus Hannover: saubere Planung, ehrliche Erträge, Montage ohne Chaos.",
+  "character": [],
+  "metaphor": "tech",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Strom vom eigenen Dach — messbar und ruhig geplant.",
+    "who": "Photovoltaik-Team aus Hannover: saubere Planung, ehrliche Erträge, Montage ohne Chaos.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "emotion": "trust",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "cormorant_source",
+  "motion": "soft",
+  "hero_concept": "trust_panel",
+  "hero_layout": "C",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "clean",
+  "package_id": "basic",
+  "niche_id": "restaurant",
+  "fingerprint": "82d036f13976aa5e6fababdeace474461c17ac806b1424530ea1d1a7bfef37b3",
+  "section_treatments": [
+    [
+      "stats",
+      "ink"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "tint"
+    ],
+    [
+      "benefits",
+      "glass"
+    ],
+    [
+      "trust",
+      "ink"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "showcase",
+      "illustration"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "about",
+      "glass"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "ink"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#f3f6f4",
+  "ink_hex": "#243029"
+}

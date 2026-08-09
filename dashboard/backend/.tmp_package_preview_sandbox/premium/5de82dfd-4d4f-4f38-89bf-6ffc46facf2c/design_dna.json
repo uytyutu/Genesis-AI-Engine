@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "Premium-Detailing-Studio · Lackpolitur unter LED · schwarzer Sportwagen, Spiegelglanz",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "editorial",
+  "package_id": "premium",
+  "niche_id": "auto_detailing",
+  "fingerprint": "22a312958077d18a22d3d35df8cb7dff8a2910350af3b698e8f02124f4b79078",
+  "section_treatments": [
+    [
+      "about",
+      "tint"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "gallery",
+      "gradient"
+    ],
+    [
+      "services",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "process",
+      "ink"
+    ],
+    [
+      "trust",
+      "photo_band"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "faq",
+      "ink"
+    ],
+    [
+      "reviews",
+      "gradient"
+    ],
+    [
+      "calculator",
+      "glass"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#dadce0",
+  "ink_hex": "#f4f6f8",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "ce71a2a3d8af043b21eeedc1",
+  "border_radius_px": 12
+}

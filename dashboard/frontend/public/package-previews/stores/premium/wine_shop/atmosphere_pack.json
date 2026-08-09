@@ -1,0 +1,378 @@
+{
+  "brand_name": "RebenKlar Vinothek",
+  "niche_id": "restaurant",
+  "package_id": "premium",
+  "metaphor": "Abendlicht über dem Hof — lange Tafel, leises Gläserklingen",
+  "core_emotion": "Wärme",
+  "atmosphere_mode": "cinematic",
+  "scene_language": [
+    "professioneller Arbeitsort",
+    "Team bei echter Arbeit",
+    "deutsche Alltagsszene"
+  ],
+  "texture_language": [
+    "Linen",
+    "Wood",
+    "Ceramic"
+  ],
+  "motion_language": "kinetic micro-motion · glow pulse · scroll scenes",
+  "camera_feeling": "courtyard evening · table height · candle warmth",
+  "scroll_feeling": "slow settle into the table",
+  "cta_feeling": "reservation · warm large · Reservierung · Groß · Warm",
+  "sound_mood": "glasses · low talk · kitchen distant",
+  "illustration_style": "glassmorphism panels",
+  "glass_level": "medium",
+  "shadow_language": "deep under eaves · soft plate lift · Deep Warm",
+  "icon_language": "line geometric marks",
+  "lighting": "golden evening rim · deep warm fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit",
+        "deutsche Alltagsszene",
+        "Detail Arbeit",
+        "Kundenmoment"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|hero|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1600,
+        900
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=hero. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "background",
+      "concept": "scene · professioneller Arbeitsort · Team bei echter Arbeit · deutsche Alltagsszene",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit",
+        "deutsche Alltagsszene",
+        "Linen",
+        "Wood"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|bg|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1920,
+        1080
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=glassmorphism panels. Must show: Team bei echter Arbeit, deutsche Alltagsszene, professioneller Arbeitsort. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Detail Arbeit",
+      "must_include": [
+        "Detail Arbeit",
+        "Linen",
+        "Wood"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|gal0|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Detail Arbeit."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Kundenmoment",
+      "must_include": [
+        "Kundenmoment",
+        "Linen",
+        "Wood"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|gal1|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Kundenmoment."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Werkzeug / Material",
+      "must_include": [
+        "Werkzeug / Material",
+        "Linen",
+        "Wood"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|gal2|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Werkzeug / Material."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Ergebnis",
+      "must_include": [
+        "Ergebnis",
+        "Linen",
+        "Wood"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|gal3|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: Detail Arbeit, Kundenmoment, Werkzeug / Material, Ergebnis. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Ergebnis."
+    },
+    {
+      "role": "before_after",
+      "concept": "before / after proof",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|before_after|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=before_after. Medium=editorial_photo. Illustration language=glassmorphism panels. Must show: Detail Arbeit, Kundenmoment. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "team",
+      "concept": "team of this company",
+      "must_include": [
+        "Fachkraft"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|team|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=team. Medium=minimal_illustration. Illustration language=glassmorphism panels. Must show: Fachkraft. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "equipment",
+      "concept": "tools & equipment of the trade",
+      "must_include": [
+        "Werkzeug der Branche"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|equipment|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=equipment. Medium=minimal_illustration. Illustration language=glassmorphism panels. Must show: Werkzeug der Branche. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "illustration",
+      "concept": "glassmorphism panels",
+      "must_include": [
+        "professioneller Arbeitsort",
+        "Team bei echter Arbeit"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting",
+        "fast food plastic",
+        "neon menu board",
+        "stock handshake"
+      ],
+      "seed": "RebenKlar Vinothek|restaurant|premium|8becf8eb8cd983c6064c55ba|illustration|bd3fdab0c61a7a1b7d45",
+      "size": [
+        1200,
+        1200
+      ],
+      "image_prompt": "Premium German brand visual for «RebenKlar Vinothek» (restaurant) in Germany. Role=illustration. Medium=minimal_illustration. Illustration language=glassmorphism panels. Must show: Team bei echter Arbeit, deutsche Alltagsszene. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    }
+  ],
+  "fingerprint": "400e6be75d1f400e401bce69",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

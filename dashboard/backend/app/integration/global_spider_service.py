@@ -585,6 +585,19 @@ class GlobalSpiderService:
         places_q = [str(x).strip() for x in (cfg.get("places_queries") or []) if str(x).strip()]
         niches = [str(x).strip() for x in (cfg.get("profitable_niches") or []) if str(x).strip()]
         seeds = [str(x).strip() for x in (cfg.get("seed_targets") or []) if str(x).strip()]
+        from swarm.farm_stabilization import (
+            assess_hunt_inputs,
+            load_idle_state,
+        )
+
+        hunt = assess_hunt_inputs(cfg, places_configured=self._places.configured())
+        idle = load_idle_state(self._memory)
+        is_idle = (not hunt["has_work"]) or str(idle.get("mode") or "") == "IDLE"
+        effective_poll = (
+            int(idle.get("backoff_sec") or settings["polling_interval_sec"])
+            if is_idle
+            else settings["polling_interval_sec"]
+        )
         return {
             "mode": cfg.get("mode", "global_spider"),
             "zero_cost": bool(cfg.get("zero_cost", True)),
@@ -598,8 +611,16 @@ class GlobalSpiderService:
             "profitable_niches": niches,
             "profitable_niches_count": len(niches),
             "min_task_price": settings["min_task_price"],
-            "polling_interval_sec": settings["polling_interval_sec"],
-            "hunter_mode": True,
+            "polling_interval_sec": effective_poll,
+            "base_polling_interval_sec": settings["polling_interval_sec"],
+            "hunter_mode": bool(hunt["has_work"]) and not is_idle,
+            "idle": is_idle,
+            "idle_status": (
+                str(idle.get("status") or "WAITING_FOR_INPUT")
+                if is_idle
+                else "HUNTING"
+            ),
+            "hunt_inputs": hunt,
             "places_configured": self._places.configured(),
             "asn_watch": cfg.get("asn_watch"),
             "hosting_asn_hints": cfg.get("hosting_asn_hints") or [],
@@ -607,8 +628,30 @@ class GlobalSpiderService:
             "search_city": cfg.get("search_city"),
             "target_city": cfg.get("target_city") or cfg.get("search_city"),
             "search_radius": cfg.get("search_radius"),
-            "note": str(
-                cfg.get("note")
-                or "profitable_niches · target_city · Places API (New)"
+            "note": (
+                str(idle.get("note_ru") or "")
+                if is_idle
+                else str(
+                    cfg.get("note")
+                    or "profitable_niches · target_city · Places API (New)"
+                )
             ),
         }
+
+    def should_idle_skip_hunt(self) -> tuple[bool, dict[str, Any]]:
+        """True → do not run Places/seed hunt this cycle."""
+        from swarm.farm_stabilization import (
+            assess_hunt_inputs,
+            mark_idle_no_work,
+            should_skip_hunt,
+        )
+
+        cfg = self.load_config()
+        hunt = assess_hunt_inputs(cfg, places_configured=self._places.configured())
+        if not hunt["has_work"]:
+            idle = mark_idle_no_work(self._memory)
+            return True, {"hunt": hunt, "idle": idle, "reason": "no_input"}
+        skip, st = should_skip_hunt(self._memory)
+        if skip:
+            return True, {"hunt": hunt, "idle": st, "reason": "backoff"}
+        return False, {"hunt": hunt, "idle": st}

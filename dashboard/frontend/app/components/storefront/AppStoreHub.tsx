@@ -397,6 +397,126 @@ export function AppStoreHub({
         </div>
       </section>
 
+      {/* Beispiele — production SSOT (Vercel genesis-ai-engine.vercel.app) */}
+      <section id="examples" className="scroll-mt-24 mx-auto max-w-4xl space-y-5">
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-semibold text-white sm:text-3xl">
+            {t(`${ns}.examples.title`, { defaultValue: "Beispiele" })}
+          </h2>
+          <p className="text-sm text-genesis-muted">
+            {t(`${ns}.examples.subtitle`, {
+              defaultValue:
+                "Demo-Projekte aus der AI Factory. Echte Kundenprojekte erscheinen später als «Zuletzt veröffentlicht».",
+            })}
+          </p>
+        </div>
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              {
+                id: "dental",
+                emoji: "🦷",
+                labelKey: "examples.dental",
+                fallback: "Zahnarztpraxis",
+                href: "/package-previews/sites/business/dental/index.html",
+                kind: "website" as const,
+              },
+              {
+                id: "law",
+                emoji: "⚖️",
+                labelKey: "examples.law",
+                fallback: "Law office",
+                href: "/package-previews/sites/business/law/index.html",
+                kind: "website" as const,
+              },
+              {
+                id: "restaurant",
+                emoji: "🍽",
+                labelKey: "examples.restaurant",
+                fallback: "Restaurant",
+                href: "/package-previews/sites/business/restaurant/index.html",
+                kind: "website" as const,
+              },
+              {
+                id: "beauty",
+                emoji: "💄",
+                labelKey: "examples.beauty",
+                fallback: "Beauty / Fashion",
+                href: "/package-previews/sites/business/beauty/index.html",
+                kind: "website" as const,
+              },
+              {
+                id: "auto",
+                emoji: "🚗",
+                labelKey: "examples.auto",
+                fallback: "Handwerk / Auto",
+                href: "/package-previews/sites/business/auto/index.html",
+                kind: "website" as const,
+              },
+              {
+                id: "fitness",
+                emoji: "🏋️",
+                labelKey: "examples.fitness",
+                fallback: "Fitness club",
+                href: "/package-previews/sites/business/fitness/index.html",
+                kind: "website" as const,
+              },
+              {
+                id: "handwerk",
+                emoji: "🔨",
+                labelKey: "examples.handwerk",
+                fallback: "Handwerk",
+                href: "/package-previews/sites/business/handwerk/index.html",
+                kind: "website" as const,
+              },
+              {
+                id: "it",
+                emoji: "💻",
+                labelKey: "examples.it",
+                fallback: "IT company",
+                href: "/package-previews/sites/business/it/index.html",
+                kind: "website" as const,
+              },
+              {
+                id: "store",
+                emoji: "🛒",
+                labelKey: "examples.store",
+                fallback: "AI Store Demo",
+                href: "/package-previews/stores/fashion/index.html",
+                kind: "store" as const,
+              },
+              {
+                id: "store-electronics",
+                emoji: "🔌",
+                labelKey: "examples.storeElectronics",
+                fallback: "AI Store · Electronics",
+                href: "/package-previews/stores/electronics/index.html",
+                kind: "store" as const,
+              },
+            ] as const
+          ).map((ex) => (
+            <li key={ex.id}>
+              <a
+                href={ex.href}
+                target={ex.kind === "website" ? "_blank" : undefined}
+                rel={ex.kind === "website" ? "noopener noreferrer" : undefined}
+                className="flex items-center justify-between gap-3 border-b border-white/10 py-3 text-left hover:border-emerald-500/40"
+              >
+                <span className="text-sm font-medium text-white">
+                  <span className="mr-2" aria-hidden>
+                    {ex.emoji}
+                  </span>
+                  {t(`${ns}.${ex.labelKey}`, { defaultValue: ex.fallback })}
+                </span>
+                <span className="shrink-0 text-xs font-semibold text-emerald-300">
+                  {t(`${ns}.examples.view`, { defaultValue: "Ansehen →" })}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {/* Additional services — for existing websites */}
       <section id="website-services" className="scroll-mt-24 space-y-4">
         <ServiceCatalogGrid mode="agency" market={market} />

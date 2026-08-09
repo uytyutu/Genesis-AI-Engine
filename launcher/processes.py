@@ -221,6 +221,13 @@ def start_backend(root: Path | None = None) -> tuple[bool, str, subprocess.Popen
     if not ok:
         return False, msg, None
 
+    from launcher.backend_preflight import format_preflight_failure, run_backend_import_preflight
+
+    pf = run_backend_import_preflight(root)
+    if not pf.ok:
+        append_log(f"Backend preflight FAIL: {pf.issue} {pf.message}")
+        return False, format_preflight_failure(pf), None
+
     ok_port, port_msg = prepare_backend_port(root)
     if not ok_port:
         return False, port_msg, None
@@ -596,8 +603,11 @@ def wait_until_ready(
 
     MAX_TOTAL_SEC = 150.0
     REPAIR_BACKEND_SEC = 20.0
-    REPAIR_FRONTEND_SEC = 20.0
-    ALIVE_NOT_READY_SEC = 2.0
+    # Cold Next.js routinely needs 30–50s before HTTP 200. Auto-repair before
+    # that → Repair→Repair→rebuild hang (RC1 Stability Sprint P0).
+    REPAIR_FRONTEND_SEC = 55.0
+    # Port binds before first compile finishes — wait longer before soft restart.
+    ALIVE_NOT_READY_SEC = 55.0
 
     def _sync() -> None:
         sync_state_from_ports(managed, root)
@@ -694,8 +704,12 @@ def wait_until_ready(
                 alive_not_ready_since = None
                 if on_progress:
                     on_progress("🟡 Frontend жив, но не HTTP 200 — перезапуск...")
-                append_log("Frontend alive on :3000 without HTTP 200 — restart with safe rebuild")
-                ok, repair_msg = repair_frontend(managed, root)
+                append_log(
+                    "Frontend alive on :3000 without HTTP 200 — soft restart (no rebuild)"
+                )
+                ok, repair_msg = repair_frontend(
+                    managed, root, allow_rebuild=False
+                )
                 append_log(f"Product restart frontend: {repair_msg}")
                 if ok and owner_ready_live():
                     _record_recovery(repair_msg, root)
@@ -715,7 +729,9 @@ def wait_until_ready(
                 frontend_repair_attempted = True
                 if on_progress:
                     on_progress("🟡 Исправление Frontend...")
-                ok, repair_msg = repair_frontend(managed, root)
+                ok, repair_msg = repair_frontend(
+                    managed, root, allow_rebuild=False
+                )
                 append_log(f"Staged repair frontend (crashed): {repair_msg}")
                 if ok and owner_ready_live():
                     _record_recovery(repair_msg, root)
@@ -731,7 +747,9 @@ def wait_until_ready(
                 frontend_repair_attempted = True
                 if on_progress:
                     on_progress("🟡 Исправление Frontend...")
-                ok, repair_msg = repair_frontend(managed, root)
+                ok, repair_msg = repair_frontend(
+                    managed, root, allow_rebuild=False
+                )
                 append_log(f"Staged repair frontend (log): {repair_msg}")
                 if ok and owner_ready_live():
                     _record_recovery(repair_msg, root)
@@ -750,7 +768,9 @@ def wait_until_ready(
             frontend_repair_attempted = True
             if on_progress:
                 on_progress("🟡 Исправление Frontend...")
-            ok, repair_msg = repair_frontend(managed, root)
+            ok, repair_msg = repair_frontend(
+                managed, root, allow_rebuild=False
+            )
             append_log(f"Staged repair frontend (timeout): {repair_msg}")
             if ok and owner_ready_live():
                 _record_recovery(repair_msg, root)

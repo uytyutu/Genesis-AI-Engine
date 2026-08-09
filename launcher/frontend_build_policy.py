@@ -74,8 +74,22 @@ def default_policy_for_launch(launch_mode: str | None, state: ProductionBuildSta
 
 
 def needs_stale_choice(launch_mode: str | None, state: ProductionBuildState) -> bool:
-    """CEO chooses when sources changed but the last Stable Release still runs."""
+    """Do NOT block CEO Start with a modal when sources are stale.
+
+    Steam model: Normal Launch always uses the last Stable Release.
+    Development Update is an explicit separate action — never a nag on every Start.
+    (Previously Owner mode asked every launch while Cursor edited files → fatigue.)
+    """
+    _ = launch_mode, state
+    return False
+
+
+def stale_status_hint(state: ProductionBuildState) -> str | None:
+    """Quiet status line — sources changed, Stable still OK."""
     if state.status != STATUS_STALE:
-        return False
-    return normalize_launch_mode(launch_mode) == LAUNCH_MODE_OWNER
+        return None
+    return (
+        "Исходники новее сборки — запущен стабильный релиз. "
+        "Development Update только когда сами решите пересобрать."
+    )
 

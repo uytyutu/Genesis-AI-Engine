@@ -1,0 +1,69 @@
+{
+  "rule": "Media Truth — beauty without profession proof ≠ quality",
+  "media_dna": {
+    "required": [
+      "Real workplace",
+      "People at craft",
+      "Daylight"
+    ],
+    "preferred": [
+      "Local place",
+      "Honest detail"
+    ],
+    "forbidden": [
+      "Café",
+      "Coworking",
+      "Abstract business",
+      "Laptop stock",
+      "Beauty salon"
+    ],
+    "hero_proof": "A frame that answers: what does this company live every day?",
+    "profession_keywords": [
+      "work",
+      "local",
+      "craft",
+      "service"
+    ],
+    "rule": "No photo/illustration/video ships unless it proves profession, brand personality, and company story. Beauty without meaning ≠ quality."
+  },
+  "verdicts": [
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\98905cee-7cae-42ec-8b72-f4106e7245a6\\assets\\hero.jpg",
+      "role": "hero"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\98905cee-7cae-42ec-8b72-f4106e7245a6\\assets\\background.jpg",
+      "role": "background"
+    },
+    {
+      "ok": true,
+      "beautiful": true,
+      "brand_fit": true,
+      "profession_fit": true,
+      "action": "PASS",
+      "reasons": [
+        "brand_book_directed_scene"
+      ],
+      "path": "D:\\Games\\Genesis-AI-Engine\\dashboard\\backend\\.tmp_package_preview_sandbox\\premium\\98905cee-7cae-42ec-8b72-f4106e7245a6\\assets\\gallery.jpg",
+      "role": "gallery"
+    }
+  ],
+  "rebuilds": [],
+  "ok": true
+}

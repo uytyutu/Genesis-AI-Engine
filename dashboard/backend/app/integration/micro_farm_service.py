@@ -462,6 +462,74 @@ class MicroFarmService:
             farm_state=self._load_state(),
         )
 
+    def money_hunter(self) -> dict[str, Any]:
+        """Money Hunter panel — manual job import → profit → CEO approval."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.money_hunter import MoneyHunterService
+
+        ensure_swarm_importable()
+        return MoneyHunterService(self._memory).panel()
+
+    def money_hunter_import(self, payload: dict[str, Any]) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.money_hunter import MoneyHunterService
+
+        ensure_swarm_importable()
+        try:
+            return MoneyHunterService(self._memory).import_opportunity(payload or {})
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
+
+    def money_hunter_top(self, *, limit: int = 20) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.money_hunter import MoneyHunterService
+
+        ensure_swarm_importable()
+        items = MoneyHunterService(self._memory).top(limit=limit)
+        return {"ok": True, "opportunities": items}
+
+    def money_hunter_reality(self) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.money_hunter import MoneyHunterService
+
+        ensure_swarm_importable()
+        return MoneyHunterService(self._memory).reality()
+
+    def money_hunter_approve(
+        self, opportunity_id: str, *, confirm: bool = False, note: str = ""
+    ) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.money_hunter import MoneyHunterService
+
+        ensure_swarm_importable()
+        return MoneyHunterService(self._memory).approve(
+            opportunity_id, confirm=confirm, note=note
+        )
+
+    def money_hunter_reject(self, opportunity_id: str, *, note: str = "") -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.money_hunter import MoneyHunterService
+
+        ensure_swarm_importable()
+        try:
+            return MoneyHunterService(self._memory).reject(opportunity_id, note=note)
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
+
+    def money_hunter_start(self, opportunity_id: str) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.money_hunter import MoneyHunterService
+
+        ensure_swarm_importable()
+        return MoneyHunterService(self._memory).start_execution(opportunity_id)
+
+    def money_hunter_delivery(self, opportunity_id: str) -> dict[str, Any]:
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.money_hunter import MoneyHunterService
+
+        ensure_swarm_importable()
+        return MoneyHunterService(self._memory).create_delivery(opportunity_id)
+
     def farm_engine_v1(self) -> dict[str, Any]:
         """Farm Engine v1 panel — legal digital work OS (separate from Path A)."""
         from app.integration.swarm_bridge import ensure_swarm_importable
@@ -514,13 +582,17 @@ class MicroFarmService:
         ensure_swarm_importable()
         return FarmEngineV1(self._memory).market_monitor(force=force)
 
-    def opire_farm_panel(self, *, force_scan: bool = True) -> dict[str, Any]:
+    def opire_farm_panel(
+        self, *, force_scan: bool = True, enrich_top: int = 0
+    ) -> dict[str, Any]:
         """Opire Semi-Auto bounty panel (owner Farm — not Commercial Engine)."""
         from app.integration.swarm_bridge import ensure_swarm_importable
         from swarm.opire_farm import OpireFarmEngine
 
         ensure_swarm_importable()
-        return OpireFarmEngine(self._memory).panel(force_scan=force_scan)
+        return OpireFarmEngine(self._memory).panel(
+            force_scan=force_scan, enrich_top=enrich_top
+        )
 
     def opire_farm_decide(
         self, reward_id: str, decision: str, *, note: str = ""
@@ -555,6 +627,55 @@ class MicroFarmService:
             payout_usd=payout_usd,
             note=note,
         )
+
+    def opire_farm_start_execution(
+        self, reward_id: str, *, clone: bool = True
+    ) -> dict[str, Any]:
+        """CEO: run Farm Execution Engine Stages 1–5 (never auto-submits PR)."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.opire_farm import OpireFarmEngine
+
+        ensure_swarm_importable()
+        return OpireFarmEngine(self._memory).start_execution(
+            reward_id, clone=clone
+        )
+
+    def opire_farm_ceo_submit(
+        self,
+        reward_id: str,
+        *,
+        pr_id: str | None = None,
+        pr_url: str | None = None,
+        note: str = "",
+    ) -> dict[str, Any]:
+        """CEO Submit PR gate — records submit; does not invent payout."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.opire_farm import OpireFarmEngine
+
+        ensure_swarm_importable()
+        return OpireFarmEngine(self._memory).ceo_submit_pr(
+            reward_id, pr_id=pr_id, pr_url=pr_url, note=note
+        )
+
+    def opire_farm_sync(
+        self, reward_id: str, *, confirm_real: bool = False
+    ) -> dict[str, Any]:
+        """Sync PR/merge/Opire status; optional auto REAL (no manual Payment ID)."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.opire_farm import OpireFarmEngine
+
+        ensure_swarm_importable()
+        return OpireFarmEngine(self._memory).sync_status(
+            reward_id, confirm_real=confirm_real
+        )
+
+    def opire_farm_autonomous_tick(self, *, max_actions: int = 3) -> dict[str, Any]:
+        """AUTO-RUN watchdog: drain queue / auto-approve GO / auto-submit."""
+        from app.integration.swarm_bridge import ensure_swarm_importable
+        from swarm.opire_farm import OpireFarmEngine
+
+        ensure_swarm_importable()
+        return OpireFarmEngine(self._memory).autonomous_tick(max_actions=max_actions)
 
     def income_engine_v1(self) -> dict[str, Any]:
         """Owner-only Income Engine panel (not a commercial Virtus product)."""
@@ -1016,6 +1137,30 @@ class MicroFarmService:
             ledger_real = float(FinanceLedger(self._memory).summary().get("real_withdrawable_eur") or 0)
         except Exception:
             ledger_real = 0.0
+
+        opire_stats: dict = {}
+        try:
+            from swarm.farm_github_live import _github_token
+            from swarm.opire_farm import OpireFarmEngine
+
+            panel = OpireFarmEngine(self._memory).panel(force_scan=False)
+            funnel = panel.get("funnel") if isinstance(panel.get("funnel"), dict) else {}
+            tasks = list(panel.get("active_tasks") or []) + list(panel.get("history") or [])
+            skipped = sum(1 for t in tasks if t.get("status") == "skipped")
+            opire_stats = {
+                "ceo_approved": int(funnel.get("ceo_approved") or 0),
+                "executed": int(funnel.get("executed") or 0),
+                "execution_started": int(funnel.get("executed") or 0),
+                "draft_pr": int(funnel.get("execution_ready_for_submit") or 0),
+                "failed": int(funnel.get("execution_failed") or 0),
+                "skipped": skipped,
+                "paid": int(funnel.get("paid") or 0),
+                "confirmed_usd": float(funnel.get("total_confirmed_usd") or 0),
+                "github_token": bool(_github_token()),
+            }
+        except Exception:
+            opire_stats = {}
+
         return build_revenue_sources_center(
             stripe_income_eur=stripe_income,
             stripe_connected=stripe_connected,
@@ -1024,6 +1169,7 @@ class MicroFarmService:
             digistore_connected=digistore_connected,
             ledger_real_eur=ledger_real,
             farm_estimate_eur=float(state.get("total_earned_eur") or 0),
+            opire=opire_stats,
             keys_probe={
                 "stripe_secret": stripe_secret,
                 "stripe_webhook": stripe_webhook,

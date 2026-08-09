@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "paint_shop",
+  "package_id": "premium",
+  "category": "maler",
+  "store_name": "PigmentPro Shop",
+  "generated_at": "2026-08-07T19:17:51.666893+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 42997,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/paint_shop/catalog.html"
+}

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "products": [
+    {
+      "product_id": "cinematic_ai_experience",
+      "name": "Cinematic AI Experience",
+      "client_label_de": "Cinematic AI Experience",
+      "client_label_en": "Cinematic AI Experience",
+      "client_label_ru": "Cinematic AI Experience",
+      "client_description_de": "Einzigartige kinetografische Szene speziell für Ihr Business — Konzept, Medien, Integration und Visual QA.",
+      "client_description_en": "A unique cinematic scene built for your business — concept, media, site integration, and visual QA.",
+      "client_description_ru": "Уникальная кинематографическая сцена для вашего бизнеса — концепция, медиа, интеграция и visual QA.",
+      "price_eur": 99,
+      "media_budget_eur": 40,
+      "status": "available",
+      "shop_variant_product_id": "cinematic_shop_experience",
+      "shop_price_eur": 149,
+      "shop_media_budget_eur": 60
+    }
+  ],
+  "providers": {
+    "kling": {
+      "enabled": false,
+      "env_aliases": ["KLING_AI_KEY", "KLING_API_KEY", "GENESIS_KLING_API_KEY"]
+    },
+    "kie": {
+      "enabled": false,
+      "env_aliases": ["KIE_API_KEY", "VIRTUS_KIE_API_KEY"],
+      "note": "KIE.ai gateway may expose Kling/Veo/Seedance — live calls require CEO enable + paid media budget"
+    }
+  },
+  "honesty_rule": "Client pays Virtus add-on price. Internal media_budget_eur is not shown to client. No auto-spend without budget. Stripe revenue ≠ media spend."
+}

@@ -1,0 +1,15 @@
+{
+  "brand_name": "GlanzWerk Detailing",
+  "niche_id": "auto_detailing",
+  "package_id": "premium",
+  "media_mode": "showroom_gloss",
+  "visual_metaphor": "Mirror gloss under studio light",
+  "hero_concept": "Mirror gloss under studio light | GlanzWerk Detailing",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": true,
+  "experience_tier": "cinematic",
+  "fingerprint": "67b792e9567286f049c8",
+  "image_prompt": "GlanzWerk Detailing auto_detailing brand hero, Mirror gloss under studio light, European studio, media_mode=showroom_gloss, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

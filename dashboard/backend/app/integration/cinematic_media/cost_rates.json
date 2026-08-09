@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "quote_certainty": "measured_partial",
+  "note": "KIE bills credits after async job create. IMAGE_TO_VIDEO_5S measured once via CEO-approved probe (kling/v2-5-turbo-image-to-video-pro). EUR uses assumed $0.005/credit × 0.92. Production providers remain disabled until CEO enable.",
+  "currency": "EUR",
+  "live_quote_available": false,
+  "measurement": {
+    "source": "kie_probe_report.json",
+    "provider": "KIE",
+    "model": "kling/v2-5-turbo-image-to-video-pro",
+    "capability": "IMAGE_TO_VIDEO",
+    "duration_sec": 5,
+    "credits_consumed": 42,
+    "actual_cost_eur_approx": 0.1932,
+    "usd_per_credit_assumed": 0.005,
+    "generation_time_sec": 154.8,
+    "success": true,
+    "measured_at": "2026-08-09T10:13:56Z",
+    "max_eur_cap": 5.0,
+    "over_cap": false
+  },
+  "providers": {
+    "kie": {
+      "preferred_for": ["IMAGE_GENERATION", "IMAGE_TO_VIDEO", "TEXT_TO_VIDEO"],
+      "rates_eur": {
+        "IMAGE_GENERATION": 0.04,
+        "IMAGE_TO_VIDEO_5S": 0.2,
+        "IMAGE_TO_VIDEO_10S": 0.45,
+        "TEXT_TO_VIDEO_5S": 0.45,
+        "TEXT_TO_VIDEO_10S": 0.8
+      },
+      "rates_notes": {
+        "IMAGE_TO_VIDEO_5S": "measured ~€0.193 (42 credits) on kling/v2-5-turbo-image-to-video-pro; rounded up to €0.20",
+        "IMAGE_TO_VIDEO_10S": "unmeasured — provisional 2.2× 5s",
+        "IMAGE_GENERATION": "unmeasured — provisional"
+      }
+    },
+    "kling": {
+      "preferred_for": ["IMAGE_TO_VIDEO", "TEXT_TO_VIDEO"],
+      "rates_eur": {
+        "IMAGE_GENERATION": 0.05,
+        "IMAGE_TO_VIDEO_5S": 0.2,
+        "IMAGE_TO_VIDEO_10S": 0.45,
+        "TEXT_TO_VIDEO_5S": 0.5,
+        "TEXT_TO_VIDEO_10S": 0.9
+      },
+      "rates_notes": {
+        "IMAGE_TO_VIDEO_5S": "aligned to KIE Kling turbo probe until direct Kling measured"
+      }
+    }
+  },
+  "defaults": {
+    "provider_id": "kie",
+    "capability": "IMAGE_TO_VIDEO",
+    "clip_seconds": 5,
+    "max_attempts_per_job": 2,
+    "include_keyframe_images": true,
+    "safety_margin_eur": 1.0,
+    "preferred_model": "kling/v2-5-turbo-image-to-video-pro"
+  }
+}

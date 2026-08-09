@@ -1,0 +1,15 @@
+{
+  "brand_name": "Nordlicht Fashion",
+  "niche_id": "fashion",
+  "package_id": "premium",
+  "media_mode": "cinematic_photo",
+  "visual_metaphor": "Brand character in space",
+  "hero_concept": "Brand character in space | Nordlicht Fashion",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": false,
+  "experience_tier": "cinematic",
+  "fingerprint": "3b493fbfbdcb1faec352",
+  "image_prompt": "Nordlicht Fashion fashion brand hero, Brand character in space, European studio, media_mode=cinematic_photo, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

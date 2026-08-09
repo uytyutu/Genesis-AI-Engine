@@ -1,0 +1,15 @@
+{
+  "brand_name": "PigmentPro Shop",
+  "niche_id": "maler",
+  "package_id": "premium",
+  "media_mode": "atelier_warm",
+  "visual_metaphor": "Paint plane and brush",
+  "hero_concept": "Paint plane and brush | PigmentPro Shop",
+  "motion_language": "parallax magnetic CTA scroll reveal soft tilt",
+  "recommends_webgl": true,
+  "experience_tier": "cinematic",
+  "fingerprint": "fa3351340746d0eedb5c",
+  "image_prompt": "PigmentPro Shop maler brand hero, Paint plane and brush, European studio, media_mode=atelier_warm, cinematic lighting",
+  "offline_media": true,
+  "director": "creative_direction_v1"
+}

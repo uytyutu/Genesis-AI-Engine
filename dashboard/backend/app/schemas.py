@@ -124,7 +124,10 @@ class FactoryIntentRequest(BaseModel):
         default=None,
         description="Optional DE Impressum/Datenschutz fields for Factory legal pages",
     )
-    package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
+    package_id: str | None = Field(
+        default=None,
+        pattern="^(basic|business|premium|standalone|connected)$",
+    )
     contacts: dict | None = Field(
         default=None,
         description="Order contacts for Path A package delivery (phone, whatsapp, city, …)",
@@ -308,7 +311,25 @@ class SalesOrderCreateRequest(BaseModel):
     package_id: str | None = Field(
         default=None,
         max_length=64,
-        description="Website: basic|business|premium|smoke · Bot: bot_starter|bot_business|bot_professional · repairs/addons",
+        description=(
+            "Website commerce: standalone|connected "
+            "(legacy aliases: basic|business→standalone, premium→connected). "
+            "Bot: bot_starter|bot_business|bot_professional · repairs/addons"
+        ),
+    )
+    commerce_mode: str | None = Field(
+        default=None,
+        max_length=32,
+        description="standalone | connected — Virtus Core purchase model",
+    )
+    business_interview: dict | None = Field(
+        default=None,
+        description="Smart AI Business Interview payload (form or dialogue)",
+    )
+    dialogue: str | None = Field(
+        default=None,
+        max_length=8000,
+        description="Free-text owner story — parsed into Business Interview",
     )
     product_id: str | None = Field(default=None, max_length=80)
     product_kind: str | None = Field(
@@ -330,6 +351,28 @@ class SalesOrderCreateRequest(BaseModel):
         max_length=16,
         description="Buyer UI language (de|en|ru|uk) — Language Consistency Gate",
     )
+    demo: bool = Field(
+        default=False,
+        description="D0 Demo Payment Bridge — internal demo orders only",
+    )
+    payment_mode: str | None = Field(
+        default=None,
+        max_length=16,
+        description="Set to 'demo' for Demo Payment Bridge orders",
+    )
+    cinematic_enabled: bool = Field(
+        default=False,
+        description="Optional Cinematic AI Experience add-on (client-facing product)",
+    )
+    cinematic_product_id: str | None = Field(
+        default=None,
+        max_length=64,
+        description="cinematic_ai_experience | cinematic_shop_experience",
+    )
+    cinematic_ai_experience: bool = Field(
+        default=False,
+        description="Alias for cinematic_enabled",
+    )
 
 
 class SalesOrderCreatedResponse(BaseModel):
@@ -345,6 +388,19 @@ class SalesOrderCreatedResponse(BaseModel):
     symbol: str | None = None
     market_code: str | None = None
     ui_lang: str | None = None
+    demo: bool = False
+    payment_mode: str | None = None
+    demo_payment_available: bool = False
+    demo_payment_banner: str | None = None
+    demo_note: str | None = None
+    cinematic_enabled: bool = False
+    cinematic_price_eur: float | None = None
+    motion_level: str | None = None
+    package_id: str | None = None
+    product_kind: str | None = None
+    locale: str | None = None
+    bot_config: dict | None = None
+    monthly_amount: float | None = None
 
 
 class OrderMaterialUploadResponse(BaseModel):
@@ -371,7 +427,10 @@ class OrderInsightsPreviewRequest(BaseModel):
     material_ids: list[str] = Field(default_factory=list, max_length=40)
     niche: str | None = Field(default=None, max_length=64)
     specialization: str | None = Field(default=None, max_length=120)
-    package_id: str | None = Field(default=None, pattern="^(basic|business|premium)$")
+    package_id: str | None = Field(
+        default=None,
+        pattern="^(basic|business|premium|standalone|connected)$",
+    )
     city: str | None = Field(default=None, max_length=120)
 
 
@@ -489,6 +548,11 @@ class SalesOrderPublicStatus(BaseModel):
     paid_at: str | None = None
     created_at: str | None = None
     updated_at: str | None = None
+    demo: bool = False
+    payment_mode: str | None = None
+    demo_payment_available: bool = False
+    demo_payment_banner: str | None = None
+    demo_note: str | None = None
     download_ready: bool = False
     download_url: str | None = None
     download_bytes: int | None = None
@@ -679,6 +743,8 @@ class RevenuePaymentResponse(BaseModel):
     order: SalesOrderPublicStatus | None = None
     already_processed: bool = False
     receipt_email: dict | None = None
+    payment_mode: str | None = None
+    demo: bool = False
 
 
 class StripeWebhookResponse(BaseModel):

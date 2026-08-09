@@ -1,0 +1,87 @@
+{
+  "niche_id": "auto",
+  "subniche_id": "tires",
+  "subniche_label": "Reifenservice",
+  "business_model": "tires_industrial_small_team",
+  "city": "Hamburg",
+  "company_name": "Autowerkstatt Nord",
+  "who": "Ehrliche Werkstatt: Diagnose zuerst, Preis danach, kein Theater.",
+  "trust_why": "Nachweisbare Arbeit · Reifenservice · Hamburg",
+  "sells": "['Diagnose', 'Inspektion', 'Reifen', 'Ölwechsel']",
+  "differentiator": "Schriftliche Diagnose, Garantie, keine versteckten Posten",
+  "atmosphere": "industrial",
+  "people": "Fachteam vor Ort",
+  "projects_focus": "Work, place, people, proof",
+  "media_brief": {
+    "hero": "Professional auto scene — European studio 2026",
+    "gallery": "Work, place, people, proof",
+    "video": "Niche atmosphere loop if provider available",
+    "before_after": "",
+    "team": "People of the company",
+    "equipment": "",
+    "atmosphere": "industrial",
+    "subniche": "tires",
+    "local": "City landmarks / neighborhood only as supporting identity"
+  },
+  "components": [
+    {
+      "id": "booking",
+      "label": "Service Booking",
+      "why": "Termin für Werkstatt."
+    },
+    {
+      "id": "services",
+      "label": "Services",
+      "why": "Diagnose bis Reifen."
+    },
+    {
+      "id": "fleet",
+      "label": "Fleet / Shop Floor",
+      "why": "Ausstattung."
+    },
+    {
+      "id": "whatsapp",
+      "label": "WhatsApp",
+      "why": "Foto vom Schaden."
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "why": "Lokales Vertrauen."
+    },
+    {
+      "id": "catalog",
+      "label": "Catalog / Offers",
+      "why": "Site job includes selling."
+    }
+  ],
+  "site_jobs": [
+    "leads",
+    "services",
+    "sell"
+  ],
+  "style": "industrial",
+  "clients_who": "Autobesitzer in Hamburg",
+  "fingerprint": "784c934e34bceea6e73e",
+  "canon": "Digital Business Creator",
+  "business_scale": "small_team",
+  "dream_vision": "",
+  "dream_signals": {
+    "dream": "",
+    "ambition": "",
+    "hero_bias": "",
+    "tone": ""
+  },
+  "clarify_answers": {},
+  "technical_decisions": {
+    "law": "Factory owns technical decisions from business understanding",
+    "page_architecture": "multi_page",
+    "navigation": "topbar",
+    "sticky_header": true,
+    "show_crew_section": true,
+    "show_locations": true,
+    "primary_cta": "contact",
+    "renderer_hint": "auto",
+    "components_source": "business_intelligence"
+  }
+}

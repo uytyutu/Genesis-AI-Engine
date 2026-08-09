@@ -1,0 +1,20 @@
+{
+  "niche_id": "sanitaer",
+  "idea": "Bad und Heizung, die zum Alltag passen.",
+  "who": "Sanitär- und Heizungsteam in Stuttgart — Wasser und Wärme ohne Stress.",
+  "character": [],
+  "metaphor": "modern",
+  "hero_concept": "",
+  "emotion_3s": "",
+  "source": "dream_brief",
+  "rule": "If the idea is not readable in 5 seconds without body copy → FAIL. Who-is-company comes before how-it-looks.",
+  "gate_report": {
+    "gate": "COMMERCIAL_IDEA",
+    "ok": true,
+    "idea": "Bad und Heizung, die zum Alltag passen.",
+    "who": "Sanitär- und Heizungsteam in Stuttgart — Wasser und Wärme ohne Stress.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "question": "Is the commercial idea readable in 5 seconds without body copy?"
+  }
+}

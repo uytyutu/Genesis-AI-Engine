@@ -1,0 +1,8 @@
+﻿ .../backend/app/integration/outreach_adaptive.json |  8 +--
+ .../app/integration/outreach_adaptive_service.py   |  6 +-
+ .../backend/app/integration/outreach_markets.json  | 70 +++++++++----------
+ .../backend/app/integration/pricing_engine.py      | 78 +++++++++++++++++++++-
+ dashboard/backend/tests/test_outreach_adaptive.py  |  9 +++
+ dashboard/backend/tests/test_pricing_engine.py     | 38 +++++++++++
+ dashboard/frontend/app/lib/marketLang.ts           |  7 +-
+ 7 files changed, 172 insertions(+), 44 deletions(-)

@@ -1,0 +1,64 @@
+{
+  "emotion": "warmth",
+  "style": "organic_premium",
+  "palette_family": "warm_clay",
+  "typography_pair": "fraunces_dm",
+  "motion": "business",
+  "hero_concept": "soft_orb_photo",
+  "hero_layout": "D",
+  "depth": "medium",
+  "glass": "medium",
+  "composition": "healthcare",
+  "package_id": "business",
+  "niche_id": "fashion",
+  "fingerprint": "0cafe6ba112d1b0ef04fb5c458d351752ff236023f95f12b818ad3ac8258be01",
+  "section_treatments": [
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "services",
+      "gradient"
+    ],
+    [
+      "mid_cta",
+      "gradient"
+    ],
+    [
+      "process",
+      "photo_band"
+    ],
+    [
+      "gallery",
+      "ink"
+    ],
+    [
+      "benefits",
+      "illustration"
+    ],
+    [
+      "faq",
+      "tint"
+    ],
+    [
+      "reviews",
+      "ink"
+    ],
+    [
+      "maps",
+      "gradient"
+    ],
+    [
+      "contact",
+      "gradient"
+    ]
+  ],
+  "accent_hex": "#a68a6d",
+  "surface_hex": "#faf6f1",
+  "ink_hex": "#292524"
+}

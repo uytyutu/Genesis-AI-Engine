@@ -33,5 +33,5 @@ export function publicPageMetadata(
 }
 
 export const DEFAULT_PUBLIC_DESCRIPTION =
-  "Virtus Core: Landing Page Neustart für lokale Betriebe in Deutschland — mobil, klarer Terminweg, 350 / 650 / 1200 €. " +
+  "Virtus Core: Landing Page Neustart für lokale Betriebe in Deutschland — mobil, klarer Terminweg, 199 / 399 / 699 €. " +
   SITE_TAGLINE;

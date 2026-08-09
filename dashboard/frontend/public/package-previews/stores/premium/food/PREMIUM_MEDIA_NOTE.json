@@ -1,0 +1,8 @@
+{
+  "status": "studio_offline_media",
+  "message": "AI Image Provider not connected — Studio Offline Media (3D/experience still on)",
+  "provider_connected": false,
+  "studio_offline_media": true,
+  "webgl_3d": false,
+  "experience_on": true
+}

@@ -1,0 +1,161 @@
+{
+  "legal_name": "Glow Lab Beauty",
+  "brand_name": "Glow Lab Beauty",
+  "slogan": "Schönheit mit Haltung",
+  "mission": "Jeder Look soll im Alltag von Berlin funktionieren — nicht nur im Spiegel.",
+  "history": "Was als kleines Vorhaben in Berlin begann, ist über die Jahre zu einem festen Ort mit Stammgästen und klarer Handschrift geworden. Seit 2018 wächst Glow Lab Beauty bewusst — Qualität vor Tempo.",
+  "values": [
+    "Präzision",
+    "Menschlichkeit",
+    "Transparenz",
+    "Verlässlichkeit",
+    "Handwerk"
+  ],
+  "approach": "Beratung zuerst, Technik danach. Keine Trends ohne Haltbarkeit.",
+  "founded_year": 2018,
+  "city": "Berlin",
+  "niche_id": "beauty",
+  "services": [
+    [
+      "Herrenschnitt",
+      "Präziser Schnitt mit Kontur",
+      "ab 32 €"
+    ],
+    [
+      "Glossing",
+      "Glanz ohne harte Chemie",
+      "ab 48 €"
+    ],
+    [
+      "Olaplex-Kur",
+      "Reparatur für blondiertes Haar",
+      "ab 55 €"
+    ],
+    [
+      "Brautstyling",
+      "Probe + Hochzeitstag",
+      "ab 180 €"
+    ],
+    [
+      "Augenbrauen",
+      "Form & Farbe",
+      "ab 28 €"
+    ],
+    [
+      "Beratung",
+      "Farb- & Formberatung ohne Termin-Druck",
+      "kostenlos"
+    ],
+    [
+      "Balayage",
+      "Natürlich verlaufende Coloration",
+      "ab 145 €"
+    ],
+    [
+      "Damenhaarschnitt",
+      "Schnitt mit Beratung & Finish",
+      "ab 58 €"
+    ],
+    [
+      "Pflegebehandlung",
+      "Intensive Kur für strapaziertes Haar",
+      "ab 42 €"
+    ],
+    [
+      "Styling",
+      "Event- & Alltag-Styling",
+      "ab 35 €"
+    ]
+  ],
+  "advantages": [
+    "Seit 2018 in Berlin",
+    "Transparente Preise",
+    "Feste Ansprechpartner",
+    "Termine mit Bestätigung",
+    "Nachvollziehbarer Ablauf"
+  ],
+  "team": [
+    [
+      "Mila Hoffmann",
+      "Creative Director",
+      "Creative Director bei Glow Lab Beauty — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Max Hoffmann",
+      "Color Specialist",
+      "Color Specialist bei Glow Lab Beauty — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Mila Keller",
+      "Stylist/in",
+      "Stylist/in bei Glow Lab Beauty — Fokus auf Qualität und ruhige Abläufe."
+    ],
+    [
+      "Lea Weber",
+      "Salonleitung",
+      "Salonleitung bei Glow Lab Beauty — Fokus auf Qualität und ruhige Abläufe."
+    ]
+  ],
+  "faq": [
+    [
+      "Wie vereinbare ich einen Termin bei Glow Lab Beauty?",
+      "Über das Kontaktformular, telefonisch oder per E-Mail. Sie erhalten eine Bestätigung."
+    ],
+    [
+      "Wie transparent sind die Kosten?",
+      "Vor Beginn erhalten Sie eine klare Einschätzung. Keine versteckten Positionen."
+    ],
+    [
+      "Seit wann gibt es Glow Lab Beauty?",
+      "Seit 2018 in Berlin — gewachsen mit Stammkunden und klarer Handschrift."
+    ],
+    [
+      "Gibt es Parkplätze / Anreise?",
+      "Zentral in Berlin. Details zur Anreise senden wir mit der Terminbestätigung."
+    ],
+    [
+      "Arbeitet ihr auch online / hybrid?",
+      "Wo sinnvoll ja — Details klären wir im Erstkontakt."
+    ]
+  ],
+  "reviews": [
+    [
+      "Beratung ehrlich, Ergebnis alltagstauglich. Selten so zufrieden.",
+      "Anna · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Farbe hält, Schnitt sitzt. Endlich kein Trend-Opfer.",
+      "Jonas · Demo-Bewertung — kein echter Kundenname"
+    ],
+    [
+      "Ruhiger Salon, klare Preise, starke Hands.",
+      "Jonas · Demo-Bewertung — kein echter Kundenname"
+    ]
+  ],
+  "process_steps": [
+    "Kennenlernen & Bedarf",
+    "Klare Empfehlung & Preis",
+    "Umsetzung mit Abstimmung",
+    "Nachsorge & Feedback"
+  ],
+  "blog_titles": [
+    "Warum Glow Lab Beauty anders arbeitet",
+    "3 Dinge, die Kunden in Berlin uns am häufigsten fragen",
+    "Hinter den Kulissen: Qualität statt Tempo",
+    "So bereiten Sie Ihren ersten Termin vor"
+  ],
+  "certificates": [
+    "Fortbildungen Color",
+    "Premium-Produkte",
+    "Ersthelfer vor Ort"
+  ],
+  "hours": "Mo–Fr 09:00–18:00 · Sa nach Vereinbarung",
+  "phone": "+49 89 8762841",
+  "email": "kontakt@glow-lab-beauty.example.de",
+  "social": [
+    "instagram.com/glowlabbeauty.demo",
+    "linkedin.com/company/glow-lab-beauty-demo"
+  ],
+  "fingerprint": "1b1275c3d2cd0895",
+  "demo_content": true
+}

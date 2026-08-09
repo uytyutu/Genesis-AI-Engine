@@ -65,7 +65,7 @@ def get_market(market_code: str | None) -> MarketProfile:
 
 
 def checkout_price_scale(market_code: str) -> float:
-    """Scale DE checkout anchors (350/650/1200 €) to target market via landing entry."""
+    """Scale DE checkout anchors (199/399/699 €) to target market via landing entry."""
     de = get_market(MARKET_DE)
     market = get_market(market_code)
     de_base = de.website_projects.landing_page.from_amount

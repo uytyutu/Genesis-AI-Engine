@@ -56,7 +56,7 @@ curl -fsSI "http://VPS_IP/order"   # order path
 
 ## Stage 3 (separate approval)
 
-1. Point `beta.genesis-ai-engine.com` → VPS.
+1. Point `virtuscore.com` → this OVH VPS (Production).
 2. TLS (certbot) + uncomment 443.
 3. Update Stripe webhook URL.
-4. Keep Railway/Vercel warm ~48h as rollback.
+4. Keep Vercel as **Preview only** (~48h warm as rollback). Do not leave customer DNS on Vercel.

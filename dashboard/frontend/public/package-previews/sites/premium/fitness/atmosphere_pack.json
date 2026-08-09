@@ -1,0 +1,348 @@
+{
+  "brand_name": "FitBase Studio",
+  "niche_id": "fitness",
+  "package_id": "premium",
+  "metaphor": "Offenes Licht auf ruhiger Fläche",
+  "core_emotion": "Vertrauen",
+  "atmosphere_mode": "atelier",
+  "scene_language": [
+    "moderner Gym-Floor",
+    "Hantelzone",
+    "Personal Training"
+  ],
+  "texture_language": [
+    "Paper",
+    "Light"
+  ],
+  "motion_language": "kinetic micro-motion · glow pulse · scroll scenes",
+  "camera_feeling": "calm eye-level · clear space",
+  "scroll_feeling": "steady soft reveals",
+  "cta_feeling": "clear large buttons · calm spacing · Große Buttons · Ruhiger Abstand",
+  "sound_mood": "quiet professional room tone",
+  "illustration_style": "isometric craft marks",
+  "glass_level": "medium",
+  "shadow_language": "soft lift · Soft",
+  "icon_language": "soft rounded symbols",
+  "lighting": "even daylight · soft fill",
+  "layers": [
+    "content",
+    "atmosphere",
+    "motion",
+    "depth",
+    "identity"
+  ],
+  "media_briefs": [
+    {
+      "role": "hero",
+      "concept": "moderner Gym-Floor · Hantelzone · Personal Training",
+      "must_include": [
+        "moderner Gym-Floor",
+        "Hantelzone",
+        "Personal Training",
+        "Kraftbereich",
+        "Cardio"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|hero|9d6a244d3128cb02c5bc",
+      "size": [
+        1600,
+        900
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=hero. Medium=editorial_photo. Illustration language=isometric craft marks. Must show: moderner Gym-Floor, Hantelzone, Personal Training. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "background",
+      "concept": "scene · moderner Gym-Floor · Hantelzone · Personal Training",
+      "must_include": [
+        "moderner Gym-Floor",
+        "Hantelzone",
+        "Personal Training",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|bg|9d6a244d3128cb02c5bc",
+      "size": [
+        1920,
+        1080
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=hero_background. Medium=abstract_gradient. Illustration language=isometric craft marks. Must show: moderner Gym-Floor, Hantelzone, Personal Training. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Kraftbereich",
+      "must_include": [
+        "Kraftbereich",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|gal0|9d6a244d3128cb02c5bc",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=isometric craft marks. Must show: Kraftbereich, Cardio, Stretching-Zone, Trainer und Kunde. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Kraftbereich."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Cardio",
+      "must_include": [
+        "Cardio",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|gal1|9d6a244d3128cb02c5bc",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=isometric craft marks. Must show: Kraftbereich, Cardio, Stretching-Zone, Trainer und Kunde. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Cardio."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Stretching-Zone",
+      "must_include": [
+        "Stretching-Zone",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|gal2|9d6a244d3128cb02c5bc",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=isometric craft marks. Must show: Kraftbereich, Cardio, Stretching-Zone, Trainer und Kunde. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Stretching-Zone."
+    },
+    {
+      "role": "gallery",
+      "concept": "gallery proof · Trainer und Kunde",
+      "must_include": [
+        "Trainer und Kunde",
+        "Paper",
+        "Light"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|gal3|9d6a244d3128cb02c5bc",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=gallery. Medium=editorial_photo. Illustration language=isometric craft marks. Must show: Kraftbereich, Cardio, Stretching-Zone, Trainer und Kunde. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays. Specific frame: Trainer und Kunde."
+    },
+    {
+      "role": "before_after",
+      "concept": "before / after proof",
+      "must_include": [
+        "moderner Gym-Floor",
+        "Hantelzone"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|before_after|9d6a244d3128cb02c5bc",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=before_after. Medium=editorial_photo. Illustration language=isometric craft marks. Must show: Kraftbereich, Cardio. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "team",
+      "concept": "team of this company",
+      "must_include": [
+        "Personal Trainer"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|team|9d6a244d3128cb02c5bc",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=team. Medium=minimal_illustration. Illustration language=isometric craft marks. Must show: Personal Trainer. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "equipment",
+      "concept": "tools & equipment of the trade",
+      "must_include": [
+        "Hantelständer",
+        "Rack"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|equipment|9d6a244d3128cb02c5bc",
+      "size": [
+        1400,
+        1000
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=equipment. Medium=minimal_illustration. Illustration language=isometric craft marks. Must show: Hantelständer, Rack. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    },
+    {
+      "role": "illustration",
+      "concept": "isometric craft marks",
+      "must_include": [
+        "moderner Gym-Floor",
+        "Hantelzone"
+      ],
+      "must_forbid": [
+        "cafe",
+        "restaurant interior",
+        "beauty salon",
+        "spa",
+        "saas dashboard",
+        "startup office",
+        "coworking",
+        "stock handshake",
+        "generic purple gradient",
+        "luxury champagne cliché without craft proof",
+        "laptop",
+        "coffee",
+        "abstract business",
+        "office meeting"
+      ],
+      "seed": "FitBase Studio|fitness|premium|f4976e08f05e1d15d337061e|illustration|9d6a244d3128cb02c5bc",
+      "size": [
+        1200,
+        1200
+      ],
+      "image_prompt": "Premium German brand visual for «FitBase Studio» (fitness) in Germany. Role=illustration. Medium=minimal_illustration. Illustration language=isometric craft marks. Must show: moderner Gym-Floor, Hantelzone. Cinematic lighting, European digital-studio quality, unique to this company. Forbidden: cafe, restaurant interior, beauty salon, spa, saas dashboard, startup office, repeated template look, watermark, text overlays."
+    }
+  ],
+  "fingerprint": "81ccd37f728e5e24b876b84c",
+  "director": "brand_book",
+  "acceptance": "Without logo, niche character must remain readable from atmosphere alone."
+}

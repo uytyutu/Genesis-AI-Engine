@@ -1,0 +1,29 @@
+{
+  "niche_id": "psychology",
+  "emotion": "relief",
+  "keywords": [
+    "quiet luxury",
+    "nature path",
+    "editorial stillness",
+    "glass soft light",
+    "breathing space",
+    "safe space"
+  ],
+  "avoid": [
+    "salon glam",
+    "clinic fluorescent",
+    "equal card grid first",
+    "purple mesh clone",
+    "Hero→cards→text ladder",
+    "tech_saas",
+    "gaming",
+    "flash_sale",
+    "stock_teeth_smile"
+  ],
+  "hero_feeling": "A place where nobody judges you.",
+  "atmosphere": "protected chamber, soft boundaries, human scale",
+  "references": [
+    "European private therapy studios",
+    "Nordic wellness editorial sites"
+  ]
+}

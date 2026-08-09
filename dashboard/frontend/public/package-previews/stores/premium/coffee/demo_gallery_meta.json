@@ -1,0 +1,13 @@
+{
+  "kind": "store",
+  "folder": "coffee",
+  "package_id": "premium",
+  "category": "restaurant",
+  "store_name": "Röstwerk Coffee",
+  "generated_at": "2026-08-08T16:19:58.001653+00:00",
+  "engine": "write_storefront + Digital Creative Studio",
+  "index_bytes": 43118,
+  "concept_only": false,
+  "reality_benchmark": "PENDING",
+  "public_url": "/package-previews/stores/premium/coffee/catalog.html"
+}

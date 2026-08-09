@@ -1,0 +1,75 @@
+{
+  "emotion": "clarity",
+  "style": "modern_clinical",
+  "palette_family": "sage_mist",
+  "typography_pair": "manrope_ibm_plex_industrial",
+  "motion": "business",
+  "hero_concept": "helle Praxis · Behandlungsstuhl · sterile Instrumente",
+  "hero_layout": "D",
+  "depth": "high",
+  "glass": "medium",
+  "composition": "narrative",
+  "package_id": "premium",
+  "niche_id": "dental",
+  "fingerprint": "ceb24f2791cd0300a17bc099132bed42b6277761143e5971ba284b5662f14064",
+  "section_treatments": [
+    [
+      "about",
+      "ink"
+    ],
+    [
+      "process",
+      "gradient"
+    ],
+    [
+      "gallery",
+      "glass"
+    ],
+    [
+      "mid_cta",
+      "ink"
+    ],
+    [
+      "services",
+      "ink"
+    ],
+    [
+      "showcase",
+      "photo_band"
+    ],
+    [
+      "trust",
+      "tint"
+    ],
+    [
+      "benefits",
+      "ink"
+    ],
+    [
+      "faq",
+      "gradient"
+    ],
+    [
+      "reviews",
+      "glass"
+    ],
+    [
+      "maps",
+      "illustration"
+    ],
+    [
+      "late_cta",
+      "ink"
+    ],
+    [
+      "contact",
+      "ink"
+    ]
+  ],
+  "accent_hex": "#5b7c6e",
+  "surface_hex": "#ecf4f8",
+  "ink_hex": "#0b0d10",
+  "atmosphere_mode": "atelier",
+  "brand_book_fp": "5577a4d1ce26de479484270f",
+  "border_radius_px": 12
+}

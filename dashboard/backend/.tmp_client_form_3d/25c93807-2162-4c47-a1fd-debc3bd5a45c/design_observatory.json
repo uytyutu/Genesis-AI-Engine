@@ -1,0 +1,92 @@
+{
+  "niche_id": "car_dealership",
+  "era": "2026+",
+  "study_sources": [
+    "European digital studio portfolios",
+    "Premium SaaS brand sites",
+    "Luxury ecommerce craft"
+  ],
+  "first_screen": [
+    "Emotional job in 3 seconds",
+    "Brand voice before feature list",
+    "One visual center"
+  ],
+  "page_rhythm": [
+    "Scene → Story → Emotion → Interaction → Experience → Conversion"
+  ],
+  "composition_depth": [
+    "Living atmosphere",
+    "Asymmetry",
+    "Depth layers"
+  ],
+  "typography": "Voice-matched display + readable body",
+  "micro_interactions": "Purposeful motion — never decoration spam",
+  "trust": "Specific proof woven into scenes",
+  "cta_craft": "One primary ask per scene",
+  "brand_feel": [
+    "modern",
+    "confident",
+    "alive"
+  ],
+  "invent": "Original Brand DNA for car_dealership — invent, never recycle prior sites.",
+  "never": [
+    "Constructor ladder",
+    "White empty slabs",
+    "Identical niche clones"
+  ],
+  "lenses": [
+    {
+      "id": "first_screen",
+      "question": "Why does the first screen exist?",
+      "principles": [
+        "One emotional job in 3 seconds",
+        "Visual center owns the fold",
+        "Brand voice before feature list"
+      ],
+      "anti_patterns": [
+        "Hero as feature dump",
+        "equal card grid first",
+        "logo wall as hero"
+      ]
+    },
+    {
+      "id": "rhythm",
+      "question": "How does the page breathe?",
+      "principles": [
+        "Scenes with distinct moods",
+        "Alternating density — never identical section padding",
+        "Story → emotion → interaction → conversion"
+      ],
+      "anti_patterns": [
+        "Hero→Text→Cards→Text→Cards",
+        "uniform white slabs"
+      ]
+    },
+    {
+      "id": "trust",
+      "question": "How is confidence earned?",
+      "principles": [
+        "Proof woven into scenes, not bolted as a strip",
+        "Specific over generic claims",
+        "Quiet credentials beat badge spam"
+      ],
+      "anti_patterns": [
+        "fake counters",
+        "stock handshake photos as trust"
+      ]
+    },
+    {
+      "id": "cta",
+      "question": "How does desire become action?",
+      "principles": [
+        "CTA matches emotional temperature of the scene",
+        "Secondary path without visual noise",
+        "One primary ask per scene"
+      ],
+      "anti_patterns": [
+        "identical pill buttons everywhere",
+        "three equal CTAs"
+      ]
+    }
+  ]
+}

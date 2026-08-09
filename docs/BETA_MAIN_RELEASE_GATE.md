@@ -8,6 +8,19 @@
 
 ---
 
+## 0. STOP BREAKING THE BUILD (обязательно для агента / разработки)
+
+**Репозиторий всегда должен оставаться deployable.** Не оставлять ветку в broken build.
+
+Запрещённый цикл: изменить → push → Vercel упал → чинить → push снова.  
+Правильный цикл: изменить → локально `typecheck` + `lint` + **`npm run build`** GREEN → commit → push → Vercel GREEN.
+
+- Изменения `dashboard/frontend` (или того, что собирает Vercel): **без локального GREEN `npm run build` — нет commit.**
+- Если Vercel RED после push: **стоп фич** → лог → починить build → только потом снова продукт.
+- Cursor rule (локально): `.cursor/rules/deployable-build.mdc` (+ `git-workflow.mdc`).
+
+---
+
 ## 1. Deployment
 
 - [ ] Vercel build — GREEN

@@ -1,0 +1,53 @@
+{
+  "niche_id": "energy",
+  "problem_before": "Unklare Angebote und Angst vor Fehlmontage.",
+  "story": "Das Dach arbeitet — und die Rechnung wird kleiner.",
+  "emotion": "tech",
+  "trust": "Ertragsfokus, saubere Montage, Nachbetreuung",
+  "offer": "Ertragsfokus, saubere Montage, Nachbetreuung",
+  "idea": "Strom vom eigenen Dach — messbar und ruhig geplant.",
+  "source": "dream_brief",
+  "stage_name": "First Impression Generation",
+  "arc": [
+    "story",
+    "emotion",
+    "trust",
+    "offer",
+    "cta"
+  ],
+  "rule": "Not a slogan. Not a section list. What does the client feel 10 seconds before they open this site?",
+  "three_second_test": {
+    "name": "3-SECOND TEST",
+    "instructions": "Open the site. Do not read the text. After 3 seconds answer:",
+    "questions": [
+      "What does the company do?",
+      "Can I trust it?",
+      "Does it look cheap or expensive?",
+      "Do I want to look further?",
+      "Does it look like a template?"
+    ],
+    "rule": "If any answer is negative or unclear → REBUILD."
+  },
+  "gate_report": {
+    "gate": "FIRST_IMPRESSION",
+    "stage": "First Impression Generation",
+    "ok": true,
+    "story": "Das Dach arbeitet — und die Rechnung wird kleiner.",
+    "problem_before": "Unklare Angebote und Angst vor Fehlmontage.",
+    "package_id": "premium",
+    "source": "dream_brief",
+    "three_second_test": {
+      "name": "3-SECOND TEST",
+      "instructions": "Open the site. Do not read the text. After 3 seconds answer:",
+      "questions": [
+        "What does the company do?",
+        "Can I trust it?",
+        "Does it look cheap or expensive?",
+        "Do I want to look further?",
+        "Does it look like a template?"
+      ],
+      "rule": "If any answer is negative or unclear → REBUILD."
+    },
+    "question": "What problem does the client feel 10 seconds before opening this site?"
+  }
+}

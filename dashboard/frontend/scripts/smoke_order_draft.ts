@@ -50,6 +50,7 @@ async function main() {
     maxReachedStep: 3,
     packageId: "business",
     manualPackage: true,
+    projectType: "website",
     brandStyle: "auto",
     businessName: "Mueller Praxis",
     description: "Zahnarzt in Koeln",

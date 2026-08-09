@@ -1,0 +1,294 @@
+{
+  "websites": [
+    {
+      "niche": "auto",
+      "label": "auto",
+      "company": "Autowerkstatt Nord — Klarheit statt Werkstatt-Theater. Inspektion, Reifen, Repara",
+      "url": "/package-previews/sites/premium/auto/index.html"
+    },
+    {
+      "niche": "auto_detailing",
+      "label": "auto_detailing",
+      "company": "GlanzWerk Detailing — luxury Mehrstufige Politur, Keramik, dokumentiertes Ergebnis",
+      "url": "/package-previews/sites/premium/auto_detailing/index.html"
+    },
+    {
+      "niche": "beauty",
+      "label": "beauty",
+      "company": "Salon Mira — Ruhe vor dem Spiegel. Ein Atelier-Ritual — kein Salon-Durchl",
+      "url": "/package-previews/sites/premium/beauty/index.html"
+    },
+    {
+      "niche": "car_dealership",
+      "label": "Autohaus",
+      "company": "NordLicht Autohaus — showroom Ehrliche Beratung, saubere Historie, Servicenetz",
+      "url": "/package-previews/sites/premium/car_dealership/index.html"
+    },
+    {
+      "niche": "cleaning",
+      "label": "cleaning",
+      "company": "KlarRaum Facility — modern Feste Ansprechpartner, transparente Touren, Qualitäts",
+      "url": "/package-previews/sites/premium/cleaning/index.html"
+    },
+    {
+      "niche": "dachreinigung",
+      "label": "dachreinigung",
+      "company": "DachKlar Service — Erleichterung statt Panik vor der Rechnung. Wir kommen, rein",
+      "url": "/package-previews/sites/premium/dachreinigung/index.html"
+    },
+    {
+      "niche": "dental",
+      "label": "dental",
+      "company": "SmileCare Praxis — Ruhe im Behandlungsstuhl. Prophylaxe bis Implantat — klar er",
+      "url": "/package-previews/sites/premium/dental/index.html"
+    },
+    {
+      "niche": "elektro",
+      "label": "Elektriker",
+      "company": "StromWerk Meisterbetrieb — industrial Meisterqualität, Festpreis-Klarheit, Notdienst",
+      "url": "/package-previews/sites/premium/elektro/index.html"
+    },
+    {
+      "niche": "energy",
+      "label": "energy",
+      "company": "SolarNord Energie — Kunden in Hannover spürbar besser bedienen als gestern.",
+      "url": "/package-previews/sites/premium/energy/index.html"
+    },
+    {
+      "niche": "family_psychology",
+      "label": "Familienpsychologie",
+      "company": "NestKlar Familienpraxis — editorial Empathie, Struktur, alltagsnahe Schritte",
+      "url": "/package-previews/sites/premium/family_psychology/index.html"
+    },
+    {
+      "niche": "fitness",
+      "label": "fitness",
+      "company": "FitBase Studio — Energie ohne Druck. Probetraining ohne Vertragsfalle.",
+      "url": "/package-previews/sites/premium/fitness/index.html"
+    },
+    {
+      "niche": "gartenpflege",
+      "label": "gartenpflege",
+      "company": "Grünzeit Pflege — Grün ohne Stress. Rasen, Hecke, Beete — saisonal betreut.",
+      "url": "/package-previews/sites/premium/gartenpflege/index.html"
+    },
+    {
+      "niche": "handwerk",
+      "label": "handwerk",
+      "company": "Meisterbau Hoffmann — Entlastung: jemand übernimmt den Haushalt-Job. Montage, Repa",
+      "url": "/package-previews/sites/premium/handwerk/index.html"
+    },
+    {
+      "niche": "it_support",
+      "label": "it_support",
+      "company": "NetzKlar IT — modern SLA, verständliche Sprache, dokumentierte Fixes",
+      "url": "/package-previews/sites/premium/it_support/index.html"
+    },
+    {
+      "niche": "law",
+      "label": "law",
+      "company": "Kanzlei Bergmann — Kontrolle kehrt zurück. Erste Orientierung in der Erstberatu",
+      "url": "/package-previews/sites/premium/law/index.html"
+    },
+    {
+      "niche": "maler",
+      "label": "Maler",
+      "company": "FarbRaum Malermeister — atelier Meisterfinish, Farbkonzept, termingerechte Übergabe",
+      "url": "/package-previews/sites/premium/maler/index.html"
+    },
+    {
+      "niche": "orthodontics",
+      "label": "orthodontics",
+      "company": "Alignum Kieferorthopädie — clinic 3D-Scan, transparente Meilensteine, moderne Praxis",
+      "url": "/package-previews/sites/premium/orthodontics/index.html"
+    },
+    {
+      "niche": "photography",
+      "label": "photography",
+      "company": "Lichtspur Studio — editorial Konzept vor Auslösen, klare Nutzungsrechte, schnel",
+      "url": "/package-previews/sites/premium/photography/index.html"
+    },
+    {
+      "niche": "psychology",
+      "label": "psychology",
+      "company": "Praxis Klarheit — Wieder Boden unter den Füßen. Ein geschützter Raum für das e",
+      "url": "/package-previews/sites/premium/psychology/index.html"
+    },
+    {
+      "niche": "realestate",
+      "label": "realestate",
+      "company": "WohnRaum Partner — Überblick statt Marktdruck. Bewertung, Exposé, Begleitung bi",
+      "url": "/package-previews/sites/premium/realestate/index.html"
+    },
+    {
+      "niche": "restaurant",
+      "label": "restaurant",
+      "company": "Trattoria Luna — Ankommen — wie im Hof. Ein Tisch, der sich anfühlt wie bei F",
+      "url": "/package-previews/sites/premium/restaurant/index.html"
+    },
+    {
+      "niche": "sanitaer",
+      "label": "Sanitaer",
+      "company": "WasserKlar Sanitär — modern Klare Abläufe, Meisterhandwerk, ehrliche Preise",
+      "url": "/package-previews/sites/premium/sanitaer/index.html"
+    },
+    {
+      "niche": "zaunbau",
+      "label": "zaunbau",
+      "company": "ZaunWerk Süd — Grenze mit Ruhe. Sichtschutz, Doppelstab, Tor — montiert und",
+      "url": "/package-previews/sites/premium/zaunbau/index.html"
+    }
+  ],
+  "stores": [
+    {
+      "niche": "accessories",
+      "label": "accessories",
+      "company": "Zeitstück Accessoires | Startseite",
+      "url": "/package-previews/stores/premium/accessories/index.html"
+    },
+    {
+      "niche": "auto_parts",
+      "label": "Autoteile",
+      "company": "TeilWerk Parts | Startseite",
+      "url": "/package-previews/stores/premium/auto_parts/index.html"
+    },
+    {
+      "niche": "beauty",
+      "label": "beauty",
+      "company": "Glow Lab Beauty | Startseite",
+      "url": "/package-previews/stores/premium/beauty/index.html"
+    },
+    {
+      "niche": "bookstore",
+      "label": "bookstore",
+      "company": "Seitenwerk Books | Startseite",
+      "url": "/package-previews/stores/premium/bookstore/index.html"
+    },
+    {
+      "niche": "cleaning_shop",
+      "label": "cleaning_shop",
+      "company": "FrischMittel Profi | Startseite",
+      "url": "/package-previews/stores/premium/cleaning_shop/index.html"
+    },
+    {
+      "niche": "coffee",
+      "label": "coffee",
+      "company": "Röstwerk Coffee | Startseite",
+      "url": "/package-previews/stores/premium/coffee/index.html"
+    },
+    {
+      "niche": "dachreinigung",
+      "label": "dachreinigung",
+      "company": "DachKlar Shop | Startseite",
+      "url": "/package-previews/stores/premium/dachreinigung/index.html"
+    },
+    {
+      "niche": "detailing_shop",
+      "label": "detailing_shop",
+      "company": "MirrorCoat Care | Startseite",
+      "url": "/package-previews/stores/premium/detailing_shop/index.html"
+    },
+    {
+      "niche": "electronics",
+      "label": "electronics",
+      "company": "VoltHaus Electronics | Startseite",
+      "url": "/package-previews/stores/premium/electronics/index.html"
+    },
+    {
+      "niche": "fashion",
+      "label": "fashion",
+      "company": "Nordlicht Fashion | Startseite",
+      "url": "/package-previews/stores/premium/fashion/index.html"
+    },
+    {
+      "niche": "food",
+      "label": "food",
+      "company": "FeinKost Food | Startseite",
+      "url": "/package-previews/stores/premium/food/index.html"
+    },
+    {
+      "niche": "furniture",
+      "label": "furniture",
+      "company": "Wohnraum Furniture | Startseite",
+      "url": "/package-previews/stores/premium/furniture/index.html"
+    },
+    {
+      "niche": "gartenpflege",
+      "label": "gartenpflege",
+      "company": "Grünzeit Garten | Startseite",
+      "url": "/package-previews/stores/premium/gartenpflege/index.html"
+    },
+    {
+      "niche": "handwerk",
+      "label": "handwerk",
+      "company": "Werkstatt Direkt | Startseite",
+      "url": "/package-previews/stores/premium/handwerk/index.html"
+    },
+    {
+      "niche": "it_parts",
+      "label": "it_parts",
+      "company": "ByteErsatz Parts | Startseite",
+      "url": "/package-previews/stores/premium/it_parts/index.html"
+    },
+    {
+      "niche": "jewelry",
+      "label": "jewelry",
+      "company": "Silberlinie Jewelry | Startseite",
+      "url": "/package-previews/stores/premium/jewelry/index.html"
+    },
+    {
+      "niche": "optics_shop",
+      "label": "Optik",
+      "company": "KlarBlick Optics | Startseite",
+      "url": "/package-previews/stores/premium/optics_shop/index.html"
+    },
+    {
+      "niche": "ortho_care",
+      "label": "ortho_care",
+      "company": "SmileTray Care | Startseite",
+      "url": "/package-previews/stores/premium/ortho_care/index.html"
+    },
+    {
+      "niche": "paint_shop",
+      "label": "Farbe",
+      "company": "PigmentPro Shop | Startseite",
+      "url": "/package-previews/stores/premium/paint_shop/index.html"
+    },
+    {
+      "niche": "pets",
+      "label": "pets",
+      "company": "PfotenGlück Pets | Startseite",
+      "url": "/package-previews/stores/premium/pets/index.html"
+    },
+    {
+      "niche": "psychology",
+      "label": "psychology",
+      "company": "Klarheit Digital | Startseite",
+      "url": "/package-previews/stores/premium/psychology/index.html"
+    },
+    {
+      "niche": "solar_shop",
+      "label": "Solar",
+      "company": "SunGrid Solar Shop | Startseite",
+      "url": "/package-previews/stores/premium/solar_shop/index.html"
+    },
+    {
+      "niche": "sports",
+      "label": "sports",
+      "company": "FitTrail Sports | Startseite",
+      "url": "/package-previews/stores/premium/sports/index.html"
+    },
+    {
+      "niche": "wine_shop",
+      "label": "Wein",
+      "company": "RebenKlar Vinothek | Startseite",
+      "url": "/package-previews/stores/premium/wine_shop/index.html"
+    },
+    {
+      "niche": "zaunbau",
+      "label": "zaunbau",
+      "company": "ZaunWerk Material | Startseite",
+      "url": "/package-previews/stores/premium/zaunbau/index.html"
+    }
+  ]
+}
