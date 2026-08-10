@@ -94,8 +94,9 @@ def main() -> int:
     from app.integration.store_admin.catalog_service import StoreCatalogService
     from app.integration.store_admin.design_service import StoreDesignService
 
-    # Live uvicorn (launcher) uses app/memory — not dashboard/backend/memory.
-    memory = BACKEND / "app" / "memory"
+    # Local launcher: app/memory. Production (OVH): GENESIS_MEMORY_DIR=/data.
+    memory_env = (os.environ.get("GENESIS_MEMORY_DIR") or "").strip()
+    memory = Path(memory_env) if memory_env else (BACKEND / "app" / "memory")
     memory.mkdir(parents=True, exist_ok=True)
 
     report: dict = {"brand": BRAND, "email": EMAIL, "memory": str(memory)}
@@ -230,12 +231,15 @@ def main() -> int:
         catalog.create_product(
             shop_id,
             {
-                "name": name,
-                "price_eur": price,
+                "title": name,
+                "price": price,
                 "category": category,
                 "description": desc,
-                "stock": 25,
-                "status": "active",
+                "stock_qty": 25,
+                "stock_status": "in_stock",
+                "status": "published",
+                "brand": BRAND,
+                "currency": "EUR",
             },
         )
         seeded += 1
