@@ -17,23 +17,33 @@ BACKEND = Path(__file__).resolve().parents[1]
 ROOT = BACKEND.parents[1]
 sys.path.insert(0, str(BACKEND))
 
-ETALON_WEB = (
-    ROOT
-    / "dashboard"
-    / "frontend"
-    / "public"
-    / "package-previews"
-    / "premium"
-    / "lorenne"
+ETALON_WEB = Path(
+    os.environ.get(
+        "LORENNE_ETALON_WEB",
+        str(
+            ROOT
+            / "dashboard"
+            / "frontend"
+            / "public"
+            / "package-previews"
+            / "premium"
+            / "lorenne"
+        ),
+    )
 )
-ETALON_SHOP = (
-    ROOT
-    / "dashboard"
-    / "frontend"
-    / "public"
-    / "package-previews"
-    / "premium"
-    / "lorenne-shop"
+ETALON_SHOP = Path(
+    os.environ.get(
+        "LORENNE_ETALON_SHOP",
+        str(
+            ROOT
+            / "dashboard"
+            / "frontend"
+            / "public"
+            / "package-previews"
+            / "premium"
+            / "lorenne-shop"
+        ),
+    )
 )
 
 EMAIL = os.environ.get("LORENNE_EMAIL", "Bulhakovasvitlana94@gmail.com").strip()
