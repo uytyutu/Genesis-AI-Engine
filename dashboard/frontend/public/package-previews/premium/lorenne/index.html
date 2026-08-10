@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LORENNE · Premium Gift Boxes · Berlin</title>
+  <meta name="description" content="LORENNE — hochwertige Geschenkboxen mit Beauty- und Self-Care. Elegant, emotional, premium. Berlin." />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0a0710; --ink:#f6f0f8; --muted:#c9bfd4; --accent:#c4a0e0; --accent2:#6b3d8a; --line:rgba(255,255,255,.12); }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:Outfit,system-ui,sans-serif; }
+    a { color:inherit; text-decoration:none; }
+    header.top { position:fixed; inset:0 0 auto; z-index:40; display:flex; justify-content:space-between; align-items:center;
+      padding:.85rem 1.1rem; background:linear-gradient(to bottom,rgba(10,7,16,.88),transparent); }
+    header.top strong { font-family:"Cormorant Garamond",serif; font-size:1.2rem; letter-spacing:.04em; }
+    header.top nav { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; font-size:.8rem; color:var(--muted); }
+    .cta, .nav-cta, button.cta { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:.7rem 1.2rem;
+      border:0; border-radius:999px; background:linear-gradient(135deg,var(--accent),#e8d5f5); color:#1a1020; font-weight:600; cursor:pointer; font:inherit; }
+    header.top .nav-cta { min-height:36px; padding:.4rem .95rem; font-size:.78rem; }
+    .pin { position:relative; height:calc(100vh + 18 * 16vh); }
+    .stage { position:sticky; top:0; height:100vh; overflow:hidden; background:#050308; }
+    .seq { position:absolute; inset:0; }
+    .seq img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .14s linear; will-change:opacity; }
+    .seq img.is-on { opacity:1; }
+    .seq img.is-prev { opacity:.32; }
+    .vignette { position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(ellipse at 50% 40%,transparent 12%,rgba(0,0,0,.58) 78%),linear-gradient(to top,rgba(0,0,0,.88),transparent 46%); }
+    .hud { position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; justify-content:flex-end;
+      padding:clamp(1.2rem,4vw,3rem); pointer-events:none; }
+    .hud > * { pointer-events:auto; }
+    .eyebrow { letter-spacing:.28em; text-transform:uppercase; font-size:.7rem; color:var(--accent); margin:0 0 .5rem; text-shadow:0 1px 8px rgba(0,0,0,.8); }
+    h1 { font-family:"Cormorant Garamond",serif; font-size:clamp(2.3rem,6.5vw,4.6rem); line-height:.95; margin:0 0 .55rem; max-width:12ch;
+      text-shadow:0 2px 18px rgba(0,0,0,.75); }
+    .beat-line { color:#efe6f6; font-size:clamp(1.05rem,2.4vw,1.35rem); max-width:28rem; min-height:2.8em; margin:0 0 1rem; line-height:1.4;
+      text-shadow:0 1px 10px rgba(0,0,0,.85); }
+    .frame-meter { color:rgba(255,255,255,.55); font-size:.72rem; letter-spacing:.12em; margin:0 0 .8rem; }
+    .progress { position:absolute; top:0; left:0; height:3px; width:0; background:linear-gradient(90deg,var(--accent2),var(--accent)); z-index:8; }
+    .hint { position:absolute; right:1.1rem; bottom:1rem; z-index:6; color:var(--muted); font-size:.72rem; letter-spacing:.1em; }
+    .section { max-width:68rem; margin:0 auto; padding:4.2rem 1.25rem; scroll-margin-top:5rem; }
+    .section h2 { font-family:"Cormorant Garamond",serif; font-size:clamp(2rem,4vw,3rem); margin:.3rem 0 1rem; }
+    .lead { color:var(--muted); font-size:1.05rem; line-height:1.7; max-width:44rem; }
+    .grid-cards { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); margin-top:1.4rem; }
+    .card { border:1px solid var(--line); border-radius:1rem; padding:1rem; background:rgba(255,255,255,.03); }
+    .card h3 { margin:0 0 .35rem; font-size:1.02rem; }
+    .card p { margin:0; color:var(--muted); font-size:.9rem; }
+    .mini-cta { display:inline-block; margin-top:.7rem; color:var(--accent); font-size:.85rem; }
+    .product-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
+    .product { border:1px solid var(--line); border-radius:1rem; overflow:hidden; background:rgba(255,255,255,.03); }
+    .product img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+    .product h3 { margin:.75rem .85rem .2rem; font-size:1rem; }
+    .product .price { margin:0 .85rem .7rem; color:var(--accent); font-weight:600; }
+    .contact-shell { display:grid; gap:1.2rem; grid-template-columns:1.05fr .95fr; margin-top:1.4rem; }
+    @media (max-width:860px) { .contact-shell { grid-template-columns:1fr; } .hint { display:none; } header.top nav a:not(.nav-cta) { display:none; } .pin { height:calc(100vh + 18 * 12vh); } }
+    .contact-panel { border:1px solid var(--line); border-radius:1.15rem; padding:1.15rem; background:rgba(255,255,255,.03); }
+    form.msg { display:grid; gap:.65rem; }
+    form.msg label { font-size:.75rem; color:var(--muted); }
+    form.msg input, form.msg textarea { width:100%; border-radius:.7rem; border:1px solid var(--line); background:#120c18; color:var(--ink); padding:.7rem .8rem; font:inherit; }
+    .review { border:1px solid var(--line); border-radius:1rem; padding:1rem; background:rgba(255,255,255,.03); }
+    .review .stars { color:var(--accent); letter-spacing:.06em; }
+    .demo-tag { display:inline-block; margin-top:.45rem; font-size:.65rem; letter-spacing:.12em; text-transform:uppercase; color:#e8b4ff; border:1px solid rgba(196,160,224,.35); padding:.15rem .45rem; border-radius:999px; }
+    footer.site { border-top:1px solid var(--line); padding:1.4rem 1.2rem 2.4rem; color:var(--muted); font-size:.8rem; text-align:center; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <strong>LORENNE</strong>
+    <nav>
+      <a href="#about">Über uns</a>
+      <a href="#categories">Kategorien</a>
+      <a href="#shop-teaser">Boxen</a>
+      <a href="#reviews">Bewertungen</a>
+      <a href="#kontakt">Kontakt</a>
+      <a class="nav-cta" href="#kontakt">Box wählen</a>
+    </nav>
+  </header>
+
+  <div class="pin" id="cinemaPin">
+    <div class="stage">
+      <div class="progress" id="prog"></div>
+      <div class="seq" id="seq">      <img src="assets/seq/f001.jpg" alt="" class="is-on" loading="lazy" />
+      <img src="assets/seq/f002.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f003.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f004.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f005.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f006.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f007.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f008.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f009.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f010.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f011.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f012.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f013.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f014.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f015.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f016.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f017.jpg" alt="" class="" loading="lazy" />
+      <img src="assets/seq/f018.jpg" alt="" class="" loading="lazy" />
+      </div>
+      <div class="vignette"></div>
+      <div class="hud">
+        <p class="eyebrow">Premium Gift Boxes · Berlin</p>
+        <h1>LORENNE</h1>
+        <p class="beat-line" id="beatLine">Geschenke mit Seele.</p>
+        <p class="frame-meter" id="meter">FRAME 001 / 018</p>
+        <a class="cta" href="#kontakt">Box wählen</a>
+      </div>
+      <p class="hint">SCROLL ↓</p>
+    </div>
+  </div>
+
+  <section class="section" id="about">
+    <p class="eyebrow">Über LORENNE</p>
+    <h2>Geschenkboxen mit Seele</h2>
+    <p class="lead">
+      LORENNE kuratiert hochwertige Geschenkboxen mit Beauty- und Self-Care-Momenten —
+      für Partner, Freundinnen, Geburtstage und besondere Augenblicke.
+      Elegant. Emotional. Premium. Berlin.
+    </p>
+  </section>
+
+  <section class="section" id="categories">
+    <h2>Welche Box passt zu Ihnen?</h2>
+    <div class="grid-cards"><article class="card"><h3>Self Care</h3><p>Für Rituale und Ruhe.</p><a class="mini-cta" href="#shop-teaser">Kategorie ansehen →</a></article><article class="card"><h3>Beauty Gifts</h3><p>Pflege zum Verschenken.</p><a class="mini-cta" href="#shop-teaser">Kategorie ansehen →</a></article><article class="card"><h3>Birthday</h3><p>Für besondere Tage.</p><a class="mini-cta" href="#shop-teaser">Kategorie ansehen →</a></article><article class="card"><h3>Romantic</h3><p>Für Momente zu zweit.</p><a class="mini-cta" href="#shop-teaser">Kategorie ansehen →</a></article><article class="card"><h3>Premium</h3><p>Atelier-Auswahl.</p><a class="mini-cta" href="#shop-teaser">Kategorie ansehen →</a></article><article class="card"><h3>Seasonal</h3><p>Zur Jahreszeit.</p><a class="mini-cta" href="#shop-teaser">Kategorie ansehen →</a></article><article class="card"><h3>Special Moments</h3><p>Open when…</p><a class="mini-cta" href="#shop-teaser">Kategorie ansehen →</a></article></div>
+  </section>
+
+  <section class="section" id="shop-teaser">
+    <h2>Featured Gifts</h2>
+    <p class="lead">Eine Auswahl aus dem Premium-Shop — vollständiger Katalog im Online-Shop.</p>
+    <div class="product-grid" style="margin-top:1.4rem"><article class="product"><img src="assets/seq/f010.jpg" alt="" /><h3>Kraft Tanken Box</h3><p class="price">49 €</p></article><article class="product"><img src="assets/seq/f007.jpg" alt="" /><h3>Zeit für Dich Box</h3><p class="price">54 €</p></article><article class="product"><img src="assets/seq/f009.jpg" alt="" /><h3>Self Love Box</h3><p class="price">48 €</p></article><article class="product"><img src="assets/seq/f008.jpg" alt="" /><h3>Beauty Box</h3><p class="price">51 €</p></article><article class="product"><img src="assets/seq/f013.jpg" alt="" /><h3>Pink Glow Box</h3><p class="price">52 €</p></article><article class="product"><img src="assets/seq/f014.jpg" alt="" /><h3>Sunday Reset Box</h3><p class="price">55 €</p></article></div>
+    <p style="margin-top:1.2rem"><a class="cta" href="./../lorenne-shop/index.html">Zum Online-Shop →</a></p>
+  </section>
+
+  <section class="section" id="reviews">
+    <h2>Kundenbewertungen</h2>
+    <div class="grid-cards">
+      <article class="review"><p class="stars">★★★★★</p><p>Die Verpackung allein war schon ein Moment.</p><span class="demo-tag">DEMO REVIEW</span></article>
+      <article class="review"><p class="stars">★★★★★</p><p>Genau das richtige Geschenk — elegant und persönlich.</p><span class="demo-tag">DEMO REVIEW</span></article>
+      <article class="review"><p class="stars">★★★★☆</p><p>Schöne Zusammenstellung, soft lilac Look.</p><span class="demo-tag">DEMO REVIEW</span></article>
+    </div>
+  </section>
+
+  <section class="section" id="kontakt">
+    <h2>Kontakt</h2>
+    <div class="contact-shell">
+      <div class="contact-panel">
+        <p class="lead">Berlin · LORENNE Gift Boxes</p>
+        <p class="lead" style="margin-top:.6rem">E-Mail und Telefon erscheinen hier, sobald Sie sie im Workspace hinterlegen — keine erfundenen Konten.</p>
+      </div>
+      <div class="contact-panel">
+        <form class="msg" onsubmit="event.preventDefault(); this.querySelector('.ok').style.display='block';">
+          <label>Name<input name="name" required autocomplete="name" /></label>
+          <label>Email<input type="email" name="email" required autocomplete="email" /></label>
+          <label>Telefon<input type="tel" name="phone" autocomplete="tel" /></label>
+          <label>Nachricht<textarea name="msg" rows="4" required></textarea></label>
+          <button class="cta" type="submit">Nachricht senden</button>
+          <p class="ok" style="display:none;color:#b8f0c8">Danke — Nachricht (Demo) erfasst.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site">
+    LORENNE · Premium Gift Boxes · Berlin ·
+    <a href="#about">About</a>
+    <a href="./../lorenne-shop/index.html">Shop</a>
+    · Built by Virtus Core from CreativeBusinessProject (Quality Gate pending)
+  </footer>
+
+  <script>
+  (function(){
+    var copies = ["Geschenke mit Seele.", "Die Box erscheint.", "Hochwertige Verpackung.", "Satin. Detail. Gefühl.", "Öffnen, wenn Sie es brauchen.", "Der Moment.", "Beauty & Self-Care innen.", "Kleine Rituale. Große Wirkung.", "Sorgfältig zusammengestellt.", "Der fertige Moment.", "Unsere Kollektion.", "Welche Box passt zu Ihnen?", "Wählen Sie Ihr Geschenk.", "Premium. Emotional. Bereit zum Schenken.", "LORENNE — Berlin.", "Liebevoll kuratiert.", "Schreiben Sie uns.", "Box wählen."];
+    var imgs = Array.prototype.slice.call(document.querySelectorAll('#seq img'));
+    var N = imgs.length;
+    var pin = document.getElementById('cinemaPin');
+    var beat = document.getElementById('beatLine');
+    var meter = document.getElementById('meter');
+    var prog = document.getElementById('prog');
+    var last = -1;
+    function paint(){
+      if (!N || !pin) return;
+      var rect = pin.getBoundingClientRect();
+      var total = pin.offsetHeight - window.innerHeight;
+      var scrolled = Math.min(Math.max(-rect.top, 0), total);
+      var t = total > 0 ? scrolled / total : 0;
+      var idx = Math.min(N - 1, Math.floor(t * N));
+      if (idx !== last) {
+        imgs.forEach(function(img, i){
+          img.classList.toggle('is-on', i === idx);
+          img.classList.toggle('is-prev', i === idx - 1);
+        });
+        if (beat) beat.textContent = copies[idx] || copies[copies.length-1] || '';
+        if (meter) meter.textContent = 'FRAME ' + String(idx+1).padStart(3,'0') + ' / ' + String(N).padStart(3,'0');
+        last = idx;
+      }
+      if (prog) prog.style.width = (t * 100).toFixed(2) + '%';
+    }
+    window.addEventListener('scroll', paint, {passive:true});
+    window.addEventListener('resize', paint);
+    paint();
+  })();
+  </script>
+</body>
+</html>

@@ -11,6 +11,7 @@ import {
 import { WebsiteAdminContent } from "../../../../components/WebsiteAdminContent";
 import { WebsiteAdminDesign } from "../../../../components/WebsiteAdminDesign";
 import { WebsiteAdminMedia } from "../../../../components/WebsiteAdminMedia";
+import { WebsiteAdminCinematic } from "../../../../components/WebsiteAdminCinematic";
 import { WebsiteTipsPanel } from "../../../../components/WebsiteTipsPanel";
 import { VectorDialogDock } from "../../../../components/VectorDialogDock";
 import { clientAuthHeaders, getClientToken } from "../../../../lib/clientAuth";
@@ -46,6 +47,7 @@ export default function WebsiteAdminPage() {
     const allowed: WebsiteAdminSectionId[] = [
       "dashboard",
       "website",
+      "cinematic",
       "design",
       "media",
       "files",
@@ -224,6 +226,13 @@ export default function WebsiteAdminPage() {
               </button>
               <button
                 type="button"
+                onClick={() => setSection("cinematic")}
+                className="rounded-xl border border-violet-400/40 px-4 py-2 text-sm font-semibold text-violet-100"
+              >
+                Cinematic scenes
+              </button>
+              <button
+                type="button"
                 onClick={() => void publish()}
                 className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white"
               >
@@ -271,6 +280,14 @@ export default function WebsiteAdminPage() {
 
       {section === "website" ? (
         <WebsiteAdminContent orderId={orderId} onSaved={refreshPreview} />
+      ) : null}
+
+      {section === "cinematic" ? (
+        <WebsiteAdminCinematic
+          orderId={orderId}
+          previewUrl={meta?.preview_url}
+          onSaved={refreshPreview}
+        />
       ) : null}
 
       {section === "design" ? (

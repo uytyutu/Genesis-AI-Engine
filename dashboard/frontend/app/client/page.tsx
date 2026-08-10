@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ClientWorkspaceShell } from "../components/ClientWorkspaceShell";
-import { VectorDialogDock } from "../components/VectorDialogDock";
+import { VectorCoachingToasts } from "../components/VectorCoachingToasts";
 import { BusinessSetupPanel } from "../components/BusinessSetupPanel";
 import { AiHealthPanel } from "../components/AiHealthPanel";
 import {
@@ -13,6 +13,8 @@ import {
   portalFetchAllow404,
 } from "../lib/portalApi";
 import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
+import { clientAuthHeaders, getClientToken } from "../lib/clientAuth";
+import { publicApiBase } from "../lib/publicApiBase";
 
 type MyProduct = {
   product_id: string;
@@ -41,6 +43,10 @@ export default function ClientDashboardPage() {
   const [products, setProducts] = useState<MyProduct[] | null>(null);
   const [openConversations, setOpenConversations] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [giftUnlimited, setGiftUnlimited] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+  const [webOrderId, setWebOrderId] = useState<string | null>(null);
+  const [shopOrderId, setShopOrderId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -57,6 +63,46 @@ export default function ClientDashboardPage() {
         setOpenConversations(open);
       } else {
         setOpenConversations(0);
+      }
+
+      if (getClientToken()) {
+        const api = publicApiBase();
+        const meRes = await fetch(`${api}/api/client/me`, {
+          headers: { ...clientAuthHeaders() },
+          cache: "no-store",
+        });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          setGiftUnlimited(Boolean(me.gift_unlimited || me.unlimited));
+          setDisplayName(
+            String(me.company_display_name || me.company_name || me.name || ""),
+          );
+        }
+        const ordRes = await fetch(`${api}/api/client/orders`, {
+          headers: { ...clientAuthHeaders() },
+          cache: "no-store",
+        });
+        if (ordRes.ok) {
+          const body = await ordRes.json();
+          const orders = Array.isArray(body.orders) ? body.orders : [];
+          const active = orders.filter(
+            (o: { status?: string; quality_state?: string }) =>
+              String(o.status || "").toLowerCase() !== "superseded" &&
+              String(o.quality_state || "").toUpperCase() !== "ARCHIVED",
+          );
+          const web = active.find(
+            (o: { package_id?: string; product_kind?: string; order_id?: string }) =>
+              String(o.product_kind || "") !== "shop" &&
+              String(o.package_id || "") !== "ecommerce_shop",
+          );
+          const shop = active.find(
+            (o: { package_id?: string; product_kind?: string; order_id?: string }) =>
+              String(o.product_kind || "") === "shop" ||
+              String(o.package_id || "") === "ecommerce_shop",
+          );
+          setWebOrderId(web?.order_id ? String(web.order_id) : null);
+          setShopOrderId(shop?.order_id ? String(shop.order_id) : null);
+        }
       }
     } catch (err) {
       if (err instanceof PortalApiError && err.status === 401) {
@@ -121,10 +167,80 @@ export default function ClientDashboardPage() {
         </p>
       ) : null}
 
-      <div className="mb-6 grid gap-4 lg:grid-cols-2">
-        <BusinessSetupPanel dark />
-        <AiHealthPanel dark />
-      </div>
+      {giftUnlimited || webOrderId || shopOrderId ? (
+        <section className="mb-6 rounded-2xl border border-violet-400/25 bg-violet-500/[0.07] p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-200/80">
+            Your Business
+          </p>
+          <h2 className="mt-1 text-2xl font-semibold text-white">
+            {displayName || "LORENNE"}
+          </h2>
+          <p className="mt-1 text-sm text-zinc-300">
+            Gift Boxes · Beauty Gifts · Premium
+            {giftUnlimited ? " · Unlimited Workspace" : ""}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-emerald-200">
+              Website · Live
+            </span>
+            <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-emerald-200">
+              Shop · Live
+            </span>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            {webOrderId ? (
+              <>
+                <Link
+                  href={`/client/websites/${webOrderId}/admin`}
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black hover:brightness-110"
+                >
+                  Edit Website
+                </Link>
+                <Link
+                  href={`/client/websites/${webOrderId}/admin?section=cinematic`}
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/5"
+                >
+                  Preview / Scenes
+                </Link>
+              </>
+            ) : null}
+            {shopOrderId ? (
+              <Link
+                href={`/client/stores/${shopOrderId}/admin`}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/5"
+              >
+                Manage Products
+              </Link>
+            ) : null}
+            <Link
+              href="/client/orders"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-300 hover:text-white"
+            >
+              Orders
+            </Link>
+            <Link
+              href="/client/shop"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-400 hover:text-white"
+            >
+              Marketplace
+            </Link>
+          </div>
+          <p className="mt-3 text-xs text-zinc-500">
+            Analytics: No data yet · Shipping/Payments: Not connected (honest Connect in Store Admin)
+          </p>
+        </section>
+      ) : null}
+
+      {!(giftUnlimited || (webOrderId && shopOrderId)) ? (
+        <div className="mb-6 grid gap-4 lg:grid-cols-2">
+          <BusinessSetupPanel dark />
+          <AiHealthPanel dark />
+        </div>
+      ) : (
+        <div className="mb-6">
+          <AiHealthPanel dark />
+        </div>
+      )}
 
       {products !== null && products.length === 0 ? (
         <section className="mb-6 rounded-2xl border border-sky-400/25 bg-sky-500/[0.07] p-5">
@@ -156,7 +272,7 @@ export default function ClientDashboardPage() {
         </section>
       ) : null}
 
-      {products !== null && products.length > 0 ? (
+      {products !== null && products.length > 0 && !giftUnlimited ? (
         <section className="mb-6 rounded-2xl border border-emerald-400/20 bg-emerald-500/[0.05] p-5">
           <h2 className="text-lg font-semibold text-white">Expand your project</h2>
           <p className="mt-1 text-sm text-zinc-400">
@@ -349,17 +465,7 @@ export default function ClientDashboardPage() {
           </ul>
         )}
       </section>
-      <VectorDialogDock
-        surface="platform"
-        dark
-        dock="right"
-        hasStore={(products ?? []).some(
-          (p) =>
-            p.product_type === "store" ||
-            p.product_id === "prod_store" ||
-            p.product_type === "shop",
-        )}
-      />
+      <VectorCoachingToasts />
     </ClientWorkspaceShell>
   );
 }

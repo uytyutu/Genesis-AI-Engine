@@ -7,6 +7,7 @@ import { BRAND_NAME } from "../lib/publicBrand";
 export type WebsiteAdminSectionId =
   | "dashboard"
   | "website"
+  | "cinematic"
   | "design"
   | "media"
   | "files"
@@ -26,6 +27,7 @@ const NAV: {
 }[] = [
   { id: "dashboard", label: "Dashboard", icon: "◈", ready: true },
   { id: "website", label: "Website", icon: "☰", ready: true },
+  { id: "cinematic", label: "Cinematic", icon: "▶", ready: true },
   { id: "design", label: "Design", icon: "◐", ready: true },
   { id: "media", label: "Media", icon: "▦", ready: true },
   { id: "files", label: "Files", icon: "⇩", ready: true },

@@ -1,0 +1,131 @@
+{
+  "products": [
+    {
+      "name": "Kraft Tanken Box",
+      "cat": "Self Care",
+      "price": 49.0,
+      "frame": 10
+    },
+    {
+      "name": "Zeit für Dich Box",
+      "cat": "Self Care",
+      "price": 54.0,
+      "frame": 7
+    },
+    {
+      "name": "Self Love Box",
+      "cat": "Self Care",
+      "price": 48.0,
+      "frame": 9
+    },
+    {
+      "name": "Beauty Box",
+      "cat": "Beauty Gifts",
+      "price": 51.0,
+      "frame": 8
+    },
+    {
+      "name": "Pink Glow Box",
+      "cat": "Beauty Gifts",
+      "price": 52.0,
+      "frame": 13
+    },
+    {
+      "name": "Sunday Reset Box",
+      "cat": "Self Care",
+      "price": 55.0,
+      "frame": 14
+    },
+    {
+      "name": "Birthday Soft Box",
+      "cat": "Birthday",
+      "price": 46.0,
+      "frame": 11
+    },
+    {
+      "name": "Birthday Sparkle Box",
+      "cat": "Birthday",
+      "price": 58.0,
+      "frame": 12
+    },
+    {
+      "name": "Romantic Evening Box",
+      "cat": "Romantic",
+      "price": 59.0,
+      "frame": 10
+    },
+    {
+      "name": "For You Box",
+      "cat": "Romantic",
+      "price": 47.0,
+      "frame": 5
+    },
+    {
+      "name": "Open When… Collection",
+      "cat": "Special Moments",
+      "price": 43.0,
+      "frame": 16
+    },
+    {
+      "name": "Neuer Lebensabschnitt Box",
+      "cat": "Special Moments",
+      "price": 52.0,
+      "frame": 15
+    },
+    {
+      "name": "Movie Night Box",
+      "cat": "Seasonal",
+      "price": 47.0,
+      "frame": 9
+    },
+    {
+      "name": "Winter Warmth Box",
+      "cat": "Seasonal",
+      "price": 53.0,
+      "frame": 11
+    },
+    {
+      "name": "Sakura Moment Box",
+      "cat": "Seasonal",
+      "price": 46.0,
+      "frame": 12
+    },
+    {
+      "name": "Premium Atelier Box",
+      "cat": "Premium",
+      "price": 79.0,
+      "frame": 18
+    },
+    {
+      "name": "Signature Lilac Box",
+      "cat": "Premium",
+      "price": 69.0,
+      "frame": 2
+    },
+    {
+      "name": "Danke Box",
+      "cat": "Special Moments",
+      "price": 39.0,
+      "frame": 14
+    },
+    {
+      "name": "Best Friends Box",
+      "cat": "Birthday",
+      "price": 45.0,
+      "frame": 13
+    },
+    {
+      "name": "Study Focus Box",
+      "cat": "Self Care",
+      "price": 42.0,
+      "frame": 8
+    },
+    {
+      "name": "Mama Box",
+      "cat": "Special Moments",
+      "price": 59.0,
+      "frame": 10
+    }
+  ],
+  "demo": true
+}

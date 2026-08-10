@@ -4326,8 +4326,20 @@ def public_niches() -> dict:
     from app.factory.niche_profiles import known_niche_ids, resolve_niche_profile
     from app.factory.research_3d.visual_experience_registry import load_specialization_map
 
+    # Family Care / Familienpsychologie — removed from public order UI (not a sellable demo).
+    _PUBLIC_NICHE_BLOCKLIST = frozenset(
+        {
+            "family_psychology",
+            "family_care",
+            "familienpsychologie",
+            "psychology",
+        }
+    )
+
     niches = []
     for nid in known_niche_ids():
+        if nid in _PUBLIC_NICHE_BLOCKLIST or "family" in nid:
+            continue
         profile = resolve_niche_profile(nid)
         niches.append({"id": nid, "label_de": profile.label_de})
     specs = []
@@ -4445,6 +4457,22 @@ def client_me(request: Request) -> dict:
 
     payload = require_client(request)
     return _customer_identity().me(str(payload["sub"]))
+
+
+@app.get("/api/client/vector-coaching")
+def client_vector_coaching(request: Request) -> dict:
+    """Ephemeral Vector coaching notifications — not a chat."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration.vector.coaching_notifications import coaching_payload_for_me
+
+    payload = require_client(request)
+    customer_id = str(payload["sub"])
+    me = _customer_identity().me(customer_id)
+    email = str(payload.get("email") or me.get("email") or "").strip()
+    orders = _ctx().sales.list_orders_for_customer(
+        customer_id=customer_id, email=email or None, limit=50
+    )
+    return {"ok": True, **coaching_payload_for_me(me, orders)}
 
 
 @app.get("/api/client/orders")
@@ -5017,7 +5045,11 @@ async def store_admin_create_product(request: Request, order_id: str) -> dict:
         payload = await request.json()
         if not isinstance(payload, dict):
             raise ValueError("invalid_payload")
-        return _store_catalog().create_product(order_id, payload)
+        result = _store_catalog().create_product(order_id, payload)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5031,6 +5063,27 @@ def store_admin_get_product(request: Request, order_id: str, product_id: str) ->
         raise _client_store_http_error(exc) from exc
 
 
+def _shop_product_dir_for_order(order_id: str):
+    from app.factory.store_factory.service import StoreFactoryService
+
+    order = _ctx().sales.get_order(order_id) or {}
+    product_id = str(order.get("product_id") or "").strip()
+    if not product_id:
+        return None, order
+    return StoreFactoryService(_memory_dir()).product_dir(product_id), order
+
+
+def _live_sync_shop_catalog(order_id: str) -> dict:
+    """Push catalog SSOT into published storefront HTML (honest Live Sync)."""
+    from app.integration.store_admin.shop_live_sync import sync_catalog_to_storefront
+
+    product_dir, _order = _shop_product_dir_for_order(order_id)
+    if product_dir is None or not product_dir.is_dir():
+        return {"ok": False, "live_sync": False, "reason": "product_dir_missing"}
+    products = _store_catalog()._load(order_id)  # noqa: SLF001
+    return sync_catalog_to_storefront(product_dir, products)
+
+
 @app.patch("/api/client/stores/{order_id}/admin/products/{product_id}")
 async def store_admin_update_product(
     request: Request, order_id: str, product_id: str
@@ -5040,7 +5093,11 @@ async def store_admin_update_product(
         payload = await request.json()
         if not isinstance(payload, dict):
             raise ValueError("invalid_payload")
-        return _store_catalog().update_product(order_id, product_id, payload)
+        result = _store_catalog().update_product(order_id, product_id, payload)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5051,7 +5108,11 @@ def store_admin_delete_product(
 ) -> dict:
     try:
         _assert_store_admin_access(request, order_id)
-        return _store_catalog().delete_product(order_id, product_id)
+        result = _store_catalog().delete_product(order_id, product_id)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -6954,6 +7015,126 @@ def website_admin_serve_media(
         return FileResponse(path, media_type=media)
     except HTTPException:
         raise
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/control-capabilities")
+def client_control_capabilities_api(request: Request) -> dict:
+    """Honest Workspace capability map for Basic / Business / Premium (+ gift)."""
+    from app.integration.client_control_contract import client_control_capabilities
+
+    customer_id, _email = _client_store_identity(request)
+    me = _customer_identity().me(customer_id) if customer_id else {}
+    gift = bool(me.get("gift_unlimited") or me.get("unlimited"))
+    return client_control_capabilities(
+        "premium" if gift else None,
+        gift_unlimited=gift,
+    )
+
+
+@app.get("/api/client/websites/{order_id}/admin/cinematic")
+def website_admin_list_cinematic(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import (
+            ensure_control_point_original,
+            list_cinematic_scenes,
+        )
+
+        ensure_control_point_original(product_dir)
+        out = list_cinematic_scenes(product_dir)
+        from app.integration.client_control_contract import client_control_capabilities
+
+        caps = client_control_capabilities(
+            str(order.get("package_id") or ""),
+            gift_unlimited=False,
+        )
+        out["capabilities"] = caps.get("website")
+        return out
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/cinematic/{scene}/replace")
+async def website_admin_replace_cinematic(
+    request: Request, order_id: str, scene: int, file: UploadFile = File(...)
+) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import replace_cinematic_scene
+
+        data = await file.read()
+        result = replace_cinematic_scene(
+            product_dir, int(scene), data, filename=file.filename or "upload.jpg"
+        )
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/cinematic/{scene}/restore")
+def website_admin_restore_cinematic(
+    request: Request, order_id: str, scene: int
+) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import restore_cinematic_scene
+
+        return restore_cinematic_scene(product_dir, int(scene))
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.get("/api/client/websites/{order_id}/admin/versions")
+def website_admin_list_versions(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import list_website_versions
+
+        return list_website_versions(product_dir)
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/websites/{order_id}/admin/versions/restore-original")
+def website_admin_restore_original(request: Request, order_id: str) -> dict:
+    try:
+        order = _assert_website_admin_access(request, order_id)
+        _pid, _meta, product_dir = _website_product_meta(order)
+        if not product_dir:
+            raise ValueError("product_dir_missing")
+        from app.integration.website_admin.cinematic_control import restore_website_original
+
+        result = restore_website_original(product_dir)
+        _reapply_website_overlay(order_id, order)
+        return result
+    except ValueError as exc:
+        raise _client_store_http_error(exc) from exc
+
+
+@app.post("/api/client/stores/{order_id}/admin/restore-original")
+def store_admin_restore_original(request: Request, order_id: str) -> dict:
+    try:
+        _assert_store_admin_access(request, order_id)
+        product_dir, _order = _shop_product_dir_for_order(order_id)
+        if product_dir is None:
+            raise ValueError("product_dir_missing")
+        from app.integration.store_admin.shop_live_sync import restore_shop_original
+
+        return restore_shop_original(product_dir)
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
