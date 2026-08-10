@@ -254,7 +254,7 @@ export default function OrderSitePage() {
   const [specOptions, setSpecOptions] = useState<{ id: string; niche?: string; label: string }[]>(
     [],
   );
-  const [packageId, setPackageId] = useState("standalone");
+  const [packageId, setPackageId] = useState("business");
   const [cinematicEnabled, setCinematicEnabled] = useState(false);
   const [cinematicPriceEur, setCinematicPriceEur] = useState(99);
   const [interview, setInterview] = useState<InterviewState>(() => emptyInterview());
@@ -289,6 +289,7 @@ export default function OrderSitePage() {
   const draftSaverRef = useRef(createDebouncedOrderDraftSaver(400));
   const urlPackageRef = useRef<string | null>(null);
   const urlNicheRef = useRef<string | null>(null);
+  const urlPackageHydratedRef = useRef(false);
   const analysisCaseRef = useRef<string | null>(null);
   const orderStartedRef = useRef(false);
   const checkoutSummaryViewedRef = useRef(false);
@@ -316,6 +317,14 @@ export default function OrderSitePage() {
     };
   }, [i18n.language]);
 
+  // Premium includes Cinematic — never stack +99 € on 699 €
+  useEffect(() => {
+    const id = (packageId || "").toLowerCase();
+    if (id === "premium" || id === "connected") {
+      setCinematicEnabled(true);
+    }
+  }, [packageId]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -339,12 +348,9 @@ export default function OrderSitePage() {
         "repair_complete",
       ].includes(pkg)
     ) {
+      // Public ladder is basic/business/premium; old Standalone/Connected → Business/Premium
       const mapped =
-        pkg === "basic" || pkg === "business"
-          ? "standalone"
-          : pkg === "premium"
-            ? "connected"
-            : pkg;
+        pkg === "standalone" ? "business" : pkg === "connected" ? "premium" : pkg;
       setPackageId(mapped);
       setManualPackage(true);
       urlPackageRef.current = mapped;
@@ -357,6 +363,14 @@ export default function OrderSitePage() {
     if (n) {
       setNiche(n);
       urlNicheRef.current = n;
+    }
+    const projectParam = (params.get("type") || params.get("project") || "").toLowerCase();
+    if (projectParam === "shop" || projectParam === "store") {
+      setProjectType("shop");
+    } else if (projectParam === "ai" || projectParam === "bot") {
+      setProjectType("ai");
+    } else if (projectParam === "other") {
+      setProjectType("other");
     }
     const ac = params.get("analysis_case")?.trim();
     if (ac) analysisCaseRef.current = ac;
@@ -732,10 +746,28 @@ export default function OrderSitePage() {
 
   useEffect(() => {
     if (!packages.length) return;
-    if (!packages.some((p) => p.id === packageId)) {
-      setPackageId(packages[0]!.id);
+    // Hydrate URL package once — later radio clicks must stick even if catalog reloads.
+    const fromUrl = urlPackageRef.current;
+    if (
+      fromUrl &&
+      !urlPackageHydratedRef.current &&
+      packages.some((p) => p.id === fromUrl)
+    ) {
+      setPackageId(fromUrl);
+      setManualPackage(true);
+      urlPackageHydratedRef.current = true;
+      return;
     }
-  }, [packages, packageId]);
+    if (!packages.some((p) => p.id === packageId)) {
+      const fallback =
+        packages.find((p) => p.id === "business")?.id ||
+        packages.find((p) => p.id === "premium")?.id ||
+        packages[0]!.id;
+      setPackageId(fallback);
+    }
+    // Intentionally depend only on `packages` so manual radio changes stick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [packages]);
 
   useEffect(() => {
     if (domainStatus === "need_help" || domainStatus === "none") {
@@ -765,6 +797,12 @@ export default function OrderSitePage() {
     return list;
   }, [packages, packageId]);
   const selected = displayPackages.find((p) => p.id === packageId) ?? displayPackages[0];
+  const premiumIncludesCinematic =
+    (packageId || "").toLowerCase() === "premium" ||
+    (packageId || "").toLowerCase() === "connected";
+  const cinematicAddonActive = cinematicEnabled && !premiumIncludesCinematic;
+  const orderTotalEur =
+    (selected?.price_eur || 0) + (cinematicAddonActive ? cinematicPriceEur : 0);
   const packagePriceBullet = useMemo(() => {
     const tiers = ["basic", "business", "premium"]
       .map((id) => packages.find((p) => p.id === id))
@@ -777,6 +815,62 @@ export default function OrderSitePage() {
       })
       .join(" · ");
   }, [packages, commerce.currency, t]);
+
+  const selectedPackageBenefits = useMemo(() => {
+    const id = (packageId || "").toLowerCase();
+    if (id === "premium" || id === "connected") {
+      return [
+        "Premium Website für Ihre Branche",
+        "Responsive + Mobile",
+        "Kontaktformular & Legal-Seiten",
+        "SEO-Grundlage",
+        "Premium Medien",
+        "Cinematic AI Experience inklusive",
+        "Virtus Workspace",
+        "Texte, Bilder und Inhalte selbst bearbeiten",
+        "Analytics",
+        "Versionen & Wiederherstellung",
+        "Premium Creative Controls",
+        "Übergabe als fertiges Projekt",
+      ];
+    }
+    if (id === "business" || id === "standalone") {
+      return [
+        "Fertige Website für Ihre Branche",
+        "Responsive + Mobile",
+        "Kontaktformular & Legal-Seiten",
+        "SEO-Grundlage",
+        "Virtus Workspace",
+        "Texte, Bilder und Kontakte selbst bearbeiten",
+        "Analytics",
+        "Versionen & Wiederherstellung",
+        "Übergabe als fertiges Projekt",
+      ];
+    }
+    return [
+      "Fertige Website für Ihre Branche",
+      "Responsive + Mobile",
+      "Kontaktformular & Legal-Seiten",
+      "SEO-Grundlage",
+      "Standard-Medien & Kontakte",
+      "Übergabe als fertiges Projekt",
+      "Keine Virtus-Verwaltung",
+    ];
+  }, [packageId]);
+
+  const afterPayBullet = useMemo(() => {
+    const id = (packageId || "").toLowerCase();
+    if (id === "business" || id === "premium" || id === "connected" || id === "standalone") {
+      return t("order.bulletAfterPayWorkspace", {
+        defaultValue:
+          "Nach Zahlung erhalten Sie Ihr Projekt, den Status Ihrer Bestellung und Zugang zum Virtus Workspace.",
+      });
+    }
+    return t("order.bulletAfterPayBasic", {
+      defaultValue:
+        "Nach Zahlung erhalten Sie die fertigen Website-Dateien und den Status Ihrer Bestellung.",
+    });
+  }, [packageId, t]);
   const coachHints = useMemo(
     () =>
       resolveOrderCoachHints({
@@ -1005,6 +1099,7 @@ export default function OrderSitePage() {
             packageId === "connected" || packageId === "premium"
               ? "connected"
               : "standalone",
+          // Premium already includes cinematic — backend also enforces this
           ...interviewOrderFields({
             ...interview,
             company_name: interview.company_name || businessName.trim(),
@@ -1043,7 +1138,7 @@ export default function OrderSitePage() {
             uses_analytics: legalAnalytics,
           },
           package_id: packageId,
-          cinematic_enabled: cinematicEnabled,
+          cinematic_enabled: premiumIncludesCinematic || cinematicEnabled,
           analysis_case_id: analysisCaseRef.current || null,
           brand_style: brandStyle || "auto",
           niche: niche || null,
@@ -1231,7 +1326,7 @@ export default function OrderSitePage() {
           {!launch ? (
             <ul className="mx-auto mt-4 max-w-lg space-y-1 text-left text-sm text-white/75">
               <li>• {packagePriceBullet}</li>
-              <li>• {t("order.bulletAfterPay")}</li>
+              <li>• {afterPayBullet}</li>
               <li>• {t("order.bulletSorglos")}</li>
             </ul>
           ) : null}
@@ -1805,10 +1900,7 @@ export default function OrderSitePage() {
                     {launch.projectLabel} {launch.company}
                   </p>
                   <p className="mt-2 text-3xl font-bold tabular-nums">
-                    {formatPrice(
-                      selected.price_eur + (cinematicEnabled ? cinematicPriceEur : 0),
-                      selected,
-                    )}
+                    {formatPrice(orderTotalEur, selected)}
                   </p>
                   <p className="mt-2 text-xs text-genesis-muted leading-relaxed">
                     {t("order.launchFixed")}
@@ -1825,16 +1917,25 @@ export default function OrderSitePage() {
                 </div>
               ) : (
                 <div className="mt-3 space-y-2">
-                  {displayPackages.map((p) => (
+                  {displayPackages.map((p) => {
+                    const workspaceNote =
+                      p.id === "basic"
+                        ? "Keine Virtus-Verwaltung"
+                        : p.id === "business"
+                          ? "Virtus Workspace inklusive"
+                          : p.id === "premium"
+                            ? "Cinematic Experience inklusive"
+                            : "";
+                    return (
                     <label
                       key={p.id}
-                      className={`flex cursor-pointer items-center justify-between rounded-xl border px-3 py-2.5 text-sm transition-smooth ${
+                      className={`flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-3 py-2.5 text-sm transition-smooth ${
                         packageId === p.id
                           ? "border-genesis-accent/50 bg-genesis-accent/10"
                           : "border-genesis-border-subtle hover:border-genesis-accent/30"
                       }`}
                     >
-                      <span className="flex items-center gap-2">
+                      <span className="flex min-w-0 items-start gap-2">
                         <input
                           type="radio"
                           name="package"
@@ -1844,16 +1945,42 @@ export default function OrderSitePage() {
                             setPackageId(p.id);
                             logCommerceEvent("tier_select", p.id, "order", { niche });
                           }}
-                          className="accent-genesis-accent"
+                          className="mt-1 accent-genesis-accent"
                         />
-                        {p.name}
+                        <span className="min-w-0">
+                          <span className="block font-medium">{p.name}</span>
+                          {workspaceNote ? (
+                            <span className="mt-0.5 block text-[11px] text-genesis-muted">
+                              {workspaceNote}
+                            </span>
+                          ) : null}
+                        </span>
                       </span>
-                      <span className="font-semibold tabular-nums">{formatPrice(p.price_eur, p)}</span>
+                      <span className="shrink-0 text-right">
+                        <span className="block font-semibold tabular-nums">
+                          {formatPrice(p.price_eur, p)}
+                        </span>
+                        {p.id === "premium" ? (
+                          <span className="mt-0.5 block text-[10px] font-medium text-emerald-300/90">
+                            Cinematic inkl.
+                          </span>
+                        ) : null}
+                      </span>
                     </label>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
-              {!launch && (
+              {!launch && premiumIncludesCinematic ? (
+                <div className="mt-3 rounded-xl border border-emerald-500/25 bg-emerald-950/20 px-3 py-2.5 text-sm">
+                  <p className="font-medium text-emerald-100">
+                    ✓ Cinematic AI Experience inklusive
+                  </p>
+                  <p className="mt-1 text-xs text-genesis-muted">
+                    Teil von Website Premium {formatPrice(selected?.price_eur || 699, selected)}. Kein Aufpreis.
+                  </p>
+                </div>
+              ) : !launch ? (
                 <label className="mt-3 flex cursor-pointer items-start gap-2 rounded-xl border border-violet-500/25 bg-violet-950/20 px-3 py-2.5 text-sm">
                   <input
                     type="checkbox"
@@ -1866,11 +1993,11 @@ export default function OrderSitePage() {
                       Cinematic AI Experience +{cinematicPriceEur} €
                     </span>
                     <span className="mt-1 block text-xs text-genesis-muted">
-                      Уникальная кинематографическая сцена специально для вашего бизнеса.
+                      Optional nur für Basic und Business. Bei Premium bereits inklusive.
                     </span>
                   </span>
                 </label>
-              )}
+              ) : null}
               {!launch && (
                 <>
                   <div className="mt-3">
@@ -1889,6 +2016,7 @@ export default function OrderSitePage() {
                   <PackagePreviewCarousel
                     packageId={packageId}
                     niche={niche}
+                    kind={projectType === "shop" ? "store" : "website"}
                     services={parseClientServices(serviceList)}
                   />
                   {packageId !== "premium" ? (
@@ -1915,7 +2043,7 @@ export default function OrderSitePage() {
                 <>
                   <p className="genesis-label mt-4">{t("order.youGet")}</p>
                   <ul className="space-y-1.5 text-xs">
-                    {selected.deliverables.map((d) => (
+                    {selectedPackageBenefits.map((d) => (
                       <li key={d} className="flex gap-2">
                         <span className="text-emerald-400">✔</span>
                         <span>{d}</span>

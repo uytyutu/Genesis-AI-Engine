@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atelier Stein Mode · Premium Online-Shop · Hamburg</title>
+  <meta name="description" content="Premium Online-Shop Showcase — dynamischer Katalog, Produktseiten, Warenkorb." />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#0a0a0b; --panel:#121214; --ink:#f6f1e8; --muted:#a8a095;
+      --accent:#c4a574; --accent2:#6e5a45; --line:rgba(255,255,255,.1);
+      --ok:#8fd4a8; --warn:#e8b86d;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:"DM Sans",system-ui,sans-serif; }
+    a { color:inherit; text-decoration:none; }
+    button, input, select { font:inherit; }
+    .top { position:sticky; top:0; z-index:50; display:flex; gap:1rem; align-items:center; justify-content:space-between;
+      padding:.75rem 1.1rem; background:rgba(10,10,11,.92); border-bottom:1px solid var(--line); backdrop-filter:blur(10px); }
+    .brand { font-family:"Cormorant Garamond",serif; font-size:1.35rem; }
+    .nav { display:flex; gap:.85rem; flex-wrap:wrap; align-items:center; color:var(--muted); font-size:.85rem; }
+    .nav a:hover, .nav button.linkish:hover { color:var(--ink); }
+    .nav button.linkish { background:none; border:0; color:var(--muted); cursor:pointer; padding:0; }
+    .badge { display:inline-flex; align-items:center; gap:.35rem; min-height:34px; padding:.35rem .8rem; border-radius:999px;
+      background:linear-gradient(135deg,var(--accent),#e8d3a8); color:#1a1208; font-weight:600; font-size:.8rem; border:0; cursor:pointer; }
+    .pill { border:1px solid var(--line); border-radius:999px; padding:.25rem .65rem; font-size:.72rem; color:var(--muted); }
+    .demo { color:var(--warn); font-size:.72rem; letter-spacing:.04em; }
+    .pin { position:relative; height:calc(100vh + 18*14vh); }
+    .stage { position:sticky; top:0; height:100vh; overflow:hidden; background:#050505; }
+    .seq img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .12s linear; }
+    .seq img.is-on { opacity:1; } .seq img.is-prev { opacity:.25; }
+    .vignette { position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(ellipse at 50% 40%,transparent 18%,rgba(0,0,0,.55) 78%),linear-gradient(to top,rgba(0,0,0,.88),transparent 42%); }
+    .hud { position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; justify-content:flex-end; padding:clamp(1rem,4vw,2.5rem); }
+    .eyebrow { letter-spacing:.24em; text-transform:uppercase; font-size:.68rem; color:var(--accent); margin:0 0 .45rem; }
+    h1 { font-family:"Cormorant Garamond",serif; font-size:clamp(2.2rem,6vw,4.2rem); margin:0 0 .4rem; line-height:.95; }
+    .beat { color:var(--muted); font-size:clamp(1rem,2.2vw,1.25rem); min-height:2.6em; max-width:28rem; }
+    .meter { color:rgba(255,255,255,.4); font-size:.7rem; letter-spacing:.12em; margin:.2rem 0 .7rem; }
+    .progress { position:absolute; top:0; left:0; height:3px; width:0; background:linear-gradient(90deg,var(--accent2),var(--accent)); z-index:6; }
+    .wrap { max-width:1120px; margin:0 auto; padding:2rem 1.1rem 4rem; }
+    .toolbar { display:grid; gap:.75rem; grid-template-columns:1.4fr repeat(3,minmax(0,1fr)); margin:1rem 0 1.25rem; }
+    @media (max-width:900px) { .toolbar { grid-template-columns:1fr 1fr; } .nav a:not(.keep) { display:none; } }
+    .toolbar input, .toolbar select { width:100%; background:var(--panel); border:1px solid var(--line); color:var(--ink); border-radius:.7rem; padding:.7rem .8rem; }
+    .cats { display:flex; gap:.5rem; flex-wrap:wrap; margin:0 0 1.2rem; }
+    .cats button { border:1px solid var(--line); background:transparent; color:var(--muted); border-radius:999px; padding:.45rem .85rem; cursor:pointer; }
+    .cats button.on { color:#1a1208; background:var(--accent); border-color:transparent; font-weight:600; }
+    .grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); }
+    .card { border:1px solid var(--line); border-radius:1rem; overflow:hidden; background:rgba(255,255,255,.025); cursor:pointer; transition:border-color .15s; }
+    .card:hover { border-color:rgba(196,165,116,.55); }
+    .card img { width:100%; aspect-ratio:3/4; object-fit:cover; display:block; background:#111; }
+    .card .body { padding:.8rem .85rem 1rem; }
+    .card h3 { margin:0 0 .25rem; font-size:.98rem; font-weight:600; }
+    .price { color:var(--accent); font-weight:600; }
+    .compare { color:var(--muted); text-decoration:line-through; font-size:.85rem; margin-left:.35rem; }
+    .stars { color:var(--accent); font-size:.78rem; }
+    .pager { display:flex; gap:.45rem; flex-wrap:wrap; justify-content:center; margin:1.6rem 0; }
+    .pager button { min-width:2.2rem; height:2.2rem; border-radius:.55rem; border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer; }
+    .pager button.on { background:var(--accent); color:#1a1208; border:0; font-weight:600; }
+    .panel { border:1px solid var(--line); border-radius:1.1rem; background:rgba(255,255,255,.03); padding:1.1rem; }
+    .pdp { display:grid; gap:1.25rem; grid-template-columns:1.05fr .95fr; }
+    @media (max-width:860px) { .pdp { grid-template-columns:1fr; } }
+    .gallery { display:grid; gap:.55rem; }
+    .gallery .main { width:100%; aspect-ratio:1; object-fit:cover; border-radius:1rem; background:#111; }
+    .thumbs { display:flex; gap:.4rem; flex-wrap:wrap; }
+    .thumbs img { width:64px; height:64px; object-fit:cover; border-radius:.55rem; border:1px solid var(--line); cursor:pointer; }
+    .qty { display:flex; align-items:center; gap:.5rem; margin:1rem 0; }
+    .qty button { width:2rem; height:2rem; border-radius:.5rem; border:1px solid var(--line); background:var(--panel); color:var(--ink); cursor:pointer; }
+    .cta { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:.75rem 1.2rem; border:0; border-radius:999px;
+      background:linear-gradient(135deg,var(--accent),#e8d3a8); color:#1a1208; font-weight:600; cursor:pointer; }
+    .ghost { background:transparent; border:1px solid var(--line); color:var(--ink); }
+    .muted { color:var(--muted); line-height:1.6; }
+    .cart-row { display:grid; grid-template-columns:64px 1fr auto; gap:.8rem; align-items:center; padding:.75rem 0; border-bottom:1px solid var(--line); }
+    .cart-row img { width:64px; height:64px; object-fit:cover; border-radius:.5rem; }
+    .review { border-top:1px solid var(--line); padding:1rem 0; }
+    .dist { display:grid; gap:.25rem; margin:.6rem 0 1rem; font-size:.8rem; color:var(--muted); }
+    .bar { height:.35rem; background:#222; border-radius:99px; overflow:hidden; }
+    .bar > i { display:block; height:100%; background:var(--accent); }
+    .coming { border:1px dashed rgba(232,184,109,.45); border-radius:1rem; padding:1rem; color:var(--warn); }
+    footer { border-top:1px solid var(--line); padding:1.4rem; text-align:center; color:var(--muted); font-size:.8rem; }
+    h2 { font-family:"Cormorant Garamond",serif; font-size:clamp(1.8rem,3.5vw,2.6rem); margin:.2rem 0 1rem; }
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#/">Atelier Stein Mode</a>
+    <nav class="nav">
+      <a class="keep" href="#/shop">Shop</a>
+      <a href="#/about">Über uns</a>
+      <a href="#/contact">Kontakt</a>
+      <a href="#/account">Konto</a>
+      <button type="button" class="badge" id="cartBtn">Warenkorb <span id="cartCount">0</span></button>
+    </nav>
+  </header>
+
+  <div id="cinematicBlock" class="hidden">
+    <div class="pin" id="pin">
+      <div class="stage">
+        <div class="progress" id="progress"></div>
+        <div class="seq" id="seq"></div>
+        <div class="vignette"></div>
+        <div class="hud">
+          <p class="eyebrow">Hamburg · PREMIUM ONLINE-SHOP</p>
+          <h1 id="cineTitle">Atelier Stein Mode</h1>
+          <p class="meter" id="frameMeter">SCENE 001</p>
+          <p class="beat" id="beatLine">Desire → Product → Purchase</p>
+          <a class="badge" href="#/shop">Zur Kollektion</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap" id="app"></main>
+  <footer>
+    Atelier Stein Mode · Hamburg · Showcase Demo · Premium Online-Shop V2<br />
+    Dynamischer Katalog aus <code>catalog.json</code> · keine manuelle product-N.html<br />
+    <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a>
+    <p class="demo">Demo-Bewertungen und Demo-Kontakte sind gekennzeichnet — keine erfundenen echten Kundenstimmen.</p>
+  </footer>
+
+  <script>
+  (async function() {
+    const res = await fetch('catalog.json', { cache: 'no-store' });
+    const CAT = await res.json();
+    const PAGE_SIZE = 12;
+    const cartKey = 'vc_premium_shop_v2_' + (CAT.shop.id || 'shop');
+    let state = {
+      route: 'home',
+      slug: '',
+      category: 'all',
+      q: '',
+      sort: 'featured',
+      avail: 'all',
+      page: 1,
+      cart: loadCart(),
+    };
+
+    function loadCart() {
+      try { return JSON.parse(localStorage.getItem(cartKey) || '[]'); } catch(e) { return []; }
+    }
+    function saveCart() {
+      localStorage.setItem(cartKey, JSON.stringify(state.cart));
+      document.getElementById('cartCount').textContent = String(state.cart.reduce((n,x)=>n+x.qty,0));
+    }
+    function money(v) {
+      return new Intl.NumberFormat('de-DE', { style:'currency', currency: CAT.shop.currency || 'EUR' }).format(v);
+    }
+    function stars(avg) {
+      const full = Math.round(avg);
+      return '★'.repeat(full) + '☆'.repeat(5-full) + ' ' + (avg ? avg.toFixed(1) : '—');
+    }
+    function parseHash() {
+      const h = (location.hash || '#/').replace(/^#\/?/, '');
+      const parts = h.split('/').filter(Boolean);
+      if (!parts.length) return { route:'home' };
+      if (parts[0]==='shop') return { route:'shop', category: parts[1] || 'all' };
+      if (parts[0]==='product' && parts[1]) return { route:'product', slug: parts[1] };
+      if (parts[0]==='cart') return { route:'cart' };
+      if (parts[0]==='checkout') return { route:'checkout' };
+      if (parts[0]==='account') return { route:'account' };
+      if (parts[0]==='about') return { route:'about' };
+      if (parts[0]==='contact') return { route:'contact' };
+      if (parts[0]==='admin') return { route:'admin' };
+      return { route:'home' };
+    }
+    function navigate() {
+      const p = parseHash();
+      state.route = p.route;
+      state.slug = p.slug || '';
+      if (p.category) state.category = p.category;
+      render();
+    }
+    function productsFiltered() {
+      let list = CAT.products.filter(p => p.status === 'active');
+      if (state.category && state.category !== 'all') list = list.filter(p => p.category === state.category);
+      if (state.q) {
+        const q = state.q.toLowerCase();
+        list = list.filter(p => (p.name+' '+p.short_description+' '+(p.tags||[]).join(' ')).toLowerCase().includes(q));
+      }
+      if (state.avail === 'in') list = list.filter(p => p.stock > 0);
+      if (state.avail === 'out') list = list.filter(p => p.stock <= 0);
+      if (state.sort === 'price_asc') list = list.slice().sort((a,b)=>a.price-b.price);
+      if (state.sort === 'price_desc') list = list.slice().sort((a,b)=>b.price-a.price);
+      if (state.sort === 'name') list = list.slice().sort((a,b)=>a.name.localeCompare(b.name,'de'));
+      if (state.sort === 'rating') list = list.slice().sort((a,b)=>(b.review_stats?.average||0)-(a.review_stats?.average||0));
+      return list;
+    }
+    function addToCart(product, qty) {
+      const q = Math.max(1, qty||1);
+      const ex = state.cart.find(x => x.id === product.id);
+      if (ex) ex.qty += q; else state.cart.push({ id:product.id, slug:product.slug, name:product.name, price:product.price, image:(product.images[0]||''), qty:q });
+      saveCart();
+    }
+    function productBySlug(slug) { return CAT.products.find(p => p.slug === slug); }
+
+    function renderCinematic() {
+      const frames = CAT.cinematic || [];
+      const block = document.getElementById('cinematicBlock');
+      if (!frames.length || (state.route !== 'home' && state.route !== 'shop')) {
+        block.classList.add('hidden');
+        return;
+      }
+      // show cinematic only on home
+      if (state.route !== 'home') { block.classList.add('hidden'); return; }
+      block.classList.remove('hidden');
+      const seq = document.getElementById('seq');
+      if (seq.dataset.ready === '1') return;
+      seq.dataset.ready = '1';
+      const imgs = frames.map((f,i) => {
+        const img = document.createElement('img');
+        img.src = f.src; img.alt=''; img.decoding='async';
+        if (i===0) img.classList.add('is-on');
+        seq.appendChild(img);
+        return img;
+      });
+      const pin = document.getElementById('pin');
+      const beat = document.getElementById('beatLine');
+      const meter = document.getElementById('frameMeter');
+      const progress = document.getElementById('progress');
+      let last = -1;
+      function tick() {
+        const rect = pin.getBoundingClientRect();
+        const total = Math.max(1, pin.offsetHeight - window.innerHeight);
+        const scrolled = Math.min(total, Math.max(0, -rect.top));
+        const t = scrolled / total;
+        const idx = Math.min(frames.length-1, Math.floor(t * frames.length));
+        if (idx !== last) {
+          imgs.forEach((im,i) => {
+            im.classList.toggle('is-on', i===idx);
+            im.classList.toggle('is-prev', i===idx-1);
+          });
+          beat.textContent = frames[idx].copy || '';
+          meter.textContent = 'SCENE ' + String(idx+1).padStart(3,'0') + ' / ' + String(frames.length).padStart(3,'0');
+          last = idx;
+        }
+        progress.style.width = (t*100).toFixed(2) + '%';
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function renderShop() {
+      const list = productsFiltered();
+      const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+      if (state.page > pages) state.page = pages;
+      const slice = list.slice((state.page-1)*PAGE_SIZE, state.page*PAGE_SIZE);
+      const cats = [{ id:'all', name:'Alle' }, ...(CAT.categories||[])];
+      return `
+        <p class="pill">PREMIUM ONLINE-SHOP · ${CAT.product_count} Produkte · dynamischer Katalog</p>
+        <h2>Kollektion</h2>
+        <p class="muted">${CAT.shop.tagline || ''}</p>
+        <div class="cats" id="catBar">
+          ${cats.map(c => `<button type="button" data-cat="${c.id}" class="${state.category===c.id?'on':''}">${c.name}</button>`).join('')}
+        </div>
+        <div class="toolbar">
+          <input id="q" placeholder="Suche Produkte…" value="${state.q.replace(/"/g,'&quot;')}" />
+          <select id="sort">
+            <option value="featured" ${state.sort==='featured'?'selected':''}>Sortierung: Featured</option>
+            <option value="price_asc" ${state.sort==='price_asc'?'selected':''}>Preis aufsteigend</option>
+            <option value="price_desc" ${state.sort==='price_desc'?'selected':''}>Preis absteigend</option>
+            <option value="name" ${state.sort==='name'?'selected':''}>Name</option>
+            <option value="rating" ${state.sort==='rating'?'selected':''}>Bewertung</option>
+          </select>
+          <select id="avail">
+            <option value="all" ${state.avail==='all'?'selected':''}>Verfügbarkeit: alle</option>
+            <option value="in" ${state.avail==='in'?'selected':''}>Auf Lager</option>
+            <option value="out" ${state.avail==='out'?'selected':''}>Ausverkauft</option>
+          </select>
+          <div class="muted" style="display:flex;align-items:center">${list.length} Treffer</div>
+        </div>
+        <div class="grid">
+          ${slice.map(p => `
+            <article class="card" data-open="${p.slug}">
+              <img src="${p.images[0]||''}" alt="${p.name}" loading="lazy" />
+              <div class="body">
+                <h3>${p.name}</h3>
+                <div class="stars">${stars(p.review_stats?.average||0)} · ${p.review_stats?.count||0}</div>
+                <div><span class="price">${money(p.price)}</span>
+                ${p.compare_at_price ? `<span class="compare">${money(p.compare_at_price)}</span>` : ''}</div>
+              </div>
+            </article>`).join('')}
+        </div>
+        <div class="pager">
+          ${Array.from({length:pages}, (_,i)=>`<button type="button" data-page="${i+1}" class="${state.page===i+1?'on':''}">${i+1}</button>`).join('')}
+        </div>`;
+    }
+
+    function renderProduct() {
+      const p = productBySlug(state.slug);
+      if (!p) return `<div class="panel"><h2>Produkt nicht gefunden</h2><a class="cta" href="#/shop">Zurück zum Shop</a></div>`;
+      const rs = p.review_stats || { average:0, count:0, distribution:{5:0,4:0,3:0,2:0,1:0} };
+      const dist = [5,4,3,2,1].map(s => {
+        const n = rs.distribution[s]||0;
+        const pct = rs.count ? Math.round(100*n/rs.count) : 0;
+        return `<div>${'★'.repeat(s)} ${pct}% <div class="bar"><i style="width:${pct}%"></i></div></div>`;
+      }).join('');
+      const related = CAT.products.filter(x => x.category===p.category && x.id!==p.id).slice(0,4);
+      return `
+        <p class="pill"><a href="#/shop">Shop</a> / ${p.category} / ${p.name}</p>
+        <div class="pdp">
+          <div class="gallery">
+            <img class="main" id="mainImg" src="${p.images[0]||''}" alt="${p.name}" />
+            <div class="thumbs">${(p.gallery||p.images).map(src=>`<img src="${src}" data-src="${src}" alt="" />`).join('')}</div>
+          </div>
+          <div>
+            <h2>${p.name}</h2>
+            <div class="stars">${stars(rs.average)} · ${rs.count} Bewertungen <span class="demo">(Demo)</span></div>
+            <p><span class="price">${money(p.price)}</span>
+              ${p.compare_at_price?`<span class="compare">${money(p.compare_at_price)}</span>`:''}</p>
+            <p class="muted">${p.short_description}</p>
+            <p class="muted">${p.description}</p>
+            <p class="muted">SKU ${p.sku} · Lager: ${p.stock > 0 ? p.stock + ' verfügbar' : 'ausverkauft'}</p>
+            <div class="qty">
+              <button type="button" id="qtyMinus">−</button>
+              <span id="qtyVal">1</span>
+              <button type="button" id="qtyPlus">+</button>
+            </div>
+            <button class="cta" id="addBtn" ${p.stock<=0?'disabled':''}>In den Warenkorb</button>
+            <div style="margin-top:1.2rem" class="panel">
+              <strong>Lieferung</strong>
+              <p class="muted">Demo: Standardversand DE 4,90 € · Ab 80 € versandfrei (Showcase).</p>
+            </div>
+            <div style="margin-top:1rem" class="panel">
+              <strong>Bewertungen</strong>
+              <p>${stars(rs.average)} / 5 · ${rs.count} Bewertungen</p>
+              <div class="dist">${dist}</div>
+              <p class="demo">Demo-Bewertungen — keine echten Kundenstimmen.</p>
+              ${(p.reviews||[]).map(r => `
+                <div class="review">
+                  <div class="stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</div>
+                  <p>${r.text||''}</p>
+                  <p class="muted">— ${r.author||'Gast'} · ${r.date||''}
+                    ${r.verified_purchase ? ' · Bestätigte Demo-Bestellung' : ''}</p>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+        <section style="margin-top:2rem">
+          <h2>Ähnliche Produkte</h2>
+          <div class="grid">${related.map(r=>`
+            <article class="card" data-open="${r.slug}">
+              <img src="${r.images[0]||''}" alt="${r.name}" loading="lazy" />
+              <div class="body"><h3>${r.name}</h3><div class="price">${money(r.price)}</div></div>
+            </article>`).join('')}
+          </div>
+        </section>`;
+    }
+
+    function renderCart() {
+      if (!state.cart.length) return `<div class="panel"><h2>Warenkorb</h2><p class="muted">Noch leer.</p><a class="cta" href="#/shop">Weiter einkaufen</a></div>`;
+      const sub = state.cart.reduce((n,x)=>n+x.price*x.qty,0);
+      return `
+        <h2>Warenkorb</h2>
+        <div class="panel">
+          ${state.cart.map((x,i)=>`
+            <div class="cart-row">
+              <img src="${x.image}" alt="" />
+              <div>
+                <strong>${x.name}</strong>
+                <div class="muted">${money(x.price)} · Menge
+                  <button type="button" data-dec="${i}">−</button> ${x.qty}
+                  <button type="button" data-inc="${i}">+</button>
+                </div>
+              </div>
+              <div>
+                <div class="price">${money(x.price*x.qty)}</div>
+                <button type="button" class="linkish" data-rm="${i}">Entfernen</button>
+              </div>
+            </div>`).join('')}
+          <p style="margin-top:1rem">Zwischensumme: <strong class="price">${money(sub)}</strong></p>
+          <a class="cta" href="#/checkout">Zur Kasse</a>
+        </div>`;
+    }
+
+    function renderCheckout() {
+      const sub = state.cart.reduce((n,x)=>n+x.price*x.qty,0);
+      return `
+        <h2>Checkout · Demo</h2>
+        <div class="panel">
+          <p class="muted">Showcase-Bestellung — kein Live-Payment. Warenkorb bleibt lokal im Browser.</p>
+          <p>Summe: <strong class="price">${money(sub)}</strong></p>
+          <form id="orderForm" class="panel" style="margin-top:1rem;display:grid;gap:.7rem">
+            <input name="name" required placeholder="Name" />
+            <input name="email" required type="email" placeholder="E-Mail" />
+            <input name="address" required placeholder="Adresse" />
+            <button class="cta" type="submit">Bestellung anfragen</button>
+            <p id="orderOk" class="hidden" style="color:var(--ok)">Demo-Bestellung gespeichert (lokal). Danke!</p>
+          </form>
+        </div>`;
+    }
+
+    function renderAccount() {
+      return `
+        <h2>Kundenkonto</h2>
+        <div class="coming">
+          <strong>Coming Soon</strong>
+          <p>Login · Register · Forgot Password · Profile · Addresses · Orders sind im Premium Online-Shop vorgesehen,
+          aber in diesem Showcase noch nicht als echte Auth angebunden — deshalb kein Fake-Account.</p>
+        </div>
+        <p style="margin-top:1rem"><a class="cta ghost" href="#/admin">Admin / Client Control (Preview)</a></p>`;
+    }
+
+    function renderAdmin() {
+      return `
+        <h2>Client Workspace · Shop Admin</h2>
+        <div class="coming">
+          <strong>Coming Soon — ehrliche Vorschau der Menüstruktur</strong>
+          <p>Dashboard · Products · Categories · Orders · Customers · Content · Design · Cinematic · Media · Analytics · SEO · Social · Versions · Settings · Reviews</p>
+          <p>Products: Add / Edit / Soft-Delete. Versions: Original Control Point + Restore. Analytics & Cinematic analytics — nach Live-Anbindung.</p>
+        </div>
+        <p class="muted" style="margin-top:1rem">Live-Daten dieses Showcase: ${CAT.product_count} Produkte in catalog.json — Seiten entstehen dynamisch.</p>`;
+    }
+
+    function renderAbout() {
+      const s = CAT.shop;
+      return `
+        <h2>Über uns</h2>
+        <div class="panel">
+          <p class="muted">${s.about || ''}</p>
+          <p class="muted">${s.mission || ''}</p>
+          <p class="demo">Demo-Inhalt — auf echten Kundenprojekten nur Kundendaten.</p>
+        </div>`;
+    }
+
+    function renderContact() {
+      const s = CAT.shop;
+      return `
+        <h2>Kontakt</h2>
+        <div class="panel">
+          <p>${s.email || ''} · ${s.phone || ''}</p>
+          <p class="muted">${s.address || ''}</p>
+          <p class="demo">Demo-Kontakte</p>
+          <form id="contactForm" style="display:grid;gap:.65rem;margin-top:1rem">
+            <input required placeholder="Name" name="n" />
+            <input required type="email" placeholder="E-Mail" name="e" />
+            <textarea required rows="4" placeholder="Nachricht" name="m"></textarea>
+            <button class="cta" type="submit">Senden</button>
+            <p id="cOk" class="hidden" style="color:var(--ok)">Nachricht bereit (Demo).</p>
+          </form>
+        </div>`;
+    }
+
+    function renderHome() {
+      return `
+        <p class="pill">PREMIUM · ONLINE-SHOP · ${CAT.product_count} products · Cart · Account · Orders</p>
+        <h2>${CAT.shop.name}</h2>
+        <p class="muted">${CAT.shop.tagline || ''}</p>
+        <p class="muted">Cinematic: DESIRE → PRODUCT → DETAIL → VALUE → PURCHASE — dann voller Katalog.</p>
+        <p style="margin:1rem 0"><a class="cta" href="#/shop">Kollektion öffnen</a></p>
+        <div class="grid" style="margin-top:1.5rem">
+          ${CAT.products.slice(0,8).map(p=>`
+            <article class="card" data-open="${p.slug}">
+              <img src="${p.images[0]||''}" alt="${p.name}" loading="lazy" />
+              <div class="body"><h3>${p.name}</h3><div class="price">${money(p.price)}</div></div>
+            </article>`).join('')}
+        </div>`;
+    }
+
+    function render() {
+      saveCart();
+      renderCinematic();
+      const app = document.getElementById('app');
+      const map = {
+        home: renderHome, shop: renderShop, product: renderProduct, cart: renderCart,
+        checkout: renderCheckout, account: renderAccount, admin: renderAdmin,
+        about: renderAbout, contact: renderContact,
+      };
+      app.innerHTML = (map[state.route] || renderHome)();
+      bind();
+    }
+
+    function bind() {
+      document.getElementById('cartBtn').onclick = () => { location.hash = '#/cart'; };
+      app.querySelectorAll('[data-open]').forEach(el => el.onclick = () => { location.hash = '#/product/' + el.getAttribute('data-open'); });
+      app.querySelectorAll('#catBar button').forEach(btn => btn.onclick = () => {
+        state.category = btn.getAttribute('data-cat'); state.page = 1;
+        location.hash = state.category === 'all' ? '#/shop' : '#/shop/' + state.category;
+      });
+      const q = app.querySelector('#q');
+      if (q) q.oninput = () => { state.q = q.value; state.page = 1; render(); };
+      const sort = app.querySelector('#sort');
+      if (sort) sort.onchange = () => { state.sort = sort.value; render(); };
+      const avail = app.querySelector('#avail');
+      if (avail) avail.onchange = () => { state.avail = avail.value; render(); };
+      app.querySelectorAll('[data-page]').forEach(b => b.onclick = () => { state.page = +b.getAttribute('data-page'); render(); window.scrollTo(0,0); });
+      app.querySelectorAll('.thumbs img').forEach(img => img.onclick = () => { const m=document.getElementById('mainImg'); if(m) m.src = img.getAttribute('data-src'); });
+      let qty = 1;
+      const qv = app.querySelector('#qtyVal');
+      const qm = app.querySelector('#qtyMinus');
+      const qp = app.querySelector('#qtyPlus');
+      if (qm) qm.onclick = () => { qty=Math.max(1,qty-1); qv.textContent=String(qty); };
+      if (qp) qp.onclick = () => { qty=qty+1; qv.textContent=String(qty); };
+      const add = app.querySelector('#addBtn');
+      if (add) add.onclick = () => { const p=productBySlug(state.slug); if(p){ addToCart(p,qty); location.hash='#/cart'; } };
+      app.querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { state.cart[+b.dataset.inc].qty++; saveCart(); render(); });
+      app.querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { const i=+b.dataset.dec; state.cart[i].qty=Math.max(1,state.cart[i].qty-1); saveCart(); render(); });
+      app.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { state.cart.splice(+b.dataset.rm,1); saveCart(); render(); });
+      const of = app.querySelector('#orderForm');
+      if (of) of.onsubmit = (e) => {
+        e.preventDefault();
+        const orders = JSON.parse(localStorage.getItem(cartKey+'_orders')||'[]');
+        orders.push({ at: new Date().toISOString(), items: state.cart, total: state.cart.reduce((n,x)=>n+x.price*x.qty,0) });
+        localStorage.setItem(cartKey+'_orders', JSON.stringify(orders));
+        state.cart = []; saveCart();
+        document.getElementById('orderOk').classList.remove('hidden');
+      };
+      const cf = app.querySelector('#contactForm');
+      if (cf) cf.onsubmit = (e) => { e.preventDefault(); document.getElementById('cOk').classList.remove('hidden'); };
+    }
+
+    window.addEventListener('hashchange', navigate);
+    if (!location.hash) location.hash = '#/';
+    navigate();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+{
+  "business": {
+    "business_name": "Nordlicht Atelier",
+    "niche": "fashion",
+    "city": "Berlin",
+    "description": "Fashion Store Mode Kollektion",
+    "product_kind": "shop",
+    "cta": "Shop Collection",
+    "phone": "+49 30 1122334",
+    "email": "hello@nordlicht-atelier-demo.example.de",
+    "instagram": "https://www.instagram.com/",
+    "street": "Torstraße 44",
+    "zip": "10119",
+    "accent": "#c9a27a",
+    "accent2": "#6e4b32",
+    "about_title": "Dein Look beginnt hier",
+    "about_body": "Nordlicht Atelier — Premium Fashion Showcase mit cinematic Hero und Demo-Shop-Flow (Warenkorb lokal in dieser Demo).",
+    "about_points": [
+      "Kuratierte Capsule",
+      "Transparente Preise",
+      "Demo-Warenkorb in dieser Vitrine"
+    ],
+    "marketing_lines": [
+      "Dein Look.",
+      "Deine Kollektion.",
+      "Klar. Modern. Tragbar.",
+      "Shop Collection."
+    ],
+    "products_or_services": [
+      {
+        "name": "Ready-to-Wear",
+        "blurb": "Looks für Arbeit und Abend."
+      },
+      {
+        "name": "Outerwear",
+        "blurb": "Jacken mit klarer Silhouette."
+      }
+    ],
+    "gallery": [
+      {
+        "src": "assets/01_store.jpg",
+        "alt": "Fashion",
+        "caption": ""
+      },
+      {
+        "src": "assets/02_fabric.jpg",
+        "alt": "Fashion",
+        "caption": ""
+      },
+      {
+        "src": "assets/03_detail.jpg",
+        "alt": "Fashion",
+        "caption": ""
+      },
+      {
+        "src": "assets/04_look.jpg",
+        "alt": "Fashion",
+        "caption": ""
+      },
+      {
+        "src": "assets/05_style.jpg",
+        "alt": "Fashion",
+        "caption": ""
+      },
+      {
+        "src": "assets/06_result.jpg",
+        "alt": "Fashion",
+        "caption": ""
+      }
+    ],
+    "shop_products": [
+      {
+        "name": "Linen Shirt",
+        "price": "89 €",
+        "image": "assets/p1.jpg"
+      },
+      {
+        "name": "City Jacket",
+        "price": "249 €",
+        "image": "assets/p2.jpg"
+      },
+      {
+        "name": "Everyday Trousers",
+        "price": "129 €",
+        "image": "assets/p3.jpg"
+      },
+      {
+        "name": "Canvas Tote",
+        "price": "69 €",
+        "image": "assets/p4.jpg"
+      }
+    ],
+    "showcase_badge": "Showcase Demo · Premium Creative Engine"
+  },
+  "creative": {
+    "engine": "v2",
+    "niche_key": "fashion",
+    "cta": "Shop Collection"
+  },
+  "scene": {
+    "beats": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "model_enters",
+        "camera": "wide",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 1.5,
+        "scroll": 0.15,
+        "action": "fabric_motion",
+        "camera": "medium",
+        "continues": "model_enters",
+        "index": 1
+      },
+      {
+        "time": 3.0,
+        "scroll": 0.3,
+        "action": "material_closeup",
+        "camera": "macro",
+        "continues": "fabric_motion",
+        "index": 2
+      },
+      {
+        "time": 4.5,
+        "scroll": 0.45,
+        "action": "walking",
+        "camera": "medium",
+        "continues": "material_closeup",
+        "index": 3
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.6,
+        "action": "angle_change",
+        "camera": "close",
+        "continues": "walking",
+        "index": 4
+      },
+      {
+        "time": 7.0,
+        "scroll": 0.7,
+        "action": "clothing_detail",
+        "camera": "macro",
+        "continues": "angle_change",
+        "index": 5
+      },
+      {
+        "time": 8.0,
+        "scroll": 0.8,
+        "action": "complete_look",
+        "camera": "hero",
+        "continues": "clothing_detail",
+        "index": 6
+      },
+      {
+        "time": 9.0,
+        "scroll": 0.9,
+        "action": "product_reveal",
+        "camera": "medium",
+        "continues": "complete_look",
+        "index": 7
+      },
+      {
+        "time": 10.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "product_reveal",
+        "index": 8
+      }
+    ]
+  },
+  "posters": [
+    "assets/01_store.jpg",
+    "assets/02_fabric.jpg",
+    "assets/03_detail.jpg",
+    "assets/04_look.jpg",
+    "assets/05_style.jpg",
+    "assets/06_result.jpg"
+  ],
+  "kind": "shop",
+  "showcase": true
+}

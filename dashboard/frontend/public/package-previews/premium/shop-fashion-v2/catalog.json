@@ -1,0 +1,1989 @@
+{
+  "engine": "premium_shop_v2",
+  "rule": "Dynamic catalog — pages generated from products[], never one HTML file per SKU by hand.",
+  "shop": {
+    "id": "atelier-stein-fashion",
+    "name": "Atelier Stein Mode",
+    "city": "Hamburg",
+    "currency": "EUR",
+    "tagline": "Desire → Product → Detail → Cart — Premium Online-Shop, kein Landing mit 3 SKUs.",
+    "about": "Atelier Stein Mode ist ein Showcase-Demo für Virtus Core Premium Online-Shop V2. Der Katalog wird aus catalog.json gerendert — 24 Produkte, Kategorien, PDP, Warenkorb.",
+    "mission": "Zeig dem Kunden das Piece, nicht nur eine schöne Website.",
+    "email": "shop@atelier-stein-demo.example.de",
+    "phone": "+49 40 778899",
+    "address": "Schanzenstraße 8, 20357 Hamburg (Demo)",
+    "accent": "#c4a574",
+    "accent2": "#6e5a45"
+  },
+  "categories": [
+    {
+      "id": "new",
+      "name": "New Arrivals"
+    },
+    {
+      "id": "dresses",
+      "name": "Dresses"
+    },
+    {
+      "id": "jackets",
+      "name": "Jackets"
+    },
+    {
+      "id": "shirts",
+      "name": "Shirts"
+    },
+    {
+      "id": "trousers",
+      "name": "Trousers"
+    },
+    {
+      "id": "shoes",
+      "name": "Shoes"
+    },
+    {
+      "id": "accessories",
+      "name": "Accessories"
+    },
+    {
+      "id": "sale",
+      "name": "Sale"
+    }
+  ],
+  "products": [
+    {
+      "id": "fash-001",
+      "name": "Taupe Wool Coat",
+      "slug": "taupe-wool-coat",
+      "description": "Signature Mantel aus Wolle. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Signature Mantel aus Wolle.",
+      "price": 289.0,
+      "compare_at_price": 349.0,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f001.jpg"
+      ],
+      "category": "jackets",
+      "tags": [
+        "new",
+        "coat"
+      ],
+      "sku": "AST-1000",
+      "stock": 5,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f001.jpg",
+        "assets/products/f004.jpg",
+        "assets/products/f008.jpg"
+      ],
+      "seo_title": "Taupe Wool Coat | Atelier Stein",
+      "seo_description": "Signature Mantel aus Wolle.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-03-12",
+          "verified_purchase": false,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-002",
+      "name": "Studio Scarf Soft",
+      "slug": "studio-scarf-soft",
+      "description": "Weicher Schal zur Coat-Kollektion. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Weicher Schal zur Coat-Kollektion.",
+      "price": 69.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f002.jpg"
+      ],
+      "category": "accessories",
+      "tags": [
+        "new"
+      ],
+      "sku": "AST-1001",
+      "stock": 6,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f002.jpg",
+        "assets/products/f005.jpg",
+        "assets/products/f009.jpg"
+      ],
+      "seo_title": "Studio Scarf Soft | Atelier Stein",
+      "seo_description": "Weicher Schal zur Coat-Kollektion.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-02-11",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-003",
+      "name": "Linen Shirt Ivory",
+      "slug": "linen-shirt-ivory",
+      "description": "Luftiges Hemd für den Alltag. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Luftiges Hemd für den Alltag.",
+      "price": 89.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f003.jpg"
+      ],
+      "category": "shirts",
+      "tags": [
+        "summer"
+      ],
+      "sku": "AST-1002",
+      "stock": 7,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f003.jpg",
+        "assets/products/f006.jpg",
+        "assets/products/f010.jpg"
+      ],
+      "seo_title": "Linen Shirt Ivory | Atelier Stein",
+      "seo_description": "Luftiges Hemd für den Alltag.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-01-10",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.0,
+        "count": 3,
+        "distribution": {
+          "5": 1,
+          "4": 1,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-004",
+      "name": "Wide Trousers Charcoal",
+      "slug": "wide-trousers-charcoal",
+      "description": "Weite Hose, klare Linie. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Weite Hose, klare Linie.",
+      "price": 129.0,
+      "compare_at_price": 149.0,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f004.jpg"
+      ],
+      "category": "trousers",
+      "tags": [
+        "new"
+      ],
+      "sku": "AST-1003",
+      "stock": 8,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f004.jpg",
+        "assets/products/f007.jpg",
+        "assets/products/f011.jpg"
+      ],
+      "seo_title": "Wide Trousers Charcoal | Atelier Stein",
+      "seo_description": "Weite Hose, klare Linie.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.3,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 0,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-005",
+      "name": "Midi Dress Sand",
+      "slug": "midi-dress-sand",
+      "description": "Midi-Kleid in Sand. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Midi-Kleid in Sand.",
+      "price": 159.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f005.jpg"
+      ],
+      "category": "dresses",
+      "tags": [
+        "new"
+      ],
+      "sku": "AST-1004",
+      "stock": 9,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f005.jpg",
+        "assets/products/f008.jpg",
+        "assets/products/f012.jpg"
+      ],
+      "seo_title": "Midi Dress Sand | Atelier Stein",
+      "seo_description": "Midi-Kleid in Sand.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.3,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 0,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-006",
+      "name": "Leather Loafer",
+      "slug": "leather-loafer",
+      "description": "Loafer aus Leder-Look (Demo). Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Loafer aus Leder-Look (Demo).",
+      "price": 179.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f006.jpg"
+      ],
+      "category": "shoes",
+      "tags": [],
+      "sku": "AST-1005",
+      "stock": 10,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f006.jpg",
+        "assets/products/f009.jpg",
+        "assets/products/f013.jpg"
+      ],
+      "seo_title": "Leather Loafer | Atelier Stein",
+      "seo_description": "Loafer aus Leder-Look (Demo).",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-03-12",
+          "verified_purchase": false,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-007",
+      "name": "Belt Minimal",
+      "slug": "belt-minimal",
+      "description": "Schmaler Gürtel. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Schmaler Gürtel.",
+      "price": 49.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f007.jpg"
+      ],
+      "category": "accessories",
+      "tags": [],
+      "sku": "AST-1006",
+      "stock": 11,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f007.jpg",
+        "assets/products/f010.jpg",
+        "assets/products/f014.jpg"
+      ],
+      "seo_title": "Belt Minimal | Atelier Stein",
+      "seo_description": "Schmaler Gürtel.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-02-11",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-008",
+      "name": "Crop Jacket Stone",
+      "slug": "crop-jacket-stone",
+      "description": "Kurze Jacke Stone. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Kurze Jacke Stone.",
+      "price": 199.0,
+      "compare_at_price": 229.0,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f008.jpg"
+      ],
+      "category": "jackets",
+      "tags": [
+        "sale"
+      ],
+      "sku": "AST-1007",
+      "stock": 0,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f008.jpg",
+        "assets/products/f011.jpg",
+        "assets/products/f015.jpg"
+      ],
+      "seo_title": "Crop Jacket Stone | Atelier Stein",
+      "seo_description": "Kurze Jacke Stone.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-01-10",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.0,
+        "count": 3,
+        "distribution": {
+          "5": 1,
+          "4": 1,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-009",
+      "name": "Silk Slip Dress",
+      "slug": "silk-slip-dress",
+      "description": "Leichtes Slip Dress. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Leichtes Slip Dress.",
+      "price": 149.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f009.jpg"
+      ],
+      "category": "dresses",
+      "tags": [],
+      "sku": "AST-1008",
+      "stock": 5,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f009.jpg",
+        "assets/products/f012.jpg",
+        "assets/products/f016.jpg"
+      ],
+      "seo_title": "Silk Slip Dress | Atelier Stein",
+      "seo_description": "Leichtes Slip Dress.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.3,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 0,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-010",
+      "name": "Oxford Shirt White",
+      "slug": "oxford-shirt-white",
+      "description": "Klassisches Oxford. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Klassisches Oxford.",
+      "price": 79.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f010.jpg"
+      ],
+      "category": "shirts",
+      "tags": [],
+      "sku": "AST-1009",
+      "stock": 6,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f010.jpg",
+        "assets/products/f013.jpg",
+        "assets/products/f017.jpg"
+      ],
+      "seo_title": "Oxford Shirt White | Atelier Stein",
+      "seo_description": "Klassisches Oxford.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.3,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 0,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-011",
+      "name": "Tailored Trousers",
+      "slug": "tailored-trousers",
+      "description": "Schmal geschnitten. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Schmal geschnitten.",
+      "price": 139.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f011.jpg"
+      ],
+      "category": "trousers",
+      "tags": [],
+      "sku": "AST-1010",
+      "stock": 7,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f011.jpg",
+        "assets/products/f014.jpg",
+        "assets/products/f018.jpg"
+      ],
+      "seo_title": "Tailored Trousers | Atelier Stein",
+      "seo_description": "Schmal geschnitten.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-03-12",
+          "verified_purchase": false,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-012",
+      "name": "Chelsea Boot",
+      "slug": "chelsea-boot",
+      "description": "Chelsea Boot Demo. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Chelsea Boot Demo.",
+      "price": 219.0,
+      "compare_at_price": 249.0,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f012.jpg"
+      ],
+      "category": "shoes",
+      "tags": [
+        "sale"
+      ],
+      "sku": "AST-1011",
+      "stock": 0,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f012.jpg",
+        "assets/products/f015.jpg",
+        "assets/products/f019.jpg"
+      ],
+      "seo_title": "Chelsea Boot | Atelier Stein",
+      "seo_description": "Chelsea Boot Demo.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-02-11",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-013",
+      "name": "Cap Soft Wool",
+      "slug": "cap-soft-wool",
+      "description": "Wollcap. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Wollcap.",
+      "price": 39.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f013.jpg"
+      ],
+      "category": "accessories",
+      "tags": [],
+      "sku": "AST-1012",
+      "stock": 9,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f013.jpg",
+        "assets/products/f016.jpg",
+        "assets/products/f020.jpg"
+      ],
+      "seo_title": "Cap Soft Wool | Atelier Stein",
+      "seo_description": "Wollcap.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-01-10",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.0,
+        "count": 3,
+        "distribution": {
+          "5": 1,
+          "4": 1,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-014",
+      "name": "Wrap Dress Night",
+      "slug": "wrap-dress-night",
+      "description": "Wrap Dress dunkel. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Wrap Dress dunkel.",
+      "price": 169.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f014.jpg"
+      ],
+      "category": "dresses",
+      "tags": [
+        "new"
+      ],
+      "sku": "AST-1013",
+      "stock": 10,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f014.jpg",
+        "assets/products/f017.jpg",
+        "assets/products/f001.jpg"
+      ],
+      "seo_title": "Wrap Dress Night | Atelier Stein",
+      "seo_description": "Wrap Dress dunkel.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.3,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 0,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-015",
+      "name": "Overshirt Utility",
+      "slug": "overshirt-utility",
+      "description": "Overshirt mit Taschen. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Overshirt mit Taschen.",
+      "price": 119.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f015.jpg"
+      ],
+      "category": "shirts",
+      "tags": [],
+      "sku": "AST-1014",
+      "stock": 11,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f015.jpg",
+        "assets/products/f018.jpg",
+        "assets/products/f002.jpg"
+      ],
+      "seo_title": "Overshirt Utility | Atelier Stein",
+      "seo_description": "Overshirt mit Taschen.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.3,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 0,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-016",
+      "name": "Pleated Skirt",
+      "slug": "pleated-skirt",
+      "description": "Plisseerock (Demo dress cat). Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Plisseerock (Demo dress cat).",
+      "price": 99.0,
+      "compare_at_price": 119.0,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f016.jpg"
+      ],
+      "category": "dresses",
+      "tags": [
+        "sale"
+      ],
+      "sku": "AST-1015",
+      "stock": 12,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f016.jpg",
+        "assets/products/f019.jpg",
+        "assets/products/f003.jpg"
+      ],
+      "seo_title": "Pleated Skirt | Atelier Stein",
+      "seo_description": "Plisseerock (Demo dress cat).",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-03-12",
+          "verified_purchase": false,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-017",
+      "name": "Bomber Light",
+      "slug": "bomber-light",
+      "description": "Leichter Bomber. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Leichter Bomber.",
+      "price": 189.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f017.jpg"
+      ],
+      "category": "jackets",
+      "tags": [],
+      "sku": "AST-1016",
+      "stock": 5,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f017.jpg",
+        "assets/products/f020.jpg",
+        "assets/products/f004.jpg"
+      ],
+      "seo_title": "Bomber Light | Atelier Stein",
+      "seo_description": "Leichter Bomber.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-02-11",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-018",
+      "name": "Knit Polo",
+      "slug": "knit-polo",
+      "description": "Strick-Polo. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Strick-Polo.",
+      "price": 95.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f018.jpg"
+      ],
+      "category": "shirts",
+      "tags": [],
+      "sku": "AST-1017",
+      "stock": 6,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f018.jpg",
+        "assets/products/f001.jpg",
+        "assets/products/f005.jpg"
+      ],
+      "seo_title": "Knit Polo | Atelier Stein",
+      "seo_description": "Strick-Polo.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-01-10",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.0,
+        "count": 3,
+        "distribution": {
+          "5": 1,
+          "4": 1,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-019",
+      "name": "Relaxed Chino",
+      "slug": "relaxed-chino",
+      "description": "Chino relaxed fit. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Chino relaxed fit.",
+      "price": 109.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f019.jpg"
+      ],
+      "category": "trousers",
+      "tags": [],
+      "sku": "AST-1018",
+      "stock": 7,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f019.jpg",
+        "assets/products/f002.jpg",
+        "assets/products/f006.jpg"
+      ],
+      "seo_title": "Relaxed Chino | Atelier Stein",
+      "seo_description": "Chino relaxed fit.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.3,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 0,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-020",
+      "name": "Sneaker Court",
+      "slug": "sneaker-court",
+      "description": "Court Sneaker. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Court Sneaker.",
+      "price": 129.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f020.jpg"
+      ],
+      "category": "shoes",
+      "tags": [
+        "new"
+      ],
+      "sku": "AST-1019",
+      "stock": 8,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f020.jpg",
+        "assets/products/f003.jpg",
+        "assets/products/f007.jpg"
+      ],
+      "seo_title": "Sneaker Court | Atelier Stein",
+      "seo_description": "Court Sneaker.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.3,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 0,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-021",
+      "name": "Mini Bag Cross",
+      "slug": "mini-bag-cross",
+      "description": "Mini Crossbody. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Mini Crossbody.",
+      "price": 119.0,
+      "compare_at_price": 139.0,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f001.jpg"
+      ],
+      "category": "accessories",
+      "tags": [
+        "sale"
+      ],
+      "sku": "AST-1020",
+      "stock": 9,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f001.jpg",
+        "assets/products/f004.jpg",
+        "assets/products/f008.jpg"
+      ],
+      "seo_title": "Mini Bag Cross | Atelier Stein",
+      "seo_description": "Mini Crossbody.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-03-12",
+          "verified_purchase": false,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-022",
+      "name": "Trench Soft",
+      "slug": "trench-soft",
+      "description": "Weicher Trench. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Weicher Trench.",
+      "price": 259.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f002.jpg"
+      ],
+      "category": "jackets",
+      "tags": [
+        "new"
+      ],
+      "sku": "AST-1021",
+      "stock": 10,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f002.jpg",
+        "assets/products/f005.jpg",
+        "assets/products/f009.jpg"
+      ],
+      "seo_title": "Trench Soft | Atelier Stein",
+      "seo_description": "Weicher Trench.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Passt perfekt — genau wie auf den Fotos.",
+          "author": "Jonas K.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-02-11",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.7,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 1,
+          "3": 0,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-023",
+      "name": "Satin Blouse",
+      "slug": "satin-blouse",
+      "description": "Satinbluse. Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Satinbluse.",
+      "price": 99.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f003.jpg"
+      ],
+      "category": "shirts",
+      "tags": [],
+      "sku": "AST-1022",
+      "stock": 11,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f003.jpg",
+        "assets/products/f006.jpg",
+        "assets/products/f010.jpg"
+      ],
+      "seo_title": "Satin Blouse | Atelier Stein",
+      "seo_description": "Satinbluse.",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 4,
+          "text": "Schönes Piece, Lieferung war ok (Demo).",
+          "author": "Lea S.",
+          "date": "2026-01-10",
+          "verified_purchase": false,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.0,
+        "count": 3,
+        "distribution": {
+          "5": 1,
+          "4": 1,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    },
+    {
+      "id": "fash-024",
+      "name": "Wide Short",
+      "slug": "wide-short",
+      "description": "Wide Short (Demo). Teil der Atelier Stein Demo-Kollektion. Premium Online-Shop V2 — Produktseite entsteht dynamisch aus dem Katalog.",
+      "short_description": "Wide Short (Demo).",
+      "price": 79.0,
+      "compare_at_price": null,
+      "currency": "EUR",
+      "images": [
+        "assets/products/f004.jpg"
+      ],
+      "category": "trousers",
+      "tags": [
+        "sale"
+      ],
+      "sku": "AST-1023",
+      "stock": 12,
+      "variants": [
+        {
+          "name": "Größe",
+          "options": [
+            "S",
+            "M",
+            "L"
+          ]
+        }
+      ],
+      "attributes": {
+        "material": "Demo fabric",
+        "care": "Schonwäsche"
+      },
+      "gallery": [
+        "assets/products/f004.jpg",
+        "assets/products/f007.jpg",
+        "assets/products/f011.jpg"
+      ],
+      "seo_title": "Wide Short | Atelier Stein",
+      "seo_description": "Wide Short (Demo).",
+      "status": "active",
+      "reviews": [
+        {
+          "rating": 5,
+          "text": "Tragegefühl top. Kaufe wieder.",
+          "author": "Mira W.",
+          "date": "2026-01-10",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 3,
+          "text": "Farbe etwas dunkler als erwartet.",
+          "author": "Tom B.",
+          "date": "2026-02-11",
+          "verified_purchase": true,
+          "demo": true
+        },
+        {
+          "rating": 5,
+          "text": "Schnitt und Stoff fühlen sich hochwertig an.",
+          "author": "Anna M.",
+          "date": "2026-03-12",
+          "verified_purchase": true,
+          "demo": true
+        }
+      ],
+      "review_stats": {
+        "average": 4.3,
+        "count": 3,
+        "distribution": {
+          "5": 2,
+          "4": 0,
+          "3": 1,
+          "2": 0,
+          "1": 0
+        }
+      }
+    }
+  ],
+  "product_count": 24,
+  "cinematic": [
+    {
+      "src": "assets/cinematic/c001.jpg",
+      "action": "desire_01",
+      "copy": "Die Kollektion beginnt."
+    },
+    {
+      "src": "assets/cinematic/c002.jpg",
+      "action": "desire_02",
+      "copy": "Model. Haltung. Raum."
+    },
+    {
+      "src": "assets/cinematic/c003.jpg",
+      "action": "desire_03",
+      "copy": "Das Piece erscheint."
+    },
+    {
+      "src": "assets/cinematic/c004.jpg",
+      "action": "desire_04",
+      "copy": "Stoff in Bewegung."
+    },
+    {
+      "src": "assets/cinematic/c005.jpg",
+      "action": "desire_05",
+      "copy": "Material. Nah."
+    },
+    {
+      "src": "assets/cinematic/c006.jpg",
+      "action": "desire_06",
+      "copy": "Detail entscheidet."
+    },
+    {
+      "src": "assets/cinematic/c007.jpg",
+      "action": "desire_07",
+      "copy": "Getragen. Echt."
+    },
+    {
+      "src": "assets/cinematic/c008.jpg",
+      "action": "desire_08",
+      "copy": "Neuer Winkel."
+    },
+    {
+      "src": "assets/cinematic/c009.jpg",
+      "action": "desire_09",
+      "copy": "Full Look."
+    },
+    {
+      "src": "assets/cinematic/c010.jpg",
+      "action": "desire_10",
+      "copy": "Product Reveal."
+    },
+    {
+      "src": "assets/cinematic/c011.jpg",
+      "action": "desire_11",
+      "copy": "Preis. Klarheit."
+    },
+    {
+      "src": "assets/cinematic/c012.jpg",
+      "action": "desire_12",
+      "copy": "In den Warenkorb."
+    }
+  ],
+  "cinematic_direction": "DESIRE → PRODUCT → DETAIL → VALUE → PURCHASE",
+  "capabilities": {
+    "catalog": true,
+    "categories": true,
+    "product_pages": true,
+    "search": true,
+    "filters": true,
+    "cart": true,
+    "checkout_demo": true,
+    "reviews_demo": true,
+    "account": false,
+    "admin_workspace": false,
+    "analytics": false,
+    "versions": false
+  },
+  "demo_notes": {
+    "reviews": "Demo-Bewertungen — not real customers",
+    "contacts": "Demo contacts only when labeled",
+    "payments": "No live Stripe in showcase — order request demo"
+  },
+  "website_style_reviews": []
+}

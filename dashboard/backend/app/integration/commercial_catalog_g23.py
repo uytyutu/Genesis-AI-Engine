@@ -14,11 +14,9 @@ Category = Literal["one_time", "monthly", "product"]
 Availability = Literal["available", "coming_soon"]
 
 LANDING_PACKAGES_EUR: dict[str, int] = {
-    "standalone": 499,
-    "connected": 499,
-    "basic": 499,
-    "business": 499,
-    "premium": 499,
+    "basic": 199,
+    "business": 399,
+    "premium": 699,
 }
 
 VECTOR_SETUP_FROM_EUR = 499

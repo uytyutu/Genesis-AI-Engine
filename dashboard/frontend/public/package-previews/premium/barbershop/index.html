@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atelier Nord Fade · Premium Cinematic · Dresden</title>
+  <meta name="description" content="Atelier Nord Fade in Dresden — ruhiges Handwerk, klarer Fade, feste Meister. Dieses Premium-Showcase erzählt den Schnitt als scroll-cinematic Sequenz (20 Frames" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#070809; --ink:#f4efe6; --muted:#b7aea0; --accent:#c4a574; --accent2:#8b5a2b; --line:rgba(255,255,255,.12); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:Outfit,system-ui,sans-serif; }
+    a { color:inherit; text-decoration:none; }
+    header.top { position:fixed; inset:0 0 auto; z-index:40; display:flex; justify-content:space-between; align-items:center;
+      padding:.85rem 1.1rem; background:linear-gradient(to bottom,rgba(0,0,0,.8),transparent); }
+    header.top strong { font-family:"Cormorant Garamond",serif; font-size:1.15rem; }
+    header.top nav { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; font-size:.8rem; color:var(--muted); }
+    .nav-cta, .cta, button.cta { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:.7rem 1.2rem;
+      border:0; border-radius:999px; background:linear-gradient(135deg,var(--accent),#f0d09a); color:#1a1208; font-weight:600; cursor:pointer; font:inherit; }
+    header.top .nav-cta { min-height:36px; padding:.4rem .95rem; font-size:.78rem; }
+    .pin { position:relative; height:calc(100vh + 20 * 16vh); }
+    .stage { position:sticky; top:0; height:100vh; overflow:hidden; background:#050505; }
+    .seq { position:absolute; inset:0; }
+    .seq img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .1s linear; will-change:opacity; }
+    .seq img.is-on { opacity:1; }
+    .seq img.is-prev { opacity:.28; }
+    .vignette { position:absolute; inset:0; pointer-events:none;
+      background:radial-gradient(ellipse at 50% 40%,transparent 15%,rgba(0,0,0,.55) 75%),linear-gradient(to top,rgba(0,0,0,.85),transparent 45%); }
+    .hud { position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; justify-content:flex-end;
+      padding:clamp(1.2rem,4vw,3rem); pointer-events:none; }
+    .hud > * { pointer-events:auto; }
+    .eyebrow { letter-spacing:.28em; text-transform:uppercase; font-size:.7rem; color:var(--accent); margin:0 0 .5rem; }
+    h1 { font-family:"Cormorant Garamond",serif; font-size:clamp(2.3rem,6.5vw,4.6rem); line-height:.95; margin:0 0 .55rem; max-width:14ch; }
+    .beat-line { color:var(--muted); font-size:clamp(1.05rem,2.4vw,1.35rem); max-width:28rem; min-height:2.8em; margin:0 0 1rem; line-height:1.4; }
+    .frame-meter { color:rgba(255,255,255,.45); font-size:.72rem; letter-spacing:.12em; margin:0 0 .8rem; }
+    .progress { position:absolute; top:0; left:0; height:3px; width:0; background:linear-gradient(90deg,var(--accent2),var(--accent)); z-index:8; }
+    .hint { position:absolute; right:1.1rem; bottom:1rem; z-index:6; color:var(--muted); font-size:.72rem; letter-spacing:.1em; }
+    .section { max-width:68rem; margin:0 auto; padding:4.2rem 1.25rem; scroll-margin-top:5rem; }
+    .section h2 { font-family:"Cormorant Garamond",serif; font-size:clamp(2rem,4vw,3rem); margin:.3rem 0 1rem; }
+    .lead { color:var(--muted); font-size:1.05rem; line-height:1.7; max-width:44rem; }
+    .points { margin:1.2rem 0 0; padding:0; list-style:none; display:grid; gap:.65rem; }
+    .points li { padding-left:1.1rem; position:relative; }
+    .points li::before { content:""; position:absolute; left:0; top:.55em; width:.4rem; height:.4rem; border-radius:50%; background:var(--accent); }
+    .grid-cards { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); margin-top:1.4rem; }
+    .card { border:1px solid var(--line); border-radius:1rem; padding:1rem; background:rgba(255,255,255,.03); }
+    .card h3 { margin:0 0 .35rem; font-size:1.02rem; }
+    .card p { margin:0; color:var(--muted); font-size:.9rem; }
+    .card .stars { color:var(--accent); margin:0 0 .45rem; letter-spacing:.06em; }
+    .card .muted { color:var(--muted); font-size:.85rem; margin-top:.55rem; }
+    .product-grid { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
+    .product { border:1px solid var(--line); border-radius:1rem; overflow:hidden; background:rgba(255,255,255,.03); }
+    .product img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+    .product h3 { margin:.75rem .85rem .2rem; font-size:1rem; }
+    .product .price { margin:0 .85rem .7rem; color:var(--accent); font-weight:600; }
+    .mini-cta { background:none; border:0; color:var(--accent); cursor:pointer; margin:0 .85rem 1rem; padding:0; font:inherit; }
+    .contact-shell { display:grid; gap:1.2rem; grid-template-columns:1.05fr .95fr; margin-top:1.4rem; }
+    @media (max-width:860px) { .contact-shell { grid-template-columns:1fr; } .hint { display:none; } header.top nav a:not(.nav-cta) { display:none; } .pin { height:calc(100vh + 20 * 12vh); } }
+    .contact-panel { border:1px solid var(--line); border-radius:1.15rem; padding:1.15rem; background:rgba(255,255,255,.03); }
+    .contact-actions { display:grid; gap:.65rem; margin:0 0 1rem; }
+    .action { display:flex; gap:.7rem; align-items:center; padding:.8rem 1rem; border-radius:.85rem; border:1px solid var(--line); }
+    .muted { color:var(--muted); font-size:.85rem; }
+    .icon { width:2rem; height:2rem; border-radius:999px; display:grid; place-items:center; background:rgba(232,165,75,.15); }
+    .socials { display:flex; gap:.55rem; flex-wrap:wrap; }
+    .socials a { width:2.4rem; height:2.4rem; border-radius:999px; border:1px solid var(--line); display:grid; place-items:center; }
+    form.msg { display:grid; gap:.65rem; }
+    form.msg label { font-size:.75rem; color:var(--muted); }
+    form.msg input, form.msg textarea { width:100%; border-radius:.7rem; border:1px solid var(--line); background:#0d0e10; color:var(--ink); padding:.7rem .8rem; font:inherit; }
+    .ok { display:none; color:#9be7b0; font-size:.9rem; } .ok.show { display:block; }
+    footer.site { border-top:1px solid var(--line); padding:1.4rem 1.2rem 2.4rem; color:var(--muted); font-size:.8rem; text-align:center; }
+    footer.site a { color:var(--accent); margin:0 .4rem; }
+    .modal { position:fixed; inset:0; z-index:80; display:none; align-items:flex-end; justify-content:center; padding:1rem; background:rgba(0,0,0,.62); }
+    .modal.open { display:flex; }
+    .modal-card { width:min(540px,100%); max-height:92vh; overflow:auto; border:1px solid var(--line); border-radius:1.2rem; background:#0c0d0f; padding:1.15rem; }
+    .modal-head { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+    .modal-head h2 { margin:0; font-family:"Cormorant Garamond",serif; }
+    .modal-close { width:2.2rem; height:2.2rem; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; }
+    .fail { color:#ffb4b4; font-size:.78rem; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <strong>Atelier Nord Fade</strong>
+    <nav>
+      <a href="#about">Über uns</a>
+      <a href="#leistungen">Leistungen</a>
+      <a href="#stimmen">Bewertungen</a>
+      
+      <button type="button" class="nav-cta cta js-open-termin">Termin buchen</button>
+    </nav>
+  </header>
+
+  <div class="pin" id="pin">
+    <div class="stage" id="stage">
+      <div class="progress" id="progress"></div>
+      <div class="seq" id="seq" aria-hidden="true"></div>
+      <div class="vignette"></div>
+      <div class="hud">
+        <p class="eyebrow">Dresden · Premium Cinematic</p>
+        <h1>Atelier Nord Fade</h1>
+        <p class="frame-meter" id="frameMeter">FRAME 001 / 020</p>
+        <p class="beat-line" id="beatLine">Im Sessel. Bereit.</p>
+        <button type="button" class="cta js-open-termin" id="cta">Termin buchen</button>
+      </div>
+      <p class="hint">SCROLL ↓ VIDEO</p>
+    </div>
+  </div>
+
+  <section id="about" class="section">
+    <p class="eyebrow">Unternehmen</p>
+    <h2>Präzise Konturen</h2>
+    <p class="lead">Atelier Nord Fade in Dresden — ruhiges Handwerk, klarer Fade, feste Meister. Dieses Premium-Showcase erzählt den Schnitt als scroll-cinematic Sequenz (20 Frames).</p>
+    <ul class="points"><li>Fade &amp; Contour</li><li>Termin ohne Chaos</li><li>Feste Meisterzeiten</li></ul>
+  </section>
+  <section id="leistungen" class="section">
+    <p class="eyebrow">Angebot</p>
+    <h2>Was Sie bekommen</h2>
+    <div class="grid-cards"><article class="card"><h3>Signature Fade</h3><p>Saubere Übergänge, klare Linie.</p></article><article class="card"><h3>Scissor Cut</h3><p>Struktur oben, Kontrolle unten.</p></article><article class="card"><h3>Finish &amp; Style</h3><p>Produkt, Spiegel, raus.</p></article></div>
+  </section>
+  <section id="stimmen" class="section"><p class="eyebrow">Kundenstimmen</p><h2>Bewertungen</h2><p class="lead">Demo-Bewertungen — keine erfundenen echten Kundenstimmen. Auf Kundenprojekten nur manuell / importiert / echte Formulare.</p><div class="grid-cards"><article class="card"><p class="stars">★★★★★</p><p>“Sehr professionell und ein tolles Ergebnis.”</p><p class="muted">— Anna M.</p></article><article class="card"><p class="stars">★★★★★</p><p>“Schneller Service und sehr freundliche Beratung.”</p><p class="muted">— Michael K.</p></article><article class="card"><p class="stars">★★★★★</p><p>“Genau das, was wir für unseren Auftritt brauchten.”</p><p class="muted">— Sara L.</p></article></div></section>
+  
+  
+  <section id="termin" class="section">
+    <p class="eyebrow">Kontakt</p>
+    <h2>Termin buchen</h2>
+    <p class="lead">Anrufen, schreiben oder kurze Nachricht hinterlassen.</p>
+    <div class="contact-shell" id="contactInline">
+      <div class="contact-panel">
+        <div class="contact-actions"><a class="action" href="tel:+49351112233"><span class="icon">☎</span><span><strong>Anrufen</strong><br /><span class="muted">+49 351 112233</span></span></a><a class="action" href="mailto:termin@atelier-nord-demo.example.de"><span class="icon">✉</span><span><strong>E-Mail</strong><br /><span class="muted">termin@atelier-nord-demo.example.de</span></span></a></div>
+        <div class="socials"><a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">IG</a><a href="https://wa.me/49351112233" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a><a href="mailto:termin@atelier-nord-demo.example.de" aria-label="E-Mail">@</a></div>
+      </div>
+      <div class="contact-panel">
+        <form class="msg" id="contactForm">
+          <div><label for="name">Name</label><input id="name" name="name" required /></div>
+          <div><label for="phone">Telefon</label><input id="phone" name="phone" /></div>
+          <div><label for="mail">E-Mail</label><input id="mail" name="mail" type="email" /></div>
+          <div><label for="message">Nachricht</label><textarea id="message" name="message" rows="4" required></textarea></div>
+          <button class="cta" type="submit">Nachricht senden</button>
+          <p class="ok" id="formOk">Bereit zum Versand.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+  <footer class="site">
+    Atelier Nord Fade · Dresden · Showcase Demo · Premium Creative Engine · 20-frame sequence · 20 frames<br />
+    <a href="impressum.html">Impressum</a> <a href="datenschutz.html">Datenschutz</a>
+    
+  </footer>
+
+  <div class="modal" id="terminModal" hidden>
+    <div class="modal-card">
+      <div class="modal-head"><h2>Termin buchen</h2><button type="button" class="modal-close" id="terminClose">×</button></div>
+      <div id="modalContactMount"></div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var FRAMES = [{"src": "assets/seq/f001.jpg", "action": "client_chair", "copy": "Im Sessel. Bereit."}, {"src": "assets/seq/f002.jpg", "action": "tools_prep", "copy": "Werkzeug. Präzision."}, {"src": "assets/seq/f003.jpg", "action": "first_pass", "copy": "Der erste Schnitt."}, {"src": "assets/seq/f004.jpg", "action": "hair_fly", "copy": "Haare fallen. Form entsteht."}, {"src": "assets/seq/f005.jpg", "action": "scissors", "copy": "Schere. Kontrolle."}, {"src": "assets/seq/f006.jpg", "action": "fade_work", "copy": "Der Fade wird klar."}, {"src": "assets/seq/f007.jpg", "action": "styling", "copy": "Produkt. Struktur."}, {"src": "assets/seq/f008.jpg", "action": "mirror", "copy": "Blick in den Spiegel."}, {"src": "assets/seq/f009.jpg", "action": "portrait_progress", "copy": "Konturen sitzen."}, {"src": "assets/seq/f010.jpg", "action": "detail_contour", "copy": "Präzise Konturen."}, {"src": "assets/seq/f011.jpg", "action": "brush_clean", "copy": "Sauber. Fertig gedacht."}, {"src": "assets/seq/f012.jpg", "action": "finish_touch", "copy": "Letzter Feinschliff."}, {"src": "assets/seq/f013.jpg", "action": "reveal", "copy": "Der Look steht."}, {"src": "assets/seq/f014.jpg", "action": "hero_portrait", "copy": "Professionelles Styling."}, {"src": "assets/seq/f015.jpg", "action": "side_view", "copy": "Von der Seite. Klar."}, {"src": "assets/seq/f016.jpg", "action": "final_look", "copy": "Dein persönlicher Look."}, {"src": "assets/seq/f017.jpg", "action": "line_macro", "copy": "Linie. Schärfe. Ruhe."}, {"src": "assets/seq/f018.jpg", "action": "ad_still", "copy": "Premium Handwerk."}, {"src": "assets/seq/f019.jpg", "action": "ready_leave", "copy": "Bereit für den Tag."}, {"src": "assets/seq/f020.jpg", "action": "cta", "copy": "Termin buchen."}];
+    var N = FRAMES.length;
+    var seq = document.getElementById('seq');
+    var imgs = [];
+    var preloadWindow = 4;
+    function ensureImg(i) {
+      if (!FRAMES[i] || imgs[i]) return imgs[i];
+      var img = document.createElement('img');
+      img.alt = '';
+      img.decoding = 'async';
+      img.src = FRAMES[i].src;
+      seq.appendChild(img);
+      imgs[i] = img;
+      return img;
+    }
+    // preload first frames
+    for (var i=0;i<Math.min(N, 6);i++) ensureImg(i);
+
+    var progressEl = document.getElementById('progress');
+    var beatLine = document.getElementById('beatLine');
+    var frameMeter = document.getElementById('frameMeter');
+    var pin = document.getElementById('pin');
+    var lastIdx = -1;
+
+    function cinemaProgress() {
+      var rect = pin.getBoundingClientRect();
+      var total = Math.max(1, pin.offsetHeight - window.innerHeight);
+      var scrolled = Math.min(total, Math.max(0, -rect.top));
+      return scrolled / total;
+    }
+    function setFrame(p) {
+      var idx = Math.min(N - 1, Math.max(0, Math.round(p * (N - 1))));
+      lastIdx = idx;
+      for (var k = Math.max(0, idx - 1); k <= Math.min(N - 1, idx + preloadWindow); k++) ensureImg(k);
+      for (var i = 0; i < imgs.length; i++) {
+        var img = imgs[i];
+        if (!img) continue;
+        img.classList.toggle('is-on', i === idx);
+        img.classList.toggle('is-prev', i === idx - 1);
+      }
+      var f = FRAMES[idx] || {};
+      beatLine.textContent = f.copy || f.action || '';
+      frameMeter.textContent = 'FRAME ' + String(idx + 1).padStart(3,'0') + ' / ' + String(N).padStart(3,'0');
+      progressEl.style.width = (p * 100).toFixed(2) + '%';
+      document.getElementById('cta').style.opacity = p > 0.82 ? '1' : (p > 0.55 ? '0.85' : '0.55');
+    }
+    function onScroll() { setFrame(cinemaProgress()); }
+    addEventListener('scroll', onScroll, { passive:true });
+    addEventListener('resize', onScroll);
+    onScroll();
+
+    // contact modal
+    var modal = document.getElementById('terminModal');
+    var mount = document.getElementById('modalContactMount');
+    var inline = document.getElementById('contactInline');
+    function openTermin(e) {
+      if (e) e.preventDefault();
+      if (!modal || !mount || !inline) return;
+      if (!mount.dataset.ready) { mount.appendChild(inline.cloneNode(true)); mount.dataset.ready='1'; bindForm(mount.querySelector('form'), mount.querySelector('.ok')); }
+      modal.hidden=false; modal.classList.add('open'); document.body.style.overflow='hidden';
+    }
+    function closeTermin() { modal.classList.remove('open'); modal.hidden=true; document.body.style.overflow=''; }
+    Array.prototype.forEach.call(document.querySelectorAll('.js-open-termin'), function(b){ b.addEventListener('click', openTermin); });
+    document.getElementById('terminClose').addEventListener('click', closeTermin);
+    modal.addEventListener('click', function(e){ if (e.target===modal) closeTermin(); });
+
+    function bindForm(form, ok) {
+      if (!form) return;
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var name = (form.querySelector('[name=name]')||{}).value||'';
+        var phone = (form.querySelector('[name=phone]')||{}).value||'';
+        var mail = (form.querySelector('[name=mail]')||{}).value||'';
+        var message = (form.querySelector('[name=message]')||{}).value||'';
+        var subject = encodeURIComponent('Anfrage · Atelier Nord Fade');
+        var body = encodeURIComponent('Name: '+name+'\nTelefon: '+phone+'\nE-Mail: '+mail+'\n\n'+message);
+        window.location.href='mailto:termin@atelier-nord-demo.example.de?subject='+subject+'&body='+body;
+        if (ok) ok.classList.add('show');
+      });
+    }
+    bindForm(document.getElementById('contactForm'), document.getElementById('formOk'));
+
+    var cart = [];
+    Array.prototype.forEach.call(document.querySelectorAll('.js-add-cart'), function(btn) {
+      btn.addEventListener('click', function() {
+        var card = btn.closest('.product');
+        if (!card) return;
+        cart.push({ name: card.getAttribute('data-name'), price: card.getAttribute('data-price') });
+        var list = document.getElementById('cartList');
+        var empty = document.getElementById('cartEmpty');
+        if (list) {
+          list.innerHTML = '';
+          cart.forEach(function(it) { var li=document.createElement('li'); li.textContent=it.name+' — '+it.price; list.appendChild(li); });
+        }
+        if (empty) empty.style.display = cart.length ? 'none' : 'block';
+        var c = document.getElementById('cart'); if (c) c.scrollIntoView({behavior:'smooth'});
+      });
+    });
+  })();
+  </script>
+</body>
+</html>

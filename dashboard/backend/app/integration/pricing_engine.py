@@ -27,8 +27,8 @@ PACKAGE_IDS: tuple[str, ...] = (
     "repair_complete",
 )
 
-# Public catalog: Standalone | Connected (Digital Business Creator)
-WEBSITE_PACKAGE_IDS: tuple[str, ...] = ("standalone", "connected")
+# Public catalog: Website Basic / Business / Premium (same ladder as /site)
+WEBSITE_PACKAGE_IDS: tuple[str, ...] = ("basic", "business", "premium")
 REPAIR_PACKAGE_IDS: tuple[str, ...] = (
     "repair_lite",
     "repair_standard",
@@ -36,12 +36,13 @@ REPAIR_PACKAGE_IDS: tuple[str, ...] = (
 )
 
 # DE anchors — also used as fallback scale base.
+# standalone/connected kept as API aliases → Business / Premium amounts.
 _DE_SKUS: dict[str, int] = {
-    "standalone": 499,
-    "connected": 499,
-    "basic": 499,  # legacy → Standalone
-    "business": 499,  # legacy → Standalone
-    "premium": 499,  # legacy → Connected (setup; monthly separate)
+    "basic": 199,
+    "business": 399,
+    "premium": 699,
+    "standalone": 399,  # alias → Business (Workspace)
+    "connected": 699,  # alias → Premium (Workspace + cinematic)
     "repair_lite": 199,
     "repair_standard": 349,
     "repair_complete": 499,
@@ -240,10 +241,16 @@ class FinalOffer:
 
 
 def normalize_package_id(package_id: str | None) -> str:
-    pid = str(package_id or "standalone").strip().lower()
+    """Public ladder is basic/business/premium; Standalone/Connected are aliases."""
+    pid = str(package_id or "basic").strip().lower()
+    aliases = {
+        "standalone": "business",
+        "connected": "premium",
+    }
+    pid = aliases.get(pid, pid)
     if pid in PACKAGE_IDS:
         return pid
-    return "standalone"
+    return "basic"
 
 
 def is_zero_decimal_currency(currency: str | None) -> bool:
@@ -421,11 +428,11 @@ def list_path_a_packages(
 
 def _default_name(tier: str) -> str:
     return {
-        "standalone": "Standalone",
-        "connected": "Virtus Core Connected",
-        "basic": "Standalone (legacy)",
-        "business": "Standalone (legacy)",
-        "premium": "Connected (legacy)",
+        "basic": "Website Basic",
+        "business": "Website Business",
+        "premium": "Website Premium",
+        "standalone": "Website Business",
+        "connected": "Website Premium",
         "repair_lite": "Website Repair Lite",
         "repair_standard": "Website Repair Standard",
         "repair_complete": "Website Repair Complete",

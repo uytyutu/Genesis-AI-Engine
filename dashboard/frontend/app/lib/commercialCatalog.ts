@@ -1,7 +1,6 @@
 /**
- * Commercial catalog — Digital Business Creator.
- * Keep in sync with dashboard/backend/app/factory/solution_catalog.py
- * and commercial_catalog_g23.py.
+ * Commercial catalog — public Website / Online-Shop ladder.
+ * Keep in sync with dashboard/backend commercial_catalog_g23 + pricing_engine.
  */
 
 export type CommercialCategory = "one_time" | "monthly" | "product";
@@ -29,15 +28,15 @@ export type CommercialRow = {
   group?: CatalogGroupId;
 };
 
-/** Standalone vs Connected — not Basic / Business / Premium. */
+/** Public Website ladder — same amounts on /site, /order, checkout. */
 export const LANDING_PACKAGES_EUR = {
-  standalone: 499,
-  connected: 499,
-  connected_monthly: 99,
-  // Legacy aliases (API / unpaid demos)
-  basic: 499,
-  business: 499,
-  premium: 499,
+  basic: 199,
+  business: 399,
+  premium: 699,
+  // Legacy API aliases (not shown as separate products)
+  standalone: 399,
+  connected: 699,
+  connected_monthly: 0,
 } as const;
 
 export const PRODUCT_SHOWCASE_GROUPS: {
@@ -79,32 +78,43 @@ export const PRODUCT_SHOWCASE_GROUPS: {
 
 export const COMMERCIAL_CATALOG: CommercialRow[] = [
   {
-    id: "digital_business_standalone",
+    id: "website_basic",
     category: "product",
     group: "websites",
-    name: "Standalone — own your digital product",
-    price_label: `${LANDING_PACKAGES_EUR.standalone} €`,
+    name: "Website Basic",
+    price_label: `${LANDING_PACKAGES_EUR.basic} €`,
     billing: "one_time",
     availability: "available",
     cta: "order_now",
-    cta_href: "/order?package=standalone",
-    cta_label: "Get Standalone",
-    includes:
-      "Full digital company site · panel · source · Business Interview → brand → site",
+    cta_href: "/order?package=basic",
+    cta_label: "Website Basic wählen",
+    includes: "Fertige Website · Kontakt · Legal · ohne Virtus Workspace",
   },
   {
-    id: "digital_business_connected",
+    id: "website_business",
     category: "product",
     group: "websites",
-    name: "Virtus Core Connected",
-    price_label: `${LANDING_PACKAGES_EUR.connected} € + ${LANDING_PACKAGES_EUR.connected_monthly} €/mo`,
-    billing: "monthly",
+    name: "Website Business",
+    price_label: `${LANDING_PACKAGES_EUR.business} €`,
+    billing: "one_time",
     availability: "available",
-    cta: "activate",
-    cta_href: "/order?package=connected",
-    cta_label: "Connect to Virtus Core",
-    includes:
-      "Everything in Standalone + Workspace, CRM/leads, AI, automation, platform updates",
+    cta: "order_now",
+    cta_href: "/order?package=business",
+    cta_label: "Website Business wählen",
+    includes: "Alles aus Basic + Virtus Client Workspace",
+  },
+  {
+    id: "website_premium",
+    category: "product",
+    group: "websites",
+    name: "Website Premium",
+    price_label: `${LANDING_PACKAGES_EUR.premium} €`,
+    billing: "one_time",
+    availability: "available",
+    cta: "order_now",
+    cta_href: "/order?package=premium",
+    cta_label: "Website Premium wählen",
+    includes: "Alles aus Business + Cinematic Experience (inkl.)",
   },
   {
     id: "ai_store",

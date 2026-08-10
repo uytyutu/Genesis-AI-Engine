@@ -864,21 +864,7 @@ export function SitePage() {
           </div>
         ) : null}
 
-        {!chatOpen ? (
-          <button
-            type="button"
-            onClick={() => openChat()}
-            className="vector-chat-fab fixed bottom-5 right-5 z-50 flex items-center gap-2.5 rounded-full border border-sky-300/30 bg-sky-500/95 px-3.5 py-2.5 text-sm font-semibold text-white shadow-lg hover:brightness-110"
-            style={
-              vvLayout.keyboard > 0
-                ? { bottom: `max(1.25rem, ${vvLayout.keyboard + 12}px)` }
-                : undefined
-            }
-          >
-            <VectorChatIcon size="xs" className="ring-white/40" />
-            {t("s0.askVector", { defaultValue: "Ask Vector" })}
-          </button>
-        ) : null}
+        {/* Public storefront: no Vector FAB — matches live beta /site */}
       </div>
     </PublicPageShell>
   );

@@ -1,0 +1,218 @@
+{
+  "business": {
+    "business_name": "Goldbraun Grill",
+    "niche": "hot_dog",
+    "city": "Berlin",
+    "description": "Gebratene Würstchen und Hot Dogs auf Events und Messen",
+    "product_kind": "website",
+    "cta": "Jetzt probieren",
+    "phone": "+49 30 998877",
+    "email": "hello@goldbraun-demo.example.de",
+    "instagram": "https://www.instagram.com/",
+    "street": "Eventstraße 1",
+    "zip": "10115",
+    "accent": "#e8a54b",
+    "accent2": "#a85a1a",
+    "about_title": "Frisch vom Grill",
+    "about_body": "Goldbraun Grill bringt Hot Dogs und gebratene Würstchen auf Events und Messen — heiß, knusprig, ohne Theater. Showcase-Demo für Premium Food Storytelling.",
+    "about_points": [
+      "Frisch gegrillt vor Ort",
+      "Klare Preise für Events",
+      "Schneller Service an der Theke"
+    ],
+    "marketing_lines": [
+      "Frisch vom Grill.",
+      "Goldbraun. Saftig.",
+      "Unwiderstehlich.",
+      "Jetzt probieren."
+    ],
+    "products_or_services": [
+      {
+        "name": "Signature Hot Dog",
+        "blurb": "Goldbraun, saftig, frische Bun."
+      },
+      {
+        "name": "Event Grill",
+        "blurb": "Für Messen und Firmenevents."
+      },
+      {
+        "name": "Classic Bratwurst",
+        "blurb": "Klassiker vom Rost."
+      }
+    ],
+    "gallery": [
+      {
+        "src": "assets/01_grill.jpg",
+        "alt": "Food story",
+        "caption": ""
+      },
+      {
+        "src": "assets/02_heat.jpg",
+        "alt": "Food story",
+        "caption": ""
+      },
+      {
+        "src": "assets/03_golden.jpg",
+        "alt": "Food story",
+        "caption": ""
+      },
+      {
+        "src": "assets/04_prep.jpg",
+        "alt": "Food story",
+        "caption": ""
+      },
+      {
+        "src": "assets/05_finish.jpg",
+        "alt": "Food story",
+        "caption": ""
+      },
+      {
+        "src": "assets/06_hero.jpg",
+        "alt": "Food story",
+        "caption": ""
+      }
+    ],
+    "gallery_title": "Vom Grill zum Biss",
+    "gallery_lead": "Grill → Hitze → Goldbraun → Fertig — Showcase-Story.",
+    "showcase_badge": "Showcase Demo · Premium Creative Engine"
+  },
+  "creative": {
+    "engine": "v2",
+    "niche_key": "hot_dog",
+    "cta": "Jetzt probieren"
+  },
+  "scene": {
+    "beats": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "grill_close",
+        "camera": "macro",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 0.8,
+        "scroll": 0.0667,
+        "action": "sausage_hits_grill",
+        "camera": "close",
+        "continues": "grill_close",
+        "index": 1
+      },
+      {
+        "time": 1.6,
+        "scroll": 0.1333,
+        "action": "heat_marks_appear",
+        "camera": "macro",
+        "continues": "sausage_hits_grill",
+        "index": 2
+      },
+      {
+        "time": 2.4,
+        "scroll": 0.2,
+        "action": "camera_pushes_in",
+        "camera": "close",
+        "continues": "heat_marks_appear",
+        "index": 3
+      },
+      {
+        "time": 3.2,
+        "scroll": 0.2667,
+        "action": "oil_steam_motion",
+        "camera": "macro",
+        "continues": "camera_pushes_in",
+        "index": 4
+      },
+      {
+        "time": 4.0,
+        "scroll": 0.3333,
+        "action": "turns_golden",
+        "camera": "close",
+        "continues": "oil_steam_motion",
+        "index": 5
+      },
+      {
+        "time": 5.0,
+        "scroll": 0.4167,
+        "action": "flip_on_grill",
+        "camera": "medium",
+        "continues": "turns_golden",
+        "index": 6
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.5,
+        "action": "deep_golden_brown",
+        "camera": "macro",
+        "continues": "flip_on_grill",
+        "index": 7
+      },
+      {
+        "time": 7.0,
+        "scroll": 0.5833,
+        "action": "lift_from_grill",
+        "camera": "close",
+        "continues": "deep_golden_brown",
+        "index": 8
+      },
+      {
+        "time": 8.0,
+        "scroll": 0.6667,
+        "action": "into_fresh_bun",
+        "camera": "medium",
+        "continues": "lift_from_grill",
+        "index": 9
+      },
+      {
+        "time": 9.0,
+        "scroll": 0.75,
+        "action": "sauce_pour",
+        "camera": "macro",
+        "continues": "into_fresh_bun",
+        "index": 10
+      },
+      {
+        "time": 10.0,
+        "scroll": 0.8333,
+        "action": "toppings",
+        "camera": "close",
+        "continues": "sauce_pour",
+        "index": 11
+      },
+      {
+        "time": 11.0,
+        "scroll": 0.9167,
+        "action": "macro_finished",
+        "camera": "macro",
+        "continues": "toppings",
+        "index": 12
+      },
+      {
+        "time": 11.5,
+        "scroll": 0.9583,
+        "action": "hero_lift",
+        "camera": "hero",
+        "continues": "macro_finished",
+        "index": 13
+      },
+      {
+        "time": 12.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "hero_lift",
+        "index": 14
+      }
+    ]
+  },
+  "posters": [
+    "assets/01_grill.jpg",
+    "assets/02_heat.jpg",
+    "assets/03_golden.jpg",
+    "assets/04_prep.jpg",
+    "assets/05_finish.jpg",
+    "assets/06_hero.jpg"
+  ],
+  "kind": "website",
+  "showcase": true
+}

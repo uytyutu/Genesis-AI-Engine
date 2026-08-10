@@ -1,0 +1,770 @@
+{
+  "demo": "hot_dog",
+  "frame_count": 24,
+  "min_required": 20,
+  "pass_frames": true,
+  "actions": [
+    "grill_close",
+    "sausage_placed",
+    "starts_cooking",
+    "heat_steam",
+    "surface_close",
+    "flip_begins",
+    "flip_mid",
+    "golden_surface",
+    "juice_gloss",
+    "bun_warm",
+    "into_bun_start",
+    "in_bun",
+    "sauce_start",
+    "sauce_flow",
+    "toppings",
+    "macro_finished",
+    "orbit_angle",
+    "ready_product",
+    "premium_macro",
+    "serve_hand",
+    "receive",
+    "hero_shot",
+    "desire_close",
+    "cta"
+  ],
+  "copy_lines": [
+    "Frisch vom Grill.",
+    "Die Wurst kommt auf den Rost.",
+    "Hitze. Bewegung. Aroma.",
+    "Heiß. Knusprig. Echt.",
+    "Die Oberfläche beginnt zu arbeiten.",
+    "Ein präziser Griff.",
+    "Umdrehen. Gleichmäßiges Braten.",
+    "Goldbraun. Saftig.",
+    "Glanz. Saft. Verlangen.",
+    "Frische Bun. Warm.",
+    "In die Bun.",
+    "Sitzend. Warm. Bereit.",
+    "Sauce — genau jetzt.",
+    "Reichhaltig. Frisch.",
+    "Zwiebeln. Relish. Finish.",
+    "Fertig. Zum Reinbeißen.",
+    "Jeder Winkel. Ein Genuss.",
+    "Dein Hot Dog. Frisch.",
+    "Goldbraun. Saftig. Heiß.",
+    "Frisch auf die Hand.",
+    "Der erste Biss wartet.",
+    "Frisch vom Grill. Unwiderstehlich.",
+    "Sorgfältig zubereitet.",
+    "Jetzt probieren."
+  ],
+  "missing_sources": [],
+  "storyboard": {
+    "niche_key": "hot_dog",
+    "title": "Grill to Hero Hot Dog",
+    "min_frames": 20,
+    "frames": [
+      {
+        "i": 1,
+        "action": "grill_close",
+        "copy": "Frisch vom Grill.",
+        "prompt": "cinematic close-up of empty hot premium event grill grates, glowing charcoal heat, night fair lights bokeh, photoreal, no text"
+      },
+      {
+        "i": 2,
+        "action": "sausage_placed",
+        "copy": "Die Wurst kommt auf den Rost.",
+        "prompt": "same grill, raw sausage just placed on hot grates, steam starting, photoreal, no text"
+      },
+      {
+        "i": 3,
+        "action": "starts_cooking",
+        "copy": "Hitze. Bewegung. Aroma.",
+        "prompt": "sausage starting to cook on grill, first sear marks, oil glistening, photoreal, no text"
+      },
+      {
+        "i": 4,
+        "action": "heat_steam",
+        "copy": "Heiß. Knusprig. Echt.",
+        "prompt": "macro steam and heat rising from grilling sausage, amber light, photoreal, no text"
+      },
+      {
+        "i": 5,
+        "action": "surface_close",
+        "copy": "Die Oberfläche beginnt zu arbeiten.",
+        "prompt": "extreme close-up sausage skin browning on grill, pores and texture, photoreal, no text"
+      },
+      {
+        "i": 6,
+        "action": "flip_begins",
+        "copy": "Ein präziser Griff.",
+        "prompt": "tongs beginning to flip sausage on grill, motion feel, same grill world, photoreal, no text"
+      },
+      {
+        "i": 7,
+        "action": "flip_mid",
+        "copy": "Umdrehen. Gleichmäßiges Braten.",
+        "prompt": "sausage mid-flip above grill, tongs holding, sparks of oil, photoreal, no text"
+      },
+      {
+        "i": 8,
+        "action": "golden_surface",
+        "copy": "Goldbraun. Saftig.",
+        "prompt": "sausage now golden-brown on grill, rich color, appetizing gloss, photoreal, no text"
+      },
+      {
+        "i": 9,
+        "action": "juice_gloss",
+        "copy": "Glanz. Saft. Verlangen.",
+        "prompt": "macro of juicy golden sausage surface with oil gloss and grill marks, photoreal, no text"
+      },
+      {
+        "i": 10,
+        "action": "bun_warm",
+        "copy": "Frische Bun. Warm.",
+        "prompt": "fresh hot dog bun warming near grill, soft steam, same night event stall, photoreal, no text"
+      },
+      {
+        "i": 11,
+        "action": "into_bun_start",
+        "copy": "In die Bun.",
+        "prompt": "golden sausage being placed into open fresh bun by tongs, photoreal, no text"
+      },
+      {
+        "i": 12,
+        "action": "in_bun",
+        "copy": "Sitzend. Warm. Bereit.",
+        "prompt": "golden sausage nestled in fresh bun, no toppings yet, appetizing, photoreal, no text"
+      },
+      {
+        "i": 13,
+        "action": "sauce_start",
+        "copy": "Sauce — genau jetzt.",
+        "prompt": "ketchup and mustard starting to pour onto hot dog in bun, photoreal, no text"
+      },
+      {
+        "i": 14,
+        "action": "sauce_flow",
+        "copy": "Reichhaltig. Frisch.",
+        "prompt": "sauce flowing on hot dog, appetizing drip, same product, photoreal, no text"
+      },
+      {
+        "i": 15,
+        "action": "toppings",
+        "copy": "Zwiebeln. Relish. Finish.",
+        "prompt": "toppings onions relish added to finished hot dog, photoreal, no text"
+      },
+      {
+        "i": 16,
+        "action": "macro_finished",
+        "copy": "Fertig. Zum Reinbeißen.",
+        "prompt": "macro hero of finished loaded hot dog, steam, shallow depth of field, photoreal, no text"
+      },
+      {
+        "i": 17,
+        "action": "orbit_angle",
+        "copy": "Jeder Winkel. Ein Genuss.",
+        "prompt": "slightly different angle orbit around same finished hot dog, cinematic, photoreal, no text"
+      },
+      {
+        "i": 18,
+        "action": "ready_product",
+        "copy": "Dein Hot Dog. Frisch.",
+        "prompt": "finished premium hot dog held in paper tray at event stall, photoreal, no text"
+      },
+      {
+        "i": 19,
+        "action": "premium_macro",
+        "copy": "Goldbraun. Saftig. Heiß.",
+        "prompt": "ultra premium advertising macro of bite-ready hot dog, juice and bun texture, photoreal, no text"
+      },
+      {
+        "i": 20,
+        "action": "serve_hand",
+        "copy": "Frisch auf die Hand.",
+        "prompt": "vendor hand handing finished hot dog to customer hand, night event, photoreal faces optional blur, no text"
+      },
+      {
+        "i": 21,
+        "action": "receive",
+        "copy": "Der erste Biss wartet.",
+        "prompt": "customer receiving hot dog at food stall, warm light, product clearly same, photoreal, no text"
+      },
+      {
+        "i": 22,
+        "action": "hero_shot",
+        "copy": "Frisch vom Grill. Unwiderstehlich.",
+        "prompt": "advertising hero shot of finished hot dog centered, dark premium food photography, photoreal, no text"
+      },
+      {
+        "i": 23,
+        "action": "desire_close",
+        "copy": "Sorgfältig zubereitet.",
+        "prompt": "extreme close desire shot of hot dog bite moment steam, photoreal, no text"
+      },
+      {
+        "i": 24,
+        "action": "cta",
+        "copy": "Jetzt probieren.",
+        "prompt": "final premium hero of complete hot dog ready to order, cinematic food ad still, photoreal, no text"
+      }
+    ],
+    "world_lock": " SAME WORLD LOCK: outdoor German event food stall at night, warm amber grill light, metal grate, fair bokeh, premium street-food advertising, photorealistic, no logos, no text, no watermark, 16:9.",
+    "product_identity": {
+      "product_id": "hotdog_signature_001",
+      "name": "Signature Hot Dog",
+      "lock": "same sausage color/shape, same bun style across frames"
+    },
+    "environment_identity": {
+      "environment_id": "event_grill_night_001",
+      "world": "outdoor event grill stall night amber"
+    }
+  },
+  "scroll": "sticky stage + spacer; progress maps to frame index 0..N-1 with crossfade",
+  "url": "http://localhost:3000/package-previews/premium/hot-dog/index.html",
+  "qa": {
+    "frames_20_plus": true,
+    "niche_hot_dog": true,
+    "copy_synced": true,
+    "scroll_sequence_player": true,
+    "character_lock": "product/environment lock (food scene)",
+    "status": "PASS"
+  },
+  "creative_project_v2": {
+    "engine": "creative_project_v2",
+    "version": 2,
+    "production_enabled": false,
+    "business_identity": {
+      "business_name": "Goldbraun Grill",
+      "niche": "hot_dog",
+      "city": "Berlin",
+      "market": "DE",
+      "product_kind": "website",
+      "description": "frisch gegrillte Würstchen und Hot Dogs auf Events und Messen",
+      "invented_facts": false
+    },
+    "character_identity": null,
+    "product_identity": {
+      "product_id": "prod_c2499248fd",
+      "name": "Signature Hot Dog",
+      "category": "food",
+      "color": "golden-brown sausage · fresh bun",
+      "materials": "grill, bun, sauce",
+      "logo_marks": "must not change between frames",
+      "lock_rule": "ONE_PRODUCT_ID — master product image is the only source of truth",
+      "master_ref": null
+    },
+    "environment_identity": {
+      "environment_id": "env_af87a1c5f1",
+      "world": "premium event grill counter",
+      "city_hint": "Berlin",
+      "palette": "warm amber · night fair lights",
+      "props": [
+        "grill",
+        "tongs",
+        "bun",
+        "sauce bottle"
+      ],
+      "lock_rule": "ONE_SCENE_ONE_WORLD — camera may move; room must not teleport",
+      "master_ref": null
+    },
+    "scene": {
+      "niche_key": "hot_dog",
+      "title": "Grill to Hero Hot Dog",
+      "principle": "ACTION → TRANSFORMATION → RESULT",
+      "uses_character": false,
+      "uses_product": true,
+      "world": "outdoor event grill / food truck premium night",
+      "scene_duration_sec": 12,
+      "preferred_delivery": [
+        "image_to_video_clips",
+        "keyframe_crossfade"
+      ],
+      "cta": "Jetzt probieren",
+      "marketing_lines": [
+        "Frisch vom Grill.",
+        "Goldbraun. Saftig.",
+        "Unwiderstehlich.",
+        "Jetzt probieren."
+      ],
+      "product_seed": {
+        "name": "Signature Hot Dog",
+        "category": "food",
+        "color": "golden-brown sausage · fresh bun",
+        "materials": "grill, bun, sauce"
+      },
+      "environment_seed": {
+        "world": "premium event grill counter",
+        "palette": "warm amber · night fair lights",
+        "props": [
+          "grill",
+          "tongs",
+          "bun",
+          "sauce bottle"
+        ]
+      },
+      "beats": [
+        {
+          "t": 0.0,
+          "action": "grill_close",
+          "camera": "macro",
+          "continues": null
+        },
+        {
+          "t": 0.8,
+          "action": "sausage_hits_grill",
+          "camera": "close",
+          "continues": "grill_close"
+        },
+        {
+          "t": 1.6,
+          "action": "heat_marks_appear",
+          "camera": "macro",
+          "continues": "sausage_hits_grill"
+        },
+        {
+          "t": 2.4,
+          "action": "camera_pushes_in",
+          "camera": "close",
+          "continues": "heat_marks_appear"
+        },
+        {
+          "t": 3.2,
+          "action": "oil_steam_motion",
+          "camera": "macro",
+          "continues": "camera_pushes_in"
+        },
+        {
+          "t": 4.0,
+          "action": "turns_golden",
+          "camera": "close",
+          "continues": "oil_steam_motion"
+        },
+        {
+          "t": 5.0,
+          "action": "flip_on_grill",
+          "camera": "medium",
+          "continues": "turns_golden"
+        },
+        {
+          "t": 6.0,
+          "action": "deep_golden_brown",
+          "camera": "macro",
+          "continues": "flip_on_grill"
+        },
+        {
+          "t": 7.0,
+          "action": "lift_from_grill",
+          "camera": "close",
+          "continues": "deep_golden_brown"
+        },
+        {
+          "t": 8.0,
+          "action": "into_fresh_bun",
+          "camera": "medium",
+          "continues": "lift_from_grill"
+        },
+        {
+          "t": 9.0,
+          "action": "sauce_pour",
+          "camera": "macro",
+          "continues": "into_fresh_bun"
+        },
+        {
+          "t": 10.0,
+          "action": "toppings",
+          "camera": "close",
+          "continues": "sauce_pour"
+        },
+        {
+          "t": 11.0,
+          "action": "macro_finished",
+          "camera": "macro",
+          "continues": "toppings"
+        },
+        {
+          "t": 11.5,
+          "action": "hero_lift",
+          "camera": "hero",
+          "continues": "macro_finished"
+        },
+        {
+          "t": 12.0,
+          "action": "cta",
+          "camera": "hero",
+          "continues": "hero_lift"
+        }
+      ],
+      "clip_plan": [
+        {
+          "id": "A",
+          "from_t": 0.0,
+          "to_t": 4.0,
+          "intent": "grill_action"
+        },
+        {
+          "id": "B",
+          "from_t": 4.0,
+          "to_t": 8.0,
+          "intent": "cook_to_bun"
+        },
+        {
+          "id": "C",
+          "from_t": 8.0,
+          "to_t": 12.0,
+          "intent": "finish_to_cta"
+        }
+      ],
+      "camera_ladder": [
+        "wide",
+        "medium",
+        "close",
+        "macro",
+        "medium",
+        "hero"
+      ]
+    },
+    "timeline": {
+      "engine": "scene_timeline_v2",
+      "scene_duration": 12.0,
+      "fps_target": 30,
+      "delivery": [
+        "image_to_video_clips",
+        "keyframe_crossfade"
+      ],
+      "rule": "Timeline drives continuous motion. Do NOT emit one JPEG per millisecond.",
+      "keyframes": [
+        {
+          "time": 0.0,
+          "scroll": 0.0,
+          "action": "grill_close",
+          "camera": "macro",
+          "continues": null,
+          "index": 0
+        },
+        {
+          "time": 0.8,
+          "scroll": 0.0667,
+          "action": "sausage_hits_grill",
+          "camera": "close",
+          "continues": "grill_close",
+          "index": 1
+        },
+        {
+          "time": 1.6,
+          "scroll": 0.1333,
+          "action": "heat_marks_appear",
+          "camera": "macro",
+          "continues": "sausage_hits_grill",
+          "index": 2
+        },
+        {
+          "time": 2.4,
+          "scroll": 0.2,
+          "action": "camera_pushes_in",
+          "camera": "close",
+          "continues": "heat_marks_appear",
+          "index": 3
+        },
+        {
+          "time": 3.2,
+          "scroll": 0.2667,
+          "action": "oil_steam_motion",
+          "camera": "macro",
+          "continues": "camera_pushes_in",
+          "index": 4
+        },
+        {
+          "time": 4.0,
+          "scroll": 0.3333,
+          "action": "turns_golden",
+          "camera": "close",
+          "continues": "oil_steam_motion",
+          "index": 5
+        },
+        {
+          "time": 5.0,
+          "scroll": 0.4167,
+          "action": "flip_on_grill",
+          "camera": "medium",
+          "continues": "turns_golden",
+          "index": 6
+        },
+        {
+          "time": 6.0,
+          "scroll": 0.5,
+          "action": "deep_golden_brown",
+          "camera": "macro",
+          "continues": "flip_on_grill",
+          "index": 7
+        },
+        {
+          "time": 7.0,
+          "scroll": 0.5833,
+          "action": "lift_from_grill",
+          "camera": "close",
+          "continues": "deep_golden_brown",
+          "index": 8
+        },
+        {
+          "time": 8.0,
+          "scroll": 0.6667,
+          "action": "into_fresh_bun",
+          "camera": "medium",
+          "continues": "lift_from_grill",
+          "index": 9
+        },
+        {
+          "time": 9.0,
+          "scroll": 0.75,
+          "action": "sauce_pour",
+          "camera": "macro",
+          "continues": "into_fresh_bun",
+          "index": 10
+        },
+        {
+          "time": 10.0,
+          "scroll": 0.8333,
+          "action": "toppings",
+          "camera": "close",
+          "continues": "sauce_pour",
+          "index": 11
+        },
+        {
+          "time": 11.0,
+          "scroll": 0.9167,
+          "action": "macro_finished",
+          "camera": "macro",
+          "continues": "toppings",
+          "index": 12
+        },
+        {
+          "time": 11.5,
+          "scroll": 0.9583,
+          "action": "hero_lift",
+          "camera": "hero",
+          "continues": "macro_finished",
+          "index": 13
+        },
+        {
+          "time": 12.0,
+          "scroll": 1.0,
+          "action": "cta",
+          "camera": "hero",
+          "continues": "hero_lift",
+          "index": 14
+        }
+      ],
+      "clips": [
+        {
+          "id": "A",
+          "from_t": 0.0,
+          "to_t": 4.0,
+          "from_scroll": 0.0,
+          "to_scroll": 0.3333,
+          "intent": "grill_action",
+          "asset": null
+        },
+        {
+          "id": "B",
+          "from_t": 4.0,
+          "to_t": 8.0,
+          "from_scroll": 0.3333,
+          "to_scroll": 0.6667,
+          "intent": "cook_to_bun",
+          "asset": null
+        },
+        {
+          "id": "C",
+          "from_t": 8.0,
+          "to_t": 12.0,
+          "from_scroll": 0.6667,
+          "to_scroll": 1.0,
+          "intent": "finish_to_cta",
+          "asset": null
+        }
+      ],
+      "scroll_binding": {
+        "0.0": 0.0,
+        "0.25": 0.25,
+        "0.5": 0.5,
+        "0.75": 0.75,
+        "1.0": 1.0
+      }
+    },
+    "keyframes": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "grill_close",
+        "camera": "macro",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 0.8,
+        "scroll": 0.0667,
+        "action": "sausage_hits_grill",
+        "camera": "close",
+        "continues": "grill_close",
+        "index": 1
+      },
+      {
+        "time": 1.6,
+        "scroll": 0.1333,
+        "action": "heat_marks_appear",
+        "camera": "macro",
+        "continues": "sausage_hits_grill",
+        "index": 2
+      },
+      {
+        "time": 2.4,
+        "scroll": 0.2,
+        "action": "camera_pushes_in",
+        "camera": "close",
+        "continues": "heat_marks_appear",
+        "index": 3
+      },
+      {
+        "time": 3.2,
+        "scroll": 0.2667,
+        "action": "oil_steam_motion",
+        "camera": "macro",
+        "continues": "camera_pushes_in",
+        "index": 4
+      },
+      {
+        "time": 4.0,
+        "scroll": 0.3333,
+        "action": "turns_golden",
+        "camera": "close",
+        "continues": "oil_steam_motion",
+        "index": 5
+      },
+      {
+        "time": 5.0,
+        "scroll": 0.4167,
+        "action": "flip_on_grill",
+        "camera": "medium",
+        "continues": "turns_golden",
+        "index": 6
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.5,
+        "action": "deep_golden_brown",
+        "camera": "macro",
+        "continues": "flip_on_grill",
+        "index": 7
+      },
+      {
+        "time": 7.0,
+        "scroll": 0.5833,
+        "action": "lift_from_grill",
+        "camera": "close",
+        "continues": "deep_golden_brown",
+        "index": 8
+      },
+      {
+        "time": 8.0,
+        "scroll": 0.6667,
+        "action": "into_fresh_bun",
+        "camera": "medium",
+        "continues": "lift_from_grill",
+        "index": 9
+      },
+      {
+        "time": 9.0,
+        "scroll": 0.75,
+        "action": "sauce_pour",
+        "camera": "macro",
+        "continues": "into_fresh_bun",
+        "index": 10
+      },
+      {
+        "time": 10.0,
+        "scroll": 0.8333,
+        "action": "toppings",
+        "camera": "close",
+        "continues": "sauce_pour",
+        "index": 11
+      },
+      {
+        "time": 11.0,
+        "scroll": 0.9167,
+        "action": "macro_finished",
+        "camera": "macro",
+        "continues": "toppings",
+        "index": 12
+      },
+      {
+        "time": 11.5,
+        "scroll": 0.9583,
+        "action": "hero_lift",
+        "camera": "hero",
+        "continues": "macro_finished",
+        "index": 13
+      },
+      {
+        "time": 12.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "hero_lift",
+        "index": 14
+      }
+    ],
+    "generated_assets": [],
+    "copy": {
+      "marketing_lines": [
+        "Frisch vom Grill.",
+        "Goldbraun. Saftig.",
+        "Unwiderstehlich.",
+        "Jetzt probieren."
+      ],
+      "cta": "Jetzt probieren",
+      "about_hint": "Grill to Hero Hot Dog",
+      "rule": "Niche marketing only — no invented company facts."
+    },
+    "cta": "Jetzt probieren",
+    "contacts": {
+      "invented": false,
+      "demo": true,
+      "provided": {
+        "phone": "+49 30 998877",
+        "email": "hello@goldbraun-demo.example.de"
+      },
+      "note": "Explicit demo_contacts=true — values are labeled demo, not live client data."
+    },
+    "layers": {
+      "cinematic": {
+        "role": "emotion + desire",
+        "delivery": [
+          "image_to_video_clips",
+          "keyframe_crossfade"
+        ]
+      },
+      "commerce": {
+        "enabled": false,
+        "path": [],
+        "honesty": "Do not show cart/checkout UI that is not implemented for this demo."
+      },
+      "contact": {
+        "show_phone": true,
+        "show_email": true,
+        "show_form": true,
+        "show_social": false
+      }
+    },
+    "continuity_prompt": "CONTINUITY LOCK (mandatory):\n- environment_id=env_af87a1c5f1 world=premium event grill counter\n- product_id=prod_c2499248fd name=Signature Hot Dog color=golden-brown sausage · fresh bun\n- SAME product in every shot. Do not swap models/logos.\n- Each shot CONTINUES the previous action. Not a random gallery.",
+    "mobile_strategy": {
+      "desktop": "full cinematic scroll (clips preferred)",
+      "mobile": "shorter clip / poster / lightweight crossfade — do not ship desktop megabytes"
+    },
+    "qa": {
+      "engine": "continuity_qa_v2",
+      "status": "PASS",
+      "failures": [],
+      "warnings": [],
+      "retry_scope": null,
+      "message": "Continuous ad film contract OK."
+    }
+  }
+}

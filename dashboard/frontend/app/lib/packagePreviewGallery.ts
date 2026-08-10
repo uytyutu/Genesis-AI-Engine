@@ -12,10 +12,13 @@
  */
 
 import {
-  PUBLIC_VITRINE_EXAMPLES,
-  PUBLIC_VITRINE_STORES,
+  PUBLIC_VITRINE_STORES_BASIC,
+  PUBLIC_VITRINE_STORES_BUSINESS,
+  PUBLIC_VITRINE_STORES_PREMIUM,
   PUBLIC_VITRINE_THUMB_VERSION,
-  PUBLIC_VITRINE_WEBSITES,
+  PUBLIC_VITRINE_WEBSITES_BASIC,
+  PUBLIC_VITRINE_WEBSITES_BUSINESS,
+  PUBLIC_VITRINE_WEBSITES_PREMIUM,
   type PublicVitrineDemo,
 } from "./publicVitrineCatalog";
 
@@ -35,38 +38,138 @@ export type PackagePreviewSlide = {
 };
 
 function vitrineDemoToSlide(demo: PublicVitrineDemo): PackagePreviewSlide {
-  const niche = demo.id.replace(/-store$/, "").replace(/_shop$/, "");
   return {
     src: `${demo.thumb}?v=${PUBLIC_VITRINE_THUMB_VERSION}`,
     siteSrc: demo.href.replace(/^\/package-previews\//, ""),
-    alt: `${demo.fallback} · ${demo.kind === "store" ? "AI Store" : "Website"}`,
-    niche,
+    alt: `${demo.fallback} · ${demo.badge || ""} · ${demo.kind === "store" ? "AI Store" : "Website"}`,
+    niche: demo.niche,
     kind: "image",
   };
 }
 
-/** Same demos as /site#examples — used on order form preview. */
+function vitrinePoolFor(
+  tier: PackagePreviewTier,
+  kind: "website" | "store",
+): PublicVitrineDemo[] {
+  if (kind === "store") {
+    if (tier === "premium") return PUBLIC_VITRINE_STORES_PREMIUM;
+    if (tier === "business") return PUBLIC_VITRINE_STORES_BUSINESS;
+    return PUBLIC_VITRINE_STORES_BASIC;
+  }
+  if (tier === "premium") return PUBLIC_VITRINE_WEBSITES_PREMIUM;
+  if (tier === "business") return PUBLIC_VITRINE_WEBSITES_BUSINESS;
+  return PUBLIC_VITRINE_WEBSITES_BASIC;
+}
+
+/** Map order-form niche labels (Salon, Mode, …) to catalog niche keys. */
+export function normalizeOrderNicheKey(niche?: string | null): string {
+  const raw = (niche || "").trim().toLowerCase();
+  if (!raw) return "";
+  const aliases: Record<string, string> = {
+    salon: "beauty",
+    beauty: "beauty",
+    nail: "beauty",
+    nails: "beauty",
+    brow: "beauty",
+    brows: "beauty",
+    barber: "beauty",
+    barbershop: "beauty",
+    zahnarzt: "dental",
+    dental: "dental",
+    restaurant: "restaurant",
+    gastronomie: "restaurant",
+    hotdog: "restaurant",
+    "hot-dog": "restaurant",
+    fashion: "fashion",
+    mode: "fashion",
+    boutique: "fashion",
+    electronics: "electronics",
+    elektronik: "electronics",
+    handwerk: "handwerk",
+    auto: "auto",
+    werkstatt: "auto",
+    law: "law",
+    anwalt: "law",
+    rechtsanwalt: "law",
+  };
+  if (aliases[raw]) return aliases[raw]!;
+  for (const [key, value] of Object.entries(aliases)) {
+    if (raw.includes(key)) return value;
+  }
+  return raw;
+}
+
+/**
+ * Order checkout preview: exactly one demo for product + package + niche.
+ * Basic → early simple folder only.
+ * Business/Premium → cinematic when available, else newer premium-folder demo.
+ * Empty = Demo folgt bald.
+ */
+export function resolveExactOrderPreview(
+  packageId: string | null | undefined,
+  niche?: string | null,
+  kind: "website" | "store" = "website",
+): PackagePreviewSlide | null {
+  const tier = normalizePreviewTier(packageId);
+  const nicheKey = normalizeOrderNicheKey(niche);
+  if (!nicheKey) return null;
+  const pool = vitrinePoolFor(tier, kind).map(vitrineDemoToSlide);
+  // Prefer cinematic match for Business/Premium
+  if (tier !== "basic") {
+    const cinematic = pool.find(
+      (s) =>
+        (s.niche === nicheKey || s.niche?.includes(nicheKey)) &&
+        (s.siteSrc || "").includes("/premium/") &&
+        !(s.siteSrc || "").includes("/sites/") &&
+        !(s.siteSrc || "").includes("/stores/"),
+    );
+    if (cinematic) return cinematic;
+    // Fallback: href may be relative without leading package-previews
+    const cinematic2 = pool.find(
+      (s) =>
+        (s.niche === nicheKey || Boolean(s.niche?.includes(nicheKey))) &&
+        ((s.alt || "").toLowerCase().includes("cinematic") ||
+          (s.siteSrc || "").includes("hot-dog") ||
+          (s.siteSrc || "").includes("barbershop") ||
+          (s.siteSrc || "").includes("beauty-brows") ||
+          (s.siteSrc || "").includes("shop-fashion")),
+    );
+    if (cinematic2) return cinematic2;
+  }
+  const exact = pool.find((s) => s.niche === nicheKey);
+  if (exact) return exact;
+  return pool.find((s) => Boolean(s.niche?.includes(nicheKey))) || null;
+}
+
+/** Contextual demos for /order — product type + package + niche. */
 export function resolveVitrinePreviewSlides(
   packageId: string | null | undefined,
   niche?: string | null,
-  max = 14,
+  max = 6,
+  kind: "website" | "store" = "website",
 ): PackagePreviewSlide[] {
+  // Checkout wants one matching demo (product + package + niche), not a mixed gallery.
+  if (max <= 1) {
+    const one = resolveExactOrderPreview(packageId, niche, kind);
+    return one ? [one] : [];
+  }
   const id = (packageId || "").toLowerCase();
-  const nicheKey = (niche || "").trim().toLowerCase();
+  const nicheKey = normalizeOrderNicheKey(niche);
   const storeish =
-    id.includes("store") || id.includes("shop") || id === "ai_store";
-  const pool = storeish
-    ? PUBLIC_VITRINE_STORES
-    : id === "premium" || !nicheKey
-      ? PUBLIC_VITRINE_EXAMPLES
-      : PUBLIC_VITRINE_WEBSITES;
+    kind === "store" ||
+    id.includes("store") ||
+    id.includes("shop") ||
+    id === "ai_store" ||
+    id === "ecommerce_shop";
+  const tier = normalizePreviewTier(packageId);
+  const pool = vitrinePoolFor(tier, storeish ? "store" : "website");
   const slides = pool.map(vitrineDemoToSlide);
-  if (!nicheKey) return slides.slice(0, Math.max(max, pool.length));
+  if (!nicheKey) return slides.slice(0, Math.min(max, 6));
   const preferred = slides.filter(
     (s) => s.niche === nicheKey || s.niche?.includes(nicheKey),
   );
-  const rest = slides.filter((s) => !preferred.includes(s));
-  return [...preferred, ...rest].slice(0, Math.max(max, 8));
+  // Same package tier only — never pad with other packages.
+  return preferred.slice(0, Math.min(max, 6));
 }
 
 /** basic_preview[] — Basic quality sites only */
@@ -420,7 +523,9 @@ export function resolvePremiumServices(
 
 export function normalizePreviewTier(packageId: string | null | undefined): PackagePreviewTier {
   const id = (packageId || "basic").toLowerCase();
-  if (id === "business" || id === "premium") return id;
+  if (id === "connected" || id === "premium") return "premium";
+  if (id === "standalone" || id === "business") return "business";
+  if (id === "basic") return "basic";
   return "basic";
 }
 
@@ -432,9 +537,10 @@ export function resolvePackagePreviewSlides(
   packageId: string | null | undefined,
   niche?: string | null,
   max = 5,
+  kind: "website" | "store" = "website",
 ): PackagePreviewSlide[] {
-  const vitrine = resolveVitrinePreviewSlides(packageId, niche, Math.max(max, 14));
-  if (vitrine.length > 0) return vitrine.slice(0, Math.max(max, vitrine.length));
+  const vitrine = resolveVitrinePreviewSlides(packageId, niche, Math.min(Math.max(max, 3), 6), kind);
+  if (vitrine.length > 0) return vitrine;
 
   const tier = normalizePreviewTier(packageId);
   const pool = PACKAGE_PREVIEW_GALLERY[tier] || [];

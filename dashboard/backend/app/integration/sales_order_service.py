@@ -238,79 +238,89 @@ HOSTING_PROVIDERS = frozenset(
 )
 
 _PACKAGES = {
-    "standalone": {
-        "id": "standalone",
-        "name": "Standalone",
-        "price_eur": 499,
-        "commerce_mode": "standalone",
-        "tagline": "Ready digital product you fully own — buy once, no subscription",
-        "included_summary": (
-            "full digital company site or store, admin panel, SEO, forms, media, "
-            "Business Components, source ZIP, instructions — self-hosted ownership"
-        ),
-        "deliverables": [
-            "Digital Business product (not a template)",
-            "Business Interview → Brand → Site",
-            "Admin panel for your niche",
-            "Forms, SEO, mobile",
-            "Gallery, projects, reputation (demo-labeled where invented)",
-            "Source archive + instructions",
-            "Self-edit texts, photos, contacts, socials",
-            "Support & changes as paid add-on",
-        ],
-    },
-    "connected": {
-        "id": "connected",
-        "name": "Virtus Core Connected",
-        "price_eur": 499,
-        "monthly_eur": 99,
-        "commerce_mode": "connected",
-        "tagline": "Same product — connected to the Virtus Core ecosystem",
-        "included_summary": (
-            "everything in Standalone plus Workspace, CRM/leads hooks, AI Assistant path, "
-            "automation & chatbot readiness, analytics, platform updates"
-        ),
-        "deliverables": [
-            "Everything from Standalone",
-            "Virtus Core Workspace connection",
-            "Leads / Orders / Booking hooks",
-            "AI Assistant & chatbot readiness",
-            "Automation & analytics path",
-            "Platform updates as they ship",
-            "Centralized Connected support",
-        ],
-    },
-    # Legacy aliases (API / unpaid demos) — map to Standalone / Connected
+    # Public Website ladder — must match /site (199 / 399 / 699)
     "basic": {
         "id": "basic",
-        "name": "Standalone (legacy Starter)",
-        "price_eur": 499,
+        "name": "Website Basic",
+        "price_eur": 199,
         "commerce_mode": "standalone",
-        "alias_of": "standalone",
-        "tagline": "Legacy id — delivers Standalone digital product",
-        "included_summary": "Alias of Standalone",
-        "deliverables": ["See Standalone"],
+        "tagline": "Moderner Website-Start — fertig für Ihre Branche, ohne Client-Panel",
+        "included_summary": (
+            "responsive Website, Kontakt & Legal, SEO-Grundlage, Social/Kontakt — "
+            "kein Virtus Workspace (Änderungen über Auftrag/Support)"
+        ),
+        "deliverables": [
+            "Fertige Website für Ihre Branche",
+            "Responsive + Mobile",
+            "Kontaktformular & Legal-Seiten",
+            "SEO-Grundlage",
+            "Standard-Medien & Kontakte",
+            "Übergabe als fertiges Projekt",
+            "Keine Virtus-Verwaltung",
+        ],
     },
     "business": {
         "id": "business",
-        "name": "Standalone (legacy Business)",
-        "price_eur": 499,
+        "name": "Website Business",
+        "price_eur": 399,
         "commerce_mode": "standalone",
-        "alias_of": "standalone",
-        "tagline": "Legacy id — delivers Standalone digital product",
-        "included_summary": "Alias of Standalone",
-        "deliverables": ["See Standalone"],
+        "tagline": "Website + Virtus Workspace — Inhalte und Medien selbst steuern",
+        "included_summary": (
+            "alles aus Basic plus Virtus Client Workspace: Texte, Medien, Seiten, "
+            "Formulare, Analytics, Kontakte/Social, Version/Restore wo verfügbar"
+        ),
+        "deliverables": [
+            "Alles aus Basic",
+            "Virtus Client Workspace",
+            "Inhalte & Texte bearbeiten",
+            "Bilder / Medien ersetzen",
+            "Seiten & Formulare",
+            "Analytics-Grundlage",
+            "Kontakte & Social Links",
+            "Versionen / Restore (wo implementiert)",
+        ],
     },
     "premium": {
         "id": "premium",
-        "name": "Connected (legacy Premium)",
-        "price_eur": 499,
-        "monthly_eur": 99,
+        "name": "Website Premium",
+        "price_eur": 699,
         "commerce_mode": "connected",
-        "alias_of": "connected",
-        "tagline": "Legacy id — delivers Virtus Core Connected",
-        "included_summary": "Alias of Connected",
-        "deliverables": ["See Connected"],
+        "tagline": "Premium Website — Workspace + Cinematic Creative Experience",
+        "included_summary": (
+            "alles aus Business plus Premium Art Direction, Cinematic Scroll, "
+            "advanced Motion/Media, erweiterte Steuerung und Analytics"
+        ),
+        "deliverables": [
+            "Alles aus Business",
+            "Premium Art Direction",
+            "Cinematic Scroll Experience (inkl.)",
+            "Niche Storytelling & Motion",
+            "Cinematic Media",
+            "Erweiterte Content-Kontrolle",
+            "Erweiterte Analytics",
+            "Virtus Workspace + Premium Creative Controls",
+        ],
+    },
+    # API aliases (old Standalone / Connected wording) → Business / Premium
+    "standalone": {
+        "id": "standalone",
+        "name": "Website Business",
+        "price_eur": 399,
+        "commerce_mode": "standalone",
+        "alias_of": "business",
+        "tagline": "Alias — Website Business",
+        "included_summary": "Alias of Website Business",
+        "deliverables": ["See Website Business"],
+    },
+    "connected": {
+        "id": "connected",
+        "name": "Website Premium",
+        "price_eur": 699,
+        "commerce_mode": "connected",
+        "alias_of": "premium",
+        "tagline": "Alias — Website Premium",
+        "included_summary": "Alias of Website Premium",
+        "deliverables": ["See Website Premium"],
     },
     # Repair MVP — operator delivery after payment (no auto CMS surgery)
     "repair_lite": {
@@ -642,8 +652,8 @@ class SalesOrderService:
             memory_dir=self._memory,
             extra_text=extra_text,
         )
-        # Public website packages — Standalone | Connected (Digital Business Creator)
-        site_ids = ("standalone", "connected")
+        # Public website packages — Basic / Business / Premium (same as /site)
+        site_ids = ("basic", "business", "premium")
         deliverables = {k: _PACKAGES[k]["deliverables"] for k in site_ids}
         names = {k: _PACKAGES[k]["name"] for k in site_ids}
         result = resolve_checkout_packages(
@@ -651,7 +661,6 @@ class SalesOrderService:
             deliverables_by_id=deliverables,
             names_by_id=names,
         )
-        # Enrich with commerce_mode + monthly for Connected
         pkgs = list(result.get("packages") or [])
         enriched = []
         for p in pkgs:
@@ -663,11 +672,13 @@ class SalesOrderService:
                     "commerce_mode": row.get("commerce_mode") or pid,
                     "monthly_eur": row.get("monthly_eur") or 0,
                     "tagline": row.get("tagline") or p.get("tagline") or "",
+                    "virtus_workspace": pid in ("business", "premium"),
+                    "cinematic_included": pid == "premium",
                 }
             )
         result["packages"] = enriched
-        result["commerce_model"] = "standalone_connected"
-        result["canon"] = "Digital Business Creator"
+        result["commerce_model"] = "basic_business_premium"
+        result["canon"] = "Website package ladder"
         # Stripe Smoke €1 — checkout via API when GENESIS_STRIPE_SMOKE=1.
         # Listed in UI only when GENESIS_SHOW_SMOKE_PACKAGE=1 (dev/debug). Never for normal buyers.
         if (
@@ -828,6 +839,8 @@ class SalesOrderService:
                 "product_kind": "bot",
             }
 
+        from app.integration.pricing_engine import normalize_package_id
+
         resolved = resolve_checkout_market(
             market_code=market_code,
             city=city,
@@ -835,8 +848,11 @@ class SalesOrderService:
             memory_dir=self._memory,
             extra_text=extra_text,
         )
-        tier = pid if pid in _PACKAGES else "basic"
-        base = _PACKAGES.get(tier, _PACKAGES["basic"])
+        tier = normalize_package_id(pid)
+        # Prefer canonical ladder row (basic/business/premium) over alias stubs
+        base = _PACKAGES.get(tier) or _PACKAGES["basic"]
+        if base.get("alias_of"):
+            base = _PACKAGES.get(str(base["alias_of"]), base)
         offer = resolve_final_offer(tier, resolved)
         package = {
             **base,
@@ -1208,21 +1224,33 @@ class SalesOrderService:
             "hosting_provider": None,
             "deployment_preference_at": None,
         }
-        # Optional Cinematic AI Experience add-on (client price; internal media budget).
+        # Cinematic: included in Premium website / Premium-style shop; else optional +€.
+        pkg_norm = str(package_id or "").strip().lower()
+        is_shop_order = product_kind == "shop" or pkg_norm == "ecommerce_shop"
+        shop_style = str(
+            ((payload.get("shop_brief") or {}) if isinstance(payload.get("shop_brief"), dict) else {}).get(
+                "style"
+            )
+            or ""
+        ).strip().lower()
+        premium_includes_cinematic = pkg_norm in ("premium", "connected") or (
+            is_shop_order and shop_style in ("premium", "cinematic", "luxury")
+        )
         cinematic_wanted = bool(
-            payload.get("cinematic_enabled")
+            premium_includes_cinematic
+            or payload.get("cinematic_enabled")
             or payload.get("cinematic_ai_experience")
             or str(payload.get("cinematic_product_id") or "").strip()
         )
         if cinematic_wanted:
             from app.integration.cinematic_media.budget import attach_cinematic_to_order
 
-            is_shop_order = product_kind == "shop" or str(package_id).strip().lower() == "ecommerce_shop"
             attach_cinematic_to_order(
                 order,
                 enabled=True,
                 product_id=(payload.get("cinematic_product_id") or None),
                 is_shop=is_shop_order,
+                included_in_package=premium_includes_cinematic,
             )
             price_eur = float(order["price_eur"])
             price_label = order.get("price_label") or price_label

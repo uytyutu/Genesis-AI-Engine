@@ -1,0 +1,2138 @@
+{
+  "engine": "premium_showcase_catalog_v2",
+  "rule": "PREMIUM WEBSITE ≠ PREMIUM ONLINE-SHOP",
+  "website_direction": "ACTION → TRANSFORM → RESULT → CTA",
+  "shop_direction": "DESIRE → PRODUCT → DETAIL → VALUE → PURCHASE",
+  "basic_note": "Existing /package-previews/sites|stores Basic examples stay unchanged.",
+  "premium_note": "Premium Website cinematic demos stay. Premium Online-Shop is a separate commerce product (dynamic catalog).",
+  "vitrine_copy": {
+    "websites_title": "Premium Websites",
+    "websites_body": "Cinematic websites around your business — niche storytelling, ACTION → TRANSFORM → RESULT, Termin/Kontakt.",
+    "shops_title": "Premium Online-Shops",
+    "shops_body": "Real premium e-commerce: categories, 20+ products, product pages, search, filters, cart, order — not a landing page with a few SKUs."
+  },
+  "websites": [
+    {
+      "id": "hot_dog",
+      "slug": "hot-dog",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "hot_dog",
+      "label_de": "Hot Dog / Street Food",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Grill → Goldbraun → Fertig → Jetzt probieren",
+      "href": "/package-previews/premium/hot-dog/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Hot Dog / Street Food",
+        "Grill → Goldbraun → Fertig → Jetzt probieren",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "barbershop",
+      "slug": "barbershop",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "barbershop",
+      "label_de": "Barbershop",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Haircut → Styling → Final Look",
+      "href": "/package-previews/premium/barbershop/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Barbershop",
+        "Haircut → Styling → Final Look",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "beauty_brows",
+      "slug": "beauty-brows",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "beauty_brows",
+      "label_de": "Brows",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Mapping → Technik → Dein Look",
+      "href": "/package-previews/premium/beauty-brows/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Brows",
+        "Mapping → Technik → Dein Look",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "beauty_studio",
+      "slug": "beauty-studio",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "beauty_studio",
+      "label_de": "Beauty Studio",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Prep → Behandlung → Glow → Termin",
+      "href": "/package-previews/premium/beauty-studio/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Beauty Studio",
+        "Prep → Behandlung → Glow → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "beauty_lashes",
+      "slug": "beauty-lashes",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "beauty_lashes",
+      "label_de": "Eyelashes",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Before → Application → Finish → Termin",
+      "href": "/package-previews/premium/beauty-lashes/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Eyelashes",
+        "Before → Application → Finish → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "nails",
+      "slug": "nails",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "nails",
+      "label_de": "Nails",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Prep → Form → Farbe → Finish → Termin",
+      "href": "/package-previews/premium/nails/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Nails",
+        "Prep → Form → Farbe → Finish → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "hair_salon",
+      "slug": "hair-salon",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "hair_salon",
+      "label_de": "Hair Salon",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Wash → Cut → Color → Style → Termin",
+      "href": "/package-previews/premium/hair-salon/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Hair Salon",
+        "Wash → Cut → Color → Style → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "makeup",
+      "slug": "makeup",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "makeup",
+      "label_de": "Makeup",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Base → Eyes → Lips → Look → Termin",
+      "href": "/package-previews/premium/makeup/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Makeup",
+        "Base → Eyes → Lips → Look → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "restaurant",
+      "slug": "restaurant",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "restaurant",
+      "label_de": "Restaurant",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Küche → Anrichten → Teller → Reservieren",
+      "href": "/package-previews/premium/restaurant/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Restaurant",
+        "Küche → Anrichten → Teller → Reservieren",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "cafe",
+      "slug": "cafe",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "cafe",
+      "label_de": "Café",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Bohnen → Brühen → Tasse → Besuch",
+      "href": "/package-previews/premium/cafe/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Café",
+        "Bohnen → Brühen → Tasse → Besuch",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "bakery",
+      "slug": "bakery",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "bakery",
+      "label_de": "Bakery",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Teig → Ofen → Kruste → Frisch",
+      "href": "/package-previews/premium/bakery/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Bakery",
+        "Teig → Ofen → Kruste → Frisch",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "pizza",
+      "slug": "pizza",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "pizza",
+      "label_de": "Pizza",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Teig → Belag → Ofen → Heiß",
+      "href": "/package-previews/premium/pizza/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Pizza",
+        "Teig → Belag → Ofen → Heiß",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "burger",
+      "slug": "burger",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "burger",
+      "label_de": "Burger",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Patty → Grill → Stack → Bestellen",
+      "href": "/package-previews/premium/burger/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Burger",
+        "Patty → Grill → Stack → Bestellen",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "catering",
+      "slug": "catering",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "catering",
+      "label_de": "Catering",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Menü → Prep → Service → Event",
+      "href": "/package-previews/premium/catering/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Catering",
+        "Menü → Prep → Service → Event",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "dental",
+      "slug": "dental",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "dental",
+      "label_de": "Dental",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Beratung → Behandlung → Smile → Termin",
+      "href": "/package-previews/premium/dental/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Dental",
+        "Beratung → Behandlung → Smile → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "law",
+      "slug": "law",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "law",
+      "label_de": "Law",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Klarheit → Beratung → Vertrauen → Kontakt",
+      "href": "/package-previews/premium/law/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Law",
+        "Klarheit → Beratung → Vertrauen → Kontakt",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "consulting",
+      "slug": "consulting",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "consulting",
+      "label_de": "Consulting",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Analyse → Plan → Ergebnis → Gespräch",
+      "href": "/package-previews/premium/consulting/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Consulting",
+        "Analyse → Plan → Ergebnis → Gespräch",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "it",
+      "slug": "it",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "it",
+      "label_de": "IT",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Problem → Lösung → System → Kontakt",
+      "href": "/package-previews/premium/it/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "IT",
+        "Problem → Lösung → System → Kontakt",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "marketing",
+      "slug": "marketing",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "marketing",
+      "label_de": "Marketing",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Brief → Kampagne → Reach → Kontakt",
+      "href": "/package-previews/premium/marketing/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Marketing",
+        "Brief → Kampagne → Reach → Kontakt",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "real_estate",
+      "slug": "real-estate",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "real_estate",
+      "label_de": "Real Estate",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Objekt → Rundgang → Detail → Besichtigung",
+      "href": "/package-previews/premium/real-estate/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Real Estate",
+        "Objekt → Rundgang → Detail → Besichtigung",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "photography",
+      "slug": "photography",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "photography",
+      "label_de": "Photography",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Setup → Shoot → Edit → Anfrage",
+      "href": "/package-previews/premium/photography/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Photography",
+        "Setup → Shoot → Edit → Anfrage",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "auto",
+      "slug": "auto",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "auto",
+      "label_de": "Auto",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Diagnose → Reparatur → Finish → Termin",
+      "href": "/package-previews/premium/auto/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Auto",
+        "Diagnose → Reparatur → Finish → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "handwerk",
+      "slug": "handwerk",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "handwerk",
+      "label_de": "Handwerk",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Material → Handwerk → Ergebnis → Angebot",
+      "href": "/package-previews/premium/handwerk/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Handwerk",
+        "Material → Handwerk → Ergebnis → Angebot",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "construction",
+      "slug": "construction",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "construction",
+      "label_de": "Construction",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Plan → Bau → Detail → Angebot",
+      "href": "/package-previews/premium/construction/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Construction",
+        "Plan → Bau → Detail → Angebot",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "cleaning",
+      "slug": "cleaning",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "cleaning",
+      "label_de": "Cleaning",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Vorher → Arbeit → Nachher → Anfrage",
+      "href": "/package-previews/premium/cleaning/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Cleaning",
+        "Vorher → Arbeit → Nachher → Anfrage",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "landscaping",
+      "slug": "landscaping",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "landscaping",
+      "label_de": "Landscaping",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Garten → Arbeit → Grün → Anfrage",
+      "href": "/package-previews/premium/landscaping/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Landscaping",
+        "Garten → Arbeit → Grün → Anfrage",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "fitness",
+      "slug": "fitness",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "fitness",
+      "label_de": "Fitness",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Prep → Training → Effort → Membership",
+      "href": "/package-previews/premium/fitness/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Fitness",
+        "Prep → Training → Effort → Membership",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "personal_trainer",
+      "slug": "personal-trainer",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "personal_trainer",
+      "label_de": "Personal Trainer",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Goal → Session → Progress → Start",
+      "href": "/package-previews/premium/personal-trainer/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Personal Trainer",
+        "Goal → Session → Progress → Start",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "hotel",
+      "slug": "hotel",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "hospitality",
+      "niche": "hotel",
+      "label_de": "Hotel",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Ankunft → Suite → Detail → Buchen",
+      "href": "/package-previews/premium/hotel/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Hotel",
+        "Ankunft → Suite → Detail → Buchen",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "apartment",
+      "slug": "apartment",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "hospitality",
+      "niche": "apartment",
+      "label_de": "Apartment",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Eingang → Raum → Detail → Buchen",
+      "href": "/package-previews/premium/apartment/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Apartment",
+        "Eingang → Raum → Detail → Buchen",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "spa",
+      "slug": "spa",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "hospitality",
+      "niche": "spa",
+      "label_de": "Spa",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Ruhe → Ritual → Erholung → Termin",
+      "href": "/package-previews/premium/spa/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Spa",
+        "Ruhe → Ritual → Erholung → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "event_venue",
+      "slug": "event-venue",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "hospitality",
+      "niche": "event_venue",
+      "label_de": "Event Venue",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Raum → Setup → Moment → Anfrage",
+      "href": "/package-previews/premium/event-venue/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Event Venue",
+        "Raum → Setup → Moment → Anfrage",
+        "In Vorbereitung"
+      ]
+    }
+  ],
+  "shops": [
+    {
+      "id": "fashion",
+      "slug": "shop-fashion-v2",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "fashion",
+      "label_de": "Fashion Store",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Desire → Product → Detail → Cart",
+      "product_count_label": "24+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-fashion-v2/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Fashion Store",
+        "24+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "electronics",
+      "slug": "shop-electronics-v2",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "electronics",
+      "label_de": "Electronics",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Reveal → Specs → Accessories → Kaufen",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-electronics-v2/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Electronics",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "food_shop",
+      "slug": "shop-food-v2",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "food_shop",
+      "label_de": "Food Store",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Grill → Menu → Price → Bestellen",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-food-v2/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Food Store",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "beauty_products",
+      "slug": "shop-beauty-products",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "beauty_products",
+      "label_de": "Beauty Products",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Texture → Product → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-beauty-products/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Beauty Products",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "cosmetics",
+      "slug": "shop-cosmetics",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "cosmetics",
+      "label_de": "Cosmetics",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Swatch → Apply → Shop",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-cosmetics/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Cosmetics",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "furniture",
+      "slug": "shop-furniture",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "furniture",
+      "label_de": "Furniture",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Material → Room → Product → Shop",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-furniture/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Furniture",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "watches",
+      "slug": "shop-watches",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "watches",
+      "label_de": "Watches",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Macro → Light → Hero → Kaufen",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-watches/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Watches",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "jewelry",
+      "slug": "shop-jewelry",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "jewelry",
+      "label_de": "Jewelry",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Sparkle → Detail → Piece → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-jewelry/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Jewelry",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "sports",
+      "slug": "shop-sports",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "sports",
+      "label_de": "Sports",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Motion → Gear → Price → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-sports/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Sports",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "home_living",
+      "slug": "shop-home-living",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "home_living",
+      "label_de": "Home & Living",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Raum → Detail → Produkt → Shop",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-home-living/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Home & Living",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "shoes",
+      "slug": "shop-shoes",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "shoes",
+      "label_de": "Shoes",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Form → Step → Detail → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-shoes/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Shoes",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "accessories",
+      "slug": "shop-accessories",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "accessories",
+      "label_de": "Accessories",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Detail → Style → Product → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-accessories/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Accessories",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    }
+  ],
+  "tier1": [
+    {
+      "id": "hot_dog",
+      "slug": "hot-dog",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "hot_dog",
+      "label_de": "Hot Dog / Street Food",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Grill → Goldbraun → Fertig → Jetzt probieren",
+      "href": "/package-previews/premium/hot-dog/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Hot Dog / Street Food",
+        "Grill → Goldbraun → Fertig → Jetzt probieren",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "barbershop",
+      "slug": "barbershop",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "barbershop",
+      "label_de": "Barbershop",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Haircut → Styling → Final Look",
+      "href": "/package-previews/premium/barbershop/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Barbershop",
+        "Haircut → Styling → Final Look",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "beauty_brows",
+      "slug": "beauty-brows",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "beauty_brows",
+      "label_de": "Brows",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Mapping → Technik → Dein Look",
+      "href": "/package-previews/premium/beauty-brows/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Brows",
+        "Mapping → Technik → Dein Look",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "fashion",
+      "slug": "shop-fashion-v2",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "fashion",
+      "label_de": "Fashion Store",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Desire → Product → Detail → Cart",
+      "product_count_label": "24+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-fashion-v2/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Fashion Store",
+        "24+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "Ansehen →"
+      ]
+    }
+  ],
+  "tier2": [
+    {
+      "id": "beauty_studio",
+      "slug": "beauty-studio",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "beauty_studio",
+      "label_de": "Beauty Studio",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Prep → Behandlung → Glow → Termin",
+      "href": "/package-previews/premium/beauty-studio/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Beauty Studio",
+        "Prep → Behandlung → Glow → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "beauty_lashes",
+      "slug": "beauty-lashes",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "beauty_lashes",
+      "label_de": "Eyelashes",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Before → Application → Finish → Termin",
+      "href": "/package-previews/premium/beauty-lashes/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Eyelashes",
+        "Before → Application → Finish → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "nails",
+      "slug": "nails",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "nails",
+      "label_de": "Nails",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Prep → Form → Farbe → Finish → Termin",
+      "href": "/package-previews/premium/nails/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Nails",
+        "Prep → Form → Farbe → Finish → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "hair_salon",
+      "slug": "hair-salon",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "hair_salon",
+      "label_de": "Hair Salon",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Wash → Cut → Color → Style → Termin",
+      "href": "/package-previews/premium/hair-salon/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Hair Salon",
+        "Wash → Cut → Color → Style → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "makeup",
+      "slug": "makeup",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "makeup",
+      "label_de": "Makeup",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Base → Eyes → Lips → Look → Termin",
+      "href": "/package-previews/premium/makeup/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Makeup",
+        "Base → Eyes → Lips → Look → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "restaurant",
+      "slug": "restaurant",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "restaurant",
+      "label_de": "Restaurant",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Küche → Anrichten → Teller → Reservieren",
+      "href": "/package-previews/premium/restaurant/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Restaurant",
+        "Küche → Anrichten → Teller → Reservieren",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "cafe",
+      "slug": "cafe",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "cafe",
+      "label_de": "Café",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Bohnen → Brühen → Tasse → Besuch",
+      "href": "/package-previews/premium/cafe/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Café",
+        "Bohnen → Brühen → Tasse → Besuch",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "bakery",
+      "slug": "bakery",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "bakery",
+      "label_de": "Bakery",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Teig → Ofen → Kruste → Frisch",
+      "href": "/package-previews/premium/bakery/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Bakery",
+        "Teig → Ofen → Kruste → Frisch",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "pizza",
+      "slug": "pizza",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "pizza",
+      "label_de": "Pizza",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Teig → Belag → Ofen → Heiß",
+      "href": "/package-previews/premium/pizza/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Pizza",
+        "Teig → Belag → Ofen → Heiß",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "burger",
+      "slug": "burger",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "burger",
+      "label_de": "Burger",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Patty → Grill → Stack → Bestellen",
+      "href": "/package-previews/premium/burger/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Burger",
+        "Patty → Grill → Stack → Bestellen",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "catering",
+      "slug": "catering",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "catering",
+      "label_de": "Catering",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Menü → Prep → Service → Event",
+      "href": "/package-previews/premium/catering/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Catering",
+        "Menü → Prep → Service → Event",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "dental",
+      "slug": "dental",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "dental",
+      "label_de": "Dental",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Beratung → Behandlung → Smile → Termin",
+      "href": "/package-previews/premium/dental/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Dental",
+        "Beratung → Behandlung → Smile → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "law",
+      "slug": "law",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "law",
+      "label_de": "Law",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Klarheit → Beratung → Vertrauen → Kontakt",
+      "href": "/package-previews/premium/law/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Law",
+        "Klarheit → Beratung → Vertrauen → Kontakt",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "consulting",
+      "slug": "consulting",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "consulting",
+      "label_de": "Consulting",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Analyse → Plan → Ergebnis → Gespräch",
+      "href": "/package-previews/premium/consulting/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Consulting",
+        "Analyse → Plan → Ergebnis → Gespräch",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "it",
+      "slug": "it",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "it",
+      "label_de": "IT",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Problem → Lösung → System → Kontakt",
+      "href": "/package-previews/premium/it/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "IT",
+        "Problem → Lösung → System → Kontakt",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "marketing",
+      "slug": "marketing",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "marketing",
+      "label_de": "Marketing",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Brief → Kampagne → Reach → Kontakt",
+      "href": "/package-previews/premium/marketing/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Marketing",
+        "Brief → Kampagne → Reach → Kontakt",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "real_estate",
+      "slug": "real-estate",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "real_estate",
+      "label_de": "Real Estate",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Objekt → Rundgang → Detail → Besichtigung",
+      "href": "/package-previews/premium/real-estate/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Real Estate",
+        "Objekt → Rundgang → Detail → Besichtigung",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "photography",
+      "slug": "photography",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "professional",
+      "niche": "photography",
+      "label_de": "Photography",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Setup → Shoot → Edit → Anfrage",
+      "href": "/package-previews/premium/photography/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Photography",
+        "Setup → Shoot → Edit → Anfrage",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "auto",
+      "slug": "auto",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "auto",
+      "label_de": "Auto",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Diagnose → Reparatur → Finish → Termin",
+      "href": "/package-previews/premium/auto/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Auto",
+        "Diagnose → Reparatur → Finish → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "handwerk",
+      "slug": "handwerk",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "handwerk",
+      "label_de": "Handwerk",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Material → Handwerk → Ergebnis → Angebot",
+      "href": "/package-previews/premium/handwerk/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Handwerk",
+        "Material → Handwerk → Ergebnis → Angebot",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "construction",
+      "slug": "construction",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "construction",
+      "label_de": "Construction",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Plan → Bau → Detail → Angebot",
+      "href": "/package-previews/premium/construction/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Construction",
+        "Plan → Bau → Detail → Angebot",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "cleaning",
+      "slug": "cleaning",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "cleaning",
+      "label_de": "Cleaning",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Vorher → Arbeit → Nachher → Anfrage",
+      "href": "/package-previews/premium/cleaning/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Cleaning",
+        "Vorher → Arbeit → Nachher → Anfrage",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "landscaping",
+      "slug": "landscaping",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "landscaping",
+      "label_de": "Landscaping",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Garten → Arbeit → Grün → Anfrage",
+      "href": "/package-previews/premium/landscaping/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Landscaping",
+        "Garten → Arbeit → Grün → Anfrage",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "fitness",
+      "slug": "fitness",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "fitness",
+      "label_de": "Fitness",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Prep → Training → Effort → Membership",
+      "href": "/package-previews/premium/fitness/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Fitness",
+        "Prep → Training → Effort → Membership",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "personal_trainer",
+      "slug": "personal-trainer",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "local",
+      "niche": "personal_trainer",
+      "label_de": "Personal Trainer",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Goal → Session → Progress → Start",
+      "href": "/package-previews/premium/personal-trainer/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Personal Trainer",
+        "Goal → Session → Progress → Start",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "hotel",
+      "slug": "hotel",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "hospitality",
+      "niche": "hotel",
+      "label_de": "Hotel",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Ankunft → Suite → Detail → Buchen",
+      "href": "/package-previews/premium/hotel/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Hotel",
+        "Ankunft → Suite → Detail → Buchen",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "apartment",
+      "slug": "apartment",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "hospitality",
+      "niche": "apartment",
+      "label_de": "Apartment",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Eingang → Raum → Detail → Buchen",
+      "href": "/package-previews/premium/apartment/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Apartment",
+        "Eingang → Raum → Detail → Buchen",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "spa",
+      "slug": "spa",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "hospitality",
+      "niche": "spa",
+      "label_de": "Spa",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Ruhe → Ritual → Erholung → Termin",
+      "href": "/package-previews/premium/spa/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Spa",
+        "Ruhe → Ritual → Erholung → Termin",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "event_venue",
+      "slug": "event-venue",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "hospitality",
+      "niche": "event_venue",
+      "label_de": "Event Venue",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Raum → Setup → Moment → Anfrage",
+      "href": "/package-previews/premium/event-venue/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Event Venue",
+        "Raum → Setup → Moment → Anfrage",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "electronics",
+      "slug": "shop-electronics-v2",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "electronics",
+      "label_de": "Electronics",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Reveal → Specs → Accessories → Kaufen",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-electronics-v2/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Electronics",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "food_shop",
+      "slug": "shop-food-v2",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "food_shop",
+      "label_de": "Food Store",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Grill → Menu → Price → Bestellen",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-food-v2/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Food Store",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "beauty_products",
+      "slug": "shop-beauty-products",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "beauty_products",
+      "label_de": "Beauty Products",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Texture → Product → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-beauty-products/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Beauty Products",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "cosmetics",
+      "slug": "shop-cosmetics",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "cosmetics",
+      "label_de": "Cosmetics",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Swatch → Apply → Shop",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-cosmetics/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Cosmetics",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "furniture",
+      "slug": "shop-furniture",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "furniture",
+      "label_de": "Furniture",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Material → Room → Product → Shop",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-furniture/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Furniture",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "watches",
+      "slug": "shop-watches",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "watches",
+      "label_de": "Watches",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Macro → Light → Hero → Kaufen",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-watches/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Watches",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "jewelry",
+      "slug": "shop-jewelry",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "jewelry",
+      "label_de": "Jewelry",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Sparkle → Detail → Piece → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-jewelry/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Jewelry",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "sports",
+      "slug": "shop-sports",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "sports",
+      "label_de": "Sports",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Motion → Gear → Price → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-sports/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Sports",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "home_living",
+      "slug": "shop-home-living",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "home_living",
+      "label_de": "Home & Living",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Raum → Detail → Produkt → Shop",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-home-living/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Home & Living",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "shoes",
+      "slug": "shop-shoes",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "shoes",
+      "label_de": "Shoes",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Form → Step → Detail → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-shoes/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Shoes",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    },
+    {
+      "id": "accessories",
+      "slug": "shop-accessories",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "accessories",
+      "label_de": "Accessories",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Detail → Style → Product → Cart",
+      "product_count_label": "20+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-accessories/index.html",
+      "status": "planned",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Accessories",
+        "20+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "In Vorbereitung"
+      ]
+    }
+  ],
+  "live_showcase": [
+    {
+      "id": "hot_dog",
+      "slug": "hot-dog",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "food",
+      "niche": "hot_dog",
+      "label_de": "Hot Dog / Street Food",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Grill → Goldbraun → Fertig → Jetzt probieren",
+      "href": "/package-previews/premium/hot-dog/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Hot Dog / Street Food",
+        "Grill → Goldbraun → Fertig → Jetzt probieren",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "barbershop",
+      "slug": "barbershop",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "barbershop",
+      "label_de": "Barbershop",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Haircut → Styling → Final Look",
+      "href": "/package-previews/premium/barbershop/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Barbershop",
+        "Haircut → Styling → Final Look",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "beauty_brows",
+      "slug": "beauty-brows",
+      "kind": "website",
+      "product": "premium_website",
+      "group": "beauty",
+      "niche": "beauty_brows",
+      "label_de": "Brows",
+      "badge": "PREMIUM",
+      "format": "Cinematic Website",
+      "story_line": "Mapping → Technik → Dein Look",
+      "href": "/package-previews/premium/beauty-brows/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "WEBSITE",
+        "Brows",
+        "Mapping → Technik → Dein Look",
+        "Ansehen →"
+      ]
+    },
+    {
+      "id": "fashion",
+      "slug": "shop-fashion-v2",
+      "kind": "shop",
+      "product": "premium_online_shop",
+      "niche": "fashion",
+      "label_de": "Fashion Store",
+      "badge": "PREMIUM",
+      "format": "Premium Online-Shop",
+      "story_line": "Desire → Product → Detail → Cart",
+      "product_count_label": "24+ products",
+      "features": [
+        "Cart",
+        "Account",
+        "Orders"
+      ],
+      "href": "/package-previews/premium/shop-fashion-v2/index.html",
+      "status": "live_showcase",
+      "card_lines": [
+        "PREMIUM",
+        "ONLINE-SHOP",
+        "Fashion Store",
+        "24+ products",
+        "Cinematic product presentation",
+        "Cart · Account · Orders",
+        "Ansehen →"
+      ]
+    }
+  ],
+  "counts": {
+    "websites_live": 3,
+    "websites_total": 32,
+    "shops_live": 1,
+    "shops_total": 12,
+    "total": 44
+  }
+}

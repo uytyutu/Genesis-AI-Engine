@@ -92,6 +92,12 @@ class StoreFactoryService:
         version: int,
         quality: dict[str, Any],
     ) -> None:
+        # Drop in-memory StudioPlan object — meta.json must be JSON-safe.
+        brief_meta = {
+            k: v
+            for k, v in (brief or {}).items()
+            if k != "_studio_plan" and not hasattr(v, "as_dict")
+        }
         meta = {
             "id": product_id,
             "product_id": product_id,
@@ -100,7 +106,7 @@ class StoreFactoryService:
             "business_name": brief.get("store_name") or order.get("business_name"),
             "package_id": "ecommerce_shop",
             "market_code": order.get("market_code") or "DE",
-            "shop_brief": brief,
+            "shop_brief": brief_meta,
             "template_id": template_id,
             "version": version,
             "status": "ready",

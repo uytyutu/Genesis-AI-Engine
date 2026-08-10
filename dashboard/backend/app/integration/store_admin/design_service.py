@@ -44,6 +44,101 @@ FONT_PRESETS: tuple[dict[str, str], ...] = (
     },
 )
 
+# Vitrine-style domain tones — one-click palette for Client Workspace
+TONE_PRESETS: tuple[dict[str, Any], ...] = (
+    {
+        "id": "soft_rose",
+        "label": "Soft Rose",
+        "blurb": "Warm gift / beauty — blush & cream",
+        "colors": {
+            "primary": "#b76e79",
+            "secondary": "#f7ebe7",
+            "button": "#9a4f5c",
+            "link": "#a85a68",
+            "background": "#fbf6f3",
+        },
+        "font_preset": "manrope_playfair",
+    },
+    {
+        "id": "sage_calm",
+        "label": "Sage Calm",
+        "blurb": "Kraft tanken / wellness — green tea",
+        "colors": {
+            "primary": "#5f7a6a",
+            "secondary": "#e8efe9",
+            "button": "#4a6556",
+            "link": "#3f6b56",
+            "background": "#f4f7f4",
+        },
+        "font_preset": "dm_fraunces",
+    },
+    {
+        "id": "ink_night",
+        "label": "Ink Night",
+        "blurb": "Cinematic evening — deep ink + gold",
+        "colors": {
+            "primary": "#c9a227",
+            "secondary": "#1a1c22",
+            "button": "#d4af37",
+            "link": "#e0c35a",
+            "background": "#12141a",
+        },
+        "font_preset": "space_libre",
+    },
+    {
+        "id": "ocean_mist",
+        "label": "Ocean Mist",
+        "blurb": "Fresh modern — teal & sand",
+        "colors": {
+            "primary": "#0f766e",
+            "secondary": "#f5f0e8",
+            "button": "#0f766e",
+            "link": "#0d9488",
+            "background": "#faf7f2",
+        },
+        "font_preset": "dm_fraunces",
+    },
+    {
+        "id": "lilac_dream",
+        "label": "Lilac Dream",
+        "blurb": "Pink Girl / Self Love — soft lilac",
+        "colors": {
+            "primary": "#8b6bb5",
+            "secondary": "#f3eef8",
+            "button": "#7a59a6",
+            "link": "#6f4fa0",
+            "background": "#faf7fd",
+        },
+        "font_preset": "outfit_source",
+    },
+    {
+        "id": "deep_lilac",
+        "label": "Deep Lilac",
+        "blurb": "LORENNE Premium — dunkles Lila / violett",
+        "colors": {
+            "primary": "#c4a1e8",
+            "secondary": "#1a1224",
+            "button": "#9b6bc9",
+            "link": "#d4b8f0",
+            "background": "#120c1a",
+        },
+        "font_preset": "outfit_source",
+    },
+    {
+        "id": "amber_sunday",
+        "label": "Amber Sunday",
+        "blurb": "Sunday Reset / cozy morning",
+        "colors": {
+            "primary": "#c47a3a",
+            "secondary": "#fff4e8",
+            "button": "#b56a2c",
+            "link": "#a65f24",
+            "background": "#fffaf3",
+        },
+        "font_preset": "outfit_source",
+    },
+)
+
 _HISTORY_LIMIT = 40
 
 
@@ -97,6 +192,7 @@ def _strip_runtime(design: dict[str, Any]) -> dict[str, Any]:
     out.pop("history_index", None)
     out.pop("history_len", None)
     out.pop("font_presets", None)
+    out.pop("tone_presets", None)
     return out
 
 
@@ -203,6 +299,17 @@ class StoreDesignService:
         out["font_presets"] = [
             {"id": f["id"], "label": f["label"]} for f in FONT_PRESETS
         ]
+        out["tone_presets"] = [
+            {
+                "id": t["id"],
+                "label": t["label"],
+                "blurb": t.get("blurb") or "",
+                "colors": dict(t["colors"]),
+                "font_preset": t.get("font_preset") or "dm_fraunces",
+            }
+            for t in TONE_PRESETS
+        ]
+        out["tone_id"] = (out.get("tone_id") or "") or ""
         return out
 
     def get_design(
@@ -243,6 +350,21 @@ class StoreDesignService:
                 self._push_history(order_id, current)
 
         next_design = copy.deepcopy(current)
+        # One-click domain tone (vitrine-style palettes)
+        tone_id = str(payload.get("tone_id") or "").strip().lower()
+        if tone_id:
+            tone = next((t for t in TONE_PRESETS if t["id"] == tone_id), None)
+            if tone:
+                next_design["tone_id"] = tone_id
+                next_design["colors"] = {
+                    **next_design.get("colors", {}),
+                    **dict(tone["colors"]),
+                }
+                typo = dict(next_design.get("typography") or {})
+                typo["font_preset"] = tone.get("font_preset") or typo.get(
+                    "font_preset", "dm_fraunces"
+                )
+                next_design["typography"] = typo
         for key in ("branding", "hero", "colors", "typography", "homepage"):
             if isinstance(payload.get(key), dict):
                 next_design[key] = {**next_design.get(key, {}), **payload[key]}

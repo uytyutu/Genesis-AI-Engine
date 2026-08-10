@@ -1,0 +1,586 @@
+{
+  "demo": "shop_electronics",
+  "frame_count": 20,
+  "pass_frames": true,
+  "actions": [
+    "product_reveal",
+    "light_reflection",
+    "macro",
+    "rotation",
+    "button",
+    "screen",
+    "hand",
+    "port",
+    "detail",
+    "usage",
+    "edge",
+    "back",
+    "angle",
+    "glow",
+    "desk",
+    "lifestyle",
+    "hero",
+    "specs_feel",
+    "desire",
+    "cta"
+  ],
+  "copy_lines": [
+    "Das Gerät. Klar.",
+    "Licht. Reflexion.",
+    "Macro. Präzision.",
+    "Drehung. Form.",
+    "Ein Tastendruck.",
+    "Display. Scharf.",
+    "In der Hand.",
+    "Anschluss. Klar.",
+    "Detailarbeit.",
+    "Im Einsatz.",
+    "Kante. Material.",
+    "Rückseite.",
+    "Neuer Winkel.",
+    "Leuchtendes Display.",
+    "Auf dem Schreibtisch.",
+    "Alltag. Premium.",
+    "Hero Shot.",
+    "Technik ohne Lärm.",
+    "Bereit zum Kauf.",
+    "Jetzt bestellen."
+  ],
+  "missing_sources": [],
+  "storyboard": {
+    "niche_key": "shop_electronics",
+    "title": "Device Reveal to Order",
+    "min_frames": 20,
+    "frames": [
+      {
+        "i": 1,
+        "action": "product_reveal",
+        "copy": "Das Gerät. Klar."
+      },
+      {
+        "i": 2,
+        "action": "light_reflection",
+        "copy": "Licht. Reflexion."
+      },
+      {
+        "i": 3,
+        "action": "macro",
+        "copy": "Macro. Präzision."
+      },
+      {
+        "i": 4,
+        "action": "rotation",
+        "copy": "Drehung. Form."
+      },
+      {
+        "i": 5,
+        "action": "button",
+        "copy": "Ein Tastendruck."
+      },
+      {
+        "i": 6,
+        "action": "screen",
+        "copy": "Display. Scharf."
+      },
+      {
+        "i": 7,
+        "action": "hand",
+        "copy": "In der Hand."
+      },
+      {
+        "i": 8,
+        "action": "port",
+        "copy": "Anschluss. Klar."
+      },
+      {
+        "i": 9,
+        "action": "detail",
+        "copy": "Detailarbeit."
+      },
+      {
+        "i": 10,
+        "action": "usage",
+        "copy": "Im Einsatz."
+      },
+      {
+        "i": 11,
+        "action": "edge",
+        "copy": "Kante. Material."
+      },
+      {
+        "i": 12,
+        "action": "back",
+        "copy": "Rückseite."
+      },
+      {
+        "i": 13,
+        "action": "angle",
+        "copy": "Neuer Winkel."
+      },
+      {
+        "i": 14,
+        "action": "glow",
+        "copy": "Leuchtendes Display."
+      },
+      {
+        "i": 15,
+        "action": "desk",
+        "copy": "Auf dem Schreibtisch."
+      },
+      {
+        "i": 16,
+        "action": "lifestyle",
+        "copy": "Alltag. Premium."
+      },
+      {
+        "i": 17,
+        "action": "hero",
+        "copy": "Hero Shot."
+      },
+      {
+        "i": 18,
+        "action": "specs_feel",
+        "copy": "Technik ohne Lärm."
+      },
+      {
+        "i": 19,
+        "action": "desire",
+        "copy": "Bereit zum Kauf."
+      },
+      {
+        "i": 20,
+        "action": "cta",
+        "copy": "Jetzt bestellen."
+      }
+    ],
+    "world_lock": " SAME WORLD LOCK: matte charcoal wireless headphone PRODUCT-ELEC-001, same product shape logo-free, dark tech studio soft rim light, photorealistic, no text, 16:9.",
+    "product_identity": {
+      "product_id": "headphone_charcoal_001",
+      "lock": "same charcoal wireless headphones shape cushions across frames"
+    },
+    "environment_identity": {
+      "environment_id": "dark_tech_studio_001",
+      "world": "dark tech product studio rim light"
+    }
+  },
+  "url": "http://localhost:3000/package-previews/premium/shop-electronics/index.html",
+  "qa": {
+    "frames_20_plus": true,
+    "niche_electronics": true,
+    "copy_synced": true,
+    "scroll_sequence_player": true,
+    "commerce_demo_cart": true,
+    "status": "PASS"
+  },
+  "creative_project_v2": {
+    "engine": "creative_project_v2",
+    "version": 2,
+    "production_enabled": false,
+    "business_identity": {
+      "business_name": "Nordklang Audio",
+      "niche": "electronics",
+      "city": "Berlin",
+      "market": "DE",
+      "product_kind": "shop",
+      "description": "Premium wireless headphones online shop",
+      "invented_facts": false
+    },
+    "character_identity": null,
+    "product_identity": {
+      "product_id": "prod_cd1712a64a",
+      "name": "Hero Device",
+      "category": "electronics",
+      "color": "locked",
+      "materials": "",
+      "logo_marks": "must not change between frames",
+      "lock_rule": "ONE_PRODUCT_ID — master product image is the only source of truth",
+      "master_ref": null
+    },
+    "environment_identity": {
+      "environment_id": "env_94bb20122a",
+      "world": "black studio · blue rim",
+      "city_hint": "Berlin",
+      "palette": "cool dark",
+      "props": [],
+      "lock_rule": "ONE_SCENE_ONE_WORLD — camera may move; room must not teleport",
+      "master_ref": null
+    },
+    "scene": {
+      "niche_key": "electronics",
+      "title": "Product Orbit Desire",
+      "principle": "ACTION → TRANSFORMATION → RESULT",
+      "uses_character": false,
+      "uses_product": true,
+      "world": "black studio product world",
+      "scene_duration_sec": 10,
+      "preferred_delivery": [
+        "image_to_video_clips",
+        "webgl_orbit",
+        "keyframe_crossfade"
+      ],
+      "cta": "Kaufen",
+      "marketing_lines": [
+        "Details, die überzeugen.",
+        "Präzision im Design.",
+        "Bereit für den Alltag.",
+        "Jetzt kaufen."
+      ],
+      "product_seed": {
+        "name": "Hero Device",
+        "category": "electronics",
+        "color": "locked"
+      },
+      "environment_seed": {
+        "world": "black studio · blue rim",
+        "palette": "cool dark"
+      },
+      "beats": [
+        {
+          "t": 0.0,
+          "action": "product_appears",
+          "camera": "hero",
+          "continues": null
+        },
+        {
+          "t": 1.5,
+          "action": "macro_detail",
+          "camera": "macro",
+          "continues": "product_appears"
+        },
+        {
+          "t": 3.0,
+          "action": "light_reflection",
+          "camera": "close",
+          "continues": "macro_detail"
+        },
+        {
+          "t": 4.5,
+          "action": "rotation",
+          "camera": "medium",
+          "continues": "light_reflection"
+        },
+        {
+          "t": 6.0,
+          "action": "ports_buttons",
+          "camera": "macro",
+          "continues": "rotation"
+        },
+        {
+          "t": 7.5,
+          "action": "hand_interact",
+          "camera": "close",
+          "continues": "ports_buttons"
+        },
+        {
+          "t": 8.5,
+          "action": "in_environment",
+          "camera": "medium",
+          "continues": "hand_interact"
+        },
+        {
+          "t": 9.5,
+          "action": "final_hero",
+          "camera": "hero",
+          "continues": "in_environment"
+        },
+        {
+          "t": 10.0,
+          "action": "cta",
+          "camera": "hero",
+          "continues": "final_hero"
+        }
+      ],
+      "clip_plan": [
+        {
+          "id": "A",
+          "from_t": 0.0,
+          "to_t": 4.0,
+          "intent": "appear_detail"
+        },
+        {
+          "id": "B",
+          "from_t": 4.0,
+          "to_t": 7.5,
+          "intent": "orbit_ports"
+        },
+        {
+          "id": "C",
+          "from_t": 7.5,
+          "to_t": 10.0,
+          "intent": "use_cta"
+        }
+      ],
+      "commerce_layer": true,
+      "camera_ladder": [
+        "wide",
+        "medium",
+        "close",
+        "macro",
+        "medium",
+        "hero"
+      ]
+    },
+    "timeline": {
+      "engine": "scene_timeline_v2",
+      "scene_duration": 10.0,
+      "fps_target": 30,
+      "delivery": [
+        "image_to_video_clips",
+        "webgl_orbit",
+        "keyframe_crossfade"
+      ],
+      "rule": "Timeline drives continuous motion. Do NOT emit one JPEG per millisecond.",
+      "keyframes": [
+        {
+          "time": 0.0,
+          "scroll": 0.0,
+          "action": "product_appears",
+          "camera": "hero",
+          "continues": null,
+          "index": 0
+        },
+        {
+          "time": 1.5,
+          "scroll": 0.15,
+          "action": "macro_detail",
+          "camera": "macro",
+          "continues": "product_appears",
+          "index": 1
+        },
+        {
+          "time": 3.0,
+          "scroll": 0.3,
+          "action": "light_reflection",
+          "camera": "close",
+          "continues": "macro_detail",
+          "index": 2
+        },
+        {
+          "time": 4.5,
+          "scroll": 0.45,
+          "action": "rotation",
+          "camera": "medium",
+          "continues": "light_reflection",
+          "index": 3
+        },
+        {
+          "time": 6.0,
+          "scroll": 0.6,
+          "action": "ports_buttons",
+          "camera": "macro",
+          "continues": "rotation",
+          "index": 4
+        },
+        {
+          "time": 7.5,
+          "scroll": 0.75,
+          "action": "hand_interact",
+          "camera": "close",
+          "continues": "ports_buttons",
+          "index": 5
+        },
+        {
+          "time": 8.5,
+          "scroll": 0.85,
+          "action": "in_environment",
+          "camera": "medium",
+          "continues": "hand_interact",
+          "index": 6
+        },
+        {
+          "time": 9.5,
+          "scroll": 0.95,
+          "action": "final_hero",
+          "camera": "hero",
+          "continues": "in_environment",
+          "index": 7
+        },
+        {
+          "time": 10.0,
+          "scroll": 1.0,
+          "action": "cta",
+          "camera": "hero",
+          "continues": "final_hero",
+          "index": 8
+        }
+      ],
+      "clips": [
+        {
+          "id": "A",
+          "from_t": 0.0,
+          "to_t": 4.0,
+          "from_scroll": 0.0,
+          "to_scroll": 0.4,
+          "intent": "appear_detail",
+          "asset": null
+        },
+        {
+          "id": "B",
+          "from_t": 4.0,
+          "to_t": 7.5,
+          "from_scroll": 0.4,
+          "to_scroll": 0.75,
+          "intent": "orbit_ports",
+          "asset": null
+        },
+        {
+          "id": "C",
+          "from_t": 7.5,
+          "to_t": 10.0,
+          "from_scroll": 0.75,
+          "to_scroll": 1.0,
+          "intent": "use_cta",
+          "asset": null
+        }
+      ],
+      "scroll_binding": {
+        "0.0": 0.0,
+        "0.25": 0.25,
+        "0.5": 0.5,
+        "0.75": 0.75,
+        "1.0": 1.0
+      }
+    },
+    "keyframes": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "product_appears",
+        "camera": "hero",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 1.5,
+        "scroll": 0.15,
+        "action": "macro_detail",
+        "camera": "macro",
+        "continues": "product_appears",
+        "index": 1
+      },
+      {
+        "time": 3.0,
+        "scroll": 0.3,
+        "action": "light_reflection",
+        "camera": "close",
+        "continues": "macro_detail",
+        "index": 2
+      },
+      {
+        "time": 4.5,
+        "scroll": 0.45,
+        "action": "rotation",
+        "camera": "medium",
+        "continues": "light_reflection",
+        "index": 3
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.6,
+        "action": "ports_buttons",
+        "camera": "macro",
+        "continues": "rotation",
+        "index": 4
+      },
+      {
+        "time": 7.5,
+        "scroll": 0.75,
+        "action": "hand_interact",
+        "camera": "close",
+        "continues": "ports_buttons",
+        "index": 5
+      },
+      {
+        "time": 8.5,
+        "scroll": 0.85,
+        "action": "in_environment",
+        "camera": "medium",
+        "continues": "hand_interact",
+        "index": 6
+      },
+      {
+        "time": 9.5,
+        "scroll": 0.95,
+        "action": "final_hero",
+        "camera": "hero",
+        "continues": "in_environment",
+        "index": 7
+      },
+      {
+        "time": 10.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "final_hero",
+        "index": 8
+      }
+    ],
+    "generated_assets": [],
+    "copy": {
+      "marketing_lines": [
+        "Details, die überzeugen.",
+        "Präzision im Design.",
+        "Bereit für den Alltag.",
+        "Jetzt kaufen."
+      ],
+      "cta": "Kaufen",
+      "about_hint": "Product Orbit Desire",
+      "rule": "Niche marketing only — no invented company facts."
+    },
+    "cta": "Kaufen",
+    "contacts": {
+      "invented": false,
+      "demo": true,
+      "provided": {
+        "phone": "+49 30 556677",
+        "email": "hello@nordklang-demo.example.de"
+      },
+      "note": "Explicit demo_contacts=true — values are labeled demo, not live client data."
+    },
+    "layers": {
+      "cinematic": {
+        "role": "emotion + desire",
+        "delivery": [
+          "image_to_video_clips",
+          "webgl_orbit",
+          "keyframe_crossfade"
+        ]
+      },
+      "commerce": {
+        "enabled": true,
+        "path": [
+          "home",
+          "cinematic_hero",
+          "collections",
+          "product_cards",
+          "price",
+          "pdp",
+          "cart",
+          "checkout",
+          "account",
+          "orders"
+        ],
+        "honesty": "Do not show cart/checkout UI that is not implemented for this demo."
+      },
+      "contact": {
+        "show_phone": true,
+        "show_email": true,
+        "show_form": true,
+        "show_social": false
+      }
+    },
+    "continuity_prompt": "CONTINUITY LOCK (mandatory):\n- environment_id=env_94bb20122a world=black studio · blue rim\n- product_id=prod_cd1712a64a name=Hero Device color=locked\n- SAME product in every shot. Do not swap models/logos.\n- Each shot CONTINUES the previous action. Not a random gallery.",
+    "mobile_strategy": {
+      "desktop": "full cinematic scroll (clips preferred)",
+      "mobile": "shorter clip / poster / lightweight crossfade — do not ship desktop megabytes"
+    },
+    "qa": {
+      "engine": "continuity_qa_v2",
+      "status": "PASS",
+      "failures": [],
+      "warnings": [],
+      "retry_scope": null,
+      "message": "Continuous ad film contract OK."
+    }
+  }
+}

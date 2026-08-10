@@ -31,8 +31,12 @@ def attach_cinematic_to_order(
     enabled: bool,
     product_id: str | None = None,
     is_shop: bool = False,
+    included_in_package: bool = False,
 ) -> dict[str, Any]:
-    """Mutate order with cinematic commercial fields. Adjusts price_eur when enabled."""
+    """Mutate order with cinematic commercial fields.
+
+    When ``included_in_package`` (Premium), enable cinematic media without +99 €.
+    """
     if not enabled:
         order["cinematic_enabled"] = False
         order["cinematic_product_id"] = None
@@ -59,16 +63,18 @@ def attach_cinematic_to_order(
     if add_price <= 0 or budget <= 0:
         raise ValueError("cinematic_product_misconfigured")
 
+    charge = 0.0 if included_in_package else add_price
     base_price = float(order.get("price_eur") or 0)
     # Avoid double-adding if called twice
-    if not order.get("cinematic_enabled"):
-        order["price_eur"] = round(base_price + add_price, 2)
+    if not order.get("cinematic_enabled") and charge > 0:
+        order["price_eur"] = round(base_price + charge, 2)
         sym = order.get("symbol") or "€"
         order["price_label"] = f"{order['price_eur']:g} {sym}"
 
     order["cinematic_enabled"] = True
     order["cinematic_product_id"] = product["product_id"]
-    order["cinematic_price_eur"] = add_price
+    order["cinematic_price_eur"] = charge
+    order["cinematic_included_in_package"] = bool(included_in_package)
     order["media_budget_eur"] = budget
     order["media_spent_eur"] = float(order.get("media_spent_eur") or 0)
     order["media_remaining_eur"] = round(

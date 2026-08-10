@@ -54,28 +54,35 @@ export default function SolutionsPage() {
           </h1>
           <p className="max-w-2xl text-zinc-400">
             Choose a business vertical. Virtus Core interviews the owner, builds the company
-            identity, then generates the site. Buy Standalone once — or connect to the Virtus Core
-            ecosystem.
+            identity, then generates the site. Packages: Basic · Business · Premium — same prices
+            as on /site and /order.
           </p>
         </header>
 
-        <section className="grid gap-4 sm:grid-cols-2">
+        <section className="grid gap-4 sm:grid-cols-3">
           {(modes.length
             ? modes
             : [
                 {
-                  id: "standalone",
-                  name: "Standalone",
-                  price_eur: LANDING_PACKAGES_EUR.standalone,
+                  id: "basic",
+                  name: "Website Basic",
+                  price_eur: LANDING_PACKAGES_EUR.basic,
                   monthly_eur: 0,
-                  tagline: "Own the product. No subscription.",
+                  tagline: "Fertige Website — ohne Virtus Workspace.",
                 },
                 {
-                  id: "connected",
-                  name: "Virtus Core Connected",
-                  price_eur: LANDING_PACKAGES_EUR.connected,
-                  monthly_eur: LANDING_PACKAGES_EUR.connected_monthly,
-                  tagline: "Same product + ecosystem.",
+                  id: "business",
+                  name: "Website Business",
+                  price_eur: LANDING_PACKAGES_EUR.business,
+                  monthly_eur: 0,
+                  tagline: "Website + Virtus Client Workspace.",
+                },
+                {
+                  id: "premium",
+                  name: "Website Premium",
+                  price_eur: LANDING_PACKAGES_EUR.premium,
+                  monthly_eur: 0,
+                  tagline: "Workspace + Cinematic Experience (inkl.).",
                 },
               ]
           ).map((m) => (
@@ -137,7 +144,7 @@ export default function SolutionsPage() {
                     {WEBSITE_SOLUTION_CHIPS.map((c) => (
                       <Link
                         key={c.id}
-                        href={`/order?niche=${c.niche}&solution=${c.id}&package=standalone`}
+                        href={`/order?niche=${c.niche}&solution=${c.id}&package=business`}
                         className="rounded-full border border-white/15 bg-white/[0.04] px-3 py-1.5 text-sm text-zinc-200"
                       >
                         {c.label}

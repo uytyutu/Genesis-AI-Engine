@@ -1,0 +1,202 @@
+{
+  "business": {
+    "business_name": "Linie Brow Atelier",
+    "niche": "beauty_brows",
+    "city": "München",
+    "description": "Brow Studio professionelle Augenbrauen",
+    "product_kind": "website",
+    "cta": "Termin buchen",
+    "phone": "+49 89 445566",
+    "email": "termin@linie-brow-demo.example.de",
+    "instagram": "https://www.instagram.com/",
+    "street": "Maximilianstraße 3",
+    "zip": "80539",
+    "accent": "#d4a0a8",
+    "accent2": "#8a4a55",
+    "about_title": "Präzision für deinen Look",
+    "about_body": "Linie Brow Atelier in München — professionelle Augenbrauen mit ruhiger Hand und klarer Form. Showcase-Demo für Virtus Core Premium Beauty.",
+    "about_points": [
+      "Formanalyse vor der Arbeit",
+      "Saubere, natürliche Ergebnisse",
+      "Termin ohne Stress"
+    ],
+    "marketing_lines": [
+      "Präzise Brows.",
+      "Professionelles Styling.",
+      "Dein Look.",
+      "Termin buchen."
+    ],
+    "products_or_services": [
+      {
+        "name": "Brow Mapping",
+        "blurb": "Form und Symmetrie vor dem Start."
+      },
+      {
+        "name": "Brow Styling",
+        "blurb": "Präzise Korrektur und Finish."
+      },
+      {
+        "name": "Aftercare",
+        "blurb": "Pflegehinweise für zu Hause."
+      }
+    ],
+    "gallery": [
+      {
+        "src": "assets/01_studio.jpg",
+        "alt": "Brows story",
+        "caption": ""
+      },
+      {
+        "src": "assets/02_tools.jpg",
+        "alt": "Brows story",
+        "caption": ""
+      },
+      {
+        "src": "assets/03_work.jpg",
+        "alt": "Brows story",
+        "caption": ""
+      },
+      {
+        "src": "assets/04_detail.jpg",
+        "alt": "Brows story",
+        "caption": ""
+      },
+      {
+        "src": "assets/05_finish.jpg",
+        "alt": "Brows story",
+        "caption": ""
+      },
+      {
+        "src": "assets/06_portrait.jpg",
+        "alt": "Brows story",
+        "caption": ""
+      }
+    ],
+    "gallery_title": "Die Transformation",
+    "gallery_lead": "Studio → Werkzeug → Arbeit → Finish — Showcase-Story.",
+    "showcase_badge": "Showcase Demo · Premium Creative Engine"
+  },
+  "creative": {
+    "engine": "v2",
+    "niche_key": "beauty_brows",
+    "cta": "Termin buchen"
+  },
+  "scene": {
+    "beats": [
+      {
+        "time": 0.0,
+        "scroll": 0.0,
+        "action": "client_in_studio",
+        "camera": "wide",
+        "continues": null,
+        "index": 0
+      },
+      {
+        "time": 1.0,
+        "scroll": 0.0833,
+        "action": "tools_ready",
+        "camera": "medium",
+        "continues": "client_in_studio",
+        "index": 1
+      },
+      {
+        "time": 2.0,
+        "scroll": 0.1667,
+        "action": "brow_closeup",
+        "camera": "macro",
+        "continues": "tools_ready",
+        "index": 2
+      },
+      {
+        "time": 3.0,
+        "scroll": 0.25,
+        "action": "shape_mapping",
+        "camera": "close",
+        "continues": "brow_closeup",
+        "index": 3
+      },
+      {
+        "time": 4.5,
+        "scroll": 0.375,
+        "action": "professional_work",
+        "camera": "close",
+        "continues": "shape_mapping",
+        "index": 4
+      },
+      {
+        "time": 6.0,
+        "scroll": 0.5,
+        "action": "tool_detail",
+        "camera": "macro",
+        "continues": "professional_work",
+        "index": 5
+      },
+      {
+        "time": 7.0,
+        "scroll": 0.5833,
+        "action": "form_correction",
+        "camera": "close",
+        "continues": "tool_detail",
+        "index": 6
+      },
+      {
+        "time": 8.5,
+        "scroll": 0.7083,
+        "action": "gradual_change",
+        "camera": "close",
+        "continues": "form_correction",
+        "index": 7
+      },
+      {
+        "time": 9.5,
+        "scroll": 0.7917,
+        "action": "finish_pass",
+        "camera": "macro",
+        "continues": "gradual_change",
+        "index": 8
+      },
+      {
+        "time": 10.5,
+        "scroll": 0.875,
+        "action": "pro_closeup",
+        "camera": "hero",
+        "continues": "finish_pass",
+        "index": 9
+      },
+      {
+        "time": 11.2,
+        "scroll": 0.9333,
+        "action": "before_after_transition",
+        "camera": "hero",
+        "continues": "pro_closeup",
+        "index": 10
+      },
+      {
+        "time": 11.7,
+        "scroll": 0.975,
+        "action": "final_portrait",
+        "camera": "hero",
+        "continues": "before_after_transition",
+        "index": 11
+      },
+      {
+        "time": 12.0,
+        "scroll": 1.0,
+        "action": "cta",
+        "camera": "hero",
+        "continues": "final_portrait",
+        "index": 12
+      }
+    ]
+  },
+  "posters": [
+    "assets/01_studio.jpg",
+    "assets/02_tools.jpg",
+    "assets/03_work.jpg",
+    "assets/04_detail.jpg",
+    "assets/05_finish.jpg",
+    "assets/06_portrait.jpg"
+  ],
+  "kind": "website",
+  "showcase": true
+}
