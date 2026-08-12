@@ -62,9 +62,70 @@ def _product_card(p: dict[str, Any], idx: int) -> str:
     )
 
 
+def materialize_catalog_images(
+    product_dir: Path,
+    products: list[dict[str, Any]],
+    media_root: Path,
+) -> list[dict[str, Any]]:
+    """Copy catalog media into storefront assets/ and set storefront_path.
+
+    Live HTML must not depend on auth-gated /admin/media URLs.
+    """
+    product_dir = Path(product_dir)
+    media_root = Path(media_root)
+    dest_root = product_dir / "assets" / "catalog"
+    dest_root.mkdir(parents=True, exist_ok=True)
+    out: list[dict[str, Any]] = []
+    for product in products:
+        if not isinstance(product, dict):
+            continue
+        row = dict(product)
+        images = row.get("images") if isinstance(row.get("images"), list) else []
+        next_images: list[dict[str, Any]] = []
+        for img in images:
+            if not isinstance(img, dict):
+                continue
+            image = dict(img)
+            existing = str(image.get("storefront_path") or "").strip()
+            if existing and (product_dir / existing.replace("\\", "/")).is_file():
+                next_images.append(image)
+                continue
+            rel = str(image.get("path") or "").strip().replace("\\", "/")
+            img_id = str(image.get("id") or "img").strip() or "img"
+            if not rel or ".." in Path(rel).parts:
+                next_images.append(image)
+                continue
+            src = (media_root / rel).resolve()
+            try:
+                src.relative_to(media_root.resolve())
+            except ValueError:
+                next_images.append(image)
+                continue
+            if not src.is_file():
+                next_images.append(image)
+                continue
+            ext = src.suffix.lower() or ".webp"
+            if ext not in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
+                ext = ".webp"
+            dest_name = f"{img_id}{ext}"
+            dest = dest_root / dest_name
+            try:
+                shutil.copy2(src, dest)
+            except OSError:
+                next_images.append(image)
+                continue
+            image["storefront_path"] = f"assets/catalog/{dest_name}"
+            next_images.append(image)
+        row["images"] = next_images
+        out.append(row)
+    return out
+
+
 def sync_catalog_to_storefront(
     product_dir: Path,
     products: list[dict[str, Any]],
+    *,
+    media_root: Path | None = None,
 ) -> dict[str, Any]:
     """Rewrite #grid product cards from catalog SSOT; keep shell/theme HTML."""
     product_dir = Path(product_dir)
@@ -74,6 +135,8 @@ def sync_catalog_to_storefront(
 
     ensure_control_point_original(product_dir)
     visible = [p for p in products if isinstance(p, dict)]
+    if media_root is not None:
+        visible = materialize_catalog_images(product_dir, visible, media_root)
     cards = "\n".join(_product_card(p, i + 1) for i, p in enumerate(visible))
     html = html_path.read_text(encoding="utf-8", errors="replace")
 
@@ -147,6 +210,7 @@ def sync_catalog_to_storefront(
         "products": len(visible),
         "updated_at": _now(),
         "path": str(html_path),
+        "catalog": visible,
     }
 
 

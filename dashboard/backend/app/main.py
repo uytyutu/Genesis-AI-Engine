@@ -5169,8 +5169,18 @@ def client_store_live(order_id: str, asset_path: str = "index.html"):
                 path.read_text(encoding="utf-8"), order_id
             )
             return HTMLResponse(content=html)
+        if path.suffix.lower() == ".css":
+            from pathlib import PurePosixPath
+
+            rel_dir = str(PurePosixPath(rel).parent)
+            if rel_dir == ".":
+                rel_dir = ""
+            css = path.read_text(encoding="utf-8", errors="replace")
+            css = factory.rewrite_live_urls(
+                css, order_id=order_id, relative_dir=rel_dir
+            )
+            return Response(content=css, media_type="text/css; charset=utf-8")
         media = {
-            ".css": "text/css; charset=utf-8",
             ".js": "application/javascript; charset=utf-8",
             ".json": "application/json; charset=utf-8",
             ".svg": "image/svg+xml",
@@ -5254,8 +5264,17 @@ def _live_sync_shop_catalog(order_id: str) -> dict:
     product_dir, _order = _shop_product_dir_for_order(order_id)
     if product_dir is None or not product_dir.is_dir():
         return {"ok": False, "live_sync": False, "reason": "product_dir_missing"}
-    products = _store_catalog()._load(order_id)  # noqa: SLF001
-    return sync_catalog_to_storefront(product_dir, products)
+    catalog = _store_catalog()
+    products = catalog._load(order_id)  # noqa: SLF001
+    media_root = catalog._media._media  # noqa: SLF001
+    sync = sync_catalog_to_storefront(
+        product_dir, products, media_root=media_root
+    )
+    # Persist storefront_path back into catalog SSOT when materialize ran
+    updated = sync.get("catalog") if isinstance(sync, dict) else None
+    if isinstance(updated, list):
+        catalog._save(order_id, updated)  # noqa: SLF001
+    return {k: v for k, v in sync.items() if k != "catalog"}
 
 
 @app.patch("/api/client/stores/{order_id}/admin/products/{product_id}")
@@ -5332,7 +5351,18 @@ async def store_admin_upload_media(
         _assert_store_admin_access(request, order_id)
         if not files:
             raise ValueError("files_required")
-        return _store_catalog().add_images(order_id, product_id, list(files))
+        result = _store_catalog().add_images(order_id, product_id, list(files))
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+            # Refresh product with storefront_path after materialize
+            try:
+                refreshed = _store_catalog().get_product(order_id, product_id)
+                if isinstance(refreshed, dict) and refreshed.get("product"):
+                    result["product"] = refreshed["product"]
+            except ValueError:
+                pass
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5346,7 +5376,11 @@ async def store_admin_update_media(
         payload = await request.json()
         if not isinstance(payload, dict):
             raise ValueError("invalid_payload")
-        return _store_catalog().update_images(order_id, product_id, payload)
+        result = _store_catalog().update_images(order_id, product_id, payload)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -5359,7 +5393,11 @@ def store_admin_delete_media(
 ) -> dict:
     try:
         _assert_store_admin_access(request, order_id)
-        return _store_catalog().delete_image(order_id, product_id, image_id)
+        result = _store_catalog().delete_image(order_id, product_id, image_id)
+        sync = _live_sync_shop_catalog(order_id)
+        if isinstance(result, dict):
+            result["live_sync"] = sync
+        return result
     except ValueError as exc:
         raise _client_store_http_error(exc) from exc
 
@@ -8229,6 +8267,41 @@ def preview_factory_product(product_id: str) -> HTMLResponse:
     if not html:
         raise HTTPException(status_code=404, detail="Превью не найдено")
     return HTMLResponse(content=html)
+
+
+@app.get("/api/factory/products/{product_id}/preview/{asset_path:path}")
+def preview_factory_product_asset(product_id: str, asset_path: str):
+    """Serve sandbox assets for Website Admin live preview (relative HTML/CSS urls)."""
+    path = _ctx().factory.resolve_preview_asset(product_id, asset_path)
+    if path is None:
+        raise HTTPException(status_code=404, detail="asset_not_found")
+    media = "application/octet-stream"
+    suffix = path.suffix.lower()
+    if suffix in {".jpg", ".jpeg"}:
+        media = "image/jpeg"
+    elif suffix == ".png":
+        media = "image/png"
+    elif suffix == ".webp":
+        media = "image/webp"
+    elif suffix == ".gif":
+        media = "image/gif"
+    elif suffix == ".svg":
+        media = "image/svg+xml"
+    elif suffix == ".css":
+        media = "text/css; charset=utf-8"
+        from pathlib import PurePosixPath
+
+        rel_dir = str(PurePosixPath(asset_path).parent)
+        if rel_dir == ".":
+            rel_dir = ""
+        css = path.read_text(encoding="utf-8", errors="replace")
+        css = _ctx().factory.rewrite_asset_urls(
+            css, product_id=product_id, relative_dir=rel_dir
+        )
+        return Response(content=css, media_type=media)
+    elif suffix == ".js":
+        media = "application/javascript"
+    return FileResponse(path, media_type=media)
 
 
 @app.post("/api/factory/products/{product_id}/approve", response_model=FactoryProduct)
