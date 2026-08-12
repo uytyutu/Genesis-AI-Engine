@@ -329,6 +329,15 @@ from app.commercial_api.router import router as commercial_api_router
 
 app.include_router(commercial_api_router)
 
+# Owner-only Unclaimed Rewards / Airdrop Harvester (not client-visible)
+from app.integration.crypto_intelligence import crypto_intelligence_router
+from app.integration.opportunity_brain.api import router as opportunity_brain_router
+from app.integration.farm_adapter.api import router as farm_adapter_router
+
+app.include_router(crypto_intelligence_router)
+app.include_router(opportunity_brain_router)
+app.include_router(farm_adapter_router)
+
 # R3.8.2 — controlled Portal registration (no-op while feature_enabled=False)
 from app.portal.portal_registration import register_portal_read
 
@@ -4633,8 +4642,20 @@ def client_bot_chat_preview(request: Request, bot_id: str, body: dict | None = N
     message = str(data.get("message") or data.get("text") or "").strip()
     if not message:
         raise HTTPException(status_code=400, detail="message_required")
-    reply = generate_bot_reply(bot, message)
-    return {"ok": True, "bot_id": bot_id, "reply": reply.get("text"), "source": reply.get("source")}
+    reply = generate_bot_reply(
+        bot,
+        message,
+        memory_dir=_memory_dir(),
+        customer_id=cid,
+        session_key=f"cabinet:{cid}:{bot_id}",
+    )
+    return {
+        "ok": True,
+        "bot_id": bot_id,
+        "reply": reply.get("text"),
+        "source": reply.get("source"),
+        "intent": reply.get("intent"),
+    }
 
 
 @app.post("/api/client/bots/telegram/connect")
@@ -4659,6 +4680,168 @@ def client_bots_telegram_connect(
         raise HTTPException(status_code=400, detail=result.get("reason") or "connect_failed")
     wab.update_bot(mem, cid, body.bot_id, {"status": "online"})
     return result
+
+
+@app.get("/api/client/bots/website-chat/status")
+def client_website_chat_status(request: Request) -> dict:
+    """Website Chat channel status — commercial Live when COMMERCIAL_LIVE=True."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+
+    require_client(request)
+    return wch.commercial_status()
+
+
+@app.post("/api/client/bots/{bot_id}/website-chat/connect")
+def client_website_chat_connect(request: Request, bot_id: str, body: dict | None = None) -> dict:
+    """Create Website Chat connection for owned bot (Live channel)."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+    from app.integration.workspace_bot_runtime import public_api_base
+
+    payload = require_client(request)
+    data = body if isinstance(body, dict) else {}
+    result = wch.create_website_channel(
+        _memory_dir(),
+        str(payload["sub"]),
+        bot_id=bot_id,
+        site_ref=str(data.get("site_ref") or "") or None,
+        site_label=str(data.get("site_label") or "") or None,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "connect_failed")
+    embed = result.get("embed") or {}
+    result["embed"] = wch.generate_embed_snippet(
+        str((result.get("connection") or {}).get("public_key") or ""),
+        api_base=public_api_base(),
+    ) or embed
+    return result
+
+
+@app.get("/api/client/bots/website-chat/connections")
+def client_website_chat_list(request: Request) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+
+    payload = require_client(request)
+    return {
+        "ok": True,
+        "commercial": wch.commercial_status(),
+        "connections": wch.list_connections(_memory_dir(), str(payload["sub"])),
+    }
+
+
+@app.post("/api/client/bots/website-chat/{connection_id}/disconnect")
+def client_website_chat_disconnect(request: Request, connection_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+
+    payload = require_client(request)
+    result = wch.disconnect_website_channel(
+        _memory_dir(), str(payload["sub"]), connection_id
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "disconnect_failed")
+    return result
+
+
+@app.post("/api/client/bots/website-chat/{connection_id}/reconnect")
+def client_website_chat_reconnect(request: Request, connection_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import website_chat_connector as wch
+    from app.integration.workspace_bot_runtime import public_api_base
+
+    payload = require_client(request)
+    result = wch.reconnect_website_channel(
+        _memory_dir(), str(payload["sub"]), connection_id
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "reconnect_failed")
+    key = str((result.get("connection") or {}).get("public_key") or "")
+    result["embed"] = wch.generate_embed_snippet(key, api_base=public_api_base())
+    return result
+
+
+@app.post("/api/public/website-chat/{public_key}/message")
+def public_website_chat_message(public_key: str, body: dict | None = None) -> dict:
+    """Public Website Chat widget inbound — Live when COMMERCIAL_LIVE=True."""
+    from app.integration import website_chat_connector as wch
+
+    data = body if isinstance(body, dict) else {}
+    result = wch.handle_website_chat_message(
+        _memory_dir(),
+        public_key,
+        str(data.get("message") or data.get("text") or ""),
+        visitor_id=str(data.get("visitor_id") or "") or None,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=400, detail=result.get("reason") or "chat_failed")
+    return {
+        "ok": True,
+        "reply": result.get("reply"),
+        "source": result.get("source"),
+        "commercial_live": result.get("commercial_live"),
+    }
+
+
+@app.get("/api/public/website-chat/widget.js")
+def public_website_chat_widget_js():
+    """Serve spike widget JS from frontend public (or embedded fallback)."""
+    from fastapi.responses import FileResponse, Response
+
+    candidates = [
+        _Path(__file__).resolve().parents[2] / "frontend" / "public" / "widget" / "website-chat.js",
+        _Path(__file__).resolve().parents[3] / "dashboard" / "frontend" / "public" / "widget" / "website-chat.js",
+    ]
+    for path in candidates:
+        if path.is_file():
+            return FileResponse(path, media_type="application/javascript; charset=utf-8")
+    return Response(
+        content="console.error('website-chat widget missing');",
+        media_type="application/javascript",
+        status_code=404,
+    )
+
+
+@app.get("/api/public/website-chat/harness")
+def public_website_chat_harness(key: str = "", label: str = "Demo website", tenant: str = ""):
+    """Browser E2E harness — not commercial Live."""
+    from fastapi.responses import HTMLResponse
+    from html import escape
+
+    key_safe = escape(str(key or "").strip())
+    label_safe = escape(str(label or "Demo website"))
+    tenant_safe = escape(str(tenant or ""))
+    html = f"""<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Website Chat Live · {label_safe}</title>
+  <style>
+    body{{margin:0;font-family:system-ui,Segoe UI,sans-serif;background:#071018;color:#e2e8f0}}
+    main{{max-width:720px;margin:0 auto;padding:48px 24px}}
+    .card{{border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:24px;background:rgba(255,255,255,.03)}}
+    .muted{{color:#94a3b8;font-size:14px}}
+    .ok{{color:#a7f3d0;font-size:12px}}
+    code{{font-size:12px;color:#64748b}}
+  </style>
+</head>
+<body>
+  <main>
+    <p class="muted">Virtus Website Chat · Live preview</p>
+    <h1>{label_safe}</h1>
+    <p class="muted">Open Chat and send a message. Telegram + Website Chat are Live.</p>
+    {"<p class='muted' data-testid='tenant-label'>Tenant: " + tenant_safe + "</p>" if tenant_safe else ""}
+    <div class="card">
+      <p class="ok">Commercial status: Live — WhatsApp / Instagram / Messenger remain Coming Soon.</p>
+      <p><code data-testid="public-key">{key_safe or "(missing key)"}</code></p>
+    </div>
+  </main>
+  {"<script src='/api/public/website-chat/widget.js' data-virtus-key='" + key_safe + "' data-endpoint='/api/public/website-chat/" + key_safe + "/message' async></script>" if key_safe else ""}
+</body>
+</html>"""
+    return HTMLResponse(html)
 
 
 @app.post("/api/client/bots/connections/{connection_id}/test")

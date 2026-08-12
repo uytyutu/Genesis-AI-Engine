@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export type InterviewState = {
   dialogue: string;
@@ -71,7 +72,12 @@ export function emptyInterview(partial?: Partial<InterviewState>): InterviewStat
   };
 }
 
+const fieldClass =
+  "w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none transition focus:border-emerald-400/50 focus:ring-2 focus:ring-emerald-400/20";
+
 export function BusinessInterviewPanel({ value, onChange, onParsed }: Props) {
+  const { t, i18n } = useTranslation("site");
+  const lang = (i18n.language || "de").slice(0, 2);
   const [busy, setBusy] = useState(false);
   const [preview, setPreview] = useState<{
     subniche?: string;
@@ -81,10 +87,10 @@ export function BusinessInterviewPanel({ value, onChange, onParsed }: Props) {
     law?: string;
   } | null>(null);
   const [questions, setQuestions] = useState<ClarifyQ[]>([]);
-  const [dreamPrompt, setDreamPrompt] = useState(
-    "Wenn Budget egal wäre — wie soll Ihre Firma in fünf Jahren aussehen?",
-  );
+  const [dreamPromptOverride, setDreamPromptOverride] = useState("");
   const [err, setErr] = useState("");
+  const dreamPrompt =
+    dreamPromptOverride.trim() || t("order.interview.dreamPromptDefault");
 
   const patch = useCallback(
     (p: Partial<InterviewState>) => onChange({ ...value, ...p }),
@@ -151,7 +157,7 @@ export function BusinessInterviewPanel({ value, onChange, onParsed }: Props) {
         : [];
       const qs = Array.isArray(data.clarifying_questions) ? data.clarifying_questions : [];
       setQuestions(qs);
-      if (data.dream_prompt_de) setDreamPrompt(String(data.dream_prompt_de));
+      if (data.dream_prompt_de) setDreamPromptOverride(String(data.dream_prompt_de));
       setPreview({
         subniche: String(data.intelligence?.subniche_label || ""),
         scale: String(data.intelligence?.business_scale || ""),
@@ -164,182 +170,211 @@ export function BusinessInterviewPanel({ value, onChange, onParsed }: Props) {
       });
       onParsed?.(data);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Parse failed");
+      setErr(e instanceof Error ? e.message : t("order.interview.parseFail"));
     } finally {
       setBusy(false);
     }
   };
 
+  const clarifyPrompt = (q: ClarifyQ) =>
+    lang === "de" ? q.prompt_de || q.prompt : q.prompt;
+  const clarifyOption = (o: ClarifyQ["options"][number]) =>
+    lang === "de" ? o.label_de || o.label : o.label;
+
   return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm space-y-5">
-      <header>
-        <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">
-          Smart AI Business Interview
-        </p>
-        <h2 className="mt-1 text-xl font-semibold text-zinc-900">
-          Tell us about your business — we design the digital solution
+    <section
+      className="relative overflow-hidden rounded-3xl border border-emerald-400/25 bg-gradient-to-br from-emerald-950/40 via-[#0c1220]/90 to-violet-950/30 p-5 shadow-[0_0_48px_-18px_rgba(16,185,129,0.45)] sm:p-6"
+      data-virtus-interview="1"
+    >
+      <div
+        className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl"
+        aria-hidden
+      />
+      <header className="relative space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/35 bg-emerald-500/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-100">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300" aria-hidden />
+            {t("order.interview.badge")}
+          </span>
+        </div>
+        <h2 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+          {t("order.interview.title")}
         </h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          No templates. No sticky-header checkboxes. Virtus asks about the business, then decides
-          architecture itself.
+        <p className="max-w-2xl text-sm leading-relaxed text-zinc-300">
+          {t("order.interview.subtitle")}
         </p>
       </header>
 
-      <label className="block space-y-1.5">
-        <span className="text-sm font-medium text-zinc-800">Talk to Virtus</span>
-        <textarea
-          className="w-full min-h-[120px] rounded-xl border border-zinc-300 px-3 py-2 text-sm"
-          placeholder="Example: Ich bin Psychologe in Berlin — arbeite vor allem online mit Angstpatienten. Will Vertrauen und Ruhe, nicht Klinik-Kälte."
-          value={value.dialogue}
-          onChange={(e) => patch({ dialogue: e.target.value })}
-        />
-      </label>
-      <button
-        type="button"
-        disabled={busy || !value.dialogue.trim()}
-        onClick={() => void runParse()}
-        className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
-      >
-        {busy ? "Understanding…" : "Understand my business"}
-      </button>
-      {err ? <p className="text-sm text-red-600">{err}</p> : null}
-
-      {questions.length > 0 ? (
-        <div className="space-y-4 rounded-xl border border-amber-200 bg-amber-50/60 p-4">
-          <p className="text-sm font-semibold text-amber-950">Clarifying questions</p>
-          <p className="text-xs text-amber-900/80">
-            These change the product — not the template skin.
-          </p>
-          {questions.map((q) => (
-            <div key={q.id} className="space-y-2">
-              <p className="text-sm font-medium text-zinc-900">
-                {q.prompt_de || q.prompt}
-              </p>
-              {q.why ? <p className="text-xs text-zinc-500">{q.why}</p> : null}
-              <div className="flex flex-wrap gap-2">
-                {q.options.map((o) => {
-                  const active = value.clarify_answers[q.id] === o.id;
-                  return (
-                    <button
-                      key={o.id}
-                      type="button"
-                      onClick={() => answerClarify(q.id, o.id)}
-                      className={`rounded-full border px-3 py-1.5 text-xs ${
-                        active
-                          ? "border-amber-800 bg-amber-900 text-white"
-                          : "border-amber-300 bg-white text-amber-950"
-                      }`}
-                    >
-                      {o.label_de || o.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : null}
-
-      <label className="block space-y-1.5">
-        <span className="text-sm font-medium text-zinc-800">Dream Mode</span>
-        <p className="text-xs text-zinc-500">{dreamPrompt}</p>
-        <textarea
-          className="w-full min-h-[72px] rounded-xl border border-zinc-300 px-3 py-2 text-sm"
-          placeholder="Beispiel: Die beste Dachreinigung Berlins werden — Referenz für Qualität."
-          value={value.dream_vision}
-          onChange={(e) => patch({ dream_vision: e.target.value })}
-          onBlur={() => {
-            if (value.dream_vision.trim()) void runParse();
-          }}
-        />
-      </label>
-
-      {preview?.subniche ? (
-        <div className="rounded-xl bg-zinc-50 p-3 text-sm text-zinc-700 space-y-2">
-          <p>
-            <strong>Sub-niche:</strong> {preview.subniche}
-            {preview.scale ? (
-              <>
-                {" "}
-                · <strong>Scale:</strong> {preview.scale}
-              </>
-            ) : null}
-          </p>
-          {preview.components?.length ? (
-            <ul className="space-y-1">
-              {preview.components.slice(0, 8).map((c) => (
-                <li key={c.label}>
-                  ✓ {c.label} — <span className="text-zinc-500">{c.why}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {preview.technical?.page_architecture ? (
-            <p className="text-xs text-zinc-500 border-t border-zinc-200 pt-2">
-              Factory decided: {String(preview.technical.page_architecture)} · CTA{" "}
-              {String(preview.technical.primary_cta)} — you did not pick this.
-            </p>
-          ) : null}
-        </div>
-      ) : null}
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block space-y-1 text-sm">
-          <span className="font-medium">Company name</span>
-          <input
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2"
-            value={value.company_name}
-            onChange={(e) => patch({ company_name: e.target.value })}
+      <div className="relative mt-5 space-y-5">
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-zinc-100">
+            {t("order.interview.talkLabel")}
+          </span>
+          <textarea
+            className={`${fieldClass} min-h-[120px]`}
+            placeholder={t("order.interview.talkPh")}
+            value={value.dialogue}
+            onChange={(e) => patch({ dialogue: e.target.value })}
           />
         </label>
-        <label className="block space-y-1 text-sm">
-          <span className="font-medium">City</span>
+        <button
+          type="button"
+          disabled={busy || !value.dialogue.trim()}
+          onClick={() => void runParse()}
+          className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-black shadow-[0_0_28px_-8px_rgba(16,185,129,0.8)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {busy ? t("order.interview.understanding") : t("order.interview.understandCta")}
+        </button>
+        {err ? (
+          <p className="text-sm text-rose-300" role="alert">
+            {err}
+          </p>
+        ) : null}
+
+        {questions.length > 0 ? (
+          <div className="space-y-4 rounded-2xl border border-amber-400/30 bg-amber-950/25 p-4">
+            <p className="text-sm font-semibold text-amber-50">
+              {t("order.interview.clarifyTitle")}
+            </p>
+            <p className="text-xs text-amber-100/75">{t("order.interview.clarifyHint")}</p>
+            {questions.map((q) => (
+              <div key={q.id} className="space-y-2">
+                <p className="text-sm font-medium text-white">{clarifyPrompt(q)}</p>
+                {q.why ? <p className="text-xs text-zinc-400">{q.why}</p> : null}
+                <div className="flex flex-wrap gap-2">
+                  {q.options.map((o) => {
+                    const active = value.clarify_answers[q.id] === o.id;
+                    return (
+                      <button
+                        key={o.id}
+                        type="button"
+                        onClick={() => answerClarify(q.id, o.id)}
+                        className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                          active
+                            ? "border-emerald-400/60 bg-emerald-500/20 text-emerald-50"
+                            : "border-white/15 bg-black/30 text-zinc-200 hover:border-white/30"
+                        }`}
+                      >
+                        {clarifyOption(o)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        <details className="group rounded-2xl border border-white/10 bg-black/25 open:border-violet-400/30">
+          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-zinc-100 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span className="flex items-center justify-between gap-2">
+              {t("order.interview.dreamLabel")}
+              <span className="text-xs text-zinc-500 group-open:hidden">+</span>
+              <span className="hidden text-xs text-zinc-500 group-open:inline">−</span>
+            </span>
+          </summary>
+          <div className="space-y-2 border-t border-white/10 px-4 pb-4 pt-3">
+            <p className="text-xs text-zinc-400">{dreamPrompt}</p>
+            <textarea
+              className={`${fieldClass} min-h-[72px]`}
+              placeholder={t("order.interview.dreamPh")}
+              value={value.dream_vision}
+              onChange={(e) => patch({ dream_vision: e.target.value })}
+              onBlur={() => {
+                if (value.dream_vision.trim()) void runParse();
+              }}
+            />
+          </div>
+        </details>
+
+        {preview?.subniche ? (
+          <div className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm text-zinc-200">
+            <p>
+              <strong className="text-white">{t("order.interview.subniche")}:</strong>{" "}
+              {preview.subniche}
+              {preview.scale ? (
+                <>
+                  {" "}
+                  · <strong className="text-white">{t("order.interview.scale")}:</strong>{" "}
+                  {preview.scale}
+                </>
+              ) : null}
+            </p>
+            {preview.components?.length ? (
+              <ul className="space-y-1 text-xs text-zinc-300">
+                {preview.components.slice(0, 8).map((c) => (
+                  <li key={c.label}>
+                    ✓ {c.label} — <span className="text-zinc-500">{c.why}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block space-y-1.5 text-sm">
+            <span className="font-medium text-zinc-100">{t("order.interview.companyName")}</span>
+            <input
+              className={fieldClass}
+              value={value.company_name}
+              onChange={(e) => patch({ company_name: e.target.value })}
+              placeholder={t("order.interview.companyNamePh")}
+            />
+          </label>
+          <label className="block space-y-1.5 text-sm">
+            <span className="font-medium text-zinc-100">{t("order.interview.city")}</span>
+            <input
+              className={fieldClass}
+              value={value.city}
+              onChange={(e) => patch({ city: e.target.value })}
+              placeholder={t("order.interview.cityPh")}
+            />
+          </label>
+        </div>
+
+        <label className="block space-y-1.5 text-sm">
+          <span className="font-medium text-zinc-100">{t("order.interview.whyChoose")}</span>
+          <textarea
+            className={`${fieldClass} min-h-[72px]`}
+            value={value.differentiator}
+            onChange={(e) => patch({ differentiator: e.target.value })}
+            placeholder={t("order.interview.whyChoosePh")}
+          />
+        </label>
+
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-zinc-100">
+            {t("order.interview.feelLabel")}
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {STYLES.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => patch({ style: s })}
+                className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                  value.style === s
+                    ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-50"
+                    : "border-white/15 bg-black/30 text-zinc-300 hover:border-white/30"
+                }`}
+              >
+                {t(`order.interview.style.${s}`, { defaultValue: s })}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        <label className="block space-y-1.5 text-sm">
+          <span className="font-medium text-zinc-100">{t("order.interview.topServices")}</span>
           <input
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2"
-            value={value.city}
-            onChange={(e) => patch({ city: e.target.value })}
+            className={fieldClass}
+            value={value.top_services}
+            onChange={(e) => patch({ top_services: e.target.value })}
+            placeholder={t("order.interview.topServicesPh")}
           />
         </label>
       </div>
-
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Why should clients choose you?</span>
-        <textarea
-          className="w-full min-h-[72px] rounded-lg border border-zinc-300 px-3 py-2"
-          value={value.differentiator}
-          onChange={(e) => patch({ differentiator: e.target.value })}
-          placeholder="This becomes the Hero seed."
-        />
-      </label>
-
-      <fieldset className="space-y-2">
-        <legend className="text-sm font-medium">How should you feel?</legend>
-        <div className="flex flex-wrap gap-2">
-          {STYLES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => patch({ style: s })}
-              className={`rounded-full border px-3 py-1 text-xs ${
-                value.style === s
-                  ? "border-zinc-900 bg-zinc-900 text-white"
-                  : "border-zinc-300 text-zinc-700"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      </fieldset>
-
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">Top services (comma-separated)</span>
-        <input
-          className="w-full rounded-lg border border-zinc-300 px-3 py-2"
-          value={value.top_services}
-          onChange={(e) => patch({ top_services: e.target.value })}
-        />
-      </label>
     </section>
   );
 }

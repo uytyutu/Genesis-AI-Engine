@@ -19,7 +19,7 @@ import { logCommerceEvent } from "../lib/commerceFunnel";
 import { uiLangForMarket } from "../lib/marketLang";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
-import { PackagePreviewCarousel } from "../components/PackagePreviewCarousel";
+import { OrderProjectPreview } from "../components/OrderProjectPreview";
 import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePackage";
 import { parseClientServices } from "../lib/packagePreviewGallery";
 import { resolveOrderCoachHints } from "../lib/orderFormCoach";
@@ -255,8 +255,6 @@ export default function OrderSitePage() {
     [],
   );
   const [packageId, setPackageId] = useState("business");
-  const [cinematicEnabled, setCinematicEnabled] = useState(false);
-  const [cinematicPriceEur, setCinematicPriceEur] = useState(99);
   const [interview, setInterview] = useState<InterviewState>(() => emptyInterview());
   const [serviceList, setServiceList] = useState("");
   const [brandStyle, setBrandStyle] = useState("auto");
@@ -289,41 +287,13 @@ export default function OrderSitePage() {
   const draftSaverRef = useRef(createDebouncedOrderDraftSaver(400));
   const urlPackageRef = useRef<string | null>(null);
   const urlNicheRef = useRef<string | null>(null);
+  const urlProjectTypeRef = useRef<"website" | "shop" | "ai" | "other" | null>(null);
   const urlPackageHydratedRef = useRef(false);
   const analysisCaseRef = useRef<string | null>(null);
   const orderStartedRef = useRef(false);
   const checkoutSummaryViewedRef = useRef(false);
   const checkoutConfirmedLoggedRef = useRef(false);
   const [ownerDemo, setOwnerDemo] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const lang = (i18n.language || "de").slice(0, 2);
-        const res = await fetch(
-          `${API}/api/commerce/cinematic-experience?lang=${encodeURIComponent(lang)}`,
-        );
-        if (!res.ok) return;
-        const data = await res.json();
-        const price = Number(data?.product?.price_eur);
-        if (!cancelled && Number.isFinite(price) && price > 0) setCinematicPriceEur(price);
-      } catch {
-        /* keep default */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [i18n.language]);
-
-  // Premium includes Cinematic — never stack +99 € on 699 €
-  useEffect(() => {
-    const id = (packageId || "").toLowerCase();
-    if (id === "premium" || id === "connected") {
-      setCinematicEnabled(true);
-    }
-  }, [packageId]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -364,13 +334,32 @@ export default function OrderSitePage() {
       setNiche(n);
       urlNicheRef.current = n;
     }
-    const projectParam = (params.get("type") || params.get("project") || "").toLowerCase();
-    if (projectParam === "shop" || projectParam === "store") {
+    const projectParam = (
+      params.get("project_type") ||
+      params.get("type") ||
+      params.get("project") ||
+      ""
+    ).toLowerCase();
+    if (
+      projectParam === "shop" ||
+      projectParam === "store" ||
+      projectParam === "ecommerce_shop"
+    ) {
       setProjectType("shop");
-    } else if (projectParam === "ai" || projectParam === "bot") {
+      urlProjectTypeRef.current = "shop";
+    } else if (
+      projectParam === "ai" ||
+      projectParam === "bot" ||
+      projectParam === "ai_assistant"
+    ) {
       setProjectType("ai");
-    } else if (projectParam === "other") {
+      urlProjectTypeRef.current = "ai";
+    } else if (projectParam === "other" || projectParam === "sonstiges") {
       setProjectType("other");
+      urlProjectTypeRef.current = "other";
+    } else if (projectParam === "website") {
+      setProjectType("website");
+      urlProjectTypeRef.current = "website";
     }
     const ac = params.get("analysis_case")?.trim();
     if (ac) analysisCaseRef.current = ac;
@@ -419,6 +408,7 @@ export default function OrderSitePage() {
         setManualPackage(true);
       }
       if (urlNicheRef.current) setNiche(urlNicheRef.current);
+      if (urlProjectTypeRef.current) setProjectType(urlProjectTypeRef.current);
       setDraftBanner(true);
       logCommerceEvent("draft_restored", draft.packageId || urlPackageRef.current, "order", {
         form_step: draft.formStep,
@@ -491,7 +481,7 @@ export default function OrderSitePage() {
     setDraftBanner(false);
     setFormStep(1);
     setMaxReachedStep(1);
-    setProjectType("website");
+    setProjectType(urlProjectTypeRef.current || "website");
     setBusinessName("");
     setDescription("");
     setCompanyWebsite("");
@@ -675,7 +665,24 @@ export default function OrderSitePage() {
     fetch(`${API}/api/public/niches`)
       .then((res) => (res.ok ? res.json() : null))
       .then((body) => {
-        if (Array.isArray(body?.niches)) setNicheOptions(body.niches);
+        if (Array.isArray(body?.niches)) {
+          setNicheOptions(
+            body.niches.filter(
+              (n: { id?: string; label_de?: string }) => {
+                const id = String(n?.id || "").toLowerCase();
+                const label = String(n?.label_de || "").toLowerCase();
+                return (
+                  !id.includes("family") &&
+                  !label.includes("familien") &&
+                  !id.includes("psycholog") &&
+                  !label.includes("psycholog") &&
+                  id !== "family_psychology" &&
+                  id !== "family_care"
+                );
+              },
+            ),
+          );
+        }
         if (Array.isArray(body?.specializations)) setSpecOptions(body.specializations);
       })
       .catch(() => undefined);
@@ -797,12 +804,13 @@ export default function OrderSitePage() {
     return list;
   }, [packages, packageId]);
   const selected = displayPackages.find((p) => p.id === packageId) ?? displayPackages[0];
-  const premiumIncludesCinematic =
+  // Business + Premium share presentation quality; Premium adds depth/control (no +99 add-on).
+  const presentationIncluded =
+    (packageId || "").toLowerCase() === "business" ||
+    (packageId || "").toLowerCase() === "standalone" ||
     (packageId || "").toLowerCase() === "premium" ||
     (packageId || "").toLowerCase() === "connected";
-  const cinematicAddonActive = cinematicEnabled && !premiumIncludesCinematic;
-  const orderTotalEur =
-    (selected?.price_eur || 0) + (cinematicAddonActive ? cinematicPriceEur : 0);
+  const orderTotalEur = selected?.price_eur || 0;
   const packagePriceBullet = useMemo(() => {
     const tiers = ["basic", "business", "premium"]
       .map((id) => packages.find((p) => p.id === id))
@@ -820,17 +828,17 @@ export default function OrderSitePage() {
     const id = (packageId || "").toLowerCase();
     if (id === "premium" || id === "connected") {
       return [
-        "Premium Website für Ihre Branche",
+        "Alles aus Business — gleiche visuelle Qualität",
         "Responsive + Mobile",
         "Kontaktformular & Legal-Seiten",
         "SEO-Grundlage",
-        "Premium Medien",
-        "Cinematic AI Experience inklusive",
         "Virtus Workspace",
-        "Texte, Bilder und Inhalte selbst bearbeiten",
+        "Erweiterte Website-Steuerung",
+        "Tiefere Seitenstruktur",
+        "Erweiterte Formulare & Content",
+        "Fortgeschrittenes Management",
         "Analytics",
         "Versionen & Wiederherstellung",
-        "Premium Creative Controls",
         "Übergabe als fertiges Projekt",
       ];
     }
@@ -841,6 +849,7 @@ export default function OrderSitePage() {
         "Kontaktformular & Legal-Seiten",
         "SEO-Grundlage",
         "Virtus Workspace",
+        "Hochwertige Präsentation wie in den Business-Beispielen",
         "Texte, Bilder und Kontakte selbst bearbeiten",
         "Analytics",
         "Versionen & Wiederherstellung",
@@ -1099,7 +1108,6 @@ export default function OrderSitePage() {
             packageId === "connected" || packageId === "premium"
               ? "connected"
               : "standalone",
-          // Premium already includes cinematic — backend also enforces this
           ...interviewOrderFields({
             ...interview,
             company_name: interview.company_name || businessName.trim(),
@@ -1138,7 +1146,8 @@ export default function OrderSitePage() {
             uses_analytics: legalAnalytics,
           },
           package_id: packageId,
-          cinematic_enabled: premiumIncludesCinematic || cinematicEnabled,
+          // Business package owns presentation quality — not a +99 € add-on, not Premium USP.
+          cinematic_enabled: presentationIncluded,
           analysis_case_id: analysisCaseRef.current || null,
           brand_style: brandStyle || "auto",
           niche: niche || null,
@@ -1317,11 +1326,11 @@ export default function OrderSitePage() {
           <Badge variant="accent" className="tracking-[0.2em]">
             {t("order.badge")}
           </Badge>
-          <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-4xl">
-            {launch ? t("order.titleLaunch") : t("order.title")}
+          <h1 className="mt-3 text-2xl font-bold leading-tight text-white sm:text-4xl">
+            {launch ? t("order.titleLaunch") : t("order.titleHero")}
           </h1>
-          <p className="mt-2 text-genesis-muted">
-            {launch ? t("order.subtitleLaunch") : t("order.subtitle")}
+          <p className="mx-auto mt-2 max-w-2xl text-sm text-zinc-300 sm:text-base">
+            {launch ? t("order.subtitleLaunch") : t("order.subtitleHero")}
           </p>
           {!launch ? (
             <ul className="mx-auto mt-4 max-w-lg space-y-1 text-left text-sm text-white/75">
@@ -1354,12 +1363,12 @@ export default function OrderSitePage() {
         ) : null}
 
         <form onSubmit={submit} className={`grid gap-6 lg:grid-cols-5 ${launch ? "mt-6" : ""}`}>
-          <div className="storefront-module-card space-y-4 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 lg:col-span-3">
-            <div className="rounded-2xl border border-emerald-400/25 bg-emerald-950/25 px-3.5 py-3">
+          <div className="storefront-module-card order-virtus-form space-y-4 rounded-3xl border border-white/12 bg-[#0b1018]/85 p-4 shadow-[0_0_48px_-24px_rgba(91,141,239,0.35)] backdrop-blur-sm sm:p-5 lg:col-span-3 [&_.genesis-label]:text-zinc-100 [&_input]:border-white/15 [&_input]:bg-black/40 [&_input]:text-white [&_input]:placeholder:text-zinc-500 [&_textarea]:border-white/15 [&_textarea]:bg-black/40 [&_textarea]:text-white [&_textarea]:placeholder:text-zinc-500">
+            <div className="rounded-2xl border border-emerald-400/30 bg-emerald-950/30 px-3.5 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200/90">
                 {t("order.whyFormBadge")}
               </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-white/85">
+              <p className="mt-1.5 text-sm leading-relaxed text-zinc-100">
                 {t("order.whyFormBody")}
               </p>
             </div>
@@ -1398,28 +1407,75 @@ export default function OrderSitePage() {
                       <p className="mb-2 text-sm font-medium text-white">
                         {t("order.projectTypeTitle")}
                       </p>
-                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         {(
                           [
-                            ["website", "order.projectTypeWebsite"],
-                            ["shop", "order.projectTypeShop"],
-                            ["ai", "order.projectTypeAi"],
-                            ["other", "order.projectTypeOther"],
+                            [
+                              "website",
+                              "order.projectTypeWebsite",
+                              "order.projectTypeWebsiteHint",
+                            ],
+                            [
+                              "shop",
+                              "order.projectTypeShop",
+                              "order.projectTypeShopHint",
+                            ],
+                            [
+                              "ai",
+                              "order.projectTypeAi",
+                              "order.projectTypeAiHint",
+                            ],
+                            [
+                              "other",
+                              "order.projectTypeOther",
+                              "order.projectTypeOtherHint",
+                            ],
                           ] as const
-                        ).map(([id, labelKey]) => (
-                          <button
-                            key={id}
-                            type="button"
-                            onClick={() => setProjectType(id)}
-                            className={
-                              projectType === id
-                                ? "rounded-xl border border-emerald-400/50 bg-emerald-500/15 px-3 py-2.5 text-sm font-medium text-emerald-100"
-                                : "rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-zinc-300 hover:border-white/25"
-                            }
-                          >
-                            {t(labelKey)}
-                          </button>
-                        ))}
+                        ).map(([id, labelKey, hintKey]) => {
+                          const selected = projectType === id;
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => {
+                                setProjectType(id);
+                                if (typeof window === "undefined") return;
+                                try {
+                                  const url = new URL(window.location.href);
+                                  const param =
+                                    id === "shop"
+                                      ? "ecommerce_shop"
+                                      : id === "ai"
+                                        ? "ai_assistant"
+                                        : id;
+                                  url.searchParams.set("project_type", param);
+                                  url.searchParams.delete("type");
+                                  url.searchParams.delete("project");
+                                  window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+                                } catch {
+                                  /* ignore */
+                                }
+                              }}
+                              aria-pressed={selected}
+                              className={
+                                selected
+                                  ? "rounded-2xl border border-emerald-400/55 bg-emerald-500/15 px-3.5 py-3 text-left shadow-[0_0_28px_-12px_rgba(16,185,129,0.65)]"
+                                  : "rounded-2xl border border-white/12 bg-black/35 px-3.5 py-3 text-left text-zinc-300 hover:border-white/25 hover:bg-white/[0.04]"
+                              }
+                            >
+                              <span
+                                className={`block text-sm font-semibold ${
+                                  selected ? "text-emerald-50" : "text-white"
+                                }`}
+                              >
+                                {t(labelKey)}
+                              </span>
+                              <span className="mt-1 block text-[11px] leading-snug text-zinc-400">
+                                {t(hintKey)}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                     <BusinessInterviewPanel
@@ -1814,7 +1870,7 @@ export default function OrderSitePage() {
                   </>
                 )}
 
-                <div className="sticky bottom-0 z-20 -mx-1 mt-3 border-t border-white/10 bg-[rgba(8,12,20,0.88)] px-1 py-3 backdrop-blur-md">
+                <div className="sticky bottom-0 z-20 -mx-1 mt-3 border-t border-white/10 bg-[rgba(8,12,20,0.92)] px-1 py-3 backdrop-blur-md">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <Button
                       type="button"
@@ -1825,24 +1881,38 @@ export default function OrderSitePage() {
                     >
                       ← {t("order.back")}
                     </Button>
-                    <p className="text-[11px] text-genesis-muted">
+                    <p className="text-[11px] text-zinc-400">
                       {t("order.stepProgress", {
                         current: formStep,
                         total: 4,
                       })}
                     </p>
                     {formStep < 4 ? (
-                      <Button
-                        type="button"
-                        variant="primary"
-                        size="md"
-                        className="storefront-cta-primary !rounded-2xl !bg-genesis-purple-soft !shadow-[0_0_40px_-6px_rgba(167,139,250,0.7)]"
-                        onClick={() => void goNext()}
-                      >
-                        {t("order.next")} →
-                      </Button>
+                      <div className="flex max-w-full flex-col items-end gap-1">
+                        <Button
+                          type="button"
+                          variant="primary"
+                          size="md"
+                          disabled={
+                            formStep === 1 &&
+                            (!businessName.trim() ||
+                              description.trim().length < 8)
+                          }
+                          className="storefront-cta-primary !rounded-2xl !bg-emerald-500 !text-black !shadow-[0_0_40px_-6px_rgba(16,185,129,0.75)] disabled:!bg-zinc-700 disabled:!text-zinc-400 disabled:!shadow-none"
+                          onClick={() => void goNext()}
+                        >
+                          {t("order.next")} →
+                        </Button>
+                        {formStep === 1 &&
+                        (!businessName.trim() ||
+                          description.trim().length < 8) ? (
+                          <p className="max-w-[16rem] text-right text-[10px] leading-snug text-amber-200/90">
+                            {t("order.nextDisabledHint")}
+                          </p>
+                        ) : null}
+                      </div>
                     ) : (
-                      <span className="text-xs text-genesis-muted">{t("order.stepNavConfirmHint")}</span>
+                      <span className="text-xs text-zinc-400">{t("order.stepNavConfirmHint")}</span>
                     )}
                   </div>
                 </div>
@@ -1922,9 +1992,9 @@ export default function OrderSitePage() {
                       p.id === "basic"
                         ? "Keine Virtus-Verwaltung"
                         : p.id === "business"
-                          ? "Virtus Workspace inklusive"
+                          ? "Virtus Workspace · Präsentationsniveau"
                           : p.id === "premium"
-                            ? "Cinematic Experience inklusive"
+                            ? "Gleiche Qualität wie Business + mehr Steuerung und Tiefe"
                             : "";
                     return (
                     <label
@@ -1960,9 +2030,13 @@ export default function OrderSitePage() {
                         <span className="block font-semibold tabular-nums">
                           {formatPrice(p.price_eur, p)}
                         </span>
-                        {p.id === "premium" ? (
+                        {p.id === "business" ? (
                           <span className="mt-0.5 block text-[10px] font-medium text-emerald-300/90">
-                            Cinematic inkl.
+                            Präsentation
+                          </span>
+                        ) : p.id === "premium" ? (
+                          <span className="mt-0.5 block text-[10px] font-medium text-emerald-300/90">
+                            Mehr Tiefe
                           </span>
                         ) : null}
                       </span>
@@ -1971,32 +2045,21 @@ export default function OrderSitePage() {
                   })}
                 </div>
               )}
-              {!launch && premiumIncludesCinematic ? (
+              {!launch && presentationIncluded ? (
                 <div className="mt-3 rounded-xl border border-emerald-500/25 bg-emerald-950/20 px-3 py-2.5 text-sm">
                   <p className="font-medium text-emerald-100">
-                    ✓ Cinematic AI Experience inklusive
+                    {(packageId || "").toLowerCase() === "premium" ||
+                    (packageId || "").toLowerCase() === "connected"
+                      ? "✓ Premium = Business-Qualität + erweiterte Steuerung"
+                      : "✓ Hochwertige Präsentation im Business-Paket"}
                   </p>
                   <p className="mt-1 text-xs text-genesis-muted">
-                    Teil von Website Premium {formatPrice(selected?.price_eur || 699, selected)}. Kein Aufpreis.
+                    {(packageId || "").toLowerCase() === "premium" ||
+                    (packageId || "").toLowerCase() === "connected"
+                      ? "Kein anderer Design-Stil — mehr Möglichkeiten, Struktur und Management. Kein Extra-Aufpreis."
+                      : "Wie in den Business-Beispielen auf /site — kein separates Add-on."}
                   </p>
                 </div>
-              ) : !launch ? (
-                <label className="mt-3 flex cursor-pointer items-start gap-2 rounded-xl border border-violet-500/25 bg-violet-950/20 px-3 py-2.5 text-sm">
-                  <input
-                    type="checkbox"
-                    className="mt-1 accent-violet-400"
-                    checked={cinematicEnabled}
-                    onChange={(e) => setCinematicEnabled(e.target.checked)}
-                  />
-                  <span>
-                    <span className="font-medium text-violet-100">
-                      Cinematic AI Experience +{cinematicPriceEur} €
-                    </span>
-                    <span className="mt-1 block text-xs text-genesis-muted">
-                      Optional nur für Basic und Business. Bei Premium bereits inklusive.
-                    </span>
-                  </span>
-                </label>
               ) : null}
               {!launch && (
                 <>
@@ -2013,25 +2076,12 @@ export default function OrderSitePage() {
                       {t("order.premiumServicesHint")}
                     </p>
                   </div>
-                  <PackagePreviewCarousel
+                  <OrderProjectPreview
+                    projectType={projectType}
                     packageId={packageId}
                     niche={niche}
-                    kind={projectType === "shop" ? "store" : "website"}
-                    services={parseClientServices(serviceList)}
+                    serviceList={serviceList}
                   />
-                  {packageId !== "premium" ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setManualPackage(true);
-                        setPackageId("premium");
-                        logCommerceEvent("upgrade_click", "premium", "order", { niche });
-                      }}
-                      className="mt-2 w-full rounded-lg border border-emerald-500/40 bg-emerald-950/40 px-2 py-1.5 text-xs font-medium text-emerald-100 hover:bg-emerald-900/50"
-                    >
-                      {t("order.upgradePremium")}
-                    </button>
-                  ) : null}
                 </>
               )}
               {!launch && !manualPackage && selected && (
@@ -2147,43 +2197,21 @@ function FormStepBar({
     t("order.formStep2"),
     t("order.formStep3"),
     t("order.formStep4"),
-  ];
-  const journey = [
-    t("order.journeyWelcome"),
-    t("order.journeyBusiness"),
-    t("order.journeyAnalysis"),
-    t("order.journeyPackage"),
-    t("order.journeyPersonal"),
-    t("order.journeyCheckout"),
+    t("order.formStep5"),
   ];
   return (
-    <div className="mb-4 space-y-3">
-      <ol className="hidden flex-wrap gap-1.5 sm:flex" aria-label={t("order.journeyAria")}>
-        {journey.map((label, i) => {
-          const active =
-            (current === 1 && i <= 1) ||
-            (current === 2 && i <= 2) ||
-            (current === 3 && i <= 4) ||
-            (current === 4 && i <= 4);
-          return (
-            <li
-              key={label}
-              className={`rounded-full px-2 py-0.5 text-[10px] ${
-                active
-                  ? "bg-emerald-500/20 text-emerald-100"
-                  : "bg-white/5 text-genesis-muted"
-              }`}
-            >
-              {label}
-            </li>
-          );
-        })}
-      </ol>
-      <p className="text-xs text-genesis-muted sm:hidden" aria-live="polite">
-        {t("order.formStep", { defaultValue: "Step" })} {current} / 4
+    <div className="mb-4 space-y-2">
+      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-zinc-400">
+        {t("order.progressLabel")}
       </p>
-      <ol className="mb-2 flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:gap-2" aria-label={t("order.formStepsAria")}>
-        {steps.map((label, idx) => {
+      <p className="text-xs text-zinc-500 sm:hidden" aria-live="polite">
+        {current} / 4 · {steps[current - 1]}
+      </p>
+      <ol
+        className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:gap-2"
+        aria-label={t("order.formStepsAria")}
+      >
+        {steps.slice(0, 4).map((label, idx) => {
           const n = idx + 1;
           const isCurrent = n === current;
           const isDone = n < current;
@@ -2191,12 +2219,12 @@ function FormStepBar({
           const isLocked = n > maxReached;
           const marker = isDone ? "✓" : isCurrent ? "➜" : "○";
           const className = isCurrent
-            ? "border-genesis-accent/50 bg-genesis-accent/20 text-white"
+            ? "border-emerald-400/45 bg-emerald-500/15 text-white"
             : isDone
               ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
               : isReachable
-                ? "border-white/15 bg-white/5 text-genesis-muted hover:border-white/30 hover:text-white"
-                : "border-transparent bg-transparent text-genesis-muted/60";
+                ? "border-white/15 bg-white/5 text-zinc-400 hover:border-white/30 hover:text-white"
+                : "border-transparent bg-transparent text-zinc-600";
           const inner = (
             <>
               <span className="font-medium" aria-hidden="true">
@@ -2213,7 +2241,7 @@ function FormStepBar({
                 <button
                   type="button"
                   onClick={() => onSelectStep(n)}
-                  className={`inline-flex w-full items-center gap-2 rounded-full border px-2.5 py-1 text-left text-[11px] transition-smooth sm:w-auto ${className}`}
+                  className={`inline-flex w-full items-center gap-2 rounded-full border px-2.5 py-1.5 text-left text-[11px] transition-smooth sm:w-auto ${className}`}
                   aria-current={isCurrent ? "step" : undefined}
                   aria-label={
                     isCurrent
@@ -2225,7 +2253,7 @@ function FormStepBar({
                 </button>
               ) : (
                 <span
-                  className={`inline-flex w-full items-center gap-2 rounded-full border px-2.5 py-1 text-[11px] sm:w-auto ${className}`}
+                  className={`inline-flex w-full items-center gap-2 rounded-full border px-2.5 py-1.5 text-[11px] sm:w-auto ${className}`}
                   aria-disabled="true"
                 >
                   {inner}
@@ -2234,7 +2262,14 @@ function FormStepBar({
             </li>
           );
         })}
+        <li className="min-w-0">
+          <span className="inline-flex w-full items-center gap-2 rounded-full border border-dashed border-white/10 px-2.5 py-1.5 text-[11px] text-zinc-500 sm:w-auto">
+            <span aria-hidden>5</span>
+            <span>{steps[4]}</span>
+          </span>
+        </li>
       </ol>
+      <p className="text-[11px] text-zinc-500">{t("order.progressHint")}</p>
     </div>
   );
 }

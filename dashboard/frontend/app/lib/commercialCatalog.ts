@@ -30,12 +30,12 @@ export type CommercialRow = {
 
 /** Public Website ladder — same amounts on /site, /order, checkout. */
 export const LANDING_PACKAGES_EUR = {
-  basic: 199,
-  business: 399,
-  premium: 699,
+  basic: 299,
+  business: 599,
+  premium: 999,
   // Legacy API aliases (not shown as separate products)
-  standalone: 399,
-  connected: 699,
+  standalone: 599,
+  connected: 999,
   connected_monthly: 0,
 } as const;
 
@@ -114,20 +114,35 @@ export const COMMERCIAL_CATALOG: CommercialRow[] = [
     cta: "order_now",
     cta_href: "/order?package=premium",
     cta_label: "Website Premium wählen",
-    includes: "Alles aus Business + Cinematic Experience (inkl.)",
+    includes:
+      "Same visual quality as Business · Connected path · deeper control not proven day-1",
   },
   {
     id: "ai_store",
     category: "product",
     group: "stores",
-    name: "AI Online Store",
-    price_label: "from 799 €",
+    name: "AI Store Basic / Start",
+    price_label: "799 €",
     billing: "one_time",
     availability: "available",
     cta: "order_now",
     cta_href: "/order/shop",
-    cta_label: "Order store",
-    includes: "Industry store · catalog · checkout · panel",
+    cta_label: "Order AI Store Basic",
+    includes:
+      "Catalog · cart · Shop Admin day-1 · Stripe/SMTP/Shipping via owner accounts",
+  },
+  {
+    id: "ai_store_business",
+    category: "product",
+    group: "stores",
+    name: "AI Store Business",
+    price_label: "Coming soon · price TBD",
+    billing: "one_time",
+    availability: "coming_soon",
+    cta: "coming_soon",
+    cta_label: "Coming soon",
+    includes:
+      "Shop + Virtus Workspace · manage · grow · add-ons — not for sale yet",
   },
   {
     id: "ai_business_bot",
@@ -141,7 +156,7 @@ export const COMMERCIAL_CATALOG: CommercialRow[] = [
     cta_href: "/order/bot",
     cta_label: "Order",
     includes:
-      "AI Sales Assistant · Website Chat · Telegram · WhatsApp · Instagram · Messenger",
+      "Live today: Telegram + Website Chat · WhatsApp / Instagram / Messenger — Coming Soon",
   },
   {
     id: "ai_website_analysis",

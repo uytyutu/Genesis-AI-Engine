@@ -354,11 +354,11 @@ function ShopOrderInner() {
         brand: BRAND_NAME,
         defaultValue: `← ${BRAND_NAME} storefront`,
       })}
-      eyebrow="AI Store by Virtus Core"
+      eyebrow="AI Store Basic / Start"
       title={t("aiStore.title", {
         defaultValue: "Tell us about your business",
       })}
-      priceLabel={t("aiStore.priceLine", { defaultValue: "from 799 €" })}
+      priceLabel={t("aiStore.priceLine", { defaultValue: "799 € once" })}
       subtitle={t("aiStore.positioning", {
         defaultValue:
           "Virtus Core creates a professional online shop for your business — not a generic website package. After payment your shop appears in your client cabinet.",
@@ -679,7 +679,7 @@ function ShopOrderInner() {
         <div className="space-y-4">
           <p className="text-lg font-semibold text-white">
             {t("aiStore.readyPay", {
-              defaultValue: "Ready for payment — from 799 €",
+              defaultValue: "Ready for payment — 799 € once",
             })}
           </p>
           <p className="text-sm text-zinc-300">

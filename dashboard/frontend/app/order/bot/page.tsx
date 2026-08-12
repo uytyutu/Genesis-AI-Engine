@@ -57,7 +57,11 @@ type ChannelId =
   | "instagram"
   | "facebook_messenger";
 
-type ChannelNoteKey = "channelNoteLive" | "channelNoteMeta" | "channelNoteToken";
+type ChannelNoteKey =
+  | "channelNoteLive"
+  | "channelNoteMeta"
+  | "channelNoteToken"
+  | "channelNoteWebsite";
 
 const CHANNEL_DEFS: {
   id: ChannelId;
@@ -69,8 +73,8 @@ const CHANNEL_DEFS: {
   {
     id: "website_chat",
     label: "Website Chat",
-    available: false,
-    noteKey: "channelNoteLive",
+    available: true,
+    noteKey: "channelNoteWebsite",
     Icon: IconWebsite,
   },
   {
@@ -216,7 +220,21 @@ function BotOrderWizard() {
       .then((r) => (r.ok ? r.json() : null))
       .then((body) => {
         if (cancelled || !body) return;
-        const list = (body.packages || body.items || []) as BotOffer[];
+        const list = ((body.packages || body.items || []) as Array<BotOffer & { features?: BotOffer }>).map(
+          (row) => {
+            const feat = (row as { features?: Record<string, unknown> }).features || {};
+            return {
+              ...row,
+              max_bots:
+                typeof row.max_bots === "number" || row.max_bots === null
+                  ? row.max_bots
+                  : (feat.max_bots as number | null | undefined),
+              max_bots_label:
+                row.max_bots_label ||
+                (typeof feat.max_bots_label === "string" ? feat.max_bots_label : undefined),
+            };
+          },
+        );
         setOffers(Array.isArray(list) ? list : []);
       })
       .catch(() => {

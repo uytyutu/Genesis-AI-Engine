@@ -93,7 +93,7 @@ function SetupInner() {
             <ul className="space-y-2 text-sm text-zinc-300">
               <li>✓ Within 24 hours we will contact you if anything is missing for setup.</li>
               <li>✓ You will receive: Workspace access and channel connection steps.</li>
-              <li>✓ Your AI employee goes live after you connect Telegram / Website Chat.</li>
+              <li>✓ Your AI employee goes live after you connect Telegram and/or Website Chat (WhatsApp / Instagram / Messenger — Coming Soon).</li>
             </ul>
             <p className="text-sm text-zinc-400">
               {botName

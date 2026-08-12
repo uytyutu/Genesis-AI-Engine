@@ -29,6 +29,15 @@ type Connection = {
   telegram?: { username?: string };
 };
 
+type WebsiteChatConnection = {
+  connection_id: string;
+  bot_id?: string;
+  status?: string;
+  public_key?: string;
+  site_label?: string;
+  commercial_live?: boolean;
+};
+
 type Entitlements = {
   package_id?: string;
   max_bots?: number | null;
@@ -37,7 +46,7 @@ type Entitlements = {
 
 function statusLamp(status: string): string {
   const s = (status || "").toLowerCase();
-  if (s === "online") return "🟢 Online";
+  if (s === "online" || s === "connected") return "🟢 Online";
   if (s === "pending_connect" || s === "learning") return "🟡 Learning";
   return "🔴 Offline";
 }
@@ -46,6 +55,7 @@ function ClientBotsDashboard() {
   const search = useSearchParams();
   const [bots, setBots] = useState<BotRecord[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
+  const [websiteChats, setWebsiteChats] = useState<WebsiteChatConnection[]>([]);
   const [ents, setEnts] = useState<Entitlements | null>(null);
   const [metaConfigured, setMetaConfigured] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +96,16 @@ function ClientBotsDashboard() {
       if (!selectedId && body.bots?.[0]?.bot_id) {
         setSelectedId(String(body.bots[0].bot_id));
       }
+      const wch = await fetch(`${API}/api/client/bots/website-chat/connections`, {
+        headers: { ...clientAuthHeaders() },
+        cache: "no-store",
+      });
+      if (wch.ok) {
+        const wbody = await wch.json().catch(() => ({}));
+        setWebsiteChats((wbody.connections || []) as WebsiteChatConnection[]);
+      } else {
+        setWebsiteChats([]);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Ошибка загрузки");
     } finally {
@@ -116,6 +136,11 @@ function ClientBotsDashboard() {
     if (!selected) return [];
     return connections.filter((c) => c.bot_id === selected.bot_id);
   }, [connections, selected]);
+
+  const botWebsiteChats = useMemo(() => {
+    if (!selected) return [];
+    return websiteChats.filter((c) => c.bot_id === selected.bot_id);
+  }, [websiteChats, selected]);
 
   async function saveBot() {
     if (!selected) return;
@@ -200,6 +225,110 @@ function ClientBotsDashboard() {
       window.location.href = url;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Meta error");
+      setBusy(false);
+    }
+  }
+
+  async function connectWebsiteChat() {
+    if (!selected) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `${API}/api/client/bots/${encodeURIComponent(selected.bot_id)}/website-chat/connect`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...clientAuthHeaders(),
+          },
+          body: JSON.stringify({
+            site_ref: "workspace-connect",
+            site_label: `${selected.display_name || "AI Employee"} website`,
+          }),
+        },
+      );
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(formatApiDetail(body.detail) || "Website Chat connect failed");
+      }
+      const key = String(body.connection?.public_key || "");
+      setBanner(
+        key
+          ? "Website Chat connected. Open preview to chat with your AI Employee."
+          : "Website Chat connection created.",
+      );
+      await load();
+      if (key) {
+        window.open(
+          `/spike/website-chat?key=${encodeURIComponent(key)}&label=${encodeURIComponent(
+            selected.display_name || "Website",
+          )}`,
+          "_blank",
+          "noopener,noreferrer",
+        );
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Website Chat error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function disconnectWebsiteChat(connectionId: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `${API}/api/client/bots/website-chat/${encodeURIComponent(connectionId)}/disconnect`,
+        {
+          method: "POST",
+          headers: { ...clientAuthHeaders() },
+        },
+      );
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(formatApiDetail(body.detail) || "Disconnect failed");
+      }
+      setBanner("Website Chat disconnected — widget should stop answering.");
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Disconnect error");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function reconnectWebsiteChat(connectionId: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `${API}/api/client/bots/website-chat/${encodeURIComponent(connectionId)}/reconnect`,
+        {
+          method: "POST",
+          headers: { ...clientAuthHeaders() },
+        },
+      );
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(formatApiDetail(body.detail) || "Reconnect failed");
+      }
+      const key = String(body.connection?.public_key || "");
+      setBanner("Website Chat reconnected.");
+      await load();
+      if (key) {
+        window.open(
+          `/spike/website-chat?key=${encodeURIComponent(key)}&label=${encodeURIComponent(
+            selected?.display_name || "Website",
+          )}`,
+          "_blank",
+          "noopener,noreferrer",
+        );
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Reconnect error");
+    } finally {
       setBusy(false);
     }
   }
@@ -427,17 +556,88 @@ function ClientBotsDashboard() {
                       </div>
                     ) : (
                       <p className="text-xs text-amber-200/90">
-                        Connect Meta — platform keys pending (META_APP_ID / META_APP_SECRET).
-                        Telegram и Website Chat работают без Meta.
+                        Telegram + Website Chat are Live. WhatsApp / Instagram /
+                        Messenger — Coming Soon.
                       </p>
                     )}
                   </div>
 
-                  <div className="border-t border-white/10 pt-4">
-                    <p className="text-sm text-zinc-300">Website Chat</p>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      Привязка к виджету сайта Workspace — без стороннего OAuth.
-                    </p>
+                  <div className="border-t border-white/10 pt-4 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <p className="text-sm text-zinc-300">Website Chat</p>
+                        <p className="mt-1 text-xs text-emerald-200/90">
+                          Live — connect to your website, open preview, chat with
+                          the same AI Employee as Telegram.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void connectWebsiteChat()}
+                        className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-black disabled:opacity-40"
+                      >
+                        Connect to my website
+                      </button>
+                    </div>
+                    {botWebsiteChats.length ? (
+                      <ul className="space-y-2 text-xs text-zinc-400">
+                        {botWebsiteChats.map((c) => (
+                          <li
+                            key={c.connection_id}
+                            className="rounded-xl border border-white/10 bg-black/20 px-3 py-2 space-y-2"
+                          >
+                            <p>
+                              {c.status === "connected" ? "🟢" : "○"}{" "}
+                              {c.site_label || "Website"} · {c.status || "—"}
+                            </p>
+                            {c.public_key ? (
+                              <p className="font-mono break-all text-[11px] text-zinc-500">
+                                {c.public_key}
+                              </p>
+                            ) : null}
+                            <div className="flex flex-wrap gap-2">
+                              {c.public_key && c.status === "connected" ? (
+                                <Link
+                                  href={`/spike/website-chat?key=${encodeURIComponent(
+                                    c.public_key,
+                                  )}&label=${encodeURIComponent(
+                                    c.site_label || selected.display_name || "Website",
+                                  )}`}
+                                  target="_blank"
+                                  className="rounded-lg border border-white/20 px-2.5 py-1 text-white hover:bg-white/5"
+                                >
+                                  Open site preview
+                                </Link>
+                              ) : null}
+                              {c.status === "connected" ? (
+                                <button
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => void disconnectWebsiteChat(c.connection_id)}
+                                  className="rounded-lg border border-rose-400/40 px-2.5 py-1 text-rose-100 disabled:opacity-40"
+                                >
+                                  Disconnect
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => void reconnectWebsiteChat(c.connection_id)}
+                                  className="rounded-lg border border-emerald-400/40 px-2.5 py-1 text-emerald-100 disabled:opacity-40"
+                                >
+                                  Reconnect
+                                </button>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-xs text-zinc-500">
+                        No Website Chat connection yet — Connect to my website to embed the Live widget.
+                      </p>
+                    )}
                   </div>
 
                   {botConnections.length ? (
