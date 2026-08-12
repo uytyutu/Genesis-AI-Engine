@@ -329,15 +329,6 @@ from app.commercial_api.router import router as commercial_api_router
 
 app.include_router(commercial_api_router)
 
-# Owner-only Unclaimed Rewards / Airdrop Harvester (not client-visible)
-from app.integration.crypto_intelligence import crypto_intelligence_router
-from app.integration.opportunity_brain.api import router as opportunity_brain_router
-from app.integration.farm_adapter.api import router as farm_adapter_router
-
-app.include_router(crypto_intelligence_router)
-app.include_router(opportunity_brain_router)
-app.include_router(farm_adapter_router)
-
 # R3.8.2 — controlled Portal registration (no-op while feature_enabled=False)
 from app.portal.portal_registration import register_portal_read
 
