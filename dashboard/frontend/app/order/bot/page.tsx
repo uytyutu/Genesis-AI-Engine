@@ -21,6 +21,7 @@ import { formatApiDetail } from "../../lib/formatApiError";
 import { startOrderCheckout } from "../../lib/orderCheckout";
 import { publicApiBase } from "../../lib/publicApiBase";
 import { getVisitorId } from "../../lib/visitorId";
+import { companyProfileFromMe } from "../../lib/companyProfile";
 import type { UiLocale } from "../../lib/locale/types";
 import { uiLangForMarket } from "../../lib/marketLang";
 import { BotChannelIconRow } from "../../components/ChannelBrandIcons";
@@ -286,6 +287,37 @@ function BotOrderWizard() {
       .catch(() => undefined);
     return () => {
       cancelled = true;
+    };
+  }, []);
+
+  // Prefill from company profile when fields still empty (after draft).
+  useEffect(() => {
+    if (!getClientToken()) return;
+    let cancelled = false;
+    const t = window.setTimeout(() => {
+      fetch(`${API}/api/client/me`, {
+        headers: { ...clientAuthHeaders() },
+        cache: "no-store",
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((me) => {
+          if (cancelled || !me) return;
+          const profile = companyProfileFromMe(me);
+          setLoggedIn(true);
+          if (profile.company_name) {
+            setBusinessName((prev) => prev || profile.company_name);
+          }
+          if (profile.email) setEmail((prev) => prev || profile.email);
+          if (profile.phone) setPhone((prev) => prev || profile.phone);
+          if (profile.primary_niche) {
+            setActivity((prev) => prev || profile.primary_niche);
+          }
+        })
+        .catch(() => undefined);
+    }, 50);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
     };
   }, []);
 

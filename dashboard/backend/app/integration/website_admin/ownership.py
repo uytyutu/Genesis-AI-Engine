@@ -26,7 +26,8 @@ def assert_website_order_access(
     owns = False
     if cid and oid_cid and cid == oid_cid:
         owns = True
-    elif mail and oid_email and mail == oid_email:
+    elif mail and oid_email and mail == oid_email and not oid_cid:
+        # Guest website order — email claim only until customer_id is set.
         owns = True
     if not owns:
         raise ValueError("forbidden")

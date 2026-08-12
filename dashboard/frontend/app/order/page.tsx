@@ -24,7 +24,8 @@ import { filterPublicPackages, showSmokePackageInUi } from "../lib/showSmokePack
 import { parseClientServices } from "../lib/packagePreviewGallery";
 import { resolveOrderCoachHints } from "../lib/orderFormCoach";
 import { getVisitorId } from "../lib/visitorId";
-import { clientAuthHeaders } from "../lib/clientAuth";
+import { clientAuthHeaders, getClientToken } from "../lib/clientAuth";
+import { companyProfileFromMe } from "../lib/companyProfile";
 import {
   clearOrderDraft,
   createDebouncedOrderDraftSaver,
@@ -693,6 +694,39 @@ export default function OrderSitePage() {
     void fetchPaymentReady().then((ready) => {
       if (!cancelled) setPaymentReady(ready);
     });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Reuse company profile for logged-in clients (same public prices — no Workspace discount).
+  useEffect(() => {
+    if (!getClientToken()) return;
+    let cancelled = false;
+    fetch(`${API}/api/client/me`, {
+      headers: { ...clientAuthHeaders() },
+      cache: "no-store",
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me) => {
+        if (cancelled || !me) return;
+        const profile = companyProfileFromMe(me);
+        if (profile.company_name) {
+          setBusinessName((prev) => prev || profile.company_name);
+        }
+        if (profile.email) {
+          setEmail((prev) => prev || profile.email);
+        }
+        if (profile.phone) {
+          setPhone((prev) => prev || profile.phone);
+        }
+        if (profile.primary_niche) {
+          setNiche((prev) =>
+            !prev || prev === "generic" ? profile.primary_niche : prev,
+          );
+        }
+      })
+      .catch(() => undefined);
     return () => {
       cancelled = true;
     };

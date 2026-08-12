@@ -211,6 +211,27 @@
     }
   }
 
+  /* Client Workspace: opaque surface so route changes never ghost previous pages
+     through transparent AppShell + body portals (StorefrontAtmosphere is /site only). */
+  .virtus-surface-client.genesis-app-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #050508;
+    overflow-x: hidden;
+  }
+
+  .virtus-surface-client .genesis-app-main,
+  .virtus-surface-client .genesis-app-content {
+    background-color: #050508;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .virtus-surface-client--product-admin.genesis-app-shell,
+  .virtus-surface-client--product-admin .genesis-app-content {
+    background-color: #07070c;
+  }
+
   .genesis-sidebar {
     position: sticky;
     top: 0;
@@ -477,7 +498,18 @@
     }
 
     body:has(.genesis-mobile-nav--bottom) {
+      /* Bottom tabs + optional cookie banner clearance */
       padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    body:has(.genesis-mobile-nav--bottom):has([data-cookie-consent]) {
+      padding-bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .virtus-surface-client .genesis-app-content {
+      padding-left: 0.85rem;
+      padding-right: 0.85rem;
+      padding-bottom: 1.25rem;
     }
   }
 

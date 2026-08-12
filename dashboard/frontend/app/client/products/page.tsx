@@ -65,9 +65,14 @@ export default function ClientProductsPage() {
         const body = await res.json().catch(() => ({}));
         if (res.ok && Array.isArray(body.orders)) {
           setOrders(
-            body.orders.filter((o: ClientOrder) => {
+            body.orders.filter((o: ClientOrder & { superseded?: boolean; quality_state?: string }) => {
               const kind = String(o.product_kind || "");
-              return !kind.startsWith("bot");
+              if (kind.startsWith("bot")) return false;
+              const st = String(o.status || "").toLowerCase();
+              if (st === "superseded") return false;
+              if (o.superseded === true) return false;
+              if (String(o.quality_state || "").toUpperCase() === "ARCHIVED") return false;
+              return true;
             }),
           );
         }
@@ -201,7 +206,8 @@ export default function ClientProductsPage() {
               </div>
             </li>
           ))}
-          {products.map((p) => (
+          {/* Portal stubs only when there are no real website/shop orders */}
+          {(orders.length === 0 ? products : []).map((p) => (
             <li
               key={p.product_id}
               className="flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5"

@@ -9,7 +9,6 @@ import {
   lockedConnectedTeasers,
   type CommerceMode,
 } from "../lib/workspaceNav";
-import { StorefrontAtmosphere } from "./storefront/StorefrontAtmosphere";
 
 const THEME_KEY = "virtus_client_theme_v1";
 const BG_KEY = "virtus_client_bg_v1";
@@ -22,6 +21,8 @@ const THEMES: {
   label: string;
   vars: Record<string, string>;
   shellClass: string;
+  /** Opaque fill — never rely on /site StorefrontAtmosphere portal (ghost layers). */
+  shellBg: string;
 }[] = [
   {
     id: "virtus_dark",
@@ -33,6 +34,7 @@ const THEMES: {
       "--client-muted": "#a1a1aa",
     },
     shellClass: "text-zinc-100",
+    shellBg: "#050508",
   },
   {
     id: "storefront_light",
@@ -44,6 +46,7 @@ const THEMES: {
       "--client-muted": "#475569",
     },
     shellClass: "text-slate-900 [&_h1]:text-slate-900 [&_p]:text-slate-600",
+    shellBg: "#f8fafc",
   },
   {
     id: "graphite",
@@ -55,6 +58,7 @@ const THEMES: {
       "--client-muted": "#a1a1aa",
     },
     shellClass: "text-zinc-200",
+    shellBg: "#18181b",
   },
 ];
 
@@ -117,7 +121,8 @@ export function ClientWorkspaceShell({
     () =>
       filterWorkspaceNav({
         commerceMode: mode,
-        hasStore: hasStore ?? true,
+        // Prefer explicit prop; default false until parent knows (avoids chip flash).
+        hasStore: hasStore ?? false,
         ecosystem: eco,
       }),
     [mode, hasStore, eco],
@@ -151,27 +156,28 @@ export function ClientWorkspaceShell({
 
   return (
     <div
-      className={`storefront relative isolate min-h-screen overflow-x-hidden ${theme.shellClass}`}
+      className={`relative isolate min-h-full overflow-x-hidden ${theme.shellClass}`}
+      data-client-workspace-shell="1"
       style={
         bgUrl
           ? {
+              backgroundColor: theme.shellBg,
               backgroundImage: `linear-gradient(rgba(9,9,11,0.72), rgba(9,9,11,0.88)), url(${bgUrl})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }
-          : undefined
+          : { backgroundColor: theme.shellBg }
       }
     >
-      {!bgUrl ? <StorefrontAtmosphere /> : null}
-      <div className="relative z-10 mx-auto min-h-screen max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
-        <header className="border-b border-white/10 pb-5">
+      <div className="relative z-10 mx-auto min-h-full max-w-5xl overflow-x-hidden px-4 py-4 sm:px-6 sm:py-8 md:py-6">
+        <header className="border-b border-white/10 pb-4 sm:pb-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-genesis-accent">
                 {BRAND_NAME} · Virtus AI Workspace ·{" "}
                 {eco ? "Connected" : "Standalone"}
               </p>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              <h1 className="mt-2 text-xl font-semibold tracking-tight text-white sm:text-3xl">
                 {title}
               </h1>
               {subtitle ? (
@@ -181,7 +187,7 @@ export function ClientWorkspaceShell({
             <button
               type="button"
               onClick={() => setPrefsOpen((v) => !v)}
-              className="rounded-xl border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5"
+              className="shrink-0 rounded-xl border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5"
             >
               Theme / режим
             </button>
@@ -235,7 +241,7 @@ export function ClientWorkspaceShell({
                   value={bgUrl}
                   onChange={(e) => setBgUrl(e.target.value)}
                   placeholder="https://…/background.jpg"
-                  className="min-w-[16rem] flex-1 rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
+                  className="min-w-0 flex-1 rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-sm text-white"
                 />
                 <button
                   type="button"
@@ -254,8 +260,9 @@ export function ClientWorkspaceShell({
               </div>
             </div>
           ) : null}
+          {/* Desktop/tablet chip nav only — mobile uses AppShell ClientMobileNav (single chrome). */}
           <nav
-            className="mt-5 flex flex-wrap gap-2"
+            className="mt-5 hidden flex-wrap gap-2 md:flex"
             aria-label="Virtus AI Workspace"
           >
             {links.map((link) => {
@@ -279,7 +286,7 @@ export function ClientWorkspaceShell({
             })}
           </nav>
           {locked.length ? (
-            <p className="mt-3 text-xs text-zinc-500">
+            <p className="mt-3 hidden text-xs text-zinc-500 md:block">
               Connected:{" "}
               {locked.map((l) => l.label).join(" · ")} —{" "}
               <Link href="/client/shop" className="text-emerald-300/90 underline">
@@ -287,11 +294,11 @@ export function ClientWorkspaceShell({
               </Link>
             </p>
           ) : null}
-          <p className="mt-2 text-[11px] text-zinc-600">
+          <p className="mt-2 hidden text-[11px] text-zinc-600 md:block">
             {ASSISTANT_NAME} управляет только купленными продуктами · одна панель
           </p>
         </header>
-        <main id="main-content" className="py-6">
+        <main id="main-content" className="py-4 sm:py-6">
           {children}
         </main>
       </div>

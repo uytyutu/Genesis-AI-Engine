@@ -86,20 +86,33 @@ export default function ClientDashboardPage() {
           const body = await ordRes.json();
           const orders = Array.isArray(body.orders) ? body.orders : [];
           const active = orders.filter(
-            (o: { status?: string; quality_state?: string }) =>
+            (o: { status?: string; quality_state?: string; superseded?: boolean }) =>
               String(o.status || "").toLowerCase() !== "superseded" &&
+              o.superseded !== true &&
               String(o.quality_state || "").toUpperCase() !== "ARCHIVED",
           );
-          const web = active.find(
+          const preferPrimary = <
+            T extends { primary_role?: string; order_id?: string }
+          >(
+            rows: T[],
+          ) => {
+            const primary = rows.find(
+              (o) => String(o.primary_role || "").toLowerCase() === "primary",
+            );
+            return primary || rows[0];
+          };
+          const webs = active.filter(
             (o: { package_id?: string; product_kind?: string; order_id?: string }) =>
               String(o.product_kind || "") !== "shop" &&
               String(o.package_id || "") !== "ecommerce_shop",
           );
-          const shop = active.find(
+          const shops = active.filter(
             (o: { package_id?: string; product_kind?: string; order_id?: string }) =>
               String(o.product_kind || "") === "shop" ||
               String(o.package_id || "") === "ecommerce_shop",
           );
+          const web = preferPrimary(webs);
+          const shop = preferPrimary(shops);
           setWebOrderId(web?.order_id ? String(web.order_id) : null);
           setShopOrderId(shop?.order_id ? String(shop.order_id) : null);
         }
@@ -154,17 +167,30 @@ export default function ClientDashboardPage() {
     <ClientWorkspaceShell
       title={`Virtus AI Workspace`}
       subtitle={`Поздравляю — проект готов. Давайте превратим его в работающий бизнес · ${todayLabel}`}
-      hasStore={(products ?? []).some(
-        (p) =>
-          p.product_type === "store" ||
-          p.product_id === "prod_store" ||
-          p.product_type === "shop",
-      )}
+      hasStore={
+        Boolean(shopOrderId) ||
+        (products ?? []).some(
+          (p) =>
+            p.product_type === "store" ||
+            p.product_id === "prod_store" ||
+            p.product_type === "shop",
+        )
+      }
     >
       {error ? (
         <p className="mb-4 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
           {error}
         </p>
+      ) : null}
+
+      {!displayName ? (
+        <div className="mb-4 rounded-xl border border-amber-400/25 bg-amber-500/10 px-3 py-3 text-sm text-amber-100/90">
+          First complete your company profile so Virtus Core can build the right
+          solution for your business.{" "}
+          <Link href="/client/onboarding" className="underline text-amber-50">
+            Open profile
+          </Link>
+        </div>
       ) : null}
 
       {giftUnlimited || webOrderId || shopOrderId ? (

@@ -17,6 +17,7 @@ import { formatApiDetail } from "../../lib/formatApiError";
 import { startOrderCheckout } from "../../lib/orderCheckout";
 import { publicApiBase } from "../../lib/publicApiBase";
 import { getVisitorId } from "../../lib/visitorId";
+import { companyProfileFromMe } from "../../lib/companyProfile";
 import { uiLangForMarket } from "../../lib/marketLang";
 
 const API = publicApiBase();
@@ -192,6 +193,34 @@ function ShopOrderInner() {
 
   useEffect(() => {
     setLoggedIn(Boolean(getClientToken()));
+  }, []);
+
+  useEffect(() => {
+    if (!getClientToken()) return;
+    let cancelled = false;
+    fetch(`${API}/api/client/me`, {
+      headers: { ...clientAuthHeaders() },
+      cache: "no-store",
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me) => {
+        if (cancelled || !me) return;
+        const profile = companyProfileFromMe(me);
+        setLoggedIn(true);
+        if (profile.email) setEmail((prev) => prev || profile.email);
+        if (profile.phone) setPhone((prev) => prev || profile.phone);
+        if (profile.company_name) {
+          setBrief((b) => ({
+            ...b,
+            company_name: b.company_name || profile.company_name,
+            store_name: b.store_name || profile.company_name,
+          }));
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const registerNext = useMemo(() => {
