@@ -146,6 +146,14 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
     group: "ecosystem",
   },
   {
+    id: "inbox",
+    href: "/client/inbox",
+    label: "Posteingang",
+    match: (p) => p.startsWith("/client/inbox"),
+    connectedOnly: true,
+    group: "ecosystem",
+  },
+  {
     id: "automations",
     href: "/client/automations",
     label: "Automation",

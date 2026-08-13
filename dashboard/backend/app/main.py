@@ -4866,6 +4866,86 @@ def client_bots_connection_disconnect(
     return result
 
 
+@app.get("/api/client/inbox/threads")
+def client_inbox_threads(
+    request: Request,
+    channel: str | None = None,
+    unread: str | None = None,
+    q: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> dict:
+    """Unified Inbox list — Telegram + Website Chat sessions for this workspace."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    return inbox.list_threads(
+        _memory_dir(),
+        str(payload["sub"]),
+        channel=channel,
+        unread_only=str(unread or "").strip().lower() in ("1", "true", "yes"),
+        q=q,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@app.get("/api/client/inbox/threads/{thread_id}")
+def client_inbox_thread_get(request: Request, thread_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    result = inbox.get_thread(_memory_dir(), str(payload["sub"]), thread_id)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "not_found")
+        status = 403 if reason == "forbidden" else 404
+        raise HTTPException(status_code=status, detail=reason)
+    return result
+
+
+@app.post("/api/client/inbox/threads/{thread_id}/read")
+def client_inbox_thread_read(request: Request, thread_id: str) -> dict:
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    result = inbox.mark_read(_memory_dir(), str(payload["sub"]), thread_id)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "not_found")
+        status = 403 if reason == "forbidden" else 404
+        raise HTTPException(status_code=status, detail=reason)
+    return result
+
+
+@app.post("/api/client/inbox/threads/{thread_id}/messages")
+async def client_inbox_thread_send(request: Request, thread_id: str) -> dict:
+    """Human reply via Channel Engine (Telegram). Website Chat push not supported yet."""
+    from app.integration.customer_identity.auth import require_client
+    from app.integration import workspace_inbox_service as inbox
+
+    payload = require_client(request)
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    text = str(body.get("text") or body.get("message") or "")
+    result = inbox.send_reply(_memory_dir(), str(payload["sub"]), thread_id, text)
+    if not result.get("ok"):
+        reason = str(result.get("reason") or "send_failed")
+        if reason in ("forbidden",):
+            raise HTTPException(status_code=403, detail=reason)
+        if reason in ("not_found", "invalid_thread"):
+            raise HTTPException(status_code=404, detail=reason)
+        if reason == "CHANNEL_SEND_UNSUPPORTED":
+            raise HTTPException(status_code=409, detail=reason)
+        raise HTTPException(status_code=400, detail=reason)
+    return result
+
+
 @app.post("/api/client/bots/meta/oauth/start")
 def client_bots_meta_oauth_start(
     request: Request, body: ClientBotMetaOAuthStartRequest

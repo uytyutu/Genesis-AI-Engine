@@ -376,6 +376,11 @@ function ClientBotsDashboard() {
       subtitle="Цифровые сотрудники · Online/Offline · подключение своих каналов"
     >
       <div className="mx-auto max-w-4xl space-y-6 py-2">
+        <p className="text-sm text-zinc-400">
+          <Link href="/client/inbox" className="font-medium text-emerald-300 hover:underline">
+            Posteingang / Inbox →
+          </Link>
+        </p>
         {ents ? (
           <p className="text-xs text-zinc-500">
             Пакет {ents.package_id || "—"} · ботов {ents.bots_used ?? 0}
