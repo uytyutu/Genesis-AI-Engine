@@ -65,6 +65,7 @@ _PUBLIC_PATTERNS: tuple[tuple[str, str], ...] = (
     (r"^/api/sales/orders/[^/]+/reviews$", "POST"),
     (r"^/api/factory/intent$", "POST"),
     (r"^/api/factory/products/[^/]+/preview$", "GET"),
+    (r"^/api/factory/products/[^/]+/preview/.+$", "GET"),
     (r"^/api/client/register$", "POST"),
     (r"^/api/client/register/confirm$", "POST"),
     (r"^/api/client/login$", "POST"),

@@ -11,6 +11,24 @@ from app.integration.store_admin.shop_live_sync import (
     sync_catalog_to_storefront,
 )
 from app.portal.website_catalog import default_factory_sandbox_dirs
+from app.security import is_public_api_path, production_api_allowed
+
+
+def test_factory_preview_asset_child_path_is_public():
+    """Regression: Security Gate must allow preview/assets/* (not only exact /preview)."""
+    html = "/api/factory/products/prod-lorenne/preview"
+    asset = "/api/factory/products/prod-lorenne/preview/assets/hero.webp"
+    nested = "/api/factory/products/prod-lorenne/preview/assets/virtus-owner/logo.png"
+    assert is_public_api_path(html, "GET")
+    assert production_api_allowed(html, "GET")
+    assert is_public_api_path(asset, "GET")
+    assert production_api_allowed(asset, "GET")
+    assert is_public_api_path(nested, "GET")
+    assert production_api_allowed(nested, "GET")
+    # Do not widen factory internals
+    assert not is_public_api_path("/api/factory/products", "GET")
+    assert not is_public_api_path("/api/factory/products/prod-lorenne", "GET")
+    assert not is_public_api_path(asset, "POST")
 
 
 def test_rewrite_preview_html_rewrites_relative_assets():
