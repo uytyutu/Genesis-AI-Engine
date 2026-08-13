@@ -36,8 +36,10 @@ def _ensure_defaults() -> None:
     _BOOTSTRAPPED = True
     # Lazy import keeps Telegram optional for unit-importing types alone.
     from app.integration.channel_engine.telegram_provider import TelegramProvider
+    from app.integration.channel_engine.whatsapp_provider import WhatsAppProvider
 
     register_provider(TelegramProvider())
+    register_provider(WhatsAppProvider())
 
 
 def reset_registry_for_tests() -> None:

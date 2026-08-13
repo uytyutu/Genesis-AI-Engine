@@ -1,7 +1,8 @@
 """Virtus Channel Engine — one inbox / one brain / many official channel adapters.
 
-Phase 1: abstraction + TelegramProvider wrapping existing workspace_bot_runtime.
-Does not implement AI Office, Meta messaging, or Unified Inbox UI.
+Phase 1: TelegramProvider · Phase 2: Unified Inbox · Phase 3: WhatsApp Cloud API foundation.
+WhatsApp never reports CONNECTED without App Review + controlled Live E2E.
+Instagram / Messenger / AI Office are out of scope here.
 """
 
 from __future__ import annotations

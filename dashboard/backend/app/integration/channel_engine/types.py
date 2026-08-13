@@ -25,6 +25,11 @@ class ConnectionStatus(str, Enum):
     REAUTH_REQUIRED = "REAUTH_REQUIRED"
     ERROR = "ERROR"
     DISCONNECTED = "DISCONNECTED"
+    # Meta / WhatsApp honesty — never treat as live Connected without E2E
+    SETUP_REQUIRED = "SETUP_REQUIRED"
+    APP_REVIEW_REQUIRED = "APP_REVIEW_REQUIRED"
+    AVAILABLE = "AVAILABLE"
+    NOT_AVAILABLE = "NOT_AVAILABLE"
 
 
 class MessageDirection(str, Enum):

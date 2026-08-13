@@ -150,6 +150,19 @@ def start_meta_oauth(
         return {"ok": False, "reason": "customer_id_required"}
     if not bid:
         return {"ok": False, "reason": "bot_id_required"}
+    # Phase 3: WhatsApp Cloud API foundation ≠ Connect / Connected.
+    # Pages OAuth scopes are not a WhatsApp Live path — refuse fake Connect.
+    if ch in {"whatsapp", "wa"}:
+        return {
+            "ok": False,
+            "reason": "APP_REVIEW_REQUIRED",
+            "detail": (
+                "WhatsApp is Coming Soon until Meta App Review, WABA assets, "
+                "and controlled Cloud API E2E PASS. READY FOR META APP REVIEW ≠ CONNECTED."
+            ),
+            "connected": False,
+            "live": False,
+        }
     state = encode_oauth_state(customer_id=cid, bot_id=bid, channel=ch)
     url = build_meta_oauth_url(state)
     if isinstance(url, dict):

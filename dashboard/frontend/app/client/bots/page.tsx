@@ -58,6 +58,11 @@ function ClientBotsDashboard() {
   const [websiteChats, setWebsiteChats] = useState<WebsiteChatConnection[]>([]);
   const [ents, setEnts] = useState<Entitlements | null>(null);
   const [metaConfigured, setMetaConfigured] = useState(false);
+  const [whatsappFoundation, setWhatsappFoundation] = useState<{
+    status?: string;
+    note?: string;
+    meta_app_configured?: boolean;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -93,6 +98,15 @@ function ClientBotsDashboard() {
       setConnections((body.connections || []) as Connection[]);
       setEnts((body.entitlements || null) as Entitlements | null);
       setMetaConfigured(Boolean(body.meta_oauth_configured));
+      setWhatsappFoundation(
+        body.whatsapp_foundation && typeof body.whatsapp_foundation === "object"
+          ? (body.whatsapp_foundation as {
+              status?: string;
+              note?: string;
+              meta_app_configured?: boolean;
+            })
+          : null,
+      );
       if (!selectedId && body.bots?.[0]?.bot_id) {
         setSelectedId(String(body.bots[0].bot_id));
       }
@@ -119,7 +133,18 @@ function ClientBotsDashboard() {
 
   useEffect(() => {
     const meta = search.get("meta");
-    if (meta === "ok") setBanner("Meta канал подключён.");
+    if (meta === "ok") {
+      const ch = (search.get("channel") || "").toLowerCase();
+      if (ch === "whatsapp" || ch === "wa") {
+        setBanner(
+          "WhatsApp: READY FOR META APP REVIEW ≠ Connected. Channel stays Coming Soon.",
+        );
+      } else {
+        setBanner(
+          "Meta OAuth tokens saved for a future channel path — not Live Connected for WhatsApp.",
+        );
+      }
+    }
     if (meta === "error") {
       setBanner(`Meta OAuth: ${search.get("reason") || "ошибка"}`);
     }
@@ -194,37 +219,6 @@ function ClientBotsDashboard() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Ошибка Telegram");
     } finally {
-      setBusy(false);
-    }
-  }
-
-  async function startMeta(channel: string) {
-    if (!selected) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API}/api/client/bots/meta/oauth/start`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...clientAuthHeaders(),
-        },
-        body: JSON.stringify({ bot_id: selected.bot_id, channel }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(
-          formatApiDetail(body.detail) ||
-            (body.detail === "meta_not_configured"
-              ? "Connect Meta — platform keys pending"
-              : "Meta OAuth failed"),
-        );
-      }
-      const url = String(body.authorize_url || "");
-      if (!url) throw new Error("Нет authorize_url");
-      window.location.href = url;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Meta error");
       setBusy(false);
     }
   }
@@ -544,27 +538,25 @@ function ClientBotsDashboard() {
                   </div>
 
                   <div className="space-y-2 border-t border-white/10 pt-4">
-                    <p className="text-sm text-zinc-300">Meta (WhatsApp / Instagram / Messenger)</p>
-                    {metaConfigured ? (
-                      <div className="flex flex-wrap gap-2">
-                        {["whatsapp", "instagram", "facebook_messenger"].map((ch) => (
-                          <button
-                            key={ch}
-                            type="button"
-                            disabled={busy}
-                            onClick={() => void startMeta(ch)}
-                            className="rounded-xl border border-white/20 px-3 py-1.5 text-xs text-white"
-                          >
-                            Connect {ch}
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-amber-200/90">
-                        Telegram + Website Chat are Live. WhatsApp / Instagram /
-                        Messenger — Coming Soon.
-                      </p>
-                    )}
+                    <p className="text-sm text-zinc-300">WhatsApp Cloud API</p>
+                    <p className="text-xs text-amber-200/90">
+                      Coming Soon —{" "}
+                      {whatsappFoundation?.status === "APP_REVIEW_REQUIRED"
+                        ? "READY FOR META APP REVIEW (platform keys present). Not Connected."
+                        : whatsappFoundation?.status === "SETUP_REQUIRED"
+                          ? "SETUP REQUIRED (Meta App / webhook verify not complete)."
+                          : "foundation only until Meta App Review + controlled E2E PASS."}
+                    </p>
+                    {whatsappFoundation?.note ? (
+                      <p className="text-[11px] text-zinc-500">{whatsappFoundation.note}</p>
+                    ) : null}
+                    <p className="text-xs text-zinc-500 pt-2">
+                      Instagram / Messenger — Coming Soon (Phase 4). Telegram + Website
+                      Chat are Live.
+                      {metaConfigured
+                        ? " Meta app keys are configured on the platform; that is not channel Connected."
+                        : ""}
+                    </p>
                   </div>
 
                   <div className="border-t border-white/10 pt-4 space-y-3">

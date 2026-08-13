@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import io
 import os
@@ -4541,12 +4541,15 @@ def client_bots_list(request: Request) -> dict:
     payload = require_client(request)
     cid = str(payload["sub"])
     mem = _memory_dir()
+    from app.integration.channel_engine.whatsapp_cloud import whatsapp_foundation_status
+
     return {
         "ok": True,
         "entitlements": wab.get_entitlements(mem, cid),
         "bots": wab.list_bots(mem, cid),
         "connections": wcc.list_connections(mem, cid),
         "meta_oauth_configured": meta_oauth_configured(),
+        "whatsapp_foundation": whatsapp_foundation_status(),
     }
 
 
@@ -4623,6 +4626,62 @@ async def telegram_bot_webhook(bot_id: str, request: Request) -> dict:
         if k not in ("reply_text", "normalized")
     }
     return {"ok": True, **safe}
+
+
+@app.get("/api/webhooks/whatsapp")
+async def whatsapp_webhook_verify(
+    hub_mode: str | None = Query(None, alias="hub.mode"),
+    hub_verify_token: str | None = Query(None, alias="hub.verify_token"),
+    hub_challenge: str | None = Query(None, alias="hub.challenge"),
+) -> PlainTextResponse:
+    """Meta WhatsApp Cloud API subscription handshake (GET hub.verify_token)."""
+    from app.integration.channel_engine import whatsapp_cloud as wa
+
+    challenge = wa.verify_webhook_subscribe(
+        mode=hub_mode,
+        token=hub_verify_token,
+        challenge=hub_challenge,
+    )
+    if challenge is None:
+        raise HTTPException(status_code=403, detail="whatsapp_verify_failed")
+    return PlainTextResponse(content=challenge)
+
+
+@app.post("/api/webhooks/whatsapp")
+async def whatsapp_webhook_receive(request: Request) -> dict:
+    """WhatsApp Cloud API inbound — foundation ack only (no AI Employee Live)."""
+    import json
+
+    from app.integration.channel_engine import get_provider
+    from app.integration.channel_engine import whatsapp_cloud as wa
+
+    secret = wa.meta_app_secret()
+    if not secret:
+        raise HTTPException(status_code=503, detail="whatsapp_setup_required")
+    raw = await request.body()
+    signature = request.headers.get("X-Hub-Signature-256")
+    if not wa.verify_meta_signature(
+        app_secret=secret, raw_body=raw, header_value=signature
+    ):
+        raise HTTPException(status_code=403, detail="invalid_signature")
+    try:
+        payload = json.loads(raw.decode("utf-8") or "{}")
+    except Exception:
+        raise HTTPException(status_code=400, detail="invalid_json") from None
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="invalid_json")
+    provider = get_provider("whatsapp")
+    if provider is None:
+        raise HTTPException(status_code=503, detail="whatsapp_provider_unavailable")
+    result = provider.receive(_memory_dir(), "", payload)
+    return {
+        "ok": True,
+        "channel_type": "whatsapp",
+        "live": False,
+        "delivery": result.get("delivery") or "foundation_ack_only",
+        "status": result.get("status"),
+        "events": result.get("events"),
+    }
 
 
 @app.post("/api/client/bots/{bot_id}/chat")
