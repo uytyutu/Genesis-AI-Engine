@@ -1,5 +1,6 @@
 /**
  * Workspace nav SSOT — Standalone vs Connected (one panel).
+ * Labels default DE (Germany market); ClientWorkspaceShell can override via workspaceCopy.
  * Mirrors backend commerce_gates.workspace_nav_spec.
  */
 
@@ -22,49 +23,49 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "dashboard",
     href: "/client",
-    label: "Dashboard",
+    label: "Übersicht",
     match: (p) => p === "/client",
     group: "core",
   },
   {
     id: "site",
     href: "/client/site",
-    label: "Мой сайт",
+    label: "Website",
     match: (p) => p.startsWith("/client/site") || p.startsWith("/client/websites"),
     group: "core",
   },
   {
     id: "pages",
     href: "/client/pages",
-    label: "Страницы",
+    label: "Seiten",
     match: (p) => p.startsWith("/client/pages"),
     group: "core",
   },
   {
     id: "media",
     href: "/client/media",
-    label: "Медиа",
+    label: "Medien",
     match: (p) => p.startsWith("/client/media"),
     group: "core",
   },
   {
     id: "texts",
     href: "/client/texts",
-    label: "Тексты",
+    label: "Texte",
     match: (p) => p.startsWith("/client/texts"),
     group: "core",
   },
   {
     id: "contacts",
     href: "/client/contacts",
-    label: "Контакты",
+    label: "Kontakte",
     match: (p) => p.startsWith("/client/contacts"),
     group: "core",
   },
   {
     id: "products",
     href: "/client/products",
-    label: "Товары",
+    label: "Meine Produkte",
     match: (p) => p.startsWith("/client/products") || p.startsWith("/client/stores"),
     storeOnly: true,
     group: "store",
@@ -72,7 +73,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "orders",
     href: "/client/orders",
-    label: "Заказы",
+    label: "Bestellungen",
     match: (p) => p.startsWith("/client/orders"),
     storeOnly: true,
     group: "store",
@@ -80,39 +81,38 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "settings",
     href: "/client/settings",
-    label: "Настройки",
+    label: "Einstellungen",
     match: (p) => p.startsWith("/client/settings"),
     group: "core",
   },
   {
     id: "backup",
     href: "/client/downloads",
-    label: "Резервная копия",
+    label: "Sicherung",
     match: (p) => p.startsWith("/client/downloads"),
     group: "core",
   },
   {
     id: "domain",
     href: "/client/domain",
-    label: "Домен",
+    label: "Domain",
     match: (p) => p.startsWith("/client/domain"),
     group: "core",
   },
   {
     id: "stats_basic",
     href: "/client/stats",
-    label: "Статистика",
+    label: "Statistik",
     match: (p) => p.startsWith("/client/stats") && !p.startsWith("/client/analytics"),
     group: "core",
   },
   {
     id: "marketplace",
     href: "/client/shop",
-    label: "Расширьте бизнес",
+    label: "Business erweitern",
     match: (p) => p.startsWith("/client/shop"),
     group: "account",
   },
-  // Connected extras
   {
     id: "ai_assistant",
     href: "/client/ai",
@@ -132,7 +132,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "analytics",
     href: "/client/analytics",
-    label: "Аналитика",
+    label: "Analytics",
     match: (p) => p.startsWith("/client/analytics"),
     connectedOnly: true,
     group: "ecosystem",
@@ -140,7 +140,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "chatbots",
     href: "/client/bots",
-    label: "Чат-боты",
+    label: "KI-Mitarbeiter",
     match: (p) => p.startsWith("/client/bots"),
     connectedOnly: true,
     group: "ecosystem",
@@ -148,7 +148,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "automations",
     href: "/client/automations",
-    label: "Автоматизации",
+    label: "Automation",
     match: (p) => p.startsWith("/client/automations"),
     connectedOnly: true,
     group: "ecosystem",
@@ -156,7 +156,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "email_marketing",
     href: "/client/email",
-    label: "Email-маркетинг",
+    label: "E-Mail-Marketing",
     match: (p) => p.startsWith("/client/email"),
     connectedOnly: true,
     group: "ecosystem",
@@ -172,7 +172,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "booking",
     href: "/client/booking",
-    label: "Бронирование",
+    label: "Buchung",
     match: (p) => p.startsWith("/client/booking"),
     connectedOnly: true,
     group: "ecosystem",
@@ -180,7 +180,7 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "notifications",
     href: "/client/notifications",
-    label: "Уведомления",
+    label: "Benachrichtigungen",
     match: (p) => p.startsWith("/client/notifications"),
     connectedOnly: true,
     group: "ecosystem",
@@ -197,14 +197,14 @@ export const WORKSPACE_NAV: WorkspaceNavItem[] = [
   {
     id: "billing",
     href: "/client/billing",
-    label: "Биллинг",
+    label: "Abrechnung",
     match: (p) => p.startsWith("/client/billing"),
     group: "account",
   },
   {
     id: "support",
     href: "/client/support",
-    label: "Поддержка",
+    label: "Support",
     match: (p) => p.startsWith("/client/support"),
     group: "account",
   },

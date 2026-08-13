@@ -25,15 +25,15 @@ const NAV: {
   icon: string;
   ready: boolean;
 }[] = [
-  { id: "dashboard", label: "Dashboard", icon: "◈", ready: true },
-  { id: "website", label: "Website", icon: "☰", ready: true },
+  { id: "dashboard", label: "Übersicht", icon: "◈", ready: true },
+  { id: "website", label: "Einstellungen", icon: "⚙", ready: true },
   { id: "cinematic", label: "Cinematic", icon: "▶", ready: true },
   { id: "design", label: "Design", icon: "◐", ready: true },
-  { id: "media", label: "Media", icon: "▦", ready: true },
-  { id: "files", label: "Files", icon: "⇩", ready: true },
+  { id: "media", label: "Medien", icon: "▦", ready: true },
+  { id: "files", label: "Dateien", icon: "⇩", ready: true },
   { id: "support", label: "Support", icon: "✦", ready: true },
-  { id: "ai", label: "AI Assistant", icon: "◎", ready: true },
-  { id: "store", label: "Store", icon: "🛒", ready: false },
+  { id: "ai", label: "KI-Assistent", icon: "◎", ready: true },
+  { id: "store", label: "Shop", icon: "🛒", ready: false },
   { id: "crm", label: "CRM", icon: "◎", ready: false },
   { id: "automation", label: "Automation", icon: "⚡", ready: false },
   { id: "marketing", label: "Marketing", icon: "📣", ready: false },
@@ -96,7 +96,7 @@ export function WebsiteAdminShell({
         >
           <div className="border-b border-white/10 px-4 py-5">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-300/70">
-              Business Workspace
+              Website Control
             </p>
             <p className="mt-1 truncate text-sm font-semibold">{siteName}</p>
             <p className="mt-0.5 text-[11px] text-zinc-500">

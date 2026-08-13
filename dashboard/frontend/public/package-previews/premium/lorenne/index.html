@@ -21,7 +21,7 @@
     .pin { position:relative; height:calc(100vh + 18 * 16vh); }
     .stage { position:sticky; top:0; height:100vh; overflow:hidden; background:#050308; }
     .seq { position:absolute; inset:0; }
-    .seq img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .14s linear; will-change:opacity; }
+    .seq img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .06s linear; }
     .seq img.is-on { opacity:1; }
     .seq img.is-prev { opacity:.32; }
     .vignette { position:absolute; inset:0; pointer-events:none;
@@ -35,7 +35,7 @@
     .beat-line { color:#efe6f6; font-size:clamp(1.05rem,2.4vw,1.35rem); max-width:28rem; min-height:2.8em; margin:0 0 1rem; line-height:1.4;
       text-shadow:0 1px 10px rgba(0,0,0,.85); }
     .frame-meter { color:rgba(255,255,255,.55); font-size:.72rem; letter-spacing:.12em; margin:0 0 .8rem; }
-    .progress { position:absolute; top:0; left:0; height:3px; width:0; background:linear-gradient(90deg,var(--accent2),var(--accent)); z-index:8; }
+    .progress { position:absolute; top:0; left:0; height:3px; width:100%; transform:scaleX(0); transform-origin:left center; background:linear-gradient(90deg,var(--accent2),var(--accent)); z-index:8; will-change:transform; }
     .hint { position:absolute; right:1.1rem; bottom:1rem; z-index:6; color:var(--muted); font-size:.72rem; letter-spacing:.1em; }
     .section { max-width:68rem; margin:0 auto; padding:4.2rem 1.25rem; scroll-margin-top:5rem; }
     .section h2 { font-family:"Cormorant Garamond",serif; font-size:clamp(2rem,4vw,3rem); margin:.3rem 0 1rem; }
@@ -66,11 +66,13 @@
   <header class="top">
     <strong>LORENNE</strong>
     <nav>
+      <span class="demo-tag" title="Not a live client deliverable">DEMO / CONCEPT PREVIEW</span>
       <a href="#about">Über uns</a>
       <a href="#categories">Kategorien</a>
       <a href="#shop-teaser">Boxen</a>
       <a href="#reviews">Bewertungen</a>
       <a href="#kontakt">Kontakt</a>
+      <a href="impressum.html">Impressum</a>
       <a class="nav-cta" href="#kontakt">Box wählen</a>
     </nav>
   </header>
@@ -161,10 +163,11 @@
   </section>
 
   <footer class="site">
-    LORENNE · Premium Gift Boxes · Berlin ·
-    <a href="#about">About</a>
-    <a href="./../lorenne-shop/index.html">Shop</a>
-    · Built by Virtus Core from CreativeBusinessProject (Quality Gate pending)
+    LORENNE · Premium Gift Boxes · Berlin · seit 2026<br />
+    <a href="impressum.html">Impressum</a> ·
+    <a href="datenschutz.html">Datenschutz</a> ·
+    <a href="#about">Über uns</a> ·
+    <a href="./../lorenne-shop/index.html">Online-Shop</a>
   </footer>
 
   <script>
@@ -177,7 +180,9 @@
     var meter = document.getElementById('meter');
     var prog = document.getElementById('prog');
     var last = -1;
+    var pending = false;
     function paint(){
+      pending = false;
       if (!N || !pin) return;
       var rect = pin.getBoundingClientRect();
       var total = pin.offsetHeight - window.innerHeight;
@@ -185,18 +190,23 @@
       var t = total > 0 ? scrolled / total : 0;
       var idx = Math.min(N - 1, Math.floor(t * N));
       if (idx !== last) {
-        imgs.forEach(function(img, i){
-          img.classList.toggle('is-on', i === idx);
-          img.classList.toggle('is-prev', i === idx - 1);
-        });
+        if (last >= 0 && imgs[last]) imgs[last].classList.remove('is-on');
+        if (last > 0 && imgs[last - 1]) imgs[last - 1].classList.remove('is-prev');
+        if (imgs[idx]) imgs[idx].classList.add('is-on');
+        if (idx > 0 && imgs[idx - 1]) imgs[idx - 1].classList.add('is-prev');
         if (beat) beat.textContent = copies[idx] || copies[copies.length-1] || '';
         if (meter) meter.textContent = 'FRAME ' + String(idx+1).padStart(3,'0') + ' / ' + String(N).padStart(3,'0');
         last = idx;
       }
-      if (prog) prog.style.width = (t * 100).toFixed(2) + '%';
+      if (prog) prog.style.transform = 'scaleX(' + t.toFixed(4) + ')';
     }
-    window.addEventListener('scroll', paint, {passive:true});
-    window.addEventListener('resize', paint);
+    function onScroll(){
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(paint);
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    window.addEventListener('resize', onScroll);
     paint();
   })();
   </script>

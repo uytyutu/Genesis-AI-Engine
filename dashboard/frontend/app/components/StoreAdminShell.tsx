@@ -31,11 +31,11 @@ const NAV: { id: StoreAdminSectionId; label: string; icon: string; ready: boolea
   { id: "shipping", label: "Shipping", icon: "⇢", ready: true },
   { id: "email", label: "Email", icon: "✉", ready: true },
   { id: "integrations", label: "Integrations", icon: "⧉", ready: true },
-  { id: "contact", label: "Contact", icon: "☎", ready: true },
+  { id: "contact", label: "Kontakte", icon: "☎", ready: true },
   { id: "marketing", label: "Marketing", icon: "✦", ready: false },
   { id: "analytics", label: "Analytics", icon: "▣", ready: false },
   { id: "design", label: "Design", icon: "◐", ready: true },
-  { id: "settings", label: "Settings", icon: "⚙", ready: false },
+  { id: "settings", label: "Einstellungen", icon: "⚙", ready: true },
 ];
 
 const THEME_KEY = "virtus_store_admin_theme_v1";

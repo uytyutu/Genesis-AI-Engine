@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useLocale } from "../context/LocaleContext";
 import { ASSISTANT_NAME, BRAND_NAME } from "../lib/publicBrand";
 import {
   filterWorkspaceNav,
   lockedConnectedTeasers,
   type CommerceMode,
 } from "../lib/workspaceNav";
+import { workspaceCopy, workspaceUiLang } from "../lib/workspaceCopy";
+import type { UiLocale } from "../lib/locale/types";
 
 const THEME_KEY = "virtus_client_theme_v1";
 const BG_KEY = "virtus_client_bg_v1";
@@ -103,6 +106,8 @@ export function ClientWorkspaceShell({
   ecosystem?: boolean;
 }) {
   const pathname = usePathname() ?? "/client";
+  const { uiLocale, applyUiLocale } = useLocale();
+  const copy = workspaceCopy(workspaceUiLang(uiLocale));
   const [themeId, setThemeId] = useState<ClientThemeId>("virtus_dark");
   const [bgUrl, setBgUrl] = useState("");
   const [prefsOpen, setPrefsOpen] = useState(false);
@@ -174,8 +179,8 @@ export function ClientWorkspaceShell({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-genesis-accent">
-                {BRAND_NAME} · Virtus AI Workspace ·{" "}
-                {eco ? "Connected" : "Standalone"}
+                {BRAND_NAME} · {copy.brandLine} ·{" "}
+                {eco ? copy.connected : copy.standalone}
               </p>
               <h1 className="mt-2 text-xl font-semibold tracking-tight text-white sm:text-3xl">
                 {title}
@@ -189,13 +194,38 @@ export function ClientWorkspaceShell({
               onClick={() => setPrefsOpen((v) => !v)}
               className="shrink-0 rounded-xl border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5"
             >
-              Theme / режим
+              {copy.themePrefs}
             </button>
           </div>
           {prefsOpen ? (
             <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-4">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                Режим Workspace (превью)
+                {copy.language}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {(
+                  [
+                    ["de", "Deutsch"],
+                    ["en", "English"],
+                    ["ru", "Русский"],
+                  ] as const
+                ).map(([code, label]) => (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => applyUiLocale(code as UiLocale)}
+                    className={`rounded-lg px-3 py-1.5 text-sm ${
+                      workspaceUiLang(uiLocale) === code
+                        ? "border border-emerald-400/40 bg-emerald-500/15 text-white"
+                        : "border border-white/10 text-zinc-400 hover:bg-white/5"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                {copy.modePreview}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {(["standalone", "connected"] as const).map((m) => (
@@ -203,18 +233,18 @@ export function ClientWorkspaceShell({
                     key={m}
                     type="button"
                     onClick={() => applyMode(m)}
-                    className={`rounded-lg px-3 py-1.5 text-sm capitalize ${
+                    className={`rounded-lg px-3 py-1.5 text-sm ${
                       mode === m
                         ? "border border-emerald-400/40 bg-emerald-500/15 text-white"
                         : "border border-white/10 text-zinc-400 hover:bg-white/5"
                     }`}
                   >
-                    {m}
+                    {m === "standalone" ? copy.standalone : copy.connected}
                   </button>
                 ))}
               </div>
               <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                Тема кабинета
+                Theme
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {THEMES.map((t) => (
@@ -233,7 +263,7 @@ export function ClientWorkspaceShell({
                 ))}
               </div>
               <p className="mt-4 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                Фон (URL изображения)
+                Background URL
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <input
@@ -277,7 +307,7 @@ export function ClientWorkspaceShell({
                       : "border border-transparent text-zinc-400 hover:border-white/10 hover:bg-white/5 hover:text-white"
                   }`}
                 >
-                  {link.label}
+                  {copy.nav[link.id] || link.label}
                   {link.comingSoon ? (
                     <span className="ml-1 text-[10px] text-zinc-500">soon</span>
                   ) : null}
