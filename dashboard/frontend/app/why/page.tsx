@@ -6,12 +6,12 @@ import { BRAND_NAME } from "../lib/publicBrand";
 
 export const metadata: Metadata = publicPageMetadata(
   `Warum günstiger als Agenturen? · ${BRAND_NAME}`,
-  `Website ab 199 € statt typischer Agenturpreise ab 1 500–5 000 €. Schneller Start, eigenes Panel, eine Plattform — ohne unbelegbare Versprechen.`,
+  `Website ab 299 € statt typischer Agenturpreise ab 1 500–5 000 €. Schneller Start, eigenes Panel, eine Plattform — ohne unbelegbare Versprechen.`,
   "/why"
 );
 
 const ROWS: { agency: string; virtus: string }[] = [
-  { agency: "Ab 1 500–5 000 €", virtus: "Ab 199 €" },
+  { agency: "Ab 1 500–5 000 €", virtus: "Ab 299 €" },
   { agency: "Langer Entwicklungszyklus", virtus: "Schneller Start" },
   { agency: "Jede Änderung über den Manager", virtus: "Selbst steuern über das Panel" },
   { agency: "Getrennte Auftragnehmer", virtus: "Eine Plattform" },
@@ -55,8 +55,8 @@ export default function WhyPage() {
 
         <p className="mt-4 text-[11px] text-zinc-600">
           Preisrahmen Agentur: typische Marktspanne für individuelle Websites — nicht als
-          Angebot eines konkreten Anbieters gemeint. Virtus Core: Website-Pakete Basic 199 € ·
-          Business 399 € · Premium 699 €.
+          Angebot eines konkreten Anbieters gemeint. Virtus Core: Website-Pakete Basic 299 € ·
+          Business 599 € · Premium 999 €. Online Store ist ein eigenes Produkt.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">

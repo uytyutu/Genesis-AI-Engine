@@ -238,11 +238,11 @@ HOSTING_PROVIDERS = frozenset(
 )
 
 _PACKAGES = {
-    # Public Website ladder — must match /site (199 / 399 / 699)
+    # Public Website ladder — must match /site (299 / 599 / 999)
     "basic": {
         "id": "basic",
         "name": "Website Basic",
-        "price_eur": 199,
+        "price_eur": 299,
         "commerce_mode": "standalone",
         "tagline": "Moderner Website-Start — fertig für Ihre Branche, ohne Client-Panel",
         "included_summary": (
@@ -262,7 +262,7 @@ _PACKAGES = {
     "business": {
         "id": "business",
         "name": "Website Business",
-        "price_eur": 399,
+        "price_eur": 599,
         "commerce_mode": "standalone",
         "tagline": "Website + Virtus Workspace — Inhalte und Medien selbst steuern",
         "included_summary": (
@@ -283,7 +283,7 @@ _PACKAGES = {
     "premium": {
         "id": "premium",
         "name": "Website Premium",
-        "price_eur": 699,
+        "price_eur": 999,
         "commerce_mode": "connected",
         "tagline": "Premium Website — Workspace + Cinematic Creative Experience",
         "included_summary": (
@@ -305,7 +305,7 @@ _PACKAGES = {
     "standalone": {
         "id": "standalone",
         "name": "Website Business",
-        "price_eur": 399,
+        "price_eur": 599,
         "commerce_mode": "standalone",
         "alias_of": "business",
         "tagline": "Alias — Website Business",
@@ -315,7 +315,7 @@ _PACKAGES = {
     "connected": {
         "id": "connected",
         "name": "Website Premium",
-        "price_eur": 699,
+        "price_eur": 999,
         "commerce_mode": "connected",
         "alias_of": "premium",
         "tagline": "Alias — Website Premium",

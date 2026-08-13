@@ -679,7 +679,7 @@ export function SitePage() {
                     <p className="mt-3 text-[11px] text-zinc-600">
                       {t("s0.botsChannelsNote", {
                         defaultValue:
-                          "Live now: Website Chat + Telegram. WhatsApp / Instagram — after Meta OAuth (not sold as ready).",
+                          "Live now: Telegram + Website Chat. WhatsApp / Instagram / Messenger — coming soon (not sold as ready).",
                       })}
                     </p>
                     <Link

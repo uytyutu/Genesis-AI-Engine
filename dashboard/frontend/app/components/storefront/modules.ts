@@ -129,7 +129,7 @@ export const STORE_MODULES: StoreModule[] = [
 export const WEBSITE_PRICE_TIERS = [
   {
     id: "basic",
-    priceEur: 199,
+    priceEur: 299,
     nameKey: "pricing.webBasic",
     blurbKey: "pricing.webBasicBlurb",
     featureKeys: [
@@ -147,7 +147,7 @@ export const WEBSITE_PRICE_TIERS = [
   },
   {
     id: "business",
-    priceEur: 399,
+    priceEur: 599,
     nameKey: "pricing.webBusiness",
     blurbKey: "pricing.webBusinessBlurb",
     featured: true,
@@ -165,7 +165,7 @@ export const WEBSITE_PRICE_TIERS = [
   },
   {
     id: "premium",
-    priceEur: 699,
+    priceEur: 999,
     nameKey: "pricing.webPremium",
     blurbKey: "pricing.webPremiumBlurb",
     featureKeys: [
@@ -184,23 +184,44 @@ export const WEBSITE_PRICE_TIERS = [
   },
 ] as const;
 
-/** Comparison rows for Basic / Business / Premium (live beta display). */
+/** Comparison rows for Basic / Business / Premium (commercial matrix). */
 export const WEBSITE_COMPARE_ROWS = [
+  { labelKey: "pricing.compareModern", basic: "yes", business: "yes", premium: "yes" },
   { labelKey: "pricing.compareResponsive", basic: "yes", business: "yes", premium: "yes" },
   {
-    labelKey: "pricing.comparePages",
-    basic: "pages5",
-    business: "pagesMulti",
-    premium: "pagesExtra",
+    labelKey: "pricing.comparePresentation",
+    basic: "no",
+    business: "yes",
+    premium: "yes",
+  },
+  { labelKey: "pricing.compareAdmin", basic: "no", business: "yes", premium: "yes" },
+  {
+    labelKey: "pricing.compareExtendedControl",
+    basic: "no",
+    business: "no",
+    premium: "yes",
+  },
+  {
+    labelKey: "pricing.compareDeepStructure",
+    basic: "no",
+    business: "no",
+    premium: "yes",
+  },
+  {
+    labelKey: "pricing.compareExtendedForms",
+    basic: "no",
+    business: "no",
+    premium: "yes",
+  },
+  {
+    labelKey: "pricing.compareAdvancedMgmt",
+    basic: "no",
+    business: "no",
+    premium: "yes",
   },
   { labelKey: "pricing.compareSeo", basic: "yes", business: "yes", premium: "seoPro" },
-  { labelKey: "pricing.compareMaps", basic: "yes", business: "yes", premium: "yes" },
-  { labelKey: "pricing.compareChatBtn", basic: "yes", business: "yes", premium: "yes" },
-  { labelKey: "pricing.compareAdmin", basic: "no", business: "yes", premium: "yes" },
-  { labelKey: "pricing.compareBlog", basic: "no", business: "yes", premium: "yes" },
   { labelKey: "pricing.compareAnalytics", basic: "no", business: "yes", premium: "yes" },
   { labelKey: "pricing.compareVector", basic: "no", business: "no", premium: "yes" },
-  { labelKey: "pricing.compareUsers", basic: "no", business: "no", premium: "yes" },
   { labelKey: "pricing.compareSupport", basic: "no", business: "no", premium: "yes" },
 ] as const;
 

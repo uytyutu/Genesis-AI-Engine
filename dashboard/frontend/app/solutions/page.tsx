@@ -82,7 +82,7 @@ export default function SolutionsPage() {
                   name: "Website Premium",
                   price_eur: LANDING_PACKAGES_EUR.premium,
                   monthly_eur: 0,
-                  tagline: "Workspace + Cinematic Experience (inkl.).",
+                  tagline: "Business-Qualität + erweiterte Steuerung und Tiefe.",
                 },
               ]
           ).map((m) => (
