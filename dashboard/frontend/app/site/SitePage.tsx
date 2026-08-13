@@ -22,7 +22,6 @@ import { filterPublicPackages } from "../lib/showSmokePackage";
 import { LANDING_PACKAGES_EUR } from "../lib/commercialCatalog";
 import { AppStoreHub } from "../components/storefront/AppStoreHub";
 import { CHATBOT_PRICE_TIERS } from "../components/storefront/modules";
-import { StorefrontAtmosphere } from "../components/storefront/StorefrontAtmosphere";
 import { VectorAvatarStage, VectorChatIcon } from "../components/VectorAvatar";
 import { useLocale } from "../context/LocaleContext";
 import type { UiLocale } from "../lib/locale/types";
@@ -479,7 +478,6 @@ export function SitePage() {
 
   return (
     <PublicPageShell>
-      <StorefrontAtmosphere />
       <div
         className={`storefront-page relative z-[1] mx-auto space-y-12 py-6 pb-28 ${
           serviceView === "hub" ? "max-w-6xl" : "max-w-4xl"

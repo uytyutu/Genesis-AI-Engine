@@ -1,6 +1,5 @@
 "use client";
 
-import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { PublicSiteFooter } from "./PublicSiteFooter";
@@ -28,54 +27,56 @@ export function PublicPageShell({
     pathname === "/site" || pathname.startsWith("/site/");
   const storefrontLook = (customerFlow || sitePath) && !hideChrome;
   return (
-    <div
-      data-vie-engine={sitePath ? "visual_intelligence_v1" : undefined}
-      data-vie-surface={sitePath ? "platform" : undefined}
-      data-vie-niche={sitePath ? "computer" : undefined}
-      data-vie-motion={sitePath ? "premium" : undefined}
-      className={
-        hideChrome
-          ? "h-[100dvh] overflow-hidden bg-genesis-bg"
-          : storefrontLook
-            ? "storefront relative isolate min-h-screen overflow-x-hidden vie-motion-premium"
-            : "mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
-      }
-    >
+    <>
+      {/* Fixed wash OUTSIDE isolate so SSR paint == client paint (no portal/mount flash). */}
       {storefrontLook ? <StorefrontAtmosphere /> : null}
       <div
+        data-vie-engine={sitePath ? "visual_intelligence_v1" : undefined}
+        data-vie-surface={sitePath ? "platform" : undefined}
+        data-vie-niche={sitePath ? "computer" : undefined}
+        data-vie-motion={sitePath ? "premium" : undefined}
         className={
-          storefrontLook
-            ? "relative z-10 mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
-            : undefined
+          hideChrome
+            ? "h-[100dvh] overflow-hidden bg-genesis-bg"
+            : storefrontLook
+              ? "storefront relative isolate min-h-screen overflow-x-hidden vie-motion-premium"
+              : "mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
         }
       >
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-genesis-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
-          suppressHydrationWarning
-        >
-          {t("skipToContent")}
-        </a>
-        {!hideChrome && (
-          <Suspense fallback={null}>
-            <PublicSiteHeader customerDecisionFlow={customerFlow} />
-          </Suspense>
-        )}
         <div
-          id="main-content"
           className={
-            hideChrome
-              ? "h-full"
-              : storefrontLook
-                ? "storefront-main"
-                : "animate-fade-up"
+            storefrontLook
+              ? "relative z-10 mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-6 sm:py-8"
+              : undefined
           }
-          role="main"
         >
-          {children}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-genesis-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+            suppressHydrationWarning
+          >
+            {t("skipToContent")}
+          </a>
+          {/* No Suspense+null: streaming header after main caused mobile layout jump. */}
+          {!hideChrome && (
+            <PublicSiteHeader customerDecisionFlow={customerFlow} />
+          )}
+          <div
+            id="main-content"
+            className={
+              hideChrome
+                ? "h-full"
+                : storefrontLook
+                  ? "storefront-main"
+                  : "animate-fade-up"
+            }
+            role="main"
+          >
+            {children}
+          </div>
+          {!hideChrome && !minimal && <PublicSiteFooter />}
         </div>
-        {!hideChrome && !minimal && <PublicSiteFooter />}
       </div>
-    </div>
+    </>
   );
 }

@@ -640,7 +640,8 @@
     }
   }
 
-  /* Ambient page wash behind App Store hub */
+  /* Ambient page wash — present from SSR via .storefront-page-bg (no JS class toggle). */
+  body:has(.storefront-page-bg),
   html.has-storefront-atmosphere body {
     background-color: #050508 !important;
   }
@@ -817,14 +818,14 @@
     }
   }
 
-  /* Section reveal on hub — progressive enhancement only.
-     Never use animation-fill-mode:both with opacity:0: Instagram / Android
-     in-app WebViews often stall CSS animations until scroll, leaving content blank. */
+  /* Section reveal — progressive enhancement only.
+     Never opacity:0 + both (mobile blank). Never translateY on first paint on
+     touch/coarse pointers: that settles the whole document and reads as a jump. */
   .storefront section {
     opacity: 1;
     transform: none;
   }
-  @media (prefers-reduced-motion: no-preference) {
+  @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
     .storefront section {
       animation: storefrontSectionIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
@@ -859,7 +860,7 @@
   @keyframes storefrontSectionIn {
     from {
       opacity: 1;
-      transform: translateY(12px);
+      transform: translateY(8px);
     }
     to {
       opacity: 1;
@@ -1046,7 +1047,8 @@
   opacity: 1;
   transform: none;
 }
-@media (prefers-reduced-motion: no-preference) {
+/* Desktop-only entrance: mobile translateY on #main-content = whole-page jump. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
   [data-vie-surface="platform"].vie-motion-premium #main-content.storefront-main {
     animation: viePlatformIn 0.45s ease forwards;
   }
@@ -1054,7 +1056,7 @@
 @keyframes viePlatformIn {
   from {
     opacity: 1;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
