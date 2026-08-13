@@ -4601,8 +4601,8 @@ def client_bots_order_draft_put(request: Request, body: ClientBotOrderDraftReque
 
 @app.post("/api/webhooks/telegram/{bot_id}")
 async def telegram_bot_webhook(bot_id: str, request: Request) -> dict:
-    """Inbound Telegram updates for paid AI Business Bots."""
-    from app.integration.workspace_bot_runtime import handle_telegram_update
+    """Inbound Telegram updates for paid AI Business Bots (Channel Engine → TelegramProvider)."""
+    from app.integration.channel_engine import get_provider
 
     try:
         update = await request.json()
@@ -4610,11 +4610,19 @@ async def telegram_bot_webhook(bot_id: str, request: Request) -> dict:
         raise HTTPException(status_code=400, detail="invalid_json") from None
     if not isinstance(update, dict):
         raise HTTPException(status_code=400, detail="invalid_update")
-    result = handle_telegram_update(_memory_dir(), bot_id, update)
+    provider = get_provider("telegram")
+    if provider is None:
+        raise HTTPException(status_code=503, detail="telegram_provider_unavailable")
+    result = provider.receive(_memory_dir(), bot_id, update)
     if result.get("reason") == "bot_not_found":
         raise HTTPException(status_code=404, detail="bot_not_found")
     # Always 200 to Telegram when bot exists but message ignored
-    return {"ok": True, **{k: v for k, v in result.items() if k != "reply_text"}}
+    safe = {
+        k: v
+        for k, v in result.items()
+        if k not in ("reply_text", "normalized")
+    }
+    return {"ok": True, **safe}
 
 
 @app.post("/api/client/bots/{bot_id}/chat")
