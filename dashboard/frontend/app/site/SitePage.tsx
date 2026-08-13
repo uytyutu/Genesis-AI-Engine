@@ -481,7 +481,7 @@ export function SitePage() {
     <PublicPageShell>
       <StorefrontAtmosphere />
       <div
-        className={`storefront-page relative z-[1] mx-auto space-y-12 py-6 pb-28 animate-fade-up ${
+        className={`storefront-page relative z-[1] mx-auto space-y-12 py-6 pb-28 ${
           serviceView === "hub" ? "max-w-6xl" : "max-w-4xl"
         }`}
       >

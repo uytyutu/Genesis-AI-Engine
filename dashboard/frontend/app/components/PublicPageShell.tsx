@@ -63,7 +63,13 @@ export function PublicPageShell({
         )}
         <div
           id="main-content"
-          className={hideChrome ? "h-full" : "animate-fade-up"}
+          className={
+            hideChrome
+              ? "h-full"
+              : storefrontLook
+                ? "storefront-main"
+                : "animate-fade-up"
+          }
           role="main"
         >
           {children}
