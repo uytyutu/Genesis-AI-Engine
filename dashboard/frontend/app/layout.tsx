@@ -40,6 +40,8 @@ export const metadata: Metadata = {
       process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ||
       process.env.NEXT_PUBLIC_GIT_COMMIT ||
       "local",
+    // Meta Business domain verification (beta.genesis-ai-engine.com)
+    "facebook-domain-verification": "ca153v2cn5616g7usu96lb5iyzcmmr",
   },
 };
 
