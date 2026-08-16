@@ -3,11 +3,20 @@ export const SITE_URL =
 
 export const SITE_NAME = "Virtus Core";
 export const SITE_TAGLINE = "Vector · Digital Company";
-/** Public contact — override via NEXT_PUBLIC_SUPPORT_EMAIL when DNS is ready. */
-export const CONTACT_EMAIL =
+
+/**
+ * Public contact / Support Inbox — Resend receiving address only.
+ * Never fall back to hello@virtuscore.com (no inbound mail on that domain).
+ */
+const _rawContact =
   process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() ||
   process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() ||
-  "hello@virtuscore.com";
+  "";
+
+export const CONTACT_EMAIL =
+  _rawContact && !/virtuscore\.com$/i.test(_rawContact.split("@")[1] || "")
+    ? _rawContact
+    : "hello@genesis-ai-engine.com";
 
 /** Filled via env after Gewerbeanmeldung — DOB must never be published */
 export const LEGAL = {
