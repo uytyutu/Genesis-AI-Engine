@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     // Meta Business domain verification (beta.genesis-ai-engine.com)
     "facebook-domain-verification": "ca153v2cn5616g7usu96lb5iyzcmmr",
     // TikTok Developer Portal domain verification (for app review verify)
-    "tiktok-developers-site-verification": "cD9pDa0L0SZRkEAM07yqaGtLXU6zSLCl",
+    "tiktok-developers-site-verification": "k01qBz4UOoDOn6q19jrqeRbYh8Bdobr4",
   },
 };
 
