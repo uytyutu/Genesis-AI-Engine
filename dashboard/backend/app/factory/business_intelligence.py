@@ -517,7 +517,14 @@ def resolve_business_intelligence(
         iv.get("differentiator")
         or c.get("why_choose_us")
         or c.get("main_promise")
-        or "Qualität, Verlässlichkeit, lokale Präsenz"
+        or ""
+    )
+    from app.factory.de_export_text import resolve_differentiator
+
+    diff = resolve_differentiator(
+        niche_id=niche_id,
+        city=city or "",
+        raw=diff,
     )
     if dream_sig.get("ambition") == "category_leader" and dream:
         diff = f"{diff} · Vision: {dream[:120]}"

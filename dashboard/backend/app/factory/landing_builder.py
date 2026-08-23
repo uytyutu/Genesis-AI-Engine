@@ -323,14 +323,14 @@ def build_landing_html(
             ui[f"faq_q{i}"] = q
         if a:
             ui[f"faq_a{i}"] = a
-    if trust_payload.get("demo_content"):
+    if trust_payload.get("demo_content") and trust_payload.get("demo_gallery"):
         ui["reviews_muted"] = str(
             trust_payload.get("demo_label")
-            or "Demo-Bewertungen — keine echten Kundenstimmen."
+            or "Beispiel-Bewertungen — keine echten Kundenstimmen."
         )
         ui["about_demo_note"] = (
-            "Demonstrationsunternehmen für Virtus Core Preview — "
-            "erfunden, um eine 5-jährige Marke zu simulieren."
+            "Beispielunternehmen zur Illustration — erfunden, um eine etablierte "
+            "Marke zu simulieren."
         )
 
     style = _style_from_niche(analysis.niche, modern=modern, blue_boost=blue_boost)
@@ -646,6 +646,10 @@ def build_landing_html(
         composition_id = str(getattr(design_dna, "composition", "") or "")
     dream_approach = (approach or "").strip()
     if not dream_approach and isinstance(contacts, dict):
+        hint = str(contacts.get("renderer_strategy_hint") or "").strip().lower()
+        if hint:
+            dream_approach = hint
+    if not dream_approach and isinstance(contacts, dict):
         try:
             from app.factory.dream_brief import dream_brief_from_contacts
 
@@ -692,7 +696,12 @@ def build_landing_html(
                 hero_video=hero_video or "",
                 hero_photo=bool(hero_photo),
                 composition_id=composition_id,
-                demo=True,
+                demo=bool(
+                    (contacts or {}).get("demo_gallery")
+                    or (contacts or {}).get("fabricate_company")
+                    or (contacts or {}).get("fabricate")
+                )
+                and not bool((contacts or {}).get("client_delivery")),
                 problem_before=str(
                     (contacts or {}).get("problem_before")
                     or ((contacts or {}).get("first_impression") or {}).get(
@@ -983,7 +992,15 @@ def build_landing_html(
             ),
             city=city or "",
         )
-        _rep_pack = build_reputation_pack(_rep_book)
+        _demo_gallery = bool(
+            isinstance(contacts, dict)
+            and (
+                contacts.get("demo_gallery")
+                or contacts.get("fabricate_company")
+                or contacts.get("fabricate")
+            )
+        )
+        _rep_pack = build_reputation_pack(_rep_book, demo_gallery=_demo_gallery)
         _rep_media: dict[str, str] = {}
         if product_dir is not None:
             _rep_media = materialize_reputation_media(
@@ -1225,7 +1242,7 @@ def build_landing_html(
     # R3.3 Navigation Gate: header = section links + CTA only (no marketing claims).
     services_nav = f' <a href="#services">{esc(ui.get("services") or "Leistungen")}</a>'
     reputation_nav = (
-        ' <a href="#reputation">Reputation</a>' if reputation_html.strip() else ""
+        ' <a href="#reputation">Nachweise</a>' if reputation_html.strip() else ""
     )
     faq_nav = (
         f' <a href="#faq">{esc(ui.get("faq_title") or "FAQ")}</a>'
@@ -1307,7 +1324,9 @@ def build_landing_html(
         except Exception:
             pass
 
-    return html
+    from app.factory.de_export_text import polish_de_export_html
+
+    return polish_de_export_html(html, market_code=market_code or "DE")
 
 
 def _document_from_strategy(
@@ -1489,7 +1508,15 @@ def _document_from_strategy(
             ),
             city=city or "",
         )
-        _rep_pack = build_reputation_pack(_rep_book)
+        _demo_gallery = bool(
+            isinstance(contacts, dict)
+            and (
+                contacts.get("demo_gallery")
+                or contacts.get("fabricate_company")
+                or contacts.get("fabricate")
+            )
+        )
+        _rep_pack = build_reputation_pack(_rep_book, demo_gallery=_demo_gallery)
         _rep_media: dict[str, str] = {}
         if product_dir is not None:
             _rep_media = materialize_reputation_media(
@@ -1505,7 +1532,7 @@ def _document_from_strategy(
         reputation_js = ""
 
     reputation_nav = (
-        ' <a href="#reputation">Reputation</a>' if reputation_html.strip() else ""
+        ' <a href="#reputation">Nachweise</a>' if reputation_html.strip() else ""
     )
 
     footer_html = compose_footer(
@@ -1604,7 +1631,11 @@ def _document_from_strategy(
         except Exception:
             pass
 
-    return html
+    from app.factory.de_export_text import polish_de_export_html
+
+    return polish_de_export_html(
+        html, market_code=str(getattr(market_design, "market_id", None) or "DE")
+    )
 
 
 def _apply_section_treatment(html: str, key: str, treatments: dict[str, str]) -> str:

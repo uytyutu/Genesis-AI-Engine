@@ -430,7 +430,7 @@ body[data-niche="realestate"] .rx-band-grid { grid-template-columns: 1.4fr 1fr 1
 
 # Shared: readable type + contrast floor + micro-life (not decoration)
 COMPOSITION_BASE_CSS = """
-/* Virtus Core floor — never weaker than marketing /site readability */
+/* Commercial readability floor — never weaker than marketing /site */
 [data-split-hero="1"] > *:last-child {
   position: relative;
   z-index: 2;
@@ -508,6 +508,28 @@ COMPOSITION_BASE_CSS = """
   [data-split-hero="1"] .fi-arc > *,
   .rx-svc-card, .rx-band-cell, .rx-band-img,
   .topbar-cta, .fi-actions a { animation: none !important; transition: none !important; }
+}
+@media (max-width: 860px) {
+  body[data-niche] [data-split-hero="1"],
+  body[data-renderer="craftsman"] .cr-hero[data-split-hero="1"] {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+    clip-path: none !important;
+  }
+  body[data-renderer="craftsman"] .cr-hero-stage {
+    min-height: min(52vh, 440px) !important;
+    max-height: 56vh;
+    order: 0;
+  }
+  body[data-renderer="craftsman"] .cr-hero-board {
+    order: 1;
+  }
+  body[data-renderer="craftsman"] .cr-hero-photo,
+  body[data-renderer="craftsman"] .cr-hero-video {
+    min-height: min(52vh, 440px) !important;
+    max-height: 56vh;
+    object-fit: cover;
+  }
 }
 """
 
