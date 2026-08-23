@@ -1543,5 +1543,19 @@
     },
     "edits": "After purchase you can request edits to sites, bots and other modules via your client office.",
     "marketNote": "Market"
+  },
+  "agencyHub": {
+    "hero": {
+      "badge": "Online store",
+      "titleLine1": "Your online store.",
+      "titleLine2": "Built for your business.",
+      "sub": "Modern online stores, websites and digital solutions — tailored to your company.",
+      "cta": "Create online store →",
+      "projects": "View projects",
+      "mockAlt": "Premium online store — fashion store demo",
+      "mockOpen": "Open store demo",
+      "ki": "Content is AI-assisted. After purchase you can request changes.",
+      "kiLink": "AI notice"
+    }
   }
 }
