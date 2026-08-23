@@ -1,0 +1,55 @@
+# Vercel deploy size gate — full package-previews is ~2.2GB and breaks deploy.
+# OVH production serves the complete bundle; Beta keeps published /site vitrine only.
+
+public/reality-sprint/
+
+# Stores — /site links only stores/basic/{fashion,electronics,food}
+public/package-previews/stores/premium/
+public/package-previews/stores/business/
+public/package-previews/stores/accessories/
+public/package-previews/stores/beauty/
+public/package-previews/stores/dachreinigung/
+public/package-previews/stores/electronics/
+public/package-previews/stores/fashion/
+public/package-previews/stores/food/
+public/package-previews/stores/furniture/
+public/package-previews/stores/gartenpflege/
+public/package-previews/stores/handwerk/
+public/package-previews/stores/psychology/
+public/package-previews/stores/zaunbau/
+public/package-previews/stores/basic/accessories/
+public/package-previews/stores/basic/beauty/
+public/package-previews/stores/basic/dachreinigung/
+public/package-previews/stores/basic/furniture/
+public/package-previews/stores/basic/gartenpflege/
+public/package-previews/stores/basic/handwerk/
+public/package-previews/stores/basic/psychology/
+public/package-previews/stores/basic/zaunbau/
+
+# Business sites — agency portfolio + vitrine use auto + restaurant only
+public/package-previews/sites/business/beauty/
+public/package-previews/sites/business/dachreinigung/
+public/package-previews/sites/business/dental/
+public/package-previews/sites/business/energy/
+public/package-previews/sites/business/fitness/
+public/package-previews/sites/business/gartenpflege/
+public/package-previews/sites/business/handwerk/
+public/package-previews/sites/business/it/
+public/package-previews/sites/business/law/
+public/package-previews/sites/business/praxis/
+public/package-previews/sites/business/psychology/
+public/package-previews/sites/business/realestate/
+public/package-previews/sites/business/zaunbau/
+
+# Premium cinematic — keep only published business demos (see publicVitrineCatalog.ts)
+public/package-previews/premium/hot-dog/
+public/package-previews/premium/lorenne/
+public/package-previews/premium/lorenne-shop/
+public/package-previews/premium/shop-fashion/
+public/package-previews/premium/shop-food/
+
+# Dev / QA bundles not linked from /site
+public/package-previews/client-forms/
+public/package-previews/creative-demos/
+public/package-previews/legacy/
+public/package-previews/vitrine/
