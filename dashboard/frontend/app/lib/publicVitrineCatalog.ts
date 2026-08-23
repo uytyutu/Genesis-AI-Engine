@@ -133,14 +133,14 @@ export const PUBLIC_VITRINE_WEBSITES_BASIC: PublicVitrineDemo[] = [
 export const PUBLIC_VITRINE_WEBSITES_BUSINESS: PublicVitrineDemo[] = [
   {
     id: "web-business-automotive",
-    niche: "automotive",
+    niche: "auto",
     kind: "website",
     packageId: "business",
-    href: "/package-previews/premium/luxury-automotive/index.html",
-    thumb: "/package-previews/premium/luxury-automotive/assets/seq/f001.jpg",
+    href: "/package-previews/sites/business/auto/index.html",
+    thumb: "/package-previews/sites/business/auto/assets/hero.jpg",
     emoji: "🚗",
     labelKey: "examples.auto",
-    fallback: "Luxury Automotive",
+    fallback: "Autowerkstatt · Business",
     blurb: "Business-Präsentation",
     priceKind: "website",
     badge: "Business",
@@ -151,11 +151,11 @@ export const PUBLIC_VITRINE_WEBSITES_BUSINESS: PublicVitrineDemo[] = [
     niche: "restaurant",
     kind: "website",
     packageId: "business",
-    href: "/package-previews/premium/hot-dog/index.html",
-    thumb: "/package-previews/premium/hot-dog/assets/seq/f001.jpg",
-    emoji: "🌭",
+    href: "/package-previews/sites/business/restaurant/index.html",
+    thumb: "/package-previews/sites/business/restaurant/assets/hero.jpg",
+    emoji: "🍽",
     labelKey: "examples.restaurant",
-    fallback: "Hot Dog · Restaurant",
+    fallback: "Restaurant · Business",
     blurb: "Business-Präsentation",
     priceKind: "website",
     badge: "Business",
@@ -258,7 +258,7 @@ export const PUBLIC_VITRINE_STORES_BUSINESS: PublicVitrineDemo[] = [
     blurb: "Business-Shop-Präsentation",
     priceKind: "store",
     badge: "Business",
-    showcaseStatus: "PUBLISHED",
+    showcaseStatus: "QUARANTINED",
   },
   {
     id: "shop-business-fashion",
@@ -456,7 +456,6 @@ export const PUBLIC_VITRINE_LEGACY_BLOCKLIST = [
 /** Cinematic Business demos still live under disk folder /premium/. */
 const BUSINESS_CINEMATIC_HREFS = [
   "/package-previews/premium/luxury-automotive/",
-  "/package-previews/premium/hot-dog/",
   "/package-previews/premium/beauty-brows/",
   "/package-previews/premium/barbershop/",
   "/package-previews/premium/shop-food/",
@@ -464,7 +463,85 @@ const BUSINESS_CINEMATIC_HREFS = [
   "/package-previews/premium/shop-electronics/",
 ] as const;
 
-export const PUBLIC_VITRINE_THUMB_VERSION = "v22basicBusiness";
+/** One artifact = one preview card. thumb and href must share the same build root. */
+export type PublicAgencyPortfolioItem = {
+  id: string;
+  productId: string;
+  artifactId: string;
+  title: string;
+  industry: string;
+  tag: string;
+  /** Live preview — same folder as previewImage */
+  livePreviewUrl: string;
+  /** Hero from the same artifact (never a different tier/path) */
+  previewImage: string;
+  packageId: PublicVitrinePackage;
+  showcaseStatus: ShowcaseStatus;
+};
+
+const AGENCY_ARTIFACT_AUTO = "/package-previews/sites/business/auto";
+const AGENCY_ARTIFACT_RESTAURANT = "/package-previews/sites/business/restaurant";
+
+export function portfolioArtifactRoot(href: string): string {
+  const clean = href.replace(/\\/g, "/").split("#")[0]?.split("?")[0] ?? href;
+  if (clean.endsWith("/index.html")) {
+    return clean.slice(0, -"/index.html".length);
+  }
+  if (clean.endsWith(".html")) {
+    return clean.slice(0, clean.lastIndexOf("/"));
+  }
+  return clean.replace(/\/$/, "");
+}
+
+export function portfolioPreviewImageForArtifact(artifactRoot: string): string {
+  return `${artifactRoot.replace(/\/$/, "")}/assets/hero.jpg`;
+}
+
+export function portfolioLivePreviewUrl(artifactRoot: string): string {
+  return `${artifactRoot.replace(/\/$/, "")}/index.html`;
+}
+
+/** Published agency portfolio — Automotive + Restaurant only until more Reality PASS builds. */
+export const PUBLIC_AGENCY_PORTFOLIO: PublicAgencyPortfolioItem[] = [
+  {
+    id: "portfolio-auto",
+    productId: "03b9eab4-23ae-4482-b525-a9c262fd060b",
+    artifactId: "sites/business/auto",
+    title: "Automotive",
+    industry: "auto",
+    tag: "Webdesign",
+    livePreviewUrl: portfolioLivePreviewUrl(AGENCY_ARTIFACT_AUTO),
+    previewImage: portfolioPreviewImageForArtifact(AGENCY_ARTIFACT_AUTO),
+    packageId: "business",
+    showcaseStatus: "PUBLISHED",
+  },
+  {
+    id: "portfolio-restaurant",
+    productId: "web-business-restaurant",
+    artifactId: "sites/business/restaurant",
+    title: "Restaurant",
+    industry: "restaurant",
+    tag: "Webdesign",
+    livePreviewUrl: portfolioLivePreviewUrl(AGENCY_ARTIFACT_RESTAURANT),
+    previewImage: portfolioPreviewImageForArtifact(AGENCY_ARTIFACT_RESTAURANT),
+    packageId: "business",
+    showcaseStatus: "PUBLISHED",
+  },
+];
+
+/** Integrity: preview thumb must belong to the same artifact folder as live preview. */
+export function assertPortfolioArtifactIntegrity(item: PublicAgencyPortfolioItem): boolean {
+  const root = portfolioArtifactRoot(item.livePreviewUrl);
+  const thumbRoot = portfolioArtifactRoot(item.previewImage.replace(/\/assets\/hero\.jpg$/, ""));
+  return (
+    item.showcaseStatus === "PUBLISHED" &&
+    item.previewImage === portfolioPreviewImageForArtifact(root) &&
+    item.livePreviewUrl === portfolioLivePreviewUrl(root) &&
+    root === thumbRoot
+  );
+}
+
+export const PUBLIC_VITRINE_THUMB_VERSION = "v23portfolioIntegrity";
 
 export function isPublishedShowcaseDemo(demo: PublicVitrineDemo): boolean {
   return demo.showcaseStatus === "PUBLISHED";
