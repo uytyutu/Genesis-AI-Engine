@@ -36,6 +36,7 @@ def _read_meta_product_id(artifact_dir: Path) -> str | None:
 def test_agency_portfolio_ssot_in_catalog() -> None:
     text = CATALOG_TS.read_text(encoding="utf-8")
     assert "PUBLIC_AGENCY_PORTFOLIO" in text
+    assert "PUBLIC_HERO_SHOWCASE" in text
     assert "assertPortfolioArtifactIntegrity" in text
     assert "portfolioPreviewImageForArtifact" in text
     assert "/package-previews/sites/basic/" not in text.split("PUBLIC_AGENCY_PORTFOLIO")[1].split("PUBLIC_VITRINE_THUMB_VERSION")[0]
@@ -108,6 +109,21 @@ def test_portfolio_maps_integrity_on_disk() -> None:
         assert "maps.google.com/maps" in html, f"{rel}: missing Google embed iframe"
         assert business_name in html, f"{rel}: business name missing from artifact"
         assert city in html, f"{rel}: city missing from artifact"
+
+
+def test_hub_uses_public_hero_showcase() -> None:
+    hub = HUB_TS.read_text(encoding="utf-8")
+    assert "PUBLIC_HERO_SHOWCASE" in hub
+    assert "PORTFOLIO[0]" not in hub.split("agency-hub__hero")[0]
+
+
+def test_public_hero_showcase_shop_artifact_on_disk() -> None:
+    text = CATALOG_TS.read_text(encoding="utf-8")
+    block = text.split("PUBLIC_HERO_SHOWCASE")[1].split("/** Integrity")[0]
+    assert "shop-business-fashion" in block
+    index_path = PUBLIC / "package-previews/premium/shop-fashion-v2/index.html"
+    assert index_path.is_file(), f"missing hero shop artifact: {index_path}"
+    assert index_path.stat().st_size > 10_000
 
 
 def test_portfolio_thumb_matches_live_hero_bytes() -> None:

@@ -1485,5 +1485,19 @@
     },
     "edits": "Nach dem Kauf können Sie Änderungen an Websites, Bots und Modulen über Ihr Kundenbüro anfordern.",
     "marketNote": "Markt"
+  },
+  "agencyHub": {
+    "hero": {
+      "badge": "Online-Shop",
+      "titleLine1": "Dein Online-Shop.",
+      "titleLine2": "Gebaut für dein Business.",
+      "sub": "Moderne Online-Shops, Websites und digitale Lösungen — individuell für dein Unternehmen.",
+      "cta": "Online-Shop erstellen →",
+      "projects": "Projekte ansehen",
+      "mockAlt": "Premium Online-Shop — Fashion Store Demo",
+      "mockOpen": "Shop-Demo öffnen",
+      "ki": "Inhalte werden KI-gestützt erstellt. Nach dem Kauf können Sie Änderungen anfordern.",
+      "kiLink": "KI-Hinweis"
+    }
   }
 }
